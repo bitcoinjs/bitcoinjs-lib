@@ -3,6 +3,8 @@ Bitcoin.Address = function (bytes) {
 		bytes = Bitcoin.Address.decodeString(bytes);
 	}
 	this.hash = bytes;
+
+	this.version = 0x00;
 };
 
 Bitcoin.Address.prototype.toString = function () {
@@ -10,7 +12,7 @@ Bitcoin.Address.prototype.toString = function () {
 	var hash = this.hash.slice(0);
 
 	// Version
-	hash.unshift(0x00);
+	hash.unshift(this.version);
 
 	var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
 
