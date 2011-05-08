@@ -12,10 +12,6 @@
 		 * Ported to JavaScript by Stefan Thomas.
 		 */
 		encode: function (input) {
-			console.log(input);
-			// We prepend the input with a zero byte because the BigInteger
-			// implementation treats it as a negative number if any of the
-			// four most significant bits are set.
 			var bi = BigInteger.fromByteArrayUnsigned(input);
 			var chars = [];
 
