@@ -12,7 +12,11 @@
 		 * Ported to JavaScript by Stefan Thomas.
 		 */
 		encode: function (input) {
-			var bi = new BigInteger(input);
+			console.log(input);
+			// We prepend the input with a zero byte because the BigInteger
+			// implementation treats it as a negative number if any of the
+			// four most significant bits are set.
+			var bi = BigInteger.fromByteArrayUnsigned(input);
 			var chars = [];
 
 			while (bi.compareTo(B58.base) >= 0) {
@@ -55,10 +59,7 @@
 			}
 			var bytes = bi.toByteArrayUnsigned();
 
-			// Remove leading zeros arbitrarily added by BigInteger
-			while (bytes[0] == 0) bytes.shift();
-
-			// Add right amount of leading zeros
+			// Add leading zeros
 			while (leadingZerosNum-- > 0) bytes.unshift(0);
 
 			return bytes;

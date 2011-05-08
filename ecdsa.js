@@ -41,12 +41,20 @@ ECPointFp.prototype.getEncoded = function (compressed) {
 
 ECPointFp.decodeFrom = function (curve, enc) {
 	var type = enc.shift();
+
+	// Extract x and y as byte arrays
 	var xBa = enc.slice(0, enc.length/2);
-	xBa.unshift(0);
-	var x = new BigInteger(xBa);
 	var yBa = enc.slice(enc.length/2, enc.length);
+
+	// Prepend zero byte to prevent interpretation as negative integer
+	xBa.unshift(0);
 	yBa.unshift(0);
+
+	// Convert to BigIntegers
+	var x = new BigInteger(xBa);
 	var y = new BigInteger(yBa);
+
+	// Return point
 	return new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y));
 };
 
@@ -185,8 +193,7 @@ Bitcoin.ECDSA = (function () {
 		sign: function (hash, priv) {
 			var d = priv;
 			var n = ecparams.getN();
-			hash.unshift(0)
-			var e = new BigInteger(hash);
+			var e = BigInteger.fromByteArrayUnsigned(hash);
 
 			console.log("signhash: "+ Crypto.util.bytesToHex(hash));
 			console.log("e: "+ Crypto.util.bytesToHex(e.toByteArrayUnsigned()));
@@ -246,13 +253,12 @@ Bitcoin.ECDSA = (function () {
 			//	throw new Error("Extra bytes in signature");
 
 			var n = ecparams.getN();
-			hash.unshift(0)
-			var e = new BigInteger(hash);
+			var e = BigInteger.fromByteArrayUnsigned(hash);
 
 			console.log("e: "+ Crypto.util.bytesToHex(e.toByteArrayUnsigned()));
 
-			var r = new BigInteger(rBa);
-			var s = new BigInteger(sBa);
+			var r = BigInteger.fromByteArrayUnsigned(rBa);
+			var s = BigInteger.fromByteArrayUnsigned(sBa);
 
 			if (r.compareTo(BigInteger.ONE) < 0 ||
 				r.compareTo(n) >= 0)

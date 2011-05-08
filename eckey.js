@@ -12,9 +12,11 @@ Bitcoin.ECKey = (function () {
 			// Input is a private key value
 			this.priv = input;
 		} else if (Bitcoin.Util.isArray(input)) {
-			this.priv = new BigInteger(input);
+			// Prepend zero byte to prevent interpretation as negative integer
+			this.priv = BigInteger.fromByteArrayUnsigned(input);
 		} else if ("string" == typeof input) {
-			this.priv = new BigInteger(Crypto.util.base64ToBytes(input));
+			// Prepend zero byte to prevent interpretation as negative integer
+			this.priv = BigInteger.fromByteArrayUnsigned(Crypto.util.base64ToBytes(input));
 		}
 	};
 
