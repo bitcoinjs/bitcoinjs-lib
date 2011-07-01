@@ -74,9 +74,7 @@ ECPointFp.prototype.add2D = function (b) {
 	var x_x = b.x.subtract(this.x);
 	var y_y = b.y.subtract(this.y);
 	var gamma = y_y.divide(x_x);
-	/*console.log("b.y: ", Crypto.util.bytesToHex(b.y.toBigInteger().toByteArrayUnsigned()));
-console.log("this.y: ", Crypto.util.bytesToHex(this.y.toBigInteger().toByteArrayUnsigned()));
-console.log("b.y-this.y: ", Crypto.util.bytesToHex(b.y.subtract(this.y).toBigInteger().toByteArrayUnsigned()));*/
+
 	var x3 = gamma.square().subtract(this.x).subtract(b.x);
 	var y3 = gamma.multiply(this.x.subtract(x3)).subtract(this.y);
 
@@ -141,17 +139,6 @@ Bitcoin.ECDSA = (function () {
 		var Z = P.add2D(Q);
 		var R = P.curve.getInfinity();
 
-		console.log(P.curve, Q.curve);
-		console.log("Px: ", Crypto.util.bytesToHex(P.x.toBigInteger().toByteArrayUnsigned()));
-		console.log("Py: ", Crypto.util.bytesToHex(P.y.toBigInteger().toByteArrayUnsigned()));
-		console.log("Pz: ", Crypto.util.bytesToHex(P.z.toByteArrayUnsigned()));
-		console.log("Qx: ", Crypto.util.bytesToHex(Q.x.toBigInteger().toByteArrayUnsigned()));
-		console.log("Qy: ", Crypto.util.bytesToHex(Q.y.toBigInteger().toByteArrayUnsigned()));
-		console.log("Qz: ", Crypto.util.bytesToHex(Q.z.toByteArrayUnsigned()));
-		console.log("Zx: ", Crypto.util.bytesToHex(Z.x.toBigInteger().toByteArrayUnsigned()));
-		console.log("Zy: ", Crypto.util.bytesToHex(Z.y.toBigInteger().toByteArrayUnsigned()));
-		console.log("Zz: ", Crypto.util.bytesToHex(Z.z.toByteArrayUnsigned()));
-		
 		for (var i = m - 1; i >= 0; --i) {
 			R = R.twice2D();
 
@@ -160,23 +147,13 @@ Bitcoin.ECDSA = (function () {
 			if (k.testBit(i)) {
 				if (l.testBit(i)) {
 					R = R.add2D(Z);
-					if (i > (m-5)) console.log("RC: 1");
 				} else {
 					R = R.add2D(P);
-					if (i > (m-5)) console.log("RC: 2");
 				}
 			} else {
 				if (l.testBit(i)) {
 					R = R.add2D(Q);
-					if (i > (m-5)) console.log("RC: 3");
-				} else {
-					if (i > (m-5)) console.log("RC: 4");
 				}
-			}
-			if (i > (m-5)) {
-		console.log("Rx: ", Crypto.util.bytesToHex(R.x.toBigInteger().toByteArrayUnsigned()));
-		console.log("Ry: ", Crypto.util.bytesToHex(R.y.toBigInteger().toByteArrayUnsigned()));
-		console.log("Rz: ", Crypto.util.bytesToHex(R.z.toByteArrayUnsigned()));
 			}
 		}
 
@@ -195,9 +172,6 @@ Bitcoin.ECDSA = (function () {
 			var n = ecparams.getN();
 			var e = BigInteger.fromByteArrayUnsigned(hash);
 
-			console.log("signhash: "+ Crypto.util.bytesToHex(hash));
-			console.log("e: "+ Crypto.util.bytesToHex(e.toByteArrayUnsigned()));
-			
 			do {
 				var k = ECDSA.getBigRandom(n);
 				var G = ecparams.getG();
@@ -205,15 +179,8 @@ Bitcoin.ECDSA = (function () {
 				var r = Q.getX().toBigInteger().mod(n);
 			} while (r.compareTo(BigInteger.ZERO) <= 0);
 
-			console.log("k: "+ Crypto.util.bytesToHex(k.toByteArrayUnsigned()));
-			console.log("r: "+ Crypto.util.bytesToHex(r.toByteArrayUnsigned()));
-
 			var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n);
 
-			console.log("d*r: "+ Crypto.util.bytesToHex(d.multiply(r).toByteArrayUnsigned()));
-			console.log("e+d*r: "+ Crypto.util.bytesToHex(e.add(d.multiply(r)).toByteArrayUnsigned()));
-			console.log("s: "+ Crypto.util.bytesToHex(s.toByteArrayUnsigned()));
-			
 			var rBa = r.toByteArrayUnsigned();
 			var sBa = s.toByteArrayUnsigned();
 
@@ -255,8 +222,6 @@ Bitcoin.ECDSA = (function () {
 			var n = ecparams.getN();
 			var e = BigInteger.fromByteArrayUnsigned(hash);
 
-			console.log("e: "+ Crypto.util.bytesToHex(e.toByteArrayUnsigned()));
-
 			var r = BigInteger.fromByteArrayUnsigned(rBa);
 			var s = BigInteger.fromByteArrayUnsigned(sBa);
 
@@ -273,23 +238,11 @@ Bitcoin.ECDSA = (function () {
 			var u1 = e.multiply(c).mod(n);
 			var u2 = r.multiply(c).mod(n);
 
-			console.log("r: "+ Crypto.util.bytesToHex(r.toByteArrayUnsigned()));
-			console.log("u1: "+ Crypto.util.bytesToHex(u1.toByteArrayUnsigned()));
-			console.log("u2: "+ Crypto.util.bytesToHex(u2.toByteArrayUnsigned()));
-			
 			var G = ecparams.getG();
 			var Q = ECPointFp.decodeFrom(ecparams.getCurve(), pubkey);
 
-			console.log("G.x: ", Crypto.util.bytesToHex(G.x.toBigInteger().toByteArrayUnsigned()));
-			console.log("G.y: ", Crypto.util.bytesToHex(G.y.toBigInteger().toByteArrayUnsigned()));
-			console.log("Q.x: ", Crypto.util.bytesToHex(Q.x.toBigInteger().toByteArrayUnsigned()));
-			console.log("Q.y: ", Crypto.util.bytesToHex(Q.y.toBigInteger().toByteArrayUnsigned()));
-			
 			var point = implShamirsTrick(G, u1, Q, u2);
 
-			console.log("P.x: ", Crypto.util.bytesToHex(point.x.toBigInteger().toByteArrayUnsigned()));
-			console.log("P.y: ", Crypto.util.bytesToHex(point.y.toBigInteger().toByteArrayUnsigned()));
-			
 			var v = point.x.toBigInteger().mod(n);
 
 			return v.equals(r);
