@@ -137,6 +137,7 @@
 			txTmp.ins = [txTmp.ins[inIndex]];
 		}
 
+    console.log(txTmp);
 		var buffer = txTmp.serialize();
 
 		buffer = buffer.concat(Crypto.util.wordsToBytes([parseInt(hashType)]).reverse());
