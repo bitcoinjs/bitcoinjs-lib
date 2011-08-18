@@ -80,6 +80,17 @@ Bitcoin.Util = {
 		while (decimalPart.length < 2) decimalPart += "0";
 		return integerPart+"."+decimalPart;
 	},
+  parseValue: function (valueString) {
+		var valueComp = valueString.split('.');
+		var integralPart = valueComp[0];
+		var fractionalPart = valueComp[1] || "0";
+		while (fractionalPart.length < 8) fractionalPart += "0";
+		fractionalPart = fractionalPart.replace(/^0+/g, '');
+		var value = BigInteger.valueOf(parseInt(integralPart));
+		value = value.multiply(BigInteger.valueOf(100000000));
+		value = value.add(BigInteger.valueOf(parseInt(fractionalPart)));
+    return value;
+  },
 	sha256ripe160: function (data) {
 		return Crypto.RIPEMD160(Crypto.SHA256(data, {asBytes: true}), {asBytes: true});
 	}
