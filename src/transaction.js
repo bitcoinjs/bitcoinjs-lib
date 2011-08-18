@@ -173,8 +173,11 @@
 		return newTx;
 	};
 
-	Transaction.prototype.getDescription = function (wallet) {
-		if (!(wallet instanceof Bitcoin.Wallet)) return "";
+  /**
+   * Analyze how this transaction affects a wallet.
+   */
+	Transaction.prototype.analyze = function (wallet) {
+		if (!(wallet instanceof Bitcoin.Wallet)) return null;
 
 		var allFromMe = true,
 		    allToMe = true,
@@ -192,8 +195,8 @@
 			}
 			firstRecvHash = hash;
 		}
-		for (var i = tx.ins.length-1; i >= 0; i--) {
-			var txin = tx.ins[i];
+		for (var i = this.ins.length-1; i >= 0; i--) {
+			var txin = this.ins[i];
 			firstSendHash = txin.script.simpleInPubKeyHash();
 			if (!wallet.hasHash(firstSendHash)) {
 				allFromMe = false;
@@ -203,15 +206,47 @@
 
 		var impact = this.calcImpact(wallet);
 
+    var analysis = {};
+
+    analysis.impact = impact;
+
 		if (impact.sign > 0 && impact.value.compareTo(BigInteger.ZERO) > 0) {
-			return "Received with "+(new Bitcoin.Address(firstMeRecvHash));
+			analysis.type = 'recv';
+      analysis.addr = new Bitcoin.Address(firstMeRecvHash);
 		} else if (allFromMe && allToMe) {
-			return "Payment to yourself";
+      analysis.type = 'self';
 		} else if (allFromMe) {
-			return "Payment to "+(new Bitcoin.Address(firstRecvHash));
+      analysis.type = 'sent';
+      analysis.addr = new Bitcoin.Address(firstRecvHash);
 		} else  {
-			return "";
+			analysis.type = "other";
 		}
+
+    return analysis;
+  };
+
+	Transaction.prototype.getDescription = function (wallet) {
+    var analysis = this.analyze(wallet);
+
+    if (!analysis) return "";
+
+    switch (analysis.type) {
+    case 'recv':
+      return "Received with "+analysis.addr;
+      break;
+
+    case 'sent':
+			return "Payment to "+analysis.addr;
+      break;
+
+    case 'self':
+			return "Payment to yourself";
+      break;
+
+    case 'other':
+    default:
+      return "";
+    }
 	};
 
 	Transaction.prototype.getTotalValue = function () {
