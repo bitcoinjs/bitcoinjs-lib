@@ -38,6 +38,10 @@ Bitcoin.ECKey = (function () {
 		return addr;
 	};
 
+  ECKey.prototype.setPub = function (pub) {
+    this.pub = pub;
+  };
+
 	ECKey.prototype.toString = function (format) {
 		if (format === "base64") {
 			return Crypto.util.bytesToBase64(this.priv.toByteArrayUnsigned());

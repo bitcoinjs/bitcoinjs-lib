@@ -1,12 +1,4 @@
 Bitcoin.Wallet = (function () {
-	function supportsLocalStorage() {
-		try {
-			return 'localStorage' in window && window['localStorage'] !== null;
-		} catch (e) {
-			return false;
-		}
-	};
-
 	var Script = Bitcoin.Script,
 	    TransactionIn = Bitcoin.TransactionIn,
 	    TransactionOut = Bitcoin.TransactionOut;
@@ -23,34 +15,68 @@ Bitcoin.Wallet = (function () {
 		// Other fields
 		this.addressPointer = 0;
 
-		this.addKey = function (key) {
+		this.addKey = function (key, pub) {
 			if (!(key instanceof Bitcoin.ECKey)) {
 				key = new Bitcoin.ECKey(key);
 			}
 			keys.push(key);
+
+      if (pub) {
+        if ("string" === typeof pub) {
+          pub = Crypto.util.base64ToBytes(pub);
+        }
+        key.pub = pub;
+      }
+
 			this.addressHashes.push(key.getBitcoinAddress().getHashBase64());
 		};
 
-		this.addKeys = function (keys) {
-			for (var i = 0; i < keys.length; i++) {
-				this.addKey(keys[i]);
-			}
+		this.addKeys = function (keys, pubs) {
+      if ("string" === typeof keys) {
+        keys = keys.split(',');
+      }
+      if ("string" === typeof pubs) {
+        pubs = pubs.split(',');
+      }
+      console.log(pubs);
+      if (Array.isArray(pubs) && keys.length == pubs.length) {
+			  for (var i = 0; i < keys.length; i++) {
+				  this.addKey(keys[i], pubs[i]);
+        }
+      } else {
+			  for (var i = 0; i < keys.length; i++) {
+				  this.addKey(keys[i]);
+        }
+      }
 		};
 
-		this.save = function () {
+		this.getKeys = function () {
 			var serializedWallet = [];
 
 			for (var i = 0; i < keys.length; i++) {
 				serializedWallet.push(keys[i].toString('base64'));
 			}
 
-			console.log(serializedWallet);
-			localStorage["wallet"] = serializedWallet;
+			return serializedWallet;
 		};
+
+    this.getPubKeys = function () {
+			var pubs = [];
+
+			for (var i = 0; i < keys.length; i++) {
+				pubs.push(Crypto.util.bytesToBase64(keys[i].getPub()));
+			}
+
+			return pubs;
+    };
 
 		this.clear = function () {
 			keys = [];
 		};
+
+    this.getLength = function () {
+      return keys.length;
+    };
 
 		this.getAllAddresses = function () {
 			var addresses = [];
@@ -102,38 +128,6 @@ Bitcoin.Wallet = (function () {
 
 	Wallet.prototype.generateAddress = function () {
 		this.addKey(new Bitcoin.ECKey());
-	};
-
-	/**
-	 * Detect and load a wallet from localStorage.
-	 */
-	Wallet.prototype.loadLocal = function () {
-		var wallet = localStorage["wallet"];
-
-		if (wallet) {
-			try {
-				this.addKeys(wallet.split(','));
-				return true;
-			} catch (e) {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	};
-
-	Wallet.prototype.initNew = function (callback) {
-		var self = this;
-		var total = 5;
-		function generateNum (n) {
-			self.generateAddress();
-			if (n > 0) {
-				setTimeout(function () {generateNum(n-1);}, 1);
-			} else {
-				callback(total-n, total);
-			}
-		};
-		generateNum(total, callback);
 	};
 
 	Wallet.prototype.process = function (tx) {
@@ -226,6 +220,11 @@ Bitcoin.Wallet = (function () {
 
 		return sendTx;
 	};
+
+  Wallet.prototype.clearTransactions = function () {
+    this.txIndex = {};
+    this.unspentOuts = [];
+  };
 
 	/**
 	 * Check to see if a pubKeyHash belongs to this wallet.
