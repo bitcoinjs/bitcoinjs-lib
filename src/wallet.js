@@ -176,19 +176,24 @@ Bitcoin.Wallet = (function () {
 		return balance;
 	};
 
-	Wallet.prototype.createSend = function (address, sendValue) {
+	Wallet.prototype.createSend = function (address, sendValue, feeValue) {
 		var selectedOuts = [];
+    var txValue = sendValue.add(feeValue);
 		var availableValue = BigInteger.ZERO;
 		for (var i = 0; i < this.unspentOuts.length; i++) {
 			selectedOuts.push(this.unspentOuts[i]);
 			availableValue = availableValue.add(Bitcoin.Util.valueToBigInt(this.unspentOuts[i].out.value));
 
-			if (availableValue.compareTo(sendValue) >= 0) break;
+			if (availableValue.compareTo(txValue) >= 0) break;
 		}
+
+    if (availableValue.compareTo(txValue) < 0) {
+      throw new Error('Insufficient funds.');
+    }
 
 		console.log(selectedOuts);
 
-		var changeValue = availableValue.subtract(sendValue);
+		var changeValue = availableValue.subtract(txValue);
 
 		var sendTx = new Bitcoin.Transaction();
 
