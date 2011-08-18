@@ -54,3 +54,9 @@ TransactionDatabase.prototype.loadTransactions = function (txs) {
 TransactionDatabase.prototype.getTransactions = function () {
 	return this.txs;
 };
+
+TransactionDatabase.prototype.clear = function () {
+  this.txs = [];
+  this.txIndex = {};
+  $(this).trigger('update');
+};
