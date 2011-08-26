@@ -40,11 +40,12 @@ ECPointFp.prototype.getEncoded = function (compressed) {
 };
 
 ECPointFp.decodeFrom = function (curve, enc) {
-	var type = enc.shift();
+	var type = enc[0];
+  var dataLen = enc.length-1;
 
 	// Extract x and y as byte arrays
-	var xBa = enc.slice(0, enc.length/2);
-	var yBa = enc.slice(enc.length/2, enc.length);
+	var xBa = enc.slice(1, 1 + dataLen/2);
+	var yBa = enc.slice(1 + dataLen/2, 1 + dataLen);
 
 	// Prepend zero byte to prevent interpretation as negative integer
 	xBa.unshift(0);
@@ -101,16 +102,16 @@ ECPointFp.prototype.twice2D = function () {
 
 ECPointFp.prototype.multiply2D = function (k) {
 	if(this.isInfinity()) return this;
-    if(k.signum() == 0) return this.curve.getInfinity();
+  if(k.signum() == 0) return this.curve.getInfinity();
 
-    var e = k;
-    var h = e.multiply(new BigInteger("3"));
+  var e = k;
+  var h = e.multiply(new BigInteger("3"));
 
-    var neg = this.negate();
-    var R = this;
+  var neg = this.negate();
+  var R = this;
 
-    var i;
-    for (i = h.bitLength() - 2; i > 0; --i) {
+  var i;
+  for (i = h.bitLength() - 2; i > 0; --i) {
 		R = R.twice();
 
 		var hBit = h.testBit(i);
@@ -119,9 +120,55 @@ ECPointFp.prototype.multiply2D = function (k) {
 		if (hBit != eBit) {
 			R = R.add2D(hBit ? this : neg);
 		}
-    }
+  }
 
-    return R;
+  return R;
+};
+
+ECPointFp.prototype.isOnCurve = function () {
+  var x = this.getX().toBigInteger();
+  var y = this.getY().toBigInteger();
+  var a = this.curve.getA().toBigInteger();
+  var b = this.curve.getB().toBigInteger();
+  var n = this.curve.getQ();
+  var lhs = y.multiply(y).mod(n);
+  var rhs = x.multiply(x).multiply(x)
+    .add(a.multiply(x)).add(b).mod(n);
+  return lhs.equals(rhs);
+};
+
+ECPointFp.prototype.validate = function () {
+  var n = this.curve.getQ();
+
+  // Check Q != O
+  if (this.isInfinity()) {
+    throw new Error("Point is at infinity.");
+  }
+
+  // Check coordinate bounds
+  var x = this.getX().toBigInteger();
+  var y = this.getY().toBigInteger();
+  if (x.compareTo(BigInteger.ONE) < 0 ||
+      x.compareTo(n.subtract(BigInteger.ONE)) > 0) {
+    throw new Error('x coordinate out of bounds');
+  }
+  if (y.compareTo(BigInteger.ONE) < 0 ||
+      y.compareTo(n.subtract(BigInteger.ONE)) > 0) {
+    throw new Error('y coordinate out of bounds');
+  }
+
+  // Check y^2 = x^3 + ax + b (mod n)
+  if (!this.isOnCurve()) {
+    throw new Error("Point is not on the curve.");
+  }
+
+  // Check nQ = 0 (Q is a scalar multiple of G)
+  if (this.multiply(n).isInfinity()) {
+    // TODO: This check doesn't work - fix.
+    throw new Error("Point is not a scalar multiple of G.");
+  }
+
+  return true;
 };
 
 function dmp(v) {
@@ -181,6 +228,10 @@ Bitcoin.ECDSA = (function () {
 
 			var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n);
 
+      return ECDSA.serializeSig(r, s);
+		},
+
+    serializeSig: function (r, s) {
 			var rBa = r.toByteArrayUnsigned();
 			var sBa = s.toByteArrayUnsigned();
 
@@ -197,33 +248,15 @@ Bitcoin.ECDSA = (function () {
 			sequence.unshift(0x30) // SEQUENCE
 
 			return sequence;
-		},
+    },
 
 		verify: function (hash, sig, pubkey) {
-			var cursor;
-			if (sig[0] != 0x30)
-				throw new Error("Signature not a valid DERSequence");
-
-			cursor = 2;
-			if (sig[cursor] != 0x02)
-				throw new Error("First element in signature must be a DERInteger");;
-			var rBa = sig.slice(cursor+2, cursor+2+sig[cursor+1]);
-
-			cursor += 2+sig[cursor+1];
-			if (sig[cursor] != 0x02)
-				throw new Error("Second element in signature must be a DERInteger");
-			var sBa = sig.slice(cursor+2, cursor+2+sig[cursor+1]);
-
-			cursor += 2+sig[cursor+1];
-
-			//if (cursor != sig.length)
-			//	throw new Error("Extra bytes in signature");
+      var obj = ECDSA.parseSig(sig);
+      var r = obj.r;
+      var s = obj.s;
 
 			var n = ecparams.getN();
 			var e = BigInteger.fromByteArrayUnsigned(hash);
-
-			var r = BigInteger.fromByteArrayUnsigned(rBa);
-			var s = BigInteger.fromByteArrayUnsigned(sBa);
 
 			if (r.compareTo(BigInteger.ONE) < 0 ||
 				r.compareTo(n) >= 0)
@@ -246,7 +279,33 @@ Bitcoin.ECDSA = (function () {
 			var v = point.x.toBigInteger().mod(n);
 
 			return v.equals(r);
-		}
+		},
+
+    parseSig: function (sig) {
+			var cursor;
+			if (sig[0] != 0x30)
+				throw new Error("Signature not a valid DERSequence");
+
+			cursor = 2;
+			if (sig[cursor] != 0x02)
+				throw new Error("First element in signature must be a DERInteger");;
+			var rBa = sig.slice(cursor+2, cursor+2+sig[cursor+1]);
+
+			cursor += 2+sig[cursor+1];
+			if (sig[cursor] != 0x02)
+				throw new Error("Second element in signature must be a DERInteger");
+			var sBa = sig.slice(cursor+2, cursor+2+sig[cursor+1]);
+
+			cursor += 2+sig[cursor+1];
+
+			//if (cursor != sig.length)
+			//	throw new Error("Extra bytes in signature");
+
+			var r = BigInteger.fromByteArrayUnsigned(rBa);
+			var s = BigInteger.fromByteArrayUnsigned(sBa);
+
+      return {r: r, s: s};
+    }
 	};
 
 	return ECDSA;
