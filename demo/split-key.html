@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+<title>Two-party ECDSA signature generation</title>
+<link rel="stylesheet" type="text/css" href="demo.css"/>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script type="text/javascript">
+jQuery(function ($) {
+    var worker = new Worker("split-key.js");
+
+    worker.onmessage = function (event) {
+        var data = event.data;
+
+        switch (data.cmd) {
+        case "ff":
+            $("#"+data.field).val(data.value);
+            break;
+        case "log":
+            if (console && "function" === typeof console.log) {
+                console.log.apply(console, data.args);
+            }
+            break;
+        }
+    };
+    worker.onerror = function (error) {
+		    console.error(error);
+    };
+
+    worker.postMessage("start");
+});
+</script>
+</head>
+<body>
+<h1>Two-party ECDSA signature generation</h1>
+<p><strong>Initialization</strong></p>
+<div class="alice">
+  <p>Alice starts out with her share of the private key d<sub>1</sub></p>
+  <div>
+    <label for="d1">d<sub>1</sub>=</label>
+    <input id="d1" type="text" readonly="readonly"/>
+  </div>
+  <p>And a Paillier keypair pk/sk</p>
+  <div>
+    <label for="p1_n">n=</label>
+    <input id="p1_n" type="text" readonly="readonly"/>
+  </div>
+  <div>
+    <label for="p1_g">g=</label>
+    <input id="p1_g" type="text" readonly="readonly"/>
+  </div>
+  <div>
+    <label for="p1_l">&lambda;=</label>
+    <input id="p1_l" type="text" readonly="readonly"/>
+  </div>
+  <div>
+    <label for="p1_m">&mu;=</label>
+    <input id="p1_m" type="text" readonly="readonly"/>
+  </div>
+</div>
+<div class="bob">
+  <p>Bob starts out with his share d<sub>2</sub> of the private key d</p>
+  <div>
+    <label for="d2">d<sub>2</sub>=</label>
+    <input id="d2" type="text" readonly="readonly"/>
+  </div>
+</div>
+<p><strong>Protocol</strong></p>
+<div class="alice">
+  <p>First Alice generates her share of the one-time secret k<sub>1</sub></p>
+  <div>
+    <label for="k1">k<sub>1</sub>=</label>
+    <input id="k1" type="text" readonly="readonly"/>
+  </div>
+  <p>And its inverse z<sub>1</sub> = (k<sub>1</sub>)<sup>-1</sup> mod n</p>
+  <div>
+    <label for="z1">z<sub>1</sub>=</label>
+    <input id="z1" type="text" readonly="readonly"/>
+  </div>
+  <p>She also calculates Q<sub>1</sub> = k<sub>1</sub>G</p>
+  <div>
+    <label for="q1">Q<sub>1</sub>=</label>
+    <input id="q1" type="text" readonly="readonly"/>
+  </div>
+  <p>She then encrypts z<sub>1</sub> with her Paillier secret to create &alpha; = E<sub>pk</sub>(z<sub>1</sub>)</p>
+  <div>
+    <label for="alpha">&alpha;=</label>
+    <input id="alpha" type="text" readonly="readonly"/>
+  </div>
+  <p>And &beta; = E<sub>pk</sub>(d<sub>1</sub>z<sub>1</sub> mod n)</p>
+  <div>
+    <label for="beta">&beta;=</label>
+    <input id="beta" type="text" readonly="readonly"/>
+  </div>
+</div>
+<div class="messageright"><div class="arrow"></div>
+Q<sub>1</sub>, &alpha;, &beta;, message, e, pk
+</div>
+<div class="bob">
+  <p>Bob validates Q<sub>1</sub> by ensuring that
+  <ol>
+    <li>Q<sub>1</sub> &ne; O</li>
+    <li>x<sub>Q<sub>1</sub></sub> and y<sub>Q<sub>1</sub></sub> are in the interval [1,n - 1]</li>
+    <li>y<sub>Q<sub>1</sub></sub><sup>2</sup> &equiv; x<sub>Q<sub>1</sub></sub><sup>3</sup> + ax<sub>Q<sub>1</sub></sub> + b (mod p)</li>
+    <li>nQ<sub>1</sub> = O</li>
+  </ol></p>
+  <p>And verifies the message to be signed</p>
+  <p>He then generates his share k<sub>2</sub> of the private one-time value k</p>
+  <div>
+    <label for="k2">k<sub>2</sub>=</label>
+    <input id="k2" type="text" readonly="readonly"/>
+  </div>
+  <p>And its inverse z<sub>2</sub> = (k<sub>2</sub>)<sup>-1</sup> mod n</p>
+  <div>
+    <label for="z2">z<sub>2</sub>=</label>
+    <input id="z2" type="text" readonly="readonly"/>
+  </div>
+  <p>He can calculate r = x<sub>Q</sub> where Q(x<sub>Q</sub>, y<sub>Q</sub>) = k<sub>2</sub>Q<sub>1</sub></p>
+  <div>
+    <label for="r">r=</label>
+    <input id="r" type="text" readonly="readonly"/>
+  </div>
+  <p>And Q<sub>2</sub> = k<sub>2</sub>G</p>
+  <div>
+    <label for="q2">Q<sub>2</sub>=</label>
+    <input id="q2" type="text" readonly="readonly"/>
+  </div>
+  <p>Bob prepares a random value c to use for blinding<p>
+  <div>
+    <label for="c">c=</label>
+    <input id="c" type="text" readonly="readonly"/>
+  </div>
+  <p>Finally he calculates &sigma; = (&alpha; &times;<sub>pk</sub> z<sub>2</sub>e) +<sub>pk</sub> (&beta; &times;<sub>pk</sub> z<sub>2</sub>d<sub>2</sub>r) +<sub>pk</sub> E<sub>pk</sub>(cn)</p>
+  <div>
+    <label for="sigma">&sigma;=</label>
+    <input id="sigma" type="text" readonly="readonly"/>
+  </div>
+</div>
+<div class="messageleft"><div class="arrow"></div>
+Q<sub>2</sub>, r, &sigma;
+</div>
+<div class="alice">
+  <p>Alice confirms Q<sub>2</sub> is a valid public point
+  <ol>
+    <li>Q<sub>2</sub> &ne; O</li>
+    <li>x<sub>Q<sub>2</sub></sub> and y<sub>Q<sub>2</sub></sub> are in the interval [1,n - 1]</li>
+    <li>y<sub>Q<sub>2</sub></sub><sup>2</sup> &equiv; x<sub>Q<sub>2</sub></sub><sup>3</sup> + ax<sub>Q<sub>2</sub></sub> + b (mod p)</li>
+    <li>nQ<sub>2</sub> = O</li>
+  </ol></p>
+  <p>She now calculates r = x<sub>Q</sub> where Q = k<sub>1</sub>Q<sub>2</sub> and matches it against what Bob claimed</p>
+  <p>She decrypts &sigma; to receive s = D<sub>sk</sub>(&sigma;)</p>
+  <div>
+    <label for="s">s=</label>
+    <input id="s" type="text" readonly="readonly"/>
+  </div>
+  <p>She verifies the signature using r and the combined public key before publishing.</p>
+</div>
+</body>
+</html>

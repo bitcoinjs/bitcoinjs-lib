@@ -1,0 +1,50 @@
+p {
+    margin: 0.4em 0 0.2em;
+}
+
+input[type=text] {
+    width: 500px;
+}
+
+.alice, .bob {
+    margin: 1em;
+    width: 550px;
+    padding: 10px;
+}
+
+.alice {
+    border: 2px solid grey;
+    border-left-width: 20px;
+}
+
+.bob {
+    border: 2px solid grey;
+    border-right-width: 20px;
+}
+
+.messageleft, .messageright {
+    margin: 1em;
+    background-color: grey;
+    height: 30px;
+    text-align: center;
+    color: #fff;
+    line-height: 30px;
+    width: 590px;
+}
+
+.messageleft .arrow, .messageright .arrow {
+    border-top: 15px solid #fff;
+    border-bottom: 15px solid #fff;
+    width: 0;
+    height: 0;
+}
+
+.messageright .arrow {
+    float: right;
+    border-left: 15px solid grey;
+}
+
+.messageleft .arrow {
+    float: left;
+    border-right: 15px solid grey;
+}
