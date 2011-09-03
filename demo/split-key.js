@@ -39,7 +39,7 @@ function log() {
   postMessage({ "cmd": "log", "args": Array.prototype.slice.apply(arguments) });
 };
 
-self.onmessage = function (event) {
+function start() {
   var ecparams = getSECCurveByName("secp256k1");
   var rng = new SecureRandom();
 
@@ -73,6 +73,10 @@ self.onmessage = function (event) {
     return this.pub = P.multiply(this.d1).getEncoded();
   };
 
+  Alice.prototype.getPubShare = function () {
+    return G.multiply(this.d1);
+  };
+
   Bob.prototype.getPubShare = function () {
     return G.multiply(this.d2);
   };
@@ -87,24 +91,43 @@ self.onmessage = function (event) {
     this.z1 = this.k1.modInverse(n);
     ff('z1', this.z1);
 
-    var Q1 = G.multiply(this.k1);
-    ff('q1', Q1);
+    var Q_1 = G.multiply(this.k1);
+    ff('q1', Q_1);
 
     var alpha = this.paillier.encrypt(this.z1);
-    var beta = this.paillier.encrypt(this.d1.multiply(this.z1).mod(n));
-
     ff('alpha', alpha);
+
+    var beta = this.paillier.encrypt(this.d1.multiply(this.z1).mod(n));
     ff('beta', beta);
 
-    // TODO: Generate a proof that alpha and beta are safe
+    var r_1 = Q_1.getX().toBigInteger().mod(n);
+    var A = this.paillier.encrypt(Bitcoin.ECDSA.getBigRandom(this.paillier.n.divide(n)));
+    ff('A', A);
+    var s_a = this.paillier.multiply(alpha, this.e);
+    var s_b = this.paillier.multiply(beta, r_1);
+    var sigma_1 = this.paillier.addCrypt(this.paillier.addCrypt(s_a, s_b), this.paillier.multiply(A, n));
+    ff('sigma_1', sigma_1);
+
+    var e = Crypto.SHA256(sigma_1.toByteArrayUnsigned(), {asBytes: true});
+    e = BigInteger.fromByteArrayUnsigned(e);
+    var sigma_1n = this.paillier.rerandomize(sigma_1, e);
+    ff('sigma_1n', sigma_1n);
+
+    var s_1 = this.paillier.decrypt(sigma_1n);
+    ff('s_1', s_1);
+    var v_n = this.paillier.decryptR(sigma_1n, s_1);
+    ff('v_n', v_n);
 
     return {
-      message: message,
-      e: this.e,
-      Q1: Q1,
+      Q_1: Q_1,
+      P_1: this.getPubShare(),
       alpha: alpha,
       beta: beta,
-      paillier: this.paillier.pub
+      message: message,
+      paillier: this.paillier.pub,
+      A: A,
+      s_1: s_1,
+      v_n: v_n
     };
   };
 
@@ -113,18 +136,35 @@ self.onmessage = function (event) {
     //     does what we want.
 
     // Throws exception on error
-    pkg.Q1.validate();
+    pkg.Q_1.validate();
 
     var hash = Crypto.SHA256(Crypto.SHA256(message, {asBytes: true}), {asBytes: true});
     this.e = BigInteger.fromByteArrayUnsigned(hash).mod(n);
 
-    if (!this.e.equals(pkg.e)) {
-      throw new Error('We arrived at different values for e.');
-    }
-
     this.paillier = pkg.paillier;
     this.alpha = pkg.alpha;
     this.beta = pkg.beta;
+
+    var r_1 = pkg.Q_1.getX().toBigInteger().mod(n);
+    var testSig = Bitcoin.ECDSA.serializeSig(r_1, pkg.s_1.mod(n));
+    if (!Bitcoin.ECDSA.verify(hash, testSig, pkg.P_1.getEncoded())) {
+      throw new Error('Verification of s1 failed.');
+    }
+
+    // Verify that alpha and beta are valid by generating and verifying sigma_1n
+    var s_a_1 = this.paillier.multiply(this.alpha, this.e);
+    var s_b_1 = this.paillier.multiply(this.beta, r_1);
+    var sigma_1 = this.paillier.addCrypt(this.paillier.addCrypt(s_a_1, s_b_1), this.paillier.multiply(pkg.A, n));
+
+    var e = Crypto.SHA256(sigma_1.toByteArrayUnsigned(), {asBytes: true});
+    e = BigInteger.fromByteArrayUnsigned(e);
+    var sigma_1n = this.paillier.rerandomize(sigma_1, e);
+    ff('sigma_1n_b', sigma_1n);
+
+    var sigma_1_verify = this.paillier.encrypt(pkg.s_1, pkg.v_n);
+    if (!sigma_1n.equals(sigma_1_verify)) {
+      throw new Error('Sigma ciphertext did not match expected value.');
+    }
 
     this.k2 = Bitcoin.ECDSA.getBigRandom(n);
     ff('k2', this.k2);
@@ -132,10 +172,10 @@ self.onmessage = function (event) {
     this.z2 = this.k2.modInverse(n);
     ff('z2', this.z2);
 
-    var Q2 = G.multiply(this.k2);
-    ff('q2', Q2);
+    var Q_2 = G.multiply(this.k2);
+    ff('q2', Q_2);
 
-    var Q = pkg.Q1.multiply(this.k2);
+    var Q = pkg.Q_1.multiply(this.k2);
     this.r = Q.getX().toBigInteger().mod(n);
     ff('r', this.r);
 
@@ -143,26 +183,26 @@ self.onmessage = function (event) {
       throw new Error('r must not be zero.');
     }
 
-    var c = Bitcoin.ECDSA.getBigRandom(this.paillier.n.divide(n));
-    ff('c', c);
+    var B = Bitcoin.ECDSA.getBigRandom(this.paillier.n.divide(n));
+    ff('B', B);
 
     var p = this.paillier;
     var s_a = p.multiply(this.alpha, this.e.multiply(this.z2));
     var s_b = p.multiply(this.beta, this.r.multiply(this.d2).multiply(this.z2));
-    var sigma = p.add(p.addCrypt(s_a, s_b), c.multiply(n));
+    var sigma = p.add(p.addCrypt(s_a, s_b), B.multiply(n));
     ff('sigma', sigma);
 
     return {
-      Q2: Q2,
+      Q_2: Q_2,
       r: this.r,
       sigma: sigma
     };
   };
 
   Alice.prototype.step3 = function (pkg) {
-    pkg.Q2.validate();
+    pkg.Q_2.validate();
 
-    var Q = pkg.Q2.multiply(this.k1);
+    var Q = pkg.Q_2.multiply(this.k1);
     this.r = Q.getX().toBigInteger().mod(n);
 
     if (!this.r.equals(pkg.r)) {
@@ -219,11 +259,25 @@ self.onmessage = function (event) {
   log("sig    :", hex(sig));
   log("sig/CHK:", hex(sigChk));
 
-  log("ver    :", Bitcoin.ECDSA.verify(hash, sig, pub));
+  var ver = Bitcoin.ECDSA.verify(hash, sig, pub);
+  log("ver    :", ver);
   log("ver/CHK:", Bitcoin.ECDSA.verify(hash, sigChk, pub));
   log("ver/CTL:", Bitcoin.ECDSA.verify(hash, Bitcoin.ECDSA.sign(hash, dChk), pub));
+  ff("result", ver ? "SIGNATURE VALID" : "SIGNATURE INVALID");
 
   var priv = Bitcoin.ECDSA.getBigRandom(n);
   pub = G.multiply(priv).getEncoded();
   log("ver/GEN:", Bitcoin.ECDSA.verify(hash, Bitcoin.ECDSA.sign(hash, priv), pub));
+};
+
+self.onmessage = function (event) {
+  try {
+    start();
+  } catch(e) {
+    var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
+      .replace(/^\s+at\s+/gm, '')
+      .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
+      .split('\n');
+    log(e+'\n'+stack);
+  }
 };

@@ -81,7 +81,7 @@ jQuery(function ($) {
     <label for="q1">Q<sub>1</sub>=</label>
     <input id="q1" type="text" readonly="readonly"/>
   </div>
-  <p>She then encrypts z<sub>1</sub> with her Paillier secret to create &alpha; = E<sub>pk</sub>(z<sub>1</sub>)</p>
+  <p>She then encrypts z<sub>1</sub> using Paillier to create &alpha; = E<sub>pk</sub>(z<sub>1</sub>)</p>
   <div>
     <label for="alpha">&alpha;=</label>
     <input id="alpha" type="text" readonly="readonly"/>
@@ -91,9 +91,34 @@ jQuery(function ($) {
     <label for="beta">&beta;=</label>
     <input id="beta" type="text" readonly="readonly"/>
   </div>
+  <p>And also generates an encrypted blinding factor A = E<sub>pk</sub>(c) for some c &in; [1, n<sub>P</sub>/n<sub>EC</sub>]</p>
+  <div>
+    <label for="A">A=</label>
+    <input id="A" type="text" readonly="readonly"/>
+  </div>
+  <p>Alice composes the encrypted signature &sigma;<sub>1</sub> = (&alpha; &times;<sub>pk</sub> e) +<sub>pk</sub> (&beta; &times;<sub>pk</sub> r) +<sub>pk</sub> (A &times;<sub>pk</sub> n)</p>
+  <div>
+    <label for="sigma_1">&sigma;<sub>1</sub>=</label>
+    <input id="sigma_1" type="text" readonly="readonly"/>
+  </div>
+  <p>She deterministically rerandomizes it to receive &sigma;<sub>1</sub>' = &sigma;<sub>1</sub>HASH(&sigma;<sub>1</sub>)<sup>n</sub> mod n<sup>2</sup></p>
+  <div>
+    <label for="sigma_1n">&sigma;<sub>1</sub>'=</label>
+    <input id="sigma_1n" type="text" readonly="readonly"/>
+  </div>
+  <p>And decrypts &sigma;<sub>1</sub>' to receive s<sub>1</sub></p>
+  <div>
+    <label for="s_1">s<sub>1</sub>=</label>
+    <input id="s_1" type="text" readonly="readonly"/>
+  </div>
+  <p>And v', the randomizing factor in &sigma;<sub>1</sub>'</p>
+  <div>
+    <label for="v_n">v<sub>'</sub>=</label>
+    <input id="v_n" type="text" readonly="readonly"/>
+  </div>
 </div>
 <div class="messageright"><div class="arrow"></div>
-Q<sub>1</sub>, &alpha;, &beta;, message, e, pk
+Q<sub>1</sub>, &alpha;, &beta;, message, e, pk, A, s<sub>1</sub>, v'
 </div>
 <div class="bob">
   <p>Bob validates Q<sub>1</sub> by ensuring that
@@ -104,6 +129,13 @@ Q<sub>1</sub>, &alpha;, &beta;, message, e, pk
     <li>nQ<sub>1</sub> = O</li>
   </ol></p>
   <p>And verifies the message to be signed</p>
+  <p>He then verifies s<sub>1</sub> as a valid signature</p>
+  <p>Bob also calculates &sigma;<sub>1</sub>' from &alpha;, &beta; and A</p>
+  <div>
+    <label for="sigma_1n_b">&sigma;<sub>1</sub>'=</label>
+    <input id="sigma_1n_b" type="text" readonly="readonly"/>
+  </div>
+  <p>And verifies it matches E<sub>pk</sub>(s<sub>1</sub>, v')</p>
   <p>He then generates his share k<sub>2</sub> of the private one-time value k</p>
   <div>
     <label for="k2">k<sub>2</sub>=</label>
@@ -124,12 +156,12 @@ Q<sub>1</sub>, &alpha;, &beta;, message, e, pk
     <label for="q2">Q<sub>2</sub>=</label>
     <input id="q2" type="text" readonly="readonly"/>
   </div>
-  <p>Bob prepares a random value c to use for blinding<p>
+  <p>Bob prepares a random value B &in; [1, n<sub>P</sub>/n<sub>EC</sub>] to use for blinding<p>
   <div>
-    <label for="c">c=</label>
-    <input id="c" type="text" readonly="readonly"/>
+    <label for="B">B=</label>
+    <input id="B" type="text" readonly="readonly"/>
   </div>
-  <p>Finally he calculates &sigma; = (&alpha; &times;<sub>pk</sub> z<sub>2</sub>e) +<sub>pk</sub> (&beta; &times;<sub>pk</sub> z<sub>2</sub>d<sub>2</sub>r) +<sub>pk</sub> E<sub>pk</sub>(cn)</p>
+  <p>Finally he calculates &sigma; = (&alpha; &times;<sub>pk</sub> z<sub>2</sub>e) +<sub>pk</sub> (&beta; &times;<sub>pk</sub> z<sub>2</sub>d<sub>2</sub>r) +<sub>pk</sub> E<sub>pk</sub>(Bn<sub>EC</sub>)</p>
   <div>
     <label for="sigma">&sigma;=</label>
     <input id="sigma" type="text" readonly="readonly"/>
@@ -153,6 +185,10 @@ Q<sub>2</sub>, r, &sigma;
     <input id="s" type="text" readonly="readonly"/>
   </div>
   <p>She verifies the signature using r and the combined public key before publishing.</p>
+  <div>
+    <label for="result"></label>
+    <input id="result" type="text" readonly="readonly"/>
+  </div>
 </div>
 </body>
 </html>

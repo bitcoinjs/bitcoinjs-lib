@@ -98,3 +98,15 @@ test("Signing and Verifying", function () {
   );
   ok(Bitcoin.ECDSA.verify(hash2, sig_c, s2), "Verify constant signature");
 });
+
+//
+// Testing Paillier
+// -----------------------------------------------------------------------------
+module("paillier");
+
+test("Classes", function () {
+  expect(3);
+  ok(Bitcoin.Paillier, "Bitcoin.Paillier");
+  ok(Bitcoin.Paillier.PublicKey, "Bitcoin.Paillier.PublicKey");
+  ok(Bitcoin.Paillier.PrivateKey, "Bitcoin.Paillier.PrivateKey");
+});

@@ -65,6 +65,14 @@ Bitcoin.Paillier = (function () {
     return c.modPow(f, this.nSq);
   };
 
+  Paillier.PublicKey.prototype.rerandomize = function (c, r) {
+    if (!r) {
+      var coprimeBitLength = this.n.bitLength() - Math.floor(Math.random()*10);
+      r = new BigInteger(coprimeBitLength, 1, rng);
+    }
+    return c.multiply(r.modPow(this.n, this.nSq)).mod(this.nSq);
+  };
+
   Paillier.PrivateKey = function (n,g,l,m,nSq) {
     this.l = l;
     this.m = m;
@@ -73,12 +81,8 @@ Bitcoin.Paillier = (function () {
     this.pub = new Paillier.PublicKey(n,g,this.nSq);
   };
 
-  Paillier.PrivateKey.prototype.encrypt = function (m) {
-    return this.pub.encrypt(m);
-  };
-
   Paillier.PrivateKey.prototype.decrypt = function (c) {
-    return c.modPow(this.l, this.nSq).mod(this.nSq).subtract(BigInteger.ONE)
+    return c.modPow(this.l, this.nSq).subtract(BigInteger.ONE)
       .divide(this.n).multiply(this.m).mod(this.n);
   };
 
@@ -92,6 +96,17 @@ Bitcoin.Paillier = (function () {
     var e = a.multiply(this.l).add(BigInteger.ONE).divide(this.n);
     return rn.modPow(e, this.n);
   };
+
+  function createProxyMethod(name) {
+    return function () {
+      return this.pub[name].apply(this.pub,
+                                  Array.prototype.slice.apply(arguments));
+    };
+  };
+  var a = ["add", "addCrypt", "multiply", "rerandomize", "encrypt"];
+  for (var i = 0, l = a.length; i < l; i++) {
+    Paillier.PrivateKey.prototype[a[i]] = createProxyMethod(a[i]);
+  }
 
   return Paillier;
 })();
