@@ -1,5 +1,5 @@
-(function () {
-	var B58 = Bitcoin.Base58 = {
+(function (Bitcoin) {
+	Bitcoin.Base58 = {
 		alphabet: "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",
 		base: BigInteger.valueOf(58),
 
@@ -61,4 +61,8 @@
 			return bytes;
 		}
 	};
-})();
+
+  var B58 = Bitcoin.Base58;
+})(
+  'undefined' != typeof Bitcoin ? Bitcoin : module.exports
+);
