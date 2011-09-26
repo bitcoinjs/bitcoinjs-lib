@@ -95,3 +95,9 @@ Bitcoin.Util = {
 		return Crypto.RIPEMD160(Crypto.SHA256(data, {asBytes: true}), {asBytes: true});
 	}
 };
+
+for (var i in Crypto.util) {
+  if (Crypto.util.hasOwnProperty(i)) {
+    Bitcoin.Util[i] = Crypto.util[i];
+  }
+}
