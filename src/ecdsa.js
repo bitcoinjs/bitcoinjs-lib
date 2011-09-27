@@ -18,13 +18,7 @@ ECPointFp.prototype.getEncoded = function (compressed) {
 	var x = this.getX().toBigInteger();
 	var y = this.getY().toBigInteger();
 
-	if (compressed) {
-		var PC;
-	}
-
-	var len = this.getX().getByteLength();
-
-	var enc = integerToBytes(x, len);
+	var enc = integerToBytes(x, 32);
 
 	if (compressed) {
 		if (y.testBit(0)) {
@@ -32,9 +26,10 @@ ECPointFp.prototype.getEncoded = function (compressed) {
 		} else {
 			enc.unshift(0x03);
 		}
+    // TODO: Implement
 	} else {
 		enc.unshift(0x04);
-		enc = enc.concat(integerToBytes(y, len));
+		enc = enc.concat(integerToBytes(y, 32));
 	}
 	return enc;
 };
