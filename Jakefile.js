@@ -10,7 +10,10 @@ var headerJS = "\
  * it under the terms of the MIT license.\n\
  */";
 
-task('default', ['build/bitcoinjs-min.js']);
+task({'default': [
+  'build/bitcoinjs-min.js',
+  'build/bitcoinjs-exit-min.js'
+]});
 
 desc('General-purpose build containing most features');
 minify({'build/bitcoinjs-min.js': [
@@ -38,6 +41,13 @@ minify({'build/bitcoinjs-min.js': [
 
   'src/wallet.js',
   'src/txdb.js'
+]}, {
+  header: headerJS
+});
+
+desc('Exit node client implementation');
+minify({'build/bitcoinjs-exit-min.js': [
+  'src/exit/client.js'
 ]}, {
   header: headerJS
 });
