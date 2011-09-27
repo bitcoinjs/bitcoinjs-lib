@@ -18,6 +18,8 @@ ECPointFp.prototype.getEncoded = function (compressed) {
 	var x = this.getX().toBigInteger();
 	var y = this.getY().toBigInteger();
 
+  // Get value as a 32-byte Buffer
+  // Fixed length based on a patch by bitaddress.org and Casascius
 	var enc = integerToBytes(x, 32);
 
 	if (compressed) {
