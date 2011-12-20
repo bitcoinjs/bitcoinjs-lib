@@ -10,3 +10,8 @@ convert everything into CommonJS modules and put a flexible build
 system in place.
 
 Prototype software, use at your own peril.
+
+# License
+
+This library is free and open-source software released under the MIT
+license.
