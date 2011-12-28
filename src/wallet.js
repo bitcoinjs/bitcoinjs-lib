@@ -95,13 +95,11 @@ Bitcoin.Wallet = (function () {
         };
 
         this.getNextAddress = function () {
-            if (keys.length) {
-                // TODO: Create new addresses if we run out
-                this.addressPointer = (this.addressPointer + 1) % keys.length;
-                return keys[this.addressPointer].getBitcoinAddress();
-            } else {
-                return null;
+            this.addressPointer++;
+            if(!keys[this.addressPointer]) {
+                this.generateAddress();
             }
+            return keys[this.addressPointer].getBitcoinAddress();
         };
 
         this.signWithKey = function (pubKeyHash, hash) {
