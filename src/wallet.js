@@ -38,7 +38,6 @@ Bitcoin.Wallet = (function () {
             if ("string" === typeof pubs) {
               pubs = pubs.split(',');
             }
-            console.log(pubs);
             if (Array.isArray(pubs) && keys.length == pubs.length) {
                 for (var i = 0; i < keys.length; i++) {
                     this.addKey(keys[i], pubs[i]);
@@ -118,7 +117,6 @@ Bitcoin.Wallet = (function () {
             pubKeyHash = Crypto.util.bytesToBase64(pubKeyHash);
             for (var i = 0; i < this.addressHashes.length; i++) {
                 if (this.addressHashes[i] == pubKeyHash) {
-                    console.log(Crypto.util.bytesToBase64(Bitcoin.Util.sha256ripe160(keys[i].getPub())), pubKeyHash);
                     return keys[i].getPub();
                 }
             }
@@ -191,7 +189,6 @@ Bitcoin.Wallet = (function () {
           throw new Error('Insufficient funds.');
         }
 
-        console.log(selectedOuts);
 
         var changeValue = availableValue.subtract(txValue);
 
@@ -218,10 +215,6 @@ Bitcoin.Wallet = (function () {
 
             sendTx.ins[i].script = Script.createInputScript(signature, this.getPubKeyFromHash(pubKeyHash));
         }
-
-        console.log(sendTx);
-
-        console.log("pubkey: "+Crypto.util.bytesToHex(this.getPubKeyFromHash(pubKeyHash)));
 
         return sendTx;
     };
