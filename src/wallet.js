@@ -38,12 +38,13 @@ Bitcoin.Wallet = (function () {
             if ("string" === typeof pubs) {
               pubs = pubs.split(',');
             }
+            var i;
             if (Array.isArray(pubs) && keys.length == pubs.length) {
-                for (var i = 0; i < keys.length; i++) {
+                for (i = 0; i < keys.length; i++) {
                     this.addKey(keys[i], pubs[i]);
                 }
             } else {
-                for (var i = 0; i < keys.length; i++) {
+                for (i = 0; i < keys.length; i++) {
                     this.addKey(keys[i]);
                 }
             }
@@ -131,11 +132,14 @@ Bitcoin.Wallet = (function () {
     Wallet.prototype.process = function (tx) {
         if (this.txIndex[tx.hash]) return;
 
+        var j;
+        var k;
+        var hash;
         // Gather outputs
-        for (var j = 0; j < tx.outs.length; j++) {
+        for (j = 0; j < tx.outs.length; j++) {
             var txout = new TransactionOut(tx.outs[j]);
-            var hash = Crypto.util.bytesToBase64(txout.script.simpleOutPubKeyHash());
-            for (var k = 0; k < this.addressHashes.length; k++) {
+            hash = Crypto.util.bytesToBase64(txout.script.simpleOutPubKeyHash());
+            for (k = 0; k < this.addressHashes.length; k++) {
                 if (this.addressHashes[k] === hash) {
                     this.unspentOuts.push({tx: tx, index: j, out: txout});
                     break;
@@ -144,11 +148,11 @@ Bitcoin.Wallet = (function () {
         }
 
         // Remove spent outputs
-        for (var j = 0; j < tx.ins.length; j++) {
+        for (j = 0; j < tx.ins.length; j++) {
             var txin = new TransactionIn(tx.ins[j]);
             var pubkey = txin.script.simpleInPubKey();
-            var hash = Crypto.util.bytesToBase64(Bitcoin.Util.sha256ripe160(pubkey));
-            for (var k = 0; k < this.addressHashes.length; k++) {
+            hash = Crypto.util.bytesToBase64(Bitcoin.Util.sha256ripe160(pubkey));
+            for (k = 0; k < this.addressHashes.length; k++) {
                 if (this.addressHashes[k] === hash) {
                     for (var l = 0; l < this.unspentOuts.length; l++) {
                         if (txin.outpoint.hash == this.unspentOuts[l].tx.hash &&
@@ -178,7 +182,8 @@ Bitcoin.Wallet = (function () {
         var selectedOuts = [];
         var txValue = sendValue.add(feeValue);
         var availableValue = BigInteger.ZERO;
-        for (var i = 0; i < this.unspentOuts.length; i++) {
+        var i;
+        for (i = 0; i < this.unspentOuts.length; i++) {
             selectedOuts.push(this.unspentOuts[i]);
             availableValue = availableValue.add(Bitcoin.Util.valueToBigInt(this.unspentOuts[i].out.value));
 
@@ -194,7 +199,7 @@ Bitcoin.Wallet = (function () {
 
         var sendTx = new Bitcoin.Transaction();
 
-        for (var i = 0; i < selectedOuts.length; i++) {
+        for (i = 0; i < selectedOuts.length; i++) {
             sendTx.addInput(selectedOuts[i].tx, selectedOuts[i].index);
         }
 
@@ -205,13 +210,13 @@ Bitcoin.Wallet = (function () {
 
         var hashType = 1; // SIGHASH_ALL
 
-        for (var i = 0; i < sendTx.ins.length; i++) {
+        for (i = 0; i < sendTx.ins.length; i++) {
             var hash = sendTx.hashTransactionForSignature(selectedOuts[i].out.script, i, hashType);
             var pubKeyHash = selectedOuts[i].out.script.simpleOutPubKeyHash();
             var signature = this.signWithKey(pubKeyHash, hash);
 
             // Append hash type
-            signature.push(parseInt(hashType));
+            signature.push(parseInt(hashType, 10));
 
             sendTx.ins[i].script = Script.createInputScript(signature, this.getPubKeyFromHash(pubKeyHash));
         }
