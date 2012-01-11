@@ -26,6 +26,12 @@ Bitcoin.ECKey = (function () {
     return this.pub = ecparams.getG().multiply(this.priv).getEncoded();
   };
 
+  /**
+   * Get the pubKeyHash for this key.
+   *
+   * This is calculated as RIPE160(SHA256([encoded pubkey])) and returned as
+   * a byte array.
+   */
   ECKey.prototype.getPubKeyHash = function () {
     if (this.pubKeyHash) return this.pubKeyHash;
 

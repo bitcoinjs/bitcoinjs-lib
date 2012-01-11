@@ -22,6 +22,17 @@
     this.parse();
   };
 
+  /**
+   * Update the parsed script representation.
+   *
+   * Each Script object stores the script in two formats. First as a raw byte
+   * array and second as an array of "chunks", such as opcodes and pieces of
+   * data.
+   *
+   * This method updates the chunks cache. Normally this is called by the
+   * constructor and you don't need to worry about it. However, if you change
+   * the script buffer manually, you should update the chunks using this method.
+   */
   Script.prototype.parse = function () {
     var self = this;
 
@@ -65,6 +76,24 @@
     }
   };
 
+  /**
+   * Compare the script to known templates of scriptPubKey.
+   *
+   * This method will compare the script to a small number of standard script
+   * templates and return a string naming the detected type.
+   *
+   * Currently supported are:
+   * Address:
+   *   Paying to a Bitcoin address which is the hash of a pubkey.
+   *   OP_DUP OP_HASH160 [pubKeyHash] OP_EQUALVERIFY OP_CHECKSIG
+   *
+   * Pubkey:
+   *   Paying to a public key directly.
+   *   [pubKey] OP_CHECKSIG
+   * 
+   * Strange:
+   *   Any other script (no template matched).
+   */
   Script.prototype.getOutType = function ()
   {
     if (this.chunks.length == 5 &&
@@ -85,7 +114,19 @@
     }
   };
 
-  Script.prototype.simpleOutPubKeyHash = function ()
+  /**
+   * Returns the affected address hash for this output.
+   *
+   * For standard transactions, this will return the hash of the pubKey that
+   * can spend this output.
+   *
+   * In the future, for payToScriptHash outputs, this will return the
+   * scriptHash. Note that non-standard and standard payToScriptHash transactions
+   * look the same 
+   *
+   * This method is useful for indexing transactions.
+   */
+  Script.prototype.simpleOutHash = function ()
   {
     switch (this.getOutType()) {
     case 'Address':
@@ -97,22 +138,64 @@
     }
   };
 
+  /**
+   * Old name for Script#simpleOutHash.
+   *
+   * @deprecated
+   */
+  Script.prototype.simpleOutPubKeyHash = Script.prototype.simpleOutHash;
+
+  /**
+   * Compare the script to known templates of scriptSig.
+   *
+   * This method will compare the script to a small number of standard script
+   * templates and return a string naming the detected type.
+   *
+   * WARNING: Use this method with caution. It merely represents a heuristic
+   * based on common transaction formats. A non-standard transaction could
+   * very easily match one of these templates by accident.
+   *
+   * Currently supported are:
+   * Address:
+   *   Paying to a Bitcoin address which is the hash of a pubkey.
+   *   [sig] [pubKey]
+   *
+   * Pubkey:
+   *   Paying to a public key directly.
+   *   [sig]
+   * 
+   * Strange:
+   *   Any other script (no template matched).
+   */
   Script.prototype.getInType = function ()
   {
     if (this.chunks.length == 1 &&
         Bitcoin.Util.isArray(this.chunks[0])) {
-      // Direct IP to IP transactions only have the public key in their scriptSig.
-      // TODO: We could also check that the length of the data is 65 or 33.
+      // Direct IP to IP transactions only have the signature in their scriptSig.
+      // TODO: We could also check that the length of the data is correct.
       return 'Pubkey';
     } else if (this.chunks.length == 2 &&
                Bitcoin.Util.isArray(this.chunks[0]) &&
                Bitcoin.Util.isArray(this.chunks[1])) {
       return 'Address';
     } else {
-      throw new Error("Encountered non-standard scriptSig");
+      return 'Strange';
     }
   };
 
+  /**
+   * Returns the affected public key for this input.
+   *
+   * This currently only works with payToPubKeyHash transactions. It will also
+   * work in the future for standard payToScriptHash transactions that use a
+   * single public key.
+   *
+   * However for multi-key and other complex transactions, this will only return
+   * one of the keys or raise an error. Therefore, it is recommended for indexing
+   * purposes to use Script#simpleInHash or Script#simpleOutHash instead.
+   *
+   * @deprecated
+   */
   Script.prototype.simpleInPubKey = function ()
   {
     switch (this.getInType()) {
@@ -127,17 +210,45 @@
     }
   };
 
-  Script.prototype.simpleInPubKeyHash = function ()
+  /**
+   * Returns the affected address hash for this input.
+   *
+   * For standard transactions, this will return the hash of the pubKey that
+   * can spend this output.
+   *
+   * In the future, for standard payToScriptHash inputs, this will return the
+   * scriptHash.
+   *
+   * Note: This function provided for convenience. If you have the corresponding
+   * scriptPubKey available, you are urged to use Script#simpleOutHash instead
+   * as it is more reliable for non-standard payToScriptHash transactions.
+   *
+   * This method is useful for indexing transactions.
+   */
+  Script.prototype.simpleInHash = function ()
   {
     return Bitcoin.Util.sha256ripe160(this.simpleInPubKey());
   };
 
+  /**
+   * Old name for Script#simpleInHash.
+   *
+   * @deprecated
+   */
+  Script.prototype.simpleInPubKeyHash = Script.prototype.simpleInHash;
+
+  /**
+   * Add an op code to the script.
+   */
   Script.prototype.writeOp = function (opcode)
   {
     this.buffer.push(opcode);
     this.chunks.push(opcode);
   };
 
+  /**
+   * Add a data chunk to the script.
+   */
   Script.prototype.writeBytes = function (data)
   {
     if (data.length < OP_PUSHDATA1) {
@@ -160,6 +271,9 @@
     this.chunks.push(data);
   };
 
+  /**
+   * Create a standard payToPubKeyHash output.
+   */
   Script.createOutputScript = function (address)
   {
     var script = new Script();
@@ -171,6 +285,9 @@
     return script;
   };
 
+  /**
+   * Create a standard payToPubKeyHash input.
+   */
   Script.createInputScript = function (signature, pubKey)
   {
     var script = new Script();

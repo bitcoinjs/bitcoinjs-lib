@@ -1,3 +1,9 @@
+/**
+ * Implement the Paillier cryptosystem in JavaScript.
+ *
+ * Paillier is useful for multiparty calculation. It is not currently part of any
+ * BitcoinJS-lib distribution, but it is included here for experimental use.
+ */
 Bitcoin.Paillier = (function () {
   var rng = new SecureRandom();
   var TWO = BigInteger.valueOf(2);

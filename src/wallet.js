@@ -5,7 +5,15 @@ Bitcoin.Wallet = (function () {
 
   var Wallet = function () {
     // Keychain
+    //
+    // The keychain is stored as a var in this closure to make accidental
+    // serialization less likely.
+    //
+    // Any functions accessing this value therefore have to be defined in
+    // the closure of this constructor.
     var keys = [];
+
+    // Public hashes of our keys
     this.addressHashes = [];
 
     // Transaction data
@@ -15,6 +23,13 @@ Bitcoin.Wallet = (function () {
     // Other fields
     this.addressPointer = 0;
 
+    /**
+     * Add a key to the keychain.
+     *
+     * The corresponding public key can be provided as a second parameter. This
+     * adds it to the cache in the ECKey object and avoid the need to
+     * expensively calculate it later.
+     */
     this.addKey = function (key, pub) {
       if (!(key instanceof Bitcoin.ECKey)) {
         key = new Bitcoin.ECKey(key);
@@ -31,6 +46,9 @@ Bitcoin.Wallet = (function () {
       this.addressHashes.push(key.getBitcoinAddress().getHashBase64());
     };
 
+    /**
+     * Add multiple keys at once.
+     */
     this.addKeys = function (keys, pubs) {
       if ("string" === typeof keys) {
         keys = keys.split(',');
@@ -50,6 +68,11 @@ Bitcoin.Wallet = (function () {
       }
     };
 
+    /**
+     * Get the key chain.
+     *
+     * Returns an array of base64-encoded private values.
+     */
     this.getKeys = function () {
       var serializedWallet = [];
 
@@ -60,6 +83,11 @@ Bitcoin.Wallet = (function () {
       return serializedWallet;
     };
 
+    /**
+     * Get the public keys.
+     *
+     * Returns an array of base64-encoded public keys.
+     */
     this.getPubKeys = function () {
       var pubs = [];
 
@@ -70,14 +98,25 @@ Bitcoin.Wallet = (function () {
       return pubs;
     };
 
+    /**
+     * Delete all keys.
+     */
     this.clear = function () {
       keys = [];
     };
 
+    /**
+     * Return the number of keys in this wallet.
+     */
     this.getLength = function () {
       return keys.length;
     };
 
+    /**
+     * Get the addresses for this wallet.
+     *
+     * Returns an array of Address objects.
+     */
     this.getAllAddresses = function () {
       var addresses = [];
       for (var i = 0; i < keys.length; i++) {
@@ -94,14 +133,26 @@ Bitcoin.Wallet = (function () {
       }
     };
 
+    /**
+     * Go to the next address.
+     *
+     * If there are no more new addresses available, one will be generated
+     * automatically.
+     */
     this.getNextAddress = function () {
       this.addressPointer++;
-      if(!keys[this.addressPointer]) {
+      if (!keys[this.addressPointer]) {
         this.generateAddress();
       }
       return keys[this.addressPointer].getBitcoinAddress();
     };
 
+    /**
+     * Sign a hash with a key.
+     *
+     * This method expects the pubKeyHash as the first parameter and the hash
+     * to be signed as the second parameter.
+     */
     this.signWithKey = function (pubKeyHash, hash) {
       pubKeyHash = Crypto.util.bytesToBase64(pubKeyHash);
       for (var i = 0; i < this.addressHashes.length; i++) {
@@ -112,6 +163,12 @@ Bitcoin.Wallet = (function () {
       throw new Error("Missing key for signature");
     };
 
+    /**
+     * Retrieve the corresponding pubKey for a pubKeyHash.
+     *
+     * This function only works if the pubKey in question is part of this
+     * wallet.
+     */
     this.getPubKeyFromHash = function (pubKeyHash) {
       pubKeyHash = Crypto.util.bytesToBase64(pubKeyHash);
       for (var i = 0; i < this.addressHashes.length; i++) {
@@ -127,6 +184,12 @@ Bitcoin.Wallet = (function () {
     this.addKey(new Bitcoin.ECKey());
   };
 
+  /**
+   * Add a transaction to the wallet's processed transaction.
+   *
+   * This will add a transaction to the wallet, updating its balance and
+   * available unspent outputs.
+   */
   Wallet.prototype.process = function (tx) {
     if (this.txIndex[tx.hash]) return;
 

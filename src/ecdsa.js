@@ -134,6 +134,11 @@ ECPointFp.prototype.isOnCurve = function () {
   return lhs.equals(rhs);
 };
 
+/**
+ * Validate an elliptic curve point.
+ *
+ * See SEC 1, section 3.2.2.1: Elliptic Curve Public Key Validation Primitive
+ */
 ECPointFp.prototype.validate = function () {
   var n = this.curve.getQ();
 
@@ -228,25 +233,6 @@ Bitcoin.ECDSA = (function () {
       return ECDSA.serializeSig(r, s);
     },
 
-    serializeSig: function (r, s) {
-      var rBa = r.toByteArrayUnsigned();
-      var sBa = s.toByteArrayUnsigned();
-
-      var sequence = [];
-      sequence.push(0x02); // INTEGER
-      sequence.push(rBa.length);
-      sequence = sequence.concat(rBa);
-
-      sequence.push(0x02); // INTEGER
-      sequence.push(sBa.length);
-      sequence = sequence.concat(sBa);
-
-      sequence.unshift(sequence.length);
-      sequence.unshift(0x30) // SEQUENCE
-
-      return sequence;
-    },
-
     verify: function (hash, sig, pubkey) {
       var obj = ECDSA.parseSig(sig);
       var r = obj.r;
@@ -278,6 +264,40 @@ Bitcoin.ECDSA = (function () {
       return v.equals(r);
     },
 
+    /**
+     * Serialize a signature into DER format.
+     * 
+     * Takes two BigIntegers representing r and s and returns a byte array.
+     */
+    serializeSig: function (r, s) {
+      var rBa = r.toByteArrayUnsigned();
+      var sBa = s.toByteArrayUnsigned();
+
+      var sequence = [];
+      sequence.push(0x02); // INTEGER
+      sequence.push(rBa.length);
+      sequence = sequence.concat(rBa);
+
+      sequence.push(0x02); // INTEGER
+      sequence.push(sBa.length);
+      sequence = sequence.concat(sBa);
+
+      sequence.unshift(sequence.length);
+      sequence.unshift(0x30); // SEQUENCE
+
+      return sequence;
+    },
+
+    /**
+     * Parses a byte array containing a DER-encoded signature.
+     *
+     * This function will return an object of the form:
+     * 
+     * {
+     *   r: BigInteger,
+     *   s: BigInteger
+     * }
+     */
     parseSig: function (sig) {
       var cursor;
       if (sig[0] != 0x30)

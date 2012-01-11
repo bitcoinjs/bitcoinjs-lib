@@ -7,6 +7,11 @@ Bitcoin.Address = function (bytes) {
   this.version = 0x00;
 };
 
+/**
+ * Serialize this object as a standard Bitcoin address.
+ *
+ * Returns the address as a base58-encoded string in the standardized format.
+ */
 Bitcoin.Address.prototype.toString = function () {
   // Get a copy of the hash
   var hash = this.hash.slice(0);
@@ -25,6 +30,9 @@ Bitcoin.Address.prototype.getHashBase64 = function () {
   return Crypto.util.bytesToBase64(this.hash);
 };
 
+/**
+ * Parse a Bitcoin address contained in a string.
+ */
 Bitcoin.Address.decodeString = function (string) {
   var bytes = Bitcoin.Base58.decode(string);
 
