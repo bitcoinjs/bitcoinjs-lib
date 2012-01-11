@@ -99,15 +99,16 @@
 
   Script.prototype.getInType = function ()
   {
-    if (this.chunks.length == 1) {
+    if (this.chunks.length == 1 &&
+        Bitcoin.Util.isArray(this.chunks[0])) {
       // Direct IP to IP transactions only have the public key in their scriptSig.
+      // TODO: We could also check that the length of the data is 65 or 33.
       return 'Pubkey';
     } else if (this.chunks.length == 2 &&
                Bitcoin.Util.isArray(this.chunks[0]) &&
                Bitcoin.Util.isArray(this.chunks[1])) {
       return 'Address';
     } else {
-      console.log(this.chunks);
       throw new Error("Encountered non-standard scriptSig");
     }
   };
@@ -118,7 +119,9 @@
     case 'Address':
       return this.chunks[1];
     case 'Pubkey':
-      return this.chunks[0];
+      // TODO: Theoretically, we could recover the pubkey from the sig here.
+      //       See https://bitcointalk.org/?topic=6430.0
+      throw new Error("Script does not contain pubkey.");
     default:
       throw new Error("Encountered non-standard scriptSig");
     }
