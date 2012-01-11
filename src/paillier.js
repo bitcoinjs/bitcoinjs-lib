@@ -1,5 +1,5 @@
 Bitcoin.Paillier = (function () {
-	var rng = new SecureRandom();
+  var rng = new SecureRandom();
   var TWO = BigInteger.valueOf(2);
 
   var Paillier = {
