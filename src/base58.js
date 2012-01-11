@@ -29,8 +29,7 @@
         } else break;
       }
 
-      s = chars.join('');
-      return s;
+      return chars.join('');
     },
 
     /**
@@ -42,7 +41,7 @@
      * Ported to JavaScript by Stefan Thomas.
      */
     decode: function (input) {
-      bi = BigInteger.valueOf(0);
+      var bi = BigInteger.valueOf(0);
       var leadingZerosNum = 0;
       for (var i = input.length - 1; i >= 0; i--) {
         var alphaIndex = B58.alphabet.indexOf(input[i]);
