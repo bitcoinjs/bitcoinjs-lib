@@ -103,7 +103,7 @@
 		this.chunks[0] == OP_DUP &&
 		this.chunks[1] == OP_HASH160 &&
 		this.chunks[3] == OP_EQUALVERIFY &&
-		this.chunks[4] == map.OP_CHECKSIG) {
+		this.chunks[4] == OP_CHECKSIG) {
 		// Transfer to Bitcoin address
 		return 'Address';
 	} else if (this.chunks.length == 2 &&
@@ -288,7 +288,7 @@
   
   
   /**
-  * Exract bitcoin addresses from an output script
+  * Extract bitcoin addresses from an output script
   */
   Script.prototype.extractAddresses = function (addresses)
 {	
