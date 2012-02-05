@@ -94,25 +94,26 @@
    * Strange:
    *   Any other script (no template matched).
    */
-  Script.prototype.getOutType = function ()
-  {
-    if (this.chunks.length == 5 &&
-        this.chunks[0] == OP_DUP &&
-        this.chunks[1] == OP_HASH160 &&
-        this.chunks[3] == OP_EQUALVERIFY &&
-        this.chunks[4] == OP_CHECKSIG) {
+  Script.prototype.getOutType = function () {
 
-      // Transfer to Bitcoin address
-      return 'Address';
-    } else if (this.chunks.length == 2 &&
-               this.chunks[1] == OP_CHECKSIG) {
-
-      // Transfer to IP address
-      return 'Pubkey';
-    } else {
-      return 'Strange';
-    }
-  };
+	if (this.chunks[this.chunks.length-1] == OP_CHECKMULTISIG && this.chunks[this.chunks.length-2] <= 3) {
+		// Transfer to M-OF-N
+		return 'Multisig';
+	} else if (this.chunks.length == 5 &&
+		this.chunks[0] == OP_DUP &&
+		this.chunks[1] == OP_HASH160 &&
+		this.chunks[3] == OP_EQUALVERIFY &&
+		this.chunks[4] == map.OP_CHECKSIG) {
+		// Transfer to Bitcoin address
+		return 'Address';
+	} else if (this.chunks.length == 2 &&
+			   this.chunks[1] == OP_CHECKSIG) {
+		// Transfer to IP address
+		return 'Pubkey';
+	} else {
+		return 'Strange';
+	}   
+}
 
   /**
    * Returns the affected address hash for this output.
@@ -284,6 +285,49 @@
     script.writeOp(OP_CHECKSIG);
     return script;
   };
+  
+  
+  /**
+  * Exract bitcoin addresses from an output script
+  */
+  Script.prototype.extractAddresses = function (addresses)
+{	
+	switch (this.getOutType()) {
+	case 'Address':
+		addresses.push(new Address(this.chunks[2]));
+		return 1;
+	case 'Pubkey':
+		addresses.push(new Address(Util.sha256ripe160(this.chunks[0])));
+		return 1;
+	case 'Multisig':
+		for (var i = 1; i < this.chunks.length-2; ++i) {
+			addresses.push(new Address(Util.sha256ripe160(this.chunks[i])));
+		}
+		return this.chunks[0] - OP_1 + 1;
+	default:
+		throw new Error("Encountered non-standard scriptPubKey");
+	}
+};
+
+  /**
+  * Create an m-of-n output script
+  */
+  Script.createMultiSigOutputScript = function (m, pubkeys)
+  {
+    var script = new Bitcoin.Script();
+	
+    script.writeOp(OP_1 + m - 1);
+	
+	for (var i = 0; i < pubkeys.length; ++i) {
+		script.writeBytes(pubkeys[i]);
+	}
+	
+    script.writeOp(OP_1 + pubkeys.length - 1);
+
+	script.writeOp(OP_CHECKMULTISIG);
+
+	return script;
+  }
 
   /**
    * Create a standard payToPubKeyHash input.
