@@ -23,7 +23,7 @@ ECPointFp.prototype.getEncoded = function (compressed) {
   var enc = integerToBytes(x, 32);
 
   if (compressed) {
-    if (y.testBit(0)) {
+    if (y.isEven()) {
       enc.unshift(0x02);
     } else {
       enc.unshift(0x03);
