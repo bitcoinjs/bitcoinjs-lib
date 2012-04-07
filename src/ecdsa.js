@@ -24,12 +24,17 @@ ECPointFp.prototype.getEncoded = function (compressed) {
 
   if (compressed) {
     if (y.isEven()) {
+      // Compressed even pubkey
+      // M = 02 || X
       enc.unshift(0x02);
     } else {
+      // Compressed uneven pubkey
+      // M = 03 || X
       enc.unshift(0x03);
     }
-    // TODO: Implement
   } else {
+    // Uncompressed pubkey
+    // M = 04 || X || Y
     enc.unshift(0x04);
     enc = enc.concat(integerToBytes(y, 32));
   }
