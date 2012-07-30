@@ -18,14 +18,14 @@ license.
 
 # Copyright
 
-BitcoinJS (c) 2011-2012 Stefan Thomas
-Released under MIT license
+BitcoinJS (c) 2011-2012 Stefan Thomas  
+Released under MIT license  
 http://bitcoinjs.org/
 
-JSBN (c) 2003-2005 Tom Wu
-Released under BSD license
+JSBN (c) 2003-2005 Tom Wu  
+Released under BSD license  
 http://www-cs-students.stanford.edu/~tjw/jsbn/
 
-CryptoJS (c) 2009–2012 by Jeff Mott
-Released under New BSD license
+CryptoJS (c) 2009–2012 by Jeff Mott  
+Released under New BSD license  
 http://code.google.com/p/crypto-js/
