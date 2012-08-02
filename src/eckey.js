@@ -15,8 +15,13 @@ Bitcoin.ECKey = (function () {
       // Prepend zero byte to prevent interpretation as negative integer
       this.priv = BigInteger.fromByteArrayUnsigned(input);
     } else if ("string" == typeof input) {
-      // Prepend zero byte to prevent interpretation as negative integer
-      this.priv = BigInteger.fromByteArrayUnsigned(Crypto.util.base64ToBytes(input));
+      if (input.length == 51 && input[0] == '5') {
+        // Base58 encoded private key
+        this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input));
+      } else {
+        // Prepend zero byte to prevent interpretation as negative integer
+        this.priv = BigInteger.fromByteArrayUnsigned(Crypto.util.base64ToBytes(input));
+      }
     }
   };
 
@@ -44,6 +49,14 @@ Bitcoin.ECKey = (function () {
     return addr;
   };
 
+  ECKey.prototype.getExportedPrivateKey = function () {
+    var hash = this.priv.toByteArrayUnsigned();
+    hash.unshift(0x80);
+    var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
+    var bytes = hash.concat(checksum.slice(0,4));
+    return Bitcoin.Base58.encode(bytes);
+  };
+
   ECKey.prototype.setPub = function (pub) {
     this.pub = pub;
   };
@@ -62,6 +75,32 @@ Bitcoin.ECKey = (function () {
 
   ECKey.prototype.verify = function (hash, sig) {
     return ECDSA.verify(hash, sig, this.getPub());
+  };
+
+  /**
+   * Parse an exported private key contained in a string.
+   */
+  ECKey.decodeString = function (string) {
+    var bytes = Bitcoin.Base58.decode(string);
+
+    var hash = bytes.slice(0, 33);
+
+    var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
+
+    if (checksum[0] != bytes[33] ||
+        checksum[1] != bytes[34] ||
+        checksum[2] != bytes[35] ||
+        checksum[3] != bytes[36]) {
+      throw "Checksum validation failed!";
+    }
+
+    var version = hash.shift();
+
+    if (version != 0x80) {
+      throw "Version "+version+" not supported!";
+    }
+
+    return hash;
   };
 
   return ECKey;
