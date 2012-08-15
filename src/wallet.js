@@ -40,7 +40,7 @@ Bitcoin.Wallet = (function () {
         if ("string" === typeof pub) {
           pub = Crypto.util.base64ToBytes(pub);
         }
-        key.pub = pub;
+        key.setPub(pub);
       }
 
       this.addressHashes.push(key.getBitcoinAddress().getHashBase64());

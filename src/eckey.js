@@ -23,12 +23,35 @@ Bitcoin.ECKey = (function () {
         this.priv = BigInteger.fromByteArrayUnsigned(Crypto.util.base64ToBytes(input));
       }
     }
+    this.compressed = !!ECKey.compressByDefault;
   };
 
-  ECKey.prototype.getPub = function () {
-    if (this.pub) return this.pub;
+  /**
+   * Whether public keys should be returned compressed by default.
+   */
+  ECKey.compressByDefault = false;
 
-    return this.pub = ecparams.getG().multiply(this.priv).getEncoded();
+  /**
+   * Set whether the public key should be returned compressed or not.
+   */
+  ECKey.prototype.setCompressed = function (v) {
+    this.compressed = !!v;
+  };
+
+  /**
+   * Return public key in DER encoding.
+   */
+  ECKey.prototype.getPub = function () {
+    return this.getPubPoint().getEncoded(this.compressed);
+  };
+
+  /**
+   * Return public point as ECPoint object.
+   */
+  ECKey.prototype.getPubPoint = function () {
+    if (!this.pub) this.pub = ecparams.getG().multiply(this.priv);
+
+    return this.pub;
   };
 
   /**
@@ -58,7 +81,7 @@ Bitcoin.ECKey = (function () {
   };
 
   ECKey.prototype.setPub = function (pub) {
-    this.pub = pub;
+    this.pub = ECPointFp.decodeFrom(ecparams.getCurve(), pub);
   };
 
   ECKey.prototype.toString = function (format) {
