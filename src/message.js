@@ -31,7 +31,8 @@ Bitcoin.Message = (function () {
 
     var obj = Bitcoin.ECDSA.parseSig(sig);
 
-    var i = Bitcoin.ECDSA.calcPubkeyRecoveryParam(obj.r, obj.s, hash);
+    var address = key.getBitcoinAddress().toString();
+    var i = Bitcoin.ECDSA.calcPubkeyRecoveryParam(address, obj.r, obj.s, hash);
 
     i += 27;
     if (compressed) i += 4;

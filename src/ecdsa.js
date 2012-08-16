@@ -457,11 +457,12 @@ Bitcoin.ECDSA = (function () {
      * This function simply tries all four cases and returns the value
      * that resulted in a successful pubkey recovery.
      */
-    calcPubkeyRecoveryParam: function (r, s, hash)
+    calcPubkeyRecoveryParam: function (address, r, s, hash)
     {
       for (var i = 0; i < 4; i++) {
         try {
-          if (Bitcoin.ECDSA.recoverPubKey(r, s, hash, i)) {
+          var pubkey = Bitcoin.ECDSA.recoverPubKey(r, s, hash, i);
+          if (pubkey.getBitcoinAddress().toString() == address) {
             return i;
           }
         } catch (e) {}
