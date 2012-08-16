@@ -38,7 +38,7 @@ Bitcoin.Message = (function () {
     if (compressed) i += 4;
 
     var rBa = obj.r.toByteArrayUnsigned();
-    var sBa = obj.r.toByteArrayUnsigned();
+    var sBa = obj.s.toByteArrayUnsigned();
 
     // Pad to 32 bytes per value
     while (rBa.length < 32) rBa.unshift(0);
