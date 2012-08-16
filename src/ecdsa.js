@@ -10,118 +10,6 @@ function integerToBytes(i, len) {
   return bytes;
 };
 
-/**
- * Find a quadratic residue (mod p) of this number. p must be an odd prime.
- *
- * For a given number a, this function solves the congruence of the form
- *
- *   x^2 = a (mod p)
- *
- * And returns x. Note that p - x is also a root.
- *
- * 0 is returned if no square root exists for these a and p.
- *
- * The Tonelli-Shanks algorithm is used (except for some simple cases
- * in which the solution is known from an identity). This algorithm
- * runs in polynomial time (unless the generalized Riemann hypothesis
- * is false).
- *
- * Originally implemented in Python by Eli Bendersky:
- * http://eli.thegreenplace.net/2009/03/07/computing-modular-square-roots-in-python/
- *
- * Ported to JavaScript by Stefan Thomas.
- */
-BigInteger.prototype.modSqrt = function (p) {
-  var ONE = BigInteger.ONE,
-      TWO = BigInteger.valueOf(2);
-
-  // Simple cases
-  if (this.legendre(p) != 1) {
-    return BigInteger.ZERO;
-  } else if (this.equals(BigInteger.ZERO)) {
-    return BigInteger.ZERO;
-  } else if (p.equals(TWO)) {
-    return p;
-  } else if (p.mod(BigInteger.valueOf(4)).equals(BigInteger.valueOf(3))) {
-    return this.modPow(p.add(ONE).divide(BigInteger.valueOf(4)), p);
-  }
-
-  // Partition p-1 to s * 2^e for an odd s (i.e. reduce all the powers
-  // of 2 from p-1)
-  var s = p.subtract(ONE);
-  var e = 0;
-  while (s.isEven()) {
-    s = s.divide(TWO);
-    ++e;
-  }
-
-  // Find some 'n' with a legendre symbol n|p = -1.
-  // Shouldn't take long.
-  var n = TWO;
-  while (n.legendre(p) != -1) {
-    n = n.add(ONE);
-  }
-
-  // Here be dragons!
-  // Read the paper "Square roots from 1; 24, 51, 10 to Dan Shanks" by
-  // Ezra Brown for more information
-
-  // x is a guess of the square root that gets better with each
-  // iteration.
-  //
-  // b is the "fudge factor" - by how much we're off with the guess.
-  // The invariant x^2 = ab (mod p) is maintained throughout the loop.
-  //
-  // g is used for successive powers of n to update both a and b
-  //
-  // r is the exponent - decreases with each update
-
-  var x = this.modPow(s.add(ONE).divide(TWO), p);
-  var b = this.modPow(s, p);
-  var g = n.modPow(s, p);
-  var r = e;
-
-  for (;;) {
-    var t = b;
-
-    var m;
-    for (m = 0; m < r; m++) {
-      if (t.equals(ONE)) break;
-
-      t = t.modPowInt(2, p);
-    }
-
-    if (m == 0) {
-      return x;
-    }
-
-    var gs = g.modPow(TWO.pow(BigInteger.valueOf(r - m - 1)), p);
-    g = gs.multiply(gs).mod(p);
-    x = x.multiply(gs).mod(p);
-    b = b.multiply(g).mod(p);
-    r = m;
-  }
-};
-
-/**
- * Compute the Legendre symbol a|p using Euler's criterion.
- *
- * p is a prime, a is relatively prime to p
- * (if p divides a, then a | p = 0)
- *
- * Returns 1 if a has a square root modulo p, -1 otherwise.
- */
-BigInteger.prototype.legendre = function (p) {
-  var ls = this.modPow(p.subtract(BigInteger.ONE).shiftRight(1), p);
-  if (ls.equals(p.subtract(BigInteger.ONE))) {
-    return -1;
-  } else if (ls.equals(BigInteger.ZERO)) {
-    return 0;
-  } else {
-    return 1;
-  }
-};
-
 ECFieldElementFp.prototype.getByteLength = function () {
   return Math.floor((this.toBigInteger().bitLength() + 7) / 8);
 };
@@ -303,6 +191,8 @@ function dmp(v) {
 Bitcoin.ECDSA = (function () {
   var ecparams = getSECCurveByName("secp256k1");
   var rng = new SecureRandom();
+
+  var P_OVER_FOUR = null;
 
   function implShamirsTrick(P, k, Q, l)
   {
@@ -515,12 +405,17 @@ Bitcoin.ECDSA = (function () {
       var a = curve.getA().toBigInteger();
       var b = curve.getB().toBigInteger();
 
+      // We precalculate (p + 1) / 4 where p is if the field order
+      if (!P_OVER_FOUR) {
+        P_OVER_FOUR = p.add(BigInteger.ONE).divide(BigInteger.valueOf(4));
+      }
+
       // 1.1 Compute x
       var x = isSecondKey ? r.add(n) : r;
 
       // 1.3 Convert x to point
       var alpha = x.multiply(x).multiply(x).add(a.multiply(x)).add(b).mod(p);
-      var beta = alpha.modSqrt(p);
+      var beta = alpha.modPow(P_OVER_FOUR, p);
 
       var xorOdd = beta.isEven() ? (i % 2) : ((i+1) % 2);
       // If beta is even, but y isn't or vice versa, then convert it,
