@@ -178,16 +178,11 @@
       txTmp.ins = [txTmp.ins[inIndex]];
     }
 
-    console.log(txTmp);
     var buffer = txTmp.serialize();
 
     buffer = buffer.concat(Crypto.util.wordsToBytes([parseInt(hashType)]).reverse());
 
-    console.log("signtx: "+Crypto.util.bytesToHex(buffer));
-
     var hash1 = Crypto.SHA256(buffer, {asBytes: true});
-
-    console.log("sha256_1: ", Crypto.util.bytesToHex(hash1));
 
     return Crypto.SHA256(hash1, {asBytes: true});
   };

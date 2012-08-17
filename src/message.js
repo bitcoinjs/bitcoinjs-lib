@@ -67,17 +67,3 @@ Bitcoin.Message = (function () {
 
   return Message;
 })();
-
-console.log("should be true:", Bitcoin.Message.verifyMessage('16vqGo3KRKE9kTsTZxKoJKLzwZGTodK3ce',
-            'HPDs1TesA48a9up4QORIuub67VHBM37X66skAYz0Esg23gdfMuCTYDFORc6XGpKZ2/flJ2h/DUF569FJxGoVZ50=',
-            'test message'));
-console.log("should be false:", Bitcoin.Message.verifyMessage('16vqGo3KRKE9kTsTZxKoJKLzwZGTodK3ce',
-            'HPDs1TesA48a9up4QORIuub67VHBM37X66skAYz0Esg23gdfMuCTYDFORc6XGpKZ2/flJ2h/DUF569FJxGoVZ50=',
-            'test message 2'));
-console.log("should be true:", Bitcoin.Message.verifyMessage('1GdKjTSg2eMyeVvPV5Nivo6kR8yP2GT7wF',
-            'GyMn9AdYeZIPWLVCiAblOOG18Qqy4fFaqjg5rjH6QT5tNiUXLS6T2o7iuWkV1gc4DbEWvyi8yJ8FvSkmEs3voWE=',
-            'freenode:#bitcoin-otc:b42f7e7ea336db4109df6badc05c6b3ea8bfaa13575b51631c5178a7'));
-console.log("should be true:", Bitcoin.Message.verifyMessage('1Hpj6xv9AzaaXjPPisQrdAD2tu84cnPv3f',
-            'INEJxQnSu6mwGnLs0E8eirl5g+0cAC9D5M7hALHD9sK0XQ66CH9mas06gNoIX7K1NKTLaj3MzVe8z3pt6apGJ34=',
-            'testtest'));
-
