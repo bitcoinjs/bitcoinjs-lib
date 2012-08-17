@@ -305,8 +305,8 @@ Bitcoin.ECDSA = (function () {
      * Takes two BigIntegers representing r and s and returns a byte array.
      */
     serializeSig: function (r, s) {
-      var rBa = r.toByteArrayUnsigned();
-      var sBa = s.toByteArrayUnsigned();
+      var rBa = r.toByteArraySigned();
+      var sBa = s.toByteArraySigned();
 
       var sequence = [];
       sequence.push(0x02); // INTEGER
@@ -327,7 +327,7 @@ Bitcoin.ECDSA = (function () {
      * Parses a byte array containing a DER-encoded signature.
      *
      * This function will return an object of the form:
-     * 
+     *
      * {
      *   r: BigInteger,
      *   s: BigInteger
