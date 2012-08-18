@@ -32,9 +32,6 @@ function feFpAdd(b) {
 }
 
 function feFpSubtract(b) {
-	/*console.log("b.y (int): ", Crypto.util.bytesToHex(this.x.toByteArrayUnsigned()));
-	console.log("this.y (int): ", Crypto.util.bytesToHex(b.toBigInteger().toByteArrayUnsigned()));
-	console.log("b.y-this.y (premod): ", Crypto.util.bytesToHex(this.x.subtract(b.toBigInteger()).toByteArrayUnsigned()));*/
     return new ECFieldElementFp(this.q, this.x.subtract(b.toBigInteger()).mod(this.q));
 }
 
@@ -47,7 +44,6 @@ function feFpSquare() {
 }
 
 function feFpDivide(b) {
-	//console.log("x: ", Crypto.util.bytesToHex(this.x.toByteArrayUnsigned()));
     return new ECFieldElementFp(this.q, this.x.multiply(b.toBigInteger().modInverse(this.q)).mod(this.q));
 }
 
@@ -125,7 +121,6 @@ function pointFpAdd(b) {
     // v = X2 * Z1 - X1 * Z2
     var v = b.x.toBigInteger().multiply(this.z).subtract(this.x.toBigInteger().multiply(b.z)).mod(this.curve.q);
 
-	
     if(BigInteger.ZERO.equals(v)) {
         if(BigInteger.ZERO.equals(u)) {
             return this.twice(); // this == b, so double
