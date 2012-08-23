@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/bitcoinjs/bitcoinjs-lib.png)](http://travis-ci.org/bitcoinjs/bitcoinjs-lib)
 # bitcoinjs-lib
 
 A library containing Bitcoin client-side functionality in JavaScript,
