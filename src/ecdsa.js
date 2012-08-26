@@ -248,7 +248,7 @@ Bitcoin.ECDSA = (function () {
     verify: function (hash, sig, pubkey) {
       var r,s;
       if (Bitcoin.Util.isArray(sig)) {
-        var obj = stringECDSA.parseSig(sig);
+        var obj = ECDSA.parseSig(sig);
         r = obj.r;
         s = obj.s;
       } else if ("object" === typeof sig && sig.r && sig.s) {
