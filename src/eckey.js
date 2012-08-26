@@ -74,6 +74,7 @@ Bitcoin.ECKey = (function () {
 
   ECKey.prototype.getExportedPrivateKey = function () {
     var hash = this.priv.toByteArrayUnsigned();
+    while (hash.length < 32) hash.unshift(0);
     hash.unshift(0x80);
     var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
     var bytes = hash.concat(checksum.slice(0,4));
