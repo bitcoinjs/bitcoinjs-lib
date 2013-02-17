@@ -22,6 +22,12 @@
     "mocha": "1.8.1"
   },
 
+  "testling": {
+    "browsers": ["ie/9..latest", "firefox/15..latest", "chrome/22..latest"],
+    "harness" : "mocha-qunit",
+    "files": "test/*.js"
+  },
+
   "scripts": {
     "test": "mocha test/*.js"
   }
