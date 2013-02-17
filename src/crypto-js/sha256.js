@@ -5,6 +5,8 @@
  * http://code.google.com/p/crypto-js/wiki/License
  */
 
+var conv = require('../convert');
+
 	// Convert a byte array to big-endian 32-bit words
 var bytesToWords = function (bytes) {
 	for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
@@ -51,7 +53,7 @@ var SHA256 = C.SHA256 = function (message, options) {
 	var digestbytes = wordsToBytes(SHA256._sha256(message));
 	return options && options.asBytes ? digestbytes :
 	       options && options.asString ? Binary.bytesToString(digestbytes) :
-	       util.bytesToHex(digestbytes);
+	       conv.bytesToHex(digestbytes);
 };
 
 // The core
