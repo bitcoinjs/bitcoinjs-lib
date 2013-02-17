@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Address = require('../').Address;
+var Address = require('..').Address;
 
 test('string', function() {
     var addr = '18fN1QTGWmHWCA9r2dyDH6FbMEyc7XHmQQ';
