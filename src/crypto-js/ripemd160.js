@@ -13,7 +13,8 @@
  * Ported to Crypto-JS by Stefan Thomas.
  */
 
-(function () {
+var Crypto = require('./crypto');
+
 	// Shortcuts
 	var C = Crypto,
     util = C.util,
@@ -22,7 +23,7 @@
     Binary = charenc.Binary;
 
 	// Convert a byte array to little-endian 32-bit words
-	util.bytesToLWords = function (bytes) {
+	var bytesToLWords = function (bytes) {
 
 		var output = Array(bytes.length >> 2);
 		for (var i = 0; i < output.length; i++)
@@ -33,7 +34,7 @@
 	};
 
 	// Convert little-endian 32-bit words to a byte array
-	util.lWordsToBytes = function (words) {
+	var lWordsToBytes = function (words) {
 		var output = [];
 		for (var i = 0; i < words.length * 32; i += 8)
 			output.push((words[i>>5] >>> (i % 32)) & 0xff);
@@ -42,7 +43,7 @@
 
 	// Public API
 	var RIPEMD160 = C.RIPEMD160 = function (message, options) {
-		var digestbytes = util.lWordsToBytes(RIPEMD160._rmd160(message));
+		var digestbytes = lWordsToBytes(RIPEMD160._rmd160(message));
 		return options && options.asBytes ? digestbytes :
 			options && options.asString ? Binary.bytesToString(digestbytes) :
 			util.bytesToHex(digestbytes);
@@ -54,7 +55,7 @@
 		// Convert to byte array
 		if (message.constructor == String) message = UTF8.stringToBytes(message);
 
-		var x = util.bytesToLWords(message),
+		var x = bytesToLWords(message),
 		    len = message.length * 8;
 
 		/* append padding */
@@ -167,4 +168,5 @@
 	{
 		return (num << cnt) | (num >>> (32 - cnt));
 	}
-})();
+
+	module.exports = RIPEMD160

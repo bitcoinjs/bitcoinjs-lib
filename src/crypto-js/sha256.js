@@ -4,7 +4,22 @@
  * Copyright (c) 2009, Jeff Mott. All rights reserved.
  * http://code.google.com/p/crypto-js/wiki/License
  */
-(function(){
+
+	// Convert a byte array to big-endian 32-bit words
+var bytesToWords = function (bytes) {
+	for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
+		words[b >>> 5] |= bytes[i] << (24 - b % 32);
+	return words;
+};
+
+	// Convert big-endian 32-bit words to a byte array
+var wordsToBytes = function (words) {
+	for (var bytes = [], b = 0; b < words.length * 32; b += 8)
+		bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+	return bytes;
+};
+
+var Crypto = require('./crypto');
 
 // Shortcuts
 var C = Crypto,
@@ -33,7 +48,7 @@ var K = [ 0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
 
 // Public API
 var SHA256 = C.SHA256 = function (message, options) {
-	var digestbytes = util.wordsToBytes(SHA256._sha256(message));
+	var digestbytes = wordsToBytes(SHA256._sha256(message));
 	return options && options.asBytes ? digestbytes :
 	       options && options.asString ? Binary.bytesToString(digestbytes) :
 	       util.bytesToHex(digestbytes);
@@ -46,7 +61,7 @@ SHA256._sha256 = function (message) {
 	if (message.constructor == String) message = UTF8.stringToBytes(message);
 	/* else, assume byte array already */
 
-	var m = util.bytesToWords(message),
+	var m = bytesToWords(message),
 	    l = message.length * 8,
 	    H = [ 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
 	          0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ],
@@ -130,4 +145,4 @@ SHA256._sha256 = function (message) {
 // Package private blocksize
 SHA256._blocksize = 16;
 
-})();
+module.exports = SHA256;
