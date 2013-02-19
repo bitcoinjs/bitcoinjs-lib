@@ -19,7 +19,8 @@
   },
 
   "devDependencies" : {
-    "mocha": "1.8.1"
+    "mocha": "1.8.1",
+    "istanbul": "0.1.30"
   },
 
   "testling": {
@@ -29,6 +30,6 @@
   },
 
   "scripts": {
-    "test": "mocha test/*.js"
+    "test": "istanbul test ./node_modules/.bin/_mocha -- --reporter list test/*.js"
   }
 }
