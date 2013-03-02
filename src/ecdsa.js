@@ -70,7 +70,7 @@ var ECDSA = {
       r = sig.r;
       s = sig.s;
     } else {
-      throw "Invalid value for signature";
+      throw new Error("Invalid value for signature");
     }
 
     var Q;
@@ -79,7 +79,7 @@ var ECDSA = {
     } else if (util.isArray(pubkey)) {
       Q = ECPointFp.decodeFrom(ecparams.getCurve(), pubkey);
     } else {
-      throw "Invalid format for pubkey value, must be byte array or ECPointFp";
+      throw new Error("Invalid format for pubkey value, must be byte array or ECPointFp");
     }
     var e = BigInteger.fromByteArrayUnsigned(hash);
 
@@ -176,14 +176,14 @@ var ECDSA = {
 
   parseSigCompact: function (sig) {
     if (sig.length !== 65) {
-      throw "Signature has the wrong length";
+      throw new Error("Signature has the wrong length");
     }
 
     // Signature is prefixed with a type byte storing three bits of
     // information.
     var i = sig[0] - 27;
     if (i < 0 || i > 7) {
-      throw "Invalid signature type";
+      throw new Error("Invalid signature type");
     }
 
     var n = ecparams.getN();
@@ -253,10 +253,13 @@ var ECDSA = {
 
     Q.validate();
     if (!ECDSA.verifyRaw(e, r, s, Q)) {
-      throw "Pubkey recovery unsuccessful";
+      throw new Error("Pubkey recovery unsuccessful");
     }
 
-    var pubKey = new Bitcoin.ECKey();
+    // TODO (shtylman) this is stupid because this file and eckey
+    // have circular dependencies
+    var ECKey = require('./eckey');
+    var pubKey = ECKey();
     pubKey.pub = Q;
     return pubKey;
   },
@@ -275,14 +278,13 @@ var ECDSA = {
   calcPubkeyRecoveryParam: function (address, r, s, hash)
   {
     for (var i = 0; i < 4; i++) {
-      try {
-        var pubkey = Bitcoin.ECDSA.recoverPubKey(r, s, hash, i);
-        if (pubkey.getBitcoinAddress().toString() == address) {
-          return i;
-        }
-      } catch (e) {}
+      var pubkey = ECDSA.recoverPubKey(r, s, hash, i);
+      if (pubkey.getBitcoinAddress().toString() == address) {
+        return i;
+      }
     }
-    throw "Unable to find valid recovery factor";
+
+    throw new Error("Unable to find valid recovery factor");
   }
 };
 
