@@ -201,6 +201,11 @@ Wallet.prototype.generateAddress = function () {
   this.addKey(new ECKey());
 };
 
+// return unspent transactions
+Wallet.prototype.unspentTx = function() {
+  return this.unspentOuts;
+};
+
 /**
  * Add a transaction to the wallet's processed transaction.
  *
@@ -215,9 +220,12 @@ Wallet.prototype.process = function (tx) {
   var hash;
   // Gather outputs
   for (j = 0; j < tx.out.length; j++) {
-    var txout = new TransactionOut(tx.out[j]);
+    var raw_tx = tx.out[j];
+    var txout = new TransactionOut(raw_tx);
+    // this hash is the base64 hash of the pubkey which is the address the output when to
     hash = conv.bytesToBase64(txout.script.simpleOutPubKeyHash());
     for (k = 0; k < this.addressHashes.length; k++) {
+      // if our address, then we add the unspent out to a list of unspent outputs
       if (this.addressHashes[k] === hash) {
         this.unspentOuts.push({tx: tx, index: j, out: txout});
         break;
@@ -227,7 +235,15 @@ Wallet.prototype.process = function (tx) {
 
   // Remove spent outputs
   for (j = 0; j < tx.in.length; j++) {
-    var txin = new TransactionIn(tx.in[j]);
+    var raw_tx = tx.in[j];
+
+    // mangle into the format TransactionIn expects
+    raw_tx.outpoint = {
+      hash: raw_tx.prev_out.hash,
+      index: raw_tx.prev_out.n
+    };
+
+    var txin = new TransactionIn(raw_tx);
     var pubkey = txin.script.simpleInPubKey();
     hash = conv.bytesToBase64(util.sha256ripe160(pubkey));
     for (k = 0; k < this.addressHashes.length; k++) {
@@ -291,6 +307,8 @@ Wallet.prototype.createSend = function (address, sendValue, feeValue) {
   for (i = 0; i < sendTx.ins.length; i++) {
     var hash = sendTx.hashTransactionForSignature(selectedOuts[i].out.script, i, hashType);
     var pubKeyHash = selectedOuts[i].out.script.simpleOutPubKeyHash();
+
+    // this changes because signing uses a random number generator
     var signature = this.signWithKey(pubKeyHash, hash);
 
     // Append hash type

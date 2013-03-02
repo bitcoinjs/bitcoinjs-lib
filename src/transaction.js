@@ -125,7 +125,11 @@ Transaction.prototype.serialize = function ()
   buffer = buffer.concat(util.numToVarInt(this.ins.length));
   for (var i = 0; i < this.ins.length; i++) {
     var txin = this.ins[i];
-    buffer = buffer.concat(conv.base64ToBytes(txin.outpoint.hash));
+
+    // the hash is flipped to what the fuck here?
+    // this seems to be the only thing that I don't understand
+    buffer = buffer.concat(conv.hexToBytes(txin.outpoint.hash));
+
     buffer = buffer.concat(wordsToBytes([parseInt(txin.outpoint.index)]).reverse());
     var scriptBytes = txin.script.buffer;
     buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
@@ -415,8 +419,12 @@ var TransactionIn = function (data)
   if (data.script instanceof Script) {
     this.script = data.script;
   } else {
-    //this.script = new Script(data.script);
-    this.script = Script.fromScriptSig(data.scriptSig);
+    if (data.scriptSig) {
+      this.script = Script.fromScriptSig(data.scriptSig);
+    }
+    else {
+      this.script = new Script(data.script);
+    }
   }
   this.sequence = data.sequence;
 };
@@ -439,8 +447,12 @@ var TransactionOut = function (data)
   if (data.script instanceof Script) {
     this.script = data.script;
   } else {
-    //this.script = new Script(data.script);
-    this.script = Script.fromPubKey(data.scriptPubKey);
+    if (data.scriptPubKey) {
+      this.script = Script.fromScriptSig(data.scriptPubKey);
+    }
+    else {
+      this.script = new Script(data.script);
+    }
   }
 
   if (util.isArray(data.value)) {
