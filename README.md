@@ -3,6 +3,8 @@
 A library containing Bitcoin client-side functionality in JavaScript,
 most notably ECDSA signing and verification.
 
+[Website](http://bitcoinjs.org/) • [Mailing List](https://groups.google.com/group/bitcoinjs) • [Twitter](https://twitter.com/bitcoinjs)
+
 # Status
 
 This is currently pretty raw code. We're planning to clean it up,
