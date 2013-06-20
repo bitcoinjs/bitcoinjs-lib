@@ -31,5 +31,6 @@ test('from private base58', function() {
     assert.equal(key.compressed, true);
     assert.equal(bytesToHex(key.getPub()), pub);
     assert.equal(key.getBitcoinAddress().toString(), addr);
+    assert.notEqual(key.getBitcoinAddress('testnet').toString(), addr);
 });
 

@@ -9,7 +9,7 @@ var Transaction = require('./transaction').Transaction;
 var TransactionIn = require('./transaction').TransactionIn;
 var TransactionOut = require('./transaction').TransactionOut;
 
-var Wallet = function () {
+var Wallet = function (bitcoinNetwork) {
   // Keychain
   //
   // The keychain is stored as a var in this closure to make accidental
@@ -21,6 +21,7 @@ var Wallet = function () {
 
   // Public hashes of our keys
   this.addressHashes = [];
+  this.bitcoinNetwork = bitcoinNetwork;
 
   // Transaction data
   this.txIndex = {};
@@ -49,7 +50,7 @@ var Wallet = function () {
       key.setPub(pub);
     }
 
-    this.addressHashes.push(key.getBitcoinAddress().getHashBase64());
+    this.addressHashes.push(key.getBitcoinAddress(this.bitcoinNetwork).getHashBase64());
   };
 
   /**
@@ -126,7 +127,7 @@ var Wallet = function () {
   this.getAllAddresses = function () {
     var addresses = [];
     for (var i = 0; i < keys.length; i++) {
-      addresses.push(keys[i].getBitcoinAddress());
+      addresses.push(keys[i].getBitcoinAddress(this.bitcoinNetwork));
     }
     return addresses;
   };
@@ -149,8 +150,6 @@ var Wallet = function () {
     if (keys.length === 0) {
       this.generateAddress();
     }
-    else {
-    }
 
     /*
     this.addressPointer++;
@@ -161,7 +160,7 @@ var Wallet = function () {
     // TODO(shtylman) this shit is trying to be too smart
     // it is making a new address when it shouldn't
     // it should just stop being so "smart" and just do what it is told
-    return keys[this.addressPointer].getBitcoinAddress();
+    return keys[this.addressPointer].getBitcoinAddress(this.bitcoinNetwork);
   };
 
   /**
