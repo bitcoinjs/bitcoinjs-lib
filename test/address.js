@@ -3,7 +3,9 @@ var Address = require('..').Address;
 
 test('string', function() {
     var addr = '18fN1QTGWmHWCA9r2dyDH6FbMEyc7XHmQQ';
-    assert.equal((new Address(addr)).toString(), addr);
+    var address = new Address(addr);
+    assert.equal(address.toString(), addr);
+    assert.equal(address.version, 0);
 });
 
 test('valid', function() {
@@ -44,3 +46,15 @@ test('invalid', function() {
     invalid('%%@');
 });
 
+test('validateType', function() {
+    function valid(version, type) {
+        assert.ok(Address.validateType(version, type));
+    };
+    function invalid(version, type) {
+        assert.ok(!Address.validateType(version, type));
+    };
+
+    valid(0x0, 'prod');
+    invalid(0x6f, 'prod');
+    valid(0x6f, 'testnet');
+});

@@ -12,13 +12,13 @@ var p2sh_types = {
     testnet: 196
 };
 
-var Address = function (bytes) {
+var Address = function (bytes, address_type) {
   if (typeof bytes === 'string') {
-    bytes = Address.decodeString(bytes);
+    this.decodeString(bytes, address_type);
+  } else {
+    this.hash = bytes;
+    this.version = address_types[address_type || 'prod'];
   }
-  this.hash = bytes;
-
-  this.version = 0x00;
 };
 
 /**
@@ -44,6 +44,23 @@ Address.prototype.getHashBase64 = function () {
   return conv.bytesToBase64(this.hash);
 };
 
+Address.validateType = function(version, type) {
+  if (type) {
+    return (version === address_types[type] || version === p2sh_types[type]);
+  }
+  for (var type in address_types) {
+    if (version == address_types[type]) {
+      return true;
+    }
+  }
+  for (var type in p2sh_types) {
+    if (version == p2sh_types[type]) {
+      return true;
+    }
+  }
+  return false;
+};
+
 // TODO(shtylman) isValid?
 Address.validate = function(string, type) {
   try {
@@ -63,9 +80,7 @@ Address.validate = function(string, type) {
     return false;
   }
 
-  var version = hash[0];
-
-  if (type && version !== address_types[type] && version !== p2sh_types[type]) {
+  if (!Address.validateType(hash[0], type)) {
     return false;
   }
 
@@ -75,7 +90,7 @@ Address.validate = function(string, type) {
 /**
  * Parse a Bitcoin address contained in a string.
  */
-Address.decodeString = function (string) {
+Address.prototype.decodeString = function(string, address_type) {
   var bytes = base58.decode(string);
 
   var hash = bytes.slice(0, 21);
@@ -90,12 +105,13 @@ Address.decodeString = function (string) {
   }
 
   var version = hash.shift();
-  // TODO(shtylman) allow for specific version decoding same as validate above
-  if (version != 0) {
-    throw new Error('Address version not supported: ' + string);
+  if (!Address.validateType(version, address_type)) {
+    throw new Error('Address version (' + version + ') not supported: ' + string +
+                    ' for ' + address_type);
   }
 
-  return hash;
+  this.hash = hash;
+  this.version = version;
 };
 
 module.exports = Address;
