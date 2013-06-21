@@ -9,7 +9,8 @@ test('Testnet wallet', function() {
     wallet.generateAddress();
     addresses = wallet.getAllAddresses();
     assert.equal(addresses.length, 1);
-    assert.equal(addresses[0].toString().slice(0, 1), 'm');
+    var addressStart = addresses[0].toString().slice(0, 1);
+    assert.ok(['m', 'n'].indexOf(addressStart) != -1);
     assert.equal(addresses[0].version, 0x6f);
 });
 

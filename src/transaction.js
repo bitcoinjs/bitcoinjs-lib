@@ -82,6 +82,10 @@ Transaction.prototype.addOutput = function (address, value) {
   if (arguments[0] instanceof TransactionOut) {
     this.outs.push(arguments[0]);
   } else {
+    if ("number" == typeof value) {
+      value = BigInteger.valueOf(value);
+    }
+
     if (value instanceof BigInteger) {
       value = value.toByteArrayUnsigned().reverse();
       while (value.length < 8) value.push(0);
