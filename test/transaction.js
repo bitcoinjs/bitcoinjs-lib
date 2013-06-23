@@ -12,9 +12,11 @@ test('Transaction output', function() {
     transaction.addOutput(address, 1234);
     transaction.addOutput(address, BigInteger.ONE);
     transaction.addOutput(transaction.outs[0]);
+    transaction.addOutput(address.toString(), 888);
 
-    assert.equal(transaction.outs.length, 3);
+    assert.equal(transaction.outs.length, 4);
     assert.equal(transaction.outs[0].value.length, 8);
     assert.equal(transaction.outs[1].value.length, 8);
     assert.equal(transaction.outs[2].value.length, 8);
+    assert.ok(transaction.outs[3].script);
 });

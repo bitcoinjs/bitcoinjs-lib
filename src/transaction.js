@@ -1,3 +1,4 @@
+var Address = require('./address');
 var BigInteger = require('./jsbn/jsbn');
 var Script = require('./script');
 var util = require('./util');
@@ -82,6 +83,9 @@ Transaction.prototype.addOutput = function (address, value) {
   if (arguments[0] instanceof TransactionOut) {
     this.outs.push(arguments[0]);
   } else {
+    if ("string" == typeof address) {
+      address = new Address(address);
+    }
     if ("number" == typeof value) {
       value = BigInteger.valueOf(value);
     }
