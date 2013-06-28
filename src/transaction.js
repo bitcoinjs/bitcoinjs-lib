@@ -93,7 +93,7 @@ Transaction.prototype.addOutput = function (address, value) {
     if (value instanceof BigInteger) {
       value = value.toByteArrayUnsigned().reverse();
       while (value.length < 8) value.push(0);
-    } else if (Bitcoin.Util.isArray(value)) {
+    } else if (util.isArray(value)) {
       // Nothing to do
     }
 
@@ -271,7 +271,8 @@ Transaction.prototype.clone = function ()
  *   This method was unable to detect what the transaction does. Either it
  */
 Transaction.prototype.analyze = function (wallet) {
-  if (!(wallet instanceof Bitcoin.Wallet)) return null;
+  var Wallet = require('./wallet');
+  if (!(wallet instanceof Wallet)) return null;
 
   var allFromMe = true,
   allToMe = true,
@@ -359,7 +360,7 @@ Transaction.prototype.getTotalOutValue = function () {
   var totalValue = BigInteger.ZERO;
   for (var j = 0; j < this.outs.length; j++) {
     var txout = this.outs[j];
-    totalValue = totalValue.add(Bitcoin.Util.valueToBigInt(txout.value));
+    totalValue = totalValue.add(util.valueToBigInt(txout.value));
   }
   return totalValue;
 };
@@ -392,7 +393,7 @@ Transaction.prototype.calcImpact = function (wallet) {
     var txout = this.outs[j];
     var hash = Crypto.util.bytesToBase64(txout.script.simpleOutPubKeyHash());
     if (wallet.hasHash(hash)) {
-      valueOut = valueOut.add(Bitcoin.Util.valueToBigInt(txout.value));
+      valueOut = valueOut.add(util.valueToBigInt(txout.value));
     }
   }
 
@@ -404,7 +405,7 @@ Transaction.prototype.calcImpact = function (wallet) {
     if (wallet.hasHash(hash)) {
       var fromTx = wallet.txIndex[txin.outpoint.hash];
       if (fromTx) {
-        valueIn = valueIn.add(Bitcoin.Util.valueToBigInt(fromTx.outs[txin.outpoint.index].value));
+        valueIn = valueIn.add(util.valueToBigInt(fromTx.outs[txin.outpoint.index].value));
       }
     }
   }
