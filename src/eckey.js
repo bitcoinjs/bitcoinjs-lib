@@ -9,6 +9,11 @@ var ecdsa = require('./ecdsa');
 
 var ecparams = sec("secp256k1");
 
+var networkTypes = {
+  prod: 128,
+  testnet: 239
+};
+
 // input can be nothing, array of bytes, hex string, or base58 string
 var ECKey = function (input) {
   if (!(this instanceof ECKey)) {
@@ -29,14 +34,24 @@ var ECKey = function (input) {
     this.priv = BigInteger.fromByteArrayUnsigned(input);
     this.compressed = false;
   } else if ("string" == typeof input) {
+    // A list of base58 encoded prefixes is at https://en.bitcoin.it/wiki/List_of_address_prefixes.
     if (input.length == 51 && input[0] == '5') {
       // Base58 encoded private key
-      this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input));
+      this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input, networkTypes.prod));
+      this.compressed = false;
+    }
+    else if (input.length == 51 && input[0] == '9') {
+      this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input, networkTypes.testnet));
       this.compressed = false;
     }
     else if (input.length == 52 && (input[0] === 'K' || input[0] === 'L')) {
       // Base58 encoded private key
-      this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input));
+      this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input, networkTypes.prod));
+      this.compressed = true;
+    }
+    else if (input.length == 52 && input[0] === 'c') {
+      // Base58 encoded private key
+      this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input, networkTypes.testnet));
       this.compressed = true;
     } else {
       // hex string?
@@ -102,13 +117,14 @@ ECKey.prototype.getBitcoinAddress = function (address_type) {
   return addr;
 };
 
-ECKey.prototype.getExportedPrivateKey = function () {
+ECKey.prototype.getExportedPrivateKey = function (bitcoinNetwork) {
+  bitcoinNetwork = bitcoinNetwork || 'prod';
   var hash = this.priv.toByteArrayUnsigned();
   while (hash.length < 32) hash.unshift(0);
-  hash.unshift(0x80);
+  hash.unshift(networkTypes[bitcoinNetwork]);
   var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
   var bytes = hash.concat(checksum.slice(0,4));
-  return Bitcoin.Base58.encode(bytes);
+  return base58.encode(bytes);
 };
 
 ECKey.prototype.setPub = function (pub) {
@@ -119,7 +135,7 @@ ECKey.prototype.toString = function (format) {
   if (format === "base64") {
     return conv.bytesToBase64(this.priv.toByteArrayUnsigned());
   } else {
-    return Crypto.util.bytesToHex(this.priv.toByteArrayUnsigned());
+    return conv.bytesToHex(this.priv.toByteArrayUnsigned());
   }
 };
 
@@ -134,7 +150,7 @@ ECKey.prototype.verify = function (hash, sig) {
 /**
  * Parse an exported private key contained in a string.
  */
-ECKey.decodeString = function (string) {
+ECKey.decodeString = function (string, expectedVersion) {
   var bytes = base58.decode(string);
 
   if (bytes.length !== 37 && bytes.length !== 38) {
@@ -166,9 +182,8 @@ ECKey.decodeString = function (string) {
 
   var version = hash.shift();
 
-  if (version != 0x80) {
-    throw "Version "+version+" not supported!";
-  }
+  if (version !== expectedVersion)
+    throw "Version "+version+" not expected, expected " + expectedVersion + "!";
 
   return hash;
 };
