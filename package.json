@@ -2,6 +2,7 @@
   "name": "bitcoinjs-lib",
   "version": "0.1.3",
   "description": "Client-side Bitcoin JavaScript library",
+  "main": "./src/index.js",
 
   "keywords": [
     "bitcoin",
@@ -18,7 +19,17 @@
   },
 
   "devDependencies" : {
-    "pkginfo" : ">=0.2.1",
-    "jake-uglify" : ">=1.0.0"
+    "mocha": "1.8.1",
+    "istanbul": "0.1.30"
+  },
+
+  "testling": {
+    "browsers": ["ie/9..latest", "firefox/15..latest", "chrome/22..latest"],
+    "harness" : "mocha-qunit",
+    "files": "test/*.js"
+  },
+
+  "scripts": {
+    "test": "istanbul test ./node_modules/.bin/_mocha -- --reporter list test/*.js"
   }
 }

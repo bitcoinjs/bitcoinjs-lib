@@ -1,4 +1,16 @@
 // Random number generator - requires a PRNG backend, e.g. prng4.js
+// prng4.js - uses Arcfour as a PRNG
+
+var Arcfour = require('./prng4');
+
+// Plug in your RNG constructor here
+function prng_newstate() {
+  return new Arcfour();
+}
+
+// Pool size must be a multiple of 4 and greater than 32.
+// An array of bytes the size of the pool will be passed to init()
+var rng_psize = 256;
 
 // For best results, put code like
 // <body onClick='rng_seed_time();' onKeyPress='rng_seed_time();'>
@@ -27,12 +39,15 @@ if(rng_pool == null) {
   rng_pool = new Array();
   rng_pptr = 0;
   var t;
+  // TODO(shtylman) use browser crypto if available
+  /*
   if(navigator.appName == "Netscape" && navigator.appVersion < "5" && window.crypto) {
     // Extract entropy (256 bits) from NS4 RNG if available
     var z = window.crypto.random(32);
     for(t = 0; t < z.length; ++t)
       rng_pool[rng_pptr++] = z.charCodeAt(t) & 255;
-  }  
+  }
+  */
   while(rng_pptr < rng_psize) {  // extract some randomness from Math.random()
     t = Math.floor(65536 * Math.random());
     rng_pool[rng_pptr++] = t >>> 8;
@@ -66,3 +81,5 @@ function rng_get_bytes(ba) {
 function SecureRandom() {}
 
 SecureRandom.prototype.nextBytes = rng_get_bytes;
+
+module.exports = SecureRandom;
