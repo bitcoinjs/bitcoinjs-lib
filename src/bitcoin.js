@@ -22,9 +22,9 @@
     buffer = buffer.concat(numToVarInt(tx.ins.length));
     for (var i = 0; i < tx.ins.length; i++) {
       var txin = tx.ins[i];
-      buffer = buffer.concat(Crypto.util.base64ToBytes(txin.outpoint.hash));
+      buffer = buffer.concat(Crypto.util.hexToBytes(txin.outpoint.hash));
       buffer = buffer.concat(Crypto.util.wordsToBytes([parseInt(txin.index)]));
-      var scriptBytes = Crypto.util.base64ToBytes(txin.script);
+      var scriptBytes = Crypto.util.hexToBytes(txin.script);
       buffer = buffer.concat(numToVarInt(scriptBytes.length));
       buffer = buffer.concat(scriptBytes);
       buffer = buffer.concat(Crypto.util.wordsToBytes([parseInt(txin.sequence)]));
@@ -35,7 +35,7 @@
       var valueHex = (new BigInteger(txout.value, 10)).toString(16);
       while (valueHex.length < 16) valueHex = "0" + valueHex;
       buffer = buffer.concat(Crypto.util.hexToBytes(valueHex));
-      var scriptBytes = Crypto.util.base64ToBytes(txout.script);
+      var scriptBytes = Crypto.util.hexToBytes(txout.script);
       buffer = buffer.concat(numToVarInt(scriptBytes.length));
       buffer = buffer.concat(scriptBytes);
     }
@@ -64,9 +64,9 @@
     
     // Blank out other inputs' signatures
     for (var i = 0; i < txTmp.ins.length; i++) {
-      txTmp.ins[i].script = Crypto.util.bytesToBase64([]);
+      txTmp.ins[i].script = Crypto.util.bytesToHex([]);
     }
-    txTmp.ins[inIndex].script = Crypto.util.bytesToBase64(scriptCode);
+    txTmp.ins[inIndex].script = Crypto.util.bytesToHex(scriptCode);
 
     // Blank out some of the outputs
     if ((hashType & 0x1f) == SIGHASH_NONE) {

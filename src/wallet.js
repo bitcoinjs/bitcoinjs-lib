@@ -44,12 +44,12 @@ var Wallet = function () {
 
     if (pub) {
       if ("string" === typeof pub) {
-        pub = Crypto.util.base64ToBytes(pub);
+        pub = Crypto.util.hexToBytes(pub);
       }
       key.setPub(pub);
     }
 
-    this.addressHashes.push(key.getBitcoinAddress().getHashBase64());
+    this.addressHashes.push(key.getBitcoinAddress().getHash());
   };
 
   /**
@@ -77,13 +77,13 @@ var Wallet = function () {
   /**
    * Get the key chain.
    *
-   * Returns an array of base64-encoded private values.
+   * Returns an array of hex-encoded private values.
    */
   this.getKeys = function () {
     var serializedWallet = [];
 
     for (var i = 0; i < keys.length; i++) {
-      serializedWallet.push(keys[i].toString('base64'));
+      serializedWallet.push(keys[i].toString());
     }
 
     return serializedWallet;
@@ -92,13 +92,13 @@ var Wallet = function () {
   /**
    * Get the public keys.
    *
-   * Returns an array of base64-encoded public keys.
+   * Returns an array of hex-encoded public keys.
    */
   this.getPubKeys = function () {
     var pubs = [];
 
     for (var i = 0; i < keys.length; i++) {
-      pubs.push(Crypto.util.bytesToBase64(keys[i].getPub()));
+      pubs.push(Crypto.util.bytesToHex(keys[i].getPub()));
     }
 
     return pubs;
@@ -171,7 +171,7 @@ var Wallet = function () {
    * to be signed as the second parameter.
    */
   this.signWithKey = function (pubKeyHash, hash) {
-    pubKeyHash = conv.bytesToBase64(pubKeyHash);
+    pubKeyHash = conv.bytesToHex(pubKeyHash);
     for (var i = 0; i < this.addressHashes.length; i++) {
       if (this.addressHashes[i] == pubKeyHash) {
         return keys[i].sign(hash);
@@ -187,7 +187,7 @@ var Wallet = function () {
    * wallet.
    */
   this.getPubKeyFromHash = function (pubKeyHash) {
-    pubKeyHash = conv.bytesToBase64(pubKeyHash);
+    pubKeyHash = conv.bytesToHex(pubKeyHash);
     for (var i = 0; i < this.addressHashes.length; i++) {
       if (this.addressHashes[i] == pubKeyHash) {
         return keys[i].getPub();
@@ -222,8 +222,8 @@ Wallet.prototype.process = function (tx) {
   for (j = 0; j < tx.out.length; j++) {
     var raw_tx = tx.out[j];
     var txout = new TransactionOut(raw_tx);
-    // this hash is the base64 hash of the pubkey which is the address the output when to
-    hash = conv.bytesToBase64(txout.script.simpleOutPubKeyHash());
+    // this hash is the hash of the pubkey which is the address the output when to
+    hash = conv.bytesToHex(txout.script.simpleOutPubKeyHash());
     for (k = 0; k < this.addressHashes.length; k++) {
       // if our address, then we add the unspent out to a list of unspent outputs
       if (this.addressHashes[k] === hash) {
@@ -245,7 +245,7 @@ Wallet.prototype.process = function (tx) {
 
     var txin = new TransactionIn(raw_tx);
     var pubkey = txin.script.simpleInPubKey();
-    hash = conv.bytesToBase64(util.sha256ripe160(pubkey));
+    hash = conv.bytesToHex(util.sha256ripe160(pubkey));
     for (k = 0; k < this.addressHashes.length; k++) {
       if (this.addressHashes[k] === hash) {
         for (var l = 0; l < this.unspentOuts.length; l++) {
@@ -329,9 +329,9 @@ Wallet.prototype.clearTransactions = function () {
  * Check to see if a pubKeyHash belongs to this wallet.
  */
 Wallet.prototype.hasHash = function (hash) {
-  if (Bitcoin.Util.isArray(hash)) hash = Crypto.util.bytesToBase64(hash);
+  if (Bitcoin.Util.isArray(hash)) hash = Crypto.util.bytesToHex(hash);
 
-  // TODO: Just create an object with  base64 hashes as keys for faster lookup
+  // TODO: Just create an object with hashes as keys for faster lookup
   for (var k = 0; k < this.addressHashes.length; k++) {
     if (this.addressHashes[k] === hash) return true;
   }

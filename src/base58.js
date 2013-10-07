@@ -2,6 +2,7 @@
 // https://en.bitcoin.it/wiki/Base58Check_encoding
 
 var BigInteger = require('./jsbn/jsbn');
+var Crypto = require('./crypto-js/crypto');
 
 var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 var base = BigInteger.valueOf(58);
@@ -35,6 +36,10 @@ module.exports.encode = function (input) {
 
     return chars.reverse().join('');
 },
+
+module.exports.encodeHex = function (input) {
+    return Crypto.util.bytesToHex(module.exports.encode(input));
+}
 
 // decode a base58 string into a byte array
 // input should be a base58 encoded string
@@ -76,16 +81,24 @@ module.exports.decode = function (input) {
   return bytes;
 }
 
-module.exports.checkEncode = function(x,vbyte,format) {
+module.exports.decodeHex = function (input) {
+    return module.exports.decode(Crypto.util.hexToBytes(input));
+}
+
+module.exports.checkEncode = function(input, vbyte) {
     vbyte = vbyte || 0;
-    var front = [vbyte].concat(x);
+    var front = [vbyte].concat(input);
     var checksum = Crypto.SHA256(Crypto.SHA256(front, {asBytes: true}), {asBytes: true})
                         .slice(0,4);
     return module.exports.encode(front.concat(checksum));
 }
 
-module.exports.checkDecode = function(x) {
-    var bytes = module.exports.decode(x),
+module.exports.checkEncodeHex = function (input, vbyte) {
+    return Crypto.util.bytesToHex(module.exports.encode(input));
+}
+
+module.exports.checkDecode = function(input) {
+    var bytes = module.exports.decode(input),
         front = bytes.slice(0,bytes.length-4),
         back = bytes.slice(bytes.length-4);
     var checksum = Crypto.SHA256(Crypto.SHA256(front,{asBytes: true}), {asBytes: true})
@@ -96,6 +109,10 @@ module.exports.checkDecode = function(x) {
     var o = front.slice(1);
     o.version = front[0];
     return o;
+}
+
+module.exports.checkDecodeHex = function (input) {
+    return module.exports.checkDecode(Crypto.util.hexToBytes(input));
 }
 
 

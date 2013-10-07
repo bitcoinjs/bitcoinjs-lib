@@ -27,6 +27,7 @@ module.exports = {
     Key: require('./eckey'),
     Message: require('./message'),
     BigInteger: require('./jsbn/jsbn'),
+    Crypto: require('./crypto-js/crypto'),
     Script: require('./script'),
     Opcode: require('./opcode'),
     Transaction: require('./transaction').Transaction,

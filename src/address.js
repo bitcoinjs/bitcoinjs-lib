@@ -35,8 +35,8 @@ Address.prototype.toString = function () {
   return base58.checkEncode(hash,this.version);
 };
 
-Address.prototype.getHashBase64 = function () {
-  return conv.bytesToBase64(this.hash);
+Address.prototype.getHash = function () {
+  return conv.bytesToHex(this.hash);
 };
 
 Address.getVersion = function(string) {

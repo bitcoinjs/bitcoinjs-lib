@@ -40,10 +40,12 @@ var ECKey = function (input) {
       this.compressed = true;
     } else {
       // hex string?
-      // //wtf is base64 here for?
       // Prepend zero byte to prevent interpretation as negative integer
-      this.priv = BigInteger.fromByteArrayUnsigned(conv.base64ToBytes(input));
+      this.priv = BigInteger.fromByteArrayUnsigned(Crypto.util.hexToBytes(input));
     }
+  }
+  else if (input.constructor == [].constructor) {
+    this.priv = BigInteger.fromByteArrayUnsigned(input);
   }
 };
 
@@ -116,8 +118,8 @@ ECKey.prototype.setPub = function (pub) {
 };
 
 ECKey.prototype.toString = function (format) {
-  if (format === "base64") {
-    return conv.bytesToBase64(this.priv.toByteArrayUnsigned());
+  if (format === "base58") {
+    return base58.checkEncode(this.priv.toByteArrayUnsigned(),128);
   } else {
     return Crypto.util.bytesToHex(this.priv.toByteArrayUnsigned());
   }

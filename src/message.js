@@ -49,11 +49,11 @@ Message.signMessage = function (key, message, compressed) {
 
   sig = [i].concat(rBa).concat(sBa);
 
-  return conv.bytesToBase64(sig);
+  return conv.bytesToHex(sig);
 };
 
 Message.verifyMessage = function (address, sig, message) {
-  sig = conv.base64ToBytes(sig);
+  sig = conv.hexToBytes(sig);
   sig = ecdsa.parseSigCompact(sig);
 
   var hash = Message.getHash(message);

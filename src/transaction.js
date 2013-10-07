@@ -85,7 +85,7 @@ Transaction.prototype.addOutput = function (address, value) {
     if (value instanceof BigInteger) {
       value = value.toByteArrayUnsigned().reverse();
       while (value.length < 8) value.push(0);
-    } else if (Bitcoin.Util.isArray(value)) {
+    } else if (util.isArray(value)) {
       // Nothing to do
     }
 
@@ -351,7 +351,7 @@ Transaction.prototype.getTotalOutValue = function () {
   var totalValue = BigInteger.ZERO;
   for (var j = 0; j < this.outs.length; j++) {
     var txout = this.outs[j];
-    totalValue = totalValue.add(Bitcoin.Util.valueToBigInt(txout.value));
+    totalValue = totalValue.add(util.valueToBigInt(txout.value));
   }
   return totalValue;
 };
@@ -382,9 +382,9 @@ Transaction.prototype.calcImpact = function (wallet) {
   var valueOut = BigInteger.ZERO;
   for (var j = 0; j < this.outs.length; j++) {
     var txout = this.outs[j];
-    var hash = Crypto.util.bytesToBase64(txout.script.simpleOutPubKeyHash());
+    var hash = Crypto.util.bytesToHex(txout.script.simpleOutPubKeyHash());
     if (wallet.hasHash(hash)) {
-      valueOut = valueOut.add(Bitcoin.Util.valueToBigInt(txout.value));
+      valueOut = valueOut.add(util.valueToBigInt(txout.value));
     }
   }
 
@@ -392,11 +392,11 @@ Transaction.prototype.calcImpact = function (wallet) {
   var valueIn = BigInteger.ZERO;
   for (var j = 0; j < this.ins.length; j++) {
     var txin = this.ins[j];
-    var hash = Crypto.util.bytesToBase64(txin.script.simpleInPubKeyHash());
+    var hash = Crypto.util.bytesToHex(txin.script.simpleInPubKeyHash());
     if (wallet.hasHash(hash)) {
       var fromTx = wallet.txIndex[txin.outpoint.hash];
       if (fromTx) {
-        valueIn = valueIn.add(Bitcoin.Util.valueToBigInt(fromTx.outs[txin.outpoint.index].value));
+        valueIn = valueIn.add(util.valueToBigInt(fromTx.outs[txin.outpoint.index].value));
       }
     }
   }
@@ -412,6 +412,11 @@ Transaction.prototype.calcImpact = function (wallet) {
     };
   }
 };
+
+/**
+ * Converts a serialized transaction into a transaction object
+ */
+
 Transaction.deserialize = function(buffer) {
     var pos = 0;
     var readAsInt = function(bytes) {
@@ -443,7 +448,7 @@ Transaction.deserialize = function(buffer) {
     for (var i = 0; i < ins; i++) {
         obj.ins.push({
             outpoint: {
-                hash: Bitcoin.Util.bytesToBase64(readBytes(32)),
+                hash: util.bytesToHex(readBytes(32)),
                 index: readAsInt(4)
             },
             script: new Script(readVarString()),
@@ -460,6 +465,47 @@ Transaction.deserialize = function(buffer) {
     obj.locktime = readAsInt(4);
     return new Transaction(obj);
 }
+
+/**
+ * Signs a standard output at some index with the given key
+ */
+
+Transaction.prototype.sign = function(index, key, type) {
+    type = type || SIGHASH_ALL;
+    key = new Bitcoin.ECKey(key);
+    var pub = key.getPub(),
+        hash160 = Bitcoin.Util.sha256ripe160(pub),
+        script = Bitcoin.Script.createOutputScript(new Bitcoin.Address(hash160)),
+        hash = this.hashTransactionForSignature( script, index, type),
+        sig = key.sign(hash).concat([type]);
+    this.ins[i].script = Bitcoin.Script.createInputScript(sig,pub);
+}
+
+/**
+ * Signs a P2SH output at some index with the given key
+ */
+
+Transaction.prototype.p2shsign = function(index, script, key, type) {
+    script = new Bitcoin.Script(script);
+    key = new Bitcoin.ECKey(key);
+    type = type || SIGHASH_ALL;
+    var hash = this.hashTransactionForSignature(script, index, type),
+        sig = key.sign(hash).concat([type]);
+    return sig;
+}
+
+Transaction.prototype.multisign = Transaction.prototype.p2shsign;
+
+// In progress
+/*Transaction.prototype.validateInput = function(index,script,sig,pub) {
+    script = new Bitcoin.Script(script);
+    
+        scriptBytes = bw.h2b(script),
+        scriptObj = new Bitcoin.Script(scriptBytes),
+        hash = txObj.hashTransactionForSignature(scriptObj,i,1);
+    return Bitcoin.ECDSA.verify(hash, bw.h2b(sig),
+                                      bw.h2b(pub));
+}*/
 
 
 var TransactionIn = function (data)
