@@ -11,6 +11,14 @@ system in place.
 
 Prototype software, use at your own peril.
 
+# How to use
+
+* Run `npm run-script compile` to compile to a browser-friendly minified
+file. Once in the browser, the global Bitcoin object will contain everything
+you need.
+* To use in NodeJS, install this package as you would any other and
+put in `var Bitcoin = require('bitcoinjs-lib')`.
+
 # License
 
 This library is free and open-source software released under the MIT

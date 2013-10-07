@@ -412,6 +412,55 @@ Transaction.prototype.calcImpact = function (wallet) {
     };
   }
 };
+Transaction.deserialize = function(buffer) {
+    var pos = 0;
+    var readAsInt = function(bytes) {
+        if (bytes == 0) return 0;
+        pos++;
+        return buffer[pos-1] + readAsInt(bytes-1) * 256;
+    }
+    var readVarInt = function() {
+        pos++;
+        if (buffer[pos-1] < 253) {
+            return buffer[pos-1];
+        }
+        return readAsInt(buffer[pos-1] - 251);
+    }
+    var readBytes = function(bytes) {
+        pos += bytes;
+        return buffer.slice(pos - bytes, pos);
+    }
+    var readVarString = function() {
+        var size = readVarInt();
+        return readBytes(size);
+    }
+    var obj = {
+        ins: [],
+        outs: []
+    }
+    obj.version = readAsInt(4);
+    var ins = readVarInt();
+    for (var i = 0; i < ins; i++) {
+        obj.ins.push({
+            outpoint: {
+                hash: Bitcoin.Util.bytesToBase64(readBytes(32)),
+                index: readAsInt(4)
+            },
+            script: new Script(readVarString()),
+            sequence: readAsInt(4)
+        });
+    }
+    var outs = readVarInt();
+    for (var i = 0; i < outs; i++) {
+        obj.outs.push({
+            value: readBytes(8),
+            script: new Script(readVarString())
+        });
+    }
+    obj.locktime = readAsInt(4);
+    return new Transaction(obj);
+}
+
 
 var TransactionIn = function (data)
 {

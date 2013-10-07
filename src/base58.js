@@ -48,8 +48,8 @@ module.exports.decode = function (input) {
   var leading_zero = 0;
   var seen_other = false;
   for (var i=0; i<length ; ++i) {
-      var char = input[i];
-      var p = positions[char];
+      var chr = input[i];
+      var p = positions[chr];
 
       // if we encounter an invalid character, decoding fails
       if (p === undefined) {
@@ -58,7 +58,7 @@ module.exports.decode = function (input) {
 
       num = num.multiply(base).add(BigInteger.valueOf(p));
 
-      if (char == '1' && !seen_other) {
+      if (chr == '1' && !seen_other) {
           ++leading_zero;
       }
       else {
@@ -75,4 +75,27 @@ module.exports.decode = function (input) {
 
   return bytes;
 }
+
+module.exports.checkEncode = function(x,vbyte,format) {
+    vbyte = vbyte || 0;
+    var front = [vbyte].concat(x);
+    var checksum = Crypto.SHA256(Crypto.SHA256(front, {asBytes: true}), {asBytes: true})
+                        .slice(0,4);
+    return module.exports.encode(front.concat(checksum));
+}
+
+module.exports.checkDecode = function(x) {
+    var bytes = module.exports.decode(x),
+        front = bytes.slice(0,bytes.length-4),
+        back = bytes.slice(bytes.length-4);
+    var checksum = Crypto.SHA256(Crypto.SHA256(front,{asBytes: true}), {asBytes: true})
+                        .slice(0,4);
+    if (""+checksum != ""+back) {
+        throw new Error("Checksum failed");
+    }
+    var o = front.slice(1);
+    o.version = front[0];
+    return o;
+}
+
 

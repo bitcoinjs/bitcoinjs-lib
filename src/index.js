@@ -30,6 +30,7 @@ module.exports = {
     Script: require('./script'),
     Opcode: require('./opcode'),
     Transaction: require('./transaction').Transaction,
+    Util: require('./util'),
     TransactionIn: require('./transaction').TransactionIn,
     TransactionOut: require('./transaction').TransactionOut,
     ECPointFp: require('./jsbn/ec').ECPointFp,

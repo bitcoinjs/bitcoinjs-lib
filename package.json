@@ -20,7 +20,9 @@
 
   "devDependencies" : {
     "mocha": "1.8.1",
-    "istanbul": "0.1.30"
+    "istanbul": "0.1.30",
+    "uglify-js": "*",
+    "node-browserify": "https://github.com/substack/node-browserify/tarball/master"
   },
 
   "testling": {
@@ -30,6 +32,7 @@
   },
 
   "scripts": {
-    "test": "istanbul test ./node_modules/.bin/_mocha -- --reporter list test/*.js"
+    "test": "istanbul test ./node_modules/.bin/_mocha -- --reporter list test/*.js",
+    "compile": "browserify src/index.js -s Bitcoin | uglifyjs > bitcoinjs-min.js"
   }
 }

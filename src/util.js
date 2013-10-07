@@ -22,7 +22,13 @@ module.exports = {
     }
     return array;
   },
-
+  /**
+   * Create a byte array representing a number with the given length
+   */
+  numToBytes: function(num,bytes) {
+    if (bytes == 0 || (bytes === null && num === 0)) return [];
+    else return [num % 256].concat(bw.numToBytes(Math.floor(num / 256),bytes-1));
+  },
   /**
    * Turn an integer into a "var_int".
    *
@@ -30,21 +36,12 @@ module.exports = {
    *
    * Returns a byte array.
    */
-  numToVarInt: function (i)
-  {
-    if (i < 0xfd) {
-      // unsigned char
-      return [i];
-    } else if (i <= 1<<16) {
-      // unsigned short (LE)
-      return [0xfd, i >>> 8, i & 255];
-    } else if (i <= 1<<32) {
-      // unsigned int (LE)
-      return [0xfe].concat(Crypto.util.wordsToBytes([i]));
-    } else {
-      // unsigned long long (LE)
-      return [0xff].concat(Crypto.util.wordsToBytes([i >>> 32, i]));
-    }
+  numToVarInt: function(num) {
+    var m = module.exports;
+    if (num < 253) return [num];
+    else if (num < 65536) return [253].concat(m.numToBytes(num,2));
+    else if (num < 4294967296) return [254].concat(m.numToBytes(num,4));
+    else return [253].concat(m.numToBytes(num,8));
   },
 
   /**
