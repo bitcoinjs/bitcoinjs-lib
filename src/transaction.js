@@ -484,7 +484,7 @@ Transaction.prototype.sign = function(index, key, type) {
         script = Script.createOutputScript(new Address(hash160)),
         hash = this.hashTransactionForSignature( script, index, type),
         sig = key.sign(hash).concat([type]);
-    this.ins[i].script = Script.createInputScript(sig,pub);
+    this.ins[index].script = Script.createInputScript(sig,pub);
 }
 
 /**
@@ -504,7 +504,7 @@ Transaction.prototype.multisign = Transaction.prototype.p2shsign;
 
 Transaction.prototype.validateSig = function(index,script,sig,pub) {
     script = new Script(script);
-    var hash = this.hashTransactionForSignature(script,i,1);
+    var hash = this.hashTransactionForSignature(script,index,1);
     return ECDSA.verify(hash, conv.coerceToBytes(sig),
                                       conv.coerceToBytes(pub));
 }
