@@ -21,6 +21,8 @@ var ECKey = function (input) {
     // Generate new key
     var n = ecparams.getN();
     this.priv = ecdsa.getBigRandom(n);
+  } else if (input instanceof ECKey) {
+    this.priv = input.priv;
   } else if (input instanceof BigInteger) {
     // Input is a private key value
     this.priv = input;
