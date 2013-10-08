@@ -36,7 +36,7 @@ module.exports = {
    */
   bytesToNum: function(bytes) {
     if (bytes.length == 0) return 0;
-    else return bytes[0] + 256 * bytesToNum(bytes.slice(1));
+    else return bytes[0] + 256 * module.exports.bytesToNum(bytes.slice(1));
   },
   /**
    * Turn an integer into a "var_int".
