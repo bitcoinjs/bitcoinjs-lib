@@ -398,7 +398,7 @@ Transaction.prototype.calcImpact = function (wallet) {
     if (wallet.hasHash(hash)) {
       var fromTx = wallet.txIndex[txin.outpoint.hash];
       if (fromTx) {
-        valueIn = valueIn.add(util.valueToBigInt(fromTx.outs[txin.outpoint.index].value));
+        valueIn = valueIn.add(conv.valueToBigInt(fromTx.outs[txin.outpoint.index].value));
       }
     }
   }
