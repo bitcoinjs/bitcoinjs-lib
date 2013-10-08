@@ -3,7 +3,7 @@
 
 var BigInteger = require('./jsbn/jsbn');
 var Crypto = require('./crypto-js/crypto');
-var conv = require('/convert');
+var conv = require('./convert');
 
 var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 var base = BigInteger.valueOf(58);
