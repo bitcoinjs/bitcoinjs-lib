@@ -132,9 +132,9 @@ Transaction.prototype.serialize = function ()
   for (var i = 0; i < this.ins.length; i++) {
     var txin = this.ins[i];
 
-    // the hash is flipped to what the fuck here?
-    // this seems to be the only thing that I don't understand
-    buffer = buffer.concat(conv.hexToBytes(txin.outpoint.hash));
+    // Why do blockchain.info, blockexplorer.com, sx and just about everybody
+    // else use little-endian hashes? No idea...
+    buffer = buffer.concat(conv.hexToBytes(txin.outpoint.hash).reverse());
 
     buffer = buffer.concat(util.numToBytes(parseInt(txin.outpoint.index),4));
     var scriptBytes = txin.script.buffer;
@@ -454,7 +454,7 @@ Transaction.deserialize = function(buffer) {
     for (var i = 0; i < ins; i++) {
         obj.ins.push({
             outpoint: {
-                hash: conv.bytesToHex(readBytes(32)),
+                hash: conv.bytesToHex(readBytes(32).reverse()),
                 index: readAsInt(4)
             },
             script: new Script(readVarString()),
