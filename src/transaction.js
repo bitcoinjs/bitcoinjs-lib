@@ -217,11 +217,13 @@ function (connectedScript, inIndex, hashType)
 
 /**
  * Calculate and return the transaction's hash.
+ * Reverses hash since blockchain.info, blockexplorer.com and others
+ * use little-endian hashes for some stupid reason
  */
 Transaction.prototype.getHash = function ()
 {
   var buffer = this.serialize();
-  return Crypto.SHA256(Crypto.SHA256(buffer, {asBytes: true}), {asBytes: true});
+  return Crypto.SHA256(Crypto.SHA256(buffer, {asBytes: true}), {asBytes: true}).reverse();
 };
 
 /**
