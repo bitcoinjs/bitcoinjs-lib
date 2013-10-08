@@ -85,6 +85,8 @@ Transaction.prototype.addOutput = function (address, value) {
     if (value instanceof BigInteger) {
       value = value.toByteArrayUnsigned().reverse();
       while (value.length < 8) value.push(0);
+    } else if (typeof value == "number") {
+      value = util.numToBytes(value);
     } else if (util.isArray(value)) {
       // Nothing to do
     }
@@ -121,7 +123,7 @@ var wordsToBytes = function (words) {
 Transaction.prototype.serialize = function ()
 {
   var buffer = [];
-  buffer = buffer.concat(wordsToBytes([parseInt(this.version)]).reverse());
+  buffer = buffer.concat(util.numToBytes(parseInt(this.version),4));
   buffer = buffer.concat(util.numToVarInt(this.ins.length));
   for (var i = 0; i < this.ins.length; i++) {
     var txin = this.ins[i];
@@ -130,11 +132,11 @@ Transaction.prototype.serialize = function ()
     // this seems to be the only thing that I don't understand
     buffer = buffer.concat(conv.hexToBytes(txin.outpoint.hash));
 
-    buffer = buffer.concat(wordsToBytes([parseInt(txin.outpoint.index)]).reverse());
+    buffer = buffer.concat(util.numToBytes(parseInt(txin.outpoint.index),4));
     var scriptBytes = txin.script.buffer;
     buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
     buffer = buffer.concat(scriptBytes);
-    buffer = buffer.concat(wordsToBytes([parseInt(txin.sequence)]).reverse());
+    buffer = buffer.concat(util.numToBytes(parseInt(txin.sequence),4));
   }
   buffer = buffer.concat(util.numToVarInt(this.outs.length));
   for (var i = 0; i < this.outs.length; i++) {
@@ -144,7 +146,7 @@ Transaction.prototype.serialize = function ()
     buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
     buffer = buffer.concat(scriptBytes);
   }
-  buffer = buffer.concat(wordsToBytes([parseInt(this.lock_time)]).reverse());
+  buffer = buffer.concat(util.numToBytes(parseInt(this.lock_time),4));
 
   return buffer;
 };
@@ -202,7 +204,7 @@ function (connectedScript, inIndex, hashType)
 
   var buffer = txTmp.serialize();
 
-  buffer = buffer.concat(wordsToBytes([parseInt(hashType)]).reverse());
+  buffer = buffer.concat(util.numToBytes(parseInt(hashType),4));
 
   var hash1 = Crypto.SHA256(buffer, {asBytes: true});
 
