@@ -496,16 +496,12 @@ Transaction.prototype.p2shsign = function(index, script, key, type) {
 
 Transaction.prototype.multisign = Transaction.prototype.p2shsign;
 
-// In progress
-/*Transaction.prototype.validateInput = function(index,script,sig,pub) {
+Transaction.prototype.validateSig = function(index,script,sig,pub) {
     script = new Bitcoin.Script(script);
-    
-        scriptBytes = bw.h2b(script),
-        scriptObj = new Bitcoin.Script(scriptBytes),
-        hash = txObj.hashTransactionForSignature(scriptObj,i,1);
-    return Bitcoin.ECDSA.verify(hash, bw.h2b(sig),
-                                      bw.h2b(pub));
-}*/
+    var hash = this.hashTransactionForSignature(script,i,1);
+    return Bitcoin.ECDSA.verify(hash, conv.coerceToBytes(sig),
+                                      conv.coerceToBytes(pub));
+}
 
 
 var TransactionIn = function (data)

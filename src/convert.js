@@ -2,20 +2,20 @@
 
 var base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
+String.prototype.lpad = function(padString, length) {
+    var str = this;
+    while (str.length < length) str = padString + str;
+    return str;
+}
+
 // Convert a byte array to a hex string
 module.exports.bytesToHex = function(bytes) {
-		for (var hex = [], i = 0; i < bytes.length; i++) {
-			hex.push((bytes[i] >>> 4).toString(16));
-			hex.push((bytes[i] & 0xF).toString(16));
-		}
-		return hex.join("");
+    return bytes.map(function(x) { return x.toString(16).lpad('0',2) }).join('');
 };
 
 // Convert a hex string to a byte array
 module.exports.hexToBytes = function(hex) {
-		for (var bytes = [], c = 0; c < hex.length; c += 2)
-			bytes.push(parseInt(hex.substr(c, 2), 16));
-		return bytes;
+    return hex.match(/../g).map(function(x) { return parseInt(x,16) });
 }
 
 	// Convert a byte array to a base-64 string
@@ -53,7 +53,26 @@ module.exports.base64ToBytes = function(base64) {
 		return bytes;
 }
 
-// utf8 and binary?
-//stringToBytes
-//bytesToString
+// Hex only (allowing bin would be potentially risky, as 01010101 = \x01 * 4 or 85)
+module.exports.coerceToBytes = function(input) {
+    if (typeof input == "string") return Crypto.util.hexToBytes(input);
+    return input;
+}
 
+module.exports.binToBytes = function(bin) {
+    return bin.match(/......../g).map(function(x) { return parseInt(x,2) });
+}
+
+module.exports.bytesToBin = function(bytes) {
+    return bytes.map(function(x) { return x.toString(2).lpad('0',8) }).join('');
+}
+
+module.exports.bytesToString = function(bytes) {
+    return bytes.map(String.fromCharCode).join('');
+}
+
+module.exports.stringToBytes = function(string) {
+    return string.split('').map(function(x) { return x.charCodeAt(0) });
+}
+
+// utf8

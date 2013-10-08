@@ -155,6 +155,8 @@ Script.prototype.simpleOutHash = function ()
     return this.chunks[2];
   case 'Pubkey':
     return Bitcoin.Util.sha256ripe160(this.chunks[0]);
+  case 'Multisig':
+    return Bitcoin.Util.sha256ripe160(this.buffer);
   default:
     throw new Error("Encountered non-standard scriptPubKey: " + this.getOutType());
   }
@@ -185,6 +187,9 @@ Script.prototype.simpleOutPubKeyHash = Script.prototype.simpleOutHash;
  * Pubkey:
  *   Paying to a public key directly.
  *   [sig]
+ *
+ * Multisig:
+ *   Paying to M-of-N public keys.
  * 
  * Strange:
  *   Any other script (no template matched).
@@ -200,6 +205,12 @@ Script.prototype.getInType = function ()
              util.isArray(this.chunks[0]) &&
              util.isArray(this.chunks[1])) {
     return 'Address';
+  } else if (this.chunks[0] == Opcode.map.OP_0 && 
+             this.chunks.slice(1).reduce(function(t,chunk,i) {
+                return t && util.isArray(chunk) 
+                         && (chunk[0] == 48 || i == this.chunks.length - 1);
+             },true)) {
+    return 'Multisig';
   } else {
     return 'Strange';
   }
@@ -336,6 +347,8 @@ Script.prototype.extractAddresses = function (addresses)
 Script.createMultiSigOutputScript = function (m, pubkeys)
 {
   var script = new Script();
+
+  pubkeys = pubkeys.sort();
   
   script.writeOp(Opcode.map.OP_1 + m - 1);
   
@@ -360,6 +373,21 @@ Script.createInputScript = function (signature, pubKey)
   script.writeBytes(pubKey);
   return script;
 };
+
+/**
+ * Create a multisig input
+ */
+Script.createMultiSigInputScript = function(signatures, script)
+{
+    script = new Script(script);
+    var k = script.chunks[0][0];
+    if (signatures.length < k) return false; //Not enough sigs
+    var inScript = new Script();
+    inScript.writeOp(Opcode.map.OP_0);
+    signatures.map(inScript.writeBytes.bind(inScript));
+    inScript.writeBytes(script.buffer);
+    return inScript;
+}
 
 Script.prototype.clone = function ()
 {
