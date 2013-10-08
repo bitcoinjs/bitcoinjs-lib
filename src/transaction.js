@@ -86,7 +86,7 @@ Transaction.prototype.addOutput = function (address, value) {
       value = value.toByteArrayUnsigned().reverse();
       while (value.length < 8) value.push(0);
     } else if (typeof value == "number") {
-      value = util.numToBytes(value);
+      value = util.numToBytes(value,8);
     } else if (util.isArray(value)) {
       // Nothing to do
     }

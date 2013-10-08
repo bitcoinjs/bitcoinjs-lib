@@ -26,7 +26,7 @@ module.exports = {
    * Create a byte array representing a number with the given length
    */
   numToBytes: function(num,bytes) {
-    if (bytes == 0 || (bytes === null && num === 0)) return [];
+    if (bytes == 0 || (bytes === undefined && num === 0)) return [];
     else return [num % 256].concat(module.exports.numToBytes(Math.floor(num / 256),bytes-1));
   },
   /**
