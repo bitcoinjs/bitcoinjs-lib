@@ -312,7 +312,7 @@ Script.createOutputScript = function (address)
 {
   var script = new Script();
   // Standard pay-to-pubkey-hash
-  if (address.version == 0) {
+  if (!address.version) {
       script.writeOp(Opcode.map.OP_DUP);
       script.writeOp(Opcode.map.OP_HASH160);
       script.writeBytes(address.hash);

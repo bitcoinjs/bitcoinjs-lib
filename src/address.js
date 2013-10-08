@@ -14,7 +14,7 @@ var p2sh_types = {
 
 var Address = function (bytes) {
     if (typeof bytes === 'string') {
-        this.hash = base58.decode(bytes);
+        this.hash = base58.checkDecode(bytes);
         this.version = this.hash.version;
     }
     else {
