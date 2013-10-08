@@ -21,7 +21,7 @@ module.exports.hexToBytes = function(hex) {
 	// Convert a byte array to a base-64 string
 module.exports.bytesToBase64 = function(bytes) {
 		// Use browser-native function if it exists
-		if (typeof btoa == "function") return btoa(Binary.bytesToString(bytes));
+		if (typeof btoa == "function") return btoa(module.exports.bytesToString(bytes));
 
 		for(var base64 = [], i = 0; i < bytes.length; i += 3) {
 			var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
@@ -39,7 +39,7 @@ module.exports.bytesToBase64 = function(bytes) {
 	// Convert a base-64 string to a byte array
 module.exports.base64ToBytes = function(base64) {
 		// Use browser-native function if it exists
-		if (typeof atob == "function") return Binary.stringToBytes(atob(base64));
+		if (typeof atob == "function") return module.exports.stringToBytes(atob(base64));
 
 		// Remove non-base-64 characters
 		base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
