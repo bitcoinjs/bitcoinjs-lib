@@ -329,7 +329,7 @@ Wallet.prototype.clearTransactions = function () {
  * Check to see if a pubKeyHash belongs to this wallet.
  */
 Wallet.prototype.hasHash = function (hash) {
-  if (Bitcoin.Util.isArray(hash)) hash = conv.bytesToHex(hash);
+  if (util.isArray(hash)) hash = conv.bytesToHex(hash);
 
   // TODO: Just create an object with hashes as keys for faster lookup
   for (var k = 0; k < this.addressHashes.length; k++) {

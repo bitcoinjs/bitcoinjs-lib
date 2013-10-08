@@ -155,9 +155,9 @@ Script.prototype.simpleOutHash = function ()
   case 'Address':
     return this.chunks[2];
   case 'Pubkey':
-    return Bitcoin.Util.sha256ripe160(this.chunks[0]);
+    return util.sha256ripe160(this.chunks[0]);
   case 'Multisig':
-    return Bitcoin.Util.sha256ripe160(this.buffer);
+    return util.sha256ripe160(this.buffer);
   default:
     throw new Error("Encountered non-standard scriptPubKey: " + this.getOutType());
   }
@@ -198,7 +198,7 @@ Script.prototype.simpleOutPubKeyHash = Script.prototype.simpleOutHash;
 Script.prototype.getInType = function ()
 {
   if (this.chunks.length == 1 &&
-      Bitcoin.Util.isArray(this.chunks[0])) {
+      util.isArray(this.chunks[0])) {
     // Direct IP to IP transactions only have the signature in their scriptSig.
     // TODO: We could also check that the length of the data is correct.
     return 'Pubkey';
@@ -261,7 +261,7 @@ Script.prototype.simpleInPubKey = function ()
  */
 Script.prototype.simpleInHash = function ()
 {
-  return Bitcoin.Util.sha256ripe160(this.simpleInPubKey());
+  return util.sha256ripe160(this.simpleInPubKey());
 };
 
 /**
