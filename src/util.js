@@ -27,7 +27,7 @@ module.exports = {
    */
   numToBytes: function(num,bytes) {
     if (bytes == 0 || (bytes === null && num === 0)) return [];
-    else return [num % 256].concat(bw.numToBytes(Math.floor(num / 256),bytes-1));
+    else return [num % 256].concat(module.exports.numToBytes(Math.floor(num / 256),bytes-1));
   },
   /**
    * Turn an integer into a "var_int".
