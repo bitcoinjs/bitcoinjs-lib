@@ -1,6 +1,7 @@
 var Opcode = require('./opcode');
 var util = require('./util');
 var conv = require('./convert');
+var Address = require('./address');
 
 var Script = function (data) {
   if (!data) {
@@ -305,41 +306,38 @@ Script.prototype.writeBytes = function (data)
 };
 
 /**
- * Create a standard payToPubKeyHash output.
+ * Create an output for an address
  */
 Script.createOutputScript = function (address)
 {
   var script = new Script();
-  script.writeOp(Opcode.map.OP_DUP);
-  script.writeOp(Opcode.map.OP_HASH160);
-  script.writeBytes(address.hash);
-  script.writeOp(Opcode.map.OP_EQUALVERIFY);
-  script.writeOp(Opcode.map.OP_CHECKSIG);
+  // Standard pay-to-pubkey-hash
+  if (address.version == 0) {
+      script.writeOp(Opcode.map.OP_DUP);
+      script.writeOp(Opcode.map.OP_HASH160);
+      script.writeBytes(address.hash);
+      script.writeOp(Opcode.map.OP_EQUALVERIFY);
+      script.writeOp(Opcode.map.OP_CHECKSIG);
+  }
+  // Standard pay-to-script-hash
+  else {
+      script.writeOp(Opcode.map.OP_HASH160);
+      script.writeBytes(address.hash);
+      script.writeOp(Opcode.map.OP_EQUAL);
+  }
   return script;
 };
 
-
 /**
- * Extract bitcoin addresses from an output script
+ * Extract pubkeys from a multisig script
  */
-Script.prototype.extractAddresses = function (addresses)
-{ 
-  switch (this.getOutType()) {
-  case 'Address':
-    addresses.push(new Address(this.chunks[2]));
-    return 1;
-  case 'Pubkey':
-    addresses.push(new Address(Util.sha256ripe160(this.chunks[0])));
-    return 1;
-  case 'Multisig':
-    for (var i = 1; i < this.chunks.length-2; ++i) {
-      addresses.push(new Address(Util.sha256ripe160(this.chunks[i])));
-    }
-    return this.chunks[0] - OP_1 + 1;
-  default:
-    throw new Error("Encountered non-standard scriptPubKey");
-  }
-};
+
+Script.prototype.extractPubkeys = function() {
+    return this.chunks.filter(function(chunk) {
+        return (chunk[0] == 4 && chunk.length == 65 
+             || chunk[0]  < 4 && chunk.length == 33)
+    });
+}
 
 /**
  * Create an m-of-n output script
