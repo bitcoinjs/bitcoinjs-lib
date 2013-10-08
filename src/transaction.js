@@ -554,8 +554,8 @@ var TransactionOut = function (data)
 
   if (util.isArray(data.value)) {
     this.value = data.value;
-  } else if ("string" == typeof data.value) {
-    var valueHex = (new BigInteger(data.value, 10)).toString(16);
+  } else if ("string" == typeof data.value || "number" == typeof data.value) {
+    var valueHex = (new BigInteger(""+data.value, 10)).toString(16);
     while (valueHex.length < 16) valueHex = "0" + valueHex;
     this.value = conv.hexToBytes(valueHex);
   }
