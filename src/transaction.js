@@ -384,7 +384,7 @@ Transaction.prototype.calcImpact = function (wallet) {
   var valueOut = BigInteger.ZERO;
   for (var j = 0; j < this.outs.length; j++) {
     var txout = this.outs[j];
-    var hash = Crypto.util.bytesToHex(txout.script.simpleOutPubKeyHash());
+    var hash = conv.bytesToHex(txout.script.simpleOutPubKeyHash());
     if (wallet.hasHash(hash)) {
       valueOut = valueOut.add(util.valueToBigInt(txout.value));
     }
@@ -394,7 +394,7 @@ Transaction.prototype.calcImpact = function (wallet) {
   var valueIn = BigInteger.ZERO;
   for (var j = 0; j < this.ins.length; j++) {
     var txin = this.ins[j];
-    var hash = Crypto.util.bytesToHex(txin.script.simpleInPubKeyHash());
+    var hash = conv.bytesToHex(txin.script.simpleInPubKeyHash());
     if (wallet.hasHash(hash)) {
       var fromTx = wallet.txIndex[txin.outpoint.hash];
       if (fromTx) {
@@ -450,7 +450,7 @@ Transaction.deserialize = function(buffer) {
     for (var i = 0; i < ins; i++) {
         obj.ins.push({
             outpoint: {
-                hash: util.bytesToHex(readBytes(32)),
+                hash: conv.bytesToHex(readBytes(32)),
                 index: readAsInt(4)
             },
             script: new Script(readVarString()),

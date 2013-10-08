@@ -3,6 +3,7 @@
 
 var BigInteger = require('./jsbn/jsbn');
 var Crypto = require('./crypto-js/crypto');
+var conv = require('/convert');
 
 var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 var base = BigInteger.valueOf(58);
@@ -38,7 +39,7 @@ module.exports.encode = function (input) {
 },
 
 module.exports.encodeHex = function (input) {
-    return Crypto.util.bytesToHex(module.exports.encode(input));
+    return conv.bytesToHex(module.exports.encode(input));
 }
 
 // decode a base58 string into a byte array
@@ -94,7 +95,7 @@ module.exports.checkEncode = function(input, vbyte) {
 }
 
 module.exports.checkEncodeHex = function (input, vbyte) {
-    return Crypto.util.bytesToHex(module.exports.encode(input));
+    return conv.bytesToHex(module.exports.encode(input));
 }
 
 module.exports.checkDecode = function(input) {

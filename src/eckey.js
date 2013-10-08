@@ -121,7 +121,7 @@ ECKey.prototype.toString = function (format) {
   if (format === "base58") {
     return base58.checkEncode(this.priv.toByteArrayUnsigned(),128);
   } else {
-    return Crypto.util.bytesToHex(this.priv.toByteArrayUnsigned());
+    return conv.bytesToHex(this.priv.toByteArrayUnsigned());
   }
 };
 

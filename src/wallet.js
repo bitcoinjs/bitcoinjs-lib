@@ -98,7 +98,7 @@ var Wallet = function () {
     var pubs = [];
 
     for (var i = 0; i < keys.length; i++) {
-      pubs.push(Crypto.util.bytesToHex(keys[i].getPub()));
+      pubs.push(conv.bytesToHex(keys[i].getPub()));
     }
 
     return pubs;
@@ -329,7 +329,7 @@ Wallet.prototype.clearTransactions = function () {
  * Check to see if a pubKeyHash belongs to this wallet.
  */
 Wallet.prototype.hasHash = function (hash) {
-  if (Bitcoin.Util.isArray(hash)) hash = Crypto.util.bytesToHex(hash);
+  if (Bitcoin.Util.isArray(hash)) hash = conv.bytesToHex(hash);
 
   // TODO: Just create an object with hashes as keys for faster lookup
   for (var k = 0; k < this.addressHashes.length; k++) {
