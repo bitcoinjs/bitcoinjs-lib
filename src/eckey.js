@@ -43,7 +43,7 @@ var ECKey = function (input) {
     } else {
       // hex string?
       // Prepend zero byte to prevent interpretation as negative integer
-      this.priv = BigInteger.fromByteArrayUnsigned(Crypto.util.hexToBytes(input));
+      this.priv = BigInteger.fromByteArrayUnsigned(conv.hexToBytes(input));
     }
   }
   else if (input.constructor == [].constructor) {
