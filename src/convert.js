@@ -64,7 +64,7 @@ module.exports.bytesToBin = function(bytes) {
 }
 
 module.exports.bytesToString = function(bytes) {
-    return bytes.map(String.fromCharCode).join('');
+    return bytes.map(function(x){ return String.fromCharCode(x) }).join('');
 }
 
 module.exports.stringToBytes = function(string) {
