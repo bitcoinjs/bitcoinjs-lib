@@ -83,23 +83,15 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  * values will be created.
  */
 Transaction.prototype.addOutput = function (address, value) {
-  if (arguments[0] instanceof TransactionOut) {
-    this.outs.push(arguments[0]);
-  } else {
-    if (value instanceof BigInteger) {
-      value = value.toByteArrayUnsigned().reverse();
-      while (value.length < 8) value.push(0);
-    } else if (typeof value == "number") {
-      value = util.numToBytes(value,8);
-    } else if (util.isArray(value)) {
-      // Nothing to do
+    if (arguments[0] instanceof TransactionOut) {
+       this.outs.push(arguments[0]);
+    } 
+    else {
+        this.outs.push(new TransactionOut({
+            value: value,
+            script: Script.createOutputScript(address)
+        }));
     }
-
-    this.outs.push(new TransactionOut({
-      value: value,
-      script: Script.createOutputScript(address)
-    }));
-  }
 };
 
 // TODO(shtylman) crypto sha uses this also
@@ -145,7 +137,7 @@ Transaction.prototype.serialize = function ()
   buffer = buffer.concat(util.numToVarInt(this.outs.length));
   for (var i = 0; i < this.outs.length; i++) {
     var txout = this.outs[i];
-    buffer = buffer.concat(txout.value);
+    buffer = buffer.concat(util.numToBytes(txout.value),8);
     var scriptBytes = txout.script.buffer;
     buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
     buffer = buffer.concat(scriptBytes);
@@ -304,7 +296,7 @@ Transaction.prototype.analyze = function (wallet) {
 
   analysis.impact = impact;
 
-  if (impact.sign > 0 && impact.value.compareTo(BigInteger.ZERO) > 0) {
+  if (impact.sign > 0 && impact.value > 0) {
     analysis.type = 'recv';
     analysis.addr = new Address(firstMeRecvHash);
   } else if (allFromMe && allToMe) {
@@ -356,12 +348,7 @@ Transaction.prototype.getDescription = function (wallet) {
  * Get the total amount of a transaction's outputs.
  */
 Transaction.prototype.getTotalOutValue = function () {
-  var totalValue = BigInteger.ZERO;
-  for (var j = 0; j < this.outs.length; j++) {
-    var txout = this.outs[j];
-    totalValue = totalValue.add(util.valueToBigInt(txout.value));
-  }
-  return totalValue;
+  return this.outs.reduce(function(t,o) { return t + o.value },0);
 };
 
  /**
@@ -384,39 +371,31 @@ Transaction.prototype.getTotalOutValue = function () {
  * @returns Object Impact on wallet
  */
 Transaction.prototype.calcImpact = function (wallet) {
-  if (!(wallet instanceof Wallet)) return BigInteger.ZERO;
+  if (!(wallet instanceof Wallet)) return 0;
 
   // Calculate credit to us from all outputs
-  var valueOut = BigInteger.ZERO;
-  for (var j = 0; j < this.outs.length; j++) {
-    var txout = this.outs[j];
-    var hash = conv.bytesToHex(txout.script.simpleOutPubKeyHash());
-    if (wallet.hasHash(hash)) {
-      valueOut = valueOut.add(util.valueToBigInt(txout.value));
-    }
-  }
+  var valueOut = this.outs.filter(function(o) {
+    return wallet.hasHash(conv.bytesToHex(o.script.simpleOutPubKeyHash()));
+  })
+  .reduce(function(t,o) { return t+o.value },0);
 
-  // Calculate debit to us from all ins
-  var valueIn = BigInteger.ZERO;
-  for (var j = 0; j < this.ins.length; j++) {
-    var txin = this.ins[j];
-    var hash = conv.bytesToHex(txin.script.simpleInPubKeyHash());
-    if (wallet.hasHash(hash)) {
-      var fromTx = wallet.txIndex[txin.outpoint.hash];
-      if (fromTx) {
-        valueIn = valueIn.add(conv.valueToBigInt(fromTx.outs[txin.outpoint.index].value));
-      }
-    }
-  }
-  if (valueOut.compareTo(valueIn) >= 0) {
+  var valueIn = this.ins.filter(function(i) {
+    return wallet.hasHash(conv.bytesToHex(i.script.simpleInPubKeyHash()))
+        && wallet.txIndex[i.outpoint.hash];
+  })
+  .reduce(function(t,i) {
+    return t + wallet.txIndex[i.outpoint.hash].outs[i.outpoint.index].value
+  },0);
+
+  if (valueOut > valueIn) {
     return {
       sign: 1,
-      value: valueOut.subtract(valueIn)
+      value: valueOut - valueIn
     };
   } else {
     return {
       sign: -1,
-      value: valueIn.subtract(valueOut)
+      value: valueIn - valueOut
     };
   }
 };
@@ -466,7 +445,7 @@ Transaction.deserialize = function(buffer) {
     var outs = readVarInt();
     for (var i = 0; i < outs; i++) {
         obj.outs.push({
-            value: readBytes(8),
+            value: util.bytesToNum(readBytes(8)),
             script: new Script(readVarString())
         });
     }
@@ -541,33 +520,26 @@ TransactionIn.prototype.clone = function ()
   return newTxin;
 };
 
-var TransactionOut = function (data)
-{
-  if (data.script instanceof Script) {
-    this.script = data.script;
-  } else {
-    if (data.scriptPubKey) {
-      this.script = Script.fromScriptSig(data.scriptPubKey);
-    }
-    else {
-      this.script = new Script(data.script);
-    }
-  }
+var TransactionOut = function (data) {
+    this.script =
+        data.script instanceof Script    ? data.script
+      : util.isArray(data.script)        ? new Script(data.script)
+      : typeof data.script == "string"   ? new Script(conv.hexToBytes(data.script))
+      : data.scriptPubKey                ? Script.fromScriptSig(data.scriptPubKey)
+      :                                    new Script();
 
-  if (util.isArray(data.value)) {
-    this.value = data.value;
-  } else if ("string" == typeof data.value || "number" == typeof data.value) {
-    var valueHex = (new BigInteger(""+data.value, 10)).toString(16);
-    while (valueHex.length < 16) valueHex = "0" + valueHex;
-    this.value = conv.hexToBytes(valueHex);
-  }
+    this.value = 
+        util.isArray(data.value)         ? util.bytesToNum(data.value)
+      : "string" == typeof data.value    ? parseInt(data.value)
+      : data.value instanceof BigInteger ? parseInt(data.value.toString())
+      :                                    data.value;
 };
 
 TransactionOut.prototype.clone = function ()
 {
   var newTxout = new TransactionOut({
     script: this.script.clone(),
-    value: this.value.slice(0)
+    value: this.value
   });
   return newTxout;
 };

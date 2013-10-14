@@ -32,7 +32,7 @@
     buffer = buffer.concat(numToVarInt(tx.outs.length));
     for (var i = 0; i < tx.outs.length; i++) {
       var txout = tx.outs[i];
-      var valueHex = (new BigInteger(txout.value, 10)).toString(16);
+      var valueHex = txout.value.toString(16);
       while (valueHex.length < 16) valueHex = "0" + valueHex;
       buffer = buffer.concat(Crypto.util.hexToBytes(valueHex));
       var scriptBytes = Crypto.util.hexToBytes(txout.script);

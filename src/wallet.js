@@ -264,32 +264,27 @@ Wallet.prototype.process = function (tx) {
 };
 
 Wallet.prototype.getBalance = function () {
-  var balance = BigInteger.valueOf(0);
-  for (var i = 0; i < this.unspentOuts.length; i++) {
-    var txout = this.unspentOuts[i].out;
-    balance = balance.add(util.valueToBigInt(txout.value));
-  }
-  return balance;
+    return this.unspentOuts.reduce(function(t,o) { return t + o.out.value },0);
 };
 
 Wallet.prototype.createSend = function (address, sendValue, feeValue) {
   var selectedOuts = [];
-  var txValue = sendValue.add(feeValue);
-  var availableValue = BigInteger.ZERO;
+  var txValue = sendValue + feeValue;
+  var availableValue = 0;
   var i;
   for (i = 0; i < this.unspentOuts.length; i++) {
     var txout = this.unspentOuts[i];
     selectedOuts.push(txout);
-    availableValue = availableValue.add(util.valueToBigInt(txout.out.value));
+    availableValue += txout.out.value;
 
-    if (availableValue.compareTo(txValue) >= 0) break;
+    if (availableValue >= txValue) break;
   }
 
-  if (availableValue.compareTo(txValue) < 0) {
+  if (availableValue < txValue) {
     throw new Error('Insufficient funds.');
   }
 
-  var changeValue = availableValue.subtract(txValue);
+  var changeValue = availableValue - txValue;
 
   var sendTx = new Transaction();
 
@@ -298,7 +293,7 @@ Wallet.prototype.createSend = function (address, sendValue, feeValue) {
   }
 
   sendTx.addOutput(address, sendValue);
-  if (changeValue.compareTo(BigInteger.ZERO) > 0) {
+  if (changeValue > 0) {
     sendTx.addOutput(this.getNextAddress(), changeValue);
   }
 
