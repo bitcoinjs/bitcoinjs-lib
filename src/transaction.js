@@ -137,7 +137,7 @@ Transaction.prototype.serialize = function ()
   buffer = buffer.concat(util.numToVarInt(this.outs.length));
   for (var i = 0; i < this.outs.length; i++) {
     var txout = this.outs[i];
-    buffer = buffer.concat(util.numToBytes(txout.value),8);
+    buffer = buffer.concat(util.numToBytes(txout.value,8));
     var scriptBytes = txout.script.buffer;
     buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
     buffer = buffer.concat(scriptBytes);
@@ -522,7 +522,7 @@ TransactionIn.prototype.clone = function ()
 
 var TransactionOut = function (data) {
     this.script =
-        data.script instanceof Script    ? data.script
+        data.script instanceof Script    ? data.script.clone()
       : util.isArray(data.script)        ? new Script(data.script)
       : typeof data.script == "string"   ? new Script(conv.hexToBytes(data.script))
       : data.scriptPubKey                ? Script.fromScriptSig(data.scriptPubKey)
