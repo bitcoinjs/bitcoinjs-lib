@@ -1,6 +1,7 @@
 var base58 = require('./base58');
 var Crypto = require('./crypto-js/crypto');
 var conv = require('./convert');
+var util = require('./util');
 
 var address_types = {
     prod: 0,
@@ -12,14 +13,18 @@ var p2sh_types = {
     testnet: 196
 };
 
-var Address = function (bytes) {
+var Address = function (bytes, version) {
     if (typeof bytes === 'string') {
-        this.hash = base58.checkDecode(bytes);
-        this.version = this.hash.version;
+        this.hash = 
+              bytes.length <= 34     ? base58.checkDecode(bytes)
+            : bytes.length <= 40     ? conv.hexToBytes(bytes)
+            :                          util.error('Bad input');              
+
+        this.version = version || this.hash.version || 0;
     }
     else {
         this.hash = bytes;
-        this.version = 0x00;
+        this.version = version || 0;
     }
 };
 
@@ -29,35 +34,31 @@ var Address = function (bytes) {
  * Returns the address as a base58-encoded string in the standardized format.
  */
 Address.prototype.toString = function () {
-  // Get a copy of the hash
-  var hash = this.hash.slice(0);
-
-  return base58.checkEncode(hash,this.version);
+    return base58.checkEncode(this.hash.slice(0),this.version);
 };
 
 Address.prototype.getHash = function () {
-  return conv.bytesToHex(this.hash);
+    return conv.bytesToHex(this.hash);
 };
 
 Address.getVersion = function(string) {
-  return base58.decode(string)[0];
+    return base58.decode(string)[0];
 }
 
-// TODO(shtylman) isValid?
 Address.validate = function(string) {
-  try {
-      base58.checkDecode(string);
-  } catch (e) {
-      return false;
-  }
-  return true;
+    try {
+        base58.checkDecode(string);
+        return true;
+    } catch (e) {
+        return false;
+    }
 };
 
 /**
  * Parse a Bitcoin address contained in a string.
  */
 Address.decodeString = function (string) {
-  return base58.checkDecode(string);
+    return base58.checkDecode(string);
 };
 
 module.exports = Address;

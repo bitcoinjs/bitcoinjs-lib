@@ -118,57 +118,42 @@ Script.prototype.parse = function () {
  *   Any other script (no template matched).
  */
 Script.prototype.getOutType = function () {
-if (this.chunks[this.chunks.length-1] == Opcode.map.OP_CHECKMULTISIG && this.chunks[this.chunks.length-2] <= 3) {
-  // Transfer to M-OF-N
-  return 'Multisig';
-} else if (this.chunks.length == 5 &&
-  this.chunks[0] == Opcode.map.OP_DUP &&
-  this.chunks[1] == Opcode.map.OP_HASH160 &&
-  this.chunks[3] == Opcode.map.OP_EQUALVERIFY &&
-  this.chunks[4] == Opcode.map.OP_CHECKSIG) {
-  // Transfer to Bitcoin address
-  return 'Address';
-} else if (this.chunks.length == 2 &&
-       this.chunks[1] == Opcode.map.OP_CHECKSIG) {
-  // Transfer to IP address
-  return 'Pubkey';
-} else {
-  return 'Strange';
-}   
+    if (this.chunks[this.chunks.length-1] == Opcode.map.OP_CHECKMULTISIG &&
+        this.chunks[this.chunks.length-2] <= 3) {
+        // Transfer to M-OF-N
+        return 'Multisig';
+    } else if (this.chunks.length == 5 &&
+        this.chunks[0] == Opcode.map.OP_DUP &&
+        this.chunks[1] == Opcode.map.OP_HASH160 &&
+        this.chunks[3] == Opcode.map.OP_EQUALVERIFY &&
+        this.chunks[4] == Opcode.map.OP_CHECKSIG) {
+        // Transfer to Bitcoin address
+        return 'Address';
+    } else if (this.chunks.length == 2 &&
+        this.chunks[1] == Opcode.map.OP_CHECKSIG) {
+        // Transfer to IP address
+        return 'Pubkey';
+    } else {
+        return 'Strange';
+    }   
 }
 
 /**
- * Returns the affected address hash for this output.
- *
- * For standard transactions, this will return the hash of the pubKey that
- * can spend this output.
- *
- * In the future, for payToScriptHash outputs, this will return the
- * scriptHash. Note that non-standard and standard payToScriptHash transactions
- * look the same 
- *
- * This method is useful for indexing transactions.
+ * Returns the address corresponding to this output in hash160 form.
+ * Assumes strange scripts are P2SH
  */
-Script.prototype.simpleOutHash = function ()
-{
-  switch (this.getOutType()) {
-  case 'Address':
-    return this.chunks[2];
-  case 'Pubkey':
-    return util.sha256ripe160(this.chunks[0]);
-  case 'Multisig':
-    return util.sha256ripe160(this.buffer);
-  default:
-    throw new Error("Encountered non-standard scriptPubKey: " + this.getOutType());
-  }
+Script.prototype.toScriptHash = function () {
+    var outType = this.getOutType();
+
+    return outType == 'Address'       ? this.chunks[2]
+         : outType == 'Pubkey'        ? util.sha256ripe160(this.chunks[0])
+         : outType == 'Multisig'      ? util.sha256ripe160(this.buffer)
+         :                              util.sha256ripe160(this.buffer)
 };
 
-/**
- * Old name for Script#simpleOutHash.
- *
- * @deprecated
- */
-Script.prototype.simpleOutPubKeyHash = Script.prototype.simpleOutHash;
+Script.prototype.toAddress = function() {
+    return new Address(this.toScriptHash());
+}
 
 /**
  * Compare the script to known templates of scriptSig.

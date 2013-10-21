@@ -348,7 +348,7 @@ Transaction.prototype.getDescription = function (wallet) {
  * Get the total amount of a transaction's outputs.
  */
 Transaction.prototype.getTotalOutValue = function () {
-  return this.outs.reduce(function(t,o) { return t + o.value },0);
+    return this.outs.reduce(function(t,o) { return t + o.value },0);
 };
 
  /**
@@ -468,6 +468,32 @@ Transaction.prototype.sign = function(index, key, type) {
     this.ins[index].script = Script.createInputScript(sig,pub);
 }
 
+// Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]
+Transaction.prototype.signWithKeys = function(keys, outputs, type) {
+    type = type || SIGHASH_ALL;
+    var addrdata = keys.map(function(key) {
+         key = new Bitcoin.Key(key);
+         return {
+            key: key,
+            address: key.getBitcoinAddress().toString()
+         }
+    });
+    var hmap = {};
+    for (var o in outputs) {
+        hmap[outputs[o].output] = outputs[o];
+    }
+    for (var i = 0; i < this.ins.length; i++) {
+        var outpoint = this.ins[i].outpoint.hash+':'+this.ins[i].outpoint.index,
+            histItem = hmap[outpoint];
+        if (!histItem) continue;
+        var thisInputAddrdata = addrdata.filter(function(a) {
+            return a.address == histItem.address;
+        });
+        if (thisInputAddrdata.length == 0) continue;
+        this.sign(i,thisInputAddrdata[0].key);
+    }
+}
+
 /**
  * Signs a P2SH output at some index with the given key
  */
@@ -483,7 +509,7 @@ Transaction.prototype.p2shsign = function(index, script, key, type) {
 
 Transaction.prototype.multisign = Transaction.prototype.p2shsign;
 
-Transaction.prototype.validateSig = function(index,script,sig,pub) {
+Transaction.prototype.validateSig = function(index, script, sig, pub) {
     script = new Script(script);
     var hash = this.hashTransactionForSignature(script,index,1);
     return ECDSA.verify(hash, conv.coerceToBytes(sig),
@@ -491,33 +517,31 @@ Transaction.prototype.validateSig = function(index,script,sig,pub) {
 }
 
 
-var TransactionIn = function (data)
-{
-  this.outpoint = data.outpoint;
-  if (data.script instanceof Script) {
-    this.script = data.script;
-  } else {
-    if (data.scriptSig) {
-      this.script = Script.fromScriptSig(data.scriptSig);
-    }
-    else {
-      this.script = new Script(data.script);
-    }
-  }
-  this.sequence = data.sequence;
+var TransactionIn = function (data) {
+    if (typeof data == "string")
+        this.outpoint = { hash: data.split(':')[0], index: data.split(':')[1] }
+    else if (data.outpoint)
+        this.outpoint = data.outpoint
+    else
+        this.outpoint = { hash: data.hash, index: data.index }   
+
+    if (data.scriptSig)
+        this.script = Script.fromScriptSig(data.scriptSig)
+    else
+        this.script = new Script(data.script)
+
+    this.sequence = data.sequence || 4294967295;
 };
 
-TransactionIn.prototype.clone = function ()
-{
-  var newTxin = new TransactionIn({
-    outpoint: {
-      hash: this.outpoint.hash,
-      index: this.outpoint.index
-    },
-    script: this.script.clone(),
-    sequence: this.sequence
-  });
-  return newTxin;
+TransactionIn.prototype.clone = function () {
+    return new TransactionIn({
+        outpoint: {
+            hash: this.outpoint.hash,
+            index: this.outpoint.index
+        },
+        script: this.script.clone(),
+        sequence: this.sequence
+    });
 };
 
 var TransactionOut = function (data) {
@@ -526,7 +550,10 @@ var TransactionOut = function (data) {
       : util.isArray(data.script)        ? new Script(data.script)
       : typeof data.script == "string"   ? new Script(conv.hexToBytes(data.script))
       : data.scriptPubKey                ? Script.fromScriptSig(data.scriptPubKey)
+      : data.address                     ? Script.createOutputScript(data.address)
       :                                    new Script();
+
+    if (this.script.buffer.length > 0) this.address = this.script.toAddress();
 
     this.value = 
         util.isArray(data.value)         ? util.bytesToNum(data.value)
@@ -547,4 +574,3 @@ TransactionOut.prototype.clone = function ()
 module.exports.Transaction = Transaction;
 module.exports.TransactionIn = TransactionIn;
 module.exports.TransactionOut = TransactionOut;
-

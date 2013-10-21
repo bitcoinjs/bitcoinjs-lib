@@ -114,5 +114,8 @@ module.exports = {
    */
   sha256ripe160: function (data) {
     return Crypto.RIPEMD160(Crypto.SHA256(data, {asBytes: true}), {asBytes: true});
+  },
+  error: function(msg) {
+    throw new Error(msg);
   }
 };
