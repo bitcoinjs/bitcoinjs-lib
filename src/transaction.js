@@ -479,7 +479,7 @@ Transaction.prototype.sign = function(index, key, type) {
 Transaction.prototype.signWithKeys = function(keys, outputs, type) {
     type = type || SIGHASH_ALL;
     var addrdata = keys.map(function(key) {
-         key = new Bitcoin.Key(key);
+         key = new ECKey(key);
          return {
             key: key,
             address: key.getBitcoinAddress().toString()
