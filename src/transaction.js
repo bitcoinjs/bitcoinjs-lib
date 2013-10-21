@@ -52,26 +52,33 @@ Transaction.objectify = function (txs) {
 /**
  * Create a new txin.
  *
- * Can be called with an existing TransactionIn object to add it to the
- * transaction. Or it can be called with a Transaction object and an integer
- * output index, in which case a new TransactionIn object pointing to the
- * referenced output will be created.
+ * Can be called with any of:
+ *
+ * - An existing TransactionOut object
+ * - A transaction and an index
+ * - A transaction hash and an index
+ * - A single string argument of the form txhash:index
  *
  * Note that this method does not sign the created input.
  */
 Transaction.prototype.addInput = function (tx, outIndex) {
-  if (arguments[0] instanceof TransactionIn) {
-    this.ins.push(arguments[0]);
-  } else {
-    this.ins.push(new TransactionIn({
-      outpoint: {
-        hash: tx.hash,
-        index: outIndex
-      },
-      script: new Script(),
-      sequence: 4294967295
-    }));
-  }
+    if (arguments[0] instanceof TransactionIn) {
+        this.ins.push(arguments[0]);
+    } 
+    else if (arguments[0].length > 65) {
+        var args = arguments[0].split(':');
+        return this.addInput(args[0], args[1]);
+    } 
+    else {
+        this.ins.push(new TransactionIn({
+            outpoint: {
+                hash: tx.hash || tx,
+                index: outIndex
+            },
+            script: new Script(),
+            sequence: 4294967295
+        }));
+    }
 };
 
 /**
