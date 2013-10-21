@@ -296,6 +296,7 @@ Script.prototype.writeBytes = function (data)
 Script.createOutputScript = function (address)
 {
   var script = new Script();
+  address = new Address(address);
   // Standard pay-to-pubkey-hash
   if (!address.version) {
       script.writeOp(Opcode.map.OP_DUP);

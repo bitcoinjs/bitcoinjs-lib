@@ -14,7 +14,11 @@ var p2sh_types = {
 };
 
 var Address = function (bytes, version) {
-    if (typeof bytes === 'string') {
+    if (arguments[0] instanceof Address) {
+        this.hash = arguments[0].hash;
+        this.version = arguments[0].version;
+    }
+    else if (typeof bytes === 'string') {
         this.hash = 
               bytes.length <= 34     ? base58.checkDecode(bytes)
             : bytes.length <= 40     ? conv.hexToBytes(bytes)
