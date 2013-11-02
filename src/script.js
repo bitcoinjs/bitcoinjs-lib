@@ -121,19 +121,17 @@ Script.prototype.getOutType = function () {
     if (this.chunks[this.chunks.length-1] == Opcode.map.OP_CHECKMULTISIG &&
         this.chunks[this.chunks.length-2] <= 3) {
         // Transfer to M-OF-N
-        return 'Multisig';
-    } else if (this.chunks.length == 5 &&
+        return 'P2SH';
+    }
+    else if (this.chunks.length == 5 &&
         this.chunks[0] == Opcode.map.OP_DUP &&
         this.chunks[1] == Opcode.map.OP_HASH160 &&
         this.chunks[3] == Opcode.map.OP_EQUALVERIFY &&
         this.chunks[4] == Opcode.map.OP_CHECKSIG) {
         // Transfer to Bitcoin address
-        return 'Address';
-    } else if (this.chunks.length == 2 &&
-        this.chunks[1] == Opcode.map.OP_CHECKSIG) {
-        // Transfer to IP address
         return 'Pubkey';
-    } else {
+    }
+    else {
         return 'Strange';
     }   
 }
@@ -145,10 +143,9 @@ Script.prototype.getOutType = function () {
 Script.prototype.toScriptHash = function () {
     var outType = this.getOutType();
 
-    return outType == 'Address'       ? this.chunks[2]
-         : outType == 'Pubkey'        ? util.sha256ripe160(this.chunks[0])
-         : outType == 'Multisig'      ? util.sha256ripe160(this.buffer)
-         :                              util.sha256ripe160(this.buffer)
+    return outType == 'Pubkey'       ? this.chunks[2]
+         : outType == 'P2SH'         ? util.sha256ripe160(this.buffer)
+         :                             util.sha256ripe160(this.buffer)
 };
 
 Script.prototype.toAddress = function() {
@@ -368,7 +365,7 @@ Script.createMultiSigInputScript = function(signatures, script)
     if (signatures.length < k) return false; //Not enough sigs
     var inScript = new Script();
     inScript.writeOp(Opcode.map.OP_0);
-    signatures.map(inScript.writeBytes.bind(inScript));
+    signatures.map(function(sig) { inScript.writeBytes(sig) });
     inScript.writeBytes(script.buffer);
     return inScript;
 }

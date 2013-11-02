@@ -9,30 +9,33 @@ var ECDSA = require('./ecdsa');
 var Address = require('./address');
 
 var Transaction = function (doc) {
-  this.version = 1;
-  this.lock_time = 0;
-  this.ins = [];
-  this.outs = [];
-  this.timestamp = null;
-  this.block = null;
-
-  if (doc) {
-    if (doc.hash) this.hash = doc.hash;
-    if (doc.version) this.version = doc.version;
-    if (doc.lock_time) this.lock_time = doc.lock_time;
-    if (doc.ins && doc.ins.length) {
-      for (var i = 0; i < doc.ins.length; i++) {
-        this.addInput(new TransactionIn(doc.ins[i]));
-      }
+    this.version = 1;
+    this.lock_time = 0;
+    this.ins = [];
+    this.outs = [];
+    this.timestamp = null;
+    this.block = null;
+    
+    if (doc) {
+        if (typeof doc == "string" || util.isArray(doc)) {
+            doc = Transaction.deserialize(doc)
+        }
+        if (doc.hash) this.hash = doc.hash;
+        if (doc.version) this.version = doc.version;
+        if (doc.lock_time) this.lock_time = doc.lock_time;
+        if (doc.ins && doc.ins.length) {
+            for (var i = 0; i < doc.ins.length; i++) {
+                this.addInput(new TransactionIn(doc.ins[i]));
+            }
+        }
+        if (doc.outs && doc.outs.length) {
+            for (var i = 0; i < doc.outs.length; i++) {
+                this.addOutput(new TransactionOut(doc.outs[i]));
+            }
+        }
+        if (doc.timestamp) this.timestamp = doc.timestamp;
+        if (doc.block) this.block = doc.block;
     }
-    if (doc.outs && doc.outs.length) {
-      for (var i = 0; i < doc.outs.length; i++) {
-        this.addOutput(new TransactionOut(doc.outs[i]));
-      }
-    }
-    if (doc.timestamp) this.timestamp = doc.timestamp;
-    if (doc.block) this.block = doc.block;
-  }
 };
 
 /**
@@ -412,6 +415,9 @@ Transaction.prototype.calcImpact = function (wallet) {
  */
 
 Transaction.deserialize = function(buffer) {
+    if (typeof buffer == "string") {
+        buffer = conv.hexToBytes(buffer)
+    }
     var pos = 0;
     var readAsInt = function(bytes) {
         if (bytes == 0) return 0;
@@ -515,6 +521,10 @@ Transaction.prototype.p2shsign = function(index, script, key, type) {
 }
 
 Transaction.prototype.multisign = Transaction.prototype.p2shsign;
+
+Transaction.prototype.applyMultisigs = function(index, script, sigs, type) {
+    this.ins[index].script = Script.createMultiSigInputScript(sigs, script);
+}
 
 Transaction.prototype.validateSig = function(index, script, sig, pub) {
     script = new Script(script);

@@ -42,7 +42,6 @@ var ECKey = function (input) {
       this.compressed = true;
     } else {
       // hex string?
-      // Prepend zero byte to prevent interpretation as negative integer
       this.priv = BigInteger.fromByteArrayUnsigned(conv.hexToBytes(input));
     }
   }
