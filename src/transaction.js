@@ -87,21 +87,27 @@ Transaction.prototype.addInput = function (tx, outIndex) {
 /**
  * Create a new txout.
  *
- * Can be called with an existing TransactionOut object to add it to the
- * transaction. Or it can be called with an Address object and a BigInteger
- * for the amount, in which case a new TransactionOut object with those
- * values will be created.
+ * Can be called with:
+ *
+ * i) An existing TransactionOut object
+ * ii) An address object or an address and a value
+ * iii) An address:value string
+ *
  */
 Transaction.prototype.addOutput = function (address, value) {
     if (arguments[0] instanceof TransactionOut) {
        this.outs.push(arguments[0]);
-    } 
-    else {
-        this.outs.push(new TransactionOut({
-            value: value,
-            script: Script.createOutputScript(address)
-        }));
+       return;
     }
+    if (arguments[0].indexOf(':') >= 0) {
+        var args = arguments[0].split(':');
+        address = args[0];
+        value = parseInt(args[1]);
+    } 
+    this.outs.push(new TransactionOut({
+        value: value,
+        script: Script.createOutputScript(address)
+    }));
 };
 
 // TODO(shtylman) crypto sha uses this also
