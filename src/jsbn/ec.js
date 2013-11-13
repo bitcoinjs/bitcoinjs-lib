@@ -80,14 +80,18 @@ function pointFpGetX() {
     if(this.zinv == null) {
       this.zinv = this.z.modInverse(this.curve.q);
     }
-    return this.curve.fromBigInteger(this.x.toBigInteger().multiply(this.zinv).mod(this.curve.q));
+	var r = this.x.toBigInteger().multiply(this.zinv);
+	this.curve.reduce(r);
+	return this.curve.fromBigInteger(r);
 }
 
 function pointFpGetY() {
     if(this.zinv == null) {
       this.zinv = this.z.modInverse(this.curve.q);
     }
-    return this.curve.fromBigInteger(this.y.toBigInteger().multiply(this.zinv).mod(this.curve.q));
+    var r = this.y.toBigInteger().multiply(this.zinv);
+    this.curve.reduce(r);
+    return this.curve.fromBigInteger(r);
 }
 
 function pointFpEquals(other) {
@@ -168,6 +172,7 @@ function pointFpTwice() {
       w = w.add(this.z.square().multiply(a));
     }
     w = w.mod(this.curve.q);
+    //this.curve.reduce(w);
     // x3 = 2 * y1 * z1 * (w^2 - 8 * x1 * y1^2 * z1)
     var x3 = w.square().subtract(x1.shiftLeft(3).multiply(y1sqz1)).shiftLeft(1).multiply(y1z1).mod(this.curve.q);
     // y3 = 4 * y1^2 * z1 * (3 * w * x1 - 2 * y1^2 * z1) - w^3
@@ -255,6 +260,7 @@ function ECCurveFp(q,a,b) {
     this.a = this.fromBigInteger(a);
     this.b = this.fromBigInteger(b);
     this.infinity = new ECPointFp(this, null, null);
+    this.reducer = new Barrett(this.q);
 }
 
 function curveFpGetQ() {
@@ -282,6 +288,10 @@ function curveFpFromBigInteger(x) {
     return new ECFieldElementFp(this.q, x);
 }
 
+function curveReduce(x) {
+    this.reducer.reduce(x);
+}
+
 // for now, work with hex strings because they're easier in JS
 function curveFpDecodePointHex(s) {
     switch(parseInt(s.substr(0,2), 16)) { // first byte
@@ -307,10 +317,27 @@ function curveFpDecodePointHex(s) {
     }
 }
 
+function curveFpEncodePointHex(p) {
+    if (p.isInfinity()) return "00";
+    var xHex = p.getX().toBigInteger().toString(16);
+    var yHex = p.getY().toBigInteger().toString(16);
+    var oLen = this.getQ().toString(16).length;
+    if ((oLen % 2) != 0) oLen++;
+    while (xHex.length < oLen) {
+        xHex = "0" + xHex;
+    }
+    while (yHex.length < oLen) {
+        yHex = "0" + yHex;
+    }
+    return "04" + xHex + yHex;
+}
+
 ECCurveFp.prototype.getQ = curveFpGetQ;
 ECCurveFp.prototype.getA = curveFpGetA;
 ECCurveFp.prototype.getB = curveFpGetB;
 ECCurveFp.prototype.equals = curveFpEquals;
 ECCurveFp.prototype.getInfinity = curveFpGetInfinity;
 ECCurveFp.prototype.fromBigInteger = curveFpFromBigInteger;
+ECCurveFp.prototype.reduce = curveReduce;
 ECCurveFp.prototype.decodePointHex = curveFpDecodePointHex;
+ECCurveFp.prototype.encodePointHex = curveFpEncodePointHex;
