@@ -27,6 +27,13 @@ if(rng_pool == null) {
   rng_pool = new Array();
   rng_pptr = 0;
   var t;
+  if (window.crypto && window.crypto.getRandomValues) {
+    // Use webcrypto if available
+    var ua = new Uint8Array(32);
+    window.crypto.getRandomValues(ua);
+    for (t = 0; t < 32; ++t)
+        rng_pool[rng_pptr++] = ua[t];
+  }
   if(navigator.appName == "Netscape" && navigator.appVersion < "5" && window.crypto) {
     // Extract entropy (256 bits) from NS4 RNG if available
     var z = window.crypto.random(32);
