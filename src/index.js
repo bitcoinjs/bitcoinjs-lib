@@ -38,6 +38,7 @@ module.exports = {
     Wallet: require('./wallet'),
 
     ecdsa: require('./ecdsa'),
+    BIP32key: require('./bip32'),
 
     // base58 encoding/decoding to bytes
     base58: require('./base58'),

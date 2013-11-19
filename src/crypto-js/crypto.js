@@ -61,4 +61,6 @@ var Binary = charenc.Binary = {
 };
 
 module.exports.SHA256 = require('./sha256');
+module.exports.SHA512 = require('./sha512');
 module.exports.RIPEMD160 = require('./ripemd160');
+module.exports.HMAC = require('./hmac');

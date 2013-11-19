@@ -44,7 +44,7 @@ var Wallet = function () {
 
     if (pub) {
       if ("string" === typeof pub) {
-        pub = Crypto.util.hexToBytes(pub);
+        pub = conv.hexToBytes(pub);
       }
       key.setPub(pub);
     }

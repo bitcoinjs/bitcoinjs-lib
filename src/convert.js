@@ -51,7 +51,7 @@ module.exports.base64ToBytes = function(base64) {
 
 // Hex only (allowing bin would be potentially risky, as 01010101 = \x01 * 4 or 85)
 module.exports.coerceToBytes = function(input) {
-    if (typeof input == "string") return Crypto.util.hexToBytes(input);
+    if (typeof input == "string") return module.exports.hexToBytes(input);
     return input;
 }
 

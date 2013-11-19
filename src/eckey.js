@@ -6,58 +6,25 @@ var util = require('./util');
 var conv = require('./convert');
 var Address = require('./address');
 var ecdsa = require('./ecdsa');
+var ECPointFp = require('./jsbn/ec').ECPointFp;
 
 var ecparams = sec("secp256k1");
 
 // input can be nothing, array of bytes, hex string, or base58 string
 var ECKey = function (input) {
-  if (!(this instanceof ECKey)) {
-    return new ECKey(input);
-  }
-
-  this.compressed = !!ECKey.compressByDefault;
-
-  if (!input) {
-    // Generate new key
-    var n = ecparams.getN();
-    this.priv = ecdsa.getBigRandom(n);
-  } else if (input instanceof ECKey) {
-    this.priv = input.priv;
-  } else if (input instanceof BigInteger) {
-    // Input is a private key value
-    this.priv = input;
-  } else if (util.isArray(input)) {
-    // Prepend zero byte to prevent interpretation as negative integer
-    this.priv = BigInteger.fromByteArrayUnsigned(input);
-    this.compressed = false;
-  } else if ("string" == typeof input) {
-    if (input.length == 51 && input[0] == '5') {
-      // Base58 encoded private key
-      this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input));
-      this.compressed = false;
+    if (!(this instanceof ECKey)) {
+        return new ECKey(input);
     }
-    else if (input.length == 52 && (input[0] === 'K' || input[0] === 'L')) {
-      // Base58 encoded private key
-      this.priv = BigInteger.fromByteArrayUnsigned(ECKey.decodeString(input));
-      this.compressed = true;
-    } else {
-      // hex string?
-      this.priv = BigInteger.fromByteArrayUnsigned(conv.hexToBytes(input));
+
+    this.compressed = !!ECKey.compressByDefault;
+
+    if (!input) {
+        // Generate new key
+        var n = ecparams.getN();
+        this.priv = ecdsa.getBigRandom(n);
     }
-  }
-  else if (input.constructor == [].constructor) {
-    this.priv = BigInteger.fromByteArrayUnsigned(input);
-  }
+    else this.import(input)
 };
-
-// TODO(shtylman) methods
-// wallet import format (base58 check with meta info)
-// fromWIF
-// toWIF
-// fromBytes
-// toBytes
-// fromHex
-// toHex
 
 /**
  * Whether public keys should be returned compressed by default.
@@ -75,16 +42,15 @@ ECKey.prototype.setCompressed = function (v) {
  * Return public key in DER encoding.
  */
 ECKey.prototype.getPub = function () {
-  return this.getPubPoint().getEncoded(this.compressed);
+    return this.getPubPoint().getEncoded(this.compressed);
 };
 
 /**
  * Return public point as ECPoint object.
  */
 ECKey.prototype.getPubPoint = function () {
-  if (!this.pub) this.pub = ecparams.getG().multiply(this.priv);
-
-  return this.pub;
+    if (!this.pub) this.pub = ecparams.getG().multiply(this.priv);
+    return this.pub;
 };
 
 /**
@@ -94,37 +60,37 @@ ECKey.prototype.getPubPoint = function () {
  * a byte array.
  */
 ECKey.prototype.getPubKeyHash = function () {
-  if (this.pubKeyHash) return this.pubKeyHash;
-
-  return this.pubKeyHash = util.sha256ripe160(this.getPub());
+    if (this.pubKeyHash) return this.pubKeyHash;
+    return this.pubKeyHash = util.sha256ripe160(this.getPub());
 };
 
 ECKey.prototype.getBitcoinAddress = function () {
-  var hash = this.getPubKeyHash();
-  var addr = new Address(hash);
-  return addr;
-};
-
-ECKey.prototype.getExportedPrivateKey = function () {
-  var hash = this.priv.toByteArrayUnsigned();
-  while (hash.length < 32) hash.unshift(0);
-  hash.unshift(0x80);
-  var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
-  var bytes = hash.concat(checksum.slice(0,4));
-  return base58.encode(bytes);
+    var hash = this.getPubKeyHash();
+    var addr = new Address(hash);
+    return addr;
 };
 
 ECKey.prototype.setPub = function (pub) {
-  this.pub = ECPointFp.decodeFrom(ecparams.getCurve(), pub);
+    this.pub = ECPointFp.decodeFrom(ecparams.getCurve(), pub);
+    this.compressed = (pub[0] < 4)
+    return this
 };
 
-ECKey.prototype.toString = function (format) {
-  if (format === "base58") {
-    return base58.checkEncode(this.priv.toByteArrayUnsigned(),128);
-  } else {
-    return conv.bytesToHex(this.priv.toByteArrayUnsigned());
-  }
+ECKey.prototype.export = function (format) {
+    var bytes = this.priv.toByteArrayUnsigned();
+    if (this.compressed)
+         bytes.push(1)
+    return format === "base58"    ? base58.checkEncode(bytes,128) 
+         : format === "bin"       ? conv.bytesToString(bytes)
+         : format === "bytes"     ? bytes
+         : format === "hex"       ? conv.bytesToHex(bytes)
+         :                          bytes                    
 };
+ECKey.prototype.getExportedPrivateKey = ECKey.prototype.export;
+
+ECKey.prototype.toString = function (format) {
+    return ''+this.export(format)
+}
 
 ECKey.prototype.sign = function (hash) {
   return ecdsa.sign(hash, this.priv);
@@ -137,43 +103,38 @@ ECKey.prototype.verify = function (hash, sig) {
 /**
  * Parse an exported private key contained in a string.
  */
-ECKey.decodeString = function (string) {
-  var bytes = base58.decode(string);
-
-  if (bytes.length !== 37 && bytes.length !== 38) {
-    throw new Error('not a valid base58 encoded private key');
-  }
-
-  //Format:
-  //* uncompressed: 0x80 + [32-byte secret] + [4 bytes of Hash() of
-  //previous 33 bytes], base58 encoded
-  //* compressed: 0x80 + [32-byte secret] + 0x01 + [4 bytes of Hash()
-  //previous 34 bytes], base58 encoded
-
-  if (bytes[33] === 0x01) {
-    // compressed
-  }
-
-  var hash = bytes.slice(0, 33);
-
-  /*
-  var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
-
-  if (checksum[0] != bytes[33] ||
-      checksum[1] != bytes[34] ||
-      checksum[2] != bytes[35] ||
-      checksum[3] != bytes[36]) {
-    throw "Checksum validation failed!";
-  }
-  */
-
-  var version = hash.shift();
-
-  if (version != 0x80) {
-    throw "Version "+version+" not supported!";
-  }
-
-  return hash;
+ECKey.prototype.import = function (input) {
+    if (input instanceof ECKey) {
+        this.priv = input.priv;
+        this.compressed = input.compressed;
+    }
+    else if (input instanceof BigInteger) {
+        // Input is a private key value
+        this.priv = input;
+        this.compressed = ECKey.compressByDefault;
+    }
+    else if (util.isArray(input)) {
+        // Prepend zero byte to prevent interpretation as negative integer
+        this.priv = BigInteger.fromByteArrayUnsigned(input.slice(0,32));
+        this.compressed = (input.length == 33);
+    }
+    else if ("string" == typeof input) {
+        if (input.length == 51 && input[0] == '5') {
+            // Base58 encoded private key
+            this.priv = BigInteger.fromByteArrayUnsigned(base58.checkDecode(input));
+            this.compressed = false;
+        }
+        else if (input.length == 52 && (input[0] === 'K' || input[0] === 'L')) {
+            // Base58 encoded private key
+            this.priv = BigInteger.fromByteArrayUnsigned(base58.checkDecode(input));
+            this.compressed = true;
+        }
+        else if (input.length >= 64) {
+            // hex string?
+            this.priv = BigInteger.fromByteArrayUnsigned(conv.hexToBytes(input.slice(0,64)));
+            this.compressed = (input.length == 66)
+        }
+    }
 };
 
 module.exports = ECKey;

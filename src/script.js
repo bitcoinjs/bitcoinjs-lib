@@ -7,7 +7,7 @@ var Script = function (data) {
   if (!data) {
     this.buffer = [];
   } else if ("string" == typeof data) {
-    this.buffer = Crypto.util.hexToBytes(data);
+    this.buffer = conv.hexToBytes(data);
   } else if (util.isArray(data)) {
     this.buffer = data;
   } else if (data instanceof Script) {

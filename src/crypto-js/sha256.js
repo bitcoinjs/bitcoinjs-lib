@@ -5,8 +5,8 @@ code.google.com/p/crypto-js
 code.google.com/p/crypto-js/wiki/License
 */
 
-var conv = require('../convert');
-var UTF8 = require('./crypto').charenc.UTF8;
+var conv = require('../convert'),
+    util = require('../util');
 
 // Initialization round constants tables
 var K = [];
@@ -39,22 +39,6 @@ var K = [];
         n++;
     }
 }());
-
-var bytesToWords = function (bytes) {
-    var words = [];
-    for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
-        words[b >>> 5] |= bytes[i] << (24 - b % 32);
-    }
-    return words;
-};
-
-var wordsToBytes = function (words) {
-    var bytes = [];
-    for (var b = 0; b < words.length * 32; b += 8) {
-        bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-    }
-    return bytes;
-};
 
 // Reusable object
 var W = [];
@@ -128,10 +112,10 @@ module.exports = function(message, options) {;
              0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ];
 
     if (message.constructor === String) {
-        message = UTF8.stringToBytes(message);
+        message = conv.stringToBytes(message);
     }
 
-    var m = bytesToWords(message);
+    var m = util.bytesToWords(message);
     var l = message.length * 8;
 
     m[l >> 5] |= 0x80 << (24 - l % 32);
@@ -141,8 +125,10 @@ module.exports = function(message, options) {;
         processBlock(H, m, i);
     }
 
-    var digestbytes = wordsToBytes(H);
+    var digestbytes = util.wordsToBytes(H);
     return options && options.asBytes ? digestbytes :
         options && options.asString ? Binary.bytesToString(digestbytes) :
         conv.bytesToHex(digestbytes);
 };
+
+module.exports._blocksize = 64

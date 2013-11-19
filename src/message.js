@@ -10,8 +10,8 @@ var Message = {};
 Message.magicPrefix = "Bitcoin Signed Message:\n";
 
 Message.makeMagicMessage = function (message) {
-  var magicBytes = Crypto.charenc.UTF8.stringToBytes(Message.magicPrefix);
-  var messageBytes = Crypto.charenc.UTF8.stringToBytes(message);
+  var magicBytes = conv.stringToBytes(Message.magicPrefix);
+  var messageBytes = conv.stringToBytes(message);
 
   var buffer = [];
   buffer = buffer.concat(util.numToVarInt(magicBytes.length));

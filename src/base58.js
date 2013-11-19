@@ -83,7 +83,7 @@ module.exports.decode = function (input) {
 }
 
 module.exports.decodeHex = function (input) {
-    return module.exports.decode(Crypto.util.hexToBytes(input));
+    return module.exports.decode(conv.hexToBytes(input));
 }
 
 module.exports.checkEncode = function(input, vbyte) {
@@ -113,7 +113,7 @@ module.exports.checkDecode = function(input) {
 }
 
 module.exports.checkDecodeHex = function (input) {
-    return module.exports.checkDecode(Crypto.util.hexToBytes(input));
+    return module.exports.checkDecode(conv.hexToBytes(input));
 }
 
 
