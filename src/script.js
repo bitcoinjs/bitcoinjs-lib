@@ -118,8 +118,9 @@ Script.prototype.parse = function () {
  *   Any other script (no template matched).
  */
 Script.prototype.getOutType = function () {
-    if (this.chunks[this.chunks.length-1] == Opcode.map.OP_CHECKMULTISIG &&
-        this.chunks[this.chunks.length-2] <= 3) {
+    if (this.chunks[this.chunks.length-1] == Opcode.map.OP_EQUAL &&
+        this.chunks[0] == Opcode.map.OP_HASH160 &&
+        this.chunks.length == 3) {
         // Transfer to M-OF-N
         return 'P2SH';
     }
@@ -149,7 +150,10 @@ Script.prototype.toScriptHash = function () {
 };
 
 Script.prototype.toAddress = function() {
-    return new Address(this.toScriptHash());
+    var outType = this.getOutType();
+    return outType == 'Pubkey'       ? new Address(this.chunks[2])
+         : outType == 'P2SH'         ? new Address(this.chunks[1],5)
+         :                             new Address(this.chunks[1],5)
 }
 
 /**
