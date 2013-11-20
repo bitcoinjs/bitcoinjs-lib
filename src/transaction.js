@@ -163,6 +163,10 @@ Transaction.prototype.serialize = function ()
   return buffer;
 };
 
+Transaction.prototype.serializeHex = function() {
+    return conv.bytesToHex(this.serialize());
+}
+
 var OP_CODESEPARATOR = 171;
 
 var SIGHASH_ALL = 1;

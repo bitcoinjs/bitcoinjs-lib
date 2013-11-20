@@ -5,9 +5,14 @@ var util = require('./util');
 
 var BigInteger = require('./jsbn/jsbn');
 
+var BIP32key = require('./bip32');
+
 var Transaction = require('./transaction').Transaction;
 var TransactionIn = require('./transaction').TransactionIn;
 var TransactionOut = require('./transaction').TransactionOut;
+
+var SecureRandom = require('./jsbn/rng');
+var rng = new SecureRandom();
 
 var Wallet = function () {
   // Keychain
@@ -18,6 +23,7 @@ var Wallet = function () {
   // Any functions accessing this value therefore have to be defined in
   // the closure of this constructor.
   var keys = [];
+  var masterkey = null;
 
   // Public hashes of our keys
   this.addressHashes = [];
@@ -28,51 +34,19 @@ var Wallet = function () {
 
   // Other fields
   this.addressPointer = 0;
+  
+  this.genMasterkey = function(seed) {
+    if (!seed) {
+        var seedBytes = new Array(32);
+        rng.nextBytes(seedBytes);
+        seed = conv.bytesToString(seedBytes)
+    }
+    masterkey = new BIP32key(seed);
+  }
 
-  /**
-   * Add a key to the keychain.
-   *
-   * The corresponding public key can be provided as a second parameter. This
-   * adds it to the cache in the ECKey object and avoid the need to
-   * expensively calculate it later.
-   */
-  this.addKey = function (key, pub) {
-    if (!(key instanceof ECKey)) {
-      key = new ECKey(key);
-    }
-    keys.push(key);
-
-    if (pub) {
-      if ("string" === typeof pub) {
-        pub = conv.hexToBytes(pub);
-      }
-      key.setPub(pub);
-    }
-
-    this.addressHashes.push(key.getBitcoinAddress().getHash());
-  };
-
-  /**
-   * Add multiple keys at once.
-   */
-  this.addKeys = function (keys, pubs) {
-    if ("string" === typeof keys) {
-      keys = keys.split(',');
-    }
-    if ("string" === typeof pubs) {
-      pubs = pubs.split(',');
-    }
-    var i;
-    if (Array.isArray(pubs) && keys.length == pubs.length) {
-      for (i = 0; i < keys.length; i++) {
-        this.addKey(keys[i], pubs[i]);
-      }
-    } else {
-      for (i = 0; i < keys.length; i++) {
-        this.addKey(keys[i]);
-      }
-    }
-  };
+  this.generateAddress = function() {
+    keys.push(masterkey.ckd(keys.length))
+  }
 
   /**
    * Get the key chain.
@@ -80,14 +54,21 @@ var Wallet = function () {
    * Returns an array of hex-encoded private values.
    */
   this.getKeys = function () {
-    var serializedWallet = [];
+    var keyExport = [];
 
     for (var i = 0; i < keys.length; i++) {
-      serializedWallet.push(keys[i].toString());
+      keyExport.push(keys[i].toString());
     }
 
-    return serializedWallet;
+    return keyExport;
   };
+
+  this.privateSerialize = function() {
+    return {
+        masterkey: masterkey,
+        keys: this.getKeys()
+    }
+  }
 
   /**
    * Get the public keys.
@@ -109,6 +90,7 @@ var Wallet = function () {
    */
   this.clear = function () {
     keys = [];
+    masterkey = null;
   };
 
   /**
@@ -132,36 +114,11 @@ var Wallet = function () {
   };
 
   this.getCurAddress = function () {
-    if (keys[this.addressPointer]) {
-      return keys[this.addressPointer].getBitcoinAddress();
+    if (keys[keys.length - 1]) {
+      return keys[keys.length - 1].getBitcoinAddress();
     } else {
       return null;
     }
-  };
-
-  /**
-   * Go to the next address.
-   *
-   * If there are no more new addresses available, one will be generated
-   * automatically.
-   */
-  this.getNextAddress = function () {
-    if (keys.length === 0) {
-      this.generateAddress();
-    }
-    else {
-    }
-
-    /*
-    this.addressPointer++;
-    if (!keys[this.addressPointer]) {
-      this.generateAddress();
-    }
-    */
-    // TODO(shtylman) this shit is trying to be too smart
-    // it is making a new address when it shouldn't
-    // it should just stop being so "smart" and just do what it is told
-    return keys[this.addressPointer].getBitcoinAddress();
   };
 
   /**
@@ -197,10 +154,6 @@ var Wallet = function () {
   };
 };
 
-Wallet.prototype.generateAddress = function () {
-  this.addKey(new ECKey());
-};
-
 // return unspent transactions
 Wallet.prototype.unspentTx = function() {
   return this.unspentOuts;
@@ -227,7 +180,7 @@ Wallet.prototype.process = function (tx) {
     for (k = 0; k < this.addressHashes.length; k++) {
       // if our address, then we add the unspent out to a list of unspent outputs
       if (this.addressHashes[k] === hash) {
-        this.unspentOuts.push({tx: tx, index: j, out: txout});
+        this.unspentOuts.push({tx: tx, index: j, output: txout});
         break;
       }
     }
@@ -264,7 +217,7 @@ Wallet.prototype.process = function (tx) {
 };
 
 Wallet.prototype.getBalance = function () {
-    return this.unspentOuts.reduce(function(t,o) { return t + o.out.value },0);
+    return this.unspentOuts.reduce(function(t,o) { return t + o.output.value },0);
 };
 
 Wallet.prototype.createSend = function (address, sendValue, feeValue) {
@@ -275,7 +228,7 @@ Wallet.prototype.createSend = function (address, sendValue, feeValue) {
   for (i = 0; i < this.unspentOuts.length; i++) {
     var txout = this.unspentOuts[i];
     selectedOuts.push(txout);
-    availableValue += txout.out.value;
+    availableValue += txout.output.value;
 
     if (availableValue >= txValue) break;
   }
@@ -294,23 +247,12 @@ Wallet.prototype.createSend = function (address, sendValue, feeValue) {
 
   sendTx.addOutput(address, sendValue);
   if (changeValue > 0) {
-    sendTx.addOutput(this.getNextAddress(), changeValue);
+    sendTx.addOutput(this.getCurAddress(), changeValue);
   }
 
   var hashType = 1; // SIGHASH_ALL
 
-  for (i = 0; i < sendTx.ins.length; i++) {
-    var hash = sendTx.hashTransactionForSignature(selectedOuts[i].out.script, i, hashType);
-    var pubKeyHash = selectedOuts[i].out.script.simpleOutPubKeyHash();
-
-    // this changes because signing uses a random number generator
-    var signature = this.signWithKey(pubKeyHash, hash);
-
-    // Append hash type
-    signature.push(parseInt(hashType, 10));
-
-    sendTx.ins[i].script = Script.createInputScript(signature, this.getPubKeyFromHash(pubKeyHash));
-  }
+  sendTx.signWithKeys(this.getKeys(), selectedOuts, hashType)
 
   return sendTx;
 };
