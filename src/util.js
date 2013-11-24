@@ -67,7 +67,7 @@ module.exports = {
   /**
    * Format a Bitcoin value as a string.
    *
-   * Takes a BigInteger or byte-array and returns that amount of Bitcoins in a
+   * Takes a Number, BigInteger or byte-array and returns that amount of Bitcoins in a
    * nice standard formatting.
    *
    * Examples:
@@ -76,14 +76,20 @@ module.exports = {
    * 900.99998888
    * 34.00
    */
-  formatValue: function (valueBuffer) {
-    var value = this.valueToBigInt(valueBuffer).toString();
-    var integerPart = value.length > 8 ? value.substr(0, value.length-8) : '0';
-    var decimalPart = value.length > 8 ? value.substr(value.length-8) : value;
-    while (decimalPart.length < 8) decimalPart = "0"+decimalPart;
-    decimalPart = decimalPart.replace(/0*$/, '');
-    while (decimalPart.length < 2) decimalPart += "0";
-    return integerPart+"."+decimalPart;
+  formatValue: function (value) {
+    if (typeof value == 'number') {
+      value = value/100000000;
+      // at least two decimal places
+      return Math.floor(value*10)==value*10 ? value.toFixed(2) : ''+value;
+    } else {
+      value = module.exports.valueToBigInt(value).toString();
+      var integerPart = value.length > 8 ? value.substr(0, value.length-8) : '0';
+      var decimalPart = value.length > 8 ? value.substr(value.length-8) : value;
+      while (decimalPart.length < 8) decimalPart = "0"+decimalPart;
+      decimalPart = decimalPart.replace(/0*$/, '');
+      while (decimalPart.length < 2) decimalPart += "0";
+      return integerPart+"."+decimalPart;
+    }
   },
 
   /**
