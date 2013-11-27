@@ -228,13 +228,30 @@ Bitcoin.ECDSA = (function () {
         .add(BigInteger.ONE)
       ;
     },
+    getRandomK: function(hash, priv) {
+      var limit = ecparams.getN(), random;
+
+      if (typeof window == 'object' && window.crypto && window.crypto.getRandomValues) {
+        var randbuff = new Uint8Array(32);
+        window.crypto.getRandomValues(randbuff);
+        random = Array.apply([], randbuff);
+      } else {
+        random = rng.nextBytes(32);
+      }
+
+      var h = Crypto.SHA256(hash.concat(priv.toByteArrayUnsigned()).concat(random), { asBytes: true });
+
+      return BigInteger.fromByteArrayUnsigned(h)
+        .mod(limit.subtract(BigInteger.ONE))
+        .add(BigInteger.ONE);
+    },
     sign: function (hash, priv) {
       var d = priv;
       var n = ecparams.getN();
       var e = BigInteger.fromByteArrayUnsigned(hash);
 
       do {
-        var k = ECDSA.getBigRandom(n);
+        var k = ECDSA.getRandomK(hash, priv);
         var G = ecparams.getG();
         var Q = G.multiply(k);
         var r = Q.getX().toBigInteger().mod(n);

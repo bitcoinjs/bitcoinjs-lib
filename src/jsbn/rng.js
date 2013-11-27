@@ -27,12 +27,16 @@ if(rng_pool == null) {
   rng_pool = new Array();
   rng_pptr = 0;
   var t;
-  if(navigator.appName == "Netscape" && navigator.appVersion < "5" && window.crypto) {
+
+  // Seed crypto.getRandomValues() when available
+  if(typeof window === 'object' && window.crypto && window.crypto.getRandomValues) {
     // Extract entropy (256 bits) from NS4 RNG if available
-    var z = window.crypto.random(32);
+    var z = new Uint8Array(32);
+    window.crypto.getRandomValues(z);
     for(t = 0; t < z.length; ++t)
-      rng_pool[rng_pptr++] = z.charCodeAt(t) & 255;
-  }  
+      rng_pool[rng_pptr++] = z[t];
+  }
+
   while(rng_pptr < rng_psize) {  // extract some randomness from Math.random()
     t = Math.floor(65536 * Math.random());
     rng_pool[rng_pptr++] = t >>> 8;
