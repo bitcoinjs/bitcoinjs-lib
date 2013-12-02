@@ -110,21 +110,6 @@ Transaction.prototype.addOutput = function (address, value) {
     }));
 };
 
-// TODO(shtylman) crypto sha uses this also
-// Convert a byte array to big-endian 32-bit words
-var bytesToWords = function (bytes) {
-	for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
-		words[b >>> 5] |= bytes[i] << (24 - b % 32);
-	return words;
-};
-
-	// Convert big-endian 32-bit words to a byte array
-var wordsToBytes = function (words) {
-	for (var bytes = [], b = 0; b < words.length * 32; b += 8)
-		bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-	return bytes;
-};
-
 /**
  * Serialize this transaction.
  *
@@ -132,35 +117,34 @@ var wordsToBytes = function (words) {
  * format. This method is byte-perfect, i.e. the resulting byte array can
  * be hashed to get the transaction's standard Bitcoin hash.
  */
-Transaction.prototype.serialize = function ()
-{
-  var buffer = [];
-  buffer = buffer.concat(util.numToBytes(parseInt(this.version),4));
-  buffer = buffer.concat(util.numToVarInt(this.ins.length));
-  for (var i = 0; i < this.ins.length; i++) {
-    var txin = this.ins[i];
+Transaction.prototype.serialize = function () {
+    var buffer = [];
+    buffer = buffer.concat(util.numToBytes(parseInt(this.version),4));
+    buffer = buffer.concat(util.numToVarInt(this.ins.length));
+    for (var i = 0; i < this.ins.length; i++) {
+        var txin = this.ins[i];
 
-    // Why do blockchain.info, blockexplorer.com, sx and just about everybody
-    // else use little-endian hashes? No idea...
-    buffer = buffer.concat(conv.hexToBytes(txin.outpoint.hash).reverse());
+        // Why do blockchain.info, blockexplorer.com, sx and just about everybody
+        // else use little-endian hashes? No idea...
+        buffer = buffer.concat(conv.hexToBytes(txin.outpoint.hash).reverse());
 
-    buffer = buffer.concat(util.numToBytes(parseInt(txin.outpoint.index),4));
-    var scriptBytes = txin.script.buffer;
-    buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
-    buffer = buffer.concat(scriptBytes);
-    buffer = buffer.concat(util.numToBytes(parseInt(txin.sequence),4));
-  }
-  buffer = buffer.concat(util.numToVarInt(this.outs.length));
-  for (var i = 0; i < this.outs.length; i++) {
-    var txout = this.outs[i];
-    buffer = buffer.concat(util.numToBytes(txout.value,8));
-    var scriptBytes = txout.script.buffer;
-    buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
-    buffer = buffer.concat(scriptBytes);
-  }
-  buffer = buffer.concat(util.numToBytes(parseInt(this.lock_time),4));
+        buffer = buffer.concat(util.numToBytes(parseInt(txin.outpoint.index),4));
+        var scriptBytes = txin.script.buffer;
+        buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
+        buffer = buffer.concat(scriptBytes);
+        buffer = buffer.concat(util.numToBytes(parseInt(txin.sequence),4));
+    }
+    buffer = buffer.concat(util.numToVarInt(this.outs.length));
+    for (var i = 0; i < this.outs.length; i++) {
+        var txout = this.outs[i];
+        buffer = buffer.concat(util.numToBytes(txout.value,8));
+        var scriptBytes = txout.script.buffer;
+        buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
+        buffer = buffer.concat(scriptBytes);
+    }
+    buffer = buffer.concat(util.numToBytes(parseInt(this.lock_time),4));
 
-  return buffer;
+    return buffer;
 };
 
 Transaction.prototype.serializeHex = function() {

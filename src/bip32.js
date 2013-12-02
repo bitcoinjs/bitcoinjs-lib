@@ -75,9 +75,9 @@ BIP32key.prototype.ckd = function(i) {
 
     if (i >= 2147483648) {
         if (this.priv) throw new Error("Can't do private derivation on public key!")
-        blob = [0].concat(priv.slice(0,32),util.numToBytes(this.i,4).reverse())
+        blob = [0].concat(priv.slice(0,32),util.numToBytes(i,4).reverse())
     }
-    else blob = pub.concat(util.numToBytes(this.i,4).reverse())
+    else blob = pub.concat(util.numToBytes(i,4).reverse())
     
     I = Crypto.HMAC(Crypto.SHA512,blob,this.chaincode,{ asBytes: true })
 
