@@ -140,6 +140,19 @@ var Wallet = function (seed) {
         return tx
     }
 
+    this.mkSendToOutputs = function(outputs, changeIndex, fee) {
+        var value = outputs.reduce(function(t,o) { return t + o.value },0),
+            utxo = this.getUtxoToPay(value + fee),
+            sum = utxo.reduce(function(t,p) { return t + o.value },0);
+        utxo[changeIndex].value += sum - value - fee;
+        var tx = new Bitcoin.Transaction({
+            ins: utxo.map(function(x) { return x.output }),
+            outs: outputs
+        })
+        this.sign(tx)
+        return tx
+    }
+
     this.sign = function(tx) {
         tx.ins.map(function(inp,i) {
             var inp = inp.outpoint.hash+':'+inp.outpoint.index;
