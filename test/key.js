@@ -47,11 +47,9 @@ test('export private key', function() {
 
     key = Key(compressed_priv);
     assert.equal(key.getBitcoinAddress().toString(), compressed_addr);
-    // XXX: it returns uncompressed_priv
     assert.equal(key.getExportedPrivateKey(), compressed_priv);
 
-
-});;
+});
 
 test('creating new, exporting and importing', function() {
     var key = new Key();
