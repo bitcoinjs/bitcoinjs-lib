@@ -52,3 +52,40 @@ test('export private key', function() {
 
 
 });;
+
+test('creating new, exporting and importing', function() {
+    var key = new Key();
+    var priv = key.getExportedPrivateKey();
+    var addr = key.getBitcoinAddress().toString();
+
+    var key2 = new Key(priv);
+    var priv2 = key2.getExportedPrivateKey();
+    var addr2 = key2.getBitcoinAddress().toString();
+
+    assert.equal(priv, priv2);
+    assert.equal(addr, addr2);
+});
+
+test('creating new, exporting and importing, compressed', function() {
+    var compressByDefault = Key.compressByDefault;
+
+    try {
+        // XXX: changing defaults breaks A LOT
+        Key.compressByDefault = true;
+
+        var key = new Key();
+        var priv = key.getExportedPrivateKey();
+        var addr = key.getBitcoinAddress().toString();
+
+        var key2 = new Key(priv);
+        var priv2 = key2.getExportedPrivateKey();
+        var addr2 = key2.getBitcoinAddress().toString();
+
+        assert.equal(priv, priv2);
+        assert.equal(addr, addr2);
+    } finally {
+        Key.compressByDefault = compressByDefault;
+    }
+
+});
+
