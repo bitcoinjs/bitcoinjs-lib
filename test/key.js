@@ -33,3 +33,22 @@ test('from private base58', function() {
     assert.equal(key.getBitcoinAddress().toString(), addr);
 });
 
+// export private key
+test('export private key', function() {
+    var key;
+
+    var uncompressed_priv = '5HwoXVkHoRM8sL2KmNRS217n1g8mPPBomrY7yehCuXC1115WWsh';
+    var uncompressed_addr = '1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a';
+    var compressed_priv = 'KwntMbt59tTsj8xqpqYqRRWufyjGunvhSyeMo3NTYpFYzZbXJ5Hp';
+    var compressed_addr = '1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9';
+    key = Key(uncompressed_priv);
+    assert.equal(key.getBitcoinAddress().toString(), uncompressed_addr);
+    assert.equal(key.getExportedPrivateKey(), uncompressed_priv);
+
+    key = Key(compressed_priv);
+    assert.equal(key.getBitcoinAddress().toString(), compressed_addr);
+    // XXX: it returns uncompressed_priv
+    assert.equal(key.getExportedPrivateKey(), compressed_priv);
+
+
+});;
