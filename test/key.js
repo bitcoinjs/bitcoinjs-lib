@@ -33,3 +33,57 @@ test('from private base58', function() {
     assert.equal(key.getBitcoinAddress().toString(), addr);
 });
 
+// export private key
+test('export private key', function() {
+    var key;
+
+    var uncompressed_priv = '5HwoXVkHoRM8sL2KmNRS217n1g8mPPBomrY7yehCuXC1115WWsh';
+    var uncompressed_addr = '1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a';
+    var compressed_priv = 'KwntMbt59tTsj8xqpqYqRRWufyjGunvhSyeMo3NTYpFYzZbXJ5Hp';
+    var compressed_addr = '1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9';
+    key = Key(uncompressed_priv);
+    assert.equal(key.getBitcoinAddress().toString(), uncompressed_addr);
+    assert.equal(key.getExportedPrivateKey(), uncompressed_priv);
+
+    key = Key(compressed_priv);
+    assert.equal(key.getBitcoinAddress().toString(), compressed_addr);
+    assert.equal(key.getExportedPrivateKey(), compressed_priv);
+
+});
+
+test('creating new, exporting and importing', function() {
+    var key = new Key();
+    var priv = key.getExportedPrivateKey();
+    var addr = key.getBitcoinAddress().toString();
+
+    var key2 = new Key(priv);
+    var priv2 = key2.getExportedPrivateKey();
+    var addr2 = key2.getBitcoinAddress().toString();
+
+    assert.equal(priv, priv2);
+    assert.equal(addr, addr2);
+});
+
+test('creating new, exporting and importing, compressed', function() {
+    var compressByDefault = Key.compressByDefault;
+
+    try {
+        // XXX: changing defaults breaks A LOT
+        Key.compressByDefault = true;
+
+        var key = new Key();
+        var priv = key.getExportedPrivateKey();
+        var addr = key.getBitcoinAddress().toString();
+
+        var key2 = new Key(priv);
+        var priv2 = key2.getExportedPrivateKey();
+        var addr2 = key2.getBitcoinAddress().toString();
+
+        assert.equal(priv, priv2);
+        assert.equal(addr, addr2);
+    } finally {
+        Key.compressByDefault = compressByDefault;
+    }
+
+});
+
