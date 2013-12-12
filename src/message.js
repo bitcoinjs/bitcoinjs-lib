@@ -34,8 +34,7 @@ Message.signMessage = function (key, message, compressed) {
 
   var obj = ecdsa.parseSig(sig);
 
-  var address = key.getBitcoinAddress().toString();
-  var i = ecdsa.calcPubkeyRecoveryParam(address, obj.r, obj.s, hash);
+  var i = ecdsa.calcPubkeyRecoveryParam(key, obj.r, obj.s, hash);
 
   i += 27;
   if (compressed) i += 4;
