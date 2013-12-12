@@ -83,7 +83,7 @@ BIP32key.prototype.ckd = function(i) {
 
     if (this.type == 'priv') {
         Ikey = Bitcoin.BigInteger.fromByteArrayUnsigned(I.slice(0,32))
-        newkey = new key(this.key.priv.add(Ikey))
+        newkey = new key(this.key.priv.add(Ikey).mod(ecparams.getN()))
         newkey.compressed = true
         fingerprint = util.sha256ripe160(this.key.getPub()).slice(0,4)
     }
