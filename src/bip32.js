@@ -48,7 +48,7 @@ BIP32key.prototype.deserialize = function(str) {
         fingerprint: bytes.slice(5,9),
         i: util.bytesToNum(bytes.slice(9,13).reverse()),
         chaincode: bytes.slice(13,45),
-        key: new key(type == 'priv' ? bytes.slice(46,78).concat([1]) : bytes.slice(45,78))
+        key: type == 'priv' ? new key(bytes.slice(46,78).concat([1])) : bytes.slice(45,78)
     })
 }
 
