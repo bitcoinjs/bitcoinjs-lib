@@ -48,7 +48,7 @@ BIP32key.prototype.deserialize = function(str) {
         fingerprint: bytes.slice(5,9),
         i: util.bytesToNum(bytes.slice(9,13).reverse()),
         chaincode: bytes.slice(13,45),
-        key: new key(type == 'priv' ? bytes.slice(46,78).concat([1]) : bytes.slice(45,78))
+        key: type == 'priv' ? new key(bytes.slice(46,78).concat([1])) : bytes.slice(45,78)
     })
 }
 
@@ -74,7 +74,7 @@ BIP32key.prototype.ckd = function(i) {
     else pub = this.key
 
     if (i >= 2147483648) {
-        if (this.priv) throw new Error("Can't do private derivation on public key!")
+        if (!priv) throw new Error("Can't do private derivation on public key!")
         blob = [0].concat(priv.slice(0,32),util.numToBytes(i,4).reverse())
     }
     else blob = pub.concat(util.numToBytes(i,4).reverse())
@@ -83,7 +83,7 @@ BIP32key.prototype.ckd = function(i) {
 
     if (this.type == 'priv') {
         Ikey = Bitcoin.BigInteger.fromByteArrayUnsigned(I.slice(0,32))
-        newkey = new key(this.key.priv.add(Ikey))
+        newkey = new key(this.key.priv.add(Ikey).mod(ecparams.getN()))
         newkey.compressed = true
         fingerprint = util.sha256ripe160(this.key.getPub()).slice(0,4)
     }
