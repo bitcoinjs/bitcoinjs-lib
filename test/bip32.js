@@ -6,6 +6,8 @@ var BIP32key = require('..').BIP32key;
 var hexToBytes = require('../').convert.hexToBytes;
 var bytesToString = require('../').convert.bytesToString;
 
+var BIP32_PRIME = 0x80000000;
+
 function checkKey(key, extPriv, extPub) {
   assert.equal(key.serialize(), extPriv);
   assert.equal(key.getPub().serialize(), extPub);
