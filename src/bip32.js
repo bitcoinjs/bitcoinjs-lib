@@ -74,7 +74,7 @@ BIP32key.prototype.ckd = function(i) {
     else pub = this.key
 
     if (i >= 2147483648) {
-        if (this.priv) throw new Error("Can't do private derivation on public key!")
+        if (!priv) throw new Error("Can't do private derivation on public key!")
         blob = [0].concat(priv.slice(0,32),util.numToBytes(i,4).reverse())
     }
     else blob = pub.concat(util.numToBytes(i,4).reverse())
