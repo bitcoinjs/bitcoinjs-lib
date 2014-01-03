@@ -64,9 +64,9 @@ ECKey.prototype.getPubKeyHash = function () {
     return this.pubKeyHash = util.sha256ripe160(this.getPub());
 };
 
-ECKey.prototype.getBitcoinAddress = function () {
+ECKey.prototype.getBitcoinAddress = function (version) {
     var hash = this.getPubKeyHash();
-    var addr = new Address(hash);
+    var addr = new Address(hash,version);
     return addr;
 };
 
