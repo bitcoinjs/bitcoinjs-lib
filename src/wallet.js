@@ -1,5 +1,5 @@
 var Script = require('./script');
-var ECKey = require('./eckey');
+var ECKey = require('./eckey').ECKey;
 var conv = require('./convert');
 var util = require('./util');
 

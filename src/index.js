@@ -22,9 +22,13 @@ var endian = function (n) {
     return n;
 }
 
+var Key = require('./eckey');
+
 module.exports = {
     Address: require('./address'),
-    Key: require('./eckey'),
+    Key: Key.ECKey,
+    ECKey: Key.ECKey,
+    ECPubKey: Key.ECPubKey,
     Message: require('./message'),
     BigInteger: require('./jsbn/jsbn'),
     Crypto: require('./crypto-js/crypto'),

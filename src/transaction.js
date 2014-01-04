@@ -4,7 +4,7 @@ var util = require('./util');
 var conv = require('./convert');
 var Crypto = require('./crypto-js/crypto');
 var Wallet = require('./wallet');
-var ECKey = require('./eckey');
+var ECKey = require('./eckey').ECKey;
 var ECDSA = require('./ecdsa');
 var Address = require('./address');
 
@@ -467,7 +467,7 @@ Transaction.deserialize = function(buffer) {
 Transaction.prototype.sign = function(index, key, type) {
     type = type || SIGHASH_ALL;
     key = new ECKey(key);
-    var pub = key.getPub(),
+    var pub = key.getPub().export('bytes'),
         hash160 = util.sha256ripe160(pub),
         script = Script.createOutputScript(new Address(hash160)),
         hash = this.hashTransactionForSignature( script, index, type),

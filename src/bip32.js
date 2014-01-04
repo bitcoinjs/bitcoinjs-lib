@@ -1,7 +1,8 @@
 var Script = require('./script'),
     util = require('./util'),
     conv = require('./convert'),
-    key = require('./eckey'),
+    ECKey = require('./eckey').ECKey,
+    ECPubKey = require('./eckey').ECPubKey,
     base58 = require('./base58'),
     Crypto = require('./crypto-js/crypto'),
     ECPointFp = require('./jsbn/ec').ECPointFp,
@@ -48,7 +49,8 @@ BIP32key.prototype.deserialize = function(str) {
         fingerprint: bytes.slice(5,9),
         i: util.bytesToNum(bytes.slice(9,13).reverse()),
         chaincode: bytes.slice(13,45),
-        key: new key(type == 'priv' ? bytes.slice(46,78).concat([1]) : bytes.slice(45,78))
+        key: type == 'priv' ? new ECKey(bytes.slice(46,78).concat([1]),true)
+                            : new ECPubKey(bytes.slice(45,78))
     })
 }
 
@@ -59,7 +61,7 @@ BIP32key.prototype.serialize = function() {
                 util.numToBytes(this.i,4).reverse(),
                 this.chaincode,
                 this.type == 'priv' ? [0].concat(this.key.export('bytes').slice(0,32))
-                                    : this.key)
+                                    : this.key.export('bytes'))
     var checksum = Crypto.SHA256(Crypto.SHA256(bytes,{asBytes: true}), {asBytes: true})
                          .slice(0,4)
     return base58.encode(bytes.concat(checksum))
@@ -69,9 +71,9 @@ BIP32key.prototype.ckd = function(i) {
     var priv, pub, newkey, fingerprint, blob, I;
     if (this.type == 'priv') {
         priv = this.key.export('bytes')
-        pub = this.key.getPub()
+        pub = this.key.getPub().export('bytes')
     }
-    else pub = this.key
+    else pub = this.key.export('bytes')
 
     if (i >= 2147483648) {
         if (this.priv) throw new Error("Can't do private derivation on public key!")
@@ -82,16 +84,12 @@ BIP32key.prototype.ckd = function(i) {
     I = Crypto.HMAC(Crypto.SHA512,blob,this.chaincode,{ asBytes: true })
 
     if (this.type == 'priv') {
-        Ikey = Bitcoin.BigInteger.fromByteArrayUnsigned(I.slice(0,32))
-        newkey = new key(this.key.priv.add(Ikey))
-        newkey.compressed = true
-        fingerprint = util.sha256ripe160(this.key.getPub()).slice(0,4)
+        newkey = this.key.add(ECKey(I.slice(0,32).concat([1])))
+        fingerprint = util.sha256ripe160(this.key.getPub().export('bytes')).slice(0,4)
     }
     else {
-        newkey = ECPointFp.decodeFrom(ecparams.getCurve(),this.key)
-                          .add(new key(I.slice(0,32).concat([1])).getPubPoint())
-                          .getEncoded(true);
-        fingerprint = util.sha256ripe160(this.key).slice(0,4)
+        newkey = this.key.add(ECKey(I.slice(0,32).concat([1])).getPub());
+        fingerprint = util.sha256ripe160(this.key.export('bytes')).slice(0,4)
     }
     return new BIP32key({
         vbytes: this.vbytes,
@@ -130,7 +128,7 @@ BIP32key.prototype.fromMasterKey = function(seed) {
         fingerprint: [0,0,0,0],
         i: 0,
         chaincode: I.slice(32),
-        key: new key(I.slice(0,32).concat([1]))
+        key: new ECKey(I.slice(0,32).concat([1]),true)
     })
 }
 

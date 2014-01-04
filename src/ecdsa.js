@@ -2,6 +2,7 @@ var sec = require('./jsbn/sec');
 var util = require('./util');
 var SecureRandom = require('./jsbn/rng');
 var BigInteger = require('./jsbn/jsbn');
+var conv = require('./convert')
 
 var ECPointFp = require('./jsbn/ec').ECPointFp;
 
@@ -36,6 +37,19 @@ function implShamirsTrick(P, k, Q, l)
   return R;
 };
 
+function deterministicGenerateK(hash,key) {
+    var v = [];
+    var k = [];
+    for (var i = 0;i < 32;i++) v.push(1);
+    for (var i = 0;i < 32;i++) k.push(0);
+    k = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v.concat([0]).concat(key).concat(hash),k,{ asBytes: true  })
+    v = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v,k,{ asBytes: true  })
+    k = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v.concat([1]).concat(key).concat(hash),k,{ asBytes: true  })
+    v = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v,k,{ asBytes: true  })
+    v = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v,k,{ asBytes: true  })
+    return Bitcoin.BigInteger.fromByteArrayUnsigned(v);
+}
+
 var ECDSA = {
   getBigRandom: function (limit) {
     return new BigInteger(limit.bitLength(), rng)
@@ -48,12 +62,10 @@ var ECDSA = {
     var n = ecparams.getN();
     var e = BigInteger.fromByteArrayUnsigned(hash);
 
-    do {
-      var k = ECDSA.getBigRandom(n);
-      var G = ecparams.getG();
-      var Q = G.multiply(k);
-      var r = Q.getX().toBigInteger().mod(n);
-    } while (r.compareTo(BigInteger.ZERO) <= 0);
+    var k = deterministicGenerateK(hash,priv.toByteArrayUnsigned())
+    var G = ecparams.getG();
+    var Q = G.multiply(k);
+    var r = Q.getX().toBigInteger().mod(n);
 
     var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n);
 
@@ -258,10 +270,8 @@ var ECDSA = {
 
     // TODO (shtylman) this is stupid because this file and eckey
     // have circular dependencies
-    var ECKey = require('./eckey');
-    var pubKey = ECKey();
-    pubKey.pub = Q;
-    return pubKey;
+    var ECPubKey = require('./eckey').ECPubKey;
+    return ECPubKey(Q);
   },
 
   /**
