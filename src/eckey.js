@@ -57,6 +57,7 @@ ECKey.prototype.export = function (format) {
     if (this.compressed)
          bytes.push(1)
     return format === "base58"    ? base58.checkEncode(bytes,128) 
+         : format === "wif"       ? base58.checkEncode(bytes,128) 
          : format === "bin"       ? conv.bytesToString(bytes)
          : format === "bytes"     ? bytes
          : format === "hex"       ? conv.bytesToHex(bytes)
