@@ -117,9 +117,8 @@ ECPubKey.prototype.multiply = function(key) {
     
 ECPubKey.prototype.export = function(formt) {
     var o = this.pub.getEncoded(this.compressed) 
-    return 
-          formt == 'hex'   ? conv.bytesToHex(o) 
-        : formt == 'bin'   ? conv.bytesToString(o)
+    return formt == 'hex'   ? conv.bytesToHex(o) 
+         : formt == 'bin'   ? conv.bytesToString(o)
                            : o;
 }
 
