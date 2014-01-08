@@ -80,9 +80,17 @@ ECKey.prototype.multiply = function(key) {
 }
 
 var ECPubKey = function(input,compressed) {
-
     if (!(this instanceof ECPubKey)) { return new ECPubKey(input,compressed); }
+    if (!input) {
+        // Generate new key
+        var n = ecparams.getN();
+        this.pub = ecparams.getG().multiply(ecdsa.getBigRandom(n))
+        this.compressed = compressed || false;
+    }
+    else this.import(input,compressed)
+}
 
+ECPubKey.prototype.import = function(input,compressed) {
     var decode = function(x) { return ECPointFp.decodeFrom(ecparams.getCurve(), x) }
     this.pub = 
           input instanceof ECPointFp ? input
@@ -97,7 +105,6 @@ var ECPubKey = function(input,compressed) {
         : input instanceof ECPointFp ? input.compressed 
         : input instanceof ECPubKey  ? input.compressed
                                      : (this.pub[0] < 4)
-
 }
 
 ECPubKey.prototype.add = function(key) {
@@ -110,7 +117,10 @@ ECPubKey.prototype.multiply = function(key) {
     
 ECPubKey.prototype.export = function(formt) {
     var o = this.pub.getEncoded(this.compressed) 
-    return formt == 'hex' ? conv.bytesToHex(o) : o;
+    return 
+          formt == 'hex'   ? conv.bytesToHex(o) 
+        : formt == 'bin'   ? conv.bytesToString(o)
+                           : o;
 }
 
 ECPubKey.prototype.toString = function (format) {
