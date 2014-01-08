@@ -127,7 +127,7 @@ ECPubKey.prototype.toString = function (format) {
 }
 
 ECPubKey.prototype.getBitcoinAddress = function(v) {
-    return new Address(util.sha256ripe160(this.export()),version);
+    return new Address(util.sha256ripe160(this.export()),v);
 }
 
 
