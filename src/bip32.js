@@ -1,13 +1,9 @@
-var Script = require('./script'),
-    util = require('./util'),
+var util = require('./util'),
     conv = require('./convert'),
     ECKey = require('./eckey').ECKey,
     ECPubKey = require('./eckey').ECPubKey,
     base58 = require('./base58'),
-    Crypto = require('./crypto-js/crypto'),
-    ECPointFp = require('./jsbn/ec').ECPointFp,
-    sec = require('./jsbn/sec'),
-    ecparams = sec("secp256k1");
+    Crypto = require('./crypto-js/crypto');
 
 var BIP32key = function(opts) {
     if (!opts) opts = {}
