@@ -376,11 +376,11 @@ ECPointFp.decodeFrom = function (ecparams, enc) {
     var xBa = enc.slice(1),
         x = BigInteger.fromByteArrayUnsigned(xBa),
         p = ecparams.getQ(),
-        xCubedPlus7 = x.multiply(x).multiply(x).add(new Bitcoin.BigInteger('7')).mod(p),
-        pPlus1Over4 = p.add(new Bitcoin.BigInteger('1'))
-                       .divide(new Bitcoin.BigInteger('4')),
+        xCubedPlus7 = x.multiply(x).multiply(x).add(new BigInteger('7')).mod(p),
+        pPlus1Over4 = p.add(new BigInteger('1'))
+                       .divide(new BigInteger('4')),
         y = xCubedPlus7.modPow(pPlus1Over4,p);
-    if (y.mod(new Bitcoin.BigInteger('2')).toString() != ''+(type % 2)) {
+    if (y.mod(new BigInteger('2')).toString() != ''+(type % 2)) {
         y = p.subtract(y)
     }
   }
