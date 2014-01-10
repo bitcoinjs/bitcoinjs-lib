@@ -9,6 +9,7 @@ var ECDSA = require('./ecdsa');
 var Address = require('./address');
 
 var Transaction = function (doc) {
+    if (!(this instanceof Transaction)) { return new Transaction(doc); }
     this.version = 1;
     this.lock_time = 0;
     this.ins = [];

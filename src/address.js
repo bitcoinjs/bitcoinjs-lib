@@ -14,6 +14,7 @@ var p2sh_types = {
 };
 
 var Address = function (bytes, version) {
+    if (!(this instanceof Address)) { return new Address(bytes, version); }
     if (arguments[0] instanceof Address) {
         this.hash = arguments[0].hash;
         this.version = arguments[0].version;
