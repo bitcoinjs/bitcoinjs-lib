@@ -80,7 +80,7 @@ BIP32key.prototype.ckd = function(i) {
         blob = [0].concat(priv.slice(0,32),util.numToBytes(i,4).reverse())
     }
     else blob = pub.concat(util.numToBytes(i,4).reverse())
-    
+
     I = Crypto.HMAC(Crypto.SHA512,blob,this.chaincode,{ asBytes: true })
 
     if (this.type == 'priv') {
