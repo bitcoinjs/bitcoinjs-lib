@@ -13,10 +13,10 @@ var BIP32key = function(opts) {
     if (!opts) opts = {}
     if (typeof opts == "string") {
         try {
-            opts = BIP32key.prototype.deserialize(opts);
+            opts = BIP32key.deserialize(opts);
         }
         catch(e) {
-            opts = BIP32key.prototype.fromMasterKey(opts);
+            opts = BIP32key.fromMasterKey(opts);
         }
     }
     this.vbytes = opts.vbytes;
@@ -32,7 +32,7 @@ var BIP32key = function(opts) {
 var PRIVDERIV = BIP32key.PRIVDERIV = '\x04\x88\xAD\xE4'
 var PUBDERIV = BIP32key.PUBDERIV = '\x04\x88\xB2\x1E'
 
-BIP32key.prototype.deserialize = function(str) {
+BIP32key.deserialize = function(str) {
     var bytes = base58.decode(str)
     var front = bytes.slice(0,bytes.length-4),
         back = bytes.slice(bytes.length-4);
@@ -119,7 +119,7 @@ BIP32key.prototype.privtopub = BIP32key.prototype.getPub = function() {
     })
 }
 
-BIP32key.prototype.fromMasterKey = function(seed) {
+BIP32key.fromMasterKey = function(seed) {
     var I = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA512,seed,"Bitcoin seed",{ asBytes: true })
     return new BIP32key({
         vbytes: conv.stringToBytes(PRIVDERIV),
