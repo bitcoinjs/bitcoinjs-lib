@@ -1,4 +1,5 @@
 var util = require('./util'),
+    Address = require('./address'),
     conv = require('./convert'),
     ECKey = require('./eckey').ECKey,
     ECPubKey = require('./eckey').ECPubKey,
@@ -129,5 +130,9 @@ BIP32key.fromMasterKey = function(seed) {
 }
 
 BIP32key.prototype.getKey = function() { return this.key }
+
+BIP32key.prototype.bitcoinAddress = function() {
+    return new Address(util.sha256ripe160(this.getPub().key))
+}
 
 module.exports = BIP32key;
