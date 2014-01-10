@@ -3,6 +3,7 @@ var util = require('./util');
 var SecureRandom = require('./jsbn/rng');
 var BigInteger = require('./jsbn/jsbn');
 var conv = require('./convert')
+var Crypto = require('./crypto-js/crypto.js')
 
 var ECPointFp = require('./jsbn/ec').ECPointFp;
 
@@ -42,12 +43,12 @@ function deterministicGenerateK(hash,key) {
     var k = [];
     for (var i = 0;i < 32;i++) v.push(1);
     for (var i = 0;i < 32;i++) k.push(0);
-    k = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v.concat([0]).concat(key).concat(hash),k,{ asBytes: true  })
-    v = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v,k,{ asBytes: true  })
-    k = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v.concat([1]).concat(key).concat(hash),k,{ asBytes: true  })
-    v = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v,k,{ asBytes: true  })
-    v = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA256,v,k,{ asBytes: true  })
-    return Bitcoin.BigInteger.fromByteArrayUnsigned(v);
+    k = Crypto.HMAC(Crypto.SHA256,v.concat([0]).concat(key).concat(hash),k,{ asBytes: true  })
+    v = Crypto.HMAC(Crypto.SHA256,v,k,{ asBytes: true  })
+    k = Crypto.HMAC(Crypto.SHA256,v.concat([1]).concat(key).concat(hash),k,{ asBytes: true  })
+    v = Crypto.HMAC(Crypto.SHA256,v,k,{ asBytes: true  })
+    v = Crypto.HMAC(Crypto.SHA256,v,k,{ asBytes: true  })
+    return BigInteger.fromByteArrayUnsigned(v);
 }
 
 var ECDSA = {

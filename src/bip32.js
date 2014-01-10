@@ -1,22 +1,19 @@
-var Script = require('./script'),
-    util = require('./util'),
+var util = require('./util'),
+    Address = require('./address'),
     conv = require('./convert'),
     ECKey = require('./eckey').ECKey,
     ECPubKey = require('./eckey').ECPubKey,
     base58 = require('./base58'),
-    Crypto = require('./crypto-js/crypto'),
-    ECPointFp = require('./jsbn/ec').ECPointFp,
-    sec = require('./jsbn/sec'),
-    ecparams = sec("secp256k1");
+    Crypto = require('./crypto-js/crypto');
 
 var BIP32key = function(opts) {
     if (!opts) opts = {}
-    if (typeof opts == "string") {
+    if (typeof opts == 'string') {
         try {
-            opts = BIP32key.prototype.deserialize(opts);
+            opts = BIP32key.deserialize(opts);
         }
         catch(e) {
-            opts = BIP32key.prototype.fromMasterKey(opts);
+            opts = BIP32key.fromMasterKey(opts);
         }
     }
     this.vbytes = opts.vbytes;
@@ -32,14 +29,14 @@ var BIP32key = function(opts) {
 var PRIVDERIV = BIP32key.PRIVDERIV = '\x04\x88\xAD\xE4'
 var PUBDERIV = BIP32key.PUBDERIV = '\x04\x88\xB2\x1E'
 
-BIP32key.prototype.deserialize = function(str) {
+BIP32key.deserialize = function(str) {
     var bytes = base58.decode(str)
     var front = bytes.slice(0,bytes.length-4),
         back = bytes.slice(bytes.length-4);
     var checksum = Crypto.SHA256(Crypto.SHA256(front,{asBytes: true}), {asBytes: true})
                         .slice(0,4);
-    if (""+checksum != ""+back) {
-        throw new Error("Checksum failed");
+    if ('' + checksum != '' + back) {
+        throw new Error('Checksum failed');
     }
     var type = conv.bytesToString(bytes.slice(0,4)) == PRIVDERIV ? 'priv' : 'pub';
     return new BIP32key({
@@ -80,7 +77,7 @@ BIP32key.prototype.ckd = function(i) {
         blob = [0].concat(priv.slice(0,32),util.numToBytes(i,4).reverse())
     }
     else blob = pub.concat(util.numToBytes(i,4).reverse())
-    
+
     I = Crypto.HMAC(Crypto.SHA512,blob,this.chaincode,{ asBytes: true })
 
     if (this.type == 'priv') {
@@ -119,8 +116,8 @@ BIP32key.prototype.privtopub = BIP32key.prototype.getPub = function() {
     })
 }
 
-BIP32key.prototype.fromMasterKey = function(seed) {
-    var I = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA512,seed,"Bitcoin seed",{ asBytes: true })
+BIP32key.fromMasterKey = function(seed) {
+    var I = Crypto.HMAC(Crypto.SHA512,seed, 'Bitcoin seed' , { asBytes: true })
     return new BIP32key({
         vbytes: conv.stringToBytes(PRIVDERIV),
         type: 'priv',
@@ -133,5 +130,9 @@ BIP32key.prototype.fromMasterKey = function(seed) {
 }
 
 BIP32key.prototype.getKey = function() { return this.key }
+
+BIP32key.prototype.bitcoinAddress = function() {
+    return new Address(util.sha256ripe160(this.getPub().key.export('bytes')))
+}
 
 module.exports = BIP32key;
