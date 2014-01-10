@@ -7,7 +7,7 @@ var util = require('./util'),
 
 var BIP32key = function(opts) {
     if (!opts) opts = {}
-    if (typeof opts == "string") {
+    if (typeof opts == 'string') {
         try {
             opts = BIP32key.deserialize(opts);
         }
@@ -34,8 +34,8 @@ BIP32key.deserialize = function(str) {
         back = bytes.slice(bytes.length-4);
     var checksum = Crypto.SHA256(Crypto.SHA256(front,{asBytes: true}), {asBytes: true})
                         .slice(0,4);
-    if (""+checksum != ""+back) {
-        throw new Error("Checksum failed");
+    if ('' + checksum != '' + back) {
+        throw new Error('Checksum failed');
     }
     var type = conv.bytesToString(bytes.slice(0,4)) == PRIVDERIV ? 'priv' : 'pub';
     return new BIP32key({
@@ -116,7 +116,7 @@ BIP32key.prototype.privtopub = BIP32key.prototype.getPub = function() {
 }
 
 BIP32key.fromMasterKey = function(seed) {
-    var I = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA512,seed,"Bitcoin seed",{ asBytes: true })
+    var I = Bitcoin.Crypto.HMAC(Bitcoin.Crypto.SHA512,seed, 'Bitcoin seed' , { asBytes: true })
     return new BIP32key({
         vbytes: conv.stringToBytes(PRIVDERIV),
         type: 'priv',
