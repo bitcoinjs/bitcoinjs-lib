@@ -29,6 +29,7 @@ var BIP32key = function(opts) {
 
 var PRIVDERIV = BIP32key.PRIVDERIV = '\x04\x88\xAD\xE4'
 var PUBDERIV = BIP32key.PUBDERIV = '\x04\x88\xB2\x1E'
+var BIP32_PRIME = BIP32key.PRIME = 0x80000000
 
 BIP32key.deserialize = function(str) {
     var bytes = base58.decode(str)
@@ -104,7 +105,7 @@ BIP32key.prototype.ckd = function(i) {
     }
     else pub = this.key.export('bytes')
 
-    if (i >= 2147483648) {
+    if (i >= BIP32_PRIME) {
         if (!priv) throw new Error("Can't do private derivation on public key!")
         blob = [0].concat(priv.slice(0,32),util.numToBytes(i,4).reverse())
     }
