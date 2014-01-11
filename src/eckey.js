@@ -52,21 +52,35 @@ ECKey.prototype.getPub = function() {
     return ECPubKey(ecparams.getG().multiply(this.priv),this.compressed)
 }
 
-ECKey.prototype.export = function (format) {
-    var bytes = this.priv.toByteArrayUnsigned();
-    if (this.compressed)
-         bytes.push(1)
-    return format === "base58"    ? base58.checkEncode(bytes,128)
-         : format === "wif"       ? base58.checkEncode(bytes,128)
-         : format === "bin"       ? conv.bytesToString(bytes)
-         : format === "bytes"     ? bytes
-         : format === "hex"       ? conv.bytesToHex(bytes)
-         :                          bytes
+/**
+ * @deprecated Reserved keyword, factory pattern. Use toHex, toBytes, etc.
+ */
+ECKey.prototype['export'] = function(format) {
+    format || (format = 'hex')
+    return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
 };
 
-ECKey.prototype.toString = function (format) {
-    return ''+this.export(format)
+ECKey.prototype.toBin = function() {
+    return conv.bytesToString(this.toBytes())
 }
+
+ECKey.prototype.toBase58 = function() {
+    return base58.checkEncode(this.toBytes(), 128)
+}
+
+ECKey.prototype.toWif = ECKey.prototype.toBase58
+
+ECKey.prototype.toHex = function() {
+    return conv.bytesToHex(this.toBytes())
+}
+
+ECKey.prototype.toBytes = function() {
+    var bytes = this.priv.toByteArrayUnsigned();
+    if (this.compressed) bytes.push(1)
+    return bytes
+}
+
+ECKey.prototype.toString = ECKey.prototype.toBase58
 
 ECKey.prototype.getBitcoinAddress = function(v) {
     return this.getPub().getBitcoinAddress(v)
@@ -116,15 +130,25 @@ ECPubKey.prototype.multiply = function(key) {
     return ECPubKey(this.pub.multiply(ECKey(key).priv),this.compressed)
 }
 
-ECPubKey.prototype.export = function(formt) {
-    var o = this.pub.getEncoded(this.compressed)
-    return formt == 'hex'   ? conv.bytesToHex(o)
-         : formt == 'bin'   ? conv.bytesToString(o)
-                           : o;
+ECPubKey.prototype['export'] = function(format) {
+    format || (format = 'hex')
+    return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
 }
 
-ECPubKey.prototype.toString = function (format) {
-    return ''+this.export(format)
+ECPubKey.prototype.toBytes = function() {
+    return this.pub.getEncoded(this.compressed)
+}
+
+ECPubKey.prototype.toHex = function() {
+    return conv.bytesToHex(this.toBytes())
+}
+
+ECPubKey.prototype.toBin = function() {
+    return conv.bytesToString(this.toBytes())
+}
+
+ECPubKey.prototype.toString = function() {
+    return this.getBitcoinAddress().toString()
 }
 
 ECPubKey.prototype.getBitcoinAddress = function(v) {
