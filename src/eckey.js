@@ -36,7 +36,7 @@ ECKey.prototype.import = function (input,compressed) {
                                                    : null
 
     this.compressed =
-          arguments.length > 1                     ? compressed
+          compressed !== undefined                 ? compressed
         : input instanceof ECKey                   ? input.compressed
         : input instanceof BigInteger              ? false
         : util.isArray(input)                      ? false
