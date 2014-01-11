@@ -19,10 +19,10 @@ var Address = function (bytes, version) {
         this.version = arguments[0].version;
     }
     else if (typeof bytes === 'string') {
-        this.hash = 
+        this.hash =
               bytes.length <= 34     ? base58.checkDecode(bytes)
             : bytes.length <= 40     ? conv.hexToBytes(bytes)
-            :                          util.error('Bad input');              
+            :                          util.error('Bad input');
 
         this.version = version || this.hash.version || 0;
     }

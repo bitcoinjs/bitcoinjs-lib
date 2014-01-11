@@ -117,7 +117,7 @@ BIP32key.prototype.privtopub = BIP32key.prototype.getPub = function() {
 }
 
 BIP32key.fromMasterKey = function(seed) {
-    var I = Crypto.HMAC(Crypto.SHA512,seed, 'Bitcoin seed' , { asBytes: true })
+    var I = Crypto.HMAC(Crypto.SHA512,seed, 'Bitcoin seed', { asBytes: true })
     return new BIP32key({
         vbytes: conv.stringToBytes(PRIVDERIV),
         type: 'priv',
