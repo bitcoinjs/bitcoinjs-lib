@@ -4,6 +4,7 @@ var util = require('./util'),
     ECKey = require('./eckey').ECKey,
     ECPubKey = require('./eckey').ECPubKey,
     base58 = require('./base58'),
+    assert = require('assert'),
     Crypto = require('./crypto-js/crypto');
 
 var BIP32key = function(opts) {
@@ -51,17 +52,48 @@ BIP32key.deserialize = function(str) {
     })
 }
 
-BIP32key.prototype.serialize = function() {
-    var bytes = this.vbytes.concat(
-                [this.depth],
-                this.fingerprint,
-                util.numToBytes(this.i,4).reverse(),
-                this.chaincode,
-                this.type == 'priv' ? [0].concat(this.key.export('bytes').slice(0,32))
-                                    : this.key.export('bytes'))
-    var checksum = Crypto.SHA256(Crypto.SHA256(bytes,{asBytes: true}), {asBytes: true})
-                         .slice(0,4)
-    return base58.encode(bytes.concat(checksum))
+BIP32key.prototype.serialize = function(enc) {
+    var bytes = []
+
+    // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private; testnet: 0x043587CF public, 0x04358394 private)
+    bytes = bytes.concat(this.vbytes)
+    assert.equal(bytes.length, 4)
+
+    // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ....
+    bytes = bytes.concat([this.depth])
+    assert.equal(bytes.length, 4 + 1)
+
+    // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
+    bytes = bytes.concat(this.fingerprint)
+    assert.equal(bytes.length, 4 + 1 + 4)
+
+    // 4 bytes: child number. This is the number i in xi = xpar/i,
+    // with xi the key being serialized. This is encoded in MSB order. (0x00000000 if master key)
+    bytes = bytes.concat(util.numToBytes(this.i, 4).reverse())
+    assert.equal(bytes.length, 4 + 1 + 4 + 4)
+
+    // 32 bytes: the chain code
+    bytes = bytes.concat(this.chaincode)
+    assert.equal(bytes.length, 4 + 1 + 4 + 4 + 32)
+
+    // 33 bytes: the public key or private key data
+    // (0x02 + X or 0x03 + X for public keys, 0x00 + k for private keys)
+    if (this.type == 'priv') {
+        bytes.push(0)
+        bytes = bytes.concat(this.key.toBytes().slice(0, 32))
+    } else {
+        bytes = bytes.concat(this.key.toBytes())
+    }
+
+    assert.equal(bytes.length, 78)
+
+    if (enc == 'bytes') return bytes
+    if (enc == 'hex') return conv.bytesToHex(bytes)
+
+    var checksum = Crypto.SHA256(Crypto.SHA256(bytes, {asBytes: true}), { asBytes: true }).slice(0,4)
+    bytes = bytes.concat(checksum)
+
+    return base58.encode(bytes)
 }
 
 BIP32key.prototype.ckd = function(i) {
