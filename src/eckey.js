@@ -56,12 +56,12 @@ ECKey.prototype.export = function (format) {
     var bytes = this.priv.toByteArrayUnsigned();
     if (this.compressed)
          bytes.push(1)
-    return format === "base58"    ? base58.checkEncode(bytes,128) 
-         : format === "wif"       ? base58.checkEncode(bytes,128) 
+    return format === "base58"    ? base58.checkEncode(bytes,128)
+         : format === "wif"       ? base58.checkEncode(bytes,128)
          : format === "bin"       ? conv.bytesToString(bytes)
          : format === "bytes"     ? bytes
          : format === "hex"       ? conv.bytesToHex(bytes)
-         :                          bytes                    
+         :                          bytes
 };
 
 ECKey.prototype.toString = function (format) {
@@ -69,7 +69,7 @@ ECKey.prototype.toString = function (format) {
 }
 
 ECKey.prototype.getBitcoinAddress = function(v) {
-    return this.getPub().getBitcoinAddress(v) 
+    return this.getPub().getBitcoinAddress(v)
 }
 
 ECKey.prototype.add = function(key) {
@@ -93,7 +93,7 @@ var ECPubKey = function(input,compressed) {
 
 ECPubKey.prototype.import = function(input,compressed) {
     var decode = function(x) { return ECPointFp.decodeFrom(ecparams.getCurve(), x) }
-    this.pub = 
+    this.pub =
           input instanceof ECPointFp ? input
         : input instanceof ECKey     ? ecparams.getG().multiply(input.priv)
         : input instanceof ECPubKey  ? input.pub
@@ -103,7 +103,7 @@ ECPubKey.prototype.import = function(input,compressed) {
 
     this.compressed =
           arguments.length > 1       ? compressed
-        : input instanceof ECPointFp ? input.compressed 
+        : input instanceof ECPointFp ? input.compressed
         : input instanceof ECPubKey  ? input.compressed
                                      : (this.pub[0] < 4)
 }
@@ -115,10 +115,10 @@ ECPubKey.prototype.add = function(key) {
 ECPubKey.prototype.multiply = function(key) {
     return ECPubKey(this.pub.multiply(ECKey(key).priv),this.compressed)
 }
-    
+
 ECPubKey.prototype.export = function(formt) {
-    var o = this.pub.getEncoded(this.compressed) 
-    return formt == 'hex'   ? conv.bytesToHex(o) 
+    var o = this.pub.getEncoded(this.compressed)
+    return formt == 'hex'   ? conv.bytesToHex(o)
          : formt == 'bin'   ? conv.bytesToString(o)
                            : o;
 }
