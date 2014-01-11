@@ -137,7 +137,7 @@ ECKey.prototype.sign = function (hash) {
 };
 
 ECKey.prototype.verify = function (hash, sig) {
-  return ecdsa.verify(hash, sig, this.getPub());
+  return ecdsa.verify(hash, sig, this.getPub()['export']('bytes'));
 };
 
 /**
