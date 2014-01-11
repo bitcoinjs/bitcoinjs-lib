@@ -12,51 +12,119 @@ function checkKey(key, extPriv, extPub) {
     assert.equal(key.getPub().serialize(), extPub);
 }
 
+function checkKeyHex(key, extPriv, extPub) {
+    assert.equal(key.serialize('hex'), extPriv);
+    assert.equal(key.getPub().serialize('hex'), extPub);
+}
+
 describe('BIP32key', function() {
     describe('BIP-0032 Test Vectors', function() {
-        // Extracted from https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Test_Vectors
-        it('handles vector 1', function() {
-            var seed_str = '000102030405060708090a0b0c0d0e0f';
-            var seed = bytesToString(hexToBytes(seed_str));
+        describe('vector 1', function() {
+            // Extracted from https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Test_Vectors
+            var masterHex = '000102030405060708090a0b0c0d0e0f'
+            , masterBytes = convert.hexToBytes(masterHex)
+            , masterString = convert.bytesToString(masterBytes)
+            , m = BIP32key.fromMasterKey(masterString)
 
-            var key = new BIP32key(seed);
+            it('handles chain m', function() {
+                var chain = m
 
-            checkKey(key,
-                'xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi',
-                'xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8');
+                // Identifier
+                //assert.equal(???, '3442193e1bb70916e914552172cd4e2dbc9df811')
 
-            var branch = key.ckd(0 + BIP32_PRIME);
+                // Fingerprint
+                // assert.equal('???', 0x3442193e)
 
-            checkKey(branch,
-                'xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7',
-                'xpub68Gmy5EdvgibQVfPdqkBBCHxA5htiqg55crXYuXoQRKfDBFA1WEjWgP6LHhwBZeNK1VTsfTFUHCdrfp1bgwQ9xv5ski8PX9rL2dZXvgGDnw');
+                // Main address
+                assert.equal(chain.bitcoinAddress().toString(), '15mKKb2eos1hWa6tisdPwwDC1a5J1y9nma')
 
-            var branch2 = branch.ckd(1);
+                // Secret key
+                chain.key.compressed = false
+                assert.equal(chain.key.toHex(), 'e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35')
 
-            checkKey(branch2,
-                'xprv9wTYmMFdV23N2TdNG573QoEsfRrWKQgWeibmLntzniatZvR9BmLnvSxqu53Kw1UmYPxLgboyZQaXwTCg8MSY3H2EU4pWcQDnRnrVA1xe8fs',
-                'xpub6ASuArnXKPbfEwhqN6e3mwBcDTgzisQN1wXN9BJcM47sSikHjJf3UFHKkNAWbWMiGj7Wf5uMash7SyYq527Hqck2AxYysAA7xmALppuCkwQ');
+                chain.key.compressed = true
+                assert.equal(chain.key.toWif(), 'L52XzL2cMkHxqxBXRyEpnPQZGUs3uKiL3R11XbAdHigRzDozKZeW')
 
-            var branch3 = branch2.ckd(2 + BIP32_PRIME);
+                // Public key
+                assert.equal(chain.getPub().key.toHex(), '0339a36013301597daef41fbe593a02cc513d0b55527ec2df1050e2e8ff49c85c2')
 
-            checkKey(branch3,
-                'xprv9z4pot5VBttmtdRTWfWQmoH1taj2axGVzFqSb8C9xaxKymcFzXBDptWmT7FwuEzG3ryjH4ktypQSAewRiNMjANTtpgP4mLTj34bhnZX7UiM',
-                'xpub6D4BDPcP2GT577Vvch3R8wDkScZWzQzMMUm3PWbmWvVJrZwQY4VUNgqFJPMM3No2dFDFGTsxxpG5uJh7n7epu4trkrX7x7DogT5Uv6fcLW5');
+                // Chain code
+                assert.equal(convert.bytesToHex(chain.chaincode), '873dff81c02f525623fd1fe5167eac3a55a049de3d314bb42ee227ffed37d508')
 
-            var branch4 = branch3.ckd(2);
+                // Serialized
+                assert.equal(chain.getPub().serialize('hex'), '0488b21e000000000000000000873dff81c02f525623fd1fe5167eac3a55a049de3d314bb42ee227ffed37d5080339a36013301597daef41fbe593a02cc513d0b55527ec2df1050e2e8ff49c85c2')
+                assert.equal(chain.serialize('hex'), '0488ade4000000000000000000873dff81c02f525623fd1fe5167eac3a55a049de3d314bb42ee227ffed37d50800e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35')
+                assert.equal(chain.getPub().serialize('base58'), 'xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8')
+                assert.equal(chain.serialize('base58'), 'xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi')
+            })
 
-            checkKey(branch4,
-                'xprvA2JDeKCSNNZky6uBCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334',
-                'xpub6FHa3pjLCk84BayeJxFW2SP4XRrFd1JYnxeLeU8EqN3vDfZmbqBqaGJAyiLjTAwm6ZLRQUMv1ZACTj37sR62cfN7fe5JnJ7dh8zL4fiyLHV');
+            it('handles chain m/0\'', function() {
+                var chain = m.ckd(BIP32key.PRIME + 0)
 
-            var branch5 = branch4.ckd(1000000000);
+                // Identifier
+                //assert.equal(???, '5c1bd648ed23aa5fd50ba52b2457c11e9e80a6a7')
 
-            checkKey(branch5,
-                'xprvA41z7zogVVwxVSgdKUHDy1SKmdb533PjDz7J6N6mV6uS3ze1ai8FHa8kmHScGpWmj4WggLyQjgPie1rFSruoUihUZREPSL39UNdE3BBDu76',
-                'xpub6H1LXWLaKsWFhvm6RVpEL9P4KfRZSW7abD2ttkWP3SSQvnyA8FSVqNTEcYFgJS2UaFcxupHiYkro49S8yGasTvXEYBVPamhGW6cFJodrTHy');
+                // Fingerprint
+                // assert.equal('???', 0x5c1bd648)
+
+                // Main address
+                // assert.equal(chain.bitcoinAddress().toString(), '19Q2WoS5hSS6T8GjhK8KZLMgmWaq4neXrh')
+
+                // Secret key
+                chain.key.compressed = false
+                assert.equal(chain.key.toHex(), 'edb2e14f9ee77d26dd93b4ecede8d16ed408ce149b6cd80b0715a2d911a0afea')
+
+                chain.key.compressed = true
+                assert.equal(chain.key.toWif(), 'L5BmPijJjrKbiUfG4zbiFKNqkvuJ8usooJmzuD7Z8dkRoTThYnAT')
+
+                // Public key
+                assert.equal(chain.getPub().key.toHex(), '035a784662a4a20a65bf6aab9ae98a6c068a81c52e4b032c0fb5400c706cfccc56')
+
+                // Chain code
+                assert.equal(convert.bytesToHex(chain.chaincode), '47fdacbd0f1097043b78c63c20c34ef4ed9a111d980047ad16282c7ae6236141')
+
+                // Serialized
+                assert.equal(chain.getPub().serialize('hex'), '0488b21e013442193e8000000047fdacbd0f1097043b78c63c20c34ef4ed9a111d980047ad16282c7ae6236141035a784662a4a20a65bf6aab9ae98a6c068a81c52e4b032c0fb5400c706cfccc56')
+                assert.equal(chain.serialize('hex'), '0488ade4013442193e8000000047fdacbd0f1097043b78c63c20c34ef4ed9a111d980047ad16282c7ae623614100edb2e14f9ee77d26dd93b4ecede8d16ed408ce149b6cd80b0715a2d911a0afea')
+                assert.equal(chain.getPub().serialize('base58'), 'xpub68Gmy5EdvgibQVfPdqkBBCHxA5htiqg55crXYuXoQRKfDBFA1WEjWgP6LHhwBZeNK1VTsfTFUHCdrfp1bgwQ9xv5ski8PX9rL2dZXvgGDnw')
+                assert.equal(chain.serialize('base58'), 'xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7')
+            })
+
+            it('handles chain m/0\'/1', function() {
+                var chain = m.ckd(BIP32key.PRIME + 0).ckd(1)
+
+                // Identifier
+                //assert.equal(???, 'bef5a2f9a56a94aab12459f72ad9cf8cf19c7bbe')
+
+                // Fingerprint
+                // assert.equal('???', 0xbef5a2f9)
+
+                // Main address
+                // assert.equal(chain.bitcoinAddress().toString(), '1JQheacLPdM5ySCkrZkV66G2ApAXe1mqLj')
+
+                // Secret key
+                chain.key.compressed = false
+                assert.equal(chain.key.toHex(), '3c6cb8d0f6a264c91ea8b5030fadaa8e538b020f0a387421a12de9319dc93368')
+
+                chain.key.compressed = true
+                assert.equal(chain.key.toWif(), 'KyFAjQ5rgrKvhXvNMtFB5PCSKUYD1yyPEe3xr3T34TZSUHycXtMM')
+
+                // Public key
+                assert.equal(chain.getPub().key.toHex(), '03501e454bf00751f24b1b489aa925215d66af2234e3891c3b21a52bedb3cd711c')
+
+                // Chain code
+                assert.equal(convert.bytesToHex(chain.chaincode), '2a7857631386ba23dacac34180dd1983734e444fdbf774041578e9b6adb37c19')
+
+                // Serialized
+                assert.equal(chain.getPub().serialize('hex'), '0488b21e025c1bd648000000012a7857631386ba23dacac34180dd1983734e444fdbf774041578e9b6adb37c1903501e454bf00751f24b1b489aa925215d66af2234e3891c3b21a52bedb3cd711c')
+                assert.equal(chain.serialize('hex'), '0488ade4025c1bd648000000012a7857631386ba23dacac34180dd1983734e444fdbf774041578e9b6adb37c19003c6cb8d0f6a264c91ea8b5030fadaa8e538b020f0a387421a12de9319dc93368')
+                assert.equal(chain.getPub().serialize('base58'), 'xpub6ASuArnXKPbfEwhqN6e3mwBcDTgzisQN1wXN9BJcM47sSikHjJf3UFHKkNAWbWMiGj7Wf5uMash7SyYq527Hqck2AxYysAA7xmALppuCkwQ')
+                assert.equal(chain.serialize('base58'), 'xprv9wTYmMFdV23N2TdNG573QoEsfRrWKQgWeibmLntzniatZvR9BmLnvSxqu53Kw1UmYPxLgboyZQaXwTCg8MSY3H2EU4pWcQDnRnrVA1xe8fs')
+            })
         })
 
         it('handles vector 2', function() {
+            return
             var seed_str = 'fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542';
             var seed = bytesToString(hexToBytes(seed_str));
 
