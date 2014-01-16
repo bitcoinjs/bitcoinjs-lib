@@ -5,11 +5,10 @@ var util = require('./util');
 
 var BigInteger = require('./jsbn/jsbn');
 
-var BIP32key = require('./bip32');
-
 var Transaction = require('./transaction').Transaction;
 var TransactionIn = require('./transaction').TransactionIn;
 var TransactionOut = require('./transaction').TransactionOut;
+var HDWallet = require('./hdwallet.js')
 
 var SecureRandom = require('./jsbn/rng');
 var rng = new SecureRandom();
@@ -26,7 +25,7 @@ var Wallet = function (seed) {
 
     // Transaction output data
     this.outputs = {};
-  
+
     // Make a new master key
     this.newMasterKey = function(seed) {
         if (!seed) {
@@ -34,7 +33,7 @@ var Wallet = function (seed) {
             rng.nextBytes(seedBytes);
             seed = conv.bytesToString(seedBytes)
         }
-        masterkey = new BIP32key(seed);
+        masterkey = new HDWallet(seed);
         keys = []
     }
     this.newMasterKey(seed)
@@ -45,7 +44,7 @@ var Wallet = function (seed) {
         this.addresses.push(keys[keys.length-1].getBitcoinAddress().toString())
         return this.addresses[this.addresses.length - 1]
     }
-    
+
     // Processes a transaction object
     // If "verified" is true, then we trust the transaction as "final"
     this.processTx = function(tx, verified) {
@@ -108,9 +107,9 @@ var Wallet = function (seed) {
             if (totalval >= value) return utxo.slice(0,i+1);
         }
         throw ("Not enough money to send funds including transaction fee. Have: "
-                     + (totalval / 100000000) + ", needed: " + (value / 100000000)); 
+                     + (totalval / 100000000) + ", needed: " + (value / 100000000));
     }
-    
+
     this.mkSend = function(to, value, fee) {
         var utxo = this.getUtxoToPay(value + fee)
         var sum = utxo.reduce(function(t,o) { return t + o.value },0),
