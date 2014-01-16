@@ -148,6 +148,12 @@ ECPubKey.prototype.toBin = function() {
     return conv.bytesToString(this.toBytes())
 }
 
+ECPubKey.prototype.toBase58 = function() {
+    return base58.checkEncode(this.toBytes(), 128)
+}
+
+ECPubKey.prototype.toWif = ECPubKey.prototype.toBase58
+
 ECPubKey.prototype.toString = function() {
     return this.getBitcoinAddress().toString()
 }
