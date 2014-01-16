@@ -135,7 +135,8 @@ ECPubKey.prototype['export'] = function(format) {
     return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
 }
 
-ECPubKey.prototype.toBytes = function() {
+ECPubKey.prototype.toBytes = function(compressed) {
+    if (compressed === undefined) compressed = this.compressed
     return this.pub.getEncoded(this.compressed)
 }
 
