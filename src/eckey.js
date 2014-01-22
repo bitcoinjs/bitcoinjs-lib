@@ -48,8 +48,9 @@ ECKey.prototype.import = function (input,compressed) {
                                                    : null
 };
 
-ECKey.prototype.getPub = function() {
-    return ECPubKey(ecparams.getG().multiply(this.priv),this.compressed)
+ECKey.prototype.getPub = function(compressed) {
+    if (compressed === undefined) compressed = this.compressed
+    return ECPubKey(ecparams.getG().multiply(this.priv),compressed)
 }
 
 /**
@@ -137,7 +138,7 @@ ECPubKey.prototype['export'] = function(format) {
 
 ECPubKey.prototype.toBytes = function(compressed) {
     if (compressed === undefined) compressed = this.compressed
-    return this.pub.getEncoded(this.compressed)
+    return this.pub.getEncoded(compressed)
 }
 
 ECPubKey.prototype.toHex = function() {
@@ -159,9 +160,8 @@ ECPubKey.prototype.toString = function() {
 }
 
 ECPubKey.prototype.getBitcoinAddress = function(v) {
-    return new Address(util.sha256ripe160(this.export()),v);
+    return new Address(util.sha256ripe160(this.toBytes()), v);
 }
-
 
 ECKey.prototype.sign = function (hash) {
   return ecdsa.sign(hash, this.priv);
