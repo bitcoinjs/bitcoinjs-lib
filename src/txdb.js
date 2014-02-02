@@ -1,3 +1,5 @@
+var Transaction = require('./transaction');
+
 var TransactionDatabase = function () {
   this.txs = [];
   this.txIndex = {};
@@ -16,7 +18,7 @@ TransactionDatabase.prototype.addTransactionNoUpdate = function (tx) {
     return;
   }
 
-  this.txs.push(new Bitcoin.Transaction(tx));
+  this.txs.push(new Transaction(tx));
   this.txIndex[tx.hash] = tx;
 };
 

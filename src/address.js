@@ -1,10 +1,35 @@
-Bitcoin.Address = function (bytes) {
-  if ("string" == typeof bytes) {
-    bytes = Bitcoin.Address.decodeString(bytes);
-  }
-  this.hash = bytes;
+var base58 = require('./base58');
+var Crypto = require('./crypto-js/crypto');
+var conv = require('./convert');
+var util = require('./util');
 
-  this.version = 0x00;
+var address_types = {
+    prod: 0,
+    testnet: 111
+};
+
+var p2sh_types = {
+    prod: 5,
+    testnet: 196
+};
+
+var Address = function (bytes, version) {
+    if (arguments[0] instanceof Address) {
+        this.hash = arguments[0].hash;
+        this.version = arguments[0].version;
+    }
+    else if (typeof bytes === 'string') {
+        this.hash =
+              bytes.length <= 34     ? base58.checkDecode(bytes)
+            : bytes.length <= 40     ? conv.hexToBytes(bytes)
+            :                          util.error('Bad input');
+
+        this.version = version || this.hash.version || 0;
+    }
+    else {
+        this.hash = bytes;
+        this.version = version || 0;
+    }
 };
 
 /**
@@ -12,46 +37,32 @@ Bitcoin.Address = function (bytes) {
  *
  * Returns the address as a base58-encoded string in the standardized format.
  */
-Bitcoin.Address.prototype.toString = function () {
-  // Get a copy of the hash
-  var hash = this.hash.slice(0);
-
-  // Version
-  hash.unshift(this.version);
-
-  var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
-
-  var bytes = hash.concat(checksum.slice(0,4));
-
-  return Bitcoin.Base58.encode(bytes);
+Address.prototype.toString = function () {
+    return base58.checkEncode(this.hash.slice(0),this.version);
 };
 
-Bitcoin.Address.prototype.getHashBase64 = function () {
-  return Crypto.util.bytesToBase64(this.hash);
+Address.prototype.getHash = function () {
+    return conv.bytesToHex(this.hash);
+};
+
+Address.getVersion = function(string) {
+    return base58.decode(string)[0];
+}
+
+Address.validate = function(string) {
+    try {
+        base58.checkDecode(string);
+        return true;
+    } catch (e) {
+        return false;
+    }
 };
 
 /**
  * Parse a Bitcoin address contained in a string.
  */
-Bitcoin.Address.decodeString = function (string) {
-  var bytes = Bitcoin.Base58.decode(string);
-
-  var hash = bytes.slice(0, 21);
-
-  var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
-
-  if (checksum[0] != bytes[21] ||
-      checksum[1] != bytes[22] ||
-      checksum[2] != bytes[23] ||
-      checksum[3] != bytes[24]) {
-    throw "Checksum validation failed!";
-  }
-
-  var version = hash.shift();
-
-  if (version != 0) {
-    throw "Version "+version+" not supported!";
-  }
-
-  return hash;
+Address.decodeString = function (string) {
+    return base58.checkDecode(string);
 };
+
+module.exports = Address;

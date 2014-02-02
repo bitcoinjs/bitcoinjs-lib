@@ -1,308 +1,182 @@
-Bitcoin.Wallet = (function () {
-  var Script = Bitcoin.Script,
-  TransactionIn = Bitcoin.TransactionIn,
-  TransactionOut = Bitcoin.TransactionOut;
+var Script = require('./script');
+var ECKey = require('./eckey').ECKey;
+var conv = require('./convert');
+var util = require('./util');
 
-  var Wallet = function () {
-    // Keychain
-    //
-    // The keychain is stored as a var in this closure to make accidental
-    // serialization less likely.
-    //
-    // Any functions accessing this value therefore have to be defined in
-    // the closure of this constructor.
+var BigInteger = require('./jsbn/jsbn');
+
+var Transaction = require('./transaction').Transaction;
+var TransactionIn = require('./transaction').TransactionIn;
+var TransactionOut = require('./transaction').TransactionOut;
+var HDWallet = require('./hdwallet.js')
+
+var SecureRandom = require('./jsbn/rng');
+var rng = new SecureRandom();
+
+var Wallet = function (seed) {
+
+    // Stored in a closure to make accidental serialization less likely
     var keys = [];
+    var masterkey = null;
+    var me = this;
 
-    // Public hashes of our keys
-    this.addressHashes = [];
+    // Addresses
+    this.addresses = [];
 
-    // Transaction data
-    this.txIndex = {};
-    this.unspentOuts = [];
+    // Transaction output data
+    this.outputs = {};
 
-    // Other fields
-    this.addressPointer = 0;
-
-    /**
-     * Add a key to the keychain.
-     *
-     * The corresponding public key can be provided as a second parameter. This
-     * adds it to the cache in the ECKey object and avoid the need to
-     * expensively calculate it later.
-     */
-    this.addKey = function (key, pub) {
-      if (!(key instanceof Bitcoin.ECKey)) {
-        key = new Bitcoin.ECKey(key);
-      }
-      keys.push(key);
-
-      if (pub) {
-        if ("string" === typeof pub) {
-          pub = Crypto.util.base64ToBytes(pub);
+    // Make a new master key
+    this.newMasterKey = function(seed) {
+        if (!seed) {
+            var seedBytes = new Array(32);
+            rng.nextBytes(seedBytes);
+            seed = conv.bytesToString(seedBytes)
         }
-        key.setPub(pub);
-      }
+        masterkey = new HDWallet(seed);
+        keys = []
+    }
+    this.newMasterKey(seed)
 
-      this.addressHashes.push(key.getBitcoinAddress().getHashBase64());
-    };
-
-    /**
-     * Add multiple keys at once.
-     */
-    this.addKeys = function (keys, pubs) {
-      if ("string" === typeof keys) {
-        keys = keys.split(',');
-      }
-      if ("string" === typeof pubs) {
-        pubs = pubs.split(',');
-      }
-      var i;
-      if (Array.isArray(pubs) && keys.length == pubs.length) {
-        for (i = 0; i < keys.length; i++) {
-          this.addKey(keys[i], pubs[i]);
-        }
-      } else {
-        for (i = 0; i < keys.length; i++) {
-          this.addKey(keys[i]);
-        }
-      }
-    };
-
-    /**
-     * Get the key chain.
-     *
-     * Returns an array of base64-encoded private values.
-     */
-    this.getKeys = function () {
-      var serializedWallet = [];
-
-      for (var i = 0; i < keys.length; i++) {
-        serializedWallet.push(keys[i].toString('base64'));
-      }
-
-      return serializedWallet;
-    };
-
-    /**
-     * Get the public keys.
-     *
-     * Returns an array of base64-encoded public keys.
-     */
-    this.getPubKeys = function () {
-      var pubs = [];
-
-      for (var i = 0; i < keys.length; i++) {
-        pubs.push(Crypto.util.bytesToBase64(keys[i].getPub()));
-      }
-
-      return pubs;
-    };
-
-    /**
-     * Delete all keys.
-     */
-    this.clear = function () {
-      keys = [];
-    };
-
-    /**
-     * Return the number of keys in this wallet.
-     */
-    this.getLength = function () {
-      return keys.length;
-    };
-
-    /**
-     * Get the addresses for this wallet.
-     *
-     * Returns an array of Address objects.
-     */
-    this.getAllAddresses = function () {
-      var addresses = [];
-      for (var i = 0; i < keys.length; i++) {
-        addresses.push(keys[i].getBitcoinAddress());
-      }
-      return addresses;
-    };
-
-    this.getCurAddress = function () {
-      if (keys[this.addressPointer]) {
-        return keys[this.addressPointer].getBitcoinAddress();
-      } else {
-        return null;
-      }
-    };
-
-    /**
-     * Go to the next address.
-     *
-     * If there are no more new addresses available, one will be generated
-     * automatically.
-     */
-    this.getNextAddress = function () {
-      this.addressPointer++;
-      if (!keys[this.addressPointer]) {
-        this.generateAddress();
-      }
-      return keys[this.addressPointer].getBitcoinAddress();
-    };
-
-    /**
-     * Sign a hash with a key.
-     *
-     * This method expects the pubKeyHash as the first parameter and the hash
-     * to be signed as the second parameter.
-     */
-    this.signWithKey = function (pubKeyHash, hash) {
-      pubKeyHash = Crypto.util.bytesToBase64(pubKeyHash);
-      for (var i = 0; i < this.addressHashes.length; i++) {
-        if (this.addressHashes[i] == pubKeyHash) {
-          return keys[i].sign(hash);
-        }
-      }
-      throw new Error("Missing key for signature");
-    };
-
-    /**
-     * Retrieve the corresponding pubKey for a pubKeyHash.
-     *
-     * This function only works if the pubKey in question is part of this
-     * wallet.
-     */
-    this.getPubKeyFromHash = function (pubKeyHash) {
-      pubKeyHash = Crypto.util.bytesToBase64(pubKeyHash);
-      for (var i = 0; i < this.addressHashes.length; i++) {
-        if (this.addressHashes[i] == pubKeyHash) {
-          return keys[i].getPub();
-        }
-      }
-      throw new Error("Hash unknown");
-    };
-  };
-
-  Wallet.prototype.generateAddress = function () {
-    this.addKey(new Bitcoin.ECKey());
-  };
-
-  /**
-   * Add a transaction to the wallet's processed transaction.
-   *
-   * This will add a transaction to the wallet, updating its balance and
-   * available unspent outputs.
-   */
-  Wallet.prototype.process = function (tx) {
-    if (this.txIndex[tx.hash]) return;
-
-    var j;
-    var k;
-    var hash;
-    // Gather outputs
-    for (j = 0; j < tx.outs.length; j++) {
-      var txout = new TransactionOut(tx.outs[j]);
-      hash = Crypto.util.bytesToBase64(txout.script.simpleOutPubKeyHash());
-      for (k = 0; k < this.addressHashes.length; k++) {
-        if (this.addressHashes[k] === hash) {
-          this.unspentOuts.push({tx: tx, index: j, out: txout});
-          break;
-        }
-      }
+    // Add a new address
+    this.generateAddress = function() {
+        keys.push(masterkey.ckd(keys.length).key)
+        this.addresses.push(keys[keys.length-1].getBitcoinAddress().toString())
+        return this.addresses[this.addresses.length - 1]
     }
 
-    // Remove spent outputs
-    for (j = 0; j < tx.ins.length; j++) {
-      var txin = new TransactionIn(tx.ins[j]);
-      var pubkey = txin.script.simpleInPubKey();
-      hash = Crypto.util.bytesToBase64(Bitcoin.Util.sha256ripe160(pubkey));
-      for (k = 0; k < this.addressHashes.length; k++) {
-        if (this.addressHashes[k] === hash) {
-          for (var l = 0; l < this.unspentOuts.length; l++) {
-            if (txin.outpoint.hash == this.unspentOuts[l].tx.hash &&
-                txin.outpoint.index == this.unspentOuts[l].index) {
-              this.unspentOuts.splice(l, 1);
+    // Processes a transaction object
+    // If "verified" is true, then we trust the transaction as "final"
+    this.processTx = function(tx, verified) {
+        var txhash = conv.bytesToHex(tx.getHash())
+        for (var i = 0; i < tx.outs.length; i++) {
+            if (this.addresses.indexOf(tx.outs[i].address.toString()) >= 0) {
+                me.outputs[txhash+':'+i] = {
+                    output: txhash+':'+i,
+                    value: tx.outs[i].value,
+                    address: tx.outs[i].address.toString(),
+                    timestamp: new Date().getTime() / 1000,
+                    pending: true
+                }
             }
-          }
-          break;
         }
-      }
+        for (var i = 0; i < tx.ins.length; i++) {
+            var op = tx.ins[i].outpoint
+            var o = me.outputs[op.hash+':'+op.index]
+            if (o) {
+                o.spend = txhash+':'+i
+                o.spendpending = true
+                o.timestamp = new Date().getTime() / 1000
+            }
+        }
+    }
+    // Processes an output from an external source of the form
+    // { output: txhash:index, value: integer, address: address }
+    // Excellent compatibility with SX and pybitcointools
+    this.processOutput = function(o) {
+        if (!this.outputs[o.output] || this.outputs[o.output].pending)
+             this.outputs[o.output] = o;
     }
 
-    // Index transaction
-    this.txIndex[tx.hash] = tx;
-  };
-
-  Wallet.prototype.getBalance = function () {
-    var balance = BigInteger.valueOf(0);
-    for (var i = 0; i < this.unspentOuts.length; i++) {
-      var txout = this.unspentOuts[i].out;
-      balance = balance.add(Bitcoin.Util.valueToBigInt(txout.value));
+    this.processExistingOutputs = function() {
+        var t = new Date().getTime() / 1000
+        for (var o in this.outputs) {
+            if (o.pending && t > o.timestamp + 1200)
+                delete this.outputs[o]
+            if (o.spendpending && t > o.timestamp + 1200) {
+                o.spendpending = false
+                o.spend = false
+                delete o.timestamp
+            }
+        }
     }
-    return balance;
-  };
+    var peoInterval = setInterval(this.processExistingOutputs, 10000)
 
-  Wallet.prototype.createSend = function (address, sendValue, feeValue) {
-    var selectedOuts = [];
-    var txValue = sendValue.add(feeValue);
-    var availableValue = BigInteger.ZERO;
-    var i;
-    for (i = 0; i < this.unspentOuts.length; i++) {
-      selectedOuts.push(this.unspentOuts[i]);
-      availableValue = availableValue.add(Bitcoin.Util.valueToBigInt(this.unspentOuts[i].out.value));
-
-      if (availableValue.compareTo(txValue) >= 0) break;
-    }
-
-    if (availableValue.compareTo(txValue) < 0) {
-      throw new Error('Insufficient funds.');
-    }
-
-
-    var changeValue = availableValue.subtract(txValue);
-
-    var sendTx = new Bitcoin.Transaction();
-
-    for (i = 0; i < selectedOuts.length; i++) {
-      sendTx.addInput(selectedOuts[i].tx, selectedOuts[i].index);
+    this.getUtxoToPay = function(value) {
+        var h = []
+        for (var out in this.outputs) h.push(this.outputs[out])
+        var utxo = h.filter(function(x) { return !x.spend });
+        var valuecompare = function(a,b) { return a.value > b.value; }
+        var high = utxo.filter(function(o) { return o.value >= value; })
+                       .sort(valuecompare);
+        if (high.length > 0) return [high[0]];
+        utxo.sort(valuecompare);
+        var totalval = 0;
+        for (var i = 0; i < utxo.length; i++) {
+            totalval += utxo[i].value;
+            if (totalval >= value) return utxo.slice(0,i+1);
+        }
+        throw ("Not enough money to send funds including transaction fee. Have: "
+                     + (totalval / 100000000) + ", needed: " + (value / 100000000));
     }
 
-    sendTx.addOutput(address, sendValue);
-    if (changeValue.compareTo(BigInteger.ZERO) > 0) {
-      sendTx.addOutput(this.getNextAddress(), changeValue);
+    this.mkSend = function(to, value, fee) {
+        var utxo = this.getUtxoToPay(value + fee)
+        var sum = utxo.reduce(function(t,o) { return t + o.value },0),
+            remainder = sum - value - fee
+        if (value < 5430) throw new Error("Amount below dust threshold!")
+        var unspentOuts = 0;
+        for (var o in this.outputs) {
+            if (!this.outputs[o].spend) unspentOuts += 1
+            if (unspentOuts >= 5) return
+        }
+        var change = this.addresses[this.addresses.length - 1]
+        var toOut = { address: to, value: value },
+            changeOut = { address: change, value: remainder }
+            halfChangeOut = { address: change, value: Math.floor(remainder/2) };
+
+        var outs =
+              remainder < 5430  ? [toOut]
+            : remainder < 10860 ? [toOut, changeOut]
+            : unspentOuts == 5  ? [toOut, changeOut]
+            :                     [toOut, halfChangeOut, halfChangeOut]
+
+        var tx = new Bitcoin.Transaction({
+            ins: utxo.map(function(x) { return x.output }),
+            outs: outs
+        })
+        this.sign(tx)
+        return tx
     }
 
-    var hashType = 1; // SIGHASH_ALL
-
-    for (i = 0; i < sendTx.ins.length; i++) {
-      var hash = sendTx.hashTransactionForSignature(selectedOuts[i].out.script, i, hashType);
-      var pubKeyHash = selectedOuts[i].out.script.simpleOutPubKeyHash();
-      var signature = this.signWithKey(pubKeyHash, hash);
-
-      // Append hash type
-      signature.push(parseInt(hashType, 10));
-
-      sendTx.ins[i].script = Script.createInputScript(signature, this.getPubKeyFromHash(pubKeyHash));
+    this.mkSendToOutputs = function(outputs, changeIndex, fee) {
+        var value = outputs.reduce(function(t,o) { return t + o.value },0),
+            utxo = this.getUtxoToPay(value + fee),
+            sum = utxo.reduce(function(t,p) { return t + o.value },0);
+        utxo[changeIndex].value += sum - value - fee;
+        var tx = new Bitcoin.Transaction({
+            ins: utxo.map(function(x) { return x.output }),
+            outs: outputs
+        })
+        this.sign(tx)
+        return tx
     }
 
-    return sendTx;
-  };
-
-  Wallet.prototype.clearTransactions = function () {
-    this.txIndex = {};
-    this.unspentOuts = [];
-  };
-
-  /**
-   * Check to see if a pubKeyHash belongs to this wallet.
-   */
-  Wallet.prototype.hasHash = function (hash) {
-    if (Bitcoin.Util.isArray(hash)) hash = Crypto.util.bytesToBase64(hash);
-
-    // TODO: Just create an object with  base64 hashes as keys for faster lookup
-    for (var k = 0; k < this.addressHashes.length; k++) {
-      if (this.addressHashes[k] === hash) return true;
+    this.sign = function(tx) {
+        tx.ins.map(function(inp,i) {
+            var inp = inp.outpoint.hash+':'+inp.outpoint.index;
+            if (me.outputs[inp]) {
+                var address = me.outputs[inp].address,
+                    ind = me.addresses.indexOf(address);
+                if (ind >= 0) {
+                    var key = keys[ind]
+                    tx.sign(ind,key)
+                }
+            }
+        })
+        return tx;
     }
-    return false;
-  };
 
-  return Wallet;
-})();
+    this.getMasterKey = function() { return masterkey }
 
+    this.getPrivateKey = function(index) {
+        if (typeof index == "string")
+            return keys.filter(function(i,k){ return addresses[i] == index })[0]
+        else
+            return keys[index]
+    }
+
+    this.getPrivateKeys = function() { return keys }
+};
+
+module.exports = Wallet;

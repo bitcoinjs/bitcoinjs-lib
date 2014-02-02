@@ -1,69 +1,68 @@
-/**
- * Implements Bitcoin's feature for signing arbitrary messages.
- */
-Bitcoin.Message = (function () {
-  var Message = {};
+/// Implements Bitcoin's feature for signing arbitrary messages.
 
-  Message.magicPrefix = "Bitcoin Signed Message:\n";
+var Crypto = require('./crypto-js/crypto');
+var ecdsa = require('./ecdsa');
+var conv = require('./convert');
+var util = require('./util');
 
-  Message.makeMagicMessage = function (message) {
-    var magicBytes = Crypto.charenc.UTF8.stringToBytes(Message.magicPrefix);
-    var messageBytes = Crypto.charenc.UTF8.stringToBytes(message);
+var Message = {};
 
-    var buffer = [];
-    buffer = buffer.concat(Bitcoin.Util.numToVarInt(magicBytes.length));
-    buffer = buffer.concat(magicBytes);
-    buffer = buffer.concat(Bitcoin.Util.numToVarInt(messageBytes.length));
-    buffer = buffer.concat(messageBytes);
+Message.magicPrefix = "Bitcoin Signed Message:\n";
 
-    return buffer;
-  };
+Message.makeMagicMessage = function (message) {
+  var magicBytes = conv.stringToBytes(Message.magicPrefix);
+  var messageBytes = conv.stringToBytes(message);
 
-  Message.getHash = function (message) {
-    var buffer = Message.makeMagicMessage(message);
-    return Crypto.SHA256(Crypto.SHA256(buffer, {asBytes: true}), {asBytes: true});
-  };
+  var buffer = [];
+  buffer = buffer.concat(util.numToVarInt(magicBytes.length));
+  buffer = buffer.concat(magicBytes);
+  buffer = buffer.concat(util.numToVarInt(messageBytes.length));
+  buffer = buffer.concat(messageBytes);
 
-  Message.signMessage = function (key, message, compressed) {
-    var hash = Message.getHash(message);
+  return buffer;
+};
 
-    var sig = key.sign(hash);
+Message.getHash = function (message) {
+  var buffer = Message.makeMagicMessage(message);
+  return Crypto.SHA256(Crypto.SHA256(buffer, {asBytes: true}), {asBytes: true});
+};
 
-    var obj = Bitcoin.ECDSA.parseSig(sig);
+Message.signMessage = function (key, message, compressed) {
+  var hash = Message.getHash(message);
 
-    var address = key.getBitcoinAddress().toString();
-    var i = Bitcoin.ECDSA.calcPubkeyRecoveryParam(address, obj.r, obj.s, hash);
+  var sig = key.sign(hash);
 
-    i += 27;
-    if (compressed) i += 4;
+  var obj = ecdsa.parseSig(sig);
 
-    var rBa = obj.r.toByteArrayUnsigned();
-    var sBa = obj.s.toByteArrayUnsigned();
+  var i = ecdsa.calcPubkeyRecoveryParam(key, obj.r, obj.s, hash);
 
-    // Pad to 32 bytes per value
-    while (rBa.length < 32) rBa.unshift(0);
-    while (sBa.length < 32) sBa.unshift(0);
+  i += 27;
+  if (compressed) i += 4;
 
-    sig = [i].concat(rBa).concat(sBa);
+  var rBa = obj.r.toByteArrayUnsigned();
+  var sBa = obj.s.toByteArrayUnsigned();
 
-    return Crypto.util.bytesToBase64(sig);
-  };
+  // Pad to 32 bytes per value
+  while (rBa.length < 32) rBa.unshift(0);
+  while (sBa.length < 32) sBa.unshift(0);
 
-  Message.verifyMessage = function (address, sig, message) {
-    sig = Crypto.util.base64ToBytes(sig);
-    sig = Bitcoin.ECDSA.parseSigCompact(sig);
+  sig = [i].concat(rBa).concat(sBa);
 
-    var hash = Message.getHash(message);
+  return conv.bytesToHex(sig);
+};
 
-    var isCompressed = !!(sig.i & 4);
-    var pubKey = Bitcoin.ECDSA.recoverPubKey(sig.r, sig.s, hash, sig.i);
+Message.verifyMessage = function (address, sig, message) {
+  sig = conv.hexToBytes(sig);
+  sig = ecdsa.parseSigCompact(sig);
 
-    pubKey.setCompressed(isCompressed);
+  var hash = Message.getHash(message);
 
-    var expectedAddress = pubKey.getBitcoinAddress().toString();
+  var isCompressed = !!(sig.i & 4);
+  var pubKey = ecdsa.recoverPubKey(sig.r, sig.s, hash, sig.i);
 
-    return (address === expectedAddress);
-  };
+  var expectedAddress = pubKey.getBitcoinAddress().toString();
 
-  return Message;
-})();
+  return (address === expectedAddress);
+};
+
+module.exports = Message;
