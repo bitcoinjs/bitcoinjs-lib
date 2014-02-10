@@ -1,5 +1,5 @@
 Bitcoin.Address = function (bytes) {
-  if ("string" == typeof bytes) {
+  if ("string" === typeof bytes) {
     bytes = Bitcoin.Address.decodeString(bytes);
   }
   this.hash = bytes;
@@ -40,16 +40,16 @@ Bitcoin.Address.decodeString = function (string) {
 
   var checksum = Crypto.SHA256(Crypto.SHA256(hash, {asBytes: true}), {asBytes: true});
 
-  if (checksum[0] != bytes[21] ||
-      checksum[1] != bytes[22] ||
-      checksum[2] != bytes[23] ||
-      checksum[3] != bytes[24]) {
+  if (checksum[0] !== bytes[21] ||
+      checksum[1] !== bytes[22] ||
+      checksum[2] !== bytes[23] ||
+      checksum[3] !== bytes[24]) {
     throw "Checksum validation failed!";
   }
 
   var version = hash.shift();
 
-  if (version != 0) {
+  if (version !== 0) {
     throw "Version "+version+" not supported!";
   }
 
