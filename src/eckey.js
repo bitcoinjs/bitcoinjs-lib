@@ -30,8 +30,9 @@ ECKey.prototype.import = function (input,compressed) {
         : input instanceof BigInteger              ? input.mod(ecparams.getN())
         : util.isArray(input)                      ? fromBin(input.slice(0,32))
         : typeof input != "string"                 ? null
+        : input.length == 44                       ? fromBin(conv.base64ToBytes(input))
         : input.length == 51 && input[0] == '5'    ? fromBin(base58.checkDecode(input))
-        : input.length == 52 && has('LK',input[0]) ? fromBin(base58.checkDecode(input))
+        : input.length == 52 && has('LK',input[0]) ? fromBin(base58.checkDecode(input).slice(0,32))
         : has([64,65],input.length)                ? fromBin(conv.hexToBytes(input.slice(0,64)))
                                                    : null
 
@@ -41,6 +42,7 @@ ECKey.prototype.import = function (input,compressed) {
         : input instanceof BigInteger              ? false
         : util.isArray(input)                      ? false
         : typeof input != "string"                 ? null
+        : input.length == 44                       ? false
         : input.length == 51 && input[0] == '5'    ? false
         : input.length == 52 && has('LK',input[0]) ? true
         : input.length == 64                       ? false
