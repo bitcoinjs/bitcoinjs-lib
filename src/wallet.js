@@ -41,7 +41,7 @@ var Wallet = function (seed) {
 
     // Add a new address
     this.generateAddress = function() {
-        keys.push(masterkey.ckd(keys.length).key)
+        keys.push(masterkey.derive(keys.length))
         this.addresses.push(keys[keys.length-1].getBitcoinAddress().toString())
         return this.addresses[this.addresses.length - 1]
     }
