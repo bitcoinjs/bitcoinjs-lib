@@ -3,16 +3,6 @@ var Crypto = require('./crypto-js/crypto');
 var conv = require('./convert');
 var util = require('./util');
 
-var address_types = {
-    prod: 0,
-    testnet: 111
-};
-
-var p2sh_types = {
-    prod: 5,
-    testnet: 196
-};
-
 var Address = function (bytes, version) {
     if (!(this instanceof Address)) { return new Address(bytes, version); }
     if (arguments[0] instanceof Address) {
@@ -25,11 +15,11 @@ var Address = function (bytes, version) {
             : bytes.length <= 40     ? conv.hexToBytes(bytes)
             :                          util.error('Bad input');
 
-        this.version = version || this.hash.version || 0;
+        this.version = version || this.hash.version || Address.address_types.prod;
     }
     else {
         this.hash = bytes;
-        this.version = version || 0;
+        this.version = version || bytes.version || Address.address_types.prod;
     }
 };
 
@@ -64,6 +54,16 @@ Address.validate = function(string) {
  */
 Address.decodeString = function (string) {
     return base58.checkDecode(string);
+};
+
+Address.address_types = {
+    prod: 0,
+    testnet: 111
+};
+
+Address.p2sh_types = {
+    prod: 5,
+    testnet: 196
 };
 
 module.exports = Address;
