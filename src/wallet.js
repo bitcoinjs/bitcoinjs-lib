@@ -2,6 +2,7 @@ var Script = require('./script');
 var ECKey = require('./eckey').ECKey;
 var conv = require('./convert');
 var util = require('./util');
+var assert = require('assert');
 
 var BigInteger = require('./jsbn/jsbn');
 
@@ -13,8 +14,8 @@ var HDWallet = require('./hdwallet.js')
 var SecureRandom = require('./jsbn/rng');
 var rng = new SecureRandom();
 
-var Wallet = function (seed) {
-    if (!(this instanceof Wallet)) { return new Wallet(seed); }
+var Wallet = function (seed, network, derivationMethod) {
+    if (!(this instanceof Wallet)) { return new Wallet(seed, network, derivationMethod); }
 
     // Stored in a closure to make accidental serialization less likely
     var keys = [];
@@ -27,21 +28,31 @@ var Wallet = function (seed) {
     // Transaction output data
     this.outputs = {};
 
+    // HD first-level child derivation method (i.e. public or private child key derivation)
+    // NB: if not specified, defaults to private child derivation
+    // Also see https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
+    this.derivationMethod = derivationMethod || 'private';
+    assert(this.derivationMethod == 'public' || this.derivationMethod == 'private',
+        "derivationMethod must be either 'public' or 'private'");
+
     // Make a new master key
-    this.newMasterKey = function(seed) {
+    this.newMasterKey = function(seed, network) {
         if (!seed) {
             var seedBytes = new Array(32);
             rng.nextBytes(seedBytes);
             seed = conv.bytesToString(seedBytes)
         }
-        masterkey = new HDWallet(seed);
+        masterkey = new HDWallet(seed, network);
         keys = []
     }
-    this.newMasterKey(seed)
+    this.newMasterKey(seed, network)
 
     // Add a new address
     this.generateAddress = function() {
-        keys.push(masterkey.derive(keys.length))
+        if(this.derivationMethod == 'private')
+            keys.push(masterkey.derivePrivate(keys.length));
+        else
+            keys.push(masterkey.derive(keys.length));
         this.addresses.push(keys[keys.length-1].getBitcoinAddress().toString())
         return this.addresses[this.addresses.length - 1]
     }
