@@ -14,8 +14,18 @@ var HDWallet = require('./hdwallet.js')
 var SecureRandom = require('./jsbn/rng');
 var rng = new SecureRandom();
 
-var Wallet = function (seed, network, derivationMethod) {
-    if (!(this instanceof Wallet)) { return new Wallet(seed, network, derivationMethod); }
+var Wallet = function (seed, options) {
+    if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
+
+    var options = options || {}
+    var network = options.network || 'Bitcoin'
+
+    // HD first-level child derivation method (i.e. public or private child key derivation)
+    // NB: if not specified, defaults to private child derivation
+    // Also see https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
+    this.derivationMethod = options.derivationMethod || 'private'
+    assert(this.derivationMethod == 'public' || this.derivationMethod == 'private',
+        "derivationMethod must be either 'public' or 'private'");
 
     // Stored in a closure to make accidental serialization less likely
     var keys = [];
@@ -27,13 +37,6 @@ var Wallet = function (seed, network, derivationMethod) {
 
     // Transaction output data
     this.outputs = {};
-
-    // HD first-level child derivation method (i.e. public or private child key derivation)
-    // NB: if not specified, defaults to private child derivation
-    // Also see https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-    this.derivationMethod = derivationMethod || 'private';
-    assert(this.derivationMethod == 'public' || this.derivationMethod == 'private',
-        "derivationMethod must be either 'public' or 'private'");
 
     // Make a new master key
     this.newMasterKey = function(seed, network) {
