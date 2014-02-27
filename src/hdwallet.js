@@ -13,7 +13,8 @@ var HDWallet = module.exports = function(seed, network) {
 
     var I = Crypto.HMAC(Crypto.SHA512, seed, 'Bitcoin seed', { asBytes: true })
     this.chaincode = I.slice(32)
-    this.priv = new ECKey(I.slice(0, 32).concat([1]), true)
+    this.priv = new ECKey(I.slice(0, 32).concat([1]), true,
+        network == 'Bitcoin' ? Address.address_types.prod : Address.address_types.testnet)
     this.pub = this.priv.getPub()
     this.network = network || 'Bitcoin'
     this.index = 0
