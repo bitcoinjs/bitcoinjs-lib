@@ -13,8 +13,8 @@ var HDWallet = require('./hdwallet.js')
 var SecureRandom = require('./jsbn/rng');
 var rng = new SecureRandom();
 
-var Wallet = function (seed) {
-    if (!(this instanceof Wallet)) { return new Wallet(seed); }
+var Wallet = function (seed, network) {
+    if (!(this instanceof Wallet)) { return new Wallet(seed, network); }
 
     // Stored in a closure to make accidental serialization less likely
     var keys = [];
@@ -28,16 +28,16 @@ var Wallet = function (seed) {
     this.outputs = {};
 
     // Make a new master key
-    this.newMasterKey = function(seed) {
+    this.newMasterKey = function(seed, network) {
         if (!seed) {
             var seedBytes = new Array(32);
             rng.nextBytes(seedBytes);
             seed = conv.bytesToString(seedBytes)
         }
-        masterkey = new HDWallet(seed);
+        masterkey = new HDWallet(seed, network);
         keys = []
     }
-    this.newMasterKey(seed)
+    this.newMasterKey(seed, network)
 
     // Add a new address
     this.generateAddress = function() {
