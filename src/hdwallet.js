@@ -218,7 +218,7 @@ HDWallet.prototype.derive = function(i) {
         hd.pub = hd.priv.getPub()
     } else {
         // Ki = (IL + kpar)*G = IL*G + Kpar
-        hd.pub = this.pub.add(new ECKey(IL.concat([1]), true, this.keyVersion))
+        hd.pub = this.pub.add(new ECKey(IL.concat([1]), true, this.keyVersion).getPub())
     }
 
     // ci = IR.
