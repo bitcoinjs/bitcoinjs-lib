@@ -1,7 +1,4 @@
 var Wallet = require('../src/wallet.js')
-var Network = require('../src/network')
-var mainnet = Network.mainnet.addressVersion
-var testnet = Network.testnet.addressVersion
 var assert = require('assert')
 
 describe('Wallet', function() {
@@ -37,19 +34,4 @@ describe('Wallet', function() {
     })
   })
 
-  describe('networkType', function() {
-    it('ensures that a mainnet Wallet has mainnet child keys (pub and priv)', function() {
-        var w = Wallet("foobar", {network: "mainnet"})
-        assert(w.getMasterKey().priv.version == mainnet)
-        w.generateAddress()
-        assert(w.getPrivateKey(0).priv.version == mainnet)
-    })
-
-    it('ensures that a testnet Wallet has testnet child keys (pub and priv)', function() {
-        var w = Wallet("foobar", {network: "testnet"})
-        assert(w.getMasterKey().priv.version == testnet)
-        w.generateAddress()
-        assert(w.getPrivateKey(0).priv.version == testnet)
-    })
-  })
 })

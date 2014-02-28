@@ -1,7 +1,10 @@
 /* global describe, it */
 var HDWallet = require('../src/hdwallet.js')
-, assert = require('assert')
-, convert = require('../src/convert.js')
+var assert = require('assert')
+var convert = require('../src/convert.js')
+var Network = require('../src/network')
+var mainnet = Network.mainnet.addressVersion
+var testnet = Network.testnet.addressVersion
 
 var b2h = convert.bytesToHex
 
@@ -212,6 +215,34 @@ describe('HDWallet', function() {
             assert.equal(hd.toHex(true), '0488ade40531a507b8000000029452b549be8cea3ecb7a84bec10dcfd94afe4d129ebfd3b3cb58eedf394ed27100bb7d39bdb83ecf58f2fd82b6d918341cbef428661ef01ab97c28a4842125ac23')
             assert.equal(hd.toBase58(false), 'xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt')
             assert.equal(hd.toBase58(true), 'xprvA2nrNbFZABcdryreWet9Ea4LvTJcGsqrMzxHx98MMrotbir7yrKCEXw7nadnHM8Dq38EGfSh6dqA9QWTyefMLEcBYJUuekgW4BYPJcr9E7j')
+        })
+    })
+
+    describe('network types', function() {
+        it('ensures that a mainnet Wallet has mainnet child keys (pub and priv)', function() {
+            var wallet = new HDWallet("foobar", "mainnet")
+            assert.equal(wallet.priv.version, mainnet)
+
+            var privChild = wallet.derivePrivate(0)
+            assert.equal(privChild.priv.version, mainnet)
+
+            var pubChild = wallet.derive(0)
+            assert.equal(pubChild.priv.version, mainnet)
+        })
+
+        it('ensures that a testnet Wallet has testnet child keys (pub and priv)', function() {
+            var wallet = new HDWallet("foobar", "testnet")
+            assert.equal(wallet.priv.version, testnet)
+
+            var privChild = wallet.derivePrivate(0)
+            assert.equal(privChild.priv.version, testnet)
+
+            var pubChild = wallet.derive(0)
+            assert.equal(pubChild.priv.version, testnet)
+        })
+
+        it('throws an excption when unknown network type is passed in', function() {
+            assert.throws(function() { new HDWallet("foobar", "doge") })
         })
     })
 })
