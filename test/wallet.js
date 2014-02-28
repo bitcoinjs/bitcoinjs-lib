@@ -1,5 +1,4 @@
 var Wallet = require('../src/wallet.js')
-var Address = require('../src/address.js')
 var assert = require('assert')
 
 describe('Wallet', function() {
@@ -32,22 +31,6 @@ describe('Wallet', function() {
 
     it('uses the derivationMethod if specified', function() {
       assert.equal(wallet.derivationMethod, 'public')
-    })
-  })
-
-  describe('networkType', function() {
-    it('ensures that a mainnet Wallet has mainnet child keys (pub and priv)', function() {
-        var w = Wallet("foobar", {network: "Bitcoin"})
-        assert(w.getMasterKey().priv.version == Address.address_types['prod'])
-        w.generateAddress()
-        assert(w.getPrivateKey(0).priv.version == Address.address_types['prod'])
-    })
-
-    it('ensures that a testnet Wallet has testnet child keys (pub and priv)', function() {
-        var w = Wallet("foobar", {network: "BitcoinTest"})
-        assert(w.getMasterKey().priv.version == Address.address_types['testnet'])
-        w.generateAddress()
-        assert(w.getPrivateKey(0).priv.version == Address.address_types['testnet'])
     })
   })
 })

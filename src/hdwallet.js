@@ -13,8 +13,7 @@ var HDWallet = module.exports = function(seed, network) {
 
     var I = Crypto.HMAC(Crypto.SHA512, seed, 'Bitcoin seed', { asBytes: true })
     this.chaincode = I.slice(32)
-    this.keyVersion = network == 'Bitcoin' ? Address.address_types.prod : Address.address_types.testnet
-    this.priv = new ECKey(I.slice(0, 32).concat([1]), true, this.keyVersion)
+    this.priv = new ECKey(I.slice(0, 32).concat([1]), true)
     this.pub = this.priv.getPub()
     this.network = network || 'Bitcoin'
     this.index = 0
@@ -107,10 +106,10 @@ HDWallet.fromBytes = function(input) {
     // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
     // public keys, 0x00 + k for private keys)
     if (type == 'private') {
-        hd.priv = new ECKey(input.slice(46, 78).concat([1]), true, this.keyVersion)
+        hd.priv = new ECKey(input.slice(46, 78).concat([1]), true)
         hd.pub = hd.priv.getPub()
     } else {
-        hd.pub = new ECPubKey(input.slice(45, 78), true, this.keyVersion)
+        hd.pub = new ECPubKey(input.slice(45, 78), true)
     }
 
     return hd
@@ -214,11 +213,10 @@ HDWallet.prototype.derive = function(i) {
         // ki = IL + kpar (mod n).
         hd.priv = this.priv.add(new ECKey(IL.concat([1])))
         hd.priv.compressed = true
-        hd.priv.version = this.keyVersion
         hd.pub = hd.priv.getPub()
     } else {
         // Ki = (IL + kpar)*G = IL*G + Kpar
-        hd.pub = this.pub.add(new ECKey(IL.concat([1]), true, this.keyVersion).getPub())
+        hd.pub = this.pub.add(new ECKey(IL.concat([1])).getPub())
     }
 
     // ci = IR.
