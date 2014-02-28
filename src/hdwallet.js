@@ -1,12 +1,15 @@
 var convert = require('./convert.js')
-, base58 = require('./base58.js')
-, assert = require('assert')
-, format = require('util').format
-, util = require('./util.js')
-, Crypto = require('./crypto-js/crypto.js')
-, ECKey = require('./eckey.js').ECKey
-, ECPubKey = require('./eckey.js').ECPubKey
-, Address = require('./address.js')
+var base58 = require('./base58.js')
+var assert = require('assert')
+var format = require('util').format
+var util = require('./util.js')
+var Crypto = require('./crypto-js/crypto.js')
+var ECKey = require('./eckey.js').ECKey
+var ECPubKey = require('./eckey.js').ECPubKey
+var Address = require('./address.js')
+var Network = require('./network')
+var mainnet = Network.mainnet.addressVersion
+var testnet = Network.testnet.addressVersion
 
 var HDWallet = module.exports = function(seed, network) {
     if (seed === undefined) return
@@ -233,7 +236,7 @@ HDWallet.prototype.derivePrivate = function(index) {
 }
 
 HDWallet.prototype.getKeyVersion = function() {
-    return this.network == 'prod' ? Address.address_types.prod : Address.address_types.testnet
+    return this.network == 'prod' ? mainnet : testnet
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58

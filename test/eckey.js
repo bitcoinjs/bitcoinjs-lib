@@ -5,6 +5,9 @@ var convert = require('../src/convert.js');
 var bytesToHex = convert.bytesToHex;
 var hexToBytes = convert.hexToBytes;
 var Address = require('../src/address');
+var Network = require('../src/network')
+var mainnet = Network.mainnet.addressVersion
+var testnet = Network.testnet.addressVersion
 
 describe('ECKey', function() {
     describe('constructor (base58 private) on mainnet', function() {
@@ -16,7 +19,7 @@ describe('ECKey', function() {
 
             assert.equal(key.getPub().toHex(), pub);
             assert.equal(key.compressed, false);
-            assert.equal(key.version, Address.address_types.prod);
+            assert.equal(key.version, mainnet);
         })
 
         it('parses base64', function() {
@@ -27,7 +30,7 @@ describe('ECKey', function() {
 
             assert.equal(key.getPub().toHex(), pub);
             assert.equal(key.compressed, false);
-            assert.equal(key.version, Address.address_types.prod);
+            assert.equal(key.version, mainnet);
         })
 
         it('parses WIF', function() {
@@ -40,7 +43,7 @@ describe('ECKey', function() {
             assert.equal(key.compressed, false);
             assert.equal(key.getPub().toHex(), pub);
             assert.equal(key.getBitcoinAddress().toString(), addr);
-            assert.equal(key.version, Address.address_types.prod);
+            assert.equal(key.version, mainnet);
         })
 
         it('parses compressed WIF', function() {
@@ -52,7 +55,7 @@ describe('ECKey', function() {
             assert.equal(key.compressed, true);
             assert.equal(key.getPub().toHex(), pub);
             assert.equal(key.getBitcoinAddress().toString(), addr);
-            assert.equal(key.version, Address.address_types.prod);
+            assert.equal(key.version, mainnet);
         })
     })
 
@@ -61,11 +64,11 @@ describe('ECKey', function() {
             var priv = 'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458';
             var pub = '044b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea81199' +
                       '283fbec990dad6fb98f93f712d50cb874dd717de6a184158d63886dda3090f566';
-            var key = new ECKey(priv, false, Address.address_types.testnet);
+            var key = new ECKey(priv, false, testnet);
 
             assert.equal(key.getPub().toHex(), pub);
             assert.equal(key.compressed, false);
-            assert.equal(key.version, Address.address_types.testnet);
+            assert.equal(key.version, testnet);
             assert.equal(key.toHex(), priv);
         })
 
@@ -73,11 +76,11 @@ describe('ECKey', function() {
             var priv = 'VYdB+iv47y5FaUVIPdQInkgATrABeuD1lACUoM4x7tU=';
             var pub = '042f43c16c08849fed20a35bb7b1947bbf0923c52d613ee13b5c665a1e10d24b2' +
                       '8be909a70f5f87c1adb79fbcd1b3f17d20aa91c04fc355112dba2ce9b1cbf013b';
-            var key = new ECKey(priv, false, Address.address_types.testnet);
+            var key = new ECKey(priv, false, testnet);
 
             assert.equal(key.getPub().toHex(), pub);
             assert.equal(key.compressed, false);
-            assert.equal(key.version, Address.address_types.testnet);
+            assert.equal(key.version, testnet);
             assert.equal(key.toBase64(), priv);
         })
 
@@ -91,7 +94,7 @@ describe('ECKey', function() {
             assert.equal(key.compressed, false);
             assert.equal(key.getPub().toHex(), pub);
             assert.equal(key.getBitcoinAddress().toString(), addr);
-            assert.equal(key.version, Address.address_types.testnet);
+            assert.equal(key.version, testnet);
             assert.equal(key.toBase58(), priv);
         })
 
@@ -104,7 +107,7 @@ describe('ECKey', function() {
             assert.equal(key.compressed, true);
             assert.equal(key.getPub().toHex(), pub);
             assert.equal(key.getBitcoinAddress().toString(), addr);
-            assert.equal(key.version, Address.address_types.testnet);
+            assert.equal(key.version, testnet);
             assert.equal(key.toBase58(), priv);
         })
     })

@@ -2,6 +2,7 @@ var base58 = require('./base58');
 var Crypto = require('./crypto-js/crypto');
 var conv = require('./convert');
 var util = require('./util');
+var mainnet = require('./network').mainnet.addressVersion;
 
 var Address = function (bytes, version) {
     if (!(this instanceof Address)) { return new Address(bytes, version); }
@@ -15,11 +16,11 @@ var Address = function (bytes, version) {
             : bytes.length <= 40     ? conv.hexToBytes(bytes)
             :                          util.error('Bad input');
 
-        this.version = version || this.hash.version || Address.address_types.prod;
+        this.version = version || this.hash.version || mainnet;
     }
     else {
         this.hash = bytes;
-        this.version = version || bytes.version || Address.address_types.prod;
+        this.version = version || bytes.version || mainnet;
     }
 };
 
@@ -29,7 +30,7 @@ var Address = function (bytes, version) {
  * Returns the address as a base58-encoded string in the standardized format.
  */
 Address.prototype.toString = function () {
-    return base58.checkEncode(this.hash.slice(0),this.version);
+    return base58.checkEncode(this.hash.slice(0), this.version);
 };
 
 Address.prototype.getHash = function () {
@@ -54,16 +55,6 @@ Address.validate = function(string) {
  */
 Address.decodeString = function (string) {
     return base58.checkDecode(string);
-};
-
-Address.address_types = {
-    prod: 0,
-    testnet: 111
-};
-
-Address.p2sh_types = {
-    prod: 5,
-    testnet: 196
 };
 
 module.exports = Address;
