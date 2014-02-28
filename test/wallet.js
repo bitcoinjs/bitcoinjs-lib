@@ -14,7 +14,7 @@ describe('Wallet', function() {
     })
 
     it('defaults to Bitcoin mainnet', function() {
-      assert.equal(wallet.getMasterKey().network, 'prod')
+      assert.equal(wallet.getMasterKey().network, 'mainnet')
     })
 
     it('defaults to private derivationMethod', function() {
@@ -39,7 +39,7 @@ describe('Wallet', function() {
 
   describe('networkType', function() {
     it('ensures that a mainnet Wallet has mainnet child keys (pub and priv)', function() {
-        var w = Wallet("foobar", {network: "prod"})
+        var w = Wallet("foobar", {network: "mainnet"})
         assert(w.getMasterKey().priv.version == mainnet)
         w.generateAddress()
         assert(w.getPrivateKey(0).priv.version == mainnet)

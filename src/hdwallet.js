@@ -8,15 +8,13 @@ var ECKey = require('./eckey.js').ECKey
 var ECPubKey = require('./eckey.js').ECPubKey
 var Address = require('./address.js')
 var Network = require('./network')
-var mainnet = Network.mainnet.addressVersion
-var testnet = Network.testnet.addressVersion
 
 var HDWallet = module.exports = function(seed, network) {
     if (seed === undefined) return
 
     var I = Crypto.HMAC(Crypto.SHA512, seed, 'Bitcoin seed', { asBytes: true })
     this.chaincode = I.slice(32)
-    this.network = network || 'prod'
+    this.network = network || 'mainnet'
     this.priv = new ECKey(I.slice(0, 32).concat([1]), true, this.getKeyVersion())
     this.pub = this.priv.getPub()
     this.index = 0
@@ -27,7 +25,7 @@ HDWallet.HIGHEST_BIT = 0x80000000
 HDWallet.LENGTH = 78
 
 HDWallet.VERSIONS = {
-    prod: [0x0488B21E, 0x0488ADE4],
+    mainnet: [0x0488B21E, 0x0488ADE4],
     testnet: [0x043587CF, 0x04358394]
 }
 
@@ -236,7 +234,7 @@ HDWallet.prototype.derivePrivate = function(index) {
 }
 
 HDWallet.prototype.getKeyVersion = function() {
-    return this.network == 'prod' ? mainnet : testnet
+    return Network[this.network].addressVersion
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58
