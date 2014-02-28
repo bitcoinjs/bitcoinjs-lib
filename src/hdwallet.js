@@ -13,7 +13,7 @@ var HDWallet = module.exports = function(seed, network) {
 
     var I = Crypto.HMAC(Crypto.SHA512, seed, 'Bitcoin seed', { asBytes: true })
     this.chaincode = I.slice(32)
-    this.network = network || 'Bitcoin'
+    this.network = network || 'prod'
     this.priv = new ECKey(I.slice(0, 32).concat([1]), true, this.getKeyVersion())
     this.pub = this.priv.getPub()
     this.index = 0
@@ -24,8 +24,8 @@ HDWallet.HIGHEST_BIT = 0x80000000
 HDWallet.LENGTH = 78
 
 HDWallet.VERSIONS = {
-    Bitcoin: [0x0488B21E, 0x0488ADE4],
-    BitcoinTest: [0x043587CF, 0x04358394]
+    prod: [0x0488B21E, 0x0488ADE4],
+    testnet: [0x043587CF, 0x04358394]
 }
 
 function arrayEqual(a, b) {
@@ -124,8 +124,7 @@ HDWallet.prototype.getFingerprint = function() {
 }
 
 HDWallet.prototype.getBitcoinAddress = function() {
-    var test = this.network.match(/Test$/)
-    return new Address(util.sha256ripe160(this.pub.toBytes()), test ? 111 : 0)
+    return new Address(util.sha256ripe160(this.pub.toBytes()), this.getKeyVersion())
 }
 
 HDWallet.prototype.toBytes = function(priv) {
@@ -234,7 +233,7 @@ HDWallet.prototype.derivePrivate = function(index) {
 }
 
 HDWallet.prototype.getKeyVersion = function() {
-    return this.network == 'Bitcoin' ? Address.address_types.prod : Address.address_types.testnet
+    return this.network == 'prod' ? Address.address_types.prod : Address.address_types.testnet
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58

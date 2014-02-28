@@ -18,7 +18,7 @@ var Wallet = function (seed, options) {
     if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
 
     var options = options || {}
-    var network = options.network || 'Bitcoin'
+    var network = options.network || 'prod'
 
     // HD first-level child derivation method (i.e. public or private child key derivation)
     // NB: if not specified, defaults to private child derivation
