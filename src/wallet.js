@@ -14,6 +14,7 @@ var SecureRandom = require('./jsbn/rng');
 var rng = new SecureRandom();
 
 var Wallet = function (seed) {
+    if (!(this instanceof Wallet)) { return new Wallet(seed); }
 
     // Stored in a closure to make accidental serialization less likely
     var keys = [];
