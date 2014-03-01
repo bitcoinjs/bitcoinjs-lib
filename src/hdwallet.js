@@ -1,32 +1,32 @@
 var convert = require('./convert.js')
-, base58 = require('./base58.js')
-, assert = require('assert')
-, format = require('util').format
-, util = require('./util.js')
-, Crypto = require('./crypto-js/crypto.js')
-, ECKey = require('./eckey.js').ECKey
-, ECPubKey = require('./eckey.js').ECPubKey
-, Address = require('./address.js')
+var base58 = require('./base58.js')
+var assert = require('assert')
+var format = require('util').format
+var util = require('./util.js')
+var Crypto = require('./crypto-js/crypto.js')
+var ECKey = require('./eckey.js').ECKey
+var ECPubKey = require('./eckey.js').ECPubKey
+var Address = require('./address.js')
+var Network = require('./network')
 
 var HDWallet = module.exports = function(seed, network) {
     if (seed === undefined) return
 
     var I = Crypto.HMAC(Crypto.SHA512, seed, 'Bitcoin seed', { asBytes: true })
     this.chaincode = I.slice(32)
-    this.priv = new ECKey(I.slice(0, 32).concat([1]), true)
+    this.network = network || 'mainnet'
+    if(!Network.hasOwnProperty(this.network)) {
+      throw new Error("Unknown network: " + this.network)
+    }
+
+    this.priv = new ECKey(I.slice(0, 32).concat([1]), true, this.getKeyVersion())
     this.pub = this.priv.getPub()
-    this.network = network || 'Bitcoin'
     this.index = 0
     this.depth = 0
 }
 
 HDWallet.HIGHEST_BIT = 0x80000000
 HDWallet.LENGTH = 78
-
-HDWallet.VERSIONS = {
-    Bitcoin: [0x0488B21E, 0x0488ADE4],
-    BitcoinTest: [0x043587CF, 0x04358394]
-}
 
 function arrayEqual(a, b) {
     return !(a < b || a > b)
@@ -73,16 +73,17 @@ HDWallet.fromBytes = function(input) {
     // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private;
     // testnet: 0x043587CF public, 0x04358394 private)
     var versionBytes = input.slice(0, 4)
-    , versionWord = util.bytesToWords(versionBytes)[0]
-    , type
+    var versionWord = util.bytesToWords(versionBytes)[0]
+    var type
 
-    Object.keys(HDWallet.VERSIONS).forEach(function(name) {
-        HDWallet.VERSIONS[name].forEach(function(word, i) {
-            if (versionWord != word) return
-            type = i ? 'private' : 'public'
+    for(var name in Network) {
+        var network = Network[name]
+        for(var t in network.hdVersions) {
+            if (versionWord != network.hdVersions[t]) continue
+            type = t
             hd.network = name
-        })
-    })
+        }
+    }
 
     if (!hd.network) {
         throw new Error(format('Could not find version %s', convert.bytesToHex(versionBytes)))
@@ -105,11 +106,11 @@ HDWallet.fromBytes = function(input) {
 
     // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
     // public keys, 0x00 + k for private keys)
-    if (type == 'private') {
-        hd.priv = new ECKey(input.slice(46, 78).concat([1]), true)
+    if (type == 'priv') {
+        hd.priv = new ECKey(input.slice(46, 78).concat([1]), true, hd.getKeyVersion())
         hd.pub = hd.priv.getPub()
     } else {
-        hd.pub = new ECPubKey(input.slice(45, 78), true)
+        hd.pub = new ECPubKey(input.slice(45, 78), true, hd.getKeyVersion())
     }
 
     return hd
@@ -124,8 +125,7 @@ HDWallet.prototype.getFingerprint = function() {
 }
 
 HDWallet.prototype.getBitcoinAddress = function() {
-    var test = this.network.match(/Test$/)
-    return new Address(util.sha256ripe160(this.pub.toBytes()), test ? 111 : 0)
+    return new Address(util.sha256ripe160(this.pub.toBytes()), this.getKeyVersion())
 }
 
 HDWallet.prototype.toBytes = function(priv) {
@@ -134,7 +134,8 @@ HDWallet.prototype.toBytes = function(priv) {
     // Version
     // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private; testnet: 0x043587CF public,
     // 0x04358394 private)
-    var vBytes = util.wordsToBytes([HDWallet.VERSIONS[this.network][priv ? 1 : 0]])
+    var version = Network[this.network].hdVersions[priv ? 'priv' : 'pub']
+    var vBytes = util.wordsToBytes([version])
 
     buffer = buffer.concat(vBytes)
     assert.equal(buffer.length, 4)
@@ -213,10 +214,11 @@ HDWallet.prototype.derive = function(i) {
         // ki = IL + kpar (mod n).
         hd.priv = this.priv.add(new ECKey(IL.concat([1])))
         hd.priv.compressed = true
+        hd.priv.version = this.getKeyVersion()
         hd.pub = hd.priv.getPub()
     } else {
         // Ki = (IL + kpar)*G = IL*G + Kpar
-        hd.pub = this.pub.add(new ECKey(IL.concat([1])).getPub())
+        hd.pub = this.pub.add(new ECKey(IL.concat([1]), true, this.getKeyVersion()).getPub())
     }
 
     // ci = IR.
@@ -230,6 +232,10 @@ HDWallet.prototype.derive = function(i) {
 
 HDWallet.prototype.derivePrivate = function(index) {
     return this.derive(index + HDWallet.HIGHEST_BIT)
+}
+
+HDWallet.prototype.getKeyVersion = function() {
+    return Network[this.network].addressVersion
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58

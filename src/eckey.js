@@ -7,6 +7,9 @@ var conv = require('./convert');
 var Address = require('./address');
 var ecdsa = require('./ecdsa');
 var ECPointFp = require('./jsbn/ec').ECPointFp;
+var Network = require('./network')
+var mainnet = Network.mainnet.addressVersion
+var testnet = Network.testnet.addressVersion
 
 var ecparams = sec("secp256k1");
 
@@ -18,7 +21,7 @@ var ECKey = function (input,compressed,version) {
         var n = ecparams.getN();
         this.priv = ecdsa.getBigRandom(n);
         this.compressed = compressed || false;
-        this.version = version || Address.address_types.prod;
+        this.version = version || mainnet;
     }
     else this.import(input,compressed,version)
 };
@@ -57,16 +60,16 @@ ECKey.prototype.import = function (input,compressed,version) {
     this.version = 
           version !== undefined                    ? version
         : input instanceof ECKey                   ? input.version
-        : input instanceof BigInteger              ? Address.address_types.prod
-        : util.isArray(input)                      ? Address.address_types.prod
+        : input instanceof BigInteger              ? mainnet
+        : util.isArray(input)                      ? mainnet
         : typeof input != "string"                 ? null
-        : input.length == 44                       ? Address.address_types.prod
-        : input.length == 51 && input[0] == '5'    ? Address.address_types.prod
-        : input.length == 51 && input[0] == '9'    ? Address.address_types.testnet
-        : input.length == 52 && has('LK',input[0]) ? Address.address_types.prod
-        : input.length == 52 && input[0] == 'c'    ? Address.address_types.testnet
-        : input.length == 64                       ? Address.address_types.prod
-        : input.length == 65                       ? Address.address_types.prod
+        : input.length == 44                       ? mainnet
+        : input.length == 51 && input[0] == '5'    ? mainnet
+        : input.length == 51 && input[0] == '9'    ? testnet
+        : input.length == 52 && has('LK',input[0]) ? mainnet
+        : input.length == 52 && input[0] == 'c'    ? testnet
+        : input.length == 64                       ? mainnet
+        : input.length == 65                       ? mainnet
                                                    : null
 };
 
@@ -133,7 +136,7 @@ var ECPubKey = function(input,compressed,version) {
         var n = ecparams.getN();
         this.pub = ecparams.getG().multiply(ecdsa.getBigRandom(n))
         this.compressed = compressed || false;
-        this.version = version || Address.address_types.prod;
+        this.version = version || mainnet;
     }
     else this.import(input,compressed,version)
 }
@@ -158,7 +161,7 @@ ECPubKey.prototype.import = function(input,compressed,version) {
           version                    ? version
         : input instanceof ECPointFp ? input.version
         : input instanceof ECPubKey  ? input.version
-                                     : Address.address_types.prod
+                                     : mainnet
 }
 
 ECPubKey.prototype.add = function(key) {

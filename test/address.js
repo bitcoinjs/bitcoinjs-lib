@@ -17,7 +17,7 @@ describe('Address', function() {
             }
 
             validate('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa');
-            // validate('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 'prod');
+            // validate('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 'mainnet');
             validate('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef');
             // validate('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef', 'testnet');
 
@@ -29,7 +29,7 @@ describe('Address', function() {
 
             // p2sh addresses
             validate('3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt');
-            // validate('3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt', 'prod');
+            // validate('3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt', 'mainnet');
             validate('2MxKEf2su6FGAUfCEAHreGFQvEYrfYNHvL7');
             // validate('2MxKEf2su6FGAUfCEAHreGFQvEYrfYNHvL7', 'testnet');
         })
@@ -43,7 +43,7 @@ describe('Address', function() {
             invalid('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhe');
 
             // invalid('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 'testnet');
-            // invalid('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef', 'prod');
+            // invalid('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef', 'mainnet');
 
             // invalid base58 string
             invalid('%%@');
