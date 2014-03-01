@@ -4,19 +4,12 @@ var conv = require('./convert');
 var Address = require('./address');
 
 var Script = function(data) {
-    if (!data) {
-        this.buffer = [];
-    } else if ('string' == typeof data) {
-        this.buffer = conv.hexToBytes(data);
-    } else if (util.isArray(data)) {
-        this.buffer = data;
-    } else if (data instanceof Script) {
-        this.buffer = data.buffer;
-    } else {
-        throw new Error('Invalid script');
-    }
-
+    this.buffer = data || [];
     this.parse();
+};
+
+Script.fromHex = function(data) {
+    return new Script(conv.hexToBytes(data))
 };
 
 Script.fromPubKey = function(str) {
