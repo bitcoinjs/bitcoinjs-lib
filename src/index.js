@@ -40,6 +40,7 @@ module.exports = {
     TransactionOut: require('./transaction').TransactionOut,
     ECPointFp: require('./jsbn/ec').ECPointFp,
     Wallet: require('./wallet'),
+    network: require('./network'),
 
     ecdsa: require('./ecdsa'),
     HDWallet: require('./hdwallet.js'),
