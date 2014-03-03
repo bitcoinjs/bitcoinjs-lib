@@ -187,17 +187,17 @@ Script.prototype.toAddress = function() {
  */
 Script.prototype.getInType = function() {
     if (this.chunks.length == 1 &&
-        util.isArray(this.chunks[0])) {
+        Array.isArray(this.chunks[0])) {
         // Direct IP to IP transactions only have the signature in their scriptSig.
         // TODO: We could also check that the length of the data is correct.
         return 'Pubkey';
     } else if (this.chunks.length == 2 &&
-        util.isArray(this.chunks[0]) &&
-        util.isArray(this.chunks[1])) {
+        Array.isArray(this.chunks[0]) &&
+        Array.isArray(this.chunks[1])) {
         return 'Address';
     } else if (this.chunks[0] == Opcode.map.OP_0 &&
         this.chunks.slice(1).reduce(function(t, chunk, i) {
-            return t && util.isArray(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1);
+            return t && Array.isArray(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1);
         }, true)) {
         return 'Multisig';
     } else {

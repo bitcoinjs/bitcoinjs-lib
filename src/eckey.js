@@ -32,7 +32,7 @@ ECKey.prototype.import = function (input,compressed,version) {
     this.priv =
           input instanceof ECKey                   ? input.priv
         : input instanceof BigInteger              ? input.mod(ecparams.getN())
-        : util.isArray(input)                      ? fromBin(input.slice(0,32))
+        : Array.isArray(input)                      ? fromBin(input.slice(0,32))
         : typeof input != "string"                 ? null
         : input.length == 44                       ? fromBin(conv.base64ToBytes(input))
         : input.length == 51 && input[0] == '5'    ? fromBin(base58.checkDecode(input))
@@ -46,7 +46,7 @@ ECKey.prototype.import = function (input,compressed,version) {
           compressed !== undefined                 ? compressed
         : input instanceof ECKey                   ? input.compressed
         : input instanceof BigInteger              ? false
-        : util.isArray(input)                      ? false
+        : Array.isArray(input)                      ? false
         : typeof input != "string"                 ? null
         : input.length == 44                       ? false
         : input.length == 51 && input[0] == '5'    ? false
@@ -61,7 +61,7 @@ ECKey.prototype.import = function (input,compressed,version) {
           version !== undefined                    ? version
         : input instanceof ECKey                   ? input.version
         : input instanceof BigInteger              ? mainnet
-        : util.isArray(input)                      ? mainnet
+        : Array.isArray(input)                      ? mainnet
         : typeof input != "string"                 ? null
         : input.length == 44                       ? mainnet
         : input.length == 51 && input[0] == '5'    ? mainnet
@@ -148,7 +148,7 @@ ECPubKey.prototype.import = function(input,compressed,version) {
         : input instanceof ECKey     ? ecparams.getG().multiply(input.priv)
         : input instanceof ECPubKey  ? input.pub
         : typeof input == "string"   ? decode(conv.hexToBytes(input))
-        : util.isArray(input)        ? decode(input)
+        : Array.isArray(input)        ? decode(input)
                                      : ecparams.getG().multiply(ecdsa.getBigRandom(ecparams.getN()))
 
     this.compressed =

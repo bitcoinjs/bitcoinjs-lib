@@ -1,13 +1,6 @@
 var Crypto = require('./crypto-js/crypto');
 
 /**
- * Cross-browser compatibility version of Array.isArray.
- */
-exports.isArray = Array.isArray || function(o) {
-    return Object.prototype.toString.call(o) === '[object Array]';
-}
-
-/**
  * Create a byte array representing a number with the given length
  */
 exports.numToBytes = function(num, bytes) {

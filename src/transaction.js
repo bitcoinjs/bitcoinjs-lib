@@ -18,7 +18,7 @@ var Transaction = function (doc) {
     this.block = null;
     
     if (doc) {
-        if (typeof doc == "string" || util.isArray(doc)) {
+        if (typeof doc == "string" || Array.isArray(doc)) {
             doc = Transaction.deserialize(doc)
         }
         if (doc.hash) this.hash = doc.hash;
@@ -559,7 +559,7 @@ TransactionIn.prototype.clone = function () {
 var TransactionOut = function (data) {
     this.script =
         data.script instanceof Script    ? data.script.clone()
-      : util.isArray(data.script)        ? new Script(data.script)
+      : Array.isArray(data.script)        ? new Script(data.script)
       : typeof data.script == "string"   ? new Script(conv.hexToBytes(data.script))
       : data.scriptPubKey                ? Script.fromScriptSig(data.scriptPubKey)
       : data.address                     ? Script.createOutputScript(data.address)
@@ -568,7 +568,7 @@ var TransactionOut = function (data) {
     if (this.script.buffer.length > 0) this.address = this.script.toAddress();
 
     this.value = 
-        util.isArray(data.value)         ? util.bytesToNum(data.value)
+        Array.isArray(data.value)         ? util.bytesToNum(data.value)
       : "string" == typeof data.value    ? parseInt(data.value)
       : data.value instanceof BigInteger ? parseInt(data.value.toString())
       :                                    data.value;
