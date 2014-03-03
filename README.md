@@ -2,6 +2,7 @@
 
 Bitcoin library for node.js and browsers.
 
+[![browser support](https://ci.testling.com/bitcoinjs/bitcoinjs-lib.png)](https://ci.testling.com/bitcoinjs/bitcoinjs-lib)
 
 # Features
 
