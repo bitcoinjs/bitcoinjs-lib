@@ -12,7 +12,7 @@ var Address = function (bytes, version) {
     }
     else if (typeof bytes === 'string') {
         this.hash =
-              bytes.length <= 34     ? base58.checkDecode(bytes)
+              bytes.length <= 35     ? base58.checkDecode(bytes)
             : bytes.length <= 40     ? conv.hexToBytes(bytes)
             :                          util.error('Bad input');
 
