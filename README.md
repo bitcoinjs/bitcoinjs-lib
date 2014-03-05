@@ -18,6 +18,12 @@ Bitcoin library for node.js and browsers.
 
 `npm run-script compile`
 
+## Run the test suite
+
+First install `mocha` (e.g. `npm install -g mocha` ).
+
+Then, just run `mocha` at the root of the `bitcoinjs-lib` checkout directory.
+
 # Usage
 
 ## node.js

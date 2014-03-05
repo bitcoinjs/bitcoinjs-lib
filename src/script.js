@@ -2,6 +2,7 @@ var Opcode = require('./opcode');
 var util = require('./util');
 var conv = require('./convert');
 var Address = require('./address');
+var network = require('./network');
 
 var Script = function(data) {
     this.buffer = data || [];
@@ -295,19 +296,19 @@ Script.prototype.writeBytes = function(data) {
 Script.createOutputScript = function(address) {
     var script = new Script();
     address = new Address(address);
-    // Standard pay-to-pubkey-hash
-    if (!address.version) {
+    if (address.version == network.mainnet.p2shVersion || address.version == network.testnet.p2shVersion) {
+        // Standard pay-to-script-hash
+        script.writeOp(Opcode.map.OP_HASH160);
+        script.writeBytes(address.hash);
+        script.writeOp(Opcode.map.OP_EQUAL);
+    }
+    else {
+        // Standard pay-to-pubkey-hash
         script.writeOp(Opcode.map.OP_DUP);
         script.writeOp(Opcode.map.OP_HASH160);
         script.writeBytes(address.hash);
         script.writeOp(Opcode.map.OP_EQUALVERIFY);
         script.writeOp(Opcode.map.OP_CHECKSIG);
-    }
-    // Standard pay-to-script-hash
-    else {
-        script.writeOp(Opcode.map.OP_HASH160);
-        script.writeBytes(address.hash);
-        script.writeOp(Opcode.map.OP_EQUAL);
     }
     return script;
 };
