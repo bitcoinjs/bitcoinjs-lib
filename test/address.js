@@ -31,13 +31,9 @@ describe('Address', function() {
       })
 
       it('throws error for invalid or unrecognized input', function() {
-        var addr =
-        assert.throws(
-          function() {
-            new Address('beepboopbeepboopbeepboopbeepboopbeepboopbeep')
-          },
-          Error
-        )
+        assert.throws(function() {
+          new Address('beepboopbeepboopbeepboopbeepboopbeepboopbeep')
+        }, Error)
       })
 
       it('works for byte input', function() {
@@ -50,6 +46,12 @@ describe('Address', function() {
         var addr = new Address(hash)
         assert.equal(addr.hash, hash)
         assert.equal(network.testnet.addressVersion, hash.version)
+      })
+      
+      it('fails for bad input', function() {
+        assert.throws(function() {
+          new Address('foo')
+        }, Error)
       })
     })
 
