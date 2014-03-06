@@ -18,48 +18,48 @@ describe('Address', function() {
     })
 
     describe('parsing', function() {
-      it('works with Address object', function() {
-        var addr = new Address(new Address('mwrB4fgT1KSBCqELaWv7o7tsExuQzW3NY3', network.testnet.addressVersion))
+        it('works with Address object', function() {
+            var addr = new Address(new Address('mwrB4fgT1KSBCqELaWv7o7tsExuQzW3NY3', network.testnet.addressVersion))
 
-        assert.equal(addr.toString(), 'mwrB4fgT1KSBCqELaWv7o7tsExuQzW3NY3')
-        assert.equal(addr.version, network.testnet.addressVersion)
-      })
+            assert.equal(addr.toString(), 'mwrB4fgT1KSBCqELaWv7o7tsExuQzW3NY3')
+            assert.equal(addr.version, network.testnet.addressVersion)
+        })
 
-      it('works with hex', function() {
-        var addr = new Address('13483382d3c3d43fc9d7b52e652b6bbb70e8b667')
-        assert.equal(addr.toString(), '12kxLGqrnnchwN9bHHNV2fWDtJGwxKTcJS')
-      })
+        it('works with hex', function() {
+            var addr = new Address('13483382d3c3d43fc9d7b52e652b6bbb70e8b667')
+            assert.equal(addr.toString(), '12kxLGqrnnchwN9bHHNV2fWDtJGwxKTcJS')
+        })
 
-      it('throws error for invalid or unrecognized input', function() {
-        assert.throws(function() {
-          new Address('beepboopbeepboopbeepboopbeepboopbeepboopbeep')
-        }, Error)
-      })
+        it('throws error for invalid or unrecognized input', function() {
+            assert.throws(function() {
+              new Address('beepboopbeepboopbeepboopbeepboopbeepboopbeep')
+            }, Error)
+        })
 
-      it('works for byte input', function() {
-        var hash = base58.checkDecode('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
-        var addr = new Address(hash)
-        assert.equal(addr.hash, hash)
-        assert.equal(network.mainnet.addressVersion, hash.version)
+        it('works for byte input', function() {
+            var hash = base58.checkDecode('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
+            var addr = new Address(hash)
+            assert.equal(addr.hash, hash)
+            assert.equal(network.mainnet.addressVersion, hash.version)
 
-        var hash = base58.checkDecode('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef')
-        var addr = new Address(hash)
-        assert.equal(addr.hash, hash)
-        assert.equal(network.testnet.addressVersion, hash.version)
-      })
+            var hash = base58.checkDecode('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef')
+            var addr = new Address(hash)
+            assert.equal(addr.hash, hash)
+            assert.equal(network.testnet.addressVersion, hash.version)
+        })
       
-      it('fails for bad input', function() {
-        assert.throws(function() {
-          new Address('foo')
-        }, Error)
-      })
+        it('fails for bad input', function() {
+            assert.throws(function() {
+              new Address('foo')
+            }, Error)
+        })
     })
 
     describe('getVersion', function() {
-      it('returns the proper address version', function() {
-        assert.equal(Address.getVersion('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'), network.mainnet.addressVersion)
-        assert.equal(Address.getVersion('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef'), network.testnet.addressVersion)
-      })
+        it('returns the proper address version', function() {
+          assert.equal(Address.getVersion('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'), network.mainnet.addressVersion)
+          assert.equal(Address.getVersion('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef'), network.testnet.addressVersion)
+        })
     })
 
     describe('toString', function() {
