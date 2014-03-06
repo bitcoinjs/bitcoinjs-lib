@@ -14,7 +14,7 @@ var Address = function (bytes, version) {
         this.hash =
               bytes.length <= 35     ? base58.checkDecode(bytes)
             : bytes.length <= 40     ? conv.hexToBytes(bytes)
-            :                          util.error('Bad input');
+            :                          util.error('invalid or unrecognized input');
 
         this.version = version || this.hash.version || mainnet;
     }
@@ -33,10 +33,6 @@ Address.prototype.toString = function () {
     return base58.checkEncode(this.hash.slice(0), this.version);
 };
 
-Address.prototype.getHash = function () {
-    return conv.bytesToHex(this.hash);
-};
-
 Address.getVersion = function(string) {
     return base58.decode(string)[0];
 }
@@ -48,13 +44,6 @@ Address.validate = function(string) {
     } catch (e) {
         return false;
     }
-};
-
-/**
- * Parse a Bitcoin address contained in a string.
- */
-Address.decodeString = function (string) {
-    return base58.checkDecode(string);
 };
 
 module.exports = Address;
