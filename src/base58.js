@@ -38,10 +38,6 @@ module.exports.encode = function (input) {
     return chars.reverse().join('');
 },
 
-module.exports.encodeHex = function (input) {
-    return conv.bytesToHex(module.exports.encode(input));
-}
-
 // decode a base58 string into a byte array
 // input should be a base58 encoded string
 // @return Array
@@ -82,20 +78,12 @@ module.exports.decode = function (input) {
   return bytes;
 }
 
-module.exports.decodeHex = function (input) {
-    return module.exports.decode(conv.hexToBytes(input));
-}
-
 module.exports.checkEncode = function(input, vbyte) {
     vbyte = vbyte || 0;
     var front = [vbyte].concat(input);
     var checksum = Crypto.SHA256(Crypto.SHA256(front, {asBytes: true}), {asBytes: true})
                         .slice(0,4);
     return module.exports.encode(front.concat(checksum));
-}
-
-module.exports.checkEncodeHex = function (input, vbyte) {
-    return conv.bytesToHex(module.exports.encode(input));
 }
 
 module.exports.checkDecode = function(input) {
@@ -111,9 +99,3 @@ module.exports.checkDecode = function(input) {
     o.version = front[0];
     return o;
 }
-
-module.exports.checkDecodeHex = function (input) {
-    return module.exports.checkDecode(conv.hexToBytes(input));
-}
-
-
