@@ -44,4 +44,11 @@ describe('convert', function() {
             assert.equal(b64('foobar'), 'Zm9vYmFy')
         })
     })
+    
+    describe('coerceToBytes', function() {
+        it('works with bytes or hex string', function() {
+            assert.deepEqual(convert.coerceToBytes('ABCD'), [171, 205])
+            assert.deepEqual(convert.coerceToBytes([171, 205]), [171, 205])
+        })
+    })
 })

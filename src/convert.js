@@ -77,18 +77,6 @@ exports.coerceToBytes = function(input) {
     return exports.hexToBytes(input);
 }
 
-exports.binToBytes = function(bin) {
-    return bin.match(/......../g).map(function(x) {
-        return parseInt(x,2)
-    });
-}
-
-exports.bytesToBin = function(bytes) {
-    return bytes.map(function(x) {
-        return exports.lpad(x.toString(2), '0', 8)
-    }).join('');
-}
-
 exports.bytesToString = function(bytes) {
     return bytes.map(function(x){
         return String.fromCharCode(x)
