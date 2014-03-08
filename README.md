@@ -49,6 +49,8 @@ After loading this file in your browser, you will be able to use the global `Bit
 - [Bitaddress.org](https://www.bitaddress.org)
 - [Coinpunk](https://coinpunk.com)
 
+Feel free to send pull requests to have your project/startup listed here.
+
 ## Alternatives
 
 - [Bitcore](https://github.com/bitpay/bitcore)
