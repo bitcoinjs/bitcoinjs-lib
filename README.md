@@ -46,8 +46,8 @@ After loading this file in your browser, you will be able to use the global `Bit
 ## Projects utilizing bitcoinjs-lib
 
 - [Blockchain.info Wallet](http://blockchain.info/wallet)
-- [Coinpunk](https://coinpunk.com)
 - [Bitaddress.org](https://www.bitaddress.org)
+- [Coinpunk](https://coinpunk.com)
 
 ## Alternatives
 
