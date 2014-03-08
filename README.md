@@ -1,45 +1,64 @@
 # bitcoinjs-lib
 
-Bitcoin library for node.js and browsers.
-
 [![browser support](https://ci.testling.com/bitcoinjs/bitcoinjs-lib.png)](https://ci.testling.com/bitcoinjs/bitcoinjs-lib)
 
-# Features
+A pure JavaScript Bitcoin library for node.js and browsers. Backed by (slowly improving) testing, proven by over a million wallet users. The backbone for almost all Bitcoin web wallets in production today.
 
+This is not the original bitcoinjs-lib that was not updated for a while. The current bitcoinjs-lib has been refactored to clean things up, add new functionality and merge improvements from the community. If you are looking for the original, it will be tagged as `0.1.3`. We will use `0.2.x` for releases based on these changes, so be sure to use the `0.1.3` tag if you need the original version.
+
+## Features
+
+- Bitcoin Testnet and Mainnet (production) support
 - [HD Wallets](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
-- Transaction creation and signing
+- Highly secure random private key / address generation using [window.crypto.getRandomValues](https://developer.mozilla.org/en-US/docs/Web/API/Window.crypto)
 - ECDSA signing and verification
+- Transaction creation (pay-to-pubkey-hash), support for multisignature transactions
+- A (somewhat incomplete) wallet implementation, improvements ongoing
 
-# Installation
+## Installation
 
 `npm install bitcoinjs-lib`
 
-## Building (for browsers)
+Note: The npm version is currently out of date, are working to resolve this. The best way to use the latest code is to clone the repository.
 
-`npm run-script compile`
+## Usage
 
-## Run the test suite
+### Run the test suite
 
-First install `mocha` (e.g. `npm install -g mocha` ).
+    $ npm test
 
-Then, just run `mocha` at the root of the `bitcoinjs-lib` checkout directory.
+### Node.js
 
-# Usage
+    var bitcoin = require('bitcoinjs-lib')
 
-## node.js
+From the repo:
 
-`var Bitcoin = require('bitcoinjs-lib')`
+    var bitcoin = require('./src/index.js')
 
-## Browser
+### Browser
 
-Use the global `Bitcoin` object.
+Compile `bitcoinjs-min.js` with the following command:
 
-# License
+    $ npm run-script compile
 
-This library is free and open-source software released under the MIT
-license.
+After loading this file in your browser, you will be able to use the global `Bitcoin` object.
 
-# Copyright
+## Projects utilizing bitcoinjs-lib
+
+- [Blockchain.info Wallet](http://blockchain.info/wallet)
+- [Coinpunk](https://coinpunk.com)
+- [Bitaddress.org](https://www.bitaddress.org)
+
+## Alternatives
+
+- [Bitcore](https://github.com/bitpay/bitcore)
+- [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
+
+## License
+
+This library is free and open-source software released under the MIT license.
+
+## Copyright
 
 BitcoinJS (c) 2011-2012 Stefan Thomas
 Released under MIT license
