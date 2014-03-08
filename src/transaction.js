@@ -2,11 +2,11 @@ var BigInteger = require('./jsbn/jsbn');
 var Script = require('./script');
 var util = require('./util');
 var conv = require('./convert');
-var Crypto = require('./crypto-js/crypto');
 var Wallet = require('./wallet');
 var ECKey = require('./eckey').ECKey;
 var ECDSA = require('./ecdsa');
 var Address = require('./address');
+var Message = require('./message');
 
 var Transaction = function (doc) {
     if (!(this instanceof Transaction)) { return new Transaction(doc); }
@@ -207,9 +207,7 @@ function (connectedScript, inIndex, hashType)
 
   buffer = buffer.concat(util.numToBytes(parseInt(hashType),4));
 
-  var hash1 = Crypto.SHA256(buffer, {asBytes: true});
-
-  return Crypto.SHA256(hash1, {asBytes: true});
+  return Message.getHash(buffer)
 };
 
 /**
@@ -220,7 +218,7 @@ function (connectedScript, inIndex, hashType)
 Transaction.prototype.getHash = function ()
 {
   var buffer = this.serialize();
-  return Crypto.SHA256(Crypto.SHA256(buffer, {asBytes: true}), {asBytes: true}).reverse();
+  return Message.getHash(buffer).reverse()
 };
 
 /**

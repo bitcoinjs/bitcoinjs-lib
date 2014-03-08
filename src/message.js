@@ -1,6 +1,6 @@
 /// Implements Bitcoin's feature for signing arbitrary messages.
 
-var Crypto = require('./crypto-js/crypto');
+var SHA256 = require('crypto-js/sha256');
 var ecdsa = require('./ecdsa');
 var conv = require('./convert');
 var util = require('./util');
@@ -24,7 +24,7 @@ Message.makeMagicMessage = function (message) {
 
 Message.getHash = function (message) {
   var buffer = Message.makeMagicMessage(message);
-  return Crypto.SHA256(Crypto.SHA256(buffer, {asBytes: true}), {asBytes: true});
+  return util.wordArrayToBytes(SHA256(SHA256(util.bytesToWordArray(buffer))));
 };
 
 Message.signMessage = function (key, message, compressed) {

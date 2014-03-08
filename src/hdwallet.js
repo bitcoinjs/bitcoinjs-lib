@@ -3,7 +3,8 @@ var base58 = require('./base58.js')
 var assert = require('assert')
 var format = require('util').format
 var util = require('./util.js')
-var Crypto = require('./crypto-js/crypto.js')
+var Crypto = require('crypto-js');
+var HmacSHA512 = Crypto.HmacSHA512
 var ECKey = require('./eckey.js').ECKey
 var ECPubKey = require('./eckey.js').ECPubKey
 var Address = require('./address.js')
@@ -12,7 +13,8 @@ var Network = require('./network')
 var HDWallet = module.exports = function(seed, network) {
     if (seed === undefined) return
 
-    var I = Crypto.HMAC(Crypto.SHA512, seed, 'Bitcoin seed', { asBytes: true })
+    var seedWords = util.bytesToWordArray(convert.stringToBytes(seed))
+    var I = util.wordArrayToBytes(HmacSHA512(seedWords, 'Bitcoin seed'))
     this.chaincode = I.slice(32)
     this.network = network || 'mainnet'
     if(!Network.hasOwnProperty(this.network)) {
@@ -32,10 +34,7 @@ function arrayEqual(a, b) {
     return !(a < b || a > b)
 }
 
-HDWallet.getChecksum = function(buffer) {
-    assert.equal(buffer.length, HDWallet.LENGTH)
-    return Crypto.SHA256(Crypto.SHA256(buffer, { asBytes: true }), { asBytes: true }).slice(0, 4)
-}
+HDWallet.getChecksum = base58.getChecksum;
 
 HDWallet.fromMasterHex = function(hex) {
     var bytes = convert.hexToBytes(hex)
@@ -188,6 +187,7 @@ HDWallet.prototype.derive = function(i) {
     , iBytes = util.numToBytes(i, 4).reverse()
     , cPar = this.chaincode
     , usePriv = i >= HDWallet.HIGHEST_BIT
+    , SHA512 = Crypto.algo.SHA512
 
     if (usePriv) {
         assert(this.priv, 'Private derive on public key')
@@ -195,12 +195,12 @@ HDWallet.prototype.derive = function(i) {
         // If 1, private derivation is used:
         // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
         var kPar = this.priv.toBytes().slice(0, 32)
-        I = Crypto.HMAC(Crypto.SHA512, [0].concat(kPar, iBytes), cPar, { asBytes: true })
+        I = util.HmacFromBytesToBytes(SHA512, [0].concat(kPar, iBytes), cPar)
     } else {
         // If 0, public derivation is used:
         // let I = HMAC-SHA512(Key = cpar, Data = χ(kpar*G) || i)
         var KPar = this.pub.toBytes(true)
-        I = Crypto.HMAC(Crypto.SHA512, KPar.concat(iBytes), cPar, { asBytes: true })
+        I = util.HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
     }
 
     // Split I = IL || IR into two 32-byte sequences, IL and IR.
@@ -239,3 +239,4 @@ HDWallet.prototype.getKeyVersion = function() {
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58
+

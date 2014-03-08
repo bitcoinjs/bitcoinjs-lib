@@ -31,7 +31,7 @@ module.exports = {
     ECPubKey: Key.ECPubKey,
     Message: require('./message'),
     BigInteger: require('./jsbn/jsbn'),
-    Crypto: require('./crypto-js/crypto'),
+    Crypto: require('crypto-js'), //should we expose this at all?
     Script: require('./script'),
     Opcode: require('./opcode'),
     Transaction: require('./transaction').Transaction,

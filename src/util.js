@@ -1,4 +1,8 @@
-var Crypto = require('./crypto-js/crypto');
+var Crypto = require('crypto-js');
+var RIPEMD160 = Crypto.RIPEMD160;
+var SHA256 = Crypto.SHA256;
+var HMAC= Crypto.algo.HMAC;
+var WordArray = Crypto.lib.WordArray;
 
 /**
  * Create a byte array representing a number with the given length
@@ -45,7 +49,15 @@ exports.wordsToBytes = function (words) {
         bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
     }
     return bytes;
-},
+}
+
+exports.bytesToWordArray = function (bytes) {
+  return new WordArray.init(exports.bytesToWords(bytes), bytes.length)
+}
+
+exports.wordArrayToBytes = function (wordArray) {
+  return exports.wordsToBytes(wordArray.words)
+}
 
 /**
  * Calculate RIPEMD160(SHA256(data)).
@@ -54,7 +66,15 @@ exports.wordsToBytes = function (words) {
  * array.
  */
 exports.sha256ripe160 = function (data) {
-    return Crypto.RIPEMD160(Crypto.SHA256(data, {asBytes: true}), {asBytes: true});
+    var wordArray = RIPEMD160(SHA256(exports.bytesToWordArray(data)))
+    return exports.wordArrayToBytes(wordArray)
+}
+
+
+exports.HmacFromBytesToBytes = function (hasher, message, key) {
+  var hmac = HMAC.create(hasher, exports.bytesToWordArray(key))
+  hmac.update(exports.bytesToWordArray(message))
+  return exports.wordArrayToBytes(hmac.finalize())
 }
 
 exports.error = function(msg) {
