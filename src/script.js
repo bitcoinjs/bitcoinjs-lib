@@ -6,6 +6,9 @@ var network = require('./network');
 
 var Script = function(data) {
     this.buffer = data || [];
+    if(!Array.isArray(data)) {
+      throw new Error('expect Script to be initialized with Array, but got ' + data)
+    }
     this.parse();
 };
 
