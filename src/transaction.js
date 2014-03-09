@@ -16,7 +16,7 @@ var Transaction = function (doc) {
     this.outs = [];
     this.timestamp = null;
     this.block = null;
-    
+
     if (doc) {
         if (typeof doc == "string" || Array.isArray(doc)) {
             doc = Transaction.deserialize(doc)
@@ -68,11 +68,11 @@ Transaction.objectify = function (txs) {
 Transaction.prototype.addInput = function (tx, outIndex) {
     if (arguments[0] instanceof TransactionIn) {
         this.ins.push(arguments[0]);
-    } 
+    }
     else if (arguments[0].length > 65) {
         var args = arguments[0].split(':');
         return this.addInput(args[0], args[1]);
-    } 
+    }
     else {
         this.ins.push(new TransactionIn({
             outpoint: {
@@ -104,7 +104,7 @@ Transaction.prototype.addOutput = function (address, value) {
         var args = arguments[0].split(':');
         address = args[0];
         value = parseInt(args[1]);
-    } 
+    }
     this.outs.push(new TransactionOut({
         value: value,
         script: Script.createOutputScript(address)
@@ -248,9 +248,9 @@ Transaction.prototype.clone = function ()
  * Returns an object with properties 'impact', 'type' and 'addr'.
  *
  * 'impact' is an object, see Transaction#calcImpact.
- * 
+ *
  * 'type' can be one of the following:
- * 
+ *
  * recv:
  *   This is an incoming transaction, the wallet received money.
  *   'addr' contains the first address in the wallet that receives money
@@ -458,6 +458,7 @@ Transaction.deserialize = function(buffer) {
         });
     }
     obj.locktime = readAsInt(4);
+
     return new Transaction(obj);
 }
 
@@ -535,10 +536,12 @@ var TransactionIn = function (data) {
     else if (data.outpoint)
         this.outpoint = data.outpoint
     else
-        this.outpoint = { hash: data.hash, index: data.index }   
+        this.outpoint = { hash: data.hash, index: data.index }
 
     if (data.scriptSig)
         this.script = Script.fromScriptSig(data.scriptSig)
+    else if (data.script)
+        this.script = data.script
     else
         this.script = new Script(data.script)
 
@@ -567,7 +570,7 @@ var TransactionOut = function (data) {
 
     if (this.script.buffer.length > 0) this.address = this.script.toAddress();
 
-    this.value = 
+    this.value =
         Array.isArray(data.value)         ? util.bytesToNum(data.value)
       : "string" == typeof data.value    ? parseInt(data.value)
       : data.value instanceof BigInteger ? parseInt(data.value.toString())
