@@ -36,9 +36,9 @@ function arrayEqual(a, b) {
 
 HDWallet.getChecksum = base58.getChecksum;
 
-HDWallet.fromMasterHex = function(hex) {
+HDWallet.fromMasterHex = function(hex, network) {
     var bytes = convert.hexToBytes(hex)
-    return new HDWallet(convert.bytesToString(bytes))
+    return new HDWallet(convert.bytesToString(bytes), network)
 }
 
 HDWallet.fromBase58 = function(input) {
