@@ -30,5 +30,21 @@ describe('Message', function() {
             var sig = Message.signMessage(key, msg);
             assert.ok(!Message.verifyMessage(addr, sig, msg));
         })
+
+        it('handles compressed keys', function() {
+            var key = new ECKey(hexToBytes(priv));
+            key.compressed = true
+
+            var addr = key.getBitcoinAddress().toString()
+
+            var sig = Message.signMessage(key, msg);
+            assert.ok(Message.verifyMessage(addr, sig, msg));
+
+            // wrong message
+            assert.ok(!Message.verifyMessage(addr, sig, 'not foobar'));
+
+            // wrong address
+            assert.ok(!Message.verifyMessage('1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a', sig, msg));
+        })
     })
 })
