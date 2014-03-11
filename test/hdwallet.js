@@ -32,19 +32,46 @@ describe('HDWallet', function() {
         })
     })
 
-    describe('ctor', function() {
-        it('creates from seed', function() {
-            var seed = 'crazy horse battery staple'
-            , hd = new HDWallet(seed)
+    describe('constructor & seed deserialization', function() {
+        var expectedPrivKey, seed;
 
-            assert(hd.priv)
+        beforeEach(function(){
+            expectedPrivKey = 'KwkW62Lzm4a7Eo5nPLezrVjWBGFh2KMfpyf4Swz9NmfsVaLoeXv9'
+            seed = [
+              99, 114, 97, 122, 121, 32, 104, 111, 114, 115, 101, 32, 98,
+              97, 116, 116, 101, 114, 121, 32, 115, 116, 97, 112, 108, 101
+            ]
+        })
+
+        it('creates from binary seed', function() {
+            var hd = new HDWallet(seed)
+
+            assert.equal(hd.priv, expectedPrivKey)
             assert(hd.pub)
+        })
+
+        describe('fromSeedHex', function() {
+            it('creates from hex seed', function() {
+                var hd = HDWallet.fromSeedHex(b2h(seed))
+
+                assert.equal(hd.priv, expectedPrivKey)
+                assert(hd.pub)
+            })
+        })
+
+        describe('fromSeedString', function() {
+            it('creates from string seed', function() {
+                var hd = HDWallet.fromSeedString(convert.bytesToString(seed))
+
+                assert.equal(hd.priv, expectedPrivKey)
+                assert(hd.pub)
+            })
         })
     })
 
     describe('Test vectors', function() {
         it('Test vector 1', function() {
-            var hd = HDWallet.fromMasterHex('000102030405060708090a0b0c0d0e0f')
+            var hd = HDWallet.fromSeedHex('000102030405060708090a0b0c0d0e0f')
 
             // m
             assert.equal(b2h(hd.getIdentifier()), '3442193e1bb70916e914552172cd4e2dbc9df811')
@@ -131,7 +158,7 @@ describe('HDWallet', function() {
         })
 
         it('Test vector 2', function() {
-            var hd = HDWallet.fromMasterHex('fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542')
+            var hd = HDWallet.fromSeedHex('fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542')
 
             // m
             assert.equal(b2h(hd.getIdentifier()), 'bd16bee53961a47d6ad888e29545434a89bdfe95')

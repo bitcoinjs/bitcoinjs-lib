@@ -13,7 +13,7 @@ var Network = require('./network')
 var HDWallet = module.exports = function(seed, network) {
     if (seed === undefined) return
 
-    var seedWords = convert.bytesToWordArray(convert.stringToBytes(seed))
+    var seedWords = convert.bytesToWordArray(seed)
     var I = convert.wordArrayToBytes(HmacSHA512(seedWords, 'Bitcoin seed'))
     this.chaincode = I.slice(32)
     this.network = network || 'mainnet'
@@ -36,9 +36,12 @@ function arrayEqual(a, b) {
 
 HDWallet.getChecksum = base58.getChecksum;
 
-HDWallet.fromMasterHex = function(hex, network) {
-    var bytes = convert.hexToBytes(hex)
-    return new HDWallet(convert.bytesToString(bytes), network)
+HDWallet.fromSeedHex = function(hex, network) {
+    return new HDWallet(convert.hexToBytes(hex), network)
+}
+
+HDWallet.fromSeedString = function(string, network) {
+    return new HDWallet(convert.stringToBytes(string), network)
 }
 
 HDWallet.fromBase58 = function(input) {
