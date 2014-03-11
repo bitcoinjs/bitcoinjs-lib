@@ -6,7 +6,7 @@ var BigInteger = require('./jsbn/jsbn');
 var Transaction = require('./transaction').Transaction;
 var TransactionIn = require('./transaction').TransactionIn;
 var TransactionOut = require('./transaction').TransactionOut;
-var HDWallet = require('./hdwallet.js')
+var HDNode = require('./hdwallet.js')
 var SecureRandom = require('./jsbn/rng');
 var rng = new SecureRandom();
 
@@ -15,13 +15,6 @@ var Wallet = function (seed, options) {
 
     var options = options || {}
     var network = options.network || 'mainnet'
-
-    // HD first-level child derivation method (i.e. public or private child key derivation)
-    // NB: if not specified, defaults to private child derivation
-    // Also see https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-    this.derivationMethod = options.derivationMethod || 'private'
-    assert(this.derivationMethod == 'public' || this.derivationMethod == 'private',
-        "derivationMethod must be either 'public' or 'private'");
 
     // Stored in a closure to make accidental serialization less likely
     var keys = [];
@@ -37,22 +30,26 @@ var Wallet = function (seed, options) {
     // Make a new master key
     this.newMasterKey = function(seed, network) {
         if (!seed) {
-            var seedBytes = new Array(32);
+            var seed= new Array(32);
             rng.nextBytes(seedBytes);
-            seed = convert.bytesToString(seedBytes)
         }
-        masterkey = new HDWallet(seed, network);
+        masterkey = new HDNode(seed, network);
         keys = []
     }
     this.newMasterKey(seed, network)
 
+    // HD first-level child derivation method (i.e. public or private child key derivation)
+    // NB: if not specified, defaults to private child derivation
+    // Also see https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
+    this.accountZero = masterkey.derivePrivate(0)
+    this.externalAccount = this.accountZero.derive(0)
+    this.internalAccount = this.accountZero.derive(1)
+
     // Add a new address
     this.generateAddress = function() {
-        if(this.derivationMethod == 'private')
-            keys.push(masterkey.derivePrivate(keys.length));
-        else
-            keys.push(masterkey.derive(keys.length));
-        this.addresses.push(keys[keys.length-1].getBitcoinAddress().toString())
+        var key = this.externalAccount.derive(keys.length)
+        keys.push(key); // consider removing this and derive on-demand for simplified encrypted keychain
+        this.addresses.push(key.getBitcoinAddress().toString())
         return this.addresses[this.addresses.length - 1]
     }
 
