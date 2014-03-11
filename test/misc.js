@@ -10,10 +10,10 @@ var rng = new SecureRandom();
 
 var ecparams = sec('secp256k1');
 var ECPointFp = bitcoinjs.ECPointFp;
-var util = require('../src/util');
+var convert = require('../src/convert');
 
 function sha256FromBytesToBytes(message){
-  return util.wordArrayToBytes(SHA256(util.bytesToWordArray(message)))
+  return convert.wordArrayToBytes(SHA256(convert.bytesToWordArray(message)))
 }
 
 it('Keys & Key Management', function () {

@@ -1,8 +1,7 @@
 var sec = require('./jsbn/sec');
-var util = require('./util');
 var SecureRandom = require('./jsbn/rng');
 var BigInteger = require('./jsbn/jsbn');
-var conv = require('./convert')
+var convert = require('./convert')
 var HmacSHA256 = require('crypto-js/hmac-sha256');
 
 var ECPointFp = require('./jsbn/ec').ECPointFp;
@@ -43,16 +42,16 @@ function deterministicGenerateK(hash,key) {
     var kArr = [];
     for (var i = 0;i < 32;i++) vArr.push(1);
     for (var i = 0;i < 32;i++) kArr.push(0);
-    var v = util.bytesToWordArray(vArr)
-    var k = util.bytesToWordArray(kArr)
+    var v = convert.bytesToWordArray(vArr)
+    var k = convert.bytesToWordArray(kArr)
 
-    k = HmacSHA256(util.bytesToWordArray(vArr.concat([0]).concat(key).concat(hash)), k)
+    k = HmacSHA256(convert.bytesToWordArray(vArr.concat([0]).concat(key).concat(hash)), k)
     v = HmacSHA256(v, k)
-    vArr = util.wordArrayToBytes(v)
-    k = HmacSHA256(util.bytesToWordArray(vArr.concat([1]).concat(key).concat(hash)), k)
+    vArr = convert.wordArrayToBytes(v)
+    k = HmacSHA256(convert.bytesToWordArray(vArr.concat([1]).concat(key).concat(hash)), k)
     v = HmacSHA256(v,k)
     v = HmacSHA256(v,k)
-    vArr = util.wordArrayToBytes(v)
+    vArr = convert.wordArrayToBytes(v)
     return BigInteger.fromByteArrayUnsigned(vArr);
 }
 

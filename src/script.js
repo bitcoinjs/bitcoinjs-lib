@@ -1,6 +1,6 @@
 var Opcode = require('./opcode');
 var util = require('./util');
-var conv = require('./convert');
+var convert = require('./convert');
 var Address = require('./address');
 var network = require('./network');
 
@@ -13,7 +13,7 @@ var Script = function(data) {
 };
 
 Script.fromHex = function(data) {
-    return new Script(conv.hexToBytes(data))
+    return new Script(convert.hexToBytes(data))
 };
 
 Script.fromPubKey = function(str) {
@@ -23,7 +23,7 @@ Script.fromPubKey = function(str) {
         if (Opcode.map.hasOwnProperty(s[i])) {
             script.writeOp(Opcode.map[s[i]]);
         } else {
-            script.writeBytes(conv.hexToBytes(s[i]));
+            script.writeBytes(convert.hexToBytes(s[i]));
         }
     }
     return script;
@@ -36,7 +36,7 @@ Script.fromScriptSig = function(str) {
         if (Opcode.map.hasOwnProperty(s[i])) {
             script.writeOp(Opcode.map[s[i]]);
         } else {
-            script.writeBytes(conv.hexToBytes(s[i]));
+            script.writeBytes(convert.hexToBytes(s[i]));
         }
     }
     return script;

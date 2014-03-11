@@ -5,8 +5,7 @@ var BigInteger = require('./jsbn/jsbn');
 var Crypto = require('crypto-js');
 var SHA256 = Crypto.SHA256;
 var WordArray = Crypto.lib.WordArray;
-var conv = require('./convert');
-var util = require('./util');
+var convert = require('./convert');
 
 var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 var base = BigInteger.valueOf(58);
@@ -101,8 +100,8 @@ module.exports.checkDecode = function(input) {
 }
 
 function getChecksum(bytes) {
-  var wordArray = util.bytesToWordArray(bytes)
-  return conv.hexToBytes(SHA256(SHA256(wordArray)).toString()).slice(0,4);
+  var wordArray = convert.bytesToWordArray(bytes)
+  return convert.hexToBytes(SHA256(SHA256(wordArray)).toString()).slice(0,4);
 }
 
 module.exports.getChecksum = getChecksum

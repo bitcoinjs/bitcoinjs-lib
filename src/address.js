@@ -1,5 +1,5 @@
 var base58 = require('./base58');
-var conv = require('./convert');
+var convert = require('./convert');
 var util = require('./util');
 var mainnet = require('./network').mainnet.addressVersion;
 
@@ -12,7 +12,7 @@ var Address = function (bytes, version) {
     else if (typeof bytes === 'string') {
         this.hash =
               bytes.length <= 35     ? base58.checkDecode(bytes)
-            : bytes.length <= 40     ? conv.hexToBytes(bytes)
+            : bytes.length <= 40     ? convert.hexToBytes(bytes)
             :                          util.error('invalid or unrecognized input');
 
         this.version = version || this.hash.version || mainnet;

@@ -1,16 +1,12 @@
 var Script = require('./script');
 var ECKey = require('./eckey').ECKey;
-var conv = require('./convert');
-var util = require('./util');
+var convert = require('./convert');
 var assert = require('assert');
-
 var BigInteger = require('./jsbn/jsbn');
-
 var Transaction = require('./transaction').Transaction;
 var TransactionIn = require('./transaction').TransactionIn;
 var TransactionOut = require('./transaction').TransactionOut;
 var HDWallet = require('./hdwallet.js')
-
 var SecureRandom = require('./jsbn/rng');
 var rng = new SecureRandom();
 
@@ -43,7 +39,7 @@ var Wallet = function (seed, options) {
         if (!seed) {
             var seedBytes = new Array(32);
             rng.nextBytes(seedBytes);
-            seed = conv.bytesToString(seedBytes)
+            seed = convert.bytesToString(seedBytes)
         }
         masterkey = new HDWallet(seed, network);
         keys = []
@@ -63,7 +59,7 @@ var Wallet = function (seed, options) {
     // Processes a transaction object
     // If "verified" is true, then we trust the transaction as "final"
     this.processTx = function(tx, verified) {
-        var txhash = conv.bytesToHex(tx.getHash())
+        var txhash = convert.bytesToHex(tx.getHash())
         for (var i = 0; i < tx.outs.length; i++) {
             if (this.addresses.indexOf(tx.outs[i].address.toString()) >= 0) {
                 me.outputs[txhash+':'+i] = {

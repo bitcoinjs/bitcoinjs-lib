@@ -1,7 +1,7 @@
 var BigInteger = require('./jsbn/jsbn');
 var Script = require('./script');
 var util = require('./util');
-var conv = require('./convert');
+var convert = require('./convert');
 var Wallet = require('./wallet');
 var ECKey = require('./eckey').ECKey;
 var ECDSA = require('./ecdsa');
@@ -120,36 +120,36 @@ Transaction.prototype.addOutput = function (address, value) {
  */
 Transaction.prototype.serialize = function () {
     var buffer = [];
-    buffer = buffer.concat(util.numToBytes(parseInt(this.version),4));
-    buffer = buffer.concat(util.numToVarInt(this.ins.length));
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.version),4));
+    buffer = buffer.concat(convert.numToVarInt(this.ins.length));
     for (var i = 0; i < this.ins.length; i++) {
         var txin = this.ins[i];
 
         // Why do blockchain.info, blockexplorer.com, sx and just about everybody
         // else use little-endian hashes? No idea...
-        buffer = buffer.concat(conv.hexToBytes(txin.outpoint.hash).reverse());
+        buffer = buffer.concat(convert.hexToBytes(txin.outpoint.hash).reverse());
 
-        buffer = buffer.concat(util.numToBytes(parseInt(txin.outpoint.index),4));
+        buffer = buffer.concat(convert.numToBytes(parseInt(txin.outpoint.index),4));
         var scriptBytes = txin.script.buffer;
-        buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
+        buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
-        buffer = buffer.concat(util.numToBytes(parseInt(txin.sequence),4));
+        buffer = buffer.concat(convert.numToBytes(parseInt(txin.sequence),4));
     }
-    buffer = buffer.concat(util.numToVarInt(this.outs.length));
+    buffer = buffer.concat(convert.numToVarInt(this.outs.length));
     for (var i = 0; i < this.outs.length; i++) {
         var txout = this.outs[i];
-        buffer = buffer.concat(util.numToBytes(txout.value,8));
+        buffer = buffer.concat(convert.numToBytes(txout.value,8));
         var scriptBytes = txout.script.buffer;
-        buffer = buffer.concat(util.numToVarInt(scriptBytes.length));
+        buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
     }
-    buffer = buffer.concat(util.numToBytes(parseInt(this.lock_time),4));
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.lock_time),4));
 
     return buffer;
 };
 
 Transaction.prototype.serializeHex = function() {
-    return conv.bytesToHex(this.serialize());
+    return convert.bytesToHex(this.serialize());
 }
 
 var OP_CODESEPARATOR = 171;
@@ -205,7 +205,7 @@ function (connectedScript, inIndex, hashType)
 
   var buffer = txTmp.serialize();
 
-  buffer = buffer.concat(util.numToBytes(parseInt(hashType),4));
+  buffer = buffer.concat(convert.numToBytes(parseInt(hashType),4));
 
   return Message.getHash(buffer)
 };
@@ -378,12 +378,12 @@ Transaction.prototype.calcImpact = function (wallet) {
 
   // Calculate credit to us from all outputs
   var valueOut = this.outs.filter(function(o) {
-    return wallet.hasHash(conv.bytesToHex(o.script.simpleOutPubKeyHash()));
+    return wallet.hasHash(convert.bytesToHex(o.script.simpleOutPubKeyHash()));
   })
   .reduce(function(t,o) { return t+o.value },0);
 
   var valueIn = this.ins.filter(function(i) {
-    return wallet.hasHash(conv.bytesToHex(i.script.simpleInPubKeyHash()))
+    return wallet.hasHash(convert.bytesToHex(i.script.simpleInPubKeyHash()))
         && wallet.txIndex[i.outpoint.hash];
   })
   .reduce(function(t,i) {
@@ -409,7 +409,7 @@ Transaction.prototype.calcImpact = function (wallet) {
 
 Transaction.deserialize = function(buffer) {
     if (typeof buffer == "string") {
-        buffer = conv.hexToBytes(buffer)
+        buffer = convert.hexToBytes(buffer)
     }
     var pos = 0;
     var readAsInt = function(bytes) {
@@ -441,7 +441,7 @@ Transaction.deserialize = function(buffer) {
     for (var i = 0; i < ins; i++) {
         obj.ins.push({
             outpoint: {
-                hash: conv.bytesToHex(readBytes(32).reverse()),
+                hash: convert.bytesToHex(readBytes(32).reverse()),
                 index: readAsInt(4)
             },
             script: new Script(readVarString()),
@@ -451,7 +451,7 @@ Transaction.deserialize = function(buffer) {
     var outs = readVarInt();
     for (var i = 0; i < outs; i++) {
         obj.outs.push({
-            value: util.bytesToNum(readBytes(8)),
+            value: convert.bytesToNum(readBytes(8)),
             script: new Script(readVarString())
         });
     }
@@ -523,8 +523,8 @@ Transaction.prototype.applyMultisigs = function(index, script, sigs, type) {
 Transaction.prototype.validateSig = function(index, script, sig, pub) {
     script = new Script(script);
     var hash = this.hashTransactionForSignature(script,index,1);
-    return ECDSA.verify(hash, conv.coerceToBytes(sig),
-                                      conv.coerceToBytes(pub));
+    return ECDSA.verify(hash, convert.coerceToBytes(sig),
+                                      convert.coerceToBytes(pub));
 }
 
 
@@ -561,7 +561,7 @@ var TransactionOut = function (data) {
     this.script =
         data.script instanceof Script    ? data.script.clone()
       : Array.isArray(data.script)        ? new Script(data.script)
-      : typeof data.script == "string"   ? new Script(conv.hexToBytes(data.script))
+      : typeof data.script == "string"   ? new Script(convert.hexToBytes(data.script))
       : data.scriptPubKey                ? Script.fromScriptSig(data.scriptPubKey)
       : data.address                     ? Script.createOutputScript(data.address)
       :                                    new Script();
@@ -569,7 +569,7 @@ var TransactionOut = function (data) {
     if (this.script.buffer.length > 0) this.address = this.script.toAddress();
 
     this.value =
-        Array.isArray(data.value)         ? util.bytesToNum(data.value)
+        Array.isArray(data.value)         ? convert.bytesToNum(data.value)
       : "string" == typeof data.value    ? parseInt(data.value)
       : data.value instanceof BigInteger ? parseInt(data.value.toString())
       :                                    data.value;

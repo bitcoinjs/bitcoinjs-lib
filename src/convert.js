@@ -1,3 +1,5 @@
+var Crypto = require('crypto-js');
+var WordArray = Crypto.lib.WordArray;
 var base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 exports.lpad = function lpad(str, padString, length) {
@@ -100,3 +102,59 @@ exports.stringToBytes = function(string) {
         return x.charCodeAt(0)
     });
 }
+
+/**
+ * Create a byte array representing a number with the given length
+ */
+exports.numToBytes = function(num, bytes) {
+    if (bytes === undefined) bytes = 8;
+    if (bytes === 0) return [];
+    return [num % 256].concat(module.exports.numToBytes(Math.floor(num / 256), bytes - 1));
+}
+
+/**
+ * Convert a byte array to the number that it represents
+ */
+exports.bytesToNum = function(bytes) {
+    if (bytes.length === 0) return 0;
+    return bytes[0] + 256 * module.exports.bytesToNum(bytes.slice(1));
+}
+
+/**
+ * Turn an integer into a "var_int".
+ *
+ * "var_int" is a variable length integer used by Bitcoin's binary format.
+ *
+ * Returns a byte array.
+ */
+exports.numToVarInt = function(num) {
+    if (num < 253) return [num];
+    if (num < 65536) return [253].concat(exports.numToBytes(num, 2));
+    if (num < 4294967296) return [254].concat(exports.numToBytes(num, 4));
+    return [253].concat(exports.numToBytes(num, 8));
+}
+
+exports.bytesToWords = function (bytes) {
+    var words = [];
+    for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
+        words[b >>> 5] |= bytes[i] << (24 - b % 32);
+    }
+    return words;
+}
+
+exports.wordsToBytes = function (words) {
+    var bytes = [];
+    for (var b = 0; b < words.length * 32; b += 8) {
+        bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+    }
+    return bytes;
+}
+
+exports.bytesToWordArray = function (bytes) {
+  return new WordArray.init(exports.bytesToWords(bytes), bytes.length)
+}
+
+exports.wordArrayToBytes = function (wordArray) {
+  return exports.wordsToBytes(wordArray.words)
+}
+

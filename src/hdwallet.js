@@ -13,8 +13,8 @@ var Network = require('./network')
 var HDWallet = module.exports = function(seed, network) {
     if (seed === undefined) return
 
-    var seedWords = util.bytesToWordArray(convert.stringToBytes(seed))
-    var I = util.wordArrayToBytes(HmacSHA512(seedWords, 'Bitcoin seed'))
+    var seedWords = convert.bytesToWordArray(convert.stringToBytes(seed))
+    var I = convert.wordArrayToBytes(HmacSHA512(seedWords, 'Bitcoin seed'))
     this.chaincode = I.slice(32)
     this.network = network || 'mainnet'
     if(!Network.hasOwnProperty(this.network)) {
@@ -72,7 +72,7 @@ HDWallet.fromBytes = function(input) {
     // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private;
     // testnet: 0x043587CF public, 0x04358394 private)
     var versionBytes = input.slice(0, 4)
-    var versionWord = util.bytesToWords(versionBytes)[0]
+    var versionWord = convert.bytesToWords(versionBytes)[0]
     var type
 
     for(var name in Network) {
@@ -97,7 +97,7 @@ HDWallet.fromBytes = function(input) {
 
     // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
     // This is encoded in MSB order. (0x00000000 if master key)
-    hd.index = util.bytesToNum(input.slice(9, 13).reverse())
+    hd.index = convert.bytesToNum(input.slice(9, 13).reverse())
     assert(hd.depth > 0 || hd.index === 0)
 
     // 32 bytes: the chain code
@@ -134,7 +134,7 @@ HDWallet.prototype.toBytes = function(priv) {
     // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private; testnet: 0x043587CF public,
     // 0x04358394 private)
     var version = Network[this.network].hdVersions[priv ? 'priv' : 'pub']
-    var vBytes = util.wordsToBytes([version])
+    var vBytes = convert.wordsToBytes([version])
 
     buffer = buffer.concat(vBytes)
     assert.equal(buffer.length, 4)
@@ -150,7 +150,7 @@ HDWallet.prototype.toBytes = function(priv) {
 
     // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
     // This is encoded in MSB order. (0x00000000 if master key)
-    buffer = buffer.concat(util.numToBytes(this.index, 4).reverse())
+    buffer = buffer.concat(convert.numToBytes(this.index, 4).reverse())
     assert.equal(buffer.length, 4 + 1 + 4 + 4)
 
     // 32 bytes: the chain code
@@ -184,7 +184,7 @@ HDWallet.prototype.toBase58 = function(priv) {
 
 HDWallet.prototype.derive = function(i) {
     var I
-    , iBytes = util.numToBytes(i, 4).reverse()
+    , iBytes = convert.numToBytes(i, 4).reverse()
     , cPar = this.chaincode
     , usePriv = i >= HDWallet.HIGHEST_BIT
     , SHA512 = Crypto.algo.SHA512

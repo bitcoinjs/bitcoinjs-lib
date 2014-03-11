@@ -2,7 +2,7 @@ var BigInteger = require('./jsbn/jsbn');
 var sec = require('./jsbn/sec');
 var base58 = require('./base58');
 var util = require('./util');
-var conv = require('./convert');
+var convert = require('./convert');
 var Address = require('./address');
 var ecdsa = require('./ecdsa');
 var ECPointFp = require('./jsbn/ec').ECPointFp;
@@ -33,12 +33,12 @@ ECKey.prototype.import = function (input,compressed,version) {
         : input instanceof BigInteger              ? input.mod(ecparams.getN())
         : Array.isArray(input)                      ? fromBin(input.slice(0,32))
         : typeof input != "string"                 ? null
-        : input.length == 44                       ? fromBin(conv.base64ToBytes(input))
+        : input.length == 44                       ? fromBin(convert.base64ToBytes(input))
         : input.length == 51 && input[0] == '5'    ? fromBin(base58.checkDecode(input))
         : input.length == 51 && input[0] == '9'    ? fromBin(base58.checkDecode(input))
         : input.length == 52 && has('LK',input[0]) ? fromBin(base58.checkDecode(input).slice(0,32))
         : input.length == 52 && input[0] == 'c'    ? fromBin(base58.checkDecode(input).slice(0,32))
-        : has([64,65],input.length)                ? fromBin(conv.hexToBytes(input.slice(0,64)))
+        : has([64,65],input.length)                ? fromBin(convert.hexToBytes(input.slice(0,64)))
                                                    : null
 
     this.compressed =
@@ -86,7 +86,7 @@ ECKey.prototype['export'] = function(format) {
 };
 
 ECKey.prototype.toBin = function() {
-    return conv.bytesToString(this.toBytes())
+    return convert.bytesToString(this.toBytes())
 }
 
 ECKey.prototype.toBase58 = function() {
@@ -96,7 +96,7 @@ ECKey.prototype.toBase58 = function() {
 ECKey.prototype.toWif = ECKey.prototype.toBase58
 
 ECKey.prototype.toHex = function() {
-    return conv.bytesToHex(this.toBytes())
+    return convert.bytesToHex(this.toBytes())
 }
 
 ECKey.prototype.toBytes = function() {
@@ -106,7 +106,7 @@ ECKey.prototype.toBytes = function() {
 }
 
 ECKey.prototype.toBase64 = function() {
-    return conv.bytesToBase64(this.toBytes())
+    return convert.bytesToBase64(this.toBytes())
 }
 
 ECKey.prototype.toString = ECKey.prototype.toBase58
@@ -146,7 +146,7 @@ ECPubKey.prototype.import = function(input,compressed,version) {
           input instanceof ECPointFp ? input
         : input instanceof ECKey     ? ecparams.getG().multiply(input.priv)
         : input instanceof ECPubKey  ? input.pub
-        : typeof input == "string"   ? decode(conv.hexToBytes(input))
+        : typeof input == "string"   ? decode(convert.hexToBytes(input))
         : Array.isArray(input)        ? decode(input)
                                      : ecparams.getG().multiply(ecdsa.getBigRandom(ecparams.getN()))
 
@@ -182,11 +182,11 @@ ECPubKey.prototype.toBytes = function(compressed) {
 }
 
 ECPubKey.prototype.toHex = function() {
-    return conv.bytesToHex(this.toBytes())
+    return convert.bytesToHex(this.toBytes())
 }
 
 ECPubKey.prototype.toBin = function() {
-    return conv.bytesToString(this.toBytes())
+    return convert.bytesToString(this.toBytes())
 }
 
 ECPubKey.prototype.toBase58 = function() {

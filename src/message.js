@@ -2,21 +2,20 @@
 
 var SHA256 = require('crypto-js/sha256');
 var ecdsa = require('./ecdsa');
-var conv = require('./convert');
-var util = require('./util');
+var convert = require('./convert');
 
 var Message = {};
 
 Message.magicPrefix = "Bitcoin Signed Message:\n";
 
 Message.makeMagicMessage = function (message) {
-  var magicBytes = conv.stringToBytes(Message.magicPrefix);
-  var messageBytes = conv.stringToBytes(message);
+  var magicBytes = convert.stringToBytes(Message.magicPrefix);
+  var messageBytes = convert.stringToBytes(message);
 
   var buffer = [];
-  buffer = buffer.concat(util.numToVarInt(magicBytes.length));
+  buffer = buffer.concat(convert.numToVarInt(magicBytes.length));
   buffer = buffer.concat(magicBytes);
-  buffer = buffer.concat(util.numToVarInt(messageBytes.length));
+  buffer = buffer.concat(convert.numToVarInt(messageBytes.length));
   buffer = buffer.concat(messageBytes);
 
   return buffer;
@@ -24,7 +23,7 @@ Message.makeMagicMessage = function (message) {
 
 Message.getHash = function (message) {
   var buffer = Message.makeMagicMessage(message);
-  return util.wordArrayToBytes(SHA256(SHA256(util.bytesToWordArray(buffer))));
+  return convert.wordArrayToBytes(SHA256(SHA256(convert.bytesToWordArray(buffer))));
 };
 
 Message.signMessage = function (key, message, compressed) {
@@ -48,11 +47,11 @@ Message.signMessage = function (key, message, compressed) {
 
   sig = [i].concat(rBa).concat(sBa);
 
-  return conv.bytesToHex(sig);
+  return convert.bytesToHex(sig);
 };
 
 Message.verifyMessage = function (address, sig, message) {
-  sig = conv.hexToBytes(sig);
+  sig = convert.hexToBytes(sig);
   sig = ecdsa.parseSigCompact(sig);
 
   var hash = Message.getHash(message);
