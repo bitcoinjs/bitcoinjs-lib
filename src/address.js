@@ -1,5 +1,4 @@
 var base58 = require('./base58');
-var Crypto = require('./crypto-js/crypto');
 var conv = require('./convert');
 var util = require('./util');
 var mainnet = require('./network').mainnet.addressVersion;

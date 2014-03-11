@@ -1,7 +1,6 @@
 var BigInteger = require('./jsbn/jsbn');
 var sec = require('./jsbn/sec');
 var base58 = require('./base58');
-var Crypto = require('./crypto-js/crypto');
 var util = require('./util');
 var conv = require('./convert');
 var Address = require('./address');

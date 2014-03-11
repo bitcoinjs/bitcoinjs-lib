@@ -3,7 +3,7 @@ var util = require('./util');
 var SecureRandom = require('./jsbn/rng');
 var BigInteger = require('./jsbn/jsbn');
 var conv = require('./convert')
-var Crypto = require('./crypto-js/crypto.js')
+var HmacSHA256 = require('crypto-js/hmac-sha256');
 
 var ECPointFp = require('./jsbn/ec').ECPointFp;
 
@@ -39,16 +39,21 @@ function implShamirsTrick(P, k, Q, l)
 };
 
 function deterministicGenerateK(hash,key) {
-    var v = [];
-    var k = [];
-    for (var i = 0;i < 32;i++) v.push(1);
-    for (var i = 0;i < 32;i++) k.push(0);
-    k = Crypto.HMAC(Crypto.SHA256,v.concat([0]).concat(key).concat(hash),k,{ asBytes: true  })
-    v = Crypto.HMAC(Crypto.SHA256,v,k,{ asBytes: true  })
-    k = Crypto.HMAC(Crypto.SHA256,v.concat([1]).concat(key).concat(hash),k,{ asBytes: true  })
-    v = Crypto.HMAC(Crypto.SHA256,v,k,{ asBytes: true  })
-    v = Crypto.HMAC(Crypto.SHA256,v,k,{ asBytes: true  })
-    return BigInteger.fromByteArrayUnsigned(v);
+    var vArr = [];
+    var kArr = [];
+    for (var i = 0;i < 32;i++) vArr.push(1);
+    for (var i = 0;i < 32;i++) kArr.push(0);
+    var v = util.bytesToWordArray(vArr)
+    var k = util.bytesToWordArray(kArr)
+
+    k = HmacSHA256(util.bytesToWordArray(vArr.concat([0]).concat(key).concat(hash)), k)
+    v = HmacSHA256(v, k)
+    vArr = util.wordArrayToBytes(v)
+    k = HmacSHA256(util.bytesToWordArray(vArr.concat([1]).concat(key).concat(hash)), k)
+    v = HmacSHA256(v,k)
+    v = HmacSHA256(v,k)
+    vArr = util.wordArrayToBytes(v)
+    return BigInteger.fromByteArrayUnsigned(vArr);
 }
 
 var ECDSA = {

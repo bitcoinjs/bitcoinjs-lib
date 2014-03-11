@@ -2,8 +2,11 @@
 // https://en.bitcoin.it/wiki/Base58Check_encoding
 
 var BigInteger = require('./jsbn/jsbn');
-var Crypto = require('./crypto-js/crypto');
+var Crypto = require('crypto-js');
+var SHA256 = Crypto.SHA256;
+var WordArray = Crypto.lib.WordArray;
 var conv = require('./convert');
+var util = require('./util');
 
 var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 var base = BigInteger.valueOf(58);
@@ -80,18 +83,15 @@ module.exports.decode = function (input) {
 
 module.exports.checkEncode = function(input, vbyte) {
     vbyte = vbyte || 0;
-    var front = [vbyte].concat(input);
-    var checksum = Crypto.SHA256(Crypto.SHA256(front, {asBytes: true}), {asBytes: true})
-                        .slice(0,4);
-    return module.exports.encode(front.concat(checksum));
+    var front = [vbyte].concat(input)
+    return module.exports.encode(front.concat(getChecksum(front)));
 }
 
 module.exports.checkDecode = function(input) {
     var bytes = module.exports.decode(input),
         front = bytes.slice(0,bytes.length-4),
         back = bytes.slice(bytes.length-4);
-    var checksum = Crypto.SHA256(Crypto.SHA256(front,{asBytes: true}), {asBytes: true})
-                        .slice(0,4);
+    var checksum = getChecksum(front)
     if (""+checksum != ""+back) {
         throw new Error("Checksum failed");
     }
@@ -99,3 +99,11 @@ module.exports.checkDecode = function(input) {
     o.version = front[0];
     return o;
 }
+
+function getChecksum(bytes) {
+  var wordArray = util.bytesToWordArray(bytes)
+  return conv.hexToBytes(SHA256(SHA256(wordArray)).toString()).slice(0,4);
+}
+
+module.exports.getChecksum = getChecksum
+
