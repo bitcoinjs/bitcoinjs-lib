@@ -27,7 +27,7 @@ Message.getHash = function (message) {
   return Crypto.SHA256(Crypto.SHA256(buffer, {asBytes: true}), {asBytes: true});
 };
 
-Message.signMessage = function (key, message, compressed) {
+Message.signMessage = function (key, message) {
   var hash = Message.getHash(message);
 
   var sig = key.sign(hash);
@@ -37,7 +37,7 @@ Message.signMessage = function (key, message, compressed) {
   var i = ecdsa.calcPubkeyRecoveryParam(key, obj.r, obj.s, hash);
 
   i += 27;
-  if (compressed) i += 4;
+  if (key.compressed) i += 4;
 
   var rBa = obj.r.toByteArrayUnsigned();
   var sBa = obj.s.toByteArrayUnsigned();
