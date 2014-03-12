@@ -6,7 +6,7 @@ var ecdsa = require('../').ecdsa;
 var ecparams = sec('secp256k1');
 
 describe('ecdsa', function() {
-    it('handles point ultiplication', function() {
+    it('handles point multiplication', function() {
         var G = ecparams.getG();
         var n = ecparams.getN();
 
