@@ -23,6 +23,7 @@ var Wallet = function (seed, options) {
 
     // Addresses
     this.addresses = [];
+    this.changeAddresses = [];
 
     // Transaction output data
     this.outputs = {};
@@ -38,19 +39,22 @@ var Wallet = function (seed, options) {
     }
     this.newMasterKey(seed, network)
 
-    // HD first-level child derivation method (i.e. public or private child key derivation)
-    // NB: if not specified, defaults to private child derivation
-    // Also see https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
+    // HD first-level child derivation method should be private
+    // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
     this.accountZero = masterkey.derivePrivate(0)
     this.externalAccount = this.accountZero.derive(0)
     this.internalAccount = this.accountZero.derive(1)
 
-    // Add a new address
     this.generateAddress = function() {
-        var key = this.externalAccount.derive(keys.length)
-        keys.push(key); // consider removing this and derive on-demand for simplified encrypted keychain
+        var key = this.externalAccount.derive(this.addresses.length)
         this.addresses.push(key.getBitcoinAddress().toString())
         return this.addresses[this.addresses.length - 1]
+    }
+
+    this.generateChangeAddress = function() {
+        var key = this.internalAccount.derive(this.changeAddresses.length)
+        this.changeAddresses.push(key.getBitcoinAddress().toString())
+        return this.changeAddresses[this.changeAddresses.length - 1]
     }
 
     // Processes a transaction object

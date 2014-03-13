@@ -52,12 +52,26 @@ describe('Wallet', function() {
   })
 
   describe('generateAddress', function(){
-    var wallet;
-    beforeEach(function() { wallet = new Wallet(seed, {network: 'testnet'}) })
+    it('generate receiving addresses', function(){
+      var wallet = new Wallet(seed, {network: 'testnet'})
+      var expectedAddresses = [
+        "n1GyUANZand9Kw6hGSV9837cCC9FFUQzQa",
+        "n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"
+      ]
 
-    it('defaults to generating receiving addresses', function(){
-      assert.equal(wallet.generateAddress(), "n1GyUANZand9Kw6hGSV9837cCC9FFUQzQa")
-      assert.equal(wallet.generateAddress(), "n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X")
+      assert.equal(wallet.generateAddress(), expectedAddresses[0])
+      assert.equal(wallet.generateAddress(), expectedAddresses[1])
+      assert.deepEqual(wallet.addresses, expectedAddresses)
+    })
+  })
+
+  describe('generateChangeAddress', function(){
+    it('generates change addresses', function(){
+      var wallet = new Wallet(seed, {network: 'testnet'})
+      var expectedAddresses = ["mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"]
+
+      assert.equal(wallet.generateChangeAddress(), expectedAddresses[0])
+      assert.deepEqual(wallet.changeAddresses, expectedAddresses)
     })
   })
 })
