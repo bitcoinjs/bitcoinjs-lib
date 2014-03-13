@@ -79,8 +79,8 @@ describe('Wallet', function() {
     it('returns the private key at the given index of external account', function(){
       var wallet = new Wallet(seed, {network: 'testnet'})
 
-      assertPrivateKeyEqual(wallet.getPrivateKey(0), wallet.externalAccount.derive(0))
-      assertPrivateKeyEqual(wallet.getPrivateKey(1), wallet.externalAccount.derive(1))
+      assertPrivateKeyEqual(wallet.getPrivateKey(0), wallet.externalAccount.derive(0).priv)
+      assertPrivateKeyEqual(wallet.getPrivateKey(1), wallet.externalAccount.derive(1).priv)
     })
   })
 
@@ -88,8 +88,8 @@ describe('Wallet', function() {
     it('returns the private key at the given index of internal account', function(){
       var wallet = new Wallet(seed, {network: 'testnet'})
 
-      assertPrivateKeyEqual(wallet.getInternalPrivateKey(0), wallet.internalAccount.derive(0))
-      assertPrivateKeyEqual(wallet.getInternalPrivateKey(1), wallet.internalAccount.derive(1))
+      assertPrivateKeyEqual(wallet.getInternalPrivateKey(0), wallet.internalAccount.derive(0).priv)
+      assertPrivateKeyEqual(wallet.getInternalPrivateKey(1), wallet.internalAccount.derive(1).priv)
     })
   })
 
@@ -101,9 +101,9 @@ describe('Wallet', function() {
       wallet.generateAddress()
 
       assertPrivateKeyEqual(wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"),
-                   wallet.externalAccount.derive(1))
+                   wallet.externalAccount.derive(1).priv)
       assertPrivateKeyEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
-                   wallet.internalAccount.derive(0))
+                   wallet.internalAccount.derive(0).priv)
     })
 
     it('raises an error when address is not found', function(){

@@ -182,11 +182,11 @@ var Wallet = function (seed, options) {
     this.getMasterKey = function() { return masterkey }
 
     this.getPrivateKey = function(index) {
-        return this.externalAccount.derive(index)
+        return this.externalAccount.derive(index).priv
     }
 
     this.getInternalPrivateKey = function(index) {
-        return this.internalAccount.derive(index)
+        return this.internalAccount.derive(index).priv
     }
 
     this.getPrivateKeyForAddress = function(address) {
