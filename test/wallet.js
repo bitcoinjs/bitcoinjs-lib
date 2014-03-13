@@ -74,4 +74,47 @@ describe('Wallet', function() {
       assert.deepEqual(wallet.changeAddresses, expectedAddresses)
     })
   })
+
+  describe('getPrivateKey', function(){
+    it('returns the private key at the given index of external account', function(){
+      var wallet = new Wallet(seed, {network: 'testnet'})
+
+      assertPrivateKeyEqual(wallet.getPrivateKey(0), wallet.externalAccount.derive(0))
+      assertPrivateKeyEqual(wallet.getPrivateKey(1), wallet.externalAccount.derive(1))
+    })
+  })
+
+  describe('getInternalPrivateKey', function(){
+    it('returns the private key at the given index of internal account', function(){
+      var wallet = new Wallet(seed, {network: 'testnet'})
+
+      assertPrivateKeyEqual(wallet.getInternalPrivateKey(0), wallet.internalAccount.derive(0))
+      assertPrivateKeyEqual(wallet.getInternalPrivateKey(1), wallet.internalAccount.derive(1))
+    })
+  })
+
+  describe('getPrivateKeyForAddress', function(){
+    it('returns the private key for the given address', function(){
+      var wallet = new Wallet(seed, {network: 'testnet'})
+      wallet.generateChangeAddress()
+      wallet.generateAddress()
+      wallet.generateAddress()
+
+      assertPrivateKeyEqual(wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"),
+                   wallet.externalAccount.derive(1))
+      assertPrivateKeyEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
+                   wallet.internalAccount.derive(0))
+    })
+
+    it('raises an error when address is not found', function(){
+      var wallet = new Wallet(seed, {network: 'testnet'})
+      assert.throws(function() {
+        wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X")
+      }, Error, 'Unknown address. Make sure the address is from the keychain and has been generated.')
+    })
+  })
+
+  function assertPrivateKeyEqual(key1, key2){
+    assert.equal(key1.toString(), key2.toString())
+  }
 })

@@ -182,13 +182,23 @@ var Wallet = function (seed, options) {
     this.getMasterKey = function() { return masterkey }
 
     this.getPrivateKey = function(index) {
-        if (typeof index == "string")
-            return keys.filter(function(i,k){ return addresses[i] == index })[0]
-        else
-            return keys[index]
+        return this.externalAccount.derive(index)
     }
 
-    this.getPrivateKeys = function() { return keys }
+    this.getInternalPrivateKey = function(index) {
+        return this.internalAccount.derive(index)
+    }
+
+    this.getPrivateKeyForAddress = function(address) {
+      var index;
+      if((index = this.addresses.indexOf(address)) > -1) {
+        return this.getPrivateKey(index)
+      } else if((index = this.changeAddresses.indexOf(address)) > -1) {
+        return this.getInternalPrivateKey(index)
+      } else {
+        throw new Error('Unknown address. Make sure the address is from the keychain and has been generated.')
+      }
+    }
 };
 
 module.exports = Wallet;
