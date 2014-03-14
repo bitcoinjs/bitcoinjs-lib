@@ -24,7 +24,7 @@
     "browsers": [
       "ie/8..latest",
       "chrome/20..latest",
-      "firefox/10..latest",
+      "firefox/15..latest",
       "safari/latest",
       "opera/11.0..latest",
       "iphone/6",
