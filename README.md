@@ -1,8 +1,8 @@
 # bitcoinjs-lib
 
-[![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
+[![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
 
-[![browser support](https://ci.testling.com/bitcoinjs/bitcoinjs-lib.png)](https://ci.testling.com/bitcoinjs/bitcoinjs-lib)
+[![Browser Support](https://ci.testling.com/bitcoinjs/bitcoinjs-lib.png)](https://ci.testling.com/bitcoinjs/bitcoinjs-lib)
 
 A pure JavaScript Bitcoin library for node.js and browsers. Backed by (slowly improving) testing, proven by over a million wallet users. The backbone for almost all Bitcoin web wallets in production today.
 
