@@ -19,6 +19,9 @@ var Wallet = function (seed, options) {
     // Stored in a closure to make accidental serialization less likely
     var masterkey = null;
     var me = this;
+    var accountZero = null;
+    var internalAccount = null;
+    var externalAccount = null;
 
     // Addresses
     this.addresses = [];
@@ -39,18 +42,18 @@ var Wallet = function (seed, options) {
 
     // HD first-level child derivation method should be private
     // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-    this.accountZero = masterkey.derivePrivate(0)
-    this.externalAccount = this.accountZero.derive(0)
-    this.internalAccount = this.accountZero.derive(1)
+    accountZero = masterkey.derivePrivate(0)
+    externalAccount = accountZero.derive(0)
+    internalAccount = accountZero.derive(1)
 
     this.generateAddress = function() {
-        var key = this.externalAccount.derive(this.addresses.length)
+        var key = externalAccount.derive(this.addresses.length)
         this.addresses.push(key.getBitcoinAddress().toString())
         return this.addresses[this.addresses.length - 1]
     }
 
     this.generateChangeAddress = function() {
-        var key = this.internalAccount.derive(this.changeAddresses.length)
+        var key = internalAccount.derive(this.changeAddresses.length)
         this.changeAddresses.push(key.getBitcoinAddress().toString())
         return this.changeAddresses[this.changeAddresses.length - 1]
     }
@@ -174,13 +177,16 @@ var Wallet = function (seed, options) {
     }
 
     this.getMasterKey = function() { return masterkey }
+    this.getAccountZero = function() { return accountZero }
+    this.getInternalAccount = function() { return internalAccount }
+    this.getExternalAccount = function() { return externalAccount }
 
     this.getPrivateKey = function(index) {
-        return this.externalAccount.derive(index).priv
+        return externalAccount.derive(index).priv
     }
 
     this.getInternalPrivateKey = function(index) {
-        return this.internalAccount.derive(index).priv
+        return internalAccount.derive(index).priv
     }
 
     this.getPrivateKeyForAddress = function(address) {
