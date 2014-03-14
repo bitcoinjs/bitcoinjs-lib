@@ -50,6 +50,7 @@ After loading this file in your browser, you will be able to use the global `Bit
 - [Blockchain.info Wallet](http://blockchain.info/wallet)
 - [Bitaddress.org](https://www.bitaddress.org)
 - [Coinpunk](https://coinpunk.com)
+- [DarkWallet](https://darkwallet.unsystem.net)
 
 Feel free to send pull requests to have your project/startup listed here.
 
