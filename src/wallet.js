@@ -17,7 +17,6 @@ var Wallet = function (seed, options) {
     var network = options.network || 'mainnet'
 
     // Stored in a closure to make accidental serialization less likely
-    var keys = [];
     var masterkey = null;
     var me = this;
 
@@ -35,7 +34,6 @@ var Wallet = function (seed, options) {
             rng.nextBytes(seedBytes);
         }
         masterkey = new HDNode(seed, network);
-        keys = []
     }
     this.newMasterKey(seed, network)
 
@@ -168,12 +166,8 @@ var Wallet = function (seed, options) {
         tx.ins.map(function(inp,i) {
             var inp = inp.outpoint.hash+':'+inp.outpoint.index;
             if (me.outputs[inp]) {
-                var address = me.outputs[inp].address,
-                    ind = me.addresses.indexOf(address);
-                if (ind >= 0) {
-                    var key = keys[ind]
-                    tx.sign(ind,key)
-                }
+                var address = me.outputs[inp].address
+                tx.sign(i, me.getPrivateKeyForAddress(address))
             }
         })
         return tx;
