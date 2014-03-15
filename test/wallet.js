@@ -39,6 +39,13 @@ describe('Wallet', function() {
       assert.equal(account.depth, 2)
     })
 
+    describe('when seed is not specified', function(){
+      it('generates a seed', function(){
+        var wallet = new Wallet()
+        assert.ok(wallet.getMasterKey())
+      })
+    })
+
     describe('constructor options', function() {
       var wallet;
       beforeEach(function() {

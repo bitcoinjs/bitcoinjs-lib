@@ -34,7 +34,7 @@ var Wallet = function (seed, options) {
     this.newMasterKey = function(seed, network) {
         if (!seed) {
             var seed= new Array(32);
-            rng.nextBytes(seedBytes);
+            rng.nextBytes(seed);
         }
         masterkey = new HDNode(seed, network);
     }
