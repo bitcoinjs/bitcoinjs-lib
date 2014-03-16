@@ -7,6 +7,7 @@ var ECKey = require('./eckey').ECKey;
 var ECDSA = require('./ecdsa');
 var Address = require('./address');
 var Message = require('./message');
+var SHA256 = require('./crypto-js/sha256');
 
 var Transaction = function (doc) {
     if (!(this instanceof Transaction)) { return new Transaction(doc); }
@@ -207,7 +208,8 @@ function (connectedScript, inIndex, hashType)
 
   buffer = buffer.concat(convert.numToBytes(parseInt(hashType),4));
 
-  return Message.getHash(buffer)
+  buffer = convert.bytesToWordArray(buffer);
+  return convert.wordArrayToBytes(SHA256(SHA256(buffer)));
 };
 
 /**
@@ -217,8 +219,8 @@ function (connectedScript, inIndex, hashType)
  */
 Transaction.prototype.getHash = function ()
 {
-  var buffer = this.serialize();
-  return Message.getHash(buffer).reverse()
+  var buffer = convert.bytesToWordArray(this.serialize());
+  return convert.wordArrayToBytes(SHA256(SHA256(buffer))).reverse();
 };
 
 /**
