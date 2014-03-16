@@ -58,6 +58,34 @@ describe('Wallet', function() {
     })
   })
 
+  describe('newMasterKey', function(){
+    it('resets accounts', function(){
+      var wallet = new Wallet()
+      var oldAccountZero = wallet.getAccountZero()
+      var oldExternalAccount = wallet.getExternalAccount()
+      var oldInternalAccount = wallet.getInternalAccount()
+
+      wallet.newMasterKey(seed)
+      assertNotEqual(wallet.getAccountZero(), oldAccountZero)
+      assertNotEqual(wallet.getExternalAccount(), oldExternalAccount)
+      assertNotEqual(wallet.getInternalAccount(), oldInternalAccount)
+    })
+
+    it('resets addresses', function(){
+      var wallet = new Wallet()
+      wallet.generateAddress()
+      wallet.generateChangeAddress()
+      var oldAddresses = wallet.addresses
+      var oldChangeAddresses = wallet.changeAddresses
+      assert.notDeepEqual(oldAddresses, [])
+      assert.notDeepEqual(oldChangeAddresses, [])
+
+      wallet.newMasterKey(seed)
+      assert.deepEqual(wallet.addresses, [])
+      assert.deepEqual(wallet.changeAddresses, [])
+    })
+  })
+
   describe('generateAddress', function(){
     it('generate receiving addresses', function(){
       var wallet = new Wallet(seed, {network: 'testnet'})
@@ -86,8 +114,8 @@ describe('Wallet', function() {
     it('returns the private key at the given index of external account', function(){
       var wallet = new Wallet(seed, {network: 'testnet'})
 
-      assertPrivateKeyEqual(wallet.getPrivateKey(0), wallet.getExternalAccount().derive(0).priv)
-      assertPrivateKeyEqual(wallet.getPrivateKey(1), wallet.getExternalAccount().derive(1).priv)
+      assertEqual(wallet.getPrivateKey(0), wallet.getExternalAccount().derive(0).priv)
+      assertEqual(wallet.getPrivateKey(1), wallet.getExternalAccount().derive(1).priv)
     })
   })
 
@@ -95,8 +123,8 @@ describe('Wallet', function() {
     it('returns the private key at the given index of internal account', function(){
       var wallet = new Wallet(seed, {network: 'testnet'})
 
-      assertPrivateKeyEqual(wallet.getInternalPrivateKey(0), wallet.getInternalAccount().derive(0).priv)
-      assertPrivateKeyEqual(wallet.getInternalPrivateKey(1), wallet.getInternalAccount().derive(1).priv)
+      assertEqual(wallet.getInternalPrivateKey(0), wallet.getInternalAccount().derive(0).priv)
+      assertEqual(wallet.getInternalPrivateKey(1), wallet.getInternalAccount().derive(1).priv)
     })
   })
 
@@ -107,9 +135,9 @@ describe('Wallet', function() {
       wallet.generateAddress()
       wallet.generateAddress()
 
-      assertPrivateKeyEqual(wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"),
+      assertEqual(wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"),
                    wallet.getExternalAccount().derive(1).priv)
-      assertPrivateKeyEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
+      assertEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
                    wallet.getInternalAccount().derive(0).priv)
     })
 
@@ -121,7 +149,11 @@ describe('Wallet', function() {
     })
   })
 
-  function assertPrivateKeyEqual(key1, key2){
-    assert.equal(key1.toString(), key2.toString())
+  function assertEqual(obj1, obj2){
+    assert.equal(obj1.toString(), obj2.toString())
+  }
+
+  function assertNotEqual(obj1, obj2){
+    assert.notEqual(obj1.toString(), obj2.toString())
   }
 })

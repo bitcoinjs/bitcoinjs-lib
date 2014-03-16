@@ -37,14 +37,20 @@ var Wallet = function (seed, options) {
             rng.nextBytes(seed);
         }
         masterkey = new HDNode(seed, network);
+
+        // HD first-level child derivation method should be private
+        // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
+        accountZero = masterkey.derivePrivate(0)
+        externalAccount = accountZero.derive(0)
+        internalAccount = accountZero.derive(1)
+
+        me.addresses = [];
+        me.changeAddresses = [];
+
+        me.outputs = {};
     }
     this.newMasterKey(seed, network)
 
-    // HD first-level child derivation method should be private
-    // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-    accountZero = masterkey.derivePrivate(0)
-    externalAccount = accountZero.derive(0)
-    internalAccount = accountZero.derive(1)
 
     this.generateAddress = function() {
         var key = externalAccount.derive(this.addresses.length)
