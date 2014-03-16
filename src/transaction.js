@@ -7,7 +7,7 @@ var ECKey = require('./eckey').ECKey;
 var ECDSA = require('./ecdsa');
 var Address = require('./address');
 var Message = require('./message');
-var SHA256 = require('./crypto-js/sha256');
+var SHA256 = require('crypto-js/sha256');
 
 var Transaction = function (doc) {
     if (!(this instanceof Transaction)) { return new Transaction(doc); }
