@@ -61,5 +61,53 @@ describe('Transaction', function() {
     })
   })
 
+  describe('creating a transaction', function() {
+    var tx, inTx, expectedTx
+    beforeEach(function() {
+      inTx = Transaction.deserialize('0100000001e0214ebebb0fd3414d3fdc0dbf3b0f4b247a296cafc984558622c3041b0fcc9b010000008b48304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f30141040cd2d2ce17a1e9b2b3b2cb294d40eecf305a25b7e7bfdafae6bb2639f4ee399b3637706c3d377ec4ab781355add443ae864b134c5e523001c442186ea60f0eb8ffffffff03a0860100000000001976a91400ea3576c8fcb0bc8392f10e23a3425ae24efea888ac40420f00000000001976a91477890e8ec967c5fd4316c489d171fd80cf86997188acf07cd210000000001976a9146fb93c557ee62b109370fd9003e456917401cbfa88ac00000000')
+      expectedTx = Transaction.deserialize('0100000001576bc3c3285dbdccd8c3cbd8c03e10d7f77a5c839c744f34c3eb00511059b80c000000006b483045022100a82a31607b837c1ae510ae3338d1d3c7cbd57c15e322ab6e5dc927d49bffa66302205f0db6c90f1fae3c8db4ebfa753d7da1b2343d653ce0331aa94ed375e6ba366c0121020497bfc87c3e97e801414fed6a0db4b8c2e01c46e2cf9dff59b406b52224a76bffffffff02409c0000000000001976a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac50c30000000000001976a91477890e8ec967c5fd4316c489d171fd80cf86997188ac00000000')
+      tx = new Transaction()
+    })
+
+    describe('addInput', function(){
+      it('allows a Transaction object to be passed in', function(){
+        tx.addInput(inTx, 0)
+        verifyTransactionIn()
+      })
+
+      it('allows a Transaction hash to be passed in', function(){
+        tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
+        verifyTransactionIn()
+      })
+
+      it('allows a TransactionIn object to be passed in', function(){
+        var txCopy = tx.clone()
+        txCopy.addInput(inTx, 0)
+        var transactionIn = txCopy.ins[0]
+
+        tx.addInput(transactionIn)
+        verifyTransactionIn()
+      })
+
+      it('allows a string in the form of txhash:index to be passed in', function(){
+        tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57:0")
+        verifyTransactionIn()
+      })
+
+      function verifyTransactionIn(){
+        assert.equal(tx.ins.length, 1)
+
+        var input = tx.ins[0]
+        assert.equal(input.sequence, 4294967295)
+
+        assert.equal(input.outpoint.index, 0)
+        assert.equal(input.outpoint.hash, "0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57")
+
+        assert.deepEqual(input.script.buffer, [])
+      }
+
+    })
+  })
+
 })
 
