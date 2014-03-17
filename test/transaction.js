@@ -105,7 +105,35 @@ describe('Transaction', function() {
 
         assert.deepEqual(input.script.buffer, [])
       }
+    })
 
+    describe('addOutput', function(){
+      it('allows an address and a value to be passed in', function(){
+        tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 40000)
+        verifyTransactionOut()
+      })
+
+      it('allows a string in the form of address:index to be passed in', function(){
+        tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
+        verifyTransactionOut()
+      })
+
+      it('allows a TransactionOut object to be passed in', function(){
+        var txCopy = tx.clone()
+        txCopy.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
+        var transactionOut = txCopy.outs[0]
+
+        tx.addOutput(transactionOut)
+        verifyTransactionOut()
+      })
+
+      function verifyTransactionOut(){
+        assert.equal(tx.outs.length, 1)
+
+        var output = tx.outs[0]
+        assert.equal(output.value, 40000)
+        assert.deepEqual(convert.bytesToHex(output.script.buffer), "76a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac")
+      }
     })
   })
 
