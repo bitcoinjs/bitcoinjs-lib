@@ -12,7 +12,7 @@ var SHA256 = require('crypto-js/sha256');
 var Transaction = function (doc) {
     if (!(this instanceof Transaction)) { return new Transaction(doc); }
     this.version = 1;
-    this.lock_time = 0;
+    this.locktime = 0;
     this.ins = [];
     this.outs = [];
     this.timestamp = null;
@@ -24,7 +24,7 @@ var Transaction = function (doc) {
         }
         if (doc.hash) this.hash = doc.hash;
         if (doc.version) this.version = doc.version;
-        if (doc.lock_time) this.lock_time = doc.lock_time;
+        if (doc.locktime) this.locktime = doc.locktime;
         if (doc.ins && doc.ins.length) {
             for (var i = 0; i < doc.ins.length; i++) {
                 this.addInput(new TransactionIn(doc.ins[i]));
@@ -37,6 +37,8 @@ var Transaction = function (doc) {
         }
         if (doc.timestamp) this.timestamp = doc.timestamp;
         if (doc.block) this.block = doc.block;
+
+        this.hash = this.hash || this.getHash()
     }
 };
 
@@ -144,7 +146,7 @@ Transaction.prototype.serialize = function () {
         buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
     }
-    buffer = buffer.concat(convert.numToBytes(parseInt(this.lock_time),4));
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime),4));
 
     return buffer;
 };
@@ -230,7 +232,7 @@ Transaction.prototype.clone = function ()
 {
   var newTx = new Transaction();
   newTx.version = this.version;
-  newTx.lock_time = this.lock_time;
+  newTx.locktime = this.locktime;
   for (var i = 0; i < this.ins.length; i++) {
     var txin = this.ins[i].clone();
     newTx.addInput(txin);
