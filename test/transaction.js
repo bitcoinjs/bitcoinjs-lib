@@ -1,6 +1,6 @@
-var Transaction = require('../src/transaction.js').Transaction
-var convert = require('../src/convert.js')
-var ECKey = require('../src/eckey.js').ECKey
+var Transaction = require('../src/transaction').Transaction
+var convert = require('../src/convert')
+var ECKey = require('../src/eckey').ECKey
 var assert = require('assert')
 
 describe('Transaction', function() {
@@ -63,16 +63,15 @@ describe('Transaction', function() {
   })
 
   describe('creating a transaction', function() {
-    var tx, inTx, expectedTxSerialized
+    var tx, prevTx
     beforeEach(function() {
-      inTx = Transaction.deserialize('0100000001e0214ebebb0fd3414d3fdc0dbf3b0f4b247a296cafc984558622c3041b0fcc9b010000008b48304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f30141040cd2d2ce17a1e9b2b3b2cb294d40eecf305a25b7e7bfdafae6bb2639f4ee399b3637706c3d377ec4ab781355add443ae864b134c5e523001c442186ea60f0eb8ffffffff03a0860100000000001976a91400ea3576c8fcb0bc8392f10e23a3425ae24efea888ac40420f00000000001976a91477890e8ec967c5fd4316c489d171fd80cf86997188acf07cd210000000001976a9146fb93c557ee62b109370fd9003e456917401cbfa88ac00000000')
-      expectedTxSerialized = '0100000001576bc3c3285dbdccd8c3cbd8c03e10d7f77a5c839c744f34c3eb00511059b80c000000006b483045022100a82a31607b837c1ae510ae3338d1d3c7cbd57c15e322ab6e5dc927d49bffa66302205f0db6c90f1fae3c8db4ebfa753d7da1b2343d653ce0331aa94ed375e6ba366c0121020497bfc87c3e97e801414fed6a0db4b8c2e01c46e2cf9dff59b406b52224a76bffffffff02409c0000000000001976a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac50c30000000000001976a91477890e8ec967c5fd4316c489d171fd80cf86997188ac00000000'
+      prevTx = Transaction.deserialize('0100000001e0214ebebb0fd3414d3fdc0dbf3b0f4b247a296cafc984558622c3041b0fcc9b010000008b48304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f30141040cd2d2ce17a1e9b2b3b2cb294d40eecf305a25b7e7bfdafae6bb2639f4ee399b3637706c3d377ec4ab781355add443ae864b134c5e523001c442186ea60f0eb8ffffffff03a0860100000000001976a91400ea3576c8fcb0bc8392f10e23a3425ae24efea888ac40420f00000000001976a91477890e8ec967c5fd4316c489d171fd80cf86997188acf07cd210000000001976a9146fb93c557ee62b109370fd9003e456917401cbfa88ac00000000')
       tx = new Transaction()
     })
 
     describe('addInput', function(){
       it('allows a Transaction object to be passed in', function(){
-        tx.addInput(inTx, 0)
+        tx.addInput(prevTx, 0)
         verifyTransactionIn()
       })
 
@@ -83,7 +82,7 @@ describe('Transaction', function() {
 
       it('allows a TransactionIn object to be passed in', function(){
         var txCopy = tx.clone()
-        txCopy.addInput(inTx, 0)
+        txCopy.addInput(prevTx, 0)
         var transactionIn = txCopy.ins[0]
 
         tx.addInput(transactionIn)
@@ -146,11 +145,31 @@ describe('Transaction', function() {
         var key = new ECKey('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
         tx.sign(0, key)
 
-        assert.equal(convert.bytesToHex(tx.ins[0].script.buffer),
-                     "483045022100a82a31607b837c1ae510ae3338d1d3c7cbd57c15e322ab6e5dc927d49bffa66302205f0db6c90f1fae3c8db4ebfa753d7da1b2343d653ce0331aa94ed375e6ba366c0121020497bfc87c3e97e801414fed6a0db4b8c2e01c46e2cf9dff59b406b52224a76b")
-        assert.equal(tx.serializeHex(), expectedTxSerialized)
+        var pub = key.getPub().export('bytes')
+        var script = prevTx.outs[0].script.buffer
+        var sig = tx.ins[0].script.chunks[0]
+
+        assert.equal(tx.validateSig(0, script, sig, pub), true)
       })
     })
+
+    describe('validateSig', function(){
+      var validTx
+
+      beforeEach(function() {
+        validTx = Transaction.deserialize('0100000001576bc3c3285dbdccd8c3cbd8c03e10d7f77a5c839c744f34c3eb00511059b80c000000006b483045022100a82a31607b837c1ae510ae3338d1d3c7cbd57c15e322ab6e5dc927d49bffa66302205f0db6c90f1fae3c8db4ebfa753d7da1b2343d653ce0331aa94ed375e6ba366c0121020497bfc87c3e97e801414fed6a0db4b8c2e01c46e2cf9dff59b406b52224a76bffffffff02409c0000000000001976a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac50c30000000000001976a91477890e8ec967c5fd4316c489d171fd80cf86997188ac00000000')
+      })
+
+      it('returns true for valid signature', function(){
+        var key = new ECKey('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
+        var pub = key.getPub().export('bytes')
+        var script = prevTx.outs[0].script.buffer
+        var sig = validTx.ins[0].script.chunks[0]
+
+        assert.equal(validTx.validateSig(0, script, sig, pub), true)
+      })
+    })
+
   })
 
 })
