@@ -6,7 +6,7 @@ var BigInteger = require('./jsbn/jsbn');
 var Transaction = require('./transaction').Transaction;
 var TransactionIn = require('./transaction').TransactionIn;
 var TransactionOut = require('./transaction').TransactionOut;
-var HDWallet = require('./hdwallet.js')
+var HDNode = require('./hdwallet.js')
 var SecureRandom = require('./jsbn/rng');
 var rng = new SecureRandom();
 
@@ -16,20 +16,16 @@ var Wallet = function (seed, options) {
     var options = options || {}
     var network = options.network || 'mainnet'
 
-    // HD first-level child derivation method (i.e. public or private child key derivation)
-    // NB: if not specified, defaults to private child derivation
-    // Also see https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-    this.derivationMethod = options.derivationMethod || 'private'
-    assert(this.derivationMethod == 'public' || this.derivationMethod == 'private',
-        "derivationMethod must be either 'public' or 'private'");
-
     // Stored in a closure to make accidental serialization less likely
-    var keys = [];
     var masterkey = null;
     var me = this;
+    var accountZero = null;
+    var internalAccount = null;
+    var externalAccount = null;
 
     // Addresses
     this.addresses = [];
+    this.changeAddresses = [];
 
     // Transaction output data
     this.outputs = {};
@@ -37,23 +33,35 @@ var Wallet = function (seed, options) {
     // Make a new master key
     this.newMasterKey = function(seed, network) {
         if (!seed) {
-            var seedBytes = new Array(32);
-            rng.nextBytes(seedBytes);
-            seed = convert.bytesToString(seedBytes)
+            var seed= new Array(32);
+            rng.nextBytes(seed);
         }
-        masterkey = new HDWallet(seed, network);
-        keys = []
+        masterkey = new HDNode(seed, network);
+
+        // HD first-level child derivation method should be private
+        // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
+        accountZero = masterkey.derivePrivate(0)
+        externalAccount = accountZero.derive(0)
+        internalAccount = accountZero.derive(1)
+
+        me.addresses = [];
+        me.changeAddresses = [];
+
+        me.outputs = {};
     }
     this.newMasterKey(seed, network)
 
-    // Add a new address
+
     this.generateAddress = function() {
-        if(this.derivationMethod == 'private')
-            keys.push(masterkey.derivePrivate(keys.length));
-        else
-            keys.push(masterkey.derive(keys.length));
-        this.addresses.push(keys[keys.length-1].getBitcoinAddress().toString())
+        var key = externalAccount.derive(this.addresses.length)
+        this.addresses.push(key.getBitcoinAddress().toString())
         return this.addresses[this.addresses.length - 1]
+    }
+
+    this.generateChangeAddress = function() {
+        var key = internalAccount.derive(this.changeAddresses.length)
+        this.changeAddresses.push(key.getBitcoinAddress().toString())
+        return this.changeAddresses[this.changeAddresses.length - 1]
     }
 
     // Processes a transaction object
@@ -167,27 +175,36 @@ var Wallet = function (seed, options) {
         tx.ins.map(function(inp,i) {
             var inp = inp.outpoint.hash+':'+inp.outpoint.index;
             if (me.outputs[inp]) {
-                var address = me.outputs[inp].address,
-                    ind = me.addresses.indexOf(address);
-                if (ind >= 0) {
-                    var key = keys[ind]
-                    tx.sign(ind,key)
-                }
+                var address = me.outputs[inp].address
+                tx.sign(i, me.getPrivateKeyForAddress(address))
             }
         })
         return tx;
     }
 
     this.getMasterKey = function() { return masterkey }
+    this.getAccountZero = function() { return accountZero }
+    this.getInternalAccount = function() { return internalAccount }
+    this.getExternalAccount = function() { return externalAccount }
 
     this.getPrivateKey = function(index) {
-        if (typeof index == "string")
-            return keys.filter(function(i,k){ return addresses[i] == index })[0]
-        else
-            return keys[index]
+        return externalAccount.derive(index).priv
     }
 
-    this.getPrivateKeys = function() { return keys }
+    this.getInternalPrivateKey = function(index) {
+        return internalAccount.derive(index).priv
+    }
+
+    this.getPrivateKeyForAddress = function(address) {
+      var index;
+      if((index = this.addresses.indexOf(address)) > -1) {
+        return this.getPrivateKey(index)
+      } else if((index = this.changeAddresses.indexOf(address)) > -1) {
+        return this.getInternalPrivateKey(index)
+      } else {
+        throw new Error('Unknown address. Make sure the address is from the keychain and has been generated.')
+      }
+    }
 };
 
 module.exports = Wallet;
