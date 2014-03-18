@@ -61,7 +61,7 @@ Transaction.objectify = function (txs) {
  *
  * Can be called with any of:
  *
- * - An existing TransactionOut object
+ * - An existing TransactionIn object
  * - A transaction and an index
  * - A transaction hash and an index
  * - A single string argument of the form txhash:index
@@ -77,9 +77,11 @@ Transaction.prototype.addInput = function (tx, outIndex) {
         return this.addInput(args[0], args[1]);
     }
     else {
+        var hash = typeof tx === "string" ? tx : tx.hash
+        var hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash
         this.ins.push(new TransactionIn({
             outpoint: {
-                hash: tx.hash || tx,
+                hash: hash,
                 index: outIndex
             },
             script: new Script(),
