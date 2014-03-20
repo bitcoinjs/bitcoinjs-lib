@@ -90,6 +90,7 @@ console.log(tx.serializeHex())
 - [Bitaddress.org](https://www.bitaddress.org)
 - [Coinpunk](https://coinpunk.com)
 - [DarkWallet](https://darkwallet.unsystem.net)
+- [GreenAddress](https://greenaddress.it)
 
 Feel free to send pull requests to have your project/startup listed here.
 
