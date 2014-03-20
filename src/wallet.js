@@ -7,8 +7,7 @@ var Transaction = require('./transaction').Transaction;
 var TransactionIn = require('./transaction').TransactionIn;
 var TransactionOut = require('./transaction').TransactionOut;
 var HDNode = require('./hdwallet.js')
-var SecureRandom = require('./jsbn/rng');
-var rng = new SecureRandom();
+var rng = require('secure-random');
 
 var Wallet = function (seed, options) {
     if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
@@ -32,10 +31,7 @@ var Wallet = function (seed, options) {
 
     // Make a new master key
     this.newMasterKey = function(seed, network) {
-        if (!seed) {
-            var seed= new Array(32);
-            rng.nextBytes(seed);
-        }
+        if (!seed) seed= rng(32, { array: true })
         masterkey = new HDNode(seed, network);
 
         // HD first-level child derivation method should be private

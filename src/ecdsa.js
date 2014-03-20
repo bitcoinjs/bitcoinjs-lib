@@ -1,12 +1,11 @@
 var sec = require('./jsbn/sec');
-var SecureRandom = require('./jsbn/rng');
+var rng = require('secure-random');
 var BigInteger = require('./jsbn/jsbn');
 var convert = require('./convert')
 var HmacSHA256 = require('crypto-js/hmac-sha256');
 
 var ECPointFp = require('./jsbn/ec').ECPointFp;
 
-var rng = new SecureRandom();
 var ecparams = sec("secp256k1");
 var P_OVER_FOUR = null;
 

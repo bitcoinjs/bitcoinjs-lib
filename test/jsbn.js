@@ -2,6 +2,7 @@
 var assert = require('assert');
 var BigInteger = require('../src/jsbn/jsbn.js')
 var bytesToHex = require('../src/convert.js').bytesToHex;
+var secureRandom = require('secure-random');
 
 describe('BigInteger', function() {
     describe('toByteArraySigned', function() {
@@ -24,5 +25,13 @@ describe('BigInteger', function() {
             assert.equal(hex( 62300), '0x00f35c');
             assert.equal(hex(-62300), '0x80f35c');
         })
+    })
+
+    describe('with RNG passed into constructor as the 2nd argument', function(){
+      it('returns a BigInteger with the limit of the specified length', function(){
+        var bitLength = 256
+        var i = new BigInteger(bitLength, secureRandom)
+        assert(i.bitLength() <= 256)
+      })
     })
 })
