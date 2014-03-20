@@ -37,7 +37,9 @@
   "scripts": {
     "test": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha -- --reporter list test/*.js",
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter list test/*.js",
-    "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js"
+    "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js",
+    "compile-big": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin > bitcoinjs.js",
+    "splitPea-compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin > ../splitPea/public/lib/bitcoinjs.js"
   },
   "dependencies": {
     "crypto-js": "3.1.2-2"

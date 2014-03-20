@@ -128,6 +128,25 @@ var Wallet = function (seed, options) {
         throw ("Not enough money to send funds including transaction fee. Have: "
                      + (totalval / 100000000) + ", needed: " + (value / 100000000));
     }
+    
+    this.mkSendSameChange = function(to, value, fee) {
+        var utxo = this.getUtxoToPay(value + fee)
+        var sum = utxo.reduce(function(t,o) { return t + o.value },0),
+            remainder = sum - value - fee
+        if (value < 5430) throw new Error("Amount below dust threshold!")
+        var change = this.addresses[0];
+        var toOut = { address: to, value: value };
+        var changeOut = { address: change, value: remainder };
+
+        var outs = [toOut, changeOut];
+
+        var tx = new Bitcoin.Transaction({
+            ins: utxo.map(function(x) { return x.output }),
+            outs: outs
+        })
+        this.sign(tx)
+        return tx
+    }
 
     this.mkSend = function(to, value, fee) {
         var utxo = this.getUtxoToPay(value + fee)
