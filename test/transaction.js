@@ -36,7 +36,7 @@ describe('Transaction', function() {
       assert.equal(tx.ins.length, 1)
 
       var input = tx.ins[0]
-      assert.equal(input.sequence, 4294967295)
+      assert.deepEqual(input.sequence, [255, 255, 255, 255])
 
       assert.equal(input.outpoint.index, 0)
       assert.equal(input.outpoint.hash, "69d02fc05c4e0ddc87e796eee42693c244a3112fffe1f762c3fb61ffcb304634")
@@ -98,7 +98,7 @@ describe('Transaction', function() {
         assert.equal(tx.ins.length, 1)
 
         var input = tx.ins[0]
-        assert.equal(input.sequence, 4294967295)
+        assert.deepEqual(input.sequence, [255, 255, 255, 255])
 
         assert.equal(input.outpoint.index, 0)
         assert.equal(input.outpoint.hash, "0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57")
