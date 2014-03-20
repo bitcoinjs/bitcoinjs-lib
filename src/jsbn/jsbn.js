@@ -672,9 +672,9 @@ function bnpFromNumber(a,b,c) {
   }
   else {
     // new BigInteger(int,RNG)
-    var x = new Array(), t = a&7;
-    x.length = (a>>3)+1;
-    b.nextBytes(x);
+    var t = a&7;
+    var length = (a>>3)+1;
+    var x = b(length, {array: true});
     if(t > 0) x[0] &= ((1<<t)-1); else x[0] = 0;
     self.fromString(x,256);
   }

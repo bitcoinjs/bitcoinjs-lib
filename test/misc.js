@@ -1,13 +1,9 @@
-/* global it */
 var assert = require('assert');
 var bitcoinjs = require('../');
 var sec = require('../src/jsbn/sec');
 var BigInteger = require('../src/jsbn/jsbn.js');
 var SHA256 = require('crypto-js/sha256');
-
-var SecureRandom = require('../src/jsbn/rng');
-var rng = new SecureRandom();
-
+var rng = require('secure-random');
 var ecparams = sec('secp256k1');
 var ECPointFp = bitcoinjs.ECPointFp;
 var convert = require('../src/convert');
