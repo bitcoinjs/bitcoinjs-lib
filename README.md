@@ -6,7 +6,7 @@
 
 A pure JavaScript Bitcoin library for node.js and browsers. Backed by (slowly improving) testing, proven by over a million wallet users. The backbone for almost all Bitcoin web wallets in production today.
 
-This is not the original bitcoinjs-lib that was not updated for a while. The current bitcoinjs-lib has been refactored to clean things up, add new functionality and merge improvements from the community. If you are looking for the original, it will be tagged as `0.1.3`. We will use `0.2.x` for releases based on these changes, so be sure to use the `0.1.3` tag if you need the original version.
+**Warning**: Master is not stable. Expect the interface to change rapidly, including some of the examples below. This is not the original bitcoinjs-lib that was not updated for a while. The current bitcoinjs-lib has been refactored to clean things up, add new functionality and merge improvements from the community. If you are looking for the original, it will be tagged as `0.1.3`. We will use `0.2.x` for releases based on these changes, so be sure to use the `0.1.3` tag if you need the original version.
 
 ## Features
 
