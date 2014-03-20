@@ -22,14 +22,14 @@
   },
   "testling": {
     "browsers": [
-      "ie/8..latest",
+      "ie/11..latest",
       "chrome/20..latest",
-      "firefox/15..latest",
+      "firefox/21..latest",
       "safari/latest",
-      "opera/11.0..latest",
-      "iphone/6",
-      "ipad/6",
-      "android-browser/latest"
+      "opera/15..latest",
+      "iphone/6..latest",
+      "ipad/6..latest",
+      "android-browser/4.2..latest"
     ],
     "harness": "mocha-bdd",
     "files": "test/*.js"
