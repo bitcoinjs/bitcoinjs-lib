@@ -23,11 +23,7 @@ This is not the original bitcoinjs-lib that was not updated for a while. The cur
 
 Note: The npm version is currently out of date, are working to resolve this. The best way to use the latest code is to clone the repository.
 
-## Usage
-
-### Run the test suite
-
-    $ npm test
+## Setup
 
 ### Node.js
 
@@ -45,6 +41,49 @@ Compile `bitcoinjs-min.js` with the following command:
 
 After loading this file in your browser, you will be able to use the global `Bitcoin` object.
 
+## Usage
+
+These examples assume you are running bitcoinjs-lib in the browser.
+
+### Generating a Bitcoin address
+
+```javascript
+
+key = Bitcoin.ECKey()
+
+// Print your private key (used for signing transactions)
+console.log(key.toString())
+// => 5Jxfda2afuyMw3iaxzAwv6FvAs3XxmjV5y3GPAjZDEhRNJaFG5a
+
+// Print your public key (Bitcoin address)
+console.log(key.getPub().toString())
+// => 18oxCAnbuKHDjP7KzLBDj8mLjggDBjE1Q9
+```
+
+### Creating a Transaction
+
+```javascript
+
+tx = new Bitcoin.Transaction()
+
+// Add the input (the output of the previous transaction) of the form [previous transaction hash]:[index of the output to use]
+tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31:0")
+
+// Add the output (who to pay to) of the form [payee's bitcoin address]:[amount in satoshis]
+tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK:15000")
+
+// Initialize the private key you created earlier so you can sign the transaction
+key = Bitcoin.ECKey("5Jxfda2afuyMw3iaxzAwv6FvAs3XxmjV5y3GPAjZDEhRNJaFG5a")
+
+// Sign the first input with your key
+tx.sign(0, key)
+
+// Print transaction serialized as hex. You can push the transaction onto the Bitcoin network manually
+// here: https://blockchain.info/pushtx
+console.log(tx.serializeHex())
+```
+
+
 ## Projects utilizing bitcoinjs-lib
 
 - [Blockchain.info Wallet](http://blockchain.info/wallet)
@@ -53,6 +92,18 @@ After loading this file in your browser, you will be able to use the global `Bit
 - [DarkWallet](https://darkwallet.unsystem.net)
 
 Feel free to send pull requests to have your project/startup listed here.
+
+## Contributing
+
+### Instructions
+
+1. Fork the repo
+2. Push changes to your fork  
+3. Create a pull request
+
+### Running the test suite 
+
+    $ npm test
 
 ## Alternatives
 
