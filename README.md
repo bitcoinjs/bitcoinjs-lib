@@ -67,10 +67,10 @@ console.log(key.getPub().toString())
 tx = new Bitcoin.Transaction()
 
 // Add the input (the output of the previous transaction) of the form [previous transaction hash]:[index of the output to use]
-tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31:0")
+tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 0)
 
 // Add the output (who to pay to) of the form [payee's bitcoin address]:[amount in satoshis]
-tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK:15000")
+tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000)
 
 // Initialize the private key you created earlier so you can sign the transaction
 key = Bitcoin.ECKey("5Jxfda2afuyMw3iaxzAwv6FvAs3XxmjV5y3GPAjZDEhRNJaFG5a")
