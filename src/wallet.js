@@ -110,7 +110,43 @@ var Wallet = function (seed, options) {
         }
     }
     var peoInterval = setInterval(this.processExistingOutputs, 10000)
+    
+    this.getAllUtxoToPay = function(value) {
+        var h = []
+        for (var out in this.outputs) h.push(this.outputs[out])
+        var utxo = h.filter(function(x) { return !x.spend });
+        return utxo;
+    }
+    
+    this.mkSendSimple = function(to, value, fee) {
+        var utxo = this.getAllUtxoToPay(value + fee)
+        var sum = utxo.reduce(function(t,o) { return t + o.value },0),
+            remainder = sum - value - fee
+        if (value < 5430) throw new Error("Amount below dust threshold!")
+        var unspentOuts = 0;
+        for (var o in this.outputs) {
+            if (!this.outputs[o].spend) unspentOuts += 1
+            if (unspentOuts >= 5) return
+        }
+        var change = this.addresses[0]
+        var toOut = { address: to, value: value };
+        var changeOut = { address: change, value: remainder };
 
+        var outs =
+              remainder < 5430  ? [toOut]
+            : remainder < 10860 ? [toOut, changeOut]
+            :                     [toOut, changeOut]
+
+        var ins = utxo.map(function(x) { return x.output });
+
+        var tx = new Bitcoin.Transaction({
+            ins: ins,
+            outs: outs
+        })
+        this.sign(tx)
+        return tx
+    }
+    
     this.getUtxoToPay = function(value) {
         var h = []
         for (var out in this.outputs) h.push(this.outputs[out])
