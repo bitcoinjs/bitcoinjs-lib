@@ -173,6 +173,23 @@ function (connectedScript, inIndex, hashType)
 
   txTmp.ins[inIndex].script = connectedScript;
 
+  // Blank out some of the outputs
+  if ((hashType & 0x1f) == SIGHASH_NONE) {
+    txTmp.outs = [];
+
+    // Let the others update at will
+    for (var i = 0; i < txTmp.ins.length; i++)
+      if (i != inIndex)
+        txTmp.ins[i].sequence = 0;
+  } else if ((hashType & 0x1f) == SIGHASH_SINGLE) {
+    // TODO: Implement
+  }
+
+  // Blank out other inputs completely, not recommended for open transactions
+  if (hashType & SIGHASH_ANYONECANPAY) {
+    txTmp.ins = [txTmp.ins[inIndex]];
+  }
+
   var buffer = txTmp.serialize();
 
   buffer = buffer.concat(convert.numToBytes(parseInt(hashType),4));
