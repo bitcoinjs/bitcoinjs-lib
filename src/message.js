@@ -60,7 +60,7 @@ Message.verifyMessage = function (address, sig, message) {
   var pubKey = ecdsa.recoverPubKey(sig.r, sig.s, hash, sig.i);
   pubKey.compressed = isCompressed;
 
-  var expectedAddress = pubKey.getBitcoinAddress().toString();
+  var expectedAddress = pubKey.getAddress().toString();
 
   return (address === expectedAddress);
 };

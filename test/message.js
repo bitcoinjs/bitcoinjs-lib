@@ -12,7 +12,7 @@ describe('Message', function() {
     describe('verify', function() {
         it('passes case 1', function() {
             var key = new ECKey(hexToBytes(priv));
-            assert.equal(key.getBitcoinAddress().toString(), addr);
+            assert.equal(key.getAddress().toString(), addr);
 
             var sig = Message.signMessage(key, msg);
             assert.ok(Message.verifyMessage(addr, sig, msg));
@@ -35,7 +35,7 @@ describe('Message', function() {
             var key = new ECKey(hexToBytes(priv));
             key.compressed = true
 
-            var addr = key.getBitcoinAddress().toString()
+            var addr = key.getAddress().toString()
 
             var sig = Message.signMessage(key, msg);
             assert.ok(Message.verifyMessage(addr, sig, msg));

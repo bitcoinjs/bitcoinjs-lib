@@ -50,13 +50,13 @@ var Wallet = function (seed, options) {
 
     this.generateAddress = function() {
         var key = externalAccount.derive(this.addresses.length)
-        this.addresses.push(key.getBitcoinAddress().toString())
+        this.addresses.push(key.getAddress().toString())
         return this.addresses[this.addresses.length - 1]
     }
 
     this.generateChangeAddress = function() {
         var key = internalAccount.derive(this.changeAddresses.length)
-        this.changeAddresses.push(key.getBitcoinAddress().toString())
+        this.changeAddresses.push(key.getAddress().toString())
         return this.changeAddresses[this.changeAddresses.length - 1]
     }
 
