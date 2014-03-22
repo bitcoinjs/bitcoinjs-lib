@@ -21,7 +21,7 @@ var HDWallet = module.exports = function(seed, network) {
       throw new Error("Unknown network: " + this.network)
     }
 
-    this.priv = new ECKey(I.slice(0, 32).concat([1]), true, this.getKeyVersion())
+    this.priv = new ECKey(I.slice(0, 32).concat([1]), true)
     this.pub = this.priv.getPub()
     this.index = 0
     this.depth = 0
@@ -109,10 +109,10 @@ HDWallet.fromBytes = function(input) {
     // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
     // public keys, 0x00 + k for private keys)
     if (type == 'priv') {
-        hd.priv = new ECKey(input.slice(46, 78).concat([1]), true, hd.getKeyVersion())
+        hd.priv = new ECKey(input.slice(46, 78).concat([1]), true)
         hd.pub = hd.priv.getPub()
     } else {
-        hd.pub = new ECPubKey(input.slice(45, 78), true, hd.getKeyVersion())
+        hd.pub = new ECPubKey(input.slice(45, 78), true)
     }
 
     return hd
@@ -126,7 +126,7 @@ HDWallet.prototype.getFingerprint = function() {
     return this.getIdentifier().slice(0, 4)
 }
 
-HDWallet.prototype.getBitcoinAddress = function() {
+HDWallet.prototype.getAddress = function() {
     return new Address(util.sha256ripe160(this.pub.toBytes()), this.getKeyVersion())
 }
 
@@ -221,7 +221,7 @@ HDWallet.prototype.derive = function(i) {
         hd.pub = hd.priv.getPub()
     } else {
         // Ki = (IL + kpar)*G = IL*G + Kpar
-        hd.pub = this.pub.add(new ECKey(IL.concat([1]), true, this.getKeyVersion()).getPub())
+        hd.pub = this.pub.add(new ECKey(IL.concat([1]), true).getPub())
     }
 
     // ci = IR.

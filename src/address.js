@@ -19,7 +19,7 @@ var Address = function (bytes, version) {
     }
     else {
         this.hash = bytes;
-        this.version = version || bytes.version || mainnet;
+        this.version = version || mainnet;
     }
 };
 

@@ -291,11 +291,11 @@ var ECDSA = {
    */
   calcPubkeyRecoveryParam: function (origPubkey, r, s, hash)
   {
-    var address = origPubkey.getBitcoinAddress().toString();
+    var address = origPubkey.getAddress().toString();
     for (var i = 0; i < 4; i++) {
       var pubkey = ECDSA.recoverPubKey(r, s, hash, i);
       pubkey.compressed = origPubkey.compressed;
-      if (pubkey.getBitcoinAddress().toString() == address) {
+      if (pubkey.getAddress().toString() == address) {
         return i;
       }
     }

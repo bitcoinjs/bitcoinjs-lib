@@ -310,7 +310,7 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
          key = new ECKey(key);
          return {
             key: key,
-            address: key.getBitcoinAddress().toString()
+            address: key.getAddress().toString()
          }
     });
     var hmap = {};
