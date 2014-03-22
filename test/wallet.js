@@ -6,17 +6,13 @@ var SHA256 = require('crypto-js/sha256')
 var Crypto = require('crypto-js')
 
 describe('Wallet', function() {
-  var seed;
+  var seed, wallet;
   beforeEach(function(){
     seed = convert.wordArrayToBytes(SHA256("don't use a string seed like this in real life"))
+    wallet = new Wallet(seed)
   })
 
   describe('constructor', function() {
-    var wallet;
-    beforeEach(function() {
-      wallet = new Wallet(seed)
-    })
-
     it('defaults to Bitcoin mainnet', function() {
       assert.equal(wallet.getMasterKey().network, 'mainnet')
     })
@@ -47,7 +43,6 @@ describe('Wallet', function() {
     })
 
     describe('constructor options', function() {
-      var wallet;
       beforeEach(function() {
         wallet = new Wallet(seed, {network: 'testnet'})
       })
@@ -146,6 +141,36 @@ describe('Wallet', function() {
       assert.throws(function() {
         wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X")
       }, Error, 'Unknown address. Make sure the address is from the keychain and has been generated.')
+    })
+  })
+
+  describe('Unspent Outputs', function(){
+    var expectedUtxo, expectedOutputKey;
+    beforeEach(function(){
+      expectedUtxo = [
+          {
+            "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
+            "hashLittleEndian":"c7b97b432e7b3a8e31d1a4a0fa326c8fb002d19f2da5fc4feaf9c43a2762406a",
+            "outputIndex": 0,
+            "scriptPubKey":"76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac",
+            "address" : "1azpkpcfczkduetfbqul4mokqai3m3hmxv",
+            "value": 20000
+          }
+        ]
+      expectedOutputKey = expectedUtxo[0].hash + ":" + expectedUtxo[0].outputIndex
+    })
+
+    describe('getUnspentOutputs', function(){
+      it('parses wallet outputs to the expect format', function(){
+        wallet.outputs[expectedOutputKey] = {
+          output: expectedOutputKey,
+          scriptPubKey: expectedUtxo[0].scriptPubKey,
+          address: expectedUtxo[0].address,
+          value: expectedUtxo[0].value
+        }
+
+        assert.deepEqual(wallet.getUnspentOutputs(), expectedUtxo)
+      })
     })
   })
 

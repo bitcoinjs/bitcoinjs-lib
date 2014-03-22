@@ -60,6 +60,26 @@ var Wallet = function (seed, options) {
         return this.changeAddresses[this.changeAddresses.length - 1]
     }
 
+    this.getUnspentOutputs = function() {
+      var utxo = []
+
+      for(var key in this.outputs){
+        var hashAndIndex = key.split(":")
+        var output = this.outputs[key]
+
+        utxo.push({
+          hash: hashAndIndex[0],
+          hashLittleEndian: convert.reverseEndian(hashAndIndex[0]),
+          outputIndex: parseInt(hashAndIndex[1]),
+          scriptPubKey: output.scriptPubKey,
+          address: output.address,
+          value: output.value
+        })
+      }
+
+      return utxo
+    }
+
     // Processes a transaction object
     // If "verified" is true, then we trust the transaction as "final"
     this.processTx = function(tx, verified) {
