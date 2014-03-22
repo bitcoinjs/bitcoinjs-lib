@@ -110,5 +110,17 @@ describe('ECKey', function() {
             assert.equal(key.version, testnet);
             assert.equal(key.toBase58(), priv);
         })
+
+        it('initiation via alternative constructor syntax', function() {
+            var priv = 'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458';
+            var pub = '044b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea81199' +
+                      '283fbec990dad6fb98f93f712d50cb874dd717de6a184158d63886dda3090f566';
+            var key = ECKey(priv, false, testnet);
+
+            assert.equal(key.getPub().toHex(), pub);
+            assert.equal(key.compressed, false);
+            assert.equal(key.version, testnet);
+            assert.equal(key.toHex(), priv);
+        })
     })
 })
