@@ -123,11 +123,6 @@ var Wallet = function (seed, options) {
         var sum = utxo.reduce(function(t,o) { return t + o.value },0),
             remainder = sum - value - fee
         if (value < 5430) throw new Error("Amount below dust threshold!")
-        var unspentOuts = 0;
-        for (var o in this.outputs) {
-            if (!this.outputs[o].spend) unspentOuts += 1
-            if (unspentOuts >= 5) return
-        }
         var change = this.addresses[0]
         var toOut = { address: to, value: value };
         var changeOut = { address: change, value: remainder };
