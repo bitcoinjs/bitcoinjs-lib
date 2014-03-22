@@ -96,7 +96,7 @@ ECKey.prototype.toBase64 = function() {
     return convert.bytesToBase64(this.toBytes())
 }
 
-ECKey.prototype.toString = ECKey.prototype.toWif
+ECKey.prototype.toString = ECKey.prototype.toHex
 
 ECKey.prototype.getAddress = function(version) {
     return this.getPub().getAddress(version)
@@ -170,7 +170,7 @@ ECPubKey.prototype.toWif = function(version) {
     return base58.checkEncode(this.toBytes(), version)
 }
 
-ECPubKey.prototype.toString = ECPubKey.prototype.toWif
+ECPubKey.prototype.toString = ECPubKey.prototype.toHex
 
 ECPubKey.prototype.getAddress = function(version) {
     var version = version || Network.mainnet.addressVersion;

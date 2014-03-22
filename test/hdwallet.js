@@ -46,7 +46,7 @@ describe('HDWallet', function() {
         it('creates from binary seed', function() {
             var hd = new HDWallet(seed)
 
-            assert.equal(hd.priv, expectedPrivKey)
+            assert.equal(hd.priv.toWif(), expectedPrivKey)
             assert(hd.pub)
         })
 
@@ -54,7 +54,7 @@ describe('HDWallet', function() {
             it('creates from hex seed', function() {
                 var hd = HDWallet.fromSeedHex(b2h(seed))
 
-                assert.equal(hd.priv, expectedPrivKey)
+                assert.equal(hd.priv.toWif(), expectedPrivKey)
                 assert(hd.pub)
             })
         })
@@ -63,7 +63,7 @@ describe('HDWallet', function() {
             it('creates from string seed', function() {
                 var hd = HDWallet.fromSeedString(convert.bytesToString(seed))
 
-                assert.equal(hd.priv, expectedPrivKey)
+                assert.equal(hd.priv.toWif(), expectedPrivKey)
                 assert(hd.pub)
             })
         })
