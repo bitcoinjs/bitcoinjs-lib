@@ -83,18 +83,53 @@ var Wallet = function (seed, options) {
     this.setUnspentOutputs = function(utxo) {
       var outputs = {}
 
-      utxo.forEach(function(o){
-        var hash = o.hash || convert.reverseEndian(o.hashLittleEndian)
-        var key = hash + ":" + o.outputIndex
-        outputs[key] = {
-          output: key,
-          scriptPubKey: o.scriptPubKey,
-          address: o.address,
-          value: o.value
-        }
+      utxo.forEach(function(uo){
+        validateUnspentOutput(uo)
+        var o = unspentOutputToOutput(uo)
+        outputs[o.output] = o
       })
 
       this.outputs = outputs
+    }
+
+    function unspentOutputToOutput(o) {
+      var hash = o.hash || convert.reverseEndian(o.hashLittleEndian)
+      var key = hash + ":" + o.outputIndex
+      return {
+        output: key,
+        scriptPubKey: o.scriptPubKey,
+        address: o.address,
+        value: o.value
+      }
+    }
+
+    function validateUnspentOutput(uo) {
+      var missingField;
+
+      if(isNullOrUndefined(uo.hash) && isNullOrUndefined(uo.hashLittleEndian)){
+        missingField = "hash(or hashLittleEndian)"
+      }
+
+      var requiredKeys = ['outputIndex', 'scriptPubKey', 'address', 'value']
+      requiredKeys.forEach(function(key){
+        if(isNullOrUndefined(uo[key])){
+          missingField = key
+        }
+      })
+
+      if(missingField) {
+        var message = [
+          'Invalid unspent output: key', field, 'is missing.',
+          'A valid unspent output must contain'
+        ]
+        message.push(requiredKeys.join(', '))
+        message.push("and hash(or hashLittleEndian)")
+        throw new Error(message.join(' '))
+      }
+    }
+
+    function isNullOrUndefined(value){
+      return value == undefined
     }
 
     // Processes a transaction object

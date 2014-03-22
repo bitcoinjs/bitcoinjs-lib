@@ -198,6 +198,32 @@ describe('Wallet', function() {
         verifyOutputs()
       })
 
+      describe('required fields', function(){
+        it("throws an error when hash and hashLittleEndian are both missing", function(){
+          delete utxo[0]['hash']
+          delete utxo[0]['hashLittleEndian']
+
+          var errorMessage = 'Invalid unspent output: key hash(or hashLittleEndian) is missing. ' +
+            'A valid unspent output must contain outputIndex, scriptPubKey, address, value and hash(or hashLittleEndian)'
+
+          assert.throws(function() {
+            wallet.setUnspentOutputs(utxo)
+          }, Error, errorMessage)
+        });
+
+        ['outputIndex', 'scriptPubKey', 'address', 'value'].forEach(function(field){
+          it("throws an error when " + field + " is missing", function(){
+            delete utxo[0][field]
+            var errorMessage = 'Invalid unspent output: key ' + field +
+              ' is missing. A valid unspent output must contain outputIndex, scriptPubKey, address, value and hash(or hashLittleEndian)'
+
+            assert.throws(function() {
+              wallet.setUnspentOutputs(utxo)
+            }, Error, errorMessage)
+          })
+        })
+      })
+
       function verifyOutputs() {
         var output = wallet.outputs[expectedOutputKey]
         assert(output)
