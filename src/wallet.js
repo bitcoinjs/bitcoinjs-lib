@@ -64,17 +64,7 @@ var Wallet = function (seed, options) {
       var utxo = []
 
       for(var key in this.outputs){
-        var hashAndIndex = key.split(":")
-        var output = this.outputs[key]
-
-        utxo.push({
-          hash: hashAndIndex[0],
-          hashLittleEndian: convert.reverseEndian(hashAndIndex[0]),
-          outputIndex: parseInt(hashAndIndex[1]),
-          scriptPubKey: output.scriptPubKey,
-          address: output.address,
-          value: output.value
-        })
+        utxo.push(outputToUnspentOutput(this.outputs[key]))
       }
 
       return utxo
@@ -90,6 +80,19 @@ var Wallet = function (seed, options) {
       })
 
       this.outputs = outputs
+    }
+
+    function outputToUnspentOutput(output){
+      var hashAndIndex = output.output.split(":")
+
+      return {
+        hash: hashAndIndex[0],
+        hashLittleEndian: convert.reverseEndian(hashAndIndex[0]),
+        outputIndex: parseInt(hashAndIndex[1]),
+        scriptPubKey: output.scriptPubKey,
+        address: output.address,
+        value: output.value
+      }
     }
 
     function unspentOutputToOutput(o) {
