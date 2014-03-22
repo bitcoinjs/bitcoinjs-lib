@@ -168,7 +168,7 @@ describe('Wallet', function() {
     describe('getUnspentOutputs', function(){
       it('parses wallet outputs to the expect format', function(){
         wallet.outputs[expectedOutputKey] = {
-          output: expectedOutputKey,
+          receive: expectedOutputKey,
           scriptPubKey: expectedUtxo[0].scriptPubKey,
           address: expectedUtxo[0].address,
           value: expectedUtxo[0].value
@@ -275,7 +275,7 @@ describe('Wallet', function() {
         var txOut = tx.outs[index]
         var key = convert.bytesToHex(tx.getHash()) + ":" + index
         var output = wallet.outputs[key]
-        assert.equal(output.output, key)
+        assert.equal(output.receive, key)
         assert.equal(output.value, txOut.value)
         assert.equal(output.address, txOut.address)
         assert.equal(output.scriptPubKey, convert.bytesToHex(txOut.script.buffer))

@@ -76,14 +76,14 @@ var Wallet = function (seed, options) {
       utxo.forEach(function(uo){
         validateUnspentOutput(uo)
         var o = unspentOutputToOutput(uo)
-        outputs[o.output] = o
+        outputs[o.receive] = o
       })
 
       this.outputs = outputs
     }
 
     function outputToUnspentOutput(output){
-      var hashAndIndex = output.output.split(":")
+      var hashAndIndex = output.receive.split(":")
 
       return {
         hash: hashAndIndex[0],
@@ -99,7 +99,7 @@ var Wallet = function (seed, options) {
       var hash = o.hash || convert.reverseEndian(o.hashLittleEndian)
       var key = hash + ":" + o.outputIndex
       return {
-        output: key,
+        receive: key,
         scriptPubKey: o.scriptPubKey,
         address: o.address,
         value: o.value
@@ -143,7 +143,7 @@ var Wallet = function (seed, options) {
             if (isMyAddress(address)) {
                 var output = txhash+':'+i
                 me.outputs[output] = {
-                    output: output,
+                    receive: output,
                     value: txOut.value,
                     address: address,
                     scriptPubKey: convert.bytesToHex(txOut.script.buffer) //TODO: txOut.scriptPubKey()
@@ -226,7 +226,7 @@ var Wallet = function (seed, options) {
             :                     [toOut, halfChangeOut, halfChangeOut]
 
         var tx = new Bitcoin.Transaction({
-            ins: utxo.map(function(x) { return x.output }),
+            ins: utxo.map(function(x) { return x.receive }),
             outs: outs
         })
         this.sign(tx)
@@ -239,7 +239,7 @@ var Wallet = function (seed, options) {
             sum = utxo.reduce(function(t,p) { return t + o.value },0);
         utxo[changeIndex].value += sum - value - fee;
         var tx = new Bitcoin.Transaction({
-            ins: utxo.map(function(x) { return x.output }),
+            ins: utxo.map(function(x) { return x.receive }),
             outs: outputs
         })
         this.sign(tx)
