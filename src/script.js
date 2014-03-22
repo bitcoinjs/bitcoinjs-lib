@@ -150,6 +150,7 @@ Script.prototype.toScriptHash = function() {
     return util.sha256ripe160(this.buffer)
 }
 
+//TODO: support testnet
 Script.prototype.getToAddress = function() {
     var outType = this.getOutType();
 
@@ -162,6 +163,11 @@ Script.prototype.getToAddress = function() {
     }
 
     return new Address(this.chunks[1], 5)
+}
+
+//TODO: support testnet
+Script.prototype.getFromAddress = function(){
+    return new Address(this.simpleInHash());
 }
 
 /**
