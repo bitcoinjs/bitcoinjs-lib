@@ -415,7 +415,7 @@ var TransactionOut = function (data) {
       : data.address                     ? Script.createOutputScript(data.address)
       :                                    new Script();
 
-    if (this.script.buffer.length > 0) this.address = this.script.toAddress();
+    if (this.script.buffer.length > 0) this.address = this.script.getToAddress();
 
     this.value =
         Array.isArray(data.value)         ? convert.bytesToNum(data.value)

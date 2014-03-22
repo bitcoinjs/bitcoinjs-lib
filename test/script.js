@@ -63,15 +63,15 @@ describe('Script', function() {
     })
   })
 
-  describe('toAddress', function() {
+  describe('getToAddress', function() {
     it('works for p2sh type output', function() {
       var script = Script.fromHex("a914e8c300c87986efa84c37c0519929019ef86eb5b487")
-      assert.equal(script.toAddress(), '3NukJ6fYZJ5Kk8bPjycAnruZkE5Q7UW7i8')
+      assert.equal(script.getToAddress(), '3NukJ6fYZJ5Kk8bPjycAnruZkE5Q7UW7i8')
     })
 
     it('works for pubkey type output', function() {
       var script = Script.fromHex("76a9145a3acbc7bbcc97c5ff16f5909c9d7d3fadb293a888ac")
-      assert.equal(script.toAddress(), '19E6FV3m3kEPoJD5Jz6dGKdKwTVvjsWUvu')
+      assert.equal(script.getToAddress(), '19E6FV3m3kEPoJD5Jz6dGKdKwTVvjsWUvu')
     })
   })
 })

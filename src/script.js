@@ -150,7 +150,7 @@ Script.prototype.toScriptHash = function() {
     return util.sha256ripe160(this.buffer)
 }
 
-Script.prototype.toAddress = function() {
+Script.prototype.getToAddress = function() {
     var outType = this.getOutType();
 
     if (outType == 'Pubkey') {
