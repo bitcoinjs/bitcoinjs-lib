@@ -377,6 +377,15 @@ Transaction.prototype.validateSig = function(index, script, sig, pub) {
                                       convert.coerceToBytes(pub));
 }
 
+Transaction.feePerKb = 20000
+Transaction.prototype.estimateFee = function(feePerKb){
+  var feePerKb = feePerKb || Transaction.feePerKb
+  var size = this.ins.length * 180 + this.outs.length * 34 + 10
+  var sizeInKb = BigInteger.valueOf(Math.ceil(size / 1000))
+
+  return BigInteger.valueOf(feePerKb).multiply(sizeInKb).intValue()
+}
+
 var TransactionIn = function (data) {
     if (typeof data == "string")
         this.outpoint = { hash: data.split(':')[0], index: data.split(':')[1] }

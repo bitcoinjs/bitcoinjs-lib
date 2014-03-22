@@ -2,6 +2,10 @@ var Transaction = require('../src/transaction').Transaction
 var convert = require('../src/convert')
 var ECKey = require('../src/eckey').ECKey
 var assert = require('assert')
+var fixtureTxes = require('./fixtures/mainnet_tx')
+var fixtureTx1Hex = fixtureTxes.prevTx
+var fixtureTx2Hex = fixtureTxes.tx
+var fixtureTxBigHex = fixtureTxes.bigTx
 
 describe('Transaction', function() {
   describe('deserialize', function() {
@@ -170,6 +174,22 @@ describe('Transaction', function() {
       })
     })
 
+    describe('estimateFee', function(){
+      it('works for fixture tx 1', function(){
+        var tx = Transaction.deserialize(fixtureTx1Hex)
+        assert.equal(tx.estimateFee(), 20000)
+      })
+
+      it('works for fixture big tx', function(){
+        var tx = Transaction.deserialize(fixtureTxBigHex)
+        assert.equal(tx.estimateFee(), 60000)
+      })
+
+      it('allow feePerKb to be passed in as an argument', function(){
+        var tx = Transaction.deserialize(fixtureTx2Hex)
+        assert.equal(tx.estimateFee(10000), 10000)
+      })
+    })
   })
 
 })
