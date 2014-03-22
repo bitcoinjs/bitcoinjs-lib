@@ -80,6 +80,23 @@ var Wallet = function (seed, options) {
       return utxo
     }
 
+    this.setUnspentOutputs = function(utxo) {
+      var outputs = {}
+
+      utxo.forEach(function(o){
+        var hash = o.hash || convert.reverseEndian(o.hashLittleEndian)
+        var key = hash + ":" + o.outputIndex
+        outputs[key] = {
+          output: key,
+          scriptPubKey: o.scriptPubKey,
+          address: o.address,
+          value: o.value
+        }
+      })
+
+      this.outputs = outputs
+    }
+
     // Processes a transaction object
     // If "verified" is true, then we trust the transaction as "final"
     this.processTx = function(tx, verified) {

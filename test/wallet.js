@@ -172,6 +172,40 @@ describe('Wallet', function() {
         assert.deepEqual(wallet.getUnspentOutputs(), expectedUtxo)
       })
     })
+
+    describe('setUnspentOutputs', function(){
+      var utxo;
+      beforeEach(function(){
+        utxo = cloneObject(expectedUtxo)
+      })
+
+      it('uses hashLittleEndian when hash is not present', function(){
+        delete utxo[0]['hash']
+
+        wallet.setUnspentOutputs(utxo)
+        verifyOutputs()
+      })
+
+      it('uses hash when hashLittleEndian is not present', function(){
+        delete utxo[0]['hashLittleEndian']
+
+        wallet.setUnspentOutputs(utxo)
+        verifyOutputs()
+      })
+
+      it('uses hash when both hash and hashLittleEndian are present', function(){
+        wallet.setUnspentOutputs(utxo)
+        verifyOutputs()
+      })
+
+      function verifyOutputs() {
+        var output = wallet.outputs[expectedOutputKey]
+        assert(output)
+        assert.equal(output.value, utxo[0].value)
+        assert.equal(output.address, utxo[0].address)
+        assert.equal(output.scriptPubKey, utxo[0].scriptPubKey)
+      }
+    })
   })
 
   function assertEqual(obj1, obj2){
@@ -180,5 +214,10 @@ describe('Wallet', function() {
 
   function assertNotEqual(obj1, obj2){
     assert.notEqual(obj1.toString(), obj2.toString())
+  }
+
+  // quick and dirty: does not deal with functions on object
+  function cloneObject(obj){
+    return JSON.parse(JSON.stringify(obj))
   }
 })
