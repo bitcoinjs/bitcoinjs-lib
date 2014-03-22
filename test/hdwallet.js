@@ -246,26 +246,14 @@ describe('HDWallet', function() {
     })
 
     describe('network types', function() {
-        it('ensures that a mainnet Wallet has mainnet child keys (pub and priv)', function() {
-            var wallet = new HDWallet("foobar", "mainnet")
-            assert.equal(wallet.priv.version, mainnet)
-
-            var privChild = wallet.derivePrivate(0)
-            assert.equal(privChild.priv.version, mainnet)
-
-            var pubChild = wallet.derive(0)
-            assert.equal(pubChild.priv.version, mainnet)
+        it('ensures that a mainnet Wallet generates mainnet addresses', function() {
+            var wallet = new HDWallet('foobar', 'mainnet')
+		assert.equal(wallet.getAddress().toString(), '1JNymexJHEr5u1BndiChMStFkCgPm4EQ6o');
         })
 
-        it('ensures that a testnet Wallet has testnet child keys (pub and priv)', function() {
-            var wallet = new HDWallet("foobar", "testnet")
-            assert.equal(wallet.priv.version, testnet)
-
-            var privChild = wallet.derivePrivate(0)
-            assert.equal(privChild.priv.version, testnet)
-
-            var pubChild = wallet.derive(0)
-            assert.equal(pubChild.priv.version, testnet)
+        it('ensures that a testnet Wallet generates testnet addresses', function() {
+            var wallet = new HDWallet('foobar', 'testnet')
+		assert.equal(wallet.getAddress().toString(), 'mxtw4i3H6GHLg7fQMHB5BN6acCH6kQ7aoY');
         })
 
         it('throws an excption when unknown network type is passed in', function() {
