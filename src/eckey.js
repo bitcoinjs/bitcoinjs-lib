@@ -14,7 +14,7 @@ var ecparams = sec("secp256k1");
 
 // input can be nothing, array of bytes, hex string, or base58 string
 var ECKey = function (input,compressed,version) {
-    if (!(this instanceof ECKey)) { return new ECKey(input,compressed); }
+    if (!(this instanceof ECKey)) { return new ECKey(input,compressed,version); }
     if (!input) {
         // Generate new key
         var n = ecparams.getN();
@@ -56,7 +56,7 @@ ECKey.prototype.import = function (input,compressed,version) {
         : input.length == 65                       ? true
                                                    : null
 
-    this.version = 
+    this.version =
           version !== undefined                    ? version
         : input instanceof ECKey                   ? input.version
         : input instanceof BigInteger              ? mainnet
