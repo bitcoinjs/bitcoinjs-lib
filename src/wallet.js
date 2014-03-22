@@ -135,31 +135,35 @@ var Wallet = function (seed, options) {
       return value == undefined
     }
 
-    // Processes a transaction object
-    // If "verified" is true, then we trust the transaction as "final"
-    this.processTx = function(tx, verified) {
+    this.processTx = function(tx) {
         var txhash = convert.bytesToHex(tx.getHash())
-        for (var i = 0; i < tx.outs.length; i++) {
-            if (this.addresses.indexOf(tx.outs[i].address.toString()) >= 0) {
-                me.outputs[txhash+':'+i] = {
-                    output: txhash+':'+i,
-                    value: tx.outs[i].value,
-                    address: tx.outs[i].address.toString(),
-                    timestamp: new Date().getTime() / 1000,
-                    pending: true
+
+        tx.outs.forEach(function(txOut, i){
+            var address = txOut.address.toString()
+            if (isMyAddress(address)) {
+                var output = txhash+':'+i
+                me.outputs[output] = {
+                    output: output,
+                    value: txOut.value,
+                    address: address,
+                    scriptPubKey: convert.bytesToHex(txOut.script.buffer) //TODO: txOut.scriptPubKey()
+                    // timestamp: new Date().getTime() / 1000,
+                    // pending: true
                 }
             }
-        }
-        for (var i = 0; i < tx.ins.length; i++) {
-            var op = tx.ins[i].outpoint
+        })
+
+        tx.ins.forEach(function(txIn, i){
+            var op = txIn.outpoint
             var o = me.outputs[op.hash+':'+op.index]
             if (o) {
                 o.spend = txhash+':'+i
-                o.spendpending = true
-                o.timestamp = new Date().getTime() / 1000
+                // o.spendpending = true
+                // o.timestamp = new Date().getTime() / 1000
             }
-        }
+        })
     }
+
     // Processes an output from an external source of the form
     // { output: txhash:index, value: integer, address: address }
     // Excellent compatibility with SX and pybitcointools
@@ -275,6 +279,18 @@ var Wallet = function (seed, options) {
       } else {
         throw new Error('Unknown address. Make sure the address is from the keychain and has been generated.')
       }
+    }
+
+    function isReceiveAddress(address){
+      return me.addresses.indexOf(address) > -1
+    }
+
+    function isChangeAddress(address){
+      return me.changeAddresses.indexOf(address) > -1
+    }
+
+    function isMyAddress(address) {
+      return isReceiveAddress(address) || isChangeAddress(address)
     }
 };
 

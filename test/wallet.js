@@ -1,9 +1,14 @@
 var Wallet = require('../src/wallet.js')
 var HDNode = require('../src/hdwallet.js')
+var Transaction = require('../src/transaction.js').Transaction
 var convert = require('../src/convert.js')
 var assert = require('assert')
 var SHA256 = require('crypto-js/sha256')
 var Crypto = require('crypto-js')
+
+var fixtureTxes = require('./fixtures/mainnet_tx')
+var fixtureTx1Hex = fixtureTxes.prevTx
+var fixtureTx2Hex = fixtureTxes.tx
 
 describe('Wallet', function() {
   var seed, wallet;
@@ -231,6 +236,81 @@ describe('Wallet', function() {
         assert.equal(output.address, utxo[0].address)
         assert.equal(output.scriptPubKey, utxo[0].scriptPubKey)
       }
+    })
+  })
+
+  describe('processTx', function(){
+    var tx;
+
+    beforeEach(function(){
+      tx = Transaction.deserialize(fixtureTx1Hex)
+    })
+
+    describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.outputs", function(){
+      it("works for receive address", function(){
+        var totalOuts = outputCount()
+        wallet.addresses = [tx.outs[0].address.toString()]
+
+        wallet.processTx(tx)
+
+        assert.equal(outputCount(), totalOuts + 1)
+        verifyOutputAdded(0)
+      })
+
+      it("works for change address", function(){
+        var totalOuts = outputCount()
+        wallet.changeAddresses = [tx.outs[1].address.toString()]
+
+        wallet.processTx(tx)
+
+        assert.equal(outputCount(), totalOuts + 1)
+        verifyOutputAdded(1)
+      })
+
+      function outputCount(){
+        return Object.keys(wallet.outputs).length
+      }
+
+      function verifyOutputAdded(index) {
+        var txOut = tx.outs[index]
+        var key = convert.bytesToHex(tx.getHash()) + ":" + index
+        var output = wallet.outputs[key]
+        assert.equal(output.output, key)
+        assert.equal(output.value, txOut.value)
+        assert.equal(output.address, txOut.address)
+        assert.equal(output.scriptPubKey, convert.bytesToHex(txOut.script.buffer))
+      }
+    })
+
+    describe("when tx ins outpoint contains a known txhash:i, the corresponding 'output' gets updated", function(){
+      beforeEach(function(){
+        wallet.addresses = [tx.outs[0].address.toString()] // the address fixtureTx2 is spending from
+        wallet.processTx(tx)
+
+        tx = Transaction.deserialize(fixtureTx2Hex)
+      })
+
+      it("does not add to wallet.outputs", function(){
+        var outputs = wallet.outputs
+        wallet.processTx(tx)
+        assert.deepEqual(wallet.outputs, outputs)
+      })
+
+      it("sets spend with the transaction hash and input index", function(){
+        wallet.processTx(tx)
+
+        var txIn = tx.ins[0]
+        var key = txIn.outpoint.hash + ":" + txIn.outpoint.index
+        var output = wallet.outputs[key]
+
+        assert.equal(output.spend, convert.bytesToHex(tx.getHash()) + ':' + 0)
+      })
+    })
+
+    it("does nothing when none of the involved addresses belong to the wallet", function(){
+      var outputs = wallet.outputs
+      wallet.processTx(tx)
+      assert.deepEqual(wallet.outputs, outputs)
     })
   })
 
