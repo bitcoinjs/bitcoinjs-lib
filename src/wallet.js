@@ -164,6 +164,54 @@ var Wallet = function (seed, options) {
         })
     }
 
+    function getCandidateOutputs(value){
+      var unspent = []
+      for (var key in me.outputs){
+        var output = me.outputs[key]
+        if(!output.value.spend) unspent.push(output)
+      }
+
+      var sortByValueDesc = unspent.sort(function(o1, o2){
+        return o2.value - o1.value
+      })
+
+      return sortByValueDesc;
+    }
+
+    this.createTx = function(to, value, fixedFee) {
+        var tx = new Transaction()
+        tx.addOutput(to, value)
+
+        var utxo = getCandidateOutputs(value)
+        var totalInValue = 0
+        for(var i=0; i<utxo.length; i++){
+          var output = utxo[i]
+          tx.addInput(output.receive)
+
+          totalInValue += output.value
+          if(totalInValue < value) continue;
+
+          var fee = fixedFee || tx.estimateFee()
+          if(totalInValue < value + fee) continue;
+
+          var change = totalInValue - value - fee
+          var changeAddress = getChangeAddress()
+          if(change > 0) {
+            tx.addOutput(changeAddress, change)
+            // TODO: recalculate fee
+          }
+          break;
+        }
+
+        // TODO: sign tx
+        return tx
+    }
+
+    function getChangeAddress() {
+      if(me.changeAddresses.length === 0) me.generateChangeAddress()
+      return me.changeAddresses[me.changeAddresses.length - 1]
+    }
+
     this.getUtxoToPay = function(value) {
         var h = []
         for (var out in this.outputs) h.push(this.outputs[out])

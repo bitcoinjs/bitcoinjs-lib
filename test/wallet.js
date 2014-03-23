@@ -1,6 +1,9 @@
 var Wallet = require('../src/wallet.js')
 var HDNode = require('../src/hdwallet.js')
-var Transaction = require('../src/transaction.js').Transaction
+var T = require('../src/transaction.js')
+var Transaction = T.Transaction
+var TransactionOut = T.TransactionOut
+var Script = require('../src/script.js')
 var convert = require('../src/convert.js')
 var assert = require('assert')
 var SHA256 = require('crypto-js/sha256')
@@ -158,7 +161,7 @@ describe('Wallet', function() {
             "hashLittleEndian":"c7b97b432e7b3a8e31d1a4a0fa326c8fb002d19f2da5fc4feaf9c43a2762406a",
             "outputIndex": 0,
             "scriptPubKey":"76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac",
-            "address" : "1azpkpcfczkduetfbqul4mokqai3m3hmxv",
+            "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
             "value": 20000
           }
         ]
@@ -284,7 +287,7 @@ describe('Wallet', function() {
 
     describe("when tx ins outpoint contains a known txhash:i, the corresponding 'output' gets updated", function(){
       beforeEach(function(){
-        wallet.addresses = [tx.outs[0].address.toString()] // the address fixtureTx2 is spending from
+        wallet.addresses = [tx.outs[0].address.toString()] // the address fixtureTx2 used as input
         wallet.processTx(tx)
 
         tx = Transaction.deserialize(fixtureTx2Hex)
@@ -311,6 +314,113 @@ describe('Wallet', function() {
       var outputs = wallet.outputs
       wallet.processTx(tx)
       assert.deepEqual(wallet.outputs, outputs)
+    })
+  })
+
+  describe('createTx', function(){
+    var to, value, prevTx;
+
+    beforeEach(function(){
+      to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
+      value = 500000
+
+      // generate 2 addresses
+      wallet.generateAddress()
+      wallet.generateAddress()
+
+      // set up 3 utxo
+      utxo = [
+        {
+          "hash": fakeTxHash(1),
+          "outputIndex": 0,
+          "scriptPubKey": scriptPubKeyFor(wallet.addresses[0], 300000),
+          "address" : wallet.addresses[0],
+          "value": 400000 // not enough for value
+        },
+        {
+          "hash": fakeTxHash(2),
+          "outputIndex": 1,
+          "scriptPubKey": scriptPubKeyFor(wallet.addresses[0], 500000),
+          "address" : wallet.addresses[0],
+          "value": 500000 // enough for only value
+        },
+        {
+          "hash": fakeTxHash(3),
+          "outputIndex": 0,
+          "scriptPubKey": scriptPubKeyFor(wallet.addresses[1], 520000),
+          "address" : wallet.addresses[1],
+          "value": 520000 // enough for value and fee
+        }
+      ]
+      wallet.setUnspentOutputs(utxo)
+
+      function scriptPubKeyFor(address, value){
+        var txOut = new TransactionOut({
+          value: value,
+          script: Script.createOutputScript(address)
+        })
+
+        return txOut.scriptPubKey()
+      }
+    })
+
+    function fakeTxHash(i) {
+      return "txtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtx" + i
+    }
+
+    describe('choosing utxo', function(){
+      it('calculates fees', function(){
+        var tx = wallet.createTx(to, value)
+
+        assert.equal(tx.ins.length, 1)
+        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+      })
+
+      it('allows fee to be specified', function(){
+        var fee = 30000
+        var tx = wallet.createTx(to, value, fee)
+
+        assert.equal(tx.ins.length, 2)
+        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+        assert.deepEqual(tx.ins[1].outpoint, { hash: fakeTxHash(2), index: 1 })
+      })
+    })
+
+    describe('transaction outputs', function(){
+      it('includes the specified address and amount', function(){
+        var tx = wallet.createTx(to, value)
+
+        assert.equal(tx.outs.length, 1)
+        var out = tx.outs[0]
+        assert.equal(out.address, to)
+        assert.equal(out.value, value)
+      })
+
+      describe('change', function(){
+        it('uses the last change address if there is any', function(){
+          var fee = 15000
+          wallet.generateChangeAddress()
+          wallet.generateChangeAddress()
+          var tx = wallet.createTx(to, value, fee)
+
+          assert.equal(tx.outs.length, 2)
+          var out = tx.outs[1]
+          assert.equal(out.address, wallet.changeAddresses[1])
+          assert.equal(out.value, 5000)
+        })
+
+        it('generates a change address if there is not any', function(){
+          var fee = 15000
+          assert.equal(wallet.changeAddresses.length, 0)
+
+          var tx = wallet.createTx(to, value, fee)
+
+          assert.equal(wallet.changeAddresses.length, 1)
+          var out = tx.outs[1]
+          assert.equal(out.address, wallet.changeAddresses[0])
+          assert.equal(out.value, 5000)
+        })
+      })
     })
   })
 
