@@ -249,7 +249,7 @@ Transaction.deserialize = function(buffer) {
     }
     var pos = 0;
     var readAsInt = function(bytes) {
-        if (bytes == 0) return 0;
+        if (bytes === 0) return 0;
         pos++;
         return buffer[pos-1] + readAsInt(bytes-1) * 256;
     }
@@ -344,7 +344,9 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
         var thisInputAddrdata = addrdata.filter(function(a) {
             return a.address == histItem.address;
         });
-        if (thisInputAddrdata.length == 0) continue;
+
+        if (thisInputAddrdata.length === 0) continue;
+
         this.sign(i,thisInputAddrdata[0].key);
     }
 }
