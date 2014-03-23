@@ -24,15 +24,15 @@ var Transaction = function (doc) {
         if (doc.version) this.version = doc.version;
         if (doc.locktime) this.locktime = doc.locktime;
         if (doc.ins && doc.ins.length) {
-            for (var i = 0; i < doc.ins.length; i++) {
-                this.addInput(new TransactionIn(doc.ins[i]));
-            }
+            doc.ins.forEach(function(input) {
+                this.addInput(new TransactionIn(input));
+            }, this);
         }
 
         if (doc.outs && doc.outs.length) {
-            for (var i = 0; i < doc.outs.length; i++) {
-                this.addOutput(new TransactionOut(doc.outs[i]));
-            }
+            doc.outs.forEach(function(output) {
+                this.addOutput(new TransactionOut(output));
+            }, this);
         }
 
         this.hash = this.hash || this.getHash();
@@ -113,9 +113,8 @@ Transaction.prototype.serialize = function () {
     var buffer = [];
     buffer = buffer.concat(convert.numToBytes(parseInt(this.version), 4));
     buffer = buffer.concat(convert.numToVarInt(this.ins.length));
-    for (var i = 0; i < this.ins.length; i++) {
-        var txin = this.ins[i];
 
+    this.ins.forEach(function(txin) {
         // Why do blockchain.info, blockexplorer.com, sx and just about everybody
         // else use little-endian hashes? No idea...
         buffer = buffer.concat(convert.hexToBytes(txin.outpoint.hash).reverse());
@@ -126,10 +125,11 @@ Transaction.prototype.serialize = function () {
         buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
         buffer = buffer.concat(txin.sequence);
-    }
+    });
+
     buffer = buffer.concat(convert.numToVarInt(this.outs.length));
-    for (var i = 0; i < this.outs.length; i++) {
-        var txout = this.outs[i];
+
+    this.outs.forEach(function(txout) {
         buffer = buffer.concat(convert.numToBytes(txout.value,8));
 
         var scriptBytes = txout.script.buffer;
@@ -174,9 +174,9 @@ function (connectedScript, inIndex, hashType)
    });*/
 
   // Blank out other inputs' signatures
-  for (var i = 0; i < txTmp.ins.length; i++) {
-    txTmp.ins[i].script = new Script();
-  }
+  txTmp.ins.forEach(function(txin) {
+    txin.script = new Script();
+  });
 
   txTmp.ins[inIndex].script = connectedScript;
 
@@ -185,9 +185,12 @@ function (connectedScript, inIndex, hashType)
     txTmp.outs = [];
 
     // Let the others update at will
-    for (var i = 0; i < txTmp.ins.length; i++)
-      if (i != inIndex)
+    txTmp.ins.forEach(function(txin, i) {
+      if (i != inIndex) {
         txTmp.ins[i].sequence = 0;
+      }
+    });
+
   } else if ((hashType & 0x1f) == SIGHASH_SINGLE) {
     // TODO: Implement
   }
@@ -224,14 +227,15 @@ Transaction.prototype.clone = function ()
   var newTx = new Transaction();
   newTx.version = this.version;
   newTx.locktime = this.locktime;
-  for (var i = 0; i < this.ins.length; i++) {
-    var txin = this.ins[i].clone();
-    newTx.addInput(txin);
-  }
-  for (var i = 0; i < this.outs.length; i++) {
-    var txout = this.outs[i].clone();
-    newTx.addOutput(txout);
-  }
+
+  this.ins.forEach(function(txin) {
+    newTx.addInput(txin.clone());
+  });
+
+  this.outs.forEach(function(txout) {
+    newTx.addOutput(txout.clone());
+  });
+
   return newTx;
 };
 
@@ -327,9 +331,10 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
     });
 
     var hmap = {};
-    for (var o in outputs) {
-        hmap[outputs[o].output] = outputs[o];
-    }
+    outputs.forEach(function(o) {
+        hmap[o.output] = o;
+    });
+
     for (var i = 0; i < this.ins.length; i++) {
         var outpoint = this.ins[i].outpoint.hash + ':' + this.ins[i].outpoint.index;
         var histItem = hmap[outpoint];
