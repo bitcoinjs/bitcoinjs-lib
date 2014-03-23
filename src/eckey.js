@@ -63,7 +63,7 @@ ECKey.prototype.getPub = function(compressed) {
  * @deprecated Reserved keyword, factory pattern. Use toHex, toBytes, etc.
  */
 ECKey.prototype['export'] = function(format) {
-    format || (format = 'hex')
+    var format = format || 'hex'
     return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
 }
 
@@ -77,7 +77,7 @@ ECKey.version_bytes = {
 }
 
 ECKey.prototype.toWif = function(version) {
-    var version = version || Network.mainnet.addressVersion;
+    version = version || Network.mainnet.addressVersion;
 
     return base58.checkEncode(this.toBytes(), ECKey.version_bytes[version])
 }
@@ -147,7 +147,7 @@ ECPubKey.prototype.multiply = function(key) {
 }
 
 ECPubKey.prototype['export'] = function(format) {
-    format || (format = 'hex')
+    var format = format || 'hex';
     return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
 }
 
@@ -165,7 +165,7 @@ ECPubKey.prototype.toBin = function() {
 }
 
 ECPubKey.prototype.toWif = function(version) {
-    var version = version || Network.mainnet.addressVersion;
+    version = version || Network.mainnet.addressVersion;
 
     return base58.checkEncode(this.toBytes(), version)
 }
@@ -173,7 +173,7 @@ ECPubKey.prototype.toWif = function(version) {
 ECPubKey.prototype.toString = ECPubKey.prototype.toHex
 
 ECPubKey.prototype.getAddress = function(version) {
-    var version = version || Network.mainnet.addressVersion;
+    version = version || Network.mainnet.addressVersion;
 
     return new Address(util.sha256ripe160(this.toBytes()), version);
 }

@@ -1,4 +1,4 @@
-Opcode = {
+var Opcode = {
     map: {
         // push value
         OP_0         : 0,

@@ -60,8 +60,9 @@ Transaction.prototype.addInput = function (tx, outIndex) {
         return this.addInput(args[0], args[1]);
     }
     else {
-        var hash = typeof tx === "string" ? tx : tx.hash
-        var hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash
+        var hash = typeof tx === "string" ? tx : tx.hash;
+        hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash;
+
         this.ins.push(new TransactionIn({
             outpoint: {
                 hash: hash,
@@ -269,7 +270,9 @@ Transaction.deserialize = function(buffer) {
     }
     obj.version = readAsInt(4);
     var ins = readVarInt();
-    for (var i = 0; i < ins; i++) {
+    var i;
+
+    for (i = 0; i < ins; i++) {
         obj.ins.push({
             outpoint: {
                 hash: convert.bytesToHex(readBytes(32).reverse()),
@@ -280,12 +283,14 @@ Transaction.deserialize = function(buffer) {
         });
     }
     var outs = readVarInt();
-    for (var i = 0; i < outs; i++) {
+
+    for (i = 0; i < outs; i++) {
         obj.outs.push({
             value: convert.bytesToNum(readBytes(8)),
             script: new Script(readVarString())
         });
     }
+
     obj.locktime = readAsInt(4);
 
     return new Transaction(obj);
