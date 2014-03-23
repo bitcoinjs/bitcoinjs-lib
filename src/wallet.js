@@ -179,6 +179,8 @@ var Wallet = function (seed, options) {
     }
 
     this.createTx = function(to, value, fixedFee) {
+        checkDust(value)
+
         var tx = new Transaction()
         tx.addOutput(to, value)
 
@@ -204,6 +206,12 @@ var Wallet = function (seed, options) {
         this.sign(tx)
 
         return tx
+    }
+
+    function checkDust(value){
+      if (isNullOrUndefined(value) || value < 5430) {
+        throw new Error("Value below dust threshold")
+      }
     }
 
     function estimateFeePadChangeOutput(tx){

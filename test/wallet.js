@@ -367,10 +367,6 @@ describe('Wallet', function() {
       }
     })
 
-    function fakeTxHash(i) {
-      return "txtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtx" + i
-    }
-
     describe('choosing utxo', function(){
       it('calculates fees', function(){
         var tx = wallet.createTx(to, value)
@@ -441,6 +437,20 @@ describe('Wallet', function() {
         assert(Transaction.prototype.sign.calledWith(1, wallet.getPrivateKeyForAddress(address1)))
       })
     })
+
+    describe('when value is below dust threshold', function(){
+      it('throws an error', function(){
+        var value = 5429
+
+        assert.throws(function() {
+          wallet.createTx(to, value)
+        }, Error, 'Value below dust threshold')
+      })
+    })
+
+    function fakeTxHash(i) {
+      return "txtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtx" + i
+    }
   })
 
   function assertEqual(obj1, obj2){
