@@ -147,8 +147,6 @@ var Wallet = function (seed, options) {
                     value: txOut.value,
                     address: address,
                     scriptPubKey: txOut.scriptPubKey()
-                    // timestamp: new Date().getTime() / 1000,
-                    // pending: true
                 }
             }
         })
@@ -158,24 +156,8 @@ var Wallet = function (seed, options) {
             var o = me.outputs[op.hash+':'+op.index]
             if (o) {
                 o.spend = txhash+':'+i
-                // o.spendpending = true
-                // o.timestamp = new Date().getTime() / 1000
             }
         })
-    }
-
-    function getCandidateOutputs(value){
-      var unspent = []
-      for (var key in me.outputs){
-        var output = me.outputs[key]
-        if(!output.value.spend) unspent.push(output)
-      }
-
-      var sortByValueDesc = unspent.sort(function(o1, o2){
-        return o2.value - o1.value
-      })
-
-      return sortByValueDesc;
     }
 
     this.createTx = function(to, value, fixedFee) {
@@ -221,11 +203,18 @@ var Wallet = function (seed, options) {
       }
     }
 
-    function checkInsufficientFund(totalInValue, value, fee) {
-      if(totalInValue < value + fee) {
-        throw new Error('Not enough money to send funds including transaction fee. Have: ' +
-                        totalInValue + ', needed: ' + (value + fee))
+    function getCandidateOutputs(value){
+      var unspent = []
+      for (var key in me.outputs){
+        var output = me.outputs[key]
+        if(!output.value.spend) unspent.push(output)
       }
+
+      var sortByValueDesc = unspent.sort(function(o1, o2){
+        return o2.value - o1.value
+      })
+
+      return sortByValueDesc;
     }
 
     function estimateFeePadChangeOutput(tx){
@@ -239,64 +228,11 @@ var Wallet = function (seed, options) {
       return me.changeAddresses[me.changeAddresses.length - 1]
     }
 
-    this.getUtxoToPay = function(value) {
-        var h = []
-        for (var out in this.outputs) h.push(this.outputs[out])
-        var utxo = h.filter(function(x) { return !x.spend });
-        var valuecompare = function(a,b) { return a.value > b.value; }
-        var high = utxo.filter(function(o) { return o.value >= value; })
-                       .sort(valuecompare);
-        if (high.length > 0) return [high[0]];
-        utxo.sort(valuecompare);
-        var totalval = 0;
-        for (var i = 0; i < utxo.length; i++) {
-            totalval += utxo[i].value;
-            if (totalval >= value) return utxo.slice(0,i+1);
-        }
-        throw ("Not enough money to send funds including transaction fee. Have: "
-                     + (totalval / 100000000) + ", needed: " + (value / 100000000));
-    }
-
-    this.mkSend = function(to, value, fee) {
-        var utxo = this.getUtxoToPay(value + fee)
-        var sum = utxo.reduce(function(t,o) { return t + o.value },0),
-            remainder = sum - value - fee
-        if (value < 5430) throw new Error("Amount below dust threshold!")
-        var unspentOuts = 0;
-        for (var o in this.outputs) {
-            if (!this.outputs[o].spend) unspentOuts += 1
-            if (unspentOuts >= 5) return
-        }
-        var change = this.addresses[this.addresses.length - 1]
-        var toOut = { address: to, value: value },
-            changeOut = { address: change, value: remainder }
-            halfChangeOut = { address: change, value: Math.floor(remainder/2) };
-
-        var outs =
-              remainder < 5430  ? [toOut]
-            : remainder < 10860 ? [toOut, changeOut]
-            : unspentOuts == 5  ? [toOut, changeOut]
-            :                     [toOut, halfChangeOut, halfChangeOut]
-
-        var tx = new Bitcoin.Transaction({
-            ins: utxo.map(function(x) { return x.receive }),
-            outs: outs
-        })
-        this.sign(tx)
-        return tx
-    }
-
-    this.mkSendToOutputs = function(outputs, changeIndex, fee) {
-        var value = outputs.reduce(function(t,o) { return t + o.value },0),
-            utxo = this.getUtxoToPay(value + fee),
-            sum = utxo.reduce(function(t,p) { return t + o.value },0);
-        utxo[changeIndex].value += sum - value - fee;
-        var tx = new Bitcoin.Transaction({
-            ins: utxo.map(function(x) { return x.receive }),
-            outs: outputs
-        })
-        this.sign(tx)
-        return tx
+    function checkInsufficientFund(totalInValue, value, fee) {
+      if(totalInValue < value + fee) {
+        throw new Error('Not enough money to send funds including transaction fee. Have: ' +
+                        totalInValue + ', needed: ' + (value + fee))
+      }
     }
 
     this.sign = function(tx) {
