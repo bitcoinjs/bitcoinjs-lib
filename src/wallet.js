@@ -164,28 +164,6 @@ var Wallet = function (seed, options) {
         })
     }
 
-    // Processes an output from an external source of the form
-    // { output: txhash:index, value: integer, address: address }
-    // Excellent compatibility with SX and pybitcointools
-    this.processOutput = function(o) {
-        if (!this.outputs[o.output] || this.outputs[o.output].pending)
-             this.outputs[o.output] = o;
-    }
-
-    this.processExistingOutputs = function() {
-        var t = new Date().getTime() / 1000
-        for (var o in this.outputs) {
-            if (o.pending && t > o.timestamp + 1200)
-                delete this.outputs[o]
-            if (o.spendpending && t > o.timestamp + 1200) {
-                o.spendpending = false
-                o.spend = false
-                delete o.timestamp
-            }
-        }
-    }
-    var peoInterval = setInterval(this.processExistingOutputs, 10000)
-
     this.getUtxoToPay = function(value) {
         var h = []
         for (var out in this.outputs) h.push(this.outputs[out])
