@@ -70,72 +70,72 @@ describe('ECKey', function() {
 
     describe('toAddress', function() {
         var privkeys = [
-		'CA48EC9783CF3AD0DFEFF1FC254395A2E403CBBC666477B61B45E31D3B8AB458',
-	  	'1111111111111111111111111111111111111111111111111111111111111111',
-		'18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725'
-	  ];
+            'CA48EC9783CF3AD0DFEFF1FC254395A2E403CBBC666477B61B45E31D3B8AB458',
+            '1111111111111111111111111111111111111111111111111111111111111111',
+            '18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725'
+        ];
 
-	  // compressed pubkeys
-	  var cpubkeys = [
-		'024B12D9D7C77DB68388B6FF7C89046174C871546436806BCD80D07C28EA811992',
-		'034F355BDCB7CC0AF728EF3CCEB9615D90684BB5B2CA5F859AB0F0B704075871AA',
-		'0250863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B2352'
-	  ];
+        // compressed pubkeys
+        var cpubkeys = [
+            '024B12D9D7C77DB68388B6FF7C89046174C871546436806BCD80D07C28EA811992',
+            '034F355BDCB7CC0AF728EF3CCEB9615D90684BB5B2CA5F859AB0F0B704075871AA',
+            '0250863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B2352'
+        ];
 
-	  var pubkeys = cpubkeys.map(function(x) {
-		return new ECPubKey(x).pub.getEncoded(false);
-	  });
+        var pubkeys = cpubkeys.map(function(x) {
+            return new ECPubKey(x).pub.getEncoded(false);
+        });
 
         it('mainnet', function() {
-	      var addresses = [
-			'19SgmoUj4xowEjwtXvNAtYTAgbvR9iBCui',
-			'1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a',
-			'16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM'
-		];
-		var compressedAddresses = [
-			'1AA4sjKW2aUmbtN3MtegdvhYtDBbDEke1q',
-			'1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9',
-			'1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs',
-		];
+            var addresses = [
+                '19SgmoUj4xowEjwtXvNAtYTAgbvR9iBCui',
+                '1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a',
+                '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM'
+            ];
+            var compressedAddresses = [
+                '1AA4sjKW2aUmbtN3MtegdvhYtDBbDEke1q',
+                '1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9',
+                '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs',
+            ];
 
-		for (var i = 0; i < addresses.length; ++i) {
-			var priv = new ECKey(privkeys[i], false);
-			var pubcomp = new ECPubKey(cpubkeys[i], true);
-			var pub = new ECPubKey(pubkeys[i], false);
+            for (var i = 0; i < addresses.length; ++i) {
+                var priv = new ECKey(privkeys[i], false);
+                var pubcomp = new ECPubKey(cpubkeys[i], true);
+                var pub = new ECPubKey(pubkeys[i], false);
 
-			var addr = addresses[i];
-			var caddr = compressedAddresses[i];
+                var addr = addresses[i];
+                var caddr = compressedAddresses[i];
 
-			assert.equal(priv.getAddress().toString(), addr);
-			assert.equal(pub.getAddress().toString(), addr);
-			assert.equal(pubcomp.getAddress().toString(), caddr);
-		}
+                assert.equal(priv.getAddress().toString(), addr);
+                assert.equal(pub.getAddress().toString(), addr);
+                assert.equal(pubcomp.getAddress().toString(), caddr);
+            }
         })
 
         it('testnet', function() {
-	      var addresses = [
-			'19SgmoUj4xowEjwtXvNAtYTAgbvR9iBCui',
-			'1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a',
-			'16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM'
-		];
-		var compressedAddresses = [
-			'1AA4sjKW2aUmbtN3MtegdvhYtDBbDEke1q',
-			'1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9',
-			'1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs',
-		];
+            var addresses = [
+                '19SgmoUj4xowEjwtXvNAtYTAgbvR9iBCui',
+                '1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a',
+                '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM'
+            ];
+            var compressedAddresses = [
+                '1AA4sjKW2aUmbtN3MtegdvhYtDBbDEke1q',
+                '1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9',
+                '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs',
+            ];
 
-		for (var i = 0; i < addresses.length; ++i) {
-			var priv = new ECKey(privkeys[i], false);
-			var pubcomp = new ECPubKey(cpubkeys[i], true);
-			var pub = new ECPubKey(pubkeys[i], false);
+            for (var i = 0; i < addresses.length; ++i) {
+                var priv = new ECKey(privkeys[i], false);
+                var pubcomp = new ECPubKey(cpubkeys[i], true);
+                var pub = new ECPubKey(pubkeys[i], false);
 
-			var addr = addresses[i];
-			var caddr = compressedAddresses[i];
+                var addr = addresses[i];
+                var caddr = compressedAddresses[i];
 
-			assert.equal(priv.getAddress().toString(), addr);
-			assert.equal(pub.getAddress().toString(), addr);
-			assert.equal(pubcomp.getAddress().toString(), caddr);
-		}
+                assert.equal(priv.getAddress().toString(), addr);
+                assert.equal(pub.getAddress().toString(), addr);
+                assert.equal(pubcomp.getAddress().toString(), caddr);
+            }
         })
     });
 })

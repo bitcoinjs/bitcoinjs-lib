@@ -33,10 +33,10 @@ describe('HDWallet', function() {
     })
 
     describe('constructor & seed deserialization', function() {
-    	  var expectedPrivateKey = '0fd71c652e847ba7ea7956e3cf3fc0a0985871846b1b2c23b9c6a29a38cee86001';
+        var expectedPrivateKey = '0fd71c652e847ba7ea7956e3cf3fc0a0985871846b1b2c23b9c6a29a38cee86001';
         var seed = [
-		99, 114, 97, 122, 121, 32, 104, 111, 114, 115, 101, 32, 98,
-		97, 116, 116, 101, 114, 121, 32, 115, 116, 97, 112, 108, 101
+            99, 114, 97, 122, 121, 32, 104, 111, 114, 115, 101, 32, 98,
+            97, 116, 116, 101, 114, 121, 32, 115, 116, 97, 112, 108, 101
         ];
 
         it('creates from binary seed', function() {
@@ -244,12 +244,12 @@ describe('HDWallet', function() {
     describe('network types', function() {
         it('ensures that a mainnet Wallet generates mainnet addresses', function() {
             var wallet = new HDWallet('foobar', 'mainnet')
-		assert.equal(wallet.getAddress().toString(), '1JNymexJHEr5u1BndiChMStFkCgPm4EQ6o');
+            assert.equal(wallet.getAddress().toString(), '1JNymexJHEr5u1BndiChMStFkCgPm4EQ6o');
         })
 
         it('ensures that a testnet Wallet generates testnet addresses', function() {
             var wallet = new HDWallet('foobar', 'testnet')
-		assert.equal(wallet.getAddress().toString(), 'mxtw4i3H6GHLg7fQMHB5BN6acCH6kQ7aoY');
+            assert.equal(wallet.getAddress().toString(), 'mxtw4i3H6GHLg7fQMHB5BN6acCH6kQ7aoY');
         })
 
         it('throws an excption when unknown network type is passed in', function() {

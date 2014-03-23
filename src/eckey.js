@@ -190,6 +190,6 @@ ECKey.prototype.verify = function (hash, sig) {
  * Parse an exported private key contained in a string.
  */
 module.exports = {
-	ECKey: ECKey,
-	ECPubKey: ECPubKey
+  ECKey: ECKey,
+  ECPubKey: ECPubKey
 };
