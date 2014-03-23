@@ -144,4 +144,4 @@ for(var i in Opcode.map) {
     Opcode.reverseMap[Opcode.map[i]] = i
 }
 
-module.exports = Opcode
+module.exports = Opcode;

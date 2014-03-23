@@ -13,12 +13,13 @@ var Transaction = function (doc) {
     this.locktime = 0;
     this.ins = [];
     this.outs = [];
-    this.defaultSequence = [255, 255, 255, 255] // 0xFFFFFFFF
+    this.defaultSequence = [255, 255, 255, 255]; // 0xFFFFFFFF
 
     if (doc) {
         if (typeof doc == "string" || Array.isArray(doc)) {
-            doc = Transaction.deserialize(doc)
+            doc = Transaction.deserialize(doc);
         }
+
         if (doc.hash) this.hash = doc.hash;
         if (doc.version) this.version = doc.version;
         if (doc.locktime) this.locktime = doc.locktime;
@@ -27,13 +28,14 @@ var Transaction = function (doc) {
                 this.addInput(new TransactionIn(doc.ins[i]));
             }
         }
+
         if (doc.outs && doc.outs.length) {
             for (var i = 0; i < doc.outs.length; i++) {
                 this.addOutput(new TransactionOut(doc.outs[i]));
             }
         }
 
-        this.hash = this.hash || this.getHash()
+        this.hash = this.hash || this.getHash();
     }
 };
 
@@ -86,11 +88,13 @@ Transaction.prototype.addOutput = function (address, value) {
        this.outs.push(arguments[0]);
        return;
     }
+
     if (arguments[0].indexOf(':') >= 0) {
         var args = arguments[0].split(':');
         address = args[0];
         value = parseInt(args[1]);
     }
+
     this.outs.push(new TransactionOut({
         value: value,
         script: Script.createOutputScript(address)
@@ -106,7 +110,7 @@ Transaction.prototype.addOutput = function (address, value) {
  */
 Transaction.prototype.serialize = function () {
     var buffer = [];
-    buffer = buffer.concat(convert.numToBytes(parseInt(this.version),4));
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.version), 4));
     buffer = buffer.concat(convert.numToVarInt(this.ins.length));
     for (var i = 0; i < this.ins.length; i++) {
         var txin = this.ins[i];
@@ -115,7 +119,8 @@ Transaction.prototype.serialize = function () {
         // else use little-endian hashes? No idea...
         buffer = buffer.concat(convert.hexToBytes(txin.outpoint.hash).reverse());
 
-        buffer = buffer.concat(convert.numToBytes(parseInt(txin.outpoint.index),4));
+        buffer = buffer.concat(convert.numToBytes(parseInt(txin.outpoint.index), 4));
+
         var scriptBytes = txin.script.buffer;
         buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
@@ -125,11 +130,13 @@ Transaction.prototype.serialize = function () {
     for (var i = 0; i < this.outs.length; i++) {
         var txout = this.outs[i];
         buffer = buffer.concat(convert.numToBytes(txout.value,8));
+
         var scriptBytes = txout.script.buffer;
         buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
-    }
-    buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime),4));
+    });
+
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime), 4));
 
     return buffer;
 };
@@ -191,9 +198,9 @@ function (connectedScript, inIndex, hashType)
 
   var buffer = txTmp.serialize();
 
-  buffer = buffer.concat(convert.numToBytes(parseInt(hashType),4));
-
+  buffer = buffer.concat(convert.numToBytes(parseInt(hashType), 4));
   buffer = convert.bytesToWordArray(buffer);
+
   return convert.wordArrayToBytes(SHA256(SHA256(buffer)));
 };
 
@@ -291,7 +298,7 @@ Transaction.deserialize = function(buffer) {
 Transaction.prototype.sign = function(index, key, type) {
     type = type || SIGHASH_ALL;
     key = new ECKey(key);
-    
+
     // TODO: getPub is slow, sha256ripe160 probably is too.
     // This could be sped up a lot by providing these as inputs.
     var pub = key.getPub().export('bytes'),
@@ -305,6 +312,7 @@ Transaction.prototype.sign = function(index, key, type) {
 // Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]
 Transaction.prototype.signWithKeys = function(keys, outputs, type) {
     type = type || SIGHASH_ALL;
+
     var addrdata = keys.map(function(key) {
          key = new ECKey(key);
          return {
@@ -312,14 +320,17 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
             address: key.getAddress().toString()
          }
     });
+
     var hmap = {};
     for (var o in outputs) {
         hmap[outputs[o].output] = outputs[o];
     }
     for (var i = 0; i < this.ins.length; i++) {
-        var outpoint = this.ins[i].outpoint.hash+':'+this.ins[i].outpoint.index,
-            histItem = hmap[outpoint];
+        var outpoint = this.ins[i].outpoint.hash + ':' + this.ins[i].outpoint.index;
+        var histItem = hmap[outpoint];
+
         if (!histItem) continue;
+
         var thisInputAddrdata = addrdata.filter(function(a) {
             return a.address == histItem.address;
         });
@@ -410,6 +421,8 @@ TransactionOut.prototype.clone = function ()
   return newTxout;
 };
 
-module.exports.Transaction = Transaction;
-module.exports.TransactionIn = TransactionIn;
-module.exports.TransactionOut = TransactionOut;
+module.exports = {
+  Transaction: Transaction,
+  TransactionIn: TransactionIn,
+  TransactionOut: TransactionOut
+}

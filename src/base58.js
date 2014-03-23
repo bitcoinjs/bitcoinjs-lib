@@ -36,7 +36,7 @@ module.exports.encode = function (input) {
     }
 
     return chars.reverse().join('');
-},
+}
 
 // decode a base58 string into a byte array
 // input should be a base58 encoded string
@@ -88,10 +88,13 @@ module.exports.checkDecode = function(input) {
     var bytes = module.exports.decode(input),
         front = bytes.slice(0,bytes.length-4),
         back = bytes.slice(bytes.length-4);
+
     var checksum = getChecksum(front)
+
     if (""+checksum != ""+back) {
         throw new Error("Checksum failed");
     }
+
     var o = front.slice(1);
     o.version = front[0];
     return o;
@@ -103,4 +106,3 @@ function getChecksum(bytes) {
 }
 
 module.exports.getChecksum = getChecksum
-

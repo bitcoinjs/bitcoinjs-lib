@@ -53,8 +53,8 @@ exports.base64ToBytes = function(base64) {
     // Remove non-base-64 characters
     base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
 
-    var bytes = []
-    , imod4 = 0
+    var bytes = [];
+    var imod4 = 0;
 
     for (var i = 0; i < base64.length; imod4 = ++i % 4) {
         if (!imod4) continue
