@@ -33,7 +33,7 @@ describe('HDWallet', function() {
     })
 
     describe('constructor & seed deserialization', function() {
-        var expectedWif = 'KwkW62Lzm4a7Eo5nPLezrVjWBGFh2KMfpyf4Swz9NmfsVaLoeXv9';
+    	  var expectedPrivateKey = '0fd71c652e847ba7ea7956e3cf3fc0a0985871846b1b2c23b9c6a29a38cee86001';
         var seed = [
 		99, 114, 97, 122, 121, 32, 104, 111, 114, 115, 101, 32, 98,
 		97, 116, 116, 101, 114, 121, 32, 115, 116, 97, 112, 108, 101
@@ -42,7 +42,7 @@ describe('HDWallet', function() {
         it('creates from binary seed', function() {
             var hd = new HDWallet(seed)
 
-            assert.equal(hd.priv.toWif(), expectedWif)
+            assert.equal(hd.priv.toHex(), expectedPrivateKey)
             assert(hd.pub)
         })
 
@@ -50,7 +50,7 @@ describe('HDWallet', function() {
             it('creates from hex seed', function() {
                 var hd = HDWallet.fromSeedHex(b2h(seed))
 
-                assert.equal(hd.priv.toWif(), expectedWif)
+                assert.equal(hd.priv.toHex(), expectedPrivateKey)
                 assert(hd.pub)
             })
         })
@@ -59,7 +59,7 @@ describe('HDWallet', function() {
             it('creates from string seed', function() {
                 var hd = HDWallet.fromSeedString(convert.bytesToString(seed))
 
-                assert.equal(hd.priv.toWif(), expectedWif)
+                assert.equal(hd.priv.toHex(), expectedPrivateKey)
                 assert(hd.pub)
             })
         })
