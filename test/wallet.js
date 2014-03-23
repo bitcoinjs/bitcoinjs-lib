@@ -397,7 +397,7 @@ describe('Wallet', function() {
 
       describe('change', function(){
         it('uses the last change address if there is any', function(){
-          var fee = 15000
+          var fee = 5000
           wallet.generateChangeAddress()
           wallet.generateChangeAddress()
           var tx = wallet.createTx(to, value, fee)
@@ -405,11 +405,11 @@ describe('Wallet', function() {
           assert.equal(tx.outs.length, 2)
           var out = tx.outs[1]
           assert.equal(out.address, wallet.changeAddresses[1])
-          assert.equal(out.value, 5000)
+          assert.equal(out.value, 15000)
         })
 
         it('generates a change address if there is not any', function(){
-          var fee = 15000
+          var fee = 5000
           assert.equal(wallet.changeAddresses.length, 0)
 
           var tx = wallet.createTx(to, value, fee)
@@ -417,7 +417,13 @@ describe('Wallet', function() {
           assert.equal(wallet.changeAddresses.length, 1)
           var out = tx.outs[1]
           assert.equal(out.address, wallet.changeAddresses[0])
-          assert.equal(out.value, 5000)
+          assert.equal(out.value, 15000)
+        })
+
+        it('skips change if it is not above dust threshold', function(){
+          var fee = 14570
+          var tx = wallet.createTx(to, value)
+          assert.equal(tx.outs.length, 1)
         })
       })
     })
@@ -440,11 +446,11 @@ describe('Wallet', function() {
 
     describe('when value is below dust threshold', function(){
       it('throws an error', function(){
-        var value = 5429
+        var value = 5430
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, Error, 'Value below dust threshold')
+        }, /Value must be above dust threshold/)
       })
     })
 

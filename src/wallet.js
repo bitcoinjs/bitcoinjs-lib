@@ -197,7 +197,7 @@ var Wallet = function (seed, options) {
           if(totalInValue < value + fee) continue;
 
           var change = totalInValue - value - fee
-          if(change > 0) {
+          if(change > 0 && !isDust(change)) {
             tx.addOutput(getChangeAddress(), change)
           }
           break;
@@ -210,9 +210,14 @@ var Wallet = function (seed, options) {
         return tx
     }
 
+    this.dustThreshold = 5430
+    function isDust(amount) {
+      return amount <= me.dustThreshold
+    }
+
     function checkDust(value){
-      if (isNullOrUndefined(value) || value < 5430) {
-        throw new Error("Value below dust threshold")
+      if (isNullOrUndefined(value) || isDust(value)) {
+        throw new Error("Value must be above dust threshold")
       }
     }
 
