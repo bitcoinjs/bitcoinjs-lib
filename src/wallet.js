@@ -191,20 +191,24 @@ var Wallet = function (seed, options) {
           totalInValue += output.value
           if(totalInValue < value) continue;
 
-          var fee = fixedFee || tx.estimateFee()
+          var fee = fixedFee || estimateFeePadChangeOutput(tx)
           if(totalInValue < value + fee) continue;
 
           var change = totalInValue - value - fee
-          var changeAddress = getChangeAddress()
           if(change > 0) {
-            tx.addOutput(changeAddress, change)
-            // TODO: recalculate fee
+            tx.addOutput(getChangeAddress(), change)
           }
           break;
         }
 
         // TODO: sign tx
         return tx
+    }
+
+    function estimateFeePadChangeOutput(tx){
+        var tmpTx = tx.clone()
+        tmpTx.addOutput(getChangeAddress(), 0)
+        return tmpTx.estimateFee()
     }
 
     function getChangeAddress() {
