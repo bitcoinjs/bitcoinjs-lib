@@ -146,7 +146,7 @@ var Wallet = function (seed, options) {
                     receive: output,
                     value: txOut.value,
                     address: address,
-                    scriptPubKey: convert.bytesToHex(txOut.script.buffer) //TODO: txOut.scriptPubKey()
+                    scriptPubKey: txOut.scriptPubKey()
                     // timestamp: new Date().getTime() / 1000,
                     // pending: true
                 }

@@ -433,14 +433,17 @@ var TransactionOut = function (data) {
       :                                    data.value;
 };
 
-TransactionOut.prototype.clone = function ()
-{
+TransactionOut.prototype.clone = function() {
   var newTxout = new TransactionOut({
     script: this.script.clone(),
     value: this.value
   });
   return newTxout;
 };
+
+TransactionOut.prototype.scriptPubKey = function() {
+  return convert.bytesToHex(this.script.buffer)
+}
 
 module.exports = {
   Transaction: Transaction,

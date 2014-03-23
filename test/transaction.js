@@ -1,7 +1,12 @@
-var Transaction = require('../src/transaction').Transaction
+var T = require('../src/transaction')
+var Transaction = T.Transaction
+var TransactionOut = T.TransactionOut
+
 var convert = require('../src/convert')
 var ECKey = require('../src/eckey').ECKey
+var Script = require('../src/script')
 var assert = require('assert')
+
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
@@ -192,5 +197,17 @@ describe('Transaction', function() {
     })
   })
 
+  describe('TransactionOut', function() {
+    describe('scriptPubKey', function() {
+      it('returns hex string', function() {
+        var txOut = new TransactionOut({
+          value: 50000,
+          script: Script.createOutputScript("1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv")
+        })
+
+        assert.equal(txOut.scriptPubKey(), "76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac")
+      })
+    })
+  })
 })
 
