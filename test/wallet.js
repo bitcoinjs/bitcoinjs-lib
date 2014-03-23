@@ -13,6 +13,8 @@ var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 
+var sinon = require('sinon')
+
 describe('Wallet', function() {
   var seed, wallet;
   beforeEach(function(){
@@ -318,37 +320,38 @@ describe('Wallet', function() {
   })
 
   describe('createTx', function(){
-    var to, value, prevTx;
+    var to, value;
+    var address1, address2;
 
     beforeEach(function(){
       to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
       value = 500000
 
       // generate 2 addresses
-      wallet.generateAddress()
-      wallet.generateAddress()
+      address1 = wallet.generateAddress()
+      address2 = wallet.generateAddress()
 
       // set up 3 utxo
       utxo = [
         {
           "hash": fakeTxHash(1),
           "outputIndex": 0,
-          "scriptPubKey": scriptPubKeyFor(wallet.addresses[0], 300000),
-          "address" : wallet.addresses[0],
+          "scriptPubKey": scriptPubKeyFor(address1, 300000),
+          "address" : address1,
           "value": 400000 // not enough for value
         },
         {
           "hash": fakeTxHash(2),
           "outputIndex": 1,
-          "scriptPubKey": scriptPubKeyFor(wallet.addresses[0], 500000),
-          "address" : wallet.addresses[0],
+          "scriptPubKey": scriptPubKeyFor(address1, 500000),
+          "address" : address1,
           "value": 500000 // enough for only value
         },
         {
           "hash": fakeTxHash(3),
           "outputIndex": 0,
-          "scriptPubKey": scriptPubKeyFor(wallet.addresses[1], 520000),
-          "address" : wallet.addresses[1],
+          "scriptPubKey": scriptPubKeyFor(address2, 520000),
+          "address" : address2,
           "value": 520000 // enough for value and fee
         }
       ]
@@ -420,6 +423,22 @@ describe('Wallet', function() {
           assert.equal(out.address, wallet.changeAddresses[0])
           assert.equal(out.value, 5000)
         })
+      })
+    })
+
+    describe('signing', function(){
+      afterEach(function(){
+        Transaction.prototype.sign.restore()
+      })
+
+      it('signes the inputs with respective keys', function(){
+        var fee = 30000
+        sinon.stub(Transaction.prototype, "sign")
+
+        var tx = wallet.createTx(to, value, fee)
+
+        assert(Transaction.prototype.sign.calledWith(0, wallet.getPrivateKeyForAddress(address2)))
+        assert(Transaction.prototype.sign.calledWith(1, wallet.getPrivateKeyForAddress(address1)))
       })
     })
   })

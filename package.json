@@ -18,7 +18,8 @@
     "mocha": "1.18.2",
     "istanbul": "0.1.30",
     "uglify-js": "2.4.13",
-    "node-browserify": "https://github.com/substack/node-browserify/tarball/master"
+    "node-browserify": "https://github.com/substack/node-browserify/tarball/master",
+    "sinon": "^1.9.0"
   },
   "testling": {
     "browsers": [

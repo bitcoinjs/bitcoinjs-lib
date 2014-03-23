@@ -201,7 +201,8 @@ var Wallet = function (seed, options) {
           break;
         }
 
-        // TODO: sign tx
+        this.sign(tx)
+
         return tx
     }
 
