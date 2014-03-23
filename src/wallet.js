@@ -203,6 +203,8 @@ var Wallet = function (seed, options) {
           break;
         }
 
+        checkInsufficientFund(totalInValue, value, fee)
+
         this.sign(tx)
 
         return tx
@@ -211,6 +213,13 @@ var Wallet = function (seed, options) {
     function checkDust(value){
       if (isNullOrUndefined(value) || value < 5430) {
         throw new Error("Value below dust threshold")
+      }
+    }
+
+    function checkInsufficientFund(totalInValue, value, fee) {
+      if(totalInValue < value + fee) {
+        throw new Error('Not enough money to send funds including transaction fee. Have: ' +
+                        totalInValue + ', needed: ' + (value + fee))
       }
     }
 

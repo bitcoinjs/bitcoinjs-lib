@@ -448,6 +448,16 @@ describe('Wallet', function() {
       })
     })
 
+    describe('when there is not enough money', function(){
+      it('throws an error', function(){
+        var value = 1400001
+
+        assert.throws(function() {
+          wallet.createTx(to, value)
+        }, Error, 'Not enough money to send funds including transaction fee. Have: 1420000, needed: 1420001')
+      })
+    })
+
     function fakeTxHash(i) {
       return "txtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtx" + i
     }
