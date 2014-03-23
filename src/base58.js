@@ -1,11 +1,9 @@
-
 // https://en.bitcoin.it/wiki/Base58Check_encoding
 
 var BigInteger = require('./jsbn/jsbn');
 var Crypto = require('crypto-js');
-var SHA256 = Crypto.SHA256;
-var WordArray = Crypto.lib.WordArray;
 var convert = require('./convert');
+var SHA256 = Crypto.SHA256;
 
 var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 var base = BigInteger.valueOf(58);

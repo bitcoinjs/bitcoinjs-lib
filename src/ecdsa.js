@@ -248,7 +248,7 @@ var ECDSA = {
     var alpha = x.multiply(x).multiply(x).add(a.multiply(x)).add(b).mod(p);
     var beta = alpha.modPow(P_OVER_FOUR, p);
 
-    var xorOdd = beta.isEven() ? (i % 2) : ((i+1) % 2);
+//    var xorOdd = beta.isEven() ? (i % 2) : ((i+1) % 2);
     // If beta is even, but y isn't or vice versa, then convert it,
     // otherwise we're done and y == beta.
     var y = (beta.isEven() ? !isYEven : isYEven) ? beta : p.subtract(beta);

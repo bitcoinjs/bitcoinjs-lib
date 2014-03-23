@@ -5,7 +5,6 @@ var convert = require('./convert');
 var ECKey = require('./eckey').ECKey;
 var ECDSA = require('./ecdsa');
 var Address = require('./address');
-var Message = require('./message');
 var SHA256 = require('crypto-js/sha256');
 
 var Transaction = function (doc) {
@@ -139,7 +138,7 @@ Transaction.prototype.serializeHex = function() {
     return convert.bytesToHex(this.serialize());
 }
 
-var OP_CODESEPARATOR = 171;
+//var OP_CODESEPARATOR = 171;
 
 var SIGHASH_ALL = 1;
 var SIGHASH_NONE = 2;
@@ -344,7 +343,7 @@ Transaction.prototype.p2shsign = function(index, script, key, type) {
 
 Transaction.prototype.multisign = Transaction.prototype.p2shsign;
 
-Transaction.prototype.applyMultisigs = function(index, script, sigs, type) {
+Transaction.prototype.applyMultisigs = function(index, script, sigs/*, type*/) {
     this.ins[index].script = Script.createMultiSigInputScript(sigs, script);
 }
 
