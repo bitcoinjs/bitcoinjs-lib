@@ -11,8 +11,8 @@ var Network = require('./network')
 var ecparams = sec("secp256k1");
 
 // input can be nothing, array of bytes, hex string, or base58 string
-var ECKey = function (input,compressed) {
-    if (!(this instanceof ECKey)) { return new ECKey(input,compressed); }
+var ECKey = function (input, compressed) {
+    if (!(this instanceof ECKey)) { return new ECKey(input, compressed); }
     if (!input) {
         // Generate new key
         var n = ecparams.getN();
@@ -110,8 +110,16 @@ ECKey.prototype.multiply = function(key) {
     return ECKey(this.priv.multiply(ECKey(key).priv),this.compressed)
 }
 
-var ECPubKey = function(input,compressed) {
-    if (!(this instanceof ECPubKey)) { return new ECPubKey(input,compressed); }
+ECKey.prototype.sign = function(hash) {
+  return ecdsa.sign(hash, this.priv);
+}
+
+ECKey.prototype.verify = function(hash, sig) {
+  return this.getPub().verify(hash, sig)
+}
+
+var ECPubKey = function(input, compressed) {
+    if (!(this instanceof ECPubKey)) { return new ECPubKey(input, compressed); }
     if (!input) {
         // Generate new key
         var n = ecparams.getN();
@@ -178,18 +186,11 @@ ECPubKey.prototype.getAddress = function(version) {
     return new Address(util.sha256ripe160(this.toBytes()), version);
 }
 
-ECKey.prototype.sign = function (hash) {
-  return ecdsa.sign(hash, this.priv);
-};
+ECPubKey.prototype.verify = function(hash, sig) {
+  return ecdsa.verify(hash, sig, this.toBytes())
+}
 
-ECKey.prototype.verify = function (hash, sig) {
-  return ecdsa.verify(hash, sig, this.getPub()['export']('bytes'));
-};
-
-/**
- * Parse an exported private key contained in a string.
- */
 module.exports = {
   ECKey: ECKey,
   ECPubKey: ECPubKey
-};
+}
