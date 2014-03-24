@@ -138,4 +138,34 @@ describe('ECKey', function() {
             }
         })
     });
+
+    describe('signing', function() {
+      var hpriv = 'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458'
+      var hcpub = '024b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea811992'
+      var message = 'Vires in numeris'
+
+      it('should verify against the private key', function() {
+        var priv = new ECKey(hpriv)
+        var signature = priv.sign(message)
+
+        assert(priv.verify(message, signature))
+      })
+
+      it('should verify against the public key', function() {
+        var priv = new ECKey(hpriv)
+        var pub = new ECPubKey(hcpub, true)
+        var signature = priv.sign(message)
+
+        assert(pub.verify(message, signature))
+      })
+
+      it('should not verify against the wrong private key', function() {
+        var priv1 = new ECKey(hpriv)
+        var priv2 = new ECKey('1111111111111111111111111111111111111111111111111111111111111111')
+
+        var signature = priv1.sign(message)
+
+        assert(!priv2.verify(message, signature))
+      })
+    })
 })
