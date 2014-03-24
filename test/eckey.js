@@ -70,20 +70,20 @@ describe('ECKey', function() {
 
     describe('toAddress', function() {
         var privkeys = [
-            'CA48EC9783CF3AD0DFEFF1FC254395A2E403CBBC666477B61B45E31D3B8AB458',
+            'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458',
             '1111111111111111111111111111111111111111111111111111111111111111',
-            '18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725'
+            '18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725'
         ];
 
         // compressed pubkeys
         var cpubkeys = [
-            '024B12D9D7C77DB68388B6FF7C89046174C871546436806BCD80D07C28EA811992',
-            '034F355BDCB7CC0AF728EF3CCEB9615D90684BB5B2CA5F859AB0F0B704075871AA',
-            '0250863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B2352'
+            '024b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea811992',
+            '034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa',
+            '0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352'
         ];
 
         var pubkeys = cpubkeys.map(function(x) {
-            return new ECPubKey(x).pub.getEncoded(false);
+            return ECPubKey(x).toHex(false)
         });
 
         it('mainnet', function() {
@@ -100,15 +100,15 @@ describe('ECKey', function() {
 
             for (var i = 0; i < addresses.length; ++i) {
                 var priv = new ECKey(privkeys[i], false);
-                var pubcomp = new ECPubKey(cpubkeys[i], true);
                 var pub = new ECPubKey(pubkeys[i], false);
+                var cpub = new ECPubKey(cpubkeys[i], true);
 
                 var addr = addresses[i];
                 var caddr = compressedAddresses[i];
 
                 assert.equal(priv.getAddress().toString(), addr);
                 assert.equal(pub.getAddress().toString(), addr);
-                assert.equal(pubcomp.getAddress().toString(), caddr);
+                assert.equal(cpub.getAddress().toString(), caddr);
             }
         })
 
@@ -126,16 +126,35 @@ describe('ECKey', function() {
 
             for (var i = 0; i < addresses.length; ++i) {
                 var priv = new ECKey(privkeys[i], false);
-                var pubcomp = new ECPubKey(cpubkeys[i], true);
                 var pub = new ECPubKey(pubkeys[i], false);
+                var cpub = new ECPubKey(cpubkeys[i], true);
 
                 var addr = addresses[i];
                 var caddr = compressedAddresses[i];
 
                 assert.equal(priv.getAddress().toString(), addr);
                 assert.equal(pub.getAddress().toString(), addr);
-                assert.equal(pubcomp.getAddress().toString(), caddr);
+                assert.equal(cpub.getAddress().toString(), caddr);
             }
         })
     });
+
+    describe('output of ECPubKey', function() {
+      var hcpub = '024b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea811992'
+      var hpub = '044b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea81199283fbec990dad6fb98f93f712d50cb874dd717de6a184158d63886dda3090f566'
+
+      it('using toHex should support compression', function() {
+        var pub = new ECPubKey(hpub)
+
+        assert.equal(pub.toHex(true), hcpub)
+        assert.equal(pub.toHex(false), hpub)
+      })
+
+      it('using toBytes should support compression', function() {
+        var pub = new ECPubKey(hpub)
+
+        assert.equal(bytesToHex(pub.toBytes(true)), hcpub)
+        assert.equal(bytesToHex(pub.toBytes(false)), hpub)
+      })
+    })
 })
