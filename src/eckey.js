@@ -164,12 +164,12 @@ ECPubKey.prototype.toBytes = function(compressed) {
     return this.pub.getEncoded(compressed)
 }
 
-ECPubKey.prototype.toHex = function() {
-    return convert.bytesToHex(this.toBytes())
+ECPubKey.prototype.toHex = function(compressed) {
+    return convert.bytesToHex(this.toBytes(compressed))
 }
 
-ECPubKey.prototype.toBin = function() {
-    return convert.bytesToString(this.toBytes())
+ECPubKey.prototype.toBin = function(compressed) {
+    return convert.bytesToString(this.toBytes(compressed))
 }
 
 ECPubKey.prototype.toWif = function(version) {
