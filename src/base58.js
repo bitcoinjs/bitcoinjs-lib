@@ -17,7 +17,7 @@ for (var i=0 ; i < alphabet.length ; ++i) {
 // Written by Mike Hearn for BitcoinJ.
 //   Copyright (c) 2011 Google Inc.
 // Ported to JavaScript by Stefan Thomas.
-module.exports.encode = function (input) {
+function encode(input) {
     var bi = BigInteger.fromByteArrayUnsigned(input);
     var chars = [];
 
@@ -41,7 +41,7 @@ module.exports.encode = function (input) {
 // decode a base58 string into a byte array
 // input should be a base58 encoded string
 // @return Array
-module.exports.decode = function (input) {
+function decode(input) {
 
   var base = BigInteger.valueOf(58);
 
@@ -78,14 +78,14 @@ module.exports.decode = function (input) {
   return bytes;
 }
 
-module.exports.checkEncode = function(input, vbyte) {
+function checkEncode(input, vbyte) {
     vbyte = vbyte || 0;
     var front = [vbyte].concat(input)
-    return module.exports.encode(front.concat(getChecksum(front)));
+    return encode(front.concat(getChecksum(front)));
 }
 
-module.exports.checkDecode = function(input) {
-    var bytes = module.exports.decode(input),
+function checkDecode(input) {
+    var bytes = decode(input),
         front = bytes.slice(0,bytes.length-4),
         back = bytes.slice(bytes.length-4);
 
@@ -105,4 +105,10 @@ function getChecksum(bytes) {
   return convert.hexToBytes(SHA256(SHA256(wordArray)).toString()).slice(0,4);
 }
 
-module.exports.getChecksum = getChecksum
+module.exports = {
+  encode: encode,
+  decode: decode,
+  checkEncode: checkEncode,
+  checkDecode: checkDecode,
+  getChecksum: getChecksum
+}

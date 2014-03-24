@@ -2,7 +2,7 @@ var Crypto = require('crypto-js');
 var WordArray = Crypto.lib.WordArray;
 var base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-exports.lpad = function lpad(str, padString, length) {
+function lpad(str, padString, length) {
     while (str.length < length) str = padString + str;
     return str;
 }
@@ -10,16 +10,16 @@ exports.lpad = function lpad(str, padString, length) {
 /**
  * Convert a byte array to a hex string
  */
-exports.bytesToHex = function(bytes) {
+function bytesToHex(bytes) {
     return bytes.map(function(x) {
-        return exports.lpad(x.toString(16), '0', 2)
+        return lpad(x.toString(16), '0', 2)
     }).join('');
 };
 
 /**
  * Convert a hex string to a byte array
  */
-exports.hexToBytes = function(hex) {
+function hexToBytes(hex) {
     return hex.match(/../g).map(function(x) {
         return parseInt(x,16)
     });
@@ -28,7 +28,7 @@ exports.hexToBytes = function(hex) {
 /**
  * Convert a byte array to a base-64 string
  */
-exports.bytesToBase64 = function(bytes) {
+function bytesToBase64(bytes) {
     var base64 = []
 
     for (var i = 0; i < bytes.length; i += 3) {
@@ -49,7 +49,7 @@ exports.bytesToBase64 = function(bytes) {
 /**
  * Convert a base-64 string to a byte array
  */
-exports.base64ToBytes = function(base64) {
+function base64ToBytes(base64) {
     // Remove non-base-64 characters
     base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
 
@@ -74,30 +74,30 @@ exports.base64ToBytes = function(base64) {
 /**
  * Hex only (allowing bin would be potentially risky, as 01010101 = \x01 * 4 or 85)
  */
-exports.coerceToBytes = function(input) {
+function coerceToBytes(input) {
     if (typeof input != 'string') return input
-    return exports.hexToBytes(input);
+    return hexToBytes(input);
 }
 
-exports.binToBytes = function(bin) {
+function binToBytes(bin) {
     return bin.match(/......../g).map(function(x) {
         return parseInt(x,2)
     });
 }
 
-exports.bytesToBin = function(bytes) {
+function bytesToBin(bytes) {
     return bytes.map(function(x) {
-        return exports.lpad(x.toString(2), '0', 8)
+        return lpad(x.toString(2), '0', 8)
     }).join('');
 }
 
-exports.bytesToString = function(bytes) {
+function bytesToString(bytes) {
     return bytes.map(function(x){
         return String.fromCharCode(x)
     }).join('');
 }
 
-exports.stringToBytes = function(string) {
+function stringToBytes(string) {
     return string.split('').map(function(x) {
         return x.charCodeAt(0)
     });
@@ -106,18 +106,18 @@ exports.stringToBytes = function(string) {
 /**
  * Create a byte array representing a number with the given length
  */
-exports.numToBytes = function(num, bytes) {
+function numToBytes(num, bytes) {
     if (bytes === undefined) bytes = 8;
     if (bytes === 0) return [];
-    return [num % 256].concat(module.exports.numToBytes(Math.floor(num / 256), bytes - 1));
+    return [num % 256].concat(numToBytes(Math.floor(num / 256), bytes - 1));
 }
 
 /**
  * Convert a byte array to the number that it represents
  */
-exports.bytesToNum = function(bytes) {
+function bytesToNum(bytes) {
     if (bytes.length === 0) return 0;
-    return bytes[0] + 256 * module.exports.bytesToNum(bytes.slice(1));
+    return bytes[0] + 256 * bytesToNum(bytes.slice(1));
 }
 
 /**
@@ -127,14 +127,14 @@ exports.bytesToNum = function(bytes) {
  *
  * Returns a byte array.
  */
-exports.numToVarInt = function(num) {
+function numToVarInt(num) {
     if (num < 253) return [num];
-    if (num < 65536) return [253].concat(exports.numToBytes(num, 2));
-    if (num < 4294967296) return [254].concat(exports.numToBytes(num, 4));
-    return [253].concat(exports.numToBytes(num, 8));
+    if (num < 65536) return [253].concat(numToBytes(num, 2));
+    if (num < 4294967296) return [254].concat(numToBytes(num, 4));
+    return [253].concat(numToBytes(num, 8));
 }
 
-exports.bytesToWords = function (bytes) {
+function bytesToWords(bytes) {
     var words = [];
     for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
         words[b >>> 5] |= bytes[i] << (24 - b % 32);
@@ -142,7 +142,7 @@ exports.bytesToWords = function (bytes) {
     return words;
 }
 
-exports.wordsToBytes = function (words) {
+function wordsToBytes(words) {
     var bytes = [];
     for (var b = 0; b < words.length * 32; b += 8) {
         bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
@@ -150,11 +150,30 @@ exports.wordsToBytes = function (words) {
     return bytes;
 }
 
-exports.bytesToWordArray = function (bytes) {
-  return new WordArray.init(exports.bytesToWords(bytes), bytes.length)
+function bytesToWordArray(bytes) {
+  return new WordArray.init(bytesToWords(bytes), bytes.length)
 }
 
-exports.wordArrayToBytes = function (wordArray) {
-  return exports.wordsToBytes(wordArray.words)
+function wordArrayToBytes(wordArray) {
+  return wordsToBytes(wordArray.words)
 }
 
+module.exports = {
+  lpad: lpad,
+  bytesToHex: bytesToHex,
+  hexToBytes: hexToBytes,
+  bytesToBase64: bytesToBase64,
+  base64ToBytes: base64ToBytes,
+  coerceToBytes: coerceToBytes,
+  binToBytes: binToBytes,
+  bytesToBin: bytesToBin,
+  bytesToString: bytesToString,
+  stringToBytes: stringToBytes,
+  numToBytes: numToBytes,
+  bytesToNum: bytesToNum,
+  numToVarInt: numToVarInt,
+  bytesToWords: bytesToWords,
+  wordsToBytes: wordsToBytes,
+  bytesToWordArray: bytesToWordArray,
+  wordArrayToBytes: wordArrayToBytes
+}
