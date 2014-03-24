@@ -5,7 +5,6 @@ var convert = require('./convert');
 var ECKey = require('./eckey').ECKey;
 var ECDSA = require('./ecdsa');
 var Address = require('./address');
-var Message = require('./message');
 var SHA256 = require('crypto-js/sha256');
 
 var Transaction = function (doc) {
@@ -14,27 +13,29 @@ var Transaction = function (doc) {
     this.locktime = 0;
     this.ins = [];
     this.outs = [];
-    this.defaultSequence = [255, 255, 255, 255] // 0xFFFFFFFF
+    this.defaultSequence = [255, 255, 255, 255]; // 0xFFFFFFFF
 
     if (doc) {
         if (typeof doc == "string" || Array.isArray(doc)) {
-            doc = Transaction.deserialize(doc)
+            doc = Transaction.deserialize(doc);
         }
+
         if (doc.hash) this.hash = doc.hash;
         if (doc.version) this.version = doc.version;
         if (doc.locktime) this.locktime = doc.locktime;
         if (doc.ins && doc.ins.length) {
-            for (var i = 0; i < doc.ins.length; i++) {
-                this.addInput(new TransactionIn(doc.ins[i]));
-            }
-        }
-        if (doc.outs && doc.outs.length) {
-            for (var i = 0; i < doc.outs.length; i++) {
-                this.addOutput(new TransactionOut(doc.outs[i]));
-            }
+            doc.ins.forEach(function(input) {
+                this.addInput(new TransactionIn(input));
+            }, this);
         }
 
-        this.hash = this.hash || this.getHash()
+        if (doc.outs && doc.outs.length) {
+            doc.outs.forEach(function(output) {
+                this.addOutput(new TransactionOut(output));
+            }, this);
+        }
+
+        this.hash = this.hash || this.getHash();
     }
 };
 
@@ -59,8 +60,9 @@ Transaction.prototype.addInput = function (tx, outIndex) {
         return this.addInput(args[0], args[1]);
     }
     else {
-        var hash = typeof tx === "string" ? tx : tx.hash
-        var hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash
+        var hash = typeof tx === "string" ? tx : tx.hash;
+        hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash;
+
         this.ins.push(new TransactionIn({
             outpoint: {
                 hash: hash,
@@ -87,11 +89,13 @@ Transaction.prototype.addOutput = function (address, value) {
        this.outs.push(arguments[0]);
        return;
     }
+
     if (arguments[0].indexOf(':') >= 0) {
         var args = arguments[0].split(':');
         address = args[0];
         value = parseInt(args[1]);
     }
+
     this.outs.push(new TransactionOut({
         value: value,
         script: Script.createOutputScript(address)
@@ -107,30 +111,33 @@ Transaction.prototype.addOutput = function (address, value) {
  */
 Transaction.prototype.serialize = function () {
     var buffer = [];
-    buffer = buffer.concat(convert.numToBytes(parseInt(this.version),4));
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.version), 4));
     buffer = buffer.concat(convert.numToVarInt(this.ins.length));
-    for (var i = 0; i < this.ins.length; i++) {
-        var txin = this.ins[i];
 
+    this.ins.forEach(function(txin) {
         // Why do blockchain.info, blockexplorer.com, sx and just about everybody
         // else use little-endian hashes? No idea...
         buffer = buffer.concat(convert.hexToBytes(txin.outpoint.hash).reverse());
 
-        buffer = buffer.concat(convert.numToBytes(parseInt(txin.outpoint.index),4));
+        buffer = buffer.concat(convert.numToBytes(parseInt(txin.outpoint.index), 4));
+
         var scriptBytes = txin.script.buffer;
         buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
         buffer = buffer.concat(txin.sequence);
-    }
+    });
+
     buffer = buffer.concat(convert.numToVarInt(this.outs.length));
-    for (var i = 0; i < this.outs.length; i++) {
-        var txout = this.outs[i];
+
+    this.outs.forEach(function(txout) {
         buffer = buffer.concat(convert.numToBytes(txout.value,8));
+
         var scriptBytes = txout.script.buffer;
         buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
-    }
-    buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime),4));
+    });
+
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime), 4));
 
     return buffer;
 };
@@ -139,7 +146,7 @@ Transaction.prototype.serializeHex = function() {
     return convert.bytesToHex(this.serialize());
 }
 
-var OP_CODESEPARATOR = 171;
+//var OP_CODESEPARATOR = 171;
 
 var SIGHASH_ALL = 1;
 var SIGHASH_NONE = 2;
@@ -167,9 +174,9 @@ function (connectedScript, inIndex, hashType)
    });*/
 
   // Blank out other inputs' signatures
-  for (var i = 0; i < txTmp.ins.length; i++) {
-    txTmp.ins[i].script = new Script();
-  }
+  txTmp.ins.forEach(function(txin) {
+    txin.script = new Script();
+  });
 
   txTmp.ins[inIndex].script = connectedScript;
 
@@ -178,9 +185,12 @@ function (connectedScript, inIndex, hashType)
     txTmp.outs = [];
 
     // Let the others update at will
-    for (var i = 0; i < txTmp.ins.length; i++)
-      if (i != inIndex)
+    txTmp.ins.forEach(function(txin, i) {
+      if (i != inIndex) {
         txTmp.ins[i].sequence = 0;
+      }
+    });
+
   } else if ((hashType & 0x1f) == SIGHASH_SINGLE) {
     // TODO: Implement
   }
@@ -192,9 +202,9 @@ function (connectedScript, inIndex, hashType)
 
   var buffer = txTmp.serialize();
 
-  buffer = buffer.concat(convert.numToBytes(parseInt(hashType),4));
-
+  buffer = buffer.concat(convert.numToBytes(parseInt(hashType), 4));
   buffer = convert.bytesToWordArray(buffer);
+
   return convert.wordArrayToBytes(SHA256(SHA256(buffer)));
 };
 
@@ -217,14 +227,15 @@ Transaction.prototype.clone = function ()
   var newTx = new Transaction();
   newTx.version = this.version;
   newTx.locktime = this.locktime;
-  for (var i = 0; i < this.ins.length; i++) {
-    var txin = this.ins[i].clone();
-    newTx.addInput(txin);
-  }
-  for (var i = 0; i < this.outs.length; i++) {
-    var txout = this.outs[i].clone();
-    newTx.addOutput(txout);
-  }
+
+  this.ins.forEach(function(txin) {
+    newTx.addInput(txin.clone());
+  });
+
+  this.outs.forEach(function(txout) {
+    newTx.addOutput(txout.clone());
+  });
+
   return newTx;
 };
 
@@ -238,7 +249,7 @@ Transaction.deserialize = function(buffer) {
     }
     var pos = 0;
     var readAsInt = function(bytes) {
-        if (bytes == 0) return 0;
+        if (bytes === 0) return 0;
         pos++;
         return buffer[pos-1] + readAsInt(bytes-1) * 256;
     }
@@ -263,7 +274,9 @@ Transaction.deserialize = function(buffer) {
     }
     obj.version = readAsInt(4);
     var ins = readVarInt();
-    for (var i = 0; i < ins; i++) {
+    var i;
+
+    for (i = 0; i < ins; i++) {
         obj.ins.push({
             outpoint: {
                 hash: convert.bytesToHex(readBytes(32).reverse()),
@@ -274,12 +287,14 @@ Transaction.deserialize = function(buffer) {
         });
     }
     var outs = readVarInt();
-    for (var i = 0; i < outs; i++) {
+
+    for (i = 0; i < outs; i++) {
         obj.outs.push({
             value: convert.bytesToNum(readBytes(8)),
             script: new Script(readVarString())
         });
     }
+
     obj.locktime = readAsInt(4);
 
     return new Transaction(obj);
@@ -292,7 +307,7 @@ Transaction.deserialize = function(buffer) {
 Transaction.prototype.sign = function(index, key, type) {
     type = type || SIGHASH_ALL;
     key = new ECKey(key);
-    
+
     // TODO: getPub is slow, sha256ripe160 probably is too.
     // This could be sped up a lot by providing these as inputs.
     var pub = key.getPub().export('bytes'),
@@ -306,6 +321,7 @@ Transaction.prototype.sign = function(index, key, type) {
 // Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]
 Transaction.prototype.signWithKeys = function(keys, outputs, type) {
     type = type || SIGHASH_ALL;
+
     var addrdata = keys.map(function(key) {
          key = new ECKey(key);
          return {
@@ -313,18 +329,24 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
             address: key.getAddress().toString()
          }
     });
+
     var hmap = {};
-    for (var o in outputs) {
-        hmap[outputs[o].output] = outputs[o];
-    }
+    outputs.forEach(function(o) {
+        hmap[o.output] = o;
+    });
+
     for (var i = 0; i < this.ins.length; i++) {
-        var outpoint = this.ins[i].outpoint.hash+':'+this.ins[i].outpoint.index,
-            histItem = hmap[outpoint];
+        var outpoint = this.ins[i].outpoint.hash + ':' + this.ins[i].outpoint.index;
+        var histItem = hmap[outpoint];
+
         if (!histItem) continue;
+
         var thisInputAddrdata = addrdata.filter(function(a) {
             return a.address == histItem.address;
         });
-        if (thisInputAddrdata.length == 0) continue;
+
+        if (thisInputAddrdata.length === 0) continue;
+
         this.sign(i,thisInputAddrdata[0].key);
     }
 }
@@ -344,7 +366,7 @@ Transaction.prototype.p2shsign = function(index, script, key, type) {
 
 Transaction.prototype.multisign = Transaction.prototype.p2shsign;
 
-Transaction.prototype.applyMultisigs = function(index, script, sigs, type) {
+Transaction.prototype.applyMultisigs = function(index, script, sigs/*, type*/) {
     this.ins[index].script = Script.createMultiSigInputScript(sigs, script);
 }
 
@@ -411,6 +433,8 @@ TransactionOut.prototype.clone = function ()
   return newTxout;
 };
 
-module.exports.Transaction = Transaction;
-module.exports.TransactionIn = TransactionIn;
-module.exports.TransactionOut = TransactionOut;
+module.exports = {
+  Transaction: Transaction,
+  TransactionIn: TransactionIn,
+  TransactionOut: TransactionOut
+}
