@@ -60,6 +60,12 @@ var Wallet = function (seed, options) {
         return this.changeAddresses[this.changeAddresses.length - 1]
     }
 
+    this.getBalance = function() {
+      return this.getUnspentOutputs().reduce(function(memo, output){
+        return memo + output.value
+      }, 0)
+    }
+
     this.getUnspentOutputs = function() {
       var utxo = []
 

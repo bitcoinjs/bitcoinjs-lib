@@ -157,31 +157,58 @@ describe('Wallet', function() {
   describe('Unspent Outputs', function(){
     var expectedUtxo, expectedOutputKey;
     beforeEach(function(){
-      expectedUtxo = [
-          {
-            "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
-            "hashLittleEndian":"c7b97b432e7b3a8e31d1a4a0fa326c8fb002d19f2da5fc4feaf9c43a2762406a",
-            "outputIndex": 0,
-            "scriptPubKey":"76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac",
-            "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
-            "value": 20000
-          }
-        ]
-      expectedOutputKey = expectedUtxo[0].hash + ":" + expectedUtxo[0].outputIndex
+      expectedUtxo = {
+        "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
+        "hashLittleEndian":"c7b97b432e7b3a8e31d1a4a0fa326c8fb002d19f2da5fc4feaf9c43a2762406a",
+        "outputIndex": 0,
+        "scriptPubKey":"76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac",
+        "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
+        "value": 20000
+      }
+      expectedOutputKey = expectedUtxo.hash + ":" + expectedUtxo.outputIndex
+    })
+
+    function addUtxoToOutput(utxo){
+      var key = utxo.hash + ":" + utxo.outputIndex
+      wallet.outputs[key] = {
+        receive: key,
+        scriptPubKey: utxo.scriptPubKey,
+        address: utxo.address,
+        value: utxo.value
+      }
+    }
+
+    describe('getBalance', function(){
+      var utxo1
+
+      beforeEach(function(){
+        utxo1 = cloneObject(expectedUtxo)
+        utxo1.hash = utxo1.hash.replace('7', 'l')
+      })
+
+      it('sums over utxo values', function(){
+        addUtxoToOutput(expectedUtxo)
+        addUtxoToOutput(utxo1)
+
+        assert.deepEqual(wallet.getBalance(), 40000)
+      })
+
+      it('excludes spent outputs', function(){
+        addUtxoToOutput(expectedUtxo)
+        addUtxoToOutput(utxo1)
+        wallet.outputs[utxo1.hash + ':' + utxo1.outputIndex].spend = "sometxn:m"
+
+        assert.deepEqual(wallet.getBalance(), 20000)
+      })
     })
 
     describe('getUnspentOutputs', function(){
       beforeEach(function(){
-        wallet.outputs[expectedOutputKey] = {
-          receive: expectedOutputKey,
-          scriptPubKey: expectedUtxo[0].scriptPubKey,
-          address: expectedUtxo[0].address,
-          value: expectedUtxo[0].value
-        }
+        addUtxoToOutput(expectedUtxo)
       })
 
       it('parses wallet outputs to the expect format', function(){
-        assert.deepEqual(wallet.getUnspentOutputs(), expectedUtxo)
+        assert.deepEqual(wallet.getUnspentOutputs(), [expectedUtxo])
       })
 
       it('excludes spent outputs', function(){
@@ -193,7 +220,7 @@ describe('Wallet', function() {
     describe('setUnspentOutputs', function(){
       var utxo;
       beforeEach(function(){
-        utxo = cloneObject(expectedUtxo)
+        utxo = cloneObject([expectedUtxo])
       })
 
       it('uses hashLittleEndian when hash is not present', function(){
