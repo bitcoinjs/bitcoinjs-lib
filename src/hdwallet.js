@@ -5,6 +5,7 @@ var format = require('util').format
 var util = require('./util.js')
 var Crypto = require('crypto-js');
 var HmacSHA512 = Crypto.HmacSHA512
+var HMAC= Crypto.algo.HMAC
 var ECKey = require('./eckey.js').ECKey
 var ECPubKey = require('./eckey.js').ECPubKey
 var Address = require('./address.js')
@@ -198,12 +199,12 @@ HDWallet.prototype.derive = function(i) {
         // If 1, private derivation is used:
         // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
         var kPar = this.priv.toBytes().slice(0, 32)
-        I = util.HmacFromBytesToBytes(SHA512, [0].concat(kPar, iBytes), cPar)
+        I = HmacFromBytesToBytes(SHA512, [0].concat(kPar, iBytes), cPar)
     } else {
         // If 0, public derivation is used:
         // let I = HMAC-SHA512(Key = cpar, Data = χ(kpar*G) || i)
         var KPar = this.pub.toBytes(true)
-        I = util.HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
+        I = HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
     }
 
     // Split I = IL || IR into two 32-byte sequences, IL and IR.
@@ -242,4 +243,10 @@ HDWallet.prototype.getKeyVersion = function() {
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58
+
+function HmacFromBytesToBytes(hasher, message, key) {
+  var hmac = HMAC.create(hasher, convert.bytesToWordArray(key))
+  hmac.update(convert.bytesToWordArray(message))
+  return convert.wordArrayToBytes(hmac.finalize())
+}
 
