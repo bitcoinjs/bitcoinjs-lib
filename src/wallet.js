@@ -96,7 +96,6 @@ var Wallet = function (seed, options) {
         hash: hashAndIndex[0],
         hashLittleEndian: convert.reverseEndian(hashAndIndex[0]),
         outputIndex: parseInt(hashAndIndex[1]),
-        scriptPubKey: output.scriptPubKey,
         address: output.address,
         value: output.value
       }
@@ -107,7 +106,6 @@ var Wallet = function (seed, options) {
       var key = hash + ":" + o.outputIndex
       return {
         receive: key,
-        scriptPubKey: o.scriptPubKey,
         address: o.address,
         value: o.value
       }
@@ -120,7 +118,7 @@ var Wallet = function (seed, options) {
         missingField = "hash(or hashLittleEndian)"
       }
 
-      var requiredKeys = ['outputIndex', 'scriptPubKey', 'address', 'value']
+      var requiredKeys = ['outputIndex', 'address', 'value']
       requiredKeys.forEach(function(key){
         if(isNullOrUndefined(uo[key])){
           missingField = key
@@ -153,7 +151,6 @@ var Wallet = function (seed, options) {
                     receive: output,
                     value: txOut.value,
                     address: address,
-                    scriptPubKey: txOut.scriptPubKey()
                 }
             }
         })

@@ -161,7 +161,6 @@ describe('Wallet', function() {
         "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
         "hashLittleEndian":"c7b97b432e7b3a8e31d1a4a0fa326c8fb002d19f2da5fc4feaf9c43a2762406a",
         "outputIndex": 0,
-        "scriptPubKey":"76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac",
         "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
         "value": 20000
       }
@@ -172,7 +171,6 @@ describe('Wallet', function() {
       var key = utxo.hash + ":" + utxo.outputIndex
       wallet.outputs[key] = {
         receive: key,
-        scriptPubKey: utxo.scriptPubKey,
         address: utxo.address,
         value: utxo.value
       }
@@ -248,18 +246,18 @@ describe('Wallet', function() {
           delete utxo[0]['hashLittleEndian']
 
           var errorMessage = 'Invalid unspent output: key hash(or hashLittleEndian) is missing. ' +
-            'A valid unspent output must contain outputIndex, scriptPubKey, address, value and hash(or hashLittleEndian)'
+            'A valid unspent output must contain outputIndex, address, value and hash(or hashLittleEndian)'
 
           assert.throws(function() {
             wallet.setUnspentOutputs(utxo)
           }, Error, errorMessage)
         });
 
-        ['outputIndex', 'scriptPubKey', 'address', 'value'].forEach(function(field){
+        ['outputIndex', 'address', 'value'].forEach(function(field){
           it("throws an error when " + field + " is missing", function(){
             delete utxo[0][field]
             var errorMessage = 'Invalid unspent output: key ' + field +
-              ' is missing. A valid unspent output must contain outputIndex, scriptPubKey, address, value and hash(or hashLittleEndian)'
+              ' is missing. A valid unspent output must contain outputIndex, address, value and hash(or hashLittleEndian)'
 
             assert.throws(function() {
               wallet.setUnspentOutputs(utxo)
@@ -273,7 +271,6 @@ describe('Wallet', function() {
         assert(output)
         assert.equal(output.value, utxo[0].value)
         assert.equal(output.address, utxo[0].address)
-        assert.equal(output.scriptPubKey, utxo[0].scriptPubKey)
       }
     })
   })
@@ -317,7 +314,6 @@ describe('Wallet', function() {
         assert.equal(output.receive, key)
         assert.equal(output.value, txOut.value)
         assert.equal(output.address, txOut.address)
-        assert.equal(output.scriptPubKey, convert.bytesToHex(txOut.script.buffer))
       }
     })
 
@@ -370,21 +366,18 @@ describe('Wallet', function() {
         {
           "hash": fakeTxHash(1),
           "outputIndex": 0,
-          "scriptPubKey": scriptPubKeyFor(address1, 300000),
           "address" : address1,
           "value": 400000 // not enough for value
         },
         {
           "hash": fakeTxHash(2),
           "outputIndex": 1,
-          "scriptPubKey": scriptPubKeyFor(address1, 500000),
           "address" : address1,
           "value": 500000 // enough for only value
         },
         {
           "hash": fakeTxHash(3),
           "outputIndex": 0,
-          "scriptPubKey": scriptPubKeyFor(address2, 520000),
           "address" : address2,
           "value": 520000 // enough for value and fee
         }
@@ -414,7 +407,6 @@ describe('Wallet', function() {
           {
             "hash": fakeTxHash(4),
             "outputIndex": 0,
-            "scriptPubKey": scriptPubKeyFor(address2, 520000),
             "address" : address2,
             "value": 530000 // enough but spent before createTx
           }
@@ -510,15 +502,6 @@ describe('Wallet', function() {
 
     function fakeTxHash(i) {
       return "txtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtx" + i
-    }
-
-    function scriptPubKeyFor(address, value){
-      var txOut = new TransactionOut({
-        value: value,
-        script: Script.createOutputScript(address)
-      })
-
-      return txOut.scriptPubKey()
     }
   })
 
