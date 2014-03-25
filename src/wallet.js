@@ -83,6 +83,16 @@ var Wallet = function (seed, options) {
       this.outputs = outputs
     }
 
+    this.setUnspentOutputsAsync = function(utxo, callback) {
+      try {
+        this.setUnspentOutputs(utxo)
+      } catch(err) {
+        return callback(err)
+      }
+
+      return callback()
+    }
+
     function outputToUnspentOutput(output){
       var hashAndIndex = output.receive.split(":")
 

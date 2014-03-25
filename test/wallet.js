@@ -273,6 +273,37 @@ describe('Wallet', function() {
         assert.equal(output.address, utxo[0].address)
       }
     })
+
+    describe('setUnspentOutputsAsync', function(){
+      var utxo;
+      beforeEach(function(){
+        utxo = cloneObject([expectedUtxo])
+      })
+
+      afterEach(function(){
+        wallet.setUnspentOutputs.restore()
+      })
+
+      it('calls setUnspentOutputs', function(){
+        sinon.stub(wallet, "setUnspentOutputs")
+
+        var callback = sinon.spy()
+        var tx = wallet.setUnspentOutputsAsync(utxo, callback)
+
+        assert(wallet.setUnspentOutputs.calledWith(utxo))
+        assert(callback.called)
+      })
+
+      it('when setUnspentOutputs throws an error, it invokes callback with error', function(){
+        sinon.stub(wallet, "setUnspentOutputs").throws()
+
+        var callback = sinon.spy()
+        var tx = wallet.setUnspentOutputsAsync(utxo, callback)
+
+        assert(callback.called)
+        assert(callback.args[0][0] instanceof Error)
+      })
+    })
   })
 
   describe('processTx', function(){
