@@ -379,8 +379,12 @@ Transaction.prototype.validateSig = function(index, script, sig, pub) {
 
 Transaction.feePerKb = 20000
 Transaction.prototype.estimateFee = function(feePerKb){
+  var uncompressedInSize = 180
+  var outSize = 34
+  var fixedPadding = 34
   var feePerKb = feePerKb || Transaction.feePerKb
-  var size = this.ins.length * 180 + this.outs.length * 34 + 10
+
+  var size = this.ins.length * uncompressedInSize + this.outs.length * outSize + fixedPadding
   var sizeInKb = BigInteger.valueOf(Math.ceil(size / 1000))
 
   return BigInteger.valueOf(feePerKb).multiply(sizeInKb).intValue()
