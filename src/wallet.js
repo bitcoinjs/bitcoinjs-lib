@@ -200,6 +200,22 @@ var Wallet = function (seed, options) {
         return tx
     }
 
+    this.createTxAsync = function(to, value, fixedFee, callback){
+      if(fixedFee instanceof Function) {
+        callback = fixedFee
+        fixedFee = undefined
+      }
+      var tx = null
+
+      try {
+        tx = this.createTx(to, value, fixedFee)
+      } catch(err) {
+        return callback(err)
+      }
+
+      callback(null, tx)
+    }
+
     this.dustThreshold = 5430
     function isDust(amount) {
       return amount <= me.dustThreshold

@@ -536,6 +536,50 @@ describe('Wallet', function() {
     }
   })
 
+  describe('createTxAsync', function(){
+    var to, value, fee;
+
+    beforeEach(function(){
+      to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
+      value = 500000
+      fee = 10000
+    })
+
+    afterEach(function(){
+      wallet.createTx.restore()
+    })
+
+    it('calls createTx', function(){
+      sinon.stub(wallet, "createTx").returns("fakeTx")
+
+      var callback = sinon.spy()
+      var tx = wallet.createTxAsync(to, value, callback)
+
+      assert(wallet.createTx.calledWith(to, value))
+      assert(callback.calledWith(null, "fakeTx"))
+    })
+
+    it('calls createTx correctly when fee is specified', function(){
+      sinon.stub(wallet, "createTx").returns("fakeTx")
+
+      var callback = sinon.spy()
+      var tx = wallet.createTxAsync(to, value, fee, callback)
+
+      assert(wallet.createTx.calledWith(to, value, fee))
+      assert(callback.calledWith(null, "fakeTx"))
+    })
+
+    it('when createTx throws an error, it invokes callback with error', function(){
+      sinon.stub(wallet, "createTx").throws()
+
+      var callback = sinon.spy()
+      var tx = wallet.createTxAsync(to, value, callback)
+
+      assert(callback.called)
+      assert(callback.args[0][0] instanceof Error)
+    })
+  })
+
   function assertEqual(obj1, obj2){
     assert.equal(obj1.toString(), obj2.toString())
   }
