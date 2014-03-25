@@ -131,7 +131,7 @@ function numToVarInt(num) {
   if (num < 253) return [num];
   if (num < 65536) return [253].concat(numToBytes(num, 2));
   if (num < 4294967296) return [254].concat(numToBytes(num, 4));
-  return [253].concat(numToBytes(num, 8));
+  return [255].concat(numToBytes(num, 8));
 }
 
 function bytesToWords(bytes) {
