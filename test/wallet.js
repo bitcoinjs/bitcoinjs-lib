@@ -171,15 +171,22 @@ describe('Wallet', function() {
     })
 
     describe('getUnspentOutputs', function(){
-      it('parses wallet outputs to the expect format', function(){
+      beforeEach(function(){
         wallet.outputs[expectedOutputKey] = {
           receive: expectedOutputKey,
           scriptPubKey: expectedUtxo[0].scriptPubKey,
           address: expectedUtxo[0].address,
           value: expectedUtxo[0].value
         }
+      })
 
+      it('parses wallet outputs to the expect format', function(){
         assert.deepEqual(wallet.getUnspentOutputs(), expectedUtxo)
+      })
+
+      it('excludes spent outputs', function(){
+        wallet.outputs[expectedOutputKey].spend = "sometxn:m"
+        assert.deepEqual(wallet.getUnspentOutputs(), [])
       })
     })
 

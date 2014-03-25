@@ -64,7 +64,8 @@ var Wallet = function (seed, options) {
       var utxo = []
 
       for(var key in this.outputs){
-        utxo.push(outputToUnspentOutput(this.outputs[key]))
+        var output = this.outputs[key]
+        if(!output.spend) utxo.push(outputToUnspentOutput(output))
       }
 
       return utxo
