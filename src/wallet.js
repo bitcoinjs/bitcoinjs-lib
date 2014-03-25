@@ -1,11 +1,5 @@
-var Script = require('./script');
-var ECKey = require('./eckey').ECKey;
 var convert = require('./convert');
-var assert = require('assert');
-var BigInteger = require('./jsbn/jsbn');
 var Transaction = require('./transaction').Transaction;
-var TransactionIn = require('./transaction').TransactionIn;
-var TransactionOut = require('./transaction').TransactionOut;
 var HDNode = require('./hdwallet.js')
 var rng = require('secure-random');
 
