@@ -207,7 +207,7 @@ var Wallet = function (seed, options) {
       var unspent = []
       for (var key in me.outputs){
         var output = me.outputs[key]
-        if(!output.value.spend) unspent.push(output)
+        if(!output.spend) unspent.push(output)
       }
 
       var sortByValueDesc = unspent.sort(function(o1, o2){

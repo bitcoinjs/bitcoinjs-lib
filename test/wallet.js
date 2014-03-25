@@ -356,15 +356,6 @@ describe('Wallet', function() {
         }
       ]
       wallet.setUnspentOutputs(utxo)
-
-      function scriptPubKeyFor(address, value){
-        var txOut = new TransactionOut({
-          value: value,
-          script: Script.createOutputScript(address)
-        })
-
-        return txOut.scriptPubKey()
-      }
     })
 
     describe('choosing utxo', function(){
@@ -382,6 +373,25 @@ describe('Wallet', function() {
         assert.equal(tx.ins.length, 2)
         assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
         assert.deepEqual(tx.ins[1].outpoint, { hash: fakeTxHash(2), index: 1 })
+      })
+
+      it('ignores spent outputs', function(){
+        utxo.push(
+          {
+            "hash": fakeTxHash(4),
+            "outputIndex": 0,
+            "scriptPubKey": scriptPubKeyFor(address2, 520000),
+            "address" : address2,
+            "value": 530000 // enough but spent before createTx
+          }
+        )
+        wallet.setUnspentOutputs(utxo)
+        wallet.outputs[fakeTxHash(4) + ":" + 0].spend = fakeTxHash(5) + ":" + 0
+
+        var tx = wallet.createTx(to, value)
+
+        assert.equal(tx.ins.length, 1)
+        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
       })
     })
 
@@ -466,6 +476,15 @@ describe('Wallet', function() {
 
     function fakeTxHash(i) {
       return "txtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtxtx" + i
+    }
+
+    function scriptPubKeyFor(address, value){
+      var txOut = new TransactionOut({
+        value: value,
+        script: Script.createOutputScript(address)
+      })
+
+      return txOut.scriptPubKey()
     }
   })
 
