@@ -72,10 +72,10 @@ tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 
 // Add the output (who to pay to) of the form [payee's bitcoin address]:[amount in satoshis]
 tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000)
 
-// Initialize the private key you created earlier so you can sign the transaction
+// Initialize a private key using the WIF key format
 key = new Bitcoin.ECKey("5Jxfda2afuyMw3iaxzAwv6FvAs3XxmjV5y3GPAjZDEhRNJaFG5a")
 
-// Sign the first input with your key
+// Sign the first input with the new key
 tx.sign(0, key)
 
 // Print transaction serialized as hex. You can push the transaction onto the Bitcoin network manually
