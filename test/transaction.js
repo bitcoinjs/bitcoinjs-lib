@@ -69,6 +69,22 @@ describe('Transaction', function() {
       var hashHex = "a9d4599e15b53f3eb531608ddb31f48c695c3d0b3538a6bda871e8b34f2f430c"
       assert.deepEqual(tx.hash, convert.hexToBytes(hashHex))
     })
+
+    it('decodes large inputs correctly', function() {
+      // transaction has only 1 input
+      var tx = new Transaction()
+      tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
+      tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 100)
+
+      // but we're going to replace the tx.ins.length VarInt with a 32-bit equivalent
+      // however the same resultant number of inputs (1)
+      var bytes = tx.serialize()
+      var mutated = bytes.slice(0, 4).concat([254, 1, 0, 0, 0], bytes.slice(5))
+
+      // the deserialized-serialized transaction should return to its original state (== tx)
+      var bytes2 = Transaction.deserialize(mutated).serialize()
+      assert.deepEqual(bytes, bytes2)
+    });
   })
 
   describe('creating a transaction', function() {
