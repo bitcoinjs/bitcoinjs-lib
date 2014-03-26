@@ -134,6 +134,28 @@ function numToVarInt(num) {
   return [255].concat(numToBytes(num, 8));
 }
 
+/**
+ * Turn an VarInt into an integer
+ *
+ * "var_int" is a variable length integer used by Bitcoin's binary format.
+ *
+ * Returns { bytes: bytesUsed, number: theNumber }
+ */
+function varIntToNum(bytes) {
+  var prefix = bytes[0]
+
+  var viBytes =
+      prefix < 253   ? bytes.slice(0, 1)
+    : prefix === 253 ? bytes.slice(1, 3)
+    : prefix === 254 ? bytes.slice(1, 5)
+                     : bytes.slice(1, 9)
+
+  return {
+    bytes: prefix < 253 ? viBytes : bytes.slice(0, viBytes.length + 1),
+    number: bytesToNum(viBytes)
+  }
+}
+
 function bytesToWords(bytes) {
   var words = [];
   for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
@@ -176,6 +198,7 @@ module.exports = {
   numToBytes: numToBytes,
   bytesToNum: bytesToNum,
   numToVarInt: numToVarInt,
+  varIntToNum: varIntToNum,
   bytesToWords: bytesToWords,
   wordsToBytes: wordsToBytes,
   bytesToWordArray: bytesToWordArray,
