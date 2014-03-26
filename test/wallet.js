@@ -188,7 +188,7 @@ describe('Wallet', function() {
         addUtxoToOutput(expectedUtxo)
         addUtxoToOutput(utxo1)
 
-        assert.deepEqual(wallet.getBalance(), 40000)
+        assert.equal(wallet.getBalance(), 40000)
       })
 
       it('excludes spent outputs', function(){
@@ -196,7 +196,7 @@ describe('Wallet', function() {
         addUtxoToOutput(utxo1)
         wallet.outputs[utxo1.hash + ':' + utxo1.outputIndex].spend = "sometxn:m"
 
-        assert.deepEqual(wallet.getBalance(), 20000)
+        assert.equal(wallet.getBalance(), 20000)
       })
     })
 
