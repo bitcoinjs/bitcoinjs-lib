@@ -434,6 +434,15 @@ describe('Wallet', function() {
         assert.deepEqual(tx.ins[1].outpoint, { hash: fakeTxHash(2), index: 1 })
       })
 
+      it('allows fee to be set to zero', function(){
+        value = 520000
+        var fee = 0
+        var tx = wallet.createTx(to, value, fee)
+
+        assert.equal(tx.ins.length, 1)
+        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+      })
+
       it('ignores spent outputs', function(){
         utxo.push(
           {

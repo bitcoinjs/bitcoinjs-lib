@@ -184,7 +184,7 @@ var Wallet = function (seed, options) {
           totalInValue += output.value
           if(totalInValue < value) continue;
 
-          var fee = fixedFee || estimateFeePadChangeOutput(tx)
+          var fee = fixedFee == undefined ? estimateFeePadChangeOutput(tx) : fixedFee
           if(totalInValue < value + fee) continue;
 
           var change = totalInValue - value - fee
