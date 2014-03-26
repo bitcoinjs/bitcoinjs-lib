@@ -71,4 +71,26 @@ describe('convert', function() {
             })
         })
     })
+
+    describe('numToVarInt', function() {
+      describe('works', function() {
+        var data = [
+          0, 128, 252, // 8-bit
+          256, 512, 1024, // 16-bit
+          65541, // 32-bit
+          4294967299, // 64-bit
+        ]
+        var expected = [
+          [0], [128], [252], // 8-bit
+          [253, 0, 1], [253, 0, 2], [253, 0, 4], // 16-bit
+          [254, 5, 0, 1, 0], // 32-bit
+          [255, 3, 0, 0, 0, 1, 0, 0, 0] // 64-bit
+        ]
+
+        for (var i = 0; i < data.length; ++i) {
+          var actual = convert.numToVarInt(data[i])
+          assert.deepEqual(actual, expected[i])
+        }
+      })
+    })
 })
