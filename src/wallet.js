@@ -84,13 +84,14 @@ var Wallet = function (seed, options) {
     }
 
     this.setUnspentOutputsAsync = function(utxo, callback) {
+      var error = null
       try {
         this.setUnspentOutputs(utxo)
       } catch(err) {
-        return callback(err)
+        error = err
+      } finally {
+        process.nextTick(function(){ callback(error) })
       }
-
-      return callback()
     }
 
     function outputToUnspentOutput(output){
@@ -206,14 +207,15 @@ var Wallet = function (seed, options) {
         fixedFee = undefined
       }
       var tx = null
+      var error = null
 
       try {
         tx = this.createTx(to, value, fixedFee)
       } catch(err) {
-        return callback(err)
+        error = err
+      } finally {
+        process.nextTick(function(){ callback(error, tx) })
       }
-
-      callback(null, tx)
     }
 
     this.dustThreshold = 5430
