@@ -382,7 +382,8 @@ Transaction.prototype.estimateFee = function(feePerKb){
   var uncompressedInSize = 180
   var outSize = 34
   var fixedPadding = 34
-  var feePerKb = feePerKb || Transaction.feePerKb
+
+  if(feePerKb == undefined) feePerKb = Transaction.feePerKb
   var size = this.ins.length * uncompressedInSize + this.outs.length * outSize + fixedPadding
 
   return feePerKb * Math.ceil(size / 1000)

@@ -194,6 +194,11 @@ describe('Transaction', function() {
         var tx = Transaction.deserialize(fixtureTx2Hex)
         assert.equal(tx.estimateFee(10000), 10000)
       })
+
+      it('allow feePerKb to be set to 0', function(){
+        var tx = Transaction.deserialize(fixtureTx2Hex)
+        assert.equal(tx.estimateFee(0), 0)
+      })
     })
   })
 
