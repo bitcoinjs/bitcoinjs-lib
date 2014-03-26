@@ -254,11 +254,11 @@ Transaction.deserialize = function(buffer) {
         return buffer[pos-1] + readAsInt(bytes-1) * 256;
     }
     var readVarInt = function() {
-        pos++;
-        if (buffer[pos-1] < 253) {
-            return buffer[pos-1];
-        }
-        return readAsInt(buffer[pos-1] - 251);
+        var bytes = buffer.slice(pos, pos + 9) // maximum possible number of bytes to read
+        var result = convert.varIntToNum(bytes)
+
+        pos += result.bytes.length
+        return result.number
     }
     var readBytes = function(bytes) {
         pos += bytes;
