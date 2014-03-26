@@ -158,6 +158,10 @@ function wordArrayToBytes(wordArray) {
   return wordsToBytes(wordArray.words)
 }
 
+function reverseEndian (hex) {
+  return bytesToHex(hexToBytes(hex).reverse())
+}
+
 module.exports = {
   lpad: lpad,
   bytesToHex: bytesToHex,
@@ -175,5 +179,6 @@ module.exports = {
   bytesToWords: bytesToWords,
   wordsToBytes: wordsToBytes,
   bytesToWordArray: bytesToWordArray,
-  wordArrayToBytes: wordArrayToBytes
+  wordArrayToBytes: wordArrayToBytes,
+  reverseEndian: reverseEndian
 }

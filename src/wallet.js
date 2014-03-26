@@ -1,11 +1,5 @@
-var Script = require('./script');
-var ECKey = require('./eckey').ECKey;
 var convert = require('./convert');
-var assert = require('assert');
-var BigInteger = require('./jsbn/jsbn');
 var Transaction = require('./transaction').Transaction;
-var TransactionIn = require('./transaction').TransactionIn;
-var TransactionOut = require('./transaction').TransactionOut;
 var HDNode = require('./hdwallet.js')
 var rng = require('secure-random');
 
@@ -60,111 +54,209 @@ var Wallet = function (seed, options) {
         return this.changeAddresses[this.changeAddresses.length - 1]
     }
 
-    // Processes a transaction object
-    // If "verified" is true, then we trust the transaction as "final"
-    this.processTx = function(tx, verified) {
+    this.getBalance = function() {
+      return this.getUnspentOutputs().reduce(function(memo, output){
+        return memo + output.value
+      }, 0)
+    }
+
+    this.getUnspentOutputs = function() {
+      var utxo = []
+
+      for(var key in this.outputs){
+        var output = this.outputs[key]
+        if(!output.spend) utxo.push(outputToUnspentOutput(output))
+      }
+
+      return utxo
+    }
+
+    this.setUnspentOutputs = function(utxo) {
+      var outputs = {}
+
+      utxo.forEach(function(uo){
+        validateUnspentOutput(uo)
+        var o = unspentOutputToOutput(uo)
+        outputs[o.receive] = o
+      })
+
+      this.outputs = outputs
+    }
+
+    this.setUnspentOutputsAsync = function(utxo, callback) {
+      try {
+        this.setUnspentOutputs(utxo)
+      } catch(err) {
+        return callback(err)
+      }
+
+      return callback()
+    }
+
+    function outputToUnspentOutput(output){
+      var hashAndIndex = output.receive.split(":")
+
+      return {
+        hash: hashAndIndex[0],
+        hashLittleEndian: convert.reverseEndian(hashAndIndex[0]),
+        outputIndex: parseInt(hashAndIndex[1]),
+        address: output.address,
+        value: output.value
+      }
+    }
+
+    function unspentOutputToOutput(o) {
+      var hash = o.hash || convert.reverseEndian(o.hashLittleEndian)
+      var key = hash + ":" + o.outputIndex
+      return {
+        receive: key,
+        address: o.address,
+        value: o.value
+      }
+    }
+
+    function validateUnspentOutput(uo) {
+      var missingField;
+
+      if(isNullOrUndefined(uo.hash) && isNullOrUndefined(uo.hashLittleEndian)){
+        missingField = "hash(or hashLittleEndian)"
+      }
+
+      var requiredKeys = ['outputIndex', 'address', 'value']
+      requiredKeys.forEach(function(key){
+        if(isNullOrUndefined(uo[key])){
+          missingField = key
+        }
+      })
+
+      if(missingField) {
+        var message = [
+          'Invalid unspent output: key', field, 'is missing.',
+          'A valid unspent output must contain'
+        ]
+        message.push(requiredKeys.join(', '))
+        message.push("and hash(or hashLittleEndian)")
+        throw new Error(message.join(' '))
+      }
+    }
+
+    function isNullOrUndefined(value){
+      return value == undefined
+    }
+
+    this.processTx = function(tx) {
         var txhash = convert.bytesToHex(tx.getHash())
-        for (var i = 0; i < tx.outs.length; i++) {
-            if (this.addresses.indexOf(tx.outs[i].address.toString()) >= 0) {
-                me.outputs[txhash+':'+i] = {
-                    output: txhash+':'+i,
-                    value: tx.outs[i].value,
-                    address: tx.outs[i].address.toString(),
-                    timestamp: new Date().getTime() / 1000,
-                    pending: true
+
+        tx.outs.forEach(function(txOut, i){
+            var address = txOut.address.toString()
+            if (isMyAddress(address)) {
+                var output = txhash+':'+i
+                me.outputs[output] = {
+                    receive: output,
+                    value: txOut.value,
+                    address: address,
                 }
             }
-        }
-        for (var i = 0; i < tx.ins.length; i++) {
-            var op = tx.ins[i].outpoint
+        })
+
+        tx.ins.forEach(function(txIn, i){
+            var op = txIn.outpoint
             var o = me.outputs[op.hash+':'+op.index]
             if (o) {
                 o.spend = txhash+':'+i
-                o.spendpending = true
-                o.timestamp = new Date().getTime() / 1000
             }
-        }
-    }
-    // Processes an output from an external source of the form
-    // { output: txhash:index, value: integer, address: address }
-    // Excellent compatibility with SX and pybitcointools
-    this.processOutput = function(o) {
-        if (!this.outputs[o.output] || this.outputs[o.output].pending)
-             this.outputs[o.output] = o;
-    }
-
-    this.processExistingOutputs = function() {
-        var t = new Date().getTime() / 1000
-        for (var o in this.outputs) {
-            if (o.pending && t > o.timestamp + 1200)
-                delete this.outputs[o]
-            if (o.spendpending && t > o.timestamp + 1200) {
-                o.spendpending = false
-                o.spend = false
-                delete o.timestamp
-            }
-        }
-    }
-    var peoInterval = setInterval(this.processExistingOutputs, 10000)
-
-    this.getUtxoToPay = function(value) {
-        var h = []
-        for (var out in this.outputs) h.push(this.outputs[out])
-        var utxo = h.filter(function(x) { return !x.spend });
-        var valuecompare = function(a,b) { return a.value > b.value; }
-        var high = utxo.filter(function(o) { return o.value >= value; })
-                       .sort(valuecompare);
-        if (high.length > 0) return [high[0]];
-        utxo.sort(valuecompare);
-        var totalval = 0;
-        for (var i = 0; i < utxo.length; i++) {
-            totalval += utxo[i].value;
-            if (totalval >= value) return utxo.slice(0,i+1);
-        }
-        throw ("Not enough money to send funds including transaction fee. Have: "
-                     + (totalval / 100000000) + ", needed: " + (value / 100000000));
-    }
-
-    this.mkSend = function(to, value, fee) {
-        var utxo = this.getUtxoToPay(value + fee)
-        var sum = utxo.reduce(function(t,o) { return t + o.value },0),
-            remainder = sum - value - fee
-        if (value < 5430) throw new Error("Amount below dust threshold!")
-        var unspentOuts = 0;
-        for (var o in this.outputs) {
-            if (!this.outputs[o].spend) unspentOuts += 1
-            if (unspentOuts >= 5) return
-        }
-        var change = this.addresses[this.addresses.length - 1]
-        var toOut = { address: to, value: value },
-            changeOut = { address: change, value: remainder }
-            halfChangeOut = { address: change, value: Math.floor(remainder/2) };
-
-        var outs =
-              remainder < 5430  ? [toOut]
-            : remainder < 10860 ? [toOut, changeOut]
-            : unspentOuts == 5  ? [toOut, changeOut]
-            :                     [toOut, halfChangeOut, halfChangeOut]
-
-        var tx = new Bitcoin.Transaction({
-            ins: utxo.map(function(x) { return x.output }),
-            outs: outs
         })
+    }
+
+    this.createTx = function(to, value, fixedFee) {
+        checkDust(value)
+
+        var tx = new Transaction()
+        tx.addOutput(to, value)
+
+        var utxo = getCandidateOutputs(value)
+        var totalInValue = 0
+        for(var i=0; i<utxo.length; i++){
+          var output = utxo[i]
+          tx.addInput(output.receive)
+
+          totalInValue += output.value
+          if(totalInValue < value) continue;
+
+          var fee = fixedFee || estimateFeePadChangeOutput(tx)
+          if(totalInValue < value + fee) continue;
+
+          var change = totalInValue - value - fee
+          if(change > 0 && !isDust(change)) {
+            tx.addOutput(getChangeAddress(), change)
+          }
+          break;
+        }
+
+        checkInsufficientFund(totalInValue, value, fee)
+
         this.sign(tx)
+
         return tx
     }
 
-    this.mkSendToOutputs = function(outputs, changeIndex, fee) {
-        var value = outputs.reduce(function(t,o) { return t + o.value },0),
-            utxo = this.getUtxoToPay(value + fee),
-            sum = utxo.reduce(function(t,p) { return t + o.value },0);
-        utxo[changeIndex].value += sum - value - fee;
-        var tx = new Bitcoin.Transaction({
-            ins: utxo.map(function(x) { return x.output }),
-            outs: outputs
-        })
-        this.sign(tx)
-        return tx
+    this.createTxAsync = function(to, value, fixedFee, callback){
+      if(fixedFee instanceof Function) {
+        callback = fixedFee
+        fixedFee = undefined
+      }
+      var tx = null
+
+      try {
+        tx = this.createTx(to, value, fixedFee)
+      } catch(err) {
+        return callback(err)
+      }
+
+      callback(null, tx)
+    }
+
+    this.dustThreshold = 5430
+    function isDust(amount) {
+      return amount <= me.dustThreshold
+    }
+
+    function checkDust(value){
+      if (isNullOrUndefined(value) || isDust(value)) {
+        throw new Error("Value must be above dust threshold")
+      }
+    }
+
+    function getCandidateOutputs(value){
+      var unspent = []
+      for (var key in me.outputs){
+        var output = me.outputs[key]
+        if(!output.spend) unspent.push(output)
+      }
+
+      var sortByValueDesc = unspent.sort(function(o1, o2){
+        return o2.value - o1.value
+      })
+
+      return sortByValueDesc;
+    }
+
+    function estimateFeePadChangeOutput(tx){
+        var tmpTx = tx.clone()
+        tmpTx.addOutput(getChangeAddress(), 0)
+        return tmpTx.estimateFee()
+    }
+
+    function getChangeAddress() {
+      if(me.changeAddresses.length === 0) me.generateChangeAddress()
+      return me.changeAddresses[me.changeAddresses.length - 1]
+    }
+
+    function checkInsufficientFund(totalInValue, value, fee) {
+      if(totalInValue < value + fee) {
+        throw new Error('Not enough money to send funds including transaction fee. Have: ' +
+                        totalInValue + ', needed: ' + (value + fee))
+      }
     }
 
     this.sign = function(tx) {
@@ -200,6 +292,18 @@ var Wallet = function (seed, options) {
       } else {
         throw new Error('Unknown address. Make sure the address is from the keychain and has been generated.')
       }
+    }
+
+    function isReceiveAddress(address){
+      return me.addresses.indexOf(address) > -1
+    }
+
+    function isChangeAddress(address){
+      return me.changeAddresses.indexOf(address) > -1
+    }
+
+    function isMyAddress(address) {
+      return isReceiveAddress(address) || isChangeAddress(address)
     }
 };
 

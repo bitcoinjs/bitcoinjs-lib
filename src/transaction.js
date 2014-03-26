@@ -377,6 +377,18 @@ Transaction.prototype.validateSig = function(index, script, sig, pub) {
                                       convert.coerceToBytes(pub));
 }
 
+Transaction.feePerKb = 20000
+Transaction.prototype.estimateFee = function(feePerKb){
+  var uncompressedInSize = 180
+  var outSize = 34
+  var fixedPadding = 34
+
+  if(feePerKb == undefined) feePerKb = Transaction.feePerKb
+  var size = this.ins.length * uncompressedInSize + this.outs.length * outSize + fixedPadding
+
+  return feePerKb * Math.ceil(size / 1000)
+}
+
 var TransactionIn = function (data) {
     if (typeof data == "string")
         this.outpoint = { hash: data.split(':')[0], index: data.split(':')[1] }
@@ -415,7 +427,7 @@ var TransactionOut = function (data) {
       : data.address                     ? Script.createOutputScript(data.address)
       :                                    new Script();
 
-    if (this.script.buffer.length > 0) this.address = this.script.toAddress();
+    if (this.script.buffer.length > 0) this.address = this.script.getToAddress();
 
     this.value =
         Array.isArray(data.value)         ? convert.bytesToNum(data.value)
@@ -424,14 +436,17 @@ var TransactionOut = function (data) {
       :                                    data.value;
 };
 
-TransactionOut.prototype.clone = function ()
-{
+TransactionOut.prototype.clone = function() {
   var newTxout = new TransactionOut({
     script: this.script.clone(),
     value: this.value
   });
   return newTxout;
 };
+
+TransactionOut.prototype.scriptPubKey = function() {
+  return convert.bytesToHex(this.script.buffer)
+}
 
 module.exports = {
   Transaction: Transaction,
