@@ -1,8 +1,9 @@
 /// Implements Bitcoin's feature for signing arbitrary messages.
 
-var SHA256 = require('crypto-js/sha256')
-var ecdsa = require('./ecdsa')
+var Address = require('./address')
 var convert = require('./convert')
+var ecdsa = require('./ecdsa')
+var SHA256 = require('crypto-js/sha256')
 
 var Message = {}
 
@@ -59,7 +60,8 @@ Message.verifyMessage = function (address, sig, message) {
   pubKey.compressed = isCompressed
 
   // Compare address to expected address
-  return address === pubKey.getAddress().toString()
+  address = new Address(address)
+  return address.toString() === pubKey.getAddress(address.version).toString()
 }
 
 module.exports = Message
