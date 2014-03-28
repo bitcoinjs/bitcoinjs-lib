@@ -5,33 +5,28 @@ var convert = require('./convert')
 var ecdsa = require('./ecdsa')
 var SHA256 = require('crypto-js/sha256')
 
-var Message = {}
+// FIXME: magicHash is incompatible with other magic messages
+var magicBytes = convert.stringToBytes('Bitcoin Signed Message:\n')
 
-Message.magicPrefix = "Bitcoin Signed Message:\n"
-
-Message.makeMagicMessage = function (message) {
-  var magicBytes = convert.stringToBytes(Message.magicPrefix)
+function magicHash(message) {
   var messageBytes = convert.stringToBytes(message)
 
-  return [].concat(
+  var buffer = [].concat(
     convert.numToVarInt(magicBytes.length),
     magicBytes,
     convert.numToVarInt(messageBytes.length),
     messageBytes
   )
 
-}
-
-Message.getHash = function (message) {
-  var buffer = Message.makeMagicMessage(message)
   return convert.wordArrayToBytes(SHA256(SHA256(convert.bytesToWordArray(buffer))))
 }
 
-Message.signMessage = function (key, message) {
-  var hash = Message.getHash(message)
+// TODO: parameterize compression instead of using ECKey.compressed
+function sign(key, message) {
+  var hash = magicHash(message)
   var sig = key.sign(hash)
   var obj = ecdsa.parseSig(sig)
-  var i = ecdsa.calcPubkeyRecoveryParam(key, obj.r, obj.s, hash)
+  var i = ecdsa.calcPubkeyRecoveryParam(key.getPub(), obj.r, obj.s, hash)
 
   i += 27
   if (key.compressed) {
@@ -50,18 +45,21 @@ Message.signMessage = function (key, message) {
   return convert.bytesToHex(sig)
 }
 
-Message.verifyMessage = function (address, sig, message) {
+function verify(address, sig, message) {
+  address = new Address(address)
   sig = ecdsa.parseSigCompact(convert.hexToBytes(sig))
 
-  var hash = Message.getHash(message)
-
   var isCompressed = !!(sig.i & 4)
+  var hash = magicHash(message)
+
   var pubKey = ecdsa.recoverPubKey(sig.r, sig.s, hash, sig.i)
   pubKey.compressed = isCompressed
 
-  // Compare address to expected address
-  address = new Address(address)
-  return address.toString() === pubKey.getAddress(address.version).toString()
+  return pubKey.getAddress(address.version).toString() === address.toString()
 }
 
-module.exports = Message
+module.exports = {
+  magicHash: magicHash,
+  sign: sign,
+  verify: verify
+}
