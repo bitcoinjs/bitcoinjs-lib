@@ -262,11 +262,10 @@ var Wallet = function (seed, options) {
     }
 
     this.sign = function(tx) {
-        tx.ins.map(function(inp,i) {
-            var inp = inp.outpoint.hash+':'+inp.outpoint.index;
-            if (me.outputs[inp]) {
-                var address = me.outputs[inp].address
-                tx.sign(i, me.getPrivateKeyForAddress(address))
+        tx.ins.forEach(function(inp,i) {
+            var output = me.outputs[inp.outpoint.hash+':'+inp.outpoint.index]
+            if (output) {
+                tx.sign(i, me.getPrivateKeyForAddress(output.address))
             }
         })
         return tx;
