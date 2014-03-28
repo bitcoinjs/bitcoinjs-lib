@@ -42,12 +42,12 @@ function sign(key, message) {
 
   sig = [i].concat(rBa, sBa)
 
-  return convert.bytesToHex(sig)
+  return sig
 }
 
 function verify(address, sig, message) {
   address = new Address(address)
-  sig = ecdsa.parseSigCompact(convert.hexToBytes(sig))
+  sig = ecdsa.parseSigCompact(sig)
 
   var isCompressed = !!(sig.i & 4)
   var hash = magicHash(message)
