@@ -22,20 +22,20 @@ var ECKey = function (input, compressed) {
     else this.import(input,compressed)
 };
 
-ECKey.prototype.import = function (input,compressed) {
-    function has(li,v) { return li.indexOf(v) >= 0 }
+ECKey.prototype.import = function (input, compressed) {
+    function has(li, v) { return li.indexOf(v) >= 0 }
     function fromBin(x) { return BigInteger.fromByteArrayUnsigned(x) }
     this.priv =
           input instanceof ECKey                   ? input.priv
         : input instanceof BigInteger              ? input.mod(ecparams.getN())
-        : Array.isArray(input)                     ? fromBin(input.slice(0,32))
+        : Array.isArray(input)                     ? fromBin(input.slice(0, 32))
         : typeof input != "string"                 ? null
         : input.length == 44                       ? fromBin(convert.base64ToBytes(input))
         : input.length == 51 && input[0] == '5'    ? fromBin(base58.checkDecode(input))
         : input.length == 51 && input[0] == '9'    ? fromBin(base58.checkDecode(input))
-        : input.length == 52 && has('LK',input[0]) ? fromBin(base58.checkDecode(input).slice(0,32))
-        : input.length == 52 && input[0] == 'c'    ? fromBin(base58.checkDecode(input).slice(0,32))
-        : has([64,65],input.length)                ? fromBin(convert.hexToBytes(input.slice(0,64)))
+        : input.length == 52 && has('LK', input[0]) ? fromBin(base58.checkDecode(input).slice(0, 32))
+        : input.length == 52 && input[0] == 'c'    ? fromBin(base58.checkDecode(input).slice(0, 32))
+        : has([64,65],input.length)                ? fromBin(convert.hexToBytes(input.slice(0, 64)))
                                                    : null
 
     this.compressed =
@@ -47,7 +47,7 @@ ECKey.prototype.import = function (input,compressed) {
         : input.length == 44                       ? false
         : input.length == 51 && input[0] == '5'    ? false
         : input.length == 51 && input[0] == '9'    ? false
-        : input.length == 52 && has('LK',input[0]) ? true
+        : input.length == 52 && has('LK', input[0]) ? true
         : input.length == 52 && input[0] == 'c'    ? true
         : input.length == 64                       ? false
         : input.length == 65                       ? true
@@ -56,7 +56,7 @@ ECKey.prototype.import = function (input,compressed) {
 
 ECKey.prototype.getPub = function(compressed) {
     if (compressed === undefined) compressed = this.compressed
-    return ECPubKey(ecparams.getG().multiply(this.priv),compressed)
+    return ECPubKey(ecparams.getG().multiply(this.priv), compressed)
 }
 
 /**
@@ -103,11 +103,11 @@ ECKey.prototype.getAddress = function(version) {
 }
 
 ECKey.prototype.add = function(key) {
-    return ECKey(this.priv.add(ECKey(key).priv),this.compressed)
+    return ECKey(this.priv.add(ECKey(key).priv), this.compressed)
 }
 
 ECKey.prototype.multiply = function(key) {
-    return ECKey(this.priv.multiply(ECKey(key).priv),this.compressed)
+    return ECKey(this.priv.multiply(ECKey(key).priv), this.compressed)
 }
 
 ECKey.prototype.sign = function(hash) {
@@ -123,7 +123,7 @@ var ECPubKey = function(input, compressed) {
     return new ECPubKey(input, compressed)
   }
 
-  this.import(input,compressed)
+  this.import(input, compressed)
 }
 
 ECPubKey.prototype.import = function(input, compressed) {
