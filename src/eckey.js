@@ -28,7 +28,7 @@ ECKey.prototype.import = function (input,compressed) {
     this.priv =
           input instanceof ECKey                   ? input.priv
         : input instanceof BigInteger              ? input.mod(ecparams.getN())
-        : Array.isArray(input)                      ? fromBin(input.slice(0,32))
+        : Array.isArray(input)                     ? fromBin(input.slice(0,32))
         : typeof input != "string"                 ? null
         : input.length == 44                       ? fromBin(convert.base64ToBytes(input))
         : input.length == 51 && input[0] == '5'    ? fromBin(base58.checkDecode(input))
@@ -42,7 +42,7 @@ ECKey.prototype.import = function (input,compressed) {
           compressed !== undefined                 ? compressed
         : input instanceof ECKey                   ? input.compressed
         : input instanceof BigInteger              ? false
-        : Array.isArray(input)                      ? false
+        : Array.isArray(input)                     ? false
         : typeof input != "string"                 ? null
         : input.length == 44                       ? false
         : input.length == 51 && input[0] == '5'    ? false
@@ -119,25 +119,23 @@ ECKey.prototype.verify = function(hash, sig) {
 }
 
 var ECPubKey = function(input, compressed) {
-    if (!(this instanceof ECPubKey)) { return new ECPubKey(input, compressed); }
-    if (!input) {
-        // Generate new key
-        var n = ecparams.getN();
-        this.pub = ecparams.getG().multiply(ecdsa.getBigRandom(n))
-        this.compressed = compressed || false;
-    }
-    else this.import(input,compressed)
+  if (!(this instanceof ECPubKey)) {
+    return new ECPubKey(input, compressed)
+  }
+
+  this.import(input,compressed)
 }
 
-ECPubKey.prototype.import = function(input,compressed) {
+ECPubKey.prototype.import = function(input, compressed) {
     var decode = function(x) { return ECPointFp.decodeFrom(ecparams.getCurve(), x) }
+
     this.pub =
           input instanceof ECPointFp ? input
         : input instanceof ECKey     ? ecparams.getG().multiply(input.priv)
         : input instanceof ECPubKey  ? input.pub
         : typeof input == "string"   ? decode(convert.hexToBytes(input))
-        : Array.isArray(input)        ? decode(input)
-                                     : ecparams.getG().multiply(ecdsa.getBigRandom(ecparams.getN()))
+        : Array.isArray(input)       ? decode(input)
+                                     : null
 
     this.compressed =
           compressed                 ? compressed
@@ -147,11 +145,11 @@ ECPubKey.prototype.import = function(input,compressed) {
 }
 
 ECPubKey.prototype.add = function(key) {
-    return ECPubKey(this.pub.add(ECPubKey(key).pub),this.compressed)
+    return ECPubKey(this.pub.add(ECPubKey(key).pub), this.compressed)
 }
 
 ECPubKey.prototype.multiply = function(key) {
-    return ECPubKey(this.pub.multiply(ECKey(key).priv),this.compressed)
+    return ECPubKey(this.pub.multiply(ECKey(key).priv), this.compressed)
 }
 
 ECPubKey.prototype['export'] = function(format) {
