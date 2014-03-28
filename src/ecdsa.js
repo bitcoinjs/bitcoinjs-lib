@@ -289,20 +289,18 @@ var ECDSA = {
    * This function simply tries all four cases and returns the value
    * that resulted in a successful pubkey recovery.
    */
-  calcPubkeyRecoveryParam: function (origPubkey, r, s, hash)
-  {
-    var address = origPubkey.getAddress().toString();
+  calcPubKeyRecoveryParam: function (origPubKey, r, s, hash) {
     for (var i = 0; i < 4; i++) {
-      var pubkey = ECDSA.recoverPubKey(r, s, hash, i);
-      pubkey.compressed = origPubkey.compressed;
-      if (pubkey.getAddress().toString() == address) {
-        return i;
+      var pubKey = ECDSA.recoverPubKey(r, s, hash, i)
+      pubKey.compressed = origPubKey.compressed
+
+      if (pubKey.pub.equals(origPubKey.pub)) {
+        return i
       }
     }
 
-    throw new Error("Unable to find valid recovery factor");
+    throw new Error("Unable to find valid recovery factor")
   }
 };
 
 module.exports = ECDSA;
-

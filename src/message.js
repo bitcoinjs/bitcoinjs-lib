@@ -31,7 +31,8 @@ Message.signMessage = function (key, message) {
   var hash = Message.getHash(message)
   var sig = key.sign(hash)
   var obj = ecdsa.parseSig(sig)
-  var i = ecdsa.calcPubkeyRecoveryParam(key, obj.r, obj.s, hash)
+
+  var i = ecdsa.calcPubKeyRecoveryParam(key.getPub(key.compressed), obj.r, obj.s, hash)
 
   i += 27
   if (key.compressed) {
