@@ -26,7 +26,7 @@ function sign(key, message) {
   var hash = magicHash(message)
   var sig = key.sign(hash)
   var obj = ecdsa.parseSig(sig)
-  var i = ecdsa.calcPubkeyRecoveryParam(key.getPub(), obj.r, obj.s, hash)
+  var i = ecdsa.calcPubkeyRecoveryParam(key.getPub(key.compressed), obj.r, obj.s, hash)
 
   i += 27
   if (key.compressed) {
