@@ -1,8 +1,7 @@
 var convert = require('./convert.js')
-var Crypto = require('crypto-js');
-var RIPEMD160 = Crypto.RIPEMD160;
-var SHA256 = Crypto.SHA256;
-var HMAC= Crypto.algo.HMAC;
+var Crypto = require('crypto-js')
+var RIPEMD160 = Crypto.RIPEMD160
+var SHA256 = Crypto.SHA256
 
 /**
  * Calculate RIPEMD160(SHA256(data)).
@@ -11,16 +10,14 @@ var HMAC= Crypto.algo.HMAC;
  * array.
  */
 exports.sha256ripe160 = function (data) {
-    var wordArray = RIPEMD160(SHA256(convert.bytesToWordArray(data)))
-    return convert.wordArrayToBytes(wordArray)
+  var wordArray = RIPEMD160(SHA256(convert.bytesToWordArray(data)))
+  return convert.wordArrayToBytes(wordArray)
 }
 
-exports.HmacFromBytesToBytes = function (hasher, message, key) {
-  var hmac = HMAC.create(hasher, convert.bytesToWordArray(key))
-  hmac.update(convert.bytesToWordArray(message))
-  return convert.wordArrayToBytes(hmac.finalize())
-}
-
-exports.error = function(msg) {
-    throw new Error(msg);
+/**
+ * Convenience method for throw new Error('some message'), e.g.
+ * error('something went wrong')
+ */
+exports.error = function (msg) {
+  throw new Error(msg)
 }

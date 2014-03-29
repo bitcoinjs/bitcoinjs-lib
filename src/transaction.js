@@ -2,11 +2,9 @@ var BigInteger = require('./jsbn/jsbn');
 var Script = require('./script');
 var util = require('./util');
 var convert = require('./convert');
-var Wallet = require('./wallet');
 var ECKey = require('./eckey').ECKey;
 var ECDSA = require('./ecdsa');
 var Address = require('./address');
-var Message = require('./message');
 var SHA256 = require('crypto-js/sha256');
 
 var Transaction = function (doc) {
@@ -15,45 +13,30 @@ var Transaction = function (doc) {
     this.locktime = 0;
     this.ins = [];
     this.outs = [];
-    this.timestamp = null;
-    this.block = null;
+    this.defaultSequence = [255, 255, 255, 255]; // 0xFFFFFFFF
 
     if (doc) {
         if (typeof doc == "string" || Array.isArray(doc)) {
-            doc = Transaction.deserialize(doc)
+            doc = Transaction.deserialize(doc);
         }
+
         if (doc.hash) this.hash = doc.hash;
         if (doc.version) this.version = doc.version;
         if (doc.locktime) this.locktime = doc.locktime;
         if (doc.ins && doc.ins.length) {
-            for (var i = 0; i < doc.ins.length; i++) {
-                this.addInput(new TransactionIn(doc.ins[i]));
-            }
+            doc.ins.forEach(function(input) {
+                this.addInput(new TransactionIn(input));
+            }, this);
         }
+
         if (doc.outs && doc.outs.length) {
-            for (var i = 0; i < doc.outs.length; i++) {
-                this.addOutput(new TransactionOut(doc.outs[i]));
-            }
+            doc.outs.forEach(function(output) {
+                this.addOutput(new TransactionOut(output));
+            }, this);
         }
-        if (doc.timestamp) this.timestamp = doc.timestamp;
-        if (doc.block) this.block = doc.block;
 
-        this.hash = this.hash || this.getHash()
+        this.hash = this.hash || this.getHash();
     }
-};
-
-/**
- * Turn transaction data into Transaction objects.
- *
- * Takes an array of plain JavaScript objects containing transaction data and
- * returns an array of Transaction objects.
- */
-Transaction.objectify = function (txs) {
-  var objs = [];
-  for (var i = 0; i < txs.length; i++) {
-    objs.push(new Transaction(txs[i]));
-  }
-  return objs;
 };
 
 /**
@@ -77,15 +60,16 @@ Transaction.prototype.addInput = function (tx, outIndex) {
         return this.addInput(args[0], args[1]);
     }
     else {
-        var hash = typeof tx === "string" ? tx : tx.hash
-        var hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash
+        var hash = typeof tx === "string" ? tx : tx.hash;
+        hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash;
+
         this.ins.push(new TransactionIn({
             outpoint: {
                 hash: hash,
                 index: outIndex
             },
             script: new Script(),
-            sequence: 4294967295
+            sequence: this.defaultSequence
         }));
     }
 };
@@ -105,11 +89,13 @@ Transaction.prototype.addOutput = function (address, value) {
        this.outs.push(arguments[0]);
        return;
     }
+
     if (arguments[0].indexOf(':') >= 0) {
         var args = arguments[0].split(':');
         address = args[0];
         value = parseInt(args[1]);
     }
+
     this.outs.push(new TransactionOut({
         value: value,
         script: Script.createOutputScript(address)
@@ -125,30 +111,33 @@ Transaction.prototype.addOutput = function (address, value) {
  */
 Transaction.prototype.serialize = function () {
     var buffer = [];
-    buffer = buffer.concat(convert.numToBytes(parseInt(this.version),4));
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.version), 4));
     buffer = buffer.concat(convert.numToVarInt(this.ins.length));
-    for (var i = 0; i < this.ins.length; i++) {
-        var txin = this.ins[i];
 
+    this.ins.forEach(function(txin) {
         // Why do blockchain.info, blockexplorer.com, sx and just about everybody
         // else use little-endian hashes? No idea...
         buffer = buffer.concat(convert.hexToBytes(txin.outpoint.hash).reverse());
 
-        buffer = buffer.concat(convert.numToBytes(parseInt(txin.outpoint.index),4));
+        buffer = buffer.concat(convert.numToBytes(parseInt(txin.outpoint.index), 4));
+
         var scriptBytes = txin.script.buffer;
         buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
-        buffer = buffer.concat(convert.numToBytes(parseInt(txin.sequence),4));
-    }
+        buffer = buffer.concat(txin.sequence);
+    });
+
     buffer = buffer.concat(convert.numToVarInt(this.outs.length));
-    for (var i = 0; i < this.outs.length; i++) {
-        var txout = this.outs[i];
+
+    this.outs.forEach(function(txout) {
         buffer = buffer.concat(convert.numToBytes(txout.value,8));
+
         var scriptBytes = txout.script.buffer;
         buffer = buffer.concat(convert.numToVarInt(scriptBytes.length));
         buffer = buffer.concat(scriptBytes);
-    }
-    buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime),4));
+    });
+
+    buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime), 4));
 
     return buffer;
 };
@@ -157,7 +146,7 @@ Transaction.prototype.serializeHex = function() {
     return convert.bytesToHex(this.serialize());
 }
 
-var OP_CODESEPARATOR = 171;
+//var OP_CODESEPARATOR = 171;
 
 var SIGHASH_ALL = 1;
 var SIGHASH_NONE = 2;
@@ -185,9 +174,9 @@ function (connectedScript, inIndex, hashType)
    });*/
 
   // Blank out other inputs' signatures
-  for (var i = 0; i < txTmp.ins.length; i++) {
-    txTmp.ins[i].script = new Script();
-  }
+  txTmp.ins.forEach(function(txin) {
+    txin.script = new Script();
+  });
 
   txTmp.ins[inIndex].script = connectedScript;
 
@@ -196,9 +185,12 @@ function (connectedScript, inIndex, hashType)
     txTmp.outs = [];
 
     // Let the others update at will
-    for (var i = 0; i < txTmp.ins.length; i++)
-      if (i != inIndex)
+    txTmp.ins.forEach(function(txin, i) {
+      if (i != inIndex) {
         txTmp.ins[i].sequence = 0;
+      }
+    });
+
   } else if ((hashType & 0x1f) == SIGHASH_SINGLE) {
     // TODO: Implement
   }
@@ -210,9 +202,9 @@ function (connectedScript, inIndex, hashType)
 
   var buffer = txTmp.serialize();
 
-  buffer = buffer.concat(convert.numToBytes(parseInt(hashType),4));
-
+  buffer = buffer.concat(convert.numToBytes(parseInt(hashType), 4));
   buffer = convert.bytesToWordArray(buffer);
+
   return convert.wordArrayToBytes(SHA256(SHA256(buffer)));
 };
 
@@ -235,178 +227,16 @@ Transaction.prototype.clone = function ()
   var newTx = new Transaction();
   newTx.version = this.version;
   newTx.locktime = this.locktime;
-  for (var i = 0; i < this.ins.length; i++) {
-    var txin = this.ins[i].clone();
-    newTx.addInput(txin);
-  }
-  for (var i = 0; i < this.outs.length; i++) {
-    var txout = this.outs[i].clone();
-    newTx.addOutput(txout);
-  }
+
+  this.ins.forEach(function(txin) {
+    newTx.addInput(txin.clone());
+  });
+
+  this.outs.forEach(function(txout) {
+    newTx.addOutput(txout.clone());
+  });
+
   return newTx;
-};
-
-/**
- * Analyze how this transaction affects a wallet.
- *
- * Returns an object with properties 'impact', 'type' and 'addr'.
- *
- * 'impact' is an object, see Transaction#calcImpact.
- *
- * 'type' can be one of the following:
- *
- * recv:
- *   This is an incoming transaction, the wallet received money.
- *   'addr' contains the first address in the wallet that receives money
- *   from this transaction.
- *
- * self:
- *   This is an internal transaction, money was sent within the wallet.
- *   'addr' is undefined.
- *
- * sent:
- *   This is an outgoing transaction, money was sent out from the wallet.
- *   'addr' contains the first external address, i.e. the recipient.
- *
- * other:
- *   This method was unable to detect what the transaction does. Either it
- */
-Transaction.prototype.analyze = function (wallet) {
-  if (!(wallet instanceof Wallet)) return null;
-
-  var allFromMe = true,
-  allToMe = true,
-  firstRecvHash = null,
-  firstMeRecvHash = null,
-  firstSendHash = null;
-
-  for (var i = this.outs.length-1; i >= 0; i--) {
-    var txout = this.outs[i];
-    var hash = txout.script.simpleOutPubKeyHash();
-    if (!wallet.hasHash(hash)) {
-      allToMe = false;
-    } else {
-      firstMeRecvHash = hash;
-    }
-    firstRecvHash = hash;
-  }
-  for (var i = this.ins.length-1; i >= 0; i--) {
-    var txin = this.ins[i];
-    firstSendHash = txin.script.simpleInPubKeyHash();
-    if (!wallet.hasHash(firstSendHash)) {
-      allFromMe = false;
-      break;
-    }
-  }
-
-  var impact = this.calcImpact(wallet);
-
-  var analysis = {};
-
-  analysis.impact = impact;
-
-  if (impact.sign > 0 && impact.value > 0) {
-    analysis.type = 'recv';
-    analysis.addr = new Address(firstMeRecvHash);
-  } else if (allFromMe && allToMe) {
-    analysis.type = 'self';
-  } else if (allFromMe) {
-    analysis.type = 'sent';
-    // TODO: Right now, firstRecvHash is the first output, which - if the
-    //       transaction was not generated by this library could be the
-    //       change address.
-    analysis.addr = new Address(firstRecvHash);
-  } else  {
-    analysis.type = "other";
-  }
-
-  return analysis;
-};
-
-/**
- * Get a human-readable version of the data returned by Transaction#analyze.
- *
- * This is merely a convenience function. Clients should consider implementing
- * this themselves based on their UI, I18N, etc.
- */
-Transaction.prototype.getDescription = function (wallet) {
-  var analysis = this.analyze(wallet);
-
-  if (!analysis) return "";
-
-  switch (analysis.type) {
-  case 'recv':
-    return "Received with "+analysis.addr;
-    break;
-
-  case 'sent':
-    return "Payment to "+analysis.addr;
-    break;
-
-  case 'self':
-    return "Payment to yourself";
-    break;
-
-  case 'other':
-  default:
-    return "";
-  }
-};
-
-/**
- * Get the total amount of a transaction's outputs.
- */
-Transaction.prototype.getTotalOutValue = function () {
-    return this.outs.reduce(function(t,o) { return t + o.value },0);
-};
-
- /**
-  * Old name for Transaction#getTotalOutValue.
-  *
-  * @deprecated
-  */
- Transaction.prototype.getTotalValue = Transaction.prototype.getTotalOutValue;
-
-/**
- * Calculates the impact a transaction has on this wallet.
- *
- * Based on the its public keys, the wallet will calculate the
- * credit or debit of this transaction.
- *
- * It will return an object with two properties:
- *  - sign: 1 or -1 depending on sign of the calculated impact.
- *  - value: amount of calculated impact
- *
- * @returns Object Impact on wallet
- */
-Transaction.prototype.calcImpact = function (wallet) {
-  if (!(wallet instanceof Wallet)) return 0;
-
-  // Calculate credit to us from all outputs
-  var valueOut = this.outs.filter(function(o) {
-    return wallet.hasHash(convert.bytesToHex(o.script.simpleOutPubKeyHash()));
-  })
-  .reduce(function(t,o) { return t+o.value },0);
-
-  var valueIn = this.ins.filter(function(i) {
-    return wallet.hasHash(convert.bytesToHex(i.script.simpleInPubKeyHash()))
-        && wallet.txIndex[i.outpoint.hash];
-  })
-  .reduce(function(t,i) {
-    return t + wallet.txIndex[i.outpoint.hash].outs[i.outpoint.index].value
-  },0);
-
-  if (valueOut > valueIn) {
-    return {
-      sign: 1,
-      value: valueOut - valueIn
-    };
-  } else {
-    return {
-      sign: -1,
-      value: valueIn - valueOut
-    };
-  }
 };
 
 /**
@@ -419,16 +249,16 @@ Transaction.deserialize = function(buffer) {
     }
     var pos = 0;
     var readAsInt = function(bytes) {
-        if (bytes == 0) return 0;
+        if (bytes === 0) return 0;
         pos++;
         return buffer[pos-1] + readAsInt(bytes-1) * 256;
     }
     var readVarInt = function() {
-        pos++;
-        if (buffer[pos-1] < 253) {
-            return buffer[pos-1];
-        }
-        return readAsInt(buffer[pos-1] - 251);
+        var bytes = buffer.slice(pos, pos + 9) // maximum possible number of bytes to read
+        var result = convert.varIntToNum(bytes)
+
+        pos += result.bytes.length
+        return result.number
     }
     var readBytes = function(bytes) {
         pos += bytes;
@@ -444,23 +274,27 @@ Transaction.deserialize = function(buffer) {
     }
     obj.version = readAsInt(4);
     var ins = readVarInt();
-    for (var i = 0; i < ins; i++) {
+    var i;
+
+    for (i = 0; i < ins; i++) {
         obj.ins.push({
             outpoint: {
                 hash: convert.bytesToHex(readBytes(32).reverse()),
                 index: readAsInt(4)
             },
             script: new Script(readVarString()),
-            sequence: readAsInt(4)
+            sequence: readBytes(4)
         });
     }
     var outs = readVarInt();
-    for (var i = 0; i < outs; i++) {
+
+    for (i = 0; i < outs; i++) {
         obj.outs.push({
             value: convert.bytesToNum(readBytes(8)),
             script: new Script(readVarString())
         });
     }
+
     obj.locktime = readAsInt(4);
 
     return new Transaction(obj);
@@ -473,6 +307,9 @@ Transaction.deserialize = function(buffer) {
 Transaction.prototype.sign = function(index, key, type) {
     type = type || SIGHASH_ALL;
     key = new ECKey(key);
+
+    // TODO: getPub is slow, sha256ripe160 probably is too.
+    // This could be sped up a lot by providing these as inputs.
     var pub = key.getPub().export('bytes'),
         hash160 = util.sha256ripe160(pub),
         script = Script.createOutputScript(new Address(hash160)),
@@ -484,25 +321,32 @@ Transaction.prototype.sign = function(index, key, type) {
 // Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]
 Transaction.prototype.signWithKeys = function(keys, outputs, type) {
     type = type || SIGHASH_ALL;
+
     var addrdata = keys.map(function(key) {
          key = new ECKey(key);
          return {
             key: key,
-            address: key.getBitcoinAddress().toString()
+            address: key.getAddress().toString()
          }
     });
+
     var hmap = {};
-    for (var o in outputs) {
-        hmap[outputs[o].output] = outputs[o];
-    }
+    outputs.forEach(function(o) {
+        hmap[o.output] = o;
+    });
+
     for (var i = 0; i < this.ins.length; i++) {
-        var outpoint = this.ins[i].outpoint.hash+':'+this.ins[i].outpoint.index,
-            histItem = hmap[outpoint];
+        var outpoint = this.ins[i].outpoint.hash + ':' + this.ins[i].outpoint.index;
+        var histItem = hmap[outpoint];
+
         if (!histItem) continue;
+
         var thisInputAddrdata = addrdata.filter(function(a) {
             return a.address == histItem.address;
         });
-        if (thisInputAddrdata.length == 0) continue;
+
+        if (thisInputAddrdata.length === 0) continue;
+
         this.sign(i,thisInputAddrdata[0].key);
     }
 }
@@ -522,7 +366,7 @@ Transaction.prototype.p2shsign = function(index, script, key, type) {
 
 Transaction.prototype.multisign = Transaction.prototype.p2shsign;
 
-Transaction.prototype.applyMultisigs = function(index, script, sigs, type) {
+Transaction.prototype.applyMultisigs = function(index, script, sigs/*, type*/) {
     this.ins[index].script = Script.createMultiSigInputScript(sigs, script);
 }
 
@@ -533,6 +377,17 @@ Transaction.prototype.validateSig = function(index, script, sig, pub) {
                                       convert.coerceToBytes(pub));
 }
 
+Transaction.feePerKb = 20000
+Transaction.prototype.estimateFee = function(feePerKb){
+  var uncompressedInSize = 180
+  var outSize = 34
+  var fixedPadding = 34
+
+  if(feePerKb == undefined) feePerKb = Transaction.feePerKb
+  var size = this.ins.length * uncompressedInSize + this.outs.length * outSize + fixedPadding
+
+  return feePerKb * Math.ceil(size / 1000)
+}
 
 var TransactionIn = function (data) {
     if (typeof data == "string")
@@ -549,7 +404,7 @@ var TransactionIn = function (data) {
     else
         this.script = new Script(data.script)
 
-    this.sequence = data.sequence || 4294967295;
+    this.sequence = data.sequence || this.defaultSequence
 };
 
 TransactionIn.prototype.clone = function () {
@@ -572,7 +427,7 @@ var TransactionOut = function (data) {
       : data.address                     ? Script.createOutputScript(data.address)
       :                                    new Script();
 
-    if (this.script.buffer.length > 0) this.address = this.script.toAddress();
+    if (this.script.buffer.length > 0) this.address = this.script.getToAddress();
 
     this.value =
         Array.isArray(data.value)         ? convert.bytesToNum(data.value)
@@ -581,8 +436,7 @@ var TransactionOut = function (data) {
       :                                    data.value;
 };
 
-TransactionOut.prototype.clone = function ()
-{
+TransactionOut.prototype.clone = function() {
   var newTxout = new TransactionOut({
     script: this.script.clone(),
     value: this.value
@@ -590,6 +444,12 @@ TransactionOut.prototype.clone = function ()
   return newTxout;
 };
 
-module.exports.Transaction = Transaction;
-module.exports.TransactionIn = TransactionIn;
-module.exports.TransactionOut = TransactionOut;
+TransactionOut.prototype.scriptPubKey = function() {
+  return convert.bytesToHex(this.script.buffer)
+}
+
+module.exports = {
+  Transaction: Transaction,
+  TransactionIn: TransactionIn,
+  TransactionOut: TransactionOut
+}

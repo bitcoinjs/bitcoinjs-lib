@@ -5,6 +5,7 @@ var format = require('util').format
 var util = require('./util.js')
 var Crypto = require('crypto-js');
 var HmacSHA512 = Crypto.HmacSHA512
+var HMAC= Crypto.algo.HMAC
 var ECKey = require('./eckey.js').ECKey
 var ECPubKey = require('./eckey.js').ECPubKey
 var Address = require('./address.js')
@@ -21,7 +22,7 @@ var HDWallet = module.exports = function(seed, network) {
       throw new Error("Unknown network: " + this.network)
     }
 
-    this.priv = new ECKey(I.slice(0, 32).concat([1]), true, this.getKeyVersion())
+    this.priv = new ECKey(I.slice(0, 32).concat([1]), true)
     this.pub = this.priv.getPub()
     this.index = 0
     this.depth = 0
@@ -109,10 +110,10 @@ HDWallet.fromBytes = function(input) {
     // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
     // public keys, 0x00 + k for private keys)
     if (type == 'priv') {
-        hd.priv = new ECKey(input.slice(46, 78).concat([1]), true, hd.getKeyVersion())
+        hd.priv = new ECKey(input.slice(46, 78).concat([1]), true)
         hd.pub = hd.priv.getPub()
     } else {
-        hd.pub = new ECPubKey(input.slice(45, 78), true, hd.getKeyVersion())
+        hd.pub = new ECPubKey(input.slice(45, 78), true)
     }
 
     return hd
@@ -126,7 +127,7 @@ HDWallet.prototype.getFingerprint = function() {
     return this.getIdentifier().slice(0, 4)
 }
 
-HDWallet.prototype.getBitcoinAddress = function() {
+HDWallet.prototype.getAddress = function() {
     return new Address(util.sha256ripe160(this.pub.toBytes()), this.getKeyVersion())
 }
 
@@ -198,12 +199,12 @@ HDWallet.prototype.derive = function(i) {
         // If 1, private derivation is used:
         // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
         var kPar = this.priv.toBytes().slice(0, 32)
-        I = util.HmacFromBytesToBytes(SHA512, [0].concat(kPar, iBytes), cPar)
+        I = HmacFromBytesToBytes(SHA512, [0].concat(kPar, iBytes), cPar)
     } else {
         // If 0, public derivation is used:
         // let I = HMAC-SHA512(Key = cpar, Data = χ(kpar*G) || i)
         var KPar = this.pub.toBytes(true)
-        I = util.HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
+        I = HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
     }
 
     // Split I = IL || IR into two 32-byte sequences, IL and IR.
@@ -221,7 +222,7 @@ HDWallet.prototype.derive = function(i) {
         hd.pub = hd.priv.getPub()
     } else {
         // Ki = (IL + kpar)*G = IL*G + Kpar
-        hd.pub = this.pub.add(new ECKey(IL.concat([1]), true, this.getKeyVersion()).getPub())
+        hd.pub = this.pub.add(new ECKey(IL.concat([1]), true).getPub())
     }
 
     // ci = IR.
@@ -242,4 +243,10 @@ HDWallet.prototype.getKeyVersion = function() {
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58
+
+function HmacFromBytesToBytes(hasher, message, key) {
+  var hmac = HMAC.create(hasher, convert.bytesToWordArray(key))
+  hmac.update(convert.bytesToWordArray(message))
+  return convert.wordArrayToBytes(hmac.finalize())
+}
 

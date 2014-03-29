@@ -1,7 +1,16 @@
-var Transaction = require('../src/transaction').Transaction
+var T = require('../src/transaction')
+var Transaction = T.Transaction
+var TransactionOut = T.TransactionOut
+
 var convert = require('../src/convert')
 var ECKey = require('../src/eckey').ECKey
+var Script = require('../src/script')
 var assert = require('assert')
+
+var fixtureTxes = require('./fixtures/mainnet_tx')
+var fixtureTx1Hex = fixtureTxes.prevTx
+var fixtureTx2Hex = fixtureTxes.tx
+var fixtureTxBigHex = fixtureTxes.bigTx
 
 describe('Transaction', function() {
   describe('deserialize', function() {
@@ -36,7 +45,7 @@ describe('Transaction', function() {
       assert.equal(tx.ins.length, 1)
 
       var input = tx.ins[0]
-      assert.equal(input.sequence, 4294967295)
+      assert.deepEqual(input.sequence, [255, 255, 255, 255])
 
       assert.equal(input.outpoint.index, 0)
       assert.equal(input.outpoint.hash, "69d02fc05c4e0ddc87e796eee42693c244a3112fffe1f762c3fb61ffcb304634")
@@ -60,12 +69,28 @@ describe('Transaction', function() {
       var hashHex = "a9d4599e15b53f3eb531608ddb31f48c695c3d0b3538a6bda871e8b34f2f430c"
       assert.deepEqual(tx.hash, convert.hexToBytes(hashHex))
     })
+
+    it('decodes large inputs correctly', function() {
+      // transaction has only 1 input
+      var tx = new Transaction()
+      tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
+      tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 100)
+
+      // but we're going to replace the tx.ins.length VarInt with a 32-bit equivalent
+      // however the same resultant number of inputs (1)
+      var bytes = tx.serialize()
+      var mutated = bytes.slice(0, 4).concat([254, 1, 0, 0, 0], bytes.slice(5))
+
+      // the deserialized-serialized transaction should return to its original state (== tx)
+      var bytes2 = Transaction.deserialize(mutated).serialize()
+      assert.deepEqual(bytes, bytes2)
+    });
   })
 
   describe('creating a transaction', function() {
     var tx, prevTx
     beforeEach(function() {
-      prevTx = Transaction.deserialize('0100000001e0214ebebb0fd3414d3fdc0dbf3b0f4b247a296cafc984558622c3041b0fcc9b010000008b48304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f30141040cd2d2ce17a1e9b2b3b2cb294d40eecf305a25b7e7bfdafae6bb2639f4ee399b3637706c3d377ec4ab781355add443ae864b134c5e523001c442186ea60f0eb8ffffffff03a0860100000000001976a91400ea3576c8fcb0bc8392f10e23a3425ae24efea888ac40420f00000000001976a91477890e8ec967c5fd4316c489d171fd80cf86997188acf07cd210000000001976a9146fb93c557ee62b109370fd9003e456917401cbfa88ac00000000')
+      prevTx = Transaction.deserialize(fixtureTx1Hex)
       tx = new Transaction()
     })
 
@@ -98,7 +123,7 @@ describe('Transaction', function() {
         assert.equal(tx.ins.length, 1)
 
         var input = tx.ins[0]
-        assert.equal(input.sequence, 4294967295)
+        assert.deepEqual(input.sequence, [255, 255, 255, 255])
 
         assert.equal(input.outpoint.index, 0)
         assert.equal(input.outpoint.hash, "0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57")
@@ -157,7 +182,7 @@ describe('Transaction', function() {
       var validTx
 
       beforeEach(function() {
-        validTx = Transaction.deserialize('0100000001576bc3c3285dbdccd8c3cbd8c03e10d7f77a5c839c744f34c3eb00511059b80c000000006b483045022100a82a31607b837c1ae510ae3338d1d3c7cbd57c15e322ab6e5dc927d49bffa66302205f0db6c90f1fae3c8db4ebfa753d7da1b2343d653ce0331aa94ed375e6ba366c0121020497bfc87c3e97e801414fed6a0db4b8c2e01c46e2cf9dff59b406b52224a76bffffffff02409c0000000000001976a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac50c30000000000001976a91477890e8ec967c5fd4316c489d171fd80cf86997188ac00000000')
+        validTx = Transaction.deserialize(fixtureTx2Hex)
       })
 
       it('returns true for valid signature', function(){
@@ -170,7 +195,40 @@ describe('Transaction', function() {
       })
     })
 
+    describe('estimateFee', function(){
+      it('works for fixture tx 1', function(){
+        var tx = Transaction.deserialize(fixtureTx1Hex)
+        assert.equal(tx.estimateFee(), 20000)
+      })
+
+      it('works for fixture big tx', function(){
+        var tx = Transaction.deserialize(fixtureTxBigHex)
+        assert.equal(tx.estimateFee(), 60000)
+      })
+
+      it('allow feePerKb to be passed in as an argument', function(){
+        var tx = Transaction.deserialize(fixtureTx2Hex)
+        assert.equal(tx.estimateFee(10000), 10000)
+      })
+
+      it('allow feePerKb to be set to 0', function(){
+        var tx = Transaction.deserialize(fixtureTx2Hex)
+        assert.equal(tx.estimateFee(0), 0)
+      })
+    })
   })
 
+  describe('TransactionOut', function() {
+    describe('scriptPubKey', function() {
+      it('returns hex string', function() {
+        var txOut = new TransactionOut({
+          value: 50000,
+          script: Script.createOutputScript("1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv")
+        })
+
+        assert.equal(txOut.scriptPubKey(), "76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac")
+      })
+    })
+  })
 })
 

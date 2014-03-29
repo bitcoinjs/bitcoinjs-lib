@@ -6,7 +6,7 @@
 
 A pure JavaScript Bitcoin library for node.js and browsers. Backed by (slowly improving) testing, proven by over a million wallet users. The backbone for almost all Bitcoin web wallets in production today.
 
-This is not the original bitcoinjs-lib that was not updated for a while. The current bitcoinjs-lib has been refactored to clean things up, add new functionality and merge improvements from the community. If you are looking for the original, it will be tagged as `0.1.3`. We will use `0.2.x` for releases based on these changes, so be sure to use the `0.1.3` tag if you need the original version.
+**Warning**: Master is not stable. Expect the interface to change rapidly, including some of the examples below. This is not the original bitcoinjs-lib that was not updated for a while. The current bitcoinjs-lib has been refactored to clean things up, add new functionality and merge improvements from the community. If you are looking for the original, it will be tagged as `0.1.3`. We will use `0.2.x` for releases based on these changes, so be sure to use the `0.1.3` tag if you need the original version.
 
 ## Features
 
@@ -49,38 +49,39 @@ These examples assume you are running bitcoinjs-lib in the browser.
 
 ```javascript
 
-key = Bitcoin.ECKey()
+key = new Bitcoin.ECKey()
 
-// Print your private key (used for signing transactions)
+// Print your private key (a hex string)
 console.log(key.toString())
-// => 5Jxfda2afuyMw3iaxzAwv6FvAs3XxmjV5y3GPAjZDEhRNJaFG5a
+// => 8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48
 
-// Print your public key (Bitcoin address)
-console.log(key.getPub().toString())
-// => 18oxCAnbuKHDjP7KzLBDj8mLjggDBjE1Q9
+// Print your public key (defaults to a Bitcoin address)
+console.log(key.getPub().getAddress())
+// => 14bZ7YWde4KdRb5YN7GYkToz3EHVCvRxkF
 ```
 
 ### Creating a Transaction
 
 ```javascript
-
 tx = new Bitcoin.Transaction()
 
-// Add the input (the output of the previous transaction) of the form [previous transaction hash]:[index of the output to use]
-tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31:0")
+// Add the input (who is paying) of the form [previous transaction hash, index of the output to use]
+tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 0)
 
-// Add the output (who to pay to) of the form [payee's bitcoin address]:[amount in satoshis]
-tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK:15000")
+// Add the output (who to pay to) of the form [payee's address, amount in satoshis]
+tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000)
 
-// Initialize the private key you created earlier so you can sign the transaction
-key = Bitcoin.ECKey("5Jxfda2afuyMw3iaxzAwv6FvAs3XxmjV5y3GPAjZDEhRNJaFG5a")
+// Initialize a private key using hex
+key = new Bitcoin.ECKey("8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48")
 
-// Sign the first input with your key
+// Sign the first input with the new key
 tx.sign(0, key)
 
-// Print transaction serialized as hex. You can push the transaction onto the Bitcoin network manually
-// here: https://blockchain.info/pushtx
+// Print transaction serialized as hex
 console.log(tx.serializeHex())
+// => 0100000001313eb630b128102b60241ca895f1d0ffca2170d5a0990e094f2182c102ab94aa000000008a47304402200169f1f844936dc60df54e812345f5dd3e6681fea52e33c25154ad9cc23a330402204381ed8e73d74a95b15f312f33d5a0072c7a12dd6c3294df6e8efbe4aff27426014104e75628573696aed32d7656fb35e9c71ea08eb6492837e13d2662b9a36821d0fff992692fd14d74fdec20fae29128ba12653249cbeef521fc5eba84dde0689f27ffffffff01983a0000000000001976a914ad618cf4333b3b248f9744e8e81db2964d0ae39788ac00000000
+
+// You could now push the transaction onto the Bitcoin network manually (see https://blockchain.info/pushtx)
 ```
 
 
@@ -99,10 +100,10 @@ Feel free to send pull requests to have your project/startup listed here.
 ### Instructions
 
 1. Fork the repo
-2. Push changes to your fork  
+2. Push changes to your fork
 3. Create a pull request
 
-### Running the test suite 
+### Running the test suite
 
     $ npm test
 

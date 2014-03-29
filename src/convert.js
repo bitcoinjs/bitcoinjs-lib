@@ -2,122 +2,122 @@ var Crypto = require('crypto-js');
 var WordArray = Crypto.lib.WordArray;
 var base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-exports.lpad = function lpad(str, padString, length) {
-    while (str.length < length) str = padString + str;
-    return str;
+function lpad(str, padString, length) {
+  while (str.length < length) str = padString + str;
+  return str;
 }
 
 /**
  * Convert a byte array to a hex string
  */
-exports.bytesToHex = function(bytes) {
-    return bytes.map(function(x) {
-        return exports.lpad(x.toString(16), '0', 2)
-    }).join('');
+function bytesToHex(bytes) {
+  return bytes.map(function(x) {
+    return lpad(x.toString(16), '0', 2)
+  }).join('');
 };
 
 /**
  * Convert a hex string to a byte array
  */
-exports.hexToBytes = function(hex) {
-    return hex.match(/../g).map(function(x) {
-        return parseInt(x,16)
-    });
+function hexToBytes(hex) {
+  return hex.match(/../g).map(function(x) {
+    return parseInt(x,16)
+  });
 }
 
 /**
  * Convert a byte array to a base-64 string
  */
-exports.bytesToBase64 = function(bytes) {
-    var base64 = []
+function bytesToBase64(bytes) {
+  var base64 = []
 
-    for (var i = 0; i < bytes.length; i += 3) {
-        var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+  for (var i = 0; i < bytes.length; i += 3) {
+    var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
 
-        for (var j = 0; j < 4; j++) {
-            if (i * 8 + j * 6 <= bytes.length * 8) {
-                base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
-            } else {
-                base64.push('=');
-            }
-        }
+    for (var j = 0; j < 4; j++) {
+      if (i * 8 + j * 6 <= bytes.length * 8) {
+        base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+      } else {
+        base64.push('=');
+      }
     }
+  }
 
-    return base64.join('');
+  return base64.join('');
 }
 
 /**
  * Convert a base-64 string to a byte array
  */
-exports.base64ToBytes = function(base64) {
-    // Remove non-base-64 characters
-    base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
+function base64ToBytes(base64) {
+  // Remove non-base-64 characters
+  base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
 
-    var bytes = []
-    , imod4 = 0
+  var bytes = [];
+  var imod4 = 0;
 
-    for (var i = 0; i < base64.length; imod4 = ++i % 4) {
-        if (!imod4) continue
+  for (var i = 0; i < base64.length; imod4 = ++i % 4) {
+    if (!imod4) continue
 
-        bytes.push(
-            (
-                (base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) <<
-                (imod4 * 2)
-            ) |
-                (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2))
-        );
-    }
+    bytes.push(
+      (
+        (base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) <<
+        (imod4 * 2)
+      ) |
+        (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2))
+    );
+  }
 
-    return bytes;
+  return bytes;
 }
 
 /**
  * Hex only (allowing bin would be potentially risky, as 01010101 = \x01 * 4 or 85)
  */
-exports.coerceToBytes = function(input) {
-    if (typeof input != 'string') return input
-    return exports.hexToBytes(input);
+function coerceToBytes(input) {
+  if (typeof input != 'string') return input
+  return hexToBytes(input);
 }
 
-exports.binToBytes = function(bin) {
-    return bin.match(/......../g).map(function(x) {
-        return parseInt(x,2)
-    });
+function binToBytes(bin) {
+  return bin.match(/......../g).map(function(x) {
+    return parseInt(x,2)
+  });
 }
 
-exports.bytesToBin = function(bytes) {
-    return bytes.map(function(x) {
-        return exports.lpad(x.toString(2), '0', 8)
-    }).join('');
+function bytesToBin(bytes) {
+  return bytes.map(function(x) {
+    return lpad(x.toString(2), '0', 8)
+  }).join('');
 }
 
-exports.bytesToString = function(bytes) {
-    return bytes.map(function(x){
-        return String.fromCharCode(x)
-    }).join('');
+function bytesToString(bytes) {
+  return bytes.map(function(x){
+    return String.fromCharCode(x)
+  }).join('');
 }
 
-exports.stringToBytes = function(string) {
-    return string.split('').map(function(x) {
-        return x.charCodeAt(0)
-    });
+function stringToBytes(string) {
+  return string.split('').map(function(x) {
+    return x.charCodeAt(0)
+  });
 }
 
 /**
  * Create a byte array representing a number with the given length
  */
-exports.numToBytes = function(num, bytes) {
-    if (bytes === undefined) bytes = 8;
-    if (bytes === 0) return [];
-    return [num % 256].concat(module.exports.numToBytes(Math.floor(num / 256), bytes - 1));
+function numToBytes(num, bytes) {
+  if (bytes === undefined) bytes = 8;
+  if (bytes === 0) return [];
+  return [num % 256].concat(numToBytes(Math.floor(num / 256), bytes - 1));
 }
 
 /**
  * Convert a byte array to the number that it represents
  */
-exports.bytesToNum = function(bytes) {
-    if (bytes.length === 0) return 0;
-    return bytes[0] + 256 * module.exports.bytesToNum(bytes.slice(1));
+function bytesToNum(bytes) {
+  if (bytes.length === 0) return 0;
+  return bytes[0] + 256 * bytesToNum(bytes.slice(1));
 }
 
 /**
@@ -127,34 +127,81 @@ exports.bytesToNum = function(bytes) {
  *
  * Returns a byte array.
  */
-exports.numToVarInt = function(num) {
-    if (num < 253) return [num];
-    if (num < 65536) return [253].concat(exports.numToBytes(num, 2));
-    if (num < 4294967296) return [254].concat(exports.numToBytes(num, 4));
-    return [253].concat(exports.numToBytes(num, 8));
+function numToVarInt(num) {
+  if (num < 253) return [num];
+  if (num < 65536) return [253].concat(numToBytes(num, 2));
+  if (num < 4294967296) return [254].concat(numToBytes(num, 4));
+  return [255].concat(numToBytes(num, 8));
 }
 
-exports.bytesToWords = function (bytes) {
-    var words = [];
-    for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
-        words[b >>> 5] |= bytes[i] << (24 - b % 32);
-    }
-    return words;
+/**
+ * Turn an VarInt into an integer
+ *
+ * "var_int" is a variable length integer used by Bitcoin's binary format.
+ *
+ * Returns { bytes: bytesUsed, number: theNumber }
+ */
+function varIntToNum(bytes) {
+  var prefix = bytes[0]
+
+  var viBytes =
+      prefix < 253   ? bytes.slice(0, 1)
+    : prefix === 253 ? bytes.slice(1, 3)
+    : prefix === 254 ? bytes.slice(1, 5)
+                     : bytes.slice(1, 9)
+
+  return {
+    bytes: prefix < 253 ? viBytes : bytes.slice(0, viBytes.length + 1),
+    number: bytesToNum(viBytes)
+  }
 }
 
-exports.wordsToBytes = function (words) {
-    var bytes = [];
-    for (var b = 0; b < words.length * 32; b += 8) {
-        bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-    }
-    return bytes;
+function bytesToWords(bytes) {
+  var words = [];
+  for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
+    words[b >>> 5] |= bytes[i] << (24 - b % 32);
+  }
+  return words;
 }
 
-exports.bytesToWordArray = function (bytes) {
-  return new WordArray.init(exports.bytesToWords(bytes), bytes.length)
+function wordsToBytes(words) {
+  var bytes = [];
+  for (var b = 0; b < words.length * 32; b += 8) {
+    bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+  }
+  return bytes;
 }
 
-exports.wordArrayToBytes = function (wordArray) {
-  return exports.wordsToBytes(wordArray.words)
+function bytesToWordArray(bytes) {
+  return new WordArray.init(bytesToWords(bytes), bytes.length)
 }
 
+function wordArrayToBytes(wordArray) {
+  return wordsToBytes(wordArray.words)
+}
+
+function reverseEndian (hex) {
+  return bytesToHex(hexToBytes(hex).reverse())
+}
+
+module.exports = {
+  lpad: lpad,
+  bytesToHex: bytesToHex,
+  hexToBytes: hexToBytes,
+  bytesToBase64: bytesToBase64,
+  base64ToBytes: base64ToBytes,
+  coerceToBytes: coerceToBytes,
+  binToBytes: binToBytes,
+  bytesToBin: bytesToBin,
+  bytesToString: bytesToString,
+  stringToBytes: stringToBytes,
+  numToBytes: numToBytes,
+  bytesToNum: bytesToNum,
+  numToVarInt: numToVarInt,
+  varIntToNum: varIntToNum,
+  bytesToWords: bytesToWords,
+  wordsToBytes: wordsToBytes,
+  bytesToWordArray: bytesToWordArray,
+  wordArrayToBytes: wordArrayToBytes,
+  reverseEndian: reverseEndian
+}

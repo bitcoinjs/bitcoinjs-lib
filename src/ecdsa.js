@@ -1,12 +1,11 @@
 var sec = require('./jsbn/sec');
-var SecureRandom = require('./jsbn/rng');
+var rng = require('secure-random');
 var BigInteger = require('./jsbn/jsbn');
 var convert = require('./convert')
 var HmacSHA256 = require('crypto-js/hmac-sha256');
 
 var ECPointFp = require('./jsbn/ec').ECPointFp;
 
-var rng = new SecureRandom();
 var ecparams = sec("secp256k1");
 var P_OVER_FOUR = null;
 
@@ -249,7 +248,7 @@ var ECDSA = {
     var alpha = x.multiply(x).multiply(x).add(a.multiply(x)).add(b).mod(p);
     var beta = alpha.modPow(P_OVER_FOUR, p);
 
-    var xorOdd = beta.isEven() ? (i % 2) : ((i+1) % 2);
+//    var xorOdd = beta.isEven() ? (i % 2) : ((i+1) % 2);
     // If beta is even, but y isn't or vice versa, then convert it,
     // otherwise we're done and y == beta.
     var y = (beta.isEven() ? !isYEven : isYEven) ? beta : p.subtract(beta);
@@ -292,11 +291,11 @@ var ECDSA = {
    */
   calcPubkeyRecoveryParam: function (origPubkey, r, s, hash)
   {
-    var address = origPubkey.getBitcoinAddress().toString();
+    var address = origPubkey.getAddress().toString();
     for (var i = 0; i < 4; i++) {
       var pubkey = ECDSA.recoverPubKey(r, s, hash, i);
       pubkey.compressed = origPubkey.compressed;
-      if (pubkey.getBitcoinAddress().toString() == address) {
+      if (pubkey.getAddress().toString() == address) {
         return i;
       }
     }

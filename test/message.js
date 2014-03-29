@@ -1,50 +1,70 @@
-/* global describe, it */
 var assert = require('assert');
-var Message = require('../src/message.js');
-var ECKey = require('../src/eckey.js').ECKey;
-var hexToBytes = require('../src/convert.js').hexToBytes;
-
-var priv = '18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725';
-var addr = '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM';
-var msg = 'foobar';
+var Message = require('../src/message')
+var convert = require('../src/convert')
+var ECKey = require('../src/eckey').ECKey
+var testnet = require('../src/network.js').testnet.addressVersion
 
 describe('Message', function() {
-    describe('verify', function() {
-        it('passes case 1', function() {
-            var key = new ECKey(hexToBytes(priv));
-            assert.equal(key.getBitcoinAddress().toString(), addr);
+  var msg
 
-            var sig = Message.signMessage(key, msg);
-            assert.ok(Message.verifyMessage(addr, sig, msg));
+  beforeEach(function(){
+    msg = 'vires is numeris'
+  })
 
-            // wrong message
-            assert.ok(!Message.verifyMessage(addr, sig, 'not foobar'));
-
-            // wrong address
-            assert.ok(!Message.verifyMessage('1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a', sig, msg));
-        })
-
-        it('passes case 2', function() {
-            var priv = '5HwoXVkHoRM8sL2KmNRS217n1g8mPPBomrY7yehCuXC1115WWsh';
-            var key = new ECKey(hexToBytes(priv));
-            var sig = Message.signMessage(key, msg);
-            assert.ok(!Message.verifyMessage(addr, sig, msg));
-        })
-
-        it('handles compressed keys', function() {
-            var key = new ECKey(hexToBytes(priv));
-            key.compressed = true
-
-            var addr = key.getBitcoinAddress().toString()
-
-            var sig = Message.signMessage(key, msg);
-            assert.ok(Message.verifyMessage(addr, sig, msg));
-
-            // wrong message
-            assert.ok(!Message.verifyMessage(addr, sig, 'not foobar'));
-
-            // wrong address
-            assert.ok(!Message.verifyMessage('1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a', sig, msg));
-        })
+  describe('verifyMessage', function(){
+    it('works for mainnet address, messaged signed with uncompressed key', function() {
+      var addr = '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM';
+      var sig = '1bc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d'
+      assert.ok(Message.verifyMessage(addr, sig, msg));
+      verifyNegativeCases(addr, sig, msg)
     })
+
+    it('works for testnet address, message signed with compressed key', function() {
+      var addr = 'mgdnNWji2bXYSi7E9c1DQBSp64kCemaS7V'
+      var sig = '1feece860e952253ddf465cd1c5aea76ab16287aee093be6f67d196c39f5075436f0407a4e50694e6956c06108fab8608debf9554d75e57c110f7c512a6eb15d0a'
+
+      assert(Message.verifyMessage(addr, sig, msg))
+      verifyNegativeCases(addr, sig, msg)
+    })
+
+    function verifyNegativeCases(addr, sig, msg){
+      var wrongMsg = 'vires in numeris'
+      assert.ok(!Message.verifyMessage(addr, sig, wrongMsg));
+
+      var wrongAddress = new ECKey(null).getAddress()
+      assert.ok(!Message.verifyMessage(wrongAddress, sig, msg));
+    }
+  })
+
+  describe('signMessage', function() {
+    describe('uncompressed key', function(){
+      it('works', function(){
+        var key = new ECKey(null)
+        var sig = Message.signMessage(key, msg);
+
+        var addr = key.getAddress()
+        assert(Message.verifyMessage(addr, sig, msg));
+      })
+    })
+
+    describe('compressed key', function(){
+      it('works', function(){
+        var key = new ECKey(null, true)
+        var sig = Message.signMessage(key, msg);
+
+        var addr = key.getAddress()
+        assert(Message.verifyMessage(addr, sig, msg));
+      })
+    })
+
+    describe('testnet address', function(){
+      it('works', function(){
+        var key = new ECKey(null)
+        var sig = Message.signMessage(key, msg);
+
+        var addr = key.getAddress(testnet)
+        assert(Message.verifyMessage(addr, sig, msg));
+      })
+    })
+  })
 })

@@ -150,7 +150,8 @@ Script.prototype.toScriptHash = function() {
     return util.sha256ripe160(this.buffer)
 }
 
-Script.prototype.toAddress = function() {
+//TODO: support testnet
+Script.prototype.getToAddress = function() {
     var outType = this.getOutType();
 
     if (outType == 'Pubkey') {
@@ -162,6 +163,11 @@ Script.prototype.toAddress = function() {
     }
 
     return new Address(this.chunks[1], 5)
+}
+
+//TODO: support testnet
+Script.prototype.getFromAddress = function(){
+    return new Address(this.simpleInHash());
 }
 
 /**
