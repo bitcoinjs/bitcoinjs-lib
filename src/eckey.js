@@ -59,14 +59,6 @@ ECKey.prototype.getPub = function(compressed) {
     return ECPubKey(ecparams.getG().multiply(this.priv),compressed)
 }
 
-/**
- * @deprecated Reserved keyword, factory pattern. Use toHex, toBytes, etc.
- */
-ECKey.prototype['export'] = function(format) {
-    var format = format || 'hex'
-    return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
-}
-
 ECKey.prototype.toBin = function() {
     return convert.bytesToString(this.toBytes())
 }
@@ -152,11 +144,6 @@ ECPubKey.prototype.add = function(key) {
 
 ECPubKey.prototype.multiply = function(key) {
     return ECPubKey(this.pub.multiply(ECKey(key).priv),this.compressed)
-}
-
-ECPubKey.prototype['export'] = function(format) {
-    var format = format || 'hex';
-    return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
 }
 
 ECPubKey.prototype.toBytes = function(compressed) {

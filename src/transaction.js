@@ -310,12 +310,12 @@ Transaction.prototype.sign = function(index, key, type) {
 
     // TODO: getPub is slow, sha256ripe160 probably is too.
     // This could be sped up a lot by providing these as inputs.
-    var pub = key.getPub().export('bytes'),
+    var pub = key.getPub().toBytes(),
         hash160 = util.sha256ripe160(pub),
         script = Script.createOutputScript(new Address(hash160)),
-        hash = this.hashTransactionForSignature( script, index, type),
+        hash = this.hashTransactionForSignature(script, index, type),
         sig = key.sign(hash).concat([type]);
-    this.ins[index].script = Script.createInputScript(sig,pub);
+    this.ins[index].script = Script.createInputScript(sig, pub);
 }
 
 // Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]

@@ -13,8 +13,8 @@ function sha256FromBytesToBytes(message){
 }
 
 it('Keys & Key Management', function () {
-    var p1 = bitcoinjs.Key().getPub()['export']('bytes');
-    assert.equal(p1.length, 65);
+    var p1 = bitcoinjs.Key().getPub().toBytes()
+    assert.equal(p1.length, 65)
 
     var p1_q = ECPointFp.decodeFrom(ecparams.getCurve(), p1);
     assert.ok(p1_q);
