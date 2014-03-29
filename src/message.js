@@ -3,6 +3,7 @@
 var Address = require('./address')
 var convert = require('./convert')
 var ecdsa = require('./ecdsa')
+var ECPubKey = require('./eckey').ECPubKey
 var SHA256 = require('crypto-js/sha256')
 
 var Message = {}
@@ -32,7 +33,7 @@ Message.signMessage = function (key, message) {
   var sig = key.sign(hash)
   var obj = ecdsa.parseSig(sig)
 
-  var i = ecdsa.calcPubKeyRecoveryParam(key.getPub(), obj.r, obj.s, hash)
+  var i = ecdsa.calcPubKeyRecoveryParam(key.getPub().pub, obj.r, obj.s, hash)
 
   i += 27
   if (key.compressed) {
@@ -57,7 +58,7 @@ Message.verifyMessage = function (address, sig, message) {
   var hash = Message.getHash(message)
 
   var isCompressed = !!(sig.i & 4)
-  var pubKey = ecdsa.recoverPubKey(sig.r, sig.s, hash, sig.i)
+  var pubKey = new ECPubKey(ecdsa.recoverPubKey(sig.r, sig.s, hash, sig.i))
   pubKey.compressed = isCompressed
 
   // Compare address to expected address

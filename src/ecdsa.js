@@ -272,10 +272,7 @@ var ECDSA = {
       throw new Error("Pubkey recovery unsuccessful");
     }
 
-    // TODO (shtylman) this is stupid because this file and eckey
-    // have circular dependencies
-    var ECPubKey = require('./eckey').ECPubKey;
-    return ECPubKey(Q);
+    return Q
   },
 
   /**
@@ -293,7 +290,7 @@ var ECDSA = {
     for (var i = 0; i < 4; i++) {
       var pubKey = ECDSA.recoverPubKey(r, s, hash, i)
 
-      if (pubKey.pub.equals(origPubKey.pub)) {
+      if (pubKey.equals(origPubKey)) {
         return i
       }
     }

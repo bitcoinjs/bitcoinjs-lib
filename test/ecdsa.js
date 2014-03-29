@@ -1,6 +1,7 @@
 var assert = require('assert')
 var convert = require('../').convert
 var ecdsa = require('../').ecdsa
+var ECPubKey = require('../').ECPubKey
 var Message = require('../').Message
 
 describe('ecdsa', function() {
@@ -12,7 +13,7 @@ describe('ecdsa', function() {
 
       var hash = Message.getHash('1111')
       var obj = ecdsa.parseSigCompact(signature)
-      var pubKey = ecdsa.recoverPubKey(obj.r, obj.s, hash, obj.i)
+      var pubKey = new ECPubKey(ecdsa.recoverPubKey(obj.r, obj.s, hash, obj.i))
 
       assert.equal(pubKey.toHex(true), '02e8fcf4d749b35879bc1f3b14b49e67ab7301da3558c5a9b74a54f1e6339c334c')
     })
