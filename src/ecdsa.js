@@ -292,7 +292,6 @@ var ECDSA = {
   calcPubKeyRecoveryParam: function (origPubKey, r, s, hash) {
     for (var i = 0; i < 4; i++) {
       var pubKey = ECDSA.recoverPubKey(r, s, hash, i)
-      pubKey.compressed = origPubKey.compressed
 
       if (pubKey.pub.equals(origPubKey.pub)) {
         return i
