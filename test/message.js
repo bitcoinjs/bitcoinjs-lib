@@ -5,14 +5,22 @@ var Message = require('../').Message
 var testnet = require('../').network.testnet.addressVersion
 
 describe('Message', function() {
-  var msg = 'vires is numeris'
+  var msg
+
+  beforeEach(function() {
+    msg = 'vires is numeris'
+  })
 
   describe('verify', function() {
-    var addr = '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM' // uncompressed
-    var caddr = '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs' // compressed
+    var addr, sig, caddr, csig
 
-    var sig = convert.hexToBytes('1bc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d')
-    var csig = convert.hexToBytes('1fc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d')
+    beforeEach(function() {
+      addr = '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM' // uncompressed
+      caddr = '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs' // compressed
+
+      sig = convert.hexToBytes('1bc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d')
+      csig = convert.hexToBytes('1fc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d')
+    })
 
     it('can verify a signed message', function() {
       assert.ok(Message.verify(addr, sig, msg))
@@ -44,10 +52,9 @@ describe('Message', function() {
   })
 
   describe('signing', function() {
-    var key = new ECKey(null) // uncompressed
-
     describe('using the uncompressed public key', function(){
       it('gives same signature as a compressed public key', function() {
+        var key = new ECKey(null) // uncompressed
         var sig = Message.sign(key, msg)
 
         var compressedKey = new ECKey(key, true) // compressed clone
