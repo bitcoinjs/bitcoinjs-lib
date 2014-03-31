@@ -38,8 +38,8 @@ function sign(key, message) {
   var sBa = obj.s.toByteArrayUnsigned()
 
   // Pad to 32 bytes per value
-  while (rBa.length < 32) rBa.unshift(0)
-  while (sBa.length < 32) sBa.unshift(0)
+  while (rBa.length < 32) rBa.unshift(0);
+  while (sBa.length < 32) sBa.unshift(0);
 
   sig = [i].concat(rBa, sBa)
 

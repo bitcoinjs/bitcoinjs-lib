@@ -8,7 +8,6 @@ var ECPointFp = require('./jsbn/ec').ECPointFp
 var sec = require('./jsbn/sec')
 var Network = require('./network')
 var util = require('./util')
-
 var ecparams = sec("secp256k1")
 
 // input can be nothing, array of bytes, hex string, or base58 string
@@ -61,12 +60,12 @@ ECKey.prototype.import = function (input, compressed) {
 }
 
 ECKey.prototype.getPub = function(compressed) {
-    if (compressed === undefined) compressed = this.compressed
-    return ECPubKey(ecparams.getG().multiply(this.priv), compressed)
+  if (compressed === undefined) compressed = this.compressed
+  return ECPubKey(ecparams.getG().multiply(this.priv), compressed)
 }
 
 ECKey.prototype.toBin = function() {
-    return convert.bytesToString(this.toBytes())
+  return convert.bytesToString(this.toBytes())
 }
 
 ECKey.version_bytes = {
@@ -75,41 +74,41 @@ ECKey.version_bytes = {
 }
 
 ECKey.prototype.toWif = function(version) {
-    version = version || Network.mainnet.addressVersion;
+  version = version || Network.mainnet.addressVersion
 
-    return base58.checkEncode(this.toBytes(), ECKey.version_bytes[version])
+  return base58.checkEncode(this.toBytes(), ECKey.version_bytes[version])
 }
 
 ECKey.prototype.toHex = function() {
-    return convert.bytesToHex(this.toBytes())
+  return convert.bytesToHex(this.toBytes())
 }
 
 ECKey.prototype.toBytes = function() {
-    var bytes = this.priv.toByteArrayUnsigned();
-    if (this.compressed) bytes.push(1)
-    return bytes
+  var bytes = this.priv.toByteArrayUnsigned()
+  if (this.compressed) bytes.push(1)
+  return bytes
 }
 
 ECKey.prototype.toBase64 = function() {
-    return convert.bytesToBase64(this.toBytes())
+  return convert.bytesToBase64(this.toBytes())
 }
 
 ECKey.prototype.toString = ECKey.prototype.toHex
 
 ECKey.prototype.getAddress = function(version) {
-    return this.getPub().getAddress(version)
+  return this.getPub().getAddress(version)
 }
 
 ECKey.prototype.add = function(key) {
-    return ECKey(this.priv.add(ECKey(key).priv), this.compressed)
+  return ECKey(this.priv.add(ECKey(key).priv), this.compressed)
 }
 
 ECKey.prototype.multiply = function(key) {
-    return ECKey(this.priv.multiply(ECKey(key).priv), this.compressed)
+  return ECKey(this.priv.multiply(ECKey(key).priv), this.compressed)
 }
 
 ECKey.prototype.sign = function(hash) {
-  return ecdsa.sign(hash, this.priv);
+  return ecdsa.sign(hash, this.priv)
 }
 
 ECKey.prototype.verify = function(hash, sig) {
@@ -145,38 +144,38 @@ ECPubKey.prototype.import = function(input, compressed) {
 }
 
 ECPubKey.prototype.add = function(key) {
-    return ECPubKey(this.pub.add(ECPubKey(key).pub), this.compressed)
+  return ECPubKey(this.pub.add(ECPubKey(key).pub), this.compressed)
 }
 
 ECPubKey.prototype.multiply = function(key) {
-    return ECPubKey(this.pub.multiply(ECKey(key).priv), this.compressed)
+  return ECPubKey(this.pub.multiply(ECKey(key).priv), this.compressed)
 }
 
 ECPubKey.prototype.toBytes = function(compressed) {
-    if (compressed === undefined) compressed = this.compressed
-    return this.pub.getEncoded(compressed)
+  if (compressed === undefined) compressed = this.compressed
+  return this.pub.getEncoded(compressed)
 }
 
 ECPubKey.prototype.toHex = function(compressed) {
-    return convert.bytesToHex(this.toBytes(compressed))
+  return convert.bytesToHex(this.toBytes(compressed))
 }
 
 ECPubKey.prototype.toBin = function(compressed) {
-    return convert.bytesToString(this.toBytes(compressed))
+  return convert.bytesToString(this.toBytes(compressed))
 }
 
 ECPubKey.prototype.toWif = function(version) {
-    version = version || Network.mainnet.addressVersion;
+  version = version || Network.mainnet.addressVersion
 
-    return base58.checkEncode(this.toBytes(), version)
+  return base58.checkEncode(this.toBytes(), version)
 }
 
 ECPubKey.prototype.toString = ECPubKey.prototype.toHex
 
 ECPubKey.prototype.getAddress = function(version) {
-    version = version || Network.mainnet.addressVersion;
+  version = version || Network.mainnet.addressVersion
 
-    return new Address(util.sha256ripe160(this.toBytes()), version);
+  return new Address(util.sha256ripe160(this.toBytes()), version)
 }
 
 ECPubKey.prototype.verify = function(hash, sig) {

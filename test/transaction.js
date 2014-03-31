@@ -1,7 +1,6 @@
 var T = require('../src/transaction')
 var Transaction = T.Transaction
 var TransactionOut = T.TransactionOut
-
 var convert = require('../src/convert')
 var ECKey = require('../src/eckey').ECKey
 var Script = require('../src/script')
@@ -84,7 +83,7 @@ describe('Transaction', function() {
       // the deserialized-serialized transaction should return to its original state (== tx)
       var bytes2 = Transaction.deserialize(mutated).serialize()
       assert.deepEqual(bytes, bytes2)
-    });
+    })
   })
 
   describe('creating a transaction', function() {

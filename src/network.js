@@ -15,5 +15,5 @@ module.exports = {
       priv: 0x04358394
     }
   }
-};
+}
 

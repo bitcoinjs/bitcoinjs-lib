@@ -1,46 +1,46 @@
-var Opcode = require('./opcode');
-var util = require('./util');
-var convert = require('./convert');
-var Address = require('./address');
-var network = require('./network');
+var Opcode = require('./opcode')
+var util = require('./util')
+var convert = require('./convert')
+var Address = require('./address')
+var network = require('./network')
 
 var Script = function(data) {
-    this.buffer = data || [];
-    if(!Array.isArray(this.buffer)) {
-      throw new Error('expect Script to be initialized with Array, but got ' + data)
-    }
-    this.parse();
-};
+  this.buffer = data || []
+  if(!Array.isArray(this.buffer)) {
+    throw new Error('expect Script to be initialized with Array, but got ' + data)
+  }
+  this.parse()
+}
 
 Script.fromHex = function(data) {
-    return new Script(convert.hexToBytes(data))
-};
+  return new Script(convert.hexToBytes(data))
+}
 
 Script.fromPubKey = function(str) {
-    var script = new Script();
-    var s = str.split(' ');
-    for (var i in s) {
-        if (Opcode.map.hasOwnProperty(s[i])) {
-            script.writeOp(Opcode.map[s[i]]);
-        } else {
-            script.writeBytes(convert.hexToBytes(s[i]));
-        }
+  var script = new Script()
+  var s = str.split(' ')
+  for (var i in s) {
+    if (Opcode.map.hasOwnProperty(s[i])) {
+      script.writeOp(Opcode.map[s[i]])
+    } else {
+      script.writeBytes(convert.hexToBytes(s[i]))
     }
-    return script;
-};
+  }
+  return script
+}
 
 Script.fromScriptSig = function(str) {
-    var script = new Script();
-    var s = str.split(' ');
-    for (var i in s) {
-        if (Opcode.map.hasOwnProperty(s[i])) {
-            script.writeOp(Opcode.map[s[i]]);
-        } else {
-            script.writeBytes(convert.hexToBytes(s[i]));
-        }
+  var script = new Script()
+  var s = str.split(' ')
+  for (var i in s) {
+    if (Opcode.map.hasOwnProperty(s[i])) {
+      script.writeOp(Opcode.map[s[i]])
+    } else {
+      script.writeBytes(convert.hexToBytes(s[i]))
     }
-    return script;
-};
+  }
+  return script
+}
 
 /**
  * Update the parsed script representation.
@@ -54,47 +54,47 @@ Script.fromScriptSig = function(str) {
  * the script buffer manually, you should update the chunks using this method.
  */
 Script.prototype.parse = function() {
-    var self = this;
+  var self = this
 
-    this.chunks = [];
+  this.chunks = []
 
-    // Cursor
-    var i = 0;
+  // Cursor
+  var i = 0
 
-    // Read n bytes and store result as a chunk
-    function readChunk(n) {
-        self.chunks.push(self.buffer.slice(i, i + n));
-        i += n;
+  // Read n bytes and store result as a chunk
+  function readChunk(n) {
+    self.chunks.push(self.buffer.slice(i, i + n))
+    i += n
+  }
+
+  while (i < this.buffer.length) {
+    var opcode = this.buffer[i++]
+    if (opcode >= 0xF0) {
+      // Two byte opcode
+      opcode = (opcode << 8) | this.buffer[i++]
     }
 
-    while (i < this.buffer.length) {
-        var opcode = this.buffer[i++];
-        if (opcode >= 0xF0) {
-            // Two byte opcode
-            opcode = (opcode << 8) | this.buffer[i++];
-        }
-
-        var len;
-        if (opcode > 0 && opcode < Opcode.map.OP_PUSHDATA1) {
-            // Read some bytes of data, opcode value is the length of data
-            readChunk(opcode);
-        } else if (opcode == Opcode.map.OP_PUSHDATA1) {
-            len = this.buffer[i++];
-            readChunk(len);
-        } else if (opcode == Opcode.map.OP_PUSHDATA2) {
-            len = (this.buffer[i++] << 8) | this.buffer[i++];
-            readChunk(len);
-        } else if (opcode == Opcode.map.OP_PUSHDATA4) {
-            len = (this.buffer[i++] << 24) |
-                (this.buffer[i++] << 16) |
-                (this.buffer[i++] << 8) |
-                this.buffer[i++];
-            readChunk(len);
-        } else {
-            this.chunks.push(opcode);
-        }
+    var len
+    if (opcode > 0 && opcode < Opcode.map.OP_PUSHDATA1) {
+      // Read some bytes of data, opcode value is the length of data
+      readChunk(opcode)
+    } else if (opcode == Opcode.map.OP_PUSHDATA1) {
+      len = this.buffer[i++]
+      readChunk(len)
+    } else if (opcode == Opcode.map.OP_PUSHDATA2) {
+      len = (this.buffer[i++] << 8) | this.buffer[i++]
+      readChunk(len)
+    } else if (opcode == Opcode.map.OP_PUSHDATA4) {
+      len = (this.buffer[i++] << 24) |
+        (this.buffer[i++] << 16) |
+        (this.buffer[i++] << 8) |
+        this.buffer[i++]
+      readChunk(len)
+    } else {
+      this.chunks.push(opcode)
     }
-};
+  }
+}
 
 /**
  * Compare the script to known templates of scriptPubKey.
@@ -115,21 +115,21 @@ Script.prototype.parse = function() {
  *   Any other script (no template matched).
  */
 Script.prototype.getOutType = function() {
-    if (this.chunks[this.chunks.length - 1] == Opcode.map.OP_EQUAL &&
-        this.chunks[0] == Opcode.map.OP_HASH160 &&
-        this.chunks.length == 3) {
-        // Transfer to M-OF-N
-        return 'P2SH';
-    } else if (this.chunks.length == 5 &&
-        this.chunks[0] == Opcode.map.OP_DUP &&
-        this.chunks[1] == Opcode.map.OP_HASH160 &&
-        this.chunks[3] == Opcode.map.OP_EQUALVERIFY &&
-        this.chunks[4] == Opcode.map.OP_CHECKSIG) {
-        // Transfer to Bitcoin address
-        return 'Pubkey';
-    } else {
-        return 'Strange';
-    }
+  if (this.chunks[this.chunks.length - 1] == Opcode.map.OP_EQUAL &&
+      this.chunks[0] == Opcode.map.OP_HASH160 &&
+      this.chunks.length == 3) {
+    // Transfer to M-OF-N
+    return 'P2SH'
+  } else if (this.chunks.length == 5 &&
+             this.chunks[0] == Opcode.map.OP_DUP &&
+             this.chunks[1] == Opcode.map.OP_HASH160 &&
+             this.chunks[3] == Opcode.map.OP_EQUALVERIFY &&
+             this.chunks[4] == Opcode.map.OP_CHECKSIG) {
+    // Transfer to Bitcoin address
+    return 'Pubkey'
+  } else {
+    return 'Strange'
+  }
 }
 
 /**
@@ -137,37 +137,37 @@ Script.prototype.getOutType = function() {
  * Assumes strange scripts are P2SH
  */
 Script.prototype.toScriptHash = function() {
-    var outType = this.getOutType();
+  var outType = this.getOutType()
 
-    if (outType == 'Pubkey') {
-        return this.chunks[2]
-    }
+  if (outType == 'Pubkey') {
+    return this.chunks[2]
+  }
 
-    if (outType == 'P2SH') {
-        return util.sha256ripe160(this.buffer)
-    }
-
+  if (outType == 'P2SH') {
     return util.sha256ripe160(this.buffer)
+  }
+
+  return util.sha256ripe160(this.buffer)
 }
 
 //TODO: support testnet
 Script.prototype.getToAddress = function() {
-    var outType = this.getOutType();
+  var outType = this.getOutType()
 
-    if (outType == 'Pubkey') {
-        return new Address(this.chunks[2])
-    }
+  if (outType == 'Pubkey') {
+    return new Address(this.chunks[2])
+  }
 
-    if (outType == 'P2SH') {
-        return new Address(this.chunks[1], 5)
-    }
-
+  if (outType == 'P2SH') {
     return new Address(this.chunks[1], 5)
+  }
+
+  return new Address(this.chunks[1], 5)
 }
 
 //TODO: support testnet
 Script.prototype.getFromAddress = function(){
-    return new Address(this.simpleInHash());
+  return new Address(this.simpleInHash())
 }
 
 /**
@@ -196,24 +196,24 @@ Script.prototype.getFromAddress = function(){
  *   Any other script (no template matched).
  */
 Script.prototype.getInType = function() {
-    if (this.chunks.length == 1 &&
-        Array.isArray(this.chunks[0])) {
-        // Direct IP to IP transactions only have the signature in their scriptSig.
-        // TODO: We could also check that the length of the data is correct.
-        return 'Pubkey';
-    } else if (this.chunks.length == 2 &&
-        Array.isArray(this.chunks[0]) &&
-        Array.isArray(this.chunks[1])) {
-        return 'Address';
-    } else if (this.chunks[0] == Opcode.map.OP_0 &&
-        this.chunks.slice(1).reduce(function(t, chunk, i) {
-            return t && Array.isArray(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1);
-        }, true)) {
-        return 'Multisig';
-    } else {
-        return 'Strange';
-    }
-};
+  if (this.chunks.length == 1 &&
+      Array.isArray(this.chunks[0])) {
+    // Direct IP to IP transactions only have the signature in their scriptSig.
+    // TODO: We could also check that the length of the data is correct.
+    return 'Pubkey'
+  } else if (this.chunks.length == 2 &&
+             Array.isArray(this.chunks[0]) &&
+             Array.isArray(this.chunks[1])) {
+    return 'Address'
+  } else if (this.chunks[0] == Opcode.map.OP_0 &&
+             this.chunks.slice(1).reduce(function(t, chunk, i) {
+    return t && Array.isArray(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1)
+  }, true)) {
+    return 'Multisig'
+  } else {
+    return 'Strange'
+  }
+}
 
 /**
  * Returns the affected public key for this input.
@@ -229,17 +229,17 @@ Script.prototype.getInType = function() {
  * @deprecated
  */
 Script.prototype.simpleInPubKey = function() {
-    switch (this.getInType()) {
+  switch (this.getInType()) {
     case 'Address':
-        return this.chunks[1];
+      return this.chunks[1]
     case 'Pubkey':
-        // TODO: Theoretically, we could recover the pubkey from the sig here.
-        //       See https://bitcointalk.org/?topic=6430.0
-        throw new Error('Script does not contain pubkey');
+      // TODO: Theoretically, we could recover the pubkey from the sig here.
+      //       See https://bitcointalk.org/?topic=6430.0
+      throw new Error('Script does not contain pubkey')
     default:
-        throw new Error('Encountered non-standard scriptSig');
-    }
-};
+      throw new Error('Encountered non-standard scriptSig')
+  }
+}
 
 /**
  * Returns the affected address hash for this input.
@@ -257,133 +257,130 @@ Script.prototype.simpleInPubKey = function() {
  * This method is useful for indexing transactions.
  */
 Script.prototype.simpleInHash = function() {
-    return util.sha256ripe160(this.simpleInPubKey());
-};
+  return util.sha256ripe160(this.simpleInPubKey())
+}
 
 /**
  * Old name for Script#simpleInHash.
  *
  * @deprecated
  */
-Script.prototype.simpleInPubKeyHash = Script.prototype.simpleInHash;
+Script.prototype.simpleInPubKeyHash = Script.prototype.simpleInHash
 
 /**
  * Add an op code to the script.
  */
 Script.prototype.writeOp = function(opcode) {
-    this.buffer.push(opcode);
-    this.chunks.push(opcode);
-};
+  this.buffer.push(opcode)
+  this.chunks.push(opcode)
+}
 
 /**
  * Add a data chunk to the script.
  */
 Script.prototype.writeBytes = function(data) {
-    if (data.length < Opcode.map.OP_PUSHDATA1) {
-        this.buffer.push(data.length);
-    } else if (data.length <= 0xff) {
-        this.buffer.push(Opcode.map.OP_PUSHDATA1);
-        this.buffer.push(data.length);
-    } else if (data.length <= 0xffff) {
-        this.buffer.push(Opcode.map.OP_PUSHDATA2);
-        this.buffer.push(data.length & 0xff);
-        this.buffer.push((data.length >>> 8) & 0xff);
-    } else {
-        this.buffer.push(Opcode.map.OP_PUSHDATA4);
-        this.buffer.push(data.length & 0xff);
-        this.buffer.push((data.length >>> 8) & 0xff);
-        this.buffer.push((data.length >>> 16) & 0xff);
-        this.buffer.push((data.length >>> 24) & 0xff);
-    }
-    this.buffer = this.buffer.concat(data);
-    this.chunks.push(data);
-};
+  if (data.length < Opcode.map.OP_PUSHDATA1) {
+    this.buffer.push(data.length)
+  } else if (data.length <= 0xff) {
+    this.buffer.push(Opcode.map.OP_PUSHDATA1)
+    this.buffer.push(data.length)
+  } else if (data.length <= 0xffff) {
+    this.buffer.push(Opcode.map.OP_PUSHDATA2)
+    this.buffer.push(data.length & 0xff)
+    this.buffer.push((data.length >>> 8) & 0xff)
+  } else {
+    this.buffer.push(Opcode.map.OP_PUSHDATA4)
+    this.buffer.push(data.length & 0xff)
+    this.buffer.push((data.length >>> 8) & 0xff)
+    this.buffer.push((data.length >>> 16) & 0xff)
+    this.buffer.push((data.length >>> 24) & 0xff)
+  }
+  this.buffer = this.buffer.concat(data)
+  this.chunks.push(data)
+}
 
 /**
  * Create an output for an address
  */
 Script.createOutputScript = function(address) {
-    var script = new Script();
-    address = new Address(address);
-    if (address.version == network.mainnet.p2shVersion || address.version == network.testnet.p2shVersion) {
-        // Standard pay-to-script-hash
-        script.writeOp(Opcode.map.OP_HASH160);
-        script.writeBytes(address.hash);
-        script.writeOp(Opcode.map.OP_EQUAL);
-    }
-    else {
-        // Standard pay-to-pubkey-hash
-        script.writeOp(Opcode.map.OP_DUP);
-        script.writeOp(Opcode.map.OP_HASH160);
-        script.writeBytes(address.hash);
-        script.writeOp(Opcode.map.OP_EQUALVERIFY);
-        script.writeOp(Opcode.map.OP_CHECKSIG);
-    }
-    return script;
-};
+  var script = new Script()
+  address = new Address(address)
+  if (address.version == network.mainnet.p2shVersion ||
+      address.version == network.testnet.p2shVersion) {
+    // Standard pay-to-script-hash
+    script.writeOp(Opcode.map.OP_HASH160)
+    script.writeBytes(address.hash)
+    script.writeOp(Opcode.map.OP_EQUAL)
+  }
+  else {
+    // Standard pay-to-pubkey-hash
+    script.writeOp(Opcode.map.OP_DUP)
+    script.writeOp(Opcode.map.OP_HASH160)
+    script.writeBytes(address.hash)
+    script.writeOp(Opcode.map.OP_EQUALVERIFY)
+    script.writeOp(Opcode.map.OP_CHECKSIG)
+  }
+  return script
+}
 
 /**
  * Extract pubkeys from a multisig script
  */
 
 Script.prototype.extractPubkeys = function() {
-    return this.chunks.filter(function(chunk) {
-        return(chunk[0] == 4 && chunk.length == 65 || chunk[0] < 4 && chunk.length == 33)
-    });
+  return this.chunks.filter(function(chunk) {
+    return(chunk[0] == 4 && chunk.length == 65 || chunk[0] < 4 && chunk.length == 33)
+  })
 }
 
 /**
  * Create an m-of-n output script
  */
 Script.createMultiSigOutputScript = function(m, pubkeys) {
-    var script = new Script();
+  var script = new Script()
+  pubkeys = pubkeys.sort()
 
-    pubkeys = pubkeys.sort();
+  script.writeOp(Opcode.map.OP_1 + m - 1)
+  for (var i = 0; i < pubkeys.length; ++i) {
+    script.writeBytes(pubkeys[i])
+  }
+  script.writeOp(Opcode.map.OP_1 + pubkeys.length - 1)
+  script.writeOp(Opcode.map.OP_CHECKMULTISIG)
 
-    script.writeOp(Opcode.map.OP_1 + m - 1);
-
-    for (var i = 0; i < pubkeys.length; ++i) {
-        script.writeBytes(pubkeys[i]);
-    }
-
-    script.writeOp(Opcode.map.OP_1 + pubkeys.length - 1);
-
-    script.writeOp(Opcode.map.OP_CHECKMULTISIG);
-
-    return script;
-};
+  return script
+}
 
 /**
  * Create a standard payToPubKeyHash input.
  */
 Script.createInputScript = function(signature, pubKey) {
-    var script = new Script();
-    script.writeBytes(signature);
-    script.writeBytes(pubKey);
-    return script;
-};
+  var script = new Script()
+  script.writeBytes(signature)
+  script.writeBytes(pubKey)
+  return script
+}
 
 /**
  * Create a multisig input
  */
 Script.createMultiSigInputScript = function(signatures, script) {
-    script = new Script(script);
-    var k = script.chunks[0][0];
+  script = new Script(script)
+  var k = script.chunks[0][0]
 
-    //Not enough sigs
-    if (signatures.length < k) return false;
+  //Not enough sigs
+  if (signatures.length < k) return false;
 
-    var inScript = new Script();
-    inScript.writeOp(Opcode.map.OP_0);
-    signatures.map(function(sig) {
-        inScript.writeBytes(sig)
-    });
-    inScript.writeBytes(script.buffer);
-    return inScript;
+  var inScript = new Script()
+  inScript.writeOp(Opcode.map.OP_0)
+  signatures.map(function(sig) {
+    inScript.writeBytes(sig)
+  })
+  inScript.writeBytes(script.buffer)
+  return inScript
 }
 
 Script.prototype.clone = function() {
-    return new Script(this.buffer);
-};
+  return new Script(this.buffer)
+}
 
-module.exports = Script;
+module.exports = Script

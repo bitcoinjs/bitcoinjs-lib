@@ -6,6 +6,7 @@ var TransactionOut = T.TransactionOut
 var Script = require('../src/script.js')
 var convert = require('../src/convert.js')
 var assert = require('assert')
+var sinon = require('sinon')
 var SHA256 = require('crypto-js/sha256')
 var Crypto = require('crypto-js')
 
@@ -13,10 +14,8 @@ var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 
-var sinon = require('sinon')
-
 describe('Wallet', function() {
-  var seed, wallet;
+  var seed, wallet
   beforeEach(function(){
     seed = convert.wordArrayToBytes(SHA256("don't use a string seed like this in real life"))
     wallet = new Wallet(seed)
@@ -141,9 +140,9 @@ describe('Wallet', function() {
       wallet.generateAddress()
 
       assertEqual(wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"),
-                   wallet.getExternalAccount().derive(1).priv)
-      assertEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
-                   wallet.getInternalAccount().derive(0).priv)
+                  wallet.getExternalAccount().derive(1).priv)
+                  assertEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
+                              wallet.getInternalAccount().derive(0).priv)
     })
 
     it('raises an error when address is not found', function(){
@@ -155,7 +154,7 @@ describe('Wallet', function() {
   })
 
   describe('Unspent Outputs', function(){
-    var expectedUtxo, expectedOutputKey;
+    var expectedUtxo, expectedOutputKey
     beforeEach(function(){
       expectedUtxo = {
         "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
@@ -216,7 +215,7 @@ describe('Wallet', function() {
     })
 
     describe('setUnspentOutputs', function(){
-      var utxo;
+      var utxo
       beforeEach(function(){
         utxo = cloneObject([expectedUtxo])
       })
@@ -275,7 +274,7 @@ describe('Wallet', function() {
     })
 
     describe('setUnspentOutputsAsync', function(){
-      var utxo;
+      var utxo
       beforeEach(function(){
         utxo = cloneObject([expectedUtxo])
       })
@@ -308,7 +307,7 @@ describe('Wallet', function() {
   })
 
   describe('processTx', function(){
-    var tx;
+    var tx
 
     beforeEach(function(){
       tx = Transaction.deserialize(fixtureTx1Hex)
@@ -382,8 +381,8 @@ describe('Wallet', function() {
   })
 
   describe('createTx', function(){
-    var to, value;
-    var address1, address2;
+    var to, value
+    var address1, address2
 
     beforeEach(function(){
       to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
@@ -396,23 +395,23 @@ describe('Wallet', function() {
       // set up 3 utxo
       utxo = [
         {
-          "hash": fakeTxHash(1),
-          "outputIndex": 0,
-          "address" : address1,
-          "value": 400000 // not enough for value
-        },
-        {
-          "hash": fakeTxHash(2),
-          "outputIndex": 1,
-          "address" : address1,
-          "value": 500000 // enough for only value
-        },
-        {
-          "hash": fakeTxHash(3),
-          "outputIndex": 0,
-          "address" : address2,
-          "value": 520000 // enough for value and fee
-        }
+        "hash": fakeTxHash(1),
+        "outputIndex": 0,
+        "address" : address1,
+        "value": 400000 // not enough for value
+      },
+      {
+        "hash": fakeTxHash(2),
+        "outputIndex": 1,
+        "address" : address1,
+        "value": 500000 // enough for only value
+      },
+      {
+        "hash": fakeTxHash(3),
+        "outputIndex": 0,
+        "address" : address2,
+        "value": 520000 // enough for value and fee
+      }
       ]
       wallet.setUnspentOutputs(utxo)
     })
@@ -446,11 +445,11 @@ describe('Wallet', function() {
       it('ignores spent outputs', function(){
         utxo.push(
           {
-            "hash": fakeTxHash(4),
-            "outputIndex": 0,
-            "address" : address2,
-            "value": 530000 // enough but spent before createTx
-          }
+          "hash": fakeTxHash(4),
+          "outputIndex": 0,
+          "address" : address2,
+          "value": 530000 // enough but spent before createTx
+        }
         )
         wallet.setUnspentOutputs(utxo)
         wallet.outputs[fakeTxHash(4) + ":" + 0].spend = fakeTxHash(5) + ":" + 0
@@ -547,7 +546,7 @@ describe('Wallet', function() {
   })
 
   describe('createTxAsync', function(){
-    var to, value, fee;
+    var to, value, fee
 
     beforeEach(function(){
       to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'

@@ -2,13 +2,11 @@ var Script = require('../src/script.js')
 var assert = require('assert')
 var Address = require('../src/address.js')
 var Network = require('../src/network.js')
-
 var Util = require('../src/util.js')
-var sha256ripe160 = Util.sha256ripe160;
-
+var sha256ripe160 = Util.sha256ripe160
 var Convert = require('../src/convert.js')
-var bytesToHex = Convert.bytesToHex;
-var hexToBytes = Convert.hexToBytes;
+var bytesToHex = Convert.bytesToHex
+var hexToBytes = Convert.hexToBytes
 
 describe('Script', function() {
   var p2shScriptPubKey, pubkeyScriptPubkey, addressScriptSig
@@ -72,15 +70,15 @@ describe('Script', function() {
   })
 
   describe('2-of-3 Multi-Signature', function() {
-    var compressedPubKeys = [];
+    var compressedPubKeys = []
     var numSigs, script, multisig, network
 
     beforeEach(function() {
       compressedPubKeys = ['02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f',
-                           '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f',
-                           '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19']
-      numSigs = 2
-      network = Network.mainnet.p2shVersion
+        '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f',
+        '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19']
+        numSigs = 2
+        network = Network.mainnet.p2shVersion
     })
 
     it('should create valid multi-sig address', function() {
@@ -98,8 +96,11 @@ describe('Script', function() {
       var deserialized = new Script(redeemScript)
       var numOfSignatures = deserialized.chunks[deserialized.chunks.length - 2] - 80
       var signaturesRequired = deserialized.chunks[0] - 80
-      var sigs = [bytesToHex(deserialized.chunks[1]), bytesToHex(deserialized.chunks[2]),
-                  bytesToHex(deserialized.chunks[3])]
+      var sigs = [
+        bytesToHex(deserialized.chunks[1]),
+        bytesToHex(deserialized.chunks[2]),
+        bytesToHex(deserialized.chunks[3])
+      ]
 
       assert.equal(numOfSignatures, 3)
       assert.equal(signaturesRequired, 2)

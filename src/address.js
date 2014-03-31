@@ -4,8 +4,9 @@ var error = require('./util').error
 var mainnet = require('./network').mainnet.addressVersion
 
 function Address(bytes, version) {
-  if (!(this instanceof Address))
+  if (!(this instanceof Address)) {
     return new Address(bytes, version)
+  }
 
   if (bytes instanceof Address) {
     this.hash = bytes.hash
