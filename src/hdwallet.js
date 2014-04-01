@@ -81,9 +81,11 @@ HDWallet.fromBytes = function(input) {
 
   for(var name in Network) {
     var network = Network[name]
+
     for(var t in network.hdVersions) {
       if (versionWord != network.hdVersions[t]) continue
-        type = t
+
+      type = t
       hd.network = name
     }
   }
