@@ -395,23 +395,23 @@ describe('Wallet', function() {
       // set up 3 utxo
       utxo = [
         {
-        "hash": fakeTxHash(1),
-        "outputIndex": 0,
-        "address" : address1,
-        "value": 400000 // not enough for value
-      },
-      {
-        "hash": fakeTxHash(2),
-        "outputIndex": 1,
-        "address" : address1,
-        "value": 500000 // enough for only value
-      },
-      {
-        "hash": fakeTxHash(3),
-        "outputIndex": 0,
-        "address" : address2,
-        "value": 520000 // enough for value and fee
-      }
+          "hash": fakeTxHash(1),
+          "outputIndex": 0,
+          "address" : address1,
+          "value": 400000 // not enough for value
+        },
+        {
+          "hash": fakeTxHash(2),
+          "outputIndex": 1,
+          "address" : address1,
+          "value": 500000 // enough for only value
+        },
+        {
+          "hash": fakeTxHash(3),
+          "outputIndex": 0,
+          "address" : address2,
+          "value": 520000 // enough for value and fee
+        }
       ]
       wallet.setUnspentOutputs(utxo)
     })
@@ -445,11 +445,11 @@ describe('Wallet', function() {
       it('ignores spent outputs', function(){
         utxo.push(
           {
-          "hash": fakeTxHash(4),
-          "outputIndex": 0,
-          "address" : address2,
-          "value": 530000 // enough but spent before createTx
-        }
+            "hash": fakeTxHash(4),
+            "outputIndex": 0,
+            "address" : address2,
+            "value": 530000 // enough but spent before createTx
+          }
         )
         wallet.setUnspentOutputs(utxo)
         wallet.outputs[fakeTxHash(4) + ":" + 0].spend = fakeTxHash(5) + ":" + 0
