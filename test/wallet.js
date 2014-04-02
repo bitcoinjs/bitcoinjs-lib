@@ -153,7 +153,7 @@ describe('Wallet', function() {
       var wallet = new Wallet(seed, {network: 'testnet'})
       assert.throws(function() {
         wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X")
-      }, Error, 'Unknown address. Make sure the address is from the keychain and has been generated.')
+      }, /Unknown address. Make sure the address is from the keychain and has been generated./)
     })
   })
 
@@ -248,23 +248,18 @@ describe('Wallet', function() {
           delete utxo[0]['hash']
           delete utxo[0]['hashLittleEndian']
 
-          var errorMessage = 'Invalid unspent output: key hash(or hashLittleEndian) is missing. ' +
-            'A valid unspent output must contain outputIndex, address, value and hash(or hashLittleEndian)'
-
           assert.throws(function() {
             wallet.setUnspentOutputs(utxo)
-          }, Error, errorMessage)
+          }, /Invalid unspent output: key hash\(or hashLittleEndian\) is missing/)
         });
 
         ['outputIndex', 'address', 'value'].forEach(function(field){
           it("throws an error when " + field + " is missing", function(){
             delete utxo[0][field]
-            var errorMessage = 'Invalid unspent output: key ' + field +
-              ' is missing. A valid unspent output must contain outputIndex, address, value and hash(or hashLittleEndian)'
 
             assert.throws(function() {
               wallet.setUnspentOutputs(utxo)
-            }, Error, errorMessage)
+            }, new RegExp('Invalid unspent output: key ' + field + ' is missing'))
           })
         })
       })
@@ -540,7 +535,7 @@ describe('Wallet', function() {
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, Error, 'Not enough money to send funds including transaction fee. Have: 1420000, needed: 1420001')
+        }, /Not enough money to send funds including transaction fee. Have: 1420000, needed: 1420001/)
       })
     })
 
