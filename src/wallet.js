@@ -3,7 +3,7 @@ var Transaction = require('./transaction').Transaction
 var HDNode = require('./hdwallet.js')
 var rng = require('secure-random')
 
-var Wallet = function (seed, options) {
+function Wallet(seed, options) {
   if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
 
   var options = options || {}
@@ -119,20 +119,20 @@ var Wallet = function (seed, options) {
   function validateUnspentOutput(uo) {
     var missingField
 
-    if(isNullOrUndefined(uo.hash) && isNullOrUndefined(uo.hashLittleEndian)){
+    if (isNullOrUndefined(uo.hash) && isNullOrUndefined(uo.hashLittleEndian)) {
       missingField = "hash(or hashLittleEndian)"
     }
 
     var requiredKeys = ['outputIndex', 'address', 'value']
-    requiredKeys.forEach(function(key){
-      if(isNullOrUndefined(uo[key])){
+    requiredKeys.forEach(function (key) {
+      if (isNullOrUndefined(uo[key])){
         missingField = key
       }
     })
 
-    if(missingField) {
+    if (missingField) {
       var message = [
-        'Invalid unspent output: key', field, 'is missing.',
+        'Invalid unspent output: key', missingField, 'is missing.',
         'A valid unspent output must contain'
       ]
       message.push(requiredKeys.join(', '))
@@ -141,7 +141,7 @@ var Wallet = function (seed, options) {
     }
   }
 
-  function isNullOrUndefined(value){
+  function isNullOrUndefined(value) {
     return value == undefined
   }
 
