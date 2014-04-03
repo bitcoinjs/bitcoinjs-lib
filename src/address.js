@@ -1,4 +1,5 @@
 var base58 = require('./base58')
+var base58check = require('./base58check')
 var convert = require('./convert')
 var error = require('./util').error
 var mainnet = require('./network').mainnet.addressVersion
@@ -13,8 +14,19 @@ function Address(bytes, version) {
     this.version = bytes.version
   }
   else if (typeof bytes === 'string') {
-    this.hash = stringToHash(bytes)
-    this.version = version || this.hash.version || mainnet
+    if (bytes.length <= 35) {
+      var decode = base58check.decode(bytes)
+
+      this.hash = decode.payload
+      this.version = decode.version
+    }
+    else if (bytes.length <= 40) {
+      this.hash = convert.hexToBytes(bytes)
+      this.version = version || mainnet
+    }
+    else {
+      error('invalid or unrecognized input')
+    }
   }
   else {
     this.hash = bytes
@@ -22,22 +34,12 @@ function Address(bytes, version) {
   }
 }
 
-function stringToHash(str) {
-  if (str.length <= 35) {
-    return base58.checkDecode(str)
-  }
-  if (str.length <= 40) {
-    return convert.hexToBytes(str)
-  }
-  error('invalid or unrecognized input')
-}
-
 /**
  * Serialize this object as a standard Bitcoin address.
  * Returns the address as a base58-encoded string in the standardized format.
  */
 Address.prototype.toString = function () {
-  return base58.checkEncode(this.hash.slice(0), this.version)
+  return base58check.encode(this.hash.slice(0), this.version)
 }
 
 /**
@@ -53,7 +55,7 @@ Address.getVersion = function (address) {
  */
 Address.validate = function (address) {
   try {
-    base58.checkDecode(address)
+    base58check.decode(address)
     return true
   } catch (e) {
     return false
