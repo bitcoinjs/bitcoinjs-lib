@@ -1,48 +1,50 @@
 var assert = require('assert')
 var base58 = require('../').base58
-var convert = require('../').convert
 
 describe('base58', function() {
+  var evec, dvec
+
+  beforeEach(function() {
+    // base58 encoded strings
+    evec = [
+      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAbuatmU', // 0x00 WIF
+      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf', // 0x01 WIF
+      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreQyNNN1W', // 0x7f WIF
+      '1EHNa6Q4Jz2uvNExL497mE43ikXhwF6kZm', // uncompressed 0x01 address
+      '1FB8cZijTpRQp3HX8AEkNuQJBqApqfTcX7' // uncompressed 0x7f address
+    ]
+
+    // decoded equivalent of above
+    dvec = [
+      '8000000000000000000000000000000000000000000000000000000000000000000565fba7',
+      '800000000000000000000000000000000000000000000000000000000000000001a85aa87e',
+      '80000000000000000000000000000000000000000000000000000000000000007f64046be9',
+      '0091b24bf9f5288532960ac687abb035127b1d28a50074ffe0',
+      '009b7c46977b68474e12066a370b169ec6b9b026444d210d6e'
+    ].map(function(h) {
+      return new Buffer(h, 'hex')
+    })
+  })
+
   describe('decode', function() {
-    it('validates known examples', function() {
-      var enc = '5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ'
-      var hex = '800c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d507a5b8d'
-      assert.deepEqual(base58.decode(enc), convert.hexToBytes(hex))
+    it('decodes the test vectors', function() {
+      evec.forEach(function(x, i) {
+        var actual = base58.decode(x)
+        var expected = dvec[i]
+
+        assert.deepEqual(expected, actual)
+      })
     })
   })
 
   describe('encode', function() {
-    it('handles known examples', function() {
-      var enc = '5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ'
-      var hex = '800c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d507a5b8d'
-      assert.equal(base58.encode(convert.hexToBytes(hex)), enc)
-    })
-  })
+    it('encodes the test vectors', function() {
+      dvec.forEach(function(x, i) {
+        var actual = base58.encode(x)
+        var expected = evec[i]
 
-  describe('checkEncode', function() {
-    it('handles known examples', function() {
-      var input = [
-        171, 210, 178, 125, 2, 16, 86, 184, 248, 88, 235,
-        163, 244, 160, 83, 156, 184, 186, 45, 167, 169, 164,
-        67, 125, 163, 89, 106, 243, 207, 193, 149, 206
-      ]
-      var vbyte = 239
-
-      assert.equal(base58.checkEncode(input, vbyte),
-                   '92tb9mjz6q9eKZjYvLsgk87kPrMoh7BGRumSzPeUGhmigtsfrbP')
-    })
-  })
-
-  describe('checkDecode', function() {
-    it('handles known examples', function() {
-      var input = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
-      var expected =  [
-        98, 233, 7, 177, 92, 191, 39, 213, 66, 83,
-        153, 235, 246, 240, 251, 80, 235, 184, 143, 24
-      ]
-      expected.version = 0
-
-      assert.deepEqual(base58.checkDecode(input), expected)
+        assert.deepEqual(expected, actual)
+      })
     })
   })
 })
