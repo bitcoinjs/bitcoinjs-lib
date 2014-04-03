@@ -1,5 +1,6 @@
-var Address = require('./address')
+var Bip38 = require('bip38')
 var assert = require('assert')
+var Address = require('./address')
 var convert = require('./convert')
 var base58 = require('./base58')
 var BigInteger = require('./jsbn/jsbn')
@@ -8,10 +9,10 @@ var ECPointFp = require('./jsbn/ec').ECPointFp
 var sec = require('./jsbn/sec')
 var Network = require('./network')
 var util = require('./util')
-var ecparams = sec("secp256k1")
+var ecparams = sec('secp256k1')
 
 // input can be nothing, array of bytes, hex string, or base58 string
-var ECKey = function (input, compressed) {
+var ECKey = function (input, compressed, bip38Password) {
   if (!(this instanceof ECKey)) { return new ECKey(input, compressed) }
   if (!input) {
     // Generate new key
@@ -19,44 +20,50 @@ var ECKey = function (input, compressed) {
     this.priv = ecdsa.getBigRandom(n)
     this.compressed = compressed || false
   }
-  else this.import(input,compressed)
+  else this.import(input, compressed, bip38Password)
 }
 
-ECKey.prototype.import = function (input, compressed) {
+ECKey.prototype.import = function (input, compressed, bip38Password) {
   function has(li, v) { return li.indexOf(v) >= 0 }
   function fromBin(x) { return BigInteger.fromByteArrayUnsigned(x) }
 
   this.priv =
-      input instanceof ECKey                   ? input.priv
-    : input instanceof BigInteger              ? input.mod(ecparams.getN())
-    : Array.isArray(input)                     ? fromBin(input.slice(0, 32))
-    : typeof input != "string"                 ? null
-    : input.length == 44                       ? fromBin(convert.base64ToBytes(input))
-    : input.length == 51 && input[0] == '5'    ? fromBin(base58.checkDecode(input))
-    : input.length == 51 && input[0] == '9'    ? fromBin(base58.checkDecode(input))
+      input instanceof ECKey                    ? input.priv
+    : input instanceof BigInteger               ? input.mod(ecparams.getN())
+    : Array.isArray(input)                      ? fromBin(input.slice(0, 32))
+    : typeof input != "string"                  ? null
+    : input.length == 44                        ? fromBin(convert.base64ToBytes(input))
+    : input.length == 51 && input[0] == '5'     ? fromBin(base58.checkDecode(input))
+    : input.length == 51 && input[0] == '9'     ? fromBin(base58.checkDecode(input))
     : input.length == 52 && has('LK', input[0]) ? fromBin(base58.checkDecode(input).slice(0, 32))
-    : input.length == 52 && input[0] == 'c'    ? fromBin(base58.checkDecode(input).slice(0, 32))
-    : has([64,65],input.length)                ? fromBin(convert.hexToBytes(input.slice(0, 64)))
+    : input.length == 52 && input[0] == 'c'     ? fromBin(base58.checkDecode(input).slice(0, 32))
+    : input.length == 58 && has('6P', input[0]) ? fromBin(base58.checkDecode(new Bip38().decrypt(input, bip38Password)))
+    : has([64,65],input.length)                 ? fromBin(convert.hexToBytes(input.slice(0, 64)))
     : null
 
   assert(this.priv !== null)
 
   this.compressed =
-      compressed !== undefined                 ? compressed
-    : input instanceof ECKey                   ? input.compressed
-    : input instanceof BigInteger              ? false
-    : Array.isArray(input)                     ? false
-    : typeof input != "string"                 ? null
-    : input.length == 44                       ? false
-    : input.length == 51 && input[0] == '5'    ? false
-    : input.length == 51 && input[0] == '9'    ? false
+      compressed !== undefined                  ? compressed
+    : input instanceof ECKey                    ? input.compressed
+    : input instanceof BigInteger               ? false
+    : Array.isArray(input)                      ? false
+    : typeof input != "string"                  ? null
+    : input.length == 44                        ? false
+    : input.length == 51 && input[0] == '5'     ? false
+    : input.length == 51 && input[0] == '9'     ? false
     : input.length == 52 && has('LK', input[0]) ? true
-    : input.length == 52 && input[0] == 'c'    ? true
-    : input.length == 64                       ? false
-    : input.length == 65                       ? true
+    : input.length == 52 && input[0] == 'c'     ? true
+    : input.length == 58 && has('6P', input[0]) ? false
+    : input.length == 64                        ? false
+    : input.length == 65                        ? true
     : null
 
   assert(this.compressed !== null)
+}
+
+ECKey.prototype.toBip38 = function(password) {
+  return new Bip38().encrypt(this.toWif(), password, this.getAddress().toString())
 }
 
 ECKey.prototype.getPub = function(compressed) {

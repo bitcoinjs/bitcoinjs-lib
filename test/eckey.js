@@ -65,6 +65,24 @@ describe('ECKey', function() {
     })
   })
 
+  describe('bip38', function() {
+    var wif, bip38Key
+    beforeEach(function() {
+      wif = '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR'
+      bip38Key = '6PRVWUbkzpUodyWbsAkjqiqS9d4i5YATRMPnbqtUCeZE3TAWyTUdjKDqRJ'
+    })
+
+    it('imports bip38', function() {
+      var key = new ECKey(bip38Key, false, 'super-secret')
+      assert.equal(key.toWif(), wif)
+    })
+
+    it('exports to bip38', function() {
+      var key = new ECKey(wif)
+      assert.equal(key.toBip38('super-secret'), bip38Key)
+    })
+  })
+
   describe('toAddress', function() {
     var privkeys = [
       'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458',
