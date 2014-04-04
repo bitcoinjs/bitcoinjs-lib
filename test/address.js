@@ -1,7 +1,8 @@
 var assert = require('assert')
-var Address = require('../src/address.js')
-var network = require('../src/network.js')
-var base58 = require('../src/base58.js')
+var Address = require('../src/address')
+var network = require('../src/network')
+var base58 = require('../src/base58')
+var base58check = require('../src/base58check')
 var mainnet = network.mainnet.addressVersion
 var testnet = network.testnet.addressVersion
 
@@ -10,10 +11,10 @@ describe('Address', function() {
   var testnetP2shAddress, mainnetP2shAddress
 
   beforeEach(function(){
-    testnetAddress = 'mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef'
     mainnetAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
-    testnetP2shAddress = '2MxKEf2su6FGAUfCEAHreGFQvEYrfYNHvL7'
+    testnetAddress = 'mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef'
     mainnetP2shAddress = '3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt'
+    testnetP2shAddress = '2MxKEf2su6FGAUfCEAHreGFQvEYrfYNHvL7'
   })
 
   describe('parsing', function() {
@@ -36,14 +37,14 @@ describe('Address', function() {
     })
 
     it('works for byte input', function() {
-      var hash = base58.checkDecode('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
-      var addr = new Address(hash)
-      assert.equal(addr.hash, hash)
+      var hash = base58check.decode(mainnetAddress)
+      var addr = new Address(hash.payload)
+      assert.equal(addr.hash, hash.payload)
       assert.equal(network.mainnet.addressVersion, hash.version)
 
-      var hash = base58.checkDecode('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef')
-      var addr = new Address(hash)
-      assert.equal(addr.hash, hash)
+      var hash = base58check.decode(testnetAddress)
+      var addr = new Address(hash.payload)
+      assert.equal(addr.hash, hash.payload)
       assert.equal(network.testnet.addressVersion, hash.version)
     })
 
@@ -56,8 +57,8 @@ describe('Address', function() {
 
   describe('getVersion', function() {
     it('returns the proper address version', function() {
-      assert.equal(Address.getVersion('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'), network.mainnet.addressVersion)
-      assert.equal(Address.getVersion('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef'), network.testnet.addressVersion)
+      assert.equal(Address.getVersion(mainnetAddress), network.mainnet.addressVersion)
+      assert.equal(Address.getVersion(testnetAddress), network.testnet.addressVersion)
     })
   })
 

@@ -11,7 +11,16 @@ var ECPubKey = require('./eckey.js').ECPubKey
 var Address = require('./address.js')
 var Network = require('./network')
 
-var HDWallet = module.exports = function(seed, network) {
+var crypto = require('crypto')
+
+function sha256(buf) {
+  var hash = crypto.createHash('sha256')
+  hash.update(buf)
+
+  return hash.digest()
+}
+
+function HDWallet(seed, network) {
   if (seed === undefined) return;
 
   var seedWords = convert.bytesToWordArray(seed)
@@ -35,8 +44,6 @@ function arrayEqual(a, b) {
   return !(a < b || a > b)
 }
 
-HDWallet.getChecksum = base58.getChecksum
-
 HDWallet.fromSeedHex = function(hex, network) {
   return new HDWallet(convert.hexToBytes(hex), network)
 }
@@ -45,20 +52,17 @@ HDWallet.fromSeedString = function(string, network) {
   return new HDWallet(convert.stringToBytes(string), network)
 }
 
-HDWallet.fromBase58 = function(input) {
-  var buffer = base58.decode(input)
+HDWallet.fromBase58 = function(string) {
+  var buffer = base58.decode(string)
 
-  if (buffer.length == HDWallet.LENGTH + 4) {
-    var expectedChecksum = buffer.slice(HDWallet.LENGTH, HDWallet.LENGTH + 4)
-    buffer = buffer.slice(0, HDWallet.LENGTH)
-    var actualChecksum = HDWallet.getChecksum(buffer)
+  var payload = buffer.slice(0, -4)
+  var checksum = buffer.slice(-4)
+  var newChecksum = sha256(sha256(payload)).slice(0, 4)
 
-    if (!arrayEqual(expectedChecksum, actualChecksum)) {
-      throw new Error('Checksum mismatch')
-    }
-  }
+  assert.deepEqual(newChecksum, checksum)
+  assert.equal(payload.length, HDWallet.LENGTH)
 
-  return HDWallet.fromBytes(buffer)
+  return HDWallet.fromBytes(payload)
 }
 
 HDWallet.fromHex = function(input) {
@@ -69,6 +73,11 @@ HDWallet.fromBytes = function(input) {
   // This 78 byte structure can be encoded like other Bitcoin data in Base58. (+32 bits checksum)
   if (input.length != HDWallet.LENGTH) {
     throw new Error(format('Invalid input length, %s. Expected %s.', input.length, HDWallet.LENGTH))
+  }
+
+  // FIXME: transitionary fix
+  if (Buffer.isBuffer(input)) {
+    input = Array.prototype.map.bind(input, function(x) { return x })()
   }
 
   var hd = new HDWallet()
@@ -182,10 +191,13 @@ HDWallet.prototype.toHex = function(priv) {
 }
 
 HDWallet.prototype.toBase58 = function(priv) {
-  var buffer = this.toBytes(priv)
-    , checksum = HDWallet.getChecksum(buffer)
-  buffer = buffer.concat(checksum)
-  return base58.encode(buffer)
+  var buffer = new Buffer(this.toBytes(priv))
+  var checksum = sha256(sha256(buffer)).slice(0, 4)
+
+  return base58.encode(Buffer.concat([
+    buffer,
+    checksum
+  ]))
 }
 
 HDWallet.prototype.derive = function(i) {
@@ -252,3 +264,4 @@ function HmacFromBytesToBytes(hasher, message, key) {
   return convert.wordArrayToBytes(hmac.finalize())
 }
 
+module.exports = HDWallet

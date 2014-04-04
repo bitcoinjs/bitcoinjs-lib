@@ -21,5 +21,6 @@ module.exports = {
   ecdsa: require('./ecdsa'),
   HDWallet: require('./hdwallet.js'),
   base58: require('./base58'),
+  base58check: require('./base58check'),
   convert: require('./convert')
 }

@@ -279,6 +279,11 @@ Script.prototype.writeOp = function(opcode) {
  * Add a data chunk to the script.
  */
 Script.prototype.writeBytes = function(data) {
+  // FIXME: Script module doesn't support buffers yet
+  if (Buffer.isBuffer(data)) {
+    data = Array.prototype.map.bind(data, function(x) { return x })()
+  }
+
   if (data.length < Opcode.map.OP_PUSHDATA1) {
     this.buffer.push(data.length)
   } else if (data.length <= 0xff) {

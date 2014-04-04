@@ -1200,6 +1200,11 @@ BigInteger.valueOf = nbv;
  * endian notation and ignore leading zeros.
  */
 BigInteger.fromByteArrayUnsigned = function(ba) {
+  // FIXME: BigInteger doesn't yet support Buffers
+  if (Buffer.isBuffer(ba)) {
+    ba = Array.prototype.map.bind(ba, function(x) { return x })()
+  }
+
   if (!ba.length) {
     return new BigInteger.valueOf(0);
   } else if (ba[0] & 0x80) {

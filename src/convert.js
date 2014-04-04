@@ -8,6 +8,11 @@ function lpad(str, padString, length) {
 }
 
 function bytesToHex(bytes) {
+  // FIXME: transitionary fix
+  if (Buffer.isBuffer(bytes)) {
+    return bytes.toString('hex')
+  }
+
   return bytes.map(function(x) {
     return lpad(x.toString(16), '0', 2)
   }).join('')
