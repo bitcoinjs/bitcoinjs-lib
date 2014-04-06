@@ -58,7 +58,7 @@ describe('base58check', function() {
         var actual = base58check.decode(x)
         var expected = dvec[i]
 
-        assert.deepEqual(expected, actual)
+        assert.deepEqual(actual, expected)
       })
     })
   })
@@ -69,7 +69,7 @@ describe('base58check', function() {
         var actual = base58check.encode(x.payload, x.version)
         var expected = evec[i]
 
-        assert.deepEqual(expected, actual)
+        assert.deepEqual(actual, expected)
       })
     })
   })

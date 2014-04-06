@@ -9,7 +9,7 @@ describe('base58', function() {
     evec = [
       '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAbuatmU', // 0x00 WIF
       '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf', // 0x01 WIF
-      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreQyNNN1W', // 0x7f WIF
+      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreQyNNN1W', // 0x7f WIF
       '1EHNa6Q4Jz2uvNExL497mE43ikXhwF6kZm', // uncompressed 0x01 address
       '1FB8cZijTpRQp3HX8AEkNuQJBqApqfTcX7' // uncompressed 0x7f address
     ]
@@ -32,7 +32,7 @@ describe('base58', function() {
         var actual = base58.decode(x)
         var expected = dvec[i]
 
-        assert.deepEqual(expected, actual)
+        assert.deepEqual(actual, expected)
       })
     })
   })
@@ -43,7 +43,7 @@ describe('base58', function() {
         var actual = base58.encode(x)
         var expected = evec[i]
 
-        assert.deepEqual(expected, actual)
+        assert.deepEqual(actual, expected)
       })
     })
   })
