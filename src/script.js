@@ -144,10 +144,10 @@ Script.prototype.toScriptHash = function() {
   }
 
   if (outType == 'P2SH') {
-    return crypto.sha256ripe160(this.buffer)
+    return crypto.hash160(this.buffer)
   }
 
-  return crypto.sha256ripe160(this.buffer)
+  return crypto.hash160(this.buffer)
 }
 
 //TODO: support testnet
@@ -257,7 +257,7 @@ Script.prototype.simpleInPubKey = function() {
  * This method is useful for indexing transactions.
  */
 Script.prototype.simpleInHash = function() {
-  return crypto.sha256ripe160(this.simpleInPubKey())
+  return crypto.hash160(this.simpleInPubKey())
 }
 
 /**

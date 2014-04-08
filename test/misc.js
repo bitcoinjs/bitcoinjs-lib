@@ -1,16 +1,12 @@
 var assert = require('assert')
 var bitcoinjs = require('../')
+var crypto = require('../').crypto
 var sec = require('../src/jsbn/sec')
 var BigInteger = require('../src/jsbn/jsbn.js')
-var SHA256 = require('crypto-js/sha256')
 var rng = require('secure-random')
 var ecparams = sec('secp256k1')
 var ECPointFp = bitcoinjs.ECPointFp
 var convert = require('../src/convert')
-
-function sha256FromBytesToBytes(message){
-  return convert.wordArrayToBytes(SHA256(convert.bytesToWordArray(message)))
-}
 
 it('Keys & Key Management', function () {
   var p1 = bitcoinjs.Key().getPub().toBytes()
@@ -37,7 +33,7 @@ it('Signing and Verifying', function () {
   assert.ok(s1.verify(BigInteger.ZERO, sig_a))
 
   var message = new BigInteger(1024, rng).toByteArrayUnsigned()
-  var hash = sha256FromBytesToBytes(message)
+  var hash = crypto.sha256(message)
   var sig_b = s1.sign(hash)
   assert.ok(sig_b, 'Sign random string')
   assert.ok(s1.verify(hash, sig_b))
@@ -49,7 +45,7 @@ it('Signing and Verifying', function () {
     '8a33f50d7cefb96a5dab897b5efcb99cbafb0d777cb83fc9b2115b69c0fa' +
     '3d82507b932b84e4')
 
-  var hash2 = sha256FromBytesToBytes(message2)
+  var hash2 = crypto.sha256(message2)
 
   var sig_c = bitcoinjs.convert.hexToBytes(
     '3044022038d9b8dd5c9fbf330565c1f51d72a59ba869aeb2c2001be959d3' +

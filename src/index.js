@@ -3,6 +3,7 @@ var T = require('./transaction')
 
 module.exports = {
   Address: require('./address'),
+  crypto: require('./crypto'),
   Key: Key.ECKey,
   ECKey: Key.ECKey,
   ECPubKey: Key.ECPubKey,
@@ -12,7 +13,6 @@ module.exports = {
   Script: require('./script'),
   Opcode: require('./opcode'),
   Transaction: T.Transaction,
-  crypto: require('./crypto'),
   TransactionIn: T.TransactionIn,
   TransactionOut: T.TransactionOut,
   ECPointFp: require('./jsbn/ec').ECPointFp,

@@ -2,9 +2,9 @@
 
 var Address = require('./address')
 var convert = require('./convert')
+var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var ECPubKey = require('./eckey').ECPubKey
-var SHA256 = require('crypto-js/sha256')
 
 // FIXME: magicHash is incompatible with other magic messages
 var magicBytes = convert.stringToBytes('Bitcoin Signed Message:\n')
@@ -19,7 +19,7 @@ function magicHash(message) {
     messageBytes
   )
 
-  return convert.wordArrayToBytes(SHA256(SHA256(convert.bytesToWordArray(buffer))))
+  return crypto.hash256(buffer)
 }
 
 // TODO: parameterize compression instead of using ECKey.compressed

@@ -1,14 +1,7 @@
 // https://en.bitcoin.it/wiki/Base58Check_encoding
 var assert = require('assert')
 var base58 = require('./base58')
-var crypto = require('crypto')
-
-function sha256(buf) {
-  var hash = crypto.createHash('sha256')
-  hash.update(buf)
-
-  return hash.digest()
-}
+var crypto = require('./crypto')
 
 // Encode a buffer as a base58-check-encoded string
 function encode(buffer, version) {
@@ -19,7 +12,7 @@ function encode(buffer, version) {
   var payload = new Buffer(buffer)
 
   var message = Buffer.concat([version, payload])
-  var checksum = sha256(sha256(message)).slice(0, 4)
+  var checksum = crypto.hash256(message).slice(0, 4)
 
   return base58.encode(Buffer.concat([
     message,
@@ -33,7 +26,7 @@ function decode(string) {
 
   var message = buffer.slice(0, -4)
   var checksum = buffer.slice(-4)
-  var newChecksum = sha256(sha256(message)).slice(0, 4)
+  var newChecksum = crypto.hash256(message).slice(0, 4)
 
   assert.deepEqual(newChecksum, checksum)
 
