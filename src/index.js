@@ -12,7 +12,7 @@ module.exports = {
   Script: require('./script'),
   Opcode: require('./opcode'),
   Transaction: T.Transaction,
-  Util: require('./util'),
+  crypto: require('./crypto'),
   TransactionIn: T.TransactionIn,
   TransactionOut: T.TransactionOut,
   ECPointFp: require('./jsbn/ec').ECPointFp,

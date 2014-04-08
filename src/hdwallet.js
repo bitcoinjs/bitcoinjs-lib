@@ -2,7 +2,7 @@ var convert = require('./convert.js')
 var base58 = require('./base58.js')
 var assert = require('assert')
 var format = require('util').format
-var util = require('./util.js')
+var crypto = require('./crypto')
 var Crypto = require('crypto-js')
 var HmacSHA512 = Crypto.HmacSHA512
 var HMAC= Crypto.algo.HMAC
@@ -11,10 +11,10 @@ var ECPubKey = require('./eckey.js').ECPubKey
 var Address = require('./address.js')
 var Network = require('./network')
 
-var crypto = require('crypto')
+var crypto2 = require('crypto')
 
 function sha256(buf) {
-  var hash = crypto.createHash('sha256')
+  var hash = crypto2.createHash('sha256')
   hash.update(buf)
 
   return hash.digest()
@@ -131,7 +131,7 @@ HDWallet.fromBytes = function(input) {
 }
 
 HDWallet.prototype.getIdentifier = function() {
-  return util.sha256ripe160(this.pub.toBytes())
+  return crypto.sha256ripe160(this.pub.toBytes())
 }
 
 HDWallet.prototype.getFingerprint = function() {
@@ -139,7 +139,7 @@ HDWallet.prototype.getFingerprint = function() {
 }
 
 HDWallet.prototype.getAddress = function() {
-  return new Address(util.sha256ripe160(this.pub.toBytes()), this.getKeyVersion())
+  return new Address(crypto.sha256ripe160(this.pub.toBytes()), this.getKeyVersion())
 }
 
 HDWallet.prototype.toBytes = function(priv) {

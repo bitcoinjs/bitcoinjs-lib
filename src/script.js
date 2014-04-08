@@ -1,5 +1,5 @@
 var Opcode = require('./opcode')
-var util = require('./util')
+var crypto = require('./crypto')
 var convert = require('./convert')
 var Address = require('./address')
 var network = require('./network')
@@ -144,10 +144,10 @@ Script.prototype.toScriptHash = function() {
   }
 
   if (outType == 'P2SH') {
-    return util.sha256ripe160(this.buffer)
+    return crypto.sha256ripe160(this.buffer)
   }
 
-  return util.sha256ripe160(this.buffer)
+  return crypto.sha256ripe160(this.buffer)
 }
 
 //TODO: support testnet
@@ -257,7 +257,7 @@ Script.prototype.simpleInPubKey = function() {
  * This method is useful for indexing transactions.
  */
 Script.prototype.simpleInHash = function() {
-  return util.sha256ripe160(this.simpleInPubKey())
+  return crypto.sha256ripe160(this.simpleInPubKey())
 }
 
 /**

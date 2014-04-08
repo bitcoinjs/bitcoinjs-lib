@@ -1,6 +1,6 @@
 var BigInteger = require('./jsbn/jsbn')
 var Script = require('./script')
-var util = require('./util')
+var crypto = require('./crypto')
 var convert = require('./convert')
 var ECKey = require('./eckey').ECKey
 var ECDSA = require('./ecdsa')
@@ -303,7 +303,7 @@ Transaction.prototype.sign = function(index, key, type) {
   // TODO: getPub is slow, sha256ripe160 probably is too.
   // This could be sped up a lot by providing these as inputs.
   var pub = key.getPub().toBytes(),
-  hash160 = util.sha256ripe160(pub),
+  hash160 = crypto.sha256ripe160(pub),
   script = Script.createOutputScript(new Address(hash160)),
   hash = this.hashTransactionForSignature(script, index, type),
   sig = key.sign(hash).concat([type])
