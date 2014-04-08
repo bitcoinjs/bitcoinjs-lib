@@ -1,7 +1,6 @@
 var base58 = require('./base58')
 var base58check = require('./base58check')
 var convert = require('./convert')
-var error = require('./util').error
 var mainnet = require('./network').mainnet.addressVersion
 
 function Address(bytes, version) {
@@ -25,7 +24,7 @@ function Address(bytes, version) {
       this.version = version || mainnet
     }
     else {
-      error('invalid or unrecognized input')
+      throw new Error('Invalid or unrecognized input')
     }
   }
   else {

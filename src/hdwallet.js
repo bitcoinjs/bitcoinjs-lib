@@ -1,30 +1,25 @@
-var convert = require('./convert.js')
-var base58 = require('./base58.js')
+var Address = require('./address')
 var assert = require('assert')
+var base58 = require('./base58')
+var convert = require('./convert')
+var CJS = require('crypto-js')
+var crypto = require('./crypto')
+var ECKey = require('./eckey').ECKey
+var ECPubKey = require('./eckey').ECPubKey
 var format = require('util').format
-var util = require('./util.js')
-var Crypto = require('crypto-js')
-var HmacSHA512 = Crypto.HmacSHA512
-var HMAC= Crypto.algo.HMAC
-var ECKey = require('./eckey.js').ECKey
-var ECPubKey = require('./eckey.js').ECPubKey
-var Address = require('./address.js')
 var Network = require('./network')
 
-var crypto = require('crypto')
+function HmacSHA512(buffer, secret) {
+  var words = convert.bytesToWordArray(buffer)
+  var hash = CJS.HmacSHA512(words, secret)
 
-function sha256(buf) {
-  var hash = crypto.createHash('sha256')
-  hash.update(buf)
-
-  return hash.digest()
+  return convert.wordArrayToBytes(hash)
 }
 
 function HDWallet(seed, network) {
   if (seed === undefined) return;
 
-  var seedWords = convert.bytesToWordArray(seed)
-  var I = convert.wordArrayToBytes(HmacSHA512(seedWords, 'Bitcoin seed'))
+  var I = HmacSHA512(seed, 'Bitcoin seed')
   this.chaincode = I.slice(32)
   this.network = network || 'mainnet'
   if(!Network.hasOwnProperty(this.network)) {
@@ -57,7 +52,7 @@ HDWallet.fromBase58 = function(string) {
 
   var payload = buffer.slice(0, -4)
   var checksum = buffer.slice(-4)
-  var newChecksum = sha256(sha256(payload)).slice(0, 4)
+  var newChecksum = crypto.hash256(payload).slice(0, 4)
 
   assert.deepEqual(newChecksum, checksum)
   assert.equal(payload.length, HDWallet.LENGTH)
@@ -131,15 +126,15 @@ HDWallet.fromBytes = function(input) {
 }
 
 HDWallet.prototype.getIdentifier = function() {
-  return util.sha256ripe160(this.pub.toBytes())
+  return crypto.hash160(this.pub.toBytes())
 }
 
 HDWallet.prototype.getFingerprint = function() {
-  return this.getIdentifier().slice(0, 4)
+  return Array.prototype.slice.call(this.getIdentifier(), 0, 4)
 }
 
 HDWallet.prototype.getAddress = function() {
-  return new Address(util.sha256ripe160(this.pub.toBytes()), this.getKeyVersion())
+  return new Address(crypto.hash160(this.pub.toBytes()), this.getKeyVersion())
 }
 
 HDWallet.prototype.toBytes = function(priv) {
@@ -192,7 +187,7 @@ HDWallet.prototype.toHex = function(priv) {
 
 HDWallet.prototype.toBase58 = function(priv) {
   var buffer = new Buffer(this.toBytes(priv))
-  var checksum = sha256(sha256(buffer)).slice(0, 4)
+  var checksum = crypto.hash256(buffer).slice(0, 4)
 
   return base58.encode(Buffer.concat([
     buffer,
@@ -205,7 +200,7 @@ HDWallet.prototype.derive = function(i) {
     , iBytes = convert.numToBytes(i, 4).reverse()
     , cPar = this.chaincode
     , usePriv = i >= HDWallet.HIGHEST_BIT
-    , SHA512 = Crypto.algo.SHA512
+    , SHA512 = CJS.algo.SHA512
 
   if (usePriv) {
     assert(this.priv, 'Private derive on public key')
@@ -259,7 +254,7 @@ HDWallet.prototype.getKeyVersion = function() {
 HDWallet.prototype.toString = HDWallet.prototype.toBase58
 
 function HmacFromBytesToBytes(hasher, message, key) {
-  var hmac = HMAC.create(hasher, convert.bytesToWordArray(key))
+  var hmac = CJS.algo.HMAC.create(hasher, convert.bytesToWordArray(key))
   hmac.update(convert.bytesToWordArray(message))
   return convert.wordArrayToBytes(hmac.finalize())
 }

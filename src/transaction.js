@@ -1,11 +1,12 @@
+// FIXME: To all ye that enter here, be weary of Buffers, Arrays and Hex interchanging between the outpoints
+
+var Address = require('./address')
 var BigInteger = require('./jsbn/jsbn')
 var Script = require('./script')
-var util = require('./util')
 var convert = require('./convert')
+var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ECDSA = require('./ecdsa')
-var Address = require('./address')
-var SHA256 = require('crypto-js/sha256')
 
 var Transaction = function (doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
@@ -201,11 +202,9 @@ Transaction.prototype.hashTransactionForSignature =
   }
 
   var buffer = txTmp.serialize()
-
   buffer = buffer.concat(convert.numToBytes(parseInt(hashType), 4))
-  buffer = convert.bytesToWordArray(buffer)
 
-  return convert.wordArrayToBytes(SHA256(SHA256(buffer)))
+  return crypto.hash256(buffer)
 }
 
 /**
@@ -215,8 +214,10 @@ Transaction.prototype.hashTransactionForSignature =
  */
 Transaction.prototype.getHash = function ()
 {
-  var buffer = convert.bytesToWordArray(this.serialize())
-  return convert.wordArrayToBytes(SHA256(SHA256(buffer))).reverse()
+  var buffer = this.serialize()
+  var hash = crypto.hash256(buffer)
+
+  return Array.prototype.slice.call(hash, 0).reverse()
 }
 
 Transaction.prototype.clone = function ()
@@ -300,13 +301,12 @@ Transaction.prototype.sign = function(index, key, type) {
   type = type || SIGHASH_ALL
   key = new ECKey(key)
 
-  // TODO: getPub is slow, sha256ripe160 probably is too.
-  // This could be sped up a lot by providing these as inputs.
-  var pub = key.getPub().toBytes(),
-  hash160 = util.sha256ripe160(pub),
-  script = Script.createOutputScript(new Address(hash160)),
-  hash = this.hashTransactionForSignature(script, index, type),
-  sig = key.sign(hash).concat([type])
+  var pub = key.getPub().toBytes()
+  var hash160 = crypto.hash160(pub)
+  var script = Script.createOutputScript(new Address(hash160))
+  var hash = this.hashTransactionForSignature(script, index, type)
+  var sig = key.sign(hash).concat([type])
+
   this.ins[index].script = Script.createInputScript(sig, pub)
 }
 

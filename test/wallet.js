@@ -7,8 +7,7 @@ var Script = require('../src/script.js')
 var convert = require('../src/convert.js')
 var assert = require('assert')
 var sinon = require('sinon')
-var SHA256 = require('crypto-js/sha256')
-var Crypto = require('crypto-js')
+var crypto = require('../').crypto
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
@@ -17,7 +16,7 @@ var fixtureTx2Hex = fixtureTxes.tx
 describe('Wallet', function() {
   var seed, wallet
   beforeEach(function(){
-    seed = convert.wordArrayToBytes(SHA256("don't use a string seed like this in real life"))
+    seed = crypto.sha256("don't use a string seed like this in real life")
     wallet = new Wallet(seed)
   })
 

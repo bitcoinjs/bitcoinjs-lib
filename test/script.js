@@ -2,8 +2,7 @@ var Script = require('../src/script.js')
 var assert = require('assert')
 var Address = require('../src/address.js')
 var Network = require('../src/network.js')
-var Util = require('../src/util.js')
-var sha256ripe160 = Util.sha256ripe160
+var crypto = require('../').crypto
 var Convert = require('../src/convert.js')
 var bytesToHex = Convert.bytesToHex
 var hexToBytes = Convert.hexToBytes
@@ -83,7 +82,7 @@ describe('Script', function() {
 
     it('should create valid multi-sig address', function() {
       script = Script.createMultiSigOutputScript(numSigs, compressedPubKeys.map(hexToBytes))
-      multisig = sha256ripe160(script.buffer)
+      multisig = crypto.hash160(script.buffer)
       var multiSigAddress = Address(multisig, network).toString()
 
       assert.ok(Address.validate(multiSigAddress))
@@ -107,7 +106,7 @@ describe('Script', function() {
       assert.equal(sigs[0], '02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f')
       assert.equal(sigs[1], '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f')
       assert.equal(sigs[2], '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19')
-      assert.equal(Address(sha256ripe160(redeemScript), network).toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
+      assert.equal(Address(crypto.hash160(redeemScript), network).toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })
   })
 })

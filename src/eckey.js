@@ -1,13 +1,13 @@
 var Address = require('./address')
 var assert = require('assert')
-var convert = require('./convert')
 var base58check = require('./base58check')
 var BigInteger = require('./jsbn/jsbn')
+var convert = require('./convert')
+var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var ECPointFp = require('./jsbn/ec').ECPointFp
 var sec = require('./jsbn/sec')
 var Network = require('./network')
-var util = require('./util')
 var ecparams = sec("secp256k1")
 
 // input can be nothing, array of bytes, hex string, or base58 string
@@ -175,7 +175,7 @@ ECPubKey.prototype.toString = ECPubKey.prototype.toHex
 ECPubKey.prototype.getAddress = function(version) {
   version = version || Network.mainnet.addressVersion
 
-  return new Address(util.sha256ripe160(this.toBytes()), version)
+  return new Address(crypto.hash160(this.toBytes()), version)
 }
 
 ECPubKey.prototype.verify = function(hash, sig) {
