@@ -6,7 +6,7 @@ var Script = require('./script')
 var convert = require('./convert')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
-var ECDSA = require('./ecdsa')
+var ecdsa = require('./ecdsa')
 
 var Transaction = function (doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
@@ -364,7 +364,7 @@ Transaction.prototype.applyMultisigs = function(index, script, sigs/*, type*/) {
 Transaction.prototype.validateSig = function(index, script, sig, pub) {
   script = new Script(script)
   var hash = this.hashTransactionForSignature(script,index,1)
-  return ECDSA.verify(hash, convert.coerceToBytes(sig),
+  return ecdsa.verify(hash, convert.coerceToBytes(sig),
                       convert.coerceToBytes(pub))
 }
 
