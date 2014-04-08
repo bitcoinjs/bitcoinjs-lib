@@ -130,7 +130,7 @@ HDWallet.prototype.getIdentifier = function() {
 }
 
 HDWallet.prototype.getFingerprint = function() {
-  return this.getIdentifier().slice(0, 4)
+  return Array.prototype.slice.call(this.getIdentifier(), 0, 4)
 }
 
 HDWallet.prototype.getAddress = function() {

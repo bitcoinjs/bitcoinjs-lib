@@ -11,7 +11,7 @@ function hash160(buffer) {
   var step2a = convert.bytesToWordArray(step1)
   var step2b = CryptoJS.RIPEMD160(step2a)
 
-  return convert.wordArrayToBytes(step2b)
+  return new Buffer(convert.wordArrayToBytes(step2b))
 }
 
 function hash256(buffer) {
