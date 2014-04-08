@@ -19,7 +19,9 @@
     "istanbul": "0.1.30",
     "uglify-js": "2.4.13",
     "node-browserify": "https://github.com/substack/node-browserify/tarball/master",
-    "sinon": "1.9.0"
+    "sinon": "1.9.0",
+    "coveralls": "~2.10.0",
+    "mocha-lcov-reporter": "0.0.1"
   },
   "testling": {
     "browsers": [
