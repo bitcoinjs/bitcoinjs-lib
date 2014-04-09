@@ -4,7 +4,7 @@ var ecdsa = require('../').ecdsa
 
 var ecparams = sec('secp256k1')
 
-describe('ec', function() {
+describe('EC', function() {
   it('handles point multiplication', function() {
     var G = ecparams.getG()
     var n = ecparams.getN()

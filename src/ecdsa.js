@@ -51,7 +51,7 @@ function deterministicGenerateK(hash,key) {
   return BigInteger.fromByteArrayUnsigned(vArr)
 }
 
-var ECDSA = {
+var ecdsa = {
   getBigRandom: function (limit) {
     return new BigInteger(limit.bitLength(), rng).
       mod(limit.subtract(BigInteger.ONE)).
@@ -69,13 +69,13 @@ var ECDSA = {
 
     var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
 
-    return ECDSA.serializeSig(r, s)
+    return ecdsa.serializeSig(r, s)
   },
 
   verify: function (hash, sig, pubkey) {
     var r,s
     if (Array.isArray(sig)) {
-      var obj = ECDSA.parseSig(sig)
+      var obj = ecdsa.parseSig(sig)
       r = obj.r
       s = obj.s
     } else if ("object" === typeof sig && sig.r && sig.s) {
@@ -95,7 +95,7 @@ var ECDSA = {
     }
     var e = BigInteger.fromByteArrayUnsigned(hash)
 
-    return ECDSA.verifyRaw(e, r, s, Q)
+    return ecdsa.verifyRaw(e, r, s, Q)
   },
 
   verifyRaw: function (e, r, s, Q) {
@@ -265,7 +265,7 @@ var ECDSA = {
     var Q = implShamirsTrick(R, s, G, eNeg).multiply(rInv)
 
     Q.validate()
-    if (!ECDSA.verifyRaw(e, r, s, Q)) {
+    if (!ecdsa.verifyRaw(e, r, s, Q)) {
       throw new Error("Pubkey recovery unsuccessful")
     }
 
@@ -285,7 +285,7 @@ var ECDSA = {
    */
   calcPubKeyRecoveryParam: function (origPubKey, r, s, hash) {
     for (var i = 0; i < 4; i++) {
-      var pubKey = ECDSA.recoverPubKey(r, s, hash, i)
+      var pubKey = ecdsa.recoverPubKey(r, s, hash, i)
 
       if (pubKey.equals(origPubKey)) {
         return i
@@ -296,4 +296,4 @@ var ECDSA = {
   }
 }
 
-module.exports = ECDSA
+module.exports = ecdsa
