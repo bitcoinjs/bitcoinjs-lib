@@ -85,6 +85,10 @@ ECKey.prototype.toHex = function() {
 
 ECKey.prototype.toBytes = function() {
   var bytes = this.priv.toByteArrayUnsigned()
+
+  // ensure 32 bytes
+  while (bytes.length < 32) bytes.unshift(0)
+
   if (this.compressed) bytes.push(1)
   return bytes
 }
