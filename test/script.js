@@ -33,19 +33,19 @@ describe('Script', function() {
   describe('getOutType', function() {
     it('works for p2sh', function() {
       var script = Script.fromHex(p2shScriptPubKey)
-      assert.equal(script.getOutType(), 'P2SH')
+      assert.equal(script.getOutType(), 'scripthash')
     })
 
-    it('works for pubkey', function() {
+    it('works for pubkeyhash', function() {
       var script = Script.fromHex(pubkeyScriptPubKey)
-      assert.equal(script.getOutType(), 'Pubkey')
+      assert.equal(script.getOutType(), 'pubkeyhash')
     })
   })
 
   describe('getInType', function() {
     it('works for address', function() {
       var script = Script.fromHex(addressScriptSig)
-      assert.equal(script.getInType(), 'Address')
+      assert.equal(script.getInType(), 'pubkeyhash')
     })
   })
 

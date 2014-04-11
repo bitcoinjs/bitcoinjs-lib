@@ -96,6 +96,7 @@ Script.prototype.parse = function() {
   }
 }
 
+
 /**
  * Compare the script to known templates of scriptPubKey.
  *
@@ -103,34 +104,96 @@ Script.prototype.parse = function() {
  * templates and return a string naming the detected type.
  *
  * Currently supported are:
- * Address:
+ * Pubkeyhash
  *   Paying to a Bitcoin address which is the hash of a pubkey.
  *   OP_DUP OP_HASH160 [pubKeyHash] OP_EQUALVERIFY OP_CHECKSIG
+ *   Example:
  *
  * Pubkey:
  *   Paying to a public key directly.
  *   [pubKey] OP_CHECKSIG
+ *   Example: txid 0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098
+ *
+ * Scripthash (P2SH)
+ *    Paying to an address which is the hash of a script
+ *    OP_HASH160 [Scripthash] OP_EQUAL
+ *    Example:
+ *
+ * Multisig
+ *    Paying to multiple pubkeys and require a number of the signatures
+ *    m [pubkey] [pubkey] [pubkey] n OP_CHECKMULTISIG
+ *    Example:
  *
  * Strange:
  *   Any other script (no template matched).
  */
+
+// Below is the current standard set of out types
+/* const char* GetTxnOutputType(txnouttype t)
+{
+    switch (t)
+    {
+    case TX_NONSTANDARD: return "nonstandard";
+    case TX_PUBKEY: return "pubkey";
+    case TX_PUBKEYHASH: return "pubkeyhash";
+    case TX_SCRIPTHASH: return "scripthash";
+    case TX_MULTISIG: return "multisig";
+    case TX_NULL_DATA: return "nulldata";
+    }
+    return NULL;
+}*/
+
+// https://github.com/bitcoin/bitcoin/blob/19e5b9d2dfcac4efadba636745485d9660fb1abe/src/script.cpp#L75
+
+// supporting tx_null_data https://github.com/bitcoin/bitcoin/pull/3128
+// https://helloblock.io/mainnet/transactions/ebc9fa1196a59e192352d76c0f6e73167046b9d37b8302b6bb6968dfd279b767
 Script.prototype.getOutType = function() {
-  if (this.chunks[this.chunks.length - 1] == Opcode.map.OP_EQUAL &&
-      this.chunks[0] == Opcode.map.OP_HASH160 &&
-      this.chunks.length == 3) {
-    // Transfer to M-OF-N
-    return 'P2SH'
-  } else if (this.chunks.length == 5 &&
-             this.chunks[0] == Opcode.map.OP_DUP &&
-             this.chunks[1] == Opcode.map.OP_HASH160 &&
-             this.chunks[3] == Opcode.map.OP_EQUALVERIFY &&
-             this.chunks[4] == Opcode.map.OP_CHECKSIG) {
+  if (this.chunks.length == 5 &&
+    this.chunks[0] == Opcode.map.OP_DUP &&
+    this.chunks[1] == Opcode.map.OP_HASH160 &&
+    Array.isArray(this.chunks[2]) &&
+    this.chunks[2].length === 20 &&
+    this.chunks[3] == Opcode.map.OP_EQUALVERIFY &&
+    this.chunks[4] == Opcode.map.OP_CHECKSIG) {
     // Transfer to Bitcoin address
-    return 'Pubkey'
+    return 'pubkeyhash';
+  } else if (this.chunks.length === 2 &&
+    Array.isArray(this.chunks[0]) &&
+    this.chunks[1] === Opcode.map.OP_CHECKSIG) {
+    // [pubkey] OP_CHECKSIG
+    return 'pubkey';
+  } else if (this.chunks[this.chunks.length - 1] == Opcode.map.OP_EQUAL &&
+    this.chunks[0] == Opcode.map.OP_HASH160 &&
+    Array.isArray(this.chunks[1]) &&
+    this.chunks[1].length === 20 &&
+    this.chunks.length == 3) {
+    // Transfer to M-OF-N
+    return 'scripthash';
+  } else if (this.chunks.length > 3 &&
+    // m is a smallint
+    isSmallIntOp(this.chunks[0]) &&
+    // n is a smallint
+    isSmallIntOp(this.chunks[this.chunks.length - 2]) &&
+    // n greater or equal to m
+    this.chunks[0] <= this.chunks[this.chunks.length - 2] &&
+    // n cannot be 0
+    this.chunks[this.chunks.length - 2] !== Opcode.map.OP_0 &&
+    // n is the size of chunk length minus 3 (m, n, OP_CHECKMULTISIG)
+    this.chunks.length - 3 === this.chunks[this.chunks.length - 2] - Opcode.map.OP_RESERVED &&
+    // last chunk is OP_CHECKMULTISIG
+    this.chunks[this.chunks.length - 1] == Opcode.map.OP_CHECKMULTISIG) {
+    return 'multisig'
+  } else if (this.chunks[0] === Opcode.map.OP_RETURN) {
+    return 'nulldata'
   } else {
-    return 'Strange'
+    return 'nonstandard';
   }
 }
+
+function isSmallIntOp(opcode) {
+  return ((opcode == Opcode.map.OP_0) ||
+    ((opcode >= Opcode.map.OP_1) && (opcode <= Opcode.map.OP_16)));
+};
 
 /**
  * Returns the address corresponding to this output in hash160 form.
@@ -139,11 +202,11 @@ Script.prototype.getOutType = function() {
 Script.prototype.toScriptHash = function() {
   var outType = this.getOutType()
 
-  if (outType == 'Pubkey') {
+  if (outType == 'pubkeyhash') {
     return this.chunks[2]
   }
 
-  if (outType == 'P2SH') {
+  if (outType == 'scripthash') {
     return crypto.hash160(this.buffer)
   }
 
@@ -154,11 +217,11 @@ Script.prototype.toScriptHash = function() {
 Script.prototype.getToAddress = function() {
   var outType = this.getOutType()
 
-  if (outType == 'Pubkey') {
+  if (outType == 'pubkeyhash') {
     return new Address(this.chunks[2])
   }
 
-  if (outType == 'P2SH') {
+  if (outType == 'scripthash') {
     return new Address(this.chunks[1], 5)
   }
 
@@ -197,23 +260,23 @@ Script.prototype.getFromAddress = function(){
  */
 Script.prototype.getInType = function() {
   if (this.chunks.length == 1 &&
-      Array.isArray(this.chunks[0])) {
+    Array.isArray(this.chunks[0])) {
     // Direct IP to IP transactions only have the signature in their scriptSig.
     // TODO: We could also check that the length of the data is correct.
-    return 'Pubkey'
+    return 'pubkey';
   } else if (this.chunks.length == 2 &&
-             Array.isArray(this.chunks[0]) &&
-             Array.isArray(this.chunks[1])) {
-    return 'Address'
+    Array.isArray(this.chunks[0]) &&
+    Array.isArray(this.chunks[1])) {
+    return 'pubkeyhash';
   } else if (this.chunks[0] == Opcode.map.OP_0 &&
-             this.chunks.slice(1).reduce(function(t, chunk, i) {
-    return t && Array.isArray(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1)
-  }, true)) {
-    return 'Multisig'
+    this.chunks.slice(1).reduce(function(t, chunk, i) {
+      return t && Array.isArray(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1);
+    }, true)) {
+    return 'multisig';
   } else {
-    return 'Strange'
+    return 'nonstandard';
   }
-}
+};
 
 /**
  * Returns the affected public key for this input.
@@ -230,9 +293,9 @@ Script.prototype.getInType = function() {
  */
 Script.prototype.simpleInPubKey = function() {
   switch (this.getInType()) {
-    case 'Address':
+    case 'pubkeyhash':
       return this.chunks[1]
-    case 'Pubkey':
+    case 'pubkey':
       // TODO: Theoretically, we could recover the pubkey from the sig here.
       //       See https://bitcointalk.org/?topic=6430.0
       throw new Error('Script does not contain pubkey')
