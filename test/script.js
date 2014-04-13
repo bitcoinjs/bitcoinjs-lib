@@ -14,6 +14,17 @@ describe('Script', function() {
     p2shScriptPubKey = "a914e8c300c87986efa84c37c0519929019ef86eb5b487"
     pubkeyScriptPubKey = "76a9145a3acbc7bbcc97c5ff16f5909c9d7d3fadb293a888ac"
     addressScriptSig = "48304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f30141040cd2d2ce17a1e9b2b3b2cb294d40eecf305a25b7e7bfdafae6bb2639f4ee399b3637706c3d377ec4ab781355add443ae864b134c5e523001c442186ea60f0eb8"
+
+    // https://helloblock.io/transactions/09dd94f2c85262173da87a745a459007bb1eed6eeb6bfa238a0cd91a16cf7790
+    validMultisigScript = '5121032487c2a32f7c8d57d2a93906a6457afd00697925b0e6e145d89af6d3bca330162102308673d16987eaa010e540901cc6fe3695e758c19f46ce604e174dac315e685a52ae'
+
+    // https://helloblock.io/transactions/dfa8ff97f33cb83dbaa22ed3a99883218d6afd681d486b374496d145b39a63b7
+    // asm: "0 0 0 OP_CHECKMULTISIG"
+    invalidMultisigScript = '000000ae'
+
+    // https://helloblock.io/transactions/5e9be7fb36ee49ce84bee4c8ef38ad0efc0608b78dae1c2c99075297ef527890
+    // op_return
+    opreturnScript = '6a2606deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474'
   })
 
   describe('constructor', function() {
@@ -39,6 +50,21 @@ describe('Script', function() {
     it('works for pubkeyhash', function() {
       var script = Script.fromHex(pubkeyScriptPubKey)
       assert.equal(script.getOutType(), 'pubkeyhash')
+    })
+
+    it(' > Supports Multisig', function() {
+      var script = Script.fromHex(validMultisigScript)
+      assert.equal(script.getOutType(), 'multisig')
+    })
+
+    it(' > Supports invalid Multisig', function() {
+      var script = Script.fromHex(invalidMultisigScript)
+      assert.equal(script.getOutType(), 'nonstandard')
+    })
+
+    it(' > Supports null_data (OP_RETURN)', function() {
+      var script = Script.fromHex(opreturnScript)
+      assert.equal(script.getOutType(), 'nulldata')
     })
   })
 
