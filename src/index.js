@@ -8,7 +8,6 @@ module.exports = {
   BigInteger: require('./jsbn/jsbn'),
   convert: require('./convert'),
   crypto: require('./crypto'),
-  CryptoJS: require('crypto-js'),
   ecdsa: require('./ecdsa'),
   ECKey: Key.ECKey,
   ECPointFp: require('./jsbn/ec').ECPointFp,
