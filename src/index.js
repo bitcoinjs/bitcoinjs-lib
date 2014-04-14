@@ -13,7 +13,6 @@ module.exports = {
   ECKey: Key.ECKey,
   ECPointFp: require('./jsbn/ec').ECPointFp,
   ECPubKey: Key.ECPubKey,
-  Key: Key.ECKey,
   Message: require('./message'),
   Opcode: require('./opcode'),
   HDWallet: require('./hdwallet'),
