@@ -3,24 +3,24 @@ var T = require('./transaction')
 
 module.exports = {
   Address: require('./address'),
-  crypto: require('./crypto'),
-  Key: Key.ECKey,
-  ECKey: Key.ECKey,
-  ECPubKey: Key.ECPubKey,
-  Message: require('./message'),
+  base58: require('./base58'),
+  base58check: require('./base58check'),
   BigInteger: require('./jsbn/jsbn'),
-  Crypto: require('crypto-js'), //should we expose this at all?
-  Script: require('./script'),
+  convert: require('./convert'),
+  crypto: require('./crypto'),
+  CryptoJS: require('crypto-js'),
+  ecdsa: require('./ecdsa'),
+  ECKey: Key.ECKey,
+  ECPointFp: require('./jsbn/ec').ECPointFp,
+  ECPubKey: Key.ECPubKey,
+  Key: Key.ECKey,
+  Message: require('./message'),
   Opcode: require('./opcode'),
+  HDWallet: require('./hdwallet'),
+  Script: require('./script'),
   Transaction: T.Transaction,
   TransactionIn: T.TransactionIn,
   TransactionOut: T.TransactionOut,
-  ECPointFp: require('./jsbn/ec').ECPointFp,
-  Wallet: require('./wallet'),
   network: require('./network'),
-  ecdsa: require('./ecdsa'),
-  HDWallet: require('./hdwallet.js'),
-  base58: require('./base58'),
-  base58check: require('./base58check'),
-  convert: require('./convert')
+  Wallet: require('./wallet')
 }
