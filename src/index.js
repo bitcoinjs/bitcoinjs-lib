@@ -18,6 +18,7 @@ module.exports = {
   Opcode: require('./opcode'),
   HDWallet: require('./hdwallet'),
   Script: require('./script'),
+  SecureRandom: require('secure-random'),
   Transaction: T.Transaction,
   TransactionIn: T.TransactionIn,
   TransactionOut: T.TransactionOut,
