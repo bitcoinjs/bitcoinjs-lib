@@ -9,7 +9,7 @@ var ECPointFp = bitcoinjs.ECPointFp
 var convert = require('../src/convert')
 
 it('Keys & Key Management', function () {
-  var p1 = bitcoinjs.Key().getPub().toBytes()
+  var p1 = bitcoinjs.ECKey().getPub().toBytes()
   assert.equal(p1.length, 65)
 
   var p1_q = ECPointFp.decodeFrom(ecparams.getCurve(), p1)
@@ -26,7 +26,7 @@ it('Keys & Key Management', function () {
 })
 
 it('Signing and Verifying', function () {
-  var s1 = bitcoinjs.Key()
+  var s1 = bitcoinjs.ECKey()
   var sig_a = s1.sign(BigInteger.ZERO)
   assert.ok(sig_a, 'Sign null')
 
