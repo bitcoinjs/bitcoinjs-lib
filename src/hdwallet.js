@@ -8,7 +8,6 @@ var CJS = require('crypto-js')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ECPubKey = require('./eckey').ECPubKey
-var format = require('util').format
 var Network = require('./network')
 
 function HmacSHA512(buffer, secret) {
@@ -80,7 +79,7 @@ HDWallet.fromBuffer = function(input) {
   }
 
   if (!hd.network) {
-    throw new Error(format('Could not find version %s', convert.bytesToHex(versionBytes)))
+    throw new Error('Could not find version ' + version.toString(16))
   }
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
