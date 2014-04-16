@@ -1,11 +1,11 @@
-var HDWallet = require('../src/hdwallet.js')
 var assert = require('assert')
-var convert = require('../src/convert.js')
-var Network = require('../src/network')
-var bitcoin = Network.bitcoin.pubKeyHash
-var testnet = Network.testnet.pubKeyHash
 
-var b2h = convert.bytesToHex
+var HDWallet = require('../').HDWallet
+
+function b2h(buf) {
+  assert(Buffer.isBuffer(buf))
+  return buf.toString('hex')
+}
 
 describe('HDWallet', function() {
   describe('toBase58', function() {
@@ -33,10 +33,10 @@ describe('HDWallet', function() {
 
   describe('constructor & seed deserialization', function() {
     var expectedPrivateKey = '0fd71c652e847ba7ea7956e3cf3fc0a0985871846b1b2c23b9c6a29a38cee86001'
-    var seed = [
+    var seed = new Buffer([
       99, 114, 97, 122, 121, 32, 104, 111, 114, 115, 101, 32, 98,
       97, 116, 116, 101, 114, 121, 32, 115, 116, 97, 112, 108, 101
-    ]
+    ])
 
     it('creates from binary seed', function() {
       var hd = new HDWallet(seed)
@@ -47,16 +47,7 @@ describe('HDWallet', function() {
 
     describe('fromSeedHex', function() {
       it('creates from hex seed', function() {
-        var hd = HDWallet.fromSeedHex(b2h(seed))
-
-        assert.equal(hd.priv.toHex(), expectedPrivateKey)
-        assert(hd.pub)
-      })
-    })
-
-    describe('fromSeedString', function() {
-      it('creates from string seed', function() {
-        var hd = HDWallet.fromSeedString(convert.bytesToString(seed))
+        var hd = HDWallet.fromSeedHex(seed.toString('hex'))
 
         assert.equal(hd.priv.toHex(), expectedPrivateKey)
         assert(hd.pub)

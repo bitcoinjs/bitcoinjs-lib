@@ -1,7 +1,9 @@
-var Address = require('./address')
 var assert = require('assert')
 var base58 = require('./base58')
 var convert = require('./convert')
+
+var Address = require('./address')
+var BigInteger = require('./jsbn/jsbn')
 var CJS = require('crypto-js')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
@@ -13,7 +15,7 @@ function HmacSHA512(buffer, secret) {
   var words = convert.bytesToWordArray(buffer)
   var hash = CJS.HmacSHA512(words, secret)
 
-  return convert.wordArrayToBytes(hash)
+  return new Buffer(convert.wordArrayToBytes(hash))
 }
 
 function HDWallet(seed, netstr) {
@@ -27,7 +29,7 @@ function HDWallet(seed, netstr) {
     throw new Error("Unknown network: " + this.network)
   }
 
-  this.priv = new ECKey(I.slice(0, 32).concat([1]), true)
+  this.priv = new ECKey(I.slice(0, 32), true)
   this.pub = this.priv.getPub()
   this.index = 0
   this.depth = 0
@@ -36,16 +38,8 @@ function HDWallet(seed, netstr) {
 HDWallet.HIGHEST_BIT = 0x80000000
 HDWallet.LENGTH = 78
 
-function arrayEqual(a, b) {
-  return !(a < b || a > b)
-}
-
 HDWallet.fromSeedHex = function(hex, network) {
-  return new HDWallet(convert.hexToBytes(hex), network)
-}
-
-HDWallet.fromSeedString = function(string, network) {
-  return new HDWallet(convert.stringToBytes(string), network)
+  return new HDWallet(new Buffer(hex, 'hex'), network)
 }
 
 HDWallet.fromBase58 = function(string) {
@@ -58,37 +52,27 @@ HDWallet.fromBase58 = function(string) {
   assert.deepEqual(newChecksum, checksum)
   assert.equal(payload.length, HDWallet.LENGTH)
 
-  return HDWallet.fromBytes(payload)
+  return HDWallet.fromBuffer(payload)
 }
 
 HDWallet.fromHex = function(input) {
-  return HDWallet.fromBytes(convert.hexToBytes(input))
+  return HDWallet.fromBuffer(new Buffer(input, 'hex'))
 }
 
-HDWallet.fromBytes = function(input) {
-  // This 78 byte structure can be encoded like other Bitcoin data in Base58. (+32 bits checksum)
-  if (input.length != HDWallet.LENGTH) {
-    throw new Error(format('Invalid input length, %s. Expected %s.', input.length, HDWallet.LENGTH))
-  }
-
-  // FIXME: transitionary fix
-  if (Buffer.isBuffer(input)) {
-    input = Array.prototype.map.bind(input, function(x) { return x })()
-  }
+HDWallet.fromBuffer = function(input) {
+  assert(input.length === HDWallet.LENGTH)
 
   var hd = new HDWallet()
 
-  // 4 byte: version bytes (bitcoin: 0x0488B21E public, 0x0488ADE4 private
-  // testnet: 0x043587CF public, 0x04358394 private)
-  var versionBytes = input.slice(0, 4)
-  var versionWord = convert.bytesToWords(versionBytes)[0]
-  var type
+  // 4 byte: version bytes
+  var version = input.readUInt32BE(0)
 
+  var type
   for(var name in Network) {
     var network = Network[name]
 
     for(var t in network.bip32) {
-      if (versionWord != network.bip32[t]) continue
+      if (version != network.bip32[t]) continue
 
       type = t
       hd.network = name
@@ -100,15 +84,17 @@ HDWallet.fromBytes = function(input) {
   }
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
-  hd.depth = input[4]
+  hd.depth = input.readUInt8(4)
 
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
-  hd.parentFingerprint = input.slice(5, 9)
-  assert((hd.depth === 0) == arrayEqual(hd.parentFingerprint, [0, 0, 0, 0]))
+  hd.parentFingerprint = input.readUInt32BE(5)
+  if (hd.depth === 0) {
+    assert(hd.parentFingerprint === 0x00000000)
+  }
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
   // This is encoded in MSB order. (0x00000000 if master key)
-  hd.index = convert.bytesToNum(input.slice(9, 13).reverse())
+  hd.index = input.readUInt32BE(9)
   assert(hd.depth > 0 || hd.index === 0)
 
   // 32 bytes: the chain code
@@ -117,7 +103,7 @@ HDWallet.fromBytes = function(input) {
   // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
   // public keys, 0x00 + k for private keys)
   if (type == 'priv') {
-    hd.priv = new ECKey(input.slice(46, 78).concat([1]), true)
+    hd.priv = new ECKey(input.slice(46, 78), true)
     hd.pub = hd.priv.getPub()
   } else {
     hd.pub = new ECPubKey(input.slice(45, 78), true)
@@ -131,63 +117,57 @@ HDWallet.prototype.getIdentifier = function() {
 }
 
 HDWallet.prototype.getFingerprint = function() {
-  return Array.prototype.slice.call(this.getIdentifier(), 0, 4)
+  return this.getIdentifier().slice(0, 4)
 }
 
 HDWallet.prototype.getAddress = function() {
   return new Address(crypto.hash160(this.pub.toBytes()), this.getKeyVersion())
 }
 
-HDWallet.prototype.toBytes = function(priv) {
-  var buffer = []
-
+HDWallet.prototype.toBuffer = function(priv) {
   // Version
-  // 4 byte: version bytes (bitcoin: 0x0488B21E public, 0x0488ADE4 private; testnet: 0x043587CF public,
-  // 0x04358394 private)
   var version = Network[this.network].bip32[priv ? 'priv' : 'pub']
-  var vBytes = convert.wordsToBytes([version])
+  var buffer = new Buffer(HDWallet.LENGTH)
 
-  buffer = buffer.concat(vBytes)
-  assert.equal(buffer.length, 4)
+  // 4 bytes: version bytes
+  buffer.writeUInt32BE(version, 0)
 
   // Depth
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ....
-  buffer.push(this.depth)
-  assert.equal(buffer.length, 4 + 1)
+  buffer.writeUInt8(this.depth, 4)
 
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
-  buffer = buffer.concat(this.depth ? this.parentFingerprint : [0, 0, 0, 0])
-  assert.equal(buffer.length, 4 + 1 + 4)
+  var fingerprint = this.depth ? this.parentFingerprint : 0x00000000
+  buffer.writeUInt32BE(fingerprint, 5)
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
-  // This is encoded in MSB order. (0x00000000 if master key)
-  buffer = buffer.concat(convert.numToBytes(this.index, 4).reverse())
-  assert.equal(buffer.length, 4 + 1 + 4 + 4)
+  // This is encoded in Big endian. (0x00000000 if master key)
+  buffer.writeUInt32BE(this.index, 9)
 
   // 32 bytes: the chain code
-  buffer = buffer.concat(this.chaincode)
-  assert.equal(buffer.length, 4 + 1 + 4 + 4 + 32)
+  this.chaincode.copy(buffer, 13)
 
   // 33 bytes: the public key or private key data
-  // (0x02 + X or 0x03 + X for public keys, 0x00 + k for private keys)
   if (priv) {
     assert(this.priv, 'Cannot serialize to private without private key')
-    buffer.push(0)
-    buffer = buffer.concat(this.priv.toBytes().slice(0, 32))
+
+    // 0x00 + k for private keys
+    buffer.writeUInt8(0, 45)
+    new Buffer(this.priv.toBytes()).copy(buffer, 46)
   } else {
-    buffer = buffer.concat(this.pub.toBytes(true))
+
+    // X9.62 encoding for public keys
+    new Buffer(this.pub.toBytes()).copy(buffer, 45)
   }
 
   return buffer
 }
-
 HDWallet.prototype.toHex = function(priv) {
-  var bytes = this.toBytes(priv)
-  return convert.bytesToHex(bytes)
+  return this.toBuffer(priv).toString('hex')
 }
 
 HDWallet.prototype.toBase58 = function(priv) {
-  var buffer = new Buffer(this.toBytes(priv))
+  var buffer = new Buffer(this.toBuffer(priv))
   var checksum = crypto.hash256(buffer).slice(0, 4)
 
   return base58.encode(Buffer.concat([
@@ -197,25 +177,32 @@ HDWallet.prototype.toBase58 = function(priv) {
 }
 
 HDWallet.prototype.derive = function(i) {
-  var I
-    , iBytes = convert.numToBytes(i, 4).reverse()
+  var iBytes = convert.numToBytes(i, 4).reverse()
     , cPar = this.chaincode
     , usePriv = i >= HDWallet.HIGHEST_BIT
     , SHA512 = CJS.algo.SHA512
 
+  var I
   if (usePriv) {
     assert(this.priv, 'Private derive on public key')
 
     // If 1, private derivation is used:
     // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
     var kPar = this.priv.toBytes().slice(0, 32)
+
+    // FIXME: Dislikes buffers
     I = HmacFromBytesToBytes(SHA512, [0].concat(kPar, iBytes), cPar)
   } else {
     // If 0, public derivation is used:
     // let I = HMAC-SHA512(Key = cpar, Data = χ(kpar*G) || i)
-    var KPar = this.pub.toBytes(true)
+    var KPar = this.pub.toBytes()
+
+    // FIXME: Dislikes buffers
     I = HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
   }
+
+  // FIXME: Boo, CSJ.algo.SHA512 uses byte arrays
+  I = new Buffer(I)
 
   // Split I = IL || IR into two 32-byte sequences, IL and IR.
   var IL = I.slice(0, 32)
@@ -224,20 +211,21 @@ HDWallet.prototype.derive = function(i) {
   var hd = new HDWallet()
   hd.network = this.network
 
+  var ILbytes = Buffer.concat([IL, new Buffer([0x01])])
+  var ILpriv = new ECKey(ILbytes, true)
+
   if (this.priv) {
     // ki = IL + kpar (mod n).
-    hd.priv = this.priv.add(new ECKey(IL.concat([1])))
-    hd.priv.compressed = true
-    hd.priv.version = this.getKeyVersion()
+    hd.priv = this.priv.add(ILpriv)
     hd.pub = hd.priv.getPub()
   } else {
     // Ki = (IL + kpar)*G = IL*G + Kpar
-    hd.pub = this.pub.add(new ECKey(IL.concat([1]), true).getPub())
+    hd.pub = this.pub.add(ILpriv.getPub())
   }
 
   // ci = IR.
   hd.chaincode = IR
-  hd.parentFingerprint = this.getFingerprint()
+  hd.parentFingerprint = this.getFingerprint().readUInt32BE(0)
   hd.depth = this.depth + 1
   hd.index = i
   hd.pub.compressed = true
