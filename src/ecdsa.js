@@ -74,7 +74,7 @@ var ecdsa = {
 
   verify: function (hash, sig, pubkey) {
     var r,s
-    if (Array.isArray(sig)) {
+    if (Array.isArray(sig) || Buffer.isBuffer(sig)) {
       var obj = ecdsa.parseSig(sig)
       r = obj.r
       s = obj.s
@@ -88,7 +88,7 @@ var ecdsa = {
     var Q
     if (pubkey instanceof ECPointFp) {
       Q = pubkey
-    } else if (Array.isArray(pubkey)) {
+    } else if (Array.isArray(pubkey) || Buffer.isBuffer(pubkey)) {
       Q = ECPointFp.decodeFrom(ecparams.getCurve(), pubkey)
     } else {
       throw new Error("Invalid format for pubkey value, must be byte array or ECPointFp")
