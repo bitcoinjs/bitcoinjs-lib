@@ -30,6 +30,7 @@ ECKey.prototype.import = function (input, compressed) {
       input instanceof ECKey                   ? input.priv
     : input instanceof BigInteger              ? input.mod(ecparams.getN())
     : Array.isArray(input)                     ? fromBin(input.slice(0, 32))
+    : Buffer.isBuffer(input)                   ? fromBin(input.slice(0, 32))
     : typeof input != "string"                 ? null
     : input.length == 44                       ? fromBin(convert.base64ToBytes(input))
     : input.length == 51 && input[0] == '5'    ? fromBin(base58check.decode(input).payload)
@@ -136,6 +137,7 @@ ECPubKey.prototype.import = function(input, compressed) {
     : input instanceof ECPubKey  ? input.pub
     : typeof input == "string"   ? decode(convert.hexToBytes(input))
     : Array.isArray(input)       ? decode(input)
+    : Buffer.isBuffer(input)     ? decode(input)
     : null
 
   assert(this.pub !== null)
