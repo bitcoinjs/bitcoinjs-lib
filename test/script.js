@@ -109,7 +109,7 @@ describe('Script', function() {
         '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f',
         '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19']
         numSigs = 2
-        network = Network.mainnet.p2shVersion
+        network = Network.bitcoin.scriptHash
     })
 
     it('should create valid multi-sig address', function() {
@@ -118,7 +118,7 @@ describe('Script', function() {
       var multiSigAddress = Address(multisig, network).toString()
 
       assert.ok(Address.validate(multiSigAddress))
-      assert.equal(Address.getVersion(multiSigAddress), Network.mainnet.p2shVersion)
+      assert.equal(Address.getVersion(multiSigAddress), Network.bitcoin.scriptHash)
       assert.equal(multiSigAddress,'32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })
 

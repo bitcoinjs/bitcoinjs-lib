@@ -21,7 +21,7 @@ function HDWallet(seed, network) {
 
   var I = HmacSHA512(seed, 'Bitcoin seed')
   this.chaincode = I.slice(32)
-  this.network = network || 'mainnet'
+  this.network = network || 'bitcoin'
   if(!Network.hasOwnProperty(this.network)) {
     throw new Error("Unknown network: " + this.network)
   }
@@ -77,7 +77,7 @@ HDWallet.fromBytes = function(input) {
 
   var hd = new HDWallet()
 
-  // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private
+  // 4 byte: version bytes (bitcoin: 0x0488B21E public, 0x0488ADE4 private
   // testnet: 0x043587CF public, 0x04358394 private)
   var versionBytes = input.slice(0, 4)
   var versionWord = convert.bytesToWords(versionBytes)[0]
@@ -86,8 +86,8 @@ HDWallet.fromBytes = function(input) {
   for(var name in Network) {
     var network = Network[name]
 
-    for(var t in network.hdVersions) {
-      if (versionWord != network.hdVersions[t]) continue
+    for(var t in network.bip32) {
+      if (versionWord != network.bip32[t]) continue
 
       type = t
       hd.network = name
@@ -141,9 +141,9 @@ HDWallet.prototype.toBytes = function(priv) {
   var buffer = []
 
   // Version
-  // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private; testnet: 0x043587CF public,
+  // 4 byte: version bytes (bitcoin: 0x0488B21E public, 0x0488ADE4 private; testnet: 0x043587CF public,
   // 0x04358394 private)
-  var version = Network[this.network].hdVersions[priv ? 'priv' : 'pub']
+  var version = Network[this.network].bip32[priv ? 'priv' : 'pub']
   var vBytes = convert.wordsToBytes([version])
 
   buffer = buffer.concat(vBytes)
@@ -248,7 +248,7 @@ HDWallet.prototype.derivePrivate = function(index) {
 }
 
 HDWallet.prototype.getKeyVersion = function() {
-  return Network[this.network].addressVersion
+  return Network[this.network].pubKeyHash
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58

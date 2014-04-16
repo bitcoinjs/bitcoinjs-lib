@@ -7,7 +7,7 @@ function Wallet(seed, options) {
   if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
 
   var options = options || {}
-  var network = options.network || 'mainnet'
+  var network = options.network || 'bitcoin'
 
   // Stored in a closure to make accidental serialization less likely
   var masterkey = null

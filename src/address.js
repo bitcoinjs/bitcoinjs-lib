@@ -1,7 +1,7 @@
 var base58 = require('./base58')
 var base58check = require('./base58check')
 var convert = require('./convert')
-var mainnet = require('./network').mainnet.addressVersion
+var bitcoin = require('./network').bitcoin.pubKeyHash
 
 function Address(bytes, version) {
   if (!(this instanceof Address)) {
@@ -21,7 +21,7 @@ function Address(bytes, version) {
     }
     else if (bytes.length <= 40) {
       this.hash = convert.hexToBytes(bytes)
-      this.version = version || mainnet
+      this.version = version || bitcoin
     }
     else {
       throw new Error('Invalid or unrecognized input')
@@ -29,7 +29,7 @@ function Address(bytes, version) {
   }
   else {
     this.hash = bytes
-    this.version = version || mainnet
+    this.version = version || bitcoin
   }
 }
 

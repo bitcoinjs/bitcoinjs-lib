@@ -6,7 +6,7 @@ var bytesToHex = convert.bytesToHex
 var hexToBytes = convert.hexToBytes
 var Address = require('../src/address')
 var Network = require('../src/network')
-var testnet = Network.testnet.addressVersion
+var testnet = Network.testnet.pubKeyHash
 
 describe('ECKey', function() {
   describe('constructor', function() {
@@ -83,7 +83,7 @@ describe('ECKey', function() {
       return ECPubKey(x).toHex(false)
     })
 
-    it('mainnet', function() {
+    it('bitcoin', function() {
       var addresses = [
         '19SgmoUj4xowEjwtXvNAtYTAgbvR9iBCui',
         '1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a',
