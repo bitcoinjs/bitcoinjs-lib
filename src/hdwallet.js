@@ -10,6 +10,9 @@ var ECKey = require('./eckey').ECKey
 var ECPubKey = require('./eckey').ECPubKey
 var Network = require('./network')
 
+var sec = require('./jsbn/sec')
+var ecparams = sec("secp256k1")
+
 function HmacSHA512(buffer, secret) {
   var words = convert.bytesToWordArray(buffer)
   var hash = CJS.HmacSHA512(words, secret)
@@ -204,26 +207,29 @@ HDWallet.prototype.derive = function(i) {
   I = new Buffer(I)
 
   // Split I = IL || IR into two 32-byte sequences, IL and IR.
-  var IL = I.slice(0, 32)
-    , IR = I.slice(32)
+  var ILb = I.slice(0, 32)
+    , IRb = I.slice(32)
 
   var hd = new HDWallet()
   hd.network = this.network
 
-  var ILbytes = Buffer.concat([IL, new Buffer([0x01])])
-  var ILpriv = new ECKey(ILbytes, true)
+  var IL = BigInteger.fromByteArrayUnsigned(ILb)
 
   if (this.priv) {
     // ki = IL + kpar (mod n).
-    hd.priv = this.priv.add(ILpriv)
+    var ki = IL.add(this.priv.priv).mod(ecparams.getN())
+
+    hd.priv = new ECKey(ki, true)
     hd.pub = hd.priv.getPub()
   } else {
     // Ki = (IL + kpar)*G = IL*G + Kpar
-    hd.pub = this.pub.add(ILpriv.getPub())
+    var Ki = IL.multiply(ecparams.getG()).add(this.pub.pub)
+
+    hd.pub = new ECPubKey(Ki, true)
   }
 
   // ci = IR.
-  hd.chaincode = IR
+  hd.chaincode = IRb
   hd.parentFingerprint = this.getFingerprint().readUInt32BE(0)
   hd.depth = this.depth + 1
   hd.index = i
