@@ -335,7 +335,7 @@ ECPointFp.prototype.getEncoded = function (compressed) {
   return enc;
 };
 
-ECPointFp.decodeFrom = function (ecparams, enc) {
+ECPointFp.decodeFrom = function (curve, enc) {
   var type = enc[0];
   var dataLen = enc.length-1;
 
@@ -349,7 +349,7 @@ ECPointFp.decodeFrom = function (ecparams, enc) {
   else {
     var xBa = enc.slice(1),
         x = BigInteger.fromByteArrayUnsigned(xBa),
-        p = ecparams.getQ(),
+        p = curve.getQ(),
         xCubedPlus7 = x.multiply(x).multiply(x).add(new BigInteger('7')).mod(p),
         pPlus1Over4 = p.add(new BigInteger('1'))
                        .divide(new BigInteger('4')),
@@ -359,14 +359,9 @@ ECPointFp.decodeFrom = function (ecparams, enc) {
     }
   }
 
-  // Prepend zero byte to prevent interpretation as negative integer
-
-  // Convert to BigIntegers
-
-  // Return point
-  return new ECPointFp(ecparams,
-                       ecparams.fromBigInteger(x),
-                       ecparams.fromBigInteger(y));
+  return new ECPointFp(curve,
+                       curve.fromBigInteger(x),
+                       curve.fromBigInteger(y));
 };
 
 ECPointFp.prototype.add2D = function (b) {
