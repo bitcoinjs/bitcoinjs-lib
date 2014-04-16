@@ -2,7 +2,7 @@ var assert = require('assert')
 var convert = require('../').convert
 var ECKey = require('../src/eckey').ECKey
 var Message = require('../').Message
-var testnet = require('../').network.testnet.addressVersion
+var testnet = require('../').network.testnet.pubKeyHash
 
 describe('Message', function() {
   var msg

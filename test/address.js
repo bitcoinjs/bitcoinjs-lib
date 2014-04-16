@@ -3,26 +3,26 @@ var Address = require('../src/address')
 var network = require('../src/network')
 var base58 = require('../src/base58')
 var base58check = require('../src/base58check')
-var mainnet = network.mainnet.addressVersion
-var testnet = network.testnet.addressVersion
+var bitcoin = network.bitcoin.pubKeyHash
+var testnet = network.testnet.pubKeyHash
 
 describe('Address', function() {
-  var testnetAddress, mainnetAddress
-  var testnetP2shAddress, mainnetP2shAddress
+  var testnetAddress, bitcoinAddress
+  var testnetP2shAddress, bitcoinP2shAddress
 
   beforeEach(function(){
-    mainnetAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
+    bitcoinAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
     testnetAddress = 'mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef'
-    mainnetP2shAddress = '3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt'
+    bitcoinP2shAddress = '3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt'
     testnetP2shAddress = '2MxKEf2su6FGAUfCEAHreGFQvEYrfYNHvL7'
   })
 
   describe('parsing', function() {
     it('works with Address object', function() {
-      var addr = new Address(new Address('mwrB4fgT1KSBCqELaWv7o7tsExuQzW3NY3', network.testnet.addressVersion))
+      var addr = new Address(new Address('mwrB4fgT1KSBCqELaWv7o7tsExuQzW3NY3', network.testnet.pubKeyHash))
 
       assert.equal(addr.toString(), 'mwrB4fgT1KSBCqELaWv7o7tsExuQzW3NY3')
-      assert.equal(addr.version, network.testnet.addressVersion)
+      assert.equal(addr.version, network.testnet.pubKeyHash)
     })
 
     it('works with hex', function() {
@@ -37,15 +37,15 @@ describe('Address', function() {
     })
 
     it('works for byte input', function() {
-      var hash = base58check.decode(mainnetAddress)
+      var hash = base58check.decode(bitcoinAddress)
       var addr = new Address(hash.payload)
       assert.equal(addr.hash, hash.payload)
-      assert.equal(network.mainnet.addressVersion, hash.version)
+      assert.equal(network.bitcoin.pubKeyHash, hash.version)
 
       var hash = base58check.decode(testnetAddress)
       var addr = new Address(hash.payload)
       assert.equal(addr.hash, hash.payload)
-      assert.equal(network.testnet.addressVersion, hash.version)
+      assert.equal(network.testnet.pubKeyHash, hash.version)
     })
 
     it('fails for bad input', function() {
@@ -57,8 +57,8 @@ describe('Address', function() {
 
   describe('getVersion', function() {
     it('returns the proper address version', function() {
-      assert.equal(Address.getVersion(mainnetAddress), network.mainnet.addressVersion)
-      assert.equal(Address.getVersion(testnetAddress), network.testnet.addressVersion)
+      assert.equal(Address.getVersion(bitcoinAddress), network.bitcoin.pubKeyHash)
+      assert.equal(Address.getVersion(testnetAddress), network.testnet.pubKeyHash)
     })
   })
 
@@ -72,9 +72,9 @@ describe('Address', function() {
   describe('Constructor', function(){
     it('resolves version correctly', function(){
       assert.equal((new Address(testnetAddress)).version, testnet)
-      assert.equal((new Address(mainnetAddress)).version, mainnet)
-      assert.equal((new Address(testnetP2shAddress)).version, network.testnet.p2shVersion)
-      assert.equal((new Address(mainnetP2shAddress)).version, network.mainnet.p2shVersion)
+      assert.equal((new Address(bitcoinAddress)).version, bitcoin)
+      assert.equal((new Address(testnetP2shAddress)).version, network.testnet.scriptHash)
+      assert.equal((new Address(bitcoinP2shAddress)).version, network.bitcoin.scriptHash)
     })
   })
 
@@ -85,7 +85,7 @@ describe('Address', function() {
       }
 
       validate(testnetAddress)
-      validate(mainnetAddress)
+      validate(bitcoinAddress)
       validate('12KYrjTdVGjFMtaxERSk3gphreJ5US8aUP')
       validate('12QeMLzSrB8XH8FvEzPMVoRxVAzTr5XM2y')
       validate('1oNLrsHnBcR6dpaBpwz3LSwutbUNkNSjs')
@@ -94,7 +94,7 @@ describe('Address', function() {
 
       // p2sh addresses
       validate(testnetP2shAddress)
-      validate(mainnetP2shAddress)
+      validate(bitcoinP2shAddress)
     })
 
     it('does not validate illegal examples', function() {

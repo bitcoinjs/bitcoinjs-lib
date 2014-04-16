@@ -369,8 +369,8 @@ Script.prototype.writeBytes = function(data) {
 Script.createOutputScript = function(address) {
   var script = new Script()
   address = new Address(address)
-  if (address.version == network.mainnet.p2shVersion ||
-      address.version == network.testnet.p2shVersion) {
+  if (address.version == network.bitcoin.scriptHash ||
+      address.version == network.testnet.scriptHash) {
     // Standard pay-to-script-hash
     script.writeOp(Opcode.map.OP_HASH160)
     script.writeBytes(address.hash)

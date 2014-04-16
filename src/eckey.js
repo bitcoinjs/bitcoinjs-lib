@@ -74,7 +74,7 @@ ECKey.version_bytes = {
 }
 
 ECKey.prototype.toWif = function(version) {
-  version = version || Network.mainnet.addressVersion
+  version = version || Network.bitcoin.pubKeyHash
 
   return base58check.encode(this.toBytes(), ECKey.version_bytes[version])
 }
@@ -169,7 +169,7 @@ ECPubKey.prototype.toBin = function(compressed) {
 }
 
 ECPubKey.prototype.toWif = function(version) {
-  version = version || Network.mainnet.addressVersion
+  version = version || Network.bitcoin.pubKeyHash
 
   return base58check.encode(this.toBytes(), version)
 }
@@ -177,7 +177,7 @@ ECPubKey.prototype.toWif = function(version) {
 ECPubKey.prototype.toString = ECPubKey.prototype.toHex
 
 ECPubKey.prototype.getAddress = function(version) {
-  version = version || Network.mainnet.addressVersion
+  version = version || Network.bitcoin.pubKeyHash
 
   return new Address(crypto.hash160(this.toBytes()), version)
 }

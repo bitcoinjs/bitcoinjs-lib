@@ -25,8 +25,8 @@ describe('Wallet', function() {
       assert.ok(Wallet(seed) instanceof Wallet)
     })
 
-    it('defaults to Bitcoin mainnet', function() {
-      assert.equal(wallet.getMasterKey().network, 'mainnet')
+    it('defaults to Bitcoin network', function() {
+      assert.equal(wallet.getMasterKey().network, 'bitcoin')
     })
 
     it("generates m/0' as the main account", function() {

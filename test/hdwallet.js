@@ -2,8 +2,8 @@ var HDWallet = require('../src/hdwallet.js')
 var assert = require('assert')
 var convert = require('../src/convert.js')
 var Network = require('../src/network')
-var mainnet = Network.mainnet.addressVersion
-var testnet = Network.testnet.addressVersion
+var bitcoin = Network.bitcoin.pubKeyHash
+var testnet = Network.testnet.pubKeyHash
 
 var b2h = convert.bytesToHex
 
@@ -241,8 +241,8 @@ describe('HDWallet', function() {
   })
 
   describe('network types', function() {
-    it('ensures that a mainnet Wallet generates mainnet addresses', function() {
-      var wallet = new HDWallet('foobar', 'mainnet')
+    it('ensures that a bitcoin Wallet generates bitcoin addresses', function() {
+      var wallet = new HDWallet('foobar', 'bitcoin')
       assert.equal(wallet.getAddress().toString(), '1JNymexJHEr5u1BndiChMStFkCgPm4EQ6o')
     })
 
