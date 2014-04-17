@@ -1,6 +1,9 @@
 var assert = require('assert')
 var crypto = require('../').crypto
 var ecdsa = require('..').ecdsa
+var sec = require('../src/jsbn/sec.js')
+var BigInteger = require('../src/jsbn/jsbn.js')
+var ecparams = sec("secp256k1")
 var rng = require('secure-random')
 
 var BigInteger = require('..').BigInteger
@@ -54,6 +57,19 @@ describe('ecdsa', function() {
         '609a978528', 'hex')
 
       assert.ok(ecdsa.verify(hash2, sig_c, s2), 'Verify constant signature')
+    })
+
+    it('should sign with low S value', function() {
+      var priv = new ECKey('ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458')
+      var message = 'Vires in numeris'
+      var signature = priv.sign(message)
+      var parsed = ecdsa.parseSig(signature)
+
+      // Check that the 's' value is 'low', to prevent possible transaction malleability as per
+      // https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
+      assert.ok(parsed.s.compareTo(ecparams.getN().divide(BigInteger.valueOf(2))) <= 0)
+
+      assert.ok(priv.verify(message, signature))
     })
   })
 })
