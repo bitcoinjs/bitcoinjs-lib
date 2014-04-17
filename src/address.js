@@ -4,9 +4,9 @@ var crypto = require('./crypto')
 var network = require('./network')
 
 function Address(hash, version) {
-  assert(Buffer.isBuffer(hash))
-  assert(hash.length === 20)
-  assert(typeof version === 'number')
+  assert(Buffer.isBuffer(hash), 'First argument must be a Buffer')
+  assert.strictEqual(hash.length, 20, 'Invalid hash length')
+  assert.strictEqual(version & 0xFF, version, 'Invalid version byte')
 
   this.hash = hash
   this.version = version
