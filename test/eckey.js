@@ -1,4 +1,8 @@
 var assert = require('assert')
+var ecdsa = require('../src/ecdsa.js')
+var sec = require('../src/jsbn/sec.js')
+var BigInteger = require('../src/jsbn/jsbn.js')
+var ecparams = sec("secp256k1")
 var ECKey = require('../src/eckey.js').ECKey
 var ECPubKey = require('../src/eckey.js').ECPubKey
 var convert = require('../src/convert.js')
@@ -147,6 +151,19 @@ describe('ECKey', function() {
 
       assert(priv.verify(message, signature))
     })
+
+    it('should sign with low S value', function() {
+      var priv = new ECKey(hpriv)
+      var signature = priv.sign(message)
+      var parsed = ecdsa.parseSig(signature)
+
+      // Check that the 's' value is 'low', to prevent possible transaction malleability as per
+      // https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
+      assert(parsed.s.compareTo(ecparams.getN().divide(BigInteger.valueOf(2))) <= 0)
+
+      assert(priv.verify(message, signature))
+    })
+
 
     it('should verify against the public key', function() {
       var priv = new ECKey(hpriv)

@@ -69,6 +69,11 @@ var ecdsa = {
 
     var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
 
+    if (s.compareTo(n.divide(BigInteger.valueOf(2))) > 0) {
+      // Make 's' value 'low', as per https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
+      s = n.subtract(s);
+    }
+
     return ecdsa.serializeSig(r, s)
   },
 
