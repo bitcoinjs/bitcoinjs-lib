@@ -49,14 +49,14 @@ These examples assume you are running bitcoinjs-lib in the browser.
 
 ```javascript
 
-key = new Bitcoin.ECKey()
+key = Bitcoin.ECKey.makeRandom()
 
 // Print your private key (a hex string)
 console.log(key.toString())
 // => 8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48
 
 // Print your public key (defaults to a Bitcoin address)
-console.log(key.getPub().getAddress())
+console.log(key.pub.getAddress())
 // => 14bZ7YWde4KdRb5YN7GYkToz3EHVCvRxkF
 ```
 
@@ -72,7 +72,7 @@ tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 
 tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000)
 
 // Initialize a private key using hex
-key = new Bitcoin.ECKey("8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48")
+key = Bitcoin.ECKey.fromHex("8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48")
 
 // Sign the first input with the new key
 tx.sign(0, key)
