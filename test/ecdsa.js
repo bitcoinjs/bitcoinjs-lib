@@ -25,17 +25,17 @@ describe('ecdsa', function() {
 
   describe('sign/verify', function() {
     it('Signing and Verifying', function () {
-      var s1 = new ECKey()
+      var s1 = ECKey.makeRandom()
       var sig_a = s1.sign(BigInteger.ZERO)
 
       assert.ok(sig_a, 'Sign null')
-      assert.ok(s1.verify(BigInteger.ZERO, sig_a))
+      assert.ok(s1.pub.verify(BigInteger.ZERO, sig_a))
 
-      var message = new BigInteger(1024, rng).toByteArrayUnsigned()
+      var message = new Buffer(1024) // More or less random :P
       var hash = crypto.sha256(message)
       var sig_b = s1.sign(hash)
       assert.ok(sig_b, 'Sign random string')
-      assert.ok(s1.verify(hash, sig_b))
+      assert.ok(s1.pub.verify(hash, sig_b))
 
       var message2 = new Buffer(
         '12dce2c169986b3346827ffb2305cf393984627f5f9722a1b1368e933c8d' +
@@ -60,7 +60,7 @@ describe('ecdsa', function() {
     })
 
     it('should sign with low S value', function() {
-      var priv = new ECKey('ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458')
+      var priv = ECKey.fromHex('ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458')
       var message = 'Vires in numeris'
       var signature = priv.sign(message)
       var parsed = ecdsa.parseSig(signature)
@@ -69,7 +69,7 @@ describe('ecdsa', function() {
       // https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
       assert.ok(parsed.s.compareTo(ecparams.getN().divide(BigInteger.valueOf(2))) <= 0)
 
-      assert.ok(priv.verify(message, signature))
+      assert.ok(priv.pub.verify(message, signature))
     })
   })
 })

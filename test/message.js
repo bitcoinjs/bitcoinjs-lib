@@ -2,7 +2,6 @@ var assert = require('assert')
 var convert = require('../').convert
 var ECKey = require('../src/eckey').ECKey
 var Message = require('../').Message
-var testnet = require('../').network.testnet.pubKeyHash
 
 describe('Message', function() {
   var msg
@@ -54,14 +53,14 @@ describe('Message', function() {
   describe('signing', function() {
     describe('using the uncompressed public key', function(){
       it('gives same signature as a compressed public key', function() {
-        var key = new ECKey(null) // uncompressed
+        var key = ECKey.makeRandom(false) // uncompressed
         var sig = Message.sign(key, msg)
 
-        var compressedKey = new ECKey(key, true) // compressed clone
-        var csig = Message.sign(compressedKey, msg) // FIXME: bad compression support
+        var compressedKey = new ECKey(key.D, true) // compressed clone
+        var csig = Message.sign(compressedKey, msg)
 
-        var addr = key.getPub().getAddress()
-        var caddr = compressedKey.getPub().getAddress()
+        var addr = key.pub.getAddress()
+        var caddr = compressedKey.pub.getAddress()
         assert.ok(Message.verify(addr, sig, msg))
         assert.ok(Message.verify(caddr, csig, msg))
         assert.notDeepEqual(sig.slice(0, 2), csig.slice(0, 2)) // unequal compression flags
@@ -71,10 +70,12 @@ describe('Message', function() {
 
     describe('testnet address', function(){
       it('works', function(){
-        var key = new ECKey(null)
+        var testnet = require('../').network.testnet
+
+        var key = ECKey.makeRandom()
         var sig = Message.sign(key, msg)
 
-        var addr = key.getAddress(testnet)
+        var addr = key.pub.getAddress(testnet.pubKeyHash)
         assert(Message.verify(addr, sig, msg))
       })
     })

@@ -31,8 +31,8 @@ function HDWallet(seed, networkString) {
     throw new Error("Unknown network: " + this.network)
   }
 
-  this.priv = new ECKey(I.slice(0, 32), true)
-  this.pub = this.priv.getPub()
+  this.priv = ECKey.fromBuffer(I.slice(0, 32), true)
+  this.pub = this.priv.pub
   this.index = 0
   this.depth = 0
 }
@@ -105,17 +105,17 @@ HDWallet.fromBuffer = function(input) {
   // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
   // public keys, 0x00 + k for private keys)
   if (type == 'priv') {
-    hd.priv = new ECKey(input.slice(46, 78), true)
-    hd.pub = hd.priv.getPub()
+    hd.priv = ECKey.fromBuffer(input.slice(46, 78), true)
+    hd.pub = hd.priv.pub
   } else {
-    hd.pub = new ECPubKey(input.slice(45, 78), true)
+    hd.pub = ECPubKey.fromBuffer(input.slice(45, 78), true)
   }
 
   return hd
 }
 
 HDWallet.prototype.getIdentifier = function() {
-  return crypto.hash160(this.pub.toBytes())
+  return crypto.hash160(this.pub.toBuffer())
 }
 
 HDWallet.prototype.getFingerprint = function() {
@@ -123,7 +123,7 @@ HDWallet.prototype.getFingerprint = function() {
 }
 
 HDWallet.prototype.getAddress = function() {
-  return new Address(crypto.hash160(this.pub.toBytes()), this.getKeyVersion())
+  return this.pub.getAddress(this.getKeyVersion())
 }
 
 HDWallet.prototype.toBuffer = function(priv) {
@@ -155,11 +155,11 @@ HDWallet.prototype.toBuffer = function(priv) {
 
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
-    new Buffer(this.priv.toBytes()).copy(buffer, 46)
+    this.priv.toBuffer().copy(buffer, 46)
   } else {
 
     // X9.62 encoding for public keys
-    new Buffer(this.pub.toBytes()).copy(buffer, 45)
+    this.pub.toBuffer().copy(buffer, 45)
   }
 
   return buffer
@@ -190,14 +190,16 @@ HDWallet.prototype.derive = function(i) {
 
     // If 1, private derivation is used:
     // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
-    var kPar = this.priv.toBytes().slice(0, 32)
+    var kPar = this.priv.toBuffer().slice(0, 32)
+    kPar = Array.prototype.slice.call(kPar)
 
     // FIXME: Dislikes buffers
     I = HmacFromBytesToBytes(SHA512, [0].concat(kPar, iBytes), cPar)
   } else {
     // If 0, public derivation is used:
     // let I = HMAC-SHA512(Key = cpar, Data = χ(kpar*G) || i)
-    var KPar = this.pub.toBytes()
+    var KPar = this.pub.toBuffer()
+    KPar = Array.prototype.slice.call(KPar)
 
     // FIXME: Dislikes buffers
     I = HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
@@ -217,13 +219,13 @@ HDWallet.prototype.derive = function(i) {
 
   if (this.priv) {
     // ki = IL + kpar (mod n).
-    var ki = IL.add(this.priv.priv).mod(ecparams.getN())
+    var ki = IL.add(this.priv.D).mod(ecparams.getN())
 
     hd.priv = new ECKey(ki, true)
-    hd.pub = hd.priv.getPub()
+    hd.pub = hd.priv.pub
   } else {
     // Ki = (IL + kpar)*G = IL*G + Kpar
-    var Ki = IL.multiply(ecparams.getG()).add(this.pub.pub)
+    var Ki = IL.multiply(ecparams.getG()).add(this.pub.Q)
 
     hd.pub = new ECPubKey(Ki, true)
   }

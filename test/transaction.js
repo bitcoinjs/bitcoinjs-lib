@@ -166,10 +166,10 @@ describe('Transaction', function() {
         tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
         tx.addOutput("1Bu3bhwRmevHLAy1JrRB6AfcxfgDG2vXRd:50000")
 
-        var key = new ECKey('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
+        var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
         tx.sign(0, key)
 
-        var pub = key.getPub().toBytes()
+        var pub = key.pub.toBuffer()
         var script = prevTx.outs[0].script.buffer
         var sig = tx.ins[0].script.chunks[0]
 
@@ -185,8 +185,8 @@ describe('Transaction', function() {
       })
 
       it('returns true for valid signature', function(){
-        var key = new ECKey('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
-        var pub = key.getPub().toBytes()
+        var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
+        var pub = key.pub.toBuffer()
         var script = prevTx.outs[0].script.buffer
         var sig = validTx.ins[0].script.chunks[0]
 
