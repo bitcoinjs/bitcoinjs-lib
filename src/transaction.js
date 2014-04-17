@@ -8,6 +8,7 @@ var convert = require('./convert')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ecdsa = require('./ecdsa')
+var Network = require('./network')
 
 var Transaction = function (doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
@@ -97,6 +98,9 @@ Transaction.prototype.addOutput = function (address, value) {
     address = args[0]
     value = parseInt(args[1])
   }
+
+  // FIXME: Stricter Transaction API
+  address = Address.fromBase58Check(address)
 
   this.outs.push(new TransactionOut({
     value: value,
@@ -297,18 +301,20 @@ Transaction.deserialize = function(buffer) {
 
 /**
  * Signs a standard output at some index with the given key
+ * FIXME: network support is ugly
  */
-Transaction.prototype.sign = function(index, key, type) {
+Transaction.prototype.sign = function(index, key, type, network) {
   assert(key instanceof ECKey)
   type = type || SIGHASH_ALL
+  network = network || Network.bitcoin
 
-  var pub = key.pub.toBuffer()
-  var hash160 = crypto.hash160(pub)
-  var script = Script.createOutputScript(new Address(hash160))
+  var address = Address.fromPubKey(key.pub, network.pubKeyHash)
+
+  var script = Script.createOutputScript(address, network)
   var hash = this.hashTransactionForSignature(script, index, type)
   var sig = key.sign(hash).concat([type])
 
-  this.ins[index].script = Script.createInputScript(sig, pub)
+  this.ins[index].script = Script.createInputScript(sig, key.pub)
 }
 
 // Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]

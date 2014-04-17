@@ -1,7 +1,8 @@
+var assert = require('assert')
 var Address = require('./address')
 var crypto = require('./crypto')
 var convert = require('./convert')
-var network = require('./network')
+var Network = require('./network')
 var Opcode = require('./opcode')
 
 function Script(data) {
@@ -211,22 +212,23 @@ Script.prototype.toScriptHash = function() {
   return crypto.hash160(this.buffer)
 }
 
-//TODO: support testnet
-Script.prototype.getToAddress = function() {
+Script.prototype.getToAddress = function(network) {
+  network = network || Network.bitcoin
+
   if(isPubkeyhash.call(this)) {
-    return new Address(this.chunks[2])
+    return new Address(new Buffer(this.chunks[2]), network.pubKeyHash)
   }
 
-  if(isScripthash.call(this)) {
-    return new Address(this.chunks[1], 5)
-  }
+  assert(isScripthash.call(this))
 
-  return new Address(this.chunks[1], 5)
+  return new Address(new Buffer(this.chunks[1]), network.scriptHash)
 }
 
 //TODO: support testnet
-Script.prototype.getFromAddress = function(){
-  return new Address(this.simpleInHash())
+Script.prototype.getFromAddress = function(version) {
+  version = version || Network.bitcoin.pubKeyHash
+
+  return new Address(this.simpleInHash(), version)
 }
 
 /**
@@ -364,25 +366,30 @@ Script.prototype.writeBytes = function(data) {
 /**
  * Create an output for an address
  */
-Script.createOutputScript = function(address) {
+Script.createOutputScript = function(address, network) {
+  assert(address instanceof Address)
+  network = network || Network.bitcoin
+
   var script = new Script()
 
-  address = new Address(address)
-  if (address.version == network.bitcoin.scriptHash ||
-      address.version == network.testnet.scriptHash) {
-    // Standard pay-to-script-hash
+  // Standard pay-to-script-hash
+  if (address.version === network.scriptHash) {
     script.writeOp(Opcode.map.OP_HASH160)
     script.writeBytes(address.hash)
     script.writeOp(Opcode.map.OP_EQUAL)
+
+    return script
   }
-  else {
-    // Standard pay-to-pubkey-hash
-    script.writeOp(Opcode.map.OP_DUP)
-    script.writeOp(Opcode.map.OP_HASH160)
-    script.writeBytes(address.hash)
-    script.writeOp(Opcode.map.OP_EQUALVERIFY)
-    script.writeOp(Opcode.map.OP_CHECKSIG)
-  }
+
+  assert(address.version === network.pubKeyHash)
+
+  // Standard pay-to-pubkey-hash
+  script.writeOp(Opcode.map.OP_DUP)
+  script.writeOp(Opcode.map.OP_HASH160)
+  script.writeBytes(address.hash)
+  script.writeOp(Opcode.map.OP_EQUALVERIFY)
+  script.writeOp(Opcode.map.OP_CHECKSIG)
+
   return script
 }
 

@@ -115,11 +115,10 @@ describe('Script', function() {
     it('should create valid multi-sig address', function() {
       script = Script.createMultiSigOutputScript(numSigs, compressedPubKeys.map(hexToBytes))
       multisig = crypto.hash160(script.buffer)
-      var multiSigAddress = Address(multisig, network).toString()
+      var multisigAddress = new Address(multisig, network)
 
-      assert.ok(Address.validate(multiSigAddress))
-      assert.equal(Address.getVersion(multiSigAddress), Network.bitcoin.scriptHash)
-      assert.equal(multiSigAddress,'32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
+      assert.equal(multisigAddress.version, Network.bitcoin.scriptHash)
+      assert.equal(multisigAddress.toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })
 
     it('should create valid redeemScript', function() {
@@ -138,7 +137,7 @@ describe('Script', function() {
       assert.equal(sigs[0], '02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f')
       assert.equal(sigs[1], '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f')
       assert.equal(sigs[2], '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19')
-      assert.equal(Address(crypto.hash160(redeemScript), network).toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
+      assert.equal(new Address(crypto.hash160(redeemScript), network).toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })
   })
 })
