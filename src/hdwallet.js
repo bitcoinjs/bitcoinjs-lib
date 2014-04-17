@@ -20,12 +20,12 @@ function HmacSHA512(buffer, secret) {
   return new Buffer(convert.wordArrayToBytes(hash))
 }
 
-function HDWallet(seed, netstr) {
+function HDWallet(seed, networkString) {
   if (seed == undefined) return; // FIXME: Boo, should be stricter
 
   var I = HmacSHA512(seed, 'Bitcoin seed')
   this.chaincode = I.slice(32)
-  this.network = netstr || 'bitcoin'
+  this.network = networkString || 'bitcoin'
 
   if(!Network.hasOwnProperty(this.network)) {
     throw new Error("Unknown network: " + this.network)
