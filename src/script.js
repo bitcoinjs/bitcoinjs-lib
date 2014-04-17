@@ -370,7 +370,7 @@ Script.createInputScript = function(signature, pubKey) {
  */
 Script.createMultiSigInputScript = function(signatures, script) {
   script = new Script(script)
-  var requiredSigs = script.chunks[0]-80
+  var requiredSigs = script.chunks[0][0]
 
   //Not enough sigs
   if (signatures.length < requiredSigs) return false;
