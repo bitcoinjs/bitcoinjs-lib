@@ -62,7 +62,7 @@ HDWallet.fromHex = function(input) {
 }
 
 HDWallet.fromBuffer = function(input) {
-  assert(input.length === HDWallet.LENGTH)
+  assert.strictEqual(input.length, HDWallet.LENGTH, 'Invalid buffer length')
 
   var hd = new HDWallet()
 
@@ -91,13 +91,13 @@ HDWallet.fromBuffer = function(input) {
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
   hd.parentFingerprint = input.readUInt32BE(5)
   if (hd.depth === 0) {
-    assert(hd.parentFingerprint === 0x00000000)
+    assert.strictEqual(hd.parentFingerprint, 0x00000000, 'Invalid parent fingerprint')
   }
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
   // This is encoded in MSB order. (0x00000000 if master key)
   hd.index = input.readUInt32BE(9)
-  assert(hd.depth > 0 || hd.index === 0)
+  assert(hd.depth > 0 || hd.index === 0, 'Invalid index')
 
   // 32 bytes: the chain code
   hd.chaincode = input.slice(13, 45)
@@ -151,7 +151,7 @@ HDWallet.prototype.toBuffer = function(priv) {
 
   // 33 bytes: the public key or private key data
   if (priv) {
-    assert(this.priv, 'Cannot serialize to private without private key')
+    assert(this.priv, 'Missing private key')
 
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
@@ -186,7 +186,7 @@ HDWallet.prototype.derive = function(i) {
 
   var I
   if (usePriv) {
-    assert(this.priv, 'Private derive on public key')
+    assert(this.priv, 'Missing private key')
 
     // If 1, private derivation is used:
     // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
