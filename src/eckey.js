@@ -8,15 +8,14 @@ var Address = require('./address')
 var crypto = require('./crypto')
 
 var sec = require('./jsbn/sec')
-var ecparams = sec("secp256k1")
+var ecparams = sec('secp256k1')
 
 var BigInteger = require('./jsbn/jsbn')
 var ECPointFp = require('./jsbn/ec').ECPointFp
 
 function ECKey(D, compressed) {
-  assert(D instanceof BigInteger)
-  assert(D.compareTo(BigInteger.ZERO) > 0)
-  assert(D.compareTo(ecparams.getN()) < 0)
+  assert(D.compareTo(BigInteger.ZERO) > 0, 'Private key must be greater than 0')
+  assert(D.compareTo(ecparams.getN()) < 0, 'Private key must be less than the curve order')
 
   var Q = ecparams.getG().multiply(D)
 
@@ -26,9 +25,10 @@ function ECKey(D, compressed) {
 
 // Static constructors
 ECKey.fromBuffer = function(buffer, compressed) {
-  assert(Buffer.isBuffer(buffer))
-  var D = BigInteger.fromByteArrayUnsigned(buffer)
+  assert(Buffer.isBuffer(buffer), 'First argument must be a Buffer')
+  assert.strictEqual(buffer.length, 32, 'Invalid buffer length')
 
+  var D = BigInteger.fromByteArrayUnsigned(buffer)
   return new ECKey(D, compressed)
 }
 ECKey.fromHex = function(hex, compressed) {
@@ -40,12 +40,11 @@ ECKey.fromWIF = function(string) {
 
   var payload = decode.payload
   if (payload.length === 33) {
-    assert(payload[32] === 0x01)
+    assert.strictEqual(payload[32], 0x01, 'Invalid WIF string')
 
     return ECKey.fromBuffer(payload.slice(0, 32), true)
   }
 
-  assert(payload.length === 32)
   return ECKey.fromBuffer(payload, false)
 }
 
@@ -68,19 +67,11 @@ ECKey.prototype.sign = function(hash) {
 ECKey.prototype.toBuffer = function() {
   var buffer = new Buffer(this.D.toByteArrayUnsigned())
 
-  // pad out the zero bytes
-  if (buffer.length < 32) {
-    var padded = new Buffer(32)
+  // pad out to atleast 32 bytes
+  var padded = new Buffer(32 - buffer.length)
+  padded.fill(0)
 
-    padded.fill(0)
-    buffer.copy(padded, 32 - buffer.length)
-
-    return padded
-  }
-
-  assert(buffer.length === 32)
-
-  return buffer
+  return Buffer.concat([padded, buffer])
 }
 ECKey.prototype.toHex = function() {
   return this.toBuffer().toString('hex')
@@ -89,11 +80,9 @@ ECKey.prototype.toHex = function() {
 ECKey.prototype.toWIF = function(version) {
   version = version || network.bitcoin.wif
 
-  var buffer
+  var buffer = this.toBuffer()
   if (this.pub.compressed) {
-    buffer = Buffer.concat([this.toBuffer(), new Buffer([0x01])])
-  } else {
-    buffer = this.toBuffer()
+    buffer = Buffer.concat([buffer, new Buffer([0x01])])
   }
 
   return base58check.encode(buffer, version)
@@ -102,9 +91,10 @@ ECKey.prototype.toWIF = function(version) {
 //////////////////////////////////////////////////////
 
 function ECPubKey(Q, compressed) {
+  assert(Q instanceof ECPointFp, 'Q must be an ECPointFP')
+
   if (compressed == undefined) compressed = true
-  assert(typeof compressed === 'boolean')
-  assert(Q instanceof ECPointFp)
+  assert.strictEqual(typeof compressed, 'boolean', 'Invalid compression flag')
 
   this.compressed = compressed
   this.Q = Q
@@ -112,14 +102,13 @@ function ECPubKey(Q, compressed) {
 
 // Static constructors
 ECPubKey.fromBuffer = function(buffer) {
-  assert(Buffer.isBuffer(buffer))
-
-  var Q = ECPointFp.decodeFrom(ecparams.getCurve(), buffer)
-
   var type = buffer.readUInt8(0)
-  assert(type >= 0x02 || type <= 0x04)
+  assert(type >= 0x02 || type <= 0x04, 'Invalid public key')
 
   var compressed = (type !== 0x04)
+  assert.strictEqual(buffer.length, compressed ? 33 : 65, 'Invalid public key')
+
+  var Q = ECPointFp.decodeFrom(ecparams.getCurve(), buffer)
   return new ECPubKey(Q, compressed)
 }
 ECPubKey.fromHex = function(hex) {
@@ -137,10 +126,7 @@ ECPubKey.prototype.getAddress = function(version) {
 
 // Export functions
 ECPubKey.prototype.toBuffer = function() {
-  var buffer = new Buffer(this.Q.getEncoded(this.compressed))
-  assert(buffer.length === (this.compressed ? 33 : 65))
-
-  return buffer
+  return new Buffer(this.Q.getEncoded(this.compressed))
 }
 ECPubKey.prototype.toHex = function() {
   return this.toBuffer().toString('hex')
