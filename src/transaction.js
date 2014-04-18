@@ -1,5 +1,6 @@
 // FIXME: To all ye that enter here, be weary of Buffers, Arrays and Hex interchanging between the outpoints
 
+var assert = require('assert')
 var Address = require('./address')
 var BigInteger = require('./jsbn/jsbn')
 var Script = require('./script')
@@ -217,7 +218,7 @@ Transaction.prototype.getHash = function ()
   var buffer = this.serialize()
   var hash = crypto.hash256(buffer)
 
-  return Array.prototype.slice.call(hash, 0).reverse()
+  return Array.prototype.slice.call(hash).reverse()
 }
 
 Transaction.prototype.clone = function ()
@@ -298,10 +299,10 @@ Transaction.deserialize = function(buffer) {
  * Signs a standard output at some index with the given key
  */
 Transaction.prototype.sign = function(index, key, type) {
+  assert(key instanceof ECKey)
   type = type || SIGHASH_ALL
-  key = new ECKey(key)
 
-  var pub = key.getPub().toBytes()
+  var pub = key.pub.toBuffer()
   var hash160 = crypto.hash160(pub)
   var script = Script.createOutputScript(new Address(hash160))
   var hash = this.hashTransactionForSignature(script, index, type)
@@ -315,7 +316,8 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
   type = type || SIGHASH_ALL
 
   var addrdata = keys.map(function(key) {
-    key = new ECKey(key)
+    assert(key instanceof ECKey)
+
     return {
       key: key,
       address: key.getAddress().toString()

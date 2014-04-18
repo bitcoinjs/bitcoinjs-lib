@@ -27,10 +27,10 @@ function sign(key, message) {
   var hash = magicHash(message)
   var sig = key.sign(hash)
   var obj = ecdsa.parseSig(sig)
-  var i = ecdsa.calcPubKeyRecoveryParam(key.getPub().pub, obj.r, obj.s, hash)
+  var i = ecdsa.calcPubKeyRecoveryParam(key.pub.Q, obj.r, obj.s, hash)
 
   i += 27
-  if (key.compressed) {
+  if (key.pub.compressed) {
     i += 4
   }
 
@@ -50,8 +50,7 @@ function verify(address, sig, message) {
   sig = ecdsa.parseSigCompact(sig)
 
   var pubKey = new ECPubKey(ecdsa.recoverPubKey(sig.r, sig.s, magicHash(message), sig.i))
-  var isCompressed = !!(sig.i & 4)
-  pubKey.compressed = isCompressed
+  pubKey.compressed = !!(sig.i & 4)
 
   address = new Address(address)
   return pubKey.getAddress(address.version).toString() === address.toString()

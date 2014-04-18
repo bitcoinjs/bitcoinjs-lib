@@ -27,7 +27,7 @@ describe('ec', function() {
 
   describe('decodeFrom', function() {
     it('decodes valid ECPoints', function() {
-      var p1 = ECKey().getPub().toBytes()
+      var p1 = ECKey.makeRandom(false).pub.toBuffer()
       assert.equal(p1.length, 65)
 
       var p1_q = ECPointFp.decodeFrom(ecparams.getCurve(), p1)

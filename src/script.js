@@ -1,10 +1,10 @@
-var Opcode = require('./opcode')
+var Address = require('./address')
 var crypto = require('./crypto')
 var convert = require('./convert')
-var Address = require('./address')
 var network = require('./network')
+var Opcode = require('./opcode')
 
-var Script = function(data) {
+function Script(data) {
   this.buffer = data || []
   if(!Array.isArray(this.buffer)) {
     throw new Error('expect Script to be initialized with Array, but got ' + data)
@@ -366,6 +366,7 @@ Script.prototype.writeBytes = function(data) {
  */
 Script.createOutputScript = function(address) {
   var script = new Script()
+
   address = new Address(address)
   if (address.version == network.bitcoin.scriptHash ||
       address.version == network.testnet.scriptHash) {
