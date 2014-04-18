@@ -1201,9 +1201,7 @@ BigInteger.valueOf = nbv;
  */
 BigInteger.fromByteArrayUnsigned = function(ba) {
   // FIXME: BigInteger doesn't yet support Buffers
-  if (Buffer.isBuffer(ba)) {
-    ba = Array.prototype.map.bind(ba, function(x) { return x })()
-  }
+  if (Buffer.isBuffer(ba)) ba = Array.prototype.slice.call(ba)
 
   if (!ba.length) {
     return new BigInteger.valueOf(0);
