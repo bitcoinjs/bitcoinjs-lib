@@ -8,6 +8,7 @@ var convert = require('./convert')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ecdsa = require('./ecdsa')
+var Network = require('./network')
 
 var Transaction = function (doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
@@ -84,23 +85,33 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  * i) An existing TransactionOut object
  * ii) An address object or an address and a value
  * iii) An address:value string
+ * iv) Either ii), iii) with an optional network argument
  *
+ * FIXME: This is a bit convoluted
  */
-Transaction.prototype.addOutput = function (address, value) {
+Transaction.prototype.addOutput = function (address, value, network) {
   if (arguments[0] instanceof TransactionOut) {
     this.outs.push(arguments[0])
     return
   }
 
   if (arguments[0].indexOf(':') >= 0) {
+    network = value
+
     var args = arguments[0].split(':')
     address = args[0]
     value = parseInt(args[1])
   }
 
+  network = network || Network.bitcoin
+
+  if (typeof address === 'string') {
+    address = Address.fromBase58Check(address)
+  }
+
   this.outs.push(new TransactionOut({
     value: value,
-    script: Script.createOutputScript(address)
+    script: Script.createOutputScript(address, network)
   }))
 }
 
@@ -297,18 +308,19 @@ Transaction.deserialize = function(buffer) {
 
 /**
  * Signs a standard output at some index with the given key
+ * FIXME: network support is ugly
  */
-Transaction.prototype.sign = function(index, key, type) {
+Transaction.prototype.sign = function(index, key, type, network) {
   assert(key instanceof ECKey)
   type = type || SIGHASH_ALL
+  network = network || Network.bitcoin
 
-  var pub = key.pub.toBuffer()
-  var hash160 = crypto.hash160(pub)
-  var script = Script.createOutputScript(new Address(hash160))
+  var address = key.pub.getAddress(network.pubKeyHash)
+  var script = Script.createOutputScript(address, network)
   var hash = this.hashTransactionForSignature(script, index, type)
   var sig = key.sign(hash).concat([type])
 
-  this.ins[index].script = Script.createInputScript(sig, pub)
+  this.ins[index].script = Script.createInputScript(sig, key.pub)
 }
 
 // Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]
@@ -413,6 +425,7 @@ TransactionIn.prototype.clone = function () {
   })
 }
 
+// FIXME: Support for alternate networks
 var TransactionOut = function (data) {
   this.script =
       data.script instanceof Script    ? data.script.clone()

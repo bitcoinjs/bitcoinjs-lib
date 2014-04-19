@@ -46,13 +46,17 @@ function sign(key, message) {
   return sig
 }
 
+// FIXME: stricter API?
 function verify(address, sig, message) {
+  if (typeof address === 'string') {
+    address = Address.fromBase58Check(address)
+  }
+
   sig = ecdsa.parseSigCompact(sig)
 
   var pubKey = new ECPubKey(ecdsa.recoverPubKey(sig.r, sig.s, magicHash(message), sig.i))
   pubKey.compressed = !!(sig.i & 4)
 
-  address = new Address(address)
   return pubKey.getAddress(address.version).toString() === address.toString()
 }
 
