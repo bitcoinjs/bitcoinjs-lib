@@ -381,7 +381,7 @@ Script.createOutputScript = function(address, network) {
     return script
   }
 
-  assert(address.version === network.pubKeyHash)
+  assert.strictEqual(address.version, network.pubKeyHash, 'Unknown address type')
 
   // Standard pay-to-pubkey-hash
   script.writeOp(Opcode.map.OP_DUP)
