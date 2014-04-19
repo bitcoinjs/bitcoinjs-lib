@@ -308,8 +308,7 @@ Transaction.prototype.sign = function(index, key, type, network) {
   type = type || SIGHASH_ALL
   network = network || Network.bitcoin
 
-  var address = Address.fromPubKey(key.pub, network.pubKeyHash)
-
+  var address = key.pub.getAddress(network.pubKeyHash)
   var script = Script.createOutputScript(address, network)
   var hash = this.hashTransactionForSignature(script, index, type)
   var sig = key.sign(hash).concat([type])

@@ -1,7 +1,5 @@
 var assert = require('assert')
 var base58check = require('./base58check')
-var crypto = require('./crypto')
-var network = require('./network')
 
 function Address(hash, version) {
   assert(Buffer.isBuffer(hash), 'First argument must be a Buffer')
@@ -12,19 +10,13 @@ function Address(hash, version) {
   this.version = version
 }
 
-// Static constructors
+// Import functions
 Address.fromBase58Check = function(string) {
   var decode = base58check.decode(string)
 
   return new Address(decode.payload, decode.version)
 }
-
-Address.fromPubKey = function(pubKey, version) {
-  version = version || network.bitcoin.pubKeyHash
-
-  var hash = crypto.hash160(pubKey.toBuffer())
-  return new Address(hash, version)
-}
+Address.prototype.fromString = Address.prototype.fromBase58Check
 
 // Export functions
 Address.prototype.toBase58Check = function () {

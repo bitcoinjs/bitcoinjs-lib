@@ -121,7 +121,9 @@ ECPubKey.prototype.verify = function(hash, sig) {
 }
 
 ECPubKey.prototype.getAddress = function(version) {
-  return Address.fromPubKey(this, version)
+  version = version || network.bitcoin.pubKeyHash
+
+  return new Address(crypto.hash160(this.toBuffer()), version)
 }
 
 // Export functions

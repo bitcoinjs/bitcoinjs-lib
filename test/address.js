@@ -1,16 +1,12 @@
 var assert = require('assert')
-
 var Address = require('..').Address
-var ECPubKey = require('..').ECPubKey
-var base58check = require('..').base58check
-
 var fixtures = require('./fixtures/address')
 
 describe('Address', function() {
   var bothVectors = fixtures.pubKeyHash.concat(fixtures.scriptHash)
 
   describe('Constructor', function() {
-    it('matches the test vectors', function() {
+    it('does not mutate the input', function() {
       bothVectors.forEach(function(f) {
         var hash = new Buffer(f.hex, 'hex')
         var addr = new Address(hash, f.version)
@@ -30,21 +26,9 @@ describe('Address', function() {
       })
     })
 
-    it('output matches the test vectors', function() {
-      bothVectors.forEach(function(f) {
+    bothVectors.forEach(function(f) {
+      it('imports ' + f.description + ' correctly', function() {
         var addr = Address.fromBase58Check(f.base58check)
-
-        assert.equal(addr.version, f.version)
-        assert.equal(addr.hash.toString('hex'), f.hex)
-      })
-    })
-  })
-
-  describe('fromPubKey', function() {
-    it('output matches the test vectors', function() {
-      fixtures.pubKeyHash.forEach(function(f) {
-        var pub = ECPubKey.fromBuffer(new Buffer(f.pubKey, 'hex'))
-        var addr = Address.fromPubKey(pub, f.version)
 
         assert.equal(addr.version, f.version)
         assert.equal(addr.hash.toString('hex'), f.hex)
@@ -53,12 +37,12 @@ describe('Address', function() {
   })
 
   describe('toBase58Check', function() {
-    it('output matches the test vectors', function() {
-      bothVectors.forEach(function(f) {
+    bothVectors.forEach(function(f) {
+      it('exports ' + f.description + ' correctly', function() {
         var addr = Address.fromBase58Check(f.base58check)
-        var base58check = addr.toBase58Check()
+        var result = addr.toBase58Check()
 
-        assert.equal(base58check, f.base58check)
+        assert.equal(result, f.base58check)
       })
     })
   })
