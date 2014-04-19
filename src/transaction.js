@@ -85,26 +85,33 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  * i) An existing TransactionOut object
  * ii) An address object or an address and a value
  * iii) An address:value string
+ * iv) Either ii), iii) with an optional network argument
  *
  */
-Transaction.prototype.addOutput = function (address, value) {
+Transaction.prototype.addOutput = function (address, value, network) {
   if (arguments[0] instanceof TransactionOut) {
     this.outs.push(arguments[0])
     return
   }
 
   if (arguments[0].indexOf(':') >= 0) {
+    network = value
+
     var args = arguments[0].split(':')
     address = args[0]
     value = parseInt(args[1])
   }
 
+  network = network || Network.bitcoin
+
   // FIXME: Stricter Transaction API
-  address = Address.fromBase58Check(address)
+  if (!(address instanceof Address)) {
+    address = Address.fromBase58Check(address)
+  }
 
   this.outs.push(new TransactionOut({
     value: value,
-    script: Script.createOutputScript(address)
+    script: Script.createOutputScript(address, network)
   }))
 }
 
@@ -418,6 +425,7 @@ TransactionIn.prototype.clone = function () {
   })
 }
 
+// FIXME: Support for alternate networks
 var TransactionOut = function (data) {
   this.script =
       data.script instanceof Script    ? data.script.clone()
