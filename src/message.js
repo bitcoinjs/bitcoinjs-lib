@@ -46,9 +46,9 @@ function sign(key, message) {
   return sig
 }
 
+// FIXME: stricter API?
 function verify(address, sig, message) {
-  // FIXME: stricter API?
-  if (!(address instanceof Address)) {
+  if (typeof address === 'string') {
     address = Address.fromBase58Check(address)
   }
 

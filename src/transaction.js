@@ -87,6 +87,7 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  * iii) An address:value string
  * iv) Either ii), iii) with an optional network argument
  *
+ * FIXME: This is a bit convoluted
  */
 Transaction.prototype.addOutput = function (address, value, network) {
   if (arguments[0] instanceof TransactionOut) {
@@ -104,8 +105,7 @@ Transaction.prototype.addOutput = function (address, value, network) {
 
   network = network || Network.bitcoin
 
-  // FIXME: Stricter Transaction API
-  if (!(address instanceof Address)) {
+  if (typeof address === 'string') {
     address = Address.fromBase58Check(address)
   }
 
