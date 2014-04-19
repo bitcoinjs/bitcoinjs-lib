@@ -21,7 +21,7 @@ describe('Address', function() {
     it('throws on invalid base58check', function() {
       fixtures.malformed.forEach(function(f) {
         assert.throws(function() {
-          Address.fromBase58Check(f.base58check)
+          Address.fromBase58Check(f)
         })
       })
     })
