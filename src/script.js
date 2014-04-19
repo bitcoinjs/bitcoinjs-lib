@@ -224,7 +224,6 @@ Script.prototype.getToAddress = function(network) {
   return new Address(new Buffer(this.chunks[1]), network.scriptHash)
 }
 
-//TODO: support testnet
 Script.prototype.getFromAddress = function(version) {
   version = version || Network.bitcoin.pubKeyHash
 
