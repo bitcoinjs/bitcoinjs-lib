@@ -1,11 +1,7 @@
 var assert = require('assert')
-var Address = require('../src/address.js')
+
 var ECKey = require('../src/eckey.js').ECKey
 var ECPubKey = require('../src/eckey.js').ECPubKey
-var convert = require('../src/convert.js')
-var Address = require('../src/address')
-var Network = require('../src/network')
-var testnet = Network.testnet.pubKeyHash
 
 describe('ECKey', function() {
   describe('constructor', function() {
