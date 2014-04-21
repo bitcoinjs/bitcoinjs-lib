@@ -1,8 +1,8 @@
 // Named EC curves
 
+var BigInteger = require('./bigi')
 var ECCurveFp = require('./ec')
-var ECPointFp = require('./ec').ECPointFp
-var BigInteger = require('./jsbn')
+var ECPointFp = ECCurveFp.ECPointFp
 
 // ----------------
 // X9ECParameters

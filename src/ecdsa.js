@@ -1,10 +1,12 @@
-var sec = require('./jsbn/sec')
-var rng = require('secure-random')
-var BigInteger = require('./jsbn/jsbn')
+var BigInteger = require('./bigi')
+var ECPointFp = require('./ec').ECPointFp
+
 var convert = require('./convert')
 var HmacSHA256 = require('crypto-js/hmac-sha256')
-var ECPointFp = require('./jsbn/ec').ECPointFp
+
+var sec = require('./sec')
 var ecparams = sec("secp256k1")
+
 var P_OVER_FOUR = null
 
 function implShamirsTrick(P, k, Q, l) {
@@ -48,19 +50,14 @@ function deterministicGenerateK(hash,key) {
   v = HmacSHA256(v,k)
   v = HmacSHA256(v,k)
   vArr = convert.wordArrayToBytes(v)
-  return BigInteger.fromByteArrayUnsigned(vArr)
+  return BigInteger.fromBuffer(vArr)
 }
 
 var ecdsa = {
-  getBigRandom: function (limit) {
-    return new BigInteger(limit.bitLength(), rng).
-      mod(limit.subtract(BigInteger.ONE)).
-      add(BigInteger.ONE)
-  },
   sign: function (hash, priv) {
     var d = priv
     var n = ecparams.getN()
-    var e = BigInteger.fromByteArrayUnsigned(hash)
+    var e = BigInteger.fromBuffer(hash)
 
     var k = deterministicGenerateK(hash,priv.toByteArrayUnsigned())
     var G = ecparams.getG()
@@ -98,7 +95,7 @@ var ecdsa = {
     } else {
       throw new Error("Invalid format for pubkey value, must be byte array or ECPointFp")
     }
-    var e = BigInteger.fromByteArrayUnsigned(hash)
+    var e = BigInteger.fromBuffer(hash)
 
     return ecdsa.verifyRaw(e, r, s, Q)
   },
@@ -188,8 +185,8 @@ var ecdsa = {
     //if (cursor != sig.length)
     //  throw new Error("Extra bytes in signature")
 
-    var r = BigInteger.fromByteArrayUnsigned(rBa)
-    var s = BigInteger.fromByteArrayUnsigned(sBa)
+    var r = BigInteger.fromBuffer(rBa)
+    var s = BigInteger.fromBuffer(sBa)
 
     return {r: r, s: s}
   },
@@ -207,8 +204,8 @@ var ecdsa = {
     }
 
     var n = ecparams.getN()
-    var r = BigInteger.fromByteArrayUnsigned(sig.slice(1, 33)).mod(n)
-    var s = BigInteger.fromByteArrayUnsigned(sig.slice(33, 65)).mod(n)
+    var r = BigInteger.fromBuffer(sig.slice(1, 33)).mod(n)
+    var s = BigInteger.fromBuffer(sig.slice(33, 65)).mod(n)
 
     return {r: r, s: s, i: i}
   },
@@ -262,7 +259,7 @@ var ecdsa = {
     R.validate()
 
     // 1.5 Compute e from M
-    var e = BigInteger.fromByteArrayUnsigned(hash)
+    var e = BigInteger.fromBuffer(hash)
     var eNeg = BigInteger.ZERO.subtract(e).mod(n)
 
     // 1.6 Compute Q = r^-1 (sR - eG)

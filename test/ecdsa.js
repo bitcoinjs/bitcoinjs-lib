@@ -1,10 +1,8 @@
 var assert = require('assert')
 var crypto = require('../').crypto
 var ecdsa = require('..').ecdsa
-var sec = require('../src/jsbn/sec.js')
-var BigInteger = require('../src/jsbn/jsbn.js')
+var sec = require('..').sec
 var ecparams = sec("secp256k1")
-var rng = require('secure-random')
 
 var BigInteger = require('..').BigInteger
 var ECKey = require('..').ECKey
@@ -19,7 +17,7 @@ describe('ecdsa', function() {
       var obj = ecdsa.parseSigCompact(signature)
       var pubKey = new ECPubKey(ecdsa.recoverPubKey(obj.r, obj.s, Message.magicHash('1111'), obj.i))
 
-      assert.equal(pubKey.toHex(true), '02e8fcf4d749b35879bc1f3b14b49e67ab7301da3558c5a9b74a54f1e6339c334c')
+      assert.equal(pubKey.toHex(), '02e8fcf4d749b35879bc1f3b14b49e67ab7301da3558c5a9b74a54f1e6339c334c')
     })
   })
 
