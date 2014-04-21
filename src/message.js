@@ -7,17 +7,17 @@ var ecdsa = require('./ecdsa')
 var ECPubKey = require('./eckey').ECPubKey
 
 // FIXME: magicHash is incompatible with other magic messages
-var magicBytes = convert.stringToBytes('Bitcoin Signed Message:\n')
+var magicBytes = new Buffer('Bitcoin Signed Message:\n')
 
 function magicHash(message) {
-  var messageBytes = convert.stringToBytes(message)
+  var messageBytes = new Buffer(message)
 
-  var buffer = [].concat(
-    convert.numToVarInt(magicBytes.length),
+  var buffer = Buffer.concat([
+    new Buffer(convert.numToVarInt(magicBytes.length)),
     magicBytes,
-    convert.numToVarInt(messageBytes.length),
+    new Buffer(convert.numToVarInt(messageBytes.length)),
     messageBytes
-  )
+  ])
 
   return crypto.hash256(buffer)
 }
