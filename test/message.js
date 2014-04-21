@@ -1,5 +1,4 @@
 var assert = require('assert')
-var convert = require('../').convert
 var ECKey = require('../src/eckey').ECKey
 var Message = require('../').Message
 
@@ -17,8 +16,8 @@ describe('Message', function() {
       addr = '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM' // uncompressed
       caddr = '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs' // compressed
 
-      sig = convert.hexToBytes('1bc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d')
-      csig = convert.hexToBytes('1fc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d')
+      sig = new Buffer('1bc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d', 'hex')
+      csig = new Buffer('1fc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d', 'hex')
     })
 
     it('can verify a signed message', function() {
@@ -38,7 +37,7 @@ describe('Message', function() {
 
     it('supports alternate network addresses', function() {
       var taddr = 'mxnQZKxSKjzaMgrdXzk35rif3u62TLDrg9'
-      var tsig = convert.base64ToBytes('IGucnrTku3KLCCHUMwq9anawfrlN8RK1HWMN+10LhsHJeysBdWfj5ohJcS/+oqrlVFNvEgbgEeAQUL6r3sZwnj8=')
+      var tsig = new Buffer('IGucnrTku3KLCCHUMwq9anawfrlN8RK1HWMN+10LhsHJeysBdWfj5ohJcS/+oqrlVFNvEgbgEeAQUL6r3sZwnj8=', 'base64')
 
       assert.ok(Message.verify(taddr, tsig, msg))
       assert.ok(!Message.verify(taddr, tsig, 'foobar'))
