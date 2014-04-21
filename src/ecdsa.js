@@ -52,11 +52,6 @@ function deterministicGenerateK(hash,key) {
 }
 
 var ecdsa = {
-  getBigRandom: function (limit) {
-    return new BigInteger(limit.bitLength(), rng).
-      mod(limit.subtract(BigInteger.ONE)).
-      add(BigInteger.ONE)
-  },
   sign: function (hash, priv) {
     var d = priv
     var n = ecparams.getN()

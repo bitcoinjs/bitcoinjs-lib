@@ -1,21 +1,21 @@
 var assert = require('assert')
-var ecdsa = require('../').ecdsa
 
 var sec = require('../src/jsbn/sec')
 var ecparams = sec('secp256k1')
 
+var BigInteger = require('..').BigInteger
 var ECPointFp = require('../').ECPointFp
 var ECKey = require('../').ECKey
 
 describe('ec', function() {
   describe('ECPointFp', function() {
-    it('behaviours correctly', function() {
+    it('behaves correctly', function() {
       var G = ecparams.getG()
       var n = ecparams.getN()
 
       assert.ok(G.multiply(n).isInfinity(), "Gn is infinite")
 
-      var k = ecdsa.getBigRandom(n)
+      var k = BigInteger.ONE
       var P = G.multiply(k)
       assert.ok(!P.isInfinity(), "kG is not infinite")
       assert.ok(P.isOnCurve(), "kG on curve")
