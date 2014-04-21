@@ -3,11 +3,24 @@ var ECKey = require('../src/eckey').ECKey
 var Message = require('../').Message
 var network = require('../').network
 
+var fixtures = require('./fixtures/message')
+
 describe('Message', function() {
   var msg
 
   beforeEach(function() {
     msg = 'vires is numeris'
+  })
+
+  describe('magicHash', function() {
+    it('matches the test vectors', function() {
+      fixtures.magicHash.forEach(function(f) {
+        var actual = Message.magicHash(f.message)
+        var expected = f.hash256
+
+        assert.equal(actual.toString('hex'), expected)
+      })
+    })
   })
 
   describe('verify', function() {
