@@ -102,42 +102,42 @@ describe('Script', function() {
   })
 
   describe('2-of-3 Multi-Signature', function() {
-    var compressedPubKeys = []
-    var numSigs, script, multisig
+    var pubKeys
 
     beforeEach(function() {
-      compressedPubKeys = ['02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f',
+      pubKeys = [
+        '02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f',
         '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f',
-        '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19'].map(h2b)
-        numSigs = 2
-    })
-
-    it('should create valid multi-sig address', function() {
-      script = Script.createMultiSigOutputScript(numSigs, compressedPubKeys)
-      multisig = crypto.hash160(script.buffer)
-      var multisigAddress = new Address(multisig, network.bitcoin.scriptHash)
-
-      assert.equal(multisigAddress.version, network.bitcoin.scriptHash)
-      assert.equal(multisigAddress.toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
+        '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19'
+      ].map(h2b)
     })
 
     it('should create valid redeemScript', function() {
-      var redeemScript = script.buffer
-      var deserialized = new Script(redeemScript)
-      var numOfSignatures = deserialized.chunks[deserialized.chunks.length - 2] - 80
-      var signaturesRequired = deserialized.chunks[0] - 80
-      var sigs = [
-        b2h(deserialized.chunks[1]),
-        b2h(deserialized.chunks[2]),
-        b2h(deserialized.chunks[3])
-      ]
+      var redeemScript = Script.createMultisigOutputScript(2, pubKeys)
 
-      assert.equal(numOfSignatures, 3)
-      assert.equal(signaturesRequired, 2)
-      assert.equal(sigs[0], '02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f')
-      assert.equal(sigs[1], '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f')
-      assert.equal(sigs[2], '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19')
-      assert.equal(new Address(crypto.hash160(redeemScript), network.bitcoin.scriptHash).toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
+      var hash160 = crypto.hash160(redeemScript.buffer)
+      var multisigAddress = new Address(hash160, network.bitcoin.scriptHash)
+
+      assert.equal(multisigAddress.toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
+    })
+  })
+
+  describe('2-of-2 Multisig scriptSig', function() {
+    var pubKeys = [
+      '02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1',
+      '0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a'
+    ].map(h2b)
+    var signatures = [
+      '304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801',
+      '3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501'
+    ].map(h2b)
+    var expected = '0047304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801483045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d14050147522102359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1210395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a52ae'
+
+    it('should create a valid P2SH multisig scriptSig', function() {
+      var redeemScript = Script.createMultisigOutputScript(2, pubKeys)
+      var actual = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
+
+      assert.equal(b2h(actual.buffer), expected)
     })
   })
 })

@@ -402,26 +402,22 @@ Script.prototype.extractPubkeys = function() {
   })
 }
 
-/**
- * Create an m-of-n output script
- */
-Script.createMultiSigOutputScript = function(m, pubkeys) {
+// m [pubKeys ...] n OP_CHECKMULTISIG
+Script.createMultisigOutputScript = function(m, pubKeys) {
   var script = new Script()
-  pubkeys = pubkeys.sort()
+  pubKeys = pubKeys.sort()
 
   script.writeOp(Opcode.map.OP_1 + m - 1)
-  for (var i = 0; i < pubkeys.length; ++i) {
-    script.writeBytes(pubkeys[i])
+  for (var i = 0; i < pubKeys.length; ++i) {
+    script.writeBytes(pubKeys[i])
   }
-  script.writeOp(Opcode.map.OP_1 + pubkeys.length - 1)
+  script.writeOp(Opcode.map.OP_1 + pubKeys.length - 1)
   script.writeOp(Opcode.map.OP_CHECKMULTISIG)
 
   return script
 }
 
-/**
- * Create a standard payToPubKeyHash input.
- */
+// {signature} {pubKey}
 Script.createInputScript = function(signature, pubKey) {
   var script = new Script()
   script.writeBytes(signature)
@@ -429,23 +425,35 @@ Script.createInputScript = function(signature, pubKey) {
   return script
 }
 
-/**
- * Create a multisig input
- */
-Script.createMultiSigInputScript = function(signatures, script) {
-  script = new Script(script)
-  var k = script.chunks[0][0]
-
-  //Not enough sigs
-  if (signatures.length < k) return false;
-
+// OP_0 [signatures ...]
+Script.createMultisigScriptSig = function(signatures) {
   var inScript = new Script()
+
   inScript.writeOp(Opcode.map.OP_0)
   signatures.map(function(sig) {
     inScript.writeBytes(sig)
   })
-  inScript.writeBytes(script.buffer)
+
   return inScript
+}
+
+// <scriptSig> {serialized scriptPubKey script}
+Script.createP2SHScriptSig = function(scriptSig, scriptPubKey) {
+  var inScript = new Script(scriptSig.buffer)
+  inScript.writeBytes(scriptPubKey.buffer)
+  return inScript
+}
+
+// [signatures ...] {m [pubKeys ...] n OP_CHECKSIG}
+Script.createP2SHMultisigScriptSig = function(signatures, scriptPubKey) {
+  assert(isMultisig.call(scriptPubKey))
+
+  var m = scriptPubKey.chunks[0]
+  var k = m - (Opcode.map.OP_1 - 1)
+  assert(k <= signatures.length, 'Not enough signatures provided')
+
+  var scriptSig = Script.createMultisigScriptSig(signatures)
+  return Script.createP2SHScriptSig(scriptSig, scriptPubKey)
 }
 
 Script.prototype.clone = function() {
