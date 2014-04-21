@@ -1,5 +1,7 @@
 var assert = require('assert')
 var Address = require('..').Address
+
+var b58fixtures = require('./fixtures/base58')
 var fixtures = require('./fixtures/address')
 
 describe('Address', function() {
@@ -19,9 +21,9 @@ describe('Address', function() {
 
   describe('fromBase58Check', function() {
     it('throws on invalid base58check', function() {
-      fixtures.malformed.forEach(function(f) {
+      b58fixtures.invalid.forEach(function(f) {
         assert.throws(function() {
-          Address.fromBase58Check(f.base58check)
+          Address.fromBase58Check(f)
         })
       })
     })
