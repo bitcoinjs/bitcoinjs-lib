@@ -2,78 +2,65 @@
 // Originally written by Mike Hearn for BitcoinJ
 // Copyright (c) 2011 Google Inc
 // Ported to JavaScript by Stefan Thomas
+// Merged Buffer refactorings from base58-native by Stephen Pair
+// Copyright (c) 2013 BitPay Inc
 
 var BigInteger = require('./jsbn/jsbn')
 
-// FIXME: ? This is a Base58Check alphabet
-var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-var base = BigInteger.valueOf(58)
-
-var alphabetMap = {}
-for (var i=0; i<alphabet.length; ++i) {
-  var chr = alphabet[i]
-  alphabetMap[chr] = BigInteger.valueOf(i)
+var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+var ALPHABET_BUF = new Buffer(ALPHABET, 'ascii')
+var ALPHABET_MAP = {}
+for(var i = 0; i < ALPHABET.length; i++) {
+  ALPHABET_MAP[ALPHABET[i]] = BigInteger.valueOf(i)
 }
+var BASE = BigInteger.valueOf(58)
 
-// encode a byte array into a base58 encoded String
-// @return String
 function encode(buffer) {
   var bi = BigInteger.fromByteArrayUnsigned(buffer)
-  var chars = []
+  var result = new Buffer(buffer.length << 1)
 
-  while (bi.compareTo(base) >= 0) {
-    var mod = bi.mod(base)
-    bi = bi.subtract(mod).divide(base)
+  var i = result.length - 1
+  while (bi.compareTo(BigInteger.ZERO) > 0) {
+    var remainder = bi.mod(BASE)
+    bi = bi.divide(BASE)
 
-    chars.push(alphabet[mod.intValue()])
+    result[i] = ALPHABET_BUF[remainder.intValue()]
+    i--
   }
 
-  chars.push(alphabet[bi.intValue()])
-
-  // Convert leading zeros too.
-  for (var i=0; i<buffer.length; i++) {
-    if (buffer[i] !== 0x00) break
-
-    chars.push(alphabet[0])
+  // deal with leading zeros
+  var j = 0
+  while (buffer[j] === 0) {
+    result[i] = ALPHABET_BUF[0]
+    j++
+    i--
   }
 
-  return chars.reverse().join('')
+  return result.slice(i + 1, result.length).toString('ascii')
 }
 
-// decode a base58 encoded String into a byte array
-// @return Array
-function decode(str) {
-  var num = BigInteger.valueOf(0)
+function decode(string) {
+  if (string.length === 0) return new Buffer(0)
 
-  var leading_zero = 0
-  var seen_other = false
+  var num = BigInteger.ZERO.clone()
 
-  for (var i=0; i<str.length; ++i) {
-    var chr = str[i]
-    var bi = alphabetMap[chr]
-
-    // if we encounter an invalid character, decoding fails
-    if (bi === undefined) {
-      throw new Error('invalid base58 string: ' + str)
-    }
-
-    num = num.multiply(base).add(bi)
-
-    if (chr === '1' && !seen_other) {
-      ++leading_zero
-    } else {
-      seen_other = true
-    }
+  for (var i = 0; i < string.length; i++) {
+    num = num.multiply(BASE)
+    num = num.add(ALPHABET_MAP[string.charAt(i)])
   }
 
-  var bytes = num.toByteArrayUnsigned()
-
-  // remove leading zeros
-  while (leading_zero-- > 0) {
-    bytes.unshift(0)
+  // deal with leading zeros
+  var i = 0
+  while ((i < string.length) && (string[i] === ALPHABET[0])) {
+    i++
   }
 
-  return new Buffer(bytes)
+  // FIXME: If BigInteger supported buffers, this could be a copy
+  var buffer = new Buffer(num.toByteArrayUnsigned())
+  var padding = new Buffer(i)
+  padding.fill(0)
+
+  return Buffer.concat([padding, buffer])
 }
 
 module.exports = {
