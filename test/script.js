@@ -1,11 +1,12 @@
-var Script = require('../src/script.js')
 var assert = require('assert')
+var crypto = require('..').crypto
+var network = require('..').network
+
 var Address = require('../src/address.js')
-var Network = require('../src/network.js')
-var crypto = require('../').crypto
-var Convert = require('../src/convert.js')
-var bytesToHex = Convert.bytesToHex
-var hexToBytes = Convert.hexToBytes
+var Script = require('../src/script.js')
+
+function b2h(b) { return new Buffer(b).toString('hex') }
+function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('Script', function() {
   var p2shScriptPubKey, pubkeyScriptPubkey, addressScriptSig
@@ -102,22 +103,21 @@ describe('Script', function() {
 
   describe('2-of-3 Multi-Signature', function() {
     var compressedPubKeys = []
-    var numSigs, script, multisig, network
+    var numSigs, script, multisig
 
     beforeEach(function() {
       compressedPubKeys = ['02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f',
         '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f',
-        '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19']
+        '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19'].map(h2b)
         numSigs = 2
-        network = Network.bitcoin.scriptHash
     })
 
     it('should create valid multi-sig address', function() {
-      script = Script.createMultiSigOutputScript(numSigs, compressedPubKeys.map(hexToBytes))
+      script = Script.createMultiSigOutputScript(numSigs, compressedPubKeys)
       multisig = crypto.hash160(script.buffer)
-      var multisigAddress = new Address(multisig, network)
+      var multisigAddress = new Address(multisig, network.bitcoin.scriptHash)
 
-      assert.equal(multisigAddress.version, Network.bitcoin.scriptHash)
+      assert.equal(multisigAddress.version, network.bitcoin.scriptHash)
       assert.equal(multisigAddress.toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })
 
@@ -127,9 +127,9 @@ describe('Script', function() {
       var numOfSignatures = deserialized.chunks[deserialized.chunks.length - 2] - 80
       var signaturesRequired = deserialized.chunks[0] - 80
       var sigs = [
-        bytesToHex(deserialized.chunks[1]),
-        bytesToHex(deserialized.chunks[2]),
-        bytesToHex(deserialized.chunks[3])
+        b2h(deserialized.chunks[1]),
+        b2h(deserialized.chunks[2]),
+        b2h(deserialized.chunks[3])
       ]
 
       assert.equal(numOfSignatures, 3)
@@ -137,7 +137,7 @@ describe('Script', function() {
       assert.equal(sigs[0], '02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f')
       assert.equal(sigs[1], '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f')
       assert.equal(sigs[2], '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19')
-      assert.equal(new Address(crypto.hash160(redeemScript), network).toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
+      assert.equal(new Address(crypto.hash160(redeemScript), network.bitcoin.scriptHash).toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })
   })
 })
