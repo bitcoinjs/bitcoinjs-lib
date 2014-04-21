@@ -7,11 +7,11 @@ var secureRandom = require('secure-random')
 var Address = require('./address')
 var crypto = require('./crypto')
 
-var sec = require('./jsbn/sec')
+var sec = require('./sec')
 var ecparams = sec('secp256k1')
 
-var BigInteger = require('./jsbn/jsbn')
-var ECPointFp = require('./jsbn/ec').ECPointFp
+var BigInteger = require('./bigi')
+var ECPointFp = require('./ec').ECPointFp
 
 function ECKey(D, compressed) {
   assert(D.compareTo(BigInteger.ZERO) > 0, 'Private key must be greater than 0')
@@ -28,7 +28,7 @@ ECKey.fromBuffer = function(buffer, compressed) {
   assert(Buffer.isBuffer(buffer), 'First argument must be a Buffer')
   assert.strictEqual(buffer.length, 32, 'Invalid buffer length')
 
-  var D = BigInteger.fromByteArrayUnsigned(buffer)
+  var D = BigInteger.fromBuffer(buffer)
   return new ECKey(D, compressed)
 }
 ECKey.fromHex = function(hex, compressed) {
@@ -52,7 +52,7 @@ ECKey.makeRandom = function(compressed, rng) {
   rng = rng || secureRandom
 
   var buffer = new Buffer(rng(32))
-  var D = BigInteger.fromByteArrayUnsigned(buffer)
+  var D = BigInteger.fromBuffer(buffer)
   D = D.mod(ecparams.getN())
 
   return new ECKey(D, compressed)

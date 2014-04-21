@@ -2,13 +2,8 @@
 // Ported loosely from BouncyCastle's Java EC code
 // Only Fp curves implemented for now
 
-var BigInteger = require('./jsbn'),
-    sec = require('./sec');
+var BigInteger = require('./bigi')
 
-// ----------------
-// ECFieldElementFp
-
-// constructor
 function ECFieldElementFp(q,x) {
     this.x = x;
     // TODO if(x.compareTo(q) >= 0) error
@@ -343,12 +338,12 @@ ECPointFp.decodeFrom = function (curve, enc) {
   if (type == 4) {
     var xBa = enc.slice(1, 1 + dataLen/2),
         yBa = enc.slice(1 + dataLen/2, 1 + dataLen),
-        x = BigInteger.fromByteArrayUnsigned(xBa),
-        y = BigInteger.fromByteArrayUnsigned(yBa);
+        x = BigInteger.fromBuffer(xBa),
+        y = BigInteger.fromBuffer(yBa);
   }
   else {
     var xBa = enc.slice(1),
-        x = BigInteger.fromByteArrayUnsigned(xBa),
+        x = BigInteger.fromBuffer(xBa),
         p = curve.getQ(),
         xCubedPlus7 = x.multiply(x).multiply(x).add(new BigInteger('7')).mod(p),
         pPlus1Over4 = p.add(new BigInteger('1'))

@@ -1,7 +1,7 @@
 var assert = require('assert')
 var crypto = require('../').crypto
 var ecdsa = require('..').ecdsa
-var sec = require('../src/jsbn/sec.js')
+var sec = require('..').sec
 var ecparams = sec("secp256k1")
 
 var BigInteger = require('..').BigInteger

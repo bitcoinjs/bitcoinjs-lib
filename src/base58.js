@@ -5,7 +5,7 @@
 // Merged Buffer refactorings from base58-native by Stephen Pair
 // Copyright (c) 2013 BitPay Inc
 
-var BigInteger = require('./jsbn/jsbn')
+var BigInteger = require('./bigi')
 
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 var ALPHABET_BUF = new Buffer(ALPHABET, 'ascii')
@@ -16,7 +16,7 @@ for(var i = 0; i < ALPHABET.length; i++) {
 var BASE = BigInteger.valueOf(58)
 
 function encode(buffer) {
-  var bi = BigInteger.fromByteArrayUnsigned(buffer)
+  var bi = BigInteger.fromBuffer(buffer)
   var result = new Buffer(buffer.length << 1)
 
   var i = result.length - 1

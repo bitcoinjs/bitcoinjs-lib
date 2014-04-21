@@ -3,14 +3,14 @@ var base58 = require('./base58')
 var convert = require('./convert')
 
 var Address = require('./address')
-var BigInteger = require('./jsbn/jsbn')
+var BigInteger = require('./bigi')
 var CJS = require('crypto-js')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ECPubKey = require('./eckey').ECPubKey
 var Network = require('./network')
 
-var sec = require('./jsbn/sec')
+var sec = require('./sec')
 var ecparams = sec("secp256k1")
 
 function HmacSHA512(buffer, secret) {
@@ -215,7 +215,7 @@ HDWallet.prototype.derive = function(i) {
   var hd = new HDWallet()
   hd.network = this.network
 
-  var IL = BigInteger.fromByteArrayUnsigned(ILb)
+  var IL = BigInteger.fromBuffer(ILb)
 
   if (this.priv) {
     // ki = IL + kpar (mod n).
