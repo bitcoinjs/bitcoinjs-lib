@@ -362,23 +362,20 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
  * Signs a P2SH output at some index with the given key
  */
 Transaction.prototype.p2shsign = function(index, script, key, type) {
-  script = new Script(script)
-  key = new ECKey(key)
   type = type || SIGHASH_ALL
-  var hash = this.hashTransactionForSignature(script, index, type),
-  sig = key.sign(hash).concat([type])
-  return sig
+  var hash = this.hashTransactionForSignature(script, index, type)
+  return key.sign(hash).concat([type])
 }
 
 Transaction.prototype.setScriptSig = function(index, script) {
   this.ins[index].script = script
 }
 
-Transaction.prototype.validateSig = function(index, script, sig, pub) {
-  script = new Script(script)
-  var hash = this.hashTransactionForSignature(script,index,1)
-  return ecdsa.verify(hash, convert.coerceToBytes(sig),
-                      convert.coerceToBytes(pub))
+Transaction.prototype.validateSig = function(index, script, pub, sig, type) {
+  type = type || SIGHASH_ALL
+  var hash = this.hashTransactionForSignature(script, index, type)
+
+  return pub.verify(hash, sig)
 }
 
 Transaction.feePerKb = 20000

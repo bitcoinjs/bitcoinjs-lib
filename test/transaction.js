@@ -171,11 +171,10 @@ describe('Transaction', function() {
         var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
         tx.sign(0, key)
 
-        var pub = key.pub.toBuffer()
-        var script = prevTx.outs[0].script.buffer
+        var script = prevTx.outs[0].script
         var sig = tx.ins[0].script.chunks[0]
 
-        assert.equal(tx.validateSig(0, script, sig, pub), true)
+        assert.equal(tx.validateSig(0, script, key.pub, sig), true)
       })
     })
 
@@ -188,11 +187,10 @@ describe('Transaction', function() {
 
       it('returns true for valid signature', function(){
         var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
-        var pub = key.pub.toBuffer()
-        var script = prevTx.outs[0].script.buffer
+        var script = prevTx.outs[0].script
         var sig = validTx.ins[0].script.chunks[0]
 
-        assert.equal(validTx.validateSig(0, script, sig, pub), true)
+        assert.equal(validTx.validateSig(0, script, key.pub, sig), true)
       })
     })
 
