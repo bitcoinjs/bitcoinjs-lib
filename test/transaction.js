@@ -1,5 +1,4 @@
 var assert = require('assert')
-var convert = require('../src/convert')
 
 var Address = require('../src/address')
 var ECKey = require('../src/eckey').ECKey
@@ -12,6 +11,9 @@ var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 var fixtureTxBigHex = fixtureTxes.bigTx
+
+function b2h(b) { return new Buffer(b).toString('hex') }
+function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('Transaction', function() {
   describe('deserialize', function() {
@@ -30,8 +32,9 @@ describe('Transaction', function() {
 
     it('returns the original after serialized again', function() {
       var actual = tx.serialize()
-      var expected = convert.hexToBytes(serializedTx)
-      assert.deepEqual(actual, expected)
+      var expected = serializedTx
+
+      assert.equal(b2h(actual), expected)
     })
 
     it('decodes version correctly', function(){
@@ -51,7 +54,7 @@ describe('Transaction', function() {
       assert.equal(input.outpoint.index, 0)
       assert.equal(input.outpoint.hash, "69d02fc05c4e0ddc87e796eee42693c244a3112fffe1f762c3fb61ffcb304634")
 
-      assert.equal(convert.bytesToHex(input.script.buffer),
+      assert.equal(b2h(input.script.buffer),
                    "493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901")
     })
 
@@ -61,14 +64,14 @@ describe('Transaction', function() {
       var output = tx.outs[0]
 
       assert.equal(output.value, 5000000000)
-      assert.equal(convert.bytesToHex(output.script.toScriptHash()), "dd40dedd8f7e37466624c4dacc6362d8e7be23dd")
+      assert.equal(b2h(output.script.toScriptHash()), "dd40dedd8f7e37466624c4dacc6362d8e7be23dd")
       // assert.equal(output.address.toString(), "n1gqLjZbRH1biT5o4qiVMiNig8wcCPQeB9")
       // TODO: address is wrong because it's a testnet transaction. Transaction needs to support testnet
     })
 
     it('assigns hash to deserialized object', function(){
       var hashHex = "a9d4599e15b53f3eb531608ddb31f48c695c3d0b3538a6bda871e8b34f2f430c"
-      assert.deepEqual(tx.hash, convert.hexToBytes(hashHex))
+      assert.equal(b2h(tx.hash), hashHex)
     })
 
     it('decodes large inputs correctly', function() {
@@ -158,7 +161,7 @@ describe('Transaction', function() {
 
         var output = tx.outs[0]
         assert.equal(output.value, 40000)
-        assert.deepEqual(convert.bytesToHex(output.script.buffer), "76a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac")
+        assert.equal(b2h(output.script.buffer), "76a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac")
       }
     })
 
