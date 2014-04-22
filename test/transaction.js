@@ -6,6 +6,7 @@ var T = require('../src/transaction')
 var Transaction = T.Transaction
 var TransactionOut = T.TransactionOut
 var Script = require('../src/script')
+var network = require('..').network
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
@@ -218,6 +219,33 @@ describe('Transaction', function() {
         assert.equal(tx.estimateFee(0), 0)
       })
     })
+  })
+
+  describe('p2shsign', function() {
+    var tx = new Transaction()
+    tx.addInput('deadbeefcafe', 0)
+    tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1, network.testnet)
+
+    var privKeys = [
+      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf',
+      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAvUcVfH'
+    ].map(function(wif) {
+      return ECKey.fromWIF(wif)
+    })
+    var pubKeys = privKeys.map(function(eck) { return eck.pub })
+    var pubKeyBuffers = pubKeys.map(function(q) { return q.toBuffer() })
+    var redeemScript = Script.createMultisigOutputScript(2, pubKeyBuffers)
+
+    var signatures = privKeys.map(function(eck) {
+      return tx.p2shsign(0, redeemScript, eck)
+    })
+
+    var scriptSig = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
+    tx.setScriptSig(0, scriptSig)
+
+    var expected = '0100000001fecaefbeadde00000000fd1b0100483045022100a165904d2a3123ae887bd573b685e903a0ce158b1d21faba2ed4a42b3ca6126e02205f4e0e0cb333666d5b6b0b017fe0df0ac15a20f296a3fb8eab4e1572da2b3dea01473044022054e0cb54d62465a4003a2d0876048cde2b43dcab9385ffe173a2886bfa4d04b00220239811a8923887aa147d92987fa5c16f09a7fb7eea1d331c1a1d5303fd81f9c8014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0101000000000000001976a914751e76e8199196d454941c45d1b3a323f1433bd688ac00000000'
+
+    assert.equal(b2h(tx.serialize()), expected)
   })
 
   describe('TransactionOut', function() {
