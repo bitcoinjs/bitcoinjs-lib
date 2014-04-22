@@ -124,7 +124,7 @@ describe('ECKey', function() {
   describe('signing', function() {
     var hpriv = 'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458'
     var hcpub = '024b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea811992'
-    var message = 'Vires in numeris'
+    var message = new Buffer('Vires in numeris')
 
     it('should verify against the private key', function() {
       var priv = ECKey.fromHex(hpriv)

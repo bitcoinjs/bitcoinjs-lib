@@ -10,6 +10,18 @@ var ECPubKey = require('..').ECPubKey
 var Message = require('..').Message
 
 describe('ecdsa', function() {
+  // FIXME: needs much better tests than this
+  describe('deterministicGenerateK', function() {
+    it('produces deterministic K values', function() {
+      var secret = [4]
+
+      var k1 = ecdsa.deterministicGenerateK([1], secret)
+      var k2 = ecdsa.deterministicGenerateK([2], secret)
+
+      assert.notDeepEqual(k1, k2)
+    })
+  })
+
   describe('recoverPubKey', function() {
     it('succesfully recovers a public key', function() {
       var addr = 'mgQK8S6CfSXKjPmnujArSmVxafeJfrZsa3'
@@ -24,7 +36,7 @@ describe('ecdsa', function() {
   describe('sign/verify', function() {
     it('Signing and Verifying', function () {
       var s1 = ECKey.makeRandom()
-      var sig_a = s1.sign(BigInteger.ZERO)
+      var sig_a = s1.sign([0])
 
       assert.ok(sig_a, 'Sign null')
       assert.ok(s1.pub.verify(BigInteger.ZERO, sig_a))
@@ -59,7 +71,7 @@ describe('ecdsa', function() {
 
     it('should sign with low S value', function() {
       var priv = ECKey.fromHex('ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458')
-      var message = 'Vires in numeris'
+      var message = new Buffer('Vires in numeris')
       var signature = priv.sign(message)
       var parsed = ecdsa.parseSig(signature)
 

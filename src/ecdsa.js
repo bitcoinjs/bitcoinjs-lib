@@ -1,3 +1,4 @@
+var assert = require('assert')
 var BigInteger = require('./bigi')
 var ECPointFp = require('./ec').ECPointFp
 
@@ -35,7 +36,10 @@ function implShamirsTrick(P, k, Q, l) {
   return R
 }
 
-function deterministicGenerateK(hash,key) {
+function deterministicGenerateK(hash, secret) {
+  assert(Array.isArray(hash))
+  assert(Array.isArray(secret))
+
   var vArr = []
   var kArr = []
   for (var i = 0;i < 32;i++) vArr.push(1)
@@ -43,10 +47,10 @@ function deterministicGenerateK(hash,key) {
   var v = convert.bytesToWordArray(vArr)
   var k = convert.bytesToWordArray(kArr)
 
-  k = HmacSHA256(convert.bytesToWordArray(vArr.concat([0]).concat(key).concat(hash)), k)
+  k = HmacSHA256(convert.bytesToWordArray(vArr.concat([0]).concat(secret).concat(hash)), k)
   v = HmacSHA256(v, k)
   vArr = convert.wordArrayToBytes(v)
-  k = HmacSHA256(convert.bytesToWordArray(vArr.concat([1]).concat(key).concat(hash)), k)
+  k = HmacSHA256(convert.bytesToWordArray(vArr.concat([1]).concat(secret).concat(hash)), k)
   v = HmacSHA256(v,k)
   v = HmacSHA256(v,k)
   vArr = convert.wordArrayToBytes(v)
@@ -54,7 +58,11 @@ function deterministicGenerateK(hash,key) {
 }
 
 var ecdsa = {
+  deterministicGenerateK: deterministicGenerateK,
   sign: function (hash, priv) {
+    if (Buffer.isBuffer(hash)) hash = Array.prototype.slice.call(hash)
+    if (Buffer.isBuffer(priv)) priv = Array.prototype.slice.call(priv)
+
     var d = priv
     var n = ecparams.getN()
     var e = BigInteger.fromBuffer(hash)
