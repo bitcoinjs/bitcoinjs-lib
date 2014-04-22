@@ -319,8 +319,9 @@ Transaction.prototype.sign = function(index, key, type, network) {
   var script = Script.createOutputScript(address, network)
   var hash = this.hashTransactionForSignature(script, index, type)
   var sig = key.sign(hash).concat([type])
+  var scriptSig = Script.createInputScript(sig, key.pub)
 
-  this.ins[index].script = Script.createInputScript(sig, key.pub)
+  this.setScriptSig(index, scriptSig)
 }
 
 // Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]
@@ -369,10 +370,8 @@ Transaction.prototype.p2shsign = function(index, script, key, type) {
   return sig
 }
 
-Transaction.prototype.multisign = Transaction.prototype.p2shsign
-
-Transaction.prototype.applyMultisigs = function(index, script, sigs/*, type*/) {
-  this.ins[index].script = Script.createMultiSigInputScript(sigs, script)
+Transaction.prototype.setScriptSig = function(index, script) {
+  this.ins[index].script = script
 }
 
 Transaction.prototype.validateSig = function(index, script, sig, pub) {
