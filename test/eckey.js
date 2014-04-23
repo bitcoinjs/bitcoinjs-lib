@@ -1,5 +1,6 @@
 var assert = require('assert')
 
+var crypto = require('..').crypto
 var ECKey = require('../src/eckey.js').ECKey
 var ECPubKey = require('../src/eckey.js').ECPubKey
 
@@ -124,30 +125,30 @@ describe('ECKey', function() {
   describe('signing', function() {
     var hpriv = 'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458'
     var hcpub = '024b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea811992'
-    var message = new Buffer('Vires in numeris')
+    var hash = crypto.sha256('Vires in numeris')
 
     it('should verify against the private key', function() {
       var priv = ECKey.fromHex(hpriv)
-      var signature = priv.sign(message)
+      var signature = priv.sign(hash)
 
-      assert(priv.pub.verify(message, signature))
+      assert(priv.pub.verify(hash, signature))
     })
 
     it('should verify against the public key', function() {
       var priv = ECKey.fromHex(hpriv)
       var pub = ECPubKey.fromHex(hcpub, true)
-      var signature = priv.sign(message)
+      var signature = priv.sign(hash)
 
-      assert(pub.verify(message, signature))
+      assert(pub.verify(hash, signature))
     })
 
     it('should not verify against the wrong private key', function() {
       var priv1 = ECKey.fromHex(hpriv)
       var priv2 = ECKey.fromHex('1111111111111111111111111111111111111111111111111111111111111111')
 
-      var signature = priv1.sign(message)
+      var signature = priv1.sign(hash)
 
-      assert(!priv2.pub.verify(message, signature))
+      assert(!priv2.pub.verify(hash, signature))
     })
   })
 
