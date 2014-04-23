@@ -39,7 +39,7 @@
   "scripts": {
     "test": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha -- --reporter list test/*.js",
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter list test/*.js",
-    "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js"
+    "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | perl -pe 's!/[a-zA-Z0-9_/\\.-]+/bitcoinjs-lib!/BUILDROOT/bitcoinjs-lib!g' | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js"
   },
   "dependencies": {
     "bigi": "0.2.0",
