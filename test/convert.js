@@ -1,5 +1,5 @@
 var assert = require('assert')
-var convert = require('../src/convert.js')
+var convert = require('../').convert
 
 describe('convert', function() {
   describe('bytesToHex', function() {
@@ -23,25 +23,6 @@ describe('convert', function() {
     var hex = convert.bytesToHex(bytes)
     assert.equal(hex.length, 512)
     assert.deepEqual(convert.hexToBytes(hex), bytes)
-  })
-
-  describe('bytesToBase64', function() {
-    it('passes RFC4648 test vectors', function() {
-      // Test vectors from:
-      // http://tools.ietf.org/html/rfc4648#page-12
-
-      var b64 = function(s) {
-        return convert.bytesToBase64(convert.stringToBytes(s))
-      }
-
-      assert.equal(b64(''), '')
-      assert.equal(b64('f'), 'Zg==')
-      assert.equal(b64('fo'), 'Zm8=')
-      assert.equal(b64('foo'), 'Zm9v')
-      assert.equal(b64('foob'), 'Zm9vYg==')
-      assert.equal(b64('fooba'), 'Zm9vYmE=')
-      assert.equal(b64('foobar'), 'Zm9vYmFy')
-    })
   })
 
   describe('byte array and word array conversions', function(){
