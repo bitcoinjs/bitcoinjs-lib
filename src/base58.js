@@ -55,12 +55,11 @@ function decode(string) {
     i++
   }
 
-  // FIXME: If BigInteger supported buffers, this could be a copy
-  var buffer = new Buffer(num.toByteArrayUnsigned())
-  var padding = new Buffer(i)
-  padding.fill(0)
+  var buffer = num.toBuffer()
+  var leadz = new Buffer(i)
+  leadz.fill(0)
 
-  return Buffer.concat([padding, buffer])
+  return Buffer.concat([leadz, buffer])
 }
 
 module.exports = {
