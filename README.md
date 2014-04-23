@@ -9,12 +9,14 @@ A continued implementation of the original `0.1.3` version used by over a millio
 
 
 ## Should I use this in production?
-Master is **not** yet stable; it is our development branch, and only tagged releases may be classified as stable.
+If you are thinking of using the master branch of this library in production, stop.
+Master is not stable; it is our development branch, and only tagged releases may be classified as stable.
 
-This is not the original bitcoinjs-lib that was not updated for a long time.
 Master is currently being heavily refactored to clean things up, add new functionality and merge improvements from the community.
 If you are looking for the original, it is tagged as `0.1.3`.
-We are releasing quasi-stable releases tagged under `0.2.x`, with the expectation that this still beta software and as mentioned in our LICENSE, `THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED`.
+We are releasing quasi-stable releases tagged under `0.2.x`, with the expectation that this is still beta software and is `PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED`.
+
+This is not the original bitcoinjs-lib that was not updated for a long time.
 
 
 ## Features
