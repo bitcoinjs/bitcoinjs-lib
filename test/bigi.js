@@ -7,8 +7,8 @@ describe('BigInteger', function() {
   describe('fromBuffer/fromHex', function() {
     it('should match the test vectors', function() {
       fixtures.valid.forEach(function(f) {
-        assert.deepEqual(BigInteger.fromHex(f.hex).toString(), f.dec)
-        assert.deepEqual(BigInteger.fromHex(f.hexPadded).toString(), f.dec)
+        assert.equal(BigInteger.fromHex(f.hex).toString(), f.dec)
+        assert.equal(BigInteger.fromHex(f.hexPadded).toString(), f.dec)
       })
     })
 
@@ -24,21 +24,21 @@ describe('BigInteger', function() {
   describe('toBuffer/toHex', function() {
     it('should match the test vectors', function() {
       fixtures.valid.forEach(function(f) {
-        var actualHex = new BigInteger(f.dec).toHex()
+        var bi = new BigInteger(f.dec)
 
-        assert.equal(actualHex, f.hex)
+        assert.equal(bi.toHex(), f.hex)
+        assert.equal(bi.toHex(32), f.hexPadded)
       })
     })
-  })
 
-  describe('toPaddedBuffer', function() {
-    it('should match the test vectors', function() {
-      fixtures.valid.forEach(function(f) {
-        var actualBuf = new BigInteger(f.dec).toPaddedBuffer(32)
+    it('throws on non-finite padding value', function() {
+        var bi = new BigInteger('1')
 
-        assert.equal(actualBuf.length, 32)
-        assert.equal(actualBuf.toString('hex'), f.hexPadded)
-      })
+        assert.throws(function() { bi.toHex({}) })
+        assert.throws(function() { bi.toHex([]) })
+        assert.throws(function() { bi.toHex('') })
+        assert.throws(function() { bi.toHex(0 / 0) })
+        assert.throws(function() { bi.toHex(1 / 0) })
     })
   })
 })

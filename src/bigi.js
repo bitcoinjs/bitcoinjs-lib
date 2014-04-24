@@ -21,20 +21,18 @@ BigInteger.fromBuffer = function(buffer) {
 }
 
 // Export operations
-BigInteger.prototype.toBuffer = function() {
-  return new Buffer(this.toByteArrayUnsigned())
+BigInteger.prototype.toBuffer = function(s) {
+  if (s != undefined) assert(Number.isFinite(s))
+
+  var buffer = new Buffer(this.toByteArrayUnsigned())
+  var padded = new Buffer(s - buffer.length)
+  padded.fill(0)
+
+  return Buffer.concat([padded, buffer], s)
 }
 
-BigInteger.prototype.toHex = function() {
-  return this.toBuffer().toString('hex')
-}
-
-BigInteger.prototype.toPaddedBuffer = function(s) {
-    var buffer = this.toBuffer()
-    var padded = new Buffer(s - buffer.length)
-    padded.fill(0)
-
-    return Buffer.concat([padded, buffer], s)
+BigInteger.prototype.toHex = function(s) {
+  return this.toBuffer(s).toString('hex')
 }
 
 module.exports = BigInteger

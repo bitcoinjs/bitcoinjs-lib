@@ -65,7 +65,7 @@ ECKey.prototype.sign = function(hash) {
 
 // Export functions
 ECKey.prototype.toBuffer = function() {
-  return this.D.toPaddedBuffer(32)
+  return this.D.toBuffer(32)
 }
 ECKey.prototype.toHex = function() {
   return this.toBuffer().toString('hex')

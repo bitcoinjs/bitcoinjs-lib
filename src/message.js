@@ -33,8 +33,8 @@ function sign(key, message) {
     i += 4
   }
 
-  var rB = sig.r.toPaddedBuffer(32)
-  var sB = sig.s.toPaddedBuffer(32)
+  var rB = sig.r.toBuffer(32)
+  var sB = sig.s.toBuffer(32)
 
   return Buffer.concat([new Buffer([i]), rB, sB], 65)
 }
