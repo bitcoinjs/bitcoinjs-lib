@@ -1,62 +1,27 @@
-var base58 = require('./base58')
-var convert = require('./convert')
-var error = require('./util').error
-var mainnet = require('./network').mainnet.addressVersion
+var assert = require('assert')
+var base58check = require('./base58check')
 
-function Address(bytes, version) {
-  if (!(this instanceof Address))
-    return new Address(bytes, version)
+function Address(hash, version) {
+  assert(Buffer.isBuffer(hash), 'First argument must be a Buffer')
+  assert.strictEqual(hash.length, 20, 'Invalid hash length')
+  assert.strictEqual(version & 0xFF, version, 'Invalid version byte')
 
-  if (bytes instanceof Address) {
-    this.hash = bytes.hash
-    this.version = bytes.version
-  }
-  else if (typeof bytes === 'string') {
-    this.hash = stringToHash(bytes)
-    this.version = version || this.hash.version || mainnet
-  }
-  else {
-    this.hash = bytes
-    this.version = version || mainnet
-  }
+  this.hash = hash
+  this.version = version
 }
 
-function stringToHash(str) {
-  if (str.length <= 35) {
-    return base58.checkDecode(str)
-  }
-  if (str.length <= 40) {
-    return convert.hexToBytes(str)
-  }
-  error('invalid or unrecognized input')
-}
+// Import functions
+Address.fromBase58Check = function(string) {
+  var decode = base58check.decode(string)
 
-/**
- * Serialize this object as a standard Bitcoin address.
- * Returns the address as a base58-encoded string in the standardized format.
- */
-Address.prototype.toString = function () {
-  return base58.checkEncode(this.hash.slice(0), this.version)
+  return new Address(decode.payload, decode.version)
 }
+Address.prototype.fromString = Address.prototype.fromBase58Check
 
-/**
- * Returns the version of an address, e.g. if the address belongs to the main
- * net or the test net.
- */
-Address.getVersion = function (address) {
-  return base58.decode(address)[0]
+// Export functions
+Address.prototype.toBase58Check = function () {
+  return base58check.encode(this.hash, this.version)
 }
-
-/**
- * Returns true if a bitcoin address is a valid address, otherwise false.
- */
-Address.validate = function (address) {
-  try {
-    base58.checkDecode(address)
-    return true
-  } catch (e) {
-    return false
-  }
-}
+Address.prototype.toString = Address.prototype.toBase58Check
 
 module.exports = Address

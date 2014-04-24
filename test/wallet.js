@@ -6,25 +6,27 @@ var TransactionOut = T.TransactionOut
 var Script = require('../src/script.js')
 var convert = require('../src/convert.js')
 var assert = require('assert')
-var SHA256 = require('crypto-js/sha256')
-var Crypto = require('crypto-js')
+var sinon = require('sinon')
+var crypto = require('../').crypto
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 
-var sinon = require('sinon')
-
 describe('Wallet', function() {
-  var seed, wallet;
+  var seed, wallet
   beforeEach(function(){
-    seed = convert.wordArrayToBytes(SHA256("don't use a string seed like this in real life"))
+    seed = crypto.sha256("don't use a string seed like this in real life")
     wallet = new Wallet(seed)
   })
 
   describe('constructor', function() {
-    it('defaults to Bitcoin mainnet', function() {
-      assert.equal(wallet.getMasterKey().network, 'mainnet')
+    it('should be ok to call without new', function() {
+      assert.ok(Wallet(seed) instanceof Wallet)
+    })
+
+    it('defaults to Bitcoin network', function() {
+      assert.equal(wallet.getMasterKey().network, 'bitcoin')
     })
 
     it("generates m/0' as the main account", function() {
@@ -141,21 +143,21 @@ describe('Wallet', function() {
       wallet.generateAddress()
 
       assertEqual(wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"),
-                   wallet.getExternalAccount().derive(1).priv)
-      assertEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
-                   wallet.getInternalAccount().derive(0).priv)
+                  wallet.getExternalAccount().derive(1).priv)
+                  assertEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
+                              wallet.getInternalAccount().derive(0).priv)
     })
 
     it('raises an error when address is not found', function(){
       var wallet = new Wallet(seed, {network: 'testnet'})
       assert.throws(function() {
         wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X")
-      }, Error, 'Unknown address. Make sure the address is from the keychain and has been generated.')
+      }, /Unknown address. Make sure the address is from the keychain and has been generated./)
     })
   })
 
   describe('Unspent Outputs', function(){
-    var expectedUtxo, expectedOutputKey;
+    var expectedUtxo, expectedOutputKey
     beforeEach(function(){
       expectedUtxo = {
         "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
@@ -216,7 +218,7 @@ describe('Wallet', function() {
     })
 
     describe('setUnspentOutputs', function(){
-      var utxo;
+      var utxo
       beforeEach(function(){
         utxo = cloneObject([expectedUtxo])
       })
@@ -245,23 +247,18 @@ describe('Wallet', function() {
           delete utxo[0]['hash']
           delete utxo[0]['hashLittleEndian']
 
-          var errorMessage = 'Invalid unspent output: key hash(or hashLittleEndian) is missing. ' +
-            'A valid unspent output must contain outputIndex, address, value and hash(or hashLittleEndian)'
-
           assert.throws(function() {
             wallet.setUnspentOutputs(utxo)
-          }, Error, errorMessage)
+          }, /Invalid unspent output: key hash\(or hashLittleEndian\) is missing/)
         });
 
         ['outputIndex', 'address', 'value'].forEach(function(field){
           it("throws an error when " + field + " is missing", function(){
             delete utxo[0][field]
-            var errorMessage = 'Invalid unspent output: key ' + field +
-              ' is missing. A valid unspent output must contain outputIndex, address, value and hash(or hashLittleEndian)'
 
             assert.throws(function() {
               wallet.setUnspentOutputs(utxo)
-            }, Error, errorMessage)
+            }, new RegExp('Invalid unspent output: key ' + field + ' is missing'))
           })
         })
       })
@@ -275,7 +272,7 @@ describe('Wallet', function() {
     })
 
     describe('setUnspentOutputsAsync', function(){
-      var utxo;
+      var utxo
       beforeEach(function(){
         utxo = cloneObject([expectedUtxo])
       })
@@ -308,7 +305,7 @@ describe('Wallet', function() {
   })
 
   describe('processTx', function(){
-    var tx;
+    var tx
 
     beforeEach(function(){
       tx = Transaction.deserialize(fixtureTx1Hex)
@@ -382,8 +379,8 @@ describe('Wallet', function() {
   })
 
   describe('createTx', function(){
-    var to, value;
-    var address1, address2;
+    var to, value
+    var address1, address2
 
     beforeEach(function(){
       to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
@@ -537,7 +534,7 @@ describe('Wallet', function() {
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, Error, 'Not enough money to send funds including transaction fee. Have: 1420000, needed: 1420001')
+        }, /Not enough money to send funds including transaction fee. Have: 1420000, needed: 1420001/)
       })
     })
 
@@ -547,7 +544,7 @@ describe('Wallet', function() {
   })
 
   describe('createTxAsync', function(){
-    var to, value, fee;
+    var to, value, fee
 
     beforeEach(function(){
       to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'

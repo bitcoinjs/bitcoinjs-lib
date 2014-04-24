@@ -1,11 +1,12 @@
+var assert = require('assert')
+var convert = require('../src/convert')
+
+var Address = require('../src/address')
+var ECKey = require('../src/eckey').ECKey
 var T = require('../src/transaction')
 var Transaction = T.Transaction
 var TransactionOut = T.TransactionOut
-
-var convert = require('../src/convert')
-var ECKey = require('../src/eckey').ECKey
 var Script = require('../src/script')
-var assert = require('assert')
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
@@ -84,7 +85,7 @@ describe('Transaction', function() {
       // the deserialized-serialized transaction should return to its original state (== tx)
       var bytes2 = Transaction.deserialize(mutated).serialize()
       assert.deepEqual(bytes, bytes2)
-    });
+    })
   })
 
   describe('creating a transaction', function() {
@@ -167,10 +168,10 @@ describe('Transaction', function() {
         tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
         tx.addOutput("1Bu3bhwRmevHLAy1JrRB6AfcxfgDG2vXRd:50000")
 
-        var key = new ECKey('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
+        var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
         tx.sign(0, key)
 
-        var pub = key.getPub().export('bytes')
+        var pub = key.pub.toBuffer()
         var script = prevTx.outs[0].script.buffer
         var sig = tx.ins[0].script.chunks[0]
 
@@ -186,8 +187,8 @@ describe('Transaction', function() {
       })
 
       it('returns true for valid signature', function(){
-        var key = new ECKey('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
-        var pub = key.getPub().export('bytes')
+        var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
+        var pub = key.pub.toBuffer()
         var script = prevTx.outs[0].script.buffer
         var sig = validTx.ins[0].script.chunks[0]
 
@@ -221,9 +222,11 @@ describe('Transaction', function() {
   describe('TransactionOut', function() {
     describe('scriptPubKey', function() {
       it('returns hex string', function() {
+        var address = Address.fromBase58Check("1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv")
+
         var txOut = new TransactionOut({
           value: 50000,
-          script: Script.createOutputScript("1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv")
+          script: Script.createOutputScript(address)
         })
 
         assert.equal(txOut.scriptPubKey(), "76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac")

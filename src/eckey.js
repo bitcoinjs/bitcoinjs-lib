@@ -1,193 +1,137 @@
-var BigInteger = require('./jsbn/jsbn');
-var sec = require('./jsbn/sec');
-var base58 = require('./base58');
-var util = require('./util');
-var convert = require('./convert');
-var Address = require('./address');
-var ecdsa = require('./ecdsa');
-var ECPointFp = require('./jsbn/ec').ECPointFp;
-var Network = require('./network')
+var assert = require('assert')
+var base58check = require('./base58check')
+var ecdsa = require('./ecdsa')
+var network = require('./network')
+var secureRandom = require('secure-random')
 
-var ecparams = sec("secp256k1");
+var Address = require('./address')
+var crypto = require('./crypto')
 
-// input can be nothing, array of bytes, hex string, or base58 string
-var ECKey = function (input, compressed) {
-    if (!(this instanceof ECKey)) { return new ECKey(input, compressed); }
-    if (!input) {
-        // Generate new key
-        var n = ecparams.getN();
-        this.priv = ecdsa.getBigRandom(n);
-        this.compressed = compressed || false;
-    }
-    else this.import(input,compressed)
-};
+var sec = require('./sec')
+var ecparams = sec('secp256k1')
 
-ECKey.prototype.import = function (input,compressed) {
-    function has(li,v) { return li.indexOf(v) >= 0 }
-    function fromBin(x) { return BigInteger.fromByteArrayUnsigned(x) }
-    this.priv =
-          input instanceof ECKey                   ? input.priv
-        : input instanceof BigInteger              ? input.mod(ecparams.getN())
-        : Array.isArray(input)                      ? fromBin(input.slice(0,32))
-        : typeof input != "string"                 ? null
-        : input.length == 44                       ? fromBin(convert.base64ToBytes(input))
-        : input.length == 51 && input[0] == '5'    ? fromBin(base58.checkDecode(input))
-        : input.length == 51 && input[0] == '9'    ? fromBin(base58.checkDecode(input))
-        : input.length == 52 && has('LK',input[0]) ? fromBin(base58.checkDecode(input).slice(0,32))
-        : input.length == 52 && input[0] == 'c'    ? fromBin(base58.checkDecode(input).slice(0,32))
-        : has([64,65],input.length)                ? fromBin(convert.hexToBytes(input.slice(0,64)))
-                                                   : null
+var BigInteger = require('./bigi')
+var ECPointFp = require('./ec').ECPointFp
 
-    this.compressed =
-          compressed !== undefined                 ? compressed
-        : input instanceof ECKey                   ? input.compressed
-        : input instanceof BigInteger              ? false
-        : Array.isArray(input)                      ? false
-        : typeof input != "string"                 ? null
-        : input.length == 44                       ? false
-        : input.length == 51 && input[0] == '5'    ? false
-        : input.length == 51 && input[0] == '9'    ? false
-        : input.length == 52 && has('LK',input[0]) ? true
-        : input.length == 52 && input[0] == 'c'    ? true
-        : input.length == 64                       ? false
-        : input.length == 65                       ? true
-                                                   : null
-};
+function ECKey(D, compressed) {
+  assert(D.compareTo(BigInteger.ZERO) > 0, 'Private key must be greater than 0')
+  assert(D.compareTo(ecparams.getN()) < 0, 'Private key must be less than the curve order')
 
-ECKey.prototype.getPub = function(compressed) {
-    if (compressed === undefined) compressed = this.compressed
-    return ECPubKey(ecparams.getG().multiply(this.priv),compressed)
+  var Q = ecparams.getG().multiply(D)
+
+  this.D = D
+  this.pub = new ECPubKey(Q, compressed)
 }
 
-/**
- * @deprecated Reserved keyword, factory pattern. Use toHex, toBytes, etc.
- */
-ECKey.prototype['export'] = function(format) {
-    var format = format || 'hex'
-    return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
+// Static constructors
+ECKey.fromBuffer = function(buffer, compressed) {
+  assert(Buffer.isBuffer(buffer), 'First argument must be a Buffer')
+  assert.strictEqual(buffer.length, 32, 'Invalid buffer length')
+
+  var D = BigInteger.fromBuffer(buffer)
+  return new ECKey(D, compressed)
+}
+ECKey.fromHex = function(hex, compressed) {
+  return ECKey.fromBuffer(new Buffer(hex, 'hex'), compressed)
 }
 
-ECKey.prototype.toBin = function() {
-    return convert.bytesToString(this.toBytes())
+ECKey.fromWIF = function(string) {
+  var decode = base58check.decode(string)
+
+  var payload = decode.payload
+  if (payload.length === 33) {
+    assert.strictEqual(payload[32], 0x01, 'Invalid WIF string')
+
+    return ECKey.fromBuffer(payload.slice(0, 32), true)
+  }
+
+  return ECKey.fromBuffer(payload, false)
 }
 
-ECKey.version_bytes = {
-  0: 128,
-  111: 239
+ECKey.makeRandom = function(compressed, rng) {
+  rng = rng || secureRandom
+
+  var buffer = new Buffer(rng(32))
+  var D = BigInteger.fromBuffer(buffer)
+  D = D.mod(ecparams.getN())
+
+  return new ECKey(D, compressed)
 }
 
-ECKey.prototype.toWif = function(version) {
-    version = version || Network.mainnet.addressVersion;
-
-    return base58.checkEncode(this.toBytes(), ECKey.version_bytes[version])
-}
-
-ECKey.prototype.toHex = function() {
-    return convert.bytesToHex(this.toBytes())
-}
-
-ECKey.prototype.toBytes = function() {
-    var bytes = this.priv.toByteArrayUnsigned();
-    if (this.compressed) bytes.push(1)
-    return bytes
-}
-
-ECKey.prototype.toBase64 = function() {
-    return convert.bytesToBase64(this.toBytes())
-}
-
-ECKey.prototype.toString = ECKey.prototype.toHex
-
-ECKey.prototype.getAddress = function(version) {
-    return this.getPub().getAddress(version)
-}
-
-ECKey.prototype.add = function(key) {
-    return ECKey(this.priv.add(ECKey(key).priv),this.compressed)
-}
-
-ECKey.prototype.multiply = function(key) {
-    return ECKey(this.priv.multiply(ECKey(key).priv),this.compressed)
-}
-
+// Operations
 ECKey.prototype.sign = function(hash) {
-  return ecdsa.sign(hash, this.priv);
+  return ecdsa.sign(hash, this.D)
 }
 
-ECKey.prototype.verify = function(hash, sig) {
-  return this.getPub().verify(hash, sig)
+// Export functions
+ECKey.prototype.toBuffer = function() {
+  var buffer = new Buffer(this.D.toByteArrayUnsigned())
+
+  // pad out to atleast 32 bytes
+  var padded = new Buffer(32 - buffer.length)
+  padded.fill(0)
+
+  return Buffer.concat([padded, buffer])
+}
+ECKey.prototype.toHex = function() {
+  return this.toBuffer().toString('hex')
 }
 
-var ECPubKey = function(input, compressed) {
-    if (!(this instanceof ECPubKey)) { return new ECPubKey(input, compressed); }
-    if (!input) {
-        // Generate new key
-        var n = ecparams.getN();
-        this.pub = ecparams.getG().multiply(ecdsa.getBigRandom(n))
-        this.compressed = compressed || false;
-    }
-    else this.import(input,compressed)
+ECKey.prototype.toWIF = function(version) {
+  version = version || network.bitcoin.wif
+
+  var buffer = this.toBuffer()
+  if (this.pub.compressed) {
+    buffer = Buffer.concat([buffer, new Buffer([0x01])])
+  }
+
+  return base58check.encode(buffer, version)
 }
 
-ECPubKey.prototype.import = function(input,compressed) {
-    var decode = function(x) { return ECPointFp.decodeFrom(ecparams.getCurve(), x) }
-    this.pub =
-          input instanceof ECPointFp ? input
-        : input instanceof ECKey     ? ecparams.getG().multiply(input.priv)
-        : input instanceof ECPubKey  ? input.pub
-        : typeof input == "string"   ? decode(convert.hexToBytes(input))
-        : Array.isArray(input)        ? decode(input)
-                                     : ecparams.getG().multiply(ecdsa.getBigRandom(ecparams.getN()))
+//////////////////////////////////////////////////////
 
-    this.compressed =
-          compressed                 ? compressed
-        : input instanceof ECPointFp ? input.compressed
-        : input instanceof ECPubKey  ? input.compressed
-                                     : (this.pub[0] < 4)
+function ECPubKey(Q, compressed) {
+  assert(Q instanceof ECPointFp, 'Q must be an ECPointFP')
+
+  if (compressed == undefined) compressed = true
+  assert.strictEqual(typeof compressed, 'boolean', 'Invalid compression flag')
+
+  this.compressed = compressed
+  this.Q = Q
 }
 
-ECPubKey.prototype.add = function(key) {
-    return ECPubKey(this.pub.add(ECPubKey(key).pub),this.compressed)
+// Static constructors
+ECPubKey.fromBuffer = function(buffer) {
+  var type = buffer.readUInt8(0)
+  assert(type >= 0x02 || type <= 0x04, 'Invalid public key')
+
+  var compressed = (type !== 0x04)
+  assert.strictEqual(buffer.length, compressed ? 33 : 65, 'Invalid public key')
+
+  var Q = ECPointFp.decodeFrom(ecparams.getCurve(), buffer)
+  return new ECPubKey(Q, compressed)
+}
+ECPubKey.fromHex = function(hex) {
+  return ECPubKey.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-ECPubKey.prototype.multiply = function(key) {
-    return ECPubKey(this.pub.multiply(ECKey(key).priv),this.compressed)
+// Operations
+ECPubKey.prototype.verify = function(hash, sig) {
+  return ecdsa.verify(hash, sig, this.Q)
 }
-
-ECPubKey.prototype['export'] = function(format) {
-    var format = format || 'hex';
-    return this['to' + format.substr(0, 1).toUpperCase() + format.substr(1)]()
-}
-
-ECPubKey.prototype.toBytes = function(compressed) {
-    if (compressed === undefined) compressed = this.compressed
-    return this.pub.getEncoded(compressed)
-}
-
-ECPubKey.prototype.toHex = function(compressed) {
-    return convert.bytesToHex(this.toBytes(compressed))
-}
-
-ECPubKey.prototype.toBin = function(compressed) {
-    return convert.bytesToString(this.toBytes(compressed))
-}
-
-ECPubKey.prototype.toWif = function(version) {
-    version = version || Network.mainnet.addressVersion;
-
-    return base58.checkEncode(this.toBytes(), version)
-}
-
-ECPubKey.prototype.toString = ECPubKey.prototype.toHex
 
 ECPubKey.prototype.getAddress = function(version) {
-    version = version || Network.mainnet.addressVersion;
+  version = version || network.bitcoin.pubKeyHash
 
-    return new Address(util.sha256ripe160(this.toBytes()), version);
+  return new Address(crypto.hash160(this.toBuffer()), version)
 }
 
-ECPubKey.prototype.verify = function(hash, sig) {
-  return ecdsa.verify(hash, sig, this.toBytes())
+// Export functions
+ECPubKey.prototype.toBuffer = function() {
+  return new Buffer(this.Q.getEncoded(this.compressed))
+}
+ECPubKey.prototype.toHex = function() {
+  return this.toBuffer().toString('hex')
 }
 
 module.exports = {

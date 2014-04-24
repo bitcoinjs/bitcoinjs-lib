@@ -2,13 +2,8 @@
 // Ported loosely from BouncyCastle's Java EC code
 // Only Fp curves implemented for now
 
-var BigInteger = require('./jsbn'),
-    sec = require('./sec');
+var BigInteger = require('./bigi')
 
-// ----------------
-// ECFieldElementFp
-
-// constructor
 function ECFieldElementFp(q,x) {
     this.x = x;
     // TODO if(x.compareTo(q) >= 0) error
@@ -283,38 +278,12 @@ function curveFpFromBigInteger(x) {
     return new ECFieldElementFp(this.q, x);
 }
 
-// for now, work with hex strings because they're easier in JS
-function curveFpDecodePointHex(s) {
-    switch(parseInt(s.substr(0,2), 16)) { // first byte
-    case 0:
-	return this.infinity;
-    case 2:
-    case 3:
-	// point compression not supported yet
-	return null;
-    case 4:
-    case 6:
-    case 7:
-	var len = (s.length - 2) / 2;
-	var xHex = s.substr(2, len);
-	var yHex = s.substr(len+2, len);
-
-	return new ECPointFp(this,
-			     this.fromBigInteger(new BigInteger(xHex, 16)),
-			     this.fromBigInteger(new BigInteger(yHex, 16)));
-
-    default: // unsupported
-	return null;
-    }
-}
-
 ECCurveFp.prototype.getQ = curveFpGetQ;
 ECCurveFp.prototype.getA = curveFpGetA;
 ECCurveFp.prototype.getB = curveFpGetB;
 ECCurveFp.prototype.equals = curveFpEquals;
 ECCurveFp.prototype.getInfinity = curveFpGetInfinity;
 ECCurveFp.prototype.fromBigInteger = curveFpFromBigInteger;
-ECCurveFp.prototype.decodePointHex = curveFpDecodePointHex;
 
 // prepends 0 if bytes < len
 // cuts off start if bytes > len
@@ -361,7 +330,7 @@ ECPointFp.prototype.getEncoded = function (compressed) {
   return enc;
 };
 
-ECPointFp.decodeFrom = function (ecparams, enc) {
+ECPointFp.decodeFrom = function (curve, enc) {
   var type = enc[0];
   var dataLen = enc.length-1;
 
@@ -369,13 +338,13 @@ ECPointFp.decodeFrom = function (ecparams, enc) {
   if (type == 4) {
     var xBa = enc.slice(1, 1 + dataLen/2),
         yBa = enc.slice(1 + dataLen/2, 1 + dataLen),
-        x = BigInteger.fromByteArrayUnsigned(xBa),
-        y = BigInteger.fromByteArrayUnsigned(yBa);
+        x = BigInteger.fromBuffer(xBa),
+        y = BigInteger.fromBuffer(yBa);
   }
   else {
     var xBa = enc.slice(1),
-        x = BigInteger.fromByteArrayUnsigned(xBa),
-        p = ecparams.getQ(),
+        x = BigInteger.fromBuffer(xBa),
+        p = curve.getQ(),
         xCubedPlus7 = x.multiply(x).multiply(x).add(new BigInteger('7')).mod(p),
         pPlus1Over4 = p.add(new BigInteger('1'))
                        .divide(new BigInteger('4')),
@@ -385,14 +354,9 @@ ECPointFp.decodeFrom = function (ecparams, enc) {
     }
   }
 
-  // Prepend zero byte to prevent interpretation as negative integer
-
-  // Convert to BigIntegers
-
-  // Return point
-  return new ECPointFp(ecparams,
-                       ecparams.fromBigInteger(x),
-                       ecparams.fromBigInteger(y));
+  return new ECPointFp(curve,
+                       curve.fromBigInteger(x),
+                       curve.fromBigInteger(y));
 };
 
 ECPointFp.prototype.add2D = function (b) {

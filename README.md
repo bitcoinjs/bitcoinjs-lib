@@ -1,27 +1,40 @@
 # bitcoinjs-lib
 
-[![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
+[![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib) [![Coverage Status](https://coveralls.io/repos/bitcoinjs/bitcoinjs-lib/badge.png)](https://coveralls.io/r/bitcoinjs/bitcoinjs-lib)
 
 [![Browser Support](https://ci.testling.com/bitcoinjs/bitcoinjs-lib.png)](https://ci.testling.com/bitcoinjs/bitcoinjs-lib)
 
-A pure JavaScript Bitcoin library for node.js and browsers. Backed by (slowly improving) testing, proven by over a million wallet users. The backbone for almost all Bitcoin web wallets in production today.
+A pure JavaScript Bitcoin library for node.js and browsers.
+A continued implementation of the original `0.1.3` version used by over a million wallet users; and the backbone for almost all Bitcoin web wallets in production today.
 
-**Warning**: Master is not stable. Expect the interface to change rapidly, including some of the examples below. This is not the original bitcoinjs-lib that was not updated for a while. The current bitcoinjs-lib has been refactored to clean things up, add new functionality and merge improvements from the community. If you are looking for the original, it will be tagged as `0.1.3`. We will use `0.2.x` for releases based on these changes, so be sure to use the `0.1.3` tag if you need the original version.
+
+## Should I use this in production?
+If you are thinking of using the master branch of this library in production, stop.
+Master is not stable; it is our development branch, and only tagged releases may be classified as stable.
+
+Master is currently being heavily refactored to clean things up, add new functionality and merge improvements from the community.
+If you are looking for the original, it is tagged as `0.1.3`.
+We are releasing quasi-stable releases tagged under `0.2.x`, with the expectation that this is still beta software and is `PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED`.
+
+This is not the original bitcoinjs-lib that was not updated for a long time.
+
 
 ## Features
 
 - Bitcoin Testnet and Mainnet (production) support
 - [HD Wallets](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
-- Highly secure random private key / address generation using [window.crypto.getRandomValues](https://developer.mozilla.org/en-US/docs/Web/API/Window.crypto)
+- Random private key generation that uses [window.crypto.getRandomValues](https://developer.mozilla.org/en-US/docs/Web/API/Window.crypto) in the underlying implementation.
 - ECDSA signing and verification
-- Transaction creation (pay-to-pubkey-hash), support for multisignature transactions
+- Standard Transaction creation (pay-to-pubkey-hash), support for multisignature transactions
 - A (somewhat incomplete) wallet implementation, improvements ongoing
+
 
 ## Installation
 
 `npm install bitcoinjs-lib`
 
 Note: The npm version is currently out of date, are working to resolve this. The best way to use the latest code is to clone the repository.
+
 
 ## Setup
 
@@ -33,6 +46,7 @@ From the repo:
 
     var bitcoin = require('./src/index.js')
 
+
 ### Browser
 
 Compile `bitcoinjs-min.js` with the following command:
@@ -41,22 +55,24 @@ Compile `bitcoinjs-min.js` with the following command:
 
 After loading this file in your browser, you will be able to use the global `Bitcoin` object.
 
+
 ## Usage
 
 These examples assume you are running bitcoinjs-lib in the browser.
+
 
 ### Generating a Bitcoin address
 
 ```javascript
 
-key = new Bitcoin.ECKey()
+key = Bitcoin.ECKey.makeRandom()
 
 // Print your private key (a hex string)
 console.log(key.toString())
 // => 8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48
 
 // Print your public key (defaults to a Bitcoin address)
-console.log(key.getPub().getAddress())
+console.log(key.pub.getAddress())
 // => 14bZ7YWde4KdRb5YN7GYkToz3EHVCvRxkF
 ```
 
@@ -72,7 +88,7 @@ tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 
 tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000)
 
 // Initialize a private key using hex
-key = new Bitcoin.ECKey("8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48")
+key = Bitcoin.ECKey.fromHex("8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48")
 
 // Sign the first input with the new key
 tx.sign(0, key)
@@ -95,6 +111,7 @@ console.log(tx.serializeHex())
 
 Feel free to send pull requests to have your project/startup listed here.
 
+
 ## Contributing
 
 ### Instructions
@@ -103,18 +120,22 @@ Feel free to send pull requests to have your project/startup listed here.
 2. Push changes to your fork
 3. Create a pull request
 
+
 ### Running the test suite
 
     $ npm test
+
 
 ## Alternatives
 
 - [Bitcore](https://github.com/bitpay/bitcore)
 - [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
 
+
 ## License
 
 This library is free and open-source software released under the MIT license.
+
 
 ## Copyright
 
@@ -122,11 +143,6 @@ BitcoinJS (c) 2011-2012 Stefan Thomas
 Released under MIT license
 http://bitcoinjs.org/
 
-JSBN (c) 2003-2005 Tom Wu
-Released under BSD license
-http://www-cs-students.stanford.edu/~tjw/jsbn/
-
 CryptoJS (c) 2009–2012 by Jeff Mott
 Released under New BSD license
 http://code.google.com/p/crypto-js/
-
