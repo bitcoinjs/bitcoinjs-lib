@@ -470,11 +470,19 @@ describe('Wallet', function() {
 
     describe('changeAddress', function(){
       it('should allow custom changeAddress', function(){
+        var wallet = new Wallet(seed, {network: 'testnet'})
+        var address = wallet.generateAddress()
+        utxo = {
+          "hash":"b3c5fde139dc0a3bba2729bfd5b9e16f5894131dc3dc46a91151da3053e7e3a5",
+          "outputIndex": 0,
+          "address" : address,
+          "value": 100000
+        }
         var to = "mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue"
         var changeAddress = 'mfrFjnKZUvTcvdAK2fUX5D8v1Epu5H8JCk'
-        var wallet = new Wallet(seed, {network: 'testnet'})
-        var tx = wallet.createTx(to, value, false, changeAddress)
-        assert.equal(tx.outs.length, 1)
+        wallet.setUnspentOutputs([utxo])
+        var tx = wallet.createTx(to, 10000, 1000, changeAddress)
+        assert.equal(tx.outs.length, 2)
       })
     })
 
