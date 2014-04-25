@@ -419,7 +419,7 @@ Script.createMultisigOutputScript = function(m, pubKeys) {
 }
 
 // {signature} {pubKey}
-Script.createInputScript = function(signature, pubKey) {
+Script.createPubKeyHashScriptSig = function(signature, pubKey) {
   var script = new Script()
   script.writeBytes(signature)
   script.writeBytes(pubKey.toBuffer())

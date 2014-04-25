@@ -320,7 +320,7 @@ Transaction.prototype.sign = function(index, key, type, network) {
   var script = Script.createOutputScript(address, network)
   var signature = this.signScriptSig(index, script, key, type)
 
-  var scriptSig = Script.createInputScript(signature, key.pub)
+  var scriptSig = Script.createPubKeyHashScriptSig(signature, key.pub)
   this.setScriptSig(index, scriptSig)
 }
 
