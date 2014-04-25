@@ -1,12 +1,10 @@
 var assert = require('assert')
-var BigInteger = require('./bigi')
-var ECPointFp = require('./ec').ECPointFp
-
-var convert = require('./convert')
-var HmacSHA256 = require('crypto-js/hmac-sha256')
-
+var crypto = require('crypto')
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
+
+var BigInteger = require('./bigi')
+var ECPointFp = require('./ec').ECPointFp
 
 var P_OVER_FOUR = null
 
@@ -36,47 +34,56 @@ function implShamirsTrick(P, k, Q, l) {
   return R
 }
 
-function deterministicGenerateK(hash, secret) {
-  assert(Array.isArray(hash), 'hash must be array')
-  assert(Array.isArray(secret), 'secret must be array')
-
-  var vArr = []
-  var kArr = []
-  for (var i = 0;i < 32;i++) vArr.push(1)
-  for (var i = 0;i < 32;i++) kArr.push(0)
-  var v = convert.bytesToWordArray(vArr)
-  var k = convert.bytesToWordArray(kArr)
-
-  k = HmacSHA256(convert.bytesToWordArray(vArr.concat([0]).concat(secret).concat(hash)), k)
-  v = HmacSHA256(v, k)
-  vArr = convert.wordArrayToBytes(v)
-  k = HmacSHA256(convert.bytesToWordArray(vArr.concat([1]).concat(secret).concat(hash)), k)
-  v = HmacSHA256(v,k)
-  v = HmacSHA256(v,k)
-  vArr = convert.wordArrayToBytes(v)
-  return BigInteger.fromBuffer(vArr)
-}
-
 var ecdsa = {
-  deterministicGenerateK: deterministicGenerateK,
-  sign: function (hash, priv) {
-    if (Buffer.isBuffer(hash)) hash = Array.prototype.slice.call(hash)
-    if (Buffer.isBuffer(priv)) priv = Array.prototype.slice.call(priv)
+  deterministicGenerateK: function(hash, D) {
+    function HmacSHA256(buffer, secret) {
+      return crypto.createHmac('sha256', secret).update(buffer).digest()
+    }
 
-    var d = priv
+    assert(Buffer.isBuffer(hash), 'Hash must be a Buffer')
+    assert.equal(hash.length, 32, 'Hash must be 256 bit')
+    assert(D instanceof BigInteger, 'Private key must be a BigInteger')
+
+    var x = D.toBuffer(32)
+    var k = new Buffer(32)
+    var v = new Buffer(32)
+    k.fill(0)
+    v.fill(1)
+
+    k = HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
+    v = HmacSHA256(v, k)
+
+    k = HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
+    v = HmacSHA256(v, k)
+    v = HmacSHA256(v, k)
+
     var n = ecparams.getN()
-    var e = BigInteger.fromBuffer(hash)
+    var kB = BigInteger.fromBuffer(v).mod(n)
+    assert(kB.compareTo(BigInteger.ONE) > 0, 'Invalid k value')
+    assert(kB.compareTo(ecparams.getN()) < 0, 'Invalid k value')
 
-    var k = deterministicGenerateK(hash,priv.toByteArrayUnsigned())
+    return kB
+  },
+
+  sign: function (hash, D) {
+    var k = ecdsa.deterministicGenerateK(hash, D)
+
+    var n = ecparams.getN()
     var G = ecparams.getG()
     var Q = G.multiply(k)
+    var e = BigInteger.fromBuffer(hash)
+
     var r = Q.getX().toBigInteger().mod(n)
+    assert.notEqual(r.signum(), 0, 'Invalid R value')
 
-    var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
+    var s = k.modInverse(n).multiply(e.add(D.multiply(r))).mod(n)
+    assert.notEqual(s.signum(), 0, 'Invalid S value')
 
-    if (s.compareTo(n.divide(BigInteger.valueOf(2))) > 0) {
-      // Make 's' value 'low', as per https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
-      s = n.subtract(s);
+    var N_OVER_TWO = n.divide(BigInteger.valueOf(2))
+
+    // Make 's' value 'low' as per bip62
+    if (s.compareTo(N_OVER_TWO) > 0) {
+      s = n.subtract(s)
     }
 
     return ecdsa.serializeSig(r, s)

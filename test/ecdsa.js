@@ -9,16 +9,18 @@ var ECKey = require('..').ECKey
 var ECPubKey = require('..').ECPubKey
 var Message = require('..').Message
 
+var fixtures = require('./fixtures/ecdsa.js')
+
 describe('ecdsa', function() {
-  // FIXME: needs much better tests than this
   describe('deterministicGenerateK', function() {
-    it('produces deterministic K values', function() {
-      var secret = [4]
+    it('matches the test vectors', function() {
+      fixtures.forEach(function(f) {
+        var priv = BigInteger.fromHex(f.privateKey)
+        var h1 = crypto.sha256(f.message)
 
-      var k1 = ecdsa.deterministicGenerateK([1], secret)
-      var k2 = ecdsa.deterministicGenerateK([2], secret)
-
-      assert.notDeepEqual(k1, k2)
+        var k = ecdsa.deterministicGenerateK(h1, priv)
+        assert.deepEqual(k.toHex(), f.k)
+      })
     })
   })
 
@@ -33,53 +35,40 @@ describe('ecdsa', function() {
     })
   })
 
-  describe('sign/verify', function() {
-    it('Signing and Verifying', function () {
-      var s1 = ECKey.makeRandom()
-      var sig_a = s1.sign([0])
+  describe('sign', function() {
+    it('matches the test vectors', function() {
+      fixtures.forEach(function(f) {
+        var priv = ECKey.fromHex(f.privateKey)
+        var hash = crypto.sha256(f.message)
+        var sig = ecdsa.parseSig(priv.sign(hash))
 
-      assert.ok(sig_a, 'Sign null')
-      assert.ok(s1.pub.verify([0], sig_a))
-
-      var message = new Buffer(1024) // More or less random :P
-      var hash = crypto.sha256(message)
-      var sig_b = s1.sign(hash)
-      assert.ok(sig_b, 'Sign random string')
-      assert.ok(s1.pub.verify(hash, sig_b))
-
-      var message2 = new Buffer(
-        '12dce2c169986b3346827ffb2305cf393984627f5f9722a1b1368e933c8d' +
-        'd296653fbe5d7ac031c4962ad0eb1c4298c3b91d244e1116b4a76a130c13' +
-        '1e7aec7fa70184a71a2e66797052831511b93c6e8d72ae58a1980eaacb66' +
-        '8a33f50d7cefb96a5dab897b5efcb99cbafb0d777cb83fc9b2115b69c0fa' +
-        '3d82507b932b84e4', 'hex')
-
-      var hash2 = crypto.sha256(message2)
-
-      var sig_c = new Buffer(
-        '3044022038d9b8dd5c9fbf330565c1f51d72a59ba869aeb2c2001be959d3' +
-        '79e861ec71960220a73945f32cf90d03127d2c3410d16cee120fa1a4b4c3' +
-        'f273ab082801a95506c4', 'hex')
-
-      var s2 = new Buffer(
-        '045a1594316e433fb91f35ef4874610d22177c3f1a1060f6c1e70a609d51' +
-        'b20be5795cd2a5eae0d6b872ba42db95e9afaeea3fbb89e98099575b6828' +
-        '609a978528', 'hex')
-
-      assert.ok(ecdsa.verify(hash2, sig_c, s2), 'Verify constant signature')
+        assert.equal(sig.r.toHex(), f.signature.slice(0, 64))
+        assert.equal(sig.s.toHex(), f.signature.slice(64))
+      })
     })
 
     it('should sign with low S value', function() {
       var priv = ECKey.fromHex('ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458')
-      var message = new Buffer('Vires in numeris')
-      var signature = priv.sign(message)
-      var parsed = ecdsa.parseSig(signature)
+      var hash = crypto.sha256('Vires in numeris')
+      var signature = priv.sign(hash)
+      var psig = ecdsa.parseSig(signature)
 
-      // Check that the 's' value is 'low', to prevent possible transaction malleability as per
-      // https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
-      assert.ok(parsed.s.compareTo(ecparams.getN().divide(BigInteger.valueOf(2))) <= 0)
+      // See BIP62 for more information
+      assert(psig.s.compareTo(ecparams.getN().divide(BigInteger.valueOf(2))) <= 0)
+    })
+  })
 
-      assert.ok(priv.pub.verify(message, signature))
+  describe('verifyRaw', function() {
+    it('matches the test vectors', function() {
+      fixtures.forEach(function(f) {
+        var priv = ECKey.fromHex(f.privateKey)
+
+        var r = BigInteger.fromHex(f.signature.slice(0, 64))
+        var s = BigInteger.fromHex(f.signature.slice(64))
+        var e = BigInteger.fromBuffer(crypto.sha256(f.message))
+
+        assert(ecdsa.verifyRaw(e, r, s, priv.pub.Q))
+      })
     })
   })
 })
