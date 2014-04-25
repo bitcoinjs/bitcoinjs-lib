@@ -2,6 +2,7 @@ var convert = require('./convert')
 var Transaction = require('./transaction').Transaction
 var HDNode = require('./hdwallet.js')
 var rng = require('secure-random')
+var Network = require('./network');
 
 function Wallet(seed, options) {
   if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
@@ -173,7 +174,7 @@ function Wallet(seed, options) {
     checkDust(value)
 
     var tx = new Transaction()
-    tx.addOutput(to, value)
+    tx.addOutput(to, value, Network[network])
 
     var utxo = getCandidateOutputs(value)
     var totalInValue = 0
@@ -189,7 +190,7 @@ function Wallet(seed, options) {
 
       var change = totalInValue - value - fee
       if(change > 0 && !isDust(change)) {
-        tx.addOutput(getChangeAddress(), change)
+        tx.addOutput(getChangeAddress(), change, Network[network])
       }
       break
     }
@@ -245,7 +246,7 @@ function Wallet(seed, options) {
 
   function estimateFeePadChangeOutput(tx){
     var tmpTx = tx.clone()
-    tmpTx.addOutput(getChangeAddress(), 0)
+    tmpTx.addOutput(getChangeAddress(), 0, Network[network])
     return tmpTx.estimateFee()
   }
 
@@ -265,7 +266,7 @@ function Wallet(seed, options) {
     tx.ins.forEach(function(inp,i) {
       var output = me.outputs[inp.outpoint.hash + ':' + inp.outpoint.index]
       if (output) {
-        tx.sign(i, me.getPrivateKeyForAddress(output.address))
+        tx.sign(i, me.getPrivateKeyForAddress(output.address), false, Network[network])
       }
     })
     return tx
