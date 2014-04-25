@@ -360,6 +360,12 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
 
 Transaction.prototype.signScriptSig = function(index, script, key, type) {
   type = type || SIGHASH_ALL
+
+  assert(Number.isFinite(index) && (index >= 0), 'Invalid vin index')
+  assert(script instanceof Script, 'Invalid Script object')
+  assert(key instanceof ECKey, 'Invalid private key')
+//  assert.equal(type & 0x7F, type, 'Invalid type') // TODO
+
   var hash = this.hashTransactionForSignature(script, index, type)
   return key.sign(hash).concat([type])
 }
