@@ -39,7 +39,7 @@ describe('ecdsa', function() {
       var sig_a = s1.sign([0])
 
       assert.ok(sig_a, 'Sign null')
-      assert.ok(s1.pub.verify(BigInteger.ZERO, sig_a))
+      assert.ok(s1.pub.verify([0], sig_a))
 
       var message = new Buffer(1024) // More or less random :P
       var hash = crypto.sha256(message)

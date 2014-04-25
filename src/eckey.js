@@ -65,13 +65,7 @@ ECKey.prototype.sign = function(hash) {
 
 // Export functions
 ECKey.prototype.toBuffer = function() {
-  var buffer = new Buffer(this.D.toByteArrayUnsigned())
-
-  // pad out to atleast 32 bytes
-  var padded = new Buffer(32 - buffer.length)
-  padded.fill(0)
-
-  return Buffer.concat([padded, buffer])
+  return this.D.toBuffer(32)
 }
 ECKey.prototype.toHex = function() {
   return this.toBuffer().toString('hex')

@@ -25,25 +25,18 @@ function magicHash(message) {
 // TODO: parameterize compression instead of using ECKey.compressed
 function sign(key, message) {
   var hash = magicHash(message)
-  var sig = key.sign(hash)
-  var obj = ecdsa.parseSig(sig)
-  var i = ecdsa.calcPubKeyRecoveryParam(key.pub.Q, obj.r, obj.s, hash)
+  var sig = ecdsa.parseSig(key.sign(hash))
+  var i = ecdsa.calcPubKeyRecoveryParam(key.pub.Q, sig.r, sig.s, hash)
 
   i += 27
   if (key.pub.compressed) {
     i += 4
   }
 
-  var rBa = obj.r.toByteArrayUnsigned()
-  var sBa = obj.s.toByteArrayUnsigned()
+  var rB = sig.r.toBuffer(32)
+  var sB = sig.s.toBuffer(32)
 
-  // Pad to 32 bytes per value
-  while (rBa.length < 32) rBa.unshift(0);
-  while (sBa.length < 32) sBa.unshift(0);
-
-  sig = [i].concat(rBa, sBa)
-
-  return sig
+  return Buffer.concat([new Buffer([i]), rB, sB], 65)
 }
 
 // FIXME: stricter API?
