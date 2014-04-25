@@ -170,7 +170,7 @@ function Wallet(seed, options) {
     })
   }
 
-  this.createTx = function(to, value, fixedFee) {
+  this.createTx = function(to, value, fixedFee, changeAddress) {
     checkDust(value)
 
     var tx = new Transaction()
@@ -190,7 +190,7 @@ function Wallet(seed, options) {
 
       var change = totalInValue - value - fee
       if(change > 0 && !isDust(change)) {
-        tx.addOutput(getChangeAddress(), change, Network[network])
+        tx.addOutput(changeAddress || getChangeAddress(), change, Network[network])
       }
       break
     }
