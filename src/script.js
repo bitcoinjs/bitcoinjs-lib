@@ -340,7 +340,8 @@ Script.prototype.writeOp = function(opcode) {
  */
 Script.prototype.writeBytes = function(data) {
   // FIXME: Script module doesn't support buffers yet
-  if (Buffer.isBuffer(data)) data = Array.prototype.slice.call(data)
+  if (Buffer.isBuffer(data)) data = Array.prototype.slice.call(data);
+  assert(Array.isArray(data), "Expect a byte array. Got" + data)
 
   if (data.length < Opcode.map.OP_PUSHDATA1) {
     this.buffer.push(data.length)
@@ -421,7 +422,7 @@ Script.createMultisigOutputScript = function(m, pubKeys) {
 Script.createInputScript = function(signature, pubKey) {
   var script = new Script()
   script.writeBytes(signature)
-  script.writeBytes(pubKey)
+  script.writeBytes(pubKey.toBuffer())
   return script
 }
 
