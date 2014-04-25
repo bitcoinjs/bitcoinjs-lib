@@ -37,8 +37,8 @@ function implShamirsTrick(P, k, Q, l) {
 }
 
 function deterministicGenerateK(hash, secret) {
-  assert(Array.isArray(hash))
-  assert(Array.isArray(secret))
+  assert(Array.isArray(hash), 'hash must be array')
+  assert(Array.isArray(secret), 'secret must be array')
 
   var vArr = []
   var kArr = []
