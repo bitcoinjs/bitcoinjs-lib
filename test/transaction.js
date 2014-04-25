@@ -221,7 +221,7 @@ describe('Transaction', function() {
     })
   })
 
-  describe('p2shsign', function() {
+  describe('signScriptSig', function() {
     var tx = new Transaction()
     tx.addInput('deadbeefcafe', 0)
     tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1, network.testnet)
@@ -236,8 +236,8 @@ describe('Transaction', function() {
     var pubKeyBuffers = pubKeys.map(function(q) { return q.toBuffer() })
     var redeemScript = Script.createMultisigOutputScript(2, pubKeyBuffers)
 
-    var signatures = privKeys.map(function(eck) {
-      return tx.p2shsign(0, redeemScript, eck)
+    var signatures = privKeys.map(function(privKey) {
+      return tx.signScriptSig(0, redeemScript, privKey)
     })
 
     var scriptSig = Script.createP2SHMultisigScriptSig(signatures, redeemScript)

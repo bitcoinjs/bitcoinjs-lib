@@ -312,15 +312,15 @@ Transaction.deserialize = function(buffer) {
  */
 Transaction.prototype.sign = function(index, key, type, network) {
   assert(key instanceof ECKey)
-  type = type || SIGHASH_ALL
   network = network || Network.bitcoin
 
   var address = key.pub.getAddress(network.pubKeyHash)
-  var script = Script.createOutputScript(address, network)
-  var hash = this.hashTransactionForSignature(script, index, type)
-  var sig = key.sign(hash).concat([type])
-  var scriptSig = Script.createInputScript(sig, key.pub)
 
+  // FIXME: Assumed prior TX was pay-to-pubkey-hash
+  var script = Script.createOutputScript(address, network)
+  var signature = this.signScriptSig(index, script, key, type)
+
+  var scriptSig = Script.createInputScript(signature, key.pub)
   this.setScriptSig(index, scriptSig)
 }
 
@@ -358,10 +358,7 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
   }
 }
 
-/**
- * Signs a P2SH output at some index with the given key
- */
-Transaction.prototype.p2shsign = function(index, script, key, type) {
+Transaction.prototype.signScriptSig = function(index, script, key, type) {
   type = type || SIGHASH_ALL
   var hash = this.hashTransactionForSignature(script, index, type)
   return key.sign(hash).concat([type])
