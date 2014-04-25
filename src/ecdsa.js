@@ -40,12 +40,11 @@ var ecdsa = {
       return crypto.createHmac('sha256', secret).update(buffer).digest()
     }
 
-    assert(Buffer.isBuffer(hash))
-    assert.equal(hash.length, 32)
+    assert(Buffer.isBuffer(hash), 'Hash must be a Buffer')
+    assert.equal(hash.length, 32, 'Hash must be 256 bit')
+    assert(D instanceof BigInteger, 'Private key must be a BigInteger')
 
-    assert(D instanceof BigInteger)
     var x = D.toBuffer(32)
-
     var k = new Buffer(32)
     var v = new Buffer(32)
     k.fill(0)
@@ -58,11 +57,12 @@ var ecdsa = {
     v = HmacSHA256(v, k)
     v = HmacSHA256(v, k)
 
-    var kBN = BigInteger.fromBuffer(v)
-    assert(kBN.compareTo(BigInteger.ONE) > 0)
-    assert(kBN.compareTo(ecparams.getN()) < 0)
+    var n = ecparams.getN()
+    var kB = BigInteger.fromBuffer(v).mod(n)
+    assert(kB.compareTo(BigInteger.ONE) > 0, 'Invalid k value')
+    assert(kB.compareTo(ecparams.getN()) < 0, 'Invalid k value')
 
-    return kBN
+    return kB
   },
 
   sign: function (hash, D) {
@@ -74,10 +74,10 @@ var ecdsa = {
     var e = BigInteger.fromBuffer(hash)
 
     var r = Q.getX().toBigInteger().mod(n)
-    assert.notEqual(r.signum(), 0)
+    assert.notEqual(r.signum(), 0, 'Invalid R value')
 
     var s = k.modInverse(n).multiply(e.add(D.multiply(r))).mod(n)
-    assert.notEqual(s.signum(), 0)
+    assert.notEqual(s.signum(), 0, 'Invalid S value')
 
     var N_OVER_TWO = n.divide(BigInteger.valueOf(2))
 
