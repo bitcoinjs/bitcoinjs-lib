@@ -1,5 +1,4 @@
 var assert = require('assert')
-var convert = require('../src/convert')
 
 var Address = require('../src/address')
 var ECKey = require('../src/eckey').ECKey
@@ -7,11 +6,15 @@ var T = require('../src/transaction')
 var Transaction = T.Transaction
 var TransactionOut = T.TransactionOut
 var Script = require('../src/script')
+var network = require('..').network
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 var fixtureTxBigHex = fixtureTxes.bigTx
+
+function b2h(b) { return new Buffer(b).toString('hex') }
+function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('Transaction', function() {
   describe('deserialize', function() {
@@ -30,8 +33,9 @@ describe('Transaction', function() {
 
     it('returns the original after serialized again', function() {
       var actual = tx.serialize()
-      var expected = convert.hexToBytes(serializedTx)
-      assert.deepEqual(actual, expected)
+      var expected = serializedTx
+
+      assert.equal(b2h(actual), expected)
     })
 
     it('decodes version correctly', function(){
@@ -51,7 +55,7 @@ describe('Transaction', function() {
       assert.equal(input.outpoint.index, 0)
       assert.equal(input.outpoint.hash, "69d02fc05c4e0ddc87e796eee42693c244a3112fffe1f762c3fb61ffcb304634")
 
-      assert.equal(convert.bytesToHex(input.script.buffer),
+      assert.equal(b2h(input.script.buffer),
                    "493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901")
     })
 
@@ -61,14 +65,14 @@ describe('Transaction', function() {
       var output = tx.outs[0]
 
       assert.equal(output.value, 5000000000)
-      assert.equal(convert.bytesToHex(output.script.toScriptHash()), "dd40dedd8f7e37466624c4dacc6362d8e7be23dd")
+      assert.equal(b2h(output.script.toScriptHash()), "dd40dedd8f7e37466624c4dacc6362d8e7be23dd")
       // assert.equal(output.address.toString(), "n1gqLjZbRH1biT5o4qiVMiNig8wcCPQeB9")
       // TODO: address is wrong because it's a testnet transaction. Transaction needs to support testnet
     })
 
     it('assigns hash to deserialized object', function(){
       var hashHex = "a9d4599e15b53f3eb531608ddb31f48c695c3d0b3538a6bda871e8b34f2f430c"
-      assert.deepEqual(tx.hash, convert.hexToBytes(hashHex))
+      assert.equal(b2h(tx.hash), hashHex)
     })
 
     it('decodes large inputs correctly', function() {
@@ -158,7 +162,7 @@ describe('Transaction', function() {
 
         var output = tx.outs[0]
         assert.equal(output.value, 40000)
-        assert.deepEqual(convert.bytesToHex(output.script.buffer), "76a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac")
+        assert.equal(b2h(output.script.buffer), "76a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac")
       }
     })
 
@@ -171,11 +175,10 @@ describe('Transaction', function() {
         var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
         tx.sign(0, key)
 
-        var pub = key.pub.toBuffer()
-        var script = prevTx.outs[0].script.buffer
+        var script = prevTx.outs[0].script
         var sig = tx.ins[0].script.chunks[0]
 
-        assert.equal(tx.validateSig(0, script, sig, pub), true)
+        assert.equal(tx.validateSig(0, script, key.pub, sig), true)
       })
     })
 
@@ -188,11 +191,10 @@ describe('Transaction', function() {
 
       it('returns true for valid signature', function(){
         var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
-        var pub = key.pub.toBuffer()
-        var script = prevTx.outs[0].script.buffer
+        var script = prevTx.outs[0].script
         var sig = validTx.ins[0].script.chunks[0]
 
-        assert.equal(validTx.validateSig(0, script, sig, pub), true)
+        assert.equal(validTx.validateSig(0, script, key.pub, sig), true)
       })
     })
 
@@ -217,6 +219,33 @@ describe('Transaction', function() {
         assert.equal(tx.estimateFee(0), 0)
       })
     })
+  })
+
+  describe('signScriptSig', function() {
+    var tx = new Transaction()
+    tx.addInput('deadbeefcafe', 0)
+    tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1, network.testnet)
+
+    var privKeys = [
+      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf',
+      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAvUcVfH'
+    ].map(function(wif) {
+      return ECKey.fromWIF(wif)
+    })
+    var pubKeys = privKeys.map(function(eck) { return eck.pub })
+    var pubKeyBuffers = pubKeys.map(function(q) { return q.toBuffer() })
+    var redeemScript = Script.createMultisigOutputScript(2, pubKeyBuffers)
+
+    var signatures = privKeys.map(function(privKey) {
+      return tx.signScriptSig(0, redeemScript, privKey)
+    })
+
+    var scriptSig = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
+    tx.setScriptSig(0, scriptSig)
+
+    var expected = '0100000001fecaefbeadde00000000fd1b0100483045022100a165904d2a3123ae887bd573b685e903a0ce158b1d21faba2ed4a42b3ca6126e02205f4e0e0cb333666d5b6b0b017fe0df0ac15a20f296a3fb8eab4e1572da2b3dea01473044022054e0cb54d62465a4003a2d0876048cde2b43dcab9385ffe173a2886bfa4d04b00220239811a8923887aa147d92987fa5c16f09a7fb7eea1d331c1a1d5303fd81f9c8014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0101000000000000001976a914751e76e8199196d454941c45d1b3a323f1433bd688ac00000000'
+
+    assert.equal(b2h(tx.serialize()), expected)
   })
 
   describe('TransactionOut', function() {

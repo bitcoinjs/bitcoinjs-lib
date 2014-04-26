@@ -312,15 +312,16 @@ Transaction.deserialize = function(buffer) {
  */
 Transaction.prototype.sign = function(index, key, type, network) {
   assert(key instanceof ECKey)
-  type = type || SIGHASH_ALL
   network = network || Network.bitcoin
 
   var address = key.pub.getAddress(network.pubKeyHash)
-  var script = Script.createOutputScript(address, network)
-  var hash = this.hashTransactionForSignature(script, index, type)
-  var sig = key.sign(hash).concat([type])
 
-  this.ins[index].script = Script.createInputScript(sig, key.pub)
+  // FIXME: Assumed prior TX was pay-to-pubkey-hash
+  var script = Script.createOutputScript(address, network)
+  var signature = this.signScriptSig(index, script, key, type)
+
+  var scriptSig = Script.createPubKeyHashScriptSig(signature, key.pub)
+  this.setScriptSig(index, scriptSig)
 }
 
 // Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]
@@ -357,29 +358,27 @@ Transaction.prototype.signWithKeys = function(keys, outputs, type) {
   }
 }
 
-/**
- * Signs a P2SH output at some index with the given key
- */
-Transaction.prototype.p2shsign = function(index, script, key, type) {
-  script = new Script(script)
-  key = new ECKey(key)
+Transaction.prototype.signScriptSig = function(index, script, key, type) {
   type = type || SIGHASH_ALL
-  var hash = this.hashTransactionForSignature(script, index, type),
-  sig = key.sign(hash).concat([type])
-  return sig
+
+  assert(Number.isFinite(index) && (index >= 0), 'Invalid vin index')
+  assert(script instanceof Script, 'Invalid Script object')
+  assert(key instanceof ECKey, 'Invalid private key')
+//  assert.equal(type & 0x7F, type, 'Invalid type') // TODO
+
+  var hash = this.hashTransactionForSignature(script, index, type)
+  return key.sign(hash).concat([type])
 }
 
-Transaction.prototype.multisign = Transaction.prototype.p2shsign
-
-Transaction.prototype.applyMultisigs = function(index, script, sigs/*, type*/) {
-  this.ins[index].script = Script.createMultiSigInputScript(sigs, script)
+Transaction.prototype.setScriptSig = function(index, script) {
+  this.ins[index].script = script
 }
 
-Transaction.prototype.validateSig = function(index, script, sig, pub) {
-  script = new Script(script)
-  var hash = this.hashTransactionForSignature(script,index,1)
-  return ecdsa.verify(hash, convert.coerceToBytes(sig),
-                      convert.coerceToBytes(pub))
+Transaction.prototype.validateSig = function(index, script, pub, sig, type) {
+  type = type || SIGHASH_ALL
+  var hash = this.hashTransactionForSignature(script, index, type)
+
+  return pub.verify(hash, sig)
 }
 
 Transaction.feePerKb = 20000
