@@ -1,6 +1,5 @@
 var Crypto = require('crypto-js')
 var WordArray = Crypto.lib.WordArray
-var base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
 function lpad(str, padString, length) {
   while (str.length < length) str = padString + str
@@ -21,78 +20,6 @@ function bytesToHex(bytes) {
 function hexToBytes(hex) {
   return hex.match(/../g).map(function(x) {
     return parseInt(x,16)
-  })
-}
-
-function bytesToBase64(bytes) {
-  var base64 = []
-
-  for (var i = 0; i < bytes.length; i += 3) {
-    var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
-
-    for (var j = 0; j < 4; j++) {
-      if (i * 8 + j * 6 <= bytes.length * 8) {
-        base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F))
-      } else {
-        base64.push('=')
-      }
-    }
-  }
-
-  return base64.join('')
-}
-
-function base64ToBytes(base64) {
-  // Remove non-base-64 characters
-  base64 = base64.replace(/[^A-Z0-9+\/]/ig, '')
-
-  var bytes = []
-  var imod4 = 0
-
-  for (var i = 0; i < base64.length; imod4 = ++i % 4) {
-    if (!imod4) continue
-
-      bytes.push(
-        (
-          (base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) <<
-          (imod4 * 2)
-      ) |
-        (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2))
-      )
-  }
-
-  return bytes
-}
-
-/**
- * Hex only (allowing bin would be potentially risky, as 01010101 = \x01 * 4 or 85)
- */
-function coerceToBytes(input) {
-  if (typeof input != 'string') return input
-    return hexToBytes(input)
-}
-
-function binToBytes(bin) {
-  return bin.match(/......../g).map(function(x) {
-    return parseInt(x,2)
-  })
-}
-
-function bytesToBin(bytes) {
-  return bytes.map(function(x) {
-    return lpad(x.toString(2), '0', 8)
-  }).join('')
-}
-
-function bytesToString(bytes) {
-  return bytes.map(function(x){
-    return String.fromCharCode(x)
-  }).join('')
-}
-
-function stringToBytes(string) {
-  return string.split('').map(function(x) {
-    return x.charCodeAt(0)
   })
 }
 
@@ -181,13 +108,6 @@ module.exports = {
   lpad: lpad,
   bytesToHex: bytesToHex,
   hexToBytes: hexToBytes,
-  bytesToBase64: bytesToBase64,
-  base64ToBytes: base64ToBytes,
-  coerceToBytes: coerceToBytes,
-  binToBytes: binToBytes,
-  bytesToBin: bytesToBin,
-  bytesToString: bytesToString,
-  stringToBytes: stringToBytes,
   numToBytes: numToBytes,
   bytesToNum: bytesToNum,
   numToVarInt: numToVarInt,
