@@ -222,30 +222,35 @@ describe('Transaction', function() {
   })
 
   describe('signScriptSig', function() {
-    var tx = new Transaction()
-    tx.addInput('deadbeefcafe', 0)
-    tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1, network.testnet)
+    it('works for multi-sig redeem script', function() {
+      var tx = new Transaction()
+      tx.addInput('d6f72aab8ff86ff6289842a0424319bf2ddba85dc7c52757912297f948286389', 0)
+      tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1, network.testnet)
 
-    var privKeys = [
-      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf',
-      '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAvUcVfH'
-    ].map(function(wif) {
-      return ECKey.fromWIF(wif)
+      var privKeys = [
+        '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf',
+        '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAvUcVfH'
+      ].map(function(wif) {
+        return ECKey.fromWIF(wif)
+      })
+      var pubKeys = privKeys.map(function(eck) { return eck.pub })
+      var pubKeyBuffers = pubKeys.map(function(q) { return q.toBuffer() })
+      var redeemScript = Script.createMultisigOutputScript(2, pubKeyBuffers)
+
+      var signatures = privKeys.map(function(privKey) {
+        return tx.signScriptSig(0, redeemScript, privKey)
+      })
+
+      var scriptSig = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
+      tx.setScriptSig(0, scriptSig)
+
+      signatures.forEach(function(sig, i){
+        assert(tx.validateSig(0, redeemScript, privKeys[i].pub, sig))
+      })
+
+      var expected = '010000000189632848f99722915727c5c75da8db2dbf194342a0429828f66ff88fab2af7d600000000fd1b0100483045022100e5be20d440b2bbbc886161f9095fa6d0bca749a4e41d30064f30eb97adc7a1f5022061af132890d8e4e90fedff5e9365aeeb77021afd8ef1d5c114d575512e9a130a0147304402205054e38e9d7b5c10481b6b4991fde5704cd94d49e344406e3c2ce4d18a43bf8e022051d7ba8479865b53a48bee0cce86e89a25633af5b2918aa276859489e232f51c014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0101000000000000001976a914751e76e8199196d454941c45d1b3a323f1433bd688ac00000000'
+      assert.equal(tx.serializeHex(), expected)
     })
-    var pubKeys = privKeys.map(function(eck) { return eck.pub })
-    var pubKeyBuffers = pubKeys.map(function(q) { return q.toBuffer() })
-    var redeemScript = Script.createMultisigOutputScript(2, pubKeyBuffers)
-
-    var signatures = privKeys.map(function(privKey) {
-      return tx.signScriptSig(0, redeemScript, privKey)
-    })
-
-    var scriptSig = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
-    tx.setScriptSig(0, scriptSig)
-
-    var expected = '0100000001fecaefbeadde00000000fd1b0100483045022100a165904d2a3123ae887bd573b685e903a0ce158b1d21faba2ed4a42b3ca6126e02205f4e0e0cb333666d5b6b0b017fe0df0ac15a20f296a3fb8eab4e1572da2b3dea01473044022054e0cb54d62465a4003a2d0876048cde2b43dcab9385ffe173a2886bfa4d04b00220239811a8923887aa147d92987fa5c16f09a7fb7eea1d331c1a1d5303fd81f9c8014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0101000000000000001976a914751e76e8199196d454941c45d1b3a323f1433bd688ac00000000'
-
-    assert.equal(b2h(tx.serialize()), expected)
   })
 
   describe('TransactionOut', function() {
