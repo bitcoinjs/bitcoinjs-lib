@@ -1,4 +1,5 @@
 // https://en.bitcoin.it/wiki/List_of_address_prefixes
+// Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
 module.exports = {
   bitcoin: {
     bip32: {
@@ -10,12 +11,22 @@ module.exports = {
     wif: 0x80
   },
   dogecoin: {
-    pubKeyHash: 0x30,
-    scriptHash: 0x20,
+    bip32: {
+      pub: 0x02facafd,
+      priv: 0x02fac398
+    },
+    pubKeyHash: 0x1e,
+    scriptHash: 0x16,
     wif: 0x9e
   },
   litecoin: {
-    scriptHash: 0x30,
+    bip32: {
+      pub: 0x019da462,
+      priv: 0x019d9cfe
+    },
+    pubKeyHash: 0x30,
+    scriptHash: 0x05,
+    wif: 0xb0
   },
   testnet: {
     bip32: {
