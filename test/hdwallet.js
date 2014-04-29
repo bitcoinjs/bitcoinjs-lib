@@ -242,7 +242,7 @@ describe('HDWallet', function() {
       assert.equal(wallet.getAddress().toString(), 'mmxjUCnx5xjeaSHxJicsDCxCmjZwq8KTbv')
     })
 
-    it('throws an excption when unknown network type is passed in', function() {
+    it('throws an exception when unknown network type is passed in', function() {
       assert.throws(function() { new HDWallet(new Buffer('foobar'), 'doge') })
     })
   })
