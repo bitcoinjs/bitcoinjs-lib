@@ -233,17 +233,17 @@ describe('HDWallet', function() {
 
   describe('network types', function() {
     it('ensures that a bitcoin Wallet generates bitcoin addresses', function() {
-      var wallet = new HDWallet('foobar', 'bitcoin')
-      assert.equal(wallet.getAddress().toString(), '1JNymexJHEr5u1BndiChMStFkCgPm4EQ6o')
+      var wallet = new HDWallet(new Buffer('foobar'), 'bitcoin')
+      assert.equal(wallet.getAddress().toString(), '17SnB9hyGwJPoKpLb9eVPHjsujyEuBpMAA')
     })
 
     it('ensures that a testnet Wallet generates testnet addresses', function() {
-      var wallet = new HDWallet('foobar', 'testnet')
-      assert.equal(wallet.getAddress().toString(), 'mxtw4i3H6GHLg7fQMHB5BN6acCH6kQ7aoY')
+      var wallet = new HDWallet(new Buffer('foobar'), 'testnet')
+      assert.equal(wallet.getAddress().toString(), 'mmxjUCnx5xjeaSHxJicsDCxCmjZwq8KTbv')
     })
 
-    it('throws an excption when unknown network type is passed in', function() {
-      assert.throws(function() { new HDWallet("foobar", "doge") })
+    it('throws an exception when unknown network type is passed in', function() {
+      assert.throws(function() { new HDWallet(new Buffer('foobar'), 'doge') })
     })
   })
 })

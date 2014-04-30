@@ -1,3 +1,4 @@
+var assert = require('assert')
 var Crypto = require('crypto-js')
 var WordArray = Crypto.lib.WordArray
 
@@ -77,6 +78,7 @@ function varIntToNum(bytes) {
 }
 
 function bytesToWords(bytes) {
+  assert(Array.isArray(bytes) || Buffer.isBuffer(bytes), 'Input must be a byte array')
   var words = []
   for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
     words[b >>> 5] |= bytes[i] << (24 - b % 32)
