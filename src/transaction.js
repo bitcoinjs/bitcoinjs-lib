@@ -16,7 +16,7 @@ var Transaction = function (doc) {
   this.locktime = 0
   this.ins = []
   this.outs = []
-  this.defaultSequence = [255, 255, 255, 255] // 0xFFFFFFFF
+  this.defaultSequence = 0xffffffff
 
   if (doc) {
     if (typeof doc == "string" || Array.isArray(doc)) {
@@ -137,7 +137,7 @@ Transaction.prototype.serialize = function () {
     var scriptBytes = txin.script.buffer
     buffer = buffer.concat(convert.numToVarInt(scriptBytes.length))
     buffer = buffer.concat(scriptBytes)
-    buffer = buffer.concat(txin.sequence)
+    buffer = buffer.concat(convert.numToBytes(txin.sequence, 4))
   })
 
   buffer = buffer.concat(convert.numToVarInt(this.outs.length))
@@ -289,7 +289,7 @@ Transaction.deserialize = function(buffer) {
         index: readAsInt(4)
       },
       script: new Script(readVarString()),
-      sequence: readBytes(4)
+      sequence: readAsInt(4)
     })
   }
   var outs = readVarInt()
