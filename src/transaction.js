@@ -118,9 +118,8 @@ Transaction.prototype.addOutput = function (address, value, network) {
 /**
  * Serialize this transaction.
  *
- * Returns the transaction as a byte array in the standard Bitcoin binary
- * format. This method is byte-perfect, i.e. the resulting byte array can
- * be hashed to get the transaction's standard Bitcoin hash.
+ * Returns the transaction as a binary buffer in
+ * accordance with the Bitcoin protocol.
  */
 Transaction.prototype.serialize = function () {
   var buffer = []
@@ -152,11 +151,11 @@ Transaction.prototype.serialize = function () {
 
   buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime), 4))
 
-  return buffer
+  return new Buffer(buffer)
 }
 
 Transaction.prototype.serializeHex = function() {
-  return convert.bytesToHex(this.serialize())
+  return this.serialize().toString('hex')
 }
 
 //var OP_CODESEPARATOR = 171
@@ -213,9 +212,10 @@ Transaction.prototype.hashTransactionForSignature =
     txTmp.ins = [txTmp.ins[inIndex]]
   }
 
-  var buffer = txTmp.serialize()
-  buffer = buffer.concat(convert.numToBytes(parseInt(hashType), 4))
+  var htB = new Buffer(4)
+  htB.writeUInt32LE(hashType, 0)
 
+  var buffer = Buffer.concat([txTmp.serialize(), htB])
   return crypto.hash256(buffer)
 }
 
@@ -283,12 +283,15 @@ Transaction.deserialize = function(buffer) {
   var i
 
   for (i = 0; i < ins; i++) {
+    var hash = readBytes(32)
+    Array.prototype.reverse.call(hash)
+
     obj.ins.push({
       outpoint: {
-        hash: convert.bytesToHex(readBytes(32).reverse()),
+        hash: convert.bytesToHex(hash),
         index: readAsInt(4)
       },
-      script: new Script(readVarString()),
+      script: Script.fromBuffer(readVarString()),
       sequence: readAsInt(4)
     })
   }
@@ -297,7 +300,7 @@ Transaction.deserialize = function(buffer) {
   for (i = 0; i < outs; i++) {
     obj.outs.push({
       value: convert.bytesToNum(readBytes(8)),
-      script: new Script(readVarString())
+      script: Script.fromBuffer(readVarString())
     })
   }
 

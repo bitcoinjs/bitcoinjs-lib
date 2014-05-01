@@ -81,14 +81,18 @@ describe('Transaction', function() {
       tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
       tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 100)
 
-      // but we're going to replace the tx.ins.length VarInt with a 32-bit equivalent
-      // however the same resultant number of inputs (1)
-      var bytes = tx.serialize()
-      var mutated = bytes.slice(0, 4).concat([254, 1, 0, 0, 0], bytes.slice(5))
+      var buffer = tx.serialize()
 
-      // the deserialized-serialized transaction should return to its original state (== tx)
-      var bytes2 = Transaction.deserialize(mutated).serialize()
-      assert.deepEqual(bytes, bytes2)
+      // we're going to replace the 8bit VarInt for tx.ins.length with a stretched 32bit equivalent
+      var mutated = Buffer.concat([
+        buffer.slice(0, 4),
+        new Buffer([254, 1, 0, 0, 0]),
+        buffer.slice(5)
+      ])
+
+      // the deserialized-serialized transaction should return to its non-mutated state (== tx)
+      var buffer2 = Transaction.deserialize(mutated).serialize()
+      assert.deepEqual(buffer, buffer2)
     })
   })
 
