@@ -4,7 +4,6 @@ var T = require('../src/transaction.js')
 var Transaction = T.Transaction
 var TransactionOut = T.TransactionOut
 var Script = require('../src/script.js')
-var convert = require('../src/convert.js')
 var assert = require('assert')
 var sinon = require('sinon')
 var crypto = require('../').crypto
@@ -338,7 +337,7 @@ describe('Wallet', function() {
 
       function verifyOutputAdded(index) {
         var txOut = tx.outs[index]
-        var key = convert.bytesToHex(tx.getHash()) + ":" + index
+        var key = tx.getHash() + ":" + index
         var output = wallet.outputs[key]
         assert.equal(output.receive, key)
         assert.equal(output.value, txOut.value)
@@ -367,7 +366,7 @@ describe('Wallet', function() {
         var key = txIn.outpoint.hash + ":" + txIn.outpoint.index
         var output = wallet.outputs[key]
 
-        assert.equal(output.spend, convert.bytesToHex(tx.getHash()) + ':' + 0)
+        assert.equal(output.spend, tx.getHash() + ':' + 0)
       })
     })
 

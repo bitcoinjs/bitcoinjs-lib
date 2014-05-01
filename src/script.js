@@ -14,7 +14,7 @@ function Script(data) {
 }
 
 Script.fromBuffer = function(buffer) {
-//  assert(Buffer.isBuffer(buffer)) // FIXME: transitionary
+  assert(Buffer.isBuffer(buffer)) // FIXME: transitionary
 
   return new Script(Array.prototype.slice.call(buffer))
 }

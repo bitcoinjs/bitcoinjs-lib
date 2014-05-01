@@ -72,7 +72,7 @@ describe('Transaction', function() {
 
     it('assigns hash to deserialized object', function(){
       var hashHex = "a9d4599e15b53f3eb531608ddb31f48c695c3d0b3538a6bda871e8b34f2f430c"
-      assert.equal(b2h(tx.hash), hashHex)
+      assert.equal(tx.hash, hashHex)
     })
 
     it('decodes large inputs correctly', function() {

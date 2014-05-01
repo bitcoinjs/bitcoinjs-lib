@@ -146,7 +146,7 @@ function Wallet(seed, options) {
   }
 
   this.processTx = function(tx) {
-    var txhash = convert.bytesToHex(tx.getHash())
+    var txhash = tx.getHash()
 
     tx.outs.forEach(function(txOut, i){
       var address = txOut.address.toString()

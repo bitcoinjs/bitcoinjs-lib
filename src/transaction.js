@@ -3,6 +3,7 @@
 var assert = require('assert')
 var Address = require('./address')
 var BigInteger = require('bigi')
+var BufferExt = require('./buffer')
 var Script = require('./script')
 var convert = require('./convert')
 var crypto = require('./crypto')
@@ -122,36 +123,68 @@ Transaction.prototype.addOutput = function (address, value, network) {
  * accordance with the Bitcoin protocol.
  */
 Transaction.prototype.serialize = function () {
-  var buffer = []
-  buffer = buffer.concat(convert.numToBytes(parseInt(this.version), 4))
-  buffer = buffer.concat(convert.numToVarInt(this.ins.length))
+  var txInSize = this.ins.reduce(function(a, x) {
+    return a + (40 + BufferExt.varIntSize(x.script.buffer.length) + x.script.buffer.length)
+  }, 0)
 
-  this.ins.forEach(function(txin) {
-    // Why do blockchain.info, blockexplorer.com, sx and just about everybody
-    // else use little-endian hashes? No idea...
-    buffer = buffer.concat(convert.hexToBytes(txin.outpoint.hash).reverse())
+  var txOutSize = this.outs.reduce(function(a, x) {
+    return a + (8 + BufferExt.varIntSize(x.script.buffer.length) + x.script.buffer.length)
+  }, 0)
 
-    buffer = buffer.concat(convert.numToBytes(parseInt(txin.outpoint.index), 4))
+  var buffer = new Buffer(
+    8 +
+    BufferExt.varIntSize(this.ins.length) +
+    BufferExt.varIntSize(this.outs.length) +
+    txInSize +
+    txOutSize
+  )
 
-    var scriptBytes = txin.script.buffer
-    buffer = buffer.concat(convert.numToVarInt(scriptBytes.length))
-    buffer = buffer.concat(scriptBytes)
-    buffer = buffer.concat(convert.numToBytes(txin.sequence, 4))
+  var offset = 0
+  function writeSlice(slice) {
+    if (Array.isArray(slice)) slice = new Buffer(slice)
+    slice.copy(buffer, offset)
+    offset += slice.length
+  }
+  function writeUInt32(i) {
+    buffer.writeUInt32LE(i, offset)
+    offset += 4
+  }
+  function writeUInt64(i) {
+    BufferExt.writeUInt64LE(buffer, i, offset)
+    offset += 8
+  }
+  function writeVI(i) {
+    var n = BufferExt.writeVarInt(buffer, i, offset)
+    offset += n
+  }
+
+  writeUInt32(this.version)
+  writeVI(this.ins.length)
+
+  this.ins.forEach(function(txin, i) {
+    var hash = new Buffer(txin.outpoint.hash, 'hex')
+
+    // Hash is big-endian, we want little-endian for the hex
+    Array.prototype.reverse.call(hash)
+
+    writeSlice(hash)
+    writeUInt32(txin.outpoint.index)
+    writeVI(txin.script.buffer.length)
+    writeSlice(txin.script.buffer)
+    writeUInt32(txin.sequence)
   })
 
-  buffer = buffer.concat(convert.numToVarInt(this.outs.length))
-
+  writeVI(this.outs.length)
   this.outs.forEach(function(txout) {
-    buffer = buffer.concat(convert.numToBytes(txout.value,8))
-
-    var scriptBytes = txout.script.buffer
-    buffer = buffer.concat(convert.numToVarInt(scriptBytes.length))
-    buffer = buffer.concat(scriptBytes)
+    writeUInt64(txout.value)
+    writeVI(txout.script.buffer.length)
+    writeSlice(txout.script.buffer)
   })
 
-  buffer = buffer.concat(convert.numToBytes(parseInt(this.locktime), 4))
+  writeUInt32(this.locktime)
+  assert.equal(offset, buffer.length, 'Invalid transaction object')
 
-  return new Buffer(buffer)
+  return buffer
 }
 
 Transaction.prototype.serializeHex = function() {
@@ -219,17 +252,14 @@ Transaction.prototype.hashTransactionForSignature =
   return crypto.hash256(buffer)
 }
 
-/**
- * Calculate and return the transaction's hash.
- * Reverses hash since blockchain.info, blockexplorer.com and others
- * use little-endian hashes for some stupid reason
- */
 Transaction.prototype.getHash = function ()
 {
-  var buffer = this.serialize()
-  var hash = crypto.hash256(buffer)
+  var buffer = crypto.hash256(this.serialize())
 
-  return Array.prototype.slice.call(hash).reverse()
+  // Little-endian is used for Transaction hash hex
+  Array.prototype.reverse.call(buffer)
+
+  return buffer.toString('hex')
 }
 
 Transaction.prototype.clone = function ()
@@ -250,63 +280,79 @@ Transaction.prototype.clone = function ()
 }
 
 Transaction.deserialize = function(buffer) {
-  if (typeof buffer == "string") {
-    buffer = convert.hexToBytes(buffer)
-  }
-  var pos = 0
-  var readAsInt = function(bytes) {
-    if (bytes === 0) return 0;
-    pos++;
-    return buffer[pos-1] + readAsInt(bytes-1) * 256
-  }
-  var readVarInt = function() {
-    var bytes = buffer.slice(pos, pos + 9) // maximum possible number of bytes to read
-    var result = convert.varIntToNum(bytes)
+  if (typeof buffer == "string") buffer = new Buffer(buffer, 'hex')
+  else if (Array.isArray(buffer)) buffer = new Buffer(buffer)
 
-    pos += result.bytes.length
-    return result.number
+  var offset = 0
+  function readSlice(n) {
+    offset += n
+    return buffer.slice(offset - n, offset)
   }
-  var readBytes = function(bytes) {
-    pos += bytes
-    return buffer.slice(pos - bytes, pos)
+  function readUInt32() {
+    var i = buffer.readUInt32LE(offset)
+    offset += 4
+    return i
   }
-  var readVarString = function() {
-    var size = readVarInt()
-    return readBytes(size)
+  function readUInt64() {
+    var i = BufferExt.readUInt64LE(buffer, offset)
+    offset += 8
+    return i
   }
-  var obj = {
-    ins: [],
-    outs: []
+  function readVI() {
+    var vi = BufferExt.readVarInt(buffer, offset)
+    offset += vi.size
+    return vi.number
   }
-  obj.version = readAsInt(4)
-  var ins = readVarInt()
-  var i
 
-  for (i = 0; i < ins; i++) {
-    var hash = readBytes(32)
+  var ins = []
+  var outs = []
+
+  var version = readUInt32()
+  var vinLen = readVI()
+
+  for (var i = 0; i < vinLen; ++i) {
+    var hash = readSlice(32)
+
+    // Hash is big-endian, we want little-endian for the hex
     Array.prototype.reverse.call(hash)
 
-    obj.ins.push({
+    var vout = readUInt32()
+    var scriptLen = readVI()
+    var script = readSlice(scriptLen)
+    var sequence = readUInt32()
+
+    ins.push({
       outpoint: {
-        hash: convert.bytesToHex(hash),
-        index: readAsInt(4)
+        hash: hash.toString('hex'),
+        index: vout,
       },
-      script: Script.fromBuffer(readVarString()),
-      sequence: readAsInt(4)
-    })
-  }
-  var outs = readVarInt()
-
-  for (i = 0; i < outs; i++) {
-    obj.outs.push({
-      value: convert.bytesToNum(readBytes(8)),
-      script: Script.fromBuffer(readVarString())
+      script: Script.fromBuffer(script),
+      sequence: sequence
     })
   }
 
-  obj.locktime = readAsInt(4)
+  var voutLen = readVI()
 
-  return new Transaction(obj)
+  for (i = 0; i < voutLen; ++i) {
+    var value = readUInt64()
+    var scriptLen = readVI()
+    var script = readSlice(scriptLen)
+
+    outs.push({
+      value: value,
+      script: Script.fromBuffer(script)
+    })
+  }
+
+  var locktime = readUInt32()
+  assert.equal(offset, buffer.length, 'Invalid transaction')
+
+  return new Transaction({
+    version: version,
+    ins: ins,
+    outs: outs,
+    locktime: locktime
+  })
 }
 
 /**
