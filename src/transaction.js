@@ -164,7 +164,7 @@ Transaction.prototype.serialize = function () {
   this.ins.forEach(function(txin, i) {
     var hash = new Buffer(txin.outpoint.hash, 'hex') // FIXME: Performance: convert on tx.addInput instead
 
-    // Hash is big-endian, we want little-endian for the hex
+    // TxHash hex is big-endian, we need little-endian
     Array.prototype.reverse.call(hash)
 
     writeSlice(hash)
@@ -252,11 +252,10 @@ Transaction.prototype.hashTransactionForSignature =
   return crypto.hash256(buffer)
 }
 
-Transaction.prototype.getHash = function ()
-{
+Transaction.prototype.getHash = function () {
   var buffer = crypto.hash256(this.serialize())
 
-  // Little-endian is used for Transaction hash hex
+  // Big-endian is used for TxHash
   Array.prototype.reverse.call(buffer)
 
   return buffer.toString('hex')
@@ -313,7 +312,7 @@ Transaction.deserialize = function(buffer) {
   for (var i = 0; i < vinLen; ++i) {
     var hash = readSlice(32)
 
-    // Hash is big-endian, we want little-endian for the hex
+    // TxHash is little-endian, we want big-endian hex
     Array.prototype.reverse.call(hash)
 
     var vout = readUInt32()
