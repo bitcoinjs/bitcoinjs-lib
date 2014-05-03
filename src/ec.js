@@ -2,7 +2,7 @@
 // Ported loosely from BouncyCastle's Java EC code
 // Only Fp curves implemented for now
 
-var BigInteger = require('./bigi')
+var BigInteger = require('bigi')
 
 function ECFieldElementFp(q,x) {
     this.x = x;

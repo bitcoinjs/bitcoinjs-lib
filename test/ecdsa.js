@@ -4,7 +4,7 @@ var ecdsa = require('..').ecdsa
 var sec = require('..').sec
 var ecparams = sec("secp256k1")
 
-var BigInteger = require('..').BigInteger
+var BigInteger = require('bigi')
 var ECKey = require('..').ECKey
 var ECPubKey = require('..').ECPubKey
 var Message = require('..').Message

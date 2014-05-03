@@ -42,7 +42,7 @@
     "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js"
   },
   "dependencies": {
-    "bigi": "0.2.0",
+    "bigi": "1.0.0",
     "crypto-js": "3.1.2-3",
     "secure-random": "0.2.1"
   }

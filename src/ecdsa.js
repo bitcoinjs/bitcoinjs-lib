@@ -3,7 +3,7 @@ var crypto = require('crypto')
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
 
-var BigInteger = require('./bigi')
+var BigInteger = require('bigi')
 var ECPointFp = require('./ec').ECPointFp
 
 var P_OVER_FOUR = null
@@ -178,6 +178,8 @@ var ecdsa = {
    * }
    */
   parseSig: function (sig) {
+    if(Array.isArray(sig)) sig = new Buffer(sig);
+
     var cursor
     if (sig[0] != 0x30) {
       throw new Error("Signature not a valid DERSequence")
