@@ -141,7 +141,7 @@ Transaction.prototype.serialize = function () {
 
   var offset = 0
   function writeSlice(slice) {
-    if (Array.isArray(slice)) slice = new Buffer(slice)
+    if (Array.isArray(slice)) slice = new Buffer(slice) // FIXME: Performance: transitionary only
     slice.copy(buffer, offset)
     offset += slice.length
   }
@@ -162,7 +162,7 @@ Transaction.prototype.serialize = function () {
   writeVI(this.ins.length)
 
   this.ins.forEach(function(txin, i) {
-    var hash = new Buffer(txin.outpoint.hash, 'hex')
+    var hash = new Buffer(txin.outpoint.hash, 'hex') // FIXME: Performance: convert on tx.addInput instead
 
     // Hash is big-endian, we want little-endian for the hex
     Array.prototype.reverse.call(hash)
