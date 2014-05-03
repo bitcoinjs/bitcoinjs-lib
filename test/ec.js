@@ -3,7 +3,7 @@ var assert = require('assert')
 var sec = require('../').sec
 var ecparams = sec('secp256k1')
 
-var BigInteger = require('..').BigInteger
+var BigInteger = require('bigi')
 var ECPointFp = require('../').ECPointFp
 
 describe('ec', function() {

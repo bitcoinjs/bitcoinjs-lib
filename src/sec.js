@@ -1,6 +1,6 @@
 // Named EC curves
 
-var BigInteger = require('./bigi')
+var BigInteger = require('bigi')
 var ECCurveFp = require('./ec')
 var ECPointFp = ECCurveFp.ECPointFp
 

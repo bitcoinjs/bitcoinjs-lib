@@ -5,7 +5,7 @@
 // Merged Buffer refactorings from base58-native by Stephen Pair
 // Copyright (c) 2013 BitPay Inc
 
-var BigInteger = require('./bigi')
+var BigInteger = require('bigi')
 
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 var ALPHABET_BUF = new Buffer(ALPHABET, 'ascii')

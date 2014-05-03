@@ -2,7 +2,7 @@
 
 var assert = require('assert')
 var Address = require('./address')
-var BigInteger = require('./bigi')
+var BigInteger = require('bigi')
 var Script = require('./script')
 var convert = require('./convert')
 var crypto = require('./crypto')

@@ -3,7 +3,7 @@ var base58 = require('./base58')
 var convert = require('./convert')
 
 var Address = require('./address')
-var BigInteger = require('./bigi')
+var BigInteger = require('bigi')
 var CJS = require('crypto-js')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey

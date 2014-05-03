@@ -10,7 +10,7 @@ var crypto = require('./crypto')
 var sec = require('./sec')
 var ecparams = sec('secp256k1')
 
-var BigInteger = require('./bigi')
+var BigInteger = require('bigi')
 var ECPointFp = require('./ec').ECPointFp
 
 function ECKey(D, compressed) {
