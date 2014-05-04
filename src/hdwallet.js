@@ -169,7 +169,7 @@ HDWallet.prototype.toHex = function(priv) {
 }
 
 HDWallet.prototype.toBase58 = function(priv) {
-  var buffer = new Buffer(this.toBuffer(priv))
+  var buffer = this.toBuffer(priv)
   var checksum = crypto.hash256(buffer).slice(0, 4)
 
   return base58.encode(Buffer.concat([
