@@ -7,14 +7,16 @@ var ecdsa = require('./ecdsa')
 var ECPubKey = require('./eckey').ECPubKey
 
 // FIXME: incompatible with other networks (Litecoin etc)
-var magicBuffer = new Buffer('\x18Bitcoin Signed Message:\n')
+var MAGIC_PREFIX = new Buffer('\x18Bitcoin Signed Message:\n')
 
 function magicHash(message) {
-  var mB = new Buffer(message)
-  var mVI = new Buffer(BufferExt.varIntSize(mB.length))
-  BufferExt.writeVarInt(mVI, mB.length, 0)
+  var messageBuffer = new Buffer(message)
+  var lengthBuffer = new Buffer(BufferExt.varIntSize(messageBuffer.length))
+  BufferExt.writeVarInt(lengthBuffer, messageBuffer.length, 0)
 
-  var buffer = Buffer.concat([magicBuffer, mVI, mB])
+  var buffer = Buffer.concat([
+    MAGIC_PREFIX, lengthBuffer, messageBuffer
+  ])
   return crypto.hash256(buffer)
 }
 

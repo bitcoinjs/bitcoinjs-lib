@@ -153,13 +153,13 @@ Transaction.prototype.serialize = function () {
     BufferExt.writeUInt64LE(buffer, i, offset)
     offset += 8
   }
-  function writeVI(i) {
+  function writeVarInt(i) {
     var n = BufferExt.writeVarInt(buffer, i, offset)
     offset += n
   }
 
   writeUInt32(this.version)
-  writeVI(this.ins.length)
+  writeVarInt(this.ins.length)
 
   this.ins.forEach(function(txin, i) {
     var hash = new Buffer(txin.outpoint.hash, 'hex') // FIXME: Performance: convert on tx.addInput instead
@@ -169,15 +169,15 @@ Transaction.prototype.serialize = function () {
 
     writeSlice(hash)
     writeUInt32(txin.outpoint.index)
-    writeVI(txin.script.buffer.length)
+    writeVarInt(txin.script.buffer.length)
     writeSlice(txin.script.buffer)
     writeUInt32(txin.sequence)
   })
 
-  writeVI(this.outs.length)
+  writeVarInt(this.outs.length)
   this.outs.forEach(function(txout) {
     writeUInt64(txout.value)
-    writeVI(txout.script.buffer.length)
+    writeVarInt(txout.script.buffer.length)
     writeSlice(txout.script.buffer)
   })
 
@@ -297,7 +297,7 @@ Transaction.deserialize = function(buffer) {
     offset += 8
     return i
   }
-  function readVI() {
+  function readVarInt() {
     var vi = BufferExt.readVarInt(buffer, offset)
     offset += vi.size
     return vi.number
@@ -307,7 +307,7 @@ Transaction.deserialize = function(buffer) {
   var outs = []
 
   var version = readUInt32()
-  var vinLen = readVI()
+  var vinLen = readVarInt()
 
   for (var i = 0; i < vinLen; ++i) {
     var hash = readSlice(32)
@@ -316,7 +316,7 @@ Transaction.deserialize = function(buffer) {
     Array.prototype.reverse.call(hash)
 
     var vout = readUInt32()
-    var scriptLen = readVI()
+    var scriptLen = readVarInt()
     var script = readSlice(scriptLen)
     var sequence = readUInt32()
 
@@ -330,11 +330,11 @@ Transaction.deserialize = function(buffer) {
     })
   }
 
-  var voutLen = readVI()
+  var voutLen = readVarInt()
 
   for (i = 0; i < voutLen; ++i) {
     var value = readUInt64()
-    var scriptLen = readVI()
+    var scriptLen = readVarInt()
     var script = readSlice(scriptLen)
 
     outs.push({
