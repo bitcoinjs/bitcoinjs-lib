@@ -205,6 +205,7 @@ HDWallet.prototype.derive = function(i) {
     I = HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
   }
 
+
   // FIXME: Boo, CSJ.algo.SHA512 uses byte arrays
   I = new Buffer(I)
 
@@ -225,7 +226,7 @@ HDWallet.prototype.derive = function(i) {
     hd.pub = hd.priv.pub
   } else {
     // Ki = (IL + kpar)*G = IL*G + Kpar
-    var Ki = IL.multiply(ecparams.getG()).add(this.pub.Q)
+    var Ki = ecparams.getG().multiply(IL).add(this.pub.Q)
 
     hd.pub = new ECPubKey(Ki, true)
   }
