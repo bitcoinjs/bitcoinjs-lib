@@ -40,8 +40,8 @@ function HDWallet(seed, networkString) {
 HDWallet.HIGHEST_BIT = 0x80000000
 HDWallet.LENGTH = 78
 
-HDWallet.fromSeedHex = function(hex, network) {
-  return new HDWallet(new Buffer(hex, 'hex'), network)
+HDWallet.fromSeedHex = function(hex, networkString) {
+  return new HDWallet(new Buffer(hex, 'hex'), networkString)
 }
 
 HDWallet.fromBase58 = function(string) {
