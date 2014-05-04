@@ -12,11 +12,10 @@ var helloblock = require('helloblock-js')({
   network: 'testnet'
 });
 
-describe('integration', function() {
+describe('p2sh', function() {
   this.timeout(10000);
 
-  it('scripthash transactions', function(done) {
-    // 2-of-2 scripthash
+  it('spends from a 2-of-2 address', function(done) {
     var privKeys = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT'
