@@ -204,7 +204,7 @@ var SIGHASH_ANYONECANPAY = 80
  * hashType, serializes and finally hashes the result. This hash can then be
  * used to sign the transaction input in question.
  */
-Transaction.prototype.hashTransactionForSignature =
+Transaction.prototype.hashForSignature =
   function (connectedScript, inIndex, hashType)
 {
   var txTmp = this.clone()
@@ -377,7 +377,7 @@ Transaction.prototype.signScriptSig = function(index, script, key, type) {
   assert(key instanceof ECKey, 'Invalid private key')
 //  assert.equal(type & 0x7F, type, 'Invalid type') // TODO
 
-  var hash = this.hashTransactionForSignature(script, index, type)
+  var hash = this.hashForSignature(script, index, type)
   return key.sign(hash).concat([type])
 }
 
@@ -387,7 +387,7 @@ Transaction.prototype.setScriptSig = function(index, script) {
 
 Transaction.prototype.validateSig = function(index, script, pub, sig, type) {
   type = type || SIGHASH_ALL
-  var hash = this.hashTransactionForSignature(script, index, type)
+  var hash = this.hashForSignature(script, index, type)
 
   return pub.verify(hash, sig)
 }
