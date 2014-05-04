@@ -282,6 +282,9 @@ Transaction.deserialize = function(buffer) {
   if (typeof buffer == "string") buffer = new Buffer(buffer, 'hex')
   else if (Array.isArray(buffer)) buffer = new Buffer(buffer)
 
+  // Copy because we mutate (reverse TxOutHashs)
+  buffer = new Buffer(buffer)
+
   var offset = 0
   function readSlice(n) {
     offset += n

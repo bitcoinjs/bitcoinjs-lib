@@ -38,6 +38,13 @@ describe('Transaction', function() {
       assert.equal(b2h(actual), expected)
     })
 
+    it('does not mutate the input buffer', function() {
+      var buffer = new Buffer(serializedTx, 'hex')
+      Transaction.deserialize(buffer)
+
+      assert.equal(buffer.toString('hex'), serializedTx)
+    })
+
     it('decodes version correctly', function(){
       assert.equal(tx.version, 1)
     })
