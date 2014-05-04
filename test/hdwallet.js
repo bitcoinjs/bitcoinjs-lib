@@ -231,6 +231,17 @@ describe('HDWallet', function() {
     })
   })
 
+  describe('derive', function() {
+    describe('m/0', function() {
+      it('works', function() {
+        var wallet = HDWallet.fromBase58('xpub6CxuB8ifZCMXeS3KbyNkYvrsJEHqxedCSiUhrNwH1nKtb8hcJpxDbDxkdoVCTR2bQ1G8hY4UMv85gef9SEpgFFUftBjt37FUSZxVx4AU9Qh').derive(0)
+
+        assert.equal(wallet.depth, 4)
+        assert.equal(wallet.toBase58(), 'xpub6DyYbqDaPgHkj1Sk5EaqC4HgGN7xRePCGJeei9En2kCK8kZk8HRnnPuKSbNX6vwQVvmYnTPhK8vpUEXTBd5BQ9MUKBewhGJtL49YuUfQwJw')
+      })
+    })
+  })
+
   describe('network types', function() {
     it('ensures that a bitcoin Wallet generates bitcoin addresses', function() {
       var wallet = new HDWallet(new Buffer('foobar'), 'bitcoin')
