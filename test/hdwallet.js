@@ -236,7 +236,7 @@ describe('HDWallet', function() {
       var wallet = HDWallet.fromBase58('xpub6CxuB8ifZCMXeS3KbyNkYvrsJEHqxedCSiUhrNwH1nKtb8hcJpxDbDxkdoVCTR2bQ1G8hY4UMv85gef9SEpgFFUftBjt37FUSZxVx4AU9Qh').derive(0)
 
       it('derives the correct public key', function() {
-        assert.equal(wallet.pub.toHex(), '03146846eeb5a7533abb594ba734bc243fc7b6349499b8311c8fc13b0112ba8a77')
+        assert.equal(wallet.pub.toHex(), '02df843e6ae2017e0772d0584f76f56b8f2f5181a3045c7a7740a9d86dc7c80ce7')
       })
 
       it('derives the correct depth', function() {
