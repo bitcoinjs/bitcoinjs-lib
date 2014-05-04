@@ -1,12 +1,12 @@
 var assert = require('assert');
 
-var Address = require('../src/address');
-var ECKey = require('../src/eckey').ECKey;
-var T = require('../src/transaction');
+var Address = require('../../src/address');
+var ECKey = require('../../src/eckey').ECKey;
+var T = require('../../src/transaction');
 var Transaction = T.Transaction;
-var Script = require('../src/script');
-var network = require('../src/network');
-var crypto = require('../src/crypto');
+var Script = require('../../src/script');
+var network = require('../../src/network');
+var crypto = require('../../src/crypto');
 
 var helloblock = require('helloblock-js')({
   network: 'testnet'
