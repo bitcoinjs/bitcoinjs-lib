@@ -84,7 +84,7 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  * Can be called with:
  *
  * i) An existing TransactionOut object
- * ii) An address object or an address and a value
+ * ii) An address object or a string address, and a value
  * iii) An address:value string
  * iv) Either ii), iii) with an optional network argument
  *
