@@ -356,35 +356,45 @@ Script.prototype.writeBytes = function(data) {
 /**
  * Create an output for an address
  */
-Script.createOutputScript = function(address, network) {
+Script.createScriptPubKey = function(address, network) {
   assert(address instanceof Address)
   network = network || networks.bitcoin
 
-  var script = new Script()
-
-  // Standard pay-to-script-hash
-  if (address.version === network.scriptHash) {
-    script.writeOp(Opcode.map.OP_HASH160)
-    script.writeBytes(address.hash)
-    script.writeOp(Opcode.map.OP_EQUAL)
-
-    return script
+  if (address.version === network.pubKeyHash) {
+    return Script.createPubKeyHashScriptPubKey(address.hash)
   }
 
-  assert.strictEqual(address.version, network.pubKeyHash, 'Unknown address type')
+  assert.strictEqual(address.version, network.scriptHash, 'Unknown address type')
 
-  // Standard pay-to-pubkey-hash
+  return Script.createP2SHScriptPubKey(address.hash)
+}
+
+// OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
+Script.createPubKeyHashScriptPubKey = function(hash) {
+  var script = new Script()
+
   script.writeOp(Opcode.map.OP_DUP)
   script.writeOp(Opcode.map.OP_HASH160)
-  script.writeBytes(address.hash)
+  script.writeBytes(hash)
   script.writeOp(Opcode.map.OP_EQUALVERIFY)
   script.writeOp(Opcode.map.OP_CHECKSIG)
 
   return script
 }
 
+// OP_HASH160 {scriptHash} OP_EQUAL
+Script.createP2SHScriptPubKey = function(hash) {
+  var script = new Script()
+
+  script.writeOp(Opcode.map.OP_HASH160)
+  script.writeBytes(hash)
+  script.writeOp(Opcode.map.OP_EQUAL)
+
+  return script
+}
+
 // m [pubKeys ...] n OP_CHECKMULTISIG
-Script.createMultisigOutputScript = function(m, pubKeys) {
+Script.createMultisigScriptPubKey = function(m, pubKeys) {
   var script = new Script()
   pubKeys = pubKeys.sort()
 

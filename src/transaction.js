@@ -116,7 +116,7 @@ Transaction.prototype.addOutput = function (address, value, network) {
 
   this.outs.push(new TransactionOut({
     value: value,
-    script: Script.createOutputScript(address, network),
+    script: Script.createScriptPubKey(address, network),
     network: network
   }))
 }
@@ -373,7 +373,7 @@ Transaction.prototype.sign = function(index, key, type, network) {
   var address = key.pub.getAddress(network.pubKeyHash)
 
   // FIXME: Assumed prior TX was pay-to-pubkey-hash
-  var script = Script.createOutputScript(address, network)
+  var script = Script.createScriptPubKey(address, network)
   var signature = this.signScriptSig(index, script, key, type)
 
   var scriptSig = Script.createPubKeyHashScriptSig(signature, key.pub)
