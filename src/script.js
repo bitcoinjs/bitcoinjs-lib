@@ -6,10 +6,10 @@ var Network = require('./network')
 var Opcode = require('./opcode')
 
 function Script(data) {
-  this.buffer = data || []
-  if(!Array.isArray(this.buffer)) {
-    throw new Error('expect Script to be initialized with Array, but got ' + data)
-  }
+  data = data || []
+  assert(Array.isArray(data), 'Expected Array, got ' + data)
+
+  this.buffer = data
   this.parse()
 }
 
