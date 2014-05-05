@@ -458,14 +458,8 @@ var TransactionIn = function (data) {
     this.outpoint = { hash: data.hash, index: data.index }
   }
 
-  if (data.scriptSig) {
-    this.script = Script.fromScriptSig(data.scriptSig)
-  } else if (data.script) {
-    this.script = data.script
-  } else {
-    this.script = new Script(data.script)
-  }
-
+  assert(data.script, 'Invalid TxIn parameters')
+  this.script = data.script
   this.sequence = data.sequence || this.defaultSequence
 }
 
@@ -480,38 +474,23 @@ TransactionIn.prototype.clone = function () {
   })
 }
 
-// FIXME: Support for alternate networks
-var TransactionOut = function (data) {
-  this.script =
-      data.script instanceof Script    ? data.script.clone()
-    : Array.isArray(data.script)       ? new Script(data.script)
-    : typeof data.script == "string"   ? new Script(convert.hexToBytes(data.script))
-    : data.scriptPubKey                ? Script.fromScriptSig(data.scriptPubKey)
-    : data.address                     ? Script.createOutputScript(data.address)
-    : new Script()
+function TransactionOut(data) {
+  this.script = data.script
+  this.value = data.value
+  this.address = data.address
 
   var network = data.network || Network.bitcoin
   if (this.script.buffer.length > 0) {
     this.address = this.script.getToAddress(network)
   }
-
-  this.value =
-      Array.isArray(data.value)        ? convert.bytesToNum(data.value)
-    : "string" == typeof data.value    ? parseInt(data.value)
-    : data.value instanceof BigInteger ? parseInt(data.value.toString())
-    : data.value
 }
 
 TransactionOut.prototype.clone = function() {
-  var newTxout = new TransactionOut({
+  return new TransactionOut({
     script: this.script.clone(),
-    value: this.value
+    value: this.value,
+    address: this.address
   })
-  return newTxout
-}
-
-TransactionOut.prototype.scriptPubKey = function() {
-  return convert.bytesToHex(this.script.buffer)
 }
 
 module.exports = {
