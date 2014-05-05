@@ -321,7 +321,7 @@ Script.prototype.writeOp = function(opcode) {
 Script.prototype.writeBytes = function(data) {
   // FIXME: Script module doesn't support buffers yet
   if (Buffer.isBuffer(data)) data = Array.prototype.slice.call(data);
-  assert(Array.isArray(data), "Expect a byte array. Got" + data)
+  assert(Array.isArray(data), "Expected a byte array. Got " + data)
 
   if (data.length < Opcode.map.OP_PUSHDATA1) {
     this.buffer.push(data.length)
