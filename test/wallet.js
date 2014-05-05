@@ -458,6 +458,33 @@ describe('Wallet', function() {
       })
     })
 
+    describe('testnet', function(){
+      it('should create transaction', function(){
+        var to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
+        var wallet = new Wallet(seed, {network: 'testnet'})
+        var tx = wallet.createTx(to, value)
+        assert.equal(tx.outs.length, 1)
+      })
+    })
+
+    describe('changeAddress', function(){
+      it('should allow custom changeAddress', function(){
+        var wallet = new Wallet(seed, {network: 'testnet'})
+        var address = wallet.generateAddress()
+        utxo = {
+          "hash":"b3c5fde139dc0a3bba2729bfd5b9e16f5894131dc3dc46a91151da3053e7e3a5",
+          "outputIndex": 0,
+          "address" : address,
+          "value": 100000
+        }
+        var to = "mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue"
+        var changeAddress = 'mfrFjnKZUvTcvdAK2fUX5D8v1Epu5H8JCk'
+        wallet.setUnspentOutputs([utxo])
+        var tx = wallet.createTx(to, 10000, 1000, changeAddress)
+        assert.equal(tx.outs.length, 2)
+      })
+    })
+
     describe('transaction outputs', function(){
       it('includes the specified address and amount', function(){
         var tx = wallet.createTx(to, value)
