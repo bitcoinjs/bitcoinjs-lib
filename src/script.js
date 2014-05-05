@@ -13,6 +13,7 @@ function Script(data) {
   this.parse()
 }
 
+// Import operations
 Script.fromBuffer = function(buffer) {
   assert(Buffer.isBuffer(buffer)) // FIXME: transitionary
 
@@ -21,6 +22,15 @@ Script.fromBuffer = function(buffer) {
 
 Script.fromHex = function(hex) {
   return Script.fromBuffer(new Buffer(hex, 'hex'))
+}
+
+// Export operations
+Script.prototype.toBuffer = function() {
+  return new Buffer(this.buffer)
+}
+
+Script.prototype.toHex = function() {
+  return this.toBuffer().toString('hex')
 }
 
 /**

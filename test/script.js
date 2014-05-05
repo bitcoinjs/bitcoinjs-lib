@@ -9,11 +9,11 @@ function b2h(b) { return new Buffer(b).toString('hex') }
 function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('Script', function() {
-  var p2shScriptPubKey, pubkeyScriptPubkey, addressScriptSig
+  var p2shScriptPubKey, pubKeyScriptPubKey, addressScriptSig
 
   beforeEach(function(){
     p2shScriptPubKey = "a914e8c300c87986efa84c37c0519929019ef86eb5b487"
-    pubkeyScriptPubKey = "76a9145a3acbc7bbcc97c5ff16f5909c9d7d3fadb293a888ac"
+    pubKeyScriptPubKey = "76a9145a3acbc7bbcc97c5ff16f5909c9d7d3fadb293a888ac"
     addressScriptSig = "48304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f30141040cd2d2ce17a1e9b2b3b2cb294d40eecf305a25b7e7bfdafae6bb2639f4ee399b3637706c3d377ec4ab781355add443ae864b134c5e523001c442186ea60f0eb8"
 
     // txid: 09dd94f2c85262173da87a745a459007bb1eed6eeb6bfa238a0cd91a16cf7790
@@ -43,6 +43,22 @@ describe('Script', function() {
     })
   })
 
+  describe('fromHex/toHex', function() {
+    it('matches the test data', function() {
+      [
+        p2shScriptPubKey,
+        pubKeyScriptPubKey,
+        addressScriptSig,
+        validMultisigScript,
+        opreturnScript,
+        nonStandardScript,
+        invalidMultisigScript
+      ].forEach(function(hex) {
+        assert.equal(Script.fromHex(hex).toHex(), hex)
+      })
+    })
+  })
+
   describe('getOutType', function() {
     it('supports p2sh', function() {
       var script = Script.fromHex(p2shScriptPubKey)
@@ -50,7 +66,7 @@ describe('Script', function() {
     })
 
     it('supports pubkeyhash', function() {
-      var script = Script.fromHex(pubkeyScriptPubKey)
+      var script = Script.fromHex(pubKeyScriptPubKey)
       assert.equal(script.getOutType(), 'pubkeyhash')
     })
 
@@ -89,7 +105,7 @@ describe('Script', function() {
     })
 
     it('works for pubkey type output', function() {
-      var script = Script.fromHex(pubkeyScriptPubKey)
+      var script = Script.fromHex(pubKeyScriptPubKey)
       assert.equal(script.getToAddress().toString(), '19E6FV3m3kEPoJD5Jz6dGKdKwTVvjsWUvu')
     })
   })
