@@ -8,7 +8,7 @@ var CJS = require('crypto-js')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ECPubKey = require('./eckey').ECPubKey
-var Network = require('./network')
+var networks = require('./networks')
 
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
@@ -27,7 +27,7 @@ function HDWallet(seed, networkString) {
   this.chaincode = I.slice(32)
   this.network = networkString || 'bitcoin'
 
-  if(!Network.hasOwnProperty(this.network)) {
+  if(!networks.hasOwnProperty(this.network)) {
     throw new Error("Unknown network: " + this.network)
   }
 
@@ -70,8 +70,8 @@ HDWallet.fromBuffer = function(input) {
   var version = input.readUInt32BE(0)
 
   var type
-  for(var name in Network) {
-    var network = Network[name]
+  for(var name in networks) {
+    var network = networks[name]
 
     for(var t in network.bip32) {
       if (version != network.bip32[t]) continue
@@ -128,7 +128,7 @@ HDWallet.prototype.getAddress = function() {
 
 HDWallet.prototype.toBuffer = function(priv) {
   // Version
-  var version = Network[this.network].bip32[priv ? 'priv' : 'pub']
+  var version = networks[this.network].bip32[priv ? 'priv' : 'pub']
   var buffer = new Buffer(HDWallet.LENGTH)
 
   // 4 bytes: version bytes
@@ -245,7 +245,7 @@ HDWallet.prototype.derivePrivate = function(index) {
 }
 
 HDWallet.prototype.getKeyVersion = function() {
-  return Network[this.network].pubKeyHash
+  return networks[this.network].pubKeyHash
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58

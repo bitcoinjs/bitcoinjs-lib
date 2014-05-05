@@ -2,11 +2,11 @@ var assert = require('assert')
 
 var Address = require('../src/address')
 var ECKey = require('../src/eckey').ECKey
+var networks = require('..').networks
 var T = require('../src/transaction')
 var Transaction = T.Transaction
 var TransactionOut = T.TransactionOut
 var Script = require('../src/script')
-var network = require('..').network
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
@@ -176,7 +176,7 @@ describe('Transaction', function() {
       it('supports alternative networks', function(){
         var addr = 'mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR'
 
-        tx.addOutput(addr, 40000, network.testnet)
+        tx.addOutput(addr, 40000, networks.testnet)
         verifyTransactionOut()
 
         assert.equal(tx.outs[0].address.toString(), addr)
@@ -250,7 +250,7 @@ describe('Transaction', function() {
     it('works for multi-sig redeem script', function() {
       var tx = new Transaction()
       tx.addInput('d6f72aab8ff86ff6289842a0424319bf2ddba85dc7c52757912297f948286389', 0)
-      tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1, network.testnet)
+      tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1, networks.testnet)
 
       var privKeys = [
         '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf',

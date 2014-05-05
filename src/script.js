@@ -2,7 +2,7 @@ var assert = require('assert')
 var Address = require('./address')
 var crypto = require('./crypto')
 var convert = require('./convert')
-var Network = require('./network')
+var networks = require('./networks')
 var Opcode = require('./opcode')
 
 function Script(data) {
@@ -193,7 +193,7 @@ Script.prototype.toScriptHash = function() {
 }
 
 Script.prototype.getToAddress = function(network) {
-  network = network || Network.bitcoin
+  network = network || networks.bitcoin
 
   if(isPubkeyhash.call(this)) {
     return new Address(new Buffer(this.chunks[2]), network.pubKeyHash)
@@ -205,7 +205,7 @@ Script.prototype.getToAddress = function(network) {
 }
 
 Script.prototype.getFromAddress = function(version) {
-  version = version || Network.bitcoin.pubKeyHash
+  version = version || networks.bitcoin.pubKeyHash
 
   return new Address(this.simpleInHash(), version)
 }
@@ -348,7 +348,7 @@ Script.prototype.writeBytes = function(data) {
  */
 Script.createOutputScript = function(address, network) {
   assert(address instanceof Address)
-  network = network || Network.bitcoin
+  network = network || networks.bitcoin
 
   var script = new Script()
 

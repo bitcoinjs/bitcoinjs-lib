@@ -1,6 +1,6 @@
 var assert = require('assert')
 var crypto = require('..').crypto
-var network = require('..').network
+var networks = require('..').networks
 
 var Address = require('../src/address.js')
 var Script = require('../src/script.js')
@@ -116,7 +116,7 @@ describe('Script', function() {
       var redeemScript = Script.createMultisigOutputScript(2, pubKeys)
 
       var hash160 = crypto.hash160(redeemScript.buffer)
-      var multisigAddress = new Address(hash160, network.bitcoin.scriptHash)
+      var multisigAddress = new Address(hash160, networks.bitcoin.scriptHash)
 
       assert.equal(multisigAddress.toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })

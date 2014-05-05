@@ -9,7 +9,7 @@ var convert = require('./convert')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ecdsa = require('./ecdsa')
-var Network = require('./network')
+var networks = require('./networks')
 
 var Transaction = function (doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
@@ -112,7 +112,7 @@ Transaction.prototype.addOutput = function (address, value, network) {
     address = Address.fromBase58Check(address)
   }
 
-  network = network || Network.bitcoin
+  network = network || networks.bitcoin
 
   this.outs.push(new TransactionOut({
     value: value,
@@ -368,7 +368,7 @@ Transaction.deserialize = function(buffer) {
  */
 Transaction.prototype.sign = function(index, key, type, network) {
   assert(key instanceof ECKey)
-  network = network || Network.bitcoin
+  network = network || networks.bitcoin
 
   var address = key.pub.getAddress(network.pubKeyHash)
 
@@ -445,7 +445,7 @@ function TransactionOut(data) {
   this.value = data.value
   this.address = data.address
 
-  var network = data.network || Network.bitcoin
+  var network = data.network || networks.bitcoin
   if (this.script.buffer.length > 0) {
     this.address = this.script.getToAddress(network)
   }

@@ -1,7 +1,7 @@
 var assert = require('assert')
 var base58check = require('./base58check')
 var ecdsa = require('./ecdsa')
-var network = require('./network')
+var networks = require('./networks')
 var secureRandom = require('secure-random')
 
 var Address = require('./address')
@@ -72,7 +72,7 @@ ECKey.prototype.toHex = function() {
 }
 
 ECKey.prototype.toWIF = function(version) {
-  version = version || network.bitcoin.wif
+  version = version || networks.bitcoin.wif
 
   var buffer = this.toBuffer()
   if (this.pub.compressed) {
@@ -115,7 +115,7 @@ ECPubKey.prototype.verify = function(hash, sig) {
 }
 
 ECPubKey.prototype.getAddress = function(version) {
-  version = version || network.bitcoin.pubKeyHash
+  version = version || networks.bitcoin.pubKeyHash
 
   return new Address(crypto.hash160(this.toBuffer()), version)
 }

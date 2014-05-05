@@ -5,7 +5,7 @@ var ECKey = require('../../src/eckey').ECKey;
 var T = require('../../src/transaction');
 var Transaction = T.Transaction;
 var Script = require('../../src/script');
-var network = require('../../src/network');
+var networks = require('../../src/networks');
 var crypto = require('../../src/crypto');
 
 var helloblock = require('helloblock-js')({
@@ -31,7 +31,7 @@ describe('p2sh', function() {
     })
     var redeemScript = Script.createMultisigOutputScript(2, pubKeyBuffers)
     var hash160 = crypto.hash160(redeemScript.buffer)
-    var multisigAddress = new Address(hash160, network.testnet.scriptHash)
+    var multisigAddress = new Address(hash160, networks.testnet.scriptHash)
 
     // Check what our target address's starting value is
     var targetAddress = 'mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r';
@@ -50,7 +50,7 @@ describe('p2sh', function() {
           var tx = new Transaction()
           var unspent = resource[0];
           tx.addInput(unspent.txHash, unspent.index)
-          tx.addOutput(targetAddress, 100000, network.testnet)
+          tx.addOutput(targetAddress, 100000, networks.testnet)
 
           var signatures = privKeys.map(function(privKey) {
             return tx.signScriptSig(0, redeemScript, privKey)
