@@ -205,13 +205,7 @@ Script.prototype.toScriptHash = function() {
 Script.prototype.getToAddress = function(network) {
   network = network || networks.bitcoin
 
-  if(isPubkeyhash.call(this)) {
-    return new Address(new Buffer(this.chunks[2]), network.pubKeyHash)
-  }
-
-  assert(isScripthash.call(this))
-
-  return new Address(new Buffer(this.chunks[1]), network.scriptHash)
+  return Address.fromScriptPubKey(this, network)
 }
 
 Script.prototype.getFromAddress = function(version) {
