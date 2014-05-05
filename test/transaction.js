@@ -38,6 +38,13 @@ describe('Transaction', function() {
       assert.equal(b2h(actual), expected)
     })
 
+    it('does not mutate the input buffer', function() {
+      var buffer = new Buffer(serializedTx, 'hex')
+      Transaction.deserialize(buffer)
+
+      assert.equal(buffer.toString('hex'), serializedTx)
+    })
+
     it('decodes version correctly', function(){
       assert.equal(tx.version, 1)
     })
@@ -50,7 +57,7 @@ describe('Transaction', function() {
       assert.equal(tx.ins.length, 1)
 
       var input = tx.ins[0]
-      assert.deepEqual(input.sequence, [255, 255, 255, 255])
+      assert.equal(input.sequence, 4294967295)
 
       assert.equal(input.outpoint.index, 0)
       assert.equal(input.outpoint.hash, "69d02fc05c4e0ddc87e796eee42693c244a3112fffe1f762c3fb61ffcb304634")
@@ -72,7 +79,7 @@ describe('Transaction', function() {
 
     it('assigns hash to deserialized object', function(){
       var hashHex = "a9d4599e15b53f3eb531608ddb31f48c695c3d0b3538a6bda871e8b34f2f430c"
-      assert.equal(b2h(tx.hash), hashHex)
+      assert.equal(tx.hash, hashHex)
     })
 
     it('decodes large inputs correctly', function() {
@@ -81,14 +88,18 @@ describe('Transaction', function() {
       tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
       tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 100)
 
-      // but we're going to replace the tx.ins.length VarInt with a 32-bit equivalent
-      // however the same resultant number of inputs (1)
-      var bytes = tx.serialize()
-      var mutated = bytes.slice(0, 4).concat([254, 1, 0, 0, 0], bytes.slice(5))
+      var buffer = tx.serialize()
 
-      // the deserialized-serialized transaction should return to its original state (== tx)
-      var bytes2 = Transaction.deserialize(mutated).serialize()
-      assert.deepEqual(bytes, bytes2)
+      // we're going to replace the 8bit VarInt for tx.ins.length with a stretched 32bit equivalent
+      var mutated = Buffer.concat([
+        buffer.slice(0, 4),
+        new Buffer([254, 1, 0, 0, 0]),
+        buffer.slice(5)
+      ])
+
+      // the deserialized-serialized transaction should return to its non-mutated state (== tx)
+      var buffer2 = Transaction.deserialize(mutated).serialize()
+      assert.deepEqual(buffer, buffer2)
     })
   })
 
@@ -128,7 +139,7 @@ describe('Transaction', function() {
         assert.equal(tx.ins.length, 1)
 
         var input = tx.ins[0]
-        assert.deepEqual(input.sequence, [255, 255, 255, 255])
+        assert.equal(input.sequence, 4294967295)
 
         assert.equal(input.outpoint.index, 0)
         assert.equal(input.outpoint.hash, "0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57")

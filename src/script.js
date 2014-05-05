@@ -13,8 +13,14 @@ function Script(data) {
   this.parse()
 }
 
-Script.fromHex = function(data) {
-  return new Script(convert.hexToBytes(data))
+Script.fromBuffer = function(buffer) {
+  assert(Buffer.isBuffer(buffer)) // FIXME: transitionary
+
+  return new Script(Array.prototype.slice.call(buffer))
+}
+
+Script.fromHex = function(hex) {
+  return Script.fromBuffer(new Buffer(hex, 'hex'))
 }
 
 Script.fromPubKey = function(str) {

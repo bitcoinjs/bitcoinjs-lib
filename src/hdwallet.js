@@ -179,10 +179,11 @@ HDWallet.prototype.toBase58 = function(priv) {
 }
 
 HDWallet.prototype.derive = function(i) {
-  var iBytes = convert.numToBytes(i, 4).reverse()
-    , cPar = this.chaincode
-    , usePriv = i >= HDWallet.HIGHEST_BIT
-    , SHA512 = CJS.algo.SHA512
+  var iBuffer = new Buffer(4)
+  iBuffer.writeUInt32BE(i, 0)
+
+  var cPar = this.chaincode
+  var usePriv = i >= HDWallet.HIGHEST_BIT
 
   var I
   if (usePriv) {
@@ -191,20 +192,19 @@ HDWallet.prototype.derive = function(i) {
     // If 1, private derivation is used:
     // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
     var kPar = this.priv.toBuffer().slice(0, 32)
-    kPar = Array.prototype.slice.call(kPar)
+    iBuffer = Buffer.concat([new Buffer([0]), kPar, iBuffer], 37)
 
     // FIXME: Dislikes buffers
-    I = HmacFromBytesToBytes(SHA512, [0].concat(kPar, iBytes), cPar)
+    I = HmacFromBytesToBytes(CJS.algo.SHA512, Array.prototype.slice.call(iBuffer), cPar)
   } else {
     // If 0, public derivation is used:
     // let I = HMAC-SHA512(Key = cpar, Data = χ(kpar*G) || i)
     var KPar = this.pub.toBuffer()
-    KPar = Array.prototype.slice.call(KPar)
+    iBuffer = Buffer.concat([KPar, iBuffer])
 
     // FIXME: Dislikes buffers
-    I = HmacFromBytesToBytes(SHA512, KPar.concat(iBytes), cPar)
+    I = HmacFromBytesToBytes(CJS.algo.SHA512, Array.prototype.slice.call(iBuffer), cPar)
   }
-
 
   // FIXME: Boo, CSJ.algo.SHA512 uses byte arrays
   I = new Buffer(I)

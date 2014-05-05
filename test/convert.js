@@ -52,67 +52,6 @@ describe('convert', function() {
     })
   })
 
-  describe('numToVarInt', function() {
-    describe('works', function() {
-      var data = [
-        0, 128, 252, // 8-bit
-        256, 512, 1024, // 16-bit
-        65541, // 32-bit
-        4294967299, // 64-bit
-      ]
-      var expected = [
-        [0], [128], [252], // 8-bit
-        [253, 0, 1], [253, 0, 2], [253, 0, 4], // 16-bit
-        [254, 5, 0, 1, 0], // 32-bit
-        [255, 3, 0, 0, 0, 1, 0, 0, 0] // 64-bit
-      ]
-
-      for (var i = 0; i < data.length; ++i) {
-        var actual = convert.numToVarInt(data[i])
-        assert.deepEqual(actual, expected[i])
-      }
-    })
-  })
-
-  describe('varIntToNum', function() {
-    it('works on valid input', function() {
-      var data = [
-        [0], [128], [252], // 8-bit
-        [253, 0, 1], [253, 0, 2], [253, 0, 4], // 16-bit
-        [254, 5, 0, 1, 0], // 32-bit
-        [255, 3, 0, 0, 0, 1, 0, 0, 0] // 64-bit
-      ]
-      var expected = [
-        0, 128, 252, // 8-bit
-        256, 512, 1024, // 16-bit
-        65541, // 32-bit
-        4294967299, // 64-bit
-      ]
-
-      for (var i = 0; i < data.length; ++i) {
-        var actual = convert.varIntToNum(data[i])
-        assert.equal(actual.number, expected[i])
-        assert.deepEqual(actual.bytes, data[i])
-      }
-    })
-
-    it('uses only what is necessary', function() {
-      var data = [
-        [0, 99],
-        [253, 0, 1, 99],
-        [254, 5, 0, 1, 0, 99],
-        [255, 3, 0, 0, 0, 1, 0, 0, 0, 99]
-      ]
-      var expected = [0, 256, 65541, 4294967299]
-
-      for (var i = 0; i < data.length; ++i) {
-        var actual = convert.varIntToNum(data[i])
-        assert.equal(actual.number, expected[i])
-        assert.deepEqual(actual.bytes, data[i].slice(0, -1))
-      }
-    })
-  })
-
   describe('reverseEndian', function() {
     it('works', function() {
       var bigEndian = "6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7"
