@@ -154,6 +154,11 @@ describe('Transaction', function() {
         verifyTransactionOut()
       })
 
+      it('allows an Address object and value to be passed in', function(){
+        tx.addOutput(Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'), 40000)
+        verifyTransactionOut()
+      })
+
       it('allows a string in the form of address:index to be passed in', function(){
         tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
         verifyTransactionOut()

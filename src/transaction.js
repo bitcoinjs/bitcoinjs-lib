@@ -96,19 +96,19 @@ Transaction.prototype.addOutput = function (address, value, network) {
     return
   }
 
-  if (arguments[0].indexOf(':') >= 0) {
-    network = value
+  if (typeof address === 'string') {
+    if (arguments[0].indexOf(':') >= 0) {
+      var args = arguments[0].split(':')
+      address = args[0]
+      value = parseInt(args[1])
 
-    var args = arguments[0].split(':')
-    address = args[0]
-    value = parseInt(args[1])
+      network = arguments[1]
+    }
+
+    address = Address.fromBase58Check(address)
   }
 
   network = network || Network.bitcoin
-
-  if (typeof address === 'string') {
-    address = Address.fromBase58Check(address)
-  }
 
   this.outs.push(new TransactionOut({
     value: value,
