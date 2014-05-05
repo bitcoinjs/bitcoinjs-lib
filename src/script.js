@@ -23,32 +23,6 @@ Script.fromHex = function(hex) {
   return Script.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-Script.fromPubKey = function(str) {
-  var script = new Script()
-  var s = str.split(' ')
-  for (var i in s) {
-    if (Opcode.map.hasOwnProperty(s[i])) {
-      script.writeOp(Opcode.map[s[i]])
-    } else {
-      script.writeBytes(convert.hexToBytes(s[i]))
-    }
-  }
-  return script
-}
-
-Script.fromScriptSig = function(str) {
-  var script = new Script()
-  var s = str.split(' ')
-  for (var i in s) {
-    if (Opcode.map.hasOwnProperty(s[i])) {
-      script.writeOp(Opcode.map[s[i]])
-    } else {
-      script.writeBytes(convert.hexToBytes(s[i]))
-    }
-  }
-  return script
-}
-
 /**
  * Update the parsed script representation.
  *
@@ -397,16 +371,6 @@ Script.createOutputScript = function(address, network) {
   script.writeOp(Opcode.map.OP_CHECKSIG)
 
   return script
-}
-
-/**
- * Extract pubkeys from a multisig script
- */
-
-Script.prototype.extractPubkeys = function() {
-  return this.chunks.filter(function(chunk) {
-    return(chunk[0] == 4 && chunk.length == 65 || chunk[0] < 4 && chunk.length == 33)
-  })
 }
 
 // m [pubKeys ...] n OP_CHECKMULTISIG

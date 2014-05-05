@@ -380,40 +380,6 @@ Transaction.prototype.sign = function(index, key, type, network) {
   this.setScriptSig(index, scriptSig)
 }
 
-// Takes outputs of the form [{ output: 'txhash:index', address: 'address' },...]
-Transaction.prototype.signWithKeys = function(keys, outputs, type) {
-  type = type || SIGHASH_ALL
-
-  var addrdata = keys.map(function(key) {
-    assert(key instanceof ECKey)
-
-    return {
-      key: key,
-      address: key.getAddress().toString()
-    }
-  })
-
-  var hmap = {}
-  outputs.forEach(function(o) {
-    hmap[o.output] = o
-  })
-
-  for (var i = 0; i < this.ins.length; i++) {
-    var outpoint = this.ins[i].outpoint.hash + ':' + this.ins[i].outpoint.index
-    var histItem = hmap[outpoint]
-
-    if (!histItem) continue;
-
-    var thisInputAddrdata = addrdata.filter(function(a) {
-      return a.address == histItem.address
-    })
-
-    if (thisInputAddrdata.length === 0) continue;
-
-    this.sign(i,thisInputAddrdata[0].key)
-  }
-}
-
 Transaction.prototype.signScriptSig = function(index, script, key, type) {
   type = type || SIGHASH_ALL
 

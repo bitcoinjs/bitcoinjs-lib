@@ -16,7 +16,6 @@ Address.fromBase58Check = function(string) {
 
   return new Address(decode.payload, decode.version)
 }
-Address.prototype.fromString = Address.prototype.fromBase58Check
 
 // Export functions
 Address.prototype.toBase58Check = function () {
