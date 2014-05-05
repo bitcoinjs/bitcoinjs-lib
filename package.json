@@ -22,7 +22,8 @@
     "sinon": "1.9.0",
     "coveralls": "~2.10.0",
     "mocha-lcov-reporter": "0.0.1",
-    "helloblock-js": "^0.2.1"
+    "helloblock-js": "^0.2.1",
+    "request": "~2.34.0"
   },
   "testling": {
     "browsers": [
