@@ -141,10 +141,14 @@ describe('Wallet', function() {
       wallet.generateAddress()
       wallet.generateAddress()
 
-      assertEqual(wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"),
-                  wallet.getExternalAccount().derive(1).priv)
-                  assertEqual(wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
-                              wallet.getInternalAccount().derive(0).priv)
+      assertEqual(
+        wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"),
+        wallet.getExternalAccount().derive(1).priv
+      )
+      assertEqual(
+        wallet.getPrivateKeyForAddress("mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"),
+        wallet.getInternalAccount().derive(0).priv
+      )
     })
 
     it('raises an error when address is not found', function(){
