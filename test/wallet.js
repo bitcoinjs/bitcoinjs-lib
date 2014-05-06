@@ -478,17 +478,27 @@ describe('Wallet', function() {
       it('should allow custom changeAddress', function(){
         var wallet = new Wallet(seed, {network: 'testnet'})
         var address = wallet.generateAddress()
-        utxo = {
-          "hash":"b3c5fde139dc0a3bba2729bfd5b9e16f5894131dc3dc46a91151da3053e7e3a5",
-          "outputIndex": 0,
-          "address" : address,
-          "value": 100000
-        }
-        var to = "mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue"
+
+        wallet.setUnspentOutputs([{
+          hash: fakeTxHash(0),
+          outputIndex: 0,
+          address: address,
+          value: value
+        }])
+        assert.equal(wallet.getBalance(), value)
+
         var changeAddress = 'mfrFjnKZUvTcvdAK2fUX5D8v1Epu5H8JCk'
-        wallet.setUnspentOutputs([utxo])
-        var tx = wallet.createTx(to, 10000, 1000, changeAddress)
+        var to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
+        var toValue = value / 2
+        var fee = 1e3
+
+        var tx = wallet.createTx(to, toValue, fee, changeAddress)
         assert.equal(tx.outs.length, 2)
+        assert.equal(tx.outs[0].address.toString(), to)
+        assert.equal(tx.outs[0].value, toValue)
+
+        assert.equal(tx.outs[1].address.toString(), changeAddress)
+        assert.equal(tx.outs[1].value, value - (toValue + fee))
       })
     })
 
