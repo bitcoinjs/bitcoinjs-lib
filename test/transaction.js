@@ -173,6 +173,15 @@ describe('Transaction', function() {
         verifyTransactionOut()
       })
 
+      it('supports alternative networks', function(){
+        var addr = 'mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR'
+
+        tx.addOutput(addr, 40000, network.testnet)
+        verifyTransactionOut()
+
+        assert.equal(tx.outs[0].address.toString(), addr)
+      })
+
       function verifyTransactionOut(){
         assert.equal(tx.outs.length, 1)
 

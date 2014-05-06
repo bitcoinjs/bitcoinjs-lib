@@ -112,7 +112,8 @@ Transaction.prototype.addOutput = function (address, value, network) {
 
   this.outs.push(new TransactionOut({
     value: value,
-    script: Script.createOutputScript(address, network)
+    script: Script.createOutputScript(address, network),
+    network: network
   }))
 }
 
@@ -485,7 +486,10 @@ var TransactionOut = function (data) {
     : data.address                     ? Script.createOutputScript(data.address)
     : new Script()
 
-  if (this.script.buffer.length > 0) this.address = this.script.getToAddress();
+  var network = data.network || Network.bitcoin
+  if (this.script.buffer.length > 0) {
+    this.address = this.script.getToAddress(network)
+  }
 
   this.value =
       Array.isArray(data.value)        ? convert.bytesToNum(data.value)

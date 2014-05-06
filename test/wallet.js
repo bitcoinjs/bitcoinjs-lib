@@ -467,7 +467,10 @@ describe('Wallet', function() {
         var to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
         var wallet = new Wallet(seed, {network: 'testnet'})
         var tx = wallet.createTx(to, value)
+
         assert.equal(tx.outs.length, 1)
+        assert.equal(tx.outs[0].address.toString(), to)
+        assert.equal(tx.outs[0].value, value)
       })
     })
 
