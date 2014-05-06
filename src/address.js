@@ -14,8 +14,6 @@ function findScriptTypeByVersion(queryVersion) {
       }
     }
   }
-
-  throw new Error('Version has no corresponding network')
 }
 
 function Address(hash, version) {
@@ -26,6 +24,13 @@ function Address(hash, version) {
   this.hash = hash
   this.version = version
 }
+
+Address.Error = function(message) {
+  this.name = 'AddressError'
+  this.message = message
+}
+Address.Error.prototype = new Error()
+Address.Error.prototype.constructor = Address.Error
 
 // Import functions
 Address.fromBase58Check = function(string) {
@@ -49,7 +54,7 @@ Address.fromScriptPubKey = function(script, network) {
     return new Address(new Buffer(script.chunks[1]), network.scriptHash)
   }
 
-  throw new Error('Could not derive address from script')
+  throw new Address.Error(type + ' has no matching Address')
 }
 
 // Export functions
@@ -70,7 +75,7 @@ Address.prototype.toScriptPubKey = function() {
     return Script.createP2SHScriptPubKey(this.hash)
   }
 
-  throw new Error('Address has no matching script')
+  throw new Address.Error(this + ' has no matching script')
 }
 
 Address.prototype.toString = Address.prototype.toBase58Check
