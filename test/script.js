@@ -116,25 +116,6 @@ describe('Script', function() {
     })
   })
 
-  describe('getToAddress', function() {
-    it('works for p2sh type output', function() {
-      var script = Script.fromHex(p2shScriptPubKey)
-      assert.equal(script.getToAddress().toString(), '3NukJ6fYZJ5Kk8bPjycAnruZkE5Q7UW7i8')
-    })
-
-    it('works for pubkey type output', function() {
-      var script = Script.fromHex(pubKeyScriptPubKey)
-      assert.equal(script.getToAddress().toString(), '19E6FV3m3kEPoJD5Jz6dGKdKwTVvjsWUvu')
-    })
-  })
-
-  describe('getFromAddress', function() {
-    it('works for address type input', function() {
-      var script = Script.fromHex(addressScriptSig)
-      assert.equal(script.getFromAddress().toString(), '1BBjuhF2jHxu7tPinyQGCuaNhEs6f5u59u')
-    })
-  })
-
   describe('2-of-3 Multi-Signature', function() {
     var pubKeys
 

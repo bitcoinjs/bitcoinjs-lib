@@ -1,8 +1,6 @@
-var assert = require('assert')
 var Address = require('./address')
+var assert = require('assert')
 var crypto = require('./crypto')
-var convert = require('./convert')
-var networks = require('./networks')
 var Opcode = require('./opcode')
 
 function Script(data) {
@@ -202,18 +200,6 @@ Script.prototype.toScriptHash = function() {
   return crypto.hash160(this.buffer)
 }
 
-Script.prototype.getToAddress = function(network) {
-  network = network || networks.bitcoin
-
-  return Address.fromScriptPubKey(this, network)
-}
-
-Script.prototype.getFromAddress = function(version) {
-  version = version || networks.bitcoin.pubKeyHash
-
-  return new Address(this.simpleInHash(), version)
-}
-
 /**
  * Compare the script to known templates of scriptSig.
  *
@@ -260,58 +246,6 @@ Script.prototype.getInType = function() {
 }
 
 /**
- * Returns the affected public key for this input.
- *
- * This currently only works with payToPubKeyHash transactions. It will also
- * work in the future for standard payToScriptHash transactions that use a
- * single public key.
- *
- * However for multi-key and other complex transactions, this will only return
- * one of the keys or raise an error. Therefore, it is recommended for indexing
- * purposes to use Script#simpleInHash or Script#simpleOutHash instead.
- *
- * @deprecated
- */
-Script.prototype.simpleInPubKey = function() {
-  switch (this.getInType()) {
-    case 'pubkeyhash':
-      return this.chunks[1]
-    case 'pubkey':
-      // TODO: Theoretically, we could recover the pubkey from the sig here.
-      //       See https://bitcointalk.org/?topic=6430.0
-      throw new Error('Script does not contain pubkey')
-    default:
-      throw new Error('Encountered non-standard scriptSig')
-  }
-}
-
-/**
- * Returns the affected address hash for this input.
- *
- * For standard transactions, this will return the hash of the pubKey that
- * can spend this output.
- *
- * In the future, for standard payToScriptHash inputs, this will return the
- * scriptHash.
- *
- * Note: This function provided for convenience. If you have the corresponding
- * scriptPubKey available, you are urged to use Script#simpleOutHash instead
- * as it is more reliable for non-standard payToScriptHash transactions.
- *
- * This method is useful for indexing transactions.
- */
-Script.prototype.simpleInHash = function() {
-  return crypto.hash160(this.simpleInPubKey())
-}
-
-/**
- * Old name for Script#simpleInHash.
- *
- * @deprecated
- */
-Script.prototype.simpleInPubKeyHash = Script.prototype.simpleInHash
-
-/**
  * Add an op code to the script.
  */
 Script.prototype.writeOp = function(opcode) {
@@ -345,22 +279,6 @@ Script.prototype.writeBytes = function(data) {
   }
   this.buffer = this.buffer.concat(data)
   this.chunks.push(data)
-}
-
-/**
- * Create an output for an address
- */
-Script.createScriptPubKey = function(address, network) {
-  assert(address instanceof Address)
-  network = network || networks.bitcoin
-
-  if (address.version === network.pubKeyHash) {
-    return Script.createPubKeyHashScriptPubKey(address.hash)
-  }
-
-  assert.strictEqual(address.version, network.scriptHash, 'Unknown address type')
-
-  return Script.createP2SHScriptPubKey(address.hash)
 }
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG

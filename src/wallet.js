@@ -1,8 +1,9 @@
+var Address = require('./address')
 var convert = require('./convert')
-var Transaction = require('./transaction').Transaction
 var HDNode = require('./hdwallet.js')
-var rng = require('secure-random')
 var networks = require('./networks')
+var rng = require('secure-random')
+var Transaction = require('./transaction').Transaction
 
 function Wallet(seed, options) {
   if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
@@ -41,7 +42,6 @@ function Wallet(seed, options) {
     me.outputs = {}
   }
   this.newMasterKey(seed, network)
-
 
   this.generateAddress = function() {
     var key = externalAccount.derive(this.addresses.length)
@@ -150,9 +150,17 @@ function Wallet(seed, options) {
     var txhash = tx.getHash()
 
     tx.outs.forEach(function(txOut, i){
-      var address = txOut.address.toString()
+      var address
+
+      try {
+        address = Address.fromScriptPubKey(txOut.script, networks[network]).toString()
+      } catch(e) {
+        if (!(e instanceof Address.Error)) throw e
+      }
+
       if (isMyAddress(address)) {
-        var output = txhash+':'+i
+        var output = txhash + ':' + i
+
         me.outputs[output] = {
           receive: output,
           value: txOut.value,
@@ -165,7 +173,7 @@ function Wallet(seed, options) {
       var op = txIn.outpoint
       var o = me.outputs[op.hash+':'+op.index]
       if (o) {
-        o.spend = txhash+':'+i
+        o.spend = txhash + ':' +i
       }
     })
   }
@@ -174,7 +182,7 @@ function Wallet(seed, options) {
     checkDust(value)
 
     var tx = new Transaction()
-    tx.addOutput(to, value, networks[network])
+    tx.addOutput(to, value)
 
     var utxo = getCandidateOutputs(value)
     var totalInValue = 0
@@ -190,7 +198,7 @@ function Wallet(seed, options) {
 
       var change = totalInValue - value - fee
       if(change > 0 && !isDust(change)) {
-        tx.addOutput(changeAddress || getChangeAddress(), change, networks[network])
+        tx.addOutput(changeAddress || getChangeAddress(), change)
       }
       break
     }
@@ -246,7 +254,7 @@ function Wallet(seed, options) {
 
   function estimateFeePadChangeOutput(tx){
     var tmpTx = tx.clone()
-    tmpTx.addOutput(getChangeAddress(), 0, networks[network])
+    tmpTx.addOutput(getChangeAddress(), 0)
     return tmpTx.estimateFee()
   }
 
@@ -266,7 +274,7 @@ function Wallet(seed, options) {
     tx.ins.forEach(function(inp,i) {
       var output = me.outputs[inp.outpoint.hash + ':' + inp.outpoint.index]
       if (output) {
-        tx.sign(i, me.getPrivateKeyForAddress(output.address), false, networks[network])
+        tx.sign(i, me.getPrivateKeyForAddress(output.address), false)
       }
     })
     return tx

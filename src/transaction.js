@@ -9,7 +9,6 @@ var convert = require('./convert')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ecdsa = require('./ecdsa')
-var networks = require('./networks')
 
 var Transaction = function (doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
@@ -90,11 +89,10 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  * i) An existing TransactionOut object
  * ii) An address object or a string address, and a value
  * iii) An address:value string
- * iv) Either ii), iii) with an optional network argument
  *
  * FIXME: This is a bit convoluted
  */
-Transaction.prototype.addOutput = function (address, value, network) {
+Transaction.prototype.addOutput = function (address, value) {
   if (arguments[0] instanceof TransactionOut) {
     this.outs.push(arguments[0])
     return
@@ -105,19 +103,15 @@ Transaction.prototype.addOutput = function (address, value, network) {
       var args = arguments[0].split(':')
       address = args[0]
       value = parseInt(args[1])
-
-      network = arguments[1]
     }
 
     address = Address.fromBase58Check(address)
   }
 
-  network = network || networks.bitcoin
-
   this.outs.push(new TransactionOut({
     value: value,
-    script: Script.createScriptPubKey(address, network),
-    network: network
+    script: address.toScriptPubKey(),
+    address: address // TODO: Remove me
   }))
 }
 
@@ -364,18 +358,14 @@ Transaction.deserialize = function(buffer) {
 
 /**
  * Signs a standard output at some index with the given key
- * FIXME: network support is ugly
  */
-Transaction.prototype.sign = function(index, key, type, network) {
+Transaction.prototype.sign = function(index, key, type) {
   assert(key instanceof ECKey)
-  network = network || networks.bitcoin
 
-  var address = key.pub.getAddress(network.pubKeyHash)
-
-  // FIXME: Assumed prior TX was pay-to-pubkey-hash
-  var script = Script.createScriptPubKey(address, network)
+  var script = key.pub.getAddress().toScriptPubKey()
   var signature = this.signScriptSig(index, script, key, type)
 
+  // FIXME: Assumed prior TX was pay-to-pubkey-hash
   var scriptSig = Script.createPubKeyHashScriptSig(signature, key.pub)
   this.setScriptSig(index, scriptSig)
 }
@@ -445,10 +435,7 @@ function TransactionOut(data) {
   this.value = data.value
   this.address = data.address
 
-  var network = data.network || networks.bitcoin
-  if (this.script.buffer.length > 0) {
-    this.address = this.script.getToAddress(network)
-  }
+  if (data.address) this.address = data.address
 }
 
 TransactionOut.prototype.clone = function() {
