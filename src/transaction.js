@@ -58,24 +58,28 @@ var Transaction = function (doc) {
 Transaction.prototype.addInput = function (tx, outIndex) {
   if (arguments[0] instanceof TransactionIn) {
     this.ins.push(arguments[0])
+    return
   }
-  else if (arguments[0].length > 65) {
-    var args = arguments[0].split(':')
-    return this.addInput(args[0], args[1])
-  }
-  else {
-    var hash = typeof tx === "string" ? tx : tx.hash
-    hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash
 
-    this.ins.push(new TransactionIn({
-      outpoint: {
-        hash: hash,
-        index: outIndex
-      },
-      script: new Script(),
-      sequence: this.defaultSequence
-    }))
+  var hash
+  if (arguments[0].length > 65) {
+    var args = arguments[0].split(':')
+    hash = args[0]
+    outIndex = parseInt(args[1])
+
+  } else {
+    hash = typeof tx === "string" ? tx : tx.hash
+    hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash
   }
+
+  this.ins.push(new TransactionIn({
+    outpoint: {
+      hash: hash,
+      index: outIndex
+    },
+    script: new Script(),
+    sequence: this.defaultSequence
+  }))
 }
 
 /**
