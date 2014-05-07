@@ -154,6 +154,11 @@ describe('Transaction', function() {
         verifyTransactionOut()
       })
 
+      it('allows an Address object and value to be passed in', function(){
+        tx.addOutput(Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'), 40000)
+        verifyTransactionOut()
+      })
+
       it('allows a string in the form of address:index to be passed in', function(){
         tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
         verifyTransactionOut()
@@ -166,6 +171,15 @@ describe('Transaction', function() {
 
         tx.addOutput(transactionOut)
         verifyTransactionOut()
+      })
+
+      it('supports alternative networks', function(){
+        var addr = 'mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR'
+
+        tx.addOutput(addr, 40000, network.testnet)
+        verifyTransactionOut()
+
+        assert.equal(tx.outs[0].address.toString(), addr)
       })
 
       function verifyTransactionOut(){

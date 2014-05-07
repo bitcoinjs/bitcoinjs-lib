@@ -84,7 +84,7 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  * Can be called with:
  *
  * i) An existing TransactionOut object
- * ii) An address object or an address and a value
+ * ii) An address object or a string address, and a value
  * iii) An address:value string
  * iv) Either ii), iii) with an optional network argument
  *
@@ -96,23 +96,24 @@ Transaction.prototype.addOutput = function (address, value, network) {
     return
   }
 
-  if (arguments[0].indexOf(':') >= 0) {
-    network = value
+  if (typeof address === 'string') {
+    if (arguments[0].indexOf(':') >= 0) {
+      var args = arguments[0].split(':')
+      address = args[0]
+      value = parseInt(args[1])
 
-    var args = arguments[0].split(':')
-    address = args[0]
-    value = parseInt(args[1])
+      network = arguments[1]
+    }
+
+    address = Address.fromBase58Check(address)
   }
 
   network = network || Network.bitcoin
 
-  if (typeof address === 'string') {
-    address = Address.fromBase58Check(address)
-  }
-
   this.outs.push(new TransactionOut({
     value: value,
-    script: Script.createOutputScript(address, network)
+    script: Script.createOutputScript(address, network),
+    network: network
   }))
 }
 
@@ -485,7 +486,10 @@ var TransactionOut = function (data) {
     : data.address                     ? Script.createOutputScript(data.address)
     : new Script()
 
-  if (this.script.buffer.length > 0) this.address = this.script.getToAddress();
+  var network = data.network || Network.bitcoin
+  if (this.script.buffer.length > 0) {
+    this.address = this.script.getToAddress(network)
+  }
 
   this.value =
       Array.isArray(data.value)        ? convert.bytesToNum(data.value)
