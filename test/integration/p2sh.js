@@ -59,7 +59,7 @@ describe('p2sh', function() {
           tx.setScriptSig(0, scriptSig)
 
           // Send from mutlsigAddress to targetAddress
-          helloblock.transactions.propagate(tx.serializeHex(), function(err, resp, resource) {
+          helloblock.transactions.propagate(tx.toHex(), function(err, resp, resource) {
             // no err means that transaction has been successfully propagated
             if (err) done(err);
 

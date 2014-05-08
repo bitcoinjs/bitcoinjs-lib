@@ -26,11 +26,11 @@ describe('Transaction', function() {
         '3901ffffffff0100f2052a010000001976a914dd40dedd8f7e3746662',
         '4c4dacc6362d8e7be23dd88ac00000000'
       ].join('')
-      tx = Transaction.deserialize(serializedTx)
+      tx = Transaction.fromHex(serializedTx)
     })
 
     it('returns the original after serialized again', function() {
-      var actual = tx.serialize()
+      var actual = tx.toBuffer()
       var expected = serializedTx
 
       assert.equal(b2h(actual), expected)
@@ -38,7 +38,7 @@ describe('Transaction', function() {
 
     it('does not mutate the input buffer', function() {
       var buffer = new Buffer(serializedTx, 'hex')
-      Transaction.deserialize(buffer)
+      Transaction.fromBuffer(buffer)
 
       assert.equal(buffer.toString('hex'), serializedTx)
     })
@@ -84,7 +84,7 @@ describe('Transaction', function() {
       tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
       tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 100)
 
-      var buffer = tx.serialize()
+      var buffer = tx.toBuffer()
 
       // we're going to replace the 8bit VarInt for tx.ins.length with a stretched 32bit equivalent
       var mutated = Buffer.concat([
@@ -94,7 +94,7 @@ describe('Transaction', function() {
       ])
 
       // the deserialized-serialized transaction should return to its non-mutated state (== tx)
-      var buffer2 = Transaction.deserialize(mutated).serialize()
+      var buffer2 = Transaction.fromBuffer(mutated).toBuffer()
       assert.deepEqual(buffer, buffer2)
     })
   })
@@ -102,7 +102,7 @@ describe('Transaction', function() {
   describe('creating a transaction', function() {
     var tx, prevTx
     beforeEach(function() {
-      prevTx = Transaction.deserialize(fixtureTx1Hex)
+      prevTx = Transaction.fromHex(fixtureTx1Hex)
       tx = new Transaction()
     })
 
@@ -207,7 +207,7 @@ describe('Transaction', function() {
       var validTx
 
       beforeEach(function() {
-        validTx = Transaction.deserialize(fixtureTx2Hex)
+        validTx = Transaction.fromHex(fixtureTx2Hex)
       })
 
       it('returns true for valid signature', function(){
@@ -221,22 +221,22 @@ describe('Transaction', function() {
 
     describe('estimateFee', function(){
       it('works for fixture tx 1', function(){
-        var tx = Transaction.deserialize(fixtureTx1Hex)
+        var tx = Transaction.fromHex(fixtureTx1Hex)
         assert.equal(tx.estimateFee(), 20000)
       })
 
       it('works for fixture big tx', function(){
-        var tx = Transaction.deserialize(fixtureTxBigHex)
+        var tx = Transaction.fromHex(fixtureTxBigHex)
         assert.equal(tx.estimateFee(), 60000)
       })
 
       it('allow feePerKb to be passed in as an argument', function(){
-        var tx = Transaction.deserialize(fixtureTx2Hex)
+        var tx = Transaction.fromHex(fixtureTx2Hex)
         assert.equal(tx.estimateFee(10000), 10000)
       })
 
       it('allow feePerKb to be set to 0', function(){
-        var tx = Transaction.deserialize(fixtureTx2Hex)
+        var tx = Transaction.fromHex(fixtureTx2Hex)
         assert.equal(tx.estimateFee(0), 0)
       })
     })
@@ -270,7 +270,7 @@ describe('Transaction', function() {
       })
 
       var expected = '010000000189632848f99722915727c5c75da8db2dbf194342a0429828f66ff88fab2af7d600000000fd1b0100483045022100e5be20d440b2bbbc886161f9095fa6d0bca749a4e41d30064f30eb97adc7a1f5022061af132890d8e4e90fedff5e9365aeeb77021afd8ef1d5c114d575512e9a130a0147304402205054e38e9d7b5c10481b6b4991fde5704cd94d49e344406e3c2ce4d18a43bf8e022051d7ba8479865b53a48bee0cce86e89a25633af5b2918aa276859489e232f51c014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0101000000000000001976a914751e76e8199196d454941c45d1b3a323f1433bd688ac00000000'
-      assert.equal(tx.serializeHex(), expected)
+      assert.equal(tx.toHex(), expected)
     })
   })
 })

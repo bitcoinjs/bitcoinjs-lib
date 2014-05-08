@@ -20,7 +20,7 @@ function Transaction(doc) {
 
   if (doc) {
     if (typeof doc == "string" || Array.isArray(doc)) {
-      doc = Transaction.deserialize(doc)
+      doc = Transaction.fromBuffer(doc)
     }
 
     if (doc.hash) this.hash = doc.hash;
@@ -114,13 +114,7 @@ Transaction.prototype.addOutput = function (address, value) {
   }))
 }
 
-/**
- * Serialize this transaction.
- *
- * Returns the transaction as a binary buffer in
- * accordance with the Bitcoin protocol.
- */
-Transaction.prototype.serialize = function () {
+Transaction.prototype.toBuffer = function () {
   var txInSize = this.ins.reduce(function(a, x) {
     return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
   }, 0)
@@ -185,8 +179,8 @@ Transaction.prototype.serialize = function () {
   return buffer
 }
 
-Transaction.prototype.serializeHex = function() {
-  return this.serialize().toString('hex')
+Transaction.prototype.toHex = function() {
+  return this.toBuffer().toString('hex')
 }
 
 //var OP_CODESEPARATOR = 171
@@ -246,12 +240,12 @@ Transaction.prototype.hashForSignature =
   var htB = new Buffer(4)
   htB.writeUInt32LE(hashType, 0)
 
-  var buffer = Buffer.concat([txTmp.serialize(), htB])
+  var buffer = Buffer.concat([txTmp.toBuffer(), htB])
   return crypto.hash256(buffer)
 }
 
 Transaction.prototype.getHash = function () {
-  var buffer = crypto.hash256(this.serialize())
+  var buffer = crypto.hash256(this.toBuffer())
 
   // Big-endian is used for TxHash
   Array.prototype.reverse.call(buffer)
@@ -276,10 +270,7 @@ Transaction.prototype.clone = function ()
   return newTx
 }
 
-Transaction.deserialize = function(buffer) {
-  if (typeof buffer == "string") buffer = new Buffer(buffer, 'hex')
-  else if (Array.isArray(buffer)) buffer = new Buffer(buffer)
-
+Transaction.fromBuffer = function(buffer) {
   // Copy because we mutate (reverse TxOutHashs)
   buffer = new Buffer(buffer)
 
@@ -353,6 +344,10 @@ Transaction.deserialize = function(buffer) {
     outs: outs,
     locktime: locktime
   })
+}
+
+Transaction.fromHex = function(hex) {
+  return Transaction.fromBuffer(new Buffer(hex, 'hex'))
 }
 
 /**
