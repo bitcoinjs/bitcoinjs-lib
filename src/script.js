@@ -314,6 +314,13 @@ Script.createPubKeyHashScriptSig = function(signature, pubKey) {
   return script
 }
 
+// <scriptSig> {serialized scriptPubKey script}
+Script.createP2SHScriptSig = function(scriptSig, scriptPubKey) {
+  var inScript = new Script(scriptSig.buffer)
+  inScript.writeBytes(scriptPubKey.buffer)
+  return inScript
+}
+
 // OP_0 [signatures ...]
 Script.createMultisigScriptSig = function(signatures, scriptPubKey) {
   if (scriptPubKey) {
@@ -331,13 +338,6 @@ Script.createMultisigScriptSig = function(signatures, scriptPubKey) {
     inScript.writeBytes(sig)
   })
 
-  return inScript
-}
-
-// <scriptSig> {serialized scriptPubKey script}
-Script.createP2SHScriptSig = function(scriptSig, scriptPubKey) {
-  var inScript = new Script(scriptSig.buffer)
-  inScript.writeBytes(scriptPubKey.buffer)
   return inScript
 }
 
