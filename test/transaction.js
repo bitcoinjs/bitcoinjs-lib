@@ -255,8 +255,7 @@ describe('Transaction', function() {
         return ECKey.fromWIF(wif)
       })
       var pubKeys = privKeys.map(function(eck) { return eck.pub })
-      var pubKeyBuffers = pubKeys.map(function(q) { return q.toBuffer() })
-      var redeemScript = Script.createMultisigScriptPubKey(2, pubKeyBuffers)
+      var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
 
       var signatures = privKeys.map(function(privKey) {
         return tx.signScriptSig(0, redeemScript, privKey)

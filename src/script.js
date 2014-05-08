@@ -295,12 +295,15 @@ Script.createP2SHScriptPubKey = function(hash) {
 // m [pubKeys ...] n OP_CHECKMULTISIG
 Script.createMultisigScriptPubKey = function(m, pubKeys) {
   var script = new Script()
+  var n = pubKeys.length
 
-  script.writeOp(opcodes.OP_1 + m - 1)
-  for (var i = 0; i < pubKeys.length; ++i) {
-    script.writeBytes(pubKeys[i])
-  }
-  script.writeOp(opcodes.OP_1 + pubKeys.length - 1)
+  script.writeOp((opcodes.OP_1 - 1) + m)
+
+  pubKeys.forEach(function(pubKey) {
+    script.writeBytes(pubKey.toBuffer())
+  })
+
+  script.writeOp((opcodes.OP_1 - 1) + n)
   script.writeOp(opcodes.OP_CHECKMULTISIG)
 
   return script

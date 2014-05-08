@@ -27,10 +27,7 @@ describe('p2sh', function() {
     var pubKeys = privKeys.map(function(eck) {
       return eck.pub
     })
-    var pubKeyBuffers = pubKeys.map(function(q) {
-      return q.toBuffer()
-    })
-    var redeemScript = Script.createMultisigScriptPubKey(2, pubKeyBuffers)
+    var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
     var hash160 = crypto.hash160(redeemScript.buffer)
     var multisigAddress = new Address(hash160, networks.testnet.scriptHash)
 
