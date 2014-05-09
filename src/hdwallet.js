@@ -183,61 +183,79 @@ HDWallet.prototype.toBase58 = function(priv) {
   ]))
 }
 
-HDWallet.prototype.derive = function(i) {
-  var iBuffer = new Buffer(4)
-  iBuffer.writeUInt32BE(i, 0)
+// https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
+HDWallet.prototype.derive = function(index) {
+  var isHardened = index >= HDWallet.HIGHEST_BIT
+  var indexBuffer = new Buffer(4)
+  indexBuffer.writeUInt32BE(index, 0)
 
-  var cPar = this.chaincode
-  var usePriv = i >= HDWallet.HIGHEST_BIT
+  var data
 
-  if (usePriv) {
-    assert(this.priv, 'Missing private key')
+  // Hardened child
+  if (isHardened) {
+    assert(this.priv, 'Could not derive hardened child key')
 
-    // If 1, private derivation is used:
-    // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
-    var kPar = this.priv.toBuffer().slice(0, 32)
-    iBuffer = Buffer.concat([new Buffer([0]), kPar, iBuffer], 37)
+    // data = 0x00 || ser256(kpar) || ser32(index)
+    data = Buffer.concat([
+      this.priv.D.toBuffer(33),
+      indexBuffer
+    ])
+
+  // Normal child
   } else {
-    // If 0, public derivation is used:
-    // let I = HMAC-SHA512(Key = cpar, Data = χ(kpar*G) || i)
-    var KPar = this.pub.toBuffer()
-    iBuffer = Buffer.concat([KPar, iBuffer])
+    // data = serP(point(kpar)) || ser32(index)
+    //      = serP(Kpar) || ser32(index)
+    data = Buffer.concat([
+      this.pub.toBuffer(),
+      indexBuffer
+    ])
   }
 
-  var I = HmacSHA512(iBuffer, cPar)
-
-  // Split I = IL || IR into two 32-byte sequences, IL and IR.
-  var ILb = I.slice(0, 32)
-    , IRb = I.slice(32)
+  var I = HmacSHA512(data, this.chaincode)
+  var IL = I.slice(0, 32)
+  var IR = I.slice(32)
 
   var hd = new HDWallet()
-  hd.network = this.network
+  var pIL = BigInteger.fromBuffer(IL)
 
-  var IL = BigInteger.fromBuffer(ILb)
-
+  // Private parent key -> private child key
   if (this.priv) {
-    // ki = IL + kpar (mod n).
-    var ki = IL.add(this.priv.D).mod(ecparams.getN())
+    // ki = parse256(IL) + kpar (mod n)
+    var ki = pIL.add(this.priv.D).mod(ecparams.getN())
+
+    // In case parse256(IL) >= n or ki == 0, one should proceed with the next value for i
+    if (pIL.compareTo(ecparams.getN()) >= 0 || ki.signum() === 0) {
+      return this.derive(index + 1)
+    }
 
     hd.priv = new ECKey(ki, true)
     hd.pub = hd.priv.pub
+
+  // Public parent key -> public child key
   } else {
-    // Ki = (IL + kpar)*G = IL*G + Kpar
-    var Ki = ecparams.getG().multiply(IL).add(this.pub.Q)
+    // Ki = point(parse256(IL)) + Kpar
+    //    = G*IL + Kpar
+    var Ki = ecparams.getG().multiply(pIL).add(this.pub.Q)
+
+    // In case parse256(IL) >= n or Ki is the point at infinity, one should proceed with the next value for i
+    if (pIL.compareTo(ecparams.getN()) >= 0 || Ki.isInfinity()) {
+      return this.derive(index + 1)
+    }
 
     hd.pub = new ECPubKey(Ki, true)
   }
 
-  // ci = IR.
-  hd.chaincode = IRb
-  hd.parentFingerprint = this.getFingerprint().readUInt32BE(0)
+  hd.chaincode = IR
   hd.depth = this.depth + 1
-  hd.index = i
-  hd.pub.compressed = true
+  hd.network = this.network
+  hd.parentFingerprint = this.getFingerprint().readUInt32BE(0)
+  hd.index = index
+
   return hd
 }
 
 HDWallet.prototype.derivePrivate = function(index) {
+  // Only derives hardened private keys by default
   return this.derive(index + HDWallet.HIGHEST_BIT)
 }
 
