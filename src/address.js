@@ -1,6 +1,7 @@
 var assert = require('assert')
 var base58check = require('./base58check')
 var networks = require('./networks')
+var Script = require('./script')
 
 function findScriptTypeByVersion(queryVersion) {
   for (var networkName in networks) {
@@ -77,6 +78,3 @@ Address.prototype.toScriptPubKey = function() {
 Address.prototype.toString = Address.prototype.toBase58Check
 
 module.exports = Address
-
-// http://stackoverflow.com/a/14098262
-var Script = require('./script')
