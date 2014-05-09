@@ -1,4 +1,3 @@
-var Address = require('./address')
 var assert = require('assert')
 var crypto = require('./crypto')
 var Opcode = require('./opcode')
