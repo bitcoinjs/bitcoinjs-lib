@@ -317,7 +317,15 @@ Script.createPubKeyHashScriptSig = function(signature, pubKey) {
 }
 
 // OP_0 [signatures ...]
-Script.createMultisigScriptSig = function(signatures) {
+Script.createMultisigScriptSig = function(signatures, scriptPubKey) {
+  if (scriptPubKey) {
+    assert(isMultisig.call(scriptPubKey))
+
+    var m = scriptPubKey.chunks[0]
+    var k = m - (Opcode.map.OP_1 - 1)
+    assert(k <= signatures.length, 'Not enough signatures provided')
+  }
+
   var inScript = new Script()
 
   inScript.writeOp(Opcode.map.OP_0)
@@ -333,18 +341,6 @@ Script.createP2SHScriptSig = function(scriptSig, scriptPubKey) {
   var inScript = new Script(scriptSig.buffer)
   inScript.writeBytes(scriptPubKey.buffer)
   return inScript
-}
-
-// [signatures ...] {m [pubKeys ...] n OP_CHECKSIG}
-Script.createP2SHMultisigScriptSig = function(signatures, scriptPubKey) {
-  assert(isMultisig.call(scriptPubKey))
-
-  var m = scriptPubKey.chunks[0]
-  var k = m - (Opcode.map.OP_1 - 1)
-  assert(k <= signatures.length, 'Not enough signatures provided')
-
-  var scriptSig = Script.createMultisigScriptSig(signatures)
-  return Script.createP2SHScriptSig(scriptSig, scriptPubKey)
 }
 
 Script.prototype.clone = function() {

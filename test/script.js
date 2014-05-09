@@ -121,9 +121,19 @@ describe('Script', function() {
 
     it('should create a valid P2SH multisig scriptSig', function() {
       var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
-      var actual = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
+      var redeemScriptSig = Script.createMultisigScriptSig(signatures)
 
-      assert.equal(b2h(actual.buffer), expected)
+      var scriptSig = Script.createP2SHScriptSig(redeemScriptSig, redeemScript)
+
+      assert.equal(b2h(scriptSig.buffer), expected)
+    })
+
+    it('should throw on not enough signatures', function() {
+      var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
+
+      assert.throws(function() {
+        Script.createMultisigScriptSig(signatures.slice(1), redeemScript)
+      })
     })
   })
 })

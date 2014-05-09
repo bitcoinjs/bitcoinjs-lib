@@ -264,7 +264,8 @@ describe('Transaction', function() {
         return tx.signScriptSig(0, redeemScript, privKey)
       })
 
-      var scriptSig = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
+      var redeemScriptSig = Script.createMultisigScriptSig(signatures)
+      var scriptSig = Script.createP2SHScriptSig(redeemScriptSig, redeemScript)
       tx.setScriptSig(0, scriptSig)
 
       signatures.forEach(function(sig, i){
