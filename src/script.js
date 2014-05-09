@@ -184,19 +184,7 @@ function isSmallIntOp(opcode) {
     ((opcode >= Opcode.map.OP_1) && (opcode <= Opcode.map.OP_16)))
 }
 
-/**
- * Returns the address corresponding to this output in hash160 form.
- * Assumes strange scripts are P2SH
- */
-Script.prototype.toScriptHash = function() {
-  if(isPubkeyhash.call(this)) {
-    return this.chunks[2]
-  }
-
-  if(isScripthash.call(this)) {
-    return crypto.hash160(this.buffer)
-  }
-
+Script.prototype.getHash = function() {
   return crypto.hash160(this.buffer)
 }
 

@@ -26,9 +26,19 @@ describe('Script', function() {
   })
 
   describe('fromHex/toHex', function() {
+    fixtures.valid.forEach(function(f) {
+      it('decodes/encodes ' + f.description, function() {
+        assert.equal(Script.fromHex(f.hex).toHex(), f.hex)
+      })
+    })
+  })
+
+  describe('getHash', function() {
     it('matches the test vectors', function() {
       fixtures.valid.forEach(function(f) {
-        assert.equal(Script.fromHex(f.hex).toHex(), f.hex)
+        var script = Script.fromHex(f.hex)
+
+        assert.equal(script.getHash().toString('hex'), f.hash)
       })
     })
   })

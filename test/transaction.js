@@ -72,9 +72,7 @@ describe('Transaction', function() {
       var output = tx.outs[0]
 
       assert.equal(output.value, 5000000000)
-      assert.equal(b2h(output.script.toScriptHash()), "dd40dedd8f7e37466624c4dacc6362d8e7be23dd")
-      // assert.equal(output.address.toString(), "n1gqLjZbRH1biT5o4qiVMiNig8wcCPQeB9")
-      // TODO: address is wrong because it's a testnet transaction. Transaction needs to support testnet
+      assert.deepEqual(output.script, Address.fromBase58Check('n1gqLjZbRH1biT5o4qiVMiNig8wcCPQeB9').toScriptPubKey())
     })
 
     it('assigns hash to deserialized object', function(){
