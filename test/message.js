@@ -1,7 +1,7 @@
 var assert = require('assert')
 var ECKey = require('../src/eckey').ECKey
 var Message = require('../').Message
-var network = require('../').network
+var networks = require('../').networks
 
 var fixtures = require('./fixtures/message')
 
@@ -86,7 +86,7 @@ describe('Message', function() {
         var key = ECKey.makeRandom()
         var sig = Message.sign(key, msg)
 
-        var addr = key.pub.getAddress(network.testnet.pubKeyHash)
+        var addr = key.pub.getAddress(networks.testnet.pubKeyHash)
         assert(Message.verify(addr, sig, msg))
       })
     })

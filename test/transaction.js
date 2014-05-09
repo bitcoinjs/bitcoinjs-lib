@@ -2,11 +2,11 @@ var assert = require('assert')
 
 var Address = require('../src/address')
 var ECKey = require('../src/eckey').ECKey
+var networks = require('..').networks
 var T = require('../src/transaction')
 var Transaction = T.Transaction
 var TransactionOut = T.TransactionOut
 var Script = require('../src/script')
-var network = require('..').network
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
@@ -72,9 +72,7 @@ describe('Transaction', function() {
       var output = tx.outs[0]
 
       assert.equal(output.value, 5000000000)
-      assert.equal(b2h(output.script.toScriptHash()), "dd40dedd8f7e37466624c4dacc6362d8e7be23dd")
-      // assert.equal(output.address.toString(), "n1gqLjZbRH1biT5o4qiVMiNig8wcCPQeB9")
-      // TODO: address is wrong because it's a testnet transaction. Transaction needs to support testnet
+      assert.deepEqual(output.script, Address.fromBase58Check('n1gqLjZbRH1biT5o4qiVMiNig8wcCPQeB9').toScriptPubKey())
     })
 
     it('assigns hash to deserialized object', function(){
@@ -176,7 +174,7 @@ describe('Transaction', function() {
       it('supports alternative networks', function(){
         var addr = 'mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR'
 
-        tx.addOutput(addr, 40000, network.testnet)
+        tx.addOutput(addr, 40000)
         verifyTransactionOut()
 
         assert.equal(tx.outs[0].address.toString(), addr)
@@ -250,7 +248,7 @@ describe('Transaction', function() {
     it('works for multi-sig redeem script', function() {
       var tx = new Transaction()
       tx.addInput('d6f72aab8ff86ff6289842a0424319bf2ddba85dc7c52757912297f948286389', 0)
-      tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1, network.testnet)
+      tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1)
 
       var privKeys = [
         '5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf',
@@ -260,13 +258,14 @@ describe('Transaction', function() {
       })
       var pubKeys = privKeys.map(function(eck) { return eck.pub })
       var pubKeyBuffers = pubKeys.map(function(q) { return q.toBuffer() })
-      var redeemScript = Script.createMultisigOutputScript(2, pubKeyBuffers)
+      var redeemScript = Script.createMultisigScriptPubKey(2, pubKeyBuffers)
 
       var signatures = privKeys.map(function(privKey) {
         return tx.signScriptSig(0, redeemScript, privKey)
       })
 
-      var scriptSig = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
+      var redeemScriptSig = Script.createMultisigScriptSig(signatures)
+      var scriptSig = Script.createP2SHScriptSig(redeemScriptSig, redeemScript)
       tx.setScriptSig(0, scriptSig)
 
       signatures.forEach(function(sig, i){
@@ -279,18 +278,6 @@ describe('Transaction', function() {
   })
 
   describe('TransactionOut', function() {
-    describe('scriptPubKey', function() {
-      it('returns hex string', function() {
-        var address = Address.fromBase58Check("1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv")
-
-        var txOut = new TransactionOut({
-          value: 50000,
-          script: Script.createOutputScript(address)
-        })
-
-        assert.equal(txOut.scriptPubKey(), "76a91468edf28474ee22f68dfe7e56e76c017c1701b84f88ac")
-      })
-    })
   })
 })
 

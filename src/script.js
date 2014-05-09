@@ -1,18 +1,17 @@
-var assert = require('assert')
 var Address = require('./address')
+var assert = require('assert')
 var crypto = require('./crypto')
-var convert = require('./convert')
-var Network = require('./network')
 var Opcode = require('./opcode')
 
 function Script(data) {
-  this.buffer = data || []
-  if(!Array.isArray(this.buffer)) {
-    throw new Error('expect Script to be initialized with Array, but got ' + data)
-  }
+  data = data || []
+  assert(Array.isArray(data), 'Expected Array, got ' + data)
+
+  this.buffer = data
   this.parse()
 }
 
+// Import operations
 Script.fromBuffer = function(buffer) {
   assert(Buffer.isBuffer(buffer)) // FIXME: transitionary
 
@@ -23,30 +22,13 @@ Script.fromHex = function(hex) {
   return Script.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-Script.fromPubKey = function(str) {
-  var script = new Script()
-  var s = str.split(' ')
-  for (var i in s) {
-    if (Opcode.map.hasOwnProperty(s[i])) {
-      script.writeOp(Opcode.map[s[i]])
-    } else {
-      script.writeBytes(convert.hexToBytes(s[i]))
-    }
-  }
-  return script
+// Export operations
+Script.prototype.toBuffer = function() {
+  return new Buffer(this.buffer)
 }
 
-Script.fromScriptSig = function(str) {
-  var script = new Script()
-  var s = str.split(' ')
-  for (var i in s) {
-    if (Opcode.map.hasOwnProperty(s[i])) {
-      script.writeOp(Opcode.map[s[i]])
-    } else {
-      script.writeBytes(convert.hexToBytes(s[i]))
-    }
-  }
-  return script
+Script.prototype.toHex = function() {
+  return this.toBuffer().toString('hex')
 }
 
 /**
@@ -202,38 +184,8 @@ function isSmallIntOp(opcode) {
     ((opcode >= Opcode.map.OP_1) && (opcode <= Opcode.map.OP_16)))
 }
 
-/**
- * Returns the address corresponding to this output in hash160 form.
- * Assumes strange scripts are P2SH
- */
-Script.prototype.toScriptHash = function() {
-  if(isPubkeyhash.call(this)) {
-    return this.chunks[2]
-  }
-
-  if(isScripthash.call(this)) {
-    return crypto.hash160(this.buffer)
-  }
-
+Script.prototype.getHash = function() {
   return crypto.hash160(this.buffer)
-}
-
-Script.prototype.getToAddress = function(network) {
-  network = network || Network.bitcoin
-
-  if(isPubkeyhash.call(this)) {
-    return new Address(new Buffer(this.chunks[2]), network.pubKeyHash)
-  }
-
-  assert(isScripthash.call(this))
-
-  return new Address(new Buffer(this.chunks[1]), network.scriptHash)
-}
-
-Script.prototype.getFromAddress = function(version) {
-  version = version || Network.bitcoin.pubKeyHash
-
-  return new Address(this.simpleInHash(), version)
 }
 
 /**
@@ -282,58 +234,6 @@ Script.prototype.getInType = function() {
 }
 
 /**
- * Returns the affected public key for this input.
- *
- * This currently only works with payToPubKeyHash transactions. It will also
- * work in the future for standard payToScriptHash transactions that use a
- * single public key.
- *
- * However for multi-key and other complex transactions, this will only return
- * one of the keys or raise an error. Therefore, it is recommended for indexing
- * purposes to use Script#simpleInHash or Script#simpleOutHash instead.
- *
- * @deprecated
- */
-Script.prototype.simpleInPubKey = function() {
-  switch (this.getInType()) {
-    case 'pubkeyhash':
-      return this.chunks[1]
-    case 'pubkey':
-      // TODO: Theoretically, we could recover the pubkey from the sig here.
-      //       See https://bitcointalk.org/?topic=6430.0
-      throw new Error('Script does not contain pubkey')
-    default:
-      throw new Error('Encountered non-standard scriptSig')
-  }
-}
-
-/**
- * Returns the affected address hash for this input.
- *
- * For standard transactions, this will return the hash of the pubKey that
- * can spend this output.
- *
- * In the future, for standard payToScriptHash inputs, this will return the
- * scriptHash.
- *
- * Note: This function provided for convenience. If you have the corresponding
- * scriptPubKey available, you are urged to use Script#simpleOutHash instead
- * as it is more reliable for non-standard payToScriptHash transactions.
- *
- * This method is useful for indexing transactions.
- */
-Script.prototype.simpleInHash = function() {
-  return crypto.hash160(this.simpleInPubKey())
-}
-
-/**
- * Old name for Script#simpleInHash.
- *
- * @deprecated
- */
-Script.prototype.simpleInPubKeyHash = Script.prototype.simpleInHash
-
-/**
  * Add an op code to the script.
  */
 Script.prototype.writeOp = function(opcode) {
@@ -347,7 +247,7 @@ Script.prototype.writeOp = function(opcode) {
 Script.prototype.writeBytes = function(data) {
   // FIXME: Script module doesn't support buffers yet
   if (Buffer.isBuffer(data)) data = Array.prototype.slice.call(data);
-  assert(Array.isArray(data), "Expect a byte array. Got" + data)
+  assert(Array.isArray(data), "Expected a byte array. Got " + data)
 
   if (data.length < Opcode.map.OP_PUSHDATA1) {
     this.buffer.push(data.length)
@@ -369,48 +269,32 @@ Script.prototype.writeBytes = function(data) {
   this.chunks.push(data)
 }
 
-/**
- * Create an output for an address
- */
-Script.createOutputScript = function(address, network) {
-  assert(address instanceof Address)
-  network = network || Network.bitcoin
-
+// OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
+Script.createPubKeyHashScriptPubKey = function(hash) {
   var script = new Script()
 
-  // Standard pay-to-script-hash
-  if (address.version === network.scriptHash) {
-    script.writeOp(Opcode.map.OP_HASH160)
-    script.writeBytes(address.hash)
-    script.writeOp(Opcode.map.OP_EQUAL)
-
-    return script
-  }
-
-  assert.strictEqual(address.version, network.pubKeyHash, 'Unknown address type')
-
-  // Standard pay-to-pubkey-hash
   script.writeOp(Opcode.map.OP_DUP)
   script.writeOp(Opcode.map.OP_HASH160)
-  script.writeBytes(address.hash)
+  script.writeBytes(hash)
   script.writeOp(Opcode.map.OP_EQUALVERIFY)
   script.writeOp(Opcode.map.OP_CHECKSIG)
 
   return script
 }
 
-/**
- * Extract pubkeys from a multisig script
- */
+// OP_HASH160 {scriptHash} OP_EQUAL
+Script.createP2SHScriptPubKey = function(hash) {
+  var script = new Script()
 
-Script.prototype.extractPubkeys = function() {
-  return this.chunks.filter(function(chunk) {
-    return(chunk[0] == 4 && chunk.length == 65 || chunk[0] < 4 && chunk.length == 33)
-  })
+  script.writeOp(Opcode.map.OP_HASH160)
+  script.writeBytes(hash)
+  script.writeOp(Opcode.map.OP_EQUAL)
+
+  return script
 }
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
-Script.createMultisigOutputScript = function(m, pubKeys) {
+Script.createMultisigScriptPubKey = function(m, pubKeys) {
   var script = new Script()
   pubKeys = pubKeys.sort()
 
@@ -433,7 +317,15 @@ Script.createPubKeyHashScriptSig = function(signature, pubKey) {
 }
 
 // OP_0 [signatures ...]
-Script.createMultisigScriptSig = function(signatures) {
+Script.createMultisigScriptSig = function(signatures, scriptPubKey) {
+  if (scriptPubKey) {
+    assert(isMultisig.call(scriptPubKey))
+
+    var m = scriptPubKey.chunks[0]
+    var k = m - (Opcode.map.OP_1 - 1)
+    assert(k <= signatures.length, 'Not enough signatures provided')
+  }
+
   var inScript = new Script()
 
   inScript.writeOp(Opcode.map.OP_0)
@@ -449,18 +341,6 @@ Script.createP2SHScriptSig = function(scriptSig, scriptPubKey) {
   var inScript = new Script(scriptSig.buffer)
   inScript.writeBytes(scriptPubKey.buffer)
   return inScript
-}
-
-// [signatures ...] {m [pubKeys ...] n OP_CHECKSIG}
-Script.createP2SHMultisigScriptSig = function(signatures, scriptPubKey) {
-  assert(isMultisig.call(scriptPubKey))
-
-  var m = scriptPubKey.chunks[0]
-  var k = m - (Opcode.map.OP_1 - 1)
-  assert(k <= signatures.length, 'Not enough signatures provided')
-
-  var scriptSig = Script.createMultisigScriptSig(signatures)
-  return Script.createP2SHScriptSig(scriptSig, scriptPubKey)
 }
 
 Script.prototype.clone = function() {

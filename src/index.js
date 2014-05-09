@@ -22,6 +22,6 @@ module.exports = {
   Transaction: T.Transaction,
   TransactionIn: T.TransactionIn,
   TransactionOut: T.TransactionOut,
-  network: require('./network'),
+  networks: require('./networks'),
   Wallet: require('./wallet')
 }

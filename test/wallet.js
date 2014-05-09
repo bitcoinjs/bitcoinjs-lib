@@ -1,12 +1,14 @@
-var Wallet = require('../src/wallet.js')
+var assert = require('assert')
+var crypto = require('../').crypto
+var sinon = require('sinon')
+
+var Address = require('..').Address
 var HDNode = require('../src/hdwallet.js')
 var T = require('../src/transaction.js')
 var Transaction = T.Transaction
 var TransactionOut = T.TransactionOut
 var Script = require('../src/script.js')
-var assert = require('assert')
-var sinon = require('sinon')
-var crypto = require('../').crypto
+var Wallet = require('../src/wallet.js')
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
@@ -308,17 +310,24 @@ describe('Wallet', function() {
   })
 
   describe('processTx', function(){
+    var addresses
     var tx
 
     beforeEach(function(){
+      addresses = [
+        '115qa7iPZqn6as57hxLL8E9VUnhmGQxKWi',
+        '1Bu3bhwRmevHLAy1JrRB6AfcxfgDG2vXRd',
+        '1BBjuhF2jHxu7tPinyQGCuaNhEs6f5u59u'
+      ]
+
       tx = Transaction.deserialize(fixtureTx1Hex)
     })
 
     describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.outputs", function(){
       it("works for receive address", function(){
         var totalOuts = outputCount()
-        wallet.addresses = [tx.outs[0].address.toString()]
 
+        wallet.addresses = [addresses[0]]
         wallet.processTx(tx)
 
         assert.equal(outputCount(), totalOuts + 1)
@@ -327,7 +336,7 @@ describe('Wallet', function() {
 
       it("works for change address", function(){
         var totalOuts = outputCount()
-        wallet.changeAddresses = [tx.outs[1].address.toString()]
+        wallet.changeAddresses = [addresses[1]]
 
         wallet.processTx(tx)
 
@@ -345,13 +354,15 @@ describe('Wallet', function() {
         var output = wallet.outputs[key]
         assert.equal(output.receive, key)
         assert.equal(output.value, txOut.value)
-        assert.equal(output.address, txOut.address)
+
+        var txOutAddress = Address.fromScriptPubKey(txOut.script).toString()
+        assert.equal(output.address, txOutAddress)
       }
     })
 
     describe("when tx ins outpoint contains a known txhash:i, the corresponding 'output' gets updated", function(){
       beforeEach(function(){
-        wallet.addresses = [tx.outs[0].address.toString()] // the address fixtureTx2 used as input
+        wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
         wallet.processTx(tx)
 
         tx = Transaction.deserialize(fixtureTx2Hex)

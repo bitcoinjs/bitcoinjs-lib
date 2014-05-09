@@ -1,15 +1,17 @@
 var assert = require('assert')
 var Address = require('..').Address
+var networks = require('..').networks
+var Script = require('..').Script
 
 var b58fixtures = require('./fixtures/base58')
 var fixtures = require('./fixtures/address')
 
-describe('Address', function() {
-  var bothVectors = fixtures.pubKeyHash.concat(fixtures.scriptHash)
+function h2b(h) { return new Buffer(h, 'hex') }
 
+describe('Address', function() {
   describe('Constructor', function() {
     it('does not mutate the input', function() {
-      bothVectors.forEach(function(f) {
+      fixtures.valid.forEach(function(f) {
         var hash = new Buffer(f.hex, 'hex')
         var addr = new Address(hash, f.version)
 
@@ -28,8 +30,8 @@ describe('Address', function() {
       })
     })
 
-    bothVectors.forEach(function(f) {
-      it('imports ' + f.description + ' correctly', function() {
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.description + '(' + f.network + ') correctly', function() {
         var addr = Address.fromBase58Check(f.base58check)
 
         assert.equal(addr.version, f.version)
@@ -38,13 +40,46 @@ describe('Address', function() {
     })
   })
 
+  describe('fromScriptPubKey', function() {
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.description + '(' + f.network + ') correctly', function() {
+        var script = Script.fromHex(f.script)
+        var addr = Address.fromScriptPubKey(script, networks[f.network])
+
+        assert.equal(addr.version, f.version)
+        assert.equal(addr.hash.toString('hex'), f.hex)
+      })
+    })
+  })
+
   describe('toBase58Check', function() {
-    bothVectors.forEach(function(f) {
-      it('exports ' + f.description + ' correctly', function() {
+    fixtures.valid.forEach(function(f) {
+      it('exports ' + f.description + '(' + f.network + ') correctly', function() {
         var addr = Address.fromBase58Check(f.base58check)
         var result = addr.toBase58Check()
 
         assert.equal(result, f.base58check)
+      })
+    })
+  })
+
+  describe('toScriptPubKey', function() {
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.description + '(' + f.network + ') correctly', function() {
+        var addr = Address.fromBase58Check(f.base58check)
+        var script = addr.toScriptPubKey()
+
+        assert.equal(script.toHex(), f.script)
+      })
+    })
+
+    fixtures.invalid.toScriptPubKey.forEach(function(f) {
+      it('throws on ' + f.description, function() {
+        var addr = new Address(h2b(f.hex), f.version)
+
+        assert.throws(function() {
+          addr.toScriptPubKey()
+        })
       })
     })
   })
