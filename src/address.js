@@ -44,12 +44,10 @@ Address.fromScriptPubKey = function(script, network) {
 
   var type = script.getOutType()
 
-  // Pay-to-pubKeyHash
   if (type === 'pubkeyhash') {
     return new Address(new Buffer(script.chunks[2]), network.pubKeyHash)
   }
 
-  // Pay-to-scriptHash
   else if (type === 'scripthash') {
     return new Address(new Buffer(script.chunks[1]), network.scriptHash)
   }
@@ -65,12 +63,10 @@ Address.prototype.toBase58Check = function () {
 Address.prototype.toScriptPubKey = function() {
   var scriptType = findScriptTypeByVersion(this.version)
 
-  // Pay-to-pubKeyHash
   if (scriptType === 'pubKeyHash') {
     return Script.createPubKeyHashScriptPubKey(this.hash)
   }
 
-  // Pay-to-scriptHash
   else if (scriptType === 'scriptHash') {
     return Script.createP2SHScriptPubKey(this.hash)
   }
