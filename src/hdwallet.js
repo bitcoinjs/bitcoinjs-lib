@@ -13,9 +13,14 @@ var networks = require('./networks')
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
 
-function HmacSHA512(buffer, secret) {
-  var words = convert.bytesToWordArray(buffer)
-  var hash = CJS.HmacSHA512(words, secret)
+function HmacSHA512(data, secret) {
+  assert(Buffer.isBuffer(data))
+  assert(Buffer.isBuffer(secret))
+
+  var dataWords = convert.bytesToWordArray(data)
+  var secretWords = convert.bytesToWordArray(secret)
+
+  var hash = CJS.HmacSHA512(dataWords, secretWords)
 
   return new Buffer(convert.wordArrayToBytes(hash))
 }
@@ -23,7 +28,7 @@ function HmacSHA512(buffer, secret) {
 function HDWallet(seed, networkString) {
   if (seed == undefined) return; // FIXME: Boo, should be stricter
 
-  var I = HmacSHA512(seed, 'Bitcoin seed')
+  var I = HmacSHA512(seed, new Buffer('Bitcoin seed'))
   this.chaincode = I.slice(32)
   this.network = networkString || 'bitcoin'
 
@@ -185,7 +190,6 @@ HDWallet.prototype.derive = function(i) {
   var cPar = this.chaincode
   var usePriv = i >= HDWallet.HIGHEST_BIT
 
-  var I
   if (usePriv) {
     assert(this.priv, 'Missing private key')
 
@@ -193,21 +197,14 @@ HDWallet.prototype.derive = function(i) {
     // let I = HMAC-SHA512(Key = cpar, Data = 0x00 || kpar || i) [Note:]
     var kPar = this.priv.toBuffer().slice(0, 32)
     iBuffer = Buffer.concat([new Buffer([0]), kPar, iBuffer], 37)
-
-    // FIXME: Dislikes buffers
-    I = HmacFromBytesToBytes(CJS.algo.SHA512, Array.prototype.slice.call(iBuffer), cPar)
   } else {
     // If 0, public derivation is used:
     // let I = HMAC-SHA512(Key = cpar, Data = χ(kpar*G) || i)
     var KPar = this.pub.toBuffer()
     iBuffer = Buffer.concat([KPar, iBuffer])
-
-    // FIXME: Dislikes buffers
-    I = HmacFromBytesToBytes(CJS.algo.SHA512, Array.prototype.slice.call(iBuffer), cPar)
   }
 
-  // FIXME: Boo, CSJ.algo.SHA512 uses byte arrays
-  I = new Buffer(I)
+  var I = HmacSHA512(iBuffer, cPar)
 
   // Split I = IL || IR into two 32-byte sequences, IL and IR.
   var ILb = I.slice(0, 32)
@@ -249,11 +246,5 @@ HDWallet.prototype.getKeyVersion = function() {
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58
-
-function HmacFromBytesToBytes(hasher, message, key) {
-  var hmac = CJS.algo.HMAC.create(hasher, convert.bytesToWordArray(key))
-  hmac.update(convert.bytesToWordArray(message))
-  return convert.wordArrayToBytes(hmac.finalize())
-}
 
 module.exports = HDWallet
