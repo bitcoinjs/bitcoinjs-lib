@@ -6,32 +6,6 @@ var ecparams = sec("secp256k1")
 var BigInteger = require('bigi')
 var ECPointFp = require('./ec').ECPointFp
 
-function implShamirsTrick(P, k, Q, l) {
-  var m = Math.max(k.bitLength(), l.bitLength())
-  var Z = P.add2D(Q)
-  var R = P.curve.getInfinity()
-
-  for (var i = m - 1; i >= 0; --i) {
-    R = R.twice2D()
-
-    R.z = BigInteger.ONE
-
-    if (k.testBit(i)) {
-      if (l.testBit(i)) {
-        R = R.add2D(Z)
-      } else {
-        R = R.add2D(P)
-      }
-    } else {
-      if (l.testBit(i)) {
-        R = R.add2D(Q)
-      }
-    }
-  }
-
-  return R
-}
-
 var ecdsa = {
   deterministicGenerateK: function(hash, D) {
     assert(Buffer.isBuffer(hash), 'Hash must be a Buffer')
@@ -125,12 +99,7 @@ var ecdsa = {
     var u1 = e.multiply(c).mod(n)
     var u2 = r.multiply(c).mod(n)
 
-    // TODO(!!!): For some reason Shamir's trick isn't working with
-    // signed message verification!? Probably an implementation
-    // error!
-    //var point = implShamirsTrick(G, u1, Q, u2)
-    var point = G.multiply(u1).add(Q.multiply(u2))
-
+    var point = G.multiplyTwo(u1, Q, u2)
     var v = point.getX().toBigInteger().mod(n)
 
     return v.equals(r)
@@ -276,11 +245,11 @@ var ecdsa = {
 
     // 1.5 Compute e from M
     var e = BigInteger.fromBuffer(hash)
-    var eNeg = BigInteger.ZERO.subtract(e).mod(n)
+    var eNeg = e.negate().mod(n)
 
     // 1.6 Compute Q = r^-1 (sR - eG)
     var rInv = r.modInverse(n)
-    var Q = implShamirsTrick(R, s, G, eNeg).multiply(rInv)
+    var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
 
     Q.validate()
     if (!ecdsa.verifyRaw(e, r, s, Q)) {
