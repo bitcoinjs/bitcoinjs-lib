@@ -205,7 +205,7 @@ var ecdsa = {
    *
    * http://www.secg.org/download/aid-780/sec1-v2.pdf
    */
-  recoverPubKey: function (r, s, hash, i) {
+  recoverPubKey: function (e, r, s, i) {
     assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
 
     // A set LSB signifies that the y-coordinate is odd
@@ -243,15 +243,16 @@ var ecdsa = {
     var R = new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y))
     R.validate()
 
-    // 1.5 Compute e from M
-    var e = BigInteger.fromBuffer(hash)
+    // 1.5 Compute -e from e
     var eNeg = e.negate().mod(n)
 
-    // 1.6 Compute Q = r^-1 (sR - eG)
+    // 1.6 Compute Q = r^-1 (sR -  eG)
+    //             Q = r^-1 (sR + -eG)
     var rInv = r.modInverse(n)
-    var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
 
+    var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
     Q.validate()
+
     if (!ecdsa.verifyRaw(e, r, s, Q)) {
       throw new Error("Pubkey recovery unsuccessful")
     }
@@ -270,16 +271,16 @@ var ecdsa = {
    * This function simply tries all four cases and returns the value
    * that resulted in a successful pubkey recovery.
    */
-  calcPubKeyRecoveryParam: function (origPubKey, r, s, hash) {
+  calcPubKeyRecoveryParam: function (e, r, s, Q) {
     for (var i = 0; i < 4; i++) {
-      var pubKey = ecdsa.recoverPubKey(r, s, hash, i)
+      var Qprime = ecdsa.recoverPubKey(e, r, s, i)
 
-      if (pubKey.equals(origPubKey)) {
+      if (Qprime.equals(Q)) {
         return i
       }
     }
 
-    throw new Error("Unable to find valid recovery factor")
+    throw new Error('Unable to find valid recovery factor')
   }
 }
 

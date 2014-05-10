@@ -1,5 +1,6 @@
 /// Implements Bitcoin's feature for signing arbitrary messages.
 var Address = require('./address')
+var BigInteger = require('bigi')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
@@ -25,7 +26,8 @@ function sign(key, message, network) {
 
   var hash = magicHash(message, network)
   var sig = ecdsa.parseSig(key.sign(hash))
-  var i = ecdsa.calcPubKeyRecoveryParam(key.pub.Q, sig.r, sig.s, hash)
+  var e = BigInteger.fromBuffer(hash)
+  var i = ecdsa.calcPubKeyRecoveryParam(e, sig.r, sig.s, key.pub.Q)
 
   return ecdsa.serializeSigCompact(sig.r, sig.s, i, key.pub.compressed)
 }
@@ -40,7 +42,8 @@ function verify(address, compactSig, message, network) {
 
   var hash = magicHash(message, network)
   var sig = ecdsa.parseSigCompact(compactSig)
-  var Q = ecdsa.recoverPubKey(sig.r, sig.s, hash, sig.i)
+  var e = BigInteger.fromBuffer(hash)
+  var Q = ecdsa.recoverPubKey(e, sig.r, sig.s, sig.i)
 
   var pubKey = new ECPubKey(Q, sig.compressed)
   return pubKey.getAddress(address.version).toString() === address.toString()

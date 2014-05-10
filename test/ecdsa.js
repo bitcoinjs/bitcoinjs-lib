@@ -32,8 +32,9 @@ describe('ecdsa', function() {
 
       var obj = ecdsa.parseSigCompact(signature)
       var hash = message.magicHash('1111', networks.bitcoin)
+      var e = BigInteger.fromBuffer(hash)
 
-      var pubKey = new ECPubKey(ecdsa.recoverPubKey(obj.r, obj.s, hash, obj.i))
+      var pubKey = new ECPubKey(ecdsa.recoverPubKey(e, obj.r, obj.s, obj.i))
 
       assert.equal(pubKey.toHex(), '02e8fcf4d749b35879bc1f3b14b49e67ab7301da3558c5a9b74a54f1e6339c334c')
     })
