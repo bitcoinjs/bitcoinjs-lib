@@ -25,7 +25,7 @@ function sign(key, message, network) {
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
-  var sig = ecdsa.parseSig(key.sign(hash))
+  var sig = key.sign(hash)
   var e = BigInteger.fromBuffer(hash)
   var i = ecdsa.calcPubKeyRecoveryParam(e, sig.r, sig.s, key.pub.Q)
 

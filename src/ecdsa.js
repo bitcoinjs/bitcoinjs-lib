@@ -54,30 +54,10 @@ var ecdsa = {
       s = n.subtract(s)
     }
 
-    return ecdsa.serializeSig(r, s)
+    return {r: r, s: s}
   },
 
-  verify: function (hash, sig, pubkey) {
-    var r,s
-    if (Array.isArray(sig) || Buffer.isBuffer(sig)) {
-      var obj = ecdsa.parseSig(sig)
-      r = obj.r
-      s = obj.s
-    } else if ("object" === typeof sig && sig.r && sig.s) {
-      r = sig.r
-      s = sig.s
-    } else {
-      throw new Error("Invalid value for signature")
-    }
-
-    var Q
-    if (pubkey instanceof ECPointFp) {
-      Q = pubkey
-    } else if (Array.isArray(pubkey) || Buffer.isBuffer(pubkey)) {
-      Q = ECPointFp.decodeFrom(ecparams.getCurve(), pubkey)
-    } else {
-      throw new Error("Invalid format for pubkey value, must be byte array or ECPointFp")
-    }
+  verify: function (hash, r, s, Q) {
     var e = BigInteger.fromBuffer(hash)
 
     return ecdsa.verifyRaw(e, r, s, Q)
@@ -140,8 +120,6 @@ var ecdsa = {
    * }
    */
   parseSig: function (buffer) {
-    if (Array.isArray(buffer)) buffer = new Buffer(buffer) // FIXME: transitionary
-
     assert.equal(buffer.readUInt8(0), 0x30, 'Not a DER sequence')
     assert.equal(buffer.readUInt8(1), buffer.length - 2, 'Invalid sequence length')
 

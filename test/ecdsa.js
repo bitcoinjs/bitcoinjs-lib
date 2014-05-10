@@ -46,7 +46,7 @@ describe('ecdsa', function() {
         var D = BigInteger.fromHex(f.D)
         var priv = new ECKey(D)
         var hash = crypto.sha256(f.message)
-        var sig = ecdsa.parseSig(priv.sign(hash))
+        var sig = priv.sign(hash)
 
         assert.equal(sig.r.toString(), f.signature.r)
         assert.equal(sig.s.toString(), f.signature.s)
@@ -56,12 +56,11 @@ describe('ecdsa', function() {
     it('should sign with low S value', function() {
       var priv = ECKey.makeRandom()
       var hash = crypto.sha256('Vires in numeris')
-      var signature = priv.sign(hash)
-      var psig = ecdsa.parseSig(signature)
+      var sig = priv.sign(hash)
 
       // See BIP62 for more information
       var N_OVER_TWO = ecparams.getN().shiftRight(1)
-      assert(psig.s.compareTo(N_OVER_TWO) <= 0)
+      assert(sig.s.compareTo(N_OVER_TWO) <= 0)
     })
   })
 

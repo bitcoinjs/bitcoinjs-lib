@@ -364,27 +364,35 @@ Transaction.prototype.sign = function(index, key, type) {
   this.setScriptSig(index, scriptSig)
 }
 
-Transaction.prototype.signScriptSig = function(index, script, key, type) {
+Transaction.prototype.signScriptSig = function(index, scriptPubKey, key, type) {
   type = type || SIGHASH_ALL
 
   assert((index >= 0), 'Invalid vin index')
-  assert(script instanceof Script, 'Invalid Script object')
+  assert(scriptPubKey instanceof Script, 'Invalid Script object')
   assert(key instanceof ECKey, 'Invalid private key')
 //  assert.equal(type & 0x7F, type, 'Invalid type') // TODO
 
-  var hash = this.hashForSignature(script, index, type)
-  return key.sign(hash).concat([type])
+  var hash = this.hashForSignature(scriptPubKey, index, type)
+  var sig = key.sign(hash)
+  var DERsig = ecdsa.serializeSig(sig.r, sig.s)
+
+  return Buffer.concat([
+    new Buffer(DERsig),
+    new Buffer([type])
+  ])
 }
 
 Transaction.prototype.setScriptSig = function(index, script) {
   this.ins[index].script = script
 }
 
-Transaction.prototype.validateSig = function(index, script, pub, sig) {
-  var type = sig[sig.length - 1]
-  var hash = this.hashForSignature(script, index, type)
+Transaction.prototype.validateSig = function(index, script, pub, DERsig) {
+  var type = DERsig.readUInt8(DERsig.length - 1)
+  DERsig = DERsig.slice(0, -1)
 
-  sig = sig.slice(0, -1)
+  var hash = this.hashForSignature(script, index, type)
+  var sig = ecdsa.parseSig(DERsig)
+
   return pub.verify(hash, sig)
 }
 

@@ -36,8 +36,8 @@ ECPubKey.prototype.getAddress = function(version) {
   return new Address(crypto.hash160(this.toBuffer()), version)
 }
 
-ECPubKey.prototype.verify = function(hash, sig) {
-  return ecdsa.verify(hash, sig, this.Q)
+ECPubKey.prototype.verify = function(hash, signature) {
+  return ecdsa.verify(hash, signature.r, signature.s, this.Q)
 }
 
 // Export functions
