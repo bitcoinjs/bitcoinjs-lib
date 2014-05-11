@@ -28,20 +28,26 @@ function HmacSHA512(data, secret) {
 function HDWallet(seed, networkString) {
   if (seed == undefined) return; // FIXME: Boo, should be stricter
 
-  var I = HmacSHA512(seed, new Buffer('Bitcoin seed'))
-  this.chaincode = I.slice(32)
   this.network = networkString || 'bitcoin'
 
   if(!networks.hasOwnProperty(this.network)) {
     throw new Error("Unknown network: " + this.network)
   }
 
-  this.priv = ECKey.fromBuffer(I.slice(0, 32), true)
+  var I = HmacSHA512(seed, HDWallet.MASTER_SECRET)
+  var IL = I.slice(0, 32)
+  var IR = I.slice(32)
+
+  // In case IL is 0 or >= n, the master key is invalid (handled by ECKey.fromBuffer)
+  this.priv = ECKey.fromBuffer(IL, true)
   this.pub = this.priv.pub
-  this.index = 0
+
+  this.chaincode = IR
   this.depth = 0
+  this.index = 0
 }
 
+HDWallet.MASTER_SECRET = new Buffer('Bitcoin seed')
 HDWallet.HIGHEST_BIT = 0x80000000
 HDWallet.LENGTH = 78
 
