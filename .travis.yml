@@ -4,3 +4,7 @@ before_install:
 node_js:
   - "0.11"
   - "0.10"
+env:
+  - TEST_SUITE=unit
+  - TEST_SUITE=integration
+script: "npm run-script $TEST_SUITE"

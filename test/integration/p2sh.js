@@ -30,7 +30,7 @@ describe('p2sh', function() {
     var pubKeyBuffers = pubKeys.map(function(q) {
       return q.toBuffer()
     })
-    var redeemScript = Script.createMultisigOutputScript(2, pubKeyBuffers)
+    var redeemScript = Script.createMultisigScriptPubKey(2, pubKeyBuffers)
     var hash160 = crypto.hash160(redeemScript.buffer)
     var multisigAddress = new Address(hash160, networks.testnet.scriptHash)
 
@@ -57,7 +57,8 @@ describe('p2sh', function() {
             return tx.signScriptSig(0, redeemScript, privKey)
           })
 
-          var scriptSig = Script.createP2SHMultisigScriptSig(signatures, redeemScript)
+          var redeemScriptSig = Script.createMultisigScriptSig(signatures)
+          var scriptSig = Script.createP2SHScriptSig(redeemScriptSig, redeemScript)
           tx.setScriptSig(0, scriptSig)
 
           // Send from mutlsigAddress to targetAddress
