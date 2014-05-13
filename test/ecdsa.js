@@ -1,14 +1,14 @@
 var assert = require('assert')
-var crypto = require('..').crypto
-var ecdsa = require('..').ecdsa
+var crypto = require('../src/crypto')
+var ecdsa = require('../src/ecdsa')
 
-var sec = require('..').sec
+var sec = require('../src/sec')
 var ecparams = sec("secp256k1")
 
 var BigInteger = require('bigi')
-var ECKey = require('..').ECKey
-var ECPubKey = require('..').ECPubKey
-var Message = require('..').Message
+var ECKey = require('../src/eckey')
+var ECPubKey = require('../src/ecpubkey')
+var Message = require('../src/message')
 
 var fixtures = require('./fixtures/ecdsa.js')
 

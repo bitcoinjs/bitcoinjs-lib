@@ -1,8 +1,8 @@
 var assert = require('assert')
-var crypto = require('..').crypto
+var crypto = require('../src/crypto')
 
-var ECKey = require('..').ECKey
-var ECPubKey = require('..').ECPubKey
+var ECKey = require('../src/eckey')
+var ECPubKey = require('../src/ecpubkey')
 
 describe('ECKey', function() {
   describe('constructor', function() {

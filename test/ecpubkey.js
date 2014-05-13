@@ -1,6 +1,6 @@
 var assert = require('assert')
 
-var ECPubKey = require('..').ECPubKey
+var ECPubKey = require('../src/ecpubkey')
 
 describe('ECPubKey', function() {
   describe('toBuffer/toHex', function() {

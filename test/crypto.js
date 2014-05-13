@@ -1,5 +1,5 @@
 var assert = require('assert')
-var crypto = require('..').crypto
+var crypto = require('../src/crypto')
 
 var fixtures = require('./fixtures/crypto')
 

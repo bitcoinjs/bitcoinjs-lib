@@ -1,12 +1,12 @@
 var assert = require('assert')
-var crypto = require('../').crypto
+var crypto = require('../src/crypto')
 var sinon = require('sinon')
 
-var Address = require('..').Address
-var HDWallet = require('..').HDWallet
-var Script = require('..').Script
-var Transaction = require('..').Transaction
-var Wallet = require('..').Wallet
+var Address = require('../src/address')
+var HDWallet = require('../src/hdwallet')
+var Script = require('../src/script')
+var Transaction = require('../src/transaction').Transaction
+var Wallet = require('../src/wallet')
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx

@@ -1,5 +1,5 @@
 var assert = require('assert')
-var bufferutils = require('..').bufferutils
+var bufferutils = require('../src/bufferutils')
 
 var fixtures = require('./fixtures/buffer.js')
 

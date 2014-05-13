@@ -1,10 +1,10 @@
 var assert = require('assert')
-var networks = require('..').networks
+var networks = require('../src/networks')
 
-var Address = require('..').Address
-var ECKey = require('..').ECKey
-var Transaction = require('..').Transaction
-var Script = require('..').Script
+var Address = require('../src/address')
+var ECKey = require('../src/eckey')
+var Transaction = require('../src/transaction').Transaction
+var Script = require('../src/script')
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
