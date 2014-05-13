@@ -88,8 +88,8 @@ function verifyRaw(ecparams, e, r, s, Q) {
   * Takes two BigIntegers representing r and s and returns a byte array.
   */
 function serializeSig(r, s) {
-  var rBa = r.toByteArraySigned()
-  var sBa = s.toByteArraySigned()
+  var rBa = r.toDERInteger()
+  var sBa = s.toDERInteger()
 
   var sequence = []
   sequence.push(0x02); // INTEGER
@@ -130,8 +130,8 @@ function parseSig(buffer) {
   var sB = buffer.slice(2 + offset)
 
   return {
-    r: BigInteger.fromByteArraySigned(rB),
-    s: BigInteger.fromByteArraySigned(sB)
+    r: BigInteger.fromDERInteger(rB),
+    s: BigInteger.fromDERInteger(sB)
   }
 }
 
