@@ -3,14 +3,14 @@
 var assert = require('assert')
 var Address = require('./address')
 var BigInteger = require('bigi')
-var BufferExt = require('./buffer')
+var bufferutils = require('./bufferutils')
 var Script = require('./script')
 var convert = require('./convert')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ecdsa = require('./ecdsa')
 
-var Transaction = function (doc) {
+function Transaction(doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
   this.version = 1
   this.locktime = 0
@@ -122,17 +122,17 @@ Transaction.prototype.addOutput = function (address, value) {
  */
 Transaction.prototype.serialize = function () {
   var txInSize = this.ins.reduce(function(a, x) {
-    return a + (40 + BufferExt.varIntSize(x.script.buffer.length) + x.script.buffer.length)
+    return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
   }, 0)
 
   var txOutSize = this.outs.reduce(function(a, x) {
-    return a + (8 + BufferExt.varIntSize(x.script.buffer.length) + x.script.buffer.length)
+    return a + (8 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
   }, 0)
 
   var buffer = new Buffer(
     8 +
-    BufferExt.varIntSize(this.ins.length) +
-    BufferExt.varIntSize(this.outs.length) +
+    bufferutils.varIntSize(this.ins.length) +
+    bufferutils.varIntSize(this.outs.length) +
     txInSize +
     txOutSize
   )
@@ -148,11 +148,11 @@ Transaction.prototype.serialize = function () {
     offset += 4
   }
   function writeUInt64(i) {
-    BufferExt.writeUInt64LE(buffer, i, offset)
+    bufferutils.writeUInt64LE(buffer, i, offset)
     offset += 8
   }
   function writeVarInt(i) {
-    var n = BufferExt.writeVarInt(buffer, i, offset)
+    var n = bufferutils.writeVarInt(buffer, i, offset)
     offset += n
   }
 
@@ -294,12 +294,12 @@ Transaction.deserialize = function(buffer) {
     return i
   }
   function readUInt64() {
-    var i = BufferExt.readUInt64LE(buffer, offset)
+    var i = bufferutils.readUInt64LE(buffer, offset)
     offset += 8
     return i
   }
   function readVarInt() {
-    var vi = BufferExt.readVarInt(buffer, offset)
+    var vi = bufferutils.readVarInt(buffer, offset)
     offset += vi.size
     return vi.number
   }
