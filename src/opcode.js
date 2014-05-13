@@ -1,4 +1,4 @@
-var ops = {
+module.exports = {
   // push value
   OP_0         : 0,
   OP_FALSE     : 0,
@@ -135,16 +135,4 @@ var ops = {
   OP_PUBKEYHASH    : 253,
   OP_PUBKEY        : 254,
   OP_INVALIDOPCODE : 255
-}
-
-var reverse = []
-for (var op in ops) {
-  var code = ops[code]
-
-  reverse[code] = op
-}
-
-module.exports = {
-  map: ops,
-  reverseMap: reverse
 }
