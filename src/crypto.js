@@ -1,4 +1,5 @@
 // Crypto, crypto, where art thou crypto
+var assert = require('assert')
 var CryptoJS = require('crypto-js')
 var crypto = require('crypto')
 var convert = require('./convert')
@@ -32,9 +33,23 @@ function sha256(buffer) {
   return crypto.createHash('sha256').update(buffer).digest()
 }
 
+// FIXME: Name not consistent with others
+function HmacSHA512(data, secret) {
+  assert(Buffer.isBuffer(data), 'Expected Buffer for data, got ' + data)
+  assert(Buffer.isBuffer(secret), 'Expected Buffer for secret, got ' + secret)
+
+  var dataWords = convert.bytesToWordArray(data)
+  var secretWords = convert.bytesToWordArray(secret)
+
+  var hash = CryptoJS.HmacSHA512(dataWords, secretWords)
+
+  return new Buffer(convert.wordArrayToBytes(hash))
+}
+
 module.exports = {
   sha1: sha1,
   sha256: sha256,
   hash160: hash160,
-  hash256: hash256
+  hash256: hash256,
+  HmacSHA512: HmacSHA512
 }

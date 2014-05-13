@@ -4,7 +4,6 @@ var convert = require('./convert')
 
 var Address = require('./address')
 var BigInteger = require('bigi')
-var CJS = require('crypto-js')
 var crypto = require('./crypto')
 var ECKey = require('./eckey').ECKey
 var ECPubKey = require('./eckey').ECPubKey
@@ -12,18 +11,6 @@ var networks = require('./networks')
 
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
-
-function HmacSHA512(data, secret) {
-  assert(Buffer.isBuffer(data))
-  assert(Buffer.isBuffer(secret))
-
-  var dataWords = convert.bytesToWordArray(data)
-  var secretWords = convert.bytesToWordArray(secret)
-
-  var hash = CJS.HmacSHA512(dataWords, secretWords)
-
-  return new Buffer(convert.wordArrayToBytes(hash))
-}
 
 function HDWallet(seed, networkString) {
   if (seed == undefined) return; // FIXME: Boo, should be stricter
@@ -34,7 +21,7 @@ function HDWallet(seed, networkString) {
     throw new Error("Unknown network: " + this.network)
   }
 
-  var I = HmacSHA512(seed, HDWallet.MASTER_SECRET)
+  var I = crypto.HmacSHA512(seed, HDWallet.MASTER_SECRET)
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 
@@ -217,7 +204,7 @@ HDWallet.prototype.derive = function(index) {
     ])
   }
 
-  var I = HmacSHA512(data, this.chaincode)
+  var I = crypto.HmacSHA512(data, this.chaincode)
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 

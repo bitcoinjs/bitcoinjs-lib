@@ -2,36 +2,6 @@ var assert = require('assert')
 var Crypto = require('crypto-js')
 var WordArray = Crypto.lib.WordArray
 
-function lpad(str, padString, length) {
-  while (str.length < length) str = padString + str
-  return str
-}
-
-function bytesToHex(bytes) {
-  // FIXME: transitionary fix
-  if (Buffer.isBuffer(bytes)) {
-    return bytes.toString('hex')
-  }
-
-  return bytes.map(function(x) {
-    return lpad(x.toString(16), '0', 2)
-  }).join('')
-}
-
-function hexToBytes(hex) {
-  return hex.match(/../g).map(function(x) {
-    return parseInt(x,16)
-  })
-}
-
-/**
- * Convert a byte array to the number that it represents
- */
-function bytesToNum(bytes) {
-  if (bytes.length === 0) return 0
-  return bytes[0] + 256 * bytesToNum(bytes.slice(1))
-}
-
 function bytesToWords(bytes) {
   assert(Array.isArray(bytes) || Buffer.isBuffer(bytes), 'Input must be a byte array')
   var words = []
@@ -57,15 +27,14 @@ function wordArrayToBytes(wordArray) {
   return wordsToBytes(wordArray.words)
 }
 
-function reverseEndian (hex) {
-  return bytesToHex(hexToBytes(hex).reverse())
+function reverseEndian(hex) {
+  var buffer = new Buffer(hex, 'hex')
+  Array.prototype.reverse.call(buffer)
+
+  return buffer.toString('hex')
 }
 
 module.exports = {
-  lpad: lpad,
-  bytesToHex: bytesToHex,
-  hexToBytes: hexToBytes,
-  bytesToNum: bytesToNum,
   bytesToWords: bytesToWords,
   wordsToBytes: wordsToBytes,
   bytesToWordArray: bytesToWordArray,

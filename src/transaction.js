@@ -68,7 +68,6 @@ Transaction.prototype.addInput = function (tx, outIndex) {
 
   } else {
     hash = typeof tx === "string" ? tx : tx.hash
-    hash = Array.isArray(hash) ? convert.bytesToHex(hash) : hash
   }
 
   this.ins.push(new TransactionIn({

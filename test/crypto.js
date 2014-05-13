@@ -46,4 +46,18 @@ describe('Crypto', function() {
       })
     })
   })
+
+  describe('HMAC SHA512', function() {
+    it('matches the test vector', function() {
+      fixture.before.hex.forEach(function(hex, i) {
+        var data = new Buffer(hex, 'hex')
+        var secret = new Buffer(fixture.after.hmacsha512.secret)
+
+        var actual = crypto.HmacSHA512(data, secret)
+        var expected = fixture.after.hmacsha512.hash[i]
+
+        assert.equal(actual.toString('hex'), expected)
+      })
+    })
+  })
 })
