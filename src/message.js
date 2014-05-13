@@ -3,7 +3,7 @@ var Address = require('./address')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
-var ECPubKey = require('./eckey').ECPubKey
+var ECPubKey = require('./ecpubkey')
 
 // FIXME: incompatible with other networks (Litecoin etc)
 var MAGIC_PREFIX = new Buffer('\x18Bitcoin Signed Message:\n')

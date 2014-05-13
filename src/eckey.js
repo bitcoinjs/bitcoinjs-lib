@@ -4,14 +4,11 @@ var ecdsa = require('./ecdsa')
 var networks = require('./networks')
 var secureRandom = require('secure-random')
 
-var Address = require('./address')
-var crypto = require('./crypto')
+var BigInteger = require('bigi')
+var ECPubKey = require('./ecpubkey')
 
 var sec = require('./sec')
 var ecparams = sec('secp256k1')
-
-var BigInteger = require('bigi')
-var ECPointFp = require('./ec').ECPointFp
 
 function ECKey(D, compressed) {
   assert(D.compareTo(BigInteger.ZERO) > 0, 'Private key must be greater than 0')
@@ -31,6 +28,7 @@ ECKey.fromBuffer = function(buffer, compressed) {
   var D = BigInteger.fromBuffer(buffer)
   return new ECKey(D, compressed)
 }
+
 ECKey.fromHex = function(hex, compressed) {
   return ECKey.fromBuffer(new Buffer(hex, 'hex'), compressed)
 }
@@ -67,6 +65,7 @@ ECKey.prototype.sign = function(hash) {
 ECKey.prototype.toBuffer = function() {
   return this.D.toBuffer(32)
 }
+
 ECKey.prototype.toHex = function() {
   return this.toBuffer().toString('hex')
 }
@@ -82,53 +81,4 @@ ECKey.prototype.toWIF = function(version) {
   return base58check.encode(buffer, version)
 }
 
-//////////////////////////////////////////////////////
-
-function ECPubKey(Q, compressed) {
-  assert(Q instanceof ECPointFp, 'Q must be an ECPointFP')
-
-  if (compressed == undefined) compressed = true
-  assert.strictEqual(typeof compressed, 'boolean', 'Invalid compression flag')
-
-  this.compressed = compressed
-  this.Q = Q
-}
-
-// Static constructors
-ECPubKey.fromBuffer = function(buffer) {
-  var type = buffer.readUInt8(0)
-  assert(type >= 0x02 || type <= 0x04, 'Invalid public key')
-
-  var compressed = (type !== 0x04)
-  assert.strictEqual(buffer.length, compressed ? 33 : 65, 'Invalid public key')
-
-  var Q = ECPointFp.decodeFrom(ecparams.getCurve(), buffer)
-  return new ECPubKey(Q, compressed)
-}
-ECPubKey.fromHex = function(hex) {
-  return ECPubKey.fromBuffer(new Buffer(hex, 'hex'))
-}
-
-// Operations
-ECPubKey.prototype.verify = function(hash, sig) {
-  return ecdsa.verify(hash, sig, this.Q)
-}
-
-ECPubKey.prototype.getAddress = function(version) {
-  version = version || networks.bitcoin.pubKeyHash
-
-  return new Address(crypto.hash160(this.toBuffer()), version)
-}
-
-// Export functions
-ECPubKey.prototype.toBuffer = function() {
-  return new Buffer(this.Q.getEncoded(this.compressed))
-}
-ECPubKey.prototype.toHex = function() {
-  return this.toBuffer().toString('hex')
-}
-
-module.exports = {
-  ECKey: ECKey,
-  ECPubKey: ECPubKey
-}
+module.exports = ECKey

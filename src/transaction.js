@@ -7,7 +7,7 @@ var bufferutils = require('./bufferutils')
 var Script = require('./script')
 var convert = require('./convert')
 var crypto = require('./crypto')
-var ECKey = require('./eckey').ECKey
+var ECKey = require('./eckey')
 var ecdsa = require('./ecdsa')
 
 function Transaction(doc) {
