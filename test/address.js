@@ -1,7 +1,7 @@
 var assert = require('assert')
-var Address = require('..').Address
-var networks = require('..').networks
-var Script = require('..').Script
+var Address = require('../src/address')
+var networks = require('../src/networks')
+var Script = require('../src/script')
 
 var b58fixtures = require('./fixtures/base58')
 var fixtures = require('./fixtures/address')

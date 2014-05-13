@@ -5,8 +5,8 @@ var convert = require('./convert')
 var Address = require('./address')
 var BigInteger = require('bigi')
 var crypto = require('./crypto')
-var ECKey = require('./eckey').ECKey
-var ECPubKey = require('./eckey').ECPubKey
+var ECKey = require('./eckey')
+var ECPubKey = require('./ecpubkey')
 var networks = require('./networks')
 
 var sec = require('./sec')

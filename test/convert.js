@@ -1,5 +1,5 @@
 var assert = require('assert')
-var convert = require('../').convert
+var convert = require('../src/convert')
 
 describe('convert', function() {
   describe('byte array and word array conversions', function(){

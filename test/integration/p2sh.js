@@ -1,12 +1,13 @@
-var assert = require('assert');
+var assert = require('assert')
 
-var Address = require('../../src/address');
-var ECKey = require('../../src/eckey').ECKey;
-var T = require('../../src/transaction');
-var Transaction = T.Transaction;
-var Script = require('../../src/script');
-var networks = require('../../src/networks');
-var crypto = require('../../src/crypto');
+var bitcoin = require('../../')
+var crypto = bitcoin.crypto
+var networks = bitcoin.networks
+
+var Address = bitcoin.Address
+var ECKey = bitcoin.ECKey
+var Transaction = bitcoin.Transaction
+var Script = bitcoin.Script
 
 var helloblock = require('helloblock-js')({
   network: 'testnet'

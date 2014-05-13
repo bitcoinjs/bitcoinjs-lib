@@ -1,6 +1,6 @@
 var assert = require('assert')
 
-var HDWallet = require('../').HDWallet
+var HDWallet = require('../src/hdwallet')
 
 function b2h(buf) {
   assert(Buffer.isBuffer(buf))

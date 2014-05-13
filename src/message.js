@@ -1,18 +1,17 @@
 /// Implements Bitcoin's feature for signing arbitrary messages.
-
 var Address = require('./address')
-var BufferExt = require('./buffer')
+var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
-var ECPubKey = require('./eckey').ECPubKey
+var ECPubKey = require('./ecpubkey')
 
 // FIXME: incompatible with other networks (Litecoin etc)
 var MAGIC_PREFIX = new Buffer('\x18Bitcoin Signed Message:\n')
 
 function magicHash(message) {
   var messageBuffer = new Buffer(message)
-  var lengthBuffer = new Buffer(BufferExt.varIntSize(messageBuffer.length))
-  BufferExt.writeVarInt(lengthBuffer, messageBuffer.length, 0)
+  var lengthBuffer = new Buffer(bufferutils.varIntSize(messageBuffer.length))
+  bufferutils.writeVarInt(lengthBuffer, messageBuffer.length, 0)
 
   var buffer = Buffer.concat([
     MAGIC_PREFIX, lengthBuffer, messageBuffer

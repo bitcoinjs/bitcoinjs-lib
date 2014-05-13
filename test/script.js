@@ -1,9 +1,9 @@
 var assert = require('assert')
-var crypto = require('..').crypto
-var networks = require('..').networks
+var crypto = require('../src/crypto')
+var networks = require('../src/networks')
 
-var Address = require('../src/address.js')
-var Script = require('../src/script.js')
+var Address = require('../src/address')
+var Script = require('../src/script')
 
 var fixtures = require('./fixtures/script')
 
