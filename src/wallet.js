@@ -27,7 +27,7 @@ function Wallet(seed, options) {
 
   // Make a new master key
   this.newMasterKey = function(seed, network) {
-    if (!seed) seed = rng(32, { array: true });
+    seed = seed || new Buffer(rng(32))
     masterkey = new HDNode(seed, network)
 
     // HD first-level child derivation method should be private
