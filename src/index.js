@@ -15,7 +15,7 @@ module.exports = {
   ECPointFp: ec.ECPointFp,
   ECPubKey: require('./ecpubkey'),
   Message: require('./message'),
-  Opcode: require('./opcode'),
+  opcodes: require('./opcodes'),
   HDWallet: require('./hdwallet'),
   Script: require('./script'),
   sec: require('./sec'),

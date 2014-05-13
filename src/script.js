@@ -1,6 +1,6 @@
 var assert = require('assert')
 var crypto = require('./crypto')
-var opcodes = require('./opcode')
+var opcodes = require('./opcodes')
 
 function Script(data) {
   data = data || []
