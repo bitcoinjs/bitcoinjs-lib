@@ -1,6 +1,6 @@
 var assert = require('assert')
 var crypto = require('./crypto')
-var Opcode = require('./opcode')
+var opcodes = require('./opcode').map
 
 function Script(data) {
   data = data || []
@@ -63,16 +63,16 @@ Script.prototype.parse = function() {
     }
 
     var len
-    if (opcode > 0 && opcode < Opcode.map.OP_PUSHDATA1) {
+    if (opcode > 0 && opcode < opcodes.OP_PUSHDATA1) {
       // Read some bytes of data, opcode value is the length of data
       readChunk(opcode)
-    } else if (opcode == Opcode.map.OP_PUSHDATA1) {
+    } else if (opcode == opcodes.OP_PUSHDATA1) {
       len = this.buffer[i++]
       readChunk(len)
-    } else if (opcode == Opcode.map.OP_PUSHDATA2) {
+    } else if (opcode == opcodes.OP_PUSHDATA2) {
       len = (this.buffer[i++] << 8) | this.buffer[i++]
       readChunk(len)
-    } else if (opcode == Opcode.map.OP_PUSHDATA4) {
+    } else if (opcode == opcodes.OP_PUSHDATA4) {
       len = (this.buffer[i++] << 24) |
         (this.buffer[i++] << 16) |
         (this.buffer[i++] << 8) |
@@ -136,23 +136,23 @@ Script.prototype.getOutType = function() {
 
 function isPubkeyhash() {
   return this.chunks.length == 5 &&
-    this.chunks[0] == Opcode.map.OP_DUP &&
-    this.chunks[1] == Opcode.map.OP_HASH160 &&
+    this.chunks[0] == opcodes.OP_DUP &&
+    this.chunks[1] == opcodes.OP_HASH160 &&
     Array.isArray(this.chunks[2]) &&
     this.chunks[2].length === 20 &&
-    this.chunks[3] == Opcode.map.OP_EQUALVERIFY &&
-    this.chunks[4] == Opcode.map.OP_CHECKSIG
+    this.chunks[3] == opcodes.OP_EQUALVERIFY &&
+    this.chunks[4] == opcodes.OP_CHECKSIG
 }
 
 function isPubkey() {
   return this.chunks.length === 2 &&
     Array.isArray(this.chunks[0]) &&
-    this.chunks[1] === Opcode.map.OP_CHECKSIG
+    this.chunks[1] === opcodes.OP_CHECKSIG
 }
 
 function isScripthash() {
-  return this.chunks[this.chunks.length - 1] == Opcode.map.OP_EQUAL &&
-    this.chunks[0] == Opcode.map.OP_HASH160 &&
+  return this.chunks[this.chunks.length - 1] == opcodes.OP_EQUAL &&
+    this.chunks[0] == opcodes.OP_HASH160 &&
     Array.isArray(this.chunks[1]) &&
     this.chunks[1].length === 20 &&
     this.chunks.length == 3
@@ -167,20 +167,20 @@ function isMultisig() {
     // n greater or equal to m
     this.chunks[0] <= this.chunks[this.chunks.length - 2] &&
     // n cannot be 0
-    this.chunks[this.chunks.length - 2] !== Opcode.map.OP_0 &&
+    this.chunks[this.chunks.length - 2] !== opcodes.OP_0 &&
     // n is the size of chunk length minus 3 (m, n, OP_CHECKMULTISIG)
-    this.chunks.length - 3 === this.chunks[this.chunks.length - 2] - Opcode.map.OP_RESERVED &&
+    this.chunks.length - 3 === this.chunks[this.chunks.length - 2] - opcodes.OP_RESERVED &&
     // last chunk is OP_CHECKMULTISIG
-    this.chunks[this.chunks.length - 1] == Opcode.map.OP_CHECKMULTISIG
+    this.chunks[this.chunks.length - 1] == opcodes.OP_CHECKMULTISIG
 }
 
 function isNulldata() {
-  return this.chunks[0] === Opcode.map.OP_RETURN
+  return this.chunks[0] === opcodes.OP_RETURN
 }
 
 function isSmallIntOp(opcode) {
-  return ((opcode == Opcode.map.OP_0) ||
-    ((opcode >= Opcode.map.OP_1) && (opcode <= Opcode.map.OP_16)))
+  return ((opcode == opcodes.OP_0) ||
+    ((opcode >= opcodes.OP_1) && (opcode <= opcodes.OP_16)))
 }
 
 Script.prototype.getHash = function() {
@@ -222,7 +222,7 @@ Script.prototype.getInType = function() {
     Array.isArray(this.chunks[0]) &&
     Array.isArray(this.chunks[1])) {
     return 'pubkeyhash'
-  } else if (this.chunks[0] == Opcode.map.OP_0 &&
+  } else if (this.chunks[0] == opcodes.OP_0 &&
     this.chunks.slice(1).reduce(function(t, chunk, i) {
       return t && Array.isArray(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1)
     }, true)) {
@@ -248,17 +248,17 @@ Script.prototype.writeBytes = function(data) {
   if (Buffer.isBuffer(data)) data = Array.prototype.slice.call(data);
   assert(Array.isArray(data), "Expected a byte array. Got " + data)
 
-  if (data.length < Opcode.map.OP_PUSHDATA1) {
+  if (data.length < opcodes.OP_PUSHDATA1) {
     this.buffer.push(data.length)
   } else if (data.length <= 0xff) {
-    this.buffer.push(Opcode.map.OP_PUSHDATA1)
+    this.buffer.push(opcodes.OP_PUSHDATA1)
     this.buffer.push(data.length)
   } else if (data.length <= 0xffff) {
-    this.buffer.push(Opcode.map.OP_PUSHDATA2)
+    this.buffer.push(opcodes.OP_PUSHDATA2)
     this.buffer.push(data.length & 0xff)
     this.buffer.push((data.length >>> 8) & 0xff)
   } else {
-    this.buffer.push(Opcode.map.OP_PUSHDATA4)
+    this.buffer.push(opcodes.OP_PUSHDATA4)
     this.buffer.push(data.length & 0xff)
     this.buffer.push((data.length >>> 8) & 0xff)
     this.buffer.push((data.length >>> 16) & 0xff)
@@ -272,11 +272,11 @@ Script.prototype.writeBytes = function(data) {
 Script.createPubKeyHashScriptPubKey = function(hash) {
   var script = new Script()
 
-  script.writeOp(Opcode.map.OP_DUP)
-  script.writeOp(Opcode.map.OP_HASH160)
+  script.writeOp(opcodes.OP_DUP)
+  script.writeOp(opcodes.OP_HASH160)
   script.writeBytes(hash)
-  script.writeOp(Opcode.map.OP_EQUALVERIFY)
-  script.writeOp(Opcode.map.OP_CHECKSIG)
+  script.writeOp(opcodes.OP_EQUALVERIFY)
+  script.writeOp(opcodes.OP_CHECKSIG)
 
   return script
 }
@@ -285,9 +285,9 @@ Script.createPubKeyHashScriptPubKey = function(hash) {
 Script.createP2SHScriptPubKey = function(hash) {
   var script = new Script()
 
-  script.writeOp(Opcode.map.OP_HASH160)
+  script.writeOp(opcodes.OP_HASH160)
   script.writeBytes(hash)
-  script.writeOp(Opcode.map.OP_EQUAL)
+  script.writeOp(opcodes.OP_EQUAL)
 
   return script
 }
@@ -296,12 +296,12 @@ Script.createP2SHScriptPubKey = function(hash) {
 Script.createMultisigScriptPubKey = function(m, pubKeys) {
   var script = new Script()
 
-  script.writeOp(Opcode.map.OP_1 + m - 1)
+  script.writeOp(opcodes.OP_1 + m - 1)
   for (var i = 0; i < pubKeys.length; ++i) {
     script.writeBytes(pubKeys[i])
   }
-  script.writeOp(Opcode.map.OP_1 + pubKeys.length - 1)
-  script.writeOp(Opcode.map.OP_CHECKMULTISIG)
+  script.writeOp(opcodes.OP_1 + pubKeys.length - 1)
+  script.writeOp(opcodes.OP_CHECKMULTISIG)
 
   return script
 }
@@ -320,13 +320,13 @@ Script.createMultisigScriptSig = function(signatures, scriptPubKey) {
     assert(isMultisig.call(scriptPubKey))
 
     var m = scriptPubKey.chunks[0]
-    var k = m - (Opcode.map.OP_1 - 1)
+    var k = m - (opcodes.OP_1 - 1)
     assert(k <= signatures.length, 'Not enough signatures provided')
   }
 
   var inScript = new Script()
 
-  inScript.writeOp(Opcode.map.OP_0)
+  inScript.writeOp(opcodes.OP_0)
   signatures.map(function(sig) {
     inScript.writeBytes(sig)
   })
