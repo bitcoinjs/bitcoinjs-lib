@@ -3,12 +3,10 @@ var crypto = require('../').crypto
 var sinon = require('sinon')
 
 var Address = require('..').Address
-var HDNode = require('../src/hdwallet.js')
-var T = require('../src/transaction.js')
-var Transaction = T.Transaction
-var TransactionOut = T.TransactionOut
-var Script = require('../src/script.js')
-var Wallet = require('../src/wallet.js')
+var HDWallet = require('..').HDWallet
+var Script = require('..').Script
+var Transaction = require('..').Transaction
+var Wallet = require('..').Wallet
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
@@ -32,7 +30,7 @@ describe('Wallet', function() {
 
     it("generates m/0' as the main account", function() {
       var mainAccount = wallet.getAccountZero()
-      assert.equal(mainAccount.index, 0 + HDNode.HIGHEST_BIT)
+      assert.equal(mainAccount.index, 0 + HDWallet.HIGHEST_BIT)
       assert.equal(mainAccount.depth, 1)
     })
 

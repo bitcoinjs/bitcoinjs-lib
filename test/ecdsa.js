@@ -1,6 +1,7 @@
 var assert = require('assert')
-var crypto = require('../').crypto
+var crypto = require('..').crypto
 var ecdsa = require('..').ecdsa
+
 var sec = require('..').sec
 var ecparams = sec("secp256k1")
 

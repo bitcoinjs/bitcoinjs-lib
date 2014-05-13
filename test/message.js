@@ -1,7 +1,8 @@
 var assert = require('assert')
-var ECKey = require('../src/eckey').ECKey
-var Message = require('../').Message
-var networks = require('../').networks
+var networks = require('..').networks
+
+var ECKey = require('..').ECKey
+var Message = require('..').Message
 
 var fixtures = require('./fixtures/message')
 
