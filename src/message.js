@@ -3,25 +3,27 @@ var Address = require('./address')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
+var networks = require('./networks')
+
+var Address = require('./address')
 var ECPubKey = require('./ecpubkey')
 
-// FIXME: incompatible with other networks (Litecoin etc)
-var MAGIC_PREFIX = new Buffer('\x18Bitcoin Signed Message:\n')
-
-function magicHash(message) {
+function magicHash(message, network) {
+  var magicPrefix = new Buffer(network.magicPrefix)
   var messageBuffer = new Buffer(message)
   var lengthBuffer = new Buffer(bufferutils.varIntSize(messageBuffer.length))
   bufferutils.writeVarInt(lengthBuffer, messageBuffer.length, 0)
 
   var buffer = Buffer.concat([
-    MAGIC_PREFIX, lengthBuffer, messageBuffer
+    magicPrefix, lengthBuffer, messageBuffer
   ])
   return crypto.hash256(buffer)
 }
 
-// TODO: parameterize compression instead of using ECKey.compressed
-function sign(key, message) {
-  var hash = magicHash(message)
+function sign(key, message, network) {
+  network = network || networks.bitcoin
+
+  var hash = magicHash(message, network)
   var sig = ecdsa.parseSig(key.sign(hash))
   var i = ecdsa.calcPubKeyRecoveryParam(key.pub.Q, sig.r, sig.s, hash)
 
@@ -36,17 +38,20 @@ function sign(key, message) {
   return Buffer.concat([new Buffer([i]), rB, sB], 65)
 }
 
-// FIXME: stricter API?
-function verify(address, sig, message) {
+// TODO: network could be implied from address
+function verify(address, compactSig, message, network) {
   if (typeof address === 'string') {
     address = Address.fromBase58Check(address)
   }
 
-  sig = ecdsa.parseSigCompact(sig)
+  network = network || networks.bitcoin
 
-  var pubKey = new ECPubKey(ecdsa.recoverPubKey(sig.r, sig.s, magicHash(message), sig.i))
-  pubKey.compressed = !!(sig.i & 4)
+  var hash = magicHash(message, network)
+  var sig = ecdsa.parseSigCompact(compactSig)
+  var Q = ecdsa.recoverPubKey(sig.r, sig.s, hash, sig.i)
+  var compressed = !!(sig.i & 4)
 
+  var pubKey = new ECPubKey(Q, compressed)
   return pubKey.getAddress(address.version).toString() === address.toString()
 }
 
