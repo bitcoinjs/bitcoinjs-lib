@@ -6,7 +6,7 @@ var scripts = require('../src/scripts')
 
 var Address = require('../src/address')
 var HDNode = require('../src/hdnode')
-var Transaction = require('../src/transaction').Transaction
+var Transaction = require('../src/transaction')
 var Wallet = require('../src/wallet')
 
 var fixtureTxes = require('./fixtures/mainnet_tx')

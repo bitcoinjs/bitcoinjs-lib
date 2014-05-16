@@ -4,7 +4,7 @@ var rng = require('secure-random')
 
 var Address = require('./address')
 var HDNode = require('./hdnode')
-var Transaction = require('./transaction').Transaction
+var Transaction = require('./transaction')
 
 function Wallet(seed, network) {
   network = network || networks.bitcoin

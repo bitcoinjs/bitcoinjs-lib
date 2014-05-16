@@ -15,9 +15,7 @@ module.exports = {
   HDNode: require('./hdnode'),
   Script: require('./script'),
   scripts: require('./scripts'),
-  Transaction: T.Transaction,
-  TransactionIn: T.TransactionIn,
-  TransactionOut: T.TransactionOut,
+  Transaction: require('./transaction'),
   networks: require('./networks'),
   Wallet: require('./wallet')
 }

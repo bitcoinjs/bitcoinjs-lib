@@ -416,8 +416,4 @@ TransactionOut.prototype.clone = function() {
   })
 }
 
-module.exports = {
-  Transaction: Transaction,
-  TransactionIn: TransactionIn,
-  TransactionOut: TransactionOut
-}
+module.exports = Transaction

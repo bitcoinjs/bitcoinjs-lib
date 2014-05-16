@@ -4,7 +4,7 @@ var scripts = require('../src/scripts')
 
 var Address = require('../src/address')
 var ECKey = require('../src/eckey')
-var Transaction = require('../src/transaction').Transaction
+var Transaction = require('../src/transaction')
 var Script = require('../src/script')
 
 var fixtureTxes = require('./fixtures/mainnet_tx')

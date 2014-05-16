@@ -6,7 +6,7 @@ var networks = require('../src/networks')
 var Address = require('../src/address')
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
-var Transaction = require('../src/transaction').Transaction
+var Transaction = require('../src/transaction')
 var Script = require('../src/script')
 
 var base58_encode_decode = require("./fixtures/core/base58_encode_decode.json")
