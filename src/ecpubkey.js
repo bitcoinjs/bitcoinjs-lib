@@ -48,7 +48,7 @@ ECPubKey.prototype.verify = function(hash, sig) {
 
 // Export functions
 ECPubKey.prototype.toBuffer = function() {
-  return new Buffer(this.Q.getEncoded(this.compressed))
+  return this.Q.getEncoded(this.compressed)
 }
 
 ECPubKey.prototype.toHex = function() {

@@ -303,32 +303,28 @@ ECFieldElementFp.prototype.getByteLength = function () {
   return Math.floor((this.toBigInteger().bitLength() + 7) / 8);
 };
 
-ECPointFp.prototype.getEncoded = function (compressed) {
-  var x = this.getX().toBigInteger();
-  var y = this.getY().toBigInteger();
+ECPointFp.prototype.getEncoded = function(compressed) {
+  var x = this.getX().toBigInteger()
+  var y = this.getY().toBigInteger()
+  var buffer
 
-  // Get value as a 32-byte Buffer
-  // Fixed length based on a patch by bitaddress.org and Casascius
-  var enc = integerToBytes(x, 32);
-
+  // 0x02/0x03 | X
   if (compressed) {
-    if (y.isEven()) {
-      // Compressed even pubkey
-      // M = 02 || X
-      enc.unshift(0x02);
-    } else {
-      // Compressed uneven pubkey
-      // M = 03 || X
-      enc.unshift(0x03);
-    }
+    buffer = new Buffer(33)
+    buffer.writeUInt8(y.isEven() ? 0x02 : 0x03, 0)
+
+  // 0x04 | X | Y
   } else {
-    // Uncompressed pubkey
-    // M = 04 || X || Y
-    enc.unshift(0x04);
-    enc = enc.concat(integerToBytes(y, 32));
+    buffer = new Buffer(65)
+    buffer.writeUInt8(0x04, 0)
+
+    y.toBuffer(32).copy(buffer, 33)
   }
-  return enc;
-};
+
+  x.toBuffer(32).copy(buffer, 1)
+
+  return buffer
+}
 
 ECPointFp.decodeFrom = function (curve, enc) {
   var type = enc[0];

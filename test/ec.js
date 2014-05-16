@@ -35,7 +35,7 @@ describe('ec', function() {
             curve.fromBigInteger(new BigInteger(f.y))
           )
 
-          var encoded = new Buffer(Q.getEncoded(f.compressed))
+          var encoded = Q.getEncoded(f.compressed)
           assert.equal(encoded.toString('hex'), f.hex)
         })
       })
