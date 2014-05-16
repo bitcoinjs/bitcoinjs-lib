@@ -293,14 +293,14 @@ Transaction.fromBuffer = function(buffer) {
     var script = readSlice(scriptLen)
     var sequence = readUInt32()
 
-    ins.push({
+    ins.push(new TransactionIn({
       outpoint: {
         hash: hash.toString('hex'),
-        index: vout,
+        index: vout
       },
       script: Script.fromBuffer(script),
       sequence: sequence
-    })
+    }))
   }
 
   var voutLen = readVarInt()
@@ -310,10 +310,10 @@ Transaction.fromBuffer = function(buffer) {
     var scriptLen = readVarInt()
     var script = readSlice(scriptLen)
 
-    outs.push({
+    outs.push(new TransactionOut({
       value: value,
       script: Script.fromBuffer(script)
-    })
+    }))
   }
 
   var locktime = readUInt32()
