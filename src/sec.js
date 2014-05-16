@@ -9,32 +9,32 @@ var ECPointFp = ECCurveFp.ECPointFp
 
 // constructor
 function X9ECParameters(curve,g,n,h) {
-    this.curve = curve;
-    this.g = g;
-    this.n = n;
-    this.h = h;
+    this.curve = curve
+    this.g = g
+    this.n = n
+    this.h = h
 }
 
 function x9getCurve() {
-    return this.curve;
+    return this.curve
 }
 
 function x9getG() {
-    return this.g;
+    return this.g
 }
 
 function x9getN() {
-    return this.n;
+    return this.n
 }
 
 function x9getH() {
-    return this.h;
+    return this.h
 }
 
-X9ECParameters.prototype.getCurve = x9getCurve;
-X9ECParameters.prototype.getG = x9getG;
-X9ECParameters.prototype.getN = x9getN;
-X9ECParameters.prototype.getH = x9getH;
+X9ECParameters.prototype.getCurve = x9getCurve
+X9ECParameters.prototype.getG = x9getG
+X9ECParameters.prototype.getN = x9getN
+X9ECParameters.prototype.getH = x9getH
 
 // ----------------
 // SECNamedCurves
