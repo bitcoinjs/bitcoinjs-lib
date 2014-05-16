@@ -209,23 +209,26 @@ var ecdsa = {
     return buffer
   },
 
-  parseSigCompact: function (sig) {
-    if (sig.length !== 65) {
-      throw new Error("Signature has the wrong length")
+  parseSigCompact: function (buffer) {
+    assert.equal(buffer.length, 65, 'Invalid signature length')
+    var i = buffer.readUInt8(0) - 27
+
+    // At most 3 bits
+    assert.equal(i, i & 7, 'Invalid signature type')
+    var compressed = !!(i & 4)
+
+    // Recovery param only
+    i = i & 3
+
+    var r = BigInteger.fromBuffer(buffer.slice(1, 33))
+    var s = BigInteger.fromBuffer(buffer.slice(33))
+
+    return {
+      r: r,
+      s: s,
+      i: i,
+      compressed: compressed
     }
-
-    // Signature is prefixed with a type byte storing three bits of
-    // information.
-    var i = sig[0] - 27
-    if (i < 0 || i > 7) {
-      throw new Error("Invalid signature type")
-    }
-
-    var n = ecparams.getN()
-    var r = BigInteger.fromBuffer(sig.slice(1, 33)).mod(n)
-    var s = BigInteger.fromBuffer(sig.slice(33, 65)).mod(n)
-
-    return {r: r, s: s, i: i}
   },
 
   /**

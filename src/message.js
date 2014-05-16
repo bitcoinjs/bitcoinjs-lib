@@ -41,9 +41,8 @@ function verify(address, compactSig, message, network) {
   var hash = magicHash(message, network)
   var sig = ecdsa.parseSigCompact(compactSig)
   var Q = ecdsa.recoverPubKey(sig.r, sig.s, hash, sig.i)
-  var compressed = !!(sig.i & 4)
 
-  var pubKey = new ECPubKey(Q, compressed)
+  var pubKey = new ECPubKey(Q, sig.compressed)
   return pubKey.getAddress(address.version).toString() === address.toString()
 }
 

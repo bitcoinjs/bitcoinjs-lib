@@ -134,10 +134,8 @@ describe('ecdsa', function() {
 
         assert.equal(signature.r.toString(), f.signature.r)
         assert.equal(signature.s.toString(), f.signature.s)
-
-        //TODO
-//        assert.equal(signature.i, f.signature.i)
-//        assert.equal(signature.compressed, f.publicKey.compressed)
+        assert.equal(signature.i, f.signature.i)
+        assert.equal(signature.compressed, f.signature.compressed)
       })
     })
 
