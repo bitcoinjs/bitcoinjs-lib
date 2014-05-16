@@ -32,8 +32,8 @@ describe('Message', function() {
       addr = '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM' // uncompressed
       caddr = '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs' // compressed
 
-      sig = new Buffer('1bc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d', 'hex')
-      csig = new Buffer('1fc25ac0fb503abc9bad23f558742740fafaec1f52deaaf106b9759a5ce84c93921c4a669c5ec3dfeb7e2d7d177a2f49db407900874f6de2f701a4c16783776d8d', 'hex')
+      sig = new Buffer('G8JawPtQOrybrSP1WHQnQPr67B9S3qrxBrl1mlzoTJOSHEpmnF7D3+t+LX0Xei9J20B5AIdPbeL3AaTBZ4N3bY0=', 'base64')
+      csig = new Buffer('H8JawPtQOrybrSP1WHQnQPr67B9S3qrxBrl1mlzoTJOSHEpmnF7D3+t+LX0Xei9J20B5AIdPbeL3AaTBZ4N3bY0=', 'base64')
     })
 
     it('can verify a signed message', function() {
