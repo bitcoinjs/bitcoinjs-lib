@@ -1,51 +1,137 @@
-// Test Vectors for RFC 6979 ECDSA, secp256k1, SHA-256
-module.exports = [
-  {
-    "D": "0000000000000000000000000000000000000000000000000000000000000001",
-    "k": "8f8a276c19f4149656b280621e358cce24f5f52542772691ee69063b74f15d15",
-    "message": "Satoshi Nakamoto",
-    "signature": "934b1ea10a4b3c1757e2b0c017d0b6143ce3c9a7e6a4a49860d7a6ab210ee3d82442ce9d2b916064108014783e923ec36b49743e2ffa1c4496f01a512aafd9e5"
-  },
-  {
-    "D": "0000000000000000000000000000000000000000000000000000000000000001",
-    "k": "38aa22d72376b4dbc472e06c3ba403ee0a394da63fc58d88686c611aba98d6b3",
-    "message": "All those moments will be lost in time, like tears in rain. Time to die...",
-    "signature": "8600dbd41e348fe5c9465ab92d23e3db8b98b873beecd930736488696438cb6b547fe64427496db33bf66019dacbf0039c04199abb0122918601db38a72cfc21"
-  },
-  {
-    "D": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140",
-    "k": "33a19b60e25fb6f4435af53a3d42d493644827367e6453928554f43e49aa6f90",
-    "message": "Satoshi Nakamoto",
-    "signature": "fd567d121db66e382991534ada77a6bd3106f0a1098c231e47993447cd6af2d06b39cd0eb1bc8603e159ef5c20a5c8ad685a45b06ce9bebed3f153d10d93bed5"
-  },
-  {
-    "D": "f8b8af8ce3c7cca5e300d33939540c10d45ce001b8f252bfbc57ba0342904181",
-    "k": "525a82b70e67874398067543fd84c83d30c175fdc45fdeee082fe13b1d7cfdf1",
-    "message": "Alan Turing",
-    "signature": "7063ae83e7f62bbb171798131b4a0564b956930092b33b07b395615d9ec7e15c58dfcc1e00a35e1572f366ffe34ba0fc47db1e7189759b9fb233c5b05ab388ea"
-  },
-  {
-    "D": "e91671c46231f833a6406ccbea0e3e392c76c167bac1cb013f6f1013980455c2",
-    "k": "1f4b84c23a86a221d233f2521be018d9318639d5b8bbd6374a8a59232d16ad3d",
-    "message": "There is a computer disease that anybody who works with computers knows about. It's a very serious disease and it interferes completely with the work. The trouble with computers is that you 'play' with them!",
-    "signature": "b552edd27580141f3b2a5463048cb7cd3e047b97c9f98076c32dbdf85a68718b279fa72dd19bfae05577e06c7c0c1900c371fcd5893f7e1d56a37d30174671f6"
-  },
-  {
-    "D": "0000000000000000000000000000000000000000000000000000000000000001",
-    "k": "ec633bd56a5774a0940cb97e27a9e4e51dc94af737596a0c5cbb3d30332d92a5",
-    "message": "Everything should be made as simple as possible, but not simpler.",
-    "signature": "33a69cd2065432a30f3d1ce4eb0d59b8ab58c74f27c41a7fdb5696ad4e6108c96f807982866f785d3f6418d24163ddae117b7db4d5fdf0071de069fa54342262"
-  },
-  {
-    "D": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140",
-    "k": "9dc74cbfd383980fb4ae5d2680acddac9dac956dca65a28c80ac9c847c2374e4",
-    "message": "Equations are more important to me, because politics is for the present, but an equation is something for eternity.",
-    "signature": "54c4a33c6423d689378f160a7ff8b61330444abb58fb470f96ea16d99d4a2fed07082304410efa6b2943111b6a4e0aaa7b7db55a07e9861d1fb3cb1f421044a5"
-  },
-  {
-    "D": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140",
-    "k": "fd27071f01648ebbdd3e1cfbae48facc9fa97edc43bbbc9a7fdc28eae13296f5",
-    "message": "Not only is the Universe stranger than we think, it is stranger than we can think.",
-    "signature": "ff466a9f1b7b273e2f4c3ffe032eb2e814121ed18ef84665d0f515360dab3dd06fc95f5132e5ecfdc8e5e6e616cc77151455d46ed48f5589b7db7771a332b283"
+module.exports = {
+  "valid": [
+    {
+      "D": "0000000000000000000000000000000000000000000000000000000000000001",
+      "k": "ec633bd56a5774a0940cb97e27a9e4e51dc94af737596a0c5cbb3d30332d92a5",
+      "message": "Everything should be made as simple as possible, but not simpler.",
+      "compact": "1f33a69cd2065432a30f3d1ce4eb0d59b8ab58c74f27c41a7fdb5696ad4e6108c96f807982866f785d3f6418d24163ddae117b7db4d5fdf0071de069fa54342262",
+      "DER": "3044022033a69cd2065432a30f3d1ce4eb0d59b8ab58c74f27c41a7fdb5696ad4e6108c902206f807982866f785d3f6418d24163ddae117b7db4d5fdf0071de069fa54342262",
+      "signature": {
+        "r": "23362334225185207751494092901091441011938859014081160902781146257181456271561",
+        "s": "50433721247292933944369538617440297985091596895097604618403996029256432099938",
+        "i": 0,
+        "compressed": true
+      }
+    },
+    {
+      "D": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140",
+      "k": "9dc74cbfd383980fb4ae5d2680acddac9dac956dca65a28c80ac9c847c2374e4",
+      "message": "Equations are more important to me, because politics is for the present, but an equation is something for eternity.",
+      "compact": "1b54c4a33c6423d689378f160a7ff8b61330444abb58fb470f96ea16d99d4a2fed07082304410efa6b2943111b6a4e0aaa7b7db55a07e9861d1fb3cb1f421044a5",
+      "DER": "3044022054c4a33c6423d689378f160a7ff8b61330444abb58fb470f96ea16d99d4a2fed022007082304410efa6b2943111b6a4e0aaa7b7db55a07e9861d1fb3cb1f421044a5",
+      "signature": {
+        "r": "38341707918488238920692284707283974715538935465589664377561695343399725051885",
+        "s": "3180566392414476763164587487324397066658063772201694230600609996154610926757",
+        "i": 0,
+        "compressed": false
+      }
+    },
+    {
+      "D": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140",
+      "k": "fd27071f01648ebbdd3e1cfbae48facc9fa97edc43bbbc9a7fdc28eae13296f5",
+      "message": "Not only is the Universe stranger than we think, it is stranger than we can think.",
+      "compact": "1fff466a9f1b7b273e2f4c3ffe032eb2e814121ed18ef84665d0f515360dab3dd06fc95f5132e5ecfdc8e5e6e616cc77151455d46ed48f5589b7db7771a332b283",
+      "DER": "3045022100ff466a9f1b7b273e2f4c3ffe032eb2e814121ed18ef84665d0f515360dab3dd002206fc95f5132e5ecfdc8e5e6e616cc77151455d46ed48f5589b7db7771a332b283",
+      "signature": {
+        "r": "115464191557905790016094131873849783294273568009648050793030031933291767741904",
+        "s": "50562520307781850052192542766631199590053690478900449960232079510155113443971",
+        "i": 0,
+        "compressed": true
+      }
+    },
+    {
+      "D": "0000000000000000000000000000000000000000000000000000000000000001",
+      "k": "f0cd2ba5fc7c183de589f6416220a36775a146740798756d8d949f7166dcc87f",
+      "message": "How wonderful that we have met with a paradox. Now we have some hope of making progress.",
+      "compact": "1cc0dafec8251f1d5010289d210232220b03202cba34ec11fec58b3e93a85b91d375afdc06b7d6322a590955bf264e7aaa155847f614d80078a90292fe205064d3",
+      "DER": "3045022100c0dafec8251f1d5010289d210232220b03202cba34ec11fec58b3e93a85b91d3022075afdc06b7d6322a590955bf264e7aaa155847f614d80078a90292fe205064d3",
+      "signature": {
+        "r": "87230998027579607140680851455601772643840468630989315269459846730712163783123",
+        "s": "53231320085894623106179381504478252331065330583563809963303318469380290929875",
+        "i": 1,
+        "compressed": false
+      }
+    },
+    {
+      "D": "69ec59eaa1f4f2e36b639716b7c30ca86d9a5375c7b38d8918bd9c0ebc80ba64",
+      "k": "6bb4a594ad57c1aa22dbe991a9d8501daf4688bf50a4892ef21bd7c711afda97",
+      "message": "Computer science is no more about computers than astronomy is about telescopes.",
+      "compact": "1f7186363571d65e084e7f02b0b77c3ec44fb1b257dee26274c38c928986fea45d0de0b38e06807e46bda1f1e293f4f6323e854c86d58abdd00c46c16441085df6",
+      "DER": "304402207186363571d65e084e7f02b0b77c3ec44fb1b257dee26274c38c928986fea45d02200de0b38e06807e46bda1f1e293f4f6323e854c86d58abdd00c46c16441085df6",
+      "signature": {
+        "r": "51348483531757779992459563033975330355971795607481991320287437101831125115997",
+        "s": "6277080015686056199074771961940657638578000617958603212944619747099038735862",
+        "i": 0,
+        "compressed": true
+      }
+    },
+    {
+      "D": "00000000000000000000000000007246174ab1e92e9149c6e446fe194d072637",
+      "k": "097b5c8ee22c3ea78a4d3635e0ff6fe85a1eb92ce317ded90b9e71aab2b861cb",
+      "message": "...if you aren't, at any given time, scandalized by code you wrote five or even three years ago, you're not learning anywhere near enough",
+      "compact": "1cfbfe5076a15860ba8ed00e75e9bd22e05d230f02a936b653eb55b61c99dda4870e68880ebb0050fe4312b1b1eb0899e1b82da89baa5b895f612619edf34cbd37",
+      "DER": "3045022100fbfe5076a15860ba8ed00e75e9bd22e05d230f02a936b653eb55b61c99dda48702200e68880ebb0050fe4312b1b1eb0899e1b82da89baa5b895f612619edf34cbd37",
+      "signature": {
+        "r": "113979859486826658566290715281614250298918272782414232881639314569529560769671",
+        "s": "6517071009538626957379450615706485096874328019806177698938278220732027419959",
+        "i": 1,
+        "compressed": false
+      }
+    },
+    {
+      "D": "000000000000000000000000000000000000000000056916d0f9b31dc9b637f3",
+      "k": "19355c36c8cbcdfb2382e23b194b79f8c97bf650040fc7728dfbf6b39a97c25b",
+      "message": "The question of whether computers can think is like the question of whether submarines can swim.",
+      "compact": "20cde1302d83f8dd835d89aef803c74a119f561fbaef3eb9129e45f30de86abbf906ce643f5049ee1f27890467b77a6a8e11ec4661cc38cd8badf90115fbd03cef",
+      "DER": "3045022100cde1302d83f8dd835d89aef803c74a119f561fbaef3eb9129e45f30de86abbf9022006ce643f5049ee1f27890467b77a6a8e11ec4661cc38cd8badf90115fbd03cef",
+      "signature": {
+        "r": "93122007060065279508564838030979550535085999589142852106617159184757394422777",
+        "s": "3078539468410661027472930027406594684630312677495124015420811882501887769839",
+        "i": 1,
+        "compressed": true
+      }
+    }
+  ],
+  "invalid": {
+    "compact": [
+      {
+        "description": "Invalid signature parameters",
+        "hex": "23987ceade6a304fc5823ab38f99fc3c5f772a2d3e89ea05931e2726105fc53b9e601fc3231f35962c714fcbce5c95b427496edc7ae8b3d12e93791d7629795b62"
+      },
+      {
+        "description": "Signature too long",
+        "hex": "1c987ceade6a304fc5823ab38f99fc3c5f772a2d3e89ea05931e2726105fc53b9e601fc3231f35962c714fcbce5c95b427496edc7ae8b3d12e93791d7629795b62000000"
+      },
+      {
+        "description": "Signature too short",
+        "hex": "1c987ceade6a304fc5823ab38f99fc3c5f772a2d3e89ea05931e2726105fc53b9e601fc3231f35962c714fcbce5c95b427496edc7ae8b3d12e9379"
+      }
+    ],
+    "DER": [
+      {
+        "description": "Invalid sequence length",
+        "hex": "30ff0204ffffffff0204ffffffff"
+      },
+      {
+        "description": "Invalid integer(s) length",
+        "hex": "30080201ffffffff0201ffffffff"
+      },
+      {
+        "description": "Invalid sequence tag",
+        "hex": "ff080204ffffffff0204ffffffff"
+      },
+      {
+        "description": "Invalid integer tag",
+        "hex": "30080304ffffffff0304ffffffff"
+      },
+      {
+        "description": "Sequence too short",
+        "hex": "30080304ffffffff0304ff"
+      },
+      {
+        "description": "Sequence too long",
+        "hex": "30080304ffffffff0304ffffffffffffff"
+      }
+    ]
   }
-]
+}

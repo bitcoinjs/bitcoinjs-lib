@@ -204,6 +204,21 @@ var ecdsa = {
     return {r: r, s: s}
   },
 
+  serializeSigCompact: function(r, s, i, compressed) {
+    if (compressed) {
+      i += 4
+    }
+
+    i += 27
+
+    var buffer = new Buffer(65)
+    buffer.writeUInt8(i, 0)
+    r.toBuffer(32).copy(buffer, 1)
+    s.toBuffer(32).copy(buffer, 33)
+
+    return buffer
+  },
+
   parseSigCompact: function (sig) {
     if (sig.length !== 65) {
       throw new Error("Signature has the wrong length")

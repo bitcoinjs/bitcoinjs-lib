@@ -16,12 +16,12 @@ var fixtures = require('./fixtures/ecdsa.js')
 describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
     it('matches the test vectors', function() {
-      fixtures.forEach(function(f) {
+      fixtures.valid.forEach(function(f) {
         var priv = BigInteger.fromHex(f.D)
         var h1 = crypto.sha256(f.message)
 
         var k = ecdsa.deterministicGenerateK(h1, priv)
-        assert.deepEqual(k.toHex(), f.k)
+        assert.equal(k.toHex(), f.k)
       })
     })
   })
@@ -41,14 +41,14 @@ describe('ecdsa', function() {
 
   describe('sign', function() {
     it('matches the test vectors', function() {
-      fixtures.forEach(function(f) {
+      fixtures.valid.forEach(function(f) {
         var D = BigInteger.fromHex(f.D)
         var priv = new ECKey(D)
         var hash = crypto.sha256(f.message)
         var sig = ecdsa.parseSig(priv.sign(hash))
 
-        assert.equal(sig.r.toHex(), f.signature.slice(0, 64))
-        assert.equal(sig.s.toHex(), f.signature.slice(64))
+        assert.equal(sig.r.toString(), f.signature.r)
+        assert.equal(sig.s.toString(), f.signature.s)
       })
     })
 
@@ -65,15 +65,89 @@ describe('ecdsa', function() {
 
   describe('verifyRaw', function() {
     it('matches the test vectors', function() {
-      fixtures.forEach(function(f) {
+      fixtures.valid.forEach(function(f) {
         var D = BigInteger.fromHex(f.D)
         var priv = new ECKey(D)
 
-        var r = BigInteger.fromHex(f.signature.slice(0, 64))
-        var s = BigInteger.fromHex(f.signature.slice(64))
+        var r = new BigInteger(f.signature.r)
+        var s = new BigInteger(f.signature.s)
         var e = BigInteger.fromBuffer(crypto.sha256(f.message))
 
         assert(ecdsa.verifyRaw(e, r, s, priv.pub.Q))
+      })
+    })
+  })
+
+  describe('serializeSig', function() {
+    it('encodes a DER signature', function() {
+      fixtures.valid.forEach(function(f) {
+        var r = new BigInteger(f.signature.r)
+        var s = new BigInteger(f.signature.s)
+
+        var signature = new Buffer(ecdsa.serializeSig(r, s))
+        assert.equal(signature.toString('hex'), f.DER)
+      })
+    })
+  })
+
+  describe('parseSig', function() {
+    it('decodes the correct signature', function() {
+      fixtures.valid.forEach(function(f) {
+        var buffer = new Buffer(f.DER, 'hex')
+        var signature = ecdsa.parseSig(buffer)
+
+        assert.equal(signature.r.toString(), f.signature.r)
+        assert.equal(signature.s.toString(), f.signature.s)
+      })
+    })
+
+    fixtures.invalid.DER.forEach(function(f) {
+      it('throws on ' + f.description, function() {
+        var buffer = new Buffer(f.hex)
+
+        assert.throws(function() {
+          ecdsa.parseSig(buffer)
+        })
+      })
+    })
+  })
+
+  describe('serializeSigCompact', function() {
+    it('encodes a compact signature', function() {
+      fixtures.valid.forEach(function(f) {
+        var r = new BigInteger(f.signature.r)
+        var s = new BigInteger(f.signature.s)
+        var i = f.signature.i
+        var compressed = f.signature.compressed
+
+        var signature = ecdsa.serializeSigCompact(r, s, i, compressed)
+        assert.equal(signature.toString('hex'), f.compact)
+      })
+    })
+  })
+
+  describe('parseSigCompact', function() {
+    it('decodes the correct signature', function() {
+      fixtures.valid.forEach(function(f) {
+        var buffer = new Buffer(f.compact, 'hex')
+        var signature = ecdsa.parseSigCompact(buffer)
+
+        assert.equal(signature.r.toString(), f.signature.r)
+        assert.equal(signature.s.toString(), f.signature.s)
+
+        //TODO
+//        assert.equal(signature.i, f.signature.i)
+//        assert.equal(signature.compressed, f.publicKey.compressed)
+      })
+    })
+
+    fixtures.invalid.compact.forEach(function(f) {
+      it('throws on ' + f.description, function() {
+        var buffer = new Buffer(f.hex)
+
+        assert.throws(function() {
+          ecdsa.parseSigCompact(buffer)
+        })
       })
     })
   })
