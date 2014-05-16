@@ -26,7 +26,9 @@ function HDWallet(seed, networkString) {
   var IR = I.slice(32)
 
   // In case IL is 0 or >= n, the master key is invalid (handled by ECKey.fromBuffer)
-  this.priv = ECKey.fromBuffer(IL, true)
+  var pIL = BigInteger.fromBuffer(IL)
+
+  this.priv = new ECKey(pIL, true)
   this.pub = this.priv.pub
 
   this.chaincode = IR
@@ -103,7 +105,10 @@ HDWallet.fromBuffer = function(input) {
   // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
   // public keys, 0x00 + k for private keys)
   if (type == 'priv') {
-    hd.priv = ECKey.fromBuffer(input.slice(46, 78), true)
+    assert.equal(input.readUInt8(45), 0, 'Invalid private key')
+    var D = BigInteger.fromBuffer(input.slice(46, 78))
+
+    hd.priv = new ECKey(D, true)
     hd.pub = hd.priv.pub
   } else {
     hd.pub = ECPubKey.fromBuffer(input.slice(45, 78), true)
@@ -153,7 +158,7 @@ HDWallet.prototype.toBuffer = function(priv) {
 
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
-    this.priv.toBuffer().copy(buffer, 46)
+    this.priv.D.toBuffer(32).copy(buffer, 46)
   } else {
 
     // X9.62 encoding for public keys
