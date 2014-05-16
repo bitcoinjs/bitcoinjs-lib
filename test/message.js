@@ -7,10 +7,10 @@ var Message = require('../src/message')
 var fixtures = require('./fixtures/message')
 
 describe('Message', function() {
-  var msg
+  var message
 
   beforeEach(function() {
-    msg = 'vires is numeris'
+    message = 'vires is numeris'
   })
 
   describe('magicHash', function() {
@@ -36,8 +36,8 @@ describe('Message', function() {
     })
 
     it('can verify a signed message', function() {
-      assert.ok(Message.verify(addr, sig, msg))
-      assert.ok(Message.verify(caddr, csig, msg))
+      assert.ok(Message.verify(addr, sig, message))
+      assert.ok(Message.verify(caddr, csig, message))
     })
 
     it('will fail for the wrong message', function() {
@@ -46,50 +46,34 @@ describe('Message', function() {
     })
 
     it('will fail for the wrong public key', function() {
-      assert.ok(!Message.verify('1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a', sig, msg))
-      assert.ok(!Message.verify('1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9', csig, msg))
+      assert.ok(!Message.verify('1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a', sig, message))
+      assert.ok(!Message.verify('1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9', csig, message))
     })
 
     it('supports alternate network addresses', function() {
       var taddr = 'mxnQZKxSKjzaMgrdXzk35rif3u62TLDrg9'
       var tsig = new Buffer('IGucnrTku3KLCCHUMwq9anawfrlN8RK1HWMN+10LhsHJeysBdWfj5ohJcS/+oqrlVFNvEgbgEeAQUL6r3sZwnj8=', 'base64')
 
-      assert.ok(Message.verify(taddr, tsig, msg))
+      assert.ok(Message.verify(taddr, tsig, message))
       assert.ok(!Message.verify(taddr, tsig, 'foobar'))
     })
 
     it('does not cross verify (compressed/uncompressed)', function() {
-      assert.ok(!Message.verify(addr, csig, msg))
-      assert.ok(!Message.verify(caddr, sig, msg))
+      assert.ok(!Message.verify(addr, csig, message))
+      assert.ok(!Message.verify(caddr, sig, message))
     })
   })
 
   describe('signing', function() {
-    describe('using the uncompressed public key', function(){
-      it('gives same signature as a compressed public key', function() {
-        var key = ECKey.makeRandom(false) // uncompressed
-        var sig = Message.sign(key, msg)
+    it('gives matching signatures irrespective of point compression', function() {
+      var privKey = ECKey.makeRandom(false)
+      var compressedKey = new ECKey(privKey.D, true)
 
-        var compressedKey = new ECKey(key.D, true) // compressed clone
-        var csig = Message.sign(compressedKey, msg)
+      var sig = Message.sign(privKey, message)
+      var csig = Message.sign(compressedKey, message)
 
-        var addr = key.pub.getAddress()
-        var caddr = compressedKey.pub.getAddress()
-        assert.ok(Message.verify(addr, sig, msg))
-        assert.ok(Message.verify(caddr, csig, msg))
-        assert.notDeepEqual(sig.slice(0, 2), csig.slice(0, 2)) // unequal compression flags
-        assert.deepEqual(sig.slice(2), csig.slice(2)) // equal signatures
-      })
-    })
-
-    describe('testnet address', function(){
-      it('works', function(){
-        var key = ECKey.makeRandom()
-        var sig = Message.sign(key, msg)
-
-        var addr = key.pub.getAddress(networks.testnet.pubKeyHash)
-        assert(Message.verify(addr, sig, msg))
-      })
+      assert.notDeepEqual(sig.slice(0, 2), csig.slice(0, 2)) // unequal compression flags
+      assert.deepEqual(sig.slice(2), csig.slice(2)) // equal signatures
     })
   })
 })
