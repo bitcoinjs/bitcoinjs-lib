@@ -38,17 +38,14 @@ describe('Message', function() {
 
     it('can verify a signed message', function() {
       assert.ok(Message.verify(addr, sig, message))
-      assert.ok(Message.verify(caddr, csig, message))
     })
 
     it('will fail for the wrong message', function() {
       assert.ok(!Message.verify(addr, sig, 'foobar'))
-      assert.ok(!Message.verify(caddr, csig, 'foobar'))
     })
 
-    it('will fail for the wrong public key', function() {
+    it('will fail for the wrong address', function() {
       assert.ok(!Message.verify('1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a', sig, message))
-      assert.ok(!Message.verify('1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9', csig, message))
     })
 
     it('does not cross verify (compressed/uncompressed)', function() {
