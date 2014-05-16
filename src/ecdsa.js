@@ -164,7 +164,7 @@ var ecdsa = {
   },
 
   /**
-   * Parses a byte array containing a DER-encoded signature.
+   * Parses a buffer containing a DER-encoded signature.
    *
    * This function will return an object of the form:
    *
@@ -173,35 +173,25 @@ var ecdsa = {
    *   s: BigInteger
    * }
    */
-  parseSig: function (sig) {
-    if(Array.isArray(sig)) sig = new Buffer(sig);
+  parseSig: function (buffer) {
+    if (Array.isArray(buffer)) buffer = new Buffer(buffer) // FIXME: transitionary
 
-    var cursor
-    if (sig[0] != 0x30) {
-      throw new Error("Signature not a valid DERSequence")
+    assert.equal(buffer.readUInt8(0), 0x30, 'Not a DER sequence')
+    assert.equal(buffer.readUInt8(1), buffer.length - 2, 'Invalid sequence length')
+
+    assert.equal(buffer.readUInt8(2), 0x02, 'Expected DER integer')
+    var rLen = buffer.readUInt8(3)
+    var rB = buffer.slice(4, 4 + rLen)
+
+    var offset = 4 + rLen
+    assert.equal(buffer.readUInt8(offset), 0x02, 'Expected a 2nd DER integer')
+    var sLen = buffer.readUInt8(1 + offset)
+    var sB = buffer.slice(2 + offset)
+
+    return {
+      r: BigInteger.fromByteArraySigned(rB),
+      s: BigInteger.fromByteArraySigned(sB)
     }
-
-    cursor = 2
-    if (sig[cursor] != 0x02) {
-      throw new Error("First element in signature must be a DERInteger")
-    }
-    var rBa = sig.slice(cursor+2, cursor+2+sig[cursor+1])
-
-    cursor += 2+sig[cursor+1]
-    if (sig[cursor] != 0x02) {
-      throw new Error("Second element in signature must be a DERInteger")
-    }
-    var sBa = sig.slice(cursor+2, cursor+2+sig[cursor+1])
-
-    cursor += 2+sig[cursor+1]
-
-    //if (cursor != sig.length)
-    //  throw new Error("Extra bytes in signature")
-
-    var r = BigInteger.fromBuffer(rBa)
-    var s = BigInteger.fromBuffer(sBa)
-
-    return {r: r, s: s}
   },
 
   serializeSigCompact: function(r, s, i, compressed) {
