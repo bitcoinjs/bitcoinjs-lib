@@ -6,6 +6,8 @@ var ecparams = sec('secp256k1')
 var BigInteger = require('bigi')
 var ECPointFp = require('../src/ec').ECPointFp
 
+var fixtures = require('./fixtures/ec.js')
+
 describe('ec', function() {
   describe('ECPointFp', function() {
     it('behaves correctly', function() {
@@ -22,21 +24,49 @@ describe('ec', function() {
 
       assert.ok(P.validate(), "kG validates as a public key")
     })
-  })
 
-  describe('decodeFrom', function() {
-    it('decodes compressed ECPoints', function() {
-      var s = new Buffer('02789ece95adf35fb3de994b8b16c90166736d70913a18378fff79503e8c5db7fb', 'hex')
-      var Q = ECPointFp.decodeFrom(ecparams.getCurve(), s)
-      assert.ok(Q)
-      assert.ok(Q.validate())
+    describe('getEncoded', function() {
+      it('encodes a point correctly', function() {
+        fixtures.valid.ECPointFp.forEach(function(f) {
+          var curve = ecparams.getCurve()
+          var Q = new ECPointFp(
+            curve,
+            curve.fromBigInteger(new BigInteger(f.x)),
+            curve.fromBigInteger(new BigInteger(f.y))
+          )
+
+          var encoded = new Buffer(Q.getEncoded(f.compressed))
+          assert.equal(encoded.toString('hex'), f.hex)
+        })
+      })
     })
 
-    it('decodes uncompressed ECPoints', function() {
-      var s = new Buffer('0486f356006a38b847bedec1bf47013776925d939d5a35a97a4d1263e550c7f1ab5aba44ab74d22892097a0e851addf07ba97e33416df5affaceeb35d5607cd23c', 'hex')
-      var Q = ECPointFp.decodeFrom(ecparams.getCurve(), s)
-      assert.ok(Q)
-      assert.ok(Q.validate())
+    describe('decodeFrom', function() {
+      it('decodes the correct point', function() {
+        fixtures.valid.ECPointFp.forEach(function(f) {
+          var curve = ecparams.getCurve()
+          var buffer = new Buffer(f.hex, 'hex')
+
+          var decoded = ECPointFp.decodeFrom(curve, buffer)
+          assert.equal(decoded.getX().toBigInteger().toString(), f.x)
+          assert.equal(decoded.getY().toBigInteger().toString(), f.y)
+
+          // TODO
+//          assert.equal(decoded.compressed, f.compressed)
+        })
+      })
+
+      // FIXME
+  //    fixtures.invalid.ECPointFp.forEach(function(f) {
+  //      it('throws on ' + f.description, function() {
+  //        var curve = ecparams.getCurve()
+  //        var buffer = new Buffer(f.hex, 'hex')
+  //
+  //        assert.throws(function() {
+  //          ECPointFp.decodeFrom(curve, buffer)
+  //        })
+  //      })
+  //    })
     })
   })
 })
