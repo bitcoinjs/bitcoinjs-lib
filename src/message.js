@@ -27,15 +27,7 @@ function sign(key, message, network) {
   var sig = ecdsa.parseSig(key.sign(hash))
   var i = ecdsa.calcPubKeyRecoveryParam(key.pub.Q, sig.r, sig.s, hash)
 
-  i += 27
-  if (key.pub.compressed) {
-    i += 4
-  }
-
-  var rB = sig.r.toBuffer(32)
-  var sB = sig.s.toBuffer(32)
-
-  return Buffer.concat([new Buffer([i]), rB, sB], 65)
+  return ecdsa.serializeSigCompact(sig.r, sig.s, i, key.pub.compressed)
 }
 
 // TODO: network could be implied from address
