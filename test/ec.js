@@ -48,25 +48,22 @@ describe('ec', function() {
           var buffer = new Buffer(f.hex, 'hex')
 
           var decoded = ECPointFp.decodeFrom(curve, buffer)
-          assert.equal(decoded.getX().toBigInteger().toString(), f.x)
-          assert.equal(decoded.getY().toBigInteger().toString(), f.y)
-
-          // TODO
-//          assert.equal(decoded.compressed, f.compressed)
+          assert.equal(decoded.Q.getX().toBigInteger().toString(), f.x)
+          assert.equal(decoded.Q.getY().toBigInteger().toString(), f.y)
+          assert.equal(decoded.compressed, f.compressed)
         })
       })
 
-      // FIXME
-  //    fixtures.invalid.ECPointFp.forEach(function(f) {
-  //      it('throws on ' + f.description, function() {
-  //        var curve = ecparams.getCurve()
-  //        var buffer = new Buffer(f.hex, 'hex')
-  //
-  //        assert.throws(function() {
-  //          ECPointFp.decodeFrom(curve, buffer)
-  //        })
-  //      })
-  //    })
+      fixtures.invalid.ECPointFp.forEach(function(f) {
+        it('throws on ' + f.description, function() {
+          var curve = ecparams.getCurve()
+          var buffer = new Buffer(f.hex, 'hex')
+
+          assert.throws(function() {
+            ECPointFp.decodeFrom(curve, buffer)
+          })
+        })
+      })
     })
   })
 })

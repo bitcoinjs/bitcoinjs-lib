@@ -2,6 +2,7 @@
 // Ported loosely from BouncyCastle's Java EC code
 // Only Fp curves implemented for now
 
+var assert = require('assert')
 var BigInteger = require('bigi')
 
 function ECFieldElementFp(q,x) {
@@ -326,34 +327,43 @@ ECPointFp.prototype.getEncoded = function(compressed) {
   return buffer
 }
 
-ECPointFp.decodeFrom = function (curve, enc) {
-  var type = enc[0];
-  var dataLen = enc.length-1;
+var SEVEN = BigInteger.valueOf(7)
 
-  // Extract x and y as byte arrays
-  if (type == 4) {
-    var xBa = enc.slice(1, 1 + dataLen/2),
-        yBa = enc.slice(1 + dataLen/2, 1 + dataLen),
-        x = BigInteger.fromBuffer(xBa),
-        y = BigInteger.fromBuffer(yBa);
-  }
-  else {
-    var xBa = enc.slice(1),
-        x = BigInteger.fromBuffer(xBa),
-        p = curve.getQ(),
-        xCubedPlus7 = x.multiply(x).multiply(x).add(new BigInteger('7')).mod(p),
-        pPlus1Over4 = p.add(new BigInteger('1'))
-                       .divide(new BigInteger('4')),
-        y = xCubedPlus7.modPow(pPlus1Over4,p);
-    if (y.mod(new BigInteger('2')).toString() != ''+(type % 2)) {
-        y = p.subtract(y)
-    }
+ECPointFp.decodeFrom = function (curve, buffer) {
+  var type = buffer.readUInt8(0)
+  var compressed = type !== 0x04
+  var x = BigInteger.fromBuffer(buffer.slice(1, 33))
+  var y
+
+  if (compressed) {
+    assert.equal(buffer.length, 33, 'Invalid sequence length')
+    assert(type === 0x02 || type === 0x03, 'Invalid sequence tag')
+
+    var isYEven = type === 0x03
+    var p = curve.getQ()
+
+    // We precalculate (p + 1) / 4 where p is the field order
+    var P_OVER_FOUR = p.add(BigInteger.ONE).shiftRight(2)
+
+    // Convert x to point
+    var alpha = x.square().multiply(x).add(SEVEN).mod(p)
+    var beta = alpha.modPow(P_OVER_FOUR, p)
+
+    y = (beta.isEven() ? !isYEven : isYEven) ? beta : p.subtract(beta)
+
+  } else {
+    assert.equal(buffer.length, 65, 'Invalid sequence length')
+
+    y = BigInteger.fromBuffer(buffer.slice(33))
   }
 
-  return new ECPointFp(curve,
-                       curve.fromBigInteger(x),
-                       curve.fromBigInteger(y));
-};
+  var Q = new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y))
+
+  return {
+    Q: Q,
+    compressed: compressed
+  }
+}
 
 ECPointFp.prototype.add2D = function (b) {
   if(this.isInfinity()) return b;
