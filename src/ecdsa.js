@@ -1,5 +1,5 @@
 var assert = require('assert')
-var crypto = require('crypto')
+var crypto = require('./crypto')
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
 
@@ -36,10 +36,6 @@ function implShamirsTrick(P, k, Q, l) {
 
 var ecdsa = {
   deterministicGenerateK: function(hash, D) {
-    function HmacSHA256(buffer, secret) {
-      return crypto.createHmac('sha256', secret).update(buffer).digest()
-    }
-
     assert(Buffer.isBuffer(hash), 'Hash must be a Buffer')
     assert.equal(hash.length, 32, 'Hash must be 256 bit')
     assert(D instanceof BigInteger, 'Private key must be a BigInteger')
@@ -50,12 +46,12 @@ var ecdsa = {
     k.fill(0)
     v.fill(1)
 
-    k = HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
-    v = HmacSHA256(v, k)
+    k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
+    v = crypto.HmacSHA256(v, k)
 
-    k = HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
-    v = HmacSHA256(v, k)
-    v = HmacSHA256(v, k)
+    k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
+    v = crypto.HmacSHA256(v, k)
+    v = crypto.HmacSHA256(v, k)
 
     var n = ecparams.getN()
     var kB = BigInteger.fromBuffer(v).mod(n)
