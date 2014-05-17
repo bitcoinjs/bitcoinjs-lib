@@ -5,6 +5,11 @@
 var assert = require('assert')
 var BigInteger = require('bigi')
 
+// constants
+var TWO = BigInteger.valueOf(2)
+var THREE = BigInteger.valueOf(3)
+var SEVEN = BigInteger.valueOf(7)
+
 function ECFieldElementFp(q,x) {
     this.x = x;
     // TODO if(x.compareTo(q) >= 0) error
@@ -125,7 +130,6 @@ function pointFpAdd(b) {
 	return this.curve.getInfinity(); // this = -b, so infinity
     }
 
-    var THREE = new BigInteger("3");
     var x1 = this.x.toBigInteger();
     var y1 = this.y.toBigInteger();
     var x2 = b.x.toBigInteger();
@@ -150,8 +154,6 @@ function pointFpTwice() {
     if(this.isInfinity()) return this;
     if(this.y.toBigInteger().signum() === 0) return this.curve.getInfinity();
 
-    // TODO: optimized handling of constants
-    var THREE = new BigInteger("3");
     var x1 = this.x.toBigInteger();
     var y1 = this.y.toBigInteger();
 
@@ -182,7 +184,7 @@ function pointFpMultiply(k) {
     if(k.signum() === 0) return this.curve.getInfinity()
 
     var e = k;
-    var h = e.multiply(new BigInteger("3"));
+    var h = e.multiply(THREE)
 
     var neg = this.negate();
     var R = this;
@@ -327,8 +329,6 @@ ECPointFp.prototype.getEncoded = function(compressed) {
   return buffer
 }
 
-var SEVEN = BigInteger.valueOf(7)
-
 ECPointFp.decodeFrom = function (curve, buffer) {
   var type = buffer.readUInt8(0)
   var compressed = type !== 0x04
@@ -398,11 +398,11 @@ ECPointFp.prototype.twice2D = function () {
     return this.curve.getInfinity();
   }
 
-  var TWO = this.curve.fromBigInteger(BigInteger.valueOf(2));
-  var THREE = this.curve.fromBigInteger(BigInteger.valueOf(3));
-  var gamma = this.x.square().multiply(THREE).add(this.curve.a).divide(this.y.multiply(TWO));
+  var FpTWO = this.curve.fromBigInteger(TWO);
+  var FpTHREE = this.curve.fromBigInteger(THREE)
+  var gamma = this.x.square().multiply(FpTHREE).add(this.curve.a).divide(this.y.multiply(FpTWO));
 
-  var x3 = gamma.square().subtract(this.x.multiply(TWO));
+  var x3 = gamma.square().subtract(this.x.multiply(FpTWO));
   var y3 = gamma.multiply(this.x.subtract(x3)).subtract(this.y);
 
   return new ECPointFp(this.curve, x3, y3);
@@ -413,7 +413,7 @@ ECPointFp.prototype.multiply2D = function (k) {
   if (k.signum() === 0) return this.curve.getInfinity()
 
   var e = k;
-  var h = e.multiply(new BigInteger("3"));
+  var h = e.multiply(THREE)
 
   var neg = this.negate();
   var R = this;
