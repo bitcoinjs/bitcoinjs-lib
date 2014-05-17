@@ -8,7 +8,6 @@ var BigInteger = require('bigi')
 // constants
 var TWO = BigInteger.valueOf(2)
 var THREE = BigInteger.valueOf(3)
-var SEVEN = BigInteger.valueOf(7)
 
 function ECFieldElementFp(q,x) {
     this.x = x;
@@ -340,6 +339,8 @@ ECPointFp.decodeFrom = function (curve, buffer) {
     assert(type === 0x02 || type === 0x03, 'Invalid sequence tag')
 
     var isYEven = (type === 0x02)
+    var a = curve.getA().toBigInteger()
+    var b = curve.getB().toBigInteger()
     var p = curve.getQ()
 
     // We precalculate (p + 1) / 4 where p is the field order
@@ -348,7 +349,7 @@ ECPointFp.decodeFrom = function (curve, buffer) {
     }
 
     // Convert x to point
-    var alpha = x.pow(3).add(SEVEN).mod(p)
+    var alpha = x.pow(3).add(a.multiply(x)).add(b).mod(p)
     var beta = alpha.modPow(curve.P_OVER_FOUR, p)
 
     // If beta is even, but y isn't, or vice versa, then convert it,
