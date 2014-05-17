@@ -94,15 +94,15 @@ function pointFpEquals(other) {
     var u, v;
     // u = Y2 * Z1 - Y1 * Z2
     u = other.y.toBigInteger().multiply(this.z).subtract(this.y.toBigInteger().multiply(other.z)).mod(this.curve.q);
-    if(!u.equals(BigInteger.ZERO)) return false;
+    if (u.signum() !== 0) return false;
     // v = X2 * Z1 - X1 * Z2
     v = other.x.toBigInteger().multiply(this.z).subtract(this.x.toBigInteger().multiply(other.z)).mod(this.curve.q);
-    return v.equals(BigInteger.ZERO);
+    return v.signum() === 0;
 }
 
 function pointFpIsInfinity() {
-    if((this.x == null) && (this.y == null)) return true;
-    return this.z.equals(BigInteger.ZERO) && !this.y.toBigInteger().equals(BigInteger.ZERO);
+    if ((this.x == null) && (this.y == null)) return true;
+    return this.z.signum() === 0 && this.y.toBigInteger().signum() !== 0;
 }
 
 function pointFpNegate() {
@@ -118,8 +118,8 @@ function pointFpAdd(b) {
     // v = X2 * Z1 - X1 * Z2
     var v = b.x.toBigInteger().multiply(this.z).subtract(this.x.toBigInteger().multiply(b.z)).mod(this.curve.q);
 
-    if(BigInteger.ZERO.equals(v)) {
-        if(BigInteger.ZERO.equals(u)) {
+    if(v.signum() === 0) {
+        if(u.signum() === 0) {
             return this.twice(); // this == b, so double
         }
 	return this.curve.getInfinity(); // this = -b, so infinity
@@ -148,7 +148,7 @@ function pointFpAdd(b) {
 
 function pointFpTwice() {
     if(this.isInfinity()) return this;
-    if(this.y.toBigInteger().signum() == 0) return this.curve.getInfinity();
+    if(this.y.toBigInteger().signum() === 0) return this.curve.getInfinity();
 
     // TODO: optimized handling of constants
     var THREE = new BigInteger("3");
@@ -161,7 +161,7 @@ function pointFpTwice() {
 
     // w = 3 * x1^2 + a * z1^2
     var w = x1.square().multiply(THREE);
-    if(!BigInteger.ZERO.equals(a)) {
+    if(a.signum() !== 0) {
       w = w.add(this.z.square().multiply(a));
     }
     w = w.mod(this.curve.q);
@@ -179,7 +179,7 @@ function pointFpTwice() {
 // TODO: modularize the multiplication algorithm
 function pointFpMultiply(k) {
     if(this.isInfinity()) return this;
-    if(k.signum() == 0) return this.curve.getInfinity();
+    if(k.signum() === 0) return this.curve.getInfinity()
 
     var e = k;
     var h = e.multiply(new BigInteger("3"));
@@ -392,7 +392,7 @@ ECPointFp.prototype.add2D = function (b) {
 
 ECPointFp.prototype.twice2D = function () {
   if (this.isInfinity()) return this;
-  if (this.y.toBigInteger().signum() == 0) {
+  if (this.y.toBigInteger().signum() === 0) {
     // if y1 == 0, then (x1, y1) == (x1, -y1)
     // and hence this = -this and thus 2(x1, y1) == infinity
     return this.curve.getInfinity();
@@ -410,7 +410,7 @@ ECPointFp.prototype.twice2D = function () {
 
 ECPointFp.prototype.multiply2D = function (k) {
   if(this.isInfinity()) return this;
-  if(k.signum() == 0) return this.curve.getInfinity();
+  if (k.signum() === 0) return this.curve.getInfinity()
 
   var e = k;
   var h = e.multiply(new BigInteger("3"));
