@@ -4,8 +4,7 @@ var crypto = require('./crypto')
 var BigInteger = require('bigi')
 var ECPointFp = require('./ec').ECPointFp
 
-var ecdsa = {
-  deterministicGenerateK: function(ecparams, hash, D) {
+  function deterministicGenerateK(ecparams, hash, D) {
     assert(Buffer.isBuffer(hash), 'Hash must be a Buffer, not ' + hash)
     assert.equal(hash.length, 32, 'Hash must be 256 bit')
     assert(D instanceof BigInteger, 'Private key must be a BigInteger')
@@ -29,10 +28,10 @@ var ecdsa = {
     assert(kB.compareTo(ecparams.getN()) < 0, 'Invalid k value')
 
     return kB
-  },
+  }
 
-  sign: function (ecparams, hash, D) {
-    var k = ecdsa.deterministicGenerateK(ecparams, hash, D)
+  function sign(ecparams, hash, D) {
+    var k = deterministicGenerateK(ecparams, hash, D)
 
     var n = ecparams.getN()
     var G = ecparams.getG()
@@ -53,15 +52,15 @@ var ecdsa = {
     }
 
     return {r: r, s: s}
-  },
+  }
 
-  verify: function (ecparams, hash, r, s, Q) {
+  function verify(ecparams, hash, r, s, Q) {
     var e = BigInteger.fromBuffer(hash)
 
-    return ecdsa.verifyRaw(ecparams, e, r, s, Q)
-  },
+    return verifyRaw(ecparams, e, r, s, Q)
+  }
 
-  verifyRaw: function (ecparams, e, r, s, Q) {
+  function verifyRaw(ecparams, e, r, s, Q) {
     var n = ecparams.getN()
     var G = ecparams.getG()
 
@@ -81,14 +80,14 @@ var ecdsa = {
     var v = point.getX().toBigInteger().mod(n)
 
     return v.equals(r)
-  },
+  }
 
   /**
    * Serialize a signature into DER format.
    *
    * Takes two BigIntegers representing r and s and returns a byte array.
    */
-  serializeSig: function (r, s) {
+  function serializeSig(r, s) {
     var rBa = r.toByteArraySigned()
     var sBa = s.toByteArraySigned()
 
@@ -105,7 +104,7 @@ var ecdsa = {
     sequence.unshift(0x30); // SEQUENCE
 
     return sequence
-  },
+  }
 
   /**
    * Parses a buffer containing a DER-encoded signature.
@@ -117,7 +116,7 @@ var ecdsa = {
    *   s: BigInteger
    * }
    */
-  parseSig: function (buffer) {
+  function parseSig(buffer) {
     assert.equal(buffer.readUInt8(0), 0x30, 'Not a DER sequence')
     assert.equal(buffer.readUInt8(1), buffer.length - 2, 'Invalid sequence length')
 
@@ -134,9 +133,9 @@ var ecdsa = {
       r: BigInteger.fromByteArraySigned(rB),
       s: BigInteger.fromByteArraySigned(sB)
     }
-  },
+  }
 
-  serializeSigCompact: function(r, s, i, compressed) {
+  function serializeSigCompact(r, s, i, compressed) {
     if (compressed) {
       i += 4
     }
@@ -149,9 +148,9 @@ var ecdsa = {
     s.toBuffer(32).copy(buffer, 33)
 
     return buffer
-  },
+  }
 
-  parseSigCompact: function (buffer) {
+  function parseSigCompact(buffer) {
     assert.equal(buffer.length, 65, 'Invalid signature length')
     var i = buffer.readUInt8(0) - 27
 
@@ -171,7 +170,7 @@ var ecdsa = {
       i: i,
       compressed: compressed
     }
-  },
+  }
 
   /**
    * Recover a public key from a signature.
@@ -181,7 +180,7 @@ var ecdsa = {
    *
    * http://www.secg.org/download/aid-780/sec1-v2.pdf
    */
-  recoverPubKey: function (ecparams, e, r, s, i) {
+  function recoverPubKey(ecparams, e, r, s, i) {
     assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
 
     // A set LSB signifies that the y-coordinate is odd
@@ -229,12 +228,12 @@ var ecdsa = {
     var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
     Q.validate()
 
-    if (!ecdsa.verifyRaw(ecparams, e, r, s, Q)) {
+    if (!verifyRaw(ecparams, e, r, s, Q)) {
       throw new Error("Pubkey recovery unsuccessful")
     }
 
     return Q
-  },
+  }
 
   /**
    * Calculate pubkey extraction parameter.
@@ -247,9 +246,9 @@ var ecdsa = {
    * This function simply tries all four cases and returns the value
    * that resulted in a successful pubkey recovery.
    */
-  calcPubKeyRecoveryParam: function (ecparams, e, r, s, Q) {
+  function calcPubKeyRecoveryParam(ecparams, e, r, s, Q) {
     for (var i = 0; i < 4; i++) {
-      var Qprime = ecdsa.recoverPubKey(ecparams, e, r, s, i)
+      var Qprime = recoverPubKey(ecparams, e, r, s, i)
 
       if (Qprime.equals(Q)) {
         return i
@@ -258,6 +257,16 @@ var ecdsa = {
 
     throw new Error('Unable to find valid recovery factor')
   }
-}
 
-module.exports = ecdsa
+module.exports = {
+  calcPubKeyRecoveryParam: calcPubKeyRecoveryParam,
+  deterministicGenerateK: deterministicGenerateK,
+  recoverPubKey: recoverPubKey,
+  sign: sign,
+  verify: verify,
+  verifyRaw: verifyRaw,
+  serializeSig: serializeSig,
+  parseSig: parseSig,
+  serializeSigCompact: serializeSigCompact,
+  parseSigCompact: parseSigCompact
+}
