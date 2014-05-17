@@ -37,7 +37,7 @@ ECPubKey.prototype.getAddress = function(version) {
 }
 
 ECPubKey.prototype.verify = function(hash, signature) {
-  return ecdsa.verify(hash, signature.r, signature.s, this.Q)
+  return ecdsa.verify(ecparams, hash, signature.r, signature.s, this.Q)
 }
 
 // Export functions

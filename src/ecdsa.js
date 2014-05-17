@@ -1,14 +1,12 @@
 var assert = require('assert')
 var crypto = require('./crypto')
-var sec = require('./sec')
-var ecparams = sec("secp256k1")
 
 var BigInteger = require('bigi')
 var ECPointFp = require('./ec').ECPointFp
 
 var ecdsa = {
-  deterministicGenerateK: function(hash, D) {
-    assert(Buffer.isBuffer(hash), 'Hash must be a Buffer')
+  deterministicGenerateK: function(ecparams, hash, D) {
+    assert(Buffer.isBuffer(hash), 'Hash must be a Buffer, not ' + hash)
     assert.equal(hash.length, 32, 'Hash must be 256 bit')
     assert(D instanceof BigInteger, 'Private key must be a BigInteger')
 
@@ -33,8 +31,8 @@ var ecdsa = {
     return kB
   },
 
-  sign: function (hash, D) {
-    var k = ecdsa.deterministicGenerateK(hash, D)
+  sign: function (ecparams, hash, D) {
+    var k = ecdsa.deterministicGenerateK(ecparams, hash, D)
 
     var n = ecparams.getN()
     var G = ecparams.getG()
@@ -57,13 +55,13 @@ var ecdsa = {
     return {r: r, s: s}
   },
 
-  verify: function (hash, r, s, Q) {
+  verify: function (ecparams, hash, r, s, Q) {
     var e = BigInteger.fromBuffer(hash)
 
-    return ecdsa.verifyRaw(e, r, s, Q)
+    return ecdsa.verifyRaw(ecparams, e, r, s, Q)
   },
 
-  verifyRaw: function (e, r, s, Q) {
+  verifyRaw: function (ecparams, e, r, s, Q) {
     var n = ecparams.getN()
     var G = ecparams.getG()
 
@@ -183,7 +181,7 @@ var ecdsa = {
    *
    * http://www.secg.org/download/aid-780/sec1-v2.pdf
    */
-  recoverPubKey: function (e, r, s, i) {
+  recoverPubKey: function (ecparams, e, r, s, i) {
     assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
 
     // A set LSB signifies that the y-coordinate is odd
@@ -231,7 +229,7 @@ var ecdsa = {
     var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
     Q.validate()
 
-    if (!ecdsa.verifyRaw(e, r, s, Q)) {
+    if (!ecdsa.verifyRaw(ecparams, e, r, s, Q)) {
       throw new Error("Pubkey recovery unsuccessful")
     }
 
@@ -249,9 +247,9 @@ var ecdsa = {
    * This function simply tries all four cases and returns the value
    * that resulted in a successful pubkey recovery.
    */
-  calcPubKeyRecoveryParam: function (e, r, s, Q) {
+  calcPubKeyRecoveryParam: function (ecparams, e, r, s, Q) {
     for (var i = 0; i < 4; i++) {
-      var Qprime = ecdsa.recoverPubKey(e, r, s, i)
+      var Qprime = ecdsa.recoverPubKey(ecparams, e, r, s, i)
 
       if (Qprime.equals(Q)) {
         return i

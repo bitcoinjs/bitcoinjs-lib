@@ -20,7 +20,7 @@ describe('ecdsa', function() {
         var D = BigInteger.fromHex(f.D)
         var h1 = crypto.sha256(f.message)
 
-        var k = ecdsa.deterministicGenerateK(h1, D)
+        var k = ecdsa.deterministicGenerateK(ecparams, h1, D)
         assert.equal(k.toHex(), f.k)
       })
     })
@@ -36,7 +36,7 @@ describe('ecdsa', function() {
       var e = BigInteger.fromBuffer(hash)
       var psig = ecdsa.parseSigCompact(signature)
 
-      var Qprime = ecdsa.recoverPubKey(e, psig.r, psig.s, psig.i)
+      var Qprime = ecdsa.recoverPubKey(ecparams, e, psig.r, psig.s, psig.i)
       assert(Q.equals(Qprime))
     })
   })
@@ -46,7 +46,7 @@ describe('ecdsa', function() {
       fixtures.valid.forEach(function(f) {
         var D = BigInteger.fromHex(f.D)
         var hash = crypto.sha256(f.message)
-        var sig = ecdsa.sign(hash, D)
+        var sig = ecdsa.sign(ecparams, hash, D)
 
         assert.equal(sig.r.toString(), f.signature.r)
         assert.equal(sig.s.toString(), f.signature.s)
@@ -55,7 +55,7 @@ describe('ecdsa', function() {
 
     it('should sign with low S value', function() {
       var hash = crypto.sha256('Vires in numeris')
-      var sig = ecdsa.sign(hash, BigInteger.ONE)
+      var sig = ecdsa.sign(ecparams, hash, BigInteger.ONE)
 
       // See BIP62 for more information
       var N_OVER_TWO = ecparams.getN().shiftRight(1)
@@ -73,7 +73,7 @@ describe('ecdsa', function() {
         var s = new BigInteger(f.signature.s)
         var e = BigInteger.fromBuffer(crypto.sha256(f.message))
 
-        assert(ecdsa.verifyRaw(e, r, s, Q))
+        assert(ecdsa.verifyRaw(ecparams, e, r, s, Q))
       })
     })
   })

@@ -9,6 +9,9 @@ var networks = require('./networks')
 var Address = require('./address')
 var ECPubKey = require('./ecpubkey')
 
+var sec = require('./sec')
+var ecparams = sec('secp256k1')
+
 function magicHash(message, network) {
   var magicPrefix = new Buffer(network.magicPrefix)
   var messageBuffer = new Buffer(message)
@@ -27,7 +30,7 @@ function sign(key, message, network) {
   var hash = magicHash(message, network)
   var sig = key.sign(hash)
   var e = BigInteger.fromBuffer(hash)
-  var i = ecdsa.calcPubKeyRecoveryParam(e, sig.r, sig.s, key.pub.Q)
+  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, sig.r, sig.s, key.pub.Q)
 
   return ecdsa.serializeSigCompact(sig.r, sig.s, i, key.pub.compressed)
 }
@@ -43,7 +46,7 @@ function verify(address, compactSig, message, network) {
   var hash = magicHash(message, network)
   var sig = ecdsa.parseSigCompact(compactSig)
   var e = BigInteger.fromBuffer(hash)
-  var Q = ecdsa.recoverPubKey(e, sig.r, sig.s, sig.i)
+  var Q = ecdsa.recoverPubKey(ecparams, e, sig.r, sig.s, sig.i)
 
   var pubKey = new ECPubKey(Q, sig.compressed)
   return pubKey.getAddress(address.version).toString() === address.toString()
