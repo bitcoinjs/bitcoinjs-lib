@@ -75,7 +75,7 @@ var ecdsa = {
 
     var N_OVER_TWO = n.divide(BigInteger.valueOf(2))
 
-    // Make 's' value 'low' as per bip62
+    // enforce low S values, see bip62: 'low s values in signatures'
     if (s.compareTo(N_OVER_TWO) > 0) {
       s = n.subtract(s)
     }
@@ -122,7 +122,6 @@ var ecdsa = {
     }
 
     var c = s.modInverse(n)
-
     var u1 = e.multiply(c).mod(n)
     var u2 = r.multiply(c).mod(n)
 
@@ -271,7 +270,7 @@ var ecdsa = {
     // otherwise we're done and y == beta.
     var y = (beta.isEven() ^ isYEven) ? p.subtract(beta) : beta
 
-    // 1.4 Check that nR is at infinity
+    // 1.4 Check that nR isn't at infinity
     var R = new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y))
     R.validate()
 
