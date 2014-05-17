@@ -35,7 +35,7 @@ ECKey.fromWIF = function(string) {
 
   assert.equal(payload.length, 32, 'Invalid WIF payload length')
 
-  var D = BigInteger.fromBuffer(payload.slice(0, 32))
+  var D = BigInteger.fromBuffer(payload)
   return new ECKey(D, compressed)
 }
 
