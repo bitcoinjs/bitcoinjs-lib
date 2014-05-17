@@ -3,6 +3,7 @@ var crypto = require('../src/crypto')
 var networks = require('../src/networks')
 
 var Address = require('../src/address')
+var ECPubKey = require('../src/ecpubkey')
 var Script = require('../src/script')
 
 var fixtures = require('./fixtures/script')
@@ -95,7 +96,7 @@ describe('Script', function() {
         '02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f',
         '02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f',
         '036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19'
-      ].map(h2b)
+      ].map(ECPubKey.fromHex)
     })
 
     it('should create valid redeemScript', function() {
@@ -112,7 +113,7 @@ describe('Script', function() {
     var pubKeys = [
       '02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1',
       '0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a'
-    ].map(h2b)
+    ].map(ECPubKey.fromHex)
     var signatures = [
       '304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801',
       '3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501'

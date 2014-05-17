@@ -318,7 +318,7 @@ describe('Wallet', function() {
         '1BBjuhF2jHxu7tPinyQGCuaNhEs6f5u59u'
       ]
 
-      tx = Transaction.deserialize(fixtureTx1Hex)
+      tx = Transaction.fromHex(fixtureTx1Hex)
     })
 
     describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.outputs", function(){
@@ -363,7 +363,7 @@ describe('Wallet', function() {
         wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
         wallet.processTx(tx)
 
-        tx = Transaction.deserialize(fixtureTx2Hex)
+        tx = Transaction.fromHex(fixtureTx2Hex)
       })
 
       it("does not add to wallet.outputs", function(){

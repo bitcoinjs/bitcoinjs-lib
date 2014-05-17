@@ -8,16 +8,13 @@ var secureRandom = require('secure-random')
 
 function b2h(b) { return new Buffer(b).toString('hex') }
 function h2b(h) { return new Buffer(h, 'hex') }
-function randomBuf(s) {
-  return new Buffer(secureRandom(s))
-}
+function randomBuf(s) { return new Buffer(secureRandom(s)) }
 
 request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/base58_encode_decode.json', function (error, response, body) {
   assert.ifError(error)
   assert.equal(response.statusCode, 200)
 
-  var data = JSON.parse(body)
-  var valid = data.map(function(x) {
+  var valid = JSON.parse(body).map(function(x) {
     return {
       hex: x[0],
       string: x[1]
@@ -31,7 +28,7 @@ request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/
   //    string: ' \t\n\v\f\r skip \r\f\v\n\t '
   //  })
 
-  var fixtureJSON = JSON.stringify({
+  var fixture = JSON.stringify({
     valid: valid,
     invalid: [
       {
@@ -58,48 +55,43 @@ request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/
     ]
   }, null, '  ')
 
-  fs.writeFileSync('./test/fixtures/base58.js', 'module.exports = ' + fixtureJSON)
+  fs.writeFileSync('./test/fixtures/base58.js', 'module.exports = ' + fixture)
 })
 
 request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/base58_keys_valid.json', function (error, response, body) {
-  request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/base58_keys_invalid.json', function (error2, response2, body2) {
-    assert.ifError(error)
-    assert.ifError(error2)
-    assert.equal(response.statusCode, 200)
-    assert.equal(response2.statusCode, 200)
+request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/base58_keys_invalid.json', function (error2, response2, body2) {
+  assert.ifError(error)
+  assert.ifError(error2)
+  assert.equal(response.statusCode, 200)
+  assert.equal(response2.statusCode, 200)
 
-    var validData = JSON.parse(body)
-    var invalidData = JSON.parse(body2)
+  var valid = JSON.parse(body).map(function(x) {
+    var string = x[0]
+    var hex = x[1]
+    var params = x[2]
 
-    var valid = validData.map(function(x) {
-      var string = x[0]
-      var hex = x[1]
-      var params = x[2]
+    if (params.isCompressed) hex += '01'
+    assert.equal(b2h(base58check.decode(string).payload), hex)
 
-      if (params.isCompressed) {
-        hex += '01'
+    return {
+      string: string,
+      decode: {
+        version: base58check.decode(string).version,
+        payload: hex,
+        checksum: b2h(base58check.decode(string).checksum),
       }
-      assert.equal(b2h(base58check.decode(string).payload), hex)
+    }
+  })
+  var invalid2 = JSON.parse(body2).map(function(x) { return x[0] })
 
-      return {
-        string: string,
-        decode: {
-          version: base58check.decode(string).version,
-          payload: hex,
-          checksum: b2h(base58check.decode(string).checksum),
-        }
-      }
-    })
-    var invalid2 = invalidData.map(function(x) { return x[0] })
+  // Our own tests
+  var hash = crypto.hash160(randomBuf(65))
+  var checksum = base58check.decode(base58check.encode(hash)).checksum
 
-    // Our own tests
-    var hash = crypto.hash160(randomBuf(65))
-    var checksum = base58check.decode(base58check.encode(hash)).checksum
-
-    var fixtureJSON = JSON.stringify({
-      valid: valid,
-      invalid: [
-        {
+  var fixture = JSON.stringify({
+    valid: valid,
+    invalid: [
+      {
         base58check: base58check.encode(hash.slice(0, 18), 0x05),
         description: 'hash too short'
       },
@@ -119,10 +111,10 @@ request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/
         base58check: base58.encode(Buffer.concat([new Buffer([0x05]), hash, randomBuf(4)])),
         description: 'bad SHA256 checksum',
       }
-      ],
-      invalid2: invalid2
-    }, null, '  ')
+    ],
+    invalid2: invalid2
+  }, null, '  ')
 
-    fs.writeFileSync('./test/fixtures/base58check.js', 'module.exports = ' + fixtureJSON)
-  })
+  fs.writeFileSync('./test/fixtures/base58check.js', 'module.exports = ' + fixture)
+})
 })

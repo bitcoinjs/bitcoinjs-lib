@@ -22,20 +22,20 @@ describe('Address', function() {
   })
 
   describe('fromBase58Check', function() {
-    it('throws on invalid base58check', function() {
-      b58fixtures.invalid.forEach(function(f) {
-        assert.throws(function() {
-          Address.fromBase58Check(f)
-        })
-      })
-    })
-
     fixtures.valid.forEach(function(f) {
       it('imports ' + f.description + '(' + f.network + ') correctly', function() {
         var addr = Address.fromBase58Check(f.base58check)
 
         assert.equal(addr.version, f.version)
         assert.equal(addr.hash.toString('hex'), f.hex)
+      })
+    })
+
+    it('throws on invalid base58check', function() {
+      b58fixtures.invalid.forEach(function(f) {
+        assert.throws(function() {
+          Address.fromBase58Check(f)
+        })
       })
     })
   })
