@@ -73,7 +73,7 @@ var ecdsa = {
     var s = k.modInverse(n).multiply(e.add(D.multiply(r))).mod(n)
     assert.notEqual(s.signum(), 0, 'Invalid S value')
 
-    var N_OVER_TWO = n.divide(BigInteger.valueOf(2))
+    var N_OVER_TWO = n.shiftRight(1)
 
     // enforce low S values, see bip62: 'low s values in signatures'
     if (s.compareTo(N_OVER_TWO) > 0) {
@@ -263,7 +263,7 @@ var ecdsa = {
     var x = isSecondKey ? r.add(n) : r
 
     // 1.3 Convert x to point
-    var alpha = x.multiply(x).multiply(x).add(a.multiply(x)).add(b).mod(p)
+    var alpha = x.pow(3).add(a.multiply(x)).add(b).mod(p)
     var beta = alpha.modPow(curve.P_OVER_FOUR, p)
 
     // If beta is even, but y isn't, or vice versa, then convert it,

@@ -59,7 +59,8 @@ describe('ecdsa', function() {
       var psig = ecdsa.parseSig(signature)
 
       // See BIP62 for more information
-      assert(psig.s.compareTo(ecparams.getN().divide(BigInteger.valueOf(2))) <= 0)
+      var N_OVER_TWO = ecparams.getN().shiftRight(1)
+      assert(psig.s.compareTo(N_OVER_TWO) <= 0)
     })
   })
 

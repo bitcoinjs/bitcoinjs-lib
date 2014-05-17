@@ -170,9 +170,9 @@ function pointFpTwice() {
     // x3 = 2 * y1 * z1 * (w^2 - 8 * x1 * y1^2 * z1)
     var x3 = w.square().subtract(x1.shiftLeft(3).multiply(y1sqz1)).shiftLeft(1).multiply(y1z1).mod(this.curve.q);
     // y3 = 4 * y1^2 * z1 * (3 * w * x1 - 2 * y1^2 * z1) - w^3
-    var y3 = w.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w.square().multiply(w)).mod(this.curve.q);
+    var y3 = w.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w.pow(3)).mod(this.curve.q);
     // z3 = 8 * (y1 * z1)^3
-    var z3 = y1z1.square().multiply(y1z1).shiftLeft(3).mod(this.curve.q);
+    var z3 = y1z1.pow(3).shiftLeft(3).mod(this.curve.q);
 
     return new ECPointFp(this.curve, this.curve.fromBigInteger(x3), this.curve.fromBigInteger(y3), z3);
 }
@@ -348,7 +348,7 @@ ECPointFp.decodeFrom = function (curve, buffer) {
     }
 
     // Convert x to point
-    var alpha = x.square().multiply(x).add(SEVEN).mod(p)
+    var alpha = x.pow(3).add(SEVEN).mod(p)
     var beta = alpha.modPow(curve.P_OVER_FOUR, p)
 
     // If beta is even, but y isn't, or vice versa, then convert it,
@@ -440,10 +440,9 @@ ECPointFp.prototype.isOnCurve = function () {
   var y = this.getY().toBigInteger();
   var a = this.curve.getA().toBigInteger();
   var b = this.curve.getB().toBigInteger();
-  var n = this.curve.getQ();
-  var lhs = y.multiply(y).mod(n);
-  var rhs = x.multiply(x).multiply(x)
-    .add(a.multiply(x)).add(b).mod(n);
+  var p = this.curve.getQ()
+  var lhs = y.square().mod(p)
+  var rhs = x.pow(3).add(a.multiply(x)).add(b).mod(p)
   return lhs.equals(rhs);
 };
 
