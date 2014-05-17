@@ -343,11 +343,13 @@ ECPointFp.decodeFrom = function (curve, buffer) {
     var p = curve.getQ()
 
     // We precalculate (p + 1) / 4 where p is the field order
-    var P_OVER_FOUR = p.add(BigInteger.ONE).shiftRight(2)
+    if (!curve.P_OVER_FOUR) {
+      curve.P_OVER_FOUR = p.add(BigInteger.ONE).shiftRight(2)
+    }
 
     // Convert x to point
     var alpha = x.square().multiply(x).add(SEVEN).mod(p)
-    var beta = alpha.modPow(P_OVER_FOUR, p)
+    var beta = alpha.modPow(curve.P_OVER_FOUR, p)
 
     // If beta is even, but y isn't, or vice versa, then convert it,
     // otherwise we're done and y == beta.
