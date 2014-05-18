@@ -6,7 +6,7 @@ var ecparams = sec('secp256k1')
 var BigInteger = require('bigi')
 var ECPointFp = require('../src/ec').ECPointFp
 
-var fixtures = require('./fixtures/ec.js')
+var fixtures = require('./fixtures/ec.json')
 
 describe('ec', function() {
   describe('ECPointFp', function() {

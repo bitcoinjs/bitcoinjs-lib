@@ -6,7 +6,7 @@ var Address = require('../src/address')
 var ECPubKey = require('../src/ecpubkey')
 var Script = require('../src/script')
 
-var fixtures = require('./fixtures/script')
+var fixtures = require('./fixtures/script.json')
 
 function b2h(b) { return new Buffer(b).toString('hex') }
 function h2b(h) { return new Buffer(h, 'hex') }

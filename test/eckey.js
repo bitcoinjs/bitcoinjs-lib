@@ -4,7 +4,7 @@ var crypto = require('../src/crypto')
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
 
-var fixtures = require('./fixtures/eckey')
+var fixtures = require('./fixtures/eckey.json')
 var networks = require('../src/networks')
 
 describe('ECKey', function() {

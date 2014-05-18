@@ -55,7 +55,7 @@ request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/
     ]
   }, null, '  ')
 
-  fs.writeFileSync('./test/fixtures/base58.js', 'module.exports = ' + fixture)
+  fs.writeFileSync('./test/fixtures/base58.json', fixture)
 })
 
 request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/base58_keys_valid.json', function (error, response, body) {
@@ -115,6 +115,6 @@ request('https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/test/data/
     invalid2: invalid2
   }, null, '  ')
 
-  fs.writeFileSync('./test/fixtures/base58check.js', 'module.exports = ' + fixture)
+  fs.writeFileSync('./test/fixtures/base58check.json', fixture)
 })
 })

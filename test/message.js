@@ -5,7 +5,7 @@ var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
 var Message = require('../src/message')
 
-var fixtures = require('./fixtures/message')
+var fixtures = require('./fixtures/message.json')
 
 describe('Message', function() {
   var message

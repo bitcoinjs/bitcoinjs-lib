@@ -7,7 +7,7 @@ var BigInteger = require('bigi')
 var ECPointFp = require('../src/ec').ECPointFp
 var ECPubKey = require('../src/ecpubkey')
 
-var fixtures = require('./fixtures/ecpubkey')
+var fixtures = require('./fixtures/ecpubkey.json')
 
 describe('ECPubKey', function() {
   var Q
