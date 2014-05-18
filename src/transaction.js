@@ -29,15 +29,15 @@ function Transaction(doc) {
     if (doc.version) this.version = doc.version;
     if (doc.locktime) this.locktime = doc.locktime;
     if (doc.ins && doc.ins.length) {
-      doc.ins.forEach(function(input) {
-        this.addInput(new TransactionIn(input))
-      }, this)
+      this.ins = doc.ins.map(function(input) {
+        return new TransactionIn(input)
+      })
     }
 
     if (doc.outs && doc.outs.length) {
-      doc.outs.forEach(function(output) {
-        this.addOutput(new TransactionOut(output))
-      }, this)
+      this.outs = doc.outs.map(function(output) {
+        return new TransactionOut(output)
+      })
     }
 
     this.hash = this.hash || this.getHash()
@@ -52,7 +52,6 @@ function Transaction(doc) {
  * - An existing TransactionIn object
  * - A transaction and an index
  * - A transaction hash and an index
- * - A single string argument of the form txhash:index
  *
  * Note that this method does not sign the created input.
  */
@@ -62,15 +61,7 @@ Transaction.prototype.addInput = function (tx, outIndex) {
     return
   }
 
-  var hash
-  if (arguments[0].length > 65) {
-    var args = arguments[0].split(':')
-    hash = args[0]
-    outIndex = parseInt(args[1])
-
-  } else {
-    hash = typeof tx === "string" ? tx : tx.hash
-  }
+  var hash = typeof tx === "string" ? tx : tx.hash
 
   this.ins.push(new TransactionIn({
     outpoint: {
@@ -88,9 +79,7 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  *
  * i) An existing TransactionOut object
  * ii) An address object or a string address, and a value
- * iii) An address:value string
  *
- * FIXME: This is a bit convoluted
  */
 Transaction.prototype.addOutput = function (address, value) {
   if (arguments[0] instanceof TransactionOut) {
@@ -99,12 +88,6 @@ Transaction.prototype.addOutput = function (address, value) {
   }
 
   if (typeof address === 'string') {
-    if (arguments[0].indexOf(':') >= 0) {
-      var args = arguments[0].split(':')
-      address = args[0]
-      value = parseInt(args[1])
-    }
-
     address = Address.fromBase58Check(address)
   }
 

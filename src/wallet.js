@@ -190,11 +190,12 @@ function Wallet(seed, network) {
     for (var i = 0; i < utxos.length; ++i) {
       var utxo = utxos[i]
 
-      tx.addInput(utxo.receive)
-      accum += utxo.value
+      var outpoint = utxo.receive.split(':')
+      tx.addInput(outpoint[0], parseInt(outpoint[1]))
 
       var fee = fixedFee == undefined ? estimateFeePadChangeOutput(tx) : fixedFee
 
+      accum += utxo.value
       subTotal = value + fee
       if (accum >= subTotal) {
         var change = accum - subTotal

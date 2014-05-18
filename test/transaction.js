@@ -127,11 +127,6 @@ describe('Transaction', function() {
         verifyTransactionIn()
       })
 
-      it('allows a string in the form of txhash:index to be passed in', function() {
-        tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57:0")
-        verifyTransactionIn()
-      })
-
       function verifyTransactionIn() {
         assert.equal(tx.ins.length, 1)
 
@@ -156,14 +151,9 @@ describe('Transaction', function() {
         verifyTransactionOut()
       })
 
-      it('allows a string in the form of address:index to be passed in', function() {
-        tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
-        verifyTransactionOut()
-      })
-
       it('allows a TransactionOut object to be passed in', function() {
         var txCopy = tx.clone()
-        txCopy.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
+        txCopy.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 40000)
         var transactionOut = txCopy.outs[0]
 
         tx.addOutput(transactionOut)
@@ -190,9 +180,9 @@ describe('Transaction', function() {
 
     describe('sign', function() {
       it('works', function() {
-        tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57:0")
-        tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
-        tx.addOutput("1Bu3bhwRmevHLAy1JrRB6AfcxfgDG2vXRd:50000")
+        tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
+        tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 40000)
+        tx.addOutput("1Bu3bhwRmevHLAy1JrRB6AfcxfgDG2vXRd", 50000)
 
         var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
         tx.sign(0, key)
