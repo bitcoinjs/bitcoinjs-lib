@@ -12,6 +12,10 @@ var ECKey = require('./eckey')
 var Script = require('./script')
 
 var DEFAULT_SEQUENCE = 0xffffffff
+var SIGHASH_ALL = 0x01
+var SIGHASH_NONE = 0x02
+var SIGHASH_SINGLE = 0x03
+var SIGHASH_ANYONECANPAY = 0x80
 
 function Transaction(doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
@@ -178,11 +182,6 @@ Transaction.prototype.toBuffer = function () {
 Transaction.prototype.toHex = function() {
   return this.toBuffer().toString('hex')
 }
-
-var SIGHASH_ALL = 0x01
-var SIGHASH_NONE = 0x02
-var SIGHASH_SINGLE = 0x03
-var SIGHASH_ANYONECANPAY = 0x80
 
 /**
  * Hash transaction for signing a specific input.
