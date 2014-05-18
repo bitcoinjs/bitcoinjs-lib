@@ -1,95 +1,104 @@
 var assert = require('assert')
+var crypto = require('../src/crypto')
+var sec = require('../src/sec')
+var ecparams = sec('secp256k1')
 
+var BigInteger = require('bigi')
+var ECPointFp = require('../src/ec').ECPointFp
 var ECPubKey = require('../src/ecpubkey')
 
+var fixtures = require('./fixtures/ecpubkey')
+
 describe('ECPubKey', function() {
-  describe('toBuffer/toHex', function() {
-    var hcpub = '024b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea811992'
-    var hpub = '044b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea81199283fbec990dad6fb98f93f712d50cb874dd717de6a184158d63886dda3090f566'
+  var Q
 
-    it('using toHex should support compression', function() {
-      var pub = ECPubKey.fromHex(hcpub)
+  beforeEach(function() {
+    var curve = ecparams.getCurve()
 
-      assert.equal(pub.toHex(), hcpub)
-      assert.equal(pub.compressed, true)
+    Q = new ECPointFp(
+      curve,
+      curve.fromBigInteger(new BigInteger(fixtures.Q.x)),
+      curve.fromBigInteger(new BigInteger(fixtures.Q.y))
+    )
+  })
+
+  describe('constructor', function() {
+    it('defaults to compressed', function() {
+      var pubKey = new ECPubKey(Q)
+
+      assert.equal(pubKey.compressed, true)
     })
 
-    it('using toHex should support uncompressed', function() {
-      var pub = ECPubKey.fromHex(hpub)
+    it('supports the uncompressed flag', function() {
+      var pubKey = new ECPubKey(Q, false)
 
-      assert.equal(pub.toHex(), hpub)
-      assert.equal(pub.compressed, false)
+      assert.equal(pubKey.compressed, false)
+    })
+  })
+
+  describe('fromHex/toHex', function() {
+    it('supports compressed points', function() {
+      var pubKey = ECPubKey.fromHex(fixtures.compressed.hex)
+
+      assert(pubKey.Q.equals(Q))
+      assert.equal(pubKey.toHex(), fixtures.compressed.hex)
+      assert.equal(pubKey.compressed, true)
+    })
+
+    it('supports uncompressed points', function() {
+      var pubKey = ECPubKey.fromHex(fixtures.uncompressed.hex)
+
+      assert(pubKey.Q.equals(Q))
+      assert.equal(pubKey.toHex(), fixtures.uncompressed.hex)
+      assert.equal(pubKey.compressed, false)
     })
   })
 
   describe('getAddress', function() {
-    var privkeys = [
-      'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458',
-      '1111111111111111111111111111111111111111111111111111111111111111',
-      '18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725'
-    ]
+    it('calculates the expected hash (compressed)', function() {
+      var pubKey = new ECPubKey(Q, true)
+      var address = pubKey.getAddress()
 
-    // compressed pubkeys
-    var cpubkeys = [
-      '024b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea811992',
-      '034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa',
-      '0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352'
-    ]
-
-    var pubkeys = cpubkeys.map(function(x) {
-      var pk = ECPubKey.fromHex(x)
-      pk.compressed = false
-      return pk.toHex()
+      assert.equal(address.hash.toString('hex'), fixtures.compressed.hash160)
     })
 
-    it('bitcoin', function() {
-      var addresses = [
-        '19SgmoUj4xowEjwtXvNAtYTAgbvR9iBCui',
-        '1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a',
-        '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM'
-      ]
-      var compressedAddresses = [
-        '1AA4sjKW2aUmbtN3MtegdvhYtDBbDEke1q',
-        '1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9',
-        '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs',
-      ]
+    it('calculates the expected hash (uncompressed)', function() {
+      var pubKey = new ECPubKey(Q, false)
+      var address = pubKey.getAddress()
 
-      for (var i = 0; i < addresses.length; ++i) {
-        var pub = ECPubKey.fromHex(pubkeys[i])
-        var cpub = ECPubKey.fromHex(cpubkeys[i])
-        cpub.compressed = true
+      assert.equal(address.hash.toString('hex'), fixtures.uncompressed.hash160)
+    })
 
-        var addr = addresses[i]
-        var caddr = compressedAddresses[i]
+    it('supports alternative networks', function() {
+      var pubKey = new ECPubKey(Q)
+      var address = pubKey.getAddress(0x09)
 
-        assert.equal(pub.getAddress().toString(), addr)
-        assert.equal(cpub.getAddress().toString(), caddr)
+      assert.equal(address.version, 0x09)
+      assert.equal(address.hash.toString('hex'), fixtures.compressed.hash160)
+    })
+  })
+
+  describe('verify', function() {
+    var pubKey, signature
+    beforeEach(function() {
+      pubKey = new ECPubKey(Q)
+
+      signature = {
+        r: new BigInteger(fixtures.signature.r),
+        s: new BigInteger(fixtures.signature.s)
       }
     })
 
-    it('testnet', function() {
-      var addresses = [
-        '19SgmoUj4xowEjwtXvNAtYTAgbvR9iBCui',
-        '1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a',
-        '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM'
-      ]
-      var compressedAddresses = [
-        '1AA4sjKW2aUmbtN3MtegdvhYtDBbDEke1q',
-        '1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9',
-        '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs',
-      ]
+    it('verifies a valid signature', function() {
+      var hash = crypto.sha256(fixtures.message)
 
-      for (var i = 0; i < addresses.length; ++i) {
-        var pub = ECPubKey.fromHex(pubkeys[i])
-        var cpub = ECPubKey.fromHex(cpubkeys[i])
-        cpub.compressed = true
+      assert.ok(pubKey.verify(hash, signature))
+    })
 
-        var addr = addresses[i]
-        var caddr = compressedAddresses[i]
+    it('doesn\'t verify the wrong signature', function() {
+      var hash = crypto.sha256('mushrooms')
 
-        assert.equal(pub.getAddress().toString(), addr)
-        assert.equal(cpub.getAddress().toString(), caddr)
-      }
+      assert.ok(!pubKey.verify(hash, signature))
     })
   })
 })

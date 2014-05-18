@@ -16,7 +16,7 @@ describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
     it('matches the test vectors', function() {
       fixtures.forEach(function(f) {
-        var priv = BigInteger.fromHex(f.privateKey)
+        var priv = BigInteger.fromHex(f.D)
         var h1 = crypto.sha256(f.message)
 
         var k = ecdsa.deterministicGenerateK(h1, priv)
@@ -39,7 +39,8 @@ describe('ecdsa', function() {
   describe('sign', function() {
     it('matches the test vectors', function() {
       fixtures.forEach(function(f) {
-        var priv = ECKey.fromHex(f.privateKey)
+        var D = BigInteger.fromHex(f.D)
+        var priv = new ECKey(D)
         var hash = crypto.sha256(f.message)
         var sig = ecdsa.parseSig(priv.sign(hash))
 
@@ -49,7 +50,7 @@ describe('ecdsa', function() {
     })
 
     it('should sign with low S value', function() {
-      var priv = ECKey.fromHex('ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458')
+      var priv = ECKey.makeRandom()
       var hash = crypto.sha256('Vires in numeris')
       var signature = priv.sign(hash)
       var psig = ecdsa.parseSig(signature)
@@ -62,7 +63,8 @@ describe('ecdsa', function() {
   describe('verifyRaw', function() {
     it('matches the test vectors', function() {
       fixtures.forEach(function(f) {
-        var priv = ECKey.fromHex(f.privateKey)
+        var D = BigInteger.fromHex(f.D)
+        var priv = new ECKey(D)
 
         var r = BigInteger.fromHex(f.signature.slice(0, 64))
         var s = BigInteger.fromHex(f.signature.slice(64))

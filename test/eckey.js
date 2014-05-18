@@ -1,81 +1,89 @@
 var assert = require('assert')
 var crypto = require('../src/crypto')
 
+var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
-var ECPubKey = require('../src/ecpubkey')
+
+var fixtures = require('./fixtures/eckey')
+var networks = require('../src/networks')
 
 describe('ECKey', function() {
   describe('constructor', function() {
-    it('parses hex', function() {
-      var priv = '18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725'
-      var pub = '0450863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b235' +
-        '22cd470243453a299fa9e77237716103abc11a1df38855ed6f2ee187e9c582ba6'
-      var key = ECKey.fromHex(priv, false)
+    it('defaults to compressed', function() {
+      var privKey = new ECKey(BigInteger.ONE)
 
-      assert.equal(key.pub.toHex(), pub)
-      assert.equal(key.pub.compressed, false)
+      assert.equal(privKey.pub.compressed, true)
     })
 
-    it('parses WIF', function() {
-      var priv = '5HwoXVkHoRM8sL2KmNRS217n1g8mPPBomrY7yehCuXC1115WWsh'
-      var pub = '044f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0' +
-        'f0b704075871aa385b6b1b8ead809ca67454d9683fcf2ba03456d6fe2c4abe2b07f0fbdbb2f1c1'
-      var addr = '1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a'
-      var key = ECKey.fromWIF(priv)
+    it('supports the uncompressed flag', function() {
+      var privKey = new ECKey(BigInteger.ONE, false)
 
-      assert.equal(key.pub.compressed, false)
-      assert.equal(key.pub.toHex(), pub)
-      assert.equal(key.pub.getAddress().toString(), addr)
+      assert.equal(privKey.pub.compressed, false)
     })
 
-    it('parses compressed WIF', function() {
-      var priv = 'KwntMbt59tTsj8xqpqYqRRWufyjGunvhSyeMo3NTYpFYzZbXJ5Hp'
-      var pub = '034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa'
-      var addr = '1Q1pE5vPGEEMqRcVRMbtBK842Y6Pzo6nK9'
-      var key = ECKey.fromWIF(priv)
+    it('calculates the matching pubKey', function() {
+      fixtures.valid.forEach(function(f) {
+        var privKey = new ECKey(new BigInteger(f.D))
 
-      assert.equal(key.pub.compressed, true)
-      assert.equal(key.pub.toHex(), pub)
-      assert.equal(key.pub.getAddress().toString(), addr)
+        assert.equal(privKey.pub.Q.toString(), f.Q.toString())
+      })
     })
 
-    it('alternative constructor syntax', function() {
-      var priv = 'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458'
-      var pub = '044b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea81199' +
-        '283fbec990dad6fb98f93f712d50cb874dd717de6a184158d63886dda3090f566'
-      var key = ECKey.fromHex(priv, false)
+    fixtures.invalid.constructor.forEach(function(f) {
+      it('throws on ' + f.description, function() {
+        assert.throws(function() {
+          new ECKey(new BigInteger(f.D))
+        })
+      })
+    })
+  })
 
-      assert.equal(key.pub.toHex(), pub)
-      assert.equal(key.pub.compressed, false)
-      assert.equal(key.toHex(), priv)
+  describe('fromWIF', function() {
+    it('matches the test vectors', function() {
+      fixtures.valid.forEach(function(f) {
+        f.WIFs.forEach(function(wif) {
+          var privKey = ECKey.fromWIF(wif.string)
+
+          assert.equal(privKey.D.toString(), f.D)
+          assert.equal(privKey.pub.compressed, wif.compressed)
+        })
+      })
+    })
+
+    fixtures.invalid.WIF.forEach(function(f) {
+      it('throws on ' + f.description, function() {
+        assert.throws(function() {
+          ECKey.fromWIF(f.string)
+        })
+      })
+    })
+  })
+
+  describe('toWIF', function() {
+    it('matches the test vectors', function() {
+      fixtures.valid.forEach(function(f) {
+        f.WIFs.forEach(function(wif) {
+          var privKey = ECKey.fromWIF(wif.string)
+          var version = networks[wif.network].wif
+          var result = privKey.toWIF(version)
+
+          assert.equal(result, wif.string)
+        })
+      })
     })
   })
 
   describe('signing', function() {
-    var hpriv = 'ca48ec9783cf3ad0dfeff1fc254395a2e403cbbc666477b61b45e31d3b8ab458'
-    var hcpub = '024b12d9d7c77db68388b6ff7c89046174c871546436806bcd80d07c28ea811992'
     var hash = crypto.sha256('Vires in numeris')
+    var priv = ECKey.makeRandom()
+    var signature = priv.sign(hash)
 
-    it('should verify against the private key', function() {
-      var priv = ECKey.fromHex(hpriv)
-      var signature = priv.sign(hash)
-
+    it('should verify against the public key', function() {
       assert(priv.pub.verify(hash, signature))
     })
 
-    it('should verify against the public key', function() {
-      var priv = ECKey.fromHex(hpriv)
-      var pub = ECPubKey.fromHex(hcpub, true)
-      var signature = priv.sign(hash)
-
-      assert(pub.verify(hash, signature))
-    })
-
-    it('should not verify against the wrong private key', function() {
-      var priv1 = ECKey.fromHex(hpriv)
-      var priv2 = ECKey.fromHex('1111111111111111111111111111111111111111111111111111111111111111')
-
-      var signature = priv1.sign(hash)
+    it('should not verify against the wrong public key', function() {
+      var priv2 = ECKey.makeRandom()
 
       assert(!priv2.pub.verify(hash, signature))
     })
