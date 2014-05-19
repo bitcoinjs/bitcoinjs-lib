@@ -118,15 +118,6 @@ describe('Transaction', function() {
         verifyTransactionIn()
       })
 
-      it('allows a TransactionIn object to be passed in', function() {
-        var txCopy = tx.clone()
-        txCopy.addInput(prevTx, 0)
-        var transactionIn = txCopy.ins[0]
-
-        tx.addInput(transactionIn)
-        verifyTransactionIn()
-      })
-
       function verifyTransactionIn() {
         assert.equal(tx.ins.length, 1)
 
@@ -148,15 +139,6 @@ describe('Transaction', function() {
 
       it('allows an Address object and value to be passed in', function() {
         tx.addOutput(Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'), 40000)
-        verifyTransactionOut()
-      })
-
-      it('allows a TransactionOut object to be passed in', function() {
-        var txCopy = tx.clone()
-        txCopy.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 40000)
-        var transactionOut = txCopy.outs[0]
-
-        tx.addOutput(transactionOut)
         verifyTransactionOut()
       })
 

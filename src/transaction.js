@@ -49,18 +49,12 @@ function Transaction(doc) {
  *
  * Can be called with any of:
  *
- * - An existing TransactionIn object
  * - A transaction and an index
  * - A transaction hash and an index
  *
  * Note that this method does not sign the created input.
  */
 Transaction.prototype.addInput = function (tx, outIndex) {
-  if (arguments[0] instanceof TransactionIn) {
-    this.ins.push(arguments[0])
-    return
-  }
-
   var hash = typeof tx === "string" ? tx : tx.hash
 
   this.ins.push(new TransactionIn({
@@ -77,16 +71,10 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  *
  * Can be called with:
  *
- * i) An existing TransactionOut object
- * ii) An address object or a string address, and a value
- *
+ * - An address object and a value
+ * - A base58 address string and a value
  */
 Transaction.prototype.addOutput = function (address, value) {
-  if (arguments[0] instanceof TransactionOut) {
-    this.outs.push(arguments[0])
-    return
-  }
-
   if (typeof address === 'string') {
     address = Address.fromBase58Check(address)
   }
@@ -222,12 +210,12 @@ Transaction.prototype.clone = function () {
   newTx.version = this.version
   newTx.locktime = this.locktime
 
-  this.ins.forEach(function(txin) {
-    newTx.addInput(txin.clone())
+  newTx.ins = this.ins.map(function(txin) {
+    return new TransactionIn(txin)
   })
 
-  this.outs.forEach(function(txout) {
-    newTx.addOutput(txout.clone())
+  newTx.outs = this.outs.map(function(txout) {
+    return new TransactionOut(txout)
   })
 
   return newTx
