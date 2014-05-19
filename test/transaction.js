@@ -142,6 +142,11 @@ describe('Transaction', function() {
         verifyTransactionOut()
       })
 
+      it('allows a scriptPubKey and a value to be passed in', function() {
+        tx.addOutput(Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3').toOutputScript(), 40000)
+        verifyTransactionOut()
+      })
+
       it('supports alternative networks', function() {
         var addr = 'mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR'
 

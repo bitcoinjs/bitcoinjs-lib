@@ -71,18 +71,31 @@ Transaction.prototype.addInput = function (tx, outIndex) {
  *
  * Can be called with:
  *
- * - An address object and a value
  * - A base58 address string and a value
+ * - An Address object and a value
+ * - A scriptPubKey Script and a value
  */
-Transaction.prototype.addOutput = function (address, value) {
-  if (typeof address === 'string') {
-    address = Address.fromBase58Check(address)
+Transaction.prototype.addOutput = function(scriptPubKey, value) {
+  // Attempt to get a valid address if it's a base58 address string
+  if (typeof scriptPubKey === 'string') {
+    scriptPubKey = Address.fromBase58Check(scriptPubKey)
+  }
+
+  // TODO: remove me
+  var addressString
+
+  // Attempt to get a valid script if it's an Address object
+  if (scriptPubKey instanceof Address) {
+    var address = scriptPubKey
+
+    addressString = address.toBase58Check()
+    scriptPubKey = address.toOutputScript()
   }
 
   this.outs.push(new TransactionOut({
+    script: scriptPubKey,
     value: value,
-    script: address.toOutputScript(),
-    address: address // TODO: Remove me
+    address: addressString
   }))
 }
 
