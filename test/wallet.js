@@ -492,13 +492,23 @@ describe('Wallet', function() {
 
     describe('testnet', function(){
       it('should create transaction', function(){
-        var to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
         var wallet = new Wallet(seed, {network: 'testnet'})
-        var tx = wallet.createTx(to, value)
+        var address = wallet.generateAddress()
 
+        wallet.setUnspentOutputs([{
+          hash: fakeTxHash(0),
+          outputIndex: 0,
+          address: address,
+          value: value
+        }])
+
+        var to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
+        var toValue = value - 20000
+
+        var tx = wallet.createTx(to, toValue)
         assert.equal(tx.outs.length, 1)
         assert.equal(tx.outs[0].address.toString(), to)
-        assert.equal(tx.outs[0].value, value)
+        assert.equal(tx.outs[0].value, toValue)
       })
     })
 
@@ -605,7 +615,7 @@ describe('Wallet', function() {
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, /Not enough money to send funds including transaction fee. Have: 1420000, needed: 1420001/)
+        }, /Not enough funds: 1420000 < 1420001/)
       })
     })
   })

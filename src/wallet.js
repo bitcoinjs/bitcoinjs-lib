@@ -179,34 +179,40 @@ function Wallet(seed, options) {
   }
 
   this.createTx = function(to, value, fixedFee, changeAddress) {
-    checkDust(value)
+    if (isDust(value)) throw new Error("Value must be above dust threshold")
+
+    var utxos = getCandidateOutputs(value)
+    var accum = 0
+    var subTotal = value
 
     var tx = new Transaction()
     tx.addOutput(to, value)
 
-    var utxo = getCandidateOutputs(value)
-    var totalInValue = 0
-    for(var i=0; i<utxo.length; i++){
-      var output = utxo[i]
-      tx.addInput(output.receive)
+    for (var i = 0; i < utxos.length; ++i) {
+      var utxo = utxos[i]
 
-      totalInValue += output.value
-      if(totalInValue < value) continue
+      tx.addInput(utxo.receive)
+      accum += utxo.value
 
       var fee = fixedFee == undefined ? estimateFeePadChangeOutput(tx) : fixedFee
-      if(totalInValue < value + fee) continue
 
-      var change = totalInValue - value - fee
-      if(change > 0 && !isDust(change)) {
-        tx.addOutput(changeAddress || getChangeAddress(), change)
+      subTotal = value + fee
+      if (accum >= subTotal) {
+        var change = accum - subTotal
+
+        if (!isDust(change)) {
+          tx.addOutput(changeAddress || getChangeAddress(), change)
+        }
+
+        break
       }
-      break
     }
 
-    checkInsufficientFund(totalInValue, value, fee)
+    if (accum < subTotal) {
+      throw new Error('Not enough funds: ' + accum + ' < ' + subTotal)
+    }
 
     this.sign(tx)
-
     return tx
   }
 
@@ -232,12 +238,6 @@ function Wallet(seed, options) {
     return amount <= me.dustThreshold
   }
 
-  function checkDust(value){
-    if (isNullOrUndefined(value) || isDust(value)) {
-      throw new Error("Value must be above dust threshold")
-    }
-  }
-
   function getCandidateOutputs(value){
     var unspent = []
     for (var key in me.outputs){
@@ -261,13 +261,6 @@ function Wallet(seed, options) {
   function getChangeAddress() {
     if(me.changeAddresses.length === 0) me.generateChangeAddress();
     return me.changeAddresses[me.changeAddresses.length - 1]
-  }
-
-  function checkInsufficientFund(totalInValue, value, fee) {
-    if(totalInValue < value + fee) {
-      throw new Error('Not enough money to send funds including transaction fee. Have: ' +
-                      totalInValue + ', needed: ' + (value + fee))
-    }
   }
 
   this.sign = function(tx) {
