@@ -22,6 +22,9 @@ function Wallet(seed, options) {
   this.addresses = []
   this.changeAddresses = []
 
+  // Dust value
+  this.dustThreshold = 5430
+
   // Transaction output data
   this.outputs = {}
 
@@ -168,7 +171,7 @@ function Wallet(seed, options) {
   }
 
   this.createTx = function(to, value, fixedFee, changeAddress) {
-    if (isDust(value)) throw new Error("Value must be above dust threshold")
+    if (value <= this.dustThreshold) throw new Error("Value must be above dust threshold")
 
     var utxos = getCandidateOutputs(value)
     var accum = 0
@@ -189,7 +192,7 @@ function Wallet(seed, options) {
       if (accum >= subTotal) {
         var change = accum - subTotal
 
-        if (!isDust(change)) {
+        if (change > this.dustThreshold) {
           tx.addOutput(changeAddress || getChangeAddress(), change)
         }
 
@@ -203,12 +206,6 @@ function Wallet(seed, options) {
 
     this.sign(tx)
     return tx
-  }
-
-
-  this.dustThreshold = 5430
-  function isDust(amount) {
-    return amount <= me.dustThreshold
   }
 
   function getCandidateOutputs(value){
