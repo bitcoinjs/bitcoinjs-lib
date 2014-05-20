@@ -303,7 +303,6 @@ describe('Wallet', function() {
         function outputCount(){
           return Object.keys(wallet.outputs).length
         }
-
       })
 
       describe("when tx ins outpoint contains a known txhash:i", function(){
@@ -340,7 +339,7 @@ describe('Wallet', function() {
 
     function verifyOutputAdded(index, pending) {
       var txOut = tx.outs[index]
-      var key = tx.getHash() + ":" + index
+      var key = tx.getId() + ":" + index
       var output = wallet.outputs[key]
       assert.equal(output.receive, key)
       assert.equal(output.value, txOut.value)

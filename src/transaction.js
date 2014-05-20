@@ -25,7 +25,6 @@ function Transaction(doc) {
   this.outs = []
 
   if (doc) {
-    if (doc.hash) this.hash = doc.hash;
     if (doc.version) this.version = doc.version;
     if (doc.locktime) this.locktime = doc.locktime;
     if (doc.ins && doc.ins.length) {
@@ -39,8 +38,6 @@ function Transaction(doc) {
         return new TransactionOut(output)
       })
     }
-
-    this.hash = this.hash || this.getHash()
   }
 }
 
@@ -54,8 +51,16 @@ function Transaction(doc) {
  *
  * Note that this method does not sign the created input.
  */
-Transaction.prototype.addInput = function (tx, outIndex) {
-  var hash = typeof tx === "string" ? tx : tx.hash
+Transaction.prototype.addInput = function(tx, outIndex) {
+  var hash
+
+  if (typeof tx === 'string') {
+    hash = tx
+
+  } else {
+    assert(tx instanceof Transaction, 'Unexpected input: ' + tx)
+    hash = tx.getId()
+  }
 
   this.ins.push(new TransactionIn({
     outpoint: {
@@ -209,7 +214,7 @@ Transaction.prototype.hashForSignature = function(prevOutScript, inIndex, hashTy
   return crypto.hash256(buffer)
 }
 
-Transaction.prototype.getHash = function () {
+Transaction.prototype.getId = function () {
   var buffer = crypto.hash256(this.toBuffer())
 
   // Big-endian is used for TxHash

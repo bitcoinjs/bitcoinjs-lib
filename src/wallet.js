@@ -146,9 +146,9 @@ function Wallet(seed, network) {
   }
 
   function processTx(tx, isPending) {
-    var txhash = tx.getHash()
+    var txid = tx.getId()
 
-    tx.outs.forEach(function(txOut, i){
+    tx.outs.forEach(function(txOut, i) {
       var address
 
       try {
@@ -158,7 +158,7 @@ function Wallet(seed, network) {
       }
 
       if (isMyAddress(address)) {
-        var output = txhash + ':' + i
+        var output = txid + ':' + i
 
         me.outputs[output] = {
           receive: output,
