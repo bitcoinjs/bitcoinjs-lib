@@ -84,17 +84,6 @@ function Wallet(seed, options) {
     this.outputs = outputs
   }
 
-  this.setUnspentOutputsAsync = function(utxo, callback) {
-    var error = null
-    try {
-      this.setUnspentOutputs(utxo)
-    } catch(err) {
-      error = err
-    } finally {
-      process.nextTick(function(){ callback(error) })
-    }
-  }
-
   function outputToUnspentOutput(output){
     var hashAndIndex = output.receive.split(":")
 
@@ -216,22 +205,6 @@ function Wallet(seed, options) {
     return tx
   }
 
-  this.createTxAsync = function(to, value, fixedFee, callback){
-    if(fixedFee instanceof Function) {
-      callback = fixedFee
-      fixedFee = undefined
-    }
-    var tx = null
-    var error = null
-
-    try {
-      tx = this.createTx(to, value, fixedFee)
-    } catch(err) {
-      error = err
-    } finally {
-      process.nextTick(function(){ callback(error, tx) })
-    }
-  }
 
   this.dustThreshold = 5430
   function isDust(amount) {

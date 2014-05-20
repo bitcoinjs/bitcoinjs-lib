@@ -277,38 +277,6 @@ describe('Wallet', function() {
         assert.equal(output.address, utxo[0].address)
       }
     })
-
-    describe('setUnspentOutputsAsync', function(){
-      var utxo
-      beforeEach(function(){
-        utxo = cloneObject([expectedUtxo])
-      })
-
-      afterEach(function(){
-        wallet.setUnspentOutputs.restore()
-      })
-
-      it('calls setUnspentOutputs', function(done){
-        sinon.stub(wallet, "setUnspentOutputs")
-
-        var callback = function(){
-          assert(wallet.setUnspentOutputs.calledWith(utxo))
-          done()
-        }
-
-        wallet.setUnspentOutputsAsync(utxo, callback)
-      })
-
-      it('when setUnspentOutputs throws an error, it invokes callback with error', function(done){
-        sinon.stub(wallet, "setUnspentOutputs").throws()
-
-        var callback = function(err){
-          assert(err instanceof Error)
-          done()
-        }
-        wallet.setUnspentOutputsAsync(utxo, callback)
-      })
-    })
   })
 
   describe('processTx', function(){
@@ -617,57 +585,6 @@ describe('Wallet', function() {
           wallet.createTx(to, value)
         }, /Not enough funds: 1420000 < 1420001/)
       })
-    })
-  })
-
-  describe('createTxAsync', function(){
-    var to, value, fee
-
-    beforeEach(function(){
-      to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
-      value = 500000
-      fee = 10000
-    })
-
-    afterEach(function(){
-      wallet.createTx.restore()
-    })
-
-    it('calls createTx', function(done){
-      sinon.stub(wallet, "createTx").returns("fakeTx")
-
-      var callback = function(err, tx){
-        assert(wallet.createTx.calledWith(to, value))
-        assert.equal(err, null)
-        assert.equal(tx, "fakeTx")
-        done()
-      }
-
-      wallet.createTxAsync(to, value, callback)
-    })
-
-    it('calls createTx correctly when fee is specified', function(done){
-      sinon.stub(wallet, "createTx").returns("fakeTx")
-
-      var callback = function(err, tx){
-        assert(wallet.createTx.calledWith(to, value, fee))
-        assert.equal(err, null)
-        assert.equal(tx, "fakeTx")
-        done()
-      }
-
-      wallet.createTxAsync(to, value, fee, callback)
-    })
-
-    it('when createTx throws an error, it invokes callback with error', function(done){
-      sinon.stub(wallet, "createTx").throws()
-
-      var callback = function(err, tx){
-        assert(err instanceof Error)
-        done()
-      }
-
-      wallet.createTxAsync(to, value, callback)
     })
   })
 
