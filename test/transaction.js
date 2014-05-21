@@ -13,7 +13,6 @@ var fixtureTx2Hex = fixtureTxes.tx
 var fixtureTxBigHex = fixtureTxes.bigTx
 
 function b2h(b) { return new Buffer(b).toString('hex') }
-function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('Transaction', function() {
   describe('toBuffer', function() {
@@ -29,14 +28,7 @@ describe('Transaction', function() {
   describe('fromBuffer', function() {
     var tx, serializedTx
     beforeEach(function() {
-      serializedTx = [
-        '0100000001344630cbff61fbc362f7e1ff2f11a344c29326e4ee96e78',
-        '7dc0d4e5cc02fd069000000004a493046022100ef89701f460e8660c8',
-        '0808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c0',
-        '72f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c2',
-        '3901ffffffff0100f2052a010000001976a914dd40dedd8f7e3746662',
-        '4c4dacc6362d8e7be23dd88ac00000000'
-      ].join('')
+      serializedTx = '0100000001344630cbff61fbc362f7e1ff2f11a344c29326e4ee96e787dc0d4e5cc02fd069000000004a493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901ffffffff0100f2052a010000001976a914dd40dedd8f7e37466624c4dacc6362d8e7be23dd88ac00000000'
       tx = Transaction.fromHex(serializedTx)
     })
 
@@ -64,8 +56,7 @@ describe('Transaction', function() {
       assert.equal(input.outpoint.index, 0)
       assert.equal(input.outpoint.hash.toString('hex'), "344630cbff61fbc362f7e1ff2f11a344c29326e4ee96e787dc0d4e5cc02fd069")
 
-      assert.equal(b2h(input.script.buffer),
-                   "493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901")
+      assert.equal(b2h(input.script.buffer), "493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901")
     })
 
     it('decodes outputs correctly', function() {
