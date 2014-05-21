@@ -91,21 +91,16 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
     scriptPubKey = Address.fromBase58Check(scriptPubKey)
   }
 
-  // TODO: remove me
-  var addressString
-
   // Attempt to get a valid script if it's an Address object
   if (scriptPubKey instanceof Address) {
     var address = scriptPubKey
 
-    addressString = address.toBase58Check()
     scriptPubKey = address.toOutputScript()
   }
 
   this.outs.push(new TransactionOut({
     script: scriptPubKey,
     value: value,
-    address: addressString
   }))
 }
 
@@ -386,14 +381,12 @@ TransactionIn.prototype.clone = function () {
 function TransactionOut(data) {
   this.script = data.script
   this.value = data.value
-  this.address = data.address
 }
 
 TransactionOut.prototype.clone = function() {
   return new TransactionOut({
     script: this.script,
-    value: this.value,
-    address: this.address
+    value: this.value
   })
 }
 

@@ -143,12 +143,13 @@ describe('Transaction', function() {
       })
 
       it('supports alternative networks', function() {
-        var addr = 'mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR'
+        var address = Address.fromBase58Check('mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR')
+        var script = address.toOutputScript()
 
-        tx.addOutput(addr, 40000)
+        tx.addOutput(address, 40000)
         verifyTransactionOut()
 
-        assert.equal(tx.outs[0].address.toString(), addr)
+        assert.deepEqual(tx.outs[0].script, script)
       })
 
       function verifyTransactionOut() {

@@ -455,7 +455,9 @@ describe('Wallet', function() {
 
         var tx = wallet.createTx(to, toValue)
         assert.equal(tx.outs.length, 1)
-        assert.equal(tx.outs[0].address.toString(), to)
+
+        var outAddress = Address.fromOutputScript(tx.outs[0].script, networks.testnet)
+        assert.equal(outAddress.toString(), to)
         assert.equal(tx.outs[0].value, toValue)
       })
     })
@@ -480,10 +482,14 @@ describe('Wallet', function() {
 
         var tx = wallet.createTx(to, toValue, fee, changeAddress)
         assert.equal(tx.outs.length, 2)
-        assert.equal(tx.outs[0].address.toString(), to)
+
+        var outAddress0 = Address.fromOutputScript(tx.outs[0].script, networks.testnet)
+        var outAddress1 = Address.fromOutputScript(tx.outs[1].script, networks.testnet)
+
+        assert.equal(outAddress0.toString(), to)
         assert.equal(tx.outs[0].value, toValue)
 
-        assert.equal(tx.outs[1].address.toString(), changeAddress)
+        assert.equal(outAddress1.toString(), changeAddress)
         assert.equal(tx.outs[1].value, value - (toValue + fee))
       })
     })
@@ -494,7 +500,9 @@ describe('Wallet', function() {
 
         assert.equal(tx.outs.length, 1)
         var out = tx.outs[0]
-        assert.equal(out.address, to)
+        var outAddress = Address.fromOutputScript(out.script)
+
+        assert.equal(outAddress.toString(), to)
         assert.equal(out.value, value)
       })
 
@@ -507,7 +515,9 @@ describe('Wallet', function() {
 
           assert.equal(tx.outs.length, 2)
           var out = tx.outs[1]
-          assert.equal(out.address, wallet.changeAddresses[1])
+          var outAddress = Address.fromOutputScript(out.script)
+
+          assert.equal(outAddress.toString(), wallet.changeAddresses[1])
           assert.equal(out.value, 15000)
         })
 
@@ -519,7 +529,9 @@ describe('Wallet', function() {
 
           assert.equal(wallet.changeAddresses.length, 1)
           var out = tx.outs[1]
-          assert.equal(out.address, wallet.changeAddresses[0])
+          var outAddress = Address.fromOutputScript(out.script)
+
+          assert.equal(outAddress.toString(), wallet.changeAddresses[0])
           assert.equal(out.value, 15000)
         })
 
