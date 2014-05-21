@@ -17,28 +17,11 @@ var SIGHASH_NONE = 0x02
 var SIGHASH_SINGLE = 0x03
 var SIGHASH_ANYONECANPAY = 0x80
 
-function Transaction(doc) {
-  if (!(this instanceof Transaction)) { return new Transaction(doc) }
+function Transaction() {
   this.version = 1
   this.locktime = 0
   this.ins = []
   this.outs = []
-
-  if (doc) {
-    if (doc.version) this.version = doc.version;
-    if (doc.locktime) this.locktime = doc.locktime;
-    if (doc.ins && doc.ins.length) {
-      this.ins = doc.ins.map(function(input) {
-        return new TransactionIn(input)
-      })
-    }
-
-    if (doc.outs && doc.outs.length) {
-      this.outs = doc.outs.map(function(output) {
-        return new TransactionOut(output)
-      })
-    }
-  }
 }
 
 /**
@@ -256,12 +239,10 @@ Transaction.fromBuffer = function(buffer) {
     return vi.number
   }
 
-  var ins = []
-  var outs = []
+  var tx = new Transaction()
+  tx.version = readUInt32()
 
-  var version = readUInt32()
   var vinLen = readVarInt()
-
   for (var i = 0; i < vinLen; ++i) {
     var hash = readSlice(32)
     var vout = readUInt32()
@@ -269,7 +250,7 @@ Transaction.fromBuffer = function(buffer) {
     var script = readSlice(scriptLen)
     var sequence = readUInt32()
 
-    ins.push(new TransactionIn({
+    tx.ins.push(new TransactionIn({
       outpoint: {
         hash: hash,
         index: vout
@@ -280,27 +261,21 @@ Transaction.fromBuffer = function(buffer) {
   }
 
   var voutLen = readVarInt()
-
   for (i = 0; i < voutLen; ++i) {
     var value = readUInt64()
     var scriptLen = readVarInt()
     var script = readSlice(scriptLen)
 
-    outs.push(new TransactionOut({
+    tx.outs.push(new TransactionOut({
       value: value,
       script: Script.fromBuffer(script)
     }))
   }
 
-  var locktime = readUInt32()
+  tx.locktime = readUInt32()
   assert.equal(offset, buffer.length, 'Invalid transaction')
 
-  return new Transaction({
-    version: version,
-    ins: ins,
-    outs: outs,
-    locktime: locktime
-  })
+  return tx
 }
 
 Transaction.fromHex = function(hex) {
