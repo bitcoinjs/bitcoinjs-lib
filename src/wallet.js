@@ -1,5 +1,4 @@
 var Address = require('./address')
-var convert = require('./convert')
 var HDNode = require('./hdwallet.js')
 var networks = require('./networks')
 var rng = require('secure-random')
@@ -92,7 +91,6 @@ function Wallet(seed, options) {
 
     return {
       hash: hashAndIndex[0],
-      hashLittleEndian: convert.reverseEndian(hashAndIndex[0]),
       outputIndex: parseInt(hashAndIndex[1]),
       address: output.address,
       value: output.value
@@ -100,7 +98,7 @@ function Wallet(seed, options) {
   }
 
   function unspentOutputToOutput(o) {
-    var hash = o.hash || convert.reverseEndian(o.hashLittleEndian)
+    var hash = o.hash
     var key = hash + ":" + o.outputIndex
     return {
       receive: key,
@@ -112,8 +110,8 @@ function Wallet(seed, options) {
   function validateUnspentOutput(uo) {
     var missingField
 
-    if (isNullOrUndefined(uo.hash) && isNullOrUndefined(uo.hashLittleEndian)) {
-      missingField = "hash(or hashLittleEndian)"
+    if (isNullOrUndefined(uo.hash)) {
+      missingField = "hash"
     }
 
     var requiredKeys = ['outputIndex', 'address', 'value']
@@ -129,7 +127,7 @@ function Wallet(seed, options) {
         'A valid unspent output must contain'
       ]
       message.push(requiredKeys.join(', '))
-      message.push("and hash(or hashLittleEndian)")
+      message.push("and hash")
       throw new Error(message.join(' '))
     }
   }
@@ -163,9 +161,10 @@ function Wallet(seed, options) {
 
     tx.ins.forEach(function(txIn, i){
       var op = txIn.outpoint
-      var o = me.outputs[op.hash+':'+op.index]
+
+      var o = me.outputs[op.hash + ':' + op.index]
       if (o) {
-        o.spend = txhash + ':' +i
+        o.spend = txhash + ':' + i
       }
     })
   }

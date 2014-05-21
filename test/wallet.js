@@ -168,7 +168,6 @@ describe('Wallet', function() {
     beforeEach(function(){
       expectedUtxo = {
         "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
-        "hashLittleEndian":"c7b97b432e7b3a8e31d1a4a0fa326c8fb002d19f2da5fc4feaf9c43a2762406a",
         "outputIndex": 0,
         "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
         "value": 20000
@@ -230,36 +229,13 @@ describe('Wallet', function() {
         utxo = cloneObject([expectedUtxo])
       })
 
-      it('uses hashLittleEndian when hash is not present', function(){
-        delete utxo[0]['hash']
-
-        wallet.setUnspentOutputs(utxo)
-        verifyOutputs()
-      })
-
-      it('uses hash when hashLittleEndian is not present', function(){
-        delete utxo[0]['hashLittleEndian']
-
-        wallet.setUnspentOutputs(utxo)
-        verifyOutputs()
-      })
-
-      it('uses hash when both hash and hashLittleEndian are present', function(){
+      it('matches the expected behaviour', function(){
         wallet.setUnspentOutputs(utxo)
         verifyOutputs()
       })
 
       describe('required fields', function(){
-        it("throws an error when hash and hashLittleEndian are both missing", function(){
-          delete utxo[0]['hash']
-          delete utxo[0]['hashLittleEndian']
-
-          assert.throws(function() {
-            wallet.setUnspentOutputs(utxo)
-          }, /Invalid unspent output: key hash\(or hashLittleEndian\) is missing/)
-        });
-
-        ['outputIndex', 'address', 'value'].forEach(function(field){
+        ['outputIndex', 'address', 'hash', 'value'].forEach(function(field){
           it("throws an error when " + field + " is missing", function(){
             delete utxo[0][field]
 
