@@ -16,7 +16,7 @@ function b2h(b) { return new Buffer(b).toString('hex') }
 function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('Transaction', function() {
-  describe('deserialize', function() {
+  describe('fromBuffer', function() {
     var tx, serializedTx
     beforeEach(function() {
       serializedTx = [
