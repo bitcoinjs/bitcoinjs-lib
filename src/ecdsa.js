@@ -1,5 +1,5 @@
 var assert = require('assert')
-var crypto = require('crypto')
+var crypto = require('./crypto')
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
 
@@ -36,10 +36,6 @@ function implShamirsTrick(P, k, Q, l) {
 
 var ecdsa = {
   deterministicGenerateK: function(hash, D) {
-    function HmacSHA256(buffer, secret) {
-      return crypto.createHmac('sha256', secret).update(buffer).digest()
-    }
-
     assert(Buffer.isBuffer(hash), 'Hash must be a Buffer')
     assert.equal(hash.length, 32, 'Hash must be 256 bit')
     assert(D instanceof BigInteger, 'Private key must be a BigInteger')
@@ -50,12 +46,12 @@ var ecdsa = {
     k.fill(0)
     v.fill(1)
 
-    k = HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
-    v = HmacSHA256(v, k)
+    k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
+    v = crypto.HmacSHA256(v, k)
 
-    k = HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
-    v = HmacSHA256(v, k)
-    v = HmacSHA256(v, k)
+    k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
+    v = crypto.HmacSHA256(v, k)
+    v = crypto.HmacSHA256(v, k)
 
     var n = ecparams.getN()
     var kB = BigInteger.fromBuffer(v).mod(n)
@@ -168,7 +164,7 @@ var ecdsa = {
   },
 
   /**
-   * Parses a byte array containing a DER-encoded signature.
+   * Parses a buffer containing a DER-encoded signature.
    *
    * This function will return an object of the form:
    *
@@ -177,54 +173,62 @@ var ecdsa = {
    *   s: BigInteger
    * }
    */
-  parseSig: function (sig) {
-    if(Array.isArray(sig)) sig = new Buffer(sig);
+  parseSig: function (buffer) {
+    if (Array.isArray(buffer)) buffer = new Buffer(buffer) // FIXME: transitionary
 
-    var cursor
-    if (sig[0] != 0x30) {
-      throw new Error("Signature not a valid DERSequence")
+    assert.equal(buffer.readUInt8(0), 0x30, 'Not a DER sequence')
+    assert.equal(buffer.readUInt8(1), buffer.length - 2, 'Invalid sequence length')
+
+    assert.equal(buffer.readUInt8(2), 0x02, 'Expected DER integer')
+    var rLen = buffer.readUInt8(3)
+    var rB = buffer.slice(4, 4 + rLen)
+
+    var offset = 4 + rLen
+    assert.equal(buffer.readUInt8(offset), 0x02, 'Expected a 2nd DER integer')
+    var sLen = buffer.readUInt8(1 + offset)
+    var sB = buffer.slice(2 + offset)
+
+    return {
+      r: BigInteger.fromByteArraySigned(rB),
+      s: BigInteger.fromByteArraySigned(sB)
     }
-
-    cursor = 2
-    if (sig[cursor] != 0x02) {
-      throw new Error("First element in signature must be a DERInteger")
-    }
-    var rBa = sig.slice(cursor+2, cursor+2+sig[cursor+1])
-
-    cursor += 2+sig[cursor+1]
-    if (sig[cursor] != 0x02) {
-      throw new Error("Second element in signature must be a DERInteger")
-    }
-    var sBa = sig.slice(cursor+2, cursor+2+sig[cursor+1])
-
-    cursor += 2+sig[cursor+1]
-
-    //if (cursor != sig.length)
-    //  throw new Error("Extra bytes in signature")
-
-    var r = BigInteger.fromBuffer(rBa)
-    var s = BigInteger.fromBuffer(sBa)
-
-    return {r: r, s: s}
   },
 
-  parseSigCompact: function (sig) {
-    if (sig.length !== 65) {
-      throw new Error("Signature has the wrong length")
+  serializeSigCompact: function(r, s, i, compressed) {
+    if (compressed) {
+      i += 4
     }
 
-    // Signature is prefixed with a type byte storing three bits of
-    // information.
-    var i = sig[0] - 27
-    if (i < 0 || i > 7) {
-      throw new Error("Invalid signature type")
+    i += 27
+
+    var buffer = new Buffer(65)
+    buffer.writeUInt8(i, 0)
+    r.toBuffer(32).copy(buffer, 1)
+    s.toBuffer(32).copy(buffer, 33)
+
+    return buffer
+  },
+
+  parseSigCompact: function (buffer) {
+    assert.equal(buffer.length, 65, 'Invalid signature length')
+    var i = buffer.readUInt8(0) - 27
+
+    // At most 3 bits
+    assert.equal(i, i & 7, 'Invalid signature type')
+    var compressed = !!(i & 4)
+
+    // Recovery param only
+    i = i & 3
+
+    var r = BigInteger.fromBuffer(buffer.slice(1, 33))
+    var s = BigInteger.fromBuffer(buffer.slice(33))
+
+    return {
+      r: r,
+      s: s,
+      i: i,
+      compressed: compressed
     }
-
-    var n = ecparams.getN()
-    var r = BigInteger.fromBuffer(sig.slice(1, 33)).mod(n)
-    var s = BigInteger.fromBuffer(sig.slice(33, 65)).mod(n)
-
-    return {r: r, s: s, i: i}
   },
 
   /**
@@ -236,12 +240,11 @@ var ecdsa = {
    * http://www.secg.org/download/aid-780/sec1-v2.pdf
    */
   recoverPubKey: function (r, s, hash, i) {
-    // The recovery parameter i has two bits.
-    i = i & 3
+    assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
 
-    // The less significant bit specifies whether the y coordinate
-    // of the compressed point is even or not.
-    var isYEven = i & 1
+    // A set LSB signifies that the y-coordinate is odd
+    // By reduction, the y-coordinate is even if it is clear
+    var isYEven = !(i & 1)
 
     // The more significant bit specifies whether we should use the
     // first or second candidate key.
@@ -266,10 +269,9 @@ var ecdsa = {
     var alpha = x.multiply(x).multiply(x).add(a.multiply(x)).add(b).mod(p)
     var beta = alpha.modPow(P_OVER_FOUR, p)
 
-    //    var xorOdd = beta.isEven() ? (i % 2) : ((i+1) % 2)
-    // If beta is even, but y isn't or vice versa, then convert it,
+    // If beta is even, but y isn't, or vice versa, then convert it,
     // otherwise we're done and y == beta.
-    var y = (beta.isEven() ? !isYEven : isYEven) ? beta : p.subtract(beta)
+    var y = (beta.isEven() ^ isYEven) ? p.subtract(beta) : beta
 
     // 1.4 Check that nR is at infinity
     var R = new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y))

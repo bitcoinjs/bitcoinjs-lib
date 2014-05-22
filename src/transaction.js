@@ -380,10 +380,11 @@ Transaction.prototype.setScriptSig = function(index, script) {
   this.ins[index].script = script
 }
 
-Transaction.prototype.validateSig = function(index, script, pub, sig, type) {
-  type = type || SIGHASH_ALL
+Transaction.prototype.validateSig = function(index, script, pub, sig) {
+  var type = sig[sig.length - 1]
   var hash = this.hashForSignature(script, index, type)
 
+  sig = sig.slice(0, -1)
   return pub.verify(hash, sig)
 }
 

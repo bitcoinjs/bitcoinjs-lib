@@ -21,14 +21,8 @@ function ECPubKey(Q, compressed) {
 
 // Static constructors
 ECPubKey.fromBuffer = function(buffer) {
-  var type = buffer.readUInt8(0)
-  assert(type >= 0x02 || type <= 0x04, 'Invalid public key')
-
-  var compressed = (type !== 0x04)
-  assert.strictEqual(buffer.length, compressed ? 33 : 65, 'Invalid public key')
-
-  var Q = ECPointFp.decodeFrom(ecparams.getCurve(), buffer)
-  return new ECPubKey(Q, compressed)
+  var decode = ECPointFp.decodeFrom(ecparams.getCurve(), buffer)
+  return new ECPubKey(decode.Q, decode.compressed)
 }
 
 ECPubKey.fromHex = function(hex) {
@@ -48,7 +42,7 @@ ECPubKey.prototype.verify = function(hash, sig) {
 
 // Export functions
 ECPubKey.prototype.toBuffer = function() {
-  return new Buffer(this.Q.getEncoded(this.compressed))
+  return this.Q.getEncoded(this.compressed)
 }
 
 ECPubKey.prototype.toHex = function() {

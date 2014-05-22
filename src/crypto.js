@@ -34,6 +34,10 @@ function sha256(buffer) {
 }
 
 // FIXME: Name not consistent with others
+function HmacSHA256(buffer, secret) {
+  return crypto.createHmac('sha256', secret).update(buffer).digest()
+}
+
 function HmacSHA512(data, secret) {
   assert(Buffer.isBuffer(data), 'Expected Buffer for data, got ' + data)
   assert(Buffer.isBuffer(secret), 'Expected Buffer for secret, got ' + secret)
@@ -51,5 +55,6 @@ module.exports = {
   sha256: sha256,
   hash160: hash160,
   hash256: hash256,
+  HmacSHA256: HmacSHA256,
   HmacSHA512: HmacSHA512
 }
