@@ -64,6 +64,21 @@ describe('ec', function() {
           })
         })
       })
+
+      it('supports other curves', function() {
+        var f = fixtures.valid.ECPointFp[1]
+        var ecparams2 = sec('secp256r1')
+        var curve = ecparams2.getCurve()
+
+        var D = BigInteger.ONE
+        var Q = ecparams2.getG().multiply(D)
+
+        var buffer = Q.getEncoded(true)
+        var decoded = ECPointFp.decodeFrom(curve, buffer)
+
+        assert(Q.equals(decoded.Q))
+        assert(decoded.compressed, true)
+      })
     })
   })
 })

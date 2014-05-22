@@ -6,8 +6,6 @@ var ecparams = sec("secp256k1")
 var BigInteger = require('bigi')
 var ECPointFp = require('./ec').ECPointFp
 
-var P_OVER_FOUR = null
-
 function implShamirsTrick(P, k, Q, l) {
   var m = Math.max(k.bitLength(), l.bitLength())
   var Z = P.add2D(Q)
@@ -75,9 +73,9 @@ var ecdsa = {
     var s = k.modInverse(n).multiply(e.add(D.multiply(r))).mod(n)
     assert.notEqual(s.signum(), 0, 'Invalid S value')
 
-    var N_OVER_TWO = n.divide(BigInteger.valueOf(2))
+    var N_OVER_TWO = n.shiftRight(1)
 
-    // Make 's' value 'low' as per bip62
+    // enforce low S values, see bip62: 'low s values in signatures'
     if (s.compareTo(N_OVER_TWO) > 0) {
       s = n.subtract(s)
     }
@@ -124,7 +122,6 @@ var ecdsa = {
     }
 
     var c = s.modInverse(n)
-
     var u1 = e.multiply(c).mod(n)
     var u2 = r.multiply(c).mod(n)
 
@@ -257,23 +254,23 @@ var ecdsa = {
     var a = curve.getA().toBigInteger()
     var b = curve.getB().toBigInteger()
 
-    // We precalculate (p + 1) / 4 where p is if the field order
-    if (!P_OVER_FOUR) {
-      P_OVER_FOUR = p.add(BigInteger.ONE).divide(BigInteger.valueOf(4))
+    // We precalculate (p + 1) / 4 where p is the field order
+    if (!curve.P_OVER_FOUR) {
+      curve.P_OVER_FOUR = p.add(BigInteger.ONE).shiftRight(2)
     }
 
     // 1.1 Compute x
     var x = isSecondKey ? r.add(n) : r
 
     // 1.3 Convert x to point
-    var alpha = x.multiply(x).multiply(x).add(a.multiply(x)).add(b).mod(p)
-    var beta = alpha.modPow(P_OVER_FOUR, p)
+    var alpha = x.pow(3).add(a.multiply(x)).add(b).mod(p)
+    var beta = alpha.modPow(curve.P_OVER_FOUR, p)
 
     // If beta is even, but y isn't, or vice versa, then convert it,
     // otherwise we're done and y == beta.
     var y = (beta.isEven() ^ isYEven) ? p.subtract(beta) : beta
 
-    // 1.4 Check that nR is at infinity
+    // 1.4 Check that nR isn't at infinity
     var R = new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y))
     R.validate()
 
