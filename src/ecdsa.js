@@ -240,12 +240,11 @@ var ecdsa = {
    * http://www.secg.org/download/aid-780/sec1-v2.pdf
    */
   recoverPubKey: function (r, s, hash, i) {
-    // The recovery parameter i has two bits.
-    i = i & 3
+    assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
 
-    // The less significant bit specifies whether the y coordinate
-    // of the compressed point is even or not.
-    var isYEven = i & 1
+    // A set LSB signifies that the y-coordinate is odd
+    // By reduction, the y-coordinate is even if it is clear
+    var isYEven = !(i & 1)
 
     // The more significant bit specifies whether we should use the
     // first or second candidate key.
@@ -270,10 +269,9 @@ var ecdsa = {
     var alpha = x.multiply(x).multiply(x).add(a.multiply(x)).add(b).mod(p)
     var beta = alpha.modPow(P_OVER_FOUR, p)
 
-    //    var xorOdd = beta.isEven() ? (i % 2) : ((i+1) % 2)
-    // If beta is even, but y isn't or vice versa, then convert it,
+    // If beta is even, but y isn't, or vice versa, then convert it,
     // otherwise we're done and y == beta.
-    var y = (beta.isEven() ? !isYEven : isYEven) ? beta : p.subtract(beta)
+    var y = (beta.isEven() ^ isYEven) ? p.subtract(beta) : beta
 
     // 1.4 Check that nR is at infinity
     var R = new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y))

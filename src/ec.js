@@ -339,7 +339,7 @@ ECPointFp.decodeFrom = function (curve, buffer) {
     assert.equal(buffer.length, 33, 'Invalid sequence length')
     assert(type === 0x02 || type === 0x03, 'Invalid sequence tag')
 
-    var isYEven = type === 0x03
+    var isYEven = (type === 0x02)
     var p = curve.getQ()
 
     // We precalculate (p + 1) / 4 where p is the field order
@@ -349,7 +349,9 @@ ECPointFp.decodeFrom = function (curve, buffer) {
     var alpha = x.square().multiply(x).add(SEVEN).mod(p)
     var beta = alpha.modPow(P_OVER_FOUR, p)
 
-    y = (beta.isEven() ? !isYEven : isYEven) ? beta : p.subtract(beta)
+    // If beta is even, but y isn't, or vice versa, then convert it,
+    // otherwise we're done and y == beta.
+    y = (beta.isEven() ^ isYEven) ? p.subtract(beta) : beta
 
   } else {
     assert.equal(buffer.length, 65, 'Invalid sequence length')
