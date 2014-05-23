@@ -18,12 +18,12 @@
     "mocha": "1.18.2",
     "istanbul": "0.1.30",
     "uglify-js": "2.4.13",
-    "node-browserify": "https://github.com/substack/node-browserify/tarball/master",
     "sinon": "1.9.0",
     "coveralls": "~2.10.0",
     "mocha-lcov-reporter": "0.0.1",
     "helloblock-js": "^0.2.1",
-    "request": "~2.34.0"
+    "request": "~2.34.0",
+    "browserify": "~4.1.5"
   },
   "testling": {
     "browsers": [
