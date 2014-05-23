@@ -197,7 +197,7 @@ describe('Transaction', function() {
         tx.sign(0, key)
 
         var script = prevTx.outs[0].script
-        var sig = tx.ins[0].script.chunks[0]
+        var sig = new Buffer(tx.ins[0].script.chunks[0])
 
         assert.equal(tx.validateSig(0, script, key.pub, sig), true)
       })
@@ -213,7 +213,7 @@ describe('Transaction', function() {
       it('returns true for valid signature', function(){
         var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
         var script = prevTx.outs[0].script
-        var sig = validTx.ins[0].script.chunks[0]
+        var sig = new Buffer(validTx.ins[0].script.chunks[0])
 
         assert.equal(validTx.validateSig(0, script, key.pub, sig), true)
       })

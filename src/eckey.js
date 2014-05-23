@@ -63,7 +63,7 @@ ECKey.prototype.toWIF = function(version) {
 
 // Operations
 ECKey.prototype.sign = function(hash) {
-  return ecdsa.sign(hash, this.D)
+  return ecdsa.sign(ecparams, hash, this.D)
 }
 
 module.exports = ECKey
