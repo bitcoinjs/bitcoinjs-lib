@@ -1,7 +1,7 @@
 var assert = require('assert')
 var bufferutils = require('../src/bufferutils')
 
-var fixtures = require('./fixtures/buffer.js')
+var fixtures = require('./fixtures/buffer.json')
 
 describe('bufferutils', function() {
   describe('readUInt64LE', function() {

@@ -1,7 +1,7 @@
 var assert = require('assert')
 var crypto = require('../src/crypto')
 
-var fixtures = require('./fixtures/crypto')
+var fixtures = require('./fixtures/crypto.json')
 
 describe('Crypto', function() {
   describe('HASH160', function() {

@@ -1,9 +1,7 @@
 var assert = require('assert')
 var base58 = require('../src/base58')
-var fixtures = require('./fixtures/base58')
 
-function b2h(b) { return new Buffer(b).toString('hex') }
-function h2b(h) { return new Buffer(h, 'hex') }
+var fixtures = require('./fixtures/base58.json')
 
 describe('base58', function() {
   describe('decode', function() {
@@ -12,7 +10,7 @@ describe('base58', function() {
         var actual = base58.decode(f.string)
         var expected = f.hex
 
-        assert.strictEqual(b2h(actual), expected)
+        assert.strictEqual(actual.toString('hex'), expected)
       })
     })
 
@@ -28,7 +26,7 @@ describe('base58', function() {
   describe('encode', function() {
     it('can encode Bitcoin core test data', function() {
       fixtures.valid.forEach(function(f) {
-        var actual = base58.encode(h2b(f.hex))
+        var actual = base58.encode(new Buffer(f.hex, 'hex'))
         var expected = f.string.trim()
 
         assert.strictEqual(actual, expected)

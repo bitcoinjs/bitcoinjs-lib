@@ -1,6 +1,7 @@
 var assert = require('assert')
 var base58check = require('../src/base58check')
-var fixtures = require('./fixtures/base58check')
+
+var fixtures = require('./fixtures/base58check.json')
 
 function b2h(b) { return new Buffer(b).toString('hex') }
 function h2b(h) { return new Buffer(h, 'hex') }

@@ -3,8 +3,8 @@ var Address = require('../src/address')
 var networks = require('../src/networks')
 var Script = require('../src/script')
 
-var b58fixtures = require('./fixtures/base58')
-var fixtures = require('./fixtures/address')
+var b58fixtures = require('./fixtures/base58.json')
+var fixtures = require('./fixtures/address.json')
 
 function h2b(h) { return new Buffer(h, 'hex') }
 

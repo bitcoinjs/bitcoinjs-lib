@@ -8,10 +8,8 @@ var sec = require('../src/sec')
 var ecparams = sec("secp256k1")
 
 var BigInteger = require('bigi')
-var ECKey = require('../src/eckey')
-var ECPubKey = require('../src/ecpubkey')
 
-var fixtures = require('./fixtures/ecdsa.js')
+var fixtures = require('./fixtures/ecdsa.json')
 
 describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
