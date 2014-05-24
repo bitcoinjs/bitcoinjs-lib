@@ -67,12 +67,12 @@ These examples assume you are running bitcoinjs-lib in the browser.
 
 key = Bitcoin.ECKey.makeRandom()
 
-// Print your private key (a hex string)
-console.log(key.toString())
+// Print your private key (in WIF format)
+console.log(key.toWIF())
 // => 8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48
 
-// Print your public key (defaults to a Bitcoin address)
-console.log(key.pub.getAddress())
+// Print your public key (toString defaults to a Bitcoin address)
+console.log(key.pub.getAddress().toString())
 // => 14bZ7YWde4KdRb5YN7GYkToz3EHVCvRxkF
 ```
 
