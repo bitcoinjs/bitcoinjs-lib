@@ -312,15 +312,15 @@ Transaction.prototype.setInputScript = function(index, script) {
   this.ins[index].script = script
 }
 
-// FIXME: should probably be validateInput(index, pub)
-Transaction.prototype.validateInput = function(index, script, pub, DERsig) {
+// FIXME: could be validateInput(index, prevTxOut, pub)
+Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, DERsig) {
   var type = DERsig.readUInt8(DERsig.length - 1)
   DERsig = DERsig.slice(0, -1)
 
-  var hash = this.hashForSignature(script, index, type)
-  var sig = ecdsa.parseSig(DERsig)
+  var hash = this.hashForSignature(prevOutScript, index, type)
+  var signature = ecdsa.parseSig(DERsig)
 
-  return pub.verify(hash, sig)
+  return pubKey.verify(hash, signature)
 }
 
 Transaction.feePerKb = 20000
