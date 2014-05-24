@@ -1,7 +1,7 @@
 {
   "valid": [
     {
-      "D": "0000000000000000000000000000000000000000000000000000000000000001",
+      "D": "01",
       "k": "ec633bd56a5774a0940cb97e27a9e4e51dc94af737596a0c5cbb3d30332d92a5",
       "message": "Everything should be made as simple as possible, but not simpler.",
       "compact": "1f33a69cd2065432a30f3d1ce4eb0d59b8ab58c74f27c41a7fdb5696ad4e6108c96f807982866f785d3f6418d24163ddae117b7db4d5fdf0071de069fa54342262",
@@ -131,6 +131,53 @@
       {
         "description": "Sequence too long",
         "hex": "30080304ffffffff0304ffffffffffffff"
+      }
+    ],
+    "verifyRaw": [
+      {
+        "description": "The wrong signature",
+        "D": "01",
+        "e": "06ef2b193b83b3d701f765f1db34672ab84897e1252343cc2197829af3a30456",
+        "signature": {
+          "r": "38341707918488238920692284707283974715538935465589664377561695343399725051885",
+          "s": "3180566392414476763164587487324397066658063772201694230600609996154610926757"
+        }
+      },
+      {
+        "description": "Invalid r value (== 0)",
+        "D": "01",
+        "e": "01",
+        "signature": {
+          "r": "00",
+          "s": "02"
+        }
+      },
+      {
+        "description": "Invalid r value (>= n)",
+        "D": "01",
+        "e": "01",
+        "signature": {
+          "r": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
+          "s": "02"
+        }
+      },
+      {
+        "description": "Invalid s value (== 0)",
+        "D": "01",
+        "e": "01",
+        "signature": {
+          "r": "02",
+          "s": "00"
+        }
+      },
+      {
+        "description": "Invalid s value (>= n)",
+        "D": "01",
+        "e": "01",
+        "signature": {
+          "r": "02",
+          "s": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
+        }
       }
     ]
   }
