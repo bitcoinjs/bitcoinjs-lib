@@ -32,9 +32,9 @@ describe('ecdsa', function() {
       var Q = ecparams.getG().multiply(D)
       var hash = message.magicHash('1111', networks.bitcoin)
       var e = BigInteger.fromBuffer(hash)
-      var psig = ecdsa.parseSigCompact(signature)
+      var parsed = ecdsa.parseSigCompact(signature)
 
-      var Qprime = ecdsa.recoverPubKey(ecparams, e, psig.r, psig.s, psig.i)
+      var Qprime = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
       assert(Q.equals(Qprime))
     })
   })
@@ -44,10 +44,10 @@ describe('ecdsa', function() {
       fixtures.valid.forEach(function(f) {
         var D = BigInteger.fromHex(f.D)
         var hash = crypto.sha256(f.message)
-        var sig = ecdsa.sign(ecparams, hash, D)
+        var signature = ecdsa.sign(ecparams, hash, D)
 
-        assert.equal(sig.r.toString(), f.signature.r)
-        assert.equal(sig.s.toString(), f.signature.s)
+        assert.equal(signature.r.toString(), f.signature.r)
+        assert.equal(signature.s.toString(), f.signature.s)
       })
     })
 
@@ -67,11 +67,13 @@ describe('ecdsa', function() {
         var D = BigInteger.fromHex(f.D)
         var Q = ecparams.getG().multiply(D)
 
-        var r = new BigInteger(f.signature.r)
-        var s = new BigInteger(f.signature.s)
+        var signature = {
+          r: new BigInteger(f.signature.r),
+          s: new BigInteger(f.signature.s)
+        }
         var e = BigInteger.fromBuffer(crypto.sha256(f.message))
 
-        assert(ecdsa.verifyRaw(ecparams, e, r, s, Q))
+        assert(ecdsa.verifyRaw(ecparams, e, signature, Q))
       })
     })
 
@@ -79,11 +81,13 @@ describe('ecdsa', function() {
       it('fails to verify with ' + f.description, function() {
         var D = BigInteger.fromHex(f.D)
         var e = BigInteger.fromHex(f.e)
-        var r = new BigInteger(f.signature.r)
-        var s = new BigInteger(f.signature.s)
+        var signature = {
+          r: new BigInteger(f.signature.r),
+          s: new BigInteger(f.signature.s)
+        }
         var Q = ecparams.getG().multiply(D)
 
-        assert.equal(ecdsa.verifyRaw(ecparams, e, r, s, Q), false)
+        assert.equal(ecdsa.verifyRaw(ecparams, e, signature, Q), false)
       })
     })
   })
@@ -91,10 +95,12 @@ describe('ecdsa', function() {
   describe('serializeSig', function() {
     it('encodes a DER signature', function() {
       fixtures.valid.forEach(function(f) {
-        var r = new BigInteger(f.signature.r)
-        var s = new BigInteger(f.signature.s)
+        var signature = {
+          r: new BigInteger(f.signature.r),
+          s: new BigInteger(f.signature.s)
+        }
 
-        var signature = new Buffer(ecdsa.serializeSig(r, s))
+        var signature = new Buffer(ecdsa.serializeSig(signature))
         assert.equal(signature.toString('hex'), f.DER)
       })
     })
@@ -125,13 +131,15 @@ describe('ecdsa', function() {
   describe('serializeSigCompact', function() {
     it('encodes a compact signature', function() {
       fixtures.valid.forEach(function(f) {
-        var r = new BigInteger(f.signature.r)
-        var s = new BigInteger(f.signature.s)
-        var i = f.signature.i
-        var compressed = f.signature.compressed
+        var signature = {
+          r: new BigInteger(f.signature.r),
+          s: new BigInteger(f.signature.s)
+        }
+        var i = f.compact.i
+        var compressed = f.compact.compressed
 
-        var signature = ecdsa.serializeSigCompact(r, s, i, compressed)
-        assert.equal(signature.toString('hex'), f.compact)
+        var signature = ecdsa.serializeSigCompact(signature, i, compressed)
+        assert.equal(signature.toString('hex'), f.compact.hex)
       })
     })
   })
@@ -139,13 +147,13 @@ describe('ecdsa', function() {
   describe('parseSigCompact', function() {
     it('decodes the correct signature', function() {
       fixtures.valid.forEach(function(f) {
-        var buffer = new Buffer(f.compact, 'hex')
-        var signature = ecdsa.parseSigCompact(buffer)
+        var buffer = new Buffer(f.compact.hex, 'hex')
+        var parsed = ecdsa.parseSigCompact(buffer)
 
-        assert.equal(signature.r.toString(), f.signature.r)
-        assert.equal(signature.s.toString(), f.signature.s)
-        assert.equal(signature.i, f.signature.i)
-        assert.equal(signature.compressed, f.signature.compressed)
+        assert.equal(parsed.signature.r.toString(), f.signature.r)
+        assert.equal(parsed.signature.s.toString(), f.signature.s)
+        assert.equal(parsed.i, f.compact.i)
+        assert.equal(parsed.compressed, f.compact.compressed)
       })
     })
 

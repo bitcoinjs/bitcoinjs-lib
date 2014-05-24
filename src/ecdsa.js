@@ -54,23 +54,21 @@ function sign(ecparams, hash, D) {
   return {r: r, s: s}
 }
 
-function verify(ecparams, hash, r, s, Q) {
+function verify(ecparams, hash, signature, Q) {
   var e = BigInteger.fromBuffer(hash)
 
-  return verifyRaw(ecparams, e, r, s, Q)
+  return verifyRaw(ecparams, e, signature, Q)
 }
 
-function verifyRaw(ecparams, e, r, s, Q) {
+function verifyRaw(ecparams, e, signature, Q) {
   var n = ecparams.getN()
   var G = ecparams.getG()
 
-  if (r.signum() === 0 || r.compareTo(n) >= 0) {
-    return false
-  }
+  var r = signature.r
+  var s = signature.s
 
-  if (s.signum() === 0 || s.compareTo(n) >= 0) {
-    return false
-  }
+  if (r.signum() === 0 || r.compareTo(n) >= 0) return false
+  if (s.signum() === 0 || s.compareTo(n) >= 0) return false
 
   var c = s.modInverse(n)
 
@@ -88,9 +86,9 @@ function verifyRaw(ecparams, e, r, s, Q) {
   *
   * Takes two BigIntegers representing r and s and returns a byte array.
   */
-function serializeSig(r, s) {
-  var rBa = r.toDERInteger()
-  var sBa = s.toDERInteger()
+function serializeSig(signature) {
+  var rBa = signature.r.toDERInteger()
+  var sBa = signature.s.toDERInteger()
 
   var sequence = []
   sequence.push(0x02); // INTEGER
@@ -136,7 +134,7 @@ function parseSig(buffer) {
   }
 }
 
-function serializeSigCompact(r, s, i, compressed) {
+function serializeSigCompact(signature, i, compressed) {
   if (compressed) {
     i += 4
   }
@@ -145,8 +143,9 @@ function serializeSigCompact(r, s, i, compressed) {
 
   var buffer = new Buffer(65)
   buffer.writeUInt8(i, 0)
-  r.toBuffer(32).copy(buffer, 1)
-  s.toBuffer(32).copy(buffer, 33)
+
+  signature.r.toBuffer(32).copy(buffer, 1)
+  signature.s.toBuffer(32).copy(buffer, 33)
 
   return buffer
 }
@@ -166,8 +165,10 @@ function parseSigCompact(buffer) {
   var s = BigInteger.fromBuffer(buffer.slice(33))
 
   return {
-    r: r,
-    s: s,
+    signature: {
+      r: r,
+      s: s
+    },
     i: i,
     compressed: compressed
   }
@@ -181,8 +182,11 @@ function parseSigCompact(buffer) {
   *
   * http://www.secg.org/download/aid-780/sec1-v2.pdf
   */
-function recoverPubKey(ecparams, e, r, s, i) {
+function recoverPubKey(ecparams, e, signature, i) {
   assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
+
+  var r = signature.r
+  var s = signature.s
 
   // A set LSB signifies that the y-coordinate is odd
   // By reduction, the y-coordinate is even if it is clear
@@ -229,7 +233,7 @@ function recoverPubKey(ecparams, e, r, s, i) {
   var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
   Q.validate()
 
-  if (!verifyRaw(ecparams, e, r, s, Q)) {
+  if (!verifyRaw(ecparams, e, signature, Q)) {
     throw new Error("Pubkey recovery unsuccessful")
   }
 
@@ -247,9 +251,9 @@ function recoverPubKey(ecparams, e, r, s, i) {
   * This function simply tries all four cases and returns the value
   * that resulted in a successful pubkey recovery.
   */
-function calcPubKeyRecoveryParam(ecparams, e, r, s, Q) {
+function calcPubKeyRecoveryParam(ecparams, e, signature, Q) {
   for (var i = 0; i < 4; i++) {
-    var Qprime = recoverPubKey(ecparams, e, r, s, i)
+    var Qprime = recoverPubKey(ecparams, e, signature, i)
 
     if (Qprime.equals(Q)) {
       return i
@@ -260,14 +264,14 @@ function calcPubKeyRecoveryParam(ecparams, e, r, s, Q) {
 }
 
 module.exports = {
-calcPubKeyRecoveryParam: calcPubKeyRecoveryParam,
-deterministicGenerateK: deterministicGenerateK,
-recoverPubKey: recoverPubKey,
-sign: sign,
-verify: verify,
-verifyRaw: verifyRaw,
-serializeSig: serializeSig,
-parseSig: parseSig,
-serializeSigCompact: serializeSigCompact,
-parseSigCompact: parseSigCompact
+  calcPubKeyRecoveryParam: calcPubKeyRecoveryParam,
+  deterministicGenerateK: deterministicGenerateK,
+  recoverPubKey: recoverPubKey,
+  sign: sign,
+  verify: verify,
+  verifyRaw: verifyRaw,
+  serializeSig: serializeSig,
+  parseSig: parseSig,
+  serializeSigCompact: serializeSigCompact,
+  parseSigCompact: parseSigCompact
 }
