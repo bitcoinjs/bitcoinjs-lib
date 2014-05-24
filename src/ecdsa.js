@@ -64,15 +64,16 @@ function verifyRaw(ecparams, e, r, s, Q) {
   var n = ecparams.getN()
   var G = ecparams.getG()
 
-  if (r.compareTo(BigInteger.ONE) < 0 || r.compareTo(n) >= 0) {
+  if (r.signum() === 0 || r.compareTo(n) >= 0) {
     return false
   }
 
-  if (s.compareTo(BigInteger.ONE) < 0 || s.compareTo(n) >= 0) {
+  if (s.signum() === 0 || s.compareTo(n) >= 0) {
     return false
   }
 
   var c = s.modInverse(n)
+
   var u1 = e.multiply(c).mod(n)
   var u2 = r.multiply(c).mod(n)
 
