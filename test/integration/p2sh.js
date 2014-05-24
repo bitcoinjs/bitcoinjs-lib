@@ -28,7 +28,7 @@ describe('p2sh', function() {
       return eck.pub
     })
     var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
-    var hash160 = crypto.hash160(redeemScript.buffer)
+    var hash160 = crypto.hash160(new Buffer(redeemScript.buffer))
     var multisigAddress = new Address(hash160, networks.testnet.scriptHash)
 
     // Check what our target address's starting value is
