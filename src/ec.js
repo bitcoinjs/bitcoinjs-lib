@@ -287,20 +287,6 @@ ECCurveFp.prototype.equals = curveFpEquals;
 ECCurveFp.prototype.getInfinity = curveFpGetInfinity;
 ECCurveFp.prototype.fromBigInteger = curveFpFromBigInteger;
 
-// prepends 0 if bytes < len
-// cuts off start if bytes > len
-function integerToBytes(i, len) {
-  var bytes = i.toByteArrayUnsigned();
-
-  if (len < bytes.length) {
-    bytes = bytes.slice(bytes.length-len);
-  } else while (len > bytes.length) {
-    bytes.unshift(0);
-  }
-
-  return bytes;
-};
-
 ECFieldElementFp.prototype.getByteLength = function () {
   return Math.floor((this.toBigInteger().bitLength() + 7) / 8);
 };
@@ -369,72 +355,6 @@ ECPointFp.decodeFrom = function (curve, buffer) {
     compressed: compressed
   }
 }
-
-ECPointFp.prototype.add2D = function (b) {
-  if(this.isInfinity()) return b;
-  if(b.isInfinity()) return this;
-
-  if (this.x.equals(b.x)) {
-    if (this.y.equals(b.y)) {
-      // this = b, i.e. this must be doubled
-      return this.twice();
-    }
-    // this = -b, i.e. the result is the point at infinity
-    return this.curve.getInfinity();
-  }
-
-  var x_x = b.x.subtract(this.x);
-  var y_y = b.y.subtract(this.y);
-  var gamma = y_y.divide(x_x);
-
-  var x3 = gamma.square().subtract(this.x).subtract(b.x);
-  var y3 = gamma.multiply(this.x.subtract(x3)).subtract(this.y);
-
-  return new ECPointFp(this.curve, x3, y3);
-};
-
-ECPointFp.prototype.twice2D = function () {
-  if (this.isInfinity()) return this;
-  if (this.y.toBigInteger().signum() === 0) {
-    // if y1 == 0, then (x1, y1) == (x1, -y1)
-    // and hence this = -this and thus 2(x1, y1) == infinity
-    return this.curve.getInfinity();
-  }
-
-  var FpTWO = this.curve.fromBigInteger(TWO);
-  var FpTHREE = this.curve.fromBigInteger(THREE)
-  var gamma = this.x.square().multiply(FpTHREE).add(this.curve.a).divide(this.y.multiply(FpTWO));
-
-  var x3 = gamma.square().subtract(this.x.multiply(FpTWO));
-  var y3 = gamma.multiply(this.x.subtract(x3)).subtract(this.y);
-
-  return new ECPointFp(this.curve, x3, y3);
-};
-
-ECPointFp.prototype.multiply2D = function (k) {
-  if(this.isInfinity()) return this;
-  if (k.signum() === 0) return this.curve.getInfinity()
-
-  var e = k;
-  var h = e.multiply(THREE)
-
-  var neg = this.negate();
-  var R = this;
-
-  var i;
-  for (i = h.bitLength() - 2; i > 0; --i) {
-    R = R.twice();
-
-    var hBit = h.testBit(i);
-    var eBit = e.testBit(i);
-
-    if (hBit != eBit) {
-      R = R.add2D(hBit ? this : neg);
-    }
-  }
-
-  return R;
-};
 
 ECPointFp.prototype.isOnCurve = function () {
   var x = this.getX().toBigInteger();
