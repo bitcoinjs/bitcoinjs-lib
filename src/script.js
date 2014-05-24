@@ -184,7 +184,7 @@ function isSmallIntOp(opcode) {
 }
 
 Script.prototype.getHash = function() {
-  return crypto.hash160(this.buffer)
+  return crypto.hash160(new Buffer(this.buffer))
 }
 
 /**
