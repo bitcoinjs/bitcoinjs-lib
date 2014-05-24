@@ -8,15 +8,9 @@ var Message = require('../src/message')
 var fixtures = require('./fixtures/message.json')
 
 describe('Message', function() {
-  var message
-
-  beforeEach(function() {
-    message = 'vires is numeris'
-  })
-
   describe('magicHash', function() {
     it('matches the test vectors', function() {
-      fixtures.magicHash.forEach(function(f) {
+      fixtures.valid.magicHash.forEach(function(f) {
         var network = networks[f.network]
         var actual = Message.magicHash(f.message, network)
 
@@ -26,58 +20,45 @@ describe('Message', function() {
   })
 
   describe('verify', function() {
-    var addr, sig, caddr, csig
+    it('verifies a valid signature', function() {
+      fixtures.valid.verify.forEach(function(f) {
+        var network = networks[f.network]
 
-    beforeEach(function() {
-      addr = '16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM' // uncompressed
-      caddr = '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs' // compressed
+        var signature = new Buffer(f.signature, 'base64')
+        assert.ok(Message.verify(f.address, signature, f.message, network))
 
-      sig = new Buffer('G8JawPtQOrybrSP1WHQnQPr67B9S3qrxBrl1mlzoTJOSHEpmnF7D3+t+LX0Xei9J20B5AIdPbeL3AaTBZ4N3bY0=', 'base64')
-      csig = new Buffer('H8JawPtQOrybrSP1WHQnQPr67B9S3qrxBrl1mlzoTJOSHEpmnF7D3+t+LX0Xei9J20B5AIdPbeL3AaTBZ4N3bY0=', 'base64')
+        if (f.compressed) {
+          var compressedSignature = new Buffer(f.compressed.signature, 'base64')
+
+          assert.ok(Message.verify(f.compressed.address, compressedSignature, f.message, network))
+        }
+      })
     })
 
-    it('can verify a signed message', function() {
-      assert.ok(Message.verify(addr, sig, message))
-    })
-
-    it('will fail for the wrong message', function() {
-      assert.ok(!Message.verify(addr, sig, 'foobar'))
-    })
-
-    it('will fail for the wrong address', function() {
-      assert.ok(!Message.verify('1MsHWS1BnwMc3tLE8G35UXsS58fKipzB7a', sig, message))
-    })
-
-    it('does not cross verify (compressed/uncompressed)', function() {
-      assert.ok(!Message.verify(addr, csig, message))
-      assert.ok(!Message.verify(caddr, sig, message))
-    })
-
-    it('supports alternate networks', function() {
-      var dogeaddr = 'DFpN6QqFfUm3gKNaxN6tNcab1FArL9cZLE'
-      var dogesig = new Buffer('H6k+dZwJ8oOei3PCSpdj603fDvhlhQ+sqaFNIDvo/bI+Xh6zyIKGzZpyud6YhZ1a5mcrwMVtTWL+VXq/hC5Zj7s=', 'base64')
-
-      assert.ok(Message.verify(dogeaddr, dogesig, message, networks.dogecoin))
+    fixtures.invalid.verify.forEach(function(f) {
+      it(f.description, function() {
+        var signature = new Buffer(f.signature, 'base64')
+        assert.ok(!Message.verify(f.address, signature, f.message))
+      })
     })
   })
 
   describe('signing', function() {
-    it('gives matching signatures irrespective of point compression', function() {
-      var privKey = new ECKey(BigInteger.ONE, false)
-      var compressedKey = new ECKey(privKey.D, true)
+    fixtures.valid.signing.forEach(function(f) {
+      it(f.description, function() {
+        var network = networks[f.network]
 
-      var sig = Message.sign(privKey, message)
-      var csig = Message.sign(compressedKey, message)
+        var privKey = new ECKey(new BigInteger(f.D), false)
+        var signature = Message.sign(privKey, f.message, network)
+        assert.equal(signature.toString('base64'), f.signature)
 
-      assert.notDeepEqual(sig.slice(0, 2), csig.slice(0, 2)) // unequal compression flags
-      assert.deepEqual(sig.slice(2), csig.slice(2)) // equal signatures
-    })
+        if (f.compressed) {
+          var compressedPrivKey = new ECKey(new BigInteger(f.D))
+          var compressedSignature = Message.sign(compressedPrivKey, f.message)
 
-    it('supports alternate networks', function() {
-      var privKey = new ECKey(BigInteger.ONE)
-      var signature = Message.sign(privKey, message, networks.dogecoin)
-
-      assert.equal(signature.toString('base64'), 'H6k+dZwJ8oOei3PCSpdj603fDvhlhQ+sqaFNIDvo/bI+Xh6zyIKGzZpyud6YhZ1a5mcrwMVtTWL+VXq/hC5Zj7s=')
+          assert.equal(compressedSignature.toString('base64'), f.compressed.signature)
+        }
+      })
     })
   })
 })

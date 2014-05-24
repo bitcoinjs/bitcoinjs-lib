@@ -62,7 +62,7 @@ describe('ecdsa', function() {
   })
 
   describe('verifyRaw', function() {
-    it('matches the test vectors', function() {
+    it('verifies valid signatures', function() {
       fixtures.valid.forEach(function(f) {
         var D = BigInteger.fromHex(f.D)
         var Q = ecparams.getG().multiply(D)
@@ -72,6 +72,18 @@ describe('ecdsa', function() {
         var e = BigInteger.fromBuffer(crypto.sha256(f.message))
 
         assert(ecdsa.verifyRaw(ecparams, e, r, s, Q))
+      })
+    })
+
+    fixtures.invalid.verifyRaw.forEach(function(f) {
+      it('fails to verify with ' + f.description, function() {
+        var D = BigInteger.fromHex(f.D)
+        var e = BigInteger.fromHex(f.e)
+        var r = new BigInteger(f.signature.r)
+        var s = new BigInteger(f.signature.s)
+        var Q = ecparams.getG().multiply(D)
+
+        assert.equal(ecdsa.verifyRaw(ecparams, e, r, s, Q), false)
       })
     })
   })
