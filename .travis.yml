@@ -7,4 +7,5 @@ node_js:
 env:
   - TEST_SUITE=unit
   - TEST_SUITE=integration
+  - TEST_SUITE=coveralls
 script: "npm run-script $TEST_SUITE"
