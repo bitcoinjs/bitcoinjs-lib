@@ -43,6 +43,7 @@
     "test": "npm run-script unit",
     "integration": "./node_modules/.bin/_mocha --reporter list test/integration/*.js",
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter list test/*.js",
+    "coveralls": "npm run-script coverage && node ./node_modules/.bin/coveralls < coverage/lcov.info",
     "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js"
   },
   "dependencies": {
