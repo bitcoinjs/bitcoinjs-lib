@@ -57,10 +57,6 @@ HDWallet.fromBase58 = function(string) {
   return HDWallet.fromBuffer(payload)
 }
 
-HDWallet.fromHex = function(input) {
-  return HDWallet.fromBuffer(new Buffer(input, 'hex'))
-}
-
 HDWallet.fromBuffer = function(input) {
   assert.strictEqual(input.length, HDWallet.LENGTH, 'Invalid buffer length')
 
