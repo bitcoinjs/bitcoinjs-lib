@@ -70,21 +70,34 @@ describe('Script', function() {
 
   describe('pay-to-pubKeyHash', function() {
     it('matches the test data', function() {
+      // FIXME: bad
+      var f = fixtures.valid[2]
       var address = Address.fromBase58Check('19E6FV3m3kEPoJD5Jz6dGKdKwTVvjsWUvu')
       var script = Script.createPubKeyHashScriptPubKey(address.hash)
 
-      // FIXME: not good TDD
-      assert.equal(script.toHex(), fixtures.valid[1].hex)
+      assert.equal(script.toHex(), f.hex)
+    })
+  })
+
+  describe('pay-to-pubkey', function() {
+    it('matches the test data', function() {
+      // FIXME: bad
+      var f = fixtures.valid[0]
+      var pubKey = ECPubKey.fromHex(f.pubKey)
+      var script = Script.createPubKeyScriptPubKey(pubKey)
+
+      assert.equal(script.toHex(), f.hex)
     })
   })
 
   describe('pay-to-scriptHash', function() {
     it('matches the test data', function() {
-      var hash = new Buffer('e8c300c87986efa84c37c0519929019ef86eb5b4', 'hex')
-      var script = Script.createP2SHScriptPubKey(hash)
+      // FIXME: bad
+      var f = fixtures.valid[1]
+      var address = Address.fromBase58Check('3NukJ6fYZJ5Kk8bPjycAnruZkE5Q7UW7i8')
+      var script = Script.createP2SHScriptPubKey(address.hash)
 
-      // FIXME: not good TDD
-      assert.equal(script.toHex(), fixtures.valid[0].hex)
+      assert.equal(script.toHex(), f.hex)
     })
   })
 

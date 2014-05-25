@@ -268,6 +268,16 @@ Script.prototype.writeBytes = function(data) {
   this.chunks.push(data)
 }
 
+// {pubKey} OP_CHECKSIG
+Script.createPubKeyScriptPubKey = function(pubKey) {
+  var script = new Script()
+
+  script.writeBytes(pubKey.toBuffer())
+  script.writeOp(opcodes.OP_CHECKSIG)
+
+  return script
+}
+
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 Script.createPubKeyHashScriptPubKey = function(hash) {
   var script = new Script()
@@ -306,6 +316,13 @@ Script.createMultisigScriptPubKey = function(m, pubKeys) {
   script.writeOp((opcodes.OP_1 - 1) + n)
   script.writeOp(opcodes.OP_CHECKMULTISIG)
 
+  return script
+}
+
+// {signature}
+Script.createPubKeyScriptSig = function(signature) {
+  var script = new Script()
+  script.writeBytes(signature)
   return script
 }
 

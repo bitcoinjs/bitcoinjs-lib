@@ -1,6 +1,14 @@
 {
   "valid": [
     {
+      "description": "pay-to-PubKey",
+      "hex": "21031f1e68f82112b373f0fe980b3a89d212d2b5c01fb51eb25acb8b4c4b4299ce95ac",
+      "type": "pubkey",
+      "hash": "26e645ab170255f2a0a82d29e48f35b14ae7c826",
+      "pubKey": "031f1e68f82112b373f0fe980b3a89d212d2b5c01fb51eb25acb8b4c4b4299ce95",
+      "scriptPubKey": true
+    },
+    {
       "description": "P2SH ScriptPubKey",
       "hex": "a914e8c300c87986efa84c37c0519929019ef86eb5b487",
       "type": "scripthash",
