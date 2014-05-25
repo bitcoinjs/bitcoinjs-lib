@@ -54,6 +54,21 @@ describe('HDWallet', function() {
         assert(hd.pub)
       })
     })
+
+    describe('fromBuffer', function() {
+      it('fails for invalid parent fingerprint', function() {
+        var buffer = new HDWallet(seed).toBuffer()
+        buffer.writeUInt8(0x00, 4)
+        buffer.writeUInt32BE(0xFFFFFFFF, 5)
+        assert.throws(function() { HDWallet.fromBuffer(buffer) }, /Invalid parent fingerprint/)
+      })
+
+      it('fails for invalid index', function() {
+        var buffer = new HDWallet(seed).toBuffer()
+        buffer.writeUInt32BE(0xFFFFFFFF, 9)
+        assert.throws(function() { HDWallet.fromBuffer(buffer) }, /Invalid index/)
+      })
+    })
   })
 
   describe('Test vectors', function() {
@@ -116,6 +131,12 @@ describe('HDWallet', function() {
 
     it('throws an exception when unknown network type is passed in', function() {
       assert.throws(function() { new HDWallet(new Buffer('foobar'), 'doge') })
+    })
+
+    it('throws an exception with bad network type using fromBuffer', function() {
+      var buffer = new HDWallet(new Buffer('foobar'), 'bitcoin').toBuffer()
+      buffer.writeUInt32BE(0x00000000, 0)
+      assert.throws(function() { HDWallet.fromBuffer(buffer) }, /Could not find version 0/)
     })
   })
 })
