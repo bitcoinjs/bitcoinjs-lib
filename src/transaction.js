@@ -373,11 +373,11 @@ Transaction.prototype.signScriptSig = function(index, scriptPubKey, key, type) {
 //  assert.equal(type & 0x7F, type, 'Invalid type') // TODO
 
   var hash = this.hashForSignature(scriptPubKey, index, type)
-  var sig = key.sign(hash)
-  var DERsig = ecdsa.serializeSig(sig.r, sig.s)
+  var signature = key.sign(hash)
+  var DERencoded = ecdsa.serializeSig(signature)
 
   return Buffer.concat([
-    new Buffer(DERsig),
+    new Buffer(DERencoded),
     new Buffer([type])
   ])
 }

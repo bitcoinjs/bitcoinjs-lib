@@ -28,11 +28,11 @@ function sign(key, message, network) {
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
-  var sig = key.sign(hash)
+  var signature = key.sign(hash)
   var e = BigInteger.fromBuffer(hash)
-  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, sig.r, sig.s, key.pub.Q)
+  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, signature, key.pub.Q)
 
-  return ecdsa.serializeSigCompact(sig.r, sig.s, i, key.pub.compressed)
+  return ecdsa.serializeSigCompact(signature, i, key.pub.compressed)
 }
 
 // TODO: network could be implied from address
@@ -44,11 +44,11 @@ function verify(address, compactSig, message, network) {
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
-  var sig = ecdsa.parseSigCompact(compactSig)
+  var parsed = ecdsa.parseSigCompact(compactSig)
   var e = BigInteger.fromBuffer(hash)
-  var Q = ecdsa.recoverPubKey(ecparams, e, sig.r, sig.s, sig.i)
+  var Q = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
 
-  var pubKey = new ECPubKey(Q, sig.compressed)
+  var pubKey = new ECPubKey(Q, parsed.compressed)
   return pubKey.getAddress(address.version).toString() === address.toString()
 }
 
