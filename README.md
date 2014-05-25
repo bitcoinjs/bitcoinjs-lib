@@ -87,8 +87,8 @@ tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 
 // Add the output (who to pay to) of the form [payee's address, amount in satoshis]
 tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000)
 
-// Initialize a private key using hex
-key = Bitcoin.ECKey.fromHex("8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48")
+// Initialize a private key using WIF
+key = Bitcoin.ECKey.fromWIF("L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy")
 
 // Sign the first input with the new key
 tx.sign(0, key)
