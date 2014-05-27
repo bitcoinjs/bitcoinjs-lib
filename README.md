@@ -21,12 +21,12 @@ This is not the original bitcoinjs-lib that was not updated for a long time.
 
 ## Features
 
-- Bitcoin Testnet and Mainnet (production) support
-- [HD Wallets](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
+- Default's to the Bitcoin network, however testnet, Dogecoin and Litecoin are all supported natively.
+- [HD Wallets](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki).
 - Random private key generation that uses [window.crypto.getRandomValues](https://developer.mozilla.org/en-US/docs/Web/API/Window.crypto) in the underlying implementation.
-- ECDSA signing and verification
-- Standard Transaction creation (pay-to-pubkey-hash), support for multisignature transactions
-- A (somewhat incomplete) wallet implementation, improvements ongoing
+- ECDSA signing and verification.
+- Standard transaction creation, with support for PubKeyHash, ScriptHash, MultiSig and PubKey scripts, and
+- A (somewhat incomplete) wallet implementation, with improvements ongoing.
 
 
 ## Installation
