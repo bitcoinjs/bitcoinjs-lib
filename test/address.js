@@ -50,6 +50,16 @@ describe('Address', function() {
         assert.equal(addr.hash.toString('hex'), f.hex)
       })
     })
+
+    fixtures.invalid.fromScriptPubKey.forEach(function(f) {
+      it('throws when ' + f.description, function() {
+        var script = Script.fromHex(f.hex)
+
+        assert.throws(function() {
+          Address.fromScriptPubKey(script)
+        }, new RegExp(f.description))
+      })
+    })
   })
 
   describe('toBase58Check', function() {
@@ -74,12 +84,12 @@ describe('Address', function() {
     })
 
     fixtures.invalid.toScriptPubKey.forEach(function(f) {
-      it('throws on ' + f.description, function() {
-        var addr = new Address(h2b(f.hex), f.version)
+      it('throws when ' + f.description, function() {
+        var addr = new Address(new Buffer(f.hex, 'hex'), f.version)
 
         assert.throws(function() {
           addr.toScriptPubKey()
-        })
+        }, new RegExp(f.description))
       })
     })
   })

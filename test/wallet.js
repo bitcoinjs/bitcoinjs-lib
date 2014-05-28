@@ -12,6 +12,10 @@ var fixtureTxes = require('./fixtures/mainnet_tx')
 var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 
+function fakeTxHash(i) {
+  return "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefe" + i
+}
+
 describe('Wallet', function() {
   var seed, wallet
   beforeEach(function(){
@@ -321,6 +325,21 @@ describe('Wallet', function() {
       tx = Transaction.fromHex(fixtureTx1Hex)
     })
 
+    it('does not fail not fail on scripts with no corresponding Address', function() {
+      var pubKey = wallet.getPrivateKey(0).pub
+      var script = Script.createPubKeyScriptPubKey(pubKey)
+      var tx2 = new Transaction()
+      tx2.addInput(fakeTxHash(1), 0)
+
+      // FIXME: Transaction doesn't support custom ScriptPubKeys... yet
+      // So for now, we hijack the script with our own, and undefine the cached address
+      tx2.addOutput(addresses[0], 10000)
+      tx2.outs[0].script = script
+      tx2.outs[0].address = undefined
+
+      wallet.processTx(tx2)
+    })
+
     describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.outputs", function(){
       it("works for receive address", function(){
         var totalOuts = outputCount()
@@ -589,10 +608,6 @@ describe('Wallet', function() {
         }, /Not enough money to send funds including transaction fee. Have: 1420000, needed: 1420001/)
       })
     })
-
-    function fakeTxHash(i) {
-      return "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefe" + i
-    }
   })
 
   describe('createTxAsync', function(){

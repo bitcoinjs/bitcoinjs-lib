@@ -155,7 +155,7 @@ function Wallet(seed, options) {
       try {
         address = Address.fromScriptPubKey(txOut.script, networks[network]).toString()
       } catch(e) {
-        if (!(e instanceof Address.Error)) throw e
+        if (!(e.message.match(/has no matching Address/))) throw e
       }
 
       if (isMyAddress(address)) {
