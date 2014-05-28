@@ -9,6 +9,7 @@ var convert = require('./convert')
 var crypto = require('./crypto')
 var ECKey = require('./eckey')
 var ecdsa = require('./ecdsa')
+var opcodes = require('./opcodes')
 
 var DEFAULT_SEQUENCE = 0xffffffff
 
@@ -196,49 +197,37 @@ var SIGHASH_ANYONECANPAY = 0x80
  * hashType, serializes and finally hashes the result. This hash can then be
  * used to sign the transaction input in question.
  */
-Transaction.prototype.hashForSignature =
-  function (connectedScript, inIndex, hashType)
-{
-  var txTmp = this.clone()
+Transaction.prototype.hashForSignature = function(scriptPubKey, inIndex, hashType) {
+  assert(inIndex >= 0, 'Invalid vin index')
+  assert(inIndex < this.ins.length, 'Invalid vin index')
+  assert(scriptPubKey instanceof Script, 'Invalid Script object')
 
-  // In case concatenating two scripts ends up with two codeseparators,
-  // or an extra one at the end, this prevents all those possible
-  // incompatibilities.
-  /*scriptCode = scriptCode.filter(function (val) {
-    return val !== OP_CODESEPARATOR
-    });*/
+  var txTmp = this.clone()
+  var hashScript = scriptPubKey.without(opcodes.OP_CODESEPARATOR)
 
   // Blank out other inputs' signatures
   txTmp.ins.forEach(function(txin) {
     txin.script = new Script()
   })
+  txTmp.ins[inIndex].script = hashScript
 
-  txTmp.ins[inIndex].script = connectedScript
+  var hashTypeModifier = hashType & 0x1f
+  if (hashTypeModifier === SIGHASH_NONE) {
+    assert(false, 'SIGHASH_NONE not yet supported')
 
-  // Blank out some of the outputs
-  if ((hashType & 0x1f) == SIGHASH_NONE) {
-    txTmp.outs = []
+  } else if (hashTypeModifier === SIGHASH_SINGLE) {
+    assert(false, 'SIGHASH_SINGLE not yet supported')
 
-    // Let the others update at will
-    txTmp.ins.forEach(function(txin, i) {
-      if (i != inIndex) {
-        txTmp.ins[i].sequence = 0
-      }
-    })
-
-  } else if ((hashType & 0x1f) == SIGHASH_SINGLE) {
-    // TODO: Implement
   }
 
-  // Blank out other inputs completely, not recommended for open transactions
   if (hashType & SIGHASH_ANYONECANPAY) {
-    txTmp.ins = [txTmp.ins[inIndex]]
+    assert(false, 'SIGHASH_ANYONECANPAY not yet supported')
   }
 
-  var htB = new Buffer(4)
-  htB.writeUInt32LE(hashType, 0)
+  var hashTypeBuffer = new Buffer(4)
+  hashTypeBuffer.writeInt32LE(hashType, 0)
 
-  var buffer = Buffer.concat([txTmp.toBuffer(), htB])
+  var buffer = Buffer.concat([txTmp.toBuffer(), hashTypeBuffer])
   return crypto.hash256(buffer)
 }
 
@@ -364,11 +353,7 @@ Transaction.prototype.sign = function(index, key, type) {
 
 Transaction.prototype.signScriptSig = function(index, scriptPubKey, key, type) {
   type = type || SIGHASH_ALL
-
-  assert((index >= 0), 'Invalid vin index')
-  assert(scriptPubKey instanceof Script, 'Invalid Script object')
   assert(key instanceof ECKey, 'Invalid private key')
-//  assert.equal(type & 0x7F, type, 'Invalid type') // TODO
 
   var hash = this.hashForSignature(scriptPubKey, index, type)
   var signature = key.sign(hash)
