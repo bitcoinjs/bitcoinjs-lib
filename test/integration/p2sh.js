@@ -30,8 +30,7 @@ describe('Bitcoin-js', function() {
 
     var pubKeys = privKeys.map(function(eck) { return eck.pub })
     var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
-    var hash160 = crypto.hash160(new Buffer(redeemScript.buffer))
-    var multisigAddress = new Address(hash160, networks.testnet.scriptHash).toString()
+    var multisigAddress = new Address(redeemScript.getHash(), networks.testnet.scriptHash).toString()
 
     // Send some testnet coins to the multisig address to ensure it has some unspents for later
     helloblock.faucet.withdraw(multisigAddress, coldAmount, function(err) {
