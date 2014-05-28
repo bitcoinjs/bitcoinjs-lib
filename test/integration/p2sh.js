@@ -11,12 +11,12 @@ var Script = bitcoin.Script
 
 var helloblock = require('helloblock-js')({
   network: 'testnet'
-});
+})
 
-describe('p2sh', function() {
-  this.timeout(10000);
+describe('Bitcoin-js', function() {
+  this.timeout(10000)
 
-  it('spends from a 2-of-2 address', function(done) {
+  it('can spend from a 2-of-2 address', function(done) {
     var privKeys = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT'
@@ -24,52 +24,53 @@ describe('p2sh', function() {
       return ECKey.fromWIF(wif)
     })
 
-    var pubKeys = privKeys.map(function(eck) {
-      return eck.pub
-    })
+    // how much to withdraw if we run dry
+    var coldAmount = 2e4
+    var outputAmount = 1e4
+
+    var pubKeys = privKeys.map(function(eck) { return eck.pub })
     var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
-    var hash160 = crypto.hash160(new Buffer(redeemScript.buffer))
-    var multisigAddress = new Address(hash160, networks.testnet.scriptHash)
+    var multisigAddress = new Address(redeemScript.getHash(), networks.testnet.scriptHash).toString()
 
-    // Check what our target address's starting value is
-    var targetAddress = 'mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r';
-    helloblock.addresses.get(targetAddress, function(err, resp, resource) {
-      if (err) done(err);
-      var startingBalance = resource.balance
+    // Send some testnet coins to the multisig address to ensure it has some unspents for later
+    helloblock.faucet.withdraw(multisigAddress, coldAmount, function(err) {
+      if (err) return done(err)
+    })
 
-      // Send some testnet coins to the multisig address so we ensure it has some unspents
-      helloblock.faucet.withdraw(multisigAddress.toString(), 100000, function(err, resp, resource) {
-        if (err) done(err);
+    // make a random private key
+    var targetAddress = ECKey.makeRandom().pub.getAddress(networks.testnet.pubKeyHash).toString()
 
-        // Get latest unspents from the mutlsigAddress
-        helloblock.addresses.getUnspents(multisigAddress.toString(), function(err, resp, resource) {
-          if (err) done(err);
+    // get latest unspents from the multisigAddress
+    helloblock.addresses.getUnspents(multisigAddress, function(err, resp, resource) {
+      if (err) return done(err)
 
-          var tx = new Transaction()
-          var unspent = resource[0];
-          tx.addInput(unspent.txHash, unspent.index)
-          tx.addOutput(targetAddress, 100000, networks.testnet)
+      // use the oldest unspent
+      var unspent = resource[resource.length - 1]
+      var spendAmount = Math.min(unspent.value, outputAmount)
 
-          var signatures = privKeys.map(function(privKey) {
-            return tx.signScriptSig(0, redeemScript, privKey)
-          })
+      var tx = new Transaction()
+      tx.addInput(unspent.txHash, unspent.index)
+      tx.addOutput(targetAddress, spendAmount)
 
-          var redeemScriptSig = Script.createMultisigScriptSig(signatures)
-          var scriptSig = Script.createP2SHScriptSig(redeemScriptSig, redeemScript)
-          tx.setScriptSig(0, scriptSig)
+      var signatures = privKeys.map(function(privKey) {
+        return tx.signScriptSig(0, redeemScript, privKey)
+      })
 
-          // Send from mutlsigAddress to targetAddress
-          helloblock.transactions.propagate(tx.toHex(), function(err, resp, resource) {
-            // no err means that transaction has been successfully propagated
-            if (err) done(err);
+      var redeemScriptSig = Script.createMultisigScriptSig(signatures)
+      var scriptSig = Script.createP2SHScriptSig(redeemScriptSig, redeemScript)
+      tx.setScriptSig(0, scriptSig)
 
-            // Check that the funds (100000) indeed arrived at the intended target address
-            helloblock.addresses.get(targetAddress, function(err, resp, resource) {
-              if (err) done(err);
-              assert.equal(resource.balance, startingBalance + 100000)
-              done()
-            })
-          })
+      // broadcast our transaction
+      helloblock.transactions.propagate(tx.toHex(), function(err, resp, resource) {
+        // no err means that the transaction has been successfully propagated
+        if (err) return done(err)
+
+        // Check that the funds (spendAmount Satoshis) indeed arrived at the intended address
+        helloblock.addresses.get(targetAddress, function(err, resp, resource) {
+          if (err) return done(err)
+
+          assert.equal(resource.balance, spendAmount)
+          done()
         })
       })
     })
