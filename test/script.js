@@ -122,7 +122,9 @@ describe('Script', function() {
     })
 
     it('should throw on not enough pubKeys provided', function() {
-        assert.throws(function() {Script.createMultisigScriptPubKey(4, pubKeys)},  /Not enough pubKeys provided/)
+      assert.throws(function() {
+        Script.createMultisigScriptPubKey(4, pubKeys)
+      }, /Not enough pubKeys provided/)
     })
   })
 
