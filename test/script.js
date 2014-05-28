@@ -120,6 +120,10 @@ describe('Script', function() {
 
       assert.equal(multisigAddress.toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })
+    
+    it('should throw on not enough pubKeys provided', function() {
+      assert.throws(function() {Script.createMultisigScriptPubKey(4, pubKeys)}, 'Not enough pubKeys provided')
+    })
   })
 
   describe('2-of-2 Multisig scriptSig', function() {
