@@ -325,7 +325,7 @@ describe('Wallet', function() {
       tx = Transaction.fromHex(fixtureTx1Hex)
     })
 
-    it('does not fail not fail on scripts with no corresponding Address', function() {
+    it('does not fail on scripts with no corresponding Address', function() {
       var pubKey = wallet.getPrivateKey(0).pub
       var script = Script.createPubKeyScriptPubKey(pubKey)
       var tx2 = new Transaction()
