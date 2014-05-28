@@ -1,6 +1,7 @@
 var assert = require('assert')
 var crypto = require('../src/crypto')
 var networks = require('../src/networks')
+var opcodes = require('../src/opcodes')
 
 var Address = require('../src/address')
 var ECPubKey = require('../src/ecpubkey')
@@ -154,6 +155,37 @@ describe('Script', function() {
       assert.throws(function() {
         Script.createMultisigScriptSig(signatures.slice(1), redeemScript)
       }, /Not enough signatures provided/)
+    })
+  })
+
+  describe('fromChunks', function() {
+    it('should match expected behaviour', function() {
+      var hash = new Buffer(32)
+      var script = Script.fromChunks([
+        opcodes.OP_HASH160,
+        hash,
+        opcodes.OP_EQUAL
+      ])
+
+      assert.deepEqual(script, Script.createP2SHScriptPubKey(hash))
+    })
+  })
+
+  describe('without', function() {
+    var hex = 'a914e8c300c87986efa94c37c0519929019ef86eb5b487'
+    var script = Script.fromHex(hex)
+
+    it('should return a script without the given value', function() {
+      var subScript = script.without(opcodes.OP_HASH160)
+
+      assert.equal(subScript.toHex(), '14e8c300c87986efa94c37c0519929019ef86eb5b487')
+    })
+
+    it('shouldnt mutate the original script', function() {
+      var subScript = script.without(opcodes.OP_EQUAL)
+
+      assert.notEqual(subScript.toHex(), hex)
+      assert.equal(script.toHex(), hex)
     })
   })
 })
