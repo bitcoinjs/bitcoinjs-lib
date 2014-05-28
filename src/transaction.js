@@ -10,13 +10,14 @@ var crypto = require('./crypto')
 var ECKey = require('./eckey')
 var ecdsa = require('./ecdsa')
 
+var DEFAULT_SEQUENCE = 0xffffffff
+
 function Transaction(doc) {
   if (!(this instanceof Transaction)) { return new Transaction(doc) }
   this.version = 1
   this.locktime = 0
   this.ins = []
   this.outs = []
-  this.defaultSequence = 0xffffffff
 
   if (doc) {
     if (typeof doc == "string" || Array.isArray(doc)) {
@@ -75,8 +76,7 @@ Transaction.prototype.addInput = function (tx, outIndex) {
       hash: hash,
       index: outIndex
     },
-    script: new Script(),
-    sequence: this.defaultSequence
+    script: new Script()
   }))
 }
 
@@ -419,7 +419,7 @@ var TransactionIn = function (data) {
 
   assert(data.script, 'Invalid TxIn parameters')
   this.script = data.script
-  this.sequence = data.sequence || this.defaultSequence
+  this.sequence = data.sequence == undefined ? DEFAULT_SEQUENCE : data.sequence
 }
 
 TransactionIn.prototype.clone = function () {
