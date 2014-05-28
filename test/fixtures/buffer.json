@@ -3,47 +3,56 @@
     {
       "dec": 0,
       "hex64": "0000000000000000",
-      "hexVI": "00"
+      "hexVI": "00",
+      "hexPD": "00"
     },
     {
       "dec": 1,
       "hex64": "0100000000000000",
-      "hexVI": "01"
+      "hexVI": "01",
+      "hexPD": "01"
     },
     {
       "dec": 252,
       "hex64": "fc00000000000000",
-      "hexVI": "fc"
+      "hexVI": "fc",
+      "hexPD": "4cfc"
     },
     {
       "dec": 253,
       "hex64": "fd00000000000000",
-      "hexVI": "fdfd00"
+      "hexVI": "fdfd00",
+      "hexPD": "4cfd"
     },
     {
       "dec": 254,
       "hex64": "fe00000000000000",
-      "hexVI": "fdfe00"
+      "hexVI": "fdfe00",
+      "hexPD": "4cfe"
     },
     {
       "dec": 65535,
       "hex64": "ffff000000000000",
-      "hexVI": "fdffff"
+      "hexVI": "fdffff",
+      "hexPD": "4effff0000"
     },
     {
       "dec": 65536,
       "hex64": "0000010000000000",
-      "hexVI": "fe00000100"
+      "hexVI": "fe00000100",
+      "hexPD": "4e00000100"
     },
     {
       "dec": 65537,
       "hex64": "0100010000000000",
-      "hexVI": "fe01000100"
+      "hexVI": "fe01000100",
+      "hexPD": "4e01000100"
     },
     {
       "dec": 4294967295,
       "hex64": "ffffffff00000000",
-      "hexVI": "feffffffff"
+      "hexVI": "feffffffff",
+      "hexPD": "4effffffff"
     },
     {
       "dec": 4294967296,
