@@ -3,10 +3,7 @@ var Address = require('../src/address')
 var networks = require('../src/networks')
 var Script = require('../src/script')
 
-var b58fixtures = require('./fixtures/base58.json')
 var fixtures = require('./fixtures/address.json')
-
-function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('Address', function() {
   describe('Constructor', function() {
@@ -31,11 +28,11 @@ describe('Address', function() {
       })
     })
 
-    it('throws on invalid base58check', function() {
-      b58fixtures.invalid.forEach(function(f) {
+    fixtures.invalid.fromBase58Check.forEach(function(f) {
+      it('throws on ' + f.descpription, function() {
         assert.throws(function() {
-          Address.fromBase58Check(f)
-        })
+          Address.fromBase58Check(f.base58check)
+        }, new RegExp(f.exception))
       })
     })
   })

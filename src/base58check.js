@@ -28,7 +28,7 @@ function decode(string) {
   var checksum = buffer.slice(-4)
   var newChecksum = crypto.hash256(message).slice(0, 4)
 
-  assert.deepEqual(newChecksum, checksum)
+  assert.deepEqual(newChecksum, checksum, 'Invalid checksum')
 
   var version = message.readUInt8(0)
   var payload = message.slice(1)
