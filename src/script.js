@@ -304,6 +304,8 @@ Script.createP2SHScriptPubKey = function(hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 Script.createMultisigScriptPubKey = function(m, pubKeys) {
+  assert(Array.isArray(pubKeys), 'Expected Array, got: ' + pubKeys)
+  assert(pubKeys.length >= m, 'Not enough pubKeys provided')
   var script = new Script()
   var n = pubKeys.length
 
