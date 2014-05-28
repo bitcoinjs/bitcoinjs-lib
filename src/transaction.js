@@ -183,12 +183,10 @@ Transaction.prototype.toHex = function() {
   return this.toBuffer().toString('hex')
 }
 
-//var OP_CODESEPARATOR = 171
-
-var SIGHASH_ALL = 1
-var SIGHASH_NONE = 2
-var SIGHASH_SINGLE = 3
-var SIGHASH_ANYONECANPAY = 80
+var SIGHASH_ALL = 0x01
+var SIGHASH_NONE = 0x02
+var SIGHASH_SINGLE = 0x03
+var SIGHASH_ANYONECANPAY = 0x80
 
 /**
  * Hash transaction for signing a specific input.
