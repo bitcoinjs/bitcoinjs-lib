@@ -109,42 +109,38 @@
   "invalid": {
     "compact": [
       {
-        "description": "Invalid signature parameters",
+        "exception": "Invalid signature parameter",
         "hex": "23987ceade6a304fc5823ab38f99fc3c5f772a2d3e89ea05931e2726105fc53b9e601fc3231f35962c714fcbce5c95b427496edc7ae8b3d12e93791d7629795b62"
       },
       {
-        "description": "Signature too long",
+        "exception": "Invalid signature length",
         "hex": "1c987ceade6a304fc5823ab38f99fc3c5f772a2d3e89ea05931e2726105fc53b9e601fc3231f35962c714fcbce5c95b427496edc7ae8b3d12e93791d7629795b62000000"
       },
       {
-        "description": "Signature too short",
+        "exception": "Invalid signature length",
         "hex": "1c987ceade6a304fc5823ab38f99fc3c5f772a2d3e89ea05931e2726105fc53b9e601fc3231f35962c714fcbce5c95b427496edc7ae8b3d12e9379"
       }
     ],
     "DER": [
       {
-        "description": "Invalid sequence length",
+        "exception": "Invalid sequence length",
         "hex": "30ff0204ffffffff0204ffffffff"
       },
       {
-        "description": "Invalid integer(s) length",
-        "hex": "30080201ffffffff0201ffffffff"
+        "exception": "Invalid sequence length",
+        "hex": "300c0304ffffffff0304ffffffff0000"
       },
       {
-        "description": "Invalid sequence tag",
-        "hex": "ff080204ffffffff0204ffffffff"
+        "exception": "Expected a DER integer",
+        "hex": "300cff04ffffffff0204ffffffff"
       },
       {
-        "description": "Invalid integer tag",
-        "hex": "30080304ffffffff0304ffffffff"
+        "exception": "Expected a DER integer \\(2\\)",
+        "hex": "300c0202ffffffff0204ffffffff"
       },
       {
-        "description": "Sequence too short",
-        "hex": "30080304ffffffff0304ff"
-      },
-      {
-        "description": "Sequence too long",
-        "hex": "30080304ffffffff0304ffffffffffffff"
+        "exception": "Invalid DER encoding",
+        "hex": "300c0204ffffffff0202ffffffff"
       }
     ],
     "verifyRaw": [

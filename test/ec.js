@@ -61,7 +61,7 @@ describe('ec', function() {
 
           assert.throws(function() {
             ECPointFp.decodeFrom(curve, buffer)
-          })
+          }, /Invalid sequence length|Invalid sequence tag/)
         })
       })
 

@@ -118,19 +118,19 @@ describe('ecdsa', function() {
     })
 
     fixtures.invalid.DER.forEach(function(f) {
-      it('throws on ' + f.description, function() {
-        var buffer = new Buffer(f.hex)
+      it('throws on ' + f.hex, function() {
+        var buffer = new Buffer(f.hex, 'hex')
 
         assert.throws(function() {
           ecdsa.parseSig(buffer)
-        })
+        }, new RegExp(f.exception))
       })
     })
   })
 
   describe('serializeSigCompact', function() {
-    it('encodes a compact signature', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('encodes ' + f.compact.hex + ' correctly', function() {
         var signature = {
           r: new BigInteger(f.signature.r),
           s: new BigInteger(f.signature.s)
@@ -145,8 +145,8 @@ describe('ecdsa', function() {
   })
 
   describe('parseSigCompact', function() {
-    it('decodes the correct signature', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('decodes ' + f.compact.hex + ' correctly', function() {
         var buffer = new Buffer(f.compact.hex, 'hex')
         var parsed = ecdsa.parseSigCompact(buffer)
 
@@ -158,12 +158,12 @@ describe('ecdsa', function() {
     })
 
     fixtures.invalid.compact.forEach(function(f) {
-      it('throws on ' + f.description, function() {
-        var buffer = new Buffer(f.hex)
+      it('throws on ' + f.hex, function() {
+        var buffer = new Buffer(f.hex, 'hex')
 
         assert.throws(function() {
           ecdsa.parseSigCompact(buffer)
-        })
+        }, new RegExp(f.exception))
       })
     })
   })
