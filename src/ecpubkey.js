@@ -10,10 +10,10 @@ var sec = require('./sec')
 var ecparams = sec('secp256k1')
 
 function ECPubKey(Q, compressed) {
-  assert(Q instanceof ECPointFp, 'Q must be an ECPointFP')
+  assert(Q instanceof ECPointFp, 'Expected ECPointFP, got ' + Q)
 
   if (compressed == undefined) compressed = true
-  assert.strictEqual(typeof compressed, 'boolean', 'Invalid compression flag')
+  assert.strictEqual(typeof compressed, 'boolean', 'Expected boolean, got ' + compressed)
 
   this.compressed = compressed
   this.Q = Q

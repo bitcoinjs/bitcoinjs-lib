@@ -247,7 +247,7 @@ Script.prototype.writeOp = function(opcode) {
 Script.prototype.writeBytes = function(data) {
   // FIXME: Script module doesn't support buffers yet
   if (Buffer.isBuffer(data)) data = Array.prototype.slice.call(data);
-  assert(Array.isArray(data), "Expected a byte array. Got " + data)
+  assert(Array.isArray(data), 'Expected a byte array, got ' + data)
 
   if (data.length < opcodes.OP_PUSHDATA1) {
     this.buffer.push(data.length)
@@ -305,7 +305,7 @@ Script.createP2SHScriptPubKey = function(hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 Script.createMultisigScriptPubKey = function(m, pubKeys) {
-  assert(Array.isArray(pubKeys), 'Expected Array, got: ' + pubKeys)
+  assert(Array.isArray(pubKeys), 'Expected Array, got ' + pubKeys)
   assert(pubKeys.length >= m, 'Not enough pubKeys provided')
   var script = new Script()
   var n = pubKeys.length
@@ -369,7 +369,7 @@ Script.prototype.clone = function() {
 }
 
 Script.fromChunks = function(chunks) {
-  assert(Array.isArray(chunks), 'Expected Array, got: ' + chunks)
+  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
 
   var bufferSize = chunks.reduce(function(accum, chunk) {
     var chunkSize = 1
