@@ -31,6 +31,18 @@
       "hexPD": "4cfe"
     },
     {
+      "dec": 255,
+      "hex64": "ff00000000000000",
+      "hexVI": "fdff00",
+      "hexPD": "4dff00"
+    },
+    {
+      "dec": 65534,
+      "hex64": "feff000000000000",
+      "hexVI": "fdfeff",
+      "hexPD": "4dfeff"
+    },
+    {
       "dec": 65535,
       "hex64": "ffff000000000000",
       "hexVI": "fdffff",

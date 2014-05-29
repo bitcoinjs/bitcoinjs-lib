@@ -5,8 +5,8 @@ var fixtures = require('./fixtures/buffer.json')
 
 describe('bufferutils', function() {
   describe('pushDataSize', function() {
-    it('matches test vectors', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('determines the pushDataSize of ' + f.dec + ' correctly', function() {
         if (!f.hexPD) return
 
         var size = bufferutils.pushDataSize(f.dec)
@@ -17,10 +17,10 @@ describe('bufferutils', function() {
   })
 
   describe('readPushDataInt', function() {
-    it('matches test vectors', function() {
-      fixtures.valid.forEach(function(f) {
-        if (!f.hexPD) return
+    fixtures.valid.forEach(function(f) {
+      if (!f.hexPD) return
 
+      it('decodes ' + f.hexPD + ' correctly', function() {
         var buffer = new Buffer(f.hexPD, 'hex')
         var d = bufferutils.readPushDataInt(buffer, 0)
 
@@ -31,8 +31,8 @@ describe('bufferutils', function() {
   })
 
   describe('readUInt64LE', function() {
-    it('matches test vectors', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('decodes ' + f.hex64 + ' correctly', function() {
         var buffer = new Buffer(f.hex64, 'hex')
         var number = bufferutils.readUInt64LE(buffer, 0)
 
@@ -42,8 +42,8 @@ describe('bufferutils', function() {
   })
 
   describe('readVarInt', function() {
-    it('matches test vectors', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('decodes ' + f.hexVI + ' correctly', function() {
         var buffer = new Buffer(f.hexVI, 'hex')
         var d = bufferutils.readVarInt(buffer, 0)
 
@@ -54,8 +54,8 @@ describe('bufferutils', function() {
   })
 
   describe('varIntSize', function() {
-    it('matches test vectors', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('determines the varIntSize of ' + f.dec + ' correctly', function() {
         var size = bufferutils.varIntSize(f.dec)
 
         assert.equal(size, f.hexVI.length / 2)
@@ -64,10 +64,10 @@ describe('bufferutils', function() {
   })
 
   describe('writePushDataInt', function() {
-    it('matches test vectors', function() {
-      fixtures.valid.forEach(function(f, i) {
-        if (!f.hexPD) return
+    fixtures.valid.forEach(function(f, i) {
+      if (!f.hexPD) return
 
+      it('encodes ' + f.dec + ' correctly', function() {
         var buffer = new Buffer(5)
         buffer.fill(0)
 
@@ -89,8 +89,8 @@ describe('bufferutils', function() {
   })
 
   describe('writeUInt64LE', function() {
-    it('matches test vectors', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('encodes ' + f.dec + ' correctly', function() {
         var buffer = new Buffer(8)
         buffer.fill(0)
 
@@ -112,8 +112,8 @@ describe('bufferutils', function() {
   })
 
   describe('writeVarInt', function() {
-    it('matches test vectors', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('encodes ' + f.dec + ' correctly', function() {
         var buffer = new Buffer(9)
         buffer.fill(0)
 
