@@ -22,7 +22,7 @@ describe('Script', function() {
     })
 
     it('throws an error when input is not an array', function() {
-      assert.throws(function(){ new Script({}) })
+      assert.throws(function(){ new Script({}) }, /Expected Array, got/)
     })
   })
 
@@ -153,7 +153,7 @@ describe('Script', function() {
 
       assert.throws(function() {
         Script.createMultisigScriptSig(signatures.slice(1), redeemScript)
-      })
+      }, /Not enough signatures provided/)
     })
   })
 })
