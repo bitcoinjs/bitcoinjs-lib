@@ -130,7 +130,7 @@ describe('HDWallet', function() {
     })
 
     it('throws an exception when unknown network type is passed in', function() {
-      assert.throws(function() { new HDWallet(new Buffer('foobar'), 'doge') })
+      assert.throws(function() { new HDWallet(new Buffer('foobar'), 'doge') }, /Unknown network: doge/)
     })
 
     it('throws an exception with bad network type using fromBuffer', function() {
