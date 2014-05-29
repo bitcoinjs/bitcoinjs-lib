@@ -68,29 +68,29 @@
   "invalid": {
     "constructor": [
       {
-        "description": "Private key ZERO",
+        "exception": "Private key must be greater than 0",
         "D": "0"
       },
       {
-        "description": "Private key equal to the curve order",
+        "exception": "Private key must be less than the curve order",
         "D": "115792089237316195423570985008687907852837564279074904382605163141518161494337"
       },
       {
-        "description": "Private key greater than the curve order",
+        "exception": "Private key must be less than the curve order",
         "D": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
       }
     ],
     "WIF": [
       {
-        "description": "Invalid compression flag",
+        "exception": "Invalid compression flag",
         "string": "ju9rooVsmagsb4qmNyTysUSFB1GB6MdpD7eoGjUTPmZRAApJxRz"
       },
       {
-        "description": "Payload too short",
+        "exception": "Invalid WIF payload length",
         "string": "7ZEtRQLhCsDQrd6ZKfmcESdXgas8ggZPN24ByEi5ey6VJW"
       },
       {
-        "description": "Payload too long",
+        "exception": "Invalid WIF payload length",
         "string": "5qibUKwsnMo1qDiNp3prGaQkD2JfVJa8F8Na87H2CkMHvuVg6uKhw67Rh"
       }
     ]

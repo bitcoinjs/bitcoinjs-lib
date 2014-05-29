@@ -21,8 +21,8 @@ describe('ECKey', function() {
       assert.equal(privKey.pub.compressed, false)
     })
 
-    it('calculates the matching pubKey', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('calculates the matching pubKey for ' + f.D, function() {
         var privKey = new ECKey(new BigInteger(f.D))
 
         assert.equal(privKey.pub.Q.toString(), f.Q.toString())
@@ -30,18 +30,18 @@ describe('ECKey', function() {
     })
 
     fixtures.invalid.constructor.forEach(function(f) {
-      it('throws on ' + f.description, function() {
+      it('throws on ' + f.D, function() {
         assert.throws(function() {
           new ECKey(new BigInteger(f.D))
-        })
+        }, new RegExp(f.exception))
       })
     })
   })
 
   describe('fromWIF', function() {
-    it('matches the test vectors', function() {
-      fixtures.valid.forEach(function(f) {
-        f.WIFs.forEach(function(wif) {
+    fixtures.valid.forEach(function(f) {
+      f.WIFs.forEach(function(wif) {
+        it('imports ' + wif.string + ' correctly', function() {
           var privKey = ECKey.fromWIF(wif.string)
 
           assert.equal(privKey.D.toString(), f.D)
@@ -51,18 +51,18 @@ describe('ECKey', function() {
     })
 
     fixtures.invalid.WIF.forEach(function(f) {
-      it('throws on ' + f.description, function() {
+      it('throws on ' + f.string, function() {
         assert.throws(function() {
           ECKey.fromWIF(f.string)
-        })
+        }, new RegExp(f.exception))
       })
     })
   })
 
   describe('toWIF', function() {
-    it('matches the test vectors', function() {
-      fixtures.valid.forEach(function(f) {
-        f.WIFs.forEach(function(wif) {
+    fixtures.valid.forEach(function(f) {
+      f.WIFs.forEach(function(wif) {
+        it('exports ' + wif.string + ' correctly', function() {
           var privKey = ECKey.fromWIF(wif.string)
           var version = networks[wif.network].wif
           var result = privKey.toWIF(version)

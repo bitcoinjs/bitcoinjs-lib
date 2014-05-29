@@ -27,7 +27,7 @@ ECKey.fromWIF = function(string) {
   var compressed = false
 
   if (payload.length === 33) {
-    assert.strictEqual(payload[32], 0x01, 'Invalid WIF string')
+    assert.strictEqual(payload[32], 0x01, 'Invalid compression flag')
 
     payload = payload.slice(0, -1)
     compressed = true
