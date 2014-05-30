@@ -33,6 +33,16 @@ describe('HDWallet', function() {
     })
   })
 
+  describe('fromBase58', function() {
+    fixtures.invalid.fromBase58.forEach(function(f) {
+      it('throws on ' + f.string, function() {
+        assert.throws(function() {
+          HDWallet.fromBase58(f.string)
+        }, new RegExp(f.exception))
+      })
+    })
+  })
+
   describe('constructor & seed deserialization', function() {
     var expectedPrivateKey = '0fd71c652e847ba7ea7956e3cf3fc0a0985871846b1b2c23b9c6a29a38cee860'
     var seed = new Buffer([

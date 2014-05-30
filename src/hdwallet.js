@@ -49,8 +49,8 @@ HDWallet.fromBase58 = function(string) {
   var checksum = buffer.slice(-4)
   var newChecksum = crypto.hash256(payload).slice(0, 4)
 
-  assert.deepEqual(newChecksum, checksum)
-  assert.equal(payload.length, HDWallet.LENGTH)
+  assert.deepEqual(newChecksum, checksum, 'Invalid checksum')
+  assert.equal(payload.length, HDWallet.LENGTH, 'Invalid BIP32 string')
 
   return HDWallet.fromBuffer(payload)
 }
