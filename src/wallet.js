@@ -6,8 +6,6 @@ var HDNode = require('./hdwallet')
 var Transaction = require('./transaction').Transaction
 
 function Wallet(seed, network) {
-  if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
-
   network = network || networks.bitcoin
 
   // Stored in a closure to make accidental serialization less likely

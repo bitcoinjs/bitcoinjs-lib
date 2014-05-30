@@ -25,10 +25,6 @@ describe('Wallet', function() {
   })
 
   describe('constructor', function() {
-    it('should be ok to call without new', function() {
-      assert.ok(Wallet(seed) instanceof Wallet)
-    })
-
     it('defaults to Bitcoin network', function() {
       assert.equal(wallet.getMasterKey().network, networks.bitcoin)
     })
