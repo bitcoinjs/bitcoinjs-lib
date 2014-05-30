@@ -119,14 +119,17 @@ function parseSig(buffer) {
   assert.equal(buffer.readUInt8(0), 0x30, 'Not a DER sequence')
   assert.equal(buffer.readUInt8(1), buffer.length - 2, 'Invalid sequence length')
 
-  assert.equal(buffer.readUInt8(2), 0x02, 'Expected DER integer')
+  assert.equal(buffer.readUInt8(2), 0x02, 'Expected a DER integer')
   var rLen = buffer.readUInt8(3)
   var rB = buffer.slice(4, 4 + rLen)
 
   var offset = 4 + rLen
-  assert.equal(buffer.readUInt8(offset), 0x02, 'Expected a 2nd DER integer')
+  assert.equal(buffer.readUInt8(offset), 0x02, 'Expected a DER integer (2)')
   var sLen = buffer.readUInt8(1 + offset)
   var sB = buffer.slice(2 + offset)
+  offset += 2 + sLen
+
+  assert.equal(offset, buffer.length, 'Invalid DER encoding')
 
   return {
     r: BigInteger.fromDERInteger(rB),
@@ -155,7 +158,7 @@ function parseSigCompact(buffer) {
   var i = buffer.readUInt8(0) - 27
 
   // At most 3 bits
-  assert.equal(i, i & 7, 'Invalid signature type')
+  assert.equal(i, i & 7, 'Invalid signature parameter')
   var compressed = !!(i & 4)
 
   // Recovery param only

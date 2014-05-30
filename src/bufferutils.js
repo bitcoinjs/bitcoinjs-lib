@@ -1,4 +1,46 @@
 var assert = require('assert')
+var opcodes = require('./opcodes')
+
+function pushDataSize(i) {
+  return i < opcodes.OP_PUSHDATA1 ? 1
+    : i < 0xff        ? 2
+    : i < 0xffff      ? 3
+    :                   5
+}
+
+function readPushDataInt(buffer, offset) {
+  var opcode = buffer.readUInt8(offset)
+  var number, size
+
+  // ~6 bit
+  if (opcode < opcodes.OP_PUSHDATA1) {
+    number = opcode
+    size = 1
+
+  // 8 bit
+  } else if (opcode === opcodes.OP_PUSHDATA1) {
+    number = buffer.readUInt8(offset + 1)
+    size = 2
+
+  // 16 bit
+  } else if (opcode === opcodes.OP_PUSHDATA2) {
+    number = buffer.readUInt16LE(offset + 1)
+    size = 3
+
+  // 32 bit
+  } else {
+    assert.equal(opcode, opcodes.OP_PUSHDATA4, 'Unexpected opcode')
+
+    number = buffer.readUInt32LE(offset + 1)
+    size = 5
+
+  }
+
+  return {
+    number: number,
+    size: size
+  }
+}
 
 function readUInt64LE(buffer, offset) {
   var a = buffer.readUInt32LE(offset)
@@ -16,17 +58,17 @@ function readVarInt(buffer, offset) {
   var t = buffer.readUInt8(offset)
   var number, size
 
-  // 8-bit
+  // 8 bit
   if (t < 253) {
     number = t
     size = 1
 
-  // 16-bit
+  // 16 bit
   } else if (t < 254) {
     number = buffer.readUInt16LE(offset + 1)
     size = 3
 
-  // 32-bit
+  // 32 bit
   } else if (t < 255) {
     number = buffer.readUInt32LE(offset + 1)
     size = 5
@@ -41,6 +83,37 @@ function readVarInt(buffer, offset) {
     number: number,
     size: size
   }
+}
+
+function writePushDataInt(buffer, number, offset) {
+  var size = pushDataSize(number)
+
+  // ~6 bit
+  if (size === 1) {
+    buffer.writeUInt8(number, offset)
+
+  // 8 bit
+  } else if (size === 2) {
+    buffer.writeUInt8(opcodes.OP_PUSHDATA1, offset)
+    buffer.writeUInt8(number, offset + 1)
+
+  // 16 bit
+  } else if (size === 3) {
+    buffer.writeUInt8(opcodes.OP_PUSHDATA2, offset)
+    buffer.writeUInt16LE(number, offset + 1)
+
+  // 32 bit
+  } else {
+    // Javascript Safe Integer limitation
+    // assert(Number.isSafeInteger(value), 'value must be < 2^53')
+    assert(number < 0x0020000000000000, 'value must be < 2^53')
+
+    buffer.writeUInt8(opcodes.OP_PUSHDATA4, offset)
+    buffer.writeUInt32LE(number, offset + 1)
+
+  }
+
+  return size
 }
 
 function writeUInt64LE(buffer, value, offset) {
@@ -86,9 +159,12 @@ function writeVarInt(buffer, number, offset) {
 }
 
 module.exports = {
+  pushDataSize: pushDataSize,
+  readPushDataInt: readPushDataInt,
   readUInt64LE: readUInt64LE,
   readVarInt: readVarInt,
   varIntSize: varIntSize,
+  writePushDataInt: writePushDataInt,
   writeUInt64LE: writeUInt64LE,
   writeVarInt: writeVarInt
 }

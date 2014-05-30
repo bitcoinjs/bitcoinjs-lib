@@ -3,13 +3,12 @@ var base58check = require('../src/base58check')
 
 var fixtures = require('./fixtures/base58check.json')
 
-function b2h(b) { return new Buffer(b).toString('hex') }
 function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('base58check', function() {
   describe('decode', function() {
-    it('can decode Bitcoin core test data', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('can decode ' + f.string, function() {
         var actual = base58check.decode(f.string)
         var expected = {
           version: f.decode.version,
@@ -25,22 +24,14 @@ describe('base58check', function() {
       it('throws on ' + f.description, function() {
         assert.throws(function() {
           base58check.decode(f.string)
-        })
-      })
-    })
-
-    it('throws on [invalid] Bitcoin core test data', function() {
-      fixtures.invalid2.forEach(function(f) {
-        assert.throws(function() {
-          base58check.decode(f.string)
-        })
+        }, /Invalid checksum/)
       })
     })
   })
 
   describe('encode', function() {
-    it('can encode Bitcoin core test data', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('can encode ' + f.string, function() {
         var actual = base58check.encode(h2b(f.decode.payload), f.decode.version)
         var expected = f.string
 

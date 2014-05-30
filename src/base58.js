@@ -5,6 +5,7 @@
 // Merged Buffer refactorings from base58-native by Stephen Pair
 // Copyright (c) 2013 BitPay Inc
 
+var assert = require('assert')
 var BigInteger = require('bigi')
 
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -46,7 +47,11 @@ function decode(string) {
 
   for (var i = 0; i < string.length; i++) {
     num = num.multiply(BASE)
-    num = num.add(ALPHABET_MAP[string.charAt(i)])
+
+    var figure = ALPHABET_MAP[string.charAt(i)]
+    assert.notEqual(figure, undefined, 'Non-base58 character')
+
+    num = num.add(figure)
   }
 
   // deal with leading zeros

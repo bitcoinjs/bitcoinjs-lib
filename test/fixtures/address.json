@@ -34,6 +34,18 @@
     }
   ],
   "invalid": {
+    "fromBase58Check": [
+      {
+        "description": "hash too short",
+        "base58check": "7SeEnXWPaCCALbVrTnszCVGfRU8cGfx",
+        "exception": "Invalid hash length"
+      },
+      {
+        "description": "hash too long",
+        "base58check": "j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe",
+        "exception": "Invalid hash length"
+      }
+    ],
     "fromScriptPubKey": [
       {
         "description": "pubkey has no matching Address",

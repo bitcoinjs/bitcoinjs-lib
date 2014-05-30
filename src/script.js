@@ -1,4 +1,5 @@
 var assert = require('assert')
+var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var opcodes = require('./opcodes')
 
@@ -246,7 +247,7 @@ Script.prototype.writeOp = function(opcode) {
 Script.prototype.writeBytes = function(data) {
   // FIXME: Script module doesn't support buffers yet
   if (Buffer.isBuffer(data)) data = Array.prototype.slice.call(data);
-  assert(Array.isArray(data), "Expected a byte array. Got " + data)
+  assert(Array.isArray(data), 'Expected a byte array, got ' + data)
 
   if (data.length < opcodes.OP_PUSHDATA1) {
     this.buffer.push(data.length)
@@ -304,7 +305,7 @@ Script.createP2SHScriptPubKey = function(hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 Script.createMultisigScriptPubKey = function(m, pubKeys) {
-  assert(Array.isArray(pubKeys), 'Expected Array, got: ' + pubKeys)
+  assert(Array.isArray(pubKeys), 'Expected Array, got ' + pubKeys)
   assert(pubKeys.length >= m, 'Not enough pubKeys provided')
   var script = new Script()
   var n = pubKeys.length
@@ -365,6 +366,52 @@ Script.createMultisigScriptSig = function(signatures, scriptPubKey) {
 
 Script.prototype.clone = function() {
   return new Script(this.buffer)
+}
+
+Script.fromChunks = function(chunks) {
+  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
+
+  var bufferSize = chunks.reduce(function(accum, chunk) {
+    var chunkSize = 1
+
+    // FIXME: transitionary
+    if (Array.isArray(chunk) || Buffer.isBuffer(chunk)) {
+      chunkSize = bufferutils.pushDataSize(chunk.length) + chunk.length
+    }
+
+    return accum + chunkSize
+  }, 0.0)
+
+  var buffer = new Buffer(bufferSize)
+  var offset = 0
+
+  chunks.forEach(function(chunk) {
+    // FIXME: transitionary
+    if (Array.isArray(chunk) || Buffer.isBuffer(chunk)) {
+      offset += bufferutils.writePushDataInt(buffer, chunk.length, offset)
+
+      // FIXME: transitionary
+//      chunk.copy(buffer, offset)
+      for (var i = 0; i < chunk.length; ++i) {
+        buffer[offset + i] = chunk[i]
+      }
+
+      offset += chunk.length
+
+    } else {
+      buffer.writeUInt8(chunk, offset)
+      offset += 1
+    }
+  })
+
+  return Script.fromBuffer(buffer)
+}
+
+// FIXME: doesn't work for data chunks, maybe time to use buffertools.compare...
+Script.prototype.without = function(needle) {
+  return Script.fromChunks(this.chunks.filter(function(op) {
+    return op !== needle
+  }))
 }
 
 module.exports = Script
