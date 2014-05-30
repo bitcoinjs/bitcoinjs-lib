@@ -12,14 +12,11 @@ var networks = require('./networks')
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
 
-function HDWallet(seed, networkString) {
+function HDWallet(seed, network) {
   if (seed == undefined) return; // FIXME: Boo, should be stricter
 
-  this.network = networkString || 'bitcoin'
-
-  if(!networks.hasOwnProperty(this.network)) {
-    throw new Error("Unknown network: " + this.network)
-  }
+  network = network || networks.bitcoin
+  assert(network.bip32, 'Unknown BIP32 constants for network')
 
   var I = crypto.HmacSHA512(seed, HDWallet.MASTER_SECRET)
   var IL = I.slice(0, 32)
@@ -28,6 +25,7 @@ function HDWallet(seed, networkString) {
   // In case IL is 0 or >= n, the master key is invalid (handled by ECKey.fromBuffer)
   var pIL = BigInteger.fromBuffer(IL)
 
+  this.network = network
   this.priv = new ECKey(pIL, true)
   this.pub = this.priv.pub
 
@@ -40,8 +38,8 @@ HDWallet.MASTER_SECRET = new Buffer('Bitcoin seed')
 HDWallet.HIGHEST_BIT = 0x80000000
 HDWallet.LENGTH = 78
 
-HDWallet.fromSeedHex = function(hex, networkString) {
-  return new HDWallet(new Buffer(hex, 'hex'), networkString)
+HDWallet.fromSeedHex = function(hex, network) {
+  return new HDWallet(new Buffer(hex, 'hex'), network)
 }
 
 HDWallet.fromBase58 = function(string) {
@@ -66,14 +64,14 @@ HDWallet.fromBuffer = function(input) {
   var version = input.readUInt32BE(0)
 
   var type
-  for(var name in networks) {
+  for (var name in networks) {
     var network = networks[name]
 
-    for(var t in network.bip32) {
+    for (var t in network.bip32) {
       if (version != network.bip32[t]) continue
 
       type = t
-      hd.network = name
+      hd.network = network
     }
   }
 
@@ -127,7 +125,7 @@ HDWallet.prototype.getAddress = function() {
 
 HDWallet.prototype.toBuffer = function(priv) {
   // Version
-  var version = networks[this.network].bip32[priv ? 'priv' : 'pub']
+  var version = this.network.bip32[priv ? 'priv' : 'pub']
   var buffer = new Buffer(HDWallet.LENGTH)
 
   // 4 bytes: version bytes
@@ -254,7 +252,7 @@ HDWallet.prototype.derivePrivate = function(index) {
 }
 
 HDWallet.prototype.getKeyVersion = function() {
-  return networks[this.network].pubKeyHash
+  return this.network.pubKeyHash
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58

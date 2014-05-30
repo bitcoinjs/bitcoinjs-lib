@@ -1,14 +1,14 @@
-var Address = require('./address')
-var HDNode = require('./hdwallet.js')
 var networks = require('./networks')
 var rng = require('secure-random')
+
+var Address = require('./address')
+var HDNode = require('./hdwallet')
 var Transaction = require('./transaction').Transaction
 
-function Wallet(seed, options) {
+function Wallet(seed, network) {
   if (!(this instanceof Wallet)) { return new Wallet(seed, options); }
 
-  var options = options || {}
-  var network = options.network || 'bitcoin'
+  network = network || networks.bitcoin
 
   // Stored in a closure to make accidental serialization less likely
   var masterkey = null
@@ -28,7 +28,7 @@ function Wallet(seed, options) {
   this.outputs = {}
 
   // Make a new master key
-  this.newMasterKey = function(seed, network) {
+  this.newMasterKey = function(seed) {
     seed = seed || new Buffer(rng(32))
     masterkey = new HDNode(seed, network)
 
@@ -43,7 +43,8 @@ function Wallet(seed, options) {
 
     me.outputs = {}
   }
-  this.newMasterKey(seed, network)
+
+  this.newMasterKey(seed)
 
   this.generateAddress = function() {
     var key = externalAccount.derive(this.addresses.length)
@@ -143,7 +144,7 @@ function Wallet(seed, options) {
       var address
 
       try {
-        address = Address.fromScriptPubKey(txOut.script, networks[network]).toString()
+        address = Address.fromScriptPubKey(txOut.script, network).toString()
       } catch(e) {
         if (!(e.message.match(/has no matching Address/))) throw e
       }
