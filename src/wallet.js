@@ -1,3 +1,4 @@
+var assert = require('assert')
 var networks = require('./networks')
 var rng = require('secure-random')
 
@@ -169,7 +170,7 @@ function Wallet(seed, network) {
   }
 
   this.createTx = function(to, value, fixedFee, changeAddress) {
-    if (value <= this.dustThreshold) throw new Error("Value must be above dust threshold")
+    assert(value > this.dustThreshold, value + ' must be above dust threshold (' + this.dustThreshold + ' Satoshis)')
 
     var utxos = getCandidateOutputs(value)
     var accum = 0
@@ -198,9 +199,7 @@ function Wallet(seed, network) {
       }
     }
 
-    if (accum < subTotal) {
-      throw new Error('Not enough funds: ' + accum + ' < ' + subTotal)
-    }
+    assert(accum >= subTotal, 'Not enough funds (incl. fee): ' + accum + ' < ' + subTotal)
 
     this.sign(tx)
     return tx

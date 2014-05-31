@@ -546,7 +546,7 @@ describe('Wallet', function() {
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, /Value must be above dust threshold/)
+        }, /5430 must be above dust threshold \(5430 Satoshis\)/)
       })
     })
 
@@ -556,7 +556,7 @@ describe('Wallet', function() {
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, /Not enough funds: 1420000 < 1420001/)
+        }, /Not enough funds \(incl. fee\): 1420000 < 1420001/)
       })
     })
   })
