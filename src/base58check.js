@@ -4,13 +4,8 @@ var base58 = require('./base58')
 var crypto = require('./crypto')
 
 // Encode a buffer as a base58-check-encoded string
-function encode(buffer, version) {
-  version = version || 0
-
-  // FIXME: `new Buffer(buffer)` is unnecessary if input is a Buffer
+function encode(payload, version) {
   var version = new Buffer([version])
-  var payload = new Buffer(buffer)
-
   var message = Buffer.concat([version, payload])
   var checksum = crypto.hash256(message).slice(0, 4)
 
