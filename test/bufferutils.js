@@ -39,6 +39,16 @@ describe('bufferutils', function() {
         assert.equal(number, f.dec)
       })
     })
+
+    fixtures.invalid.forEach(function(f) {
+      it('throws on ' + f.description, function() {
+        var buffer = new Buffer(f.hex64, 'hex')
+
+        assert.throws(function() {
+          bufferutils.readUInt64LE(buffer, 0)
+        }, new RegExp(f.exception))
+      })
+    })
   })
 
   describe('readVarInt', function() {
@@ -49,6 +59,16 @@ describe('bufferutils', function() {
 
         assert.equal(d.number, f.dec)
         assert.equal(d.size, buffer.length)
+      })
+    })
+
+    fixtures.invalid.forEach(function(f) {
+      it('throws on ' + f.description, function() {
+        var buffer = new Buffer(f.hexVI, 'hex')
+
+        assert.throws(function() {
+          bufferutils.readVarInt(buffer, 0)
+        }, new RegExp(f.exception))
       })
     })
   })
@@ -75,17 +95,6 @@ describe('bufferutils', function() {
         assert.equal(buffer.slice(0, n).toString('hex'), f.hexPD)
       })
     })
-
-    fixtures.invalid.forEach(function(f) {
-      it('throws on ' + f.description, function() {
-        var buffer = new Buffer(5)
-        buffer.fill(0)
-
-        assert.throws(function() {
-          bufferutils.writePushDataInt(buffer, f.dec, 0)
-        }, /value must be < 2\^53/)
-      })
-    })
   })
 
   describe('writeUInt64LE', function() {
@@ -106,7 +115,7 @@ describe('bufferutils', function() {
 
         assert.throws(function() {
           bufferutils.writeUInt64LE(buffer, f.dec, 0)
-        }, /value must be < 2\^53/)
+        }, new RegExp(f.exception))
       })
     })
   })
@@ -129,7 +138,7 @@ describe('bufferutils', function() {
 
         assert.throws(function() {
           bufferutils.writeVarInt(buffer, f.dec, 0)
-        }, /value must be < 2\^53/)
+        }, new RegExp(f.exception))
       })
     })
   })

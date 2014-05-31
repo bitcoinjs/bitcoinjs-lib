@@ -85,11 +85,17 @@
   "invalid": [
     {
       "description": "n === 2^53",
-      "value": 9007199254740992
+      "exception": "value is larger than maximum value for type",
+      "hex64": "0000000000002000",
+      "hexVI": "ff0000000000000020",
+      "dec": 9007199254740992
     },
     {
       "description": "n > 2^53",
-      "value": 18374686479671624000
+      "exception": "value is larger than maximum value for type",
+      "hex64": "0100000000002000",
+      "hexVI": "ff0100000000000020",
+      "dec": 9007199254740993
     }
   ]
 }

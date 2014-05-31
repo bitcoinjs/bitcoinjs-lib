@@ -1,6 +1,14 @@
 var assert = require('assert')
 var opcodes = require('./opcodes')
 
+// https://github.com/feross/buffer/blob/master/index.js#L1127
+function verifuint(value, max) {
+  assert(typeof value === 'number', 'cannot write a non-number as a number')
+  assert(value >= 0, 'specified a negative value for writing an unsigned value')
+  assert(value <= max, 'value is larger than maximum value for type')
+  assert(Math.floor(value) === value, 'value has a fractional component')
+}
+
 function pushDataSize(i) {
   return i < opcodes.OP_PUSHDATA1 ? 1
     : i < 0xff        ? 2
@@ -47,9 +55,7 @@ function readUInt64LE(buffer, offset) {
   var b = buffer.readUInt32LE(offset + 4)
   b *= 0x100000000
 
-  // Javascript Safe Integer limitation
-  // assert(Number.isSafeInteger(value), 'value must be < 2^53')
-  assert(b + a < 0x0020000000000000, 'value must be < 2^53')
+  verifuint(b + a, 0x001fffffffffffff)
 
   return b + a
 }
@@ -104,10 +110,6 @@ function writePushDataInt(buffer, number, offset) {
 
   // 32 bit
   } else {
-    // Javascript Safe Integer limitation
-    // assert(Number.isSafeInteger(value), 'value must be < 2^53')
-    assert(number < 0x0020000000000000, 'value must be < 2^53')
-
     buffer.writeUInt8(opcodes.OP_PUSHDATA4, offset)
     buffer.writeUInt32LE(number, offset + 1)
 
@@ -117,9 +119,7 @@ function writePushDataInt(buffer, number, offset) {
 }
 
 function writeUInt64LE(buffer, value, offset) {
-  // Javascript Safe Integer limitation
-  // assert(Number.isSafeInteger(value), 'value must be < 2^53')
-  assert(value < 0x0020000000000000, 'value must be < 2^53')
+  verifuint(value, 0x001fffffffffffff)
 
   buffer.writeInt32LE(value & -1, offset)
   buffer.writeUInt32LE(Math.floor(value / 0x100000000), offset + 4)
