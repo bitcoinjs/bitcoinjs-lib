@@ -21,7 +21,7 @@ function encode(buffer) {
   var result = new Buffer(buffer.length << 1)
 
   var i = result.length - 1
-  while (bi.compareTo(BigInteger.ZERO) > 0) {
+  while (bi.signum() > 0) {
     var remainder = bi.mod(BASE)
     bi = bi.divide(BASE)
 
