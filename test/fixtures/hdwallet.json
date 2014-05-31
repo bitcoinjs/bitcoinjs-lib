@@ -176,5 +176,20 @@
       ]
     }
   ],
-  "invalid": []
+  "invalid": {
+    "fromBase58": [
+      {
+        "exception": "Invalid checksum",
+        "string": "xprvQQQQQQQQQQQQQQQQCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334"
+      },
+      {
+        "exception": "Invalid BIP32 string",
+        "string": "SQ8nQ2jWarXqLo9oHGKKP6iQDsQbPRftq7rjtYY3hqJRPQRgrmeunFnDKbH7B15yGPLZBrhhkKXx3pwD6LcBooJRGq6x7matAXpMsgn"
+      },
+      {
+        "exception": "Invalid BIP32 string",
+        "string": "37hdAfw3aMiWcBGPP2ywmY5jizTeSSP5GXayKY3RxkEZ7f3SBnRE1pN6eY3VzGkgx6vbdNtuKfrHgEaYvW9KkFZCycaPvWiA9TtfmeVB592Sf9RfSzQzXo72"
+      }
+    ]
+  }
 }

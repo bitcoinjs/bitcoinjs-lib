@@ -1,4 +1,5 @@
 var assert = require('assert')
+var networks = require('../src/networks')
 
 var HDWallet = require('../src/hdwallet')
 var fixtures = require('./fixtures/hdwallet.json')
@@ -29,6 +30,16 @@ describe('HDWallet', function() {
         return
       }
       assert.fail()
+    })
+  })
+
+  describe('fromBase58', function() {
+    fixtures.invalid.fromBase58.forEach(function(f) {
+      it('throws on ' + f.string, function() {
+        assert.throws(function() {
+          HDWallet.fromBase58(f.string)
+        }, new RegExp(f.exception))
+      })
     })
   })
 
@@ -67,6 +78,15 @@ describe('HDWallet', function() {
         var buffer = new HDWallet(seed).toBuffer()
         buffer.writeUInt32BE(0xFFFFFFFF, 9)
         assert.throws(function() { HDWallet.fromBuffer(buffer) }, /Invalid index/)
+      })
+
+      it('fails for an invalid network type', function() {
+        var network = { bip32: { priv: 0x11111111, pub: 0x22222222 } }
+        var buffer = new HDWallet(seed, network).toBuffer()
+
+        assert.throws(function() {
+          HDWallet.fromBuffer(buffer)
+        }, /Could not find version 22222222/)
       })
     })
   })
@@ -119,24 +139,36 @@ describe('HDWallet', function() {
   })
 
   describe('network types', function() {
+    var seed
+
+    beforeEach(function() {
+      seed = new Buffer('foobar')
+    })
+
+    it('ensure that a bitcoin wallet is the default', function() {
+      var wallet = new HDWallet(seed)
+
+      assert.equal(wallet.network, networks.bitcoin)
+    })
+
     it('ensures that a bitcoin Wallet generates bitcoin addresses', function() {
-      var wallet = new HDWallet(new Buffer('foobar'), 'bitcoin')
-      assert.equal(wallet.getAddress().toString(), '17SnB9hyGwJPoKpLb9eVPHjsujyEuBpMAA')
+      var wallet = new HDWallet(seed)
+      var address = wallet.getAddress().toString()
+
+      assert.equal(address, '17SnB9hyGwJPoKpLb9eVPHjsujyEuBpMAA')
     })
 
     it('ensures that a testnet Wallet generates testnet addresses', function() {
-      var wallet = new HDWallet(new Buffer('foobar'), 'testnet')
-      assert.equal(wallet.getAddress().toString(), 'mmxjUCnx5xjeaSHxJicsDCxCmjZwq8KTbv')
+      var wallet = new HDWallet(seed, networks.testnet)
+      var address = wallet.getAddress().toString()
+
+      assert.equal(address, 'mmxjUCnx5xjeaSHxJicsDCxCmjZwq8KTbv')
     })
 
     it('throws an exception when unknown network type is passed in', function() {
-      assert.throws(function() { new HDWallet(new Buffer('foobar'), 'doge') }, /Unknown network: doge/)
-    })
-
-    it('throws an exception with bad network type using fromBuffer', function() {
-      var buffer = new HDWallet(new Buffer('foobar'), 'bitcoin').toBuffer()
-      buffer.writeUInt32BE(0x00000000, 0)
-      assert.throws(function() { HDWallet.fromBuffer(buffer) }, /Could not find version 0/)
+      assert.throws(function() {
+        new HDWallet(seed, {})
+      }, /Unknown BIP32 constants for network/)
     })
   })
 })

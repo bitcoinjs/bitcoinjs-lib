@@ -1,5 +1,6 @@
 var assert = require('assert')
 var crypto = require('../src/crypto')
+var networks = require('../src/networks')
 var sinon = require('sinon')
 
 var Address = require('../src/address')
@@ -24,12 +25,8 @@ describe('Wallet', function() {
   })
 
   describe('constructor', function() {
-    it('should be ok to call without new', function() {
-      assert.ok(Wallet(seed) instanceof Wallet)
-    })
-
     it('defaults to Bitcoin network', function() {
-      assert.equal(wallet.getMasterKey().network, 'bitcoin')
+      assert.equal(wallet.getMasterKey().network, networks.bitcoin)
     })
 
     it("generates m/0' as the main account", function() {
@@ -59,11 +56,11 @@ describe('Wallet', function() {
 
     describe('constructor options', function() {
       beforeEach(function() {
-        wallet = new Wallet(seed, {network: 'testnet'})
+        wallet = new Wallet(seed, networks.testnet)
       })
 
       it('uses the network if specified', function() {
-        assert.equal(wallet.getMasterKey().network, 'testnet')
+        assert.equal(wallet.getMasterKey().network, networks.testnet)
       })
     })
   })
@@ -98,7 +95,7 @@ describe('Wallet', function() {
 
   describe('generateAddress', function(){
     it('generate receiving addresses', function(){
-      var wallet = new Wallet(seed, {network: 'testnet'})
+      var wallet = new Wallet(seed, networks.testnet)
       var expectedAddresses = [
         "n1GyUANZand9Kw6hGSV9837cCC9FFUQzQa",
         "n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X"
@@ -112,7 +109,7 @@ describe('Wallet', function() {
 
   describe('generateChangeAddress', function(){
     it('generates change addresses', function(){
-      var wallet = new Wallet(seed, {network: 'testnet'})
+      var wallet = new Wallet(seed, networks.testnet)
       var expectedAddresses = ["mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"]
 
       assert.equal(wallet.generateChangeAddress(), expectedAddresses[0])
@@ -122,7 +119,7 @@ describe('Wallet', function() {
 
   describe('getPrivateKey', function(){
     it('returns the private key at the given index of external account', function(){
-      var wallet = new Wallet(seed, {network: 'testnet'})
+      var wallet = new Wallet(seed, networks.testnet)
 
       assertEqual(wallet.getPrivateKey(0), wallet.getExternalAccount().derive(0).priv)
       assertEqual(wallet.getPrivateKey(1), wallet.getExternalAccount().derive(1).priv)
@@ -131,7 +128,7 @@ describe('Wallet', function() {
 
   describe('getInternalPrivateKey', function(){
     it('returns the private key at the given index of internal account', function(){
-      var wallet = new Wallet(seed, {network: 'testnet'})
+      var wallet = new Wallet(seed, networks.testnet)
 
       assertEqual(wallet.getInternalPrivateKey(0), wallet.getInternalAccount().derive(0).priv)
       assertEqual(wallet.getInternalPrivateKey(1), wallet.getInternalAccount().derive(1).priv)
@@ -140,7 +137,7 @@ describe('Wallet', function() {
 
   describe('getPrivateKeyForAddress', function(){
     it('returns the private key for the given address', function(){
-      var wallet = new Wallet(seed, {network: 'testnet'})
+      var wallet = new Wallet(seed, networks.testnet)
       wallet.generateChangeAddress()
       wallet.generateAddress()
       wallet.generateAddress()
@@ -156,7 +153,7 @@ describe('Wallet', function() {
     })
 
     it('raises an error when address is not found', function(){
-      var wallet = new Wallet(seed, {network: 'testnet'})
+      var wallet = new Wallet(seed, networks.testnet)
       assert.throws(function() {
         wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X")
       }, /Unknown address. Make sure the address is from the keychain and has been generated./)
@@ -168,7 +165,6 @@ describe('Wallet', function() {
     beforeEach(function(){
       expectedUtxo = {
         "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
-        "hashLittleEndian":"c7b97b432e7b3a8e31d1a4a0fa326c8fb002d19f2da5fc4feaf9c43a2762406a",
         "outputIndex": 0,
         "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
         "value": 20000
@@ -230,36 +226,13 @@ describe('Wallet', function() {
         utxo = cloneObject([expectedUtxo])
       })
 
-      it('uses hashLittleEndian when hash is not present', function(){
-        delete utxo[0]['hash']
-
-        wallet.setUnspentOutputs(utxo)
-        verifyOutputs()
-      })
-
-      it('uses hash when hashLittleEndian is not present', function(){
-        delete utxo[0]['hashLittleEndian']
-
-        wallet.setUnspentOutputs(utxo)
-        verifyOutputs()
-      })
-
-      it('uses hash when both hash and hashLittleEndian are present', function(){
+      it('matches the expected behaviour', function(){
         wallet.setUnspentOutputs(utxo)
         verifyOutputs()
       })
 
       describe('required fields', function(){
-        it("throws an error when hash and hashLittleEndian are both missing", function(){
-          delete utxo[0]['hash']
-          delete utxo[0]['hashLittleEndian']
-
-          assert.throws(function() {
-            wallet.setUnspentOutputs(utxo)
-          }, /Invalid unspent output: key hash\(or hashLittleEndian\) is missing/)
-        });
-
-        ['outputIndex', 'address', 'value'].forEach(function(field){
+        ['outputIndex', 'address', 'hash', 'value'].forEach(function(field){
           it("throws an error when " + field + " is missing", function(){
             delete utxo[0][field]
 
@@ -276,38 +249,6 @@ describe('Wallet', function() {
         assert.equal(output.value, utxo[0].value)
         assert.equal(output.address, utxo[0].address)
       }
-    })
-
-    describe('setUnspentOutputsAsync', function(){
-      var utxo
-      beforeEach(function(){
-        utxo = cloneObject([expectedUtxo])
-      })
-
-      afterEach(function(){
-        wallet.setUnspentOutputs.restore()
-      })
-
-      it('calls setUnspentOutputs', function(done){
-        sinon.stub(wallet, "setUnspentOutputs")
-
-        var callback = function(){
-          assert(wallet.setUnspentOutputs.calledWith(utxo))
-          done()
-        }
-
-        wallet.setUnspentOutputsAsync(utxo, callback)
-      })
-
-      it('when setUnspentOutputs throws an error, it invokes callback with error', function(done){
-        sinon.stub(wallet, "setUnspentOutputs").throws()
-
-        var callback = function(err){
-          assert(err instanceof Error)
-          done()
-        }
-        wallet.setUnspentOutputsAsync(utxo, callback)
-      })
     })
   })
 
@@ -490,21 +431,31 @@ describe('Wallet', function() {
       })
     })
 
-    describe('testnet', function(){
+    describe(networks.testnet, function(){
       it('should create transaction', function(){
-        var to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
-        var wallet = new Wallet(seed, {network: 'testnet'})
-        var tx = wallet.createTx(to, value)
+        var wallet = new Wallet(seed, networks.testnet)
+        var address = wallet.generateAddress()
 
+        wallet.setUnspentOutputs([{
+          hash: fakeTxHash(0),
+          outputIndex: 0,
+          address: address,
+          value: value
+        }])
+
+        var to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
+        var toValue = value - 20000
+
+        var tx = wallet.createTx(to, toValue)
         assert.equal(tx.outs.length, 1)
         assert.equal(tx.outs[0].address.toString(), to)
-        assert.equal(tx.outs[0].value, value)
+        assert.equal(tx.outs[0].value, toValue)
       })
     })
 
     describe('changeAddress', function(){
       it('should allow custom changeAddress', function(){
-        var wallet = new Wallet(seed, {network: 'testnet'})
+        var wallet = new Wallet(seed, networks.testnet)
         var address = wallet.generateAddress()
 
         wallet.setUnspentOutputs([{
@@ -595,7 +546,7 @@ describe('Wallet', function() {
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, /Value must be above dust threshold/)
+        }, /5430 must be above dust threshold \(5430 Satoshis\)/)
       })
     })
 
@@ -605,59 +556,8 @@ describe('Wallet', function() {
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, /Not enough money to send funds including transaction fee. Have: 1420000, needed: 1420001/)
+        }, /Not enough funds \(incl. fee\): 1420000 < 1420001/)
       })
-    })
-  })
-
-  describe('createTxAsync', function(){
-    var to, value, fee
-
-    beforeEach(function(){
-      to = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
-      value = 500000
-      fee = 10000
-    })
-
-    afterEach(function(){
-      wallet.createTx.restore()
-    })
-
-    it('calls createTx', function(done){
-      sinon.stub(wallet, "createTx").returns("fakeTx")
-
-      var callback = function(err, tx){
-        assert(wallet.createTx.calledWith(to, value))
-        assert.equal(err, null)
-        assert.equal(tx, "fakeTx")
-        done()
-      }
-
-      wallet.createTxAsync(to, value, callback)
-    })
-
-    it('calls createTx correctly when fee is specified', function(done){
-      sinon.stub(wallet, "createTx").returns("fakeTx")
-
-      var callback = function(err, tx){
-        assert(wallet.createTx.calledWith(to, value, fee))
-        assert.equal(err, null)
-        assert.equal(tx, "fakeTx")
-        done()
-      }
-
-      wallet.createTxAsync(to, value, fee, callback)
-    })
-
-    it('when createTx throws an error, it invokes callback with error', function(done){
-      sinon.stub(wallet, "createTx").throws()
-
-      var callback = function(err, tx){
-        assert(err instanceof Error)
-        done()
-      }
-
-      wallet.createTxAsync(to, value, callback)
     })
   })
 
