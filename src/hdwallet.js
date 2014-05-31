@@ -118,7 +118,7 @@ HDWallet.prototype.getFingerprint = function() {
 }
 
 HDWallet.prototype.getAddress = function() {
-  return this.pub.getAddress(this.getKeyVersion())
+  return this.pub.getAddress(this.network.pubKeyHash)
 }
 
 HDWallet.prototype.toBuffer = function(priv) {
@@ -247,10 +247,6 @@ HDWallet.prototype.derive = function(index) {
 HDWallet.prototype.derivePrivate = function(index) {
   // Only derives hardened private keys by default
   return this.derive(index + HDWallet.HIGHEST_BIT)
-}
-
-HDWallet.prototype.getKeyVersion = function() {
-  return this.network.pubKeyHash
 }
 
 HDWallet.prototype.toString = HDWallet.prototype.toBase58
