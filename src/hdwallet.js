@@ -1,8 +1,6 @@
 var assert = require('assert')
 var base58 = require('./base58')
-var convert = require('./convert')
 
-var Address = require('./address')
 var BigInteger = require('bigi')
 var crypto = require('./crypto')
 var ECKey = require('./eckey')
