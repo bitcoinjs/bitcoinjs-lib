@@ -11,6 +11,23 @@ var networks = require('./networks')
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
 
+function findBIP32ParamsByVersion(version) {
+  for (var name in networks) {
+    var network = networks[name]
+
+    for (var type in network.bip32) {
+      if (version != network.bip32[type]) continue
+
+      return {
+        isPrivate: (type === 'priv'),
+        network: network
+      }
+    }
+  }
+
+  assert(false, 'Could not find version ' + version.toString(16))
+}
+
 function HDWallet(K, chainCode, network) {
   network = network || networks.bitcoin
 
@@ -67,20 +84,7 @@ HDWallet.fromBuffer = function(buffer) {
 
   // 4 byte: version bytes
   var version = buffer.readUInt32BE(0)
-
-  var hdNetwork, isPrivate
-  for (var name in networks) {
-    var network = networks[name]
-
-    for (var type in network.bip32) {
-      if (version != network.bip32[type]) continue
-
-      hdNetwork = network
-      isPrivate = (type === 'priv')
-    }
-  }
-
-  assert(hdNetwork, 'Could not find version ' + version.toString(16))
+  var params = findBIP32ParamsByVersion(version)
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer.readUInt8(4)
@@ -104,18 +108,18 @@ HDWallet.fromBuffer = function(buffer) {
   var data = buffer.slice(45, 78)
 
   var hd
-  if (isPrivate) {
+  if (params.isPrivate) {
     assert.strictEqual(data.readUInt8(0), 0x00, 'Invalid private key')
     data = data.slice(1)
 
     var D = BigInteger.fromBuffer(data)
-    hd = new HDWallet(D, chainCode, hdNetwork)
+    hd = new HDWallet(D, chainCode, params.network)
   } else {
 
     var decode = ECPointFp.decodeFrom(ecparams.getCurve(), data)
     assert.equal(decode.compressed, true, 'Invalid public key')
 
-    hd = new HDWallet(decode.Q, chainCode, hdNetwork)
+    hd = new HDWallet(decode.Q, chainCode, params.network)
   }
 
   hd.depth = depth
