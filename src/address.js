@@ -18,7 +18,7 @@ function findScriptTypeByVersion(queryVersion) {
 }
 
 function Address(hash, version) {
-  assert(Buffer.isBuffer(hash), 'First argument must be a Buffer')
+  assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
   assert.strictEqual(hash.length, 20, 'Invalid hash length')
   assert.strictEqual(version & 0xFF, version, 'Invalid version byte')
 
