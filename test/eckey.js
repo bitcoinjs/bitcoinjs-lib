@@ -31,8 +31,10 @@ describe('ECKey', function() {
 
     fixtures.invalid.constructor.forEach(function(f) {
       it('throws on ' + f.D, function() {
+        var D = new BigInteger(f.D)
+
         assert.throws(function() {
-          new ECKey(new BigInteger(f.D))
+          new ECKey(D)
         }, new RegExp(f.exception))
       })
     })
