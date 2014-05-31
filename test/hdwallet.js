@@ -23,13 +23,10 @@ describe('HDWallet', function() {
 
     it('fails with priv=true when theres no private key', function() {
       var hd = HDWallet.fromBase58('xpub6DF8uhdarytz3FWdA8TvFSvvAh8dP3283MY7p2V4SeE2wyWmG5mg5EwVvmdMVCQcoNJxGoWaU9DCWh89LojfZ537wTfunKau47EL2dhHKon')
-      try {
+
+      assert.throws(function() {
         hd.toBase58(true)
-      } catch(e) {
-        assert(e.message.match(/private key/i))
-        return
-      }
-      assert.fail()
+      }, /Missing private key/)
     })
   })
 
