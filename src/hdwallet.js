@@ -5,39 +5,49 @@ var BigInteger = require('bigi')
 var crypto = require('./crypto')
 var ECKey = require('./eckey')
 var ECPubKey = require('./ecpubkey')
+var ECPointFp = require('./ec').ECPointFp
 var networks = require('./networks')
 
 var sec = require('./sec')
 var ecparams = sec("secp256k1")
 
-function HDWallet(seed, network) {
-  if (seed == undefined) return; // FIXME: Boo, should be stricter
-
+function HDWallet(K, chainCode, network) {
   network = network || networks.bitcoin
+
+  assert(Buffer.isBuffer(chainCode), 'Expected Buffer, got ' + chainCode)
   assert(network.bip32, 'Unknown BIP32 constants for network')
 
-  var I = crypto.HmacSHA512(seed, HDWallet.MASTER_SECRET)
-  var IL = I.slice(0, 32)
-  var IR = I.slice(32)
-
-  // In case IL is 0 or >= n, the master key is invalid (handled by ECKey.fromBuffer)
-  var pIL = BigInteger.fromBuffer(IL)
-
-  this.network = network
-  this.priv = new ECKey(pIL, true)
-  this.pub = this.priv.pub
-
-  this.chaincode = IR
+  this.chainCode = chainCode
   this.depth = 0
   this.index = 0
+  this.network = network
+
+  if (K instanceof BigInteger) {
+    this.priv = new ECKey(K, true)
+    this.pub = this.priv.pub
+  } else {
+    this.pub = new ECPubKey(K, true)
+  }
 }
 
 HDWallet.MASTER_SECRET = new Buffer('Bitcoin seed')
 HDWallet.HIGHEST_BIT = 0x80000000
 HDWallet.LENGTH = 78
 
+HDWallet.fromSeedBuffer = function(seed, network) {
+  var I = crypto.HmacSHA512(seed, HDWallet.MASTER_SECRET)
+  var IL = I.slice(0, 32)
+  var IR = I.slice(32)
+
+  // In case IL is 0 or >= n, the master key is invalid
+  // This is handled by `new ECKey` in the HDWallet constructor
+  var pIL = BigInteger.fromBuffer(IL)
+
+  return new HDWallet(pIL, IR, network)
+}
+
 HDWallet.fromSeedHex = function(hex, network) {
-  return new HDWallet(new Buffer(hex, 'hex'), network)
+  return HDWallet.fromSeedBuffer(new Buffer(hex, 'hex'), network)
 }
 
 HDWallet.fromBase58 = function(string) {
@@ -53,58 +63,65 @@ HDWallet.fromBase58 = function(string) {
   return HDWallet.fromBuffer(payload)
 }
 
-HDWallet.fromBuffer = function(input) {
-  assert.strictEqual(input.length, HDWallet.LENGTH, 'Invalid buffer length')
-
-  var hd = new HDWallet()
+HDWallet.fromBuffer = function(buffer) {
+  assert.strictEqual(buffer.length, HDWallet.LENGTH, 'Invalid buffer length')
 
   // 4 byte: version bytes
-  var version = input.readUInt32BE(0)
+  var version = buffer.readUInt32BE(0)
 
-  var type
+  var hdNetwork, isPrivate
   for (var name in networks) {
     var network = networks[name]
 
-    for (var t in network.bip32) {
-      if (version != network.bip32[t]) continue
+    for (var type in network.bip32) {
+      if (version != network.bip32[type]) continue
 
-      type = t
-      hd.network = network
+      hdNetwork = network
+      isPrivate = (type === 'priv')
     }
   }
 
-  if (!hd.network) {
-    throw new Error('Could not find version ' + version.toString(16))
-  }
+  assert(hdNetwork, 'Could not find version ' + version.toString(16))
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
-  hd.depth = input.readUInt8(4)
+  var depth = buffer.readUInt8(4)
 
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
-  hd.parentFingerprint = input.readUInt32BE(5)
-  if (hd.depth === 0) {
-    assert.strictEqual(hd.parentFingerprint, 0x00000000, 'Invalid parent fingerprint')
+  var parentFingerprint = buffer.readUInt32BE(5)
+  if (depth === 0) {
+    assert.strictEqual(parentFingerprint, 0x00000000, 'Invalid parent fingerprint')
   }
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
   // This is encoded in MSB order. (0x00000000 if master key)
-  hd.index = input.readUInt32BE(9)
-  assert(hd.depth > 0 || hd.index === 0, 'Invalid index')
+  var index = buffer.readUInt32BE(9)
+  assert(depth > 0 || index === 0, 'Invalid index')
 
   // 32 bytes: the chain code
-  hd.chaincode = input.slice(13, 45)
+  var chainCode = buffer.slice(13, 45)
 
   // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
   // public keys, 0x00 + k for private keys)
-  if (type == 'priv') {
-    assert.equal(input.readUInt8(45), 0, 'Invalid private key')
-    var D = BigInteger.fromBuffer(input.slice(46, 78))
+  var data = buffer.slice(45, 78)
 
-    hd.priv = new ECKey(D, true)
-    hd.pub = hd.priv.pub
+  var hd
+  if (isPrivate) {
+    assert.strictEqual(data.readUInt8(0), 0x00, 'Invalid private key')
+    data = data.slice(1)
+
+    var D = BigInteger.fromBuffer(data)
+    hd = new HDWallet(D, chainCode, hdNetwork)
   } else {
-    hd.pub = ECPubKey.fromBuffer(input.slice(45, 78), true)
+
+    var decode = ECPointFp.decodeFrom(ecparams.getCurve(), data)
+    assert.equal(decode.compressed, true, 'Invalid public key')
+
+    hd = new HDWallet(decode.Q, chainCode, hdNetwork)
   }
+
+  hd.depth = depth
+  hd.index = index
+  hd.parentFingerprint = parentFingerprint
 
   return hd
 }
@@ -142,7 +159,7 @@ HDWallet.prototype.toBuffer = function(priv) {
   buffer.writeUInt32BE(this.index, 9)
 
   // 32 bytes: the chain code
-  this.chaincode.copy(buffer, 13)
+  this.chainCode.copy(buffer, 13)
 
   // 33 bytes: the public key or private key data
   if (priv) {
@@ -201,25 +218,28 @@ HDWallet.prototype.derive = function(index) {
     ])
   }
 
-  var I = crypto.HmacSHA512(data, this.chaincode)
+  var I = crypto.HmacSHA512(data, this.chainCode)
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 
-  var hd = new HDWallet()
   var pIL = BigInteger.fromBuffer(IL)
+
+  // In case parse256(IL) >= n, proceed with the next value for i
+  if (pIL.compareTo(ecparams.getN()) >= 0) {
+    return this.derive(index + 1)
+  }
 
   // Private parent key -> private child key
   if (this.priv) {
     // ki = parse256(IL) + kpar (mod n)
     var ki = pIL.add(this.priv.D).mod(ecparams.getN())
 
-    // In case parse256(IL) >= n or ki == 0, one should proceed with the next value for i
-    if (pIL.compareTo(ecparams.getN()) >= 0 || ki.signum() === 0) {
+    // In case ki == 0, proceed with the next value for i
+    if (ki.signum() === 0) {
       return this.derive(index + 1)
     }
 
-    hd.priv = new ECKey(ki, true)
-    hd.pub = hd.priv.pub
+    hd = new HDWallet(ki, IR, this.network)
 
   // Public parent key -> public child key
   } else {
@@ -227,19 +247,17 @@ HDWallet.prototype.derive = function(index) {
     //    = G*IL + Kpar
     var Ki = ecparams.getG().multiply(pIL).add(this.pub.Q)
 
-    // In case parse256(IL) >= n or Ki is the point at infinity, one should proceed with the next value for i
-    if (pIL.compareTo(ecparams.getN()) >= 0 || Ki.isInfinity()) {
+    // In case Ki is the point at infinity, proceed with the next value for i
+    if (Ki.isInfinity()) {
       return this.derive(index + 1)
     }
 
-    hd.pub = new ECPubKey(Ki, true)
+    hd = new HDWallet(Ki, IR, this.network)
   }
 
-  hd.chaincode = IR
   hd.depth = this.depth + 1
-  hd.network = this.network
-  hd.parentFingerprint = this.getFingerprint().readUInt32BE(0)
   hd.index = index
+  hd.parentFingerprint = this.getFingerprint().readUInt32BE(0)
 
   return hd
 }

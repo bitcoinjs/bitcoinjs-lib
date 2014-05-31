@@ -52,12 +52,12 @@ describe('HDWallet', function() {
     })
   })
 
-  describe('constructor & seed deserialization', function() {
+  describe('fromSeedBuffer', function() {
     var expectedPrivateKey = '0fd71c652e847ba7ea7956e3cf3fc0a0985871846b1b2c23b9c6a29a38cee860'
-    var seed = new Buffer('6372617a7920686f727365206261747465727920737461706c65', 'hex')
+    var seedHex = '6372617a7920686f727365206261747465727920737461706c65'
 
-    it('creates from binary seed', function() {
-      var hd = new HDWallet(seed)
+    it('creates from a binary seed', function() {
+      var hd = HDWallet.fromSeedBuffer(new Buffer(seedHex, 'hex'))
 
       assert.equal(hd.priv.D.toHex(), expectedPrivateKey)
       assert(hd.pub)
@@ -65,7 +65,7 @@ describe('HDWallet', function() {
 
     describe('fromSeedHex', function() {
       it('creates from hex seed', function() {
-        var hd = HDWallet.fromSeedHex(seed.toString('hex'))
+        var hd = HDWallet.fromSeedHex(seedHex)
 
         assert.equal(hd.priv.D.toHex(), expectedPrivateKey)
         assert(hd.pub)
@@ -80,9 +80,7 @@ describe('HDWallet', function() {
       assert.equal(hd.getAddress().toString(), v.address)
       assert.equal(hd.priv.toWIF(), v.wif)
       assert.equal(hd.pub.toHex(), v.pubKey)
-      assert.equal(b2h(hd.chaincode), v.chaincode)
-      assert.equal(hd.toHex(false), v.hex)
-      assert.equal(hd.toHex(true), v.hexPriv)
+      assert.equal(b2h(hd.chainCode), v.chainCode)
       assert.equal(hd.toBase58(false), v.base58)
       assert.equal(hd.toBase58(true), v.base58Priv)
     }
@@ -128,28 +126,28 @@ describe('HDWallet', function() {
     })
 
     it('ensure that a bitcoin wallet is the default', function() {
-      var wallet = new HDWallet(seed)
+      var hd = HDWallet.fromSeedBuffer(seed)
 
-      assert.equal(wallet.network, networks.bitcoin)
+      assert.equal(hd.network, networks.bitcoin)
     })
 
     it('ensures that a bitcoin Wallet generates bitcoin addresses', function() {
-      var wallet = new HDWallet(seed)
-      var address = wallet.getAddress().toString()
+      var hd = HDWallet.fromSeedBuffer(seed, networks.bitcoin)
+      var address = hd.getAddress().toString()
 
       assert.equal(address, '17SnB9hyGwJPoKpLb9eVPHjsujyEuBpMAA')
     })
 
     it('ensures that a testnet Wallet generates testnet addresses', function() {
-      var wallet = new HDWallet(seed, networks.testnet)
-      var address = wallet.getAddress().toString()
+      var hd = HDWallet.fromSeedBuffer(seed, networks.testnet)
+      var address = hd.getAddress().toString()
 
       assert.equal(address, 'mmxjUCnx5xjeaSHxJicsDCxCmjZwq8KTbv')
     })
 
     it('throws an exception when unknown network type is passed in', function() {
       assert.throws(function() {
-        new HDWallet(seed, {})
+        HDWallet.fromSeedBuffer(seed, {})
       }, /Unknown BIP32 constants for network/)
     })
   })
