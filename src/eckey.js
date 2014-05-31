@@ -11,7 +11,7 @@ var sec = require('./sec')
 var ecparams = sec('secp256k1')
 
 function ECKey(D, compressed) {
-  assert(D.compareTo(BigInteger.ZERO) > 0, 'Private key must be greater than 0')
+  assert(D.signum() > 0, 'Private key must be greater than 0')
   assert(D.compareTo(ecparams.getN()) < 0, 'Private key must be less than the curve order')
 
   var Q = ecparams.getG().multiply(D)
