@@ -40,12 +40,21 @@ describe('HDWallet', function() {
     })
   })
 
+  describe('fromBuffer', function() {
+    fixtures.invalid.fromBuffer.forEach(function(f) {
+      it('throws on ' + f.exception, function() {
+        var buffer = new Buffer(f.hex, 'hex')
+
+        assert.throws(function() {
+          HDWallet.fromBuffer(buffer)
+        }, new RegExp(f.exception))
+      })
+    })
+  })
+
   describe('constructor & seed deserialization', function() {
     var expectedPrivateKey = '0fd71c652e847ba7ea7956e3cf3fc0a0985871846b1b2c23b9c6a29a38cee860'
-    var seed = new Buffer([
-      99, 114, 97, 122, 121, 32, 104, 111, 114, 115, 101, 32, 98,
-      97, 116, 116, 101, 114, 121, 32, 115, 116, 97, 112, 108, 101
-    ])
+    var seed = new Buffer('6372617a7920686f727365206261747465727920737461706c65', 'hex')
 
     it('creates from binary seed', function() {
       var hd = new HDWallet(seed)
@@ -60,30 +69,6 @@ describe('HDWallet', function() {
 
         assert.equal(hd.priv.D.toHex(), expectedPrivateKey)
         assert(hd.pub)
-      })
-    })
-
-    describe('fromBuffer', function() {
-      it('fails for invalid parent fingerprint', function() {
-        var buffer = new HDWallet(seed).toBuffer()
-        buffer.writeUInt8(0x00, 4)
-        buffer.writeUInt32BE(0xFFFFFFFF, 5)
-        assert.throws(function() { HDWallet.fromBuffer(buffer) }, /Invalid parent fingerprint/)
-      })
-
-      it('fails for invalid index', function() {
-        var buffer = new HDWallet(seed).toBuffer()
-        buffer.writeUInt32BE(0xFFFFFFFF, 9)
-        assert.throws(function() { HDWallet.fromBuffer(buffer) }, /Invalid index/)
-      })
-
-      it('fails for an invalid network type', function() {
-        var network = { bip32: { priv: 0x11111111, pub: 0x22222222 } }
-        var buffer = new HDWallet(seed, network).toBuffer()
-
-        assert.throws(function() {
-          HDWallet.fromBuffer(buffer)
-        }, /Could not find version 22222222/)
       })
     })
   })

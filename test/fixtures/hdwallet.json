@@ -190,6 +190,20 @@
         "exception": "Invalid BIP32 string",
         "string": "37hdAfw3aMiWcBGPP2ywmY5jizTeSSP5GXayKY3RxkEZ7f3SBnRE1pN6eY3VzGkgx6vbdNtuKfrHgEaYvW9KkFZCycaPvWiA9TtfmeVB592Sf9RfSzQzXo72"
       }
+    ],
+    "fromBuffer": [
+      {
+        "exception": "Invalid parent fingerprint",
+        "hex": "0488b21e00ffffffff000000007ffc03d4a1f2fb41ef93374c69e4d19e42e27c9a87ec8b799a205eecd3b43b5f02948d03e260a571e21bcf5bfd8e3b6602800df154906e06b2bc88eee410aee355"
+      },
+      {
+        "exception": "Invalid index",
+        "hex": "0488b21e0000000000ffffffff7ffc03d4a1f2fb41ef93374c69e4d19e42e27c9a87ec8b799a205eecd3b43b5f02948d03e260a571e21bcf5bfd8e3b6602800df154906e06b2bc88eee410aee355"
+      },
+      {
+        "exception": "Could not find version 22222222",
+        "hex": "222222220000000000000000007ffc03d4a1f2fb41ef93374c69e4d19e42e27c9a87ec8b799a205eecd3b43b5f02948d03e260a571e21bcf5bfd8e3b6602800df154906e06b2bc88eee410aee355"
+      }
     ]
   }
 }
