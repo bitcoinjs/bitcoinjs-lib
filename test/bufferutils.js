@@ -1,7 +1,7 @@
 var assert = require('assert')
 var bufferutils = require('../src/bufferutils')
 
-var fixtures = require('./fixtures/buffer.json')
+var fixtures = require('./fixtures/bufferutils.json')
 
 describe('bufferutils', function() {
   describe('pushDataSize', function() {
