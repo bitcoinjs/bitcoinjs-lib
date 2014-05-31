@@ -81,12 +81,12 @@ describe('HDWallet', function() {
       })
 
       it('fails for an invalid network type', function() {
-        var buffer = new HDWallet(seed).toBuffer()
-        buffer.writeUInt32BE(0x00000000, 0)
+        var network = { bip32: { priv: 0x11111111, pub: 0x22222222 } }
+        var buffer = new HDWallet(seed, network).toBuffer()
 
         assert.throws(function() {
           HDWallet.fromBuffer(buffer)
-        }, /Could not find version 0/)
+        }, /Could not find version 22222222/)
       })
     })
   })
