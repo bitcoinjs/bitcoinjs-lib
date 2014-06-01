@@ -157,7 +157,7 @@ HDWallet.prototype.toBuffer = function(priv) {
   buffer.writeUInt8(this.depth, 4)
 
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
-  var fingerprint = this.depth ? this.parentFingerprint : 0x00000000
+  var fingerprint = (this.depth === 0) ? 0x00000000 : this.parentFingerprint
   buffer.writeUInt32BE(fingerprint, 5)
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
