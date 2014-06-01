@@ -192,17 +192,17 @@
       {
         "exception": "Invalid checksum",
         "string": "xprvQQQQQQQQQQQQQQQQCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334"
-      },
-      {
-        "exception": "Invalid buffer length",
-        "string": "SQ8nQ2jWarXqLo9oHGKKP6iQDsQbPRftq7rjtYY3hqJRPQRgrmeunFnDKbH7B15yGPLZBrhhkKXx3pwD6LcBooJRGq6x7matAXpMsgn"
-      },
-      {
-        "exception": "Invalid buffer length",
-        "string": "37hdAfw3aMiWcBGPP2ywmY5jizTeSSP5GXayKY3RxkEZ7f3SBnRE1pN6eY3VzGkgx6vbdNtuKfrHgEaYvW9KkFZCycaPvWiA9TtfmeVB592Sf9RfSzQzXo72"
       }
     ],
     "fromBuffer": [
+      {
+        "exception": "Invalid buffer length",
+        "hex": "0488b21e0000000000000000007ffc03d4a1f2fb41ef93374c69e4d19e42e27c9a87ec8b799a205eecd3b43b5f02948d03e260a571e21bcf5bfd8e3b6602800df154906e06b2bc88eee4"
+      },
+      {
+        "exception": "Invalid buffer length",
+        "hex": "0488b21e0000000000000000007ffc03d4a1f2fb41ef93374c69e4d19e42e27c9a87ec8b799a205eecd3b43b5f02948d03e260a571e21bcf5bfd8e3b6602800df154906e06b2bc88eee410aee35500000000"
+      },
       {
         "exception": "Invalid parent fingerprint",
         "hex": "0488b21e00ffffffff000000007ffc03d4a1f2fb41ef93374c69e4d19e42e27c9a87ec8b799a205eecd3b43b5f02948d03e260a571e21bcf5bfd8e3b6602800df154906e06b2bc88eee410aee355"
