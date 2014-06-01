@@ -1,28 +1,90 @@
 var assert = require('assert')
 var networks = require('../src/networks')
+var sec = require('../src/sec')
+var ecparams = sec("secp256k1")
 
+var BigInteger = require('bigi')
 var HDWallet = require('../src/hdwallet')
+
 var fixtures = require('./fixtures/hdwallet.json')
 
-function b2h(buf) {
-  assert(Buffer.isBuffer(buf))
-  return buf.toString('hex')
-}
-
 describe('HDWallet', function() {
-  describe('toBase58', function() {
-    it('reproduces input', function() {
-      var input = 'xpub6D4BDPcP2GT577Vvch3R8wDkScZWzQzMMUm3PWbmWvVJrZwQY4VUNgqFJPMM3No2dFDFGTsxxpG5uJh7n7epu4trkrX7x7DogT5Uv6fcLW5'
-      var output = HDWallet.fromBase58(input).toBase58(false)
-      assert.equal(output, input)
+  describe('Constructor', function() {
+    var D = BigInteger.ONE
+    var Q = ecparams.getG().multiply(D)
+    var chainCode = new Buffer(32)
+    chainCode.fill(1)
 
-      input = 'xprvA2JDeKCSNNZky6uBCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334'
-      output = HDWallet.fromBase58(input).toBase58(true)
-      assert.equal(output, input)
+    it('calculates the publicKey from a BigInteger', function() {
+      var hd = new HDWallet(D, chainCode)
+
+      assert(hd.pub.Q.equals(Q))
     })
 
-    it('fails with priv=true when theres no private key', function() {
-      var hd = HDWallet.fromBase58('xpub6DF8uhdarytz3FWdA8TvFSvvAh8dP3283MY7p2V4SeE2wyWmG5mg5EwVvmdMVCQcoNJxGoWaU9DCWh89LojfZ537wTfunKau47EL2dhHKon')
+    it('only uses compressed points', function() {
+      var hd = new HDWallet(Q, chainCode)
+      var hdP = new HDWallet(D, chainCode)
+
+      assert.strictEqual(hd.pub.compressed, true)
+      assert.strictEqual(hdP.pub.compressed, true)
+    })
+
+    it('has a default depth/index of 0', function() {
+      var hd = new HDWallet(Q, chainCode)
+
+      assert.strictEqual(hd.depth, 0)
+      assert.strictEqual(hd.index, 0)
+    })
+
+    it('defaults to the bitcoin network', function() {
+      var hd = new HDWallet(Q, chainCode)
+
+      assert.equal(hd.network, networks.bitcoin)
+    })
+
+    it('supports alternative networks', function() {
+      var hd = new HDWallet(Q, chainCode, networks.testnet)
+
+      assert.equal(hd.network, networks.testnet)
+    })
+
+    it('throws an exception when an unknown network is given', function() {
+      assert.throws(function() {
+        new HDWallet(D, chainCode, {})
+      }, /Unknown BIP32 constants for network/)
+    })
+  })
+
+  describe('fromSeed*', function() {
+    fixtures.valid.forEach(function(f) {
+      it('calculates privKey and chainCode for ' + f.master.fingerprint, function() {
+        var hd = HDWallet.fromSeedHex(f.master.seed)
+
+        assert.equal(hd.priv.toWIF(), f.master.wif)
+        assert.equal(hd.chainCode.toString('hex'), f.master.chainCode)
+      })
+    })
+  })
+
+  describe('toBase58', function() {
+    fixtures.valid.forEach(function(f) {
+      it('exports ' + f.master.base58 + ' (public) correctly', function() {
+        var hd = HDWallet.fromSeedHex(f.master.seed)
+
+        assert.equal(hd.toBase58(), f.master.base58)
+      })
+    })
+
+    fixtures.valid.forEach(function(f) {
+      it('exports ' + f.master.base58Priv + ' (private) correctly', function() {
+        var hd = HDWallet.fromSeedHex(f.master.seed)
+
+        assert.equal(hd.toBase58(true), f.master.base58Priv)
+      })
+    })
+
+    it('fails when there is no private key', function() {
+      var hd = HDWallet.fromBase58(fixtures.valid[0].master.base58)
 
       assert.throws(function() {
         hd.toBase58(true)
@@ -31,6 +93,22 @@ describe('HDWallet', function() {
   })
 
   describe('fromBase58', function() {
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.master.base58 + ' (public) correctly', function() {
+        var hd = HDWallet.fromBase58(f.master.base58)
+
+        assert.equal(hd.toBase58(), f.master.base58)
+      })
+    })
+
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.master.base58Priv + ' (private) correctly', function() {
+        var hd = HDWallet.fromBase58(f.master.base58Priv)
+
+        assert.equal(hd.toBase58(true), f.master.base58Priv)
+      })
+    })
+
     fixtures.invalid.fromBase58.forEach(function(f) {
       it('throws on ' + f.string, function() {
         assert.throws(function() {
@@ -41,114 +119,97 @@ describe('HDWallet', function() {
   })
 
   describe('fromBuffer', function() {
-    fixtures.invalid.fromBuffer.forEach(function(f) {
-      it('throws on ' + f.exception, function() {
-        var buffer = new Buffer(f.hex, 'hex')
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.master.hex + ' (public) correctly', function() {
+        var hd = HDWallet.fromBuffer(new Buffer(f.master.hex, 'hex'))
 
+        assert.equal(hd.toBuffer().toString('hex'), f.master.hex)
+      })
+    })
+
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.master.hexPriv + ' (private) correctly', function() {
+        var hd = HDWallet.fromBuffer(new Buffer(f.master.hexPriv, 'hex'))
+
+        assert.equal(hd.toBuffer(true).toString('hex'), f.master.hexPriv)
+      })
+    })
+
+    fixtures.invalid.fromBuffer.forEach(function(f) {
+      it('throws on ' + f.string, function() {
         assert.throws(function() {
-          HDWallet.fromBuffer(buffer)
+          HDWallet.fromBuffer(new Buffer(f.hex, 'hex'))
         }, new RegExp(f.exception))
       })
     })
   })
 
-  describe('fromSeedBuffer', function() {
-    var expectedPrivateKey = '0fd71c652e847ba7ea7956e3cf3fc0a0985871846b1b2c23b9c6a29a38cee860'
-    var seedHex = '6372617a7920686f727365206261747465727920737461706c65'
+  describe('getIdentifier', function() {
+    var f = fixtures.valid[0]
 
-    it('creates from a binary seed', function() {
-      var hd = HDWallet.fromSeedBuffer(new Buffer(seedHex, 'hex'))
+    it('returns the identifier for ' + f.master.fingerprint, function() {
+      var hd = HDWallet.fromBase58(f.master.base58)
 
-      assert.equal(hd.priv.D.toHex(), expectedPrivateKey)
-      assert(hd.pub)
-    })
-
-    describe('fromSeedHex', function() {
-      it('creates from hex seed', function() {
-        var hd = HDWallet.fromSeedHex(seedHex)
-
-        assert.equal(hd.priv.D.toHex(), expectedPrivateKey)
-        assert(hd.pub)
-      })
+      assert.equal(hd.getIdentifier().toString('hex'), f.master.identifier)
     })
   })
 
-  describe('Test vectors', function() {
-    function verifyVector(hd, v) {
-      assert.equal(b2h(hd.getIdentifier()), v.identifier)
-      assert.equal(b2h(hd.getFingerprint()), v.fingerprint)
-      assert.equal(hd.getAddress().toString(), v.address)
-      assert.equal(hd.priv.toWIF(), v.wif)
-      assert.equal(hd.pub.toHex(), v.pubKey)
-      assert.equal(b2h(hd.chainCode), v.chainCode)
-      assert.equal(hd.toBase58(false), v.base58)
-      assert.equal(hd.toBase58(true), v.base58Priv)
-    }
+  describe('getFingerprint', function() {
+    var f = fixtures.valid[0]
 
-    it('matches the test vectors', function() {
-      fixtures.valid.forEach(function(f) {
-        var hd = HDWallet.fromSeedHex(f.master.seed)
-        verifyVector(hd, f.master)
+    it('returns the fingerprint for ' + f.master.fingerprint, function() {
+      var hd = HDWallet.fromBase58(f.master.base58)
 
-        f.children.forEach(function(c) {
-          // FIXME: c.description could be shown
-          if (c.mPriv != undefined) {
-            hd = hd.derivePrivate(c.mPriv)
-          } else {
-            hd = hd.derive(c.m)
-          }
+      assert.equal(hd.getFingerprint().toString('hex'), f.master.fingerprint)
+    })
+  })
 
-          verifyVector(hd, c)
-        })
-      })
+  describe('getAddress', function() {
+    var f = fixtures.valid[0]
+
+    it('returns the Address (pubKeyHash) for ' + f.master.fingerprint, function() {
+      var hd = HDWallet.fromBase58(f.master.base58)
+
+      assert.equal(hd.getAddress().toString(), f.master.address)
+    })
+
+    it('supports alternative networks', function() {
+      var hd = HDWallet.fromBase58(f.master.base58)
+      hd.network = networks.testnet
+
+      assert.equal(hd.getAddress().version, networks.testnet.pubKeyHash)
     })
   })
 
   describe('derive', function() {
-    describe('m/0', function() {
-      var wallet = HDWallet.fromBase58('xpub6CxuB8ifZCMXeS3KbyNkYvrsJEHqxedCSiUhrNwH1nKtb8hcJpxDbDxkdoVCTR2bQ1G8hY4UMv85gef9SEpgFFUftBjt37FUSZxVx4AU9Qh').derive(0)
+    function verifyVector(hd, v, depth) {
+      assert.equal(hd.priv.toWIF(), v.wif)
+      assert.equal(hd.pub.toHex(), v.pubKey)
+      assert.equal(hd.chainCode.toString('hex'), v.chainCode)
+      assert.equal(hd.depth, depth || 0)
 
-      it('derives the correct public key', function() {
-        assert.equal(wallet.pub.toHex(), '02df843e6ae2017e0772d0584f76f56b8f2f5181a3045c7a7740a9d86dc7c80ce7')
+      if (v.mPriv != undefined) {
+        assert.equal(hd.index, v.mPriv + HDWallet.HIGHEST_BIT)
+      } else {
+        assert.equal(hd.index, v.m)
+      }
+    }
+
+    fixtures.valid.forEach(function(f, j) {
+      var hd = HDWallet.fromSeedHex(f.master.seed)
+
+      f.children.forEach(function(c, i) {
+        it(c.description + ' from ' + f.master.fingerprint, function() {
+          if (c.mPriv != undefined) {
+            hd = hd.derivePrivate(c.mPriv)
+
+          } else {
+            hd = hd.derive(c.m)
+          }
+
+          verifyVector(hd, c, i + 1)
+        })
       })
-
-      it('derives the correct depth', function() {
-        assert.equal(wallet.depth, 4)
-      })
-    })
-  })
-
-  describe('network types', function() {
-    var seed
-
-    beforeEach(function() {
-      seed = new Buffer('foobar')
-    })
-
-    it('ensure that a bitcoin wallet is the default', function() {
-      var hd = HDWallet.fromSeedBuffer(seed)
-
-      assert.equal(hd.network, networks.bitcoin)
-    })
-
-    it('ensures that a bitcoin Wallet generates bitcoin addresses', function() {
-      var hd = HDWallet.fromSeedBuffer(seed, networks.bitcoin)
-      var address = hd.getAddress().toString()
-
-      assert.equal(address, '17SnB9hyGwJPoKpLb9eVPHjsujyEuBpMAA')
-    })
-
-    it('ensures that a testnet Wallet generates testnet addresses', function() {
-      var hd = HDWallet.fromSeedBuffer(seed, networks.testnet)
-      var address = hd.getAddress().toString()
-
-      assert.equal(address, 'mmxjUCnx5xjeaSHxJicsDCxCmjZwq8KTbv')
-    })
-
-    it('throws an exception when unknown network type is passed in', function() {
-      assert.throws(function() {
-        HDWallet.fromSeedBuffer(seed, {})
-      }, /Unknown BIP32 constants for network/)
     })
   })
 })
