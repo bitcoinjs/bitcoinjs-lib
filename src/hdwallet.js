@@ -132,6 +132,10 @@ HDWallet.fromBuffer = function(buffer) {
   return hd
 }
 
+HDWallet.fromHex = function(hex, priv) {
+  return HDWallet.fromBuffer(new Buffer(hex, 'hex'))
+}
+
 HDWallet.prototype.getIdentifier = function() {
   return crypto.hash160(this.pub.toBuffer())
 }
@@ -182,6 +186,7 @@ HDWallet.prototype.toBuffer = function(priv) {
 
   return buffer
 }
+
 HDWallet.prototype.toHex = function(priv) {
   return this.toBuffer(priv).toString('hex')
 }

@@ -118,10 +118,10 @@ describe('HDWallet', function() {
     })
   })
 
-  describe('fromBuffer', function() {
+  describe('fromBuffer/fromHex', function() {
     fixtures.valid.forEach(function(f) {
       it('imports ' + f.master.hex + ' (public) correctly', function() {
-        var hd = HDWallet.fromBuffer(new Buffer(f.master.hex, 'hex'))
+        var hd = HDWallet.fromHex(f.master.hex)
 
         assert.equal(hd.toBuffer().toString('hex'), f.master.hex)
       })
@@ -129,7 +129,7 @@ describe('HDWallet', function() {
 
     fixtures.valid.forEach(function(f) {
       it('imports ' + f.master.hexPriv + ' (private) correctly', function() {
-        var hd = HDWallet.fromBuffer(new Buffer(f.master.hexPriv, 'hex'))
+        var hd = HDWallet.fromHex(f.master.hexPriv)
 
         assert.equal(hd.toBuffer(true).toString('hex'), f.master.hexPriv)
       })
@@ -138,9 +138,35 @@ describe('HDWallet', function() {
     fixtures.invalid.fromBuffer.forEach(function(f) {
       it('throws on ' + f.string, function() {
         assert.throws(function() {
-          HDWallet.fromBuffer(new Buffer(f.hex, 'hex'))
+          HDWallet.fromHex(f.hex)
         }, new RegExp(f.exception))
       })
+    })
+  })
+
+  describe('toBuffer/toHex', function() {
+    fixtures.valid.forEach(function(f) {
+      it('exports ' + f.master.hex + ' (public) correctly', function() {
+        var hd = HDWallet.fromSeedHex(f.master.seed)
+
+        assert.equal(hd.toHex(), f.master.hex)
+      })
+    })
+
+    fixtures.valid.forEach(function(f) {
+      it('exports ' + f.master.hexPriv + ' (private) correctly', function() {
+        var hd = HDWallet.fromSeedHex(f.master.seed)
+
+        assert.equal(hd.toHex(true), f.master.hexPriv)
+      })
+    })
+
+    it('fails when there is no private key', function() {
+      var hd = HDWallet.fromHex(fixtures.valid[0].master.hex)
+
+      assert.throws(function() {
+        hd.toHex(true)
+      }, /Missing private key/)
     })
   })
 
