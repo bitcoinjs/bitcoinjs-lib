@@ -16,7 +16,7 @@
       },
       "children": [
         {
-          "description": "m/0",
+          "description": "m/0'",
           "mPriv": 0,
           "identifier": "5c1bd648ed23aa5fd50ba52b2457c11e9e80a6a7",
           "fingerprint": "5c1bd648",
@@ -44,7 +44,7 @@
           "base58Priv": "xprv9wTYmMFdV23N2TdNG573QoEsfRrWKQgWeibmLntzniatZvR9BmLnvSxqu53Kw1UmYPxLgboyZQaXwTCg8MSY3H2EU4pWcQDnRnrVA1xe8fs"
         },
         {
-          "description": "m/0'/1/2",
+          "description": "m/0'/1/2'",
           "mPriv": 2,
           "identifier": "ee7ab90cde56a8c0e2bb086ac49748b8db9dce72",
           "fingerprint": "ee7ab90c",
