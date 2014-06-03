@@ -237,5 +237,26 @@ describe('HDWallet', function() {
         })
       })
     })
+
+    it('works for public -> public', function() {
+      var f = fixtures.valid[1]
+      var c = f.children[0]
+
+      var parent = HDWallet.fromBase58(f.master.base58)
+      var child = parent.derive(c.m)
+
+      assert.equal(child.toBase58(), c.base58)
+    })
+
+    it('throws on public -> public (hardened)', function() {
+      var f = fixtures.valid[1]
+      var c = f.children[0]
+
+      var parent = HDWallet.fromBase58(f.master.base58)
+
+      assert.throws(function() {
+        parent.derivePrivate(c.m)
+      }, /Could not derive hardened child key/)
+    })
   })
 })
