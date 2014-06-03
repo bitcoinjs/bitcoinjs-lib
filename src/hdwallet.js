@@ -273,7 +273,7 @@ HDWallet.prototype.derive = function(index) {
   return hd
 }
 
-HDWallet.prototype.derivePrivate = function(index) {
+HDWallet.prototype.deriveHardened = function(index) {
   // Only derives hardened private keys by default
   return this.derive(index + HDWallet.HIGHEST_BIT)
 }

@@ -227,7 +227,7 @@ describe('HDWallet', function() {
       f.children.forEach(function(c, i) {
         it(c.description + ' from ' + f.master.fingerprint, function() {
           if (c.hardened) {
-            hd = hd.derivePrivate(c.m)
+            hd = hd.deriveHardened(c.m)
 
           } else {
             hd = hd.derive(c.m)
@@ -255,7 +255,7 @@ describe('HDWallet', function() {
       var parent = HDWallet.fromBase58(f.master.base58)
 
       assert.throws(function() {
-        parent.derivePrivate(c.m)
+        parent.deriveHardened(c.m)
       }, /Could not derive hardened child key/)
     })
   })
