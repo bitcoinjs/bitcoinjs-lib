@@ -71,7 +71,7 @@ describe('HDWallet', function() {
       it('exports ' + f.master.base58 + ' (public) correctly', function() {
         var hd = HDWallet.fromSeedHex(f.master.seed)
 
-        assert.equal(hd.toBase58(), f.master.base58)
+        assert.equal(hd.toBase58(false), f.master.base58)
       })
     })
 
@@ -105,7 +105,7 @@ describe('HDWallet', function() {
       it('imports ' + f.master.base58Priv + ' (private) correctly', function() {
         var hd = HDWallet.fromBase58(f.master.base58Priv)
 
-        assert.equal(hd.toBase58(true), f.master.base58Priv)
+        assert.equal(hd.toBase58(), f.master.base58Priv)
       })
     })
 
@@ -131,7 +131,7 @@ describe('HDWallet', function() {
       it('imports ' + f.master.hexPriv + ' (private) correctly', function() {
         var hd = HDWallet.fromHex(f.master.hexPriv)
 
-        assert.equal(hd.toBuffer(true).toString('hex'), f.master.hexPriv)
+        assert.equal(hd.toBuffer().toString('hex'), f.master.hexPriv)
       })
     })
 
@@ -149,7 +149,7 @@ describe('HDWallet', function() {
       it('exports ' + f.master.hex + ' (public) correctly', function() {
         var hd = HDWallet.fromSeedHex(f.master.seed)
 
-        assert.equal(hd.toHex(), f.master.hex)
+        assert.equal(hd.toHex(false), f.master.hex)
       })
     })
 

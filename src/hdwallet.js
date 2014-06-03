@@ -159,6 +159,8 @@ HDWallet.prototype.toBase58 = function(isPrivate) {
 }
 
 HDWallet.prototype.toBuffer = function(isPrivate) {
+  if (isPrivate == undefined) isPrivate = !!this.priv
+
   // Version
   var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
   var buffer = new Buffer(HDWallet.LENGTH)
