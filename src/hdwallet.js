@@ -148,6 +148,16 @@ HDWallet.prototype.getAddress = function() {
   return this.pub.getAddress(this.network.pubKeyHash)
 }
 
+HDWallet.prototype.toBase58 = function(isPrivate) {
+  var buffer = this.toBuffer(isPrivate)
+  var checksum = crypto.hash256(buffer).slice(0, 4)
+
+  return base58.encode(Buffer.concat([
+    buffer,
+    checksum
+  ]))
+}
+
 HDWallet.prototype.toBuffer = function(isPrivate) {
   // Version
   var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
@@ -189,16 +199,6 @@ HDWallet.prototype.toBuffer = function(isPrivate) {
 
 HDWallet.prototype.toHex = function(isPrivate) {
   return this.toBuffer(isPrivate).toString('hex')
-}
-
-HDWallet.prototype.toBase58 = function(isPrivate) {
-  var buffer = this.toBuffer(isPrivate)
-  var checksum = crypto.hash256(buffer).slice(0, 4)
-
-  return base58.encode(Buffer.concat([
-    buffer,
-    checksum
-  ]))
 }
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
