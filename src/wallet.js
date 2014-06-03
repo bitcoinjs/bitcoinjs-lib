@@ -246,11 +246,11 @@ function Wallet(seed, network) {
   this.getExternalAccount = function() { return externalAccount }
 
   this.getPrivateKey = function(index) {
-    return externalAccount.derive(index).priv
+    return externalAccount.derive(index).privKey
   }
 
   this.getInternalPrivateKey = function(index) {
-    return internalAccount.derive(index).priv
+    return internalAccount.derive(index).privKey
   }
 
   this.getPrivateKeyForAddress = function(address) {

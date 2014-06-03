@@ -18,15 +18,15 @@ describe('HDNode', function() {
     it('calculates the publicKey from a BigInteger', function() {
       var hd = new HDNode(D, chainCode)
 
-      assert(hd.pub.Q.equals(Q))
+      assert(hd.pubKey.Q.equals(Q))
     })
 
     it('only uses compressed points', function() {
       var hd = new HDNode(Q, chainCode)
       var hdP = new HDNode(D, chainCode)
 
-      assert.strictEqual(hd.pub.compressed, true)
-      assert.strictEqual(hdP.pub.compressed, true)
+      assert.strictEqual(hd.pubKey.compressed, true)
+      assert.strictEqual(hdP.pubKey.compressed, true)
     })
 
     it('has a default depth/index of 0', function() {
@@ -60,7 +60,7 @@ describe('HDNode', function() {
       it('calculates privKey and chainCode for ' + f.master.fingerprint, function() {
         var hd = HDNode.fromSeedHex(f.master.seed)
 
-        assert.equal(hd.priv.toWIF(), f.master.wif)
+        assert.equal(hd.privKey.toWIF(), f.master.wif)
         assert.equal(hd.chainCode.toString('hex'), f.master.chainCode)
       })
     })
@@ -209,8 +209,8 @@ describe('HDNode', function() {
 
   describe('derive', function() {
     function verifyVector(hd, v, depth) {
-      assert.equal(hd.priv.toWIF(), v.wif)
-      assert.equal(hd.pub.toHex(), v.pubKey)
+      assert.equal(hd.privKey.toWIF(), v.wif)
+      assert.equal(hd.pubKey.toHex(), v.pubKey)
       assert.equal(hd.chainCode.toString('hex'), v.chainCode)
       assert.equal(hd.depth, depth || 0)
 

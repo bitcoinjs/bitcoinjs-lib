@@ -40,10 +40,10 @@ function HDNode(K, chainCode, network) {
   this.network = network
 
   if (K instanceof BigInteger) {
-    this.priv = new ECKey(K, true)
-    this.pub = this.priv.pub
+    this.privKey = new ECKey(K, true)
+    this.pubKey = this.privKey.pub
   } else {
-    this.pub = new ECPubKey(K, true)
+    this.pubKey = new ECPubKey(K, true)
   }
 }
 
@@ -137,7 +137,7 @@ HDNode.fromHex = function(hex, isPrivate) {
 }
 
 HDNode.prototype.getIdentifier = function() {
-  return crypto.hash160(this.pub.toBuffer())
+  return crypto.hash160(this.pubKey.toBuffer())
 }
 
 HDNode.prototype.getFingerprint = function() {
@@ -145,7 +145,7 @@ HDNode.prototype.getFingerprint = function() {
 }
 
 HDNode.prototype.getAddress = function() {
-  return this.pub.getAddress(this.network.pubKeyHash)
+  return this.pubKey.getAddress(this.network.pubKeyHash)
 }
 
 HDNode.prototype.toBase58 = function(isPrivate) {
@@ -159,7 +159,7 @@ HDNode.prototype.toBase58 = function(isPrivate) {
 }
 
 HDNode.prototype.toBuffer = function(isPrivate) {
-  if (isPrivate == undefined) isPrivate = !!this.priv
+  if (isPrivate == undefined) isPrivate = !!this.privKey
 
   // Version
   var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
@@ -185,15 +185,15 @@ HDNode.prototype.toBuffer = function(isPrivate) {
 
   // 33 bytes: the public key or private key data
   if (isPrivate) {
-    assert(this.priv, 'Missing private key')
+    assert(this.privKey, 'Missing private key')
 
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
-    this.priv.D.toBuffer(32).copy(buffer, 46)
+    this.privKey.D.toBuffer(32).copy(buffer, 46)
   } else {
 
     // X9.62 encoding for public keys
-    this.pub.toBuffer().copy(buffer, 45)
+    this.pubKey.toBuffer().copy(buffer, 45)
   }
 
   return buffer
@@ -213,11 +213,11 @@ HDNode.prototype.derive = function(index) {
 
   // Hardened child
   if (isHardened) {
-    assert(this.priv, 'Could not derive hardened child key')
+    assert(this.privKey, 'Could not derive hardened child key')
 
     // data = 0x00 || ser256(kpar) || ser32(index)
     data = Buffer.concat([
-      this.priv.D.toBuffer(33),
+      this.privKey.D.toBuffer(33),
       indexBuffer
     ])
 
@@ -226,7 +226,7 @@ HDNode.prototype.derive = function(index) {
     // data = serP(point(kpar)) || ser32(index)
     //      = serP(Kpar) || ser32(index)
     data = Buffer.concat([
-      this.pub.toBuffer(),
+      this.pubKey.toBuffer(),
       indexBuffer
     ])
   }
@@ -243,9 +243,9 @@ HDNode.prototype.derive = function(index) {
   }
 
   // Private parent key -> private child key
-  if (this.priv) {
+  if (this.privKey) {
     // ki = parse256(IL) + kpar (mod n)
-    var ki = pIL.add(this.priv.D).mod(ecparams.getN())
+    var ki = pIL.add(this.privKey.D).mod(ecparams.getN())
 
     // In case ki == 0, proceed with the next value for i
     if (ki.signum() === 0) {
@@ -258,7 +258,7 @@ HDNode.prototype.derive = function(index) {
   } else {
     // Ki = point(parse256(IL)) + Kpar
     //    = G*IL + Kpar
-    var Ki = ecparams.getG().multiply(pIL).add(this.pub.Q)
+    var Ki = ecparams.getG().multiply(pIL).add(this.pubKey.Q)
 
     // In case Ki is the point at infinity, proceed with the next value for i
     if (Ki.isInfinity()) {
