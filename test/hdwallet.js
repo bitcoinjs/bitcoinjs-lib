@@ -214,8 +214,8 @@ describe('HDWallet', function() {
       assert.equal(hd.chainCode.toString('hex'), v.chainCode)
       assert.equal(hd.depth, depth || 0)
 
-      if (v.mPriv != undefined) {
-        assert.equal(hd.index, v.mPriv + HDWallet.HIGHEST_BIT)
+      if (v.hardened) {
+        assert.equal(hd.index, v.m + HDWallet.HIGHEST_BIT)
       } else {
         assert.equal(hd.index, v.m)
       }
@@ -226,8 +226,8 @@ describe('HDWallet', function() {
 
       f.children.forEach(function(c, i) {
         it(c.description + ' from ' + f.master.fingerprint, function() {
-          if (c.mPriv != undefined) {
-            hd = hd.derivePrivate(c.mPriv)
+          if (c.hardened) {
+            hd = hd.derivePrivate(c.m)
 
           } else {
             hd = hd.derive(c.m)

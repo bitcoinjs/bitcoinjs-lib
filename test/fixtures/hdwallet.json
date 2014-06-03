@@ -18,7 +18,8 @@
       "children": [
         {
           "description": "m/0'",
-          "mPriv": 0,
+          "m": 0,
+          "hardened": true,
           "wif": "L5BmPijJjrKbiUfG4zbiFKNqkvuJ8usooJmzuD7Z8dkRoTThYnAT",
           "pubKey": "035a784662a4a20a65bf6aab9ae98a6c068a81c52e4b032c0fb5400c706cfccc56",
           "chainCode": "47fdacbd0f1097043b78c63c20c34ef4ed9a111d980047ad16282c7ae6236141",
@@ -48,7 +49,8 @@
         },
         {
           "description": "m/0'/1/2'",
-          "mPriv": 2,
+          "m": 2,
+          "hardened": true,
           "wif": "L43t3od1Gh7Lj55Bzjj1xDAgJDcL7YFo2nEcNaMGiyRZS1CidBVU",
           "pubKey": "0357bfe1e341d01c69fe5654309956cbea516822fba8a601743a012a7896ee8dc2",
           "chainCode": "04466b9cc8e161e966409ca52986c584f07e9dc81f735db683c3ff6ec7b1503f",
@@ -126,7 +128,8 @@
         },
         {
           "description": "m/0/2147483647",
-          "mPriv": 2147483647,
+          "m": 2147483647,
+          "hardened": true,
           "wif": "L1m5VpbXmMp57P3knskwhoMTLdhAAaXiHvnGLMribbfwzVRpz2Sr",
           "pubKey": "03c01e7425647bdefa82b12d9bad5e3e6865bee0502694b94ca58b666abc0a5c3b",
           "chainCode": "be17a268474a6bb9c61e1d720cf6215e2a88c5406c4aee7b38547f585c9a37d9",
@@ -156,7 +159,8 @@
         },
         {
           "description": "m/0/2147483647'/1/2147483646",
-          "mPriv": 2147483646,
+          "m": 2147483646,
+          "hardened": true,
           "wif": "L5KhaMvPYRW1ZoFmRjUtxxPypQ94m6BcDrPhqArhggdaTbbAFJEF",
           "pubKey": "02d2b36900396c9282fa14628566582f206a5dd0bcc8d5e892611806cafb0301f0",
           "chainCode": "637807030d55d01f9a0cb3a7839515d796bd07706386a6eddf06cc29a65a0e29",
