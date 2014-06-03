@@ -16,7 +16,7 @@ module.exports = {
   ECPubKey: require('./ecpubkey'),
   Message: require('./message'),
   opcodes: require('./opcodes'),
-  HDWallet: require('./hdwallet'),
+  HDNode: require('./hdnode'),
   Script: require('./script'),
   sec: require('./sec'),
   Transaction: T.Transaction,

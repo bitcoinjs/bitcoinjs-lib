@@ -28,7 +28,7 @@ function findBIP32ParamsByVersion(version) {
   assert(false, 'Could not find version ' + version.toString(16))
 }
 
-function HDWallet(K, chainCode, network) {
+function HDNode(K, chainCode, network) {
   network = network || networks.bitcoin
 
   assert(Buffer.isBuffer(chainCode), 'Expected Buffer, got ' + chainCode)
@@ -47,27 +47,27 @@ function HDWallet(K, chainCode, network) {
   }
 }
 
-HDWallet.MASTER_SECRET = new Buffer('Bitcoin seed')
-HDWallet.HIGHEST_BIT = 0x80000000
-HDWallet.LENGTH = 78
+HDNode.MASTER_SECRET = new Buffer('Bitcoin seed')
+HDNode.HIGHEST_BIT = 0x80000000
+HDNode.LENGTH = 78
 
-HDWallet.fromSeedBuffer = function(seed, network) {
-  var I = crypto.HmacSHA512(seed, HDWallet.MASTER_SECRET)
+HDNode.fromSeedBuffer = function(seed, network) {
+  var I = crypto.HmacSHA512(seed, HDNode.MASTER_SECRET)
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 
   // In case IL is 0 or >= n, the master key is invalid
-  // This is handled by `new ECKey` in the HDWallet constructor
+  // This is handled by `new ECKey` in the HDNode constructor
   var pIL = BigInteger.fromBuffer(IL)
 
-  return new HDWallet(pIL, IR, network)
+  return new HDNode(pIL, IR, network)
 }
 
-HDWallet.fromSeedHex = function(hex, network) {
-  return HDWallet.fromSeedBuffer(new Buffer(hex, 'hex'), network)
+HDNode.fromSeedHex = function(hex, network) {
+  return HDNode.fromSeedBuffer(new Buffer(hex, 'hex'), network)
 }
 
-HDWallet.fromBase58 = function(string) {
+HDNode.fromBase58 = function(string) {
   var buffer = base58.decode(string)
 
   var payload = buffer.slice(0, -4)
@@ -76,11 +76,11 @@ HDWallet.fromBase58 = function(string) {
   var newChecksum = crypto.hash256(payload).slice(0, 4)
   assert.deepEqual(newChecksum, checksum, 'Invalid checksum')
 
-  return HDWallet.fromBuffer(payload)
+  return HDNode.fromBuffer(payload)
 }
 
-HDWallet.fromBuffer = function(buffer) {
-  assert.strictEqual(buffer.length, HDWallet.LENGTH, 'Invalid buffer length')
+HDNode.fromBuffer = function(buffer) {
+  assert.strictEqual(buffer.length, HDNode.LENGTH, 'Invalid buffer length')
 
   // 4 byte: version bytes
   var version = buffer.readUInt32BE(0)
@@ -113,7 +113,7 @@ HDWallet.fromBuffer = function(buffer) {
     data = data.slice(1)
 
     var D = BigInteger.fromBuffer(data)
-    hd = new HDWallet(D, chainCode, params.network)
+    hd = new HDNode(D, chainCode, params.network)
   } else {
 
     var decode = ECPointFp.decodeFrom(ecparams.getCurve(), data)
@@ -122,7 +122,7 @@ HDWallet.fromBuffer = function(buffer) {
     // When importing a serialized extended public key, implementations must verify whether the X coordinate in the public key data corresponds to a point on the curve. If not, the extended public key is invalid.
     decode.Q.validate()
 
-    hd = new HDWallet(decode.Q, chainCode, params.network)
+    hd = new HDNode(decode.Q, chainCode, params.network)
   }
 
   hd.depth = depth
@@ -132,23 +132,23 @@ HDWallet.fromBuffer = function(buffer) {
   return hd
 }
 
-HDWallet.fromHex = function(hex, isPrivate) {
-  return HDWallet.fromBuffer(new Buffer(hex, 'hex'))
+HDNode.fromHex = function(hex, isPrivate) {
+  return HDNode.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-HDWallet.prototype.getIdentifier = function() {
+HDNode.prototype.getIdentifier = function() {
   return crypto.hash160(this.pub.toBuffer())
 }
 
-HDWallet.prototype.getFingerprint = function() {
+HDNode.prototype.getFingerprint = function() {
   return this.getIdentifier().slice(0, 4)
 }
 
-HDWallet.prototype.getAddress = function() {
+HDNode.prototype.getAddress = function() {
   return this.pub.getAddress(this.network.pubKeyHash)
 }
 
-HDWallet.prototype.toBase58 = function(isPrivate) {
+HDNode.prototype.toBase58 = function(isPrivate) {
   var buffer = this.toBuffer(isPrivate)
   var checksum = crypto.hash256(buffer).slice(0, 4)
 
@@ -158,12 +158,12 @@ HDWallet.prototype.toBase58 = function(isPrivate) {
   ]))
 }
 
-HDWallet.prototype.toBuffer = function(isPrivate) {
+HDNode.prototype.toBuffer = function(isPrivate) {
   if (isPrivate == undefined) isPrivate = !!this.priv
 
   // Version
   var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
-  var buffer = new Buffer(HDWallet.LENGTH)
+  var buffer = new Buffer(HDNode.LENGTH)
 
   // 4 bytes: version bytes
   buffer.writeUInt32BE(version, 0)
@@ -199,13 +199,13 @@ HDWallet.prototype.toBuffer = function(isPrivate) {
   return buffer
 }
 
-HDWallet.prototype.toHex = function(isPrivate) {
+HDNode.prototype.toHex = function(isPrivate) {
   return this.toBuffer(isPrivate).toString('hex')
 }
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
-HDWallet.prototype.derive = function(index) {
-  var isHardened = index >= HDWallet.HIGHEST_BIT
+HDNode.prototype.derive = function(index) {
+  var isHardened = index >= HDNode.HIGHEST_BIT
   var indexBuffer = new Buffer(4)
   indexBuffer.writeUInt32BE(index, 0)
 
@@ -252,7 +252,7 @@ HDWallet.prototype.derive = function(index) {
       return this.derive(index + 1)
     }
 
-    hd = new HDWallet(ki, IR, this.network)
+    hd = new HDNode(ki, IR, this.network)
 
   // Public parent key -> public child key
   } else {
@@ -265,7 +265,7 @@ HDWallet.prototype.derive = function(index) {
       return this.derive(index + 1)
     }
 
-    hd = new HDWallet(Ki, IR, this.network)
+    hd = new HDNode(Ki, IR, this.network)
   }
 
   hd.depth = this.depth + 1
@@ -275,11 +275,11 @@ HDWallet.prototype.derive = function(index) {
   return hd
 }
 
-HDWallet.prototype.deriveHardened = function(index) {
+HDNode.prototype.deriveHardened = function(index) {
   // Only derives hardened private keys by default
-  return this.derive(index + HDWallet.HIGHEST_BIT)
+  return this.derive(index + HDNode.HIGHEST_BIT)
 }
 
-HDWallet.prototype.toString = HDWallet.prototype.toBase58
+HDNode.prototype.toString = HDNode.prototype.toBase58
 
-module.exports = HDWallet
+module.exports = HDNode

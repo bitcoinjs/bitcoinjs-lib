@@ -4,7 +4,7 @@ var networks = require('../src/networks')
 var sinon = require('sinon')
 
 var Address = require('../src/address')
-var HDWallet = require('../src/hdwallet')
+var HDNode = require('../src/hdnode')
 var Script = require('../src/script')
 var Transaction = require('../src/transaction').Transaction
 var Wallet = require('../src/wallet')
@@ -31,7 +31,7 @@ describe('Wallet', function() {
 
     it("generates m/0' as the main account", function() {
       var mainAccount = wallet.getAccountZero()
-      assert.equal(mainAccount.index, 0 + HDWallet.HIGHEST_BIT)
+      assert.equal(mainAccount.index, 0 + HDNode.HIGHEST_BIT)
       assert.equal(mainAccount.depth, 1)
     })
 
