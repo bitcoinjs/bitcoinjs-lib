@@ -193,7 +193,7 @@ describe('HDNode', function() {
   describe('getAddress', function() {
     var f = fixtures.valid[0]
 
-    it('returns the Address (pubKeyHash) for ' + f.master.fingerprint, function() {
+    it('returns the Address (pubHash) for ' + f.master.fingerprint, function() {
       var hd = HDNode.fromBase58(f.master.base58)
 
       assert.equal(hd.getAddress().toString(), f.master.address)
@@ -224,6 +224,7 @@ describe('HDNode', function() {
     fixtures.valid.forEach(function(f, j) {
       var hd = HDNode.fromSeedHex(f.master.seed)
 
+      // FIXME: test data is only testing Private -> private for now
       f.children.forEach(function(c, i) {
         it(c.description + ' from ' + f.master.fingerprint, function() {
           if (c.hardened) {
@@ -238,7 +239,31 @@ describe('HDNode', function() {
       })
     })
 
-    it('works for public -> public', function() {
+    it('works for Private -> public (neutered)', function() {
+      var f = fixtures.valid[1]
+      var c = f.children[0]
+
+      var parentNode = HDNode.fromBase58(f.master.base58Priv)
+      var child = parentNode.derive(c.m)
+
+      // FIXME: N(CKDpriv((kpar, cpar), i)), could be done better...
+      var childNeutered = HDNode.fromBase58(child.toBase58(false)) // neuter
+      assert.equal(childNeutered.toBase58(), c.base58)
+    })
+
+    it('works for Private -> public (neutered, hardened)', function() {
+      var f = fixtures.valid[0]
+      var c = f.children[0]
+
+      var parentNode = HDNode.fromBase58(f.master.base58Priv)
+      var child = parentNode.deriveHardened(c.m)
+
+      // FIXME: N(CKDpriv((kpar, cpar), i)), could be done better...
+      var childNeutered = HDNode.fromBase58(child.toBase58(false)) // neuter
+      assert.equal(childNeutered.toBase58(), c.base58)
+    })
+
+    it('works for Public -> public', function() {
       var f = fixtures.valid[1]
       var c = f.children[0]
 
@@ -248,8 +273,8 @@ describe('HDNode', function() {
       assert.equal(child.toBase58(), c.base58)
     })
 
-    it('throws on public -> public (hardened)', function() {
-      var f = fixtures.valid[1]
+    it('throws on Public -> public (hardened)', function() {
+      var f = fixtures.valid[0]
       var c = f.children[0]
 
       var parentNode = HDNode.fromBase58(f.master.base58)
