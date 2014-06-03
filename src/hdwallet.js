@@ -19,7 +19,7 @@ function findBIP32ParamsByVersion(version) {
       if (version != network.bip32[type]) continue
 
       return {
-        isPrivate: (type === 'priv'),
+        isPrivate: (type === 'private'),
         network: network
       }
     }
@@ -132,7 +132,7 @@ HDWallet.fromBuffer = function(buffer) {
   return hd
 }
 
-HDWallet.fromHex = function(hex, priv) {
+HDWallet.fromHex = function(hex, isPrivate) {
   return HDWallet.fromBuffer(new Buffer(hex, 'hex'))
 }
 
@@ -148,9 +148,9 @@ HDWallet.prototype.getAddress = function() {
   return this.pub.getAddress(this.network.pubKeyHash)
 }
 
-HDWallet.prototype.toBuffer = function(priv) {
+HDWallet.prototype.toBuffer = function(isPrivate) {
   // Version
-  var version = this.network.bip32[priv ? 'priv' : 'pub']
+  var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
   var buffer = new Buffer(HDWallet.LENGTH)
 
   // 4 bytes: version bytes
@@ -172,7 +172,7 @@ HDWallet.prototype.toBuffer = function(priv) {
   this.chainCode.copy(buffer, 13)
 
   // 33 bytes: the public key or private key data
-  if (priv) {
+  if (isPrivate) {
     assert(this.priv, 'Missing private key')
 
     // 0x00 + k for private keys
@@ -187,12 +187,12 @@ HDWallet.prototype.toBuffer = function(priv) {
   return buffer
 }
 
-HDWallet.prototype.toHex = function(priv) {
-  return this.toBuffer(priv).toString('hex')
+HDWallet.prototype.toHex = function(isPrivate) {
+  return this.toBuffer(isPrivate).toString('hex')
 }
 
-HDWallet.prototype.toBase58 = function(priv) {
-  var buffer = this.toBuffer(priv)
+HDWallet.prototype.toBase58 = function(isPrivate) {
+  var buffer = this.toBuffer(isPrivate)
   var checksum = crypto.hash256(buffer).slice(0, 4)
 
   return base58.encode(Buffer.concat([
