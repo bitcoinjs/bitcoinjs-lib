@@ -11,7 +11,7 @@ describe('base58check', function() {
       it('can decode ' + f.string, function() {
         var actual = base58check.decode(f.string)
         var expected = {
-          version: f.decode.version,
+          version: f.decode.version || 0,
           payload: h2b(f.decode.payload),
           checksum: h2b(f.decode.checksum)
         }
@@ -40,4 +40,3 @@ describe('base58check', function() {
     })
   })
 })
-

@@ -45,6 +45,7 @@ function readPushDataInt(buffer, offset) {
   }
 
   return {
+    opcode: opcode,
     number: number,
     size: size
   }

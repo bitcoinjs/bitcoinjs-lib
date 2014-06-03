@@ -69,6 +69,10 @@
     "constructor": [
       {
         "exception": "Private key must be greater than 0",
+        "D": "-1"
+      },
+      {
+        "exception": "Private key must be greater than 0",
         "D": "0"
       },
       {

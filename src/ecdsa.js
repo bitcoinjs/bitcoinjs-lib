@@ -91,18 +91,18 @@ function serializeSig(signature) {
   var sBa = signature.s.toDERInteger()
 
   var sequence = []
-  sequence.push(0x02); // INTEGER
+  sequence.push(0x02) // INTEGER
   sequence.push(rBa.length)
   sequence = sequence.concat(rBa)
 
-  sequence.push(0x02); // INTEGER
+  sequence.push(0x02) // INTEGER
   sequence.push(sBa.length)
   sequence = sequence.concat(sBa)
 
   sequence.unshift(sequence.length)
-  sequence.unshift(0x30); // SEQUENCE
+  sequence.unshift(0x30) // SEQUENCE
 
-  return sequence
+  return new Buffer(sequence)
 }
 
 /**

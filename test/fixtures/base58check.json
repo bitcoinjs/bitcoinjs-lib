@@ -3,6 +3,13 @@
     {
       "string": "1AGNa15ZQXAZUgFiqJ2i7Z2DPU2J6hW62i",
       "decode": {
+        "payload": "65a16059864a2fdbc7c99a4723a8395bc6f188eb",
+        "checksum": "c046b2ff"
+      }
+    },
+    {
+      "string": "1AGNa15ZQXAZUgFiqJ2i7Z2DPU2J6hW62i",
+      "decode": {
         "version": 0,
         "payload": "65a16059864a2fdbc7c99a4723a8395bc6f188eb",
         "checksum": "c046b2ff"

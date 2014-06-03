@@ -23,7 +23,9 @@ describe('bufferutils', function() {
       it('decodes ' + f.hexPD + ' correctly', function() {
         var buffer = new Buffer(f.hexPD, 'hex')
         var d = bufferutils.readPushDataInt(buffer, 0)
+        var fopcode = parseInt(f.hexPD.substr(0, 2), 16)
 
+        assert.equal(d.opcode, fopcode)
         assert.equal(d.number, f.dec)
         assert.equal(d.size, buffer.length)
       })
