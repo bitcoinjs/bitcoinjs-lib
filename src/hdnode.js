@@ -243,6 +243,7 @@ HDNode.prototype.derive = function(index) {
   }
 
   // Private parent key -> private child key
+  var hd
   if (this.privKey) {
     // ki = parse256(IL) + kpar (mod n)
     var ki = pIL.add(this.privKey.D).mod(ecparams.getN())
