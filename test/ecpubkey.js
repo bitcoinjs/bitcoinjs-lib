@@ -1,5 +1,6 @@
 var assert = require('assert')
 var crypto = require('../src/crypto')
+var networks = require('../src/networks')
 var sec = require('../src/sec')
 var ecparams = sec('secp256k1')
 
@@ -71,9 +72,9 @@ describe('ECPubKey', function() {
 
     it('supports alternative networks', function() {
       var pubKey = new ECPubKey(Q)
-      var address = pubKey.getAddress(0x09)
+      var address = pubKey.getAddress(networks.testnet)
 
-      assert.equal(address.version, 0x09)
+      assert.equal(address.version, networks.testnet.pubKeyHash)
       assert.equal(address.hash.toString('hex'), fixtures.compressed.hash160)
     })
   })

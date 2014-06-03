@@ -136,7 +136,7 @@ HDNode.prototype.getFingerprint = function() {
 }
 
 HDNode.prototype.getAddress = function() {
-  return this.pubKey.getAddress(this.network.pubKeyHash)
+  return this.pubKey.getAddress(this.network)
 }
 
 HDNode.prototype.toBase58 = function(isPrivate) {

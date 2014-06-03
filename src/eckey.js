@@ -53,13 +53,13 @@ ECKey.makeRandom = function(compressed, rng) {
 }
 
 // Export functions
-ECKey.prototype.toWIF = function(version) {
-  version = version || networks.bitcoin.wif
+ECKey.prototype.toWIF = function(network) {
+  network = network || networks.bitcoin
 
   var bufferLen = this.pub.compressed ? 34 : 33
   var buffer = new Buffer(bufferLen)
 
-  buffer.writeUInt8(version, 0)
+  buffer.writeUInt8(network.wif, 0)
   this.D.toBuffer(32).copy(buffer, 1)
 
   if (this.pub.compressed) {

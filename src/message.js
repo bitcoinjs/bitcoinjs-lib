@@ -37,10 +37,9 @@ function sign(key, message, network) {
 
 // TODO: network could be implied from address
 function verify(address, compactSig, message, network) {
-  if (typeof address === 'string') {
-    address = Address.fromBase58Check(address)
+  if (address instanceof Address) {
+    address = address.toString()
   }
-
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
@@ -49,7 +48,7 @@ function verify(address, compactSig, message, network) {
   var Q = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
 
   var pubKey = new ECPubKey(Q, parsed.compressed)
-  return pubKey.getAddress(address.version).toString() === address.toString()
+  return pubKey.getAddress(network).toString() === address
 }
 
 module.exports = {
