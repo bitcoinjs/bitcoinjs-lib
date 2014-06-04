@@ -53,7 +53,7 @@ Compile `bitcoinjs-min.js` with the following command:
 
     $ npm run-script compile
 
-After loading this file in your browser, you will be able to use the global `Bitcoin` object.
+After loading this file in your browser, you will be able to use the global `bitcoin` object.
 
 
 ## Usage
