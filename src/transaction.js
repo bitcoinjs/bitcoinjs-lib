@@ -1,15 +1,14 @@
 // FIXME: To all ye that enter here, be weary of Buffers, Arrays and Hex interchanging between the outpoints
 
 var assert = require('assert')
-var Address = require('./address')
-var BigInteger = require('bigi')
 var bufferutils = require('./bufferutils')
-var Script = require('./script')
-var convert = require('./convert')
 var crypto = require('./crypto')
-var ECKey = require('./eckey')
 var ecdsa = require('./ecdsa')
 var opcodes = require('./opcodes')
+
+var Address = require('./address')
+var Script = require('./script')
+var ECKey = require('./eckey')
 
 var DEFAULT_SEQUENCE = 0xffffffff
 
@@ -154,7 +153,7 @@ Transaction.prototype.toBuffer = function () {
   writeUInt32(this.version)
   writeVarInt(this.ins.length)
 
-  this.ins.forEach(function(txin, i) {
+  this.ins.forEach(function(txin) {
     var hash = new Buffer(txin.outpoint.hash, 'hex') // FIXME: Performance: convert on tx.addInput instead
 
     // TxHash hex is big-endian, we need little-endian

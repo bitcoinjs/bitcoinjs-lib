@@ -6,7 +6,6 @@ var assert = require('assert')
 var BigInteger = require('bigi')
 
 // constants
-var TWO = BigInteger.valueOf(2)
 var THREE = BigInteger.valueOf(3)
 
 function ECFieldElementFp(q,x) {

@@ -205,11 +205,12 @@ function Wallet(seed, network) {
     return tx
   }
 
-  function getCandidateOutputs(value){
+  function getCandidateOutputs() {
     var unspent = []
-    for (var key in me.outputs){
+
+    for (var key in me.outputs) {
       var output = me.outputs[key]
-      if(!output.spend) unspent.push(output)
+      if (!output.spend) unspent.push(output)
     }
 
     var sortByValueDesc = unspent.sort(function(o1, o2){
