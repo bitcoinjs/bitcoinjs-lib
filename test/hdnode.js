@@ -136,7 +136,7 @@ describe('HDNode', function() {
     })
 
     fixtures.invalid.fromBuffer.forEach(function(f) {
-      it('throws on ' + f.string, function() {
+      it('throws on ' + f.hex, function() {
         assert.throws(function() {
           HDNode.fromHex(f.hex)
         }, new RegExp(f.exception))
