@@ -1,0 +1,25 @@
+{
+  "valid": [
+    {
+      "hex": "0000000000000000000000000000000000000000",
+      "wordArray": {
+        "words": [0, 0, 0, 0, 0],
+        "sigBytes": 20
+      }
+    },
+    {
+      "hex": "62e907b15cbf27d5425399ebf6f0fb50ebb88f18",
+      "wordArray": {
+        "words": [1659439025, 1556031445, 1112775147, -151979184, -340226280],
+        "sigBytes": 20
+      }
+    },
+    {
+      "hex": "ffffffffffffffffffffffffffffffffffffffff",
+      "wordArray": {
+        "words": [-1, -1, -1, -1, -1],
+        "sigBytes": 20
+      }
+    }
+  ]
+}

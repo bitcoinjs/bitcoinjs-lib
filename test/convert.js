@@ -1,30 +1,26 @@
 var assert = require('assert')
 var convert = require('../src/convert')
 
+var fixtures = require('./fixtures/convert')
+
 describe('convert', function() {
-  describe('byte array and word array conversions', function(){
-    var bytes, wordArray
+  describe('bufferToWordArray', function() {
+    fixtures.valid.forEach(function(f) {
+      it('converts ' + f.hex + ' correctly', function() {
+        var buffer = new Buffer(f.hex, 'hex')
+        var result = convert.bufferToWordArray(buffer)
 
-    beforeEach(function(){
-      bytes = [
-        98, 233, 7, 177, 92, 191, 39, 213, 66, 83,
-        153, 235, 246, 240, 251, 80, 235, 184, 143, 24
-      ]
-      wordArray = {
-        words: [1659439025, 1556031445, 1112775147, -151979184, -340226280],
-        sigBytes: 20
-      }
-    })
-
-    describe('bytesToWords', function() {
-      it('works', function() {
-        assert.deepEqual(convert.bytesToWordArray(bytes), wordArray)
+        assert.deepEqual(result, f.wordArray)
       })
     })
+  })
 
-    describe('bytesToWords', function() {
-      it('works', function() {
-        assert.deepEqual(convert.wordArrayToBytes(wordArray), bytes)
+  describe('wordArrayToBuffer', function() {
+    fixtures.valid.forEach(function(f) {
+      it('converts to ' + f.hex + ' correctly', function() {
+        var resultHex = convert.wordArrayToBuffer(f.wordArray).toString('hex')
+
+        assert.deepEqual(resultHex, f.hex)
       })
     })
   })
