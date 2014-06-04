@@ -118,7 +118,8 @@ HDNode.fromBuffer = function(buffer) {
     var decode = ECPointFp.decodeFrom(ecparams.getCurve(), data)
     assert.equal(decode.compressed, true, 'Invalid public key')
 
-    // When importing a serialized extended public key, implementations must verify whether the X coordinate in the public key data corresponds to a point on the curve. If not, the extended public key is invalid.
+    // Verify that the X coordinate in the public point corresponds to a point on the curve.
+    // If not, the extended public key is invalid.
     decode.Q.validate()
 
     hd = new HDNode(decode.Q, chainCode, params.network)
