@@ -2,42 +2,31 @@ var assert = require('assert')
 var Crypto = require('crypto-js')
 var WordArray = Crypto.lib.WordArray
 
-function bytesToWords(bytes) {
-  assert(Array.isArray(bytes) || Buffer.isBuffer(bytes), 'Input must be a byte array')
+function bufferToWordArray(buffer) {
+  assert(Buffer.isBuffer(buffer), 'Expected Buffer, got', buffer)
+
   var words = []
-  for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
-    words[b >>> 5] |= bytes[i] << (24 - b % 32)
+  for (var i = 0, b = 0; i < buffer.length; i++, b += 8) {
+    words[b >>> 5] |= buffer[i] << (24 - b % 32)
   }
-  return words
+
+  return new WordArray.init(words, buffer.length)
 }
 
-function wordsToBytes(words) {
-  var bytes = []
-  for (var b = 0; b < words.length * 32; b += 8) {
-    bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF)
-  }
-  return bytes
-}
+function wordArrayToBuffer(wordArray) {
+  assert(Array.isArray(wordArray.words), 'Expected WordArray, got' + wordArray)
 
-function bytesToWordArray(bytes) {
-  return new WordArray.init(bytesToWords(bytes), bytes.length)
-}
+  var words = wordArray.words
+  var buffer = new Buffer(words.length * 4)
 
-function wordArrayToBytes(wordArray) {
-  return wordsToBytes(wordArray.words)
-}
+  words.forEach(function(value, i) {
+    buffer.writeInt32BE(value & -1, i * 4)
+  })
 
-function reverseEndian(hex) {
-  var buffer = new Buffer(hex, 'hex')
-  Array.prototype.reverse.call(buffer)
-
-  return buffer.toString('hex')
+  return buffer
 }
 
 module.exports = {
-  bytesToWords: bytesToWords,
-  wordsToBytes: wordsToBytes,
-  bytesToWordArray: bytesToWordArray,
-  wordArrayToBytes: wordArrayToBytes,
-  reverseEndian: reverseEndian
+  bufferToWordArray: bufferToWordArray,
+  wordArrayToBuffer: wordArrayToBuffer
 }

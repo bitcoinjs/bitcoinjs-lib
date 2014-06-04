@@ -29,7 +29,7 @@ describe('Address', function() {
     })
 
     fixtures.invalid.fromBase58Check.forEach(function(f) {
-      it('throws on ' + f.descpription, function() {
+      it('throws on ' + f.description, function() {
         assert.throws(function() {
           Address.fromBase58Check(f.base58check)
         }, new RegExp(f.exception))
