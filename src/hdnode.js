@@ -132,7 +132,7 @@ HDNode.fromBuffer = function(buffer) {
   return hd
 }
 
-HDNode.fromHex = function(hex, isPrivate) {
+HDNode.fromHex = function(hex) {
   return HDNode.fromBuffer(new Buffer(hex, 'hex'))
 }
 
