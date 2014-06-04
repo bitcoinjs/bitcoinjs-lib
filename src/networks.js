@@ -4,8 +4,8 @@ module.exports = {
   bitcoin: {
     magicPrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
-      pub: 0x0488b21e,
-      priv: 0x0488ade4
+      public: 0x0488b21e,
+      private: 0x0488ade4
     },
     pubKeyHash: 0x00,
     scriptHash: 0x05,
@@ -14,8 +14,8 @@ module.exports = {
   dogecoin: {
     magicPrefix: '\x19Dogecoin Signed Message:\n',
     bip32: {
-      pub: 0x02facafd,
-      priv: 0x02fac398
+      public: 0x02facafd,
+      private: 0x02fac398
     },
     pubKeyHash: 0x1e,
     scriptHash: 0x16,
@@ -24,8 +24,8 @@ module.exports = {
   litecoin: {
     magicPrefix: '\x19Litecoin Signed Message:\n',
     bip32: {
-      pub: 0x019da462,
-      priv: 0x019d9cfe
+      public: 0x019da462,
+      private: 0x019d9cfe
     },
     pubKeyHash: 0x30,
     scriptHash: 0x05,
@@ -34,8 +34,8 @@ module.exports = {
   testnet: {
     magicPrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
-      pub: 0x043587cf,
-      priv: 0x04358394
+      public: 0x043587cf,
+      private: 0x04358394
     },
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,

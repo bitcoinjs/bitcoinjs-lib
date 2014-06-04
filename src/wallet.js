@@ -3,7 +3,7 @@ var networks = require('./networks')
 var rng = require('secure-random')
 
 var Address = require('./address')
-var HDNode = require('./hdwallet')
+var HDNode = require('./hdnode')
 var Transaction = require('./transaction').Transaction
 
 function Wallet(seed, network) {
@@ -29,11 +29,11 @@ function Wallet(seed, network) {
   // Make a new master key
   this.newMasterKey = function(seed) {
     seed = seed || new Buffer(rng(32))
-    masterkey = new HDNode(seed, network)
+    masterkey = HDNode.fromSeedBuffer(seed, network)
 
-    // HD first-level child derivation method should be private
+    // HD first-level child derivation method should be hardened
     // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-    accountZero = masterkey.derivePrivate(0)
+    accountZero = masterkey.deriveHardened(0)
     externalAccount = accountZero.derive(0)
     internalAccount = accountZero.derive(1)
 
@@ -246,11 +246,11 @@ function Wallet(seed, network) {
   this.getExternalAccount = function() { return externalAccount }
 
   this.getPrivateKey = function(index) {
-    return externalAccount.derive(index).priv
+    return externalAccount.derive(index).privKey
   }
 
   this.getInternalPrivateKey = function(index) {
-    return internalAccount.derive(index).priv
+    return internalAccount.derive(index).privKey
   }
 
   this.getPrivateKeyForAddress = function(address) {
