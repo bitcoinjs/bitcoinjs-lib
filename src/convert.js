@@ -26,15 +26,7 @@ function wordArrayToBuffer(wordArray) {
   return buffer
 }
 
-function reverseEndian(hex) {
-  var buffer = new Buffer(hex, 'hex')
-  Array.prototype.reverse.call(buffer)
-
-  return buffer.toString('hex')
-}
-
 module.exports = {
   bufferToWordArray: bufferToWordArray,
-  wordArrayToBuffer: wordArrayToBuffer,
-  reverseEndian: reverseEndian
+  wordArrayToBuffer: wordArrayToBuffer
 }
