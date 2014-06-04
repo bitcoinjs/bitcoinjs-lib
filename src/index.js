@@ -1,5 +1,4 @@
 var ec = require('./ec')
-var Key = require('./eckey')
 var T = require('./transaction')
 
 module.exports = {
