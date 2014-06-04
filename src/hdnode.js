@@ -105,17 +105,16 @@ HDNode.fromBuffer = function(buffer) {
 
   // 33 bytes: the public key or private key data (0x02 + X or 0x03 + X for
   // public keys, 0x00 + k for private keys)
-  var data = buffer.slice(45, 78)
-
   var hd
   if (params.isPrivate) {
-    assert.strictEqual(data.readUInt8(0), 0x00, 'Invalid private key')
-    data = data.slice(1)
+    assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
 
+    var data = buffer.slice(46, 78)
     var D = BigInteger.fromBuffer(data)
     hd = new HDNode(D, chainCode, params.network)
-  } else {
 
+  } else {
+    var data = buffer.slice(45, 78)
     var decode = ECPointFp.decodeFrom(ecparams.getCurve(), data)
     assert.equal(decode.compressed, true, 'Invalid public key')
 
