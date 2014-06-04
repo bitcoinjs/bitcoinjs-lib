@@ -38,7 +38,7 @@ describe('Bitcoin-js', function() {
     })
 
     // make a random private key
-    var targetAddress = ECKey.makeRandom().pub.getAddress(networks.testnet.pubKeyHash).toString()
+    var targetAddress = ECKey.makeRandom().pub.getAddress(networks.testnet).toString()
 
     // get latest unspents from the multisigAddress
     helloblock.addresses.getUnspents(multisigAddress, function(err, resp, resource) {
