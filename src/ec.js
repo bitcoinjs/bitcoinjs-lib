@@ -117,10 +117,15 @@ function pointFpAdd(b) {
     if(this.isInfinity()) return b;
     if(b.isInfinity()) return this;
 
+    var x1 = this.x.toBigInteger()
+    var y1 = this.y.toBigInteger()
+    var x2 = b.x.toBigInteger()
+    var y2 = b.y.toBigInteger()
+
     // u = Y2 * Z1 - Y1 * Z2
-    var u = b.y.toBigInteger().multiply(this.z).subtract(this.y.toBigInteger().multiply(b.z)).mod(this.curve.q);
+    var u = y2.multiply(this.z).subtract(y1.multiply(b.z)).mod(this.curve.q)
     // v = X2 * Z1 - X1 * Z2
-    var v = b.x.toBigInteger().multiply(this.z).subtract(this.x.toBigInteger().multiply(b.z)).mod(this.curve.q);
+    var v = x2.multiply(this.z).subtract(x1.multiply(b.z)).mod(this.curve.q)
 
     if(v.signum() === 0) {
         if(u.signum() === 0) {
@@ -128,11 +133,6 @@ function pointFpAdd(b) {
         }
 	return this.curve.getInfinity(); // this = -b, so infinity
     }
-
-    var x1 = this.x.toBigInteger();
-    var y1 = this.y.toBigInteger();
-    var x2 = b.x.toBigInteger();
-    var y2 = b.y.toBigInteger();
 
     var v2 = v.square();
     var v3 = v2.multiply(v);
