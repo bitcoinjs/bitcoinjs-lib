@@ -6,6 +6,7 @@
   "indent": 2,
   "latedef": true,
   "maxcomplexity": 10,
+  "maxlen": 120,
   "noarg": true,
   "noempty": true,
   "nonbsp": true,
