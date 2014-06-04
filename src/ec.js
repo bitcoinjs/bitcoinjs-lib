@@ -67,19 +67,14 @@ function ECPointFp(curve,x,y,z) {
 
   // Projective coordinates: either zinv == null or z * zinv == 1
   // z and zinv are just BigIntegers, not fieldElements
-  if (z == null) {
-    this.z = BigInteger.ONE
-
-  } else {
-    this.z = z
-  }
+  this.z = (z == undefined) ? BigInteger.ONE : z
   this.zinv = null
 
   //TODO: compression flag
 }
 
 function pointFpGetX() {
-  if (this.zinv == null) {
+  if (this.zinv === null) {
     this.zinv = this.z.modInverse(this.curve.q)
   }
 
@@ -87,7 +82,7 @@ function pointFpGetX() {
 }
 
 function pointFpGetY() {
-  if (this.zinv == null) {
+  if (this.zinv === null) {
     this.zinv = this.z.modInverse(this.curve.q)
   }
 
@@ -109,7 +104,7 @@ function pointFpEquals(other) {
 }
 
 function pointFpIsInfinity() {
-  if ((this.x == null) && (this.y == null)) return true
+  if ((this.x === null) && (this.y === null)) return true
   return this.z.signum() === 0 && this.y.toBigInteger().signum() !== 0
 }
 
