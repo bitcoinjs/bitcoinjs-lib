@@ -65,7 +65,7 @@ These examples assume you are running bitcoinjs-lib in the browser.
 
 ```javascript
 
-key = Bitcoin.ECKey.makeRandom()
+key = bitcoin.ECKey.makeRandom()
 
 // Print your private key (in WIF format)
 console.log(key.toWIF())
@@ -79,7 +79,7 @@ console.log(key.pub.getAddress().toString())
 ### Creating a Transaction
 
 ```javascript
-tx = new Bitcoin.Transaction()
+tx = new bitcoin.Transaction()
 
 // Add the input (who is paying) of the form [previous transaction hash, index of the output to use]
 tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 0)
@@ -88,7 +88,7 @@ tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 
 tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000)
 
 // Initialize a private key using WIF
-key = Bitcoin.ECKey.fromWIF("L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy")
+key = bitcoin.ECKey.fromWIF("L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy")
 
 // Sign the first input with the new key
 tx.sign(0, key)
