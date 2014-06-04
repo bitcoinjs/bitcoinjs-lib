@@ -1,11 +1,11 @@
 var assert = require('assert')
 var crypto = require('../src/crypto')
+var networks = require('../src/networks')
 
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
 
 var fixtures = require('./fixtures/eckey.json')
-var networks = require('../src/networks')
 
 describe('ECKey', function() {
   describe('constructor', function() {
@@ -66,8 +66,8 @@ describe('ECKey', function() {
       f.WIFs.forEach(function(wif) {
         it('exports ' + wif.string + ' correctly', function() {
           var privKey = ECKey.fromWIF(wif.string)
-          var version = networks[wif.network].wif
-          var result = privKey.toWIF(version)
+          var network = networks[wif.network]
+          var result = privKey.toWIF(network)
 
           assert.equal(result, wif.string)
         })

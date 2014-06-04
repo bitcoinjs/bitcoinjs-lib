@@ -24,21 +24,22 @@ describe('Bitcoin-js', function() {
       return ECKey.fromWIF(wif)
     })
 
-    // how much to withdraw if we run dry
     var coldAmount = 2e4
     var outputAmount = 1e4
 
     var pubKeys = privKeys.map(function(eck) { return eck.pub })
     var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
-    var multisigAddress = new Address(redeemScript.getHash(), networks.testnet.scriptHash).toString()
+    var scriptPubKey = Script.createP2SHScriptPubKey(redeemScript.getHash())
 
-    // Send some testnet coins to the multisig address to ensure it has some unspents for later
+    var multisigAddress = Address.fromScriptPubKey(scriptPubKey, networks.testnet).toString()
+
+    // Attempt to send funds to the source address, providing some unspents for later
     helloblock.faucet.withdraw(multisigAddress, coldAmount, function(err) {
       if (err) return done(err)
     })
 
     // make a random private key
-    var targetAddress = ECKey.makeRandom().pub.getAddress(networks.testnet.pubKeyHash).toString()
+    var targetAddress = ECKey.makeRandom().pub.getAddress(networks.testnet).toString()
 
     // get latest unspents from the multisigAddress
     helloblock.addresses.getUnspents(multisigAddress, function(err, resp, resource) {

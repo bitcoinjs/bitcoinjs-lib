@@ -1,5 +1,5 @@
 var assert = require('assert')
-var base58 = require('./base58')
+var base58check = require('./base58check')
 
 var BigInteger = require('bigi')
 var crypto = require('./crypto')
@@ -68,15 +68,7 @@ HDNode.fromSeedHex = function(hex, network) {
 }
 
 HDNode.fromBase58 = function(string) {
-  var buffer = base58.decode(string)
-
-  var payload = buffer.slice(0, -4)
-  var checksum = buffer.slice(-4)
-
-  var newChecksum = crypto.hash256(payload).slice(0, 4)
-  assert.deepEqual(newChecksum, checksum, 'Invalid checksum')
-
-  return HDNode.fromBuffer(payload)
+  return HDNode.fromBuffer(base58check.decode(string))
 }
 
 HDNode.fromBuffer = function(buffer) {
@@ -144,17 +136,11 @@ HDNode.prototype.getFingerprint = function() {
 }
 
 HDNode.prototype.getAddress = function() {
-  return this.pubKey.getAddress(this.network.pubKeyHash)
+  return this.pubKey.getAddress(this.network)
 }
 
 HDNode.prototype.toBase58 = function(isPrivate) {
-  var buffer = this.toBuffer(isPrivate)
-  var checksum = crypto.hash256(buffer).slice(0, 4)
-
-  return base58.encode(Buffer.concat([
-    buffer,
-    checksum
-  ]))
+  return base58check.encode(this.toBuffer(isPrivate))
 }
 
 HDNode.prototype.toBuffer = function(isPrivate) {

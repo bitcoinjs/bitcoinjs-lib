@@ -30,10 +30,10 @@ ECPubKey.fromHex = function(hex) {
 }
 
 // Operations
-ECPubKey.prototype.getAddress = function(version) {
-  version = version || networks.bitcoin.pubKeyHash
+ECPubKey.prototype.getAddress = function(network) {
+  network = network || networks.bitcoin
 
-  return new Address(crypto.hash160(this.toBuffer()), version)
+  return new Address(crypto.hash160(this.toBuffer()), network.pubKeyHash)
 }
 
 ECPubKey.prototype.verify = function(hash, signature) {

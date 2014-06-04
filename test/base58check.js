@@ -10,20 +10,16 @@ describe('base58check', function() {
     fixtures.valid.forEach(function(f) {
       it('can decode ' + f.string, function() {
         var actual = base58check.decode(f.string)
-        var expected = {
-          version: f.decode.version || 0,
-          payload: h2b(f.decode.payload),
-          checksum: h2b(f.decode.checksum)
-        }
+        var expected = h2b(f.payload)
 
         assert.deepEqual(actual, expected)
       })
     })
 
     fixtures.invalid.forEach(function(f) {
-      it('throws on ' + f.description, function() {
+      it('throws on ' + f, function() {
         assert.throws(function() {
-          base58check.decode(f.string)
+          base58check.decode(f)
         }, /Invalid checksum/)
       })
     })
@@ -32,7 +28,7 @@ describe('base58check', function() {
   describe('encode', function() {
     fixtures.valid.forEach(function(f) {
       it('can encode ' + f.string, function() {
-        var actual = base58check.encode(h2b(f.decode.payload), f.decode.version)
+        var actual = base58check.encode(h2b(f.payload))
         var expected = f.string
 
         assert.strictEqual(actual, expected)

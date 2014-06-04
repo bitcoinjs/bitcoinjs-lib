@@ -22,13 +22,16 @@ function ECKey(D, compressed) {
 
 // Static constructors
 ECKey.fromWIF = function(string) {
-  var decode = base58check.decode(string)
-  var payload = decode.payload
+  var payload = base58check.decode(string)
   var compressed = false
+
+  // Ignore the version byte
+  payload = payload.slice(1)
 
   if (payload.length === 33) {
     assert.strictEqual(payload[32], 0x01, 'Invalid compression flag')
 
+    // Truncate the compression flag
     payload = payload.slice(0, -1)
     compressed = true
   }
@@ -50,15 +53,20 @@ ECKey.makeRandom = function(compressed, rng) {
 }
 
 // Export functions
-ECKey.prototype.toWIF = function(version) {
-  version = version || networks.bitcoin.wif
+ECKey.prototype.toWIF = function(network) {
+  network = network || networks.bitcoin
 
-  var buffer = this.D.toBuffer(32)
+  var bufferLen = this.pub.compressed ? 34 : 33
+  var buffer = new Buffer(bufferLen)
+
+  buffer.writeUInt8(network.wif, 0)
+  this.D.toBuffer(32).copy(buffer, 1)
+
   if (this.pub.compressed) {
-    buffer = Buffer.concat([buffer, new Buffer([0x01])])
+    buffer.writeUInt8(0x01, 33)
   }
 
-  return base58check.encode(buffer, version)
+  return base58check.encode(buffer)
 }
 
 // Operations

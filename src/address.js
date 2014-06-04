@@ -28,9 +28,11 @@ function Address(hash, version) {
 
 // Import functions
 Address.fromBase58Check = function(string) {
-  var decode = base58check.decode(string)
+  var payload = base58check.decode(string)
+  var version = payload.readUInt8(0)
+  var hash = payload.slice(1)
 
-  return new Address(decode.payload, decode.version)
+  return new Address(hash, version)
 }
 
 Address.fromScriptPubKey = function(script, network) {
@@ -51,7 +53,11 @@ Address.fromScriptPubKey = function(script, network) {
 
 // Export functions
 Address.prototype.toBase58Check = function () {
-  return base58check.encode(this.hash, this.version)
+  var payload = new Buffer(21)
+  payload.writeUInt8(this.version, 0)
+  this.hash.copy(payload, 1)
+
+  return base58check.encode(payload)
 }
 
 Address.prototype.toScriptPubKey = function() {
