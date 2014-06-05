@@ -108,6 +108,7 @@ console.log(tx.serializeHex())
 - [Coinpunk](https://coinpunk.com)
 - [DarkWallet](https://darkwallet.unsystem.net)
 - [GreenAddress](https://greenaddress.it)
+- [Dogechain Wallet](https://dogechain.info)
 
 Feel free to send pull requests to have your project/startup listed here.
 
