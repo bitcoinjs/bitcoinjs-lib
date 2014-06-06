@@ -65,7 +65,7 @@ describe('ec', function() {
         })
       })
 
-      it('supports other curves', function() {
+      it('supports secp256r1', function() {
         var f = fixtures.valid.ECPointFp[1]
         var ecparams2 = sec('secp256r1')
         var curve = ecparams2.getCurve()
