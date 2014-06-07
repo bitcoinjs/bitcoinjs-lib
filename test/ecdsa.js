@@ -13,8 +13,8 @@ var fixtures = require('./fixtures/ecdsa.json')
 
 describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
-    it('matches the test vectors', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('determines k for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var h1 = crypto.sha256(f.message)
 
@@ -40,8 +40,8 @@ describe('ecdsa', function() {
   })
 
   describe('sign', function() {
-    it('matches the test vectors', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('produces a deterministic signature for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var hash = crypto.sha256(f.message)
         var signature = ecdsa.sign(ecparams, hash, d)
@@ -62,8 +62,8 @@ describe('ecdsa', function() {
   })
 
   describe('verifyRaw', function() {
-    it('verifies valid signatures', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('verifies a valid signature for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var Q = ecparams.getG().multiply(d)
 

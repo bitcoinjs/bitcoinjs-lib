@@ -9,8 +9,8 @@ var fixtures = require('./fixtures/message.json')
 
 describe('Message', function() {
   describe('magicHash', function() {
-    it('matches the test vectors', function() {
-      fixtures.valid.magicHash.forEach(function(f) {
+    fixtures.valid.magicHash.forEach(function(f) {
+      it('produces the correct magicHash for \"' + f.message + '\" (' + f.network + ')', function() {
         var network = networks[f.network]
         var actual = Message.magicHash(f.message, network)
 
@@ -20,8 +20,8 @@ describe('Message', function() {
   })
 
   describe('verify', function() {
-    it('verifies a valid signature', function() {
-      fixtures.valid.verify.forEach(function(f) {
+    fixtures.valid.verify.forEach(function(f) {
+      it('verifies a valid signature for \"' + f.message + '\" (' + f.network + ')', function() {
         var network = networks[f.network]
 
         var signature = new Buffer(f.signature, 'base64')
