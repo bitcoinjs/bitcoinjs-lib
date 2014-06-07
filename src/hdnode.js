@@ -174,7 +174,7 @@ HDNode.prototype.toBuffer = function(isPrivate) {
 
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
-    this.privKey.D.toBuffer(32).copy(buffer, 46)
+    this.privKey.d.toBuffer(32).copy(buffer, 46)
   } else {
 
     // X9.62 encoding for public keys
@@ -202,7 +202,7 @@ HDNode.prototype.derive = function(index) {
 
     // data = 0x00 || ser256(kpar) || ser32(index)
     data = Buffer.concat([
-      this.privKey.D.toBuffer(33),
+      this.privKey.d.toBuffer(33),
       indexBuffer
     ])
 
@@ -231,7 +231,7 @@ HDNode.prototype.derive = function(index) {
   var hd
   if (this.privKey) {
     // ki = parse256(IL) + kpar (mod n)
-    var ki = pIL.add(this.privKey.D).mod(ecparams.getN())
+    var ki = pIL.add(this.privKey.d).mod(ecparams.getN())
 
     // In case ki == 0, proceed with the next value for i
     if (ki.signum() === 0) {

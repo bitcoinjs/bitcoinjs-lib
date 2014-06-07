@@ -10,20 +10,20 @@ var fixtures = require('./fixtures/hdnode.json')
 
 describe('HDNode', function() {
   describe('Constructor', function() {
-    var D = BigInteger.ONE
-    var Q = ecparams.getG().multiply(D)
+    var d = BigInteger.ONE
+    var Q = ecparams.getG().multiply(d)
     var chainCode = new Buffer(32)
     chainCode.fill(1)
 
     it('calculates the publicKey from a BigInteger', function() {
-      var hd = new HDNode(D, chainCode)
+      var hd = new HDNode(d, chainCode)
 
       assert(hd.pubKey.Q.equals(Q))
     })
 
     it('only uses compressed points', function() {
       var hd = new HDNode(Q, chainCode)
-      var hdP = new HDNode(D, chainCode)
+      var hdP = new HDNode(d, chainCode)
 
       assert.strictEqual(hd.pubKey.compressed, true)
       assert.strictEqual(hdP.pubKey.compressed, true)
@@ -50,7 +50,7 @@ describe('HDNode', function() {
 
     it('throws an exception when an unknown network is given', function() {
       assert.throws(function() {
-        new HDNode(D, chainCode, {})
+        new HDNode(d, chainCode, {})
       }, /Unknown BIP32 constants for network/)
     })
   })

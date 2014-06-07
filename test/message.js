@@ -48,12 +48,12 @@ describe('Message', function() {
       it(f.description, function() {
         var network = networks[f.network]
 
-        var privKey = new ECKey(new BigInteger(f.D), false)
+        var privKey = new ECKey(new BigInteger(f.d), false)
         var signature = Message.sign(privKey, f.message, network)
         assert.equal(signature.toString('base64'), f.signature)
 
         if (f.compressed) {
-          var compressedPrivKey = new ECKey(new BigInteger(f.D))
+          var compressedPrivKey = new ECKey(new BigInteger(f.d))
           var compressedSignature = Message.sign(compressedPrivKey, f.message)
 
           assert.equal(compressedSignature.toString('base64'), f.compressed.signature)

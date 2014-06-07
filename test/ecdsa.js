@@ -15,10 +15,10 @@ describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
     it('matches the test vectors', function() {
       fixtures.valid.forEach(function(f) {
-        var D = BigInteger.fromHex(f.D)
+        var d = BigInteger.fromHex(f.d)
         var h1 = crypto.sha256(f.message)
 
-        var k = ecdsa.deterministicGenerateK(ecparams, h1, D)
+        var k = ecdsa.deterministicGenerateK(ecparams, h1, d)
         assert.equal(k.toHex(), f.k)
       })
     })
@@ -26,10 +26,10 @@ describe('ecdsa', function() {
 
   describe('recoverPubKey', function() {
     it('succesfully recovers a public key', function() {
-      var D = BigInteger.ONE
+      var d = BigInteger.ONE
       var signature = new Buffer('INcvXVVEFyIfHLbDX+xoxlKFn3Wzj9g0UbhObXdMq+YMKC252o5RHFr0/cKdQe1WsBLUBi4morhgZ77obDJVuV0=', 'base64')
 
-      var Q = ecparams.getG().multiply(D)
+      var Q = ecparams.getG().multiply(d)
       var hash = message.magicHash('1111', networks.bitcoin)
       var e = BigInteger.fromBuffer(hash)
       var parsed = ecdsa.parseSigCompact(signature)
@@ -42,9 +42,9 @@ describe('ecdsa', function() {
   describe('sign', function() {
     it('matches the test vectors', function() {
       fixtures.valid.forEach(function(f) {
-        var D = BigInteger.fromHex(f.D)
+        var d = BigInteger.fromHex(f.d)
         var hash = crypto.sha256(f.message)
-        var signature = ecdsa.sign(ecparams, hash, D)
+        var signature = ecdsa.sign(ecparams, hash, d)
 
         assert.equal(signature.r.toString(), f.signature.r)
         assert.equal(signature.s.toString(), f.signature.s)
@@ -64,8 +64,8 @@ describe('ecdsa', function() {
   describe('verifyRaw', function() {
     it('verifies valid signatures', function() {
       fixtures.valid.forEach(function(f) {
-        var D = BigInteger.fromHex(f.D)
-        var Q = ecparams.getG().multiply(D)
+        var d = BigInteger.fromHex(f.d)
+        var Q = ecparams.getG().multiply(d)
 
         var signature = {
           r: new BigInteger(f.signature.r),
@@ -79,13 +79,13 @@ describe('ecdsa', function() {
 
     fixtures.invalid.verifyRaw.forEach(function(f) {
       it('fails to verify with ' + f.description, function() {
-        var D = BigInteger.fromHex(f.D)
+        var d = BigInteger.fromHex(f.d)
         var e = BigInteger.fromHex(f.e)
         var signature = {
           r: new BigInteger(f.signature.r),
           s: new BigInteger(f.signature.s)
         }
-        var Q = ecparams.getG().multiply(D)
+        var Q = ecparams.getG().multiply(d)
 
         assert.equal(ecdsa.verifyRaw(ecparams, e, signature, Q), false)
       })

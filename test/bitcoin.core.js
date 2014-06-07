@@ -101,7 +101,7 @@ describe('Bitcoin-core', function() {
       it('imports ' + string + ' correctly', function() {
         var privKey = ECKey.fromWIF(string)
 
-        assert.equal(privKey.D.toHex(), hex)
+        assert.equal(privKey.d.toHex(), hex)
         assert.equal(privKey.pub.compressed, params.isCompressed)
       })
     })
