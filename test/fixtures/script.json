@@ -52,7 +52,7 @@
     },
     {
       "description": "Invalid multisig script",
-      "asm": "0 0 0 OP_CHECKmulTISIG",
+      "asm": "0 0 0 OP_CHECKMULTISIG",
       "hex": "000000ae",
       "type": "nonstandard",
       "hash": "62ede8963f9387544935f168745262f703dab1fb",
