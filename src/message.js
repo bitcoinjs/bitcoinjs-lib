@@ -9,8 +9,8 @@ var networks = require('./networks')
 var Address = require('./address')
 var ECPubKey = require('./ecpubkey')
 
-var sec = require('./sec')
-var ecparams = sec('secp256k1')
+var ecurve = require('ecurve')
+var ecparams = ecurve.getCurveByName('secp256k1')
 
 function magicHash(message, network) {
   var magicPrefix = new Buffer(network.magicPrefix)

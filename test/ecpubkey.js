@@ -1,12 +1,13 @@
 var assert = require('assert')
 var crypto = require('../src/crypto')
 var networks = require('../src/networks')
-var sec = require('../src/sec')
-var ecparams = sec('secp256k1')
 
 var BigInteger = require('bigi')
-var ECPointFp = require('../src/ec').ECPointFp
 var ECPubKey = require('../src/ecpubkey')
+
+var ecurve = require('ecurve')
+var curve = ecurve.getCurveByName('secp256k1')
+var ECPoint = ecurve.Point
 
 var fixtures = require('./fixtures/ecpubkey.json')
 
@@ -14,12 +15,10 @@ describe('ECPubKey', function() {
   var Q
 
   beforeEach(function() {
-    var curve = ecparams.getCurve()
-
-    Q = new ECPointFp(
+    Q = ECPoint.fromAffine(
       curve,
-      curve.fromBigInteger(new BigInteger(fixtures.Q.x)),
-      curve.fromBigInteger(new BigInteger(fixtures.Q.y))
+      new BigInteger(fixtures.Q.x),
+      new BigInteger(fixtures.Q.y)
     )
   })
 

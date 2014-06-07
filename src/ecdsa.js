@@ -2,9 +2,9 @@ var assert = require('assert')
 var crypto = require('./crypto')
 
 var BigInteger = require('bigi')
-var ECPointFp = require('./ec').ECPointFp
+var Point = require('ecurve').Point
 
-function deterministicGenerateK(ecparams, hash, d) {
+function deterministicGenerateK(curve, hash, d) {
   assert(Buffer.isBuffer(hash), 'Hash must be a Buffer, not ' + hash)
   assert.equal(hash.length, 32, 'Hash must be 256 bit')
   assert(d instanceof BigInteger, 'Private key must be a BigInteger')
@@ -22,23 +22,23 @@ function deterministicGenerateK(ecparams, hash, d) {
   v = crypto.HmacSHA256(v, k)
   v = crypto.HmacSHA256(v, k)
 
-  var n = ecparams.getN()
+  var n = curve.params.n
   var kB = BigInteger.fromBuffer(v).mod(n)
   assert(kB.compareTo(BigInteger.ONE) > 0, 'Invalid k value')
-  assert(kB.compareTo(ecparams.getN()) < 0, 'Invalid k value')
+  assert(kB.compareTo(n) < 0, 'Invalid k value')
 
   return kB
 }
 
-function sign(ecparams, hash, d) {
-  var k = deterministicGenerateK(ecparams, hash, d)
+function sign(curve, hash, d) {
+  var k = deterministicGenerateK(curve, hash, d)
 
-  var n = ecparams.getN()
-  var G = ecparams.getG()
+  var n = curve.params.n
+  var G = curve.params.G
   var Q = G.multiply(k)
   var e = BigInteger.fromBuffer(hash)
 
-  var r = Q.getX().toBigInteger().mod(n)
+  var r = Q.affineX.mod(n)
   assert.notEqual(r.signum(), 0, 'Invalid R value')
 
   var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
@@ -54,15 +54,15 @@ function sign(ecparams, hash, d) {
   return {r: r, s: s}
 }
 
-function verify(ecparams, hash, signature, Q) {
+function verify(curve, hash, signature, Q) {
   var e = BigInteger.fromBuffer(hash)
 
-  return verifyRaw(ecparams, e, signature, Q)
+  return verifyRaw(curve, e, signature, Q)
 }
 
-function verifyRaw(ecparams, e, signature, Q) {
-  var n = ecparams.getN()
-  var G = ecparams.getG()
+function verifyRaw(curve, e, signature, Q) {
+  var n = curve.params.n
+  var G = curve.params.G
 
   var r = signature.r
   var s = signature.s
@@ -76,7 +76,7 @@ function verifyRaw(ecparams, e, signature, Q) {
   var u2 = r.multiply(c).mod(n)
 
   var point = G.multiplyTwo(u1, Q, u2)
-  var v = point.getX().toBigInteger().mod(n)
+  var v = point.affineX.mod(n)
 
   return v.equals(r)
 }
@@ -185,7 +185,7 @@ function parseSigCompact(buffer) {
   *
   * http://www.secg.org/download/aid-780/sec1-v2.pdf
   */
-function recoverPubKey(ecparams, e, signature, i) {
+function recoverPubKey(curve, e, signature, i) {
   assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
 
   var r = signature.r
@@ -199,12 +199,11 @@ function recoverPubKey(ecparams, e, signature, i) {
   // first or second candidate key.
   var isSecondKey = i >> 1
 
-  var n = ecparams.getN()
-  var G = ecparams.getG()
-  var curve = ecparams.getCurve()
-  var p = curve.getQ()
-  var a = curve.getA().toBigInteger()
-  var b = curve.getB().toBigInteger()
+  var n = curve.params.n
+  var G = curve.params.G
+  var p = curve.p
+  var a = curve.a
+  var b = curve.b
 
   // We precalculate (p + 1) / 4 where p is the field order
   if (!curve.P_OVER_FOUR) {
@@ -223,8 +222,8 @@ function recoverPubKey(ecparams, e, signature, i) {
   var y = (beta.isEven() ^ isYEven) ? p.subtract(beta) : beta
 
   // 1.4 Check that nR isn't at infinity
-  var R = new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y))
-  R.validate()
+  var R = Point.fromAffine(curve, x, y)
+  curve.validate(R)
 
   // 1.5 Compute -e from e
   var eNeg = e.negate().mod(n)
@@ -234,9 +233,9 @@ function recoverPubKey(ecparams, e, signature, i) {
   var rInv = r.modInverse(n)
 
   var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
-  Q.validate()
+  curve.validate(Q)
 
-  if (!verifyRaw(ecparams, e, signature, Q)) {
+  if (!verifyRaw(curve, e, signature, Q)) {
     throw new Error("Pubkey recovery unsuccessful")
   }
 
@@ -254,9 +253,9 @@ function recoverPubKey(ecparams, e, signature, i) {
   * This function simply tries all four cases and returns the value
   * that resulted in a successful pubkey recovery.
   */
-function calcPubKeyRecoveryParam(ecparams, e, signature, Q) {
+function calcPubKeyRecoveryParam(curve, e, signature, Q) {
   for (var i = 0; i < 4; i++) {
-    var Qprime = recoverPubKey(ecparams, e, signature, i)
+    var Qprime = recoverPubKey(curve, e, signature, i)
 
     if (Qprime.equals(Q)) {
       return i
