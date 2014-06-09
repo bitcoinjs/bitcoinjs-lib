@@ -70,8 +70,8 @@ describe('ec', function() {
         var ecparams2 = sec('secp256r1')
         var curve = ecparams2.getCurve()
 
-        var D = BigInteger.ONE
-        var Q = ecparams2.getG().multiply(D)
+        var d = BigInteger.ONE
+        var Q = ecparams2.getG().multiply(d)
 
         var buffer = Q.getEncoded(true)
         var decoded = ECPointFp.decodeFrom(curve, buffer)

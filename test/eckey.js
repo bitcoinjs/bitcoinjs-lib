@@ -22,19 +22,20 @@ describe('ECKey', function() {
     })
 
     fixtures.valid.forEach(function(f) {
-      it('calculates the matching pubKey for ' + f.D, function() {
-        var privKey = new ECKey(new BigInteger(f.D))
+      it('calculates the matching pubKey for ' + f.d, function() {
+        var d = new BigInteger(f.d)
+        var privKey = new ECKey(d)
 
         assert.equal(privKey.pub.Q.toString(), f.Q.toString())
       })
     })
 
     fixtures.invalid.constructor.forEach(function(f) {
-      it('throws on ' + f.D, function() {
-        var D = new BigInteger(f.D)
+      it('throws on ' + f.d, function() {
+        var d = new BigInteger(f.d)
 
         assert.throws(function() {
-          new ECKey(D)
+          new ECKey(d)
         }, new RegExp(f.exception))
       })
     })
@@ -46,7 +47,7 @@ describe('ECKey', function() {
         it('imports ' + wif.string + ' correctly', function() {
           var privKey = ECKey.fromWIF(wif.string)
 
-          assert.equal(privKey.D.toString(), f.D)
+          assert.equal(privKey.d.toString(), f.d)
           assert.equal(privKey.pub.compressed, wif.compressed)
         })
       })

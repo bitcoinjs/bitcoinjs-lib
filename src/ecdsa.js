@@ -4,12 +4,12 @@ var crypto = require('./crypto')
 var BigInteger = require('bigi')
 var ECPointFp = require('./ec').ECPointFp
 
-function deterministicGenerateK(ecparams, hash, D) {
+function deterministicGenerateK(ecparams, hash, d) {
   assert(Buffer.isBuffer(hash), 'Hash must be a Buffer, not ' + hash)
   assert.equal(hash.length, 32, 'Hash must be 256 bit')
-  assert(D instanceof BigInteger, 'Private key must be a BigInteger')
+  assert(d instanceof BigInteger, 'Private key must be a BigInteger')
 
-  var x = D.toBuffer(32)
+  var x = d.toBuffer(32)
   var k = new Buffer(32)
   var v = new Buffer(32)
   k.fill(0)
@@ -30,8 +30,8 @@ function deterministicGenerateK(ecparams, hash, D) {
   return kB
 }
 
-function sign(ecparams, hash, D) {
-  var k = deterministicGenerateK(ecparams, hash, D)
+function sign(ecparams, hash, d) {
+  var k = deterministicGenerateK(ecparams, hash, d)
 
   var n = ecparams.getN()
   var G = ecparams.getG()
@@ -41,7 +41,7 @@ function sign(ecparams, hash, D) {
   var r = Q.getX().toBigInteger().mod(n)
   assert.notEqual(r.signum(), 0, 'Invalid R value')
 
-  var s = k.modInverse(n).multiply(e.add(D.multiply(r))).mod(n)
+  var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
   assert.notEqual(s.signum(), 0, 'Invalid S value')
 
   var N_OVER_TWO = n.shiftRight(1)
