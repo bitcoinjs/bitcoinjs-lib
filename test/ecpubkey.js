@@ -7,7 +7,6 @@ var ECPubKey = require('../src/ecpubkey')
 
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
-var ECPoint = ecurve.Point
 
 var fixtures = require('./fixtures/ecpubkey.json')
 
@@ -15,7 +14,7 @@ describe('ECPubKey', function() {
   var Q
 
   beforeEach(function() {
-    Q = ECPoint.fromAffine(
+    Q = ecurve.Point.fromAffine(
       curve,
       new BigInteger(fixtures.Q.x),
       new BigInteger(fixtures.Q.y)
