@@ -1,15 +1,14 @@
 var assert = require('assert')
 var base58check = require('./base58check')
-
-var BigInteger = require('bigi')
 var crypto = require('./crypto')
-var ECKey = require('./eckey')
-var ECPubKey = require('./ecpubkey')
-var ECPointFp = require('./ec').ECPointFp
 var networks = require('./networks')
 
-var sec = require('./sec')
-var ecparams = sec("secp256k1")
+var BigInteger = require('bigi')
+var ECKey = require('./eckey')
+var ECPubKey = require('./ecpubkey')
+
+var ecurve = require('ecurve')
+var curve = ecurve.getCurveByName('secp256k1')
 
 function findBIP32ParamsByVersion(version) {
   for (var name in networks) {
@@ -100,20 +99,20 @@ HDNode.fromBuffer = function(buffer) {
   if (params.isPrivate) {
     assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
     var data = buffer.slice(46, 78)
-    var D = BigInteger.fromBuffer(data)
-    hd = new HDNode(D, chainCode, params.network)
+    var d = BigInteger.fromBuffer(data)
+    hd = new HDNode(d, chainCode, params.network)
 
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
     var data = buffer.slice(45, 78)
-    var decode = ECPointFp.decodeFrom(ecparams.getCurve(), data)
-    assert.equal(decode.compressed, true, 'Invalid public key')
+    var Q = ecurve.Point.decodeFrom(curve, data)
+    assert.equal(Q.compressed, true, 'Invalid public key')
 
     // Verify that the X coordinate in the public point corresponds to a point on the curve.
     // If not, the extended public key is invalid.
-    decode.Q.validate()
+    curve.validate(Q)
 
-    hd = new HDNode(decode.Q, chainCode, params.network)
+    hd = new HDNode(Q, chainCode, params.network)
   }
 
   hd.depth = depth
@@ -223,7 +222,7 @@ HDNode.prototype.derive = function(index) {
   var pIL = BigInteger.fromBuffer(IL)
 
   // In case parse256(IL) >= n, proceed with the next value for i
-  if (pIL.compareTo(ecparams.getN()) >= 0) {
+  if (pIL.compareTo(curve.params.n) >= 0) {
     return this.derive(index + 1)
   }
 
@@ -231,7 +230,7 @@ HDNode.prototype.derive = function(index) {
   var hd
   if (this.privKey) {
     // ki = parse256(IL) + kpar (mod n)
-    var ki = pIL.add(this.privKey.d).mod(ecparams.getN())
+    var ki = pIL.add(this.privKey.d).mod(curve.params.n)
 
     // In case ki == 0, proceed with the next value for i
     if (ki.signum() === 0) {
@@ -244,10 +243,10 @@ HDNode.prototype.derive = function(index) {
   } else {
     // Ki = point(parse256(IL)) + Kpar
     //    = G*IL + Kpar
-    var Ki = ecparams.getG().multiply(pIL).add(this.pubKey.Q)
+    var Ki = curve.params.G.multiply(pIL).add(this.pubKey.Q)
 
     // In case Ki is the point at infinity, proceed with the next value for i
-    if (Ki.isInfinity()) {
+    if (curve.isInfinity(Ki)) {
       return this.derive(index + 1)
     }
 

@@ -7,14 +7,14 @@ var secureRandom = require('secure-random')
 var BigInteger = require('bigi')
 var ECPubKey = require('./ecpubkey')
 
-var sec = require('./sec')
-var ecparams = sec('secp256k1')
+var ecurve = require('ecurve')
+var curve = ecurve.getCurveByName('secp256k1')
 
 function ECKey(d, compressed) {
   assert(d.signum() > 0, 'Private key must be greater than 0')
-  assert(d.compareTo(ecparams.getN()) < 0, 'Private key must be less than the curve order')
+  assert(d.compareTo(curve.params.n) < 0, 'Private key must be less than the curve order')
 
-  var Q = ecparams.getG().multiply(d)
+  var Q = curve.params.G.multiply(d)
 
   this.d = d
   this.pub = new ECPubKey(Q, compressed)
@@ -47,7 +47,7 @@ ECKey.makeRandom = function(compressed, rng) {
 
   var buffer = new Buffer(rng(32))
   var d = BigInteger.fromBuffer(buffer)
-  d = d.mod(ecparams.getN())
+  d = d.mod(curve.params.n)
 
   return new ECKey(d, compressed)
 }
@@ -71,7 +71,7 @@ ECKey.prototype.toWIF = function(network) {
 
 // Operations
 ECKey.prototype.sign = function(hash) {
-  return ecdsa.sign(ecparams, hash, this.d)
+  return ecdsa.sign(curve, hash, this.d)
 }
 
 module.exports = ECKey

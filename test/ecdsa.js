@@ -4,10 +4,10 @@ var ecdsa = require('../src/ecdsa')
 var message = require('../src/message')
 var networks = require('../src/networks')
 
-var sec = require('../src/sec')
-var ecparams = sec("secp256k1")
-
 var BigInteger = require('bigi')
+
+var ecurve = require('ecurve')
+var curve = ecurve.getCurveByName('secp256k1')
 
 var fixtures = require('./fixtures/ecdsa.json')
 
@@ -18,7 +18,7 @@ describe('ecdsa', function() {
         var d = BigInteger.fromHex(f.d)
         var h1 = crypto.sha256(f.message)
 
-        var k = ecdsa.deterministicGenerateK(ecparams, h1, d)
+        var k = ecdsa.deterministicGenerateK(curve, h1, d)
         assert.equal(k.toHex(), f.k)
       })
     })
@@ -29,12 +29,12 @@ describe('ecdsa', function() {
       var d = BigInteger.ONE
       var signature = new Buffer('INcvXVVEFyIfHLbDX+xoxlKFn3Wzj9g0UbhObXdMq+YMKC252o5RHFr0/cKdQe1WsBLUBi4morhgZ77obDJVuV0=', 'base64')
 
-      var Q = ecparams.getG().multiply(d)
+      var Q = curve.params.G.multiply(d)
       var hash = message.magicHash('1111', networks.bitcoin)
       var e = BigInteger.fromBuffer(hash)
       var parsed = ecdsa.parseSigCompact(signature)
 
-      var Qprime = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
+      var Qprime = ecdsa.recoverPubKey(curve, e, parsed.signature, parsed.i)
       assert(Q.equals(Qprime))
     })
   })
@@ -44,7 +44,7 @@ describe('ecdsa', function() {
       it('produces a deterministic signature for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var hash = crypto.sha256(f.message)
-        var signature = ecdsa.sign(ecparams, hash, d)
+        var signature = ecdsa.sign(curve, hash, d)
 
         assert.equal(signature.r.toString(), f.signature.r)
         assert.equal(signature.s.toString(), f.signature.s)
@@ -53,10 +53,10 @@ describe('ecdsa', function() {
 
     it('should sign with low S value', function() {
       var hash = crypto.sha256('Vires in numeris')
-      var sig = ecdsa.sign(ecparams, hash, BigInteger.ONE)
+      var sig = ecdsa.sign(curve, hash, BigInteger.ONE)
 
       // See BIP62 for more information
-      var N_OVER_TWO = ecparams.getN().shiftRight(1)
+      var N_OVER_TWO = curve.params.n.shiftRight(1)
       assert(sig.s.compareTo(N_OVER_TWO) <= 0)
     })
   })
@@ -65,7 +65,7 @@ describe('ecdsa', function() {
     fixtures.valid.forEach(function(f) {
       it('verifies a valid signature for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
-        var Q = ecparams.getG().multiply(d)
+        var Q = curve.params.G.multiply(d)
 
         var signature = {
           r: new BigInteger(f.signature.r),
@@ -73,7 +73,7 @@ describe('ecdsa', function() {
         }
         var e = BigInteger.fromBuffer(crypto.sha256(f.message))
 
-        assert(ecdsa.verifyRaw(ecparams, e, signature, Q))
+        assert(ecdsa.verifyRaw(curve, e, signature, Q))
       })
     })
 
@@ -85,9 +85,9 @@ describe('ecdsa', function() {
           r: new BigInteger(f.signature.r),
           s: new BigInteger(f.signature.s)
         }
-        var Q = ecparams.getG().multiply(d)
+        var Q = curve.params.G.multiply(d)
 
-        assert.equal(ecdsa.verifyRaw(ecparams, e, signature, Q), false)
+        assert.equal(ecdsa.verifyRaw(curve, e, signature, Q), false)
       })
     })
   })

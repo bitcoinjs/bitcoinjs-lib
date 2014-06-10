@@ -1,17 +1,18 @@
 var assert = require('assert')
 var networks = require('../src/networks')
-var sec = require('../src/sec')
-var ecparams = sec("secp256k1")
 
 var BigInteger = require('bigi')
 var HDNode = require('../src/hdnode')
+
+var ecurve = require('ecurve')
+var curve = ecurve.getCurveByName('secp256k1')
 
 var fixtures = require('./fixtures/hdnode.json')
 
 describe('HDNode', function() {
   describe('Constructor', function() {
     var d = BigInteger.ONE
-    var Q = ecparams.getG().multiply(d)
+    var Q = curve.params.G.multiply(d)
     var chainCode = new Buffer(32)
     chainCode.fill(1)
 

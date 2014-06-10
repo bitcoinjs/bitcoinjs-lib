@@ -4,13 +4,12 @@ var ecdsa = require('./ecdsa')
 var networks = require('./networks')
 
 var Address = require('./address')
-var ECPointFp = require('./ec').ECPointFp
 
-var sec = require('./sec')
-var ecparams = sec('secp256k1')
+var ecurve = require('ecurve')
+var curve = ecurve.getCurveByName('secp256k1')
 
 function ECPubKey(Q, compressed) {
-  assert(Q instanceof ECPointFp, 'Expected ECPointFP, got ' + Q)
+  assert(Q instanceof ecurve.Point, 'Expected Point, got ' + Q)
 
   if (compressed == undefined) compressed = true
   assert.strictEqual(typeof compressed, 'boolean', 'Expected boolean, got ' + compressed)
@@ -21,8 +20,8 @@ function ECPubKey(Q, compressed) {
 
 // Static constructors
 ECPubKey.fromBuffer = function(buffer) {
-  var decode = ECPointFp.decodeFrom(ecparams.getCurve(), buffer)
-  return new ECPubKey(decode.Q, decode.compressed)
+  var Q = ecurve.Point.decodeFrom(curve, buffer)
+  return new ECPubKey(Q, Q.compressed)
 }
 
 ECPubKey.fromHex = function(hex) {
@@ -37,7 +36,7 @@ ECPubKey.prototype.getAddress = function(network) {
 }
 
 ECPubKey.prototype.verify = function(hash, signature) {
-  return ecdsa.verify(ecparams, hash, signature, this.Q)
+  return ecdsa.verify(curve, hash, signature, this.Q)
 }
 
 // Export functions
