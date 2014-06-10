@@ -9,7 +9,28 @@
     "client",
     "library"
   ],
-  "author": "Stefan Thomas <justmoon@members.fsf.org> (http://www.justmoon.net)",
+  "contributors": [
+    {
+      "name": "Daniel Cousens",
+      "email": "bitcoin@dcousens.com",
+      "url": "http://dcousens.com"
+    },
+    {
+      "name": "Kyle Drake",
+      "email": "kyle@kyledrake.net",
+      "url": "http://kyledrake.net/"
+    },
+    {
+      "name": "Wei Lu",
+      "email": "luwei.here@gmail.com",
+      "url": "http://weilu.github.io/"
+    },
+    {
+      "name": "Stefan Thomas",
+      "email": "justmoon@members.fsf.org",
+      "url": "http://www.justmoon.net"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
