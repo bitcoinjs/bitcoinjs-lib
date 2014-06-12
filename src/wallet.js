@@ -137,7 +137,15 @@ function Wallet(seed, network) {
     return value == undefined
   }
 
-  this.processTx = function(tx, isPending) {
+  this.processPendingTx = function(tx){
+    processTx(tx, true)
+  }
+
+  this.processConfirmedTx = function(tx){
+    processTx(tx, false)
+  }
+
+  function processTx(tx, isPending) {
     var txhash = tx.getHash()
 
     tx.outs.forEach(function(txOut, i){
