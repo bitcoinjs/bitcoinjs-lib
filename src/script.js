@@ -43,17 +43,11 @@ Script.fromChunks = function(chunks) {
   assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
 
   var bufferSize = chunks.reduce(function(accum, chunk) {
-    var chunkSize
-
     if (Buffer.isBuffer(chunk)) {
-      chunkSize = bufferutils.pushDataSize(chunk.length) + chunk.length
-
-    } else {
-      chunkSize = 1
-
+      return accum + bufferutils.pushDataSize(chunk.length) + chunk.length
     }
 
-    return accum + chunkSize
+    return accum + 1
   }, 0.0)
 
   var buffer = new Buffer(bufferSize)
@@ -67,8 +61,6 @@ Script.fromChunks = function(chunks) {
       offset += chunk.length
 
     } else {
-      assert(typeof chunk == 'number')
-
       buffer.writeUInt8(chunk, offset)
       offset += 1
     }
