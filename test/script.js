@@ -14,16 +14,17 @@ function h2b(h) { return new Buffer(h, 'hex') }
 
 describe('Script', function() {
   describe('constructor', function() {
-    it('works for a byte array', function() {
-      assert.ok(new Script([]))
-    })
+    it('accepts valid parameters', function() {
+      var buffer = new Buffer([1])
+      var chunks = [1]
+      var script = new Script(buffer, chunks)
 
-    it('works when nothing is passed in', function() {
-      assert.ok(new Script())
+      assert.equal(script.buffer, buffer)
+      assert.equal(script.chunks, chunks)
     })
 
     it('throws an error when input is not an array', function() {
-      assert.throws(function(){ new Script({}) }, /Expected Array, got/)
+      assert.throws(function(){ new Script({}) }, /Expected Buffer, got/)
     })
   })
 

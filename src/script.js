@@ -3,19 +3,20 @@ var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var opcodes = require('./opcodes')
 
-function Script(data) {
-  data = data || []
-  assert(Array.isArray(data), 'Expected Array, got ' + data)
+function Script(buffer, chunks) {
+  assert(Buffer.isBuffer(buffer), 'Expected Buffer, got ' + buffer)
+  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
 
-  this.buffer = data
-  this.parse()
+  this.buffer = buffer
+  this.chunks = chunks
 }
 
 // Import operations
 Script.fromBuffer = function(buffer) {
-  assert(Buffer.isBuffer(buffer)) // FIXME: transitionary
+  assert(Buffer.isBuffer(buffer))
 
-  return new Script(Array.prototype.slice.call(buffer))
+  var chunks = Script.parseChunks(buffer)
+  return new Script(buffer, chunks)
 }
 
 Script.fromHex = function(hex) {
@@ -24,7 +25,7 @@ Script.fromHex = function(hex) {
 
 // Export operations
 Script.prototype.toBuffer = function() {
-  return new Buffer(this.buffer)
+  return this.buffer
 }
 
 Script.prototype.toHex = function() {
@@ -32,35 +33,27 @@ Script.prototype.toHex = function() {
 }
 
 /**
- * Update the parsed script representation.
- *
- * Each Script object stores the script in two formats. First as a raw byte
- * array and second as an array of 'chunks', such as opcodes and pieces of
- * data.
- *
- * This method updates the chunks cache. Normally this is called by the
- * constructor and you don't need to worry about it. However, if you change
- * the script buffer manually, you should update the chunks using this method.
+ * Parse a Script from a Buffer to its chunked representation.
  */
-Script.prototype.parse = function() {
-  var self = this
+Script.parseChunks = function(buffer) {
+  assert(Buffer.isBuffer(buffer), 'Expected Buffer, got ' + buffer)
 
-  this.chunks = []
+  var chunks = []
 
   // Cursor
   var i = 0
 
   // Read n bytes and store result as a chunk
   function readChunk(n) {
-    self.chunks.push(self.buffer.slice(i, i + n))
+    chunks.push(buffer.slice(i, i + n))
     i += n
   }
 
-  while (i < this.buffer.length) {
-    var opcode = this.buffer[i++]
+  while (i < buffer.length) {
+    var opcode = buffer[i++]
     if (opcode >= 0xF0) {
       // Two byte opcode
-      opcode = (opcode << 8) | this.buffer[i++]
+      opcode = (opcode << 8) | buffer[i++]
     }
 
     var len
@@ -68,21 +61,23 @@ Script.prototype.parse = function() {
       // Read some bytes of data, opcode value is the length of data
       readChunk(opcode)
     } else if (opcode == opcodes.OP_PUSHDATA1) {
-      len = this.buffer[i++]
+      len = buffer[i++]
       readChunk(len)
     } else if (opcode == opcodes.OP_PUSHDATA2) {
-      len = (this.buffer[i++] << 8) | this.buffer[i++]
+      len = (buffer[i++] << 8) | buffer[i++]
       readChunk(len)
     } else if (opcode == opcodes.OP_PUSHDATA4) {
-      len = (this.buffer[i++] << 24) |
-        (this.buffer[i++] << 16) |
-        (this.buffer[i++] << 8) |
-        this.buffer[i++]
+      len = (buffer[i++] << 24) |
+        (buffer[i++] << 16) |
+        (buffer[i++] << 8) |
+        buffer[i++]
       readChunk(len)
     } else {
-      this.chunks.push(opcode)
+      chunks.push(opcode)
     }
   }
+
+  return chunks
 }
 
 
@@ -139,7 +134,7 @@ function isPubkeyhash() {
   return this.chunks.length == 5 &&
     this.chunks[0] == opcodes.OP_DUP &&
     this.chunks[1] == opcodes.OP_HASH160 &&
-    Array.isArray(this.chunks[2]) &&
+    Buffer.isBuffer(this.chunks[2]) &&
     this.chunks[2].length === 20 &&
     this.chunks[3] == opcodes.OP_EQUALVERIFY &&
     this.chunks[4] == opcodes.OP_CHECKSIG
@@ -147,14 +142,14 @@ function isPubkeyhash() {
 
 function isPubkey() {
   return this.chunks.length === 2 &&
-    Array.isArray(this.chunks[0]) &&
+    Buffer.isBuffer(this.chunks[0]) &&
     this.chunks[1] === opcodes.OP_CHECKSIG
 }
 
 function isScripthash() {
   return this.chunks[this.chunks.length - 1] == opcodes.OP_EQUAL &&
     this.chunks[0] == opcodes.OP_HASH160 &&
-    Array.isArray(this.chunks[1]) &&
+    Buffer.isBuffer(this.chunks[1]) &&
     this.chunks[1].length === 20 &&
     this.chunks.length == 3
 }
@@ -185,7 +180,7 @@ function isSmallIntOp(opcode) {
 }
 
 Script.prototype.getHash = function() {
-  return crypto.hash160(new Buffer(this.buffer))
+  return crypto.hash160(this.buffer)
 }
 
 /**
@@ -215,17 +210,17 @@ Script.prototype.getHash = function() {
  */
 Script.prototype.getInType = function() {
   if (this.chunks.length == 1 &&
-    Array.isArray(this.chunks[0])) {
+    Buffer.isBuffer(this.chunks[0])) {
     // Direct IP to IP transactions only have the signature in their scriptSig.
     // TODO: We could also check that the length of the data is correct.
     return 'pubkey'
   } else if (this.chunks.length == 2 &&
-    Array.isArray(this.chunks[0]) &&
-    Array.isArray(this.chunks[1])) {
+    Buffer.isBuffer(this.chunks[0]) &&
+    Buffer.isBuffer(this.chunks[1])) {
     return 'pubkeyhash'
   } else if (this.chunks[0] == opcodes.OP_0 &&
     this.chunks.slice(1).reduce(function(t, chunk, i) {
-      return t && Array.isArray(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1)
+      return t && Buffer.isBuffer(chunk) && (chunk[0] == 48 || i == this.chunks.length - 1)
     }, true)) {
     return 'multisig'
   } else {
@@ -233,115 +228,76 @@ Script.prototype.getInType = function() {
   }
 }
 
-/**
- * Add an op code to the script.
- */
-Script.prototype.writeOp = function(opcode) {
-  this.buffer.push(opcode)
-  this.chunks.push(opcode)
-}
-
-/**
- * Add a data chunk to the script.
- */
-Script.prototype.writeBytes = function(data) {
-  // FIXME: Script module doesn't support buffers yet
-  if (Buffer.isBuffer(data)) data = Array.prototype.slice.call(data);
-  assert(Array.isArray(data), 'Expected a byte array, got ' + data)
-
-  if (data.length < opcodes.OP_PUSHDATA1) {
-    this.buffer.push(data.length)
-  } else if (data.length <= 0xff) {
-    this.buffer.push(opcodes.OP_PUSHDATA1)
-    this.buffer.push(data.length)
-  } else if (data.length <= 0xffff) {
-    this.buffer.push(opcodes.OP_PUSHDATA2)
-    this.buffer.push(data.length & 0xff)
-    this.buffer.push((data.length >>> 8) & 0xff)
-  } else {
-    this.buffer.push(opcodes.OP_PUSHDATA4)
-    this.buffer.push(data.length & 0xff)
-    this.buffer.push((data.length >>> 8) & 0xff)
-    this.buffer.push((data.length >>> 16) & 0xff)
-    this.buffer.push((data.length >>> 24) & 0xff)
-  }
-  this.buffer = this.buffer.concat(data)
-  this.chunks.push(data)
-}
-
 // {pubKey} OP_CHECKSIG
 Script.createPubKeyScriptPubKey = function(pubKey) {
-  var script = new Script()
-
-  script.writeBytes(pubKey.toBuffer())
-  script.writeOp(opcodes.OP_CHECKSIG)
-
-  return script
+  return Script.fromChunks([
+    pubKey.toBuffer(),
+    opcodes.OP_CHECKSIG
+  ])
 }
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 Script.createPubKeyHashScriptPubKey = function(hash) {
-  var script = new Script()
+  assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
 
-  script.writeOp(opcodes.OP_DUP)
-  script.writeOp(opcodes.OP_HASH160)
-  script.writeBytes(hash)
-  script.writeOp(opcodes.OP_EQUALVERIFY)
-  script.writeOp(opcodes.OP_CHECKSIG)
-
-  return script
+  return Script.fromChunks([
+    opcodes.OP_DUP,
+    opcodes.OP_HASH160,
+    hash,
+    opcodes.OP_EQUALVERIFY,
+    opcodes.OP_CHECKSIG
+  ])
 }
 
 // OP_HASH160 {scriptHash} OP_EQUAL
 Script.createP2SHScriptPubKey = function(hash) {
-  var script = new Script()
+  assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
 
-  script.writeOp(opcodes.OP_HASH160)
-  script.writeBytes(hash)
-  script.writeOp(opcodes.OP_EQUAL)
-
-  return script
+  return Script.fromChunks([
+    opcodes.OP_HASH160,
+    hash,
+    opcodes.OP_EQUAL
+  ])
 }
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 Script.createMultisigScriptPubKey = function(m, pubKeys) {
   assert(Array.isArray(pubKeys), 'Expected Array, got ' + pubKeys)
   assert(pubKeys.length >= m, 'Not enough pubKeys provided')
-  var script = new Script()
+
+  var pubKeyBuffers = pubKeys.map(function(pubKey) {
+    return pubKey.toBuffer()
+  })
   var n = pubKeys.length
 
-  script.writeOp((opcodes.OP_1 - 1) + m)
-
-  pubKeys.forEach(function(pubKey) {
-    script.writeBytes(pubKey.toBuffer())
-  })
-
-  script.writeOp((opcodes.OP_1 - 1) + n)
-  script.writeOp(opcodes.OP_CHECKMULTISIG)
-
-  return script
+  return Script.fromChunks([].concat(
+    (opcodes.OP_1 - 1) + m,
+    pubKeyBuffers,
+    (opcodes.OP_1 - 1) + n,
+    opcodes.OP_CHECKMULTISIG
+  ))
 }
 
 // {signature}
 Script.createPubKeyScriptSig = function(signature) {
-  var script = new Script()
-  script.writeBytes(signature)
-  return script
+  assert(Buffer.isBuffer(signature), 'Expected Buffer, got ' + signature)
+
+  return Script.fromChunks(signature)
 }
 
 // {signature} {pubKey}
 Script.createPubKeyHashScriptSig = function(signature, pubKey) {
-  var script = new Script()
-  script.writeBytes(signature)
-  script.writeBytes(pubKey.toBuffer())
-  return script
+  assert(Buffer.isBuffer(signature), 'Expected Buffer, got ' + signature)
+
+  return Script.fromChunks([signature, pubKey.toBuffer()])
 }
 
 // <scriptSig> {serialized scriptPubKey script}
 Script.createP2SHScriptSig = function(scriptSig, scriptPubKey) {
-  var inScript = new Script(scriptSig.buffer)
-  inScript.writeBytes(scriptPubKey.buffer)
-  return inScript
+  return Script.fromChunks([].concat(
+    scriptSig.chunks,
+    scriptPubKey.toBuffer()
+  ))
 }
 
 // OP_0 [signatures ...]
@@ -354,29 +310,25 @@ Script.createMultisigScriptSig = function(signatures, scriptPubKey) {
     assert(k <= signatures.length, 'Not enough signatures provided')
   }
 
-  var inScript = new Script()
-
-  inScript.writeOp(opcodes.OP_0)
-  signatures.map(function(sig) {
-    inScript.writeBytes(sig)
-  })
-
-  return inScript
+  return Script.fromChunks([].concat(opcodes.OP_0, signatures))
 }
 
 Script.prototype.clone = function() {
-  return new Script(this.buffer)
+  return new Script(this.buffer, this.chunks)
 }
 
-Script.fromChunks = function(chunks) {
+Script.fromChunks = function fromChunks(chunks) {
   assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
 
   var bufferSize = chunks.reduce(function(accum, chunk) {
-    var chunkSize = 1
+    var chunkSize
 
-    // FIXME: transitionary
-    if (Array.isArray(chunk) || Buffer.isBuffer(chunk)) {
+    if (Buffer.isBuffer(chunk)) {
       chunkSize = bufferutils.pushDataSize(chunk.length) + chunk.length
+
+    } else {
+      chunkSize = 1
+
     }
 
     return accum + chunkSize
@@ -386,25 +338,22 @@ Script.fromChunks = function(chunks) {
   var offset = 0
 
   chunks.forEach(function(chunk) {
-    // FIXME: transitionary
-    if (Array.isArray(chunk) || Buffer.isBuffer(chunk)) {
+    if (Buffer.isBuffer(chunk)) {
       offset += bufferutils.writePushDataInt(buffer, chunk.length, offset)
 
-      // FIXME: transitionary
-//      chunk.copy(buffer, offset)
-      for (var i = 0; i < chunk.length; ++i) {
-        buffer[offset + i] = chunk[i]
-      }
-
+      chunk.copy(buffer, offset)
       offset += chunk.length
 
     } else {
+      assert(typeof chunk == 'number')
+
       buffer.writeUInt8(chunk, offset)
       offset += 1
     }
   })
 
-  return Script.fromBuffer(buffer)
+  assert.equal(offset, buffer.length, 'Could not decode chunks')
+  return new Script(buffer, chunks)
 }
 
 // FIXME: doesn't work for data chunks, maybe time to use buffertools.compare...
@@ -415,6 +364,6 @@ Script.prototype.without = function(needle) {
 }
 
 // Constants
-Script.EMPTY = new Script()
+Script.EMPTY = Script.fromChunks([])
 
 module.exports = Script
