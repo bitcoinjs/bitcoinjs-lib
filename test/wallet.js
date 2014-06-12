@@ -195,14 +195,6 @@ describe('Wallet', function() {
 
         assert.equal(wallet.getBalance(), 40000)
       })
-
-      it('excludes spent outputs', function(){
-        addUtxoToOutput(expectedUtxo)
-        addUtxoToOutput(utxo1)
-        wallet.outputs[utxo1.hash + ':' + utxo1.outputIndex].spend = "sometxn:m"
-
-        assert.equal(wallet.getBalance(), 20000)
-      })
     })
 
     describe('getUnspentOutputs', function(){
@@ -212,11 +204,6 @@ describe('Wallet', function() {
 
       it('parses wallet outputs to the expect format', function(){
         assert.deepEqual(wallet.getUnspentOutputs(), [expectedUtxo])
-      })
-
-      it('excludes spent outputs', function(){
-        wallet.outputs[expectedOutputKey].spend = "sometxn:m"
-        assert.deepEqual(wallet.getUnspentOutputs(), [])
       })
     })
 
@@ -319,7 +306,7 @@ describe('Wallet', function() {
 
       })
 
-      describe("when tx ins outpoint contains a known txhash:i, the corresponding 'output' gets updated", function(){
+      describe("when tx ins outpoint contains a known txhash:i", function(){
         beforeEach(function(){
           wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
           wallet.processConfirmedTx(tx)
@@ -333,14 +320,14 @@ describe('Wallet', function() {
           assert.deepEqual(wallet.outputs, outputs)
         })
 
-        it("sets spend with the transaction hash and input index", function(){
+        it("deletes corresponding 'output'", function(){
           wallet.processConfirmedTx(tx)
 
           var txIn = tx.ins[0]
           var key = txIn.outpoint.hash + ":" + txIn.outpoint.index
           var output = wallet.outputs[key]
 
-          assert.equal(output.spend, tx.getHash() + ':' + 0)
+          assert.equal(output, undefined)
         })
       })
 
@@ -422,24 +409,6 @@ describe('Wallet', function() {
         value = 520000
         var fee = 0
         var tx = wallet.createTx(to, value, fee)
-
-        assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
-      })
-
-      it('ignores spent outputs', function(){
-        utxo.push(
-          {
-            "hash": fakeTxHash(4),
-            "outputIndex": 0,
-            "address" : address2,
-            "value": 530000 // enough but spent before createTx
-          }
-        )
-        wallet.setUnspentOutputs(utxo)
-        wallet.outputs[fakeTxHash(4) + ":" + 0].spend = fakeTxHash(5) + ":" + 0
-
-        var tx = wallet.createTx(to, value)
 
         assert.equal(tx.ins.length, 1)
         assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })

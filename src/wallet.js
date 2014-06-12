@@ -68,7 +68,7 @@ function Wallet(seed, network) {
 
     for(var key in this.outputs){
       var output = this.outputs[key]
-      if(!output.spend) utxo.push(outputToUnspentOutput(output))
+      utxo.push(outputToUnspentOutput(output))
     }
 
     return utxo
@@ -171,11 +171,9 @@ function Wallet(seed, network) {
 
     tx.ins.forEach(function(txIn, i){
       var op = txIn.outpoint
+      var output = op.hash + ':' + op.index
 
-      var o = me.outputs[op.hash + ':' + op.index]
-      if (o) {
-        o.spend = txhash + ':' + i
-      }
+      if(me.outputs[output]) delete me.outputs[output]
     })
   }
 
@@ -220,7 +218,7 @@ function Wallet(seed, network) {
 
     for (var key in me.outputs) {
       var output = me.outputs[key]
-      if (!output.spend && !output.pending) unspent.push(output)
+      if (!output.pending) unspent.push(output)
     }
 
     var sortByValueDesc = unspent.sort(function(o1, o2){
