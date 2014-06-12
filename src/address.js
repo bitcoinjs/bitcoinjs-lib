@@ -11,7 +11,7 @@ function findScriptTypeByVersion(queryVersion) {
       var version = network[versionName]
 
       if (version === queryVersion) {
-        return versionName
+        return versionName.toLowerCase()
       }
     }
   }
@@ -62,14 +62,14 @@ Address.prototype.toBase58Check = function () {
 Address.prototype.toScriptPubKey = function() {
   var scriptType = findScriptTypeByVersion(this.version)
 
-  if (scriptType === 'pubKeyHash') {
+  if (scriptType === 'pubkeyhash') {
     return templates.createPubKeyHashScriptPubKey(this.hash)
 
-  } else if (scriptType === 'scriptHash') {
+  } else if (scriptType === 'scripthash') {
     return templates.createP2SHScriptPubKey(this.hash)
   }
 
-  assert(false, this.toString() + ' has no matching script')
+  assert(false, this.toString() + ' has no matching Script')
 }
 
 Address.prototype.toString = Address.prototype.toBase58Check
