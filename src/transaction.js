@@ -76,7 +76,7 @@ Transaction.prototype.addInput = function (tx, outIndex) {
       hash: hash,
       index: outIndex
     },
-    script: new Script()
+    script: Script.EMPTY
   }))
 }
 
@@ -206,7 +206,7 @@ Transaction.prototype.hashForSignature = function(scriptPubKey, inIndex, hashTyp
 
   // Blank out other inputs' signatures
   txTmp.ins.forEach(function(txin) {
-    txin.script = new Script()
+    txin.script = Script.EMPTY
   })
   txTmp.ins[inIndex].script = hashScript
 

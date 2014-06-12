@@ -131,7 +131,7 @@ describe('Transaction', function() {
         verifyTransactionIn()
       })
 
-      function verifyTransactionIn(){
+      function verifyTransactionIn() {
         assert.equal(tx.ins.length, 1)
 
         var input = tx.ins[0]
@@ -140,7 +140,7 @@ describe('Transaction', function() {
         assert.equal(input.outpoint.index, 0)
         assert.equal(input.outpoint.hash, "0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57")
 
-        assert.deepEqual(input.script.buffer, [])
+        assert.equal(input.script, Script.EMPTY)
       }
     })
 

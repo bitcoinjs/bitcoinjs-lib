@@ -414,4 +414,7 @@ Script.prototype.without = function(needle) {
   }))
 }
 
+// Constants
+Script.EMPTY = new Script()
+
 module.exports = Script
