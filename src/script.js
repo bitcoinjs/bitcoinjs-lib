@@ -40,46 +40,29 @@ Script.parseChunks = function(buffer) {
 
   var chunks = []
 
-  // Cursor
   var i = 0
 
-  // Read n bytes and store result as a chunk
-  function readChunk(n) {
-    chunks.push(buffer.slice(i, i + n))
-    i += n
-  }
-
   while (i < buffer.length) {
-    var opcode = buffer[i++]
-    if (opcode >= 0xF0) {
-      // Two byte opcode
-      opcode = (opcode << 8) | buffer[i++]
-    }
+    var opcode = buffer.readUInt8(i)
 
-    var len
-    if (opcode > 0 && opcode < opcodes.OP_PUSHDATA1) {
-      // Read some bytes of data, opcode value is the length of data
-      readChunk(opcode)
-    } else if (opcode == opcodes.OP_PUSHDATA1) {
-      len = buffer[i++]
-      readChunk(len)
-    } else if (opcode == opcodes.OP_PUSHDATA2) {
-      len = (buffer[i++] << 8) | buffer[i++]
-      readChunk(len)
-    } else if (opcode == opcodes.OP_PUSHDATA4) {
-      len = (buffer[i++] << 24) |
-        (buffer[i++] << 16) |
-        (buffer[i++] << 8) |
-        buffer[i++]
-      readChunk(len)
+    if ((opcode > opcodes.OP_0) && (opcode <= opcodes.OP_PUSHDATA4)) {
+      var d = bufferutils.readPushDataInt(buffer, i)
+      i += d.size
+
+      var data = buffer.slice(i, i + d.number)
+      i += d.number
+
+      chunks.push(data)
+
     } else {
       chunks.push(opcode)
+
+      ++i
     }
   }
 
   return chunks
 }
-
 
 /**
  * Compare the script to known templates of scriptPubKey.
