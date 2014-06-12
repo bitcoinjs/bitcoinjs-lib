@@ -13,31 +13,6 @@ function Script(buffer, chunks) {
 
 // Import operations
 Script.fromBuffer = function(buffer) {
-  assert(Buffer.isBuffer(buffer))
-
-  var chunks = Script.parseChunks(buffer)
-  return new Script(buffer, chunks)
-}
-
-Script.fromHex = function(hex) {
-  return Script.fromBuffer(new Buffer(hex, 'hex'))
-}
-
-// Export operations
-Script.prototype.toBuffer = function() {
-  return this.buffer
-}
-
-Script.prototype.toHex = function() {
-  return this.toBuffer().toString('hex')
-}
-
-/**
- * Parse a Script from a Buffer to its chunked representation.
- */
-Script.parseChunks = function(buffer) {
-  assert(Buffer.isBuffer(buffer), 'Expected Buffer, got ' + buffer)
-
   var chunks = []
 
   var i = 0
@@ -61,7 +36,78 @@ Script.parseChunks = function(buffer) {
     }
   }
 
-  return chunks
+  return new Script(buffer, chunks)
+}
+
+Script.fromChunks = function(chunks) {
+  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
+
+  var bufferSize = chunks.reduce(function(accum, chunk) {
+    var chunkSize
+
+    if (Buffer.isBuffer(chunk)) {
+      chunkSize = bufferutils.pushDataSize(chunk.length) + chunk.length
+
+    } else {
+      chunkSize = 1
+
+    }
+
+    return accum + chunkSize
+  }, 0.0)
+
+  var buffer = new Buffer(bufferSize)
+  var offset = 0
+
+  chunks.forEach(function(chunk) {
+    if (Buffer.isBuffer(chunk)) {
+      offset += bufferutils.writePushDataInt(buffer, chunk.length, offset)
+
+      chunk.copy(buffer, offset)
+      offset += chunk.length
+
+    } else {
+      assert(typeof chunk == 'number')
+
+      buffer.writeUInt8(chunk, offset)
+      offset += 1
+    }
+  })
+
+  assert.equal(offset, buffer.length, 'Could not decode chunks')
+  return new Script(buffer, chunks)
+}
+
+Script.fromHex = function(hex) {
+  return Script.fromBuffer(new Buffer(hex, 'hex'))
+}
+
+// Constants
+Script.EMPTY = Script.fromChunks([])
+
+// Operations
+Script.prototype.clone = function() {
+  return new Script(this.buffer, this.chunks)
+}
+
+Script.prototype.getHash = function() {
+  return crypto.hash160(this.buffer)
+}
+
+// FIXME: doesn't work for data chunks, maybe time to use buffertools.compare...
+Script.prototype.without = function(needle) {
+  return Script.fromChunks(this.chunks.filter(function(op) {
+    return op !== needle
+  }))
+}
+
+// Export operations
+Script.prototype.toBuffer = function() {
+  return this.buffer
+}
+
+Script.prototype.toHex = function() {
+  return this.toBuffer().toString('hex')
 }
 
 /**
@@ -160,10 +206,6 @@ function isNulldata() {
 function isSmallIntOp(opcode) {
   return ((opcode == opcodes.OP_0) ||
     ((opcode >= opcodes.OP_1) && (opcode <= opcodes.OP_16)))
-}
-
-Script.prototype.getHash = function() {
-  return crypto.hash160(this.buffer)
 }
 
 /**
@@ -295,58 +337,5 @@ Script.createMultisigScriptSig = function(signatures, scriptPubKey) {
 
   return Script.fromChunks([].concat(opcodes.OP_0, signatures))
 }
-
-Script.prototype.clone = function() {
-  return new Script(this.buffer, this.chunks)
-}
-
-Script.fromChunks = function fromChunks(chunks) {
-  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
-
-  var bufferSize = chunks.reduce(function(accum, chunk) {
-    var chunkSize
-
-    if (Buffer.isBuffer(chunk)) {
-      chunkSize = bufferutils.pushDataSize(chunk.length) + chunk.length
-
-    } else {
-      chunkSize = 1
-
-    }
-
-    return accum + chunkSize
-  }, 0.0)
-
-  var buffer = new Buffer(bufferSize)
-  var offset = 0
-
-  chunks.forEach(function(chunk) {
-    if (Buffer.isBuffer(chunk)) {
-      offset += bufferutils.writePushDataInt(buffer, chunk.length, offset)
-
-      chunk.copy(buffer, offset)
-      offset += chunk.length
-
-    } else {
-      assert(typeof chunk == 'number')
-
-      buffer.writeUInt8(chunk, offset)
-      offset += 1
-    }
-  })
-
-  assert.equal(offset, buffer.length, 'Could not decode chunks')
-  return new Script(buffer, chunks)
-}
-
-// FIXME: doesn't work for data chunks, maybe time to use buffertools.compare...
-Script.prototype.without = function(needle) {
-  return Script.fromChunks(this.chunks.filter(function(op) {
-    return op !== needle
-  }))
-}
-
-// Constants
-Script.EMPTY = Script.fromChunks([])
 
 module.exports = Script
