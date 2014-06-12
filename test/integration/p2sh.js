@@ -3,6 +3,7 @@ var assert = require('assert')
 var bitcoin = require('../../')
 var crypto = bitcoin.crypto
 var networks = bitcoin.networks
+var scripts = bitcoin.scripts
 
 var Address = bitcoin.Address
 var ECKey = bitcoin.ECKey
@@ -28,8 +29,8 @@ describe('Bitcoin-js', function() {
     var outputAmount = 1e4
 
     var pubKeys = privKeys.map(function(eck) { return eck.pub })
-    var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
-    var scriptPubKey = Script.createP2SHScriptPubKey(redeemScript.getHash())
+    var redeemScript = scripts.multisigOutput(2, pubKeys)
+    var scriptPubKey = scripts.scriptHashOutput(redeemScript.getHash())
 
     var multisigAddress = Address.fromScriptPubKey(scriptPubKey, networks.testnet).toString()
 
@@ -57,8 +58,8 @@ describe('Bitcoin-js', function() {
         return tx.signScriptSig(0, redeemScript, privKey)
       })
 
-      var redeemScriptSig = Script.createMultisigScriptSig(signatures)
-      var scriptSig = Script.createP2SHScriptSig(redeemScriptSig, redeemScript)
+      var redeemScriptSig = scripts.multisigInput(signatures)
+      var scriptSig = scripts.scriptHashInput(redeemScriptSig, redeemScript)
       tx.setScriptSig(0, scriptSig)
 
       // broadcast our transaction

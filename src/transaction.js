@@ -5,7 +5,7 @@ var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var opcodes = require('./opcodes')
-var templates = require('./templates')
+var scripts = require('./scripts')
 
 var Address = require('./address')
 var ECKey = require('./eckey')
@@ -346,7 +346,7 @@ Transaction.prototype.sign = function(index, key, type) {
   var signature = this.signScriptSig(index, script, key, type)
 
   // FIXME: Assumed prior TX was pay-to-pubkey-hash
-  var scriptSig = templates.createPubKeyHashScriptSig(signature, key.pub)
+  var scriptSig = scripts.pubKeyHashInput(signature, key.pub)
   this.setScriptSig(index, scriptSig)
 }
 

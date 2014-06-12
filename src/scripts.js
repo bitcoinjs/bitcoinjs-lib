@@ -2,7 +2,7 @@ var assert = require('assert')
 var opcodes = require('./opcodes')
 var Script = require('./script')
 
-function classifyScriptPubKey(script) {
+function classifyOutput(script) {
   if (isPubkeyhash.call(script)) {
     return 'pubkeyhash'
   } else if (isPubkey.call(script)) {
@@ -18,7 +18,7 @@ function classifyScriptPubKey(script) {
   }
 }
 
-function classifyScriptSig(script) {
+function classifyInput(script) {
   if (script.chunks.length == 1 && Buffer.isBuffer(script.chunks[0])) {
     return 'pubkey'
   } else if (script.chunks.length == 2 && Buffer.isBuffer(script.chunks[0]) && Buffer.isBuffer(script.chunks[1])) {
@@ -82,7 +82,7 @@ function isSmallIntOp(opcode) {
 
 // Standard Script Templates
 // {pubKey} OP_CHECKSIG
-function createPubKeyScriptPubKey(pubKey) {
+function pubKeyOutput(pubKey) {
   return Script.fromChunks([
     pubKey.toBuffer(),
     opcodes.OP_CHECKSIG
@@ -90,7 +90,7 @@ function createPubKeyScriptPubKey(pubKey) {
 }
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
-function createPubKeyHashScriptPubKey(hash) {
+function pubKeyHashOutput(hash) {
   assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
 
   return Script.fromChunks([
@@ -103,7 +103,7 @@ function createPubKeyHashScriptPubKey(hash) {
 }
 
 // OP_HASH160 {scriptHash} OP_EQUAL
-function createP2SHScriptPubKey(hash) {
+function scriptHashOutput(hash) {
   assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
 
   return Script.fromChunks([
@@ -114,7 +114,7 @@ function createP2SHScriptPubKey(hash) {
 }
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
-function createMultisigScriptPubKey(m, pubKeys) {
+function multisigOutput(m, pubKeys) {
   assert(Array.isArray(pubKeys), 'Expected Array, got ' + pubKeys)
   assert(pubKeys.length >= m, 'Not enough pubKeys provided')
 
@@ -132,21 +132,21 @@ function createMultisigScriptPubKey(m, pubKeys) {
 }
 
 // {signature}
-function createPubKeyScriptSig(signature) {
+function pubKeyInput(signature) {
   assert(Buffer.isBuffer(signature), 'Expected Buffer, got ' + signature)
 
   return Script.fromChunks(signature)
 }
 
 // {signature} {pubKey}
-function createPubKeyHashScriptSig(signature, pubKey) {
+function pubKeyHashInput(signature, pubKey) {
   assert(Buffer.isBuffer(signature), 'Expected Buffer, got ' + signature)
 
   return Script.fromChunks([signature, pubKey.toBuffer()])
 }
 
 // <scriptSig> {serialized scriptPubKey script}
-function createP2SHScriptSig(scriptSig, scriptPubKey) {
+function scriptHashInput(scriptSig, scriptPubKey) {
   return Script.fromChunks([].concat(
     scriptSig.chunks,
     scriptPubKey.toBuffer()
@@ -154,7 +154,7 @@ function createP2SHScriptSig(scriptSig, scriptPubKey) {
 }
 
 // OP_0 [signatures ...]
-function createMultisigScriptSig(signatures, scriptPubKey) {
+function multisigInput(signatures, scriptPubKey) {
   if (scriptPubKey) {
     assert(isMultisig.call(scriptPubKey))
 
@@ -167,14 +167,14 @@ function createMultisigScriptSig(signatures, scriptPubKey) {
 }
 
 module.exports = {
-  classifyScriptPubKey: classifyScriptPubKey,
-  classifyScriptSig: classifyScriptSig,
-  createMultisigScriptPubKey: createMultisigScriptPubKey,
-  createMultisigScriptSig: createMultisigScriptSig,
-  createP2SHScriptPubKey: createP2SHScriptPubKey,
-  createP2SHScriptSig: createP2SHScriptSig,
-  createPubKeyHashScriptPubKey: createPubKeyHashScriptPubKey,
-  createPubKeyHashScriptSig: createPubKeyHashScriptSig,
-  createPubKeyScriptPubKey: createPubKeyScriptPubKey,
-  createPubKeyScriptSig: createPubKeyScriptSig
+  classifyInput: classifyInput,
+  classifyOutput: classifyOutput,
+  multisigInput: multisigInput,
+  multisigOutput: multisigOutput,
+  pubKeyHashInput: pubKeyHashInput,
+  pubKeyHashOutput: pubKeyHashOutput,
+  pubKeyInput: pubKeyInput,
+  pubKeyOutput: pubKeyOutput,
+  scriptHashInput: scriptHashInput,
+  scriptHashOutput: scriptHashOutput
 }

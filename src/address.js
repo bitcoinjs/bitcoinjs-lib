@@ -1,7 +1,7 @@
 var assert = require('assert')
 var base58check = require('./base58check')
 var networks = require('./networks')
-var templates = require('./templates')
+var scripts = require('./scripts')
 
 function findScriptTypeByVersion(queryVersion) {
   for (var networkName in networks) {
@@ -38,7 +38,7 @@ Address.fromBase58Check = function(string) {
 Address.fromScriptPubKey = function(script, network) {
   network = network || networks.bitcoin
 
-  var type = templates.classifyScriptPubKey(script)
+  var type = scripts.classifyOutput(script)
 
   if (type === 'pubkeyhash') {
     return new Address(script.chunks[2], network.pubKeyHash)
@@ -63,10 +63,11 @@ Address.prototype.toScriptPubKey = function() {
   var scriptType = findScriptTypeByVersion(this.version)
 
   if (scriptType === 'pubkeyhash') {
-    return templates.createPubKeyHashScriptPubKey(this.hash)
+    return scripts.pubKeyHashOutput(this.hash)
 
   } else if (scriptType === 'scripthash') {
-    return templates.createP2SHScriptPubKey(this.hash)
+    return scripts.scriptHashOutput(this.hash)
+
   }
 
   assert(false, this.toString() + ' has no matching Script')
