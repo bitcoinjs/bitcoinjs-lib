@@ -439,6 +439,25 @@ describe('Wallet', function() {
         assert.equal(tx.ins.length, 1)
         assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
       })
+
+      it('ignores pending outputs', function(){
+        utxo.push(
+          {
+            "hash": fakeTxHash(4),
+            "outputIndex": 0,
+            "address" : address2,
+            "value": 530000,
+            "pending": true
+          }
+        )
+        wallet.setUnspentOutputs(utxo)
+
+        var tx = wallet.createTx(to, value)
+
+        assert.equal(tx.ins.length, 1)
+        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+      })
+
     })
 
     describe(networks.testnet, function(){

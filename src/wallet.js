@@ -103,7 +103,8 @@ function Wallet(seed, network) {
     return {
       receive: key,
       address: o.address,
-      value: o.value
+      value: o.value,
+      pending: o.pending
     }
   }
 
@@ -211,7 +212,7 @@ function Wallet(seed, network) {
 
     for (var key in me.outputs) {
       var output = me.outputs[key]
-      if (!output.spend) unspent.push(output)
+      if (!output.spend && !output.pending) unspent.push(output)
     }
 
     var sortByValueDesc = unspent.sort(function(o1, o2){
