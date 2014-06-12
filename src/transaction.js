@@ -409,7 +409,7 @@ TransactionIn.prototype.clone = function () {
       hash: this.outpoint.hash,
       index: this.outpoint.index
     },
-    script: this.script.clone(),
+    script: this.script,
     sequence: this.sequence
   })
 }
@@ -424,7 +424,7 @@ function TransactionOut(data) {
 
 TransactionOut.prototype.clone = function() {
   return new TransactionOut({
-    script: this.script.clone(),
+    script: this.script,
     value: this.value,
     address: this.address
   })
