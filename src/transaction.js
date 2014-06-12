@@ -133,7 +133,6 @@ Transaction.prototype.toBuffer = function () {
 
   var offset = 0
   function writeSlice(slice) {
-    if (Array.isArray(slice)) slice = new Buffer(slice) // FIXME: Performance: transitionary only
     slice.copy(buffer, offset)
     offset += slice.length
   }
