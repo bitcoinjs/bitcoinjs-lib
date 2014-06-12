@@ -302,16 +302,26 @@ describe('Wallet', function() {
         verifyOutputAdded(1)
       })
 
+      describe("when the pending flag is set", function(){
+        it("sets the pending flag on output", function(){
+          wallet.addresses = [addresses[0]]
+          wallet.processTx(tx, true)
+
+          verifyOutputAdded(0, true)
+        })
+      })
+
       function outputCount(){
         return Object.keys(wallet.outputs).length
       }
 
-      function verifyOutputAdded(index) {
+      function verifyOutputAdded(index, pending) {
         var txOut = tx.outs[index]
         var key = tx.getHash() + ":" + index
         var output = wallet.outputs[key]
         assert.equal(output.receive, key)
         assert.equal(output.value, txOut.value)
+        assert.equal(output.pending, pending)
 
         var txOutAddress = Address.fromScriptPubKey(txOut.script).toString()
         assert.equal(output.address, txOutAddress)

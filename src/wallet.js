@@ -136,7 +136,7 @@ function Wallet(seed, network) {
     return value == undefined
   }
 
-  this.processTx = function(tx) {
+  this.processTx = function(tx, isPending) {
     var txhash = tx.getHash()
 
     tx.outs.forEach(function(txOut, i){
@@ -155,6 +155,7 @@ function Wallet(seed, network) {
           receive: output,
           value: txOut.value,
           address: address,
+          pending: isPending
         }
       }
     })
