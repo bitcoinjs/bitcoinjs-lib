@@ -2,10 +2,10 @@ var assert = require('assert')
 var crypto = require('../src/crypto')
 var networks = require('../src/networks')
 var sinon = require('sinon')
+var templates = require('../src/templates')
 
 var Address = require('../src/address')
 var HDNode = require('../src/hdnode')
-var Script = require('../src/script')
 var Transaction = require('../src/transaction').Transaction
 var Wallet = require('../src/wallet')
 
@@ -268,7 +268,7 @@ describe('Wallet', function() {
 
     it('does not fail on scripts with no corresponding Address', function() {
       var pubKey = wallet.getPrivateKey(0).pub
-      var script = Script.createPubKeyScriptPubKey(pubKey)
+      var script = templates.createPubKeyScriptPubKey(pubKey)
       var tx2 = new Transaction()
       tx2.addInput(fakeTxHash(1), 0)
 

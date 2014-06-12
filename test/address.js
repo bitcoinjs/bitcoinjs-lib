@@ -1,6 +1,7 @@
 var assert = require('assert')
-var Address = require('../src/address')
 var networks = require('../src/networks')
+
+var Address = require('../src/address')
 var Script = require('../src/script')
 
 var fixtures = require('./fixtures/address.json')

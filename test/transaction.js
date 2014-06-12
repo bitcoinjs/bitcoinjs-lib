@@ -1,5 +1,6 @@
 var assert = require('assert')
 var networks = require('../src/networks')
+var templates = require('../src/templates')
 
 var Address = require('../src/address')
 var ECKey = require('../src/eckey')
@@ -255,14 +256,14 @@ describe('Transaction', function() {
         return ECKey.fromWIF(wif)
       })
       var pubKeys = privKeys.map(function(eck) { return eck.pub })
-      var redeemScript = Script.createMultisigScriptPubKey(2, pubKeys)
+      var redeemScript = templates.createMultisigScriptPubKey(2, pubKeys)
 
       var signatures = privKeys.map(function(privKey) {
         return tx.signScriptSig(0, redeemScript, privKey)
       })
 
-      var redeemScriptSig = Script.createMultisigScriptSig(signatures)
-      var scriptSig = Script.createP2SHScriptSig(redeemScriptSig, redeemScript)
+      var redeemScriptSig = templates.createMultisigScriptSig(signatures)
+      var scriptSig = templates.createP2SHScriptSig(redeemScriptSig, redeemScript)
       tx.setScriptSig(0, scriptSig)
 
       signatures.forEach(function(sig, i){
