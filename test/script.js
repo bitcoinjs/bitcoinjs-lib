@@ -162,13 +162,15 @@ describe('Script', function() {
   describe('fromChunks', function() {
     it('should match expected behaviour', function() {
       var hash = new Buffer(32)
+      hash.fill(0)
+
       var script = Script.fromChunks([
         opcodes.OP_HASH160,
         hash,
         opcodes.OP_EQUAL
       ])
 
-      assert.deepEqual(script, Script.createP2SHScriptPubKey(hash))
+      assert.equal(script.toHex(), 'a920000000000000000000000000000000000000000000000000000000000000000087')
     })
   })
 
