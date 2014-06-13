@@ -3,6 +3,8 @@ var opcodes = require('./opcodes')
 var Script = require('./script')
 
 function classifyOutput(script) {
+  assert(script instanceof Script, 'Expected Script, got ', script)
+
   if (isPubkeyhash.call(script)) {
     return 'pubkeyhash'
   } else if (isPubkey.call(script)) {
@@ -19,6 +21,8 @@ function classifyOutput(script) {
 }
 
 function classifyInput(script) {
+  assert(script instanceof Script, 'Expected Script, got ', script)
+
   if (script.chunks.length == 1 && Buffer.isBuffer(script.chunks[0])) {
     return 'pubkey'
   } else if (script.chunks.length == 2 && Buffer.isBuffer(script.chunks[0]) && Buffer.isBuffer(script.chunks[1])) {
