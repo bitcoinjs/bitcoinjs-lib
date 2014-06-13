@@ -78,10 +78,6 @@ Script.fromHex = function(hex) {
 Script.EMPTY = Script.fromChunks([])
 
 // Operations
-Script.prototype.clone = function() {
-  return new Script(this.buffer, this.chunks)
-}
-
 Script.prototype.getHash = function() {
   return crypto.hash160(this.buffer)
 }
