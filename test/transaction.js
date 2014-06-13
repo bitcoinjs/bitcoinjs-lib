@@ -95,13 +95,15 @@ describe('Transaction', function() {
     })
 
     describe('addInput', function() {
-      it('allows a Transaction object to be passed in', function() {
-        tx.addInput(prevTx, 0)
+      it('accepts a transaction hash', function() {
+        var prevTxHash = prevTx.getId()
+
+        tx.addInput(prevTxHash, 0)
         verifyTransactionIn()
       })
 
-      it('allows a Transaction hash to be passed in', function() {
-        tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
+      it('accepts a Transaction object', function() {
+        tx.addInput(prevTx, 0)
         verifyTransactionIn()
       })
 
@@ -119,29 +121,25 @@ describe('Transaction', function() {
     })
 
     describe('addOutput', function() {
-      it('allows an address and a value to be passed in', function() {
-        tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 40000)
+      it('accepts an address string', function() {
+        var dest = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
+
+        tx.addOutput(dest, 40000)
         verifyTransactionOut()
       })
 
-      it('allows an Address object and value to be passed in', function() {
-        tx.addOutput(Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'), 40000)
+      it('accepts an Address', function() {
+        var dest = Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3')
+
+        tx.addOutput(dest, 40000)
         verifyTransactionOut()
       })
 
-      it('allows a scriptPubKey and a value to be passed in', function() {
-        tx.addOutput(Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3').toOutputScript(), 40000)
+      it('accepts a scriptPubKey', function() {
+        var dest = Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3').toOutputScript()
+
+        tx.addOutput(dest, 40000)
         verifyTransactionOut()
-      })
-
-      it('supports alternative networks', function() {
-        var address = Address.fromBase58Check('mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR')
-        var script = address.toOutputScript()
-
-        tx.addOutput(address, 40000)
-        verifyTransactionOut()
-
-        assert.deepEqual(tx.outs[0].script, script)
       })
 
       function verifyTransactionOut() {
