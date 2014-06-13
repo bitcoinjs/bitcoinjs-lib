@@ -107,6 +107,11 @@ describe('Transaction', function() {
         verifyTransactionIn()
       })
 
+      it('returns an index', function() {
+        assert.equal(tx.addInput(prevTx, 0), 0)
+        assert.equal(tx.addInput(prevTx, 0), 1)
+      })
+
       function verifyTransactionIn() {
         assert.equal(tx.ins.length, 1)
 
@@ -140,6 +145,13 @@ describe('Transaction', function() {
 
         tx.addOutput(dest, 40000)
         verifyTransactionOut()
+      })
+
+      it('returns an index', function() {
+        var dest = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
+
+        assert.equal(tx.addOutput(dest, 40000), 0)
+        assert.equal(tx.addOutput(dest, 40000), 1)
       })
 
       function verifyTransactionOut() {

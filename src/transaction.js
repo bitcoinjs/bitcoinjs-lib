@@ -34,7 +34,7 @@ function Transaction() {
  *
  * Note that this method does not sign the created input.
  */
-Transaction.prototype.addInput = function(tx, outIndex) {
+Transaction.prototype.addInput = function(tx, index) {
   var hash
 
   if (typeof tx === 'string') {
@@ -50,13 +50,15 @@ Transaction.prototype.addInput = function(tx, outIndex) {
 
   }
 
-  this.ins.push(new TransactionIn({
+  assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
+
+  return (this.ins.push(new TransactionIn({
     outpoint: {
       hash: hash,
-      index: outIndex
+      index: index
     },
     script: Script.EMPTY
-  }))
+  })) - 1)
 }
 
 /**
@@ -81,10 +83,10 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
     scriptPubKey = address.toOutputScript()
   }
 
-  this.outs.push(new TransactionOut({
+  return (this.outs.push(new TransactionOut({
     script: scriptPubKey,
     value: value,
-  }))
+  })) - 1)
 }
 
 Transaction.prototype.toBuffer = function () {
