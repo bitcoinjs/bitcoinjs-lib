@@ -12,8 +12,6 @@ var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 var fixtureTxBigHex = fixtureTxes.bigTx
 
-function b2h(b) { return new Buffer(b).toString('hex') }
-
 describe('Transaction', function() {
   describe('toBuffer', function() {
     it('matches the expected output', function() {
@@ -56,7 +54,7 @@ describe('Transaction', function() {
       assert.equal(input.outpoint.index, 0)
       assert.equal(input.outpoint.hash.toString('hex'), "344630cbff61fbc362f7e1ff2f11a344c29326e4ee96e787dc0d4e5cc02fd069")
 
-      assert.equal(b2h(input.script.buffer), "493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901")
+      assert.equal(input.script.toHex(), "493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901")
     })
 
     it('decodes outputs correctly', function() {
@@ -151,7 +149,7 @@ describe('Transaction', function() {
 
         var output = tx.outs[0]
         assert.equal(output.value, 40000)
-        assert.equal(b2h(output.script.buffer), "76a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac")
+        assert.equal(output.script.toHex(), "76a9143443bc45c560866cfeabf1d52f50a6ed358c69f288ac")
       }
     })
 
