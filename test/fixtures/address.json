@@ -46,7 +46,7 @@
         "exception": "Invalid hash length"
       }
     ],
-    "fromScriptPubKey": [
+    "fromOutputScript": [
       {
         "description": "pubkey has no matching Address",
         "hex": "21031f1e68f82112b373f0fe980b3a89d212d2b5c01fb51eb25acb8b4c4b4299ce95ac"
@@ -60,7 +60,7 @@
         "hex": "6a2606deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474"
       }
     ],
-    "toScriptPubKey": [
+    "toOutputScript": [
       {
         "description": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE has no matching Script",
         "hex": "751e76e8199196d454941c45d1b3a323f1433bd6",

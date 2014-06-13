@@ -32,7 +32,7 @@ describe('Bitcoin-js', function() {
     var redeemScript = scripts.multisigOutput(2, pubKeys)
     var scriptPubKey = scripts.scriptHashOutput(redeemScript.getHash())
 
-    var multisigAddress = Address.fromScriptPubKey(scriptPubKey, networks.testnet).toString()
+    var multisigAddress = Address.fromOutputScript(scriptPubKey, networks.testnet).toString()
 
     // Attempt to send funds to the source address, providing some unspents for later
     helloblock.faucet.withdraw(multisigAddress, coldAmount, function(err) {
@@ -55,12 +55,12 @@ describe('Bitcoin-js', function() {
       tx.addOutput(targetAddress, spendAmount)
 
       var signatures = privKeys.map(function(privKey) {
-        return tx.signScriptSig(0, redeemScript, privKey)
+        return tx.signInput(0, redeemScript, privKey)
       })
 
       var redeemScriptSig = scripts.multisigInput(signatures)
       var scriptSig = scripts.scriptHashInput(redeemScriptSig, redeemScript)
-      tx.setScriptSig(0, scriptSig)
+      tx.setInputScript(0, scriptSig)
 
       // broadcast our transaction
       helloblock.transactions.propagate(tx.toHex(), function(err, resp, resource) {

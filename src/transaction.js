@@ -110,7 +110,7 @@ Transaction.prototype.addOutput = function (address, value) {
 
   this.outs.push(new TransactionOut({
     value: value,
-    script: address.toScriptPubKey(),
+    script: address.toOutputScript(),
     address: address // TODO: Remove me
   }))
 }
@@ -196,13 +196,13 @@ var SIGHASH_ANYONECANPAY = 0x80
  * hashType, serializes and finally hashes the result. This hash can then be
  * used to sign the transaction input in question.
  */
-Transaction.prototype.hashForSignature = function(scriptPubKey, inIndex, hashType) {
+Transaction.prototype.hashForSignature = function(prevOutScript, inIndex, hashType) {
   assert(inIndex >= 0, 'Invalid vin index')
   assert(inIndex < this.ins.length, 'Invalid vin index')
-  assert(scriptPubKey instanceof Script, 'Invalid Script object')
+  assert(prevOutScript instanceof Script, 'Invalid Script object')
 
   var txTmp = this.clone()
-  var hashScript = scriptPubKey.without(opcodes.OP_CODESEPARATOR)
+  var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
 
   // Blank out other inputs' signatures
   txTmp.ins.forEach(function(txin) {
@@ -239,8 +239,7 @@ Transaction.prototype.getHash = function () {
   return buffer.toString('hex')
 }
 
-Transaction.prototype.clone = function ()
-{
+Transaction.prototype.clone = function () {
   var newTx = new Transaction()
   newTx.version = this.version
   newTx.locktime = this.locktime
@@ -337,24 +336,22 @@ Transaction.fromHex = function(hex) {
 }
 
 /**
- * Signs a standard output at some index with the given key
+ * Signs a pubKeyHash output at some index with the given key
  */
 Transaction.prototype.sign = function(index, key, type) {
-  assert(key instanceof ECKey)
-
-  var script = key.pub.getAddress().toScriptPubKey()
-  var signature = this.signScriptSig(index, script, key, type)
+  var prevOutScript = key.pub.getAddress().toOutputScript()
+  var signature = this.signInput(index, prevOutScript, key, type)
 
   // FIXME: Assumed prior TX was pay-to-pubkey-hash
   var scriptSig = scripts.pubKeyHashInput(signature, key.pub)
-  this.setScriptSig(index, scriptSig)
+  this.setInputScript(index, scriptSig)
 }
 
-Transaction.prototype.signScriptSig = function(index, scriptPubKey, key, type) {
+Transaction.prototype.signInput = function(index, prevOutScript, key, type) {
   type = type || SIGHASH_ALL
   assert(key instanceof ECKey, 'Invalid private key')
 
-  var hash = this.hashForSignature(scriptPubKey, index, type)
+  var hash = this.hashForSignature(prevOutScript, index, type)
   var signature = key.sign(hash)
   var DERencoded = ecdsa.serializeSig(signature)
 
@@ -364,11 +361,12 @@ Transaction.prototype.signScriptSig = function(index, scriptPubKey, key, type) {
   ])
 }
 
-Transaction.prototype.setScriptSig = function(index, script) {
+Transaction.prototype.setInputScript = function(index, script) {
   this.ins[index].script = script
 }
 
-Transaction.prototype.validateSig = function(index, script, pub, DERsig) {
+// FIXME: should probably be validateInput(index, pub)
+Transaction.prototype.validateInput = function(index, script, pub, DERsig) {
   var type = DERsig.readUInt8(DERsig.length - 1)
   DERsig = DERsig.slice(0, -1)
 

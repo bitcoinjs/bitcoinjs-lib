@@ -313,7 +313,7 @@ describe('Wallet', function() {
         assert.equal(output.receive, key)
         assert.equal(output.value, txOut.value)
 
-        var txOutAddress = Address.fromScriptPubKey(txOut.script).toString()
+        var txOutAddress = Address.fromOutputScript(txOut.script).toString()
         assert.equal(output.address, txOutAddress)
       }
     })

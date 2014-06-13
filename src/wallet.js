@@ -143,7 +143,7 @@ function Wallet(seed, network) {
       var address
 
       try {
-        address = Address.fromScriptPubKey(txOut.script, network).toString()
+        address = Address.fromOutputScript(txOut.script, network).toString()
       } catch(e) {
         if (!(e.message.match(/has no matching Address/))) throw e
       }

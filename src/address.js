@@ -35,7 +35,7 @@ Address.fromBase58Check = function(string) {
   return new Address(hash, version)
 }
 
-Address.fromScriptPubKey = function(script, network) {
+Address.fromOutputScript = function(script, network) {
   network = network || networks.bitcoin
 
   var type = scripts.classifyOutput(script)
@@ -59,7 +59,7 @@ Address.prototype.toBase58Check = function () {
   return base58check.encode(payload)
 }
 
-Address.prototype.toScriptPubKey = function() {
+Address.prototype.toOutputScript = function() {
   var scriptType = findScriptTypeByVersion(this.version)
 
   if (scriptType === 'pubkeyhash') {
