@@ -11,7 +11,7 @@ function findScriptTypeByVersion(queryVersion) {
       var version = network[versionName]
 
       if (version === queryVersion) {
-        return versionName.toLowerCase()
+        return versionName
       }
     }
   }
@@ -41,10 +41,10 @@ Address.fromOutputScript = function(script, network) {
   var type = scripts.classifyOutput(script)
 
   if (type === 'pubkeyhash') {
-    return new Address(script.chunks[2], network.pubKeyHash)
+    return new Address(script.chunks[2], network.pubkeyhash)
 
   } else if (type === 'scripthash') {
-    return new Address(script.chunks[1], network.scriptHash)
+    return new Address(script.chunks[1], network.scripthash)
   }
 
   assert(false, type + ' has no matching Address')

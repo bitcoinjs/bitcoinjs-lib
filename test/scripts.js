@@ -100,7 +100,7 @@ describe('Scripts', function() {
       var redeemScript = scripts.multisigOutput(2, pubKeys)
 
       var hash160 = crypto.hash160(new Buffer(redeemScript.buffer))
-      var multisigAddress = new Address(hash160, networks.bitcoin.scriptHash)
+      var multisigAddress = new Address(hash160, networks.bitcoin.scripthash)
 
       assert.equal(multisigAddress.toString(), '32vYjxBb7pHJJyXgNk8UoK3BdRDxBzny2v')
     })

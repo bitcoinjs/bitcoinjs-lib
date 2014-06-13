@@ -56,10 +56,10 @@ describe('Bitcoin-core', function() {
 
         assert.equal(address.hash.toString('hex'), hex)
         if (params.addrType === 'pubkey') {
-          assert.equal(address.version, network.pubKeyHash)
+          assert.equal(address.version, network.pubkeyhash)
 
         } else if (params.addrType === 'script') {
-          assert.equal(address.version, network.scriptHash)
+          assert.equal(address.version, network.scripthash)
         }
       })
     })
@@ -68,10 +68,10 @@ describe('Bitcoin-core', function() {
   // base58_keys_invalid
   describe('Address', function() {
     var allowedNetworks = [
-      networks.bitcoin.pubKeyHash,
-      networks.bitcoin.scriptHash,
-      networks.testnet.pubKeyHash,
-      networks.testnet.scriptHash
+      networks.bitcoin.pubkeyhash,
+      networks.bitcoin.scripthash,
+      networks.testnet.pubkeyhash,
+      networks.testnet.scripthash
     ]
 
     base58_keys_invalid.forEach(function(f) {
