@@ -44,15 +44,15 @@ describe('Transaction', function() {
       assert.equal(buffer.toString('hex'), serializedTx)
     })
 
-    it('decodes version correctly', function(){
+    it('decodes version correctly', function() {
       assert.equal(tx.version, 1)
     })
 
-    it('decodes locktime correctly', function(){
+    it('decodes locktime correctly', function() {
       assert.equal(tx.locktime, 0)
     })
 
-    it('decodes inputs correctly', function(){
+    it('decodes inputs correctly', function() {
       assert.equal(tx.ins.length, 1)
 
       var input = tx.ins[0]
@@ -65,7 +65,7 @@ describe('Transaction', function() {
                    "493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901")
     })
 
-    it('decodes outputs correctly', function(){
+    it('decodes outputs correctly', function() {
       assert.equal(tx.outs.length, 1)
 
       var output = tx.outs[0]
@@ -74,7 +74,7 @@ describe('Transaction', function() {
       assert.deepEqual(output.script, Address.fromBase58Check('n1gqLjZbRH1biT5o4qiVMiNig8wcCPQeB9').toOutputScript())
     })
 
-    it('assigns hash to deserialized object', function(){
+    it('assigns hash to deserialized object', function() {
       var hashHex = "a9d4599e15b53f3eb531608ddb31f48c695c3d0b3538a6bda871e8b34f2f430c"
       assert.equal(tx.hash, hashHex)
     })
@@ -107,18 +107,18 @@ describe('Transaction', function() {
       tx = new Transaction()
     })
 
-    describe('addInput', function(){
-      it('allows a Transaction object to be passed in', function(){
+    describe('addInput', function() {
+      it('allows a Transaction object to be passed in', function() {
         tx.addInput(prevTx, 0)
         verifyTransactionIn()
       })
 
-      it('allows a Transaction hash to be passed in', function(){
+      it('allows a Transaction hash to be passed in', function() {
         tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57", 0)
         verifyTransactionIn()
       })
 
-      it('allows a TransactionIn object to be passed in', function(){
+      it('allows a TransactionIn object to be passed in', function() {
         var txCopy = tx.clone()
         txCopy.addInput(prevTx, 0)
         var transactionIn = txCopy.ins[0]
@@ -127,7 +127,7 @@ describe('Transaction', function() {
         verifyTransactionIn()
       })
 
-      it('allows a string in the form of txhash:index to be passed in', function(){
+      it('allows a string in the form of txhash:index to be passed in', function() {
         tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57:0")
         verifyTransactionIn()
       })
@@ -145,23 +145,23 @@ describe('Transaction', function() {
       }
     })
 
-    describe('addOutput', function(){
-      it('allows an address and a value to be passed in', function(){
+    describe('addOutput', function() {
+      it('allows an address and a value to be passed in', function() {
         tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3", 40000)
         verifyTransactionOut()
       })
 
-      it('allows an Address object and value to be passed in', function(){
+      it('allows an Address object and value to be passed in', function() {
         tx.addOutput(Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'), 40000)
         verifyTransactionOut()
       })
 
-      it('allows a string in the form of address:index to be passed in', function(){
+      it('allows a string in the form of address:index to be passed in', function() {
         tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
         verifyTransactionOut()
       })
 
-      it('allows a TransactionOut object to be passed in', function(){
+      it('allows a TransactionOut object to be passed in', function() {
         var txCopy = tx.clone()
         txCopy.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
         var transactionOut = txCopy.outs[0]
@@ -170,7 +170,7 @@ describe('Transaction', function() {
         verifyTransactionOut()
       })
 
-      it('supports alternative networks', function(){
+      it('supports alternative networks', function() {
         var addr = 'mkHJaNR7uuwRG1JrmTZsV4MszaTKjCBvCR'
 
         tx.addOutput(addr, 40000)
@@ -179,7 +179,7 @@ describe('Transaction', function() {
         assert.equal(tx.outs[0].address.toString(), addr)
       })
 
-      function verifyTransactionOut(){
+      function verifyTransactionOut() {
         assert.equal(tx.outs.length, 1)
 
         var output = tx.outs[0]
@@ -188,8 +188,8 @@ describe('Transaction', function() {
       }
     })
 
-    describe('sign', function(){
-      it('works', function(){
+    describe('sign', function() {
+      it('works', function() {
         tx.addInput("0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57:0")
         tx.addOutput("15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3:40000")
         tx.addOutput("1Bu3bhwRmevHLAy1JrRB6AfcxfgDG2vXRd:50000")
@@ -204,14 +204,14 @@ describe('Transaction', function() {
       })
     })
 
-    describe('validateInput', function(){
+    describe('validateInput', function() {
       var validTx
 
       beforeEach(function() {
         validTx = Transaction.fromHex(fixtureTx2Hex)
       })
 
-      it('returns true for valid signature', function(){
+      it('returns true for valid signature', function() {
         var key = ECKey.fromWIF('L44f7zxJ5Zw4EK9HZtyAnzCYz2vcZ5wiJf9AuwhJakiV4xVkxBeb')
         var script = prevTx.outs[0].script
         var sig = new Buffer(validTx.ins[0].script.chunks[0])
@@ -220,23 +220,23 @@ describe('Transaction', function() {
       })
     })
 
-    describe('estimateFee', function(){
-      it('works for fixture tx 1', function(){
+    describe('estimateFee', function() {
+      it('works for fixture tx 1', function() {
         var tx = Transaction.fromHex(fixtureTx1Hex)
         assert.equal(tx.estimateFee(), 20000)
       })
 
-      it('works for fixture big tx', function(){
+      it('works for fixture big tx', function() {
         var tx = Transaction.fromHex(fixtureTxBigHex)
         assert.equal(tx.estimateFee(), 60000)
       })
 
-      it('allow feePerKb to be passed in as an argument', function(){
+      it('allow feePerKb to be passed in as an argument', function() {
         var tx = Transaction.fromHex(fixtureTx2Hex)
         assert.equal(tx.estimateFee(10000), 10000)
       })
 
-      it('allow feePerKb to be set to 0', function(){
+      it('allow feePerKb to be set to 0', function() {
         var tx = Transaction.fromHex(fixtureTx2Hex)
         assert.equal(tx.estimateFee(0), 0)
       })
