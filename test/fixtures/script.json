@@ -34,6 +34,15 @@
       "scriptPubKey": false
     },
     {
+      "description": "pubKey scriptSig",
+      "hex": "48304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f301",
+      "type": "pubkey",
+      "hash": "44d9982c3e79452e02ef5816976a0e20a0ec1cba",
+      "signature": "304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f301",
+      "asm": "72 304502206becda98cecf7a545d1a640221438ff8912d9b505ede67e0138485111099f696022100ccd616072501310acba10feb97cecc918e21c8e92760cd35144efec7622938f301",
+      "scriptPubKey": false
+    },
+    {
       "description": "Valid multisig script",
       "hex": "5121032487c2a32f7c8d57d2a93906a6457afd00697925b0e6e145d89af6d3bca330162102308673d16987eaa010e540901cc6fe3695e758c19f46ce604e174dac315e685a52ae",
       "type": "multisig",

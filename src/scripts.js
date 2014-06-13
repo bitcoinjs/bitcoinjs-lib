@@ -139,7 +139,7 @@ function multisigOutput(m, pubKeys) {
 function pubKeyInput(signature) {
   assert(Buffer.isBuffer(signature), 'Expected Buffer, got ' + signature)
 
-  return Script.fromChunks(signature)
+  return Script.fromChunks([signature])
 }
 
 // {signature} {pubKey}

@@ -52,12 +52,24 @@ describe('Scripts', function() {
 
   // FIXME: bad
   describe('pay-to-pubkey', function() {
-    it('matches the test data', function() {
-      var f = fixtures.valid[0]
-      var pubKey = ECPubKey.fromHex(f.pubKey)
-      var script = scripts.pubKeyOutput(pubKey)
+    describe('input', function() {
+      it('matches the test data', function() {
+        var f = fixtures.valid[4]
+        var signature = new Buffer(f.signature, 'hex')
+        var script = scripts.pubKeyInput(signature)
 
-      assert.equal(script.toHex(), f.hex)
+        assert.equal(script.toHex(), f.hex)
+      })
+    })
+
+    describe('output', function() {
+      it('matches the test data', function() {
+        var f = fixtures.valid[0]
+        var pubKey = ECPubKey.fromHex(f.pubKey)
+        var script = scripts.pubKeyOutput(pubKey)
+
+        assert.equal(script.toHex(), f.hex)
+      })
     })
   })
 
