@@ -325,18 +325,6 @@ Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, DER
   return pubKey.verify(hash, signature)
 }
 
-Transaction.feePerKb = 20000
-Transaction.prototype.estimateFee = function(feePerKb){
-  var uncompressedInSize = 180
-  var outSize = 34
-  var fixedPadding = 34
-
-  if(feePerKb == undefined) feePerKb = Transaction.feePerKb;
-  var size = this.ins.length * uncompressedInSize + this.outs.length * outSize + fixedPadding
-
-  return feePerKb * Math.ceil(size / 1000)
-}
-
 function TransactionIn(data) {
   assert(data.outpoint && data.script, 'Invalid TxIn parameters')
   this.outpoint = data.outpoint

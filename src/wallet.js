@@ -237,10 +237,13 @@ function Wallet(seed, network) {
     return sortByValueDesc
   }
 
-  function estimateFeePadChangeOutput(tx){
+  var feePerKb = 20000
+  function estimateFeePadChangeOutput(tx) {
     var tmpTx = tx.clone()
     tmpTx.addOutput(getChangeAddress(), 0)
-    return tmpTx.estimateFee()
+
+    var byteSize = tmpTx.toBuffer().length
+    return feePerKb * Math.ceil(byteSize / 1000)
   }
 
   function getChangeAddress() {

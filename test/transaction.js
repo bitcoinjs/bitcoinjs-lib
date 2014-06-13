@@ -194,28 +194,6 @@ describe('Transaction', function() {
         assert.equal(validTx.validateInput(0, script, key.pub, sig), true)
       })
     })
-
-    describe('estimateFee', function() {
-      it('works for fixture tx 1', function() {
-        var tx = Transaction.fromHex(fixtureTx1Hex)
-        assert.equal(tx.estimateFee(), 20000)
-      })
-
-      it('works for fixture big tx', function() {
-        var tx = Transaction.fromHex(fixtureTxBigHex)
-        assert.equal(tx.estimateFee(), 60000)
-      })
-
-      it('allow feePerKb to be passed in as an argument', function() {
-        var tx = Transaction.fromHex(fixtureTx2Hex)
-        assert.equal(tx.estimateFee(10000), 10000)
-      })
-
-      it('allow feePerKb to be set to 0', function() {
-        var tx = Transaction.fromHex(fixtureTx2Hex)
-        assert.equal(tx.estimateFee(0), 0)
-      })
-    })
   })
 
   describe('signInput', function() {
