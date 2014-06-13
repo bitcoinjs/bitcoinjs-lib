@@ -32,7 +32,7 @@ Script.fromBuffer = function(buffer) {
     } else {
       chunks.push(opcode)
 
-      ++i
+      i += 1
     }
   }
 
