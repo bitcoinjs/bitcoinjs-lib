@@ -243,7 +243,7 @@ function Wallet(seed, network) {
     tx.ins.forEach(function(inp,i) {
       var output = me.outputs[inp.outpoint.hash + ':' + inp.outpoint.index]
       if (output) {
-        tx.sign(i, me.getPrivateKeyForAddress(output.address), false)
+        tx.sign(i, me.getPrivateKeyForAddress(output.address))
       }
     })
     return tx
