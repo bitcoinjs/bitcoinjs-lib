@@ -236,10 +236,6 @@ function recoverPubKey(curve, e, signature, i) {
   var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
   curve.validate(Q)
 
-  if (!verifyRaw(curve, e, signature, Q)) {
-    throw new Error("Pubkey recovery unsuccessful")
-  }
-
   return Q
 }
 
