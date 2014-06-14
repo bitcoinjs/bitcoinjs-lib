@@ -351,7 +351,6 @@ describe('Wallet', function() {
     }
   })
 
-
   describe('createTx', function(){
     var to, value
     var address1, address2
@@ -431,7 +430,6 @@ describe('Wallet', function() {
         assert.equal(tx.ins.length, 1)
         assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
       })
-
     })
 
     describe(networks.testnet, function(){
