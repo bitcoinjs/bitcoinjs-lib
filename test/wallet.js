@@ -195,14 +195,6 @@ describe('Wallet', function() {
 
         assert.equal(wallet.getBalance(), 40000)
       })
-
-      it('excludes spent outputs', function(){
-        addUtxoToOutput(expectedUtxo)
-        addUtxoToOutput(utxo1)
-        wallet.outputs[utxo1.hash + ':' + utxo1.outputIndex].spend = "sometxn:m"
-
-        assert.equal(wallet.getBalance(), 20000)
-      })
     })
 
     describe('getUnspentOutputs', function(){
@@ -212,11 +204,6 @@ describe('Wallet', function() {
 
       it('parses wallet outputs to the expect format', function(){
         assert.deepEqual(wallet.getUnspentOutputs(), [expectedUtxo])
-      })
-
-      it('excludes spent outputs', function(){
-        wallet.outputs[expectedOutputKey].spend = "sometxn:m"
-        assert.deepEqual(wallet.getUnspentOutputs(), [])
       })
     })
 
@@ -252,7 +239,7 @@ describe('Wallet', function() {
     })
   })
 
-  describe('processTx', function(){
+  describe('Process transaction', function(){
     var addresses
     var tx
 
@@ -266,89 +253,104 @@ describe('Wallet', function() {
       tx = Transaction.fromHex(fixtureTx1Hex)
     })
 
-    it('does not fail on scripts with no corresponding Address', function() {
-      var pubKey = wallet.getPrivateKey(0).pub
-      var script = Script.createPubKeyScriptPubKey(pubKey)
-      var tx2 = new Transaction()
-      tx2.addInput(fakeTxHash(1), 0)
-
-      // FIXME: Transaction doesn't support custom ScriptPubKeys... yet
-      // So for now, we hijack the script with our own, and undefine the cached address
-      tx2.addOutput(addresses[0], 10000)
-      tx2.outs[0].script = script
-      tx2.outs[0].address = undefined
-
-      wallet.processTx(tx2)
-    })
-
-    describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.outputs", function(){
-      it("works for receive address", function(){
-        var totalOuts = outputCount()
-
+    describe("processPendingTx", function(){
+      it("sets the pending flag on output", function(){
         wallet.addresses = [addresses[0]]
-        wallet.processTx(tx)
+        wallet.processPendingTx(tx)
 
-        assert.equal(outputCount(), totalOuts + 1)
-        verifyOutputAdded(0)
+        verifyOutputAdded(0, true)
       })
-
-      it("works for change address", function(){
-        var totalOuts = outputCount()
-        wallet.changeAddresses = [addresses[1]]
-
-        wallet.processTx(tx)
-
-        assert.equal(outputCount(), totalOuts + 1)
-        verifyOutputAdded(1)
-      })
-
-      function outputCount(){
-        return Object.keys(wallet.outputs).length
-      }
-
-      function verifyOutputAdded(index) {
-        var txOut = tx.outs[index]
-        var key = tx.getHash() + ":" + index
-        var output = wallet.outputs[key]
-        assert.equal(output.receive, key)
-        assert.equal(output.value, txOut.value)
-
-        var txOutAddress = Address.fromScriptPubKey(txOut.script).toString()
-        assert.equal(output.address, txOutAddress)
-      }
     })
 
-    describe("when tx ins outpoint contains a known txhash:i, the corresponding 'output' gets updated", function(){
-      beforeEach(function(){
-        wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
-        wallet.processTx(tx)
+    describe('processConfirmedTx', function(){
 
-        tx = Transaction.fromHex(fixtureTx2Hex)
+      it('does not fail on scripts with no corresponding Address', function() {
+        var pubKey = wallet.getPrivateKey(0).pub
+        var script = Script.createPubKeyScriptPubKey(pubKey)
+        var tx2 = new Transaction()
+        tx2.addInput(fakeTxHash(1), 0)
+
+        // FIXME: Transaction doesn't support custom ScriptPubKeys... yet
+        // So for now, we hijack the script with our own, and undefine the cached address
+        tx2.addOutput(addresses[0], 10000)
+        tx2.outs[0].script = script
+        tx2.outs[0].address = undefined
+
+        wallet.processConfirmedTx(tx2)
       })
 
-      it("does not add to wallet.outputs", function(){
+      describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.outputs", function(){
+        it("works for receive address", function(){
+          var totalOuts = outputCount()
+
+          wallet.addresses = [addresses[0]]
+          wallet.processConfirmedTx(tx)
+
+          assert.equal(outputCount(), totalOuts + 1)
+          verifyOutputAdded(0, false)
+        })
+
+        it("works for change address", function(){
+          var totalOuts = outputCount()
+          wallet.changeAddresses = [addresses[1]]
+
+          wallet.processConfirmedTx(tx)
+
+          assert.equal(outputCount(), totalOuts + 1)
+          verifyOutputAdded(1, false)
+        })
+
+        function outputCount(){
+          return Object.keys(wallet.outputs).length
+        }
+
+      })
+
+      describe("when tx ins outpoint contains a known txhash:i", function(){
+        beforeEach(function(){
+          wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
+          wallet.processConfirmedTx(tx)
+
+          tx = Transaction.fromHex(fixtureTx2Hex)
+        })
+
+        it("does not add to wallet.outputs", function(){
+          var outputs = wallet.outputs
+          wallet.processConfirmedTx(tx)
+          assert.deepEqual(wallet.outputs, outputs)
+        })
+
+        it("deletes corresponding 'output'", function(){
+          wallet.processConfirmedTx(tx)
+
+          var txIn = tx.ins[0]
+          var key = txIn.outpoint.hash + ":" + txIn.outpoint.index
+          var output = wallet.outputs[key]
+
+          assert.equal(output, undefined)
+        })
+      })
+
+      it("does nothing when none of the involved addresses belong to the wallet", function(){
         var outputs = wallet.outputs
-        wallet.processTx(tx)
+        wallet.processConfirmedTx(tx)
         assert.deepEqual(wallet.outputs, outputs)
       })
-
-      it("sets spend with the transaction hash and input index", function(){
-        wallet.processTx(tx)
-
-        var txIn = tx.ins[0]
-        var key = txIn.outpoint.hash + ":" + txIn.outpoint.index
-        var output = wallet.outputs[key]
-
-        assert.equal(output.spend, tx.getHash() + ':' + 0)
-      })
     })
 
-    it("does nothing when none of the involved addresses belong to the wallet", function(){
-      var outputs = wallet.outputs
-      wallet.processTx(tx)
-      assert.deepEqual(wallet.outputs, outputs)
-    })
+    function verifyOutputAdded(index, pending) {
+      var txOut = tx.outs[index]
+      var key = tx.getHash() + ":" + index
+      var output = wallet.outputs[key]
+      assert.equal(output.receive, key)
+      assert.equal(output.value, txOut.value)
+      assert.equal(output.pending, pending)
+
+      var txOutAddress = Address.fromScriptPubKey(txOut.script).toString()
+      assert.equal(output.address, txOutAddress)
+    }
   })
+
 
   describe('createTx', function(){
     var to, value
@@ -412,23 +414,24 @@ describe('Wallet', function() {
         assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
       })
 
-      it('ignores spent outputs', function(){
+      it('ignores pending outputs', function(){
         utxo.push(
           {
             "hash": fakeTxHash(4),
             "outputIndex": 0,
             "address" : address2,
-            "value": 530000 // enough but spent before createTx
+            "value": 530000,
+            "pending": true
           }
         )
         wallet.setUnspentOutputs(utxo)
-        wallet.outputs[fakeTxHash(4) + ":" + 0].spend = fakeTxHash(5) + ":" + 0
 
         var tx = wallet.createTx(to, value)
 
         assert.equal(tx.ins.length, 1)
         assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
       })
+
     })
 
     describe(networks.testnet, function(){

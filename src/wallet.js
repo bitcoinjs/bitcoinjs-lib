@@ -68,7 +68,7 @@ function Wallet(seed, network) {
 
     for(var key in this.outputs){
       var output = this.outputs[key]
-      if(!output.spend) utxo.push(outputToUnspentOutput(output))
+      utxo.push(outputToUnspentOutput(output))
     }
 
     return utxo
@@ -103,7 +103,8 @@ function Wallet(seed, network) {
     return {
       receive: key,
       address: o.address,
-      value: o.value
+      value: o.value,
+      pending: o.pending
     }
   }
 
@@ -136,7 +137,15 @@ function Wallet(seed, network) {
     return value == undefined
   }
 
-  this.processTx = function(tx) {
+  this.processPendingTx = function(tx){
+    processTx(tx, true)
+  }
+
+  this.processConfirmedTx = function(tx){
+    processTx(tx, false)
+  }
+
+  function processTx(tx, isPending) {
     var txhash = tx.getHash()
 
     tx.outs.forEach(function(txOut, i){
@@ -155,17 +164,16 @@ function Wallet(seed, network) {
           receive: output,
           value: txOut.value,
           address: address,
+          pending: isPending
         }
       }
     })
 
     tx.ins.forEach(function(txIn, i){
       var op = txIn.outpoint
+      var output = op.hash + ':' + op.index
 
-      var o = me.outputs[op.hash + ':' + op.index]
-      if (o) {
-        o.spend = txhash + ':' + i
-      }
+      if(me.outputs[output]) delete me.outputs[output]
     })
   }
 
@@ -210,7 +218,7 @@ function Wallet(seed, network) {
 
     for (var key in me.outputs) {
       var output = me.outputs[key]
-      if (!output.spend) unspent.push(output)
+      if (!output.pending) unspent.push(output)
     }
 
     var sortByValueDesc = unspent.sort(function(o1, o2){
