@@ -287,21 +287,21 @@ Transaction.fromHex = function(hex) {
 /**
  * Signs a pubKeyHash output at some index with the given key
  */
-Transaction.prototype.sign = function(index, key, hashType) {
-  var prevOutScript = key.pub.getAddress().toOutputScript()
-  var signature = this.signInput(index, prevOutScript, key, hashType)
+Transaction.prototype.sign = function(index, privKey, hashType) {
+  var prevOutScript = privKey.pub.getAddress().toOutputScript()
+  var signature = this.signInput(index, prevOutScript, privKey, hashType)
 
   // FIXME: Assumed prior TX was pay-to-pubkey-hash
-  var scriptSig = scripts.pubKeyHashInput(signature, key.pub)
+  var scriptSig = scripts.pubKeyHashInput(signature, privKey.pub)
   this.setInputScript(index, scriptSig)
 }
 
-Transaction.prototype.signInput = function(index, prevOutScript, key, hashType) {
+Transaction.prototype.signInput = function(index, prevOutScript, privKey, hashType) {
   hashType = hashType || SIGHASH_ALL
-  assert(key instanceof ECKey, 'Invalid private key')
+  assert(privKey instanceof ECKey, 'Expected ECKey, got ' + privKey)
 
   var hash = this.hashForSignature(prevOutScript, index, hashType)
-  var signature = key.sign(hash)
+  var signature = privKey.sign(hash)
   var DERencoded = ecdsa.serializeSig(signature)
 
   return Buffer.concat([
