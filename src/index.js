@@ -14,6 +14,7 @@ module.exports = {
   opcodes: require('./opcodes'),
   HDNode: require('./hdnode'),
   Script: require('./script'),
+  scripts: require('./scripts'),
   Transaction: T.Transaction,
   TransactionIn: T.TransactionIn,
   TransactionOut: T.TransactionOut,

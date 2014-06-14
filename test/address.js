@@ -1,6 +1,7 @@
 var assert = require('assert')
-var Address = require('../src/address')
 var networks = require('../src/networks')
+
+var Address = require('../src/address')
 var Script = require('../src/script')
 
 var fixtures = require('./fixtures/address.json')
@@ -37,23 +38,23 @@ describe('Address', function() {
     })
   })
 
-  describe('fromScriptPubKey', function() {
+  describe('fromOutputScript', function() {
     fixtures.valid.forEach(function(f) {
       it('imports ' + f.description + '(' + f.network + ') correctly', function() {
         var script = Script.fromHex(f.script)
-        var addr = Address.fromScriptPubKey(script, networks[f.network])
+        var addr = Address.fromOutputScript(script, networks[f.network])
 
         assert.equal(addr.version, f.version)
         assert.equal(addr.hash.toString('hex'), f.hex)
       })
     })
 
-    fixtures.invalid.fromScriptPubKey.forEach(function(f) {
+    fixtures.invalid.fromOutputScript.forEach(function(f) {
       it('throws when ' + f.description, function() {
         var script = Script.fromHex(f.hex)
 
         assert.throws(function() {
-          Address.fromScriptPubKey(script)
+          Address.fromOutputScript(script)
         }, new RegExp(f.description))
       })
     })
@@ -70,22 +71,22 @@ describe('Address', function() {
     })
   })
 
-  describe('toScriptPubKey', function() {
+  describe('toOutputScript', function() {
     fixtures.valid.forEach(function(f) {
       it('imports ' + f.description + '(' + f.network + ') correctly', function() {
         var addr = Address.fromBase58Check(f.base58check)
-        var script = addr.toScriptPubKey()
+        var script = addr.toOutputScript()
 
         assert.equal(script.toHex(), f.script)
       })
     })
 
-    fixtures.invalid.toScriptPubKey.forEach(function(f) {
+    fixtures.invalid.toOutputScript.forEach(function(f) {
       it('throws when ' + f.description, function() {
         var addr = new Address(new Buffer(f.hex, 'hex'), f.version)
 
         assert.throws(function() {
-          addr.toScriptPubKey()
+          addr.toOutputScript()
         }, new RegExp(f.description))
       })
     })
