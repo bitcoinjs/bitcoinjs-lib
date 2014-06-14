@@ -143,6 +143,28 @@
         "hex": "300c0204ffffffff0202ffffffff"
       }
     ],
+    "recoverPubKey": [
+      {
+        "description": "Invalid r value (== 0)",
+        "exception": "nR is not a valid curve point",
+        "e": "01",
+        "signature": {
+          "r": "00",
+          "s": "02"
+        },
+        "i": 0
+      },
+      {
+        "description": "Invalid i value (> 3)",
+        "exception": "Recovery param is more than two bits",
+        "e": "01",
+        "signature": {
+          "r": "00",
+          "s": "02"
+        },
+        "i": 4
+      }
+    ],
     "verifyRaw": [
       {
         "description": "The wrong signature",

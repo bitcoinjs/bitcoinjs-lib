@@ -186,7 +186,7 @@ function parseSigCompact(buffer) {
   * http://www.secg.org/download/aid-780/sec1-v2.pdf
   */
 function recoverPubKey(curve, e, signature, i) {
-  assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
+  assert.strictEqual(i & 3, i, 'Recovery param is more than two bits')
 
   var r = signature.r
   var s = signature.s
@@ -223,7 +223,8 @@ function recoverPubKey(curve, e, signature, i) {
 
   // 1.4 Check that nR isn't at infinity
   var R = Point.fromAffine(curve, x, y)
-  curve.validate(R)
+  var nR = R.multiply(n)
+  assert(curve.isInfinity(nR), 'nR is not a valid curve point')
 
   // 1.5 Compute -e from e
   var eNeg = e.negate().mod(n)

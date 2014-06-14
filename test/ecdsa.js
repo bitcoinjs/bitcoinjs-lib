@@ -37,6 +37,20 @@ describe('ecdsa', function() {
       var Qprime = ecdsa.recoverPubKey(curve, e, parsed.signature, parsed.i)
       assert(Q.equals(Qprime))
     })
+
+    fixtures.invalid.recoverPubKey.forEach(function(f) {
+      it('throws on ' + f.description, function() {
+        var e = BigInteger.fromHex(f.e)
+        var signature = {
+          r: new BigInteger(f.signature.r),
+          s: new BigInteger(f.signature.s)
+        }
+
+        assert.throws(function() {
+          ecdsa.recoverPubKey(curve, e, signature, f.i)
+        }, new RegExp(f.exception))
+      })
+    })
   })
 
   describe('sign', function() {
