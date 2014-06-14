@@ -183,12 +183,14 @@ function Wallet(seed, network) {
     var utxos = getCandidateOutputs(value)
     var accum = 0
     var subTotal = value
+    var addresses = []
 
     var tx = new Transaction()
     tx.addOutput(to, value)
 
     for (var i = 0; i < utxos.length; ++i) {
       var utxo = utxos[i]
+      addresses.push(utxo.address)
 
       var outpoint = utxo.receive.split(':')
       tx.addInput(outpoint[0], parseInt(outpoint[1]))
@@ -210,7 +212,7 @@ function Wallet(seed, network) {
 
     assert(accum >= subTotal, 'Not enough funds (incl. fee): ' + accum + ' < ' + subTotal)
 
-    this.sign(tx)
+    this.signWith(tx, addresses)
     return tx
   }
 
@@ -240,13 +242,15 @@ function Wallet(seed, network) {
     return me.changeAddresses[me.changeAddresses.length - 1]
   }
 
-  this.sign = function(tx) {
-    tx.ins.forEach(function(inp,i) {
-      var output = me.outputs[inp.outpoint.hash + ':' + inp.outpoint.index]
-      if (output) {
-        tx.sign(i, me.getPrivateKeyForAddress(output.address))
-      }
+  this.signWith = function(tx, addresses) {
+    assert.equal(tx.ins.length, addresses.length, 'Number of addresses must match number of transaction inputs')
+
+    addresses.forEach(function(address, i) {
+      var key = me.getPrivateKeyForAddress(address)
+
+      tx.sign(i, key)
     })
+
     return tx
   }
 
