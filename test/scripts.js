@@ -1,6 +1,4 @@
 var assert = require('assert')
-var crypto = require('../src/crypto')
-var networks = require('../src/networks')
 var scripts = require('../src/scripts')
 
 var Address = require('../src/address')
