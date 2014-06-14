@@ -332,27 +332,9 @@ function TransactionIn(data) {
   this.sequence = data.sequence == undefined ? DEFAULT_SEQUENCE : data.sequence
 }
 
-TransactionIn.prototype.clone = function () {
-  return new TransactionIn({
-    outpoint: {
-      hash: this.outpoint.hash,
-      index: this.outpoint.index
-    },
-    script: this.script,
-    sequence: this.sequence
-  })
-}
-
 function TransactionOut(data) {
   this.script = data.script
   this.value = data.value
-}
-
-TransactionOut.prototype.clone = function() {
-  return new TransactionOut({
-    script: this.script,
-    value: this.value
-  })
 }
 
 module.exports = Transaction
