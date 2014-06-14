@@ -21,10 +21,6 @@ function Transaction(doc) {
   this.outs = []
 
   if (doc) {
-    if (typeof doc == "string" || Array.isArray(doc)) {
-      doc = Transaction.fromBuffer(doc)
-    }
-
     if (doc.hash) this.hash = doc.hash;
     if (doc.version) this.version = doc.version;
     if (doc.locktime) this.locktime = doc.locktime;
