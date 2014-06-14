@@ -14,7 +14,15 @@ var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 
 function fakeTxHash(i) {
-  return "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefe" + i
+  var hash = new Buffer(32)
+  hash.fill(i)
+  return hash
+}
+
+function fakeTxId(i) {
+  var hash = fakeTxHash(i)
+  Array.prototype.reverse.call(hash)
+  return hash.toString('hex')
 }
 
 describe('Wallet', function() {
@@ -263,12 +271,11 @@ describe('Wallet', function() {
     })
 
     describe('processConfirmedTx', function(){
-
       it('does not fail on scripts with no corresponding Address', function() {
         var pubKey = wallet.getPrivateKey(0).pub
         var script = scripts.pubKeyOutput(pubKey)
         var tx2 = new Transaction()
-        tx2.addInput(fakeTxHash(1), 0)
+        tx2.addInput(fakeTxId(1), 0)
 
         // FIXME: Transaction doesn't support custom ScriptPubKeys... yet
         // So for now, we hijack the script with our own, and undefine the cached address
@@ -365,19 +372,19 @@ describe('Wallet', function() {
       // set up 3 utxo
       utxo = [
         {
-          "hash": fakeTxHash(1),
+          "hash": fakeTxId(1),
           "outputIndex": 0,
           "address" : address1,
           "value": 400000 // not enough for value
         },
         {
-          "hash": fakeTxHash(2),
+          "hash": fakeTxId(2),
           "outputIndex": 1,
           "address" : address1,
           "value": 500000 // enough for only value
         },
         {
-          "hash": fakeTxHash(3),
+          "hash": fakeTxId(3),
           "outputIndex": 0,
           "address" : address2,
           "value": 520000 // enough for value and fee
@@ -415,7 +422,7 @@ describe('Wallet', function() {
       it('ignores pending outputs', function(){
         utxo.push(
           {
-            "hash": fakeTxHash(4),
+            "hash": fakeTxId(4),
             "outputIndex": 0,
             "address" : address2,
             "value": 530000,
@@ -437,7 +444,7 @@ describe('Wallet', function() {
         var address = wallet.generateAddress()
 
         wallet.setUnspentOutputs([{
-          hash: fakeTxHash(0),
+          hash: fakeTxId(0),
           outputIndex: 0,
           address: address,
           value: value
@@ -459,7 +466,7 @@ describe('Wallet', function() {
         var address = wallet.generateAddress()
 
         wallet.setUnspentOutputs([{
-          hash: fakeTxHash(0),
+          hash: fakeTxId(0),
           outputIndex: 0,
           address: address,
           value: value

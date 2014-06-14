@@ -169,9 +169,15 @@ function Wallet(seed, network) {
       }
     })
 
-    tx.ins.forEach(function(txIn, i){
+    tx.ins.forEach(function(txIn, i) {
       var op = txIn.outpoint
-      var output = op.hash + ':' + op.index
+
+      // copy and convert to big-endian hex
+      var txinHash = new Buffer(op.hash)
+      Array.prototype.reverse.call(txinHash)
+      txinHash = txinHash.toString('hex')
+
+      var output = txinHash + ':' + op.index
 
       if(me.outputs[output]) delete me.outputs[output]
     })

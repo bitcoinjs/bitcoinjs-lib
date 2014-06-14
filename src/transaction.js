@@ -55,11 +55,16 @@ Transaction.prototype.addInput = function(tx, outIndex) {
   var hash
 
   if (typeof tx === 'string') {
-    hash = tx
+    hash = new Buffer(tx, 'hex')
+    assert.equal(hash.length, 32, 'Invalid TX hash')
+
+    // TxHash hex is big-endian, we need little-endian
+    Array.prototype.reverse.call(hash)
 
   } else {
-    assert(tx instanceof Transaction, 'Unexpected input: ' + tx)
-    hash = tx.getId()
+    assert(tx instanceof Transaction, 'Expected Transaction, got ' + tx)
+    hash = crypto.hash256(tx.toBuffer())
+
   }
 
   this.ins.push(new TransactionIn({
@@ -142,13 +147,8 @@ Transaction.prototype.toBuffer = function () {
   writeUInt32(this.version)
   writeVarInt(this.ins.length)
 
-  this.ins.forEach(function(txin) {
-    var hash = new Buffer(txin.outpoint.hash, 'hex') // FIXME: Performance: convert on tx.addInput instead
-
-    // TxHash hex is big-endian, we need little-endian
-    Array.prototype.reverse.call(hash)
-
-    writeSlice(hash)
+  this.ins.forEach(function(txin, i) {
+    writeSlice(txin.outpoint.hash)
     writeUInt32(txin.outpoint.index)
     writeVarInt(txin.script.buffer.length)
     writeSlice(txin.script.buffer)
@@ -240,9 +240,6 @@ Transaction.prototype.clone = function () {
 }
 
 Transaction.fromBuffer = function(buffer) {
-  // Copy because we mutate (reverse TxOutHashs)
-  buffer = new Buffer(buffer)
-
   var offset = 0
   function readSlice(n) {
     offset += n
@@ -272,10 +269,6 @@ Transaction.fromBuffer = function(buffer) {
 
   for (var i = 0; i < vinLen; ++i) {
     var hash = readSlice(32)
-
-    // TxHash is little-endian, we want big-endian hex
-    Array.prototype.reverse.call(hash)
-
     var vout = readUInt32()
     var scriptLen = readVarInt()
     var script = readSlice(scriptLen)
@@ -283,7 +276,7 @@ Transaction.fromBuffer = function(buffer) {
 
     ins.push(new TransactionIn({
       outpoint: {
-        hash: hash.toString('hex'),
+        hash: hash,
         index: vout
       },
       script: Script.fromBuffer(script),

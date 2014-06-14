@@ -147,7 +147,12 @@ describe('Bitcoin-core', function() {
           var prevOutIndex = input[1]
   //          var prevOutScriptPubKey = input[2] // TODO: we don't have a ASM parser
 
-          assert.equal(txin.outpoint.hash, prevOutHash)
+          var actualHash = txin.outpoint.hash
+
+          // Test data is big-endian
+          Array.prototype.reverse.call(actualHash)
+
+          assert.equal(actualHash.toString('hex'), prevOutHash)
 
           // we read UInt32, not Int32
           assert.equal(txin.outpoint.index & 0xffffffff, prevOutIndex)
@@ -184,7 +189,7 @@ describe('Bitcoin-core', function() {
         }
 
         if (actualHash != undefined) {
-          // BigEndian test data
+          // Test data is big-endian
           Array.prototype.reverse.call(actualHash)
 
           assert.equal(actualHash.toString('hex'), expectedHash)

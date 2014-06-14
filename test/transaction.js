@@ -59,7 +59,7 @@ describe('Transaction', function() {
       assert.equal(input.sequence, 4294967295)
 
       assert.equal(input.outpoint.index, 0)
-      assert.equal(input.outpoint.hash, "69d02fc05c4e0ddc87e796eee42693c244a3112fffe1f762c3fb61ffcb304634")
+      assert.equal(input.outpoint.hash.toString('hex'), "344630cbff61fbc362f7e1ff2f11a344c29326e4ee96e787dc0d4e5cc02fd069")
 
       assert.equal(b2h(input.script.buffer),
                    "493046022100ef89701f460e8660c80808a162bbf2d676f40a331a243592c36d6bd1f81d6bdf022100d29c072f1b18e59caba6e1f0b8cadeb373fd33a25feded746832ec179880c23901")
@@ -120,7 +120,7 @@ describe('Transaction', function() {
         assert.equal(input.sequence, 4294967295)
 
         assert.equal(input.outpoint.index, 0)
-        assert.equal(input.outpoint.hash, "0cb859105100ebc3344f749c835c7af7d7103ec0d8cbc3d8ccbd5d28c3c36b57")
+        assert.equal(input.outpoint.hash.toString('hex'), "576bc3c3285dbdccd8c3cbd8c03e10d7f77a5c839c744f34c3eb00511059b80c")
 
         assert.equal(input.script, Script.EMPTY)
       }
