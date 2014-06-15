@@ -52,13 +52,14 @@ Transaction.prototype.addInput = function(tx, index) {
 
   assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
 
-  return (this.ins.push(new TransactionIn({
+  return (this.ins.push({
     outpoint: {
       hash: hash,
       index: index
     },
-    script: Script.EMPTY
-  })) - 1)
+    script: Script.EMPTY,
+    sequence: DEFAULT_SEQUENCE
+  }) - 1)
 }
 
 /**
@@ -83,10 +84,10 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
     scriptPubKey = address.toOutputScript()
   }
 
-  return (this.outs.push(new TransactionOut({
+  return (this.outs.push({
     script: scriptPubKey,
     value: value,
-  })) - 1)
+  }) - 1)
 }
 
 Transaction.prototype.toBuffer = function () {
@@ -209,11 +210,18 @@ Transaction.prototype.clone = function () {
   newTx.locktime = this.locktime
 
   newTx.ins = this.ins.map(function(txin) {
-    return new TransactionIn(txin)
+    return {
+      outpoint: txin.outpoint,
+      script: txin.script,
+      sequence: txin.sequence
+    }
   })
 
   newTx.outs = this.outs.map(function(txout) {
-    return new TransactionOut(txout)
+    return {
+      script: txout.script,
+      value: txout.value
+    }
   })
 
   return newTx
@@ -252,14 +260,14 @@ Transaction.fromBuffer = function(buffer) {
     var script = readSlice(scriptLen)
     var sequence = readUInt32()
 
-    tx.ins.push(new TransactionIn({
+    tx.ins.push({
       outpoint: {
         hash: hash,
         index: vout
       },
       script: Script.fromBuffer(script),
       sequence: sequence
-    }))
+    })
   }
 
   var voutLen = readVarInt()
@@ -268,10 +276,10 @@ Transaction.fromBuffer = function(buffer) {
     var scriptLen = readVarInt()
     var script = readSlice(scriptLen)
 
-    tx.outs.push(new TransactionOut({
+    tx.outs.push({
       value: value,
       script: Script.fromBuffer(script)
-    }))
+    })
   }
 
   tx.locktime = readUInt32()
@@ -323,18 +331,6 @@ Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, DER
   var signature = ecdsa.parseSig(DERsig)
 
   return pubKey.verify(hash, signature)
-}
-
-function TransactionIn(data) {
-  assert(data.outpoint && data.script, 'Invalid TxIn parameters')
-  this.outpoint = data.outpoint
-  this.script = data.script
-  this.sequence = data.sequence == undefined ? DEFAULT_SEQUENCE : data.sequence
-}
-
-function TransactionOut(data) {
-  this.script = data.script
-  this.value = data.value
 }
 
 module.exports = Transaction
