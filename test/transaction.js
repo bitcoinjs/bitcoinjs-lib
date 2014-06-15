@@ -237,5 +237,22 @@ describe('Transaction', function() {
       assert.equal(tx.getId(), '7c3275f1212fd1a2add614f47a1f1f7b6d9570a97cb88e0e2664ab1752976e9f')
     })
   })
+
+  describe('clone', function() {
+    it('creates a new object', function() {
+      var txA = new Transaction()
+      txA.addInput('d6f72aab8ff86ff6289842a0424319bf2ddba85dc7c52757912297f948286389', 0)
+      txA.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1000)
+
+      var txB = txA.clone()
+
+      // Enforce value equality
+      assert.deepEqual(txA, txB)
+
+      // Enforce reference inequality
+      assert.notEqual(txA.ins[0], txB.ins[0])
+      assert.notEqual(txA.outs[0], txB.outs[0])
+    })
+  })
 })
 
