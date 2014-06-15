@@ -23,7 +23,7 @@ function deterministicGenerateK(curve, hash, d) {
   v = crypto.HmacSHA256(v, k)
   v = crypto.HmacSHA256(v, k)
 
-  var n = curve.params.n
+  var n = curve.n
   var kB = BigInteger.fromBuffer(v).mod(n)
   assert(kB.compareTo(BigInteger.ONE) > 0, 'Invalid k value')
   assert(kB.compareTo(n) < 0, 'Invalid k value')
@@ -34,8 +34,8 @@ function deterministicGenerateK(curve, hash, d) {
 function sign(curve, hash, d) {
   var k = deterministicGenerateK(curve, hash, d)
 
-  var n = curve.params.n
-  var G = curve.params.G
+  var n = curve.n
+  var G = curve.G
   var Q = G.multiply(k)
   var e = BigInteger.fromBuffer(hash)
 
@@ -62,8 +62,8 @@ function verify(curve, hash, signature, Q) {
 }
 
 function verifyRaw(curve, e, signature, Q) {
-  var n = curve.params.n
-  var G = curve.params.G
+  var n = curve.n
+  var G = curve.G
 
   var r = signature.r
   var s = signature.s
@@ -104,8 +104,8 @@ function recoverPubKey(curve, e, signature, i) {
   // first or second candidate key.
   var isSecondKey = i >> 1
 
-  var n = curve.params.n
-  var G = curve.params.G
+  var n = curve.n
+  var G = curve.G
   var p = curve.p
   var a = curve.a
   var b = curve.b

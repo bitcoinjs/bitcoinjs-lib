@@ -12,7 +12,7 @@ var fixtures = require('./fixtures/hdnode.json')
 describe('HDNode', function() {
   describe('Constructor', function() {
     var d = BigInteger.ONE
-    var Q = curve.params.G.multiply(d)
+    var Q = curve.G.multiply(d)
     var chainCode = new Buffer(32)
     chainCode.fill(1)
 

@@ -29,7 +29,7 @@ describe('ecdsa', function() {
     fixtures.valid.forEach(function(f) {
       it('recovers the pubKey for ' + f.d, function() {
         var d = BigInteger.fromHex(f.d)
-        var Q = curve.params.G.multiply(d)
+        var Q = curve.G.multiply(d)
         var signature = {
           r: new BigInteger(f.signature.r),
           s: new BigInteger(f.signature.s)
@@ -94,7 +94,7 @@ describe('ecdsa', function() {
       var sig = ecdsa.sign(curve, hash, BigInteger.ONE)
 
       // See BIP62 for more information
-      var N_OVER_TWO = curve.params.n.shiftRight(1)
+      var N_OVER_TWO = curve.n.shiftRight(1)
       assert(sig.s.compareTo(N_OVER_TWO) <= 0)
     })
   })
@@ -108,7 +108,7 @@ describe('ecdsa', function() {
           new BigInteger(f.signature.r),
           new BigInteger(f.signature.s)
         )
-        var Q = curve.params.G.multiply(d)
+        var Q = curve.G.multiply(d)
 
         assert(ecdsa.verifyRaw(curve, e, signature, Q))
       })
@@ -122,7 +122,7 @@ describe('ecdsa', function() {
           new BigInteger(f.signature.r),
           new BigInteger(f.signature.s)
         )
-        var Q = curve.params.G.multiply(d)
+        var Q = curve.G.multiply(d)
 
         assert.equal(ecdsa.verifyRaw(curve, e, signature, Q), false)
       })
