@@ -8,6 +8,7 @@ module.exports = {
   ecdsa: require('./ecdsa'),
   ECKey: require('./eckey'),
   ECPubKey: require('./ecpubkey'),
+  ECSignature: require('./ecsignature'),
   Message: require('./message'),
   opcodes: require('./opcodes'),
   HDNode: require('./hdnode'),

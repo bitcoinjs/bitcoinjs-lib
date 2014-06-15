@@ -8,6 +8,7 @@ var networks = require('./networks')
 
 var Address = require('./address')
 var ECPubKey = require('./ecpubkey')
+var ECSignature = require('./ecsignature')
 
 var ecurve = require('ecurve')
 var ecparams = ecurve.getCurveByName('secp256k1')
@@ -18,32 +19,30 @@ function magicHash(message, network) {
   var lengthBuffer = new Buffer(bufferutils.varIntSize(messageBuffer.length))
   bufferutils.writeVarInt(lengthBuffer, messageBuffer.length, 0)
 
-  var buffer = Buffer.concat([
-    magicPrefix, lengthBuffer, messageBuffer
-  ])
+  var buffer = Buffer.concat([magicPrefix, lengthBuffer, messageBuffer])
   return crypto.hash256(buffer)
 }
 
-function sign(key, message, network) {
+function sign(privKey, message, network) {
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
-  var signature = key.sign(hash)
+  var signature = privKey.sign(hash)
   var e = BigInteger.fromBuffer(hash)
-  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, signature, key.pub.Q)
+  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, signature, privKey.pub.Q)
 
-  return ecdsa.serializeSigCompact(signature, i, key.pub.compressed)
+  return signature.toCompact(i, privKey.pub.compressed)
 }
 
 // TODO: network could be implied from address
-function verify(address, compactSig, message, network) {
+function verify(address, signatureBuffer, message, network) {
   if (address instanceof Address) {
     address = address.toString()
   }
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
-  var parsed = ecdsa.parseSigCompact(compactSig)
+  var parsed = ECSignature.fromCompact(signatureBuffer)
   var e = BigInteger.fromBuffer(hash)
   var Q = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
 
