@@ -8,7 +8,7 @@ var fixtures = require('./fixtures/ecsignature.json')
 describe('ECSignature', function() {
   describe('toCompact', function() {
     fixtures.valid.forEach(function(f) {
-      it('encodes ' + f.compact.hex + ' correctly', function() {
+      it('exports ' + f.compact.hex + ' correctly', function() {
         var signature = new ECSignature(
           new BigInteger(f.signature.r),
           new BigInteger(f.signature.s)
@@ -22,7 +22,7 @@ describe('ECSignature', function() {
 
   describe('fromCompact', function() {
     fixtures.valid.forEach(function(f) {
-      it('decodes ' + f.compact.hex + ' correctly', function() {
+      it('imports ' + f.compact.hex + ' correctly', function() {
         var buffer = new Buffer(f.compact.hex, 'hex')
         var parsed = ECSignature.fromCompact(buffer)
 
@@ -45,8 +45,8 @@ describe('ECSignature', function() {
   })
 
   describe('toDER', function() {
-    it('encodes a DER signature', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('exports ' + f.DER + ' correctly', function() {
         var signature = new ECSignature(
           new BigInteger(f.signature.r),
           new BigInteger(f.signature.s)
@@ -59,8 +59,8 @@ describe('ECSignature', function() {
   })
 
   describe('fromDER', function() {
-    it('decodes the correct signature', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.DER + ' correctly', function() {
         var buffer = new Buffer(f.DER, 'hex')
         var signature = ECSignature.fromDER(buffer)
 
@@ -81,8 +81,8 @@ describe('ECSignature', function() {
   })
 
   describe('toScriptSignature', function() {
-    it('encodes a script signature', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('exports ' + f.scriptSignature.hex + ' correctly', function() {
         var signature = new ECSignature(
           new BigInteger(f.signature.r),
           new BigInteger(f.signature.s)
@@ -95,8 +95,8 @@ describe('ECSignature', function() {
   })
 
   describe('fromScriptSignature', function() {
-    it('decodes the correct signature', function() {
-      fixtures.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      it('imports ' + f.scriptSignature.hex + ' correctly', function() {
         var buffer = new Buffer(f.scriptSignature.hex, 'hex')
         var parsed = ECSignature.fromScriptSignature(buffer)
 
