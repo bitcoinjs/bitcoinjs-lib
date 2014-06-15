@@ -1,5 +1,3 @@
-var T = require('./transaction')
-
 module.exports = {
   Address: require('./address'),
   base58: require('./base58'),

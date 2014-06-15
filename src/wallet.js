@@ -169,7 +169,7 @@ function Wallet(seed, network) {
       }
     })
 
-    tx.ins.forEach(function(txIn, i) {
+    tx.ins.forEach(function(txIn) {
       var op = txIn.outpoint
 
       // copy and convert to big-endian hex

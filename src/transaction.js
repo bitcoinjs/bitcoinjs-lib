@@ -128,7 +128,7 @@ Transaction.prototype.toBuffer = function () {
   writeUInt32(this.version)
   writeVarInt(this.ins.length)
 
-  this.ins.forEach(function(txin, i) {
+  this.ins.forEach(function(txin) {
     writeSlice(txin.outpoint.hash)
     writeUInt32(txin.outpoint.index)
     writeVarInt(txin.script.buffer.length)
