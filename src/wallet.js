@@ -170,14 +170,12 @@ function Wallet(seed, network) {
     })
 
     tx.ins.forEach(function(txIn) {
-      var op = txIn.outpoint
-
       // copy and convert to big-endian hex
-      var txinHash = new Buffer(op.hash)
-      Array.prototype.reverse.call(txinHash)
-      txinHash = txinHash.toString('hex')
+      var txinId = new Buffer(txIn.hash)
+      Array.prototype.reverse.call(txinId)
+      txinId = txinId.toString('hex')
 
-      var output = txinHash + ':' + op.index
+      var output = txinId + ':' + txIn.index
 
       if(me.outputs[output]) delete me.outputs[output]
     })

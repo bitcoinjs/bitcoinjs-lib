@@ -1,5 +1,3 @@
-// FIXME: To all ye that enter here, be weary of Buffers, Arrays and Hex interchanging between the outpoints
-
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
@@ -53,10 +51,8 @@ Transaction.prototype.addInput = function(tx, index) {
   assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
 
   return (this.ins.push({
-    outpoint: {
-      hash: hash,
-      index: index
-    },
+    hash: hash,
+    index: index,
     script: Script.EMPTY,
     sequence: DEFAULT_SEQUENCE
   }) - 1)
@@ -129,8 +125,8 @@ Transaction.prototype.toBuffer = function () {
   writeVarInt(this.ins.length)
 
   this.ins.forEach(function(txin) {
-    writeSlice(txin.outpoint.hash)
-    writeUInt32(txin.outpoint.index)
+    writeSlice(txin.hash)
+    writeUInt32(txin.index)
     writeVarInt(txin.script.buffer.length)
     writeSlice(txin.script.buffer)
     writeUInt32(txin.sequence)
@@ -211,7 +207,8 @@ Transaction.prototype.clone = function () {
 
   newTx.ins = this.ins.map(function(txin) {
     return {
-      outpoint: txin.outpoint,
+      hash: txin.hash,
+      index: txin.index,
       script: txin.script,
       sequence: txin.sequence
     }
@@ -261,10 +258,8 @@ Transaction.fromBuffer = function(buffer) {
     var sequence = readUInt32()
 
     tx.ins.push({
-      outpoint: {
-        hash: hash,
-        index: vout
-      },
+      hash: hash,
+      index: vout,
       script: Script.fromBuffer(script),
       sequence: sequence
     })

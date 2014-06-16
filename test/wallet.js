@@ -328,11 +328,11 @@ describe('Wallet', function() {
 
         it("deletes corresponding 'output'", function(){
           var txIn = spendTx.ins[0]
-          var txInId = new Buffer(txIn.outpoint.hash)
+          var txInId = new Buffer(txIn.hash)
           Array.prototype.reverse.call(txInId)
           txInId = txInId.toString('hex')
 
-          var expected = txInId + ':' + txIn.outpoint.index
+          var expected = txInId + ':' + txIn.index
           assert(expected in wallet.outputs)
 
           wallet.processConfirmedTx(spendTx)
@@ -400,7 +400,8 @@ describe('Wallet', function() {
         var tx = wallet.createTx(to, value)
 
         assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.equal(tx.ins[0].index, 0)
       })
 
       it('allows fee to be specified', function(){
@@ -408,8 +409,11 @@ describe('Wallet', function() {
         var tx = wallet.createTx(to, value, fee)
 
         assert.equal(tx.ins.length, 2)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
-        assert.deepEqual(tx.ins[1].outpoint, { hash: fakeTxHash(2), index: 1 })
+
+        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.equal(tx.ins[0].index, 0)
+        assert.deepEqual(tx.ins[1].hash, fakeTxHash(2))
+        assert.equal(tx.ins[1].index, 1)
       })
 
       it('allows fee to be set to zero', function(){
@@ -418,7 +422,8 @@ describe('Wallet', function() {
         var tx = wallet.createTx(to, value, fee)
 
         assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.equal(tx.ins[0].index, 0)
       })
 
       it('ignores pending outputs', function(){
@@ -436,7 +441,8 @@ describe('Wallet', function() {
         var tx = wallet.createTx(to, value)
 
         assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.equal(tx.ins[0].index, 0)
       })
     })
 
