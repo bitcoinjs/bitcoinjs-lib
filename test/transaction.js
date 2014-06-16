@@ -100,11 +100,15 @@ describe('Transaction', function() {
           Array.prototype.reverse.call(txInId)
           txInId = txInId.toString('hex')
 
-          var j = tx.addInput(txInId, txIn.index)
+          var j = tx.addInput(txInId, txIn.index, txIn.sequence)
 
           assert.equal(i, j)
           assert.deepEqual(tx.ins[i].hash, txIn.hash)
           assert.equal(tx.ins[i].index, txIn.index)
+
+          var sequence = txIn.sequence
+          if (sequence == undefined) sequence = Transaction.DEFAULT_SEQUENCE
+          assert.equal(tx.ins[i].sequence, sequence)
         })
       })
     })

@@ -32,7 +32,9 @@ function Transaction() {
  *
  * Note that this method does not sign the created input.
  */
-Transaction.prototype.addInput = function(tx, index) {
+Transaction.prototype.addInput = function(tx, index, sequence) {
+  if (sequence == undefined) sequence = DEFAULT_SEQUENCE
+
   var hash
 
   if (typeof tx === 'string') {
@@ -54,7 +56,7 @@ Transaction.prototype.addInput = function(tx, index) {
     hash: hash,
     index: index,
     script: Script.EMPTY,
-    sequence: DEFAULT_SEQUENCE
+    sequence: sequence
   }) - 1)
 }
 
