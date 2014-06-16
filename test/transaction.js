@@ -93,7 +93,7 @@ describe('Transaction', function() {
       var tx = new Transaction()
       tx.addInput(prevTxHash, 0)
 
-      assert.equal(tx.ins[0].sequence, 0xffffffff)
+      assert.equal(tx.ins[0].sequence, Transaction.DEFAULT_SEQUENCE)
     })
 
     fixtures.valid.forEach(function(f) {
