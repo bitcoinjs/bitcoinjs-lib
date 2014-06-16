@@ -144,7 +144,6 @@ Transaction.prototype.toBuffer = function () {
   })
 
   writeUInt32(this.locktime)
-  assert.equal(offset, buffer.length, 'Invalid transaction object')
 
   return buffer
 }
@@ -286,7 +285,7 @@ Transaction.fromBuffer = function(buffer) {
   }
 
   tx.locktime = readUInt32()
-  assert.equal(offset, buffer.length, 'Invalid transaction')
+  assert.equal(offset, buffer.length, 'Transaction has unexpected data')
 
   return tx
 }

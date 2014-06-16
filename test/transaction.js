@@ -36,7 +36,7 @@ describe('Transaction', function() {
       it('throws on ' + f.exception, function() {
         assert.throws(function() {
           Transaction.fromHex(f.hex)
-        }, /Invalid transaction/)
+        }, new RegExp(f.exception))
       })
     })
   })
