@@ -21,10 +21,6 @@ function Transaction(doc) {
   this.outs = []
 
   if (doc) {
-    if (typeof doc == "string" || Array.isArray(doc)) {
-      doc = Transaction.fromBuffer(doc)
-    }
-
     if (doc.hash) this.hash = doc.hash;
     if (doc.version) this.version = doc.version;
     if (doc.locktime) this.locktime = doc.locktime;
@@ -388,16 +384,9 @@ Transaction.prototype.estimateFee = function(feePerKb){
   return feePerKb * Math.ceil(size / 1000)
 }
 
-var TransactionIn = function (data) {
-  if (typeof data == "string") {
-    this.outpoint = { hash: data.split(':')[0], index: data.split(':')[1] }
-  } else if (data.outpoint) {
-    this.outpoint = data.outpoint
-  } else {
-    this.outpoint = { hash: data.hash, index: data.index }
-  }
-
-  assert(data.script, 'Invalid TxIn parameters')
+function TransactionIn(data) {
+  assert(data.outpoint && data.script, 'Invalid TxIn parameters')
+  this.outpoint = data.outpoint
   this.script = data.script
   this.sequence = data.sequence == undefined ? DEFAULT_SEQUENCE : data.sequence
 }
@@ -417,8 +406,6 @@ function TransactionOut(data) {
   this.script = data.script
   this.value = data.value
   this.address = data.address
-
-  if (data.address) this.address = data.address
 }
 
 TransactionOut.prototype.clone = function() {

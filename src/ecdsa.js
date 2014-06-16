@@ -186,7 +186,7 @@ function parseSigCompact(buffer) {
   * http://www.secg.org/download/aid-780/sec1-v2.pdf
   */
 function recoverPubKey(curve, e, signature, i) {
-  assert.strictEqual(i & 3, i, 'The recovery param is more than two bits')
+  assert.strictEqual(i & 3, i, 'Recovery param is more than two bits')
 
   var r = signature.r
   var s = signature.s
@@ -210,10 +210,10 @@ function recoverPubKey(curve, e, signature, i) {
     curve.P_OVER_FOUR = p.add(BigInteger.ONE).shiftRight(2)
   }
 
-  // 1.1 Compute x
+  // 1.1 Let x = r + jn
   var x = isSecondKey ? r.add(n) : r
 
-  // 1.3 Convert x to point
+  // 1.2, 1.3 Convert x to a point R using routine specified in Section 2.3.4
   var alpha = x.pow(3).add(a.multiply(x)).add(b).mod(p)
   var beta = alpha.modPow(curve.P_OVER_FOUR, p)
 
@@ -221,23 +221,20 @@ function recoverPubKey(curve, e, signature, i) {
   // otherwise we're done and y == beta.
   var y = (beta.isEven() ^ isYEven) ? p.subtract(beta) : beta
 
-  // 1.4 Check that nR isn't at infinity
+  // 1.4 Check that nR is at infinity
   var R = Point.fromAffine(curve, x, y)
-  curve.validate(R)
+  var nR = R.multiply(n)
+  assert(curve.isInfinity(nR), 'nR is not a valid curve point')
 
-  // 1.5 Compute -e from e
+  // Compute -e from e
   var eNeg = e.negate().mod(n)
 
-  // 1.6 Compute Q = r^-1 (sR -  eG)
-  //             Q = r^-1 (sR + -eG)
+  // 1.6.1 Compute Q = r^-1 (sR -  eG)
+  //               Q = r^-1 (sR + -eG)
   var rInv = r.modInverse(n)
 
   var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
   curve.validate(Q)
-
-  if (!verifyRaw(curve, e, signature, Q)) {
-    throw new Error("Pubkey recovery unsuccessful")
-  }
 
   return Q
 }
@@ -257,6 +254,7 @@ function calcPubKeyRecoveryParam(curve, e, signature, Q) {
   for (var i = 0; i < 4; i++) {
     var Qprime = recoverPubKey(curve, e, signature, i)
 
+    // 1.6.2 Verify Q
     if (Qprime.equals(Q)) {
       return i
     }
