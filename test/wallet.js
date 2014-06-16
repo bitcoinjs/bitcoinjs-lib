@@ -6,7 +6,7 @@ var scripts = require('../src/scripts')
 
 var Address = require('../src/address')
 var HDNode = require('../src/hdnode')
-var Transaction = require('../src/transaction').Transaction
+var Transaction = require('../src/transaction')
 var Wallet = require('../src/wallet')
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
@@ -14,7 +14,15 @@ var fixtureTx1Hex = fixtureTxes.prevTx
 var fixtureTx2Hex = fixtureTxes.tx
 
 function fakeTxHash(i) {
-  return "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefe" + i
+  var hash = new Buffer(32)
+  hash.fill(i)
+  return hash
+}
+
+function fakeTxId(i) {
+  var hash = fakeTxHash(i)
+  Array.prototype.reverse.call(hash)
+  return hash.toString('hex')
 }
 
 describe('Wallet', function() {
@@ -263,12 +271,11 @@ describe('Wallet', function() {
     })
 
     describe('processConfirmedTx', function(){
-
       it('does not fail on scripts with no corresponding Address', function() {
         var pubKey = wallet.getPrivateKey(0).pub
         var script = scripts.pubKeyOutput(pubKey)
         var tx2 = new Transaction()
-        tx2.addInput(fakeTxHash(1), 0)
+        tx2.addInput(fakeTxId(1), 0)
 
         // FIXME: Transaction doesn't support custom ScriptPubKeys... yet
         // So for now, we hijack the script with our own, and undefine the cached address
@@ -303,44 +310,45 @@ describe('Wallet', function() {
         function outputCount(){
           return Object.keys(wallet.outputs).length
         }
-
       })
 
       describe("when tx ins outpoint contains a known txhash:i", function(){
+        var spendTx
         beforeEach(function(){
           wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
           wallet.processConfirmedTx(tx)
 
-          tx = Transaction.fromHex(fixtureTx2Hex)
+          spendTx = Transaction.fromHex(fixtureTx2Hex)
         })
 
         it("does not add to wallet.outputs", function(){
-          var outputs = wallet.outputs
-          wallet.processConfirmedTx(tx)
-          assert.deepEqual(wallet.outputs, outputs)
+          wallet.processConfirmedTx(spendTx)
+          assert.deepEqual(wallet.outputs, {})
         })
 
         it("deletes corresponding 'output'", function(){
-          wallet.processConfirmedTx(tx)
+          var txIn = spendTx.ins[0]
+          var txInId = new Buffer(txIn.hash)
+          Array.prototype.reverse.call(txInId)
+          txInId = txInId.toString('hex')
 
-          var txIn = tx.ins[0]
-          var key = txIn.outpoint.hash + ":" + txIn.outpoint.index
-          var output = wallet.outputs[key]
+          var expected = txInId + ':' + txIn.index
+          assert(expected in wallet.outputs)
 
-          assert.equal(output, undefined)
+          wallet.processConfirmedTx(spendTx)
+          assert(!(expected in wallet.outputs))
         })
       })
 
       it("does nothing when none of the involved addresses belong to the wallet", function(){
-        var outputs = wallet.outputs
         wallet.processConfirmedTx(tx)
-        assert.deepEqual(wallet.outputs, outputs)
+        assert.deepEqual(wallet.outputs, {})
       })
     })
 
     function verifyOutputAdded(index, pending) {
       var txOut = tx.outs[index]
-      var key = tx.getHash() + ":" + index
+      var key = tx.getId() + ":" + index
       var output = wallet.outputs[key]
       assert.equal(output.receive, key)
       assert.equal(output.value, txOut.value)
@@ -366,19 +374,19 @@ describe('Wallet', function() {
       // set up 3 utxo
       utxo = [
         {
-          "hash": fakeTxHash(1),
+          "hash": fakeTxId(1),
           "outputIndex": 0,
           "address" : address1,
           "value": 400000 // not enough for value
         },
         {
-          "hash": fakeTxHash(2),
+          "hash": fakeTxId(2),
           "outputIndex": 1,
           "address" : address1,
           "value": 500000 // enough for only value
         },
         {
-          "hash": fakeTxHash(3),
+          "hash": fakeTxId(3),
           "outputIndex": 0,
           "address" : address2,
           "value": 520000 // enough for value and fee
@@ -392,7 +400,8 @@ describe('Wallet', function() {
         var tx = wallet.createTx(to, value)
 
         assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.equal(tx.ins[0].index, 0)
       })
 
       it('allows fee to be specified', function(){
@@ -400,8 +409,11 @@ describe('Wallet', function() {
         var tx = wallet.createTx(to, value, fee)
 
         assert.equal(tx.ins.length, 2)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
-        assert.deepEqual(tx.ins[1].outpoint, { hash: fakeTxHash(2), index: 1 })
+
+        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.equal(tx.ins[0].index, 0)
+        assert.deepEqual(tx.ins[1].hash, fakeTxHash(2))
+        assert.equal(tx.ins[1].index, 1)
       })
 
       it('allows fee to be set to zero', function(){
@@ -410,13 +422,14 @@ describe('Wallet', function() {
         var tx = wallet.createTx(to, value, fee)
 
         assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.equal(tx.ins[0].index, 0)
       })
 
       it('ignores pending outputs', function(){
         utxo.push(
           {
-            "hash": fakeTxHash(4),
+            "hash": fakeTxId(4),
             "outputIndex": 0,
             "address" : address2,
             "value": 530000,
@@ -428,7 +441,8 @@ describe('Wallet', function() {
         var tx = wallet.createTx(to, value)
 
         assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].outpoint, { hash: fakeTxHash(3), index: 0 })
+        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.equal(tx.ins[0].index, 0)
       })
     })
 
@@ -438,7 +452,7 @@ describe('Wallet', function() {
         var address = wallet.generateAddress()
 
         wallet.setUnspentOutputs([{
-          hash: fakeTxHash(0),
+          hash: fakeTxId(0),
           outputIndex: 0,
           address: address,
           value: value
@@ -449,7 +463,9 @@ describe('Wallet', function() {
 
         var tx = wallet.createTx(to, toValue)
         assert.equal(tx.outs.length, 1)
-        assert.equal(tx.outs[0].address.toString(), to)
+
+        var outAddress = Address.fromOutputScript(tx.outs[0].script, networks.testnet)
+        assert.equal(outAddress.toString(), to)
         assert.equal(tx.outs[0].value, toValue)
       })
     })
@@ -460,7 +476,7 @@ describe('Wallet', function() {
         var address = wallet.generateAddress()
 
         wallet.setUnspentOutputs([{
-          hash: fakeTxHash(0),
+          hash: fakeTxId(0),
           outputIndex: 0,
           address: address,
           value: value
@@ -474,10 +490,14 @@ describe('Wallet', function() {
 
         var tx = wallet.createTx(to, toValue, fee, changeAddress)
         assert.equal(tx.outs.length, 2)
-        assert.equal(tx.outs[0].address.toString(), to)
+
+        var outAddress0 = Address.fromOutputScript(tx.outs[0].script, networks.testnet)
+        var outAddress1 = Address.fromOutputScript(tx.outs[1].script, networks.testnet)
+
+        assert.equal(outAddress0.toString(), to)
         assert.equal(tx.outs[0].value, toValue)
 
-        assert.equal(tx.outs[1].address.toString(), changeAddress)
+        assert.equal(outAddress1.toString(), changeAddress)
         assert.equal(tx.outs[1].value, value - (toValue + fee))
       })
     })
@@ -488,7 +508,9 @@ describe('Wallet', function() {
 
         assert.equal(tx.outs.length, 1)
         var out = tx.outs[0]
-        assert.equal(out.address, to)
+        var outAddress = Address.fromOutputScript(out.script)
+
+        assert.equal(outAddress.toString(), to)
         assert.equal(out.value, value)
       })
 
@@ -501,7 +523,9 @@ describe('Wallet', function() {
 
           assert.equal(tx.outs.length, 2)
           var out = tx.outs[1]
-          assert.equal(out.address, wallet.changeAddresses[1])
+          var outAddress = Address.fromOutputScript(out.script)
+
+          assert.equal(outAddress.toString(), wallet.changeAddresses[1])
           assert.equal(out.value, 15000)
         })
 
@@ -513,7 +537,9 @@ describe('Wallet', function() {
 
           assert.equal(wallet.changeAddresses.length, 1)
           var out = tx.outs[1]
-          assert.equal(out.address, wallet.changeAddresses[0])
+          var outAddress = Address.fromOutputScript(out.script)
+
+          assert.equal(outAddress.toString(), wallet.changeAddresses[0])
           assert.equal(out.value, 15000)
         })
 

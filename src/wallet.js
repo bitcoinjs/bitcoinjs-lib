@@ -4,7 +4,7 @@ var rng = require('secure-random')
 
 var Address = require('./address')
 var HDNode = require('./hdnode')
-var Transaction = require('./transaction').Transaction
+var Transaction = require('./transaction')
 
 function Wallet(seed, network) {
   network = network || networks.bitcoin
@@ -146,9 +146,9 @@ function Wallet(seed, network) {
   }
 
   function processTx(tx, isPending) {
-    var txhash = tx.getHash()
+    var txid = tx.getId()
 
-    tx.outs.forEach(function(txOut, i){
+    tx.outs.forEach(function(txOut, i) {
       var address
 
       try {
@@ -158,7 +158,7 @@ function Wallet(seed, network) {
       }
 
       if (isMyAddress(address)) {
-        var output = txhash + ':' + i
+        var output = txid + ':' + i
 
         me.outputs[output] = {
           receive: output,
@@ -169,9 +169,13 @@ function Wallet(seed, network) {
       }
     })
 
-    tx.ins.forEach(function(txIn, i){
-      var op = txIn.outpoint
-      var output = op.hash + ':' + op.index
+    tx.ins.forEach(function(txIn) {
+      // copy and convert to big-endian hex
+      var txinId = new Buffer(txIn.hash)
+      Array.prototype.reverse.call(txinId)
+      txinId = txinId.toString('hex')
+
+      var output = txinId + ':' + txIn.index
 
       if(me.outputs[output]) delete me.outputs[output]
     })
@@ -183,18 +187,21 @@ function Wallet(seed, network) {
     var utxos = getCandidateOutputs(value)
     var accum = 0
     var subTotal = value
+    var addresses = []
 
     var tx = new Transaction()
     tx.addOutput(to, value)
 
     for (var i = 0; i < utxos.length; ++i) {
       var utxo = utxos[i]
+      addresses.push(utxo.address)
 
-      tx.addInput(utxo.receive)
-      accum += utxo.value
+      var outpoint = utxo.receive.split(':')
+      tx.addInput(outpoint[0], parseInt(outpoint[1]))
 
       var fee = fixedFee == undefined ? estimateFeePadChangeOutput(tx) : fixedFee
 
+      accum += utxo.value
       subTotal = value + fee
       if (accum >= subTotal) {
         var change = accum - subTotal
@@ -209,7 +216,7 @@ function Wallet(seed, network) {
 
     assert(accum >= subTotal, 'Not enough funds (incl. fee): ' + accum + ' < ' + subTotal)
 
-    this.sign(tx)
+    this.signWith(tx, addresses)
     return tx
   }
 
@@ -228,10 +235,13 @@ function Wallet(seed, network) {
     return sortByValueDesc
   }
 
-  function estimateFeePadChangeOutput(tx){
+  var feePerKb = 20000
+  function estimateFeePadChangeOutput(tx) {
     var tmpTx = tx.clone()
     tmpTx.addOutput(getChangeAddress(), 0)
-    return tmpTx.estimateFee()
+
+    var byteSize = tmpTx.toBuffer().length
+    return feePerKb * Math.ceil(byteSize / 1000)
   }
 
   function getChangeAddress() {
@@ -239,13 +249,15 @@ function Wallet(seed, network) {
     return me.changeAddresses[me.changeAddresses.length - 1]
   }
 
-  this.sign = function(tx) {
-    tx.ins.forEach(function(inp,i) {
-      var output = me.outputs[inp.outpoint.hash + ':' + inp.outpoint.index]
-      if (output) {
-        tx.sign(i, me.getPrivateKeyForAddress(output.address))
-      }
+  this.signWith = function(tx, addresses) {
+    assert.equal(tx.ins.length, addresses.length, 'Number of addresses must match number of transaction inputs')
+
+    addresses.forEach(function(address, i) {
+      var key = me.getPrivateKeyForAddress(address)
+
+      tx.sign(i, key)
     })
+
     return tx
   }
 

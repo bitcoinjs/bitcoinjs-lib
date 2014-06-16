@@ -6,7 +6,7 @@ var networks = require('../src/networks')
 var Address = require('../src/address')
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
-var Transaction = require('../src/transaction').Transaction
+var Transaction = require('../src/transaction')
 var Script = require('../src/script')
 
 var base58_encode_decode = require("./fixtures/core/base58_encode_decode.json")
@@ -147,10 +147,15 @@ describe('Bitcoin-core', function() {
           var prevOutIndex = input[1]
   //          var prevOutScriptPubKey = input[2] // TODO: we don't have a ASM parser
 
-          assert.equal(txin.outpoint.hash, prevOutHash)
+          var actualHash = txin.hash
+
+          // Test data is big-endian
+          Array.prototype.reverse.call(actualHash)
+
+          assert.equal(actualHash.toString('hex'), prevOutHash)
 
           // we read UInt32, not Int32
-          assert.equal(txin.outpoint.index & 0xffffffff, prevOutIndex)
+          assert.equal(txin.index & 0xffffffff, prevOutIndex)
         })
       })
     })
@@ -184,7 +189,7 @@ describe('Bitcoin-core', function() {
         }
 
         if (actualHash != undefined) {
-          // BigEndian test data
+          // Test data is big-endian
           Array.prototype.reverse.call(actualHash)
 
           assert.equal(actualHash.toString('hex'), expectedHash)
