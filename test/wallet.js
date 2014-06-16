@@ -313,34 +313,36 @@ describe('Wallet', function() {
       })
 
       describe("when tx ins outpoint contains a known txhash:i", function(){
+        var spendTx
         beforeEach(function(){
           wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
           wallet.processConfirmedTx(tx)
 
-          tx = Transaction.fromHex(fixtureTx2Hex)
+          spendTx = Transaction.fromHex(fixtureTx2Hex)
         })
 
         it("does not add to wallet.outputs", function(){
-          var outputs = wallet.outputs
-          wallet.processConfirmedTx(tx)
-          assert.deepEqual(wallet.outputs, outputs)
+          wallet.processConfirmedTx(spendTx)
+          assert.deepEqual(wallet.outputs, {})
         })
 
         it("deletes corresponding 'output'", function(){
-          wallet.processConfirmedTx(tx)
+          var txIn = spendTx.ins[0]
+          var txInId = new Buffer(txIn.outpoint.hash)
+          Array.prototype.reverse.call(txInId)
+          txInId = txInId.toString('hex')
 
-          var txIn = tx.ins[0]
-          var key = txIn.outpoint.hash + ":" + txIn.outpoint.index
-          var output = wallet.outputs[key]
+          var expected = txInId + ':' + txIn.outpoint.index
+          assert(expected in wallet.outputs)
 
-          assert.equal(output, undefined)
+          wallet.processConfirmedTx(spendTx)
+          assert(!(expected in wallet.outputs))
         })
       })
 
       it("does nothing when none of the involved addresses belong to the wallet", function(){
-        var outputs = wallet.outputs
         wallet.processConfirmedTx(tx)
-        assert.deepEqual(wallet.outputs, outputs)
+        assert.deepEqual(wallet.outputs, {})
       })
     })
 
