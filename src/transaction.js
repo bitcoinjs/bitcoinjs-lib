@@ -193,8 +193,12 @@ Transaction.prototype.hashForSignature = function(prevOutScript, inIndex, hashTy
   return crypto.hash256(buffer)
 }
 
+Transaction.prototype.getHash = function () {
+  return crypto.hash256(this.toBuffer())
+}
+
 Transaction.prototype.getId = function () {
-  var buffer = crypto.hash256(this.toBuffer())
+  var buffer = this.getHash()
 
   // Big-endian is used for TxHash
   Array.prototype.reverse.call(buffer)

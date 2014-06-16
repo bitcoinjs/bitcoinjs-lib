@@ -56,12 +56,10 @@ describe('Transaction', function() {
     // Probably a bit representative of the API
     var prevTxHash, prevTxId, prevTx
     beforeEach(function() {
-      var crypto = require('../src/crypto')
-
       var f = fixtures.valid[0]
       prevTx = Transaction.fromHex(f.hex)
+      prevTxHash = prevTx.getHash()
       prevTxId = prevTx.getId()
-      prevTxHash = crypto.hash256(prevTx.toBuffer())
     })
 
     it('accepts a transaction id', function() {
@@ -191,6 +189,17 @@ describe('Transaction', function() {
         var actual = tx.getId()
 
         assert.equal(actual, f.txid)
+      })
+    })
+  })
+
+  describe('getHash', function() {
+    fixtures.valid.forEach(function(f) {
+      it('should return the hash for ' + f.txid, function() {
+        var tx = Transaction.fromHex(f.hex)
+        var actual = tx.getHash().toString('hex')
+
+        assert.equal(actual, f.hash)
       })
     })
   })
