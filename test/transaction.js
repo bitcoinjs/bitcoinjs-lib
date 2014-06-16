@@ -69,6 +69,13 @@ describe('Transaction', function() {
       assert.deepEqual(tx.ins[0].hash, prevTxHash)
     })
 
+    it('accepts a transaction hash', function() {
+      var tx = new Transaction()
+      tx.addInput(prevTxHash, 0)
+
+      assert.deepEqual(tx.ins[0].hash, prevTxHash)
+    })
+
     it('accepts a Transaction object', function() {
       var tx = new Transaction()
       tx.addInput(prevTx, 0)
@@ -78,13 +85,13 @@ describe('Transaction', function() {
 
     it('returns an index', function() {
       var tx = new Transaction()
-      assert.equal(tx.addInput(prevTxId, 0), 0)
-      assert.equal(tx.addInput(prevTxId, 0), 1)
+      assert.equal(tx.addInput(prevTxHash, 0), 0)
+      assert.equal(tx.addInput(prevTxHash, 0), 1)
     })
 
     it('defaults to DEFAULT_SEQUENCE', function() {
       var tx = new Transaction()
-      tx.addInput(prevTxId, 0)
+      tx.addInput(prevTxHash, 0)
 
       assert.equal(tx.ins[0].sequence, 0xffffffff)
     })
@@ -94,11 +101,7 @@ describe('Transaction', function() {
         var tx = new Transaction()
 
         f.raw.ins.forEach(function(txIn, i) {
-          var txInId = new Buffer(txIn.hash)
-          Array.prototype.reverse.call(txInId)
-          txInId = txInId.toString('hex')
-
-          var j = tx.addInput(txInId, txIn.index, txIn.sequence)
+          var j = tx.addInput(txIn.hash, txIn.index, txIn.sequence)
 
           assert.equal(i, j)
           assert.deepEqual(tx.ins[i].hash, txIn.hash)
