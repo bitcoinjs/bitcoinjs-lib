@@ -222,7 +222,7 @@ HDNode.prototype.derive = function(index) {
   var pIL = BigInteger.fromBuffer(IL)
 
   // In case parse256(IL) >= n, proceed with the next value for i
-  if (pIL.compareTo(curve.params.n) >= 0) {
+  if (pIL.compareTo(curve.n) >= 0) {
     return this.derive(index + 1)
   }
 
@@ -230,7 +230,7 @@ HDNode.prototype.derive = function(index) {
   var hd
   if (this.privKey) {
     // ki = parse256(IL) + kpar (mod n)
-    var ki = pIL.add(this.privKey.d).mod(curve.params.n)
+    var ki = pIL.add(this.privKey.d).mod(curve.n)
 
     // In case ki == 0, proceed with the next value for i
     if (ki.signum() === 0) {
@@ -243,7 +243,7 @@ HDNode.prototype.derive = function(index) {
   } else {
     // Ki = point(parse256(IL)) + Kpar
     //    = G*IL + Kpar
-    var Ki = curve.params.G.multiply(pIL).add(this.pubKey.Q)
+    var Ki = curve.G.multiply(pIL).add(this.pubKey.Q)
 
     // In case Ki is the point at infinity, proceed with the next value for i
     if (curve.isInfinity(Ki)) {

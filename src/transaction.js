@@ -1,12 +1,12 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
-var ecdsa = require('./ecdsa')
 var opcodes = require('./opcodes')
 var scripts = require('./scripts')
 
 var Address = require('./address')
 var ECKey = require('./eckey')
+var ECSignature = require('./ecsignature')
 var Script = require('./script')
 
 var DEFAULT_SEQUENCE = 0xffffffff
@@ -301,16 +301,11 @@ Transaction.prototype.sign = function(index, privKey, hashType) {
 
 Transaction.prototype.signInput = function(index, prevOutScript, privKey, hashType) {
   hashType = hashType || SIGHASH_ALL
-  assert(privKey instanceof ECKey, 'Expected ECKey, got ' + privKey)
 
   var hash = this.hashForSignature(prevOutScript, index, hashType)
   var signature = privKey.sign(hash)
-  var DERencoded = ecdsa.serializeSig(signature)
 
-  return Buffer.concat([
-    new Buffer(DERencoded),
-    new Buffer([hashType])
-  ])
+  return signature.toScriptSignature(hashType)
 }
 
 Transaction.prototype.setInputScript = function(index, script) {
@@ -318,14 +313,11 @@ Transaction.prototype.setInputScript = function(index, script) {
 }
 
 // FIXME: could be validateInput(index, prevTxOut, pub)
-Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, DERsig) {
-  var type = DERsig.readUInt8(DERsig.length - 1)
-  DERsig = DERsig.slice(0, -1)
+Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, buffer) {
+  var parsed = ECSignature.parseScriptSignature(buffer)
+  var hash = this.hashForSignature(prevOutScript, index, parsed.hashType)
 
-  var hash = this.hashForSignature(prevOutScript, index, type)
-  var signature = ecdsa.parseSig(DERsig)
-
-  return pubKey.verify(hash, signature)
+  return pubKey.verify(hash, parsed.signature)
 }
 
 module.exports = Transaction

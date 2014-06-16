@@ -12,9 +12,9 @@ var curve = ecurve.getCurveByName('secp256k1')
 
 function ECKey(d, compressed) {
   assert(d.signum() > 0, 'Private key must be greater than 0')
-  assert(d.compareTo(curve.params.n) < 0, 'Private key must be less than the curve order')
+  assert(d.compareTo(curve.n) < 0, 'Private key must be less than the curve order')
 
-  var Q = curve.params.G.multiply(d)
+  var Q = curve.G.multiply(d)
 
   this.d = d
   this.pub = new ECPubKey(Q, compressed)
@@ -47,7 +47,7 @@ ECKey.makeRandom = function(compressed, rng) {
 
   var buffer = new Buffer(rng(32))
   var d = BigInteger.fromBuffer(buffer)
-  d = d.mod(curve.params.n)
+  d = d.mod(curve.n)
 
   return new ECKey(d, compressed)
 }
