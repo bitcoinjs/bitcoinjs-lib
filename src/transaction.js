@@ -37,13 +37,13 @@ Transaction.prototype.addInput = function(tx, index) {
 
   if (typeof tx === 'string') {
     hash = new Buffer(tx, 'hex')
-    assert.equal(hash.length, 32, 'Invalid TX hash')
+    assert.equal(hash.length, 32, 'Expected Transaction or string, got ' + tx)
 
     // TxHash hex is big-endian, we need little-endian
     Array.prototype.reverse.call(hash)
 
   } else {
-    assert(tx instanceof Transaction, 'Expected Transaction, got ' + tx)
+    assert(tx instanceof Transaction, 'Expected Transaction or string, got ' + tx)
     hash = crypto.hash256(tx.toBuffer())
 
   }
