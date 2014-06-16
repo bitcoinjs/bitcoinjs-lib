@@ -47,7 +47,7 @@ describe('ecdsa', function() {
       var e = BigInteger.fromBuffer(hash)
 
       var signatureBuffer = new Buffer('INcvXVVEFyIfHLbDX+xoxlKFn3Wzj9g0UbhObXdMq+YMKC252o5RHFr0/cKdQe1WsBLUBi4morhgZ77obDJVuV0=', 'base64')
-      var signature = ECSignature.fromCompact(signatureBuffer).signature
+      var signature = ECSignature.parseCompact(signatureBuffer).signature
       var points = [
         '03e3a8c44a8bf712f1fbacee274fb19c0239b1a9e877eff0075ea335f2be8ff380',
         '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798',

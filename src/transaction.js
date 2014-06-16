@@ -314,7 +314,7 @@ Transaction.prototype.setInputScript = function(index, script) {
 
 // FIXME: could be validateInput(index, prevTxOut, pub)
 Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, buffer) {
-  var parsed = ECSignature.fromScriptSignature(buffer)
+  var parsed = ECSignature.parseScriptSignature(buffer)
   var hash = this.hashForSignature(prevOutScript, index, parsed.hashType)
 
   return pubKey.verify(hash, parsed.signature)

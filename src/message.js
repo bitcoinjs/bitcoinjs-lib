@@ -42,7 +42,7 @@ function verify(address, signatureBuffer, message, network) {
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
-  var parsed = ECSignature.fromCompact(signatureBuffer)
+  var parsed = ECSignature.parseCompact(signatureBuffer)
   var e = BigInteger.fromBuffer(hash)
   var Q = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
 

@@ -20,11 +20,11 @@ describe('ECSignature', function() {
     })
   })
 
-  describe('fromCompact', function() {
+  describe('parseCompact', function() {
     fixtures.valid.forEach(function(f) {
       it('imports ' + f.compact.hex + ' correctly', function() {
         var buffer = new Buffer(f.compact.hex, 'hex')
-        var parsed = ECSignature.fromCompact(buffer)
+        var parsed = ECSignature.parseCompact(buffer)
 
         assert.equal(parsed.compressed, f.compact.compressed)
         assert.equal(parsed.i, f.compact.i)
@@ -38,7 +38,7 @@ describe('ECSignature', function() {
         var buffer = new Buffer(f.hex, 'hex')
 
         assert.throws(function() {
-          ECSignature.fromCompact(buffer)
+          ECSignature.parseCompact(buffer)
         }, new RegExp(f.exception))
       })
     })
@@ -94,11 +94,11 @@ describe('ECSignature', function() {
     })
   })
 
-  describe('fromScriptSignature', function() {
+  describe('parseScriptSignature', function() {
     fixtures.valid.forEach(function(f) {
       it('imports ' + f.scriptSignature.hex + ' correctly', function() {
         var buffer = new Buffer(f.scriptSignature.hex, 'hex')
-        var parsed = ECSignature.fromScriptSignature(buffer)
+        var parsed = ECSignature.parseScriptSignature(buffer)
 
         assert.equal(parsed.signature.r.toString(), f.signature.r)
         assert.equal(parsed.signature.s.toString(), f.signature.s)
@@ -111,7 +111,7 @@ describe('ECSignature', function() {
         var buffer = new Buffer(f.hex + '01', 'hex')
 
         assert.throws(function() {
-          ECSignature.fromScriptSignature(buffer)
+          ECSignature.parseScriptSignature(buffer)
         }, new RegExp(f.exception))
       })
     })

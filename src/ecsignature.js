@@ -10,7 +10,7 @@ function ECSignature(r, s) {
 }
 
 // Import operations
-ECSignature.fromCompact = function(buffer) {
+ECSignature.parseCompact = function(buffer) {
   assert.equal(buffer.length, 65, 'Invalid signature length')
   var i = buffer.readUInt8(0) - 27
 
@@ -52,7 +52,7 @@ ECSignature.fromDER = function(buffer) {
   return new ECSignature(r, s)
 }
 
-ECSignature.fromScriptSignature = function(buffer) {
+ECSignature.parseScriptSignature = function(buffer) {
   return {
     signature: ECSignature.fromDER(buffer.slice(0, -1)),
     hashType: buffer.readUInt8(buffer.length - 1)
