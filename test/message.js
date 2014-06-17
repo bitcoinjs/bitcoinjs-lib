@@ -29,7 +29,13 @@ describe('Message', function() {
       var signature = new Buffer(f.signature, 'base64')
       assert.ok(Message.verify(address, signature, f.message, network))
     })
+    it('Accept base64 signature', function() {
+      var f = fixtures.valid.verify[0]
+      var network = networks[f.network]
 
+      var address = Address.fromBase58Check(f.address)
+      assert.ok(Message.verifyBase64(address, f.signature, f.message, network))
+    })
     fixtures.valid.verify.forEach(function(f) {
       it('verifies a valid signature for \"' + f.message + '\" (' + f.network + ')', function() {
         var network = networks[f.network]

@@ -50,8 +50,8 @@ function verify(address, signatureBuffer, message, network) {
   return pubKey.getAddress(network).toString() === address
 }
 
-function verifyBase64(address, signatureBufferBase64, message, network) {
-	return verify(address, new Buffer(signatureBufferBase64, 'base64'), message, network)
+function verifyBase64(address, signatureBase64, message, network) {
+	return verify(address, new Buffer(signatureBase64, 'base64'), message, network)
 }
 
 module.exports = {
