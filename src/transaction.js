@@ -9,11 +9,11 @@ var ECKey = require('./eckey')
 var ECSignature = require('./ecsignature')
 var Script = require('./script')
 
-var DEFAULT_SEQUENCE = 0xffffffff
-var SIGHASH_ALL = 0x01
-var SIGHASH_NONE = 0x02
-var SIGHASH_SINGLE = 0x03
-var SIGHASH_ANYONECANPAY = 0x80
+Transaction.DEFAULT_SEQUENCE = 0xffffffff
+Transaction.SIGHASH_ALL = 0x01
+Transaction.SIGHASH_NONE = 0x02
+Transaction.SIGHASH_SINGLE = 0x03
+Transaction.SIGHASH_ANYONECANPAY = 0x80
 
 function Transaction() {
   this.version = 1
@@ -32,29 +32,33 @@ function Transaction() {
  *
  * Note that this method does not sign the created input.
  */
-Transaction.prototype.addInput = function(tx, index) {
+Transaction.prototype.addInput = function(tx, index, sequence) {
+  if (sequence == undefined) sequence = Transaction.DEFAULT_SEQUENCE
+
   var hash
 
   if (typeof tx === 'string') {
     hash = new Buffer(tx, 'hex')
-    assert.equal(hash.length, 32, 'Expected Transaction or string, got ' + tx)
 
-    // TxHash hex is big-endian, we need little-endian
+    // TxId hex is big-endian, we need little-endian
     Array.prototype.reverse.call(hash)
 
-  } else {
-    assert(tx instanceof Transaction, 'Expected Transaction or string, got ' + tx)
-    hash = crypto.hash256(tx.toBuffer())
+  } else if (tx instanceof Transaction) {
+    hash = tx.getHash()
 
+  } else {
+    hash = tx
   }
 
+  assert(Buffer.isBuffer(hash), 'Expected Transaction, txId or txHash, got ' + tx)
+  assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
   assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
 
   return (this.ins.push({
     hash: hash,
     index: index,
     script: Script.EMPTY,
-    sequence: DEFAULT_SEQUENCE
+    sequence: sequence
   }) - 1)
 }
 
@@ -140,7 +144,6 @@ Transaction.prototype.toBuffer = function () {
   })
 
   writeUInt32(this.locktime)
-  assert.equal(offset, buffer.length, 'Invalid transaction object')
 
   return buffer
 }
@@ -172,15 +175,15 @@ Transaction.prototype.hashForSignature = function(prevOutScript, inIndex, hashTy
   txTmp.ins[inIndex].script = hashScript
 
   var hashTypeModifier = hashType & 0x1f
-  if (hashTypeModifier === SIGHASH_NONE) {
+  if (hashTypeModifier === Transaction.SIGHASH_NONE) {
     assert(false, 'SIGHASH_NONE not yet supported')
 
-  } else if (hashTypeModifier === SIGHASH_SINGLE) {
+  } else if (hashTypeModifier === Transaction.SIGHASH_SINGLE) {
     assert(false, 'SIGHASH_SINGLE not yet supported')
 
   }
 
-  if (hashType & SIGHASH_ANYONECANPAY) {
+  if (hashType & Transaction.SIGHASH_ANYONECANPAY) {
     assert(false, 'SIGHASH_ANYONECANPAY not yet supported')
   }
 
@@ -191,8 +194,12 @@ Transaction.prototype.hashForSignature = function(prevOutScript, inIndex, hashTy
   return crypto.hash256(buffer)
 }
 
+Transaction.prototype.getHash = function () {
+  return crypto.hash256(this.toBuffer())
+}
+
 Transaction.prototype.getId = function () {
-  var buffer = crypto.hash256(this.toBuffer())
+  var buffer = this.getHash()
 
   // Big-endian is used for TxHash
   Array.prototype.reverse.call(buffer)
@@ -278,7 +285,7 @@ Transaction.fromBuffer = function(buffer) {
   }
 
   tx.locktime = readUInt32()
-  assert.equal(offset, buffer.length, 'Invalid transaction')
+  assert.equal(offset, buffer.length, 'Transaction has unexpected data')
 
   return tx
 }
@@ -300,7 +307,7 @@ Transaction.prototype.sign = function(index, privKey, hashType) {
 }
 
 Transaction.prototype.signInput = function(index, prevOutScript, privKey, hashType) {
-  hashType = hashType || SIGHASH_ALL
+  hashType = hashType || Transaction.SIGHASH_ALL
 
   var hash = this.hashForSignature(prevOutScript, index, hashType)
   var signature = privKey.sign(hash)
