@@ -204,7 +204,7 @@ describe('HDNode', function() {
       var hd = HDNode.fromBase58(f.master.base58)
       hd.network = networks.testnet
 
-      assert.equal(hd.getAddress().version, networks.testnet.pubkeyhash)
+      assert.equal(hd.getAddress().version, networks.testnet.pubKeyHash)
     })
   })
 

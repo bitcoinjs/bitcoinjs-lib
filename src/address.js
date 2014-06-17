@@ -3,24 +3,19 @@ var base58check = require('./base58check')
 var networks = require('./networks')
 var scripts = require('./scripts')
 
-function findScriptTypeByVersion(queryVersion) {
+function findScriptTypeByVersion(version) {
   for (var networkName in networks) {
     var network = networks[networkName]
 
-    for (var versionName in network) {
-      var version = network[versionName]
-
-      if (version === queryVersion) {
-        return versionName
-      }
-    }
+    if (version === network.pubKeyHash) return 'pubkeyhash'
+    if (version === network.scriptHash) return 'scripthash'
   }
 }
 
 function Address(hash, version) {
   assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
   assert.strictEqual(hash.length, 20, 'Invalid hash length')
-  assert.strictEqual(version & 0xFF, version, 'Invalid version byte')
+  assert.strictEqual(version & 0xff, version, 'Invalid version byte')
 
   this.hash = hash
   this.version = version
@@ -40,12 +35,8 @@ Address.fromOutputScript = function(script, network) {
 
   var type = scripts.classifyOutput(script)
 
-  if (type === 'pubkeyhash') {
-    return new Address(script.chunks[2], network.pubkeyhash)
-
-  } else if (type === 'scripthash') {
-    return new Address(script.chunks[1], network.scripthash)
-  }
+  if (type === 'pubkeyhash') return new Address(script.chunks[2], network.pubKeyHash)
+  if (type === 'scripthash') return new Address(script.chunks[1], network.scriptHash)
 
   assert(false, type + ' has no matching Address')
 }
@@ -62,13 +53,8 @@ Address.prototype.toBase58Check = function () {
 Address.prototype.toOutputScript = function() {
   var scriptType = findScriptTypeByVersion(this.version)
 
-  if (scriptType === 'pubkeyhash') {
-    return scripts.pubKeyHashOutput(this.hash)
-
-  } else if (scriptType === 'scripthash') {
-    return scripts.scriptHashOutput(this.hash)
-
-  }
+  if (scriptType === 'pubkeyhash') return scripts.pubKeyHashOutput(this.hash)
+  if (scriptType === 'scripthash') return scripts.scriptHashOutput(this.hash)
 
   assert(false, this.toString() + ' has no matching Script')
 }
