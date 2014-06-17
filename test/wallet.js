@@ -389,7 +389,7 @@ describe('Wallet', function() {
           "hash": fakeTxId(3),
           "outputIndex": 0,
           "address" : address2,
-          "value": 520000 // enough for value and fee
+          "value": 510000 // enough for value and fee
         }
       ]
       wallet.setUnspentOutputs(utxo)
@@ -417,7 +417,7 @@ describe('Wallet', function() {
       })
 
       it('allows fee to be set to zero', function(){
-        value = 520000
+        value = 510000
         var fee = 0
         var tx = wallet.createTx(to, value, fee)
 
@@ -459,7 +459,7 @@ describe('Wallet', function() {
         }])
 
         var to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
-        var toValue = value - 20000
+        var toValue = value - 10000
 
         var tx = wallet.createTx(to, toValue)
         assert.equal(tx.outs.length, 1)
@@ -516,7 +516,7 @@ describe('Wallet', function() {
 
       describe('change', function(){
         it('uses the last change address if there is any', function(){
-          var fee = 5000
+          var fee = 0
           wallet.generateChangeAddress()
           wallet.generateChangeAddress()
           var tx = wallet.createTx(to, value, fee)
@@ -526,11 +526,11 @@ describe('Wallet', function() {
           var outAddress = Address.fromOutputScript(out.script)
 
           assert.equal(outAddress.toString(), wallet.changeAddresses[1])
-          assert.equal(out.value, 15000)
+          assert.equal(out.value, 10000)
         })
 
         it('generates a change address if there is not any', function(){
-          var fee = 5000
+          var fee = 0
           assert.equal(wallet.changeAddresses.length, 0)
 
           var tx = wallet.createTx(to, value, fee)
@@ -540,7 +540,7 @@ describe('Wallet', function() {
           var outAddress = Address.fromOutputScript(out.script)
 
           assert.equal(outAddress.toString(), wallet.changeAddresses[0])
-          assert.equal(out.value, 15000)
+          assert.equal(out.value, 10000)
         })
 
         it('skips change if it is not above dust threshold', function(){
@@ -569,11 +569,11 @@ describe('Wallet', function() {
 
     describe('when value is below dust threshold', function(){
       it('throws an error', function(){
-        var value = 5430
+        var value = 546
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, /5430 must be above dust threshold \(5430 Satoshis\)/)
+        }, /546 must be above dust threshold \(546 Satoshis\)/)
       })
     })
 
@@ -583,7 +583,7 @@ describe('Wallet', function() {
 
         assert.throws(function() {
           wallet.createTx(to, value)
-        }, /Not enough funds \(incl. fee\): 1420000 < 1420001/)
+        }, /Not enough funds \(incl. fee\): 1410000 < 1410001/)
       })
     })
   })

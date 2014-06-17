@@ -20,9 +20,6 @@ function Wallet(seed, network) {
   this.addresses = []
   this.changeAddresses = []
 
-  // Dust value
-  this.dustThreshold = 5430
-
   // Transaction output data
   this.outputs = {}
 
@@ -182,7 +179,7 @@ function Wallet(seed, network) {
   }
 
   this.createTx = function(to, value, fixedFee, changeAddress) {
-    assert(value > this.dustThreshold, value + ' must be above dust threshold (' + this.dustThreshold + ' Satoshis)')
+    assert(value > network.dustThreshold, value + ' must be above dust threshold (' + network.dustThreshold + ' Satoshis)')
 
     var utxos = getCandidateOutputs(value)
     var accum = 0
@@ -206,7 +203,7 @@ function Wallet(seed, network) {
       if (accum >= subTotal) {
         var change = accum - subTotal
 
-        if (change > this.dustThreshold) {
+        if (change > network.dustThreshold) {
           tx.addOutput(changeAddress || getChangeAddress(), change)
         }
 
@@ -235,13 +232,11 @@ function Wallet(seed, network) {
     return sortByValueDesc
   }
 
-  var feePerKb = 20000
   function estimateFeePadChangeOutput(tx) {
     var tmpTx = tx.clone()
     tmpTx.addOutput(getChangeAddress(), 0)
 
-    var byteSize = tmpTx.toBuffer().length
-    return feePerKb * Math.ceil(byteSize / 1000)
+    return network.estimateFee(tmpTx)
   }
 
   function getChangeAddress() {
