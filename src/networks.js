@@ -10,8 +10,8 @@ module.exports = {
     pubKeyHash: 0x00,
     scriptHash: 0x05,
     wif: 0x80,
-    dustThreshold: 5430, //should be 546 https://github.com/bitcoin/bitcoin/pull/2760/files
-    feePerKb: 20000
+    dustThreshold: 546,
+    feePerKb: 10000
   },
   dogecoin: {
     magicPrefix: '\x19Dogecoin Signed Message:\n',
@@ -22,7 +22,7 @@ module.exports = {
     pubKeyHash: 0x1e,
     scriptHash: 0x16,
     wif: 0x9e,
-    dustThreshold: 1000000,
+    dustThreshold: 0,
     feePerKb: 100000000
   },
   litecoin: {
@@ -34,7 +34,7 @@ module.exports = {
     pubKeyHash: 0x30,
     scriptHash: 0x05,
     wif: 0xb0,
-    dustThreshold: 1000,
+    dustThreshold: 0,
     feePerKb: 100000
   },
   testnet: {
@@ -46,7 +46,7 @@ module.exports = {
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
     wif: 0xef,
-    dustThreshold: 5430,
-    feePerKb: 20000
+    dustThreshold: 546,
+    feePerKb: 10000
   }
 }
