@@ -236,8 +236,7 @@ function Wallet(seed, network) {
     var tmpTx = tx.clone()
     tmpTx.addOutput(getChangeAddress(), 0)
 
-    var byteSize = tmpTx.toBuffer().length
-    return network.estimateFee(byteSize)
+    return network.estimateFee(tmpTx)
   }
 
   function getChangeAddress() {
