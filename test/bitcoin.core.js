@@ -56,10 +56,10 @@ describe('Bitcoin-core', function() {
 
         assert.equal(address.hash.toString('hex'), hex)
         if (params.addrType === 'pubkey') {
-          assert.equal(address.version, network.pubkeyhash)
+          assert.equal(address.version, network.pubKeyHash)
 
         } else if (params.addrType === 'script') {
-          assert.equal(address.version, network.scripthash)
+          assert.equal(address.version, network.scriptHash)
         }
       })
     })

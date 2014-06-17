@@ -72,7 +72,7 @@ describe('ECPubKey', function() {
       var pubKey = new ECPubKey(Q)
       var address = pubKey.getAddress(networks.testnet)
 
-      assert.equal(address.version, networks.testnet.pubkeyhash)
+      assert.equal(address.version, networks.testnet.pubKeyHash)
       assert.equal(address.hash.toString('hex'), fixtures.compressed.hash160)
     })
   })
