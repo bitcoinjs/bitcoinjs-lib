@@ -51,7 +51,7 @@ function verify(address, signatureBuffer, message, network) {
 }
 
 function verifyBase64(address, signatureBase64, message, network) {
-	return verify(address, new Buffer(signatureBase64, 'base64'), message, network)
+  return verify(address, new Buffer(signatureBase64, 'base64'), message, network)
 }
 
 module.exports = {
