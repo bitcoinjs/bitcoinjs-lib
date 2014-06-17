@@ -39,7 +39,6 @@ Transaction.prototype.addInput = function(tx, index, sequence) {
 
   if (typeof tx === 'string') {
     hash = new Buffer(tx, 'hex')
-    assert.equal(hash.length, 32, 'Expected Transaction, txId or txHash, got ' + tx)
 
     // TxId hex is big-endian, we need little-endian
     Array.prototype.reverse.call(hash)
@@ -48,10 +47,11 @@ Transaction.prototype.addInput = function(tx, index, sequence) {
     hash = tx.getHash()
 
   } else {
-    assert(Buffer.isBuffer(tx), 'Expected Transaction, txId or txHash, got ' + tx)
     hash = tx
   }
 
+  assert(Buffer.isBuffer(hash), 'Expected Transaction, txId or txHash, got ' + tx)
+  assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
   assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
 
   return (this.ins.push({

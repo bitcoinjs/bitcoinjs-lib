@@ -113,6 +113,17 @@ describe('Transaction', function() {
         })
       })
     })
+
+    fixtures.invalid.addInput.forEach(function(f) {
+      it('throws on ' + f.exception, function() {
+        var tx = new Transaction()
+        var hash = new Buffer(f.hash, 'hex')
+
+        assert.throws(function() {
+          tx.addInput(hash, f.index)
+        }, new RegExp(f.exception))
+      })
+    })
   })
 
   describe('addOutput', function() {
