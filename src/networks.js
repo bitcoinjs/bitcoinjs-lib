@@ -1,6 +1,11 @@
 // https://en.bitcoin.it/wiki/List_of_address_prefixes
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
-module.exports = {
+
+function bitcoinEstimateFee(txByteSize) {
+  return networks.bitcoin.feePerKb * Math.ceil(txByteSize / 1000)
+}
+
+var networks = {
   bitcoin: {
     magicPrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
@@ -10,8 +15,9 @@ module.exports = {
     pubKeyHash: 0x00,
     scriptHash: 0x05,
     wif: 0x80,
-    dustThreshold: 546,
-    feePerKb: 10000
+    dustThreshold: 546, // https://github.com/bitcoin/bitcoin/blob/529047fcd18acd1b64dc95d6eb69edeaad75d405/src/core.h#L176-L188
+    feePerKb: 10000, // https://github.com/bitcoin/bitcoin/blob/3f39b9d4551d729c3a2e4decd810ac6887cfaeb3/src/main.cpp#L52
+    estimateFee: bitcoinEstimateFee
   },
   dogecoin: {
     magicPrefix: '\x19Dogecoin Signed Message:\n',
@@ -47,6 +53,8 @@ module.exports = {
     scriptHash: 0xc4,
     wif: 0xef,
     dustThreshold: 546,
-    feePerKb: 10000
+    feePerKb: 10000,
+    estimateFee: bitcoinEstimateFee
   }
 }
+module.exports = networks
