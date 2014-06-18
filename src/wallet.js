@@ -235,7 +235,7 @@ function Wallet(seed, network) {
 
   function estimateFeePadChangeOutput(tx) {
     var tmpTx = tx.clone()
-    tmpTx.addOutput(getChangeAddress(), 0)
+    tmpTx.addOutput(getChangeAddress(), network.dustSoftThreshold || 0)
 
     return network.estimateFee(tmpTx)
   }

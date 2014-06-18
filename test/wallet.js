@@ -397,31 +397,53 @@ describe('Wallet', function() {
       wallet.setUnspentOutputs(utxo)
     })
 
-    describe('choosing utxo', function(){
-      it('calculates fees', function(){
-        var tx = wallet.createTx(to, value)
-
-        assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
-        assert.equal(tx.ins[0].index, 0)
-      })
-
+    describe('transaction fee', function(){
       it('allows fee to be specified', function(){
         var fee = 30000
         var tx = wallet.createTx(to, value, fee)
 
-        assert.equal(tx.ins.length, 2)
-
-        assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
-        assert.equal(tx.ins[0].index, 0)
-        assert.deepEqual(tx.ins[1].hash, fakeTxHash(2))
-        assert.equal(tx.ins[1].index, 1)
+        assert.equal(getFee(wallet, tx), fee)
       })
 
       it('allows fee to be set to zero', function(){
         value = 510000
         var fee = 0
         var tx = wallet.createTx(to, value, fee)
+
+        assert.equal(getFee(wallet, tx), fee)
+      })
+
+      it('does not overestimate fees when network has dustSoftThreshold', function(){
+        var wallet = new Wallet(seed, networks.litecoin)
+        var address = wallet.generateAddress()
+        wallet.setUnspentOutputs([{
+          hash: fakeTxId(0),
+          outputIndex: 0,
+          address: address,
+          value: 500000
+        }])
+
+        value = 200000
+        var tx = wallet.createTx(address, value)
+
+        assert.equal(getFee(wallet, tx), 100000)
+      })
+
+      function getFee(wallet, tx) {
+        var inputValue = tx.ins.reduce(function(memo, input){
+          var id = Array.prototype.reverse.call(input.hash).toString('hex')
+          return memo + wallet.outputs[id + ':' + input.index].value
+        }, 0)
+
+        return tx.outs.reduce(function(memo, output){
+          return memo - output.value
+        }, inputValue)
+      }
+    })
+
+    describe('choosing utxo', function(){
+      it('takes fees into account', function(){
+        var tx = wallet.createTx(to, value)
 
         assert.equal(tx.ins.length, 1)
         assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
@@ -448,7 +470,7 @@ describe('Wallet', function() {
       })
     })
 
-    describe(networks.testnet, function(){
+    describe('works for testnet', function(){
       it('should create transaction', function(){
         var wallet = new Wallet(seed, networks.testnet)
         var address = wallet.generateAddress()
