@@ -109,6 +109,7 @@ console.log(tx.toHex())
 - [DarkWallet](https://darkwallet.unsystem.net)
 - [GreenAddress](https://greenaddress.it)
 - [Dogechain Wallet](https://dogechain.info)
+- [Justcoin Exchange](https://justcoin.com)
 
 Feel free to send pull requests to have your project/startup listed here.
 
