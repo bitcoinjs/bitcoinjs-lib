@@ -1,0 +1,84 @@
+{
+  "valid": [
+    {
+      "description": "when txSize < 1kb",
+      "network": "bitcoin",
+      "txSize": 1,
+      "fee": 10000
+    },
+    {
+      "description": "when txSize >= 1kb",
+      "network": "bitcoin",
+      "txSize": 1000,
+      "fee": 10000
+    },
+    {
+      "description": "rounding",
+      "network": "bitcoin",
+      "txSize": 2800,
+      "fee": 30000
+    },
+   {
+      "description": "when outputs.value > DUST_SOFT_LIMIT, feePerKb is used",
+      "network": "dogecoin",
+      "txSize": 1000,
+      "outputs": [
+        {
+          "value": 100000000
+        }
+      ],
+      "fee": 100000000
+    },
+    {
+      "description": "when not every outputs.value > DUST_SOFT_LIMIT",
+      "network": "dogecoin",
+      "txSize": 1000,
+      "outputs": [
+        {
+          "value": 99999999
+        },
+        {
+          "value": 99999999
+        }
+      ],
+      "fee": 300000000
+    },
+    {
+      "description": "rounding",
+      "network": "dogecoin",
+      "txSize": 2800,
+      "fee": 300000000
+    },
+    {
+      "description": "when outputs.value > DUST_SOFT_LIMIT, feePerKb is used",
+      "network": "litecoin",
+      "txSize": 1000,
+      "outputs": [
+        {
+          "value": 100000
+        }
+      ],
+      "fee": 100000
+    },
+    {
+      "description": "when not every outputs.value > DUST_SOFT_LIMIT",
+      "network": "litecoin",
+      "txSize": 1000,
+      "outputs": [
+        {
+          "value": 99999
+        },
+        {
+          "value": 99999
+        }
+      ],
+      "fee": 300000
+    },
+    {
+      "description": "rounding",
+      "network": "litecoin",
+      "txSize": 2800,
+      "fee": 300000
+    }
+  ]
+}
