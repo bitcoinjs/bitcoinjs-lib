@@ -175,7 +175,8 @@ describe('Wallet', function() {
         "hash":"6a4062273ac4f9ea4ffca52d9fd102b08f6c32faa0a4d1318e3a7b2e437bb9c7",
         "outputIndex": 0,
         "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
-        "value": 20000
+        "value": 20000,
+        "pending": true
       }
       expectedOutputKey = expectedUtxo.hash + ":" + expectedUtxo.outputIndex
     })
@@ -185,7 +186,8 @@ describe('Wallet', function() {
       wallet.outputs[key] = {
         receive: key,
         address: utxo.address,
-        value: utxo.value
+        value: utxo.value,
+        pending: utxo.pending
       }
     }
 

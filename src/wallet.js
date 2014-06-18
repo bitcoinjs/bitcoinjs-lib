@@ -90,7 +90,8 @@ function Wallet(seed, network) {
       hash: hashAndIndex[0],
       outputIndex: parseInt(hashAndIndex[1]),
       address: output.address,
-      value: output.value
+      value: output.value,
+      pending: output.pending
     }
   }
 
