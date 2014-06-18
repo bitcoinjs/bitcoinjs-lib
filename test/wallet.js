@@ -184,7 +184,7 @@ describe('Wallet', function() {
     function addUtxoToOutput(utxo){
       var key = utxo.hash + ":" + utxo.outputIndex
       wallet.outputs[key] = {
-        receive: key,
+        from: key,
         address: utxo.address,
         value: utxo.value,
         pending: utxo.pending
@@ -352,7 +352,7 @@ describe('Wallet', function() {
       var txOut = tx.outs[index]
       var key = tx.getId() + ":" + index
       var output = wallet.outputs[key]
-      assert.equal(output.receive, key)
+      assert.equal(output.from, key)
       assert.equal(output.value, txOut.value)
       assert.equal(output.pending, pending)
 

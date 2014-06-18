@@ -77,14 +77,14 @@ function Wallet(seed, network) {
     utxo.forEach(function(uo){
       validateUnspentOutput(uo)
       var o = unspentOutputToOutput(uo)
-      outputs[o.receive] = o
+      outputs[o.from] = o
     })
 
     this.outputs = outputs
   }
 
   function outputToUnspentOutput(output){
-    var hashAndIndex = output.receive.split(":")
+    var hashAndIndex = output.from.split(":")
 
     return {
       hash: hashAndIndex[0],
@@ -99,7 +99,7 @@ function Wallet(seed, network) {
     var hash = o.hash
     var key = hash + ":" + o.outputIndex
     return {
-      receive: key,
+      from: key,
       address: o.address,
       value: o.value,
       pending: o.pending
@@ -159,7 +159,7 @@ function Wallet(seed, network) {
         var output = txid + ':' + i
 
         me.outputs[output] = {
-          receive: output,
+          from: output,
           value: txOut.value,
           address: address,
           pending: isPending
@@ -194,7 +194,7 @@ function Wallet(seed, network) {
       var utxo = utxos[i]
       addresses.push(utxo.address)
 
-      var outpoint = utxo.receive.split(':')
+      var outpoint = utxo.from.split(':')
       tx.addInput(outpoint[0], parseInt(outpoint[1]))
 
       var fee = fixedFee == undefined ? estimateFeePadChangeOutput(tx) : fixedFee
