@@ -103,8 +103,8 @@
         "i": 1
       },
       "scriptSignature": {
-        "hex": "3045022100cde1302d83f8dd835d89aef803c74a119f561fbaef3eb9129e45f30de86abbf9022006ce643f5049ee1f27890467b77a6a8e11ec4661cc38cd8badf90115fbd03cefff",
-        "hashType": 255
+        "hex": "3045022100cde1302d83f8dd835d89aef803c74a119f561fbaef3eb9129e45f30de86abbf9022006ce643f5049ee1f27890467b77a6a8e11ec4661cc38cd8badf90115fbd03cef81",
+        "hashType": 129
       },
       "DER": "3045022100cde1302d83f8dd835d89aef803c74a119f561fbaef3eb9129e45f30de86abbf9022006ce643f5049ee1f27890467b77a6a8e11ec4661cc38cd8badf90115fbd03cef",
       "signature": {
@@ -131,23 +131,39 @@
     "DER": [
       {
         "exception": "Invalid sequence length",
-        "hex": "30ff0204ffffffff0204ffffffff"
+        "hex": "30ff020400ffffff020400ffffff"
       },
       {
         "exception": "Invalid sequence length",
-        "hex": "300c0304ffffffff0304ffffffff0000"
+        "hex": "300c030400ffffff030400ffffff0000"
       },
       {
         "exception": "Expected a DER integer",
-        "hex": "300cff04ffffffff0204ffffffff"
+        "hex": "300cff0400ffffff020400ffffff"
       },
       {
         "exception": "Expected a DER integer \\(2\\)",
-        "hex": "300c0202ffffffff0204ffffffff"
+        "hex": "300c020200ffffff020400ffffff"
       },
       {
         "exception": "Invalid DER encoding",
-        "hex": "300c0204ffffffff0202ffffffff"
+        "hex": "300c020400ffffff020200ffffff"
+      },
+      {
+        "exception": "R value is negative",
+        "hex": "300c0204ffffffff020400ffffff"
+      },
+      {
+        "exception": "S value is negative",
+        "hex": "300c020400ffffff0204ffffffff"
+      },
+      {
+        "exception": "R value excessively padded",
+        "hex": "300c02040000ffff020400ffffff"
+      },
+      {
+        "exception": "S value excessively padded",
+        "hex": "300c020400ffffff02040000ffff"
       }
     ]
   }
