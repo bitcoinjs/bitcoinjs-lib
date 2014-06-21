@@ -175,7 +175,13 @@ function Wallet(seed, network) {
 
       var output = txinId + ':' + txIn.index
 
-      if(me.outputs[output]) delete me.outputs[output]
+      if (!(output in me.outputs)) return
+
+      if (isPending) {
+        return me.outputs[output].pending = true
+      }
+
+      delete me.outputs[output]
     })
   }
 

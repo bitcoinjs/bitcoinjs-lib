@@ -264,11 +264,34 @@ describe('Wallet', function() {
     })
 
     describe("processPendingTx", function(){
-      it("sets the pending flag on output", function(){
+      it("incoming: sets the pending flag on output", function(){
         wallet.addresses = [addresses[0]]
         wallet.processPendingTx(tx)
 
         verifyOutputAdded(0, true)
+      })
+
+      describe("when tx ins outpoint contains a known txhash:i", function(){
+        var spendTx
+        beforeEach(function(){
+          wallet.addresses = [addresses[0]]
+          wallet.processConfirmedTx(tx)
+
+          spendTx = Transaction.fromHex(fixtureTx2Hex)
+        })
+
+        it("outgoing: sets the pending flag on output instead of deleting it", function(){
+          var txIn = spendTx.ins[0]
+          var txInId = new Buffer(txIn.hash)
+          Array.prototype.reverse.call(txInId)
+          txInId = txInId.toString('hex')
+
+          var key = txInId + ':' + txIn.index
+          assert(!wallet.outputs[key].pending)
+
+          wallet.processPendingTx(spendTx)
+          assert(wallet.outputs[key].pending)
+        })
       })
     })
 
