@@ -116,8 +116,7 @@ function recoverPubKey(curve, e, signature, i) {
   var s = signature.s
 
   // A set LSB signifies that the y-coordinate is odd
-  // By reduction, the y-coordinate is even if it is clear
-  var isYEven = !(i & 1)
+  var isYOdd = i & 1
 
   // The more significant bit specifies whether we should use the
   // first or second candidate key.
@@ -125,28 +124,12 @@ function recoverPubKey(curve, e, signature, i) {
 
   var n = curve.n
   var G = curve.G
-  var p = curve.p
-  var a = curve.a
-  var b = curve.b
-
-  // We precalculate (p + 1) / 4 where p is the field order
-  if (!curve.P_OVER_FOUR) {
-    curve.P_OVER_FOUR = p.add(BigInteger.ONE).shiftRight(2)
-  }
 
   // 1.1 Let x = r + jn
   var x = isSecondKey ? r.add(n) : r
-
-  // 1.2, 1.3 Convert x to a point R using routine specified in Section 2.3.4
-  var alpha = x.pow(3).add(a.multiply(x)).add(b).mod(p)
-  var beta = alpha.modPow(curve.P_OVER_FOUR, p)
-
-  // If beta is even, but y isn't, or vice versa, then convert it,
-  // otherwise we're done and y == beta.
-  var y = (beta.isEven() ^ isYEven) ? p.subtract(beta) : beta
+  var R = curve.pointFromX(isYOdd, x)
 
   // 1.4 Check that nR is at infinity
-  var R = Point.fromAffine(curve, x, y)
   var nR = R.multiply(n)
   assert(curve.isInfinity(nR), 'nR is not a valid curve point')
 
