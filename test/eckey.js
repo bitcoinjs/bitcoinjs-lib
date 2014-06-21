@@ -26,7 +26,7 @@ describe('ECKey', function() {
         var d = new BigInteger(f.d)
         var privKey = new ECKey(d)
 
-        assert.equal(privKey.pub.Q.toString(), f.Q.toString())
+        assert.equal(privKey.pub.Q.toString(), f.Q)
       })
     })
 
