@@ -150,6 +150,14 @@
         "hex": "300c020400ffffff020200ffffff"
       },
       {
+        "exception": "R length is zero",
+        "hex": "30080200020400ffffff"
+      },
+      {
+        "exception": "S length is zero",
+        "hex": "3008020400ffffff0200"
+      },
+      {
         "exception": "R value is negative",
         "hex": "300c0204ffffffff020400ffffff"
       },

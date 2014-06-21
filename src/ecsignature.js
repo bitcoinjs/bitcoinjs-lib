@@ -42,7 +42,7 @@ ECSignature.fromDER = function(buffer) {
   assert.equal(buffer.readUInt8(offset), 0x02, 'Expected a DER integer (2)')
 
   var sLen = buffer.readUInt8(offset + 1)
-  assert(sLen > 0, 'R length is zero')
+  assert(sLen > 0, 'S length is zero')
 
   var rB = buffer.slice(4, offset)
   var sB = buffer.slice(offset + 2)
