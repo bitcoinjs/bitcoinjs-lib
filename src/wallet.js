@@ -77,20 +77,21 @@ function Wallet(seed, network) {
     utxo.forEach(function(uo){
       validateUnspentOutput(uo)
       var o = unspentOutputToOutput(uo)
-      outputs[o.receive] = o
+      outputs[o.from] = o
     })
 
     this.outputs = outputs
   }
 
   function outputToUnspentOutput(output){
-    var hashAndIndex = output.receive.split(":")
+    var hashAndIndex = output.from.split(":")
 
     return {
       hash: hashAndIndex[0],
       outputIndex: parseInt(hashAndIndex[1]),
       address: output.address,
-      value: output.value
+      value: output.value,
+      pending: output.pending
     }
   }
 
@@ -98,7 +99,7 @@ function Wallet(seed, network) {
     var hash = o.hash
     var key = hash + ":" + o.outputIndex
     return {
-      receive: key,
+      from: key,
       address: o.address,
       value: o.value,
       pending: o.pending
@@ -158,7 +159,7 @@ function Wallet(seed, network) {
         var output = txid + ':' + i
 
         me.outputs[output] = {
-          receive: output,
+          from: output,
           value: txOut.value,
           address: address,
           pending: isPending
@@ -174,7 +175,13 @@ function Wallet(seed, network) {
 
       var output = txinId + ':' + txIn.index
 
-      if(me.outputs[output]) delete me.outputs[output]
+      if (!(output in me.outputs)) return
+
+      if (isPending) {
+        return me.outputs[output].pending = true
+      }
+
+      delete me.outputs[output]
     })
   }
 
@@ -193,7 +200,7 @@ function Wallet(seed, network) {
       var utxo = utxos[i]
       addresses.push(utxo.address)
 
-      var outpoint = utxo.receive.split(':')
+      var outpoint = utxo.from.split(':')
       tx.addInput(outpoint[0], parseInt(outpoint[1]))
 
       var fee = fixedFee == undefined ? estimateFeePadChangeOutput(tx) : fixedFee
@@ -234,7 +241,7 @@ function Wallet(seed, network) {
 
   function estimateFeePadChangeOutput(tx) {
     var tmpTx = tx.clone()
-    tmpTx.addOutput(getChangeAddress(), 0)
+    tmpTx.addOutput(getChangeAddress(), network.dustSoftThreshold || 0)
 
     return network.estimateFee(tmpTx)
   }
