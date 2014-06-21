@@ -5,6 +5,7 @@ var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
 var Point = require('ecurve').Point
 
+// https://tools.ietf.org/html/rfc6979#section-3.2
 function deterministicGenerateK(curve, hash, d) {
   assert(Buffer.isBuffer(hash), 'Hash must be a Buffer, not ' + hash)
   assert.equal(hash.length, 32, 'Hash must be 256 bit')
@@ -13,22 +14,40 @@ function deterministicGenerateK(curve, hash, d) {
   var x = d.toBuffer(32)
   var k = new Buffer(32)
   var v = new Buffer(32)
-  k.fill(0)
+
+  // Step B
   v.fill(1)
 
+  // Step C
+  k.fill(0)
+
+  // Step D
   k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
+
+  // Step E
   v = crypto.HmacSHA256(v, k)
 
+  // Step F
   k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
-  v = crypto.HmacSHA256(v, k)
+
+  // Step G
   v = crypto.HmacSHA256(v, k)
 
-  var n = curve.n
-  var kB = BigInteger.fromBuffer(v).mod(n)
-  assert(kB.compareTo(BigInteger.ONE) > 0, 'Invalid k value')
-  assert(kB.compareTo(n) < 0, 'Invalid k value')
+  // Step H1/H2a, ignored as tlen === qlen (256 bit)
+  // Step H2b
+  v = crypto.HmacSHA256(v, k)
 
-  return kB
+  var T = BigInteger.fromBuffer(v)
+
+  // Step H3, repeat until T is within the interval [0, n - 1]
+  while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0)) {
+    k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0])]), k)
+    v = crypto.HmacSHA256(v, k)
+
+    T = BigInteger.fromBuffer(v)
+  }
+
+  return T
 }
 
 function sign(curve, hash, d) {

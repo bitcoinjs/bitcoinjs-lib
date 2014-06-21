@@ -15,7 +15,7 @@ var fixtures = require('./fixtures/ecdsa.json')
 describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
     fixtures.valid.forEach(function(f) {
-      it('determines k for \"' + f.message + '\"', function() {
+      it('for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var h1 = crypto.sha256(f.message)
 
