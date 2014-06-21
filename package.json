@@ -36,37 +36,37 @@
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
   "devDependencies": {
-    "mocha": "1.18.2",
-    "istanbul": "0.1.30",
-    "uglify-js": "2.4.13",
-    "sinon": "1.9.0",
-    "coveralls": "~2.10.0",
-    "mocha-lcov-reporter": "0.0.1",
-    "helloblock-js": "^0.2.1",
     "browserify": "~4.1.5",
-    "jshint": "2.5.1"
+    "coveralls": "~2.10.0",
+    "helloblock-js": "^0.2.1",
+    "istanbul": "0.1.30",
+    "jshint": "2.5.1",
+    "mocha": "1.18.2",
+    "mocha-lcov-reporter": "0.0.1",
+    "sinon": "1.9.0",
+    "uglify-js": "2.4.13"
   },
   "testling": {
     "browsers": [
+      "android-browser/4.2..latest",
       "chrome/20..latest",
       "firefox/21..latest",
-      "safari/latest",
-      "opera/15..latest",
-      "iphone/6..latest",
       "ipad/6..latest",
-      "android-browser/4.2..latest"
+      "iphone/6..latest",
+      "opera/15..latest",
+      "safari/latest"
     ],
     "harness": "mocha-bdd",
     "files": "test/*.js"
   },
   "scripts": {
-    "unit": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha -- --reporter list `find test -maxdepth 1 -not -type d`",
-    "test": "npm run-script unit",
-    "integration": "./node_modules/.bin/_mocha --reporter list test/integration/*.js",
-    "jshint": "./node_modules/.bin/jshint --config jshint.json src/*.js ; true",
+    "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js",
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter list test/*.js",
     "coveralls": "npm run-script coverage && node ./node_modules/.bin/coveralls < coverage/lcov.info",
-    "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js"
+    "integration": "./node_modules/.bin/_mocha --reporter list test/integration/*.js",
+    "jshint": "./node_modules/.bin/jshint --config jshint.json src/*.js ; true",
+    "test": "npm run-script unit",
+    "unit": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha -- --reporter list `find test -maxdepth 1 -not -type d`"
   },
   "dependencies": {
     "bigi": "1.1.0",
