@@ -10,11 +10,11 @@ var fixtures2 = require('./fixtures/scripts.json')
 
 describe('Scripts', function() {
   describe('classifyInput', function() {
-    fixtures.valid.forEach(function(f) {
-      if (f.scriptPubKey) return
+    fixtures2.valid.forEach(function(f) {
+      if (!f.scriptSig) return
 
-      it('supports ' + f.type, function() {
-        var script = Script.fromHex(f.hex)
+      it('classifies ' + f.scriptSig + ' as ' + f.type, function() {
+        var script = Script.fromHex(f.scriptSig)
         var type = scripts.classifyInput(script)
 
         assert.equal(type, f.type)
@@ -23,11 +23,11 @@ describe('Scripts', function() {
   })
 
   describe('classifyOutput', function() {
-    fixtures.valid.forEach(function(f) {
+    fixtures2.valid.forEach(function(f) {
       if (!f.scriptPubKey) return
 
-      it('supports ' + f.type, function() {
-        var script = Script.fromHex(f.hex)
+      it('classifies ' + f.scriptPubKey + ' as ' + f.type, function() {
+        var script = Script.fromHex(f.scriptPubKey)
         var type = scripts.classifyOutput(script)
 
         assert.equal(type, f.type)
