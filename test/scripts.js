@@ -5,12 +5,11 @@ var Address = require('../src/address')
 var ECPubKey = require('../src/ecpubkey')
 var Script = require('../src/script')
 
-var fixtures = require('./fixtures/script.json')
-var fixtures2 = require('./fixtures/scripts.json')
+var fixtures = require('./fixtures/scripts.json')
 
 describe('Scripts', function() {
   describe('classifyInput', function() {
-    fixtures2.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
       if (!f.scriptSig) return
 
       it('classifies ' + f.scriptSig + ' as ' + f.type, function() {
@@ -23,7 +22,7 @@ describe('Scripts', function() {
   })
 
   describe('classifyOutput', function() {
-    fixtures2.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
       if (!f.scriptPubKey) return
 
       it('classifies ' + f.scriptPubKey + ' as ' + f.type, function() {
@@ -36,7 +35,7 @@ describe('Scripts', function() {
   })
 
   describe('pubKey', function() {
-    fixtures2.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
       if (f.type !== 'pubkey') return
 
       describe('input script', function() {
@@ -60,7 +59,7 @@ describe('Scripts', function() {
   })
 
   describe('pubKeyHash', function() {
-    fixtures2.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
       if (f.type !== 'pubkeyhash') return
 
       var pubKey = ECPubKey.fromHex(f.pubKey)
@@ -85,7 +84,7 @@ describe('Scripts', function() {
   })
 
   describe('multisig', function() {
-    fixtures2.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
       if (f.type !== 'multisig') return
 
       var pubKeys = f.pubKeys.map(ECPubKey.fromHex)
@@ -112,7 +111,7 @@ describe('Scripts', function() {
       })
     })
 
-    fixtures2.invalid.multisig.forEach(function(f) {
+    fixtures.invalid.multisig.forEach(function(f) {
       var pubKeys = f.pubKeys.map(ECPubKey.fromHex)
       var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
 
@@ -141,7 +140,7 @@ describe('Scripts', function() {
   })
 
   describe('scripthash', function() {
-    fixtures2.valid.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
       if (f.type !== 'scripthash') return
 
       var redeemScript = Script.fromHex(f.redeemScript)
