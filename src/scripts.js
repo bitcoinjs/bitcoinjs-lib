@@ -35,13 +35,12 @@ function classifyOutput(script) {
   }
 }
 
-function classifyInput(script, checkScriptHash) {
+function classifyInput(script) {
   assert(script instanceof Script, 'Expected Script, got ', script)
-  if (checkScriptHash === undefined) checkScriptHash = true
 
   if (isPubKeyHashInput.call(script)) {
     return 'pubkeyhash'
-  } else if (checkScriptHash && isScriptHashInput.call(script)) {
+  } else if (isScriptHashInput.call(script)) {
     return 'scripthash'
   } else if (isMultisigInput.call(script)) {
     return 'multisig'
