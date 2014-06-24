@@ -36,7 +36,9 @@ describe('Scripts', function() {
   })
 
   describe('pubKey', function() {
-    fixtures2.valid.pubKey.forEach(function(f) {
+    fixtures2.valid.forEach(function(f) {
+      if (f.type !== 'pubkey') return
+
       describe('input script', function() {
         it('is generated correctly for ' + f.pubKey, function() {
           var signature = new Buffer(f.signature, 'hex')
@@ -58,7 +60,9 @@ describe('Scripts', function() {
   })
 
   describe('pubKeyHash', function() {
-    fixtures2.valid.pubKeyHash.forEach(function(f) {
+    fixtures2.valid.forEach(function(f) {
+      if (f.type !== 'pubkeyhash') return
+
       var pubKey = ECPubKey.fromHex(f.pubKey)
       var address = pubKey.getAddress()
 
@@ -81,7 +85,9 @@ describe('Scripts', function() {
   })
 
   describe('multisig', function() {
-    fixtures2.valid.multisig.forEach(function(f) {
+    fixtures2.valid.forEach(function(f) {
+      if (f.type !== 'multisig') return
+
       var pubKeys = f.pubKeys.map(ECPubKey.fromHex)
       var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
 
@@ -135,7 +141,9 @@ describe('Scripts', function() {
   })
 
   describe('scripthash', function() {
-    fixtures2.valid.scripthash.forEach(function(f) {
+    fixtures2.valid.forEach(function(f) {
+      if (f.type !== 'scripthash') return
+
       var redeemScript = Script.fromHex(f.redeemScript)
       var redeemScriptSig = Script.fromHex(f.redeemScriptSig)
 
