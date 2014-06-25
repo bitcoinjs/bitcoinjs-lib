@@ -91,7 +91,7 @@ describe('Scripts', function() {
       var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
 
       describe('input script', function() {
-        it('is generated correctly for ' + scriptPubKey.toASM(), function() {
+        it('is generated correctly for ' + f.scriptPubKey, function() {
           var signatures = f.signatures.map(function(signature) {
             return new Buffer(signature, 'hex')
           })
@@ -102,7 +102,7 @@ describe('Scripts', function() {
       })
 
       describe('output script', function() {
-        it('is generated correctly for ' + scriptPubKey.toASM(), function() {
+        it('is generated correctly for ' + f.scriptPubKey, function() {
           assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
