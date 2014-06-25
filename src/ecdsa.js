@@ -39,7 +39,7 @@ function deterministicGenerateK(curve, hash, d) {
 
   var T = BigInteger.fromBuffer(v)
 
-  // Step H3, repeat until T is within the interval [0, n - 1]
+  // Step H3, repeat until T is within the interval [1, n - 1]
   while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0)) {
     k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0])]), k)
     v = crypto.HmacSHA256(v, k)
