@@ -90,19 +90,16 @@ describe('Scripts', function() {
       var pubKeys = f.pubKeys.map(ECPubKey.fromHex)
       var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
 
-      // FIXME: some missing test data for now
-      if (f.scriptSig) {
-        describe('input script', function() {
-          it('is generated correctly for ' + scriptPubKey.toHex(), function() {
-            var signatures = f.signatures.map(function(signature) {
-              return new Buffer(signature, 'hex')
-            })
-
-            var scriptSig = scripts.multisigInput(signatures)
-            assert.equal(scriptSig.toHex(), f.scriptSig)
+      describe('input script', function() {
+        it('is generated correctly for ' + scriptPubKey.toHex(), function() {
+          var signatures = f.signatures.map(function(signature) {
+            return new Buffer(signature, 'hex')
           })
+
+          var scriptSig = scripts.multisigInput(signatures)
+          assert.equal(scriptSig.toHex(), f.scriptSig)
         })
-      }
+      })
 
       describe('output script', function() {
         it('is generated correctly for ' + scriptPubKey.toHex(), function() {
