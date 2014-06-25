@@ -3,6 +3,7 @@ var crypto = require('../src/crypto')
 var ecdsa = require('../src/ecdsa')
 var message = require('../src/message')
 var networks = require('../src/networks')
+var sinon = require('sinon')
 
 var BigInteger = require('bigi')
 var ECSignature = require('../src/ecsignature')
@@ -23,6 +24,21 @@ describe('ecdsa', function() {
         assert.equal(k.toHex(), f.k)
       })
     })
+
+    it('loops until an appropriate k value is found', sinon.test(function() {
+      this.mock(BigInteger).expects('fromBuffer')
+        .exactly(3)
+        .onCall(0).returns(new BigInteger('0'))
+        .onCall(1).returns(curve.n)
+        .onCall(2).returns(new BigInteger('42'))
+
+      var d = new BigInteger('1')
+      var h1 = new Buffer(32)
+
+      var k = ecdsa.deterministicGenerateK(curve, h1, d)
+
+      assert.equal(k.toString(), '42')
+    }))
   })
 
   describe('recoverPubKey', function() {
