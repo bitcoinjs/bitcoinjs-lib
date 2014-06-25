@@ -13,7 +13,7 @@ describe('Scripts', function() {
       if (!f.scriptSig) return
 
       it('classifies ' + f.scriptSig + ' as ' + f.type, function() {
-        var script = Script.fromHex(f.scriptSig)
+        var script = Script.fromASM(f.scriptSig)
         var type = scripts.classifyInput(script)
 
         assert.equal(type, f.type)
@@ -26,7 +26,7 @@ describe('Scripts', function() {
       if (!f.scriptPubKey) return
 
       it('classifies ' + f.scriptPubKey + ' as ' + f.type, function() {
-        var script = Script.fromHex(f.scriptPubKey)
+        var script = Script.fromASM(f.scriptPubKey)
         var type = scripts.classifyOutput(script)
 
         assert.equal(type, f.type)
@@ -43,7 +43,7 @@ describe('Scripts', function() {
           var signature = new Buffer(f.signature, 'hex')
 
           var scriptSig = scripts.pubKeyInput(signature)
-          assert.equal(scriptSig.toHex(), f.scriptSig)
+          assert.equal(scriptSig.toASM(), f.scriptSig)
         })
       })
 
@@ -52,7 +52,7 @@ describe('Scripts', function() {
           var pubKey = ECPubKey.fromHex(f.pubKey)
 
           var scriptPubKey = scripts.pubKeyOutput(pubKey)
-          assert.equal(scriptPubKey.toHex(), f.scriptPubKey)
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
     })
@@ -70,14 +70,14 @@ describe('Scripts', function() {
           var signature = new Buffer(f.signature, 'hex')
 
           var scriptSig = scripts.pubKeyHashInput(signature, pubKey)
-          assert.equal(scriptSig.toHex(), f.scriptSig)
+          assert.equal(scriptSig.toASM(), f.scriptSig)
         })
       })
 
       describe('output script', function() {
         it('is generated correctly for ' + address, function() {
           var scriptPubKey = scripts.pubKeyHashOutput(address.hash)
-          assert.equal(scriptPubKey.toHex(), f.scriptPubKey)
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
     })
@@ -91,19 +91,19 @@ describe('Scripts', function() {
       var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
 
       describe('input script', function() {
-        it('is generated correctly for ' + scriptPubKey.toHex(), function() {
+        it('is generated correctly for ' + scriptPubKey.toASM(), function() {
           var signatures = f.signatures.map(function(signature) {
             return new Buffer(signature, 'hex')
           })
 
           var scriptSig = scripts.multisigInput(signatures)
-          assert.equal(scriptSig.toHex(), f.scriptSig)
+          assert.equal(scriptSig.toASM(), f.scriptSig)
         })
       })
 
       describe('output script', function() {
-        it('is generated correctly for ' + scriptPubKey.toHex(), function() {
-          assert.equal(scriptPubKey.toHex(), f.scriptPubKey)
+        it('is generated correctly for ' + scriptPubKey.toASM(), function() {
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
     })
@@ -140,16 +140,16 @@ describe('Scripts', function() {
     fixtures.valid.forEach(function(f) {
       if (f.type !== 'scripthash') return
 
-      var redeemScript = Script.fromHex(f.redeemScript)
-      var redeemScriptSig = Script.fromHex(f.redeemScriptSig)
+      var redeemScript = Script.fromASM(f.redeemScript)
+      var redeemScriptSig = Script.fromASM(f.redeemScriptSig)
 
-      var address = Address.fromOutputScript(Script.fromHex(f.scriptPubKey))
+      var address = Address.fromOutputScript(Script.fromASM(f.scriptPubKey))
 
       describe('input script', function() {
         it('is generated correctly for ' + address, function() {
           var scriptSig = scripts.scriptHashInput(redeemScriptSig, redeemScript)
 
-          assert.equal(scriptSig.toHex(), f.scriptSig)
+          assert.equal(scriptSig.toASM(), f.scriptSig)
         })
       })
 
@@ -157,7 +157,7 @@ describe('Scripts', function() {
         it('is generated correctly for ' + address, function() {
           var scriptPubKey = scripts.scriptHashOutput(redeemScript.getHash())
 
-          assert.equal(scriptPubKey.toHex(), f.scriptPubKey)
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
     })
