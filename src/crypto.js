@@ -13,10 +13,7 @@ function hash256(buffer) {
 }
 
 function ripemd160(buffer) {
-  var array = convert.bufferToWordArray(buffer)
-  var result = CryptoJS.RIPEMD160(array)
-
-  return convert.wordArrayToBuffer(result)
+  return crypto.createHash('rmd160').update(buffer).digest()
 }
 
 function sha1(buffer) {
