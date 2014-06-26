@@ -31,18 +31,21 @@ function sign(privKey, message, network) {
   var e = BigInteger.fromBuffer(hash)
   var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, signature, privKey.pub.Q)
 
-  return signature.toCompact(i, privKey.pub.compressed)
+  return signature.toCompact(i, privKey.pub.compressed).toString('base64')
 }
 
 // TODO: network could be implied from address
-function verify(address, signatureBuffer, message, network) {
+function verify(address, signature, message, network) {
+  if(!Buffer.isBuffer(signature))
+    var signature = new Buffer(signature, 'base64')
+
   if (address instanceof Address) {
     address = address.toString()
   }
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
-  var parsed = ECSignature.parseCompact(signatureBuffer)
+  var parsed = ECSignature.parseCompact(signature)
   var e = BigInteger.fromBuffer(hash)
   var Q = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
 

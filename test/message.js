@@ -34,11 +34,10 @@ describe('Message', function() {
       it('verifies a valid signature for \"' + f.message + '\" (' + f.network + ')', function() {
         var network = networks[f.network]
 
-        var signature = new Buffer(f.signature, 'base64')
-        assert.ok(Message.verify(f.address, signature, f.message, network))
+        assert.ok(Message.verify(f.address, f.signature, f.message, network))
 
         if (f.compressed) {
-          var compressedSignature = new Buffer(f.compressed.signature, 'base64')
+          var compressedSignature = f.compressed.signature
 
           assert.ok(Message.verify(f.compressed.address, compressedSignature, f.message, network))
         }
