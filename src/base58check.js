@@ -1,6 +1,6 @@
 // https://en.bitcoin.it/wiki/Base58Check_encoding
 var assert = require('assert')
-var base58 = require('./base58')
+var base58 = require('bs58')
 var crypto = require('./crypto')
 
 // Encode a buffer as a base58-check-encoded string

@@ -1,5 +1,5 @@
 var assert = require('assert')
-var base58 = require('../src/base58')
+var base58 = require('bs58')
 var base58check = require('../src/base58check')
 var networks = require('../src/networks')
 
