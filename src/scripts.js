@@ -136,29 +136,28 @@ function isMultisigOutput() {
   if (this.chunks < 4) return false
   if (this.chunks[this.chunks.length - 1] !== opcodes.OP_CHECKMULTISIG) return false
 
-  var mS = this.chunks[0]
-  if (!isSmallIntOp(mS)) return false
+  var mOp = this.chunks[0]
+  if (mOp === opcodes.OP_0) return false
+  if (mOp < opcodes.OP_1) return false
+  if (mOp > opcodes.OP_16) return false
 
-  var nS = this.chunks[this.chunks.length - 2]
-  if (!isSmallIntOp(nS)) return false
+  var nOp = this.chunks[this.chunks.length - 2]
+  if (nOp === opcodes.OP_0) return false
+  if (nOp < opcodes.OP_1) return false
+  if (nOp > opcodes.OP_16) return false
 
-  var m = mS - (opcodes.OP_1 - 1)
-  var n = nS - (opcodes.OP_1 - 1)
+  var m = mOp - (opcodes.OP_1 - 1)
+  var n = nOp - (opcodes.OP_1 - 1)
   if (n < m) return false
-  if (n === 0) return false
-  if (m > (this.chunks.length - 3)) return false
 
-  return this.chunks.slice(1, -2).every(isCanonicalPubKey)
+  var pubKeys = this.chunks.slice(1, -2)
+  if (n < pubKeys.length) return false
+
+  return pubKeys.every(isCanonicalPubKey)
 }
 
 function isNulldataOutput() {
   return this.chunks[0] === opcodes.OP_RETURN
-}
-
-function isSmallIntOp(opcode) {
-  if (Buffer.isBuffer(opcode)) return false
-
-  return ((opcode === opcodes.OP_0) || ((opcode >= opcodes.OP_1) && (opcode <= opcodes.OP_16)))
 }
 
 // Standard Script Templates

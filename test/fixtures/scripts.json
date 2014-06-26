@@ -51,6 +51,32 @@
     }
   ],
   "invalid": {
+    "classify": [
+      {
+        "description": "multisig output : m > n",
+        "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_1 OP_CHECKMULTISIG"
+      },
+      {
+        "description": "multisig output : n === 0",
+        "scriptPubKey": "OP_0 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_0 OP_CHECKMULTISIG"
+      },
+      {
+        "description": "multisig output : not (m <= len(pubKeys) <= n)",
+        "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_2 OP_CHECKMULTISIG"
+      },
+      {
+        "description": "multisig output : m not a small int",
+        "scriptPubKey": "OP_HASH160 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_1 OP_CHECKMULTISIG"
+      },
+      {
+        "description": "multisig output : n not a small int",
+        "scriptPubKey": "OP_1 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_HASH160 OP_CHECKMULTISIG"
+      },
+      {
+        "description": "multisig output : non-canonical pubKey (bad length)",
+        "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffff OP_1 OP_CHECKMULTISIG"
+      }
+    ],
     "multisig": [
       {
         "exception": "Not enough pubKeys provided",

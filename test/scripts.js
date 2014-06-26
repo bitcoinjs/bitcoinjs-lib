@@ -32,6 +32,15 @@ describe('Scripts', function() {
         assert.equal(type, f.type)
       })
     })
+
+    fixtures.invalid.classify.forEach(function(f) {
+      it('returns nonstandard for ' + f.description, function() {
+        var script = Script.fromASM(f.scriptPubKey)
+        var type = scripts.classifyOutput(script)
+
+        assert.equal(type, 'nonstandard')
+      })
+    })
   })
 
   describe('pubKey', function() {
