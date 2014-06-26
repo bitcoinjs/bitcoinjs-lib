@@ -2,6 +2,9 @@ var assert = require('assert')
 var crypto = require('../src/crypto')
 var networks = require('../src/networks')
 
+var secureRandom = require('secure-random')
+var sinon = require('sinon')
+
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
 
@@ -73,6 +76,42 @@ describe('ECKey', function() {
           assert.equal(result, wif.string)
         })
       })
+    })
+  })
+
+  describe('makeRandom', function() {
+    var exWIF = 'KwMWvwRJeFqxYyhZgNwYuYjbQENDAPAudQx5VEmKJrUZcq6aL2pv'
+    var exPrivKey = ECKey.fromWIF(exWIF)
+    var exBuffer = exPrivKey.d.toBuffer(32)
+
+    describe('using default RNG', function() {
+      beforeEach(function() {
+        sinon.stub(secureRandom, 'randomBuffer').returns(exBuffer)
+      })
+
+      afterEach(function() {
+        secureRandom.randomBuffer.restore()
+      })
+
+      it('generates a ECKey', function() {
+        var privKey = ECKey.makeRandom()
+
+        assert.equal(privKey.toWIF(), exWIF)
+      })
+
+      it('supports compression', function() {
+        assert.equal(ECKey.makeRandom(true).pub.compressed, true)
+        assert.equal(ECKey.makeRandom(false).pub.compressed, false)
+      })
+    })
+
+    it('allows a custom RNG to be used', function() {
+      function rng(size) {
+        return exBuffer.slice(0, size)
+      }
+
+      var privKey = ECKey.makeRandom(undefined, rng)
+      assert.equal(privKey.toWIF(), exWIF)
     })
   })
 

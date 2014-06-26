@@ -43,9 +43,11 @@ ECKey.fromWIF = function(string) {
 }
 
 ECKey.makeRandom = function(compressed, rng) {
-  rng = rng || secureRandom
+  rng = rng || secureRandom.randomBuffer
 
-  var buffer = new Buffer(rng(32))
+  var buffer = rng(32)
+  assert(Buffer.isBuffer(buffer), 'Expected Buffer, got ' + buffer)
+
   var d = BigInteger.fromBuffer(buffer)
   d = d.mod(curve.n)
 
