@@ -5,16 +5,18 @@ var crypto = require('crypto')
 var convert = require('./convert')
 
 function hash160(buffer) {
-  var step1 = sha256(buffer)
-
-  var step2a = convert.bufferToWordArray(step1)
-  var step2b = CryptoJS.RIPEMD160(step2a)
-
-  return convert.wordArrayToBuffer(step2b)
+  return ripemd160(sha256(buffer))
 }
 
 function hash256(buffer) {
   return sha256(sha256(buffer))
+}
+
+function ripemd160(buffer) {
+  var array = convert.bufferToWordArray(buffer)
+  var result = CryptoJS.RIPEMD160(array)
+
+  return convert.wordArrayToBuffer(result)
 }
 
 function sha1(buffer) {
@@ -43,6 +45,7 @@ function HmacSHA512(data, secret) {
 }
 
 module.exports = {
+  ripemd160: ripemd160,
   sha1: sha1,
   sha256: sha256,
   hash160: hash160,

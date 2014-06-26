@@ -8,10 +8,9 @@ describe('Crypto', function() {
     it('matches the test vectors', function() {
       fixtures.before.hex.forEach(function(hex, i) {
         var data = new Buffer(hex, 'hex')
-        var actual = crypto.hash160(data)
-        var expected = fixtures.after.hash160[i]
+        var actual = crypto.hash160(data).toString('hex')
 
-        assert.equal(actual.toString('hex'), expected)
+        assert.equal(actual, fixtures.after.hash160[i])
       })
     })
   })
@@ -20,10 +19,20 @@ describe('Crypto', function() {
     it('matches the test vectors', function() {
       fixtures.before.hex.forEach(function(hex, i) {
         var data = new Buffer(hex, 'hex')
-        var actual = crypto.hash256(data)
-        var expected = fixtures.after.hash256[i]
+        var actual = crypto.hash256(data).toString('hex')
 
-        assert.equal(actual.toString('hex'), expected)
+        assert.equal(actual, fixtures.after.hash256[i])
+      })
+    })
+  })
+
+  describe('RIPEMD160', function() {
+    it('matches the test vectors', function() {
+      fixtures.before.hex.forEach(function(hex, i) {
+        var data = new Buffer(hex, 'hex')
+        var actual = crypto.ripemd160(data).toString('hex')
+
+        assert.equal(actual, fixtures.after.ripemd160[i])
       })
     })
   })
@@ -32,10 +41,9 @@ describe('Crypto', function() {
     it('matches the test vectors', function() {
       fixtures.before.hex.forEach(function(hex, i) {
         var data = new Buffer(hex, 'hex')
-        var actual = crypto.sha1(data)
-        var expected = fixtures.after.sha1[i]
+        var actual = crypto.sha1(data).toString('hex')
 
-        assert.equal(actual.toString('hex'), expected)
+        assert.equal(actual, fixtures.after.sha1[i])
       })
     })
   })
@@ -44,10 +52,9 @@ describe('Crypto', function() {
     it('matches the test vectors', function() {
       fixtures.before.hex.forEach(function(hex, i) {
         var data = new Buffer(hex, 'hex')
-        var actual = crypto.sha256(data)
-        var expected = fixtures.after.sha256[i]
+        var actual = crypto.sha256(data).toString('hex')
 
-        assert.equal(actual.toString('hex'), expected)
+        assert.equal(actual, fixtures.after.sha256[i])
       })
     })
   })
@@ -57,11 +64,9 @@ describe('Crypto', function() {
       fixtures.before.hex.forEach(function(hex, i) {
         var data = new Buffer(hex, 'hex')
         var secret = new Buffer(fixtures.before.secret)
+        var actual = crypto.HmacSHA256(data, secret).toString('hex')
 
-        var actual = crypto.HmacSHA256(data, secret)
-        var expected = fixtures.after.hmacsha256[i]
-
-        assert.equal(actual.toString('hex'), expected)
+        assert.equal(actual, fixtures.after.hmacsha256[i])
       })
     })
   })
@@ -71,11 +76,9 @@ describe('Crypto', function() {
       fixtures.before.hex.forEach(function(hex, i) {
         var data = new Buffer(hex, 'hex')
         var secret = new Buffer(fixtures.before.secret)
+        var actual = crypto.HmacSHA512(data, secret).toString('hex')
 
-        var actual = crypto.HmacSHA512(data, secret)
-        var expected = fixtures.after.hmacsha512[i]
-
-        assert.equal(actual.toString('hex'), expected)
+        assert.equal(actual, fixtures.after.hmacsha512[i])
       })
     })
   })
