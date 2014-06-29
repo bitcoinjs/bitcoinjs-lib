@@ -5,16 +5,15 @@ var Address = require('../src/address')
 var ECPubKey = require('../src/ecpubkey')
 var Script = require('../src/script')
 
-var fixtures = require('./fixtures/script.json')
-var fixtures2 = require('./fixtures/scripts.json')
+var fixtures = require('./fixtures/scripts.json')
 
 describe('Scripts', function() {
   describe('classifyInput', function() {
     fixtures.valid.forEach(function(f) {
-      if (f.scriptPubKey) return
+      if (!f.scriptSig) return
 
-      it('supports ' + f.type, function() {
-        var script = Script.fromHex(f.hex)
+      it('classifies ' + f.scriptSig + ' as ' + f.type, function() {
+        var script = Script.fromASM(f.scriptSig)
         var type = scripts.classifyInput(script)
 
         assert.equal(type, f.type)
@@ -26,23 +25,34 @@ describe('Scripts', function() {
     fixtures.valid.forEach(function(f) {
       if (!f.scriptPubKey) return
 
-      it('supports ' + f.type, function() {
-        var script = Script.fromHex(f.hex)
+      it('classifies ' + f.scriptPubKey + ' as ' + f.type, function() {
+        var script = Script.fromASM(f.scriptPubKey)
         var type = scripts.classifyOutput(script)
 
         assert.equal(type, f.type)
       })
     })
+
+    fixtures.invalid.classify.forEach(function(f) {
+      it('returns nonstandard for ' + f.description, function() {
+        var script = Script.fromASM(f.scriptPubKey)
+        var type = scripts.classifyOutput(script)
+
+        assert.equal(type, 'nonstandard')
+      })
+    })
   })
 
   describe('pubKey', function() {
-    fixtures2.valid.pubKey.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      if (f.type !== 'pubkey') return
+
       describe('input script', function() {
         it('is generated correctly for ' + f.pubKey, function() {
           var signature = new Buffer(f.signature, 'hex')
 
           var scriptSig = scripts.pubKeyInput(signature)
-          assert.equal(scriptSig.toHex(), f.scriptSig)
+          assert.equal(scriptSig.toASM(), f.scriptSig)
         })
       })
 
@@ -51,14 +61,16 @@ describe('Scripts', function() {
           var pubKey = ECPubKey.fromHex(f.pubKey)
 
           var scriptPubKey = scripts.pubKeyOutput(pubKey)
-          assert.equal(scriptPubKey.toHex(), f.scriptPubKey)
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
     })
   })
 
   describe('pubKeyHash', function() {
-    fixtures2.valid.pubKeyHash.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      if (f.type !== 'pubkeyhash') return
+
       var pubKey = ECPubKey.fromHex(f.pubKey)
       var address = pubKey.getAddress()
 
@@ -67,46 +79,45 @@ describe('Scripts', function() {
           var signature = new Buffer(f.signature, 'hex')
 
           var scriptSig = scripts.pubKeyHashInput(signature, pubKey)
-          assert.equal(scriptSig.toHex(), f.scriptSig)
+          assert.equal(scriptSig.toASM(), f.scriptSig)
         })
       })
 
       describe('output script', function() {
         it('is generated correctly for ' + address, function() {
           var scriptPubKey = scripts.pubKeyHashOutput(address.hash)
-          assert.equal(scriptPubKey.toHex(), f.scriptPubKey)
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
     })
   })
 
   describe('multisig', function() {
-    fixtures2.valid.multisig.forEach(function(f) {
+    fixtures.valid.forEach(function(f) {
+      if (f.type !== 'multisig') return
+
       var pubKeys = f.pubKeys.map(ECPubKey.fromHex)
       var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
 
-      // FIXME: some missing test data for now
-      if (f.scriptSig) {
-        describe('input script', function() {
-          it('is generated correctly for ' + scriptPubKey.toHex(), function() {
-            var signatures = f.signatures.map(function(signature) {
-              return new Buffer(signature, 'hex')
-            })
-
-            var scriptSig = scripts.multisigInput(signatures)
-            assert.equal(scriptSig.toHex(), f.scriptSig)
+      describe('input script', function() {
+        it('is generated correctly for ' + f.scriptPubKey, function() {
+          var signatures = f.signatures.map(function(signature) {
+            return new Buffer(signature, 'hex')
           })
+
+          var scriptSig = scripts.multisigInput(signatures)
+          assert.equal(scriptSig.toASM(), f.scriptSig)
         })
-      }
+      })
 
       describe('output script', function() {
-        it('is generated correctly for ' + scriptPubKey.toHex(), function() {
-          assert.equal(scriptPubKey.toHex(), f.scriptPubKey)
+        it('is generated correctly for ' + f.scriptPubKey, function() {
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
     })
 
-    fixtures2.invalid.multisig.forEach(function(f) {
+    fixtures.invalid.multisig.forEach(function(f) {
       var pubKeys = f.pubKeys.map(ECPubKey.fromHex)
       var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
 
@@ -135,17 +146,19 @@ describe('Scripts', function() {
   })
 
   describe('scripthash', function() {
-    fixtures2.valid.scripthash.forEach(function(f) {
-      var redeemScript = Script.fromHex(f.redeemScript)
-      var redeemScriptSig = Script.fromHex(f.redeemScriptSig)
+    fixtures.valid.forEach(function(f) {
+      if (f.type !== 'scripthash') return
 
-      var address = Address.fromOutputScript(Script.fromHex(f.scriptPubKey))
+      var redeemScript = Script.fromASM(f.redeemScript)
+      var redeemScriptSig = Script.fromASM(f.redeemScriptSig)
+
+      var address = Address.fromOutputScript(Script.fromASM(f.scriptPubKey))
 
       describe('input script', function() {
         it('is generated correctly for ' + address, function() {
           var scriptSig = scripts.scriptHashInput(redeemScriptSig, redeemScript)
 
-          assert.equal(scriptSig.toHex(), f.scriptSig)
+          assert.equal(scriptSig.toASM(), f.scriptSig)
         })
       })
 
@@ -153,7 +166,7 @@ describe('Scripts', function() {
         it('is generated correctly for ' + address, function() {
           var scriptPubKey = scripts.scriptHashOutput(redeemScript.getHash())
 
-          assert.equal(scriptPubKey.toHex(), f.scriptPubKey)
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
     })

@@ -1,7 +1,7 @@
 module.exports = {
   // push value
-  OP_0         : 0,
   OP_FALSE     : 0,
+  OP_0         : 0,
   OP_PUSHDATA1 : 76,
   OP_PUSHDATA2 : 77,
   OP_PUSHDATA4 : 78,

@@ -12,6 +12,21 @@ function Script(buffer, chunks) {
 }
 
 // Import operations
+Script.fromASM = function(asm) {
+  var strChunks = asm.split(' ')
+
+  var chunks = strChunks.map(function(strChunk) {
+    if (strChunk in opcodes) {
+      return opcodes[strChunk]
+
+    } else {
+      return new Buffer(strChunk, 'hex')
+    }
+  })
+
+  return Script.fromChunks(chunks)
+}
+
 Script.fromBuffer = function(buffer) {
   var chunks = []
 
@@ -90,6 +105,23 @@ Script.prototype.without = function(needle) {
 }
 
 // Export operations
+var reverseOps = []
+for (var op in opcodes) {
+  var code = opcodes[op]
+  reverseOps[code] = op
+}
+
+Script.prototype.toASM = function() {
+  return this.chunks.map(function(chunk) {
+    if (Buffer.isBuffer(chunk)) {
+      return chunk.toString('hex')
+
+    } else {
+      return reverseOps[chunk]
+    }
+  }).join(' ')
+}
+
 Script.prototype.toBuffer = function() {
   return this.buffer
 }

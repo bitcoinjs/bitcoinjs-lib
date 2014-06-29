@@ -21,6 +21,14 @@ describe('Script', function() {
     })
   })
 
+  describe('fromASM/toASM', function() {
+    fixtures.valid.forEach(function(f) {
+      it('decodes/encodes ' + f.description, function() {
+        assert.equal(Script.fromASM(f.asm).toASM(), f.asm)
+      })
+    })
+  })
+
   describe('fromHex/toHex', function() {
     fixtures.valid.forEach(function(f) {
       it('decodes/encodes ' + f.description, function() {
