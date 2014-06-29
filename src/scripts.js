@@ -116,7 +116,7 @@ function isScriptHashInput() {
   var scriptSig = Script.fromChunks(this.chunks.slice(0, -1))
   var scriptPubKey = Script.fromBuffer(lastChunk)
 
-  return classifyInput(scriptSig, false) === classifyOutput(scriptPubKey)
+  return classifyInput(scriptSig) === classifyOutput(scriptPubKey)
 }
 
 function isScriptHashOutput() {
