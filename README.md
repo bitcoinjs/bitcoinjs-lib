@@ -24,10 +24,10 @@ A continued implementation of the original `0.1.3` version used by over a millio
 
 
 ## Should I use this in production?
-If you are thinking of using the master branch of this library in production, stop.
+If you are thinking of using the master branch of this library in production, *stop*.
 Master is not stable; it is our development branch, and only tagged releases may be classified as stable.
 
-If you are looking for the original, it is tagged as `0.1.3`. Unless you need it for dependency reasons, it is highly recommended that you use the newest version, which adds major functionality, fixes many bugs, and is well tested.
+If you are looking for the original, it is tagged as `0.1.3`. Unless you need it for dependency reasons, it is strongly recommended that you use (or upgrade to) the newest version, which adds major functionality, cleans up the interface, fixes many bugs, and adds over 1,300 more tests.
 
 
 ## Installation
@@ -48,9 +48,14 @@ From the repo:
 
 ### Browser
 
-Compile `bitcoinjs-min.js` with the following command:
+From the repository: Compile `bitcoinjs-min.js` with the following command:
 
     $ npm run-script compile
+
+From NPM:
+
+    $ npm -g install bitcoinjs-lib browserify uglify-js
+    $ browserify -r bitcoinjs-lib -s Bitcoin | uglifyjs > bitcoinjs.min.js
 
 After loading this file in your browser, you will be able to use the global `bitcoin` object.
 
@@ -100,20 +105,31 @@ console.log(tx.toHex())
 ```
 
 
-## Projects utilizing bitcoinjs-lib
+## Projects utilizing BitcoinJS
 
-- [Blockchain.info Wallet](https://blockchain.info/wallet)
-- [Bitaddress.org](https://www.bitaddress.org)
-- [Coinpunk](https://coinpunk.com)
-- [DarkWallet](https://darkwallet.unsystem.net)
-- [GreenAddress](https://greenaddress.it)
-- [Dogechain Wallet](https://dogechain.info)
-- [Justcoin Exchange](https://justcoin.com)
+- [Coinpunk](https://coinpunk.com) *
+- [Hive Wallet](https://www.hivewallet.com) *
+- [Justchain Exchange](https://justcoin.com) *
+- [Skyhook ATM](http://projectskyhook.com) *
+
+- [BitAddress](https://www.bitaddress.org)
+- [Blockchain.info](https://blockchain.info/wallet)
 - [Brainwallet](https://brainwallet.github.io)
-- [Skyhook ATM](http://projectskyhook.com)
+- [Dark Wallet](https://darkwallet.unsystem.net)
+- [Dogechain Wallet](https://dogechain.info)
+- [GreenAddress](https://greenaddress.it)
 
-Feel free to send pull requests to have your project/startup listed here.
+* directly contributed code or funding to the project. They're helping improve the Bitcoin ecosystem for everyone. Thank them.
 
+Feel free to send pull requests to have your project/startup listed here (alphabetically, please). Or better yet, contribute code or funding!
+
+## Contributors
+
+Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
+
+Since then, many people have contributed. [Click here](https://github.com/bitcoinjs/bitcoinjs-lib/graphs/contributors) to see the comprehensive list.
+
+Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of the library from 0.1.3 to 1.0.0.
 
 ## Contributing
 
@@ -130,13 +146,18 @@ Feel free to send pull requests to have your project/startup listed here.
     $ npm run-script coverage
 
 
-## Alternatives / Complementing Libraries
+## Complementing Libraries
+
+- [bip39](https://github.com/weilu/bip39) - Wei Lu's Mnemonic code generator
+- [BCoin](https://github.com/indutny/bcoin) - BIP37 / Bloom Filters / SPV client
+- [scryptsy](https://github.com/cryptocoinjs/scryptsy) - Private key encryption (BIP38)
+- [insight](https://github.com/bitpay/insight) - A bitcoin blockchain API for web wallets.
 
 
-- [BCoin](https://github.com/indutny/bcoin)
+## Alternatives
+
 - [Bitcore](https://github.com/bitpay/bitcore)
 - [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
-
 
 ## License
 
