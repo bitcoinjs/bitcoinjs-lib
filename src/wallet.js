@@ -65,7 +65,7 @@ function Wallet(seed, network) {
 
     for(var key in this.outputs){
       var output = this.outputs[key]
-      utxo.push(outputToUnspentOutput(output))
+      if(!output.to) utxo.push(outputToUnspentOutput(output))
     }
 
     return utxo
@@ -167,7 +167,7 @@ function Wallet(seed, network) {
       }
     })
 
-    tx.ins.forEach(function(txIn) {
+    tx.ins.forEach(function(txIn, i) {
       // copy and convert to big-endian hex
       var txinId = new Buffer(txIn.hash)
       Array.prototype.reverse.call(txinId)
@@ -178,10 +178,11 @@ function Wallet(seed, network) {
       if (!(output in me.outputs)) return
 
       if (isPending) {
-        return me.outputs[output].pending = true
+        me.outputs[output].to = txid + ':' + i
+        me.outputs[output].pending = true
+      } else {
+        delete me.outputs[output]
       }
-
-      delete me.outputs[output]
     })
   }
 

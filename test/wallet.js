@@ -215,6 +215,13 @@ describe('Wallet', function() {
       it('parses wallet outputs to the expect format', function(){
         assert.deepEqual(wallet.getUnspentOutputs(), [expectedUtxo])
       })
+
+      it("ignores pending spending outputs (outputs with 'to' property)", function(){
+        var output = wallet.outputs[expectedOutputKey]
+        output.to = fakeTxId(0) + ':' + 0
+        output.pending = true
+        assert.deepEqual(wallet.getUnspentOutputs(), [])
+      })
     })
 
     describe('setUnspentOutputs', function(){
@@ -280,7 +287,7 @@ describe('Wallet', function() {
           spendTx = Transaction.fromHex(fixtureTx2Hex)
         })
 
-        it("outgoing: sets the pending flag on output instead of deleting it", function(){
+        it("outgoing: sets the pending flag and 'to' on output", function(){
           var txIn = spendTx.ins[0]
           var txInId = new Buffer(txIn.hash)
           Array.prototype.reverse.call(txInId)
@@ -291,6 +298,7 @@ describe('Wallet', function() {
 
           wallet.processPendingTx(spendTx)
           assert(wallet.outputs[key].pending)
+          assert.equal(wallet.outputs[key].to, spendTx.getId() + ':' + 0)
         })
       })
     })
