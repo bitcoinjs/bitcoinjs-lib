@@ -1,5 +1,5 @@
 var assert = require('assert')
-var base58check = require('./base58check')
+var base58check = require('bs58check')
 var ecdsa = require('./ecdsa')
 var networks = require('./networks')
 var secureRandom = require('secure-random')
