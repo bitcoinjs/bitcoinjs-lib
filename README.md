@@ -1,39 +1,38 @@
-# bitcoinjs-lib
+# BitcoinJS (bitcoinjs-lib)
 
 [![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib) [![Coverage Status](https://coveralls.io/repos/bitcoinjs/bitcoinjs-lib/badge.png)](https://coveralls.io/r/bitcoinjs/bitcoinjs-lib)
 
 [![Browser Support](https://ci.testling.com/bitcoinjs/bitcoinjs-lib.png)](https://ci.testling.com/bitcoinjs/bitcoinjs-lib)
 
-A pure JavaScript Bitcoin library for node.js and browsers.
-A continued implementation of the original `0.1.3` version used by over a million wallet users; and the backbone for almost all Bitcoin web wallets in production today.
-
-
-## Should I use this in production?
-If you are thinking of using the master branch of this library in production, stop.
-Master is not stable; it is our development branch, and only tagged releases may be classified as stable.
-
-Master is currently being heavily refactored to clean things up, add new functionality and merge improvements from the community.
-If you are looking for the original, it is tagged as `0.1.3`.
-We are releasing quasi-stable releases tagged under `0.2.x`, with the expectation that this is still beta software and is `PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED`.
-
-This is not the original bitcoinjs-lib that was not updated for a long time.
+The pure JavaScript Bitcoin library for node.js and browsers.
+A continued implementation of the original `0.1.3` version used by over a million wallet users; the backbone for almost all Bitcoin web wallets in production today.
 
 
 ## Features
 
-- Default's to the Bitcoin network, however testnet, Dogecoin and Litecoin are all supported natively.
-- [HD Wallets](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki).
-- Random private key generation that uses [window.crypto.getRandomValues](https://developer.mozilla.org/en-US/docs/Web/API/Window.crypto) in the underlying implementation.
-- ECDSA signing and verification.
-- Standard transaction creation, with support for PubKeyHash, ScriptHash, MultiSig and PubKey scripts, and
-- A (somewhat incomplete) wallet implementation, with improvements ongoing.
+- Clean: Pure JavaScript, concise code, easy to read.
+- Tested: Coverage > 90%, third-party integration tests.
+- Careful: Two person approval process for small, focused pull requests.
+- Compatible: Works on Node.js and all modern browsers.
+- Powerful: Support for advanced features, such as multi-sig, HD Wallets.
+- Secure: Strong random number generation, PGP signed releases, trusted developers.
+- Principled: No support for browsers with crap RNG (IE < 11)
+- Standardized: Node community coding style, Browserify, Node's stdlib and Buffers.
+- Fast: Optimized code, uses typed arrays instead of byte arrays for performance.
+- Experiment-friendly: Bitcoin Mainnet and Testnet support.
+- Altcoin-ready: Capable of working with bitcoin-derived cryptocurrencies (such as Dogecoin).
+
+
+## Should I use this in production?
+If you are thinking of using the master branch of this library in production, *stop*.
+Master is not stable; it is our development branch, and only tagged releases may be classified as stable.
+
+If you are looking for the original, it is tagged as `0.1.3`. Unless you need it for dependency reasons, it is strongly recommended that you use (or upgrade to) the newest version, which adds major functionality, cleans up the interface, fixes many bugs, and adds over 1,300 more tests.
 
 
 ## Installation
 
 `npm install bitcoinjs-lib`
-
-Note: The npm version is currently out of date, are working to resolve this. The best way to use the latest code is to clone the repository.
 
 
 ## Setup
@@ -49,9 +48,14 @@ From the repo:
 
 ### Browser
 
-Compile `bitcoinjs-min.js` with the following command:
+From the repository: Compile `bitcoinjs-min.js` with the following command:
 
     $ npm run-script compile
+
+From NPM:
+
+    $ npm -g install bitcoinjs-lib browserify uglify-js
+    $ browserify -r bitcoinjs-lib -s Bitcoin | uglifyjs > bitcoinjs.min.js
 
 After loading this file in your browser, you will be able to use the global `bitcoin` object.
 
@@ -101,18 +105,31 @@ console.log(tx.toHex())
 ```
 
 
-## Projects utilizing bitcoinjs-lib
+## Projects utilizing BitcoinJS
 
-- [Blockchain.info Wallet](http://blockchain.info/wallet)
-- [Bitaddress.org](https://www.bitaddress.org)
-- [Coinpunk](https://coinpunk.com)
-- [DarkWallet](https://darkwallet.unsystem.net)
-- [GreenAddress](https://greenaddress.it)
+- [Coinpunk](https://coinpunk.com) *
+- [Hive Wallet](https://www.hivewallet.com) *
+- [Justchain Exchange](https://justcoin.com) *
+- [Skyhook ATM](http://projectskyhook.com) *
+
+- [BitAddress](https://www.bitaddress.org)
+- [Blockchain.info](https://blockchain.info/wallet)
+- [Brainwallet](https://brainwallet.github.io)
+- [Dark Wallet](https://darkwallet.unsystem.net)
 - [Dogechain Wallet](https://dogechain.info)
-- [Justcoin Exchange](https://justcoin.com)
+- [GreenAddress](https://greenaddress.it)
 
-Feel free to send pull requests to have your project/startup listed here.
+* directly contributed code or funding to the project. They're helping improve the Bitcoin ecosystem for everyone. Thank them.
 
+Feel free to send pull requests to have your project/startup listed here (alphabetically, please). Or better yet, contribute code or funding!
+
+## Contributors
+
+Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
+
+Since then, many people have contributed. [Click here](https://github.com/bitcoinjs/bitcoinjs-lib/graphs/contributors) to see the comprehensive list.
+
+Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of the library from 0.1.3 to 1.0.0.
 
 ## Contributing
 
@@ -126,13 +143,21 @@ Feel free to send pull requests to have your project/startup listed here.
 ### Running the test suite
 
     $ npm test
+    $ npm run-script coverage
+
+
+## Complementing Libraries
+
+- [bip39](https://github.com/weilu/bip39) - Wei Lu's Mnemonic code generator
+- [BCoin](https://github.com/indutny/bcoin) - BIP37 / Bloom Filters / SPV client
+- [scryptsy](https://github.com/cryptocoinjs/scryptsy) - Private key encryption (BIP38)
+- [insight](https://github.com/bitpay/insight) - A bitcoin blockchain API for web wallets.
 
 
 ## Alternatives
 
 - [Bitcore](https://github.com/bitpay/bitcore)
 - [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
-
 
 ## License
 
@@ -143,8 +168,3 @@ This library is free and open-source software released under the MIT license.
 
 BitcoinJS (c) 2011-2012 Stefan Thomas
 Released under MIT license
-http://bitcoinjs.org/
-
-CryptoJS (c) 2009–2012 by Jeff Mott
-Released under New BSD license
-http://code.google.com/p/crypto-js/
