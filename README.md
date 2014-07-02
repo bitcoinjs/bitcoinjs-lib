@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib) [![Coverage Status](https://coveralls.io/repos/bitcoinjs/bitcoinjs-lib/badge.png)](https://coveralls.io/r/bitcoinjs/bitcoinjs-lib)
 
+[![NPM](https://nodei.co/npm-dl/bitcoinjs-lib.png)](https://nodei.co/npm/bitcoinjs-lib/)
+
 [![Browser Support](https://ci.testling.com/bitcoinjs/bitcoinjs-lib.png)](https://ci.testling.com/bitcoinjs/bitcoinjs-lib)
 
 The pure JavaScript Bitcoin library for node.js and browsers.
