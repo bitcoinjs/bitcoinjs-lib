@@ -107,21 +107,16 @@ console.log(tx.toHex())
 
 ## Projects utilizing BitcoinJS
 
-- [Coinpunk](https://coinpunk.com) !
-- [Hive Wallet](https://www.hivewallet.com) !
-- [Justchain Exchange](https://justcoin.com) !
-- [Skyhook ATM](http://projectskyhook.com) !
-
+- [Coinpunk](https://coinpunk.com)
+- [Hive Wallet](https://www.hivewallet.com)
+- [Justchain Exchange](https://justcoin.com)
+- [Skyhook ATM](http://projectskyhook.com)
 - [BitAddress](https://www.bitaddress.org)
 - [Blockchain.info](https://blockchain.info/wallet)
 - [Brainwallet](https://brainwallet.github.io)
 - [Dark Wallet](https://darkwallet.unsystem.net)
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
-
-`!` denotes those who have directly contributed code to the project.
-
-Feel free to send pull requests to have your project/startup listed here (alphabetically, please). Or better yet, contribute code or funding!
 
 ## Contributors
 
