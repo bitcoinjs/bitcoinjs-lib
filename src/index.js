@@ -1,6 +1,5 @@
 module.exports = {
   Address: require('./address'),
-  base58check: require('./base58check'),
   bufferutils: require('./bufferutils'),
   convert: require('./convert'),
   crypto: require('./crypto'),
