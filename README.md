@@ -119,7 +119,8 @@ console.log(tx.toHex())
 - [Dark Wallet](https://darkwallet.unsystem.net)
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
-
+- [DecentralBank](https://decentralbank.com)
+ 
 ## Contributors
 
 Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
