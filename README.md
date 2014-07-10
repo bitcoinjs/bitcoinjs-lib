@@ -130,11 +130,10 @@ Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of 
 
 ## Contributing
 
-### Instructions
+Join the ongoing IRC development channel at `#bitcoinjs-dev` on Freenode.
+We are always accepting of Pull requests, but we do adhere to specific standards in regards to coding style, test driven development and commit messages.
 
-1. Fork the repo
-2. Push changes to your fork
-3. Create a pull request
+Please make your best effort to adhere to these when contributing to save on trivial corrections.
 
 
 ### Running the test suite
