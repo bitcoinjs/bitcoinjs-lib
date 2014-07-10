@@ -61,6 +61,7 @@
   },
   "scripts": {
     "compile": "browserify ./src/index.js -s bitcoin | uglifyjs > bitcoinjs-min.js",
+    "compile-bundle": "browserify ./bundle.js -s bitcoin | uglifyjs > bitcoinjs-bundle-min.js",
     "coverage": "istanbul cover _mocha -- test/*.js",
     "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info",
     "integration": "mocha --reporter list test/integration/*.js",
