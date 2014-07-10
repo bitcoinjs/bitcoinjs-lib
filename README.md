@@ -106,6 +106,23 @@ console.log(tx.toHex())
 // You could now push the transaction onto the Bitcoin network manually (see https://blockchain.info/pushtx)
 ```
 
+### Creating a P2SH Multsig Address
+
+``` javascript
+var bitcoin = require('bitcoinjs-lib')
+ 
+var privKeys = [bitcoin.ECKey.makeRandom(), bitcoin.ECKey.makeRandom(), bitcoin.ECKey.makeRandom()]
+var pubKeys = privKeys.map(function(x) { return x.pub })
+ 
+var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
+var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
+ 
+var multisigAddress = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
+
+console.log("multisigP2SH:", multisigAddress)
+```
+
+
 
 ## Projects utilizing BitcoinJS
 
