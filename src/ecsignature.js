@@ -98,16 +98,17 @@ ECSignature.prototype.toDER = function() {
   var sBa = this.s.toDERInteger()
 
   var sequence = []
-  sequence.push(0x02) // INTEGER
-  sequence.push(rBa.length)
+
+  // INTEGER
+  sequence.push(0x02, rBa.length)
   sequence = sequence.concat(rBa)
 
-  sequence.push(0x02) // INTEGER
-  sequence.push(sBa.length)
+  // INTEGER
+  sequence.push(0x02, sBa.length)
   sequence = sequence.concat(sBa)
 
-  sequence.unshift(sequence.length)
-  sequence.unshift(0x30) // SEQUENCE
+  // SEQUENCE
+  sequence.unshift(0x30, sequence.length)
 
   return new Buffer(sequence)
 }
