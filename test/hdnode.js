@@ -69,13 +69,13 @@ describe('HDNode', function() {
     it('throws on low entropy seed', function() {
       assert.throws(function() {
         HDNode.fromSeedHex('ffffffffff')
-      }, /Seed should be atleast 128 bits/)
+      }, /Seed should be at least 128 bits/)
     })
 
     it('throws on too high entropy seed', function() {
       assert.throws(function() {
         HDNode.fromSeedHex('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
-      }, /Seed should be atmost 512 bits/)
+      }, /Seed should be at most 512 bits/)
     })
   })
 
