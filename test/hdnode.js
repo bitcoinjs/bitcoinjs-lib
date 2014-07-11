@@ -65,6 +65,18 @@ describe('HDNode', function() {
         assert.equal(hd.chainCode.toString('hex'), f.master.chainCode)
       })
     })
+
+    it('throws on low entropy seed', function() {
+      assert.throws(function() {
+        HDNode.fromSeedHex('ffffffffff')
+      }, /Seed should be at least 128 bits/)
+    })
+
+    it('throws on too high entropy seed', function() {
+      assert.throws(function() {
+        HDNode.fromSeedHex('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
+      }, /Seed should be at most 512 bits/)
+    })
   })
 
   describe('toBase58', function() {

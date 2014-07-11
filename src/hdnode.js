@@ -51,6 +51,10 @@ HDNode.HIGHEST_BIT = 0x80000000
 HDNode.LENGTH = 78
 
 HDNode.fromSeedBuffer = function(seed, network) {
+  assert(Buffer.isBuffer(seed), 'Expected Buffer, got' + seed)
+  assert(seed.length >= 16, 'Seed should be at least 128 bits')
+  assert(seed.length <= 64, 'Seed should be at most 512 bits')
+
   var I = crypto.HmacSHA512(seed, HDNode.MASTER_SECRET)
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
