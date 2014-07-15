@@ -60,13 +60,13 @@
     "files": "test/*.js"
   },
   "scripts": {
-    "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js",
-    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter list test/*.js",
-    "coveralls": "npm run-script coverage && node ./node_modules/.bin/coveralls < coverage/lcov.info",
-    "integration": "./node_modules/.bin/_mocha --reporter list test/integration/*.js",
-    "jshint": "./node_modules/.bin/jshint --config jshint.json src/*.js ; true",
+    "compile": "browserify ./src/index.js -s Bitcoin | uglifyjs > bitcoinjs-min.js",
+    "coverage": "istanbul cover mocha -- --reporter list test/*.js",
+    "coveralls": "npm run-script coverage && node coveralls < coverage/lcov.info",
+    "integration": "mocha --reporter list test/integration/*.js",
+    "jshint": "jshint --config jshint.json src/*.js ; true",
     "test": "npm run-script unit",
-    "unit": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha -- --reporter list `find test -maxdepth 1 -not -type d`"
+    "unit": "istanbul test mocha -- --reporter list `find test -maxdepth 1 -not -type d`"
   },
   "browser": {
     "crypto": "crypto-browserify"
