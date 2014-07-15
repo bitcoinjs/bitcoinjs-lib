@@ -66,7 +66,7 @@
     "integration": "mocha --reporter list test/integration/*.js",
     "jshint": "jshint --config jshint.json src/*.js ; true",
     "test": "npm run-script unit",
-    "unit": "istanbul test mocha -- --reporter list `find test -maxdepth 1 -not -type d`"
+    "unit": "istanbul test mocha -- --reporter list test/*.js"
   },
   "browser": {
     "crypto": "crypto-browserify"
