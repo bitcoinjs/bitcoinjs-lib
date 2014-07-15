@@ -308,13 +308,9 @@ describe('Wallet', function() {
         var pubKey = wallet.getPrivateKey(0).pub
         var script = scripts.pubKeyOutput(pubKey)
         var tx2 = new Transaction()
-        tx2.addInput(fakeTxId(1), 0)
 
-        // FIXME: Transaction doesn't support custom ScriptPubKeys... yet
-        // So for now, we hijack the script with our own, and undefine the cached address
-        tx2.addOutput(addresses[0], 10000)
-        tx2.outs[0].script = script
-        tx2.outs[0].address = undefined
+        tx2.addInput(fakeTxHash(1), 0)
+        tx2.addOutput(script, 10000)
 
         wallet.processConfirmedTx(tx2)
       })
