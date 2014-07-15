@@ -36,7 +36,7 @@
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
   "devDependencies": {
-    "browserify": "4.1.11",
+    "browserify": "^4.2.1",
     "coveralls": "~2.10.0",
     "helloblock-js": "^0.2.1",
     "istanbul": "0.1.30",
