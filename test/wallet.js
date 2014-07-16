@@ -7,6 +7,7 @@ var scripts = require('../src/scripts')
 var Address = require('../src/address')
 var HDNode = require('../src/hdnode')
 var Transaction = require('../src/transaction')
+var TransactionBuilder = require('../src/transaction_builder')
 var Wallet = require('../src/wallet')
 
 var fixtureTxes = require('./fixtures/mainnet_tx')
@@ -623,17 +624,17 @@ describe('Wallet', function() {
 
     describe('signing', function(){
       afterEach(function(){
-        Transaction.prototype.sign.restore()
+        TransactionBuilder.prototype.sign.restore()
       })
 
       it('signes the inputs with respective keys', function(){
         var fee = 30000
-        sinon.stub(Transaction.prototype, "sign")
+        sinon.spy(TransactionBuilder.prototype, "sign")
 
         var tx = wallet.createTx(to, value, fee)
 
-        assert(Transaction.prototype.sign.calledWith(0, wallet.getPrivateKeyForAddress(address2)))
-        assert(Transaction.prototype.sign.calledWith(1, wallet.getPrivateKeyForAddress(address1)))
+        assert(TransactionBuilder.prototype.sign.calledWith(0, wallet.getPrivateKeyForAddress(address2)))
+        assert(TransactionBuilder.prototype.sign.calledWith(1, wallet.getPrivateKeyForAddress(address1)))
       })
     })
 
