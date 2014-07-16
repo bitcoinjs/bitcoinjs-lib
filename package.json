@@ -61,8 +61,8 @@
   },
   "scripts": {
     "compile": "browserify ./src/index.js -s Bitcoin | uglifyjs > bitcoinjs-min.js",
-    "coverage": "istanbul cover mocha -- --reporter list test/*.js",
-    "coveralls": "npm run-script coverage && node coveralls < coverage/lcov.info",
+    "coverage": "istanbul cover _mocha -- test/*.js",
+    "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info",
     "integration": "mocha --reporter list test/integration/*.js",
     "jshint": "jshint --config jshint.json src/*.js ; true",
     "test": "npm run-script unit",
