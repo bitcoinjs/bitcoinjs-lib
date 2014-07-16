@@ -85,6 +85,7 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
   }
 
   assert(scriptPubKey instanceof Script, 'Expected Address or Script, got ' + scriptPubKey)
+  assert.equal(typeof value, 'number', 'Expected number value, got ' + value)
 
   return (this.outs.push({
     script: scriptPubKey,
