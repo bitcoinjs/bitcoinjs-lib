@@ -119,7 +119,7 @@ console.log(tx.toHex())
 - [Dark Wallet](https://darkwallet.unsystem.net)
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
-- [DecentralBank](https://decentralbank.com)
+- [DecentralBank](http://decentralbank.com)
  
 ## Contributors
 
