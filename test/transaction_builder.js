@@ -189,40 +189,43 @@ describe('TransactionBuilder', function() {
       })
     })
 
-    it('throws if Transaction has no inputs', function() {
-      txb.addOutput(privScript, value)
+    fixtures.invalid.build.forEach(function(f) {
+      it('throws on ' + f.exception, function() {
+        f.inputs.forEach(function(input) {
+          var prevTx
+          if (input.prevTx.length === 64) {
+            prevTx = input.prevTx
+          } else {
+            prevTx = Transaction.fromHex(input.prevTx)
+          }
 
-      assert.throws(function() {
-        txb.build()
-      }, /Transaction has no inputs/)
-    })
+          txb.addInput(prevTx, input.index)
+        })
 
-    it('throws if Transaction has no outputs', function() {
-      txb.addInput(prevTxHash, 0)
+        f.outputs.forEach(function(output) {
+          var script = Script.fromASM(output.script)
 
-      assert.throws(function() {
-        txb.build()
-      }, /Transaction has no outputs/)
-    })
+          txb.addOutput(script, output.value)
+        })
 
-    it('throws if Transaction has no signatures', function() {
-      txb.addInput(prevTxHash, 0)
-      txb.addOutput(privScript, value)
+        f.inputs.forEach(function(input, index) {
+          var redeemScript
 
-      assert.throws(function() {
-        txb.build()
-      }, /Transaction is missing signatures/)
-    })
+          if (input.redeemScript) {
+            redeemScript = Script.fromASM(input.redeemScript)
+          }
 
-    it('throws if Transaction has not enough signatures', function() {
-      txb.addInput(prevTxHash, 0)
-      txb.addInput(prevTxHash, 1)
-      txb.addOutput(privScript, value)
-      txb.sign(0, privKey)
+          input.privKeys.forEach(function(wif) {
+            var privKey = ECKey.fromWIF(wif)
 
-      assert.throws(function() {
-        txb.build()
-      }, /Transaction is missing signatures/)
+            txb.sign(index, privKey, redeemScript)
+          })
+        })
+
+        assert.throws(function() {
+          txb.build()
+        }, new RegExp(f.exception))
+      })
     })
   })
 })

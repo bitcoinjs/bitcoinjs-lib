@@ -42,71 +42,61 @@
     "build": [
       {
         "exception": "Transaction has no inputs",
-        "hex": "",
+        "inputs": [],
         "outputs": [
           {
-            "script": "",
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "value": 1000
           }
         ]
       },
       {
         "exception": "Transaction has no outputs",
-        "hex": "",
         "inputs": [
           {
-            "hash": "",
-            "index": 0
+            "index": 0,
+            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "privKeys": []
           }
-        ]
+        ],
+        "outputs": []
       },
       {
         "exception": "Transaction has no signatures",
-        "hex": "",
         "inputs": [
           {
-            "hash": "",
-            "index": 0
+            "index": 0,
+            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "privKeys": []
           }
         ],
         "outputs": [
           {
-            "script": "",
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "value": 1000
           }
         ]
       },
       {
         "exception": "Transaction is missing signatures",
-        "hex": "",
         "inputs": [
           {
-            "hash": "",
-            "index": 0
+            "index": 0,
+            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "privKeys": ["KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"]
           },
           {
-            "hash": "",
-            "index": 1
+            "index": 1,
+            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "privKeys": []
           }
         ],
         "outputs": [
           {
-            "script": "",
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "value": 1000
           }
-        ],
-        "signatures": [
-          {
-            "wif": "",
-            "index": 0
-          }
         ]
-      }
-    ],
-    "fromTransaction": [
-      {
-        "exception": "Transaction contains unsupported script types",
-        "hex": ""
       }
     ]
   }

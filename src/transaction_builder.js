@@ -118,6 +118,7 @@ TransactionBuilder.prototype.build = function(allowIncomplete) {
   if (!allowIncomplete) {
     assert(this.tx.ins.length > 0, 'Transaction has no inputs')
     assert(this.tx.outs.length > 0, 'Transaction has no outputs')
+    assert(this.signatures.length > 0, 'Transaction has no signatures')
     assert.equal(this.signatures.length, this.tx.ins.length, 'Transaction is missing signatures')
   }
 
