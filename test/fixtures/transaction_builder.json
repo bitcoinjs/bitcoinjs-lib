@@ -2,7 +2,7 @@
   "valid": {
     "build": [
       {
-        "description": "pubKeyHash 1:1 transaction",
+        "description": "pubKeyHash->pubKeyHash 1:1 transaction",
         "txid": "bd641f4b0aa8bd70189ab45e935c4762f0e1c49f294b4779d79887937b7cf42e",
         "inputs": [
           {
@@ -19,7 +19,25 @@
         ]
       },
       {
-        "description": "2-of-2 P2SH multisig Transaction",
+        "description": "pubKey->pubKeyHash 1:1 transaction",
+        "txid": "a900dea133a3c51e9fe55d82bf4a4f50a4c3ac6e380c841f93651a076573320c",
+        "inputs": [
+          {
+            "index": 0,
+            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "prevTxScript": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 OP_CHECKSIG",
+            "privKeys": ["KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 2500000000
+          }
+        ]
+      },
+      {
+        "description": "2-of-2 P2SH multisig -> pubKeyHash 1:1 Transaction",
         "txid": "8c500ce6eef6c78a10de923b68394cf31120151bdc4600e4b12de865defa9d24",
         "inputs": [
           {

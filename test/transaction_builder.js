@@ -153,14 +153,13 @@ describe('TransactionBuilder', function() {
     fixtures.valid.build.forEach(function(f) {
       it('builds the correct transaction', function() {
         f.inputs.forEach(function(input) {
-          var prevTx
-          if (input.prevTx.length === 64) {
-            prevTx = input.prevTx
-          } else {
-            prevTx = Transaction.fromHex(input.prevTx)
+          var prevTxScript
+
+          if (input.prevTxScript) {
+            prevTxScript = Script.fromASM(input.prevTxScript)
           }
 
-          txb.addInput(prevTx, input.index)
+          txb.addInput(input.prevTx, input.index, prevTxScript)
         })
 
         f.outputs.forEach(function(output) {
@@ -192,14 +191,13 @@ describe('TransactionBuilder', function() {
     fixtures.invalid.build.forEach(function(f) {
       it('throws on ' + f.exception, function() {
         f.inputs.forEach(function(input) {
-          var prevTx
-          if (input.prevTx.length === 64) {
-            prevTx = input.prevTx
-          } else {
-            prevTx = Transaction.fromHex(input.prevTx)
+          var prevTxScript
+
+          if (input.prevTxScript) {
+            prevTxScript = Script.fromASM(input.prevTxScript)
           }
 
-          txb.addInput(prevTx, input.index)
+          txb.addInput(input.prevTx, input.index, prevTxScript)
         })
 
         f.outputs.forEach(function(output) {
