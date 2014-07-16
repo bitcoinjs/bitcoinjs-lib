@@ -127,24 +127,26 @@ TransactionBuilder.prototype.build = function(allowIncomplete) {
   this.signatures.forEach(function(input, index) {
     var scriptSig
 
+    var signatures = input.signatures.map(function(signature) {
+      return signature.toScriptSignature(input.hashType)
+    })
+
     if (input.scriptType === 'pubkeyhash') {
-      var signature = input.signatures[0].toScriptSignature(input.hashType)
+      var signature = signatures[0]
       var publicKey = input.pubKeys[0]
       scriptSig = scripts.pubKeyHashInput(signature, publicKey)
 
     } else if (input.scriptType === 'multisig') {
       var redeemScript = allowIncomplete ? undefined : input.redeemScript
-      var signatures = input.signatures.map(function(signature) {
-        return signature.toScriptSignature(input.hashType)
-      })
       scriptSig = scripts.multisigInput(signatures, redeemScript)
 
     } else if (input.scriptType === 'pubkey') {
-      var signature = input.signatures[0]
+      var signature = signatures[0]
       scriptSig = scripts.pubKeyInput(signature)
 
     } else {
       assert(false, input.scriptType + ' not supported')
+
     }
 
     if (input.redeemScript) {
