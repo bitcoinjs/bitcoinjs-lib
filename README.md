@@ -136,7 +136,8 @@ console.log("multisigP2SH:", multisigAddress)
 - [Dark Wallet](https://darkwallet.unsystem.net)
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
-
+- [DecentralBank](http://decentralbank.com)
+ 
 ## Contributors
 
 Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
