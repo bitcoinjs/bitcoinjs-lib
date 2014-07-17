@@ -94,8 +94,6 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
     hash = this.tx.hashForSignature(index, prevOutScript, hashType)
   }
 
-  var signature = privKey.sign(hash)
-
   if (!(index in this.signatures)) {
     this.signatures[index] = {
       hashType: hashType,
@@ -107,11 +105,13 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   }
 
   var input = this.signatures[index]
-  input.pubKeys.push(privKey.pub)
-  input.signatures.push(signature)
 
   assert.equal(input.hashType, hashType, 'Inconsistent hashType')
   assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
+
+  var signature = privKey.sign(hash)
+  input.pubKeys.push(privKey.pub)
+  input.signatures.push(signature)
 }
 
 TransactionBuilder.prototype.build = function() {
