@@ -38,6 +38,11 @@
   "devDependencies": {
     "browserify": "^4.2.1",
     "coveralls": "~2.10.0",
+    "gulp": "^3.8.6",
+    "gulp-browserify": "^0.5.0",
+    "gulp-load-plugins": "^0.5.3",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^0.3.1",
     "helloblock-js": "^0.2.1",
     "istanbul": "0.1.30",
     "jshint": "2.5.1",
