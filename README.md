@@ -50,6 +50,14 @@ From the repo:
 
 ### Browser
 
+From Bower:
+
+    $ bower install bitcoinjs-lib
+
+then include in HTML
+
+    <script src="bower_components/bitcoinjs-lib/dist/bitcoinjs-lib.min.js"></script>    
+
 From the repository: Compile `bitcoinjs-min.js` with the following command:
 
     $ npm run-script compile
