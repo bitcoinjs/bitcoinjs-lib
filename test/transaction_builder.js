@@ -68,12 +68,6 @@ describe('TransactionBuilder', function() {
       assert.equal(txb.addInput(prevTxHash, 1), 1)
     })
 
-    it('throws if a Tx and prevOutScript is given', function() {
-      assert.throws(function() {
-        txb.addInput(prevTx, 0, privScript)
-      }, /Unnecessary Script provided/)
-    })
-
     it('throws if prevOutScript is not supported', function() {
       assert.throws(function() {
         txb.addInput(prevTxHash, 0, Script.EMPTY)

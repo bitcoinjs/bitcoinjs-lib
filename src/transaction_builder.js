@@ -24,8 +24,6 @@ TransactionBuilder.prototype.addInput = function(prevTx, index, prevOutScript) {
     Array.prototype.reverse.call(prevOutHash)
 
   } else if (prevTx instanceof Transaction) {
-    assert(prevOutScript === undefined, 'Unnecessary Script provided')
-
     prevOutHash = prevTx.getHash()
     prevOutScript = prevTx.outs[index].script
 
