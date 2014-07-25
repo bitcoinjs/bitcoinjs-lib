@@ -14,7 +14,7 @@ function TransactionBuilder() {
   this.tx = new Transaction()
 }
 
-TransactionBuilder.prototype.addInput = function(prevTx, index, prevOutScript) {
+TransactionBuilder.prototype.addInput = function(prevTx, index, prevOutScript, sequence) {
   var prevOutHash
 
   if (typeof prevTx === 'string') {
@@ -46,7 +46,7 @@ TransactionBuilder.prototype.addInput = function(prevTx, index, prevOutScript) {
   var prevOut = prevOutHash.toString('hex') + ':' + index
   assert(!(prevOut in this.prevOutMap), 'Transaction is already an input')
 
-  var vout = this.tx.addInput(prevOutHash, index)
+  var vout = this.tx.addInput(prevOutHash, index, sequence)
   this.prevOutMap[prevOut] = true
   this.prevOutScripts[vout] = prevOutScript
   this.prevOutTypes[vout] = prevOutType
