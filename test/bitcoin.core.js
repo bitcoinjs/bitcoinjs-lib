@@ -183,7 +183,7 @@ describe('Bitcoin-core', function() {
 
         var actualHash
         try {
-          actualHash = transaction.hashForSignature(script, inIndex, hashType)
+          actualHash = transaction.hashForSignature(inIndex, script, hashType)
         } catch (e) {
           // don't fail if we don't support it yet, TODO
           if (!e.message.match(/not yet supported/)) throw e

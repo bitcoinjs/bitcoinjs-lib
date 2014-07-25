@@ -221,7 +221,7 @@ describe('Transaction', function() {
   // TODO:
   //  hashForSignature: [Function],
 
-  // FIXME: could be better
+  // FIXME: remove in 2.x.y
   describe('signInput/validateInput', function() {
     it('works for multi-sig redeem script', function() {
       var tx = new Transaction()
