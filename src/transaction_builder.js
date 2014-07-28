@@ -1,9 +1,10 @@
 var assert = require('assert')
 var scripts = require('./scripts')
 
-var ECKey = require('./eckey')
-var Transaction = require('./transaction')
+var ECPubKey = require('./ecpubkey')
+var ECSignature = require('./ecsignature')
 var Script = require('./script')
+var Transaction = require('./transaction')
 
 function TransactionBuilder() {
   this.prevOutMap = {}
@@ -14,7 +15,7 @@ function TransactionBuilder() {
   this.tx = new Transaction()
 }
 
-TransactionBuilder.prototype.addInput = function(prevTx, index, prevOutScript, sequence) {
+TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOutScript) {
   var prevOutHash
 
   if (typeof prevTx === 'string') {
@@ -103,7 +104,6 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   }
 
   var input = this.signatures[index]
-
   assert.equal(input.hashType, hashType, 'Inconsistent hashType')
   assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
 
@@ -130,29 +130,34 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
 
   var tx = this.tx.clone()
 
+  // Create script signatures from signature meta-data
   this.signatures.forEach(function(input, index) {
     var scriptSig
+    var scriptType = input.scriptType
 
     var signatures = input.signatures.map(function(signature) {
       return signature.toScriptSignature(input.hashType)
     })
 
-    if (input.scriptType === 'pubkeyhash') {
-      var signature = signatures[0]
-      var publicKey = input.pubKeys[0]
-      scriptSig = scripts.pubKeyHashInput(signature, publicKey)
+    switch (scriptType) {
+      case 'pubkeyhash':
+        var signature = signatures[0]
+        var pubKey = input.pubKeys[0]
+        scriptSig = scripts.pubKeyHashInput(signature, pubKey)
 
-    } else if (input.scriptType === 'multisig') {
-      var redeemScript = allowIncomplete ? undefined : input.redeemScript
-      scriptSig = scripts.multisigInput(signatures, redeemScript)
+        break
+      case 'multisig':
+        var redeemScript = allowIncomplete ? undefined : input.redeemScript
+        scriptSig = scripts.multisigInput(signatures, redeemScript)
 
-    } else if (input.scriptType === 'pubkey') {
-      var signature = signatures[0]
-      scriptSig = scripts.pubKeyInput(signature)
+        break
+      case 'pubkey':
+        var signature = signatures[0]
+        scriptSig = scripts.pubKeyInput(signature)
 
-    } else {
-      assert(false, input.scriptType + ' not supported')
-
+        break
+      default:
+        assert(false, scriptType + ' not supported')
     }
 
     if (input.redeemScript) {
@@ -163,6 +168,85 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
   })
 
   return tx
+}
+
+TransactionBuilder.fromTransaction = function(transaction) {
+  var txb = new TransactionBuilder()
+
+  // Extract/add inputs
+  transaction.ins.forEach(function(txin) {
+    txb.addInput(txin.hash, txin.index, txin.sequence)
+  })
+
+  // Extract/add outputs
+  transaction.outs.forEach(function(txout) {
+    txb.addOutput(txout.script, txout.value)
+  })
+
+  // Extract/add signatures
+  transaction.ins.forEach(function(txin) {
+    // Ignore empty scripts
+    if (txin.script.buffer.length === 0) return
+
+    var redeemScript
+    var scriptSig = txin.script
+    var scriptType = scripts.classifyInput(scriptSig)
+
+    // Re-classify if P2SH
+    if (scriptType === 'scripthash') {
+      redeemScript = Script.fromBuffer(scriptSig.chunks.slice(-1)[0])
+      scriptSig = Script.fromChunks(scriptSig.chunks.slice(0, -1))
+
+      scriptType = scripts.classifyInput(scriptSig)
+      assert.equal(scripts.classifyOutput(redeemScript), scriptType, 'Non-matching scriptSig and scriptPubKey in input')
+    }
+
+    // Extract hashType, pubKeys and signatures
+    var hashType, pubKeys, signatures
+
+    switch (scriptType) {
+      case 'pubkeyhash':
+        var parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+        var pubKey = ECPubKey.fromBuffer(scriptSig.chunks[1])
+
+        hashType = parsed.hashType
+        pubKeys = [pubKey]
+        signatures = [parsed.signature]
+
+        break
+      case 'multisig':
+        var scriptSigs = scriptSig.chunks.slice(1) // ignore OP_0
+        var parsed = scriptSigs.map(function(scriptSig) {
+          return ECSignature.parseScriptSignature(scriptSig)
+        })
+
+        hashType = parsed[0].hashType
+        pubKeys = []
+        signatures = parsed.map(function(p) { return p.signature })
+
+        break
+      case 'pubkey':
+        var parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+
+        hashType = parsed.hashType
+        pubKeys = []
+        signatures = [parsed.signature]
+
+        break
+      default:
+        assert(false, scriptType + ' not supported')
+    }
+
+    txb.signatures[txin.index] = {
+      hashType: hashType,
+      pubKeys: pubKeys,
+      redeemScript: redeemScript,
+      scriptType: scriptType,
+      signatures: signatures
+    }
+  })
+
+  return txb
 }
 
 module.exports = TransactionBuilder

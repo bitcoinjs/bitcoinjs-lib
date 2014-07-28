@@ -33,33 +33,36 @@ describe('TransactionBuilder', function() {
   })
 
   describe('addInput', function() {
-    it('accepts a txHash and index', function() {
-      var vin = txb.addInput(prevTxHash, 1)
+    it('accepts a txHash, index [and sequence number]', function() {
+      var vin = txb.addInput(prevTxHash, 1, 54)
       assert.equal(vin, 0)
 
       var txin = txb.tx.ins[0]
       assert.equal(txin.hash, prevTxHash)
       assert.equal(txin.index, 1)
+      assert.equal(txin.sequence, 54)
       assert.equal(txb.prevOutScripts[0], undefined)
     })
 
-    it('accepts a txHash, index and scriptPubKey', function() {
-      var vin = txb.addInput(prevTxHash, 1, prevTx.outs[1].script)
+    it('accepts a txHash, index [, sequence number and scriptPubKey]', function() {
+      var vin = txb.addInput(prevTxHash, 1, 54, prevTx.outs[1].script)
       assert.equal(vin, 0)
 
       var txin = txb.tx.ins[0]
       assert.equal(txin.hash, prevTxHash)
       assert.equal(txin.index, 1)
+      assert.equal(txin.sequence, 54)
       assert.equal(txb.prevOutScripts[0], prevTx.outs[1].script)
     })
 
-    it('accepts a prevTx and index', function() {
-      var vin = txb.addInput(prevTx, 1)
+    it('accepts a prevTx, index [and sequence number]', function() {
+      var vin = txb.addInput(prevTx, 1, 54)
       assert.equal(vin, 0)
 
       var txin = txb.tx.ins[0]
       assert.deepEqual(txin.hash, prevTxHash)
       assert.equal(txin.index, 1)
+      assert.equal(txin.sequence, 54)
       assert.equal(txb.prevOutScripts[0], prevTx.outs[1].script)
     })
 
@@ -70,7 +73,7 @@ describe('TransactionBuilder', function() {
 
     it('throws if prevOutScript is not supported', function() {
       assert.throws(function() {
-        txb.addInput(prevTxHash, 0, Script.EMPTY)
+        txb.addInput(prevTxHash, 0, undefined, Script.EMPTY)
       }, /PrevOutScript not supported \(nonstandard\)/)
     })
 
@@ -153,7 +156,7 @@ describe('TransactionBuilder', function() {
             prevTxScript = Script.fromASM(input.prevTxScript)
           }
 
-          txb.addInput(input.prevTx, input.index, prevTxScript)
+          txb.addInput(input.prevTx, input.index, input.sequence, prevTxScript)
         })
 
         f.outputs.forEach(function(output) {
@@ -191,7 +194,7 @@ describe('TransactionBuilder', function() {
             prevTxScript = Script.fromASM(input.prevTxScript)
           }
 
-          txb.addInput(input.prevTx, input.index, prevTxScript)
+          txb.addInput(input.prevTx, input.index, input.sequence, prevTxScript)
         })
 
         f.outputs.forEach(function(output) {
@@ -217,6 +220,17 @@ describe('TransactionBuilder', function() {
         assert.throws(function() {
           txb.build()
         }, new RegExp(f.exception))
+      })
+    })
+  })
+
+  describe('fromTransaction', function() {
+    fixtures.valid.build.forEach(function(f) {
+      it('builds the correct TransactionBuilder for ' + f.description, function() {
+        var tx = Transaction.fromHex(f.txhex)
+        var txb = TransactionBuilder.fromTransaction(tx)
+
+        assert.equal(txb.build().toHex(), f.txhex)
       })
     })
   })
