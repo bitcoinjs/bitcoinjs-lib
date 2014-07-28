@@ -1,6 +1,6 @@
 var assert = require('assert')
+var crypto = require('crypto')
 var networks = require('./networks')
-var rng = require('secure-random')
 
 var Address = require('./address')
 var HDNode = require('./hdnode')
@@ -25,7 +25,7 @@ function Wallet(seed, network) {
 
   // Make a new master key
   this.newMasterKey = function(seed) {
-    seed = seed || new Buffer(rng(32))
+    seed = seed || crypto.randomBytes(32)
     masterkey = HDNode.fromSeedBuffer(seed, network)
 
     // HD first-level child derivation method should be hardened
