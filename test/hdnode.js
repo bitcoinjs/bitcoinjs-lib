@@ -226,6 +226,21 @@ describe('HDNode', function() {
     })
   })
 
+  describe('neutered', function() {
+    var f = fixtures.valid[0]
+
+    it('strips all private information', function() {
+      var hd = HDNode.fromBase58(f.master.base58)
+      var hdn = hd.neutered()
+
+      assert.equal(hdn.privKey, undefined)
+      assert.equal(hdn.pubKey.toHex(), hd.pubKey.toHex())
+      assert.equal(hdn.chainCode, hd.chainCode)
+      assert.equal(hdn.depth, hd.depth)
+      assert.equal(hdn.index, hd.index)
+    })
+  })
+
   describe('derive', function() {
     function verifyVector(hd, v, depth) {
       assert.equal(hd.privKey.toWIF(), v.wif)

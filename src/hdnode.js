@@ -143,6 +143,15 @@ HDNode.prototype.getAddress = function() {
   return this.pubKey.getAddress(this.network)
 }
 
+HDNode.prototype.neutered = function() {
+  var neutered = new HDNode(this.pubKey.Q, this.chainCode, this.network)
+  neutered.depth = this.depth
+  neutered.index = this.index
+  neutered.parentFingerprint = this.parentFingerprint
+
+  return neutered
+}
+
 HDNode.prototype.toBase58 = function(isPrivate) {
   return base58check.encode(this.toBuffer(isPrivate))
 }
