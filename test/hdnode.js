@@ -277,32 +277,28 @@ describe('HDNode', function() {
       var f = fixtures.valid[1]
       var c = f.children[0]
 
-      var parentNode = HDNode.fromBase58(f.master.base58Priv)
-      var child = parentNode.derive(c.m)
+      var master = HDNode.fromBase58(f.master.base58Priv)
+      var child = master.derive(c.m).neutered()
 
-      // FIXME: N(CKDpriv((kpar, cpar), i)), could be done better...
-      var childNeutered = HDNode.fromBase58(child.toBase58(false)) // neuter
-      assert.equal(childNeutered.toBase58(), c.base58)
+      assert.equal(child.toBase58(), c.base58)
     })
 
     it('works for Private -> public (neutered, hardened)', function() {
       var f = fixtures.valid[0]
       var c = f.children[0]
 
-      var parentNode = HDNode.fromBase58(f.master.base58Priv)
-      var child = parentNode.deriveHardened(c.m)
+      var master = HDNode.fromBase58(f.master.base58Priv)
+      var child = master.deriveHardened(c.m).neutered()
 
-      // FIXME: N(CKDpriv((kpar, cpar), i)), could be done better...
-      var childNeutered = HDNode.fromBase58(child.toBase58(false)) // neuter
-      assert.equal(childNeutered.toBase58(), c.base58)
+      assert.equal(child.toBase58(), c.base58)
     })
 
     it('works for Public -> public', function() {
       var f = fixtures.valid[1]
       var c = f.children[0]
 
-      var parentNode = HDNode.fromBase58(f.master.base58)
-      var child = parentNode.derive(c.m)
+      var master = HDNode.fromBase58(f.master.base58)
+      var child = master.derive(c.m)
 
       assert.equal(child.toBase58(), c.base58)
     })
@@ -311,10 +307,10 @@ describe('HDNode', function() {
       var f = fixtures.valid[0]
       var c = f.children[0]
 
-      var parentNode = HDNode.fromBase58(f.master.base58)
+      var master = HDNode.fromBase58(f.master.base58)
 
       assert.throws(function() {
-        parentNode.deriveHardened(c.m)
+        master.deriveHardened(c.m)
       }, /Could not derive hardened child key/)
     })
   })
