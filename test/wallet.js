@@ -304,7 +304,7 @@ describe('Wallet', function() {
     })
 
     describe('processConfirmedTx', function(){
-      it('does not fail on scripts with no corresponding Address', function() {
+      it('does not throw on scripts with no corresponding Address', function() {
         var pubKey = wallet.getPrivateKey(0).pub
         var script = scripts.pubKeyOutput(pubKey)
         var tx2 = new Transaction()
