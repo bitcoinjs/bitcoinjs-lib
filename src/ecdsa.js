@@ -3,7 +3,6 @@ var crypto = require('./crypto')
 
 var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
-var Point = require('ecurve').Point
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
 function deterministicGenerateK(curve, hash, d) {

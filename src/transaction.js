@@ -5,7 +5,6 @@ var opcodes = require('./opcodes')
 var scripts = require('./scripts')
 
 var Address = require('./address')
-var ECKey = require('./eckey')
 var ECSignature = require('./ecsignature')
 var Script = require('./script')
 
