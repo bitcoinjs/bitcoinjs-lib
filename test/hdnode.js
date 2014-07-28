@@ -49,7 +49,13 @@ describe('HDNode', function() {
       assert.equal(hd.network, networks.testnet)
     })
 
-    it('throws an exception when an unknown network is given', function() {
+    it('throws when an invalid length chain code is given', function() {
+      assert.throws(function() {
+        new HDNode(d, chainCode.slice(0, 20), networks.testnet)
+      }, /Expected chainCode length of 32, got 20/)
+    })
+
+    it('throws when an unknown network is given', function() {
       assert.throws(function() {
         new HDNode(d, chainCode, {})
       }, /Unknown BIP32 constants for network/)
