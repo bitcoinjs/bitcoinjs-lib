@@ -1,6 +1,5 @@
 var assert = require('assert')
 var crypto = require('crypto')
-var crypto2 = require('../src/crypto')
 var networks = require('../src/networks')
 var sinon = require('sinon')
 
@@ -115,7 +114,7 @@ describe('ECKey', function() {
   })
 
   describe('signing', function() {
-    var hash = crypto2.sha256('Vires in numeris')
+    var hash = crypto.randomBytes(32)
     var priv = ECKey.makeRandom()
     var signature = priv.sign(hash)
 
