@@ -146,16 +146,19 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
         scriptSig = scripts.pubKeyHashInput(signature, pubKey)
 
         break
+
       case 'multisig':
         var redeemScript = allowIncomplete ? undefined : input.redeemScript
         scriptSig = scripts.multisigInput(signatures, redeemScript)
 
         break
+
       case 'pubkey':
         var signature = signatures[0]
         scriptSig = scripts.pubKeyInput(signature)
 
         break
+
       default:
         assert(false, scriptType + ' not supported')
     }
@@ -214,6 +217,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
         signatures = [parsed.signature]
 
         break
+
       case 'multisig':
         var scriptSigs = scriptSig.chunks.slice(1) // ignore OP_0
         var parsed = scriptSigs.map(function(scriptSig) {
@@ -225,6 +229,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
         signatures = parsed.map(function(p) { return p.signature })
 
         break
+
       case 'pubkey':
         var parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
 
@@ -233,6 +238,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
         signatures = [parsed.signature]
 
         break
+
       default:
         assert(false, scriptType + ' not supported')
     }
