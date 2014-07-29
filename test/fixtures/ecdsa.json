@@ -105,6 +105,15 @@
         }
       },
       {
+        "description": "Invalid r value (< 0)",
+        "d": "01",
+        "e": "01",
+        "signature": {
+          "r": "-01",
+          "s": "02"
+        }
+      },
+      {
         "description": "Invalid r value (== 0)",
         "d": "01",
         "e": "01",
@@ -120,6 +129,15 @@
         "signature": {
           "r": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
           "s": "02"
+        }
+      },
+      {
+        "description": "Invalid s value (< 0)",
+        "d": "01",
+        "e": "01",
+        "signature": {
+          "r": "02",
+          "s": "-01"
         }
       },
       {

@@ -86,8 +86,8 @@ function verifyRaw(curve, e, signature, Q) {
   var r = signature.r
   var s = signature.s
 
-  if (r.signum() === 0 || r.compareTo(n) >= 0) return false
-  if (s.signum() === 0 || s.compareTo(n) >= 0) return false
+  if (r.signum() <= 0 || r.compareTo(n) >= 0) return false
+  if (s.signum() <= 0 || s.compareTo(n) >= 0) return false
 
   var c = s.modInverse(n)
 
@@ -111,8 +111,14 @@ function verifyRaw(curve, e, signature, Q) {
 function recoverPubKey(curve, e, signature, i) {
   assert.strictEqual(i & 3, i, 'Recovery param is more than two bits')
 
+  var n = curve.n
+  var G = curve.G
+
   var r = signature.r
   var s = signature.s
+
+  assert(r.signum() > 0 && r.compareTo(n) < 0, 'Invalid r value')
+  assert(s.signum() > 0 && s.compareTo(n) < 0, 'Invalid s value')
 
   // A set LSB signifies that the y-coordinate is odd
   var isYOdd = i & 1
@@ -120,9 +126,6 @@ function recoverPubKey(curve, e, signature, i) {
   // The more significant bit specifies whether we should use the
   // first or second candidate key.
   var isSecondKey = i >> 1
-
-  var n = curve.n
-  var G = curve.G
 
   // 1.1 Let x = r + jn
   var x = isSecondKey ? r.add(n) : r
