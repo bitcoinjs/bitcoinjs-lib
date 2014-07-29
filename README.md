@@ -75,7 +75,7 @@ key = bitcoin.ECKey.makeRandom()
 
 // Print your private key (in WIF format)
 console.log(key.toWIF())
-// => 8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48
+// => Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct
 
 // Print your public key (toString defaults to a Bitcoin address)
 console.log(key.pub.getAddress().toString())
@@ -120,6 +120,7 @@ var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
 var multisigAddress = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
 
 console.log("multisigP2SH:", multisigAddress)
+// => multisigP2SH: 35k9EWv2F1X5JKXHSF1DhTm7Ybdiwx4RkD
 ```
 
 
