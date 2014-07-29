@@ -74,12 +74,62 @@
   "invalid": {
     "recoverPubKey": [
       {
+        "description": "Invalid r value (< 0)",
+        "exception": "Invalid r value",
+        "e": "01",
+        "signature": {
+          "r": "-01",
+          "s": "02"
+        },
+        "i": 0
+      },
+      {
         "description": "Invalid r value (== 0)",
-        "exception": "nR is not a valid curve point",
+        "exception": "Invalid r value",
         "e": "01",
         "signature": {
           "r": "00",
           "s": "02"
+        },
+        "i": 0
+      },
+      {
+        "description": "Invalid s value (< 0)",
+        "exception": "Invalid s value",
+        "e": "01",
+        "signature": {
+          "r": "02",
+          "s": "-01"
+        },
+        "i": 0
+      },
+      {
+        "description": "Invalid s value (== 0)",
+        "exception": "Invalid s value",
+        "e": "01",
+        "signature": {
+          "r": "02",
+          "s": "00"
+        },
+        "i": 0
+      },
+      {
+        "description": "Invalid r value (nR is infinity)",
+        "exception": "nR is not a valid curve point",
+        "e": "01",
+        "signature": {
+          "r": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
+          "s": "01"
+        },
+        "i": 0
+      },
+      {
+        "description": "Invalid curve point",
+        "exception": "Point is not on the curve",
+        "e": "01",
+        "signature": {
+          "r": "99999999999999999999999999999999999999",
+          "s": "01"
         },
         "i": 0
       },
