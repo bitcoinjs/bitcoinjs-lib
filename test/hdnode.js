@@ -88,9 +88,9 @@ describe('HDNode', function() {
   describe('toBase58', function() {
     fixtures.valid.forEach(function(f) {
       it('exports ' + f.master.base58 + ' (public) correctly', function() {
-        var hd = HDNode.fromSeedHex(f.master.seed)
+        var hd = HDNode.fromSeedHex(f.master.seed).neutered()
 
-        assert.equal(hd.toBase58(false), f.master.base58)
+        assert.equal(hd.toBase58(), f.master.base58)
       })
     })
 
@@ -98,10 +98,11 @@ describe('HDNode', function() {
       it('exports ' + f.master.base58Priv + ' (private) correctly', function() {
         var hd = HDNode.fromSeedHex(f.master.seed)
 
-        assert.equal(hd.toBase58(true), f.master.base58Priv)
+        assert.equal(hd.toBase58(), f.master.base58Priv)
       })
     })
 
+    // FIXME: remove in 2.x.y
     it('fails when there is no private key', function() {
       var hd = HDNode.fromBase58(fixtures.valid[0].master.base58)
 
@@ -166,9 +167,9 @@ describe('HDNode', function() {
   describe('toBuffer/toHex', function() {
     fixtures.valid.forEach(function(f) {
       it('exports ' + f.master.hex + ' (public) correctly', function() {
-        var hd = HDNode.fromSeedHex(f.master.seed)
+        var hd = HDNode.fromSeedHex(f.master.seed).neutered()
 
-        assert.equal(hd.toHex(false), f.master.hex)
+        assert.equal(hd.toHex(), f.master.hex)
       })
     })
 
@@ -176,10 +177,11 @@ describe('HDNode', function() {
       it('exports ' + f.master.hexPriv + ' (private) correctly', function() {
         var hd = HDNode.fromSeedHex(f.master.seed)
 
-        assert.equal(hd.toHex(true), f.master.hexPriv)
+        assert.equal(hd.toHex(), f.master.hexPriv)
       })
     })
 
+    // FIXME: remove in 2.x.y
     it('fails when there is no private key', function() {
       var hd = HDNode.fromHex(fixtures.valid[0].master.hex)
 
