@@ -31,6 +31,7 @@ function HDNode(K, chainCode, network) {
   network = network || networks.bitcoin
 
   assert(Buffer.isBuffer(chainCode), 'Expected Buffer, got ' + chainCode)
+  assert.equal(chainCode.length, 32, 'Expected chainCode length of 32, got ' + chainCode.length)
   assert(network.bip32, 'Unknown BIP32 constants for network')
 
   this.chainCode = chainCode
@@ -142,12 +143,27 @@ HDNode.prototype.getAddress = function() {
   return this.pubKey.getAddress(this.network)
 }
 
+HDNode.prototype.neutered = function() {
+  var neutered = new HDNode(this.pubKey.Q, this.chainCode, this.network)
+  neutered.depth = this.depth
+  neutered.index = this.index
+  neutered.parentFingerprint = this.parentFingerprint
+
+  return neutered
+}
+
 HDNode.prototype.toBase58 = function(isPrivate) {
   return base58check.encode(this.toBuffer(isPrivate))
 }
 
 HDNode.prototype.toBuffer = function(isPrivate) {
-  if (isPrivate == undefined) isPrivate = !!this.privKey
+  if (isPrivate == undefined) {
+    isPrivate = !!this.privKey
+
+  // FIXME: remove in 2.x.y
+  } else {
+    console.warn('isPrivate flag is deprecated, please use the .neutered() method instead')
+  }
 
   // Version
   var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
@@ -173,6 +189,7 @@ HDNode.prototype.toBuffer = function(isPrivate) {
 
   // 33 bytes: the public key or private key data
   if (isPrivate) {
+    // FIXME: remove in 2.x.y
     assert(this.privKey, 'Missing private key')
 
     // 0x00 + k for private keys
