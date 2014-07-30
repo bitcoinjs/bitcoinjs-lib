@@ -13,7 +13,10 @@
   "keywords": [
     "bitcoin",
     "bitcoinjs",
-    "bitcoinjs-lib"
+    "bitcoinjs-lib",
+    "browser",
+    "client",
+    "library"
   ],
   "license": "MIT",
   "ignore": [
