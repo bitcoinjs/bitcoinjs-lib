@@ -74,6 +74,8 @@ function sign(curve, hash, d) {
 }
 
 function verify(curve, hash, signature, Q) {
+  // 1.4.2 H = Hash(M), already done by the user
+  // 1.4.3 e = H
   var e = BigInteger.fromBuffer(hash)
 
   return verifyRaw(curve, e, signature, Q)
