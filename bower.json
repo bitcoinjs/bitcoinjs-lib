@@ -1,0 +1,27 @@
+{
+  "name": "bitcoinjs-lib",
+  "version": "1.0.2",
+  "homepage": "https://github.com/bitcoinjs/bitcoinjs-lib",
+  "authors": [
+    "Daniel Cousens <email@dcousens.com>"
+  ],
+  "description": "Bower componenet for bitcoinjs-lib",
+  "main": "bitcoinjs-min.js",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "bitcoin",
+    "bitcoinjs",
+    "bitcoinjs-lib"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src"
+  ]
+}
