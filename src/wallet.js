@@ -86,59 +86,6 @@ function Wallet(seed, network) {
 
     this.outputs = outputs
   }
-
-  function outputToUnspentOutput(output){
-    var hashAndIndex = output.from.split(":")
-
-    return {
-      hash: hashAndIndex[0],
-      outputIndex: parseInt(hashAndIndex[1]),
-      address: output.address,
-      value: output.value,
-      pending: output.pending
-    }
-  }
-
-  function unspentOutputToOutput(o) {
-    var hash = o.hash
-    var key = hash + ":" + o.outputIndex
-    return {
-      from: key,
-      address: o.address,
-      value: o.value,
-      pending: o.pending
-    }
-  }
-
-  function validateUnspentOutput(uo) {
-    var missingField
-
-    if (isNullOrUndefined(uo.hash)) {
-      missingField = "hash"
-    }
-
-    var requiredKeys = ['outputIndex', 'address', 'value']
-    requiredKeys.forEach(function (key) {
-      if (isNullOrUndefined(uo[key])){
-        missingField = key
-      }
-    })
-
-    if (missingField) {
-      var message = [
-        'Invalid unspent output: key', missingField, 'is missing.',
-        'A valid unspent output must contain'
-      ]
-      message.push(requiredKeys.join(', '))
-      message.push("and hash")
-      throw new Error(message.join(' '))
-    }
-  }
-
-  function isNullOrUndefined(value) {
-    return value == undefined
-  }
-
   this.processPendingTx = function(tx){
     processTx(tx, true)
   }
@@ -193,7 +140,7 @@ function Wallet(seed, network) {
   this.createTx = function(to, value, fixedFee, changeAddress) {
     assert(value > network.dustThreshold, value + ' must be above dust threshold (' + network.dustThreshold + ' Satoshis)')
 
-    var utxos = getCandidateOutputs(value)
+    var utxos = getCandidateOutputs(this.outputs, value)
     var accum = 0
     var subTotal = value
     var addresses = []
@@ -227,21 +174,6 @@ function Wallet(seed, network) {
 
     this.signWith(tx, addresses)
     return tx
-  }
-
-  function getCandidateOutputs() {
-    var unspent = []
-
-    for (var key in me.outputs) {
-      var output = me.outputs[key]
-      if (!output.pending) unspent.push(output)
-    }
-
-    var sortByValueDesc = unspent.sort(function(o1, o2){
-      return o2.value - o1.value
-    })
-
-    return sortByValueDesc
   }
 
   function estimateFeePadChangeOutput(tx) {
@@ -303,6 +235,73 @@ function Wallet(seed, network) {
   function isMyAddress(address) {
     return isReceiveAddress(address) || isChangeAddress(address)
   }
+}
+
+function outputToUnspentOutput(output){
+  var hashAndIndex = output.from.split(":")
+
+  return {
+    hash: hashAndIndex[0],
+    outputIndex: parseInt(hashAndIndex[1]),
+    address: output.address,
+    value: output.value,
+    pending: output.pending
+  }
+}
+
+function unspentOutputToOutput(o) {
+  var hash = o.hash
+  var key = hash + ":" + o.outputIndex
+  return {
+    from: key,
+    address: o.address,
+    value: o.value,
+    pending: o.pending
+  }
+}
+
+function validateUnspentOutput(uo) {
+  var missingField
+
+  if (isNullOrUndefined(uo.hash)) {
+    missingField = "hash"
+  }
+
+  var requiredKeys = ['outputIndex', 'address', 'value']
+  requiredKeys.forEach(function (key) {
+    if (isNullOrUndefined(uo[key])){
+      missingField = key
+    }
+  })
+
+  if (missingField) {
+    var message = [
+      'Invalid unspent output: key', missingField, 'is missing.',
+      'A valid unspent output must contain'
+    ]
+    message.push(requiredKeys.join(', '))
+    message.push("and hash")
+    throw new Error(message.join(' '))
+  }
+}
+
+function isNullOrUndefined(value) {
+  return value == undefined
+}
+
+function getCandidateOutputs(outputs/*, value*/) {
+  var unspent = []
+
+  for (var key in outputs) {
+    var output = outputs[key]
+    if (!output.pending) unspent.push(output)
+  }
+
+  var sortByValueDesc = unspent.sort(function(o1, o2){
+    return o2.value - o1.value
+  })
+
+  return sortByValueDesc
 }
 
 module.exports = Wallet
