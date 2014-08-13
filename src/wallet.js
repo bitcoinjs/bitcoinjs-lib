@@ -5,6 +5,7 @@ var networks = require('./networks')
 var Address = require('./address')
 var HDNode = require('./hdnode')
 var Transaction = require('./transaction')
+var Script = require('./script')
 
 function Wallet(seed, network) {
   seed = seed || crypto.randomBytes(32)
@@ -155,7 +156,7 @@ function Wallet(seed, network) {
       var outpoint = utxo.from.split(':')
       tx.addInput(outpoint[0], parseInt(outpoint[1]))
 
-      var fee = fixedFee == undefined ? estimateFeePadChangeOutput(tx) : fixedFee
+      var fee = fixedFee == undefined ? estimatePaddedFee(tx, network) : fixedFee
 
       accum += utxo.value
       subTotal = value + fee
@@ -174,13 +175,6 @@ function Wallet(seed, network) {
 
     this.signWith(tx, addresses)
     return tx
-  }
-
-  function estimateFeePadChangeOutput(tx) {
-    var tmpTx = tx.clone()
-    tmpTx.addOutput(getChangeAddress(), network.dustSoftThreshold || 0)
-
-    return network.estimateFee(tmpTx)
   }
 
   function getChangeAddress() {
@@ -283,6 +277,13 @@ function validateUnspentOutput(uo) {
     message.push("and hash")
     throw new Error(message.join(' '))
   }
+}
+
+function estimatePaddedFee(tx, network) {
+  var tmpTx = tx.clone()
+  tmpTx.addOutput(Script.EMPTY, network.dustSoftThreshold || 0)
+
+  return network.estimateFee(tmpTx)
 }
 
 function isNullOrUndefined(value) {
