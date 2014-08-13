@@ -164,7 +164,7 @@ describe('Wallet', function() {
       var wallet = new Wallet(seed, networks.testnet)
       assert.throws(function() {
         wallet.getPrivateKeyForAddress("n2fiWrHqD6GM5GiEqkbWAc6aaZQp3ba93X")
-      }, /Unknown address. Make sure the address is from the keychain and has been generated./)
+      }, /Unknown address. Make sure the address is from the keychain and has been generated/)
     })
   })
 

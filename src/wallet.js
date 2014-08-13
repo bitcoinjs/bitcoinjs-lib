@@ -208,13 +208,18 @@ function Wallet(seed, network) {
   }
 
   this.getPrivateKeyForAddress = function(address) {
-    var index
-    if((index = this.addresses.indexOf(address)) > -1) {
+    assert(isMyAddress(address), 'Unknown address. Make sure the address is from the keychain and has been generated')
+
+    if (isReceiveAddress(address)) {
+      var index = this.addresses.indexOf(address)
+
       return this.getPrivateKey(index)
-    } else if((index = this.changeAddresses.indexOf(address)) > -1) {
+    }
+
+    if (isChangeAddress(address)) {
+      var index = this.changeAddresses.indexOf(address)
+
       return this.getInternalPrivateKey(index)
-    } else {
-      throw new Error('Unknown address. Make sure the address is from the keychain and has been generated.')
     }
   }
 
