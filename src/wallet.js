@@ -12,12 +12,12 @@ function Wallet(seed, network, unspents) {
   network = network || networks.bitcoin
 
   // Stored in a closure to make accidental serialization less likely
-  var masterkey = HDNode.fromSeedBuffer(seed, network)
+  var masterKey = HDNode.fromSeedBuffer(seed, network)
   var me = this
 
   // HD first-level child derivation method should be hardened
   // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-  var accountZero = masterkey.deriveHardened(0)
+  var accountZero = masterKey.deriveHardened(0)
   var externalAccount = accountZero.derive(0)
   var internalAccount = accountZero.derive(1)
 
@@ -35,11 +35,11 @@ function Wallet(seed, network, unspents) {
     console.warn('newMasterKey is deprecated, please make a new Wallet instance instead')
 
     seed = seed || crypto.randomBytes(32)
-    masterkey = HDNode.fromSeedBuffer(seed, network)
+    masterKey = HDNode.fromSeedBuffer(seed, network)
 
     // HD first-level child derivation method should be hardened
     // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-    accountZero = masterkey.deriveHardened(0)
+    accountZero = masterKey.deriveHardened(0)
     externalAccount = accountZero.derive(0)
     internalAccount = accountZero.derive(1)
 
@@ -102,10 +102,10 @@ function Wallet(seed, network, unspents) {
     })
   }
 
-  this.getMasterKey = function() { return masterkey }
+  this.getMasterKey = function() { return masterKey }
   this.getAccountZero = function() { return accountZero }
-  this.getInternalAccount = function() { return internalAccount }
   this.getExternalAccount = function() { return externalAccount }
+  this.getInternalAccount = function() { return internalAccount }
 
   this.getPrivateKeyForAddress = function(address) {
     assert(isMyAddress(address), 'Unknown address. Make sure the address is from the keychain and has been generated')
