@@ -7,7 +7,7 @@ var HDNode = require('./hdnode')
 var Transaction = require('./transaction')
 var Script = require('./script')
 
-function Wallet(seed, network) {
+function Wallet(seed, network, unspents) {
   seed = seed || crypto.randomBytes(32)
   network = network || networks.bitcoin
 
@@ -26,7 +26,7 @@ function Wallet(seed, network) {
   this.changeAddresses = []
 
   // Transaction output data
-  this.outputs = {}
+  this.outputs = unspents ? processUnspentOutputs(unspents) : {}
 
   this.generateAddress = function() {
     var key = externalAccount.derive(this.addresses.length)
@@ -77,16 +77,11 @@ function Wallet(seed, network) {
   }
 
   this.setUnspentOutputs = function(utxo) {
-    var outputs = {}
+    console.warn('setUnspentOutputs is deprecated, please use the constructor option instead')
 
-    utxo.forEach(function(uo){
-      validateUnspentOutput(uo)
-      var o = unspentOutputToOutput(uo)
-      outputs[o.from] = o
-    })
-
-    this.outputs = outputs
+    this.outputs = processUnspentOutputs(utxo)
   }
+
   this.processPendingTx = function(tx){
     processTx(tx, true)
   }
@@ -94,6 +89,8 @@ function Wallet(seed, network) {
   this.processConfirmedTx = function(tx){
     processTx(tx, false)
   }
+
+  var me = this
 
   function processTx(tx, isPending) {
     var txid = tx.getId()
@@ -241,46 +238,10 @@ function outputToUnspentOutput(output){
 
   return {
     hash: hashAndIndex[0],
-    outputIndex: parseInt(hashAndIndex[1]),
+    index: parseInt(hashAndIndex[1]),
     address: output.address,
     value: output.value,
     pending: output.pending
-  }
-}
-
-function unspentOutputToOutput(o) {
-  var hash = o.hash
-  var key = hash + ":" + o.outputIndex
-  return {
-    from: key,
-    address: o.address,
-    value: o.value,
-    pending: o.pending
-  }
-}
-
-function validateUnspentOutput(uo) {
-  var missingField
-
-  if (isNullOrUndefined(uo.hash)) {
-    missingField = "hash"
-  }
-
-  var requiredKeys = ['outputIndex', 'address', 'value']
-  requiredKeys.forEach(function (key) {
-    if (isNullOrUndefined(uo[key])){
-      missingField = key
-    }
-  })
-
-  if (missingField) {
-    var message = [
-      'Invalid unspent output: key', missingField, 'is missing.',
-      'A valid unspent output must contain'
-    ]
-    message.push(requiredKeys.join(', '))
-    message.push("and hash")
-    throw new Error(message.join(' '))
   }
 }
 
@@ -291,8 +252,34 @@ function estimatePaddedFee(tx, network) {
   return network.estimateFee(tmpTx)
 }
 
-function isNullOrUndefined(value) {
-  return value == undefined
+function processUnspentOutputs(utxos) {
+  var outputs = {}
+
+  utxos.forEach(function(utxo){
+    var hash = new Buffer(utxo.hash, 'hex')
+    var index = utxo.index
+    var address = utxo.address
+    var value = utxo.value
+
+    // FIXME: remove alternative in 2.x.y
+    if (index === undefined) index = utxo.outputIndex
+
+    assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
+    assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
+    assert.doesNotThrow(function() { Address.fromBase58Check(address) }, 'Expected Base58 Address, got ' + address)
+    assert.equal(typeof value, 'number', 'Expected number value, got ' + value)
+
+    var key = utxo.hash + ':' + utxo.index
+
+    outputs[key] = {
+      from: key,
+      address: address,
+      value: value,
+      pending: utxo.pending
+    }
+  })
+
+  return outputs
 }
 
 function getCandidateOutputs(outputs/*, value*/) {
