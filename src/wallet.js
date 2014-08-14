@@ -7,14 +7,18 @@ var HDNode = require('./hdnode')
 var Transaction = require('./transaction')
 
 function Wallet(seed, network) {
+  seed = seed || crypto.randomBytes(32)
   network = network || networks.bitcoin
 
   // Stored in a closure to make accidental serialization less likely
-  var masterkey = null
+  var masterkey = HDNode.fromSeedBuffer(seed, network)
   var me = this
-  var accountZero = null
-  var internalAccount = null
-  var externalAccount = null
+
+  // HD first-level child derivation method should be hardened
+  // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
+  var accountZero = masterkey.deriveHardened(0)
+  var externalAccount = accountZero.derive(0)
+  var internalAccount = accountZero.derive(1)
 
   // Addresses
   this.addresses = []
@@ -22,25 +26,6 @@ function Wallet(seed, network) {
 
   // Transaction output data
   this.outputs = {}
-
-  // Make a new master key
-  this.newMasterKey = function(seed) {
-    seed = seed || crypto.randomBytes(32)
-    masterkey = HDNode.fromSeedBuffer(seed, network)
-
-    // HD first-level child derivation method should be hardened
-    // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
-    accountZero = masterkey.deriveHardened(0)
-    externalAccount = accountZero.derive(0)
-    internalAccount = accountZero.derive(1)
-
-    me.addresses = []
-    me.changeAddresses = []
-
-    me.outputs = {}
-  }
-
-  this.newMasterKey(seed)
 
   this.generateAddress = function() {
     var key = externalAccount.derive(this.addresses.length)
@@ -69,6 +54,25 @@ function Wallet(seed, network) {
     }
 
     return utxo
+  }
+
+  // FIXME: remove in 2.x.y
+  this.newMasterKey = function(seed) {
+    console.warn('newMasterKey is deprecated, please make a new Wallet instance instead')
+
+    seed = seed || crypto.randomBytes(32)
+    masterkey = HDNode.fromSeedBuffer(seed, network)
+
+    // HD first-level child derivation method should be hardened
+    // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
+    accountZero = masterkey.deriveHardened(0)
+    externalAccount = accountZero.derive(0)
+    internalAccount = accountZero.derive(1)
+
+    me.addresses = []
+    me.changeAddresses = []
+
+    me.outputs = {}
   }
 
   this.setUnspentOutputs = function(utxo) {
