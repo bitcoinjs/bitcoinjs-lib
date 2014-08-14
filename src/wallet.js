@@ -28,35 +28,6 @@ function Wallet(seed, network, unspents) {
   // Transaction output data
   this.outputs = unspents ? processUnspentOutputs(unspents) : {}
 
-  this.generateAddress = function() {
-    var key = externalAccount.derive(this.addresses.length)
-    this.addresses.push(key.getAddress().toString())
-    return this.addresses[this.addresses.length - 1]
-  }
-
-  this.generateChangeAddress = function() {
-    var key = internalAccount.derive(this.changeAddresses.length)
-    this.changeAddresses.push(key.getAddress().toString())
-    return this.changeAddresses[this.changeAddresses.length - 1]
-  }
-
-  this.getBalance = function() {
-    return this.getUnspentOutputs().reduce(function(memo, output){
-      return memo + output.value
-    }, 0)
-  }
-
-  this.getUnspentOutputs = function() {
-    var utxo = []
-
-    for(var key in this.outputs){
-      var output = this.outputs[key]
-      if(!output.to) utxo.push(outputToUnspentOutput(output))
-    }
-
-    return utxo
-  }
-
   // FIXME: remove in 2.x.y
   this.newMasterKey = function(seed) {
     console.warn('newMasterKey is deprecated, please make a new Wallet instance instead')
@@ -74,12 +45,6 @@ function Wallet(seed, network, unspents) {
     me.changeAddresses = []
 
     me.outputs = {}
-  }
-
-  this.setUnspentOutputs = function(utxo) {
-    console.warn('setUnspentOutputs is deprecated, please use the constructor option instead')
-
-    this.outputs = processUnspentOutputs(utxo)
   }
 
   this.processPendingTx = function(tx){
@@ -161,7 +126,7 @@ function Wallet(seed, network, unspents) {
         var change = accum - subTotal
 
         if (change > network.dustThreshold) {
-          tx.addOutput(changeAddress || getChangeAddress(), change)
+          tx.addOutput(changeAddress || this.getChangeAddress(), change)
         }
 
         break
@@ -171,23 +136,6 @@ function Wallet(seed, network, unspents) {
     assert(accum >= subTotal, 'Not enough funds (incl. fee): ' + accum + ' < ' + subTotal)
 
     this.signWith(tx, addresses)
-    return tx
-  }
-
-  function getChangeAddress() {
-    if(me.changeAddresses.length === 0) me.generateChangeAddress();
-    return me.changeAddresses[me.changeAddresses.length - 1]
-  }
-
-  this.signWith = function(tx, addresses) {
-    assert.equal(tx.ins.length, addresses.length, 'Number of addresses must match number of transaction inputs')
-
-    addresses.forEach(function(address, i) {
-      var key = me.getPrivateKeyForAddress(address)
-
-      tx.sign(i, key)
-    })
-
     return tx
   }
 
@@ -231,6 +179,75 @@ function Wallet(seed, network, unspents) {
   function isMyAddress(address) {
     return isReceiveAddress(address) || isChangeAddress(address)
   }
+}
+
+Wallet.prototype.generateAddress = function() {
+  var k = this.addresses.length
+  var address = this.getExternalAccount().derive(k).getAddress()
+
+  this.addresses.push(address.toString())
+
+  return this.getReceiveAddress()
+}
+
+Wallet.prototype.generateChangeAddress = function() {
+  var k = this.changeAddresses.length
+  var address = this.getInternalAccount().derive(k).getAddress()
+
+  this.changeAddresses.push(address.toString())
+
+  return this.getChangeAddress()
+}
+
+Wallet.prototype.getBalance = function() {
+  return this.getUnspentOutputs().reduce(function(accum, output) {
+    return accum + output.value
+  }, 0)
+}
+
+Wallet.prototype.getChangeAddress = function() {
+  if (this.changeAddresses.length === 0) {
+    this.generateChangeAddress()
+  }
+
+  return this.changeAddresses[this.changeAddresses.length - 1]
+}
+
+Wallet.prototype.getReceiveAddress = function() {
+  if (this.addresses.length === 0) {
+    this.generateAddress()
+  }
+
+  return this.addresses[this.addresses.length - 1]
+}
+
+Wallet.prototype.getUnspentOutputs = function() {
+  var utxo = []
+
+  for(var key in this.outputs){
+    var output = this.outputs[key]
+    if(!output.to) utxo.push(outputToUnspentOutput(output))
+  }
+
+  return utxo
+}
+
+Wallet.prototype.setUnspentOutputs = function(utxo) {
+  console.warn('setUnspentOutputs is deprecated, please use the constructor option instead')
+
+  this.outputs = processUnspentOutputs(utxo)
+}
+
+Wallet.prototype.signWith = function(tx, addresses) {
+  assert.equal(tx.ins.length, addresses.length, 'Number of addresses must match number of transaction inputs')
+
+  addresses.forEach(function(address, i) {
+    var key = this.getPrivateKeyForAddress(address)
+
+    tx.sign(i, key)
+  }, this)
+
+  return tx
 }
 
 function outputToUnspentOutput(output){
