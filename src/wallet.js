@@ -25,6 +25,8 @@ function Wallet(seed, network, unspents) {
   this.addresses = []
   this.changeAddresses = []
 
+  this.network = network
+
   // Transaction output data
   this.outputs = unspents ? processUnspentOutputs(unspents) : {}
 
@@ -100,57 +102,10 @@ function Wallet(seed, network, unspents) {
     })
   }
 
-  this.createTx = function(to, value, fixedFee, changeAddress) {
-    assert(value > network.dustThreshold, value + ' must be above dust threshold (' + network.dustThreshold + ' Satoshis)')
-
-    var utxos = getCandidateOutputs(this.outputs, value)
-    var accum = 0
-    var subTotal = value
-    var addresses = []
-
-    var tx = new Transaction()
-    tx.addOutput(to, value)
-
-    for (var i = 0; i < utxos.length; ++i) {
-      var utxo = utxos[i]
-      addresses.push(utxo.address)
-
-      var outpoint = utxo.from.split(':')
-      tx.addInput(outpoint[0], parseInt(outpoint[1]))
-
-      var fee = fixedFee == undefined ? estimatePaddedFee(tx, network) : fixedFee
-
-      accum += utxo.value
-      subTotal = value + fee
-      if (accum >= subTotal) {
-        var change = accum - subTotal
-
-        if (change > network.dustThreshold) {
-          tx.addOutput(changeAddress || this.getChangeAddress(), change)
-        }
-
-        break
-      }
-    }
-
-    assert(accum >= subTotal, 'Not enough funds (incl. fee): ' + accum + ' < ' + subTotal)
-
-    this.signWith(tx, addresses)
-    return tx
-  }
-
   this.getMasterKey = function() { return masterkey }
   this.getAccountZero = function() { return accountZero }
   this.getInternalAccount = function() { return internalAccount }
   this.getExternalAccount = function() { return externalAccount }
-
-  this.getPrivateKey = function(index) {
-    return externalAccount.derive(index).privKey
-  }
-
-  this.getInternalPrivateKey = function(index) {
-    return internalAccount.derive(index).privKey
-  }
 
   this.getPrivateKeyForAddress = function(address) {
     assert(isMyAddress(address), 'Unknown address. Make sure the address is from the keychain and has been generated')
@@ -179,6 +134,45 @@ function Wallet(seed, network, unspents) {
   function isMyAddress(address) {
     return isReceiveAddress(address) || isChangeAddress(address)
   }
+}
+
+Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
+  assert(value > this.network.dustThreshold, value + ' must be above dust threshold (' + this.network.dustThreshold + ' Satoshis)')
+
+  var utxos = getCandidateOutputs(this.outputs, value)
+  var accum = 0
+  var subTotal = value
+  var addresses = []
+
+  var tx = new Transaction()
+  tx.addOutput(to, value)
+
+  for (var i = 0; i < utxos.length; ++i) {
+    var utxo = utxos[i]
+    addresses.push(utxo.address)
+
+    var outpoint = utxo.from.split(':')
+    tx.addInput(outpoint[0], parseInt(outpoint[1]))
+
+    var fee = fixedFee == undefined ? estimatePaddedFee(tx, this.network) : fixedFee
+
+    accum += utxo.value
+    subTotal = value + fee
+    if (accum >= subTotal) {
+      var change = accum - subTotal
+
+      if (change > this.network.dustThreshold) {
+        tx.addOutput(changeAddress || this.getChangeAddress(), change)
+      }
+
+      break
+    }
+  }
+
+  assert(accum >= subTotal, 'Not enough funds (incl. fee): ' + accum + ' < ' + subTotal)
+
+  this.signWith(tx, addresses)
+  return tx
 }
 
 Wallet.prototype.generateAddress = function() {
@@ -211,6 +205,14 @@ Wallet.prototype.getChangeAddress = function() {
   }
 
   return this.changeAddresses[this.changeAddresses.length - 1]
+}
+
+Wallet.prototype.getInternalPrivateKey = function(index) {
+  return this.getInternalAccount().derive(index).privKey
+}
+
+Wallet.prototype.getPrivateKey = function(index) {
+  return this.getExternalAccount().derive(index).privKey
 }
 
 Wallet.prototype.getReceiveAddress = function() {
