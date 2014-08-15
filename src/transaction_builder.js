@@ -114,7 +114,15 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
 }
 
-TransactionBuilder.prototype.build = function(allowIncomplete) {
+TransactionBuilder.prototype.build = function() {
+  return this.__build(false)
+}
+
+TransactionBuilder.prototype.buildIncomplete = function() {
+  return this.__build(true)
+}
+
+TransactionBuilder.prototype.__build = function(allowIncomplete) {
   if (!allowIncomplete) {
     assert(this.tx.ins.length > 0, 'Transaction has no inputs')
     assert(this.tx.outs.length > 0, 'Transaction has no outputs')
