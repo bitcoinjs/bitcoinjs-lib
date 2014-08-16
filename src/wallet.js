@@ -89,11 +89,55 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
 }
 
 Wallet.prototype.processPendingTx = function(tx){
-  processTx.bind(this)(tx, true)
+  this.__processTx(tx, true)
 }
 
 Wallet.prototype.processConfirmedTx = function(tx){
-  processTx.bind(this)(tx, false)
+  this.__processTx(tx, false)
+}
+
+Wallet.prototype.__processTx = function(tx, isPending) {
+  var txid = tx.getId()
+
+  tx.outs.forEach(function(txOut, i) {
+    var address
+
+    try {
+      address = Address.fromOutputScript(txOut.script, this.network).toString()
+    } catch(e) {
+      if (!(e.message.match(/has no matching Address/))) throw e
+    }
+
+    var myAddresses = this.addresses.concat(this.changeAddresses)
+    if (myAddresses.indexOf(address) > -1) {
+      var output = txid + ':' + i
+
+      this.outputs[output] = {
+        from: output,
+        value: txOut.value,
+        address: address,
+        pending: isPending
+      }
+    }
+  }, this)
+
+  tx.ins.forEach(function(txIn, i) {
+    // copy and convert to big-endian hex
+    var txinId = new Buffer(txIn.hash)
+    Array.prototype.reverse.call(txinId)
+    txinId = txinId.toString('hex')
+
+    var output = txinId + ':' + txIn.index
+
+    if (!(output in this.outputs)) return
+
+    if (isPending) {
+      this.outputs[output].to = txid + ':' + i
+      this.outputs[output].pending = true
+    } else {
+      delete this.outputs[output]
+    }
+  }, this)
 }
 
 Wallet.prototype.generateAddress = function() {
@@ -251,50 +295,6 @@ function getCandidateOutputs(outputs/*, value*/) {
   })
 
   return sortByValueDesc
-}
-
-function processTx(tx, isPending) {
-  var txid = tx.getId()
-
-  tx.outs.forEach(function(txOut, i) {
-    var address
-
-    try {
-      address = Address.fromOutputScript(txOut.script, this.network).toString()
-    } catch(e) {
-      if (!(e.message.match(/has no matching Address/))) throw e
-    }
-
-    var myAddresses = this.addresses.concat(this.changeAddresses)
-    if (myAddresses.indexOf(address) > -1) {
-      var output = txid + ':' + i
-
-      this.outputs[output] = {
-        from: output,
-        value: txOut.value,
-        address: address,
-        pending: isPending
-      }
-    }
-  }, this)
-
-  tx.ins.forEach(function(txIn, i) {
-    // copy and convert to big-endian hex
-    var txinId = new Buffer(txIn.hash)
-    Array.prototype.reverse.call(txinId)
-    txinId = txinId.toString('hex')
-
-    var output = txinId + ':' + txIn.index
-
-    if (!(output in this.outputs)) return
-
-    if (isPending) {
-      this.outputs[output].to = txid + ':' + i
-      this.outputs[output].pending = true
-    } else {
-      delete this.outputs[output]
-    }
-  }, this)
 }
 
 module.exports = Wallet
