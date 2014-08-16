@@ -49,90 +49,27 @@ function Wallet(seed, network, unspents) {
     me.outputs = {}
   }
 
-  this.processPendingTx = function(tx){
-    processTx(tx, true)
-  }
-
-  this.processConfirmedTx = function(tx){
-    processTx(tx, false)
-  }
-
-  var me = this
-
-  function processTx(tx, isPending) {
-    var txid = tx.getId()
-
-    tx.outs.forEach(function(txOut, i) {
-      var address
-
-      try {
-        address = Address.fromOutputScript(txOut.script, network).toString()
-      } catch(e) {
-        if (!(e.message.match(/has no matching Address/))) throw e
-      }
-
-      if (isMyAddress(address)) {
-        var output = txid + ':' + i
-
-        me.outputs[output] = {
-          from: output,
-          value: txOut.value,
-          address: address,
-          pending: isPending
-        }
-      }
-    })
-
-    tx.ins.forEach(function(txIn, i) {
-      // copy and convert to big-endian hex
-      var txinId = new Buffer(txIn.hash)
-      Array.prototype.reverse.call(txinId)
-      txinId = txinId.toString('hex')
-
-      var output = txinId + ':' + txIn.index
-
-      if (!(output in me.outputs)) return
-
-      if (isPending) {
-        me.outputs[output].to = txid + ':' + i
-        me.outputs[output].pending = true
-      } else {
-        delete me.outputs[output]
-      }
-    })
-  }
-
   this.getMasterKey = function() { return masterKey }
   this.getAccountZero = function() { return accountZero }
   this.getExternalAccount = function() { return externalAccount }
   this.getInternalAccount = function() { return internalAccount }
 
   this.getPrivateKeyForAddress = function(address) {
-    assert(isMyAddress(address), 'Unknown address. Make sure the address is from the keychain and has been generated')
+    var myAddresses = this.addresses.concat(this.changeAddresses)
+    assert(includeAddress(myAddresses, address),
+           'Unknown address. Make sure the address is from the keychain and has been generated')
 
-    if (isReceiveAddress(address)) {
+    if (includeAddress(this.addresses, address)) {
       var index = this.addresses.indexOf(address)
 
       return this.getPrivateKey(index)
     }
 
-    if (isChangeAddress(address)) {
+    if (includeAddress(this.changeAddresses, address)) {
       var index = this.changeAddresses.indexOf(address)
 
       return this.getInternalPrivateKey(index)
     }
-  }
-
-  function isReceiveAddress(address){
-    return me.addresses.indexOf(address) > -1
-  }
-
-  function isChangeAddress(address){
-    return me.changeAddresses.indexOf(address) > -1
-  }
-
-  function isMyAddress(address) {
-    return isReceiveAddress(address) || isChangeAddress(address)
   }
 }
 
@@ -173,6 +110,14 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
 
   this.signWith(tx, addresses)
   return tx
+}
+
+Wallet.prototype.processPendingTx = function(tx){
+  processTx.bind(this)(tx, true)
+}
+
+Wallet.prototype.processConfirmedTx = function(tx){
+  processTx.bind(this)(tx, false)
 }
 
 Wallet.prototype.generateAddress = function() {
@@ -314,6 +259,54 @@ function getCandidateOutputs(outputs/*, value*/) {
   })
 
   return sortByValueDesc
+}
+
+function processTx(tx, isPending) {
+  var txid = tx.getId()
+
+  tx.outs.forEach(function(txOut, i) {
+    var address
+
+    try {
+      address = Address.fromOutputScript(txOut.script, this.network).toString()
+    } catch(e) {
+      if (!(e.message.match(/has no matching Address/))) throw e
+    }
+
+    var myAddresses = this.addresses.concat(this.changeAddresses)
+    if (includeAddress(myAddresses, address)) {
+      var output = txid + ':' + i
+
+      this.outputs[output] = {
+        from: output,
+        value: txOut.value,
+        address: address,
+        pending: isPending
+      }
+    }
+  }, this)
+
+  tx.ins.forEach(function(txIn, i) {
+    // copy and convert to big-endian hex
+    var txinId = new Buffer(txIn.hash)
+    Array.prototype.reverse.call(txinId)
+    txinId = txinId.toString('hex')
+
+    var output = txinId + ':' + txIn.index
+
+    if (!(output in this.outputs)) return
+
+    if (isPending) {
+      this.outputs[output].to = txid + ':' + i
+      this.outputs[output].pending = true
+    } else {
+      delete this.outputs[output]
+    }
+  }, this)
+}
+
+function includeAddress(addresses, address) {
+  return addresses.indexOf(address) > -1
 }
 
 module.exports = Wallet
