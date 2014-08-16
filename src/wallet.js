@@ -67,7 +67,7 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
     var outpoint = utxo.from.split(':')
     tx.addInput(outpoint[0], parseInt(outpoint[1]))
 
-    var fee = fixedFee == undefined ? estimatePaddedFee(tx, this.network) : fixedFee
+    var fee = fixedFee === undefined ? estimatePaddedFee(tx, this.network) : fixedFee
 
     accum += utxo.value
     subTotal = value + fee
