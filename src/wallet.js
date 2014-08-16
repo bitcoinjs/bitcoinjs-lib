@@ -13,7 +13,6 @@ function Wallet(seed, network, unspents) {
 
   // Stored in a closure to make accidental serialization less likely
   var masterKey = HDNode.fromSeedBuffer(seed, network)
-  var me = this
 
   // HD first-level child derivation method should be hardened
   // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
@@ -21,24 +20,19 @@ function Wallet(seed, network, unspents) {
   var externalAccount = accountZero.derive(0)
   var internalAccount = accountZero.derive(1)
 
-  // Addresses
   this.addresses = []
   this.changeAddresses = []
-
   this.network = network
-
-  // Transaction output data
   this.outputs = unspents ? processUnspentOutputs(unspents) : {}
 
   // FIXME: remove in 2.x.y
+  var me = this
   this.newMasterKey = function(seed) {
     console.warn('newMasterKey is deprecated, please make a new Wallet instance instead')
 
     seed = seed || crypto.randomBytes(32)
     masterKey = HDNode.fromSeedBuffer(seed, network)
 
-    // HD first-level child derivation method should be hardened
-    // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
     accountZero = masterKey.deriveHardened(0)
     externalAccount = accountZero.derive(0)
     internalAccount = accountZero.derive(1)
