@@ -181,15 +181,13 @@ Wallet.prototype.getPrivateKey = function(index) {
 }
 
 Wallet.prototype.getPrivateKeyForAddress = function(address) {
-  if (this.addresses.indexOf(address) > -1) {
-    var index = this.addresses.indexOf(address)
+  var index
 
+  if ((index = this.addresses.indexOf(address)) > -1) {
     return this.getPrivateKey(index)
   }
 
-  if (this.changeAddresses.indexOf(address) > -1) {
-    var index = this.changeAddresses.indexOf(address)
-
+  if ((index = this.changeAddresses.indexOf(address)) > -1) {
     return this.getInternalPrivateKey(index)
   }
 
