@@ -137,13 +137,13 @@ Wallet.prototype.getPrivateKey = function(index) {
 }
 
 Wallet.prototype.getPrivateKeyForAddress = function(address) {
-  if (includeAddress(this.addresses, address)) {
+  if (this.addresses.indexOf(address) > -1) {
     var index = this.addresses.indexOf(address)
 
     return this.getPrivateKey(index)
   }
 
-  if (includeAddress(this.changeAddresses, address)) {
+  if (this.changeAddresses.indexOf(address) > -1) {
     var index = this.changeAddresses.indexOf(address)
 
     return this.getInternalPrivateKey(index)
@@ -266,7 +266,7 @@ function processTx(tx, isPending) {
     }
 
     var myAddresses = this.addresses.concat(this.changeAddresses)
-    if (includeAddress(myAddresses, address)) {
+    if (myAddresses.indexOf(address) > -1) {
       var output = txid + ':' + i
 
       this.outputs[output] = {
@@ -295,10 +295,6 @@ function processTx(tx, isPending) {
       delete this.outputs[output]
     }
   }, this)
-}
-
-function includeAddress(addresses, address) {
-  return addresses.indexOf(address) > -1
 }
 
 module.exports = Wallet
