@@ -13,7 +13,6 @@ function Wallet(seed, network, unspents) {
 
   // Stored in a closure to make accidental serialization less likely
   var masterKey = HDNode.fromSeedBuffer(seed, network)
-  var me = this
 
   // HD first-level child derivation method should be hardened
   // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
@@ -21,24 +20,19 @@ function Wallet(seed, network, unspents) {
   var externalAccount = accountZero.derive(0)
   var internalAccount = accountZero.derive(1)
 
-  // Addresses
   this.addresses = []
   this.changeAddresses = []
-
   this.network = network
-
-  // Transaction output data
   this.outputs = unspents ? processUnspentOutputs(unspents) : {}
 
   // FIXME: remove in 2.x.y
+  var me = this
   this.newMasterKey = function(seed) {
     console.warn('newMasterKey is deprecated, please make a new Wallet instance instead')
 
     seed = seed || crypto.randomBytes(32)
     masterKey = HDNode.fromSeedBuffer(seed, network)
 
-    // HD first-level child derivation method should be hardened
-    // See https://bitcointalk.org/index.php?topic=405179.msg4415254#msg4415254
     accountZero = masterKey.deriveHardened(0)
     externalAccount = accountZero.derive(0)
     internalAccount = accountZero.derive(1)
@@ -49,91 +43,10 @@ function Wallet(seed, network, unspents) {
     me.outputs = {}
   }
 
-  this.processPendingTx = function(tx){
-    processTx(tx, true)
-  }
-
-  this.processConfirmedTx = function(tx){
-    processTx(tx, false)
-  }
-
-  var me = this
-
-  function processTx(tx, isPending) {
-    var txid = tx.getId()
-
-    tx.outs.forEach(function(txOut, i) {
-      var address
-
-      try {
-        address = Address.fromOutputScript(txOut.script, network).toString()
-      } catch(e) {
-        if (!(e.message.match(/has no matching Address/))) throw e
-      }
-
-      if (isMyAddress(address)) {
-        var output = txid + ':' + i
-
-        me.outputs[output] = {
-          from: output,
-          value: txOut.value,
-          address: address,
-          pending: isPending
-        }
-      }
-    })
-
-    tx.ins.forEach(function(txIn, i) {
-      // copy and convert to big-endian hex
-      var txinId = new Buffer(txIn.hash)
-      Array.prototype.reverse.call(txinId)
-      txinId = txinId.toString('hex')
-
-      var output = txinId + ':' + txIn.index
-
-      if (!(output in me.outputs)) return
-
-      if (isPending) {
-        me.outputs[output].to = txid + ':' + i
-        me.outputs[output].pending = true
-      } else {
-        delete me.outputs[output]
-      }
-    })
-  }
-
   this.getMasterKey = function() { return masterKey }
   this.getAccountZero = function() { return accountZero }
   this.getExternalAccount = function() { return externalAccount }
   this.getInternalAccount = function() { return internalAccount }
-
-  this.getPrivateKeyForAddress = function(address) {
-    assert(isMyAddress(address), 'Unknown address. Make sure the address is from the keychain and has been generated')
-
-    if (isReceiveAddress(address)) {
-      var index = this.addresses.indexOf(address)
-
-      return this.getPrivateKey(index)
-    }
-
-    if (isChangeAddress(address)) {
-      var index = this.changeAddresses.indexOf(address)
-
-      return this.getInternalPrivateKey(index)
-    }
-  }
-
-  function isReceiveAddress(address){
-    return me.addresses.indexOf(address) > -1
-  }
-
-  function isChangeAddress(address){
-    return me.changeAddresses.indexOf(address) > -1
-  }
-
-  function isMyAddress(address) {
-    return isReceiveAddress(address) || isChangeAddress(address)
-  }
 }
 
 Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
@@ -175,6 +88,14 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
   return tx
 }
 
+Wallet.prototype.processPendingTx = function(tx){
+  processTx.bind(this)(tx, true)
+}
+
+Wallet.prototype.processConfirmedTx = function(tx){
+  processTx.bind(this)(tx, false)
+}
+
 Wallet.prototype.generateAddress = function() {
   var k = this.addresses.length
   var address = this.getExternalAccount().derive(k).getAddress()
@@ -213,6 +134,22 @@ Wallet.prototype.getInternalPrivateKey = function(index) {
 
 Wallet.prototype.getPrivateKey = function(index) {
   return this.getExternalAccount().derive(index).privKey
+}
+
+Wallet.prototype.getPrivateKeyForAddress = function(address) {
+  if (includeAddress(this.addresses, address)) {
+    var index = this.addresses.indexOf(address)
+
+    return this.getPrivateKey(index)
+  }
+
+  if (includeAddress(this.changeAddresses, address)) {
+    var index = this.changeAddresses.indexOf(address)
+
+    return this.getInternalPrivateKey(index)
+  }
+
+  assert(false, 'Unknown address. Make sure the address is from the keychain and has been generated')
 }
 
 Wallet.prototype.getReceiveAddress = function() {
@@ -314,6 +251,54 @@ function getCandidateOutputs(outputs/*, value*/) {
   })
 
   return sortByValueDesc
+}
+
+function processTx(tx, isPending) {
+  var txid = tx.getId()
+
+  tx.outs.forEach(function(txOut, i) {
+    var address
+
+    try {
+      address = Address.fromOutputScript(txOut.script, this.network).toString()
+    } catch(e) {
+      if (!(e.message.match(/has no matching Address/))) throw e
+    }
+
+    var myAddresses = this.addresses.concat(this.changeAddresses)
+    if (includeAddress(myAddresses, address)) {
+      var output = txid + ':' + i
+
+      this.outputs[output] = {
+        from: output,
+        value: txOut.value,
+        address: address,
+        pending: isPending
+      }
+    }
+  }, this)
+
+  tx.ins.forEach(function(txIn, i) {
+    // copy and convert to big-endian hex
+    var txinId = new Buffer(txIn.hash)
+    Array.prototype.reverse.call(txinId)
+    txinId = txinId.toString('hex')
+
+    var output = txinId + ':' + txIn.index
+
+    if (!(output in this.outputs)) return
+
+    if (isPending) {
+      this.outputs[output].to = txid + ':' + i
+      this.outputs[output].pending = true
+    } else {
+      delete this.outputs[output]
+    }
+  }, this)
+}
+
+function includeAddress(addresses, address) {
+  return addresses.indexOf(address) > -1
 }
 
 module.exports = Wallet
