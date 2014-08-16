@@ -53,24 +53,6 @@ function Wallet(seed, network, unspents) {
   this.getAccountZero = function() { return accountZero }
   this.getExternalAccount = function() { return externalAccount }
   this.getInternalAccount = function() { return internalAccount }
-
-  this.getPrivateKeyForAddress = function(address) {
-    var myAddresses = this.addresses.concat(this.changeAddresses)
-    assert(includeAddress(myAddresses, address),
-           'Unknown address. Make sure the address is from the keychain and has been generated')
-
-    if (includeAddress(this.addresses, address)) {
-      var index = this.addresses.indexOf(address)
-
-      return this.getPrivateKey(index)
-    }
-
-    if (includeAddress(this.changeAddresses, address)) {
-      var index = this.changeAddresses.indexOf(address)
-
-      return this.getInternalPrivateKey(index)
-    }
-  }
 }
 
 Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
@@ -158,6 +140,22 @@ Wallet.prototype.getInternalPrivateKey = function(index) {
 
 Wallet.prototype.getPrivateKey = function(index) {
   return this.getExternalAccount().derive(index).privKey
+}
+
+Wallet.prototype.getPrivateKeyForAddress = function(address) {
+  if (includeAddress(this.addresses, address)) {
+    var index = this.addresses.indexOf(address)
+
+    return this.getPrivateKey(index)
+  }
+
+  if (includeAddress(this.changeAddresses, address)) {
+    var index = this.changeAddresses.indexOf(address)
+
+    return this.getInternalPrivateKey(index)
+  }
+
+  assert(false, 'Unknown address. Make sure the address is from the keychain and has been generated')
 }
 
 Wallet.prototype.getReceiveAddress = function() {
