@@ -64,8 +64,7 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
     var utxo = utxos[i]
     addresses.push(utxo.address)
 
-    var outpoint = utxo.from.split(':')
-    txb.addInput(outpoint[0], parseInt(outpoint[1]))
+    txb.addInput(utxo.hash, utxo.index)
 
     var fee = fixedFee === undefined ? estimatePaddedFee(txb.buildIncomplete(), this.network) : fixedFee
 
@@ -97,6 +96,7 @@ Wallet.prototype.processConfirmedTx = function(tx){
 
 Wallet.prototype.__processTx = function(tx, isPending) {
   var txId = tx.getId()
+  var txHash = tx.getHash()
 
   tx.outs.forEach(function(txOut, i) {
     var address
@@ -112,7 +112,8 @@ Wallet.prototype.__processTx = function(tx, isPending) {
       var output = txId + ':' + i
 
       this.outputs[output] = {
-        from: output,
+        hash: txHash,
+        index: i,
         value: txOut.value,
         address: address,
         pending: isPending
@@ -233,12 +234,15 @@ Wallet.prototype.signWith = function(txb, addresses) {
   return txb
 }
 
-function outputToUnspentOutput(output){
-  var hashAndIndex = output.from.split(":")
+function outputToUnspentOutput(output) {
+  var txid = new Buffer(output.hash)
+
+  // hash is little-endian, we want big-endian
+  Array.prototype.reverse.call(txid)
 
   return {
-    hash: hashAndIndex[0],
-    index: parseInt(hashAndIndex[1]),
+    hash: txid.toString('hex'),
+    index: output.index,
     address: output.address,
     value: output.value,
     pending: output.pending
@@ -271,11 +275,15 @@ function processUnspentOutputs(utxos) {
 
     var key = utxo.hash + ':' + utxo.index
 
+    // little-endian hash is what we use internally
+    Array.prototype.reverse(hash)
+
     outputs[key] = {
-      from: key,
       address: address,
-      value: value,
-      pending: utxo.pending
+      hash: hash,
+      index: utxo.index,
+      pending: utxo.pending,
+      value: value
     }
   })
 

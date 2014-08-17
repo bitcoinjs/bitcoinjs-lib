@@ -422,9 +422,10 @@ describe('Wallet', function() {
 
     function verifyOutputAdded(index, pending) {
       var txOut = tx.outs[index]
+
       var key = tx.getId() + ":" + index
       var output = wallet.outputs[key]
-      assert.equal(output.from, key)
+      assert.deepEqual(output.hash, tx.getHash())
       assert.equal(output.value, txOut.value)
       assert.equal(output.pending, pending)
 
