@@ -8,7 +8,7 @@ var HDNode = require('./hdnode')
 var TransactionBuilder = require('./transaction_builder')
 var Script = require('./script')
 
-function Wallet(seed, network, unspents) {
+function Wallet(seed, network) {
   seed = seed || crypto.randomBytes(32)
   network = network || networks.bitcoin
 
@@ -24,7 +24,7 @@ function Wallet(seed, network, unspents) {
   this.addresses = []
   this.changeAddresses = []
   this.network = network
-  this.outputs = unspents ? processUnspentOutputs(unspents) : {}
+  this.outputs = {}
 
   // FIXME: remove in 2.x.y
   var me = this
@@ -202,63 +202,35 @@ Wallet.prototype.getReceiveAddress = function() {
 }
 
 Wallet.prototype.getUnspentOutputs = function() {
-  var utxo = []
+  var utxos = []
 
-  for(var key in this.outputs){
+  for (var key in this.outputs) {
     var output = this.outputs[key]
 
     // Don't include pending spent outputs
     if (!output.spent) {
-      utxo.push(outputToUnspentOutput(output))
+      // hash is little-endian, we want big-endian
+      var txid = bufferutils.reverse(output.hash)
+
+      utxos.push({
+        hash: txid.toString('hex'),
+        index: output.index,
+        address: output.address,
+        value: output.value,
+        pending: output.pending
+      })
     }
   }
 
-  return utxo
+  return utxos
 }
 
-Wallet.prototype.setUnspentOutputs = function(utxo) {
-  console.warn('setUnspentOutputs is deprecated, please use the constructor option instead')
+Wallet.prototype.setUnspentOutputs = function(utxos) {
+  utxos.forEach(function(utxo) {
+    var txid = utxo.hash
+    assert.equal(typeof txid, 'string', 'Expected txId, got ' +  txid)
 
-  this.outputs = processUnspentOutputs(utxo)
-}
-
-Wallet.prototype.signWith = function(txb, addresses) {
-  addresses.forEach(function(address, i) {
-    var privKey = this.getPrivateKeyForAddress(address)
-
-    txb.sign(i, privKey)
-  }, this)
-
-  return txb
-}
-
-function outputToUnspentOutput(output) {
-  var txid = new Buffer(output.hash)
-
-  // hash is little-endian, we want big-endian
-  Array.prototype.reverse.call(txid)
-
-  return {
-    hash: txid.toString('hex'),
-    index: output.index,
-    address: output.address,
-    value: output.value,
-    pending: output.pending
-  }
-}
-
-function estimatePaddedFee(tx, network) {
-  var tmpTx = tx.clone()
-  tmpTx.addOutput(Script.EMPTY, network.dustSoftThreshold || 0)
-
-  return network.estimateFee(tmpTx)
-}
-
-function processUnspentOutputs(utxos) {
-  var outputs = {}
-
-  utxos.forEach(function(utxo){
-    var hash = new Buffer(utxo.hash, 'hex')
+    var hash = bufferutils.reverse(new Buffer(txid, 'hex'))
     var index = utxo.index
     var address = utxo.address
     var value = utxo.value
@@ -271,21 +243,33 @@ function processUnspentOutputs(utxos) {
     assert.doesNotThrow(function() { Address.fromBase58Check(address) }, 'Expected Base58 Address, got ' + address)
     assert.equal(typeof value, 'number', 'Expected number value, got ' + value)
 
-    var key = utxo.hash + ':' + utxo.index
+    var key = txid + ':' + index
 
-    // little-endian hash is what we use internally
-    Array.prototype.reverse(hash)
-
-    outputs[key] = {
+    this.outputs[key] = {
       address: address,
       hash: hash,
-      index: utxo.index,
+      index: index,
       pending: utxo.pending,
       value: value
     }
-  })
+  }, this)
+}
 
-  return outputs
+Wallet.prototype.signWith = function(tx, addresses) {
+  addresses.forEach(function(address, i) {
+    var privKey = this.getPrivateKeyForAddress(address)
+
+    tx.sign(i, privKey)
+  }, this)
+
+  return tx
+}
+
+function estimatePaddedFee(tx, network) {
+  var tmpTx = tx.clone()
+  tmpTx.addOutput(Script.EMPTY, network.dustSoftThreshold || 0)
+
+  return network.estimateFee(tmpTx)
 }
 
 function getCandidateOutputs(outputs/*, value*/) {

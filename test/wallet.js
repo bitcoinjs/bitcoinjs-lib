@@ -212,7 +212,8 @@ describe('Wallet', function() {
 
     describe('on construction', function() {
       beforeEach(function() {
-        wallet = new Wallet(seed, networks.bitcoin, [utxo])
+        wallet = new Wallet(seed, networks.bitcoin)
+        wallet.setUnspentOutputs([utxo])
       })
 
       it('matches the expected behaviour', function() {
@@ -229,7 +230,8 @@ describe('Wallet', function() {
         var utxo1 = cloneObject(utxo)
         utxo1.hash = fakeTxId(5)
 
-        wallet = new Wallet(seed, networks.bitcoin, [utxo, utxo1])
+        wallet = new Wallet(seed, networks.bitcoin)
+        wallet.setUnspentOutputs([utxo, utxo1])
       })
 
       it('sums over utxo values', function() {
@@ -239,7 +241,8 @@ describe('Wallet', function() {
 
     describe('getUnspentOutputs', function() {
       beforeEach(function() {
-        wallet = new Wallet(seed, networks.bitcoin, [utxo])
+        wallet = new Wallet(seed, networks.bitcoin)
+        wallet.setUnspentOutputs([utxo])
       })
 
       it('parses wallet outputs to the expected format', function() {
@@ -468,7 +471,8 @@ describe('Wallet', function() {
         }
       ]
 
-      wallet = new Wallet(seed, networks.testnet, utxos)
+      wallet = new Wallet(seed, networks.testnet)
+      wallet.setUnspentOutputs(utxos)
       wallet.generateAddress()
       wallet.generateAddress()
     })
@@ -497,7 +501,8 @@ describe('Wallet', function() {
           value: 500000
         }
 
-        var wallet = new Wallet(seed, networks.litecoin, [utxo])
+        var wallet = new Wallet(seed, networks.litecoin)
+        wallet.setUnspentOutputs([utxo])
         wallet.generateAddress()
 
         value = 200000
