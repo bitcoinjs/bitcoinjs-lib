@@ -246,10 +246,10 @@ describe('Wallet', function() {
         assert.deepEqual(wallet.getUnspentOutputs(), [utxo])
       })
 
-      it("ignores pending spending outputs (outputs with 'to' property)", function() {
+      it("ignores pending spending outputs (outputs with 'spent' property)", function() {
         var output = wallet.outputs[expectedOutputKey]
-        output.to = fakeTxId(0) + ':' + 0
         output.pending = true
+        output.spent = true
         assert.deepEqual(wallet.getUnspentOutputs(), [])
       })
     })
@@ -331,18 +331,19 @@ describe('Wallet', function() {
           spendTx = Transaction.fromHex(fixtureTx2Hex)
         })
 
-        it("outgoing: sets the pending flag and 'to' on output", function() {
+        it("outgoing: sets the pending flag and 'spent' on output", function() {
           var txIn = spendTx.ins[0]
           var txInId = new Buffer(txIn.hash)
           Array.prototype.reverse.call(txInId)
           txInId = txInId.toString('hex')
 
           var key = txInId + ':' + txIn.index
-          assert(!wallet.outputs[key].pending)
+          var output = wallet.outputs[key]
 
+          assert(!output.pending)
           wallet.processPendingTx(spendTx)
-          assert(wallet.outputs[key].pending)
-          assert.equal(wallet.outputs[key].to, spendTx.getId() + ':' + 0)
+          assert(output.pending)
+          assert(output.spent, true)
         })
       })
     })

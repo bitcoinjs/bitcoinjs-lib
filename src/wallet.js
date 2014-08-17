@@ -96,7 +96,7 @@ Wallet.prototype.processConfirmedTx = function(tx){
 }
 
 Wallet.prototype.__processTx = function(tx, isPending) {
-  var txid = tx.getId()
+  var txId = tx.getId()
 
   tx.outs.forEach(function(txOut, i) {
     var address
@@ -109,7 +109,7 @@ Wallet.prototype.__processTx = function(tx, isPending) {
 
     var myAddresses = this.addresses.concat(this.changeAddresses)
     if (myAddresses.indexOf(address) > -1) {
-      var output = txid + ':' + i
+      var output = txId + ':' + i
 
       this.outputs[output] = {
         from: output,
@@ -131,8 +131,9 @@ Wallet.prototype.__processTx = function(tx, isPending) {
     if (!(output in this.outputs)) return
 
     if (isPending) {
-      this.outputs[output].to = txid + ':' + i
       this.outputs[output].pending = true
+      this.outputs[output].spent = true
+
     } else {
       delete this.outputs[output]
     }
@@ -206,7 +207,11 @@ Wallet.prototype.getUnspentOutputs = function() {
 
   for(var key in this.outputs){
     var output = this.outputs[key]
-    if(!output.to) utxo.push(outputToUnspentOutput(output))
+
+    // Don't include pending spent outputs
+    if (!output.spent) {
+      utxo.push(outputToUnspentOutput(output))
+    }
   }
 
   return utxo
