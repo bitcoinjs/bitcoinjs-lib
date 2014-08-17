@@ -1,4 +1,5 @@
 var assert = require('assert')
+var bufferutils = require('./bufferutils')
 var crypto = require('crypto')
 var networks = require('./networks')
 
@@ -123,10 +124,7 @@ Wallet.prototype.__processTx = function(tx, isPending) {
 
   tx.ins.forEach(function(txIn, i) {
     // copy and convert to big-endian hex
-    var txinId = new Buffer(txIn.hash)
-    Array.prototype.reverse.call(txinId)
-    txinId = txinId.toString('hex')
-
+    var txinId = bufferutils.reverse(txIn.hash).toString('hex')
     var output = txinId + ':' + txIn.index
 
     if (!(output in this.outputs)) return
