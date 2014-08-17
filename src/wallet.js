@@ -210,10 +210,10 @@ Wallet.prototype.getUnspentOutputs = function() {
     // Don't include pending spent outputs
     if (!output.spent) {
       // hash is little-endian, we want big-endian
-      var txid = bufferutils.reverse(output.hash)
+      var txId = bufferutils.reverse(output.hash)
 
       utxos.push({
-        hash: txid.toString('hex'),
+        hash: txId.toString('hex'),
         index: output.index,
         address: output.address,
         value: output.value,
@@ -227,10 +227,10 @@ Wallet.prototype.getUnspentOutputs = function() {
 
 Wallet.prototype.setUnspentOutputs = function(utxos) {
   utxos.forEach(function(utxo) {
-    var txid = utxo.hash
-    assert.equal(typeof txid, 'string', 'Expected txId, got ' +  txid)
+    var txId = utxo.hash
+    assert.equal(typeof txId, 'string', 'Expected txId, got ' +  txId)
 
-    var hash = bufferutils.reverse(new Buffer(txid, 'hex'))
+    var hash = bufferutils.reverse(new Buffer(txId, 'hex'))
     var index = utxo.index
     var address = utxo.address
     var value = utxo.value
@@ -243,9 +243,9 @@ Wallet.prototype.setUnspentOutputs = function(utxos) {
     assert.doesNotThrow(function() { Address.fromBase58Check(address) }, 'Expected Base58 Address, got ' + address)
     assert.equal(typeof value, 'number', 'Expected number value, got ' + value)
 
-    var key = txid + ':' + index
+    var output = txId + ':' + index
 
-    this.outputs[key] = {
+    this.outputs[output] = {
       address: address,
       hash: hash,
       index: index,
@@ -273,18 +273,20 @@ function estimatePaddedFee(tx, network) {
 }
 
 function getCandidateOutputs(outputs/*, value*/) {
-  var unspent = []
+  var unspents = []
 
   for (var key in outputs) {
     var output = outputs[key]
-    if (!output.pending) unspent.push(output)
+
+    if (!output.pending) {
+      unspents.push(output)
+    }
   }
 
-  var sortByValueDesc = unspent.sort(function(o1, o2){
+  // sorted by descending value
+  return unspents.sort(function(o1, o2) {
     return o2.value - o1.value
   })
-
-  return sortByValueDesc
 }
 
 module.exports = Wallet
