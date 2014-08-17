@@ -241,7 +241,7 @@ describe('Wallet', function() {
         wallet = new Wallet(seed, networks.bitcoin, [utxo])
       })
 
-      it('parses wallet outputs to the expect format', function(){
+      it('parses wallet outputs to the expected format', function(){
         assert.deepEqual(wallet.getUnspentOutputs(), [utxo])
       })
 
@@ -626,7 +626,7 @@ describe('Wallet', function() {
         Transaction.prototype.sign.restore()
       })
 
-      it('signes the inputs with respective keys', function(){
+      it('signs the inputs with respective keys', function(){
         var fee = 30000
         sinon.stub(Transaction.prototype, "sign")
 
