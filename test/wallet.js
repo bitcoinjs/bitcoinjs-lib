@@ -217,7 +217,7 @@ describe('Wallet', function() {
       })
 
       it('matches the expected behaviour', function() {
-        var output = wallet.outputs[expectedOutputKey]
+        var output = wallet.unspentMap[expectedOutputKey]
 
         assert(output)
         assert.equal(output.value, utxo.value)
@@ -250,7 +250,7 @@ describe('Wallet', function() {
       })
 
       it("ignores pending spending outputs (outputs with 'spent' property)", function() {
-        var output = wallet.outputs[expectedOutputKey]
+        var output = wallet.unspentMap[expectedOutputKey]
         output.pending = true
         output.spent = true
         assert.deepEqual(wallet.getUnspentOutputs(), [])
@@ -279,7 +279,7 @@ describe('Wallet', function() {
     it('matches the expected behaviour', function() {
       wallet.setUnspentOutputs([utxo])
 
-      var output = wallet.outputs[expectedOutputKey]
+      var output = wallet.unspentMap[expectedOutputKey]
       assert(output)
       assert.equal(output.value, utxo.value)
       assert.equal(output.address, utxo.address)
@@ -341,7 +341,7 @@ describe('Wallet', function() {
           txInId = txInId.toString('hex')
 
           var key = txInId + ':' + txIn.index
-          var output = wallet.outputs[key]
+          var output = wallet.unspentMap[key]
 
           assert(!output.pending)
           wallet.processPendingTx(spendTx)
@@ -363,7 +363,7 @@ describe('Wallet', function() {
         wallet.processConfirmedTx(tx2)
       })
 
-      describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.outputs", function() {
+      describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.unspentMap", function() {
         it("works for receive address", function() {
           var totalOuts = outputCount()
 
@@ -385,7 +385,7 @@ describe('Wallet', function() {
         })
 
         function outputCount() {
-          return Object.keys(wallet.outputs).length
+          return Object.keys(wallet.unspentMap).length
         }
       })
 
@@ -398,9 +398,9 @@ describe('Wallet', function() {
           spendTx = Transaction.fromHex(fixtureTx2Hex)
         })
 
-        it("does not add to wallet.outputs", function() {
+        it("does not add to wallet.unspentMap", function() {
           wallet.processConfirmedTx(spendTx)
-          assert.deepEqual(wallet.outputs, {})
+          assert.deepEqual(wallet.unspentMap, {})
         })
 
         it("deletes corresponding 'output'", function() {
@@ -410,16 +410,16 @@ describe('Wallet', function() {
           txInId = txInId.toString('hex')
 
           var expected = txInId + ':' + txIn.index
-          assert(expected in wallet.outputs)
+          assert(expected in wallet.unspentMap)
 
           wallet.processConfirmedTx(spendTx)
-          assert(!(expected in wallet.outputs))
+          assert(!(expected in wallet.unspentMap))
         })
       })
 
       it("does nothing when none of the involved addresses belong to the wallet", function() {
         wallet.processConfirmedTx(tx)
-        assert.deepEqual(wallet.outputs, {})
+        assert.deepEqual(wallet.unspentMap, {})
       })
     })
 
@@ -427,7 +427,7 @@ describe('Wallet', function() {
       var txOut = tx.outs[index]
 
       var key = tx.getId() + ":" + index
-      var output = wallet.outputs[key]
+      var output = wallet.unspentMap[key]
       assert.deepEqual(output.hash, tx.getHash())
       assert.equal(output.value, txOut.value)
       assert.equal(output.pending, pending)
@@ -514,7 +514,7 @@ describe('Wallet', function() {
       function getFee(wallet, tx) {
         var inputValue = tx.ins.reduce(function(memo, input){
           var id = Array.prototype.reverse.call(input.hash).toString('hex')
-          return memo + wallet.outputs[id + ':' + input.index].value
+          return memo + wallet.unspentMap[id + ':' + input.index].value
         }, 0)
 
         return tx.outs.reduce(function(memo, output){

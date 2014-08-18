@@ -24,7 +24,7 @@ function Wallet(seed, network) {
   this.addresses = []
   this.changeAddresses = []
   this.network = network
-  this.outputs = {}
+  this.unspentMap = {}
 
   // FIXME: remove in 2.x.y
   var me = this
@@ -41,7 +41,7 @@ function Wallet(seed, network) {
     me.addresses = []
     me.changeAddresses = []
 
-    me.outputs = {}
+    me.unspentMap = {}
   }
 
   this.getMasterKey = function() { return masterKey }
@@ -53,7 +53,7 @@ function Wallet(seed, network) {
 Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
   assert(value > this.network.dustThreshold, value + ' must be above dust threshold (' + this.network.dustThreshold + ' Satoshis)')
 
-  var utxos = getCandidateOutputs(this.outputs, value)
+  var utxos = getCandidateOutputs(this.unspentMap, value)
   var accum = 0
   var subTotal = value
   var addresses = []
@@ -112,7 +112,7 @@ Wallet.prototype.__processTx = function(tx, isPending) {
     if (myAddresses.indexOf(address) > -1) {
       var output = txId + ':' + i
 
-      this.outputs[output] = {
+      this.unspentMap[output] = {
         hash: txHash,
         index: i,
         value: txOut.value,
@@ -127,14 +127,14 @@ Wallet.prototype.__processTx = function(tx, isPending) {
     var txinId = bufferutils.reverse(txIn.hash).toString('hex')
     var output = txinId + ':' + txIn.index
 
-    if (!(output in this.outputs)) return
+    if (!(output in this.unspentMap)) return
 
     if (isPending) {
-      this.outputs[output].pending = true
-      this.outputs[output].spent = true
+      this.unspentMap[output].pending = true
+      this.unspentMap[output].spent = true
 
     } else {
-      delete this.outputs[output]
+      delete this.unspentMap[output]
     }
   }, this)
 }
@@ -204,8 +204,8 @@ Wallet.prototype.getReceiveAddress = function() {
 Wallet.prototype.getUnspentOutputs = function() {
   var utxos = []
 
-  for (var key in this.outputs) {
-    var output = this.outputs[key]
+  for (var key in this.unspentMap) {
+    var output = this.unspentMap[key]
 
     // Don't include pending spent outputs
     if (!output.spent) {
@@ -245,7 +245,7 @@ Wallet.prototype.setUnspentOutputs = function(utxos) {
 
     var output = txId + ':' + index
 
-    this.outputs[output] = {
+    this.unspentMap[output] = {
       address: address,
       hash: hash,
       index: index,
