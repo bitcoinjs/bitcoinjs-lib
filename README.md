@@ -110,13 +110,13 @@ console.log(tx.toHex())
 
 ``` javascript
 var bitcoin = require('bitcoinjs-lib')
- 
+
 var privKeys = [bitcoin.ECKey.makeRandom(), bitcoin.ECKey.makeRandom(), bitcoin.ECKey.makeRandom()]
 var pubKeys = privKeys.map(function(x) { return x.pub })
- 
+
 var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
 var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
- 
+
 var multisigAddress = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
 
 console.log("multisigP2SH:", multisigAddress)
@@ -138,7 +138,7 @@ console.log("multisigP2SH:", multisigAddress)
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
 - [DecentralBank](http://decentralbank.com)
- 
+
 ## Contributors
 
 Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
@@ -174,6 +174,7 @@ Please make your best effort to adhere to these when contributing to save on tri
 - [Bitcore](https://github.com/bitpay/bitcore)
 - [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
 
+
 ## License
 
 This library is free and open-source software released under the MIT license.
@@ -181,5 +182,5 @@ This library is free and open-source software released under the MIT license.
 
 ## Copyright
 
-BitcoinJS (c) 2011-2012 Stefan Thomas
+BitcoinJS (c) 2011-2014 Bitcoinjs-lib contributors
 Released under MIT license
