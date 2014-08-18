@@ -458,19 +458,19 @@ describe('Wallet', function() {
       // set up 3 utxos
       var utxos = [
         {
-          "hash": fakeTxId(1),
+          "txId": fakeTxId(1),
           "index": 0,
           "address": address1,
           "value": 400000 // not enough for value
         },
         {
-          "hash": fakeTxId(2),
+          "txId": fakeTxId(2),
           "index": 1,
           "address": address1,
           "value": 500000 // enough for only value
         },
         {
-          "hash": fakeTxId(3),
+          "txId": fakeTxId(3),
           "index": 0,
           "address" : address2,
           "value": 510000 // enough for value and fee
@@ -486,7 +486,7 @@ describe('Wallet', function() {
     describe('transaction fee', function() {
       it('allows fee to be specified', function() {
         var fee = 30000
-        var tx = wallet.createTx(to, value, fee)
+        var tx = wallet.createTx(to, value, { fixedFee: fee })
 
         assert.equal(getFee(wallet, tx), fee)
       })
@@ -494,14 +494,14 @@ describe('Wallet', function() {
       it('allows fee to be set to zero', function() {
         value = 510000
         var fee = 0
-        var tx = wallet.createTx(to, value, fee)
+        var tx = wallet.createTx(to, value, { fixedFee: fee })
 
         assert.equal(getFee(wallet, tx), fee)
       })
 
       it('does not overestimate fees when network has dustSoftThreshold', function() {
         var utxo = {
-          hash: fakeTxId(0),
+          txId: fakeTxId(0),
           index: 0,
           address: "LeyySKbQrRRwodKEj1W4a8y3YQupPLw5os",
           value: 500000
@@ -573,7 +573,10 @@ describe('Wallet', function() {
         var toValue = fromValue / 2
         var fee = 1e3
 
-        var tx = wallet.createTx(to, toValue, fee, changeAddress)
+        var tx = wallet.createTx(to, toValue, {
+          fixedFee: fee,
+          changeAddress: changeAddress
+        })
         assert.equal(tx.outs.length, 2)
 
         var outAddress0 = Address.fromOutputScript(tx.outs[0].script, networks.testnet)
@@ -604,7 +607,7 @@ describe('Wallet', function() {
           var fee = 0
           wallet.generateChangeAddress()
           wallet.generateChangeAddress()
-          var tx = wallet.createTx(to, value, fee)
+          var tx = wallet.createTx(to, value, { fixedFee: fee })
 
           assert.equal(tx.outs.length, 2)
           var out = tx.outs[1]
@@ -618,7 +621,7 @@ describe('Wallet', function() {
           var fee = 0
           assert.equal(wallet.changeAddresses.length, 0)
 
-          var tx = wallet.createTx(to, value, fee)
+          var tx = wallet.createTx(to, value, { fixedFee: fee })
 
           assert.equal(wallet.changeAddresses.length, 1)
           var out = tx.outs[1]
@@ -645,7 +648,7 @@ describe('Wallet', function() {
         var fee = 30000
         sinon.spy(TransactionBuilder.prototype, "sign")
 
-        var tx = wallet.createTx(to, value, fee)
+        var tx = wallet.createTx(to, value, { fixedFee: fee })
 
         assert(TransactionBuilder.prototype.sign.calledWith(0, wallet.getPrivateKeyForAddress(address2)))
         assert(TransactionBuilder.prototype.sign.calledWith(1, wallet.getPrivateKeyForAddress(address1)))
