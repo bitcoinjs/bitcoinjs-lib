@@ -13,6 +13,7 @@ module.exports = {
   Script: require('./script'),
   scripts: require('./scripts'),
   Transaction: require('./transaction'),
+  TransactionBuilder: require('./transaction_builder'),
   networks: require('./networks'),
   Wallet: require('./wallet')
 }

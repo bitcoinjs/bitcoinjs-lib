@@ -4,7 +4,7 @@ var networks = require('./networks')
 
 var Address = require('./address')
 var HDNode = require('./hdnode')
-var Transaction = require('./transaction')
+var TransactionBuilder = require('./transaction_builder')
 var Script = require('./script')
 
 function Wallet(seed, network, unspents) {
@@ -57,17 +57,17 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
   var subTotal = value
   var addresses = []
 
-  var tx = new Transaction()
-  tx.addOutput(to, value)
+  var txb = new TransactionBuilder()
+  txb.addOutput(to, value)
 
   for (var i = 0; i < utxos.length; ++i) {
     var utxo = utxos[i]
     addresses.push(utxo.address)
 
     var outpoint = utxo.from.split(':')
-    tx.addInput(outpoint[0], parseInt(outpoint[1]))
+    txb.addInput(outpoint[0], parseInt(outpoint[1]))
 
-    var fee = fixedFee === undefined ? estimatePaddedFee(tx, this.network) : fixedFee
+    var fee = fixedFee === undefined ? estimatePaddedFee(txb.buildIncomplete(), this.network) : fixedFee
 
     accum += utxo.value
     subTotal = value + fee
@@ -75,7 +75,7 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
       var change = accum - subTotal
 
       if (change > this.network.dustThreshold) {
-        tx.addOutput(changeAddress || this.getChangeAddress(), change)
+        txb.addOutput(changeAddress || this.getChangeAddress(), change)
       }
 
       break
@@ -84,8 +84,7 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
 
   assert(accum >= subTotal, 'Not enough funds (incl. fee): ' + accum + ' < ' + subTotal)
 
-  this.signWith(tx, addresses)
-  return tx
+  return this.signWith(txb, addresses).build()
 }
 
 Wallet.prototype.processPendingTx = function(tx){
@@ -219,16 +218,14 @@ Wallet.prototype.setUnspentOutputs = function(utxo) {
   this.outputs = processUnspentOutputs(utxo)
 }
 
-Wallet.prototype.signWith = function(tx, addresses) {
-  assert.equal(tx.ins.length, addresses.length, 'Number of addresses must match number of transaction inputs')
-
+Wallet.prototype.signWith = function(txb, addresses) {
   addresses.forEach(function(address, i) {
-    var key = this.getPrivateKeyForAddress(address)
+    var privKey = this.getPrivateKeyForAddress(address)
 
-    tx.sign(i, key)
+    txb.sign(i, privKey)
   }, this)
 
-  return tx
+  return txb
 }
 
 function outputToUnspentOutput(output){
