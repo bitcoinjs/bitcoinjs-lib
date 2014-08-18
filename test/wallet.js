@@ -1,4 +1,5 @@
 var assert = require('assert')
+var bufferutils = require('../src/bufferutils')
 var crypto = require('../src/crypto')
 var networks = require('../src/networks')
 var sinon = require('sinon')
@@ -201,13 +202,12 @@ describe('Wallet', function() {
     beforeEach(function() {
       utxo = {
         "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
-        "hash": fakeTxId(6),
+        "confirmations": 1,
         "index": 0,
-        "pending": true,
-        "value": 20000
+        "txId": fakeTxId(6),
+        "value": 20000,
+        "pending": false
       }
-
-      expectedOutputKey = utxo.hash + ":" + utxo.index
     })
 
     describe('on construction', function() {
@@ -217,11 +217,10 @@ describe('Wallet', function() {
       })
 
       it('matches the expected behaviour', function() {
-        var output = wallet.unspentMap[expectedOutputKey]
+        var output = wallet.unspents[0]
 
-        assert(output)
-        assert.equal(output.value, utxo.value)
         assert.equal(output.address, utxo.address)
+        assert.equal(output.value, utxo.value)
       })
     })
 
@@ -245,20 +244,32 @@ describe('Wallet', function() {
         wallet.setUnspentOutputs([utxo])
       })
 
-      it('parses wallet outputs to the expected format', function() {
-        assert.deepEqual(wallet.getUnspentOutputs(), [utxo])
+      it('parses wallet unspents to the expected format', function() {
+        var outputs = wallet.getUnspentOutputs()
+        var output = outputs[0]
+
+        assert.equal(utxo.address, output.address)
+        assert.equal(utxo.index, output.index)
+        assert.equal(utxo.value, output.value)
+
+        // FIXME: remove in 2.0.0
+        assert.equal(utxo.txId, output.hash)
+        assert.equal(utxo.pending, output.pending)
+
+        // new in 2.0.0
+        assert.equal(utxo.txId, output.txId)
+        assert.equal(utxo.confirmations, output.confirmations)
       })
 
-      it("ignores pending spending outputs (outputs with 'spent' property)", function() {
-        var output = wallet.unspentMap[expectedOutputKey]
-        output.pending = true
-        output.spent = true
+      it("ignores spent unspents (outputs with 'spent' property)", function() {
+        var unspent = wallet.unspents[0]
+        unspent.pending = true
+        unspent.spent = true
         assert.deepEqual(wallet.getUnspentOutputs(), [])
       })
     })
   })
 
-  // FIXME: remove in 2.x.y
   describe('setUnspentOutputs', function() {
     var utxo
     var expectedOutputKey
@@ -271,16 +282,13 @@ describe('Wallet', function() {
         value: 500000
       }
 
-      expectedOutputKey = utxo.hash + ":" + utxo.index
-
       wallet = new Wallet(seed, networks.bitcoin)
     })
 
     it('matches the expected behaviour', function() {
       wallet.setUnspentOutputs([utxo])
 
-      var output = wallet.unspentMap[expectedOutputKey]
-      assert(output)
+      var output = wallet.unspents[0]
       assert.equal(output.value, utxo.value)
       assert.equal(output.address, utxo.address)
     })
@@ -340,13 +348,12 @@ describe('Wallet', function() {
           Array.prototype.reverse.call(txInId)
           txInId = txInId.toString('hex')
 
-          var key = txInId + ':' + txIn.index
-          var output = wallet.unspentMap[key]
+          var unspent = wallet.unspents[0]
+          assert(!unspent.pending)
 
-          assert(!output.pending)
           wallet.processPendingTx(spendTx)
-          assert(output.pending)
-          assert(output.spent, true)
+          assert(unspent.pending)
+          assert(unspent.spent, true)
         })
       })
     })
@@ -389,7 +396,7 @@ describe('Wallet', function() {
         }
       })
 
-      describe("when tx ins outpoint contains a known txhash:i", function() {
+      describe("when tx ins contains a known txhash:i", function() {
         var spendTx
         beforeEach(function() {
           wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
@@ -403,11 +410,9 @@ describe('Wallet', function() {
           assert.deepEqual(wallet.unspentMap, {})
         })
 
-        it("deletes corresponding 'output'", function() {
+        it("deletes corresponding 'unspent'", function() {
           var txIn = spendTx.ins[0]
-          var txInId = new Buffer(txIn.hash)
-          Array.prototype.reverse.call(txInId)
-          txInId = txInId.toString('hex')
+          var txInId = bufferutils.reverse(txIn.hash).toString('hex')
 
           var expected = txInId + ':' + txIn.index
           assert(expected in wallet.unspentMap)
@@ -416,19 +421,20 @@ describe('Wallet', function() {
           assert(!(expected in wallet.unspentMap))
         })
       })
-
-      it("does nothing when none of the involved addresses belong to the wallet", function() {
-        wallet.processConfirmedTx(tx)
-        assert.deepEqual(wallet.unspentMap, {})
-      })
     })
+
+    it("does nothing when none of the involved addresses belong to the wallet", function() {
+      wallet.processConfirmedTx(tx)
+      assert.deepEqual(wallet.unspentMap, {})
+    })
+
 
     function verifyOutputAdded(index, pending) {
       var txOut = tx.outs[index]
 
       var key = tx.getId() + ":" + index
       var output = wallet.unspentMap[key]
-      assert.deepEqual(output.hash, tx.getHash())
+      assert.deepEqual(output.txHash, tx.getHash())
       assert.equal(output.value, txOut.value)
       assert.equal(output.pending, pending)
 
@@ -512,13 +518,14 @@ describe('Wallet', function() {
       })
 
       function getFee(wallet, tx) {
-        var inputValue = tx.ins.reduce(function(memo, input){
-          var id = Array.prototype.reverse.call(input.hash).toString('hex')
-          return memo + wallet.unspentMap[id + ':' + input.index].value
+        var inputValue = tx.ins.reduce(function(accum, input) {
+          var txId = bufferutils.reverse(input.hash).toString('hex')
+
+          return accum + wallet.unspentMap[txId + ':' + input.index].value
         }, 0)
 
-        return tx.outs.reduce(function(memo, output){
-          return memo - output.value
+        return tx.outs.reduce(function(accum, output) {
+          return accum - output.value
         }, inputValue)
       }
     })
