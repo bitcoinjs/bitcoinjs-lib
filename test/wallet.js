@@ -63,7 +63,7 @@ describe('Wallet', function() {
     describe('when seed is not specified', function(){
       it('generates a seed', function(){
         var wallet = new Wallet()
-        assert.ok(wallet.getMasterKey())
+        assert(wallet.getMasterKey())
       })
     })
 

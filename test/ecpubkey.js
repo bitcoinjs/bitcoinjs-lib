@@ -91,13 +91,13 @@ describe('ECPubKey', function() {
     it('verifies a valid signature', function() {
       var hash = crypto.sha256(fixtures.message)
 
-      assert.ok(pubKey.verify(hash, signature))
+      assert(pubKey.verify(hash, signature))
     })
 
     it('doesn\'t verify the wrong signature', function() {
       var hash = crypto.sha256('mushrooms')
 
-      assert.ok(!pubKey.verify(hash, signature))
+      assert(!pubKey.verify(hash, signature))
     })
   })
 })

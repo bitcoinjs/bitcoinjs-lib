@@ -26,7 +26,7 @@ describe('Message', function() {
       var network = networks[f.network]
 
       var address = Address.fromBase58Check(f.address)
-      assert.ok(Message.verify(address, f.signature, f.message, network))
+      assert(Message.verify(address, f.signature, f.message, network))
     })
 
     fixtures.valid.verify.forEach(function(f) {
@@ -34,17 +34,17 @@ describe('Message', function() {
         var network = networks[f.network]
 
         var signature = f.signature
-        assert.ok(Message.verify(f.address, f.signature, f.message, network))
+        assert(Message.verify(f.address, f.signature, f.message, network))
 
         if (f.compressed) {
-          assert.ok(Message.verify(f.compressed.address, f.compressed.signature, f.message, network))
+          assert(Message.verify(f.compressed.address, f.compressed.signature, f.message, network))
         }
       })
     })
 
     fixtures.invalid.verify.forEach(function(f) {
       it(f.description, function() {
-        assert.ok(!Message.verify(f.address, f.signature, f.message))
+        assert(!Message.verify(f.address, f.signature, f.message))
       })
     })
   })
