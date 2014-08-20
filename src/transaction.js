@@ -53,6 +53,7 @@ Transaction.prototype.addInput = function(tx, index, sequence) {
   assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
   assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
 
+  // Add the input and return the input's index
   return (this.ins.push({
     hash: hash,
     index: index,
@@ -78,14 +79,13 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
 
   // Attempt to get a valid script if it's an Address object
   if (scriptPubKey instanceof Address) {
-    var address = scriptPubKey
-
-    scriptPubKey = address.toOutputScript()
+    scriptPubKey = scriptPubKey.toOutputScript()
   }
 
   assert(scriptPubKey instanceof Script, 'Expected Address or Script, got ' + scriptPubKey)
   assert.equal(typeof value, 'number', 'Expected number value, got ' + value)
 
+  // Add the output and return the output's index
   return (this.outs.push({
     script: scriptPubKey,
     value: value
