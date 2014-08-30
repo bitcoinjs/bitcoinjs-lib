@@ -30,7 +30,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
   })
 
   // Extract/add signatures
-  transaction.ins.forEach(function(txin) {
+  transaction.ins.forEach(function(txin, i) {
     // Ignore empty scripts
     if (txin.script.buffer.length === 0) return
 
@@ -86,7 +86,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
         assert(false, scriptType + ' not supported')
     }
 
-    txb.signatures[txin.index] = {
+    txb.signatures[i] = {
       hashType: hashType,
       pubKeys: pubKeys,
       redeemScript: redeemScript,
