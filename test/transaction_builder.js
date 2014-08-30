@@ -182,6 +182,7 @@ describe('TransactionBuilder', function() {
         var tx = txb.build()
 
         assert.equal(tx.getId(), f.txid)
+        assert.equal(tx.toHex(), f.txhex)
       })
     })
 
