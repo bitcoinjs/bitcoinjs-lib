@@ -110,6 +110,18 @@ describe('TransactionBuilder', function() {
       })
     })
 
+    describe('when redeemScript is undefined', function() {
+      it('throws if prevOutScript is P2SH', function() {
+        var privScriptP2SH = scripts.scriptHashOutput(privScript.getHash())
+
+        txb.addInput(prevTxHash, 0, undefined, privScriptP2SH)
+
+        assert.throws(function() {
+          txb.sign(0, privKey)
+        }, /PrevOutScript is P2SH, missing redeemScript/)
+      })
+    })
+
     describe('when redeemScript is defined', function() {
       it('assumes scriptHash', function() {
         txb.addInput(prevTxHash, 0)
