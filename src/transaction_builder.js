@@ -251,6 +251,8 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
       scriptType: scriptType,
       signatures: []
     }
+  } else {
+    assert.equal(scriptType, 'multisig', scriptType + ' doesn\'t support multiple signatures')
   }
 
   var input = this.signatures[index]

@@ -110,6 +110,15 @@ describe('TransactionBuilder', function() {
       })
     })
 
+    it('throws if scriptType doesn\'t support multiple signatures', function() {
+      txb.addInput(prevTxHash, 0)
+      txb.sign(0, privKey)
+
+      assert.throws(function() {
+        txb.sign(0, privKey)
+      }, /pubkeyhash doesn\'t support multiple signatures/)
+    })
+
     describe('when redeemScript is undefined', function() {
       it('throws if prevOutScript is P2SH', function() {
         var privScriptP2SH = scripts.scriptHashOutput(privScript.getHash())
