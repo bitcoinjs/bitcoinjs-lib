@@ -34,6 +34,10 @@ TransactionBuilder.fromTransaction = function(transaction) {
     // Ignore empty scripts
     if (txin.script.buffer.length === 0) return
 
+    assert(!Array.prototype.every.call(txin.hash, function(x) {
+      return x === 0
+    }), 'coinbase inputs not supported')
+
     var redeemScript
     var scriptSig = txin.script
     var scriptType = scripts.classifyInput(scriptSig)
@@ -83,7 +87,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
         break
 
       default:
-        assert(false, scriptType + ' not supported')
+        assert(false, scriptType + ' inputs not supported')
     }
 
     txb.signatures[i] = {

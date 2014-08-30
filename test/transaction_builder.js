@@ -256,6 +256,16 @@ describe('TransactionBuilder', function() {
       })
     })
 
+    fixtures.invalid.fromTransaction.forEach(function(f,i) {
+      it('throws on ' + f.exception, function() {
+        var tx = Transaction.fromHex(f.hex)
+
+        assert.throws(function() {
+          TransactionBuilder.fromTransaction(tx)
+        }, new RegExp(f.exception))
+      })
+    })
+
     it('works for the P2SH multisig case', function() {
       var privKeys = [
         "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
