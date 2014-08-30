@@ -231,12 +231,17 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
 
   } else {
     prevOutScript = prevOutScript || privKey.pub.getAddress().toOutputScript()
-    scriptType = prevOutType || 'pubkeyhash'
+    prevOutType = prevOutType || 'pubkeyhash'
 
-    assert.notEqual(scriptType, 'scripthash', 'PrevOutScript requires redeemScript')
+    assert.notEqual(prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
+
+    scriptType = prevOutType
 
     hash = this.tx.hashForSignature(index, prevOutScript, hashType)
   }
+
+  this.prevOutScripts[index] = prevOutScript
+  this.prevOutTypes[index] = prevOutType
 
   if (!(index in this.signatures)) {
     this.signatures[index] = {
