@@ -30,9 +30,13 @@ TransactionBuilder.fromTransaction = function(transaction) {
   })
 
   // Extract/add signatures
-  transaction.ins.forEach(function(txin) {
+  transaction.ins.forEach(function(txin, i) {
     // Ignore empty scripts
     if (txin.script.buffer.length === 0) return
+
+    assert(!Array.prototype.every.call(txin.hash, function(x) {
+      return x === 0
+    }), 'coinbase inputs not supported')
 
     var redeemScript
     var scriptSig = txin.script
@@ -83,10 +87,10 @@ TransactionBuilder.fromTransaction = function(transaction) {
         break
 
       default:
-        assert(false, scriptType + ' not supported')
+        assert(false, scriptType + ' inputs not supported')
     }
 
-    txb.signatures[txin.index] = {
+    txb.signatures[i] = {
       hashType: hashType,
       pubKeys: pubKeys,
       redeemScript: redeemScript,
@@ -231,12 +235,17 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
 
   } else {
     prevOutScript = prevOutScript || privKey.pub.getAddress().toOutputScript()
-    scriptType = prevOutType || 'pubkeyhash'
+    prevOutType = prevOutType || 'pubkeyhash'
 
-    assert.notEqual(scriptType, 'scripthash', 'PrevOutScript requires redeemScript')
+    assert.notEqual(prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
+
+    scriptType = prevOutType
 
     hash = this.tx.hashForSignature(index, prevOutScript, hashType)
   }
+
+  this.prevOutScripts[index] = prevOutScript
+  this.prevOutTypes[index] = prevOutType
 
   if (!(index in this.signatures)) {
     this.signatures[index] = {
@@ -246,6 +255,8 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
       scriptType: scriptType,
       signatures: []
     }
+  } else {
+    assert.equal(scriptType, 'multisig', scriptType + ' doesn\'t support multiple signatures')
   }
 
   var input = this.signatures[index]

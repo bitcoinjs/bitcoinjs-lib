@@ -110,6 +110,27 @@ describe('TransactionBuilder', function() {
       })
     })
 
+    it('throws if scriptType doesn\'t support multiple signatures', function() {
+      txb.addInput(prevTxHash, 0)
+      txb.sign(0, privKey)
+
+      assert.throws(function() {
+        txb.sign(0, privKey)
+      }, /pubkeyhash doesn\'t support multiple signatures/)
+    })
+
+    describe('when redeemScript is undefined', function() {
+      it('throws if prevOutScript is P2SH', function() {
+        var privScriptP2SH = scripts.scriptHashOutput(privScript.getHash())
+
+        txb.addInput(prevTxHash, 0, undefined, privScriptP2SH)
+
+        assert.throws(function() {
+          txb.sign(0, privKey)
+        }, /PrevOutScript is P2SH, missing redeemScript/)
+      })
+    })
+
     describe('when redeemScript is defined', function() {
       it('assumes scriptHash', function() {
         txb.addInput(prevTxHash, 0)
@@ -182,6 +203,7 @@ describe('TransactionBuilder', function() {
         var tx = txb.build()
 
         assert.equal(tx.getId(), f.txid)
+        assert.equal(tx.toHex(), f.txhex)
       })
     })
 
@@ -231,6 +253,16 @@ describe('TransactionBuilder', function() {
         var txb = TransactionBuilder.fromTransaction(tx)
 
         assert.equal(txb.build().toHex(), f.txhex)
+      })
+    })
+
+    fixtures.invalid.fromTransaction.forEach(function(f,i) {
+      it('throws on ' + f.exception, function() {
+        var tx = Transaction.fromHex(f.hex)
+
+        assert.throws(function() {
+          TransactionBuilder.fromTransaction(tx)
+        }, new RegExp(f.exception))
       })
     })
 

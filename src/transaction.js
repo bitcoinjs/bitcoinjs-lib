@@ -52,6 +52,7 @@ Transaction.prototype.addInput = function(tx, index, sequence) {
   assert(Buffer.isBuffer(hash), 'Expected Transaction, txId or txHash, got ' + tx)
   assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
   assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
+  assert.equal(typeof sequence, 'number', 'Expected number sequence, got ' + sequence)
 
   // Add the input and return the input's index
   return (this.ins.push({

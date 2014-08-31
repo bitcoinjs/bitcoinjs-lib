@@ -238,9 +238,13 @@ function multisigInput(signatures, scriptPubKey) {
   if (scriptPubKey) {
     assert(isMultisigOutput.call(scriptPubKey))
 
-    var m = scriptPubKey.chunks[0]
-    var k = m - (opcodes.OP_1 - 1)
-    assert(k <= signatures.length, 'Not enough signatures provided')
+    var mOp = scriptPubKey.chunks[0]
+    var nOp = scriptPubKey.chunks[scriptPubKey.chunks.length - 2]
+    var m = mOp - (opcodes.OP_1 - 1)
+    var n = nOp - (opcodes.OP_1 - 1)
+
+    assert(signatures.length >= m, 'Not enough signatures provided')
+    assert(signatures.length <= n, 'Too many signatures provided')
   }
 
   return Script.fromChunks([].concat(opcodes.OP_0, signatures))
