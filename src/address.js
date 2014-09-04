@@ -1,5 +1,6 @@
 var assert = require('assert')
 var base58check = require('bs58check')
+var ECPubKey = require('./ecpubkey')
 var networks = require('./networks')
 var scripts = require('./scripts')
 
@@ -37,6 +38,7 @@ Address.fromOutputScript = function(script, network) {
 
   if (type === 'pubkeyhash') return new Address(script.chunks[2], network.pubKeyHash)
   if (type === 'scripthash') return new Address(script.chunks[1], network.scriptHash)
+  if (type === 'pubkey') return ECPubKey.fromBuffer(script.chunks[0]).getAddress(network)
 
   assert(false, type + ' has no matching Address')
 }
