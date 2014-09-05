@@ -9,8 +9,6 @@ var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
 function ECPubKey(Q, compressed) {
-  assert(Q instanceof ecurve.Point, 'Expected Point, got ' + Q)
-
   if (compressed == undefined) compressed = true
   assert.strictEqual(typeof compressed, 'boolean', 'Expected boolean, got ' + compressed)
 
