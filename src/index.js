@@ -1,7 +1,6 @@
 module.exports = {
   Address: require('./address'),
   bufferutils: require('./bufferutils'),
-  convert: require('./convert'),
   crypto: require('./crypto'),
   ecdsa: require('./ecdsa'),
   ECKey: require('./eckey'),
