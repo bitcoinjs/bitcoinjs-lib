@@ -84,6 +84,7 @@ console.log(key.pub.getAddress().toString())
 // => 14bZ7YWde4KdRb5YN7GYkToz3EHVCvRxkF
 ```
 
+
 ### Creating a Transaction
 
 ```javascript
@@ -108,6 +109,7 @@ console.log(tx.toHex())
 // You could now push the transaction onto the Bitcoin network manually (see https://blockchain.info/pushtx)
 ```
 
+
 ### Creating a P2SH Multsig Address
 
 ``` javascript
@@ -126,7 +128,6 @@ console.log("multisigP2SH:", multisigAddress)
 ```
 
 
-
 ## Projects utilizing BitcoinJS
 
 - [Coinpunk](https://coinpunk.com)
@@ -139,7 +140,9 @@ console.log("multisigP2SH:", multisigAddress)
 - [Dark Wallet](https://darkwallet.unsystem.net)
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
-- [DecentralBank](http://decentralbank.com)
+- [DecentralBank](http://decentralbank.co)
+- [Quickcoin](https://wallet.quickcoin.co)
+
 
 ## Contributors
 
@@ -148,6 +151,7 @@ Stefan Thomas is the inventor and creator of this project. His pioneering work m
 Since then, many people have contributed. [Click here](https://github.com/bitcoinjs/bitcoinjs-lib/graphs/contributors) to see the comprehensive list.
 
 Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of the library from 0.1.3 to 1.0.0.
+
 
 ## Contributing
 
