@@ -169,9 +169,9 @@ Please make your best effort to adhere to these when contributing to save on tri
 
 ## Complementing Libraries
 
-- [bip39](https://github.com/weilu/bip39) - Wei Lu's Mnemonic code generator
+- [BIP39](https://github.com/weilu/bip39) - Mnemonic code for generating deterministic keys
+- [BIP38](https://github.com/cryptocoinjs/bip38) - Passphrase-protected private keys
 - [BCoin](https://github.com/indutny/bcoin) - BIP37 / Bloom Filters / SPV client
-- [scryptsy](https://github.com/cryptocoinjs/scryptsy) - Private key encryption (BIP38)
 - [insight](https://github.com/bitpay/insight) - A bitcoin blockchain API for web wallets.
 
 
