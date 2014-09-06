@@ -55,6 +55,34 @@ var networks = {
     dustThreshold: 546,
     feePerKb: 10000,
     estimateFee: estimateFee('testnet')
+  },
+  viacoin: {
+    magicPrefix: '\x18Viacoin Signed Message:\n',
+    bip32: {
+      public: 0x0488b21e,
+      private: 0x0488ade4
+    },
+    pubKeyHash: 0x47,
+    scriptHash: 0x21,
+    wif: 0xc7,
+    dustThreshold: 560,
+    dustSoftThreshold: 100000,
+    feePerKb: 100000, //
+    estimateFee: estimateFee('viacoin')
+  },
+  viacointestnet: {
+    magicPrefix: '\x18Viacoin Signed Message:\n',
+    bip32: {
+      public: 0x043587cf,
+      private: 0x04358394
+    },
+    pubKeyHash: 0x7f,
+    scriptHash: 0xc4,
+    wif: 0xff,
+    dustThreshold: 560,
+    dustSoftThreshold: 100000,
+    feePerKb: 100000, 
+    estimateFee: estimateFee('viacointestnet')
   }
 }
 
