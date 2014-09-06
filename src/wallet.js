@@ -1,4 +1,5 @@
 var assert = require('assert')
+var bufferutils = require('./bufferutils')
 var crypto = require('crypto')
 var networks = require('./networks')
 
@@ -7,7 +8,7 @@ var HDNode = require('./hdnode')
 var TransactionBuilder = require('./transaction_builder')
 var Script = require('./script')
 
-function Wallet(seed, network, unspents) {
+function Wallet(seed, network) {
   seed = seed || crypto.randomBytes(32)
   network = network || networks.bitcoin
 
@@ -23,9 +24,12 @@ function Wallet(seed, network, unspents) {
   this.addresses = []
   this.changeAddresses = []
   this.network = network
-  this.outputs = unspents ? processUnspentOutputs(unspents) : {}
+  this.unspents = []
 
-  // FIXME: remove in 2.x.y
+  // FIXME: remove in 2.0.0
+  this.unspentMap = {}
+
+  // FIXME: remove in 2.0.0
   var me = this
   this.newMasterKey = function(seed) {
     console.warn('newMasterKey is deprecated, please make a new Wallet instance instead')
@@ -40,7 +44,8 @@ function Wallet(seed, network, unspents) {
     me.addresses = []
     me.changeAddresses = []
 
-    me.outputs = {}
+    me.unspents = []
+    me.unspentMap = {}
   }
 
   this.getMasterKey = function() { return masterKey }
@@ -49,28 +54,54 @@ function Wallet(seed, network, unspents) {
   this.getInternalAccount = function() { return internalAccount }
 }
 
-Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
+Wallet.prototype.createTransaction = function(to, value, options) {
+  // FIXME: remove in 2.0.0
+  if (typeof options !== 'object') {
+    if (options !== undefined) {
+      console.warn('Non options object parameters are deprecated, use options object instead')
+
+      options = {
+        fixedFee: arguments[2],
+        changeAddress: arguments[3]
+      }
+    }
+  }
+
+  options = options || {}
+
   assert(value > this.network.dustThreshold, value + ' must be above dust threshold (' + this.network.dustThreshold + ' Satoshis)')
 
-  var utxos = getCandidateOutputs(this.outputs, value)
+  var changeAddress = options.changeAddress
+  var fixedFee = options.fixedFee
+  var minConf = options.minConf === undefined ? 0 : options.minConf // FIXME: change minConf:1 by default in 2.0.0
+
+  // filter by minConf, then pending and sort by descending value
+  var unspents = this.unspents.filter(function(unspent) {
+    return unspent.confirmations >= minConf
+  }).filter(function(unspent) {
+    return !unspent.pending
+  }).sort(function(o1, o2) {
+    return o2.value - o1.value
+  })
+
   var accum = 0
-  var subTotal = value
   var addresses = []
+  var subTotal = value
 
   var txb = new TransactionBuilder()
   txb.addOutput(to, value)
 
-  for (var i = 0; i < utxos.length; ++i) {
-    var utxo = utxos[i]
-    addresses.push(utxo.address)
+  for (var i = 0; i < unspents.length; ++i) {
+    var unspent = unspents[i]
+    addresses.push(unspent.address)
 
-    var outpoint = utxo.from.split(':')
-    txb.addInput(outpoint[0], parseInt(outpoint[1]))
+    txb.addInput(unspent.txHash, unspent.index)
 
     var fee = fixedFee === undefined ? estimatePaddedFee(txb.buildIncomplete(), this.network) : fixedFee
 
-    accum += utxo.value
+    accum += unspent.value
     subTotal = value + fee
+
     if (accum >= subTotal) {
       var change = accum - subTotal
 
@@ -87,16 +118,22 @@ Wallet.prototype.createTx = function(to, value, fixedFee, changeAddress) {
   return this.signWith(txb, addresses).build()
 }
 
+// FIXME: remove in 2.0.0
 Wallet.prototype.processPendingTx = function(tx){
   this.__processTx(tx, true)
 }
 
+// FIXME: remove in 2.0.0
 Wallet.prototype.processConfirmedTx = function(tx){
   this.__processTx(tx, false)
 }
 
+// FIXME: remove in 2.0.0
 Wallet.prototype.__processTx = function(tx, isPending) {
-  var txid = tx.getId()
+  console.warn('processTransaction is considered harmful, see issue #260 for more information')
+
+  var txId = tx.getId()
+  var txHash = tx.getHash()
 
   tx.outs.forEach(function(txOut, i) {
     var address
@@ -109,32 +146,44 @@ Wallet.prototype.__processTx = function(tx, isPending) {
 
     var myAddresses = this.addresses.concat(this.changeAddresses)
     if (myAddresses.indexOf(address) > -1) {
-      var output = txid + ':' + i
+      var lookup = txId + ':' + i
+      if (lookup in this.unspentMap) return
 
-      this.outputs[output] = {
-        from: output,
-        value: txOut.value,
+      // its unique, add it
+      var unspent = {
         address: address,
+        confirmations: 0, // no way to determine this without more information
+        index: i,
+        txHash: txHash,
+        txId: txId,
+        value: txOut.value,
         pending: isPending
       }
+
+      this.unspentMap[lookup] = unspent
+      this.unspents.push(unspent)
     }
   }, this)
 
   tx.ins.forEach(function(txIn, i) {
     // copy and convert to big-endian hex
-    var txinId = new Buffer(txIn.hash)
-    Array.prototype.reverse.call(txinId)
-    txinId = txinId.toString('hex')
+    var txInId = bufferutils.reverse(txIn.hash).toString('hex')
 
-    var output = txinId + ':' + txIn.index
+    var lookup = txInId + ':' + txIn.index
+    if (!(lookup in this.unspentMap)) return
 
-    if (!(output in this.outputs)) return
+    var unspent = this.unspentMap[lookup]
 
     if (isPending) {
-      this.outputs[output].to = txid + ':' + i
-      this.outputs[output].pending = true
+      unspent.pending = true
+      unspent.spent = true
+
     } else {
-      delete this.outputs[output]
+      delete this.unspentMap[lookup]
+
+      this.unspents = this.unspents.filter(function(unspent2) {
+        return unspent !== unspent2
+      })
     }
   }, this)
 }
@@ -157,9 +206,25 @@ Wallet.prototype.generateChangeAddress = function() {
   return this.getChangeAddress()
 }
 
-Wallet.prototype.getBalance = function() {
-  return this.getUnspentOutputs().reduce(function(accum, output) {
-    return accum + output.value
+Wallet.prototype.getAddress = function() {
+  if (this.addresses.length === 0) {
+    this.generateAddress()
+  }
+
+  return this.addresses[this.addresses.length - 1]
+}
+
+Wallet.prototype.getBalance = function(minConf) {
+  minConf = minConf || 0
+
+  return this.unspents.filter(function(unspent) {
+    return unspent.confirmations >= minConf
+
+  // FIXME: remove spent filter in 2.0.0
+  }).filter(function(unspent) {
+    return !unspent.spent
+  }).reduce(function(accum, unspent) {
+    return accum + unspent.value
   }, 0)
 }
 
@@ -193,51 +258,88 @@ Wallet.prototype.getPrivateKeyForAddress = function(address) {
   assert(false, 'Unknown address. Make sure the address is from the keychain and has been generated')
 }
 
-Wallet.prototype.getReceiveAddress = function() {
-  if (this.addresses.length === 0) {
-    this.generateAddress()
-  }
+Wallet.prototype.getUnspentOutputs = function(minConf) {
+  minConf = minConf || 0
 
-  return this.addresses[this.addresses.length - 1]
+  return this.unspents.filter(function(unspent) {
+    return unspent.confirmations >= minConf
+
+  // FIXME: remove spent filter in 2.0.0
+  }).filter(function(unspent) {
+    return !unspent.spent
+  }).map(function(unspent) {
+    return {
+      address: unspent.address,
+      confirmations: unspent.confirmations,
+      index: unspent.index,
+      txId: unspent.txId,
+      value: unspent.value,
+
+      // FIXME: remove in 2.0.0
+      hash: unspent.txId,
+      pending: unspent.pending
+    }
+  })
 }
 
-Wallet.prototype.getUnspentOutputs = function() {
-  var utxo = []
+Wallet.prototype.setUnspentOutputs = function(unspents) {
+  this.unspentMap = {}
+  this.unspents = unspents.map(function(unspent) {
+    // FIXME: remove unspent.hash in 2.0.0
+    var txId = unspent.txId || unspent.hash
+    var index = unspent.index
 
-  for(var key in this.outputs){
-    var output = this.outputs[key]
-    if(!output.to) utxo.push(outputToUnspentOutput(output))
-  }
+    // FIXME: remove in 2.0.0
+    if (unspent.hash !== undefined) {
+      console.warn('unspent.hash is deprecated, use unspent.txId instead')
+    }
 
-  return utxo
+    // FIXME: remove in 2.0.0
+    if (index === undefined) {
+      console.warn('unspent.outputIndex is deprecated, use unspent.index instead')
+      index = utxo.outputIndex
+    }
+
+    assert.equal(typeof txId, 'string', 'Expected txId, got ' + txId)
+    assert.equal(txId.length, 64, 'Expected valid txId, got ' + txId)
+    assert.doesNotThrow(function() { Address.fromBase58Check(unspent.address) }, 'Expected Base58 Address, got ' + unspent.address)
+    assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
+    assert.equal(typeof unspent.value, 'number', 'Expected number value, got ' + unspent.value)
+
+    // FIXME: remove branch in 2.0.0
+    if (unspent.confirmations !== undefined) {
+      assert.equal(typeof unspent.confirmations, 'number', 'Expected number confirmations, got ' + unspent.confirmations)
+    }
+
+    var txHash = bufferutils.reverse(new Buffer(txId, 'hex'))
+
+    var unspent = {
+      address: unspent.address,
+      confirmations: unspent.confirmations || 0,
+      index: index,
+      txHash: txHash,
+      txId: txId,
+      value: unspent.value,
+
+      // FIXME: remove in 2.0.0
+      pending: unspent.pending || false
+    }
+
+    // FIXME: remove in 2.0.0
+    this.unspentMap[txId + ':' + index] = unspent
+
+    return unspent
+  }, this)
 }
 
-Wallet.prototype.setUnspentOutputs = function(utxo) {
-  console.warn('setUnspentOutputs is deprecated, please use the constructor option instead')
-
-  this.outputs = processUnspentOutputs(utxo)
-}
-
-Wallet.prototype.signWith = function(txb, addresses) {
+Wallet.prototype.signWith = function(tx, addresses) {
   addresses.forEach(function(address, i) {
     var privKey = this.getPrivateKeyForAddress(address)
 
-    txb.sign(i, privKey)
+    tx.sign(i, privKey)
   }, this)
 
-  return txb
-}
-
-function outputToUnspentOutput(output){
-  var hashAndIndex = output.from.split(":")
-
-  return {
-    hash: hashAndIndex[0],
-    index: parseInt(hashAndIndex[1]),
-    address: output.address,
-    value: output.value,
-    pending: output.pending
-  }
+  return tx
 }
 
 function estimatePaddedFee(tx, network) {
@@ -247,49 +349,8 @@ function estimatePaddedFee(tx, network) {
   return network.estimateFee(tmpTx)
 }
 
-function processUnspentOutputs(utxos) {
-  var outputs = {}
-
-  utxos.forEach(function(utxo){
-    var hash = new Buffer(utxo.hash, 'hex')
-    var index = utxo.index
-    var address = utxo.address
-    var value = utxo.value
-
-    // FIXME: remove alternative in 2.x.y
-    if (index === undefined) index = utxo.outputIndex
-
-    assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
-    assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
-    assert.doesNotThrow(function() { Address.fromBase58Check(address) }, 'Expected Base58 Address, got ' + address)
-    assert.equal(typeof value, 'number', 'Expected number value, got ' + value)
-
-    var key = utxo.hash + ':' + utxo.index
-
-    outputs[key] = {
-      from: key,
-      address: address,
-      value: value,
-      pending: utxo.pending
-    }
-  })
-
-  return outputs
-}
-
-function getCandidateOutputs(outputs/*, value*/) {
-  var unspent = []
-
-  for (var key in outputs) {
-    var output = outputs[key]
-    if (!output.pending) unspent.push(output)
-  }
-
-  var sortByValueDesc = unspent.sort(function(o1, o2){
-    return o2.value - o1.value
-  })
-
-  return sortByValueDesc
-}
+// FIXME: 1.0.0 shims, remove in 2.0.0
+Wallet.prototype.getReceiveAddress = Wallet.prototype.getAddress
+Wallet.prototype.createTx = Wallet.prototype.createTransaction
 
 module.exports = Wallet

@@ -1,4 +1,5 @@
 var assert = require('assert')
+var bufferutils = require('../src/bufferutils')
 var crypto = require('../src/crypto')
 var networks = require('../src/networks')
 var sinon = require('sinon')
@@ -28,13 +29,13 @@ function fakeTxId(i) {
 
 describe('Wallet', function() {
   var seed
-  beforeEach(function(){
+  beforeEach(function() {
     seed = crypto.sha256("don't use a string seed like this in real life")
   })
 
   describe('constructor', function() {
     var wallet
-    beforeEach(function(){
+    beforeEach(function() {
       wallet = new Wallet(seed)
     })
 
@@ -60,8 +61,8 @@ describe('Wallet', function() {
       assert.equal(account.depth, 2)
     })
 
-    describe('when seed is not specified', function(){
-      it('generates a seed', function(){
+    describe('when seed is not specified', function() {
+      it('generates a seed', function() {
         var wallet = new Wallet()
         assert(wallet.getMasterKey())
       })
@@ -78,8 +79,8 @@ describe('Wallet', function() {
     })
   })
 
-  describe('newMasterKey', function(){
-    it('resets accounts', function(){
+  describe('newMasterKey', function() {
+    it('resets accounts', function() {
       var wallet = new Wallet()
       var oldAccountZero = wallet.getAccountZero()
       var oldExternalAccount = wallet.getExternalAccount()
@@ -91,7 +92,7 @@ describe('Wallet', function() {
       assertNotEqual(wallet.getInternalAccount(), oldInternalAccount)
     })
 
-    it('resets addresses', function(){
+    it('resets addresses', function() {
       var wallet = new Wallet()
       wallet.generateAddress()
       wallet.generateChangeAddress()
@@ -106,8 +107,8 @@ describe('Wallet', function() {
     })
   })
 
-  describe('generateAddress', function(){
-    it('generate receiving addresses', function(){
+  describe('generateAddress', function() {
+    it('generate receiving addresses', function() {
       var wallet = new Wallet(seed, networks.testnet)
       var expectedAddresses = [
         "n1GyUANZand9Kw6hGSV9837cCC9FFUQzQa",
@@ -120,13 +121,13 @@ describe('Wallet', function() {
     })
   })
 
-  describe('generateChangeAddress', function(){
+  describe('generateChangeAddress', function() {
     var wallet
-    beforeEach(function(){
+    beforeEach(function() {
       wallet = new Wallet(seed)
     })
 
-    it('generates change addresses', function(){
+    it('generates change addresses', function() {
       var wallet = new Wallet(seed, networks.testnet)
       var expectedAddresses = ["mnXiDR4MKsFxcKJEZjx4353oXvo55iuptn"]
 
@@ -135,13 +136,13 @@ describe('Wallet', function() {
     })
   })
 
-  describe('getPrivateKey', function(){
+  describe('getPrivateKey', function() {
     var wallet
-    beforeEach(function(){
+    beforeEach(function() {
       wallet = new Wallet(seed)
     })
 
-    it('returns the private key at the given index of external account', function(){
+    it('returns the private key at the given index of external account', function() {
       var wallet = new Wallet(seed, networks.testnet)
 
       assertEqual(wallet.getPrivateKey(0), wallet.getExternalAccount().derive(0).privKey)
@@ -149,13 +150,13 @@ describe('Wallet', function() {
     })
   })
 
-  describe('getInternalPrivateKey', function(){
+  describe('getInternalPrivateKey', function() {
     var wallet
-    beforeEach(function(){
+    beforeEach(function() {
       wallet = new Wallet(seed)
     })
 
-    it('returns the private key at the given index of internal account', function(){
+    it('returns the private key at the given index of internal account', function() {
       var wallet = new Wallet(seed, networks.testnet)
 
       assertEqual(wallet.getInternalPrivateKey(0), wallet.getInternalAccount().derive(0).privKey)
@@ -163,13 +164,13 @@ describe('Wallet', function() {
     })
   })
 
-  describe('getPrivateKeyForAddress', function(){
+  describe('getPrivateKeyForAddress', function() {
     var wallet
-    beforeEach(function(){
+    beforeEach(function() {
       wallet = new Wallet(seed)
     })
 
-    it('returns the private key for the given address', function(){
+    it('returns the private key for the given address', function() {
       var wallet = new Wallet(seed, networks.testnet)
       wallet.generateChangeAddress()
       wallet.generateAddress()
@@ -185,7 +186,7 @@ describe('Wallet', function() {
       )
     })
 
-    it('raises an error when address is not found', function(){
+    it('raises an error when address is not found', function() {
       var wallet = new Wallet(seed, networks.testnet)
 
       assert.throws(function() {
@@ -194,73 +195,86 @@ describe('Wallet', function() {
     })
   })
 
-  describe('Unspent Outputs', function(){
+  describe('Unspent Outputs', function() {
     var utxo, expectedOutputKey
     var wallet
 
-    beforeEach(function(){
+    beforeEach(function() {
       utxo = {
         "address" : "1AZpKpcfCzKDUeTFBQUL4MokQai3m3HMXv",
-        "hash": fakeTxId(6),
+        "confirmations": 1,
         "index": 0,
-        "pending": true,
-        "value": 20000
+        "txId": fakeTxId(6),
+        "value": 20000,
+        "pending": false
       }
-
-      expectedOutputKey = utxo.hash + ":" + utxo.index
     })
 
-    describe('on construction', function(){
-      beforeEach(function(){
-        wallet = new Wallet(seed, networks.bitcoin, [utxo])
+    describe('on construction', function() {
+      beforeEach(function() {
+        wallet = new Wallet(seed, networks.bitcoin)
+        wallet.setUnspentOutputs([utxo])
       })
 
-      it('matches the expected behaviour', function(){
-        var output = wallet.outputs[expectedOutputKey]
+      it('matches the expected behaviour', function() {
+        var output = wallet.unspents[0]
 
-        assert(output)
-        assert.equal(output.value, utxo.value)
         assert.equal(output.address, utxo.address)
+        assert.equal(output.value, utxo.value)
       })
     })
 
-    describe('getBalance', function(){
-      beforeEach(function(){
+    describe('getBalance', function() {
+      beforeEach(function() {
         var utxo1 = cloneObject(utxo)
         utxo1.hash = fakeTxId(5)
 
-        wallet = new Wallet(seed, networks.bitcoin, [utxo, utxo1])
+        wallet = new Wallet(seed, networks.bitcoin)
+        wallet.setUnspentOutputs([utxo, utxo1])
       })
 
-      it('sums over utxo values', function(){
+      it('sums over utxo values', function() {
         assert.equal(wallet.getBalance(), 40000)
       })
     })
 
-    describe('getUnspentOutputs', function(){
-      beforeEach(function(){
-        wallet = new Wallet(seed, networks.bitcoin, [utxo])
+    describe('getUnspentOutputs', function() {
+      beforeEach(function() {
+        wallet = new Wallet(seed, networks.bitcoin)
+        wallet.setUnspentOutputs([utxo])
       })
 
-      it('parses wallet outputs to the expected format', function(){
-        assert.deepEqual(wallet.getUnspentOutputs(), [utxo])
+      it('parses wallet unspents to the expected format', function() {
+        var outputs = wallet.getUnspentOutputs()
+        var output = outputs[0]
+
+        assert.equal(utxo.address, output.address)
+        assert.equal(utxo.index, output.index)
+        assert.equal(utxo.value, output.value)
+
+        // FIXME: remove in 2.0.0
+        assert.equal(utxo.txId, output.hash)
+        assert.equal(utxo.pending, output.pending)
+
+        // new in 2.0.0
+        assert.equal(utxo.txId, output.txId)
+        assert.equal(utxo.confirmations, output.confirmations)
       })
 
-      it("ignores pending spending outputs (outputs with 'to' property)", function(){
-        var output = wallet.outputs[expectedOutputKey]
-        output.to = fakeTxId(0) + ':' + 0
-        output.pending = true
+      it("ignores spent unspents (outputs with 'spent' property)", function() {
+        var unspent = wallet.unspents[0]
+        unspent.pending = true
+        unspent.spent = true
         assert.deepEqual(wallet.getUnspentOutputs(), [])
       })
     })
   })
 
-  // FIXME: remove in 2.x.y
-  describe('setUnspentOutputs', function(){
+  describe('setUnspentOutputs', function() {
     var utxo
     var expectedOutputKey
 
-    beforeEach(function(){
+    beforeEach(function() {
       utxo = {
         hash: fakeTxId(0),
         index: 0,
@@ -268,23 +282,20 @@ describe('Wallet', function() {
         value: 500000
       }
 
-      expectedOutputKey = utxo.hash + ":" + utxo.index
-
       wallet = new Wallet(seed, networks.bitcoin)
     })
 
-    it('matches the expected behaviour', function(){
+    it('matches the expected behaviour', function() {
       wallet.setUnspentOutputs([utxo])
 
-      var output = wallet.outputs[expectedOutputKey]
-      assert(output)
+      var output = wallet.unspents[0]
       assert.equal(output.value, utxo.value)
       assert.equal(output.address, utxo.address)
     })
 
-    describe('required fields', function(){
+    describe('required fields', function() {
       ['index', 'address', 'hash', 'value'].forEach(function(field){
-        it("throws an error when " + field + " is missing", function(){
+        it("throws an error when " + field + " is missing", function() {
           delete utxo[field]
 
           assert.throws(function() {
@@ -295,16 +306,16 @@ describe('Wallet', function() {
     })
   })
 
-  describe('Process transaction', function(){
+  describe('Process transaction', function() {
     var wallet
-    beforeEach(function(){
+    beforeEach(function() {
       wallet = new Wallet(seed)
     })
 
     var addresses
     var tx
 
-    beforeEach(function(){
+    beforeEach(function() {
       addresses = [
         '115qa7iPZqn6as57hxLL8E9VUnhmGQxKWi',
         '1Bu3bhwRmevHLAy1JrRB6AfcxfgDG2vXRd',
@@ -314,40 +325,40 @@ describe('Wallet', function() {
       tx = Transaction.fromHex(fixtureTx1Hex)
     })
 
-    describe("processPendingTx", function(){
-      it("incoming: sets the pending flag on output", function(){
+    describe("processPendingTx", function() {
+      it("incoming: sets the pending flag on output", function() {
         wallet.addresses = [addresses[0]]
         wallet.processPendingTx(tx)
 
         verifyOutputAdded(0, true)
       })
 
-      describe("when tx ins outpoint contains a known txhash:i", function(){
+      describe("when tx ins outpoint contains a known txhash:i", function() {
         var spendTx
-        beforeEach(function(){
+        beforeEach(function() {
           wallet.addresses = [addresses[0]]
           wallet.processConfirmedTx(tx)
 
           spendTx = Transaction.fromHex(fixtureTx2Hex)
         })
 
-        it("outgoing: sets the pending flag and 'to' on output", function(){
+        it("outgoing: sets the pending flag and 'spent' on output", function() {
           var txIn = spendTx.ins[0]
           var txInId = new Buffer(txIn.hash)
           Array.prototype.reverse.call(txInId)
           txInId = txInId.toString('hex')
 
-          var key = txInId + ':' + txIn.index
-          assert(!wallet.outputs[key].pending)
+          var unspent = wallet.unspents[0]
+          assert(!unspent.pending)
 
           wallet.processPendingTx(spendTx)
-          assert(wallet.outputs[key].pending)
-          assert.equal(wallet.outputs[key].to, spendTx.getId() + ':' + 0)
+          assert(unspent.pending)
+          assert(unspent.spent, true)
         })
       })
     })
 
-    describe('processConfirmedTx', function(){
+    describe('processConfirmedTx', function() {
       it('does not throw on scripts with no corresponding Address', function() {
         var pubKey = wallet.getPrivateKey(0).pub
         var script = scripts.pubKeyOutput(pubKey)
@@ -359,8 +370,8 @@ describe('Wallet', function() {
         wallet.processConfirmedTx(tx2)
       })
 
-      describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.outputs", function(){
-        it("works for receive address", function(){
+      describe("when tx outs contains an address owned by the wallet, an 'output' gets added to wallet.unspentMap", function() {
+        it("works for receive address", function() {
           var totalOuts = outputCount()
 
           wallet.addresses = [addresses[0]]
@@ -370,7 +381,7 @@ describe('Wallet', function() {
           verifyOutputAdded(0, false)
         })
 
-        it("works for change address", function(){
+        it("works for change address", function() {
           var totalOuts = outputCount()
           wallet.changeAddresses = [addresses[1]]
 
@@ -380,50 +391,50 @@ describe('Wallet', function() {
           verifyOutputAdded(1, false)
         })
 
-        function outputCount(){
-          return Object.keys(wallet.outputs).length
+        function outputCount() {
+          return Object.keys(wallet.unspentMap).length
         }
       })
 
-      describe("when tx ins outpoint contains a known txhash:i", function(){
+      describe("when tx ins contains a known txhash:i", function() {
         var spendTx
-        beforeEach(function(){
+        beforeEach(function() {
           wallet.addresses = [addresses[0]] // the address fixtureTx2 used as input
           wallet.processConfirmedTx(tx)
 
           spendTx = Transaction.fromHex(fixtureTx2Hex)
         })
 
-        it("does not add to wallet.outputs", function(){
+        it("does not add to wallet.unspentMap", function() {
           wallet.processConfirmedTx(spendTx)
-          assert.deepEqual(wallet.outputs, {})
+          assert.deepEqual(wallet.unspentMap, {})
         })
 
-        it("deletes corresponding 'output'", function(){
+        it("deletes corresponding 'unspent'", function() {
           var txIn = spendTx.ins[0]
-          var txInId = new Buffer(txIn.hash)
-          Array.prototype.reverse.call(txInId)
-          txInId = txInId.toString('hex')
+          var txInId = bufferutils.reverse(txIn.hash).toString('hex')
 
           var expected = txInId + ':' + txIn.index
-          assert(expected in wallet.outputs)
+          assert(expected in wallet.unspentMap)
 
           wallet.processConfirmedTx(spendTx)
-          assert(!(expected in wallet.outputs))
+          assert(!(expected in wallet.unspentMap))
         })
-      })
-
-      it("does nothing when none of the involved addresses belong to the wallet", function(){
-        wallet.processConfirmedTx(tx)
-        assert.deepEqual(wallet.outputs, {})
       })
     })
 
+    it("does nothing when none of the involved addresses belong to the wallet", function() {
+      wallet.processConfirmedTx(tx)
+      assert.deepEqual(wallet.unspentMap, {})
+    })
+
+
     function verifyOutputAdded(index, pending) {
       var txOut = tx.outs[index]
+
       var key = tx.getId() + ":" + index
-      var output = wallet.outputs[key]
-      assert.equal(output.from, key)
+      var output = wallet.unspentMap[key]
+      assert.deepEqual(output.txHash, tx.getHash())
       assert.equal(output.value, txOut.value)
       assert.equal(output.pending, pending)
 
@@ -432,12 +443,12 @@ describe('Wallet', function() {
     }
   })
 
-  describe('createTx', function(){
+  describe('createTx', function() {
     var wallet
     var address1, address2
     var to, value
 
-    beforeEach(function(){
+    beforeEach(function() {
       to = 'mt7MyTVVEWnbwpF5hBn6fgnJcv95Syk2ue'
       value = 500000
 
@@ -447,55 +458,57 @@ describe('Wallet', function() {
       // set up 3 utxos
       var utxos = [
         {
-          "hash": fakeTxId(1),
+          "txId": fakeTxId(1),
           "index": 0,
           "address": address1,
           "value": 400000 // not enough for value
         },
         {
-          "hash": fakeTxId(2),
+          "txId": fakeTxId(2),
           "index": 1,
           "address": address1,
           "value": 500000 // enough for only value
         },
         {
-          "hash": fakeTxId(3),
+          "txId": fakeTxId(3),
           "index": 0,
           "address" : address2,
           "value": 510000 // enough for value and fee
         }
       ]
 
-      wallet = new Wallet(seed, networks.testnet, utxos)
+      wallet = new Wallet(seed, networks.testnet)
+      wallet.setUnspentOutputs(utxos)
       wallet.generateAddress()
       wallet.generateAddress()
     })
 
-    describe('transaction fee', function(){
-      it('allows fee to be specified', function(){
+    describe('transaction fee', function() {
+      it('allows fee to be specified', function() {
         var fee = 30000
-        var tx = wallet.createTx(to, value, fee)
+        var tx = wallet.createTx(to, value, { fixedFee: fee })
 
         assert.equal(getFee(wallet, tx), fee)
       })
 
-      it('allows fee to be set to zero', function(){
+      it('allows fee to be set to zero', function() {
         value = 510000
         var fee = 0
-        var tx = wallet.createTx(to, value, fee)
+        var tx = wallet.createTx(to, value, { fixedFee: fee })
 
         assert.equal(getFee(wallet, tx), fee)
       })
 
-      it('does not overestimate fees when network has dustSoftThreshold', function(){
+      it('does not overestimate fees when network has dustSoftThreshold', function() {
         var utxo = {
-          hash: fakeTxId(0),
+          txId: fakeTxId(0),
           index: 0,
           address: "LeyySKbQrRRwodKEj1W4a8y3YQupPLw5os",
           value: 500000
         }
 
-        var wallet = new Wallet(seed, networks.litecoin, [utxo])
+        var wallet = new Wallet(seed, networks.litecoin)
+        wallet.setUnspentOutputs([utxo])
         wallet.generateAddress()
 
         value = 200000
@@ -505,19 +518,20 @@ describe('Wallet', function() {
       })
 
       function getFee(wallet, tx) {
-        var inputValue = tx.ins.reduce(function(memo, input){
-          var id = Array.prototype.reverse.call(input.hash).toString('hex')
-          return memo + wallet.outputs[id + ':' + input.index].value
+        var inputValue = tx.ins.reduce(function(accum, input) {
+          var txId = bufferutils.reverse(input.hash).toString('hex')
+
+          return accum + wallet.unspentMap[txId + ':' + input.index].value
         }, 0)
 
-        return tx.outs.reduce(function(memo, output){
-          return memo - output.value
+        return tx.outs.reduce(function(accum, output) {
+          return accum - output.value
         }, inputValue)
       }
     })
 
-    describe('choosing utxo', function(){
-      it('takes fees into account', function(){
+    describe('choosing utxo', function() {
+      it('takes fees into account', function() {
         var tx = wallet.createTx(to, value)
 
         assert.equal(tx.ins.length, 1)
@@ -525,7 +539,7 @@ describe('Wallet', function() {
         assert.equal(tx.ins[0].index, 0)
       })
 
-      it('uses confirmed outputs', function(){
+      it('uses confirmed outputs', function() {
         var tx2 = new Transaction()
         tx2.addInput(fakeTxId(4), 0)
         tx2.addOutput(address2, 530000)
@@ -538,7 +552,7 @@ describe('Wallet', function() {
         assert.equal(tx.ins[0].index, 0)
       })
 
-      it('ignores pending outputs', function(){
+      it('ignores pending outputs', function() {
         var tx2 = new Transaction()
         tx2.addInput(fakeTxId(4), 0)
         tx2.addOutput(address2, 530000)
@@ -552,14 +566,17 @@ describe('Wallet', function() {
       })
     })
 
-    describe('changeAddress', function(){
-      it('should allow custom changeAddress', function(){
+    describe('changeAddress', function() {
+      it('should allow custom changeAddress', function() {
         var changeAddress = 'mfrFjnKZUvTcvdAK2fUX5D8v1Epu5H8JCk'
         var fromValue = 510000
         var toValue = fromValue / 2
         var fee = 1e3
 
-        var tx = wallet.createTx(to, toValue, fee, changeAddress)
+        var tx = wallet.createTx(to, toValue, {
+          fixedFee: fee,
+          changeAddress: changeAddress
+        })
         assert.equal(tx.outs.length, 2)
 
         var outAddress0 = Address.fromOutputScript(tx.outs[0].script, networks.testnet)
@@ -573,8 +590,8 @@ describe('Wallet', function() {
       })
     })
 
-    describe('transaction outputs', function(){
-      it('includes the specified address and amount', function(){
+    describe('transaction outputs', function() {
+      it('includes the specified address and amount', function() {
         var tx = wallet.createTx(to, value)
 
         assert.equal(tx.outs.length, 1)
@@ -585,12 +602,12 @@ describe('Wallet', function() {
         assert.equal(out.value, value)
       })
 
-      describe('change', function(){
-        it('uses the last change address if there is any', function(){
+      describe('change', function() {
+        it('uses the last change address if there is any', function() {
           var fee = 0
           wallet.generateChangeAddress()
           wallet.generateChangeAddress()
-          var tx = wallet.createTx(to, value, fee)
+          var tx = wallet.createTx(to, value, { fixedFee: fee })
 
           assert.equal(tx.outs.length, 2)
           var out = tx.outs[1]
@@ -600,11 +617,11 @@ describe('Wallet', function() {
           assert.equal(out.value, 10000)
         })
 
-        it('generates a change address if there is not any', function(){
+        it('generates a change address if there is not any', function() {
           var fee = 0
           assert.equal(wallet.changeAddresses.length, 0)
 
-          var tx = wallet.createTx(to, value, fee)
+          var tx = wallet.createTx(to, value, { fixedFee: fee })
 
           assert.equal(wallet.changeAddresses.length, 1)
           var out = tx.outs[1]
@@ -614,7 +631,7 @@ describe('Wallet', function() {
           assert.equal(out.value, 10000)
         })
 
-        it('skips change if it is not above dust threshold', function(){
+        it('skips change if it is not above dust threshold', function() {
           var fee = 14570
           var tx = wallet.createTx(to, value)
           assert.equal(tx.outs.length, 1)
@@ -622,24 +639,24 @@ describe('Wallet', function() {
       })
     })
 
-    describe('signing', function(){
-      afterEach(function(){
+    describe('signing', function() {
+      afterEach(function() {
         TransactionBuilder.prototype.sign.restore()
       })
 
-      it('signs the inputs with respective keys', function(){
+      it('signs the inputs with respective keys', function() {
         var fee = 30000
         sinon.spy(TransactionBuilder.prototype, "sign")
 
-        var tx = wallet.createTx(to, value, fee)
+        var tx = wallet.createTx(to, value, { fixedFee: fee })
 
         assert(TransactionBuilder.prototype.sign.calledWith(0, wallet.getPrivateKeyForAddress(address2)))
         assert(TransactionBuilder.prototype.sign.calledWith(1, wallet.getPrivateKeyForAddress(address1)))
       })
     })
 
-    describe('when value is below dust threshold', function(){
-      it('throws an error', function(){
+    describe('when value is below dust threshold', function() {
+      it('throws an error', function() {
         var value = 546
 
         assert.throws(function() {
@@ -648,8 +665,8 @@ describe('Wallet', function() {
       })
     })
 
-    describe('when there is not enough money', function(){
-      it('throws an error', function(){
+    describe('when there is not enough money', function() {
+      it('throws an error', function() {
         var value = 1400001
 
         assert.throws(function() {

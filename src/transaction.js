@@ -37,10 +37,8 @@ Transaction.prototype.addInput = function(tx, index, sequence) {
   var hash
 
   if (typeof tx === 'string') {
-    hash = new Buffer(tx, 'hex')
-
     // TxId hex is big-endian, we need little-endian
-    Array.prototype.reverse.call(hash)
+    hash = bufferutils.reverse(new Buffer(tx, 'hex'))
 
   } else if (tx instanceof Transaction) {
     hash = tx.getHash()
@@ -212,12 +210,8 @@ Transaction.prototype.getHash = function () {
 }
 
 Transaction.prototype.getId = function () {
-  var buffer = this.getHash()
-
-  // Big-endian is used for TxHash
-  Array.prototype.reverse.call(buffer)
-
-  return buffer.toString('hex')
+  // TxHash is little-endian, we need big-endian
+  return bufferutils.reverse(this.getHash()).toString('hex')
 }
 
 Transaction.prototype.clone = function () {
