@@ -273,6 +273,7 @@ describe('Wallet', function() {
   describe('setUnspentOutputs', function() {
     var utxo
     var expectedOutputKey
+    var wallet
 
     beforeEach(function() {
       utxo = {
