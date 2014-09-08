@@ -297,7 +297,7 @@ Wallet.prototype.setUnspentOutputs = function(unspents) {
     // FIXME: remove in 2.0.0
     if (index === undefined) {
       console.warn('unspent.outputIndex is deprecated, use unspent.index instead')
-      index = utxo.outputIndex
+      index = unspent.outputIndex
     }
 
     assert.equal(typeof txId, 'string', 'Expected txId, got ' + txId)
@@ -313,7 +313,7 @@ Wallet.prototype.setUnspentOutputs = function(unspents) {
 
     var txHash = bufferutils.reverse(new Buffer(txId, 'hex'))
 
-    var unspent = {
+    unspent = {
       address: unspent.address,
       confirmations: unspent.confirmations || 0,
       index: index,
