@@ -303,7 +303,7 @@ Wallet.prototype.setUnspentOutputs = function(unspents) {
     assert.equal(typeof txId, 'string', 'Expected txId, got ' + txId)
     assert.equal(txId.length, 64, 'Expected valid txId, got ' + txId)
     assert.doesNotThrow(function() { Address.fromBase58Check(unspent.address) }, 'Expected Base58 Address, got ' + unspent.address)
-    assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
+    assert(Number.isFinite(index), 'Expected number index, got ' + index)
     assert.equal(typeof unspent.value, 'number', 'Expected number value, got ' + unspent.value)
 
     // FIXME: remove branch in 2.0.0
