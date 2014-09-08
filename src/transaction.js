@@ -49,8 +49,8 @@ Transaction.prototype.addInput = function(tx, index, sequence) {
 
   assert(Buffer.isBuffer(hash), 'Expected Transaction, txId or txHash, got ' + tx)
   assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
-  assert(Number.isFinite(index), 'Expected number index, got ' + index)
-  assert(Number.isFinite(sequence), 'Expected number sequence, got ' + sequence)
+  assert(isFinite(index), 'Expected number index, got ' + index)
+  assert(isFinite(sequence), 'Expected number sequence, got ' + sequence)
 
   // Add the input and return the input's index
   return (this.ins.push({
@@ -82,7 +82,7 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
   }
 
   assert(scriptPubKey instanceof Script, 'Expected Address or Script, got ' + scriptPubKey)
-  assert(Number.isFinite(value), 'Expected number value, got ' + value)
+  assert(isFinite(value), 'Expected number value, got ' + value)
 
   // Add the output and return the output's index
   return (this.outs.push({
