@@ -273,6 +273,7 @@ describe('Wallet', function() {
   describe('setUnspentOutputs', function() {
     var utxo
     var expectedOutputKey
+    var wallet
 
     beforeEach(function() {
       utxo = {
@@ -632,9 +633,11 @@ describe('Wallet', function() {
         })
 
         it('skips change if it is not above dust threshold', function() {
-          var fee = 14570
-          var tx = wallet.createTx(to, value)
-          assert.equal(tx.outs.length, 1)
+          var tx1 = wallet.createTx(to, value - 546)
+          assert.equal(tx1.outs.length, 1)
+
+          var tx2 = wallet.createTx(to, value - 547)
+          assert.equal(tx2.outs.length, 2)
         })
       })
     })
