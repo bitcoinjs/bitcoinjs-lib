@@ -13,7 +13,7 @@ var fixtures = require('./fixtures/message.json')
 describe('message', function () {
   describe('magicHash', function () {
     fixtures.valid.magicHash.forEach(function (f) {
-      it('produces the correct magicHash for \"' + f.message + '\" (' + f.network + ')', function () {
+      it('produces the correct magicHash for "' + f.message + '" (' + f.network + ')', function () {
         var network = networks[f.network]
         var actual = message.magicHash(f.message, network)
 
