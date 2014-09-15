@@ -172,8 +172,7 @@ describe('Wallet', function() {
         "confirmations": 1,
         "index": 0,
         "txId": fakeTxId(6),
-        "value": 20000,
-        "pending": false
+        "value": 20000
       }
     })
 
@@ -222,27 +221,20 @@ describe('Wallet', function() {
         assert.equal(utxo.txId, output.txId)
         assert.equal(utxo.confirmations, output.confirmations)
       })
-
-      it("ignores spent unspents (outputs with 'spent' property)", function() {
-        var unspent = wallet.unspents[0]
-        unspent.pending = true
-        unspent.spent = true
-        assert.deepEqual(wallet.getUnspentOutputs(), [])
-      })
     })
   })
 
   describe('setUnspentOutputs', function() {
     var utxo
-    var expectedOutputKey
     var wallet
 
     beforeEach(function() {
       utxo = {
-        hash: fakeTxId(0),
+        txId: fakeTxId(0),
         index: 0,
         address: '115qa7iPZqn6as57hxLL8E9VUnhmGQxKWi',
-        value: 500000
+        value: 500000,
+        confirmations: 1
       }
 
       wallet = new Wallet(seed, networks.bitcoin)
@@ -257,7 +249,7 @@ describe('Wallet', function() {
     })
 
     describe('required fields', function() {
-      ['index', 'address', 'hash', 'value'].forEach(function(field){
+      ['index', 'address', 'txId', 'value'].forEach(function(field){
         it("throws an error when " + field + " is missing", function() {
           delete utxo[field]
 
@@ -288,21 +280,21 @@ describe('Wallet', function() {
           "index": 0,
           "address": address1,
           "value": 400000, // not enough for value
-          "confirmations": 0
+          "confirmations": 1
         },
         {
           "txId": fakeTxId(2),
           "index": 1,
           "address": address1,
           "value": 500000, // enough for only value
-          "confirmations": 0
+          "confirmations": 1
         },
         {
           "txId": fakeTxId(3),
           "index": 0,
           "address" : address2,
           "value": 510000, // enough for value and fee
-          "confirmations": 0
+          "confirmations": 1
         }
       ]
 
@@ -333,7 +325,8 @@ describe('Wallet', function() {
           txId: fakeTxId(0),
           index: 0,
           address: "LeyySKbQrRRwodKEj1W4a8y3YQupPLw5os",
-          value: 500000
+          value: 500000,
+          confirmations: 1
         }
 
         var wallet = new Wallet(seed, networks.litecoin)
@@ -347,10 +340,15 @@ describe('Wallet', function() {
       })
 
       function getFee(wallet, tx) {
+        var valueMap = {}
+        wallet.unspents.forEach(function(unspent) {
+          valueMap[unspent.txId + ':' + unspent.index] = unspent.value
+        })
+
         var inputValue = tx.ins.reduce(function(accum, input) {
           var txId = bufferutils.reverse(input.hash).toString('hex')
 
-          return accum + wallet.unspentMap[txId + ':' + input.index].value
+          return accum + valueMap[txId + ':' + input.index]
         }, 0)
 
         return tx.outs.reduce(function(accum, output) {
@@ -368,30 +366,44 @@ describe('Wallet', function() {
         assert.equal(tx.ins[0].index, 0)
       })
 
-      it('uses confirmed outputs', function() {
+      it('uses only confirmed outputs', function() {
         var tx2 = new Transaction()
         tx2.addInput(fakeTxId(4), 0)
         tx2.addOutput(address2, 530000)
 
-        wallet.processConfirmedTx(tx2)
-        var tx = wallet.createTransaction(to, value)
+        wallet.setUnspentOutputs([
+          {
+            "txId": fakeTxId(1),
+            "index": 0,
+            "address" : address2,
+            "value": 531000, // perfect amount w/ fees, but unconfirmed
+            "confirmations": 0
+          },
+          {
+            "txId": fakeTxId(3),
+            "index": 0,
+            "address": address1,
+            "value": 300000,
+            "confirmations": 1
+          },
+          {
+            "txId": fakeTxId(3),
+            "index": 1,
+            "address": address2,
+            "value": 300000,
+            "confirmations": 1
+          }
+        ])
 
-        assert.equal(tx.ins.length, 1)
-        assert.deepEqual(tx.ins[0].hash, tx2.getHash())
-        assert.equal(tx.ins[0].index, 0)
-      })
+        var tx = wallet.createTransaction(to, value, {
+          fixedFee: 1000
+        })
 
-      it('ignores pending outputs', function() {
-        var tx2 = new Transaction()
-        tx2.addInput(fakeTxId(4), 0)
-        tx2.addOutput(address2, 530000)
-
-        wallet.processPendingTx(tx2)
-        var tx = wallet.createTransaction(to, value)
-
-        assert.equal(tx.ins.length, 1)
+        assert.equal(tx.ins.length, 2)
         assert.deepEqual(tx.ins[0].hash, fakeTxHash(3))
+        assert.deepEqual(tx.ins[1].hash, fakeTxHash(3))
         assert.equal(tx.ins[0].index, 0)
+        assert.equal(tx.ins[1].index, 1)
       })
     })
 
