@@ -49,11 +49,9 @@ Wallet.prototype.createTransaction = function(to, value, options) {
   var fixedFee = options.fixedFee
   var minConf = options.minConf === undefined ? 1 : options.minConf
 
-  // filter by minConf, then pending and sort by descending value
+  // filter by minConf and sort by descending value
   var unspents = this.unspents.filter(function(unspent) {
     return unspent.confirmations >= minConf
-  }).filter(function(unspent) {
-    return !unspent.pending
   }).sort(function(o1, o2) {
     return o2.value - o1.value
   })
