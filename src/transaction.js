@@ -160,16 +160,6 @@ Transaction.prototype.toHex = function() {
  * used to sign the transaction input in question.
  */
 Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashType) {
-  // FIXME: remove in 2.x.y
-  if (arguments[0] instanceof Script) {
-    console.warn('hashForSignature(prevOutScript, inIndex, ...) has been deprecated. Use hashForSignature(inIndex, prevOutScript, ...)')
-
-    // swap the arguments (must be stored in tmp, arguments is special)
-    var tmp = arguments[0]
-    inIndex = arguments[1]
-    prevOutScript = tmp
-  }
-
   enforceType('Number', inIndex)
   enforceType(Script, prevOutScript)
   enforceType('Number', hashType)
@@ -304,39 +294,6 @@ Transaction.fromHex = function(hex) {
 
 Transaction.prototype.setInputScript = function(index, script) {
   this.ins[index].script = script
-}
-
-// FIXME: remove in 2.x.y
-Transaction.prototype.sign = function(index, privKey, hashType) {
-  console.warn("Transaction.prototype.sign is deprecated.  Use TransactionBuilder instead.")
-
-  var prevOutScript = privKey.pub.getAddress().toOutputScript()
-  var signature = this.signInput(index, prevOutScript, privKey, hashType)
-
-  var scriptSig = scripts.pubKeyHashInput(signature, privKey.pub)
-  this.setInputScript(index, scriptSig)
-}
-
-// FIXME: remove in 2.x.y
-Transaction.prototype.signInput = function(index, prevOutScript, privKey, hashType) {
-  console.warn("Transaction.prototype.signInput is deprecated.  Use TransactionBuilder instead.")
-
-  hashType = hashType || Transaction.SIGHASH_ALL
-
-  var hash = this.hashForSignature(index, prevOutScript, hashType)
-  var signature = privKey.sign(hash)
-
-  return signature.toScriptSignature(hashType)
-}
-
-// FIXME: remove in 2.x.y
-Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, buffer) {
-  console.warn("Transaction.prototype.validateInput is deprecated.  Use TransactionBuilder instead.")
-
-  var parsed = ECSignature.parseScriptSignature(buffer)
-  var hash = this.hashForSignature(index, prevOutScript, parsed.hashType)
-
-  return pubKey.verify(hash, parsed.signature)
 }
 
 module.exports = Transaction

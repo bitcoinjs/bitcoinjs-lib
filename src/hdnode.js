@@ -166,22 +166,11 @@ HDNode.prototype.toBase58 = function(isPrivate) {
   return base58check.encode(this.toBuffer(isPrivate, true))
 }
 
-// FIXME: remove in 2.x.y
-HDNode.prototype.toBuffer = function(isPrivate, __ignoreDeprecation) {
-  if (isPrivate == undefined) {
-    isPrivate = !!this.privKey
-
-  // FIXME: remove in 2.x.y
-  } else {
-    console.warn('isPrivate flag is deprecated, please use the .neutered() method instead')
-  }
-
-  if (!__ignoreDeprecation) {
-    console.warn('HDNode.toBuffer() is deprecated for removal in 2.x.y, use toBase58 instead')
-  }
+HDNode.prototype.toBuffer = function(__isPrivate) {
+  assert.strictEqual(__isPrivate, undefined, 'Unsupported argument in 2.0.0')
 
   // Version
-  var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
+  var version = this.privKey ? this.network.bip32.private : this.network.bip32.public
   var buffer = new Buffer(HDNode.LENGTH)
 
   // 4 bytes: version bytes
@@ -203,13 +192,11 @@ HDNode.prototype.toBuffer = function(isPrivate, __ignoreDeprecation) {
   this.chainCode.copy(buffer, 13)
 
   // 33 bytes: the public key or private key data
-  if (isPrivate) {
-    // FIXME: remove in 2.x.y
-    assert(this.privKey, 'Missing private key')
-
+  if (this.privKey) {
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
     this.privKey.d.toBuffer(32).copy(buffer, 46)
+
   } else {
 
     // X9.62 encoding for public keys
