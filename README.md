@@ -59,7 +59,7 @@ From the repository: Compile `bitcoinjs-min.js` with the following command:
 From NPM:
 
     $ npm -g install bitcoinjs-lib browserify uglify-js
-    $ browserify -r bitcoinjs-lib -s Bitcoin | uglifyjs > bitcoinjs.min.js
+    $ browserify -r bitcoinjs-lib -s bitcoin | uglifyjs > bitcoinjs.min.js
 
 After loading this file in your browser, you will be able to use the global `bitcoin` object.
 
