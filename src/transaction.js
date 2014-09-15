@@ -1,258 +1,282 @@
 var assert = require('assert')
-var bufferutils = require('./bufferutils')
-var crypto = require('./crypto')
-var enforceType = require('./types')
-var opcodes = require('./opcodes')
+var scripts = require('./scripts')
 
+var Address = require('./address')
+var ECPubKey = require('./ecpubkey')
+var ECSignature = require('./ecsignature')
+var RawTransaction = require('./raw_transaction')
 var Script = require('./script')
 
 function Transaction() {
-  this.version = 1
-  this.locktime = 0
-  this.ins = []
-  this.outs = []
+  this.prevOutMap = {}
+  this.prevOutScripts = {}
+  this.prevOutTypes = {}
+
+  this.signatures = []
+  this.tx = new RawTransaction()
 }
 
-Transaction.DEFAULT_SEQUENCE = 0xffffffff
-Transaction.SIGHASH_ALL = 0x01
-Transaction.SIGHASH_NONE = 0x02
-Transaction.SIGHASH_SINGLE = 0x03
-Transaction.SIGHASH_ANYONECANPAY = 0x80
+// Static constructors
+Transaction.fromRawTransaction = function(transaction) {
+  var txb = new Transaction()
 
-Transaction.prototype.addInput = function(hash, index, sequence) {
-  if (sequence === undefined) sequence = Transaction.DEFAULT_SEQUENCE
+  // Extract/add inputs
+  transaction.ins.forEach(function(txin) {
+    txb.addInput(txin.hash, txin.index, txin.sequence)
+  })
 
-  enforceType('Buffer', hash)
-  enforceType('Number', index)
-  enforceType('Number', sequence)
+  // Extract/add outputs
+  transaction.outs.forEach(function(txout) {
+    txb.addOutput(txout.script, txout.value)
+  })
 
-  assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
+  // Extract/add signatures
+  transaction.ins.forEach(function(txin, i) {
+    // Ignore empty scripts
+    if (txin.script.buffer.length === 0) return
 
-  // Add the input and return the input's index
-  return (this.ins.push({
-    hash: hash,
-    index: index,
-    script: Script.EMPTY,
-    sequence: sequence
-  }) - 1)
+    assert(!Array.prototype.every.call(txin.hash, function(x) {
+      return x === 0
+    }), 'coinbase inputs not supported')
+
+    var redeemScript
+    var scriptSig = txin.script
+    var scriptType = scripts.classifyInput(scriptSig)
+
+    // Re-classify if P2SH
+    if (scriptType === 'scripthash') {
+      redeemScript = Script.fromBuffer(scriptSig.chunks.slice(-1)[0])
+      scriptSig = Script.fromChunks(scriptSig.chunks.slice(0, -1))
+
+      scriptType = scripts.classifyInput(scriptSig)
+      assert.equal(scripts.classifyOutput(redeemScript), scriptType, 'Non-matching scriptSig and scriptPubKey in input')
+    }
+
+    // Extract hashType, pubKeys and signatures
+    var hashType, pubKeys, signatures
+
+    switch (scriptType) {
+      case 'pubkeyhash':
+        var parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+        var pubKey = ECPubKey.fromBuffer(scriptSig.chunks[1])
+
+        hashType = parsed.hashType
+        pubKeys = [pubKey]
+        signatures = [parsed.signature]
+
+        break
+
+      case 'multisig':
+        var scriptSigs = scriptSig.chunks.slice(1) // ignore OP_0
+        var parsed = scriptSigs.map(function(scriptSig) {
+          return ECSignature.parseScriptSignature(scriptSig)
+        })
+
+        hashType = parsed[0].hashType
+        pubKeys = []
+        signatures = parsed.map(function(p) { return p.signature })
+
+        break
+
+      case 'pubkey':
+        var parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+
+        hashType = parsed.hashType
+        pubKeys = []
+        signatures = [parsed.signature]
+
+        break
+
+      default:
+        assert(false, scriptType + ' inputs not supported')
+    }
+
+    txb.signatures[i] = {
+      hashType: hashType,
+      pubKeys: pubKeys,
+      redeemScript: redeemScript,
+      scriptType: scriptType,
+      signatures: signatures
+    }
+  })
+
+  return txb
+}
+
+// Operations
+Transaction.prototype.addInput = function(prevTx, index, sequence, prevOutScript) {
+  var prevOutHash
+
+  if (typeof prevTx === 'string') {
+    prevOutHash = new Buffer(prevTx, 'hex')
+
+    // TxId hex is big-endian, we want little-endian hash
+    Array.prototype.reverse.call(prevOutHash)
+
+  } else if (prevTx instanceof RawTransaction) {
+    prevOutHash = prevTx.getHash()
+    prevOutScript = prevTx.outs[index].script
+
+  } else {
+    prevOutHash = prevTx
+
+  }
+
+  var prevOutType
+  if (prevOutScript !== undefined) {
+    prevOutType = scripts.classifyOutput(prevOutScript)
+
+    assert.notEqual(prevOutType, 'nonstandard', 'PrevOutScript not supported (nonstandard)')
+  }
+
+  assert(this.signatures.every(function(input) {
+    return input.hashType & RawTransaction.SIGHASH_ANYONECANPAY
+  }), 'No, this would invalidate signatures')
+
+  var prevOut = prevOutHash.toString('hex') + ':' + index
+  assert(!(prevOut in this.prevOutMap), 'Transaction is already an input')
+
+  var vout = this.tx.addInput(prevOutHash, index, sequence)
+  this.prevOutMap[prevOut] = true
+  this.prevOutScripts[vout] = prevOutScript
+  this.prevOutTypes[vout] = prevOutType
+
+  return vout
 }
 
 Transaction.prototype.addOutput = function(scriptPubKey, value) {
-  enforceType(Script, scriptPubKey)
-  enforceType('Number', value)
+  assert(this.signatures.every(function(signature) {
+    return (signature.hashType & 0x1f) === RawTransaction.SIGHASH_SINGLE
+  }), 'No, this would invalidate signatures')
 
-  // Add the output and return the output's index
-  return (this.outs.push({
-    script: scriptPubKey,
-    value: value
-  }) - 1)
+  // Attempt to get a valid address if it's a base58 address string
+  if (typeof scriptPubKey === 'string') {
+    scriptPubKey = Address.fromBase58Check(scriptPubKey)
+  }
+
+  // Attempt to get a valid script if it's an Address object
+  if (scriptPubKey instanceof Address) {
+    scriptPubKey = scriptPubKey.toOutputScript()
+  }
+
+  return this.tx.addOutput(scriptPubKey, value)
 }
 
-Transaction.prototype.toBuffer = function () {
-  var txInSize = this.ins.reduce(function(a, x) {
-    return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
-
-  var txOutSize = this.outs.reduce(function(a, x) {
-    return a + (8 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
-
-  var buffer = new Buffer(
-    8 +
-    bufferutils.varIntSize(this.ins.length) +
-    bufferutils.varIntSize(this.outs.length) +
-    txInSize +
-    txOutSize
-  )
-
-  var offset = 0
-  function writeSlice(slice) {
-    slice.copy(buffer, offset)
-    offset += slice.length
-  }
-  function writeUInt32(i) {
-    buffer.writeUInt32LE(i, offset)
-    offset += 4
-  }
-  function writeUInt64(i) {
-    bufferutils.writeUInt64LE(buffer, i, offset)
-    offset += 8
-  }
-  function writeVarInt(i) {
-    var n = bufferutils.writeVarInt(buffer, i, offset)
-    offset += n
-  }
-
-  writeUInt32(this.version)
-  writeVarInt(this.ins.length)
-
-  this.ins.forEach(function(txin) {
-    writeSlice(txin.hash)
-    writeUInt32(txin.index)
-    writeVarInt(txin.script.buffer.length)
-    writeSlice(txin.script.buffer)
-    writeUInt32(txin.sequence)
-  })
-
-  writeVarInt(this.outs.length)
-  this.outs.forEach(function(txout) {
-    writeUInt64(txout.value)
-    writeVarInt(txout.script.buffer.length)
-    writeSlice(txout.script.buffer)
-  })
-
-  writeUInt32(this.locktime)
-
-  return buffer
+Transaction.prototype.build = function() {
+  return this.__build(false)
 }
 
-Transaction.prototype.toHex = function() {
-  return this.toBuffer().toString('hex')
+Transaction.prototype.buildIncomplete = function() {
+  return this.__build(true)
 }
 
-/**
- * Hash transaction for signing a specific input.
- *
- * Bitcoin uses a different hash for each signed transaction input. This
- * method copies the transaction, makes the necessary changes based on the
- * hashType, serializes and finally hashes the result. This hash can then be
- * used to sign the transaction input in question.
- */
-Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashType) {
-  enforceType('Number', inIndex)
-  enforceType(Script, prevOutScript)
-  enforceType('Number', hashType)
-
-  assert(inIndex >= 0, 'Invalid vin index')
-  assert(inIndex < this.ins.length, 'Invalid vin index')
-
-  var txTmp = this.clone()
-  var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
-
-  // Blank out other inputs' signatures
-  txTmp.ins.forEach(function(txin) {
-    txin.script = Script.EMPTY
-  })
-  txTmp.ins[inIndex].script = hashScript
-
-  var hashTypeModifier = hashType & 0x1f
-  if (hashTypeModifier === Transaction.SIGHASH_NONE) {
-    assert(false, 'SIGHASH_NONE not yet supported')
-
-  } else if (hashTypeModifier === Transaction.SIGHASH_SINGLE) {
-    assert(false, 'SIGHASH_SINGLE not yet supported')
-
+Transaction.prototype.__build = function(allowIncomplete) {
+  if (!allowIncomplete) {
+    assert(this.tx.ins.length > 0, 'Transaction has no inputs')
+    assert(this.tx.outs.length > 0, 'Transaction has no outputs')
+    assert(this.signatures.length > 0, 'Transaction has no signatures')
+    assert.equal(this.signatures.length, this.tx.ins.length, 'Transaction is missing signatures')
   }
 
-  if (hashType & Transaction.SIGHASH_ANYONECANPAY) {
-    assert(false, 'SIGHASH_ANYONECANPAY not yet supported')
-  }
+  var tx = this.tx.clone()
 
-  var hashTypeBuffer = new Buffer(4)
-  hashTypeBuffer.writeInt32LE(hashType, 0)
+  // Create script signatures from signature meta-data
+  this.signatures.forEach(function(input, index) {
+    var scriptSig
+    var scriptType = input.scriptType
 
-  var buffer = Buffer.concat([txTmp.toBuffer(), hashTypeBuffer])
-  return crypto.hash256(buffer)
-}
-
-Transaction.prototype.getHash = function () {
-  return crypto.hash256(this.toBuffer())
-}
-
-Transaction.prototype.getId = function () {
-  // TxHash is little-endian, we need big-endian
-  return bufferutils.reverse(this.getHash()).toString('hex')
-}
-
-Transaction.prototype.clone = function () {
-  var newTx = new Transaction()
-  newTx.version = this.version
-  newTx.locktime = this.locktime
-
-  newTx.ins = this.ins.map(function(txin) {
-    return {
-      hash: txin.hash,
-      index: txin.index,
-      script: txin.script,
-      sequence: txin.sequence
-    }
-  })
-
-  newTx.outs = this.outs.map(function(txout) {
-    return {
-      script: txout.script,
-      value: txout.value
-    }
-  })
-
-  return newTx
-}
-
-Transaction.fromBuffer = function(buffer) {
-  var offset = 0
-  function readSlice(n) {
-    offset += n
-    return buffer.slice(offset - n, offset)
-  }
-  function readUInt32() {
-    var i = buffer.readUInt32LE(offset)
-    offset += 4
-    return i
-  }
-  function readUInt64() {
-    var i = bufferutils.readUInt64LE(buffer, offset)
-    offset += 8
-    return i
-  }
-  function readVarInt() {
-    var vi = bufferutils.readVarInt(buffer, offset)
-    offset += vi.size
-    return vi.number
-  }
-
-  var tx = new Transaction()
-  tx.version = readUInt32()
-
-  var vinLen = readVarInt()
-  for (var i = 0; i < vinLen; ++i) {
-    var hash = readSlice(32)
-    var vout = readUInt32()
-    var scriptLen = readVarInt()
-    var script = readSlice(scriptLen)
-    var sequence = readUInt32()
-
-    tx.ins.push({
-      hash: hash,
-      index: vout,
-      script: Script.fromBuffer(script),
-      sequence: sequence
+    var signatures = input.signatures.map(function(signature) {
+      return signature.toScriptSignature(input.hashType)
     })
-  }
 
-  var voutLen = readVarInt()
-  for (i = 0; i < voutLen; ++i) {
-    var value = readUInt64()
-    var scriptLen = readVarInt()
-    var script = readSlice(scriptLen)
+    switch (scriptType) {
+      case 'pubkeyhash':
+        var signature = signatures[0]
+        var pubKey = input.pubKeys[0]
+        scriptSig = scripts.pubKeyHashInput(signature, pubKey)
 
-    tx.outs.push({
-      value: value,
-      script: Script.fromBuffer(script)
-    })
-  }
+        break
 
-  tx.locktime = readUInt32()
-  assert.equal(offset, buffer.length, 'Transaction has unexpected data')
+      case 'multisig':
+        var redeemScript = allowIncomplete ? undefined : input.redeemScript
+        scriptSig = scripts.multisigInput(signatures, redeemScript)
+
+        break
+
+      case 'pubkey':
+        var signature = signatures[0]
+        scriptSig = scripts.pubKeyInput(signature)
+
+        break
+
+      default:
+        assert(false, scriptType + ' not supported')
+    }
+
+    if (input.redeemScript) {
+      scriptSig = scripts.scriptHashInput(scriptSig, input.redeemScript)
+    }
+
+    tx.setInputScript(index, scriptSig)
+  })
 
   return tx
 }
 
-Transaction.fromHex = function(hex) {
-  return Transaction.fromBuffer(new Buffer(hex, 'hex'))
-}
+Transaction.prototype.sign = function(index, privKey, redeemScript, hashType) {
+  assert(this.tx.ins.length >= index, 'No input at index: ' + index)
+  hashType = hashType || RawTransaction.SIGHASH_ALL
 
-Transaction.prototype.setInputScript = function(index, script) {
-  this.ins[index].script = script
+  var prevOutScript = this.prevOutScripts[index]
+  var prevOutType = this.prevOutTypes[index]
+
+  var scriptType, hash
+  if (redeemScript) {
+    prevOutScript = prevOutScript || scripts.scriptHashOutput(redeemScript.getHash())
+    prevOutType = prevOutType || 'scripthash'
+
+    assert.equal(prevOutType, 'scripthash', 'PrevOutScript must be P2SH')
+
+    scriptType = scripts.classifyOutput(redeemScript)
+
+    assert.notEqual(scriptType, 'scripthash', 'RedeemScript can\'t be P2SH')
+    assert.notEqual(scriptType, 'nonstandard', 'RedeemScript not supported (nonstandard)')
+
+    hash = this.tx.hashForSignature(index, redeemScript, hashType)
+
+  } else {
+    prevOutScript = prevOutScript || privKey.pub.getAddress().toOutputScript()
+    prevOutType = prevOutType || 'pubkeyhash'
+
+    assert.notEqual(prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
+
+    scriptType = prevOutType
+
+    hash = this.tx.hashForSignature(index, prevOutScript, hashType)
+  }
+
+  this.prevOutScripts[index] = prevOutScript
+  this.prevOutTypes[index] = prevOutType
+
+  if (!(index in this.signatures)) {
+    this.signatures[index] = {
+      hashType: hashType,
+      pubKeys: [],
+      redeemScript: redeemScript,
+      scriptType: scriptType,
+      signatures: []
+    }
+  } else {
+    assert.equal(scriptType, 'multisig', scriptType + ' doesn\'t support multiple signatures')
+  }
+
+  var input = this.signatures[index]
+  assert.equal(input.hashType, hashType, 'Inconsistent hashType')
+  assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
+
+  var signature = privKey.sign(hash)
+  input.pubKeys.push(privKey.pub)
+  input.signatures.push(signature)
 }
 
 module.exports = Transaction

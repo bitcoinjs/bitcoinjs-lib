@@ -4,10 +4,9 @@ var base58check = require('bs58check')
 var networks = require('../src/networks')
 
 var Address = require('../src/address')
-var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
 var ECSignature = require('../src/ecsignature')
-var Transaction = require('../src/transaction')
+var RawTransaction = require('../src/raw_transaction')
 var Script = require('../src/script')
 
 var base58_encode_decode = require("./fixtures/core/base58_encode_decode.json")
@@ -130,7 +129,7 @@ describe('Bitcoin-core', function() {
   })
 
   // tx_valid
-  describe('Transaction', function() {
+  describe('RawTransaction', function() {
     tx_valid.forEach(function(f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
@@ -140,7 +139,7 @@ describe('Bitcoin-core', function() {
   //      var verifyFlags = f[2] // TODO: do we need to test this?
 
       it('can decode ' + fhex, function() {
-        var transaction = Transaction.fromHex(fhex)
+        var transaction = RawTransaction.fromHex(fhex)
 
         transaction.ins.forEach(function(txin, i) {
           var input = inputs[i]
@@ -163,7 +162,7 @@ describe('Bitcoin-core', function() {
   })
 
   // sighash
-  describe('Transaction', function() {
+  describe('RawTransaction', function() {
     sighash.forEach(function(f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
@@ -175,7 +174,7 @@ describe('Bitcoin-core', function() {
       var expectedHash = f[4]
 
       it('should hash ' + txHex + ' correctly', function() {
-        var transaction = Transaction.fromHex(txHex)
+        var transaction = RawTransaction.fromHex(txHex)
         assert.equal(transaction.toHex(), txHex)
 
         var script = Script.fromHex(scriptHex)
@@ -189,7 +188,7 @@ describe('Bitcoin-core', function() {
           if (!e.message.match(/not yet supported/)) throw e
         }
 
-        if (actualHash != undefined) {
+        if (actualHash !== undefined) {
           // Test data is big-endian
           Array.prototype.reverse.call(actualHash)
 
