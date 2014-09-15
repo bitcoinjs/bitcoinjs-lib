@@ -6,9 +6,10 @@ var Script = require('../src/script')
 
 var fixtures = require('./fixtures/transaction')
 
-// FIXME: what is a better way to do this, seems a bit odd
 fixtures.valid.forEach(function(f) {
   var Script = require('../src/script')
+
+  f.hash = new Buffer(f.hash, 'hex')
 
   f.raw.ins.forEach(function(fin) {
     fin.hash = new Buffer(fin.hash, 'hex')
@@ -20,10 +21,14 @@ fixtures.valid.forEach(function(f) {
   })
 })
 
+fixtures.invalid.addInput.forEach(function(f) {
+  f.hash = new Buffer(f.hash, 'hex')
+})
+
 describe('Transaction', function() {
   describe('fromBuffer/fromHex', function() {
     fixtures.valid.forEach(function(f) {
-      it('imports ' + f.txid + ' correctly', function() {
+      it('imports ' + f.id + ' correctly', function() {
         var actual = Transaction.fromHex(f.hex)
 
         assert.deepEqual(actual, f.raw)
@@ -41,7 +46,7 @@ describe('Transaction', function() {
 
   describe('toBuffer/toHex', function() {
     fixtures.valid.forEach(function(f) {
-      it('exports ' + f.txid + ' correctly', function() {
+      it('exports ' + f.id + ' correctly', function() {
         var actual = Transaction.prototype.toBuffer.call(f.raw)
 
         assert.equal(actual.toString('hex'), f.hex)
@@ -50,33 +55,15 @@ describe('Transaction', function() {
   })
 
   describe('addInput', function() {
-    // FIXME: not as pretty as could be
-    // Probably a bit representative of the API
-    var prevTxHash, prevTxId, prevTx
+    var prevTxHash
     beforeEach(function() {
       var f = fixtures.valid[0]
-      prevTx = Transaction.fromHex(f.hex)
-      prevTxHash = prevTx.getHash()
-      prevTxId = prevTx.getId()
-    })
-
-    it('accepts a transaction id', function() {
-      var tx = new Transaction()
-      tx.addInput(prevTxId, 0)
-
-      assert.deepEqual(tx.ins[0].hash, prevTxHash)
+      prevTxHash = f.hash
     })
 
     it('accepts a transaction hash', function() {
       var tx = new Transaction()
       tx.addInput(prevTxHash, 0)
-
-      assert.deepEqual(tx.ins[0].hash, prevTxHash)
-    })
-
-    it('accepts a Transaction object', function() {
-      var tx = new Transaction()
-      tx.addInput(prevTx, 0)
 
       assert.deepEqual(tx.ins[0].hash, prevTxHash)
     })
@@ -102,7 +89,7 @@ describe('Transaction', function() {
     })
 
     fixtures.valid.forEach(function(f) {
-      it('should add the inputs for ' + f.txid + ' correctly', function() {
+      it('should add the inputs for ' + f.id + ' correctly', function() {
         var tx = new Transaction()
 
         f.raw.ins.forEach(function(txIn, i) {
@@ -125,39 +112,18 @@ describe('Transaction', function() {
     fixtures.invalid.addInput.forEach(function(f) {
       it('throws on ' + f.exception, function() {
         var tx = new Transaction()
-        var hash = new Buffer(f.hash, 'hex')
 
         assert.throws(function() {
-          tx.addInput(hash, f.index)
+          tx.addInput(f.hash, f.index)
         }, new RegExp(f.exception))
       })
     })
   })
 
   describe('addOutput', function() {
-    // FIXME: not as pretty as could be
-    // Probably a bit representative of the API
-    var destAddressB58, destAddress, destScript
+    var destScript
     beforeEach(function() {
-      destAddressB58 = '15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3'
-      destAddress = Address.fromBase58Check(destAddressB58)
-      destScript = destAddress.toOutputScript()
-    })
-
-    it('accepts an address string', function() {
-      var tx = new Transaction()
-      tx.addOutput(destAddressB58, 40000)
-
-      assert.deepEqual(tx.outs[0].script, destScript)
-      assert.equal(tx.outs[0].value, 40000)
-    })
-
-    it('accepts an Address', function() {
-      var tx = new Transaction()
-      tx.addOutput(destAddress, 40000)
-
-      assert.deepEqual(tx.outs[0].script, destScript)
-      assert.equal(tx.outs[0].value, 40000)
+      destScript = Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3').toOutputScript()
     })
 
     it('accepts a scriptPubKey', function() {
@@ -175,7 +141,7 @@ describe('Transaction', function() {
     })
 
     fixtures.valid.forEach(function(f) {
-      it('should add the outputs for ' + f.txid + ' correctly', function() {
+      it('should add the outputs for ' + f.id + ' correctly', function() {
         var tx = new Transaction()
 
         f.raw.outs.forEach(function(txOut, i) {
@@ -206,22 +172,20 @@ describe('Transaction', function() {
 
   describe('getId', function() {
     fixtures.valid.forEach(function(f) {
-      it('should return the txid for ' + f.txid, function() {
+      it('should return the txId for ' + f.id, function() {
         var tx = Transaction.fromHex(f.hex)
-        var actual = tx.getId()
 
-        assert.equal(actual, f.txid)
+        assert.equal(tx.getId(), f.id)
       })
     })
   })
 
   describe('getHash', function() {
     fixtures.valid.forEach(function(f) {
-      it('should return the hash for ' + f.txid, function() {
+      it('should return the hash for ' + f.id, function() {
         var tx = Transaction.fromHex(f.hex)
-        var actual = tx.getHash().toString('hex')
 
-        assert.equal(actual, f.hash)
+        assert.deepEqual(tx.getHash(), f.hash)
       })
     })
   })
