@@ -651,10 +651,16 @@ describe('Wallet', function() {
         var fee = 30000
         sinon.spy(TransactionBuilder.prototype, "sign")
 
-        var tx = wallet.createTx(to, value, { fixedFee: fee })
+        wallet.createTx(to, value, { fixedFee: fee })
 
-        assert(TransactionBuilder.prototype.sign.calledWith(0, wallet.getPrivateKeyForAddress(address2)))
-        assert(TransactionBuilder.prototype.sign.calledWith(1, wallet.getPrivateKeyForAddress(address1)))
+        var priv1 = wallet.getPrivateKeyForAddress(address1)
+        var priv2 = wallet.getPrivateKeyForAddress(address2)
+
+        // FIXME: boo (required) side effects
+        priv1.pub.Q.affineX, priv2.pub.Q.affineX
+
+        assert(TransactionBuilder.prototype.sign.calledWith(0, priv2))
+        assert(TransactionBuilder.prototype.sign.calledWith(1, priv1))
       })
     })
 
