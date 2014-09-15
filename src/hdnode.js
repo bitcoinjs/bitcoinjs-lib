@@ -106,18 +106,18 @@ HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
 
   // 32 bytes: the chain code
   var chainCode = buffer.slice(13, 45)
-  var hd
+  var data, hd
 
   // 33 bytes: private key data (0x00 + k)
   if (params.isPrivate) {
     assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
-    var data = buffer.slice(46, 78)
+    data = buffer.slice(46, 78)
     var d = BigInteger.fromBuffer(data)
     hd = new HDNode(d, chainCode, params.network)
 
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
-    var data = buffer.slice(45, 78)
+    data = buffer.slice(45, 78)
     var Q = ecurve.Point.decodeFrom(curve, data)
     assert.equal(Q.compressed, true, 'Invalid public key')
 
