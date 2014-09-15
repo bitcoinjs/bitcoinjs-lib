@@ -153,14 +153,14 @@ RawTransaction.prototype.hashForSignature = function(inIndex, prevOutScript, has
   assert(inIndex >= 0, 'Invalid vin index')
   assert(inIndex < this.ins.length, 'Invalid vin index')
 
-  var txTmp = this.clone()
+  var tx = this.clone()
   var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
 
   // Blank out other inputs' signatures
-  txTmp.ins.forEach(function(txin) {
+  tx.ins.forEach(function(txin) {
     txin.script = Script.EMPTY
   })
-  txTmp.ins[inIndex].script = hashScript
+  tx.ins[inIndex].script = hashScript
 
   var hashTypeModifier = hashType & 0x1f
   if (hashTypeModifier === RawTransaction.SIGHASH_NONE) {
@@ -178,7 +178,7 @@ RawTransaction.prototype.hashForSignature = function(inIndex, prevOutScript, has
   var hashTypeBuffer = new Buffer(4)
   hashTypeBuffer.writeInt32LE(hashType, 0)
 
-  var buffer = Buffer.concat([txTmp.toBuffer(), hashTypeBuffer])
+  var buffer = Buffer.concat([tx.toBuffer(), hashTypeBuffer])
   return crypto.hash256(buffer)
 }
 
