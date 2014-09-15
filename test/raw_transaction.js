@@ -1,6 +1,5 @@
 var assert = require('assert')
 
-var Address = require('../src/address')
 var RawTransaction = require('../src/raw_transaction')
 
 var fixtures = require('./fixtures/raw_transaction')
@@ -110,25 +109,6 @@ describe('RawTransaction', function() {
   })
 
   describe('addOutput', function() {
-    var destScript
-    beforeEach(function() {
-      destScript = Address.fromBase58Check('15mMHKL96tWAUtqF3tbVf99Z8arcmnJrr3').toOutputScript()
-    })
-
-    it('accepts a scriptPubKey', function() {
-      var tx = new RawTransaction()
-      tx.addOutput(destScript, 40000)
-
-      assert.deepEqual(tx.outs[0].script, destScript)
-      assert.equal(tx.outs[0].value, 40000)
-    })
-
-    it('returns an index', function() {
-      var tx = new RawTransaction()
-      assert.equal(tx.addOutput(destScript, 40000), 0)
-      assert.equal(tx.addOutput(destScript, 40000), 1)
-    })
-
     fixtures.valid.forEach(function(f) {
       it('should add the outputs for ' + f.id + ' correctly', function() {
         var tx = new RawTransaction()
