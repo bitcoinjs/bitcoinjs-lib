@@ -129,50 +129,6 @@ describe('HDNode', function() {
     })
   })
 
-  describe('fromBuffer/fromHex', function() {
-    fixtures.valid.forEach(function(f) {
-      it('imports ' + f.master.hex + ' (public) correctly', function() {
-        var hd = HDNode.fromHex(f.master.hex)
-
-        assert.equal(hd.toBuffer().toString('hex'), f.master.hex)
-      })
-    })
-
-    fixtures.valid.forEach(function(f) {
-      it('imports ' + f.master.hexPriv + ' (private) correctly', function() {
-        var hd = HDNode.fromHex(f.master.hexPriv)
-
-        assert.equal(hd.toBuffer().toString('hex'), f.master.hexPriv)
-      })
-    })
-
-    fixtures.invalid.fromBuffer.forEach(function(f) {
-      it('throws on ' + f.hex, function() {
-        assert.throws(function() {
-          HDNode.fromHex(f.hex)
-        }, new RegExp(f.exception))
-      })
-    })
-  })
-
-  describe('toBuffer/toHex', function() {
-    fixtures.valid.forEach(function(f) {
-      it('exports ' + f.master.hex + ' (public) correctly', function() {
-        var hd = HDNode.fromSeedHex(f.master.seed).neutered()
-
-        assert.equal(hd.toHex(), f.master.hex)
-      })
-    })
-
-    fixtures.valid.forEach(function(f) {
-      it('exports ' + f.master.hexPriv + ' (private) correctly', function() {
-        var hd = HDNode.fromSeedHex(f.master.seed)
-
-        assert.equal(hd.toHex(), f.master.hexPriv)
-      })
-    })
-  })
-
   describe('getIdentifier', function() {
     var f = fixtures.valid[0]
 

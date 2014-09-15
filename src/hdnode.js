@@ -76,15 +76,7 @@ HDNode.fromSeedHex = function(hex, network) {
 }
 
 HDNode.fromBase58 = function(string) {
-  return HDNode.fromBuffer(base58check.decode(string), true)
-}
-
-// FIXME: remove in 2.x.y
-HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
-  if (!__ignoreDeprecation) {
-    console.warn('HDNode.fromBuffer() is deprecated for removal in 2.x.y, use fromBase58 instead')
-  }
-
+  var buffer = base58check.decode(string)
   assert.strictEqual(buffer.length, HDNode.LENGTH, 'Invalid buffer length')
 
   // 4 byte: version bytes
@@ -136,11 +128,6 @@ HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
   return hd
 }
 
-// FIXME: remove in 2.x.y
-HDNode.fromHex = function(hex) {
-  return HDNode.fromBuffer(new Buffer(hex, 'hex'))
-}
-
 HDNode.prototype.getIdentifier = function() {
   return bcrypto.hash160(this.pubKey.toBuffer())
 }
@@ -162,11 +149,7 @@ HDNode.prototype.neutered = function() {
   return neutered
 }
 
-HDNode.prototype.toBase58 = function(isPrivate) {
-  return base58check.encode(this.toBuffer(isPrivate, true))
-}
-
-HDNode.prototype.toBuffer = function(__isPrivate) {
+HDNode.prototype.toBase58 = function(__isPrivate) {
   assert.strictEqual(__isPrivate, undefined, 'Unsupported argument in 2.0.0')
 
   // Version
@@ -203,12 +186,7 @@ HDNode.prototype.toBuffer = function(__isPrivate) {
     this.pubKey.toBuffer().copy(buffer, 45)
   }
 
-  return buffer
-}
-
-// FIXME: remove in 2.x.y
-HDNode.prototype.toHex = function(isPrivate) {
-  return this.toBuffer(isPrivate).toString('hex')
+  return base58check.encode(buffer)
 }
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
