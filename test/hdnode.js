@@ -101,15 +101,6 @@ describe('HDNode', function() {
         assert.equal(hd.toBase58(), f.master.base58Priv)
       })
     })
-
-    // FIXME: remove in 2.x.y
-    it('fails when there is no private key', function() {
-      var hd = HDNode.fromBase58(fixtures.valid[0].master.base58)
-
-      assert.throws(function() {
-        hd.toBase58(true)
-      }, /Missing private key/)
-    })
   })
 
   describe('fromBase58', function() {
@@ -204,7 +195,7 @@ describe('HDNode', function() {
       }
     }
 
-    fixtures.valid.forEach(function(f, j) {
+    fixtures.valid.forEach(function(f) {
       var hd = HDNode.fromSeedHex(f.master.seed)
 
       // FIXME: test data is only testing Private -> private for now
