@@ -1,9 +1,8 @@
-var bitcoin = require('./src/index')
+var bitcoin = require('../')
 
 var exports = {
   BigInteger: require('bigi'),
-  ecurve: require('ecurve'),
-  secureRandom: require('secure-random')
+  ecurve: require('ecurve')
 }
 
 for (var key in bitcoin) {
