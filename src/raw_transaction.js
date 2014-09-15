@@ -41,35 +41,30 @@ RawTransaction.fromBuffer = function(buffer) {
     offset += vi.size
     return vi.number
   }
+  function readScript() {
+    var scriptLen = readVarInt()
+    var scriptBuffer = readSlice(scriptLen)
+    return Script.fromBuffer(scriptBuffer)
+  }
 
   var tx = new RawTransaction()
   tx.version = readUInt32()
 
   var vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
-    var hash = readSlice(32)
-    var vout = readUInt32()
-    var scriptLen = readVarInt()
-    var script = readSlice(scriptLen)
-    var sequence = readUInt32()
-
     tx.ins.push({
-      hash: hash,
-      index: vout,
-      script: Script.fromBuffer(script),
-      sequence: sequence
+      hash: readSlice(32),
+      index: readUInt32(),
+      script: readScript(),
+      sequence: readUInt32()
     })
   }
 
   var voutLen = readVarInt()
   for (i = 0; i < voutLen; ++i) {
-    var value = readUInt64()
-    var scriptLen = readVarInt()
-    var script = readSlice(scriptLen)
-
     tx.outs.push({
-      value: value,
-      script: Script.fromBuffer(script)
+      value: readUInt64(),
+      script: readScript()
     })
   }
 
