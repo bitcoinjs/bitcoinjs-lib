@@ -367,10 +367,6 @@ describe('Wallet', function() {
       })
 
       it('uses only confirmed outputs', function() {
-        var tx2 = new Transaction()
-        tx2.addInput(fakeTxId(4), 0)
-        tx2.addOutput(address2, 530000)
-
         wallet.setUnspentOutputs([
           {
             "txId": fakeTxId(1),
