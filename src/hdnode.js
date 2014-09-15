@@ -1,6 +1,7 @@
 var assert = require('assert')
 var base58check = require('bs58check')
 var crypto = require('./crypto')
+var enforceType = require('./types')
 var networks = require('./networks')
 
 var BigInteger = require('bigi')
@@ -30,7 +31,8 @@ function findBIP32ParamsByVersion(version) {
 function HDNode(K, chainCode, network) {
   network = network || networks.bitcoin
 
-  assert(Buffer.isBuffer(chainCode), 'Expected Buffer, got ' + chainCode)
+  enforceType('Buffer', chainCode)
+
   assert.equal(chainCode.length, 32, 'Expected chainCode length of 32, got ' + chainCode.length)
   assert(network.bip32, 'Unknown BIP32 constants for network')
 
@@ -52,7 +54,8 @@ HDNode.HIGHEST_BIT = 0x80000000
 HDNode.LENGTH = 78
 
 HDNode.fromSeedBuffer = function(seed, network) {
-  assert(Buffer.isBuffer(seed), 'Expected Buffer, got ' + seed)
+  enforceType('Buffer', seed)
+
   assert(seed.length >= 16, 'Seed should be at least 128 bits')
   assert(seed.length <= 64, 'Seed should be at most 512 bits')
 

@@ -1,6 +1,7 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
+var enforceType = require('./types')
 var opcodes = require('./opcodes')
 var scripts = require('./scripts')
 
@@ -8,18 +9,18 @@ var Address = require('./address')
 var ECSignature = require('./ecsignature')
 var Script = require('./script')
 
-Transaction.DEFAULT_SEQUENCE = 0xffffffff
-Transaction.SIGHASH_ALL = 0x01
-Transaction.SIGHASH_NONE = 0x02
-Transaction.SIGHASH_SINGLE = 0x03
-Transaction.SIGHASH_ANYONECANPAY = 0x80
-
 function Transaction() {
   this.version = 1
   this.locktime = 0
   this.ins = []
   this.outs = []
 }
+
+Transaction.DEFAULT_SEQUENCE = 0xffffffff
+Transaction.SIGHASH_ALL = 0x01
+Transaction.SIGHASH_NONE = 0x02
+Transaction.SIGHASH_SINGLE = 0x03
+Transaction.SIGHASH_ANYONECANPAY = 0x80
 
 /**
  * Create a new txin.
@@ -31,26 +32,23 @@ function Transaction() {
  *
  * Note that this method does not sign the created input.
  */
-Transaction.prototype.addInput = function(tx, index, sequence) {
-  if (sequence == undefined) sequence = Transaction.DEFAULT_SEQUENCE
+Transaction.prototype.addInput = function(hash, index, sequence) {
+  if (sequence === undefined) sequence = Transaction.DEFAULT_SEQUENCE
 
-  var hash
-
-  if (typeof tx === 'string') {
+  if (typeof hash === 'string') {
     // TxId hex is big-endian, we need little-endian
-    hash = bufferutils.reverse(new Buffer(tx, 'hex'))
+    hash = bufferutils.reverse(new Buffer(hash, 'hex'))
 
-  } else if (tx instanceof Transaction) {
-    hash = tx.getHash()
+  } else if (hash instanceof Transaction) {
+    hash = hash.getHash()
 
-  } else {
-    hash = tx
   }
 
-  assert(Buffer.isBuffer(hash), 'Expected Transaction, txId or txHash, got ' + tx)
+  enforceType('Buffer', hash)
+  enforceType('Number', index)
+  enforceType('Number', sequence)
+
   assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
-  assert(isFinite(index), 'Expected number index, got ' + index)
-  assert(isFinite(sequence), 'Expected number sequence, got ' + sequence)
 
   // Add the input and return the input's index
   return (this.ins.push({
@@ -81,8 +79,8 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
     scriptPubKey = scriptPubKey.toOutputScript()
   }
 
-  assert(scriptPubKey instanceof Script, 'Expected Address or Script, got ' + scriptPubKey)
-  assert(isFinite(value), 'Expected number value, got ' + value)
+  enforceType(Script, scriptPubKey)
+  enforceType('Number', value)
 
   // Add the output and return the output's index
   return (this.outs.push({
@@ -172,9 +170,12 @@ Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashTy
     prevOutScript = tmp
   }
 
+  enforceType('Number', inIndex)
+  enforceType(Script, prevOutScript)
+  enforceType('Number', hashType)
+
   assert(inIndex >= 0, 'Invalid vin index')
   assert(inIndex < this.ins.length, 'Invalid vin index')
-  assert(prevOutScript instanceof Script, 'Invalid Script object')
 
   var txTmp = this.clone()
   var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)

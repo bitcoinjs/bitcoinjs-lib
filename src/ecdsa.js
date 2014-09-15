@@ -1,14 +1,17 @@
 var assert = require('assert')
 var crypto = require('./crypto')
+var enforceType = require('./types')
 
 var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
 function deterministicGenerateK(curve, hash, d) {
-  assert(Buffer.isBuffer(hash), 'Hash must be a Buffer, not ' + hash)
+  enforceType('Buffer', hash)
+  enforceType(BigInteger, d)
+
+  // sanity check
   assert.equal(hash.length, 32, 'Hash must be 256 bit')
-  assert(d instanceof BigInteger, 'Private key must be a BigInteger')
 
   var x = d.toBuffer(32)
   var k = new Buffer(32)

@@ -1,11 +1,12 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
+var enforceType = require('./types')
 var opcodes = require('./opcodes')
 
 function Script(buffer, chunks) {
-  assert(Buffer.isBuffer(buffer), 'Expected Buffer, got ' + buffer)
-  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
+  enforceType('Buffer', buffer)
+  enforceType('Array', chunks)
 
   this.buffer = buffer
   this.chunks = chunks
@@ -55,7 +56,7 @@ Script.fromBuffer = function(buffer) {
 }
 
 Script.fromChunks = function(chunks) {
-  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
+  enforceType('Array', chunks)
 
   var bufferSize = chunks.reduce(function(accum, chunk) {
     if (Buffer.isBuffer(chunk)) {
