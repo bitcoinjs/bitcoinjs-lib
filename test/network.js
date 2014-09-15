@@ -1,18 +1,18 @@
 var assert = require('assert')
 var networks = require('../src/networks')
 var sinon = require('sinon')
-var Transaction = require('../src/transaction')
+var RawTransaction = require('../src/raw_transaction')
 
 var fixtures = require('./fixtures/network')
 
 describe('networks', function() {
   var txToBuffer
   before(function(){
-    txToBuffer = sinon.stub(Transaction.prototype, "toBuffer")
+    txToBuffer = sinon.stub(RawTransaction.prototype, "toBuffer")
   })
 
   after(function(){
-    Transaction.prototype.toBuffer.restore()
+    RawTransaction.prototype.toBuffer.restore()
   })
 
   fixtures.valid.forEach(function(f) {
@@ -24,7 +24,7 @@ describe('networks', function() {
         txToBuffer.returns(buffer)
 
         var estimateFee = network.estimateFee
-        var tx = new Transaction()
+        var tx = new RawTransaction()
         tx.outs = f.outputs || []
 
         assert.equal(estimateFee(tx), f.fee)

@@ -2,7 +2,7 @@ var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 
-var Transaction = require('./transaction')
+var RawTransaction = require('./raw_transaction')
 var Script = require('./script')
 
 function Block() {
@@ -56,7 +56,7 @@ Block.fromBuffer = function(buffer) {
   }
 
   function readTransaction() {
-    var tx = new Transaction()
+    var tx = new RawTransaction()
     tx.version = readUInt32()
 
     var vinLen = readVarInt()
@@ -121,9 +121,7 @@ Block.prototype.toBuffer = function(headersOnly) {
   if (headersOnly || !this.transactions) return buffer
 
   var txLenBuffer = bufferutils.varIntBuffer(this.transactions.length)
-  var txBuffers = this.transactions.map(function(tx) {
-    return tx.toBuffer()
-  })
+  var txBuffers = this.transactions.map(function(tx) { return tx.toBuffer() })
 
   return Buffer.concat([buffer, txLenBuffer].concat(txBuffers))
 }

@@ -6,7 +6,7 @@ var scripts = bitcoin.scripts
 
 var Address = bitcoin.Address
 var ECKey = bitcoin.ECKey
-var TransactionBuilder = bitcoin.TransactionBuilder
+var Transaction = bitcoin.Transaction
 
 var helloblock = require('helloblock-js')({
   network: 'testnet'
@@ -48,7 +48,7 @@ describe('Bitcoin-js', function() {
       var unspent = unspents[unspents.length - 1]
       var spendAmount = Math.min(unspent.value, outputAmount)
 
-      var txb = new TransactionBuilder()
+      var txb = new Transaction()
       txb.addInput(unspent.txHash, unspent.index)
       txb.addOutput(targetAddress, spendAmount)
 
