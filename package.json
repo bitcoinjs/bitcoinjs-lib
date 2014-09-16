@@ -68,14 +68,10 @@
     "test": "npm run-script unit",
     "unit": "istanbul test mocha -- --reporter list test/*.js"
   },
-  "browser": {
-    "crypto": "crypto-browserify"
-  },
   "dependencies": {
     "bigi": "1.1.0",
     "bs58": "1.2.1",
     "bs58check": "1.0.1",
-    "crypto-browserify": "3.0.0",
     "ecurve": "1.0.0"
   }
 }
