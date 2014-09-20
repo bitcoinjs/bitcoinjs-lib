@@ -58,28 +58,4 @@ describe('Crypto', function() {
       })
     })
   })
-
-  describe('HmacSHA256', function() {
-    it('matches the test vectors', function() {
-      fixtures.before.hex.forEach(function(hex, i) {
-        var data = new Buffer(hex, 'hex')
-        var secret = new Buffer(fixtures.before.secret)
-        var actual = crypto.HmacSHA256(data, secret).toString('hex')
-
-        assert.equal(actual, fixtures.after.hmacsha256[i])
-      })
-    })
-  })
-
-  describe('HmacSHA512', function() {
-    it('matches the test vectors', function() {
-      fixtures.before.hex.forEach(function(hex, i) {
-        var data = new Buffer(hex, 'hex')
-        var secret = new Buffer(fixtures.before.secret)
-        var actual = crypto.HmacSHA512(data, secret).toString('hex')
-
-        assert.equal(actual, fixtures.after.hmacsha512[i])
-      })
-    })
-  })
 })
