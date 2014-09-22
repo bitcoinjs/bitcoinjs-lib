@@ -72,10 +72,15 @@ HDNode.fromSeedHex = function(hex, network) {
 }
 
 HDNode.fromBase58 = function(string) {
-  return HDNode.fromBuffer(base58check.decode(string))
+  return HDNode.fromBuffer(base58check.decode(string), true)
 }
 
-HDNode.fromBuffer = function(buffer) {
+// FIXME: remove in 2.x.y
+HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
+  if (!__ignoreDeprecation) {
+    console.warn('HDNode.fromBuffer() is deprecated for removal in 2.x.y, use fromBase58 instead')
+  }
+
   assert.strictEqual(buffer.length, HDNode.LENGTH, 'Invalid buffer length')
 
   // 4 byte: version bytes
@@ -127,6 +132,7 @@ HDNode.fromBuffer = function(buffer) {
   return hd
 }
 
+// FIXME: remove in 2.x.y
 HDNode.fromHex = function(hex) {
   return HDNode.fromBuffer(new Buffer(hex, 'hex'))
 }
@@ -153,16 +159,21 @@ HDNode.prototype.neutered = function() {
 }
 
 HDNode.prototype.toBase58 = function(isPrivate) {
-  return base58check.encode(this.toBuffer(isPrivate))
+  return base58check.encode(this.toBuffer(isPrivate, true))
 }
 
-HDNode.prototype.toBuffer = function(isPrivate) {
+// FIXME: remove in 2.x.y
+HDNode.prototype.toBuffer = function(isPrivate, __ignoreDeprecation) {
   if (isPrivate == undefined) {
     isPrivate = !!this.privKey
 
   // FIXME: remove in 2.x.y
   } else {
     console.warn('isPrivate flag is deprecated, please use the .neutered() method instead')
+  }
+
+  if (!__ignoreDeprecation) {
+    console.warn('HDNode.toBuffer() is deprecated for removal in 2.x.y, use toBase58 instead')
   }
 
   // Version
@@ -204,6 +215,7 @@ HDNode.prototype.toBuffer = function(isPrivate) {
   return buffer
 }
 
+// FIXME: remove in 2.x.y
 HDNode.prototype.toHex = function(isPrivate) {
   return this.toBuffer(isPrivate).toString('hex')
 }
