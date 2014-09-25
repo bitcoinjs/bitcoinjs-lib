@@ -75,7 +75,7 @@
     "bigi": "1.1.0",
     "bs58": "1.2.1",
     "bs58check": "1.0.1",
-    "crypto-browserify": "3.2.0",
+    "crypto-browserify": "3.2.4",
     "ecurve": "1.0.0"
   }
 }
