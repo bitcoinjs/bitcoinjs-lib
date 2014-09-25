@@ -36,15 +36,15 @@
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
   "devDependencies": {
-    "browserify": "^4.2.1",
-    "coveralls": "~2.10.0",
-    "helloblock-js": "^0.2.1",
-    "istanbul": "0.1.30",
-    "jshint": "2.5.1",
-    "mocha": "1.18.2",
+    "browserify": "^5.12.0",
+    "coveralls": "^2.11.2",
+    "helloblock-js": "^0.2.5",
+    "istanbul": "^0.3.2",
+    "jshint": "^2.5.6",
+    "mocha": "^1.21.4",
     "mocha-lcov-reporter": "0.0.1",
-    "sinon": "1.9.0",
-    "uglify-js": "2.4.13"
+    "sinon": "^1.10.3",
+    "uglify-js": "^2.4.15"
   },
   "testling": {
     "browsers": [
@@ -72,7 +72,7 @@
     "crypto": "crypto-browserify"
   },
   "dependencies": {
-    "bigi": "1.1.0",
+    "bigi": "^1.1.0",
     "bs58": "1.2.1",
     "bs58check": "1.0.1",
     "crypto-browserify": "3.2.4",
