@@ -83,6 +83,19 @@ var networks = {
     dustSoftThreshold: 100000,
     feePerKb: 100000, 
     estimateFee: estimateFee('viacointestnet')
+  },
+  zetacoin: {
+    magicPrefix: '\x18Zetacoin Signed Message:\n',
+    bip32: {
+      public: 0x0488b21e,
+      private: 0x0488ade4
+    },
+    pubKeyHash: 0x50,
+    scriptHash: 0x09,
+    wif: 0xe0,
+    dustThreshold: 546, // https://github.com/zetacoin/zetacoin/blob/master/src/core.h#L159
+    feePerKb: 10000, // https://github.com/zetacoin/zetacoin/blob/master/src/main.cpp#L54
+    estimateFee: estimateFee('zetacoin')
   }
 }
 
