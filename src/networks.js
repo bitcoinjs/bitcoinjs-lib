@@ -8,6 +8,9 @@ var networks = {
       public: 0x0488b21e,
       private: 0x0488ade4
     },
+    bip44: {
+        index: 0
+    },
     pubKeyHash: 0x00,
     scriptHash: 0x05,
     wif: 0x80,
@@ -35,6 +38,9 @@ var networks = {
       public: 0x019da462,
       private: 0x019d9cfe
     },
+    bip44: {
+        index: 2
+    },
     pubKeyHash: 0x30,
     scriptHash: 0x05,
     wif: 0xb0,
@@ -48,6 +54,9 @@ var networks = {
     bip32: {
       public: 0x043587cf,
       private: 0x04358394
+    },
+    bip44: {
+        index: 1
     },
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
