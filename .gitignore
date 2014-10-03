@@ -1,3 +1,5 @@
 node_modules
 bitcoinjs-min.js
 coverage
+.idea
+*.log
