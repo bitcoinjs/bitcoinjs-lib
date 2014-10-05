@@ -1,5 +1,6 @@
 var assert = require('assert')
 var crypto = require('./crypto')
+var getClass = require('./getclass')
 
 var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
@@ -8,7 +9,7 @@ var ECSignature = require('./ecsignature')
 function deterministicGenerateK(curve, hash, d) {
   assert(Buffer.isBuffer(hash), 'Hash must be a Buffer, not ' + hash)
   assert.equal(hash.length, 32, 'Hash must be 256 bit')
-  assert(d instanceof BigInteger, 'Private key must be a BigInteger')
+  assert.equal(getClass(d), "BigInteger", 'Private key must be a BigInteger')
 
   var x = d.toBuffer(32)
   var k = new Buffer(32)

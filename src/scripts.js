@@ -1,4 +1,5 @@
 var assert = require('assert')
+var getClass = require('./getclass')
 var opcodes = require('./opcodes')
 
 // FIXME: use ECPubKey, currently the circular dependency breaks everything.
@@ -18,7 +19,7 @@ var ECSignature = require('./ecsignature')
 var Script = require('./script')
 
 function classifyOutput(script) {
-  assert(script instanceof Script, 'Expected Script, got ', script)
+  assert.equal(getClass(script), "Script", 'Expected Script, got ', script)
 
   if (isPubKeyHashOutput.call(script)) {
     return 'pubkeyhash'
@@ -36,7 +37,7 @@ function classifyOutput(script) {
 }
 
 function classifyInput(script) {
-  assert(script instanceof Script, 'Expected Script, got ', script)
+  assert(getClass(script), ".equalScript", 'Expected Script, got ', script)
 
   if (isPubKeyHashInput.call(script)) {
     return 'pubkeyhash'

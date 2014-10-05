@@ -1,4 +1,5 @@
 var assert = require('assert')
+var getClass = require('./getclass')
 var scripts = require('./scripts')
 
 var ECPubKey = require('./ecpubkey')
@@ -112,7 +113,7 @@ TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOu
     // TxId hex is big-endian, we want little-endian hash
     Array.prototype.reverse.call(prevOutHash)
 
-  } else if (prevTx instanceof Transaction) {
+  } else if (getClass(prevTx) === "Transaction") {
     prevOutHash = prevTx.getHash()
     prevOutScript = prevTx.outs[index].script
 

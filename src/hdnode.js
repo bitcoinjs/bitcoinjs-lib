@@ -1,6 +1,7 @@
 var assert = require('assert')
 var base58check = require('bs58check')
 var crypto = require('./crypto')
+var getClass = require('./getclass')
 var networks = require('./networks')
 
 var BigInteger = require('bigi')
@@ -39,7 +40,7 @@ function HDNode(K, chainCode, network) {
   this.index = 0
   this.network = network
 
-  if (K instanceof BigInteger) {
+  if (getClass(K) === "BigInteger") {
     this.privKey = new ECKey(K, true)
     this.pubKey = this.privKey.pub
   } else {

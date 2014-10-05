@@ -4,6 +4,7 @@ var BigInteger = require('bigi')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
+var getClass = require('./getclass')
 var networks = require('./networks')
 
 var Address = require('./address')
@@ -40,7 +41,7 @@ function verify(address, signature, message, network) {
     signature = new Buffer(signature, 'base64')
   }
 
-  if (address instanceof Address) {
+  if (getClass(address) === "Address") {
     address = address.toString()
   }
 

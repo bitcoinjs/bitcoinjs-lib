@@ -1,6 +1,7 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
+var getClass = require('./getclass')
 var opcodes = require('./opcodes')
 var scripts = require('./scripts')
 
@@ -40,7 +41,7 @@ Transaction.prototype.addInput = function(tx, index, sequence) {
     // TxId hex is big-endian, we need little-endian
     hash = bufferutils.reverse(new Buffer(tx, 'hex'))
 
-  } else if (tx instanceof Transaction) {
+  } else if (getClass(tx) === "Transaction") {
     hash = tx.getHash()
 
   } else {
@@ -77,11 +78,11 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
   }
 
   // Attempt to get a valid script if it's an Address object
-  if (scriptPubKey instanceof Address) {
+  if (getClass(scriptPubKey) === "Address") {
     scriptPubKey = scriptPubKey.toOutputScript()
   }
 
-  assert(scriptPubKey instanceof Script, 'Expected Address or Script, got ' + scriptPubKey)
+  assert.equal(getClass(scriptPubKey), "Script", 'Expected Address or Script, got ' + scriptPubKey)
   assert(isFinite(value), 'Expected number value, got ' + value)
 
   // Add the output and return the output's index
@@ -163,7 +164,7 @@ Transaction.prototype.toHex = function() {
  */
 Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashType) {
   // FIXME: remove in 2.x.y
-  if (arguments[0] instanceof Script) {
+  if (getClass(arguments[0]) === "Script") {
     console.warn('hashForSignature(prevOutScript, inIndex, ...) has been deprecated. Use hashForSignature(inIndex, prevOutScript, ...)')
 
     // swap the arguments (must be stored in tmp, arguments is special)
@@ -174,7 +175,7 @@ Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashTy
 
   assert(inIndex >= 0, 'Invalid vin index')
   assert(inIndex < this.ins.length, 'Invalid vin index')
-  assert(prevOutScript instanceof Script, 'Invalid Script object')
+  assert.equal(getClass(prevOutScript), "Script", 'Invalid Script object')
 
   var txTmp = this.clone()
   var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
