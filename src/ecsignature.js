@@ -1,9 +1,10 @@
 var assert = require('assert')
+var getClass = require('./getclass')
 var BigInteger = require('bigi')
 
 function ECSignature(r, s) {
-  assert(r instanceof BigInteger, 'Expected BigInteger, got ' + r)
-  assert(s instanceof BigInteger, 'Expected BigInteger, got ' + s)
+  assert.equal(getClass(r), "BigInteger", 'Expected BigInteger, got ' + r)
+  assert.equal(getClass(s), "BigInteger", 'Expected BigInteger, got ' + s)
   this.r = r
   this.s = s
 }
