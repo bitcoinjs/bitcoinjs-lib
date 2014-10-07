@@ -26,7 +26,7 @@ module.exports = function enforce(type, value) {
     }
 
     default: {
-      if (value instanceof type) return
+      if (value.constructor.toString().match(/function (.*?)\(/)[1] === type.name) return
     }
   }
 

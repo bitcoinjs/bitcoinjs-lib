@@ -1,7 +1,7 @@
 var assert = require('assert')
 var enforceType = require('../src/types')
 
-function CustomType() {}
+function CustomType() { return "ensure non-greedy match".toUpperCase() }
 
 var types = ['Array', 'Boolean', 'Buffer', 'Number', 'String', CustomType]
 var values = [[], true, new Buffer(1), 1234, 'foobar', new CustomType()]
