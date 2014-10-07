@@ -1,12 +1,10 @@
 module.exports = function enforce(type, value) {
   switch (type) {
-    // http://jsperf.com/array-typecheck-2
     case 'Array': {
       if (Array.isArray(value)) return
       break
     }
 
-    // http://jsperf.com/boolean-typecheck
     case 'Boolean': {
       if (typeof value === 'boolean') return
       break
@@ -17,13 +15,11 @@ module.exports = function enforce(type, value) {
       break
     }
 
-    // http://jsperf.com/number-constructor-v-isnan
     case 'Number': {
       if (typeof value === 'number') return
       break
     }
 
-    // http://jsperf.com/string-typecheck-2
     case 'String': {
       if (typeof value === 'string') return
       break
