@@ -2,7 +2,7 @@ module.exports = function enforce(type, value) {
   switch (type) {
     // http://jsperf.com/array-typecheck-2
     case 'Array': {
-      if (value != null && value.constructor === Array) return
+      if (Array.isArray(value)) return
       break
     }
 
@@ -25,7 +25,7 @@ module.exports = function enforce(type, value) {
 
     // http://jsperf.com/string-typecheck-2
     case 'String': {
-      if (value != null && value.constructor === String) return
+      if (typeof value === 'string') return
       break
     }
 
