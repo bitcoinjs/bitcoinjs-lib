@@ -1,4 +1,5 @@
 var assert = require('assert')
+var enforceType = require('./types')
 var opcodes = require('./opcodes')
 
 // FIXME: use ECPubKey, currently the circular dependency breaks everything.
@@ -18,7 +19,7 @@ var ECSignature = require('./ecsignature')
 var Script = require('./script')
 
 function classifyOutput(script) {
-  assert(script instanceof Script, 'Expected Script, got ', script)
+  enforceType(Script, script)
 
   if (isPubKeyHashOutput.call(script)) {
     return 'pubkeyhash'
@@ -36,7 +37,7 @@ function classifyOutput(script) {
 }
 
 function classifyInput(script) {
-  assert(script instanceof Script, 'Expected Script, got ', script)
+  enforceType(Script, script)
 
   if (isPubKeyHashInput.call(script)) {
     return 'pubkeyhash'
@@ -171,7 +172,7 @@ function pubKeyOutput(pubKey) {
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 function pubKeyHashOutput(hash) {
-  assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
+  enforceType('Buffer', hash)
 
   return Script.fromChunks([
     opcodes.OP_DUP,
@@ -184,7 +185,7 @@ function pubKeyHashOutput(hash) {
 
 // OP_HASH160 {scriptHash} OP_EQUAL
 function scriptHashOutput(hash) {
-  assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
+  enforceType('Buffer', hash)
 
   return Script.fromChunks([
     opcodes.OP_HASH160,
@@ -195,7 +196,8 @@ function scriptHashOutput(hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 function multisigOutput(m, pubKeys) {
-  assert(Array.isArray(pubKeys), 'Expected Array, got ' + pubKeys)
+  enforceType('Array', pubKeys)
+
   assert(pubKeys.length >= m, 'Not enough pubKeys provided')
 
   var pubKeyBuffers = pubKeys.map(function(pubKey) {
@@ -213,14 +215,14 @@ function multisigOutput(m, pubKeys) {
 
 // {signature}
 function pubKeyInput(signature) {
-  assert(Buffer.isBuffer(signature), 'Expected Buffer, got ' + signature)
+  enforceType('Buffer', signature)
 
   return Script.fromChunks([signature])
 }
 
 // {signature} {pubKey}
 function pubKeyHashInput(signature, pubKey) {
-  assert(Buffer.isBuffer(signature), 'Expected Buffer, got ' + signature)
+  enforceType('Buffer', signature)
 
   return Script.fromChunks([signature, pubKey.toBuffer()])
 }

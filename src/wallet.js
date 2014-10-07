@@ -1,6 +1,7 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('crypto')
+var enforceType = require('./types')
 var networks = require('./networks')
 
 var Address = require('./address')
@@ -300,15 +301,17 @@ Wallet.prototype.setUnspentOutputs = function(unspents) {
       index = unspent.outputIndex
     }
 
-    assert.equal(typeof txId, 'string', 'Expected txId, got ' + txId)
+    enforceType('String', txId)
+    enforceType('Number', index)
+    enforceType('Number', unspent.value)
+
     assert.equal(txId.length, 64, 'Expected valid txId, got ' + txId)
     assert.doesNotThrow(function() { Address.fromBase58Check(unspent.address) }, 'Expected Base58 Address, got ' + unspent.address)
-    assert(isFinite(index), 'Expected number index, got ' + index)
-    assert.equal(typeof unspent.value, 'number', 'Expected number value, got ' + unspent.value)
+    assert(isFinite(index), 'Expected finite index, got ' + index)
 
     // FIXME: remove branch in 2.0.0
     if (unspent.confirmations !== undefined) {
-      assert.equal(typeof unspent.confirmations, 'number', 'Expected number confirmations, got ' + unspent.confirmations)
+      enforceType('Number', unspent.confirmations)
     }
 
     var txHash = bufferutils.reverse(new Buffer(txId, 'hex'))
