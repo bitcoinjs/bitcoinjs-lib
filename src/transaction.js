@@ -245,7 +245,7 @@ Transaction.prototype.sign = function(index, privKey, redeemScript, hashType) {
     hash = this.tx.hashForSignature(index, redeemScript, hashType)
 
   } else {
-    prevOutScript = prevOutScript || privKey.pub.getAddress().toOutputScript()
+    prevOutScript = prevOutScript || privKey.pubKey.getAddress().toOutputScript()
     prevOutType = prevOutType || 'pubkeyhash'
 
     assert.notEqual(prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
@@ -275,7 +275,7 @@ Transaction.prototype.sign = function(index, privKey, redeemScript, hashType) {
   assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
 
   var signature = privKey.sign(hash)
-  input.pubKeys.push(privKey.pub)
+  input.pubKeys.push(privKey.pubKey)
   input.signatures.push(signature)
 }
 

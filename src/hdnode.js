@@ -44,7 +44,7 @@ function HDNode(K, chainCode, network) {
 
   if (K instanceof BigInteger) {
     this.privKey = new ECKey(K, true)
-    this.pubKey = this.privKey.pub
+    this.pubKey = this.privKey.pubKey
   } else {
     this.pubKey = new ECPubKey(K, true)
   }

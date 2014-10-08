@@ -13,13 +13,13 @@ describe('ECKey', function() {
     it('defaults to compressed', function() {
       var privKey = new ECKey(BigInteger.ONE)
 
-      assert.equal(privKey.pub.compressed, true)
+      assert.equal(privKey.pubKey.compressed, true)
     })
 
     it('supports the uncompressed flag', function() {
       var privKey = new ECKey(BigInteger.ONE, false)
 
-      assert.equal(privKey.pub.compressed, false)
+      assert.equal(privKey.pubKey.compressed, false)
     })
 
     fixtures.valid.forEach(function(f) {
@@ -27,7 +27,7 @@ describe('ECKey', function() {
         var d = new BigInteger(f.d)
         var privKey = new ECKey(d)
 
-        assert.equal(privKey.pub.Q.toString(), f.Q)
+        assert.equal(privKey.pubKey.Q.toString(), f.Q)
       })
     })
 
@@ -49,7 +49,7 @@ describe('ECKey', function() {
           var privKey = ECKey.fromWIF(wif.string)
 
           assert.equal(privKey.d.toString(), f.d)
-          assert.equal(privKey.pub.compressed, wif.compressed)
+          assert.equal(privKey.pubKey.compressed, wif.compressed)
         })
       })
     })
@@ -98,8 +98,8 @@ describe('ECKey', function() {
       })
 
       it('supports compression', function() {
-        assert.equal(ECKey.makeRandom(true).pub.compressed, true)
-        assert.equal(ECKey.makeRandom(false).pub.compressed, false)
+        assert.equal(ECKey.makeRandom(true).pubKey.compressed, true)
+        assert.equal(ECKey.makeRandom(false).pubKey.compressed, false)
       })
     })
 
@@ -119,13 +119,13 @@ describe('ECKey', function() {
     var signature = priv.sign(hash)
 
     it('should verify against the public key', function() {
-      assert(priv.pub.verify(hash, signature))
+      assert(priv.pubKey.verify(hash, signature))
     })
 
     it('should not verify against the wrong public key', function() {
       var priv2 = ECKey.makeRandom()
 
-      assert(!priv2.pub.verify(hash, signature))
+      assert(!priv2.pubKey.verify(hash, signature))
     })
   })
 })

@@ -26,9 +26,9 @@ function sign(privKey, message, network) {
   var hash = magicHash(message, network)
   var signature = privKey.sign(hash)
   var e = BigInteger.fromBuffer(hash)
-  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, signature, privKey.pub.Q)
+  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, signature, privKey.pubKey.Q)
 
-  return signature.toCompact(i, privKey.pub.compressed)
+  return signature.toCompact(i, privKey.pubKey.compressed)
 }
 
 // TODO: network could be implied from address

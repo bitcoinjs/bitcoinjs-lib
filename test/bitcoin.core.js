@@ -102,7 +102,7 @@ describe('Bitcoin-core', function() {
         var privKey = ECKey.fromWIF(string)
 
         assert.equal(privKey.d.toHex(), hex)
-        assert.equal(privKey.pub.compressed, params.isCompressed)
+        assert.equal(privKey.pubKey.compressed, params.isCompressed)
       })
     })
   })

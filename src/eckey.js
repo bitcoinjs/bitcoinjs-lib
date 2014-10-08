@@ -18,7 +18,7 @@ function ECKey(d, compressed) {
   var Q = curve.G.multiply(d)
 
   this.d = d
-  this.pub = new ECPubKey(Q, compressed)
+  this.pubKey = new ECPubKey(Q, compressed)
 }
 
 // Static constructors
@@ -60,13 +60,13 @@ ECKey.makeRandom = function(compressed, rng) {
 ECKey.prototype.toWIF = function(network) {
   network = network || networks.bitcoin
 
-  var bufferLen = this.pub.compressed ? 34 : 33
+  var bufferLen = this.pubKey.compressed ? 34 : 33
   var buffer = new Buffer(bufferLen)
 
   buffer.writeUInt8(network.wif, 0)
   this.d.toBuffer(32).copy(buffer, 1)
 
-  if (this.pub.compressed) {
+  if (this.pubKey.compressed) {
     buffer.writeUInt8(0x01, 33)
   }
 

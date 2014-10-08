@@ -1,7 +1,6 @@
 var assert = require('assert')
 var scripts = require('../src/scripts')
 
-var Address = require('../src/address')
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
 var RawTransaction = require('../src/raw_transaction')
@@ -28,7 +27,7 @@ describe('Transaction', function() {
     prevTxId = prevTx.getId()
 
     privKey = new ECKey(BigInteger.ONE, false)
-    privAddress = privKey.pub.getAddress()
+    privAddress = privKey.pubKey.getAddress()
     privAddressBs58 = privAddress.toString()
     privScript = privAddress.toOutputScript()
     value = 10000
