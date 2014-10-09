@@ -75,7 +75,7 @@
   "dependencies": {
     "bigi": "^1.1.0",
     "bs58check": "1.0.3",
-    "crypto-browserify": "3.2.4",
+    "crypto-browserify": "^3.2.6",
     "ecurve": "1.0.0"
   }
 }
