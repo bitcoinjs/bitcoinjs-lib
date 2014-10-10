@@ -3,7 +3,6 @@ var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var networks = require('./networks')
 
-var Address = require('./address')
 var BigInteger = require('bigi')
 var ECPubKey = require('./ecpubkey')
 var ECSignature = require('./ecsignature')
@@ -38,10 +37,6 @@ function verify(address, signature, message, network) {
     signature = new Buffer(signature, 'base64')
   }
 
-  if (address instanceof Address) {
-    address = address.toString()
-  }
-
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
@@ -50,7 +45,7 @@ function verify(address, signature, message, network) {
   var Q = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
 
   var pubKey = new ECPubKey(Q, parsed.compressed)
-  return pubKey.getAddress(network).toString() === address
+  return pubKey.getAddress(network).toString() === address.toString()
 }
 
 module.exports = {
