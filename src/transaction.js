@@ -2,7 +2,7 @@ var assert = require('assert')
 var scripts = require('./scripts')
 
 var Address = require('./address')
-var ECPubKey = require('./ecpubkey')
+var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var RawTransaction = require('./raw_transaction')
 var Script = require('./script')
@@ -58,7 +58,10 @@ Transaction.fromRawTransaction = function(transaction) {
     switch (scriptType) {
       case 'pubkeyhash':
         var parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
-        var pubKey = ECPubKey.fromBuffer(scriptSig.chunks[1])
+        var pubKey = scriptSig.chunks[1]
+
+        // validate
+        ECPair.fromPublicKey(scriptSig.chunks[1])
 
         hashType = parsed.hashType
         pubKeys = [pubKey]
@@ -223,7 +226,7 @@ Transaction.prototype.__build = function(allowIncomplete) {
   return tx
 }
 
-Transaction.prototype.sign = function(index, privKey, redeemScript, hashType) {
+Transaction.prototype.sign = function(index, keyPair, redeemScript, hashType) {
   assert(this.tx.ins.length >= index, 'No input at index: ' + index)
   hashType = hashType || RawTransaction.SIGHASH_ALL
 
@@ -245,7 +248,7 @@ Transaction.prototype.sign = function(index, privKey, redeemScript, hashType) {
     hash = this.tx.hashForSignature(index, redeemScript, hashType)
 
   } else {
-    prevOutScript = prevOutScript || privKey.pubKey.getAddress().toOutputScript()
+    prevOutScript = prevOutScript || keyPair.getAddress().toOutputScript()
     prevOutType = prevOutType || 'pubkeyhash'
 
     assert.notEqual(prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
@@ -274,8 +277,8 @@ Transaction.prototype.sign = function(index, privKey, redeemScript, hashType) {
   assert.equal(input.hashType, hashType, 'Inconsistent hashType')
   assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
 
-  var signature = privKey.sign(hash)
-  input.pubKeys.push(privKey.pubKey)
+  var signature = keyPair.sign(hash)
+  input.pubKeys.push(keyPair.getPublicKey())
   input.signatures.push(signature)
 }
 
