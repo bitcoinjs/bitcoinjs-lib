@@ -1,12 +1,10 @@
-/// Implements Bitcoin's feature for signing arbitrary messages.
-var Address = require('./address')
-var BigInteger = require('bigi')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var networks = require('./networks')
 
 var Address = require('./address')
+var BigInteger = require('bigi')
 var ECPubKey = require('./ecpubkey')
 var ECSignature = require('./ecsignature')
 
