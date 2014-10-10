@@ -6,7 +6,7 @@ var base58check = require('bs58check')
 var Bitcoin = require('../')
 var Address = Bitcoin.Address
 var networks = Bitcoin.networks
-var ECKey = Bitcoin.ECKey
+var ECPair = Bitcoin.ECPair
 var ECSignature = Bitcoin.ECSignature
 var RawTransaction = Bitcoin.RawTransaction
 var Script = Bitcoin.Script
@@ -90,7 +90,7 @@ describe('Bitcoin-core', function() {
   })
 
   // base58_keys_valid
-  describe('ECKey', function() {
+  describe('ECPair', function() {
     base58_keys_valid.forEach(function(f) {
       var string = f[0]
       var hex = f[1]
@@ -101,16 +101,16 @@ describe('Bitcoin-core', function() {
       if (params.isTestnet) network = networks.testnet
 
       it('imports ' + string + ' correctly', function() {
-        var privKey = ECKey.fromWIF(string)
+        var keyPair = ECPair.fromWIF(string)
 
-        assert.equal(privKey.d.toHex(), hex)
-        assert.equal(privKey.pub.compressed, params.isCompressed)
+        assert.equal(keyPair.d.toHex(), hex)
+        assert.equal(keyPair.compressed, params.isCompressed)
       })
     })
   })
 
   // base58_keys_invalid
-  describe('ECKey', function() {
+  describe('ECPair', function() {
     var allowedNetworks = [
       networks.bitcoin.wif,
       networks.testnet.wif
@@ -121,7 +121,7 @@ describe('Bitcoin-core', function() {
 
       it('throws on ' + string, function() {
         assert.throws(function() {
-          ECKey.fromWIF(string)
+          ECPair.fromWIF(string)
           var version = base58check.decode(string).readUInt8(0)
 
           assert.notEqual(allowedNetworks.indexOf(version), -1, 'Invalid network')
