@@ -28,6 +28,8 @@ function ECPair(d, Q, options) {
   if (options.compressed === undefined) options.compressed = true
   if (options.network === undefined) options.network = networks.bitcoin
 
+  enforceType('Boolean', options.compressed)
+
   if (d) {
     assert(d.signum() > 0, 'Private key must be greater than 0')
     assert(d.compareTo(curve.n) < 0, 'Private key must be less than the curve order')
@@ -35,7 +37,6 @@ function ECPair(d, Q, options) {
 
   if (Q) {
     enforceType(ecurve.Point, Q)
-    enforceType('Boolean', options.compressed)
 
   } else {
     Q = curve.G.multiply(d)

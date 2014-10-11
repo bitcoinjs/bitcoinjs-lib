@@ -25,7 +25,22 @@ describe('ECPair', function() {
       assert.equal(keyPair.compressed, false)
     })
 
-    // TODO: add test to check network param
+    it('supports the network option', function() {
+      var keyPair = new ECPair(BigInteger.ONE, null, {
+        compressed: false,
+        network: networks.testnet
+      })
+
+      assert.equal(keyPair.network, networks.testnet)
+    })
+
+    it('throws if compressed option is not a bool', function() {
+      assert.throws(function() {
+        new ECPair(null, null, {
+          compressed: 2
+        }, /Expected Boolean, got 2/)
+      })
+    })
 
     fixtures.valid.forEach(function(f) {
       it('calculates the public point for ' + f.WIF, function() {
