@@ -6,7 +6,7 @@ var scripts = bitcoin.scripts
 
 var Address = bitcoin.Address
 var ECKey = bitcoin.ECKey
-var TransactionBuilder = bitcoin.TransactionBuilder
+var Transaction = bitcoin.Transaction
 
 var helloblock = require('helloblock-js')({
   network: 'testnet'
@@ -26,7 +26,7 @@ describe('Bitcoin-js', function() {
     var coldAmount = 2e4
     var outputAmount = 1e4
 
-    var pubKeys = privKeys.map(function(eck) { return eck.pub })
+    var pubKeys = privKeys.map(function(eck) { return eck.pubKey })
     var redeemScript = scripts.multisigOutput(2, pubKeys)
     var scriptPubKey = scripts.scriptHashOutput(redeemScript.getHash())
 
@@ -38,7 +38,7 @@ describe('Bitcoin-js', function() {
     })
 
     // make a random private key
-    var targetAddress = ECKey.makeRandom().pub.getAddress(networks.testnet).toString()
+    var targetAddress = ECKey.makeRandom().pubKey.getAddress(networks.testnet).toString()
 
     // get latest unspents from the multisigAddress
     helloblock.addresses.getUnspents(multisigAddress, function(err, res, unspents) {
@@ -48,7 +48,7 @@ describe('Bitcoin-js', function() {
       var unspent = unspents[unspents.length - 1]
       var spendAmount = Math.min(unspent.value, outputAmount)
 
-      var txb = new TransactionBuilder()
+      var txb = new Transaction()
       txb.addInput(unspent.txHash, unspent.index)
       txb.addOutput(targetAddress, spendAmount)
 
@@ -57,7 +57,7 @@ describe('Bitcoin-js', function() {
       })
 
       // broadcast our transaction
-      helloblock.transactions.propagate(txb.build().toHex(), function(err, res) {
+      helloblock.transactions.propagate(txb.build().toHex(), function(err) {
         // no err means that the transaction has been successfully propagated
         if (err) return done(err)
 
