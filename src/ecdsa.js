@@ -76,14 +76,6 @@ function sign(curve, hash, d) {
   return new ECSignature(r, s)
 }
 
-function verify(curve, hash, signature, Q) {
-  // 1.4.2 H = Hash(M), already done by the user
-  // 1.4.3 e = H
-  var e = BigInteger.fromBuffer(hash)
-
-  return verifyRaw(curve, e, signature, Q)
-}
-
 function verifyRaw(curve, e, signature, Q) {
   var n = curve.n
   var G = curve.G
@@ -112,6 +104,14 @@ function verifyRaw(curve, e, signature, Q) {
 
   // 1.4.8 If v = r, output "valid", and if v != r, output "invalid"
   return v.equals(r)
+}
+
+function verify(curve, hash, signature, Q) {
+  // 1.4.2 H = Hash(M), already done by the user
+  // 1.4.3 e = H
+  var e = BigInteger.fromBuffer(hash)
+
+  return verifyRaw(curve, e, signature, Q)
 }
 
 /**

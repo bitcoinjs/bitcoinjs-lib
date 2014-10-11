@@ -148,7 +148,7 @@
       {
         "description": "The wrong signature",
         "d": "01",
-        "e": "06ef2b193b83b3d701f765f1db34672ab84897e1252343cc2197829af3a30456",
+        "message": "foo",
         "signature": {
           "r": "38341707918488238920692284707283974715538935465589664377561695343399725051885",
           "s": "3180566392414476763164587487324397066658063772201694230600609996154610926757"
@@ -157,7 +157,7 @@
       {
         "description": "Invalid r value (< 0)",
         "d": "01",
-        "e": "01",
+        "message": "foo",
         "signature": {
           "r": "-01",
           "s": "02"
@@ -166,7 +166,7 @@
       {
         "description": "Invalid r value (== 0)",
         "d": "01",
-        "e": "01",
+        "message": "foo",
         "signature": {
           "r": "00",
           "s": "02"
@@ -175,7 +175,7 @@
       {
         "description": "Invalid r value (>= n)",
         "d": "01",
-        "e": "01",
+        "message": "foo",
         "signature": {
           "r": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
           "s": "02"
@@ -184,7 +184,7 @@
       {
         "description": "Invalid s value (< 0)",
         "d": "01",
-        "e": "01",
+        "message": "foo",
         "signature": {
           "r": "02",
           "s": "-01"
@@ -193,7 +193,7 @@
       {
         "description": "Invalid s value (== 0)",
         "d": "01",
-        "e": "01",
+        "message": "foo",
         "signature": {
           "r": "02",
           "s": "00"
@@ -202,7 +202,7 @@
       {
         "description": "Invalid s value (>= n)",
         "d": "01",
-        "e": "01",
+        "message": "foo",
         "signature": {
           "r": "02",
           "s": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
@@ -211,7 +211,7 @@
       {
         "description": "Invalid r, s values (r = s = -n)",
         "d": "01",
-        "e": "01",
+        "message": "foo",
         "signature": {
           "r": "-115792089237316195423570985008687907852837564279074904382605163141518161494337",
           "s": "-115792089237316195423570985008687907852837564279074904382605163141518161494337"
