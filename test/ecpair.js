@@ -67,12 +67,11 @@ describe('ECPair', function() {
   describe('fromWIF', function() {
     fixtures.valid.forEach(function(f) {
       it('imports ' + f.WIF + ' correctly', function() {
-        var network = networks[f.network]
-        var keyPair = ECPair.fromWIF(f.WIF, network)
+        var keyPair = ECPair.fromWIF(f.WIF)
 
         assert.equal(keyPair.d.toString(), f.d)
         assert.equal(keyPair.compressed, f.compressed)
-        assert.equal(keyPair.network, network)
+        assert.equal(keyPair.network, networks[f.network])
       })
     })
 
@@ -88,8 +87,7 @@ describe('ECPair', function() {
   describe('toWIF', function() {
     fixtures.valid.forEach(function(f) {
       it('exports ' + f.WIF + ' correctly', function() {
-        var network = networks[f.network]
-        var keyPair = ECPair.fromWIF(f.WIF, network)
+        var keyPair = ECPair.fromWIF(f.WIF)
         var result = keyPair.toWIF()
 
         assert.equal(result, f.WIF)
@@ -140,8 +138,7 @@ describe('ECPair', function() {
   describe('getAddress', function() {
     fixtures.valid.forEach(function(f) {
       it('returns ' + f.address + ' for ' + f.WIF, function() {
-        var network = networks[f.network]
-        var keyPair = ECPair.fromWIF(f.WIF, network)
+        var keyPair = ECPair.fromWIF(f.WIF)
 
         assert.equal(keyPair.getAddress().toString(), f.address)
       })

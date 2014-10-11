@@ -110,8 +110,8 @@ describe('Bitcoin-core', function() {
   // base58_keys_invalid
   describe('ECPair', function() {
     var allowedNetworks = [
-      networks.bitcoin.wif,
-      networks.testnet.wif
+      networks.bitcoin,
+      networks.testnet
     ]
 
     base58_keys_invalid.forEach(function(f) {
@@ -119,11 +119,10 @@ describe('Bitcoin-core', function() {
 
       it('throws on ' + string, function() {
         assert.throws(function() {
-          ECPair.fromWIF(string)
-          var version = base58check.decode(string).version
+          var keyPair = ECPair.fromWIF(string)
 
-          assert.notEqual(allowedNetworks.indexOf(version), -1, 'Invalid network')
-        }, /Invalid (checksum|compression flag|network|WIF payload)/)
+          assert(allowedNetworks.indexOf(keyPair.network) > -1, 'Invalid network')
+        }, /(Invalid|Unknown) (checksum|compression flag|network|WIF payload)/)
       })
     })
   })

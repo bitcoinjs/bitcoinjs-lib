@@ -20,7 +20,7 @@ describe('Bitcoin-js', function() {
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT'
     ].map(function(wif) {
-      return ECPair.fromWIF(wif, networks.testnet)
+      return ECPair.fromWIF(wif)
     })
 
     var coldAmount = 2e4
@@ -60,8 +60,6 @@ describe('Bitcoin-js', function() {
       helloblock.transactions.propagate(txb.build().toHex(), function(err) {
         // no err means that the transaction has been successfully propagated
         if (err) return done(err)
-
-        console.log('addrs', targetAddress, multisigAddress)
 
         // Check that the funds (spendAmount Satoshis) indeed arrived at the intended address
         helloblock.addresses.get(targetAddress, function(err, res, addrInfo) {
