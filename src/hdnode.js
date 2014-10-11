@@ -11,17 +11,14 @@ var ECPair = require('./ecpair')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
-function findBIP32ParamsByVersion(version) {
+function findNetworkByBIP32Version(version) {
   for (var name in networks) {
     var network = networks[name]
 
     for (var type in network.bip32) {
-      if (version != network.bip32[type]) continue
+      if (version !== network.bip32[type]) continue
 
-      return {
-        isPrivate: (type === 'private'),
-        network: network
-      }
+      return network
     }
   }
 
@@ -76,7 +73,7 @@ HDNode.fromBase58 = function(string) {
 
   // 4 byte: version bytes
   var version = buffer.readUInt32BE(0)
-  var params = findBIP32ParamsByVersion(version)
+  var network = findNetworkByBIP32Version(version)
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer.readUInt8(4)
@@ -97,14 +94,12 @@ HDNode.fromBase58 = function(string) {
   var data, keyPair
 
   // 33 bytes: private key data (0x00 + k)
-  if (params.isPrivate) {
+  if (version === network.bip32.private) {
     assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
     data = buffer.slice(46, 78)
     var d = BigInteger.fromBuffer(data)
 
-    keyPair = new ECPair(d, null, {
-      network: params.network
-    })
+    keyPair = new ECPair(d, null, { network: network })
 
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
@@ -116,9 +111,7 @@ HDNode.fromBase58 = function(string) {
     // If not, the extended public key is invalid.
     curve.validate(Q)
 
-    keyPair = new ECPair(null, Q, {
-      network: params.network
-    })
+    keyPair = new ECPair(null, Q, { network: network })
   }
 
   var hd = new HDNode(keyPair, chainCode)

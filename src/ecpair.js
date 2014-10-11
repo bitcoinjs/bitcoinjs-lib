@@ -12,6 +12,16 @@ var BigInteger = require('bigi')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
+function findNetworkByWIFVersion(version) {
+  for (var networkName in networks) {
+    var network = networks[networkName]
+
+    if (network.wif === version) return network
+  }
+
+  assert(false, 'Unknown network')
+}
+
 function ECPair(d, Q, options) {
   options = options || {}
 
@@ -50,24 +60,29 @@ ECPair.fromPublicKey = function(buffer, network) {
   })
 }
 
-ECPair.fromWIF = function(string, network) {
+ECPair.fromWIF = function(string) {
   var payload = base58check.decode(string)
-  var compressed = false
+  var version = payload.readUInt8(0)
+  var compressed
 
-  // Ignore the version byte // FIXME: determine network from version byte
-  payload = payload.slice(1)
+  if (payload.length === 34) {
+    assert.strictEqual(payload[33], 0x01, 'Invalid compression flag')
 
-  if (payload.length === 33) {
-    assert.strictEqual(payload[32], 0x01, 'Invalid compression flag')
-
-    // Truncate the compression flag
-    payload = payload.slice(0, -1)
+    // Truncate the version/compression bytes
+    payload = payload.slice(1, -1)
     compressed = true
+
+  } else {
+    assert.equal(payload.length, 33, 'Invalid WIF payload length')
+
+    // Truncate the version byte
+    payload = payload.slice(1)
+    compressed = false
   }
 
-  assert.equal(payload.length, 32, 'Invalid WIF payload length')
-
+  var network = findNetworkByWIFVersion(version)
   var d = BigInteger.fromBuffer(payload)
+
   return new ECPair(d, null, {
     compressed: compressed,
     network: network
