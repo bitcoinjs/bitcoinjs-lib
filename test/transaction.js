@@ -1,6 +1,7 @@
 var assert = require('assert')
 var scripts = require('../src/scripts')
 
+var Address = require('../src/address')
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
 var RawTransaction = require('../src/raw_transaction')
@@ -10,7 +11,7 @@ var Transaction = require('../src/transaction')
 var fixtures = require('./fixtures/transaction')
 
 describe('Transaction', function() {
-  var privAddress, privAddressBs58, privScript
+  var privAddress, privScript
   var prevTx, prevTxHash, prevTxId
   var keyPair
   var txb
@@ -28,8 +29,7 @@ describe('Transaction', function() {
 
     keyPair = new ECPair(BigInteger.ONE, null, { compressed: false })
     privAddress = keyPair.getAddress()
-    privAddressBs58 = privAddress.toString()
-    privScript = privAddress.toOutputScript()
+    privScript = Address.toOutputScript(privAddress)
     value = 10000
   })
 
@@ -90,15 +90,6 @@ describe('Transaction', function() {
 
   describe('addOutput', function() {
     it('accepts an address string and value', function() {
-      var vout = txb.addOutput(privAddressBs58, 1000)
-      assert.equal(vout, 0)
-
-      var txout = txb.tx.outs[0]
-      assert.deepEqual(txout.script, privScript)
-      assert.equal(txout.value, 1000)
-    })
-
-    it('accepts an Address object and value', function() {
       var vout = txb.addOutput(privAddress, 1000)
       assert.equal(vout, 0)
 

@@ -7,7 +7,6 @@ var ecurve = require('ecurve')
 var enforceType = require('./types')
 var networks = require('./networks')
 
-var Address = require('./address')
 var BigInteger = require('bigi')
 
 function findNetworkByWIFVersion(version) {
@@ -122,8 +121,14 @@ ECPair.prototype.toWIF = function() {
 
 ECPair.prototype.getAddress = function() {
   var pubKey = this.getEncodedPoint()
+  var hash = bcrypto.hash160(pubKey)
+  var version = this.network.pubKeyHash
 
-  return new Address(bcrypto.hash160(pubKey), this.network.pubKeyHash)
+  var payload = new Buffer(21)
+  payload.writeUInt8(version, 0)
+  hash.copy(payload, 1)
+
+  return base58check.encode(payload)
 }
 
 ECPair.prototype.getEncodedPoint = function() {
