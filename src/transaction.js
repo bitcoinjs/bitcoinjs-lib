@@ -150,14 +150,9 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
     return (signature.hashType & 0x1f) === RawTransaction.SIGHASH_SINGLE
   }), 'No, this would invalidate signatures')
 
-  // Attempt to get a valid address if it's a base58 address string
+  // Attempt to get a valid script if it's a base58 address
   if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.fromBase58Check(scriptPubKey)
-  }
-
-  // Attempt to get a valid script if it's an Address object
-  if (scriptPubKey instanceof Address) {
-    scriptPubKey = scriptPubKey.toOutputScript()
+    scriptPubKey = Address.toOutputScript(scriptPubKey)
   }
 
   return this.tx.addOutput(scriptPubKey, value)
@@ -246,7 +241,7 @@ Transaction.prototype.sign = function(index, keyPair, redeemScript, hashType) {
     hash = this.tx.hashForSignature(index, redeemScript, hashType)
 
   } else {
-    prevOutScript = prevOutScript || keyPair.getAddress().toOutputScript()
+    prevOutScript = prevOutScript || Address.toOutputScript(keyPair.getAddress())
     prevOutType = prevOutType || 'pubkeyhash'
 
     assert.notEqual(prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')

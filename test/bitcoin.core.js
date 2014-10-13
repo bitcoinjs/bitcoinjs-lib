@@ -1,9 +1,9 @@
 var assert = require('assert')
 
 var base58 = require('bs58')
+var base58check = require('bs58check')
 
 var Bitcoin = require('../')
-var Address = Bitcoin.Address
 var networks = Bitcoin.networks
 var ECPair = Bitcoin.ECPair
 var ECSignature = Bitcoin.ECSignature
@@ -42,32 +42,25 @@ describe('Bitcoin-core', function() {
   })
 
   // base58_keys_valid
-  describe('Address', function() {
+  describe('bs58check', function() {
     base58_keys_valid.forEach(function(f) {
       var string = f[0]
       var hex = f[1]
       var params = f[2]
-      var network = networks.bitcoin
 
       if (params.isPrivkey) return
-      if (params.isTestnet) network = networks.testnet
 
-      it('can import ' + string, function() {
-        var address = Address.fromBase58Check(string)
+      it('can decode ' + string, function() {
+        var payload = base58check.decode(string)
+        var hash = payload.slice(1)
 
-        assert.equal(address.hash.toString('hex'), hex)
-        if (params.addrType === 'pubkey') {
-          assert.equal(address.version, network.pubKeyHash)
-
-        } else if (params.addrType === 'script') {
-          assert.equal(address.version, network.scriptHash)
-        }
+        assert.equal(hash.toString('hex'), hex)
       })
     })
   })
 
   // base58_keys_invalid
-  describe('Address', function() {
+  describe('bs58check', function() {
     var allowedNetworks = [
       networks.bitcoin.pubkeyhash,
       networks.bitcoin.scripthash,
@@ -80,9 +73,12 @@ describe('Bitcoin-core', function() {
 
       it('throws on ' + string, function() {
         assert.throws(function() {
-          var address = Address.fromBase58Check(string)
+          var payload = base58check.decode(string)
+          var version = payload[0]
+          var hash = payload.slice(1)
 
-          assert.notEqual(allowedNetworks.indexOf(address.version), -1, 'Invalid network')
+          assert.equal(hash.length, 20, 'Invalid hash length')
+          assert.notEqual(allowedNetworks.indexOf(version), -1, 'Invalid network')
         }, /Invalid (checksum|hash length|network)/)
       })
     })

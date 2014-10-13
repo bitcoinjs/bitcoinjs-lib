@@ -1,4 +1,5 @@
 var assert = require('assert')
+var bs58check = require('bs58check')
 var scripts = require('../src/scripts')
 
 var Address = require('../src/address')
@@ -98,7 +99,8 @@ describe('Scripts', function() {
 
       describe('output script', function() {
         it('is generated correctly for ' + address, function() {
-          var scriptPubKey = scripts.pubKeyHashOutput(address.hash)
+          var hash = bs58check.decode(address).slice(1)
+          var scriptPubKey = scripts.pubKeyHashOutput(hash)
           assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
         })
       })
