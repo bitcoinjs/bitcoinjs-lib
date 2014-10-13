@@ -3,14 +3,12 @@ var base58check = require('bs58check')
 var bcrypto = require('./crypto')
 var crypto = require('crypto')
 var ecdsa = require('./ecdsa')
+var ecurve = require('ecurve')
 var enforceType = require('./types')
 var networks = require('./networks')
 
 var Address = require('./address')
 var BigInteger = require('bigi')
-
-var ecurve = require('ecurve')
-var curve = ecurve.getCurveByName('secp256k1')
 
 function findNetworkByWIFVersion(version) {
   for (var networkName in networks) {
@@ -32,14 +30,14 @@ function ECPair(d, Q, options) {
 
   if (d) {
     assert(d.signum() > 0, 'Private key must be greater than 0')
-    assert(d.compareTo(curve.n) < 0, 'Private key must be less than the curve order')
+    assert(d.compareTo(ECPair.curve.n) < 0, 'Private key must be less than the curve order')
   }
 
   if (Q) {
     enforceType(ecurve.Point, Q)
 
   } else {
-    Q = curve.G.multiply(d)
+    Q = ECPair.curve.G.multiply(d)
   }
 
   this.compressed = options.compressed
@@ -49,11 +47,11 @@ function ECPair(d, Q, options) {
 }
 
 // Public access to secp256k1 curve
-ECPair.curve = curve
+ECPair.curve = ecurve.getCurveByName('secp256k1')
 
 // Static constructors
 ECPair.fromPublicKey = function(buffer, network) {
-  var Q = ecurve.Point.decodeFrom(curve, buffer)
+  var Q = ecurve.Point.decodeFrom(ECPair.curve, buffer)
 
   return new ECPair(null, Q, {
     compressed: Q.compressed,
@@ -98,7 +96,7 @@ ECPair.makeRandom = function(options, rng) {
   assert.equal(buffer.length, 32, 'Expected 256-bit Buffer from RNG')
 
   var d = BigInteger.fromBuffer(buffer)
-  d = d.mod(curve.n)
+  d = d.mod(ECPair.curve.n)
 
   return new ECPair(d, null, options)
 }
@@ -134,11 +132,11 @@ ECPair.prototype.getPublicKey = function() {
 ECPair.prototype.sign = function(hash) {
   assert(this.d, 'Missing private key')
 
-  return ecdsa.sign(curve, hash, this.d)
+  return ecdsa.sign(ECPair.curve, hash, this.d)
 }
 
 ECPair.prototype.verify = function(hash, signature) {
-  return ecdsa.verify(curve, hash, signature, this.Q)
+  return ecdsa.verify(ECPair.curve, hash, signature, this.Q)
 }
 
 module.exports = ECPair

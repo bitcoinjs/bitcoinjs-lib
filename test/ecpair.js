@@ -1,6 +1,7 @@
 var assert = require('assert')
 var crypto = require('crypto')
 var ecdsa = require('../src/ecdsa')
+var ecurve = require('ecurve')
 var networks = require('../src/networks')
 var sinon = require('sinon')
 
@@ -166,6 +167,21 @@ describe('ECPair', function() {
     beforeEach(function() {
       keyPair = ECPair.makeRandom()
       hash = new Buffer(32)
+    })
+
+    it('uses the secp256k1 curve by default', function() {
+      var secp256k1 = ecurve.getCurveByName('secp256k1')
+
+      for (var property in secp256k1) {
+        // FIXME: circular structures in ecurve
+        if (property === 'G') continue
+        if (property === 'infinity') continue
+
+        var actual = ECPair.curve[property]
+        var expected = secp256k1[property]
+
+        assert.deepEqual(actual, expected)
+      }
     })
 
     describe('signing', function() {
