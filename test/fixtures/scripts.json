@@ -95,6 +95,10 @@
       {
         "description": "multisig output : non-canonical pubKey (bad length)",
         "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffff OP_1 OP_CHECKMULTISIG"
+      },
+      {
+        "description": "pubKeyHash input : extraneous data",
+        "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 ffffffff"
       }
     ],
     "multisig": [
