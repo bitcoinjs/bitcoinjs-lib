@@ -8,40 +8,6 @@ var curve = ecurve.getCurveByName('secp256k1')
 var ECSignature = require('./ecsignature')
 var Script = require('./script')
 
-function classifyOutput(script) {
-  enforceType(Script, script)
-
-  if (isPubKeyHashOutput.call(script)) {
-    return 'pubkeyhash'
-  } else if (isScriptHashOutput.call(script)) {
-    return 'scripthash'
-  } else if (isMultisigOutput.call(script)) {
-    return 'multisig'
-  } else if (isPubKeyOutput.call(script)) {
-    return 'pubkey'
-  } else if (isNulldataOutput.call(script)) {
-    return 'nulldata'
-  } else {
-    return 'nonstandard'
-  }
-}
-
-function classifyInput(script) {
-  enforceType(Script, script)
-
-  if (isPubKeyHashInput.call(script)) {
-    return 'pubkeyhash'
-  } else if (isScriptHashInput.call(script)) {
-    return 'scripthash'
-  } else if (isMultisigInput.call(script)) {
-    return 'multisig'
-  } else if (isPubKeyInput.call(script)) {
-    return 'pubkey'
-  } else {
-    return 'nonstandard'
-  }
-}
-
 function isCanonicalPubKey(buffer) {
   if (!Buffer.isBuffer(buffer)) return false
 
@@ -148,6 +114,40 @@ function isMultisigOutput() {
 
 function isNulldataOutput() {
   return this.chunks[0] === ops.OP_RETURN
+}
+
+function classifyOutput(script) {
+  enforceType(Script, script)
+
+  if (isPubKeyHashOutput.call(script)) {
+    return 'pubkeyhash'
+  } else if (isScriptHashOutput.call(script)) {
+    return 'scripthash'
+  } else if (isMultisigOutput.call(script)) {
+    return 'multisig'
+  } else if (isPubKeyOutput.call(script)) {
+    return 'pubkey'
+  } else if (isNulldataOutput.call(script)) {
+    return 'nulldata'
+  } else {
+    return 'nonstandard'
+  }
+}
+
+function classifyInput(script) {
+  enforceType(Script, script)
+
+  if (isPubKeyHashInput.call(script)) {
+    return 'pubkeyhash'
+  } else if (isScriptHashInput.call(script)) {
+    return 'scripthash'
+  } else if (isMultisigInput.call(script)) {
+    return 'multisig'
+  } else if (isPubKeyInput.call(script)) {
+    return 'pubkey'
+  } else {
+    return 'nonstandard'
+  }
 }
 
 // Standard Script Templates
