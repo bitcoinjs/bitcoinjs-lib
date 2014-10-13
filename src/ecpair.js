@@ -88,9 +88,10 @@ ECPair.fromWIF = function(string) {
   })
 }
 
-ECPair.makeRandom = function(options, rng) {
-  rng = rng || crypto.randomBytes
+ECPair.makeRandom = function(options) {
+  options = options || {}
 
+  var rng = options.rng || crypto.randomBytes
   var buffer = rng(32)
   enforceType('Buffer', buffer)
   assert.equal(buffer.length, 32, 'Expected 256-bit Buffer from RNG')

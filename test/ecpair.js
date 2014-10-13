@@ -142,11 +142,12 @@ describe('ECPair', function() {
     })
 
     it('allows a custom RNG to be used', function() {
-      function rng(size) {
-        return exBuffer.slice(0, size)
-      }
+      var keyPair = ECPair.makeRandom({
+        rng: function(size) {
+          return exBuffer.slice(0, size)
+        }
+      })
 
-      var keyPair = ECPair.makeRandom(undefined, rng)
       assert.equal(keyPair.toWIF(), exWIF)
     })
   })
