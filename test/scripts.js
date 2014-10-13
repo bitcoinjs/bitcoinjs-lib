@@ -72,7 +72,7 @@ describe('Scripts', function() {
       if (f.type !== 'pubkeyhash') return
 
       var pubKey = new Buffer(f.pubKey, 'hex')
-      var address = ECPair.fromPublicKey(pubKey).getAddress()
+      var address = ECPair.fromPublicKeyBuffer(pubKey).getAddress()
 
       describe('input script', function() {
         it('is generated correctly for ' + address, function() {

@@ -26,7 +26,7 @@ describe('Bitcoin-js', function() {
     var coldAmount = 2e4
     var outputAmount = 1e4
 
-    var pubKeys = keyPairs.map(function(kp) { return kp.getPublicKey() })
+    var pubKeys = keyPairs.map(function(kp) { return kp.getPublicKeyBuffer() })
     var redeemScript = scripts.multisigOutput(2, pubKeys)
     var scriptPubKey = scripts.scriptHashOutput(redeemScript.getHash())
 

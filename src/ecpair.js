@@ -51,7 +51,7 @@ function ECPair(d, Q, options) {
 ECPair.curve = ecurve.getCurveByName('secp256k1')
 
 // Static constructors
-ECPair.fromPublicKey = function(buffer, network) {
+ECPair.fromPublicKeyBuffer = function(buffer, network) {
   var Q = ecurve.Point.decodeFrom(ECPair.curve, buffer)
 
   return new ECPair(null, Q, {
@@ -121,12 +121,12 @@ ECPair.prototype.toWIF = function() {
 }
 
 ECPair.prototype.getAddress = function() {
-  var pubKey = this.getPublicKey()
+  var pubKey = this.getPublicKeyBuffer()
 
   return new Address(bcrypto.hash160(pubKey), this.network.pubKeyHash)
 }
 
-ECPair.prototype.getPublicKey = function() {
+ECPair.prototype.getPublicKeyBuffer = function() {
   return this.Q.getEncoded(this.compressed)
 }
 
