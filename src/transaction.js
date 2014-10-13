@@ -16,7 +16,6 @@ function Transaction() {
   this.tx = new RawTransaction()
 }
 
-// Static constructors
 Transaction.fromRawTransaction = function(transaction) {
   var txb = new Transaction()
 
@@ -106,7 +105,6 @@ Transaction.fromRawTransaction = function(transaction) {
   return txb
 }
 
-// Operations
 Transaction.prototype.addInput = function(prevTx, index, sequence, prevOutScript) {
   var prevOutHash
 
