@@ -47,7 +47,6 @@ function ECPair(d, Q, options) {
   this.network = options.network
 }
 
-// Public access to secp256k1 curve
 ECPair.curve = ecurve.getCurveByName('secp256k1')
 
 // Static constructors
@@ -103,7 +102,6 @@ ECPair.makeRandom = function(options) {
   return new ECPair(d, null, options)
 }
 
-// Export functions
 ECPair.prototype.toWIF = function() {
   assert(this.d, 'Missing private key')
 
@@ -130,7 +128,6 @@ ECPair.prototype.getPublicKeyBuffer = function() {
   return this.Q.getEncoded(this.compressed)
 }
 
-// ECC Operations
 ECPair.prototype.sign = function(hash) {
   assert(this.d, 'Missing private key')
 

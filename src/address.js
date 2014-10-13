@@ -23,7 +23,6 @@ function Address(hash, version) {
   this.version = version
 }
 
-// Import functions
 Address.fromBase58Check = function(string) {
   var payload = base58check.decode(string)
   var version = payload.readUInt8(0)
@@ -43,7 +42,6 @@ Address.fromOutputScript = function(script, network) {
   assert(false, type + ' has no matching Address')
 }
 
-// Export functions
 Address.prototype.toBase58Check = function () {
   var payload = new Buffer(21)
   payload.writeUInt8(this.version, 0)
