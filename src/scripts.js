@@ -1,6 +1,6 @@
 var assert = require('assert')
 var enforceType = require('./types')
-var opcodes = require('./opcodes')
+var ops = require('./opcodes')
 
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
@@ -78,12 +78,12 @@ function isPubKeyHashInput() {
 
 function isPubKeyHashOutput() {
   return this.chunks.length === 5 &&
-    this.chunks[0] === opcodes.OP_DUP &&
-    this.chunks[1] === opcodes.OP_HASH160 &&
+    this.chunks[0] === ops.OP_DUP &&
+    this.chunks[1] === ops.OP_HASH160 &&
     Buffer.isBuffer(this.chunks[2]) &&
     this.chunks[2].length === 20 &&
-    this.chunks[3] === opcodes.OP_EQUALVERIFY &&
-    this.chunks[4] === opcodes.OP_CHECKSIG
+    this.chunks[3] === ops.OP_EQUALVERIFY &&
+    this.chunks[4] === ops.OP_CHECKSIG
 }
 
 function isPubKeyInput() {
@@ -94,7 +94,7 @@ function isPubKeyInput() {
 function isPubKeyOutput() {
   return this.chunks.length === 2 &&
     isCanonicalPubKey(this.chunks[0]) &&
-    this.chunks[1] === opcodes.OP_CHECKSIG
+    this.chunks[1] === ops.OP_CHECKSIG
 }
 
 function isScriptHashInput() {
@@ -111,33 +111,33 @@ function isScriptHashInput() {
 
 function isScriptHashOutput() {
   return this.chunks.length === 3 &&
-    this.chunks[0] === opcodes.OP_HASH160 &&
+    this.chunks[0] === ops.OP_HASH160 &&
     Buffer.isBuffer(this.chunks[1]) &&
     this.chunks[1].length === 20 &&
-    this.chunks[2] === opcodes.OP_EQUAL
+    this.chunks[2] === ops.OP_EQUAL
 }
 
 function isMultisigInput() {
-  return this.chunks[0] === opcodes.OP_0 &&
+  return this.chunks[0] === ops.OP_0 &&
     this.chunks.slice(1).every(isCanonicalSignature)
 }
 
 function isMultisigOutput() {
   if (this.chunks < 4) return false
-  if (this.chunks[this.chunks.length - 1] !== opcodes.OP_CHECKMULTISIG) return false
+  if (this.chunks[this.chunks.length - 1] !== ops.OP_CHECKMULTISIG) return false
 
   var mOp = this.chunks[0]
-  if (mOp === opcodes.OP_0) return false
-  if (mOp < opcodes.OP_1) return false
-  if (mOp > opcodes.OP_16) return false
+  if (mOp === ops.OP_0) return false
+  if (mOp < ops.OP_1) return false
+  if (mOp > ops.OP_16) return false
 
   var nOp = this.chunks[this.chunks.length - 2]
-  if (nOp === opcodes.OP_0) return false
-  if (nOp < opcodes.OP_1) return false
-  if (nOp > opcodes.OP_16) return false
+  if (nOp === ops.OP_0) return false
+  if (nOp < ops.OP_1) return false
+  if (nOp > ops.OP_16) return false
 
-  var m = mOp - (opcodes.OP_1 - 1)
-  var n = nOp - (opcodes.OP_1 - 1)
+  var m = mOp - (ops.OP_1 - 1)
+  var n = nOp - (ops.OP_1 - 1)
   if (n < m) return false
 
   var pubKeys = this.chunks.slice(1, -2)
@@ -147,7 +147,7 @@ function isMultisigOutput() {
 }
 
 function isNulldataOutput() {
-  return this.chunks[0] === opcodes.OP_RETURN
+  return this.chunks[0] === ops.OP_RETURN
 }
 
 // Standard Script Templates
@@ -155,7 +155,7 @@ function isNulldataOutput() {
 function pubKeyOutput(pubKey) {
   return Script.fromChunks([
     pubKey.toBuffer(),
-    opcodes.OP_CHECKSIG
+    ops.OP_CHECKSIG
   ])
 }
 
@@ -164,11 +164,11 @@ function pubKeyHashOutput(hash) {
   enforceType('Buffer', hash)
 
   return Script.fromChunks([
-    opcodes.OP_DUP,
-    opcodes.OP_HASH160,
+    ops.OP_DUP,
+    ops.OP_HASH160,
     hash,
-    opcodes.OP_EQUALVERIFY,
-    opcodes.OP_CHECKSIG
+    ops.OP_EQUALVERIFY,
+    ops.OP_CHECKSIG
   ])
 }
 
@@ -177,9 +177,9 @@ function scriptHashOutput(hash) {
   enforceType('Buffer', hash)
 
   return Script.fromChunks([
-    opcodes.OP_HASH160,
+    ops.OP_HASH160,
     hash,
-    opcodes.OP_EQUAL
+    ops.OP_EQUAL
   ])
 }
 
@@ -195,10 +195,10 @@ function multisigOutput(m, pubKeys) {
   var n = pubKeys.length
 
   return Script.fromChunks([].concat(
-    (opcodes.OP_1 - 1) + m,
+    (ops.OP_1 - 1) + m,
     pubKeyBuffers,
-    (opcodes.OP_1 - 1) + n,
-    opcodes.OP_CHECKMULTISIG
+    (ops.OP_1 - 1) + n,
+    ops.OP_CHECKMULTISIG
   ))
 }
 
@@ -231,14 +231,14 @@ function multisigInput(signatures, scriptPubKey) {
 
     var mOp = scriptPubKey.chunks[0]
     var nOp = scriptPubKey.chunks[scriptPubKey.chunks.length - 2]
-    var m = mOp - (opcodes.OP_1 - 1)
-    var n = nOp - (opcodes.OP_1 - 1)
+    var m = mOp - (ops.OP_1 - 1)
+    var n = nOp - (ops.OP_1 - 1)
 
     assert(signatures.length >= m, 'Not enough signatures provided')
     assert(signatures.length <= n, 'Too many signatures provided')
   }
 
-  return Script.fromChunks([].concat(opcodes.OP_0, signatures))
+  return Script.fromChunks([].concat(ops.OP_0, signatures))
 }
 
 module.exports = {
