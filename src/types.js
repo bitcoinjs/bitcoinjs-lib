@@ -26,9 +26,15 @@ module.exports = function enforce(type, value) {
     }
 
     default: {
-      if (value instanceof type) return
+      if (getName(value.constructor) === getName(type)) return
     }
   }
 
-  throw new TypeError('Expected ' + (type.name || type) + ', got ' + value)
+  throw new TypeError('Expected ' + (getName(type) || type) + ', got ' + value)
+}
+
+function getName(fn) {
+  // Why not fn.name: https://kangax.github.io/compat-table/es6/#function_name_property
+  var match = fn.toString().match(/function (.*?)\(/)
+  return match ? match[1] : null
 }
