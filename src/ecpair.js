@@ -27,6 +27,7 @@ function ECPair(d, Q, options) {
   if (options.network === undefined) options.network = networks.bitcoin
 
   enforceType('Boolean', options.compressed)
+  assert('pubKeyHash' in options.network, 'Unknown pubKeyHash constants for network')
 
   if (d) {
     assert(d.signum() > 0, 'Private key must be greater than 0')
