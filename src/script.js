@@ -12,7 +12,6 @@ function Script(buffer, chunks) {
   this.chunks = chunks
 }
 
-// Import operations
 Script.fromASM = function(asm) {
   var strChunks = asm.split(' ')
 
@@ -90,10 +89,8 @@ Script.fromHex = function(hex) {
   return Script.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-// Constants
 Script.EMPTY = Script.fromChunks([])
 
-// Operations
 Script.prototype.getHash = function() {
   return crypto.hash160(this.buffer)
 }
@@ -105,7 +102,6 @@ Script.prototype.without = function(needle) {
   }))
 }
 
-// Export operations
 var reverseOps = []
 for (var op in opcodes) {
   var code = opcodes[op]

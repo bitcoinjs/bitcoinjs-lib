@@ -11,7 +11,6 @@ function ECSignature(r, s) {
   this.s = s
 }
 
-// Import operations
 ECSignature.parseCompact = function(buffer) {
   assert.equal(buffer.length, 65, 'Invalid signature length')
   var i = buffer.readUInt8(0) - 27
@@ -82,7 +81,6 @@ ECSignature.parseScriptSignature = function(buffer) {
   }
 }
 
-// Export operations
 ECSignature.prototype.toCompact = function(i, compressed) {
   if (compressed) i += 4
   i += 27
