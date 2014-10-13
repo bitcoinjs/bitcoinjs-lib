@@ -89,7 +89,7 @@ function isMultisigInput(script) {
 }
 
 function isMultisigOutput(script) {
-  if (script.chunks < 4) return false
+  if (script.chunks.length < 4) return false
   if (script.chunks[script.chunks.length - 1] !== ops.OP_CHECKMULTISIG) return false
 
   var mOp = script.chunks[0]
