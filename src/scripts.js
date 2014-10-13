@@ -2,16 +2,6 @@ var assert = require('assert')
 var enforceType = require('./types')
 var opcodes = require('./opcodes')
 
-// FIXME: use ECPubKey, currently the circular dependency breaks everything.
-//
-// Solutions:
-//  * Remove ECPubKey.getAddress
-//    - Minimal change, but likely unpopular
-//  * Move all script related functionality out of Address
-//    - Means a lot of changes to Transaction/Wallet
-//  * Ignore it (existing solution)
-//  * Some form of hackery with commonjs
-//
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
@@ -56,7 +46,6 @@ function isCanonicalPubKey(buffer) {
   if (!Buffer.isBuffer(buffer)) return false
 
   try {
-    // FIXME: boo
     ecurve.Point.decodeFrom(curve, buffer)
   } catch (e) {
     if (!(e.message.match(/Invalid sequence (length|tag)/))) throw e
