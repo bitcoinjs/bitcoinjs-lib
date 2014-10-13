@@ -130,19 +130,20 @@ console.log("multisigP2SH:", multisigAddress)
 
 ## Projects utilizing BitcoinJS
 
-- [Coinpunk](https://coinpunk.com)
-- [Hive Wallet](https://www.hivewallet.com)
-- [Justchain Exchange](https://justcoin.com)
-- [Skyhook ATM](http://projectskyhook.com)
+
 - [BitAddress](https://www.bitaddress.org)
 - [Blockchain.info](https://blockchain.info/wallet)
 - [Brainwallet](https://brainwallet.github.io)
+- [Coinkite](https://coinkite.com)
+- [Coinpunk](https://coinpunk.com)
 - [Dark Wallet](https://darkwallet.unsystem.net)
+- [DecentralBank](http://decentralbank.co)
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
-- [DecentralBank](http://decentralbank.co)
+- [Hive Wallet](https://www.hivewallet.com)
+- [Justchain Exchange](https://justcoin.com)
 - [Quickcoin](https://wallet.quickcoin.co)
-
+- [Skyhook ATM](http://projectskyhook.com)
 
 ## Contributors
 
