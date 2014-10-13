@@ -123,7 +123,7 @@ HDNode.fromBase58 = function(string) {
 }
 
 HDNode.prototype.getIdentifier = function() {
-  return bcrypto.hash160(this.keyPair.getPublicKey())
+  return bcrypto.hash160(this.keyPair.getEncodedPoint())
 }
 
 HDNode.prototype.getFingerprint = function() {
@@ -182,7 +182,7 @@ HDNode.prototype.toBase58 = function(__isPrivate) {
   } else {
 
     // X9.62 encoding for public keys
-    this.keyPair.getPublicKey().copy(buffer, 45)
+    this.keyPair.getEncodedPoint().copy(buffer, 45)
   }
 
   return base58check.encode(buffer)
@@ -211,7 +211,7 @@ HDNode.prototype.derive = function(index) {
     // data = serP(point(kpar)) || ser32(index)
     //      = serP(Kpar) || ser32(index)
     data = Buffer.concat([
-      this.keyPair.getPublicKey(),
+      this.keyPair.getEncodedPoint(),
       indexBuffer
     ])
   }
