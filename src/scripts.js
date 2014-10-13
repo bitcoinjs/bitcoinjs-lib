@@ -129,9 +129,9 @@ function classifyOutput(script) {
     return 'pubkey'
   } else if (isNulldataOutput(script)) {
     return 'nulldata'
-  } else {
-    return 'nonstandard'
   }
+
+  return 'nonstandard'
 }
 
 function classifyInput(script) {
@@ -145,9 +145,9 @@ function classifyInput(script) {
     return 'multisig'
   } else if (isPubKeyInput(script)) {
     return 'pubkey'
-  } else {
-    return 'nonstandard'
   }
+
+  return 'nonstandard'
 }
 
 // Standard Script Templates
