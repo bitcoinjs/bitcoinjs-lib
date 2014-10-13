@@ -3,16 +3,14 @@ module.exports = {
   bufferutils: require('./bufferutils'),
   crypto: require('./crypto'),
   ecdsa: require('./ecdsa'),
-  ECKey: require('./eckey'),
-  ECPubKey: require('./ecpubkey'),
+  ECPair: require('./ecpair'),
   ECSignature: require('./ecsignature'),
-  Message: require('./message'),
-  opcodes: require('./opcodes'),
   HDNode: require('./hdnode'),
+  Message: require('./message'),
+  networks: require('./networks'),
+  opcodes: require('./opcodes'),
+  RawTransaction: require('./raw_transaction'),
   Script: require('./script'),
   scripts: require('./scripts'),
-  Transaction: require('./transaction'),
-  TransactionBuilder: require('./transaction_builder'),
-  networks: require('./networks'),
-  Wallet: require('./wallet')
+  Transaction: require('./transaction')
 }

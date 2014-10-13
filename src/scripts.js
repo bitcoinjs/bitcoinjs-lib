@@ -2,16 +2,6 @@ var assert = require('assert')
 var enforceType = require('./types')
 var opcodes = require('./opcodes')
 
-// FIXME: use ECPubKey, currently the circular dependency breaks everything.
-//
-// Solutions:
-//  * Remove ECPubKey.getAddress
-//    - Minimal change, but likely unpopular
-//  * Move all script related functionality out of Address
-//    - Means a lot of changes to Transaction/Wallet
-//  * Ignore it (existing solution)
-//  * Some form of hackery with commonjs
-//
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
@@ -56,7 +46,6 @@ function isCanonicalPubKey(buffer) {
   if (!Buffer.isBuffer(buffer)) return false
 
   try {
-    // FIXME: boo
     ecurve.Point.decodeFrom(curve, buffer)
   } catch (e) {
     if (!(e.message.match(/Invalid sequence (length|tag)/))) throw e
@@ -165,7 +154,7 @@ function isNulldataOutput() {
 // {pubKey} OP_CHECKSIG
 function pubKeyOutput(pubKey) {
   return Script.fromChunks([
-    pubKey.toBuffer(),
+    pubKey,
     opcodes.OP_CHECKSIG
   ])
 }
@@ -199,15 +188,11 @@ function multisigOutput(m, pubKeys) {
   enforceType('Array', pubKeys)
 
   assert(pubKeys.length >= m, 'Not enough pubKeys provided')
-
-  var pubKeyBuffers = pubKeys.map(function(pubKey) {
-    return pubKey.toBuffer()
-  })
   var n = pubKeys.length
 
   return Script.fromChunks([].concat(
     (opcodes.OP_1 - 1) + m,
-    pubKeyBuffers,
+    pubKeys,
     (opcodes.OP_1 - 1) + n,
     opcodes.OP_CHECKMULTISIG
   ))
@@ -223,8 +208,9 @@ function pubKeyInput(signature) {
 // {signature} {pubKey}
 function pubKeyHashInput(signature, pubKey) {
   enforceType('Buffer', signature)
+  enforceType('Buffer', pubKey)
 
-  return Script.fromChunks([signature, pubKey.toBuffer()])
+  return Script.fromChunks([signature, pubKey])
 }
 
 // <scriptSig> {serialized scriptPubKey script}
