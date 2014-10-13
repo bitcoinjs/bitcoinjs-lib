@@ -43,6 +43,14 @@ describe('ECPair', function() {
       })
     })
 
+    it('throws if network is missing pubKeyHash constants', function() {
+      assert.throws(function() {
+        new ECPair(null, null, {
+          network: {}
+        }, /Unknown pubKeyHash constants for network/)
+      })
+    })
+
     fixtures.valid.forEach(function(f) {
       it('calculates the public point for ' + f.WIF, function() {
         var d = new BigInteger(f.d)

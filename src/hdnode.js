@@ -30,7 +30,7 @@ function HDNode(keyPair, chainCode) {
   enforceType('Buffer', chainCode)
 
   assert.equal(chainCode.length, 32, 'Expected chainCode length of 32, got ' + chainCode.length)
-  assert(keyPair.network.bip32, 'Unknown BIP32 constants for network')
+  assert('bip32' in keyPair.network, 'Unknown BIP32 constants for network')
   assert.equal(keyPair.compressed, true, 'BIP32 only allows compressed keyPairs')
 
   this.keyPair = keyPair
