@@ -46,7 +46,7 @@ describe('Bitcoin-js', function() {
       var spendAmount = Math.min(unspent.value, outputAmount)
 
       // make a random key pair
-      var targetAddress = ECPair.makeRandom({ network: networks.testnet }).getAddress().toString()
+      var targetAddress = ECPair.makeRandom({ network: networks.testnet }).getAddress()
 
       var txb = new Transaction()
       txb.addInput(unspent.txHash, unspent.index)

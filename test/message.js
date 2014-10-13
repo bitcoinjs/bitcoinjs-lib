@@ -1,7 +1,6 @@
 var assert = require('assert')
 var networks = require('../src/networks')
 
-var Address = require('../src/address')
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
 var Message = require('../src/message')
@@ -25,8 +24,7 @@ describe('Message', function() {
       var f = fixtures.valid.verify[0]
       var network = networks[f.network]
 
-      var address = Address.fromBase58Check(f.address)
-      assert(Message.verify(address, f.signature, f.message, network))
+      assert(Message.verify(f.address, f.signature, f.message, network))
     })
 
     fixtures.valid.verify.forEach(function(f) {
