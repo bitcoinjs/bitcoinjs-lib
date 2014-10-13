@@ -58,7 +58,7 @@ describe('ECPair', function() {
           compressed: f.compressed
         })
 
-        assert.equal(keyPair.getPublicKey().toString('hex'), f.Q)
+        assert.equal(keyPair.getPublicKeyBuffer().toString('hex'), f.Q)
       })
     })
 
@@ -73,7 +73,7 @@ describe('ECPair', function() {
     })
   })
 
-  describe('getPublicKey', function() {
+  describe('getPublicKeyBuffer', function() {
     var keyPair
 
     beforeEach(function() {
@@ -84,7 +84,7 @@ describe('ECPair', function() {
       this.mock(keyPair.Q).expects('getEncoded')
         .once().calledWith(keyPair.compressed)
 
-      keyPair.getPublicKey()
+      keyPair.getPublicKeyBuffer()
     }))
   })
 

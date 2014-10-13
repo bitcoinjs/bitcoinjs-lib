@@ -171,7 +171,7 @@ describe('HDNode', function() {
   describe('derive', function() {
     function verifyVector(hd, v, depth) {
       assert.equal(hd.keyPair.toWIF(), v.wif)
-      assert.equal(hd.keyPair.getPublicKey().toString('hex'), v.pubKey)
+      assert.equal(hd.keyPair.getPublicKeyBuffer().toString('hex'), v.pubKey)
       assert.equal(hd.chainCode.toString('hex'), v.chainCode)
       assert.equal(hd.depth, depth || 0)
 

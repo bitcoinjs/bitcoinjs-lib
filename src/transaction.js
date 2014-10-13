@@ -61,7 +61,7 @@ Transaction.fromRawTransaction = function(transaction) {
         var pubKey = scriptSig.chunks[1]
 
         // validate
-        ECPair.fromPublicKey(scriptSig.chunks[1])
+        ECPair.fromPublicKeyBuffer(scriptSig.chunks[1])
 
         hashType = parsed.hashType
         pubKeys = [pubKey]
@@ -278,7 +278,7 @@ Transaction.prototype.sign = function(index, keyPair, redeemScript, hashType) {
   assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
 
   var signature = keyPair.sign(hash)
-  input.pubKeys.push(keyPair.getPublicKey())
+  input.pubKeys.push(keyPair.getPublicKeyBuffer())
   input.signatures.push(signature)
 }
 
