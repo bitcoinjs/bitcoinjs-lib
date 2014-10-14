@@ -142,8 +142,9 @@ console.log("multisigP2SH:", multisigAddress)
 - [GreenAddress](https://greenaddress.it)
 - [Hive Wallet](https://www.hivewallet.com)
 - [Justchain Exchange](https://justcoin.com)
-- [Quickcoin](https://wallet.quickcoin.co)
+- [QuickCoin](https://wallet.quickcoin.co)
 - [Skyhook ATM](http://projectskyhook.com)
+
 
 ## Contributors
 
