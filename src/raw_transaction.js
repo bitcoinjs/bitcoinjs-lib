@@ -19,7 +19,6 @@ RawTransaction.SIGHASH_NONE = 0x02
 RawTransaction.SIGHASH_SINGLE = 0x03
 RawTransaction.SIGHASH_ANYONECANPAY = 0x80
 
-// Static constructors
 RawTransaction.fromBuffer = function(buffer) {
   var offset = 0
   function readSlice(n) {
@@ -78,7 +77,6 @@ RawTransaction.fromHex = function(hex) {
   return RawTransaction.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-// Operations
 RawTransaction.prototype.addInput = function(hash, index, sequence) {
   if (sequence === undefined) sequence = RawTransaction.DEFAULT_SEQUENCE
 
@@ -190,7 +188,6 @@ RawTransaction.prototype.setInputScript = function(index, script) {
   this.ins[index].script = script
 }
 
-// Export functions
 RawTransaction.prototype.toBuffer = function () {
   var txInSize = this.ins.reduce(function(a, x) {
     return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
