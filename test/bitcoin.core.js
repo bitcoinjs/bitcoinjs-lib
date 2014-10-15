@@ -1,14 +1,16 @@
 var assert = require('assert')
-var base58 = require('bs58')
-var base58check = require('bs58check')
 var networks = require('../src/networks')
 
-var Address = require('../src/address')
-var BigInteger = require('bigi')
-var ECKey = require('../src/eckey')
-var ECSignature = require('../src/ecsignature')
-var Transaction = require('../src/transaction')
-var Script = require('../src/script')
+var base58 = require('bs58')
+//var base58check = require('bs58check')
+
+var Bitcoin = require('../')
+var Address = Bitcoin.Address
+var base58check = Bitcoin.base58check
+var ECKey = Bitcoin.ECKey
+var ECSignature = Bitcoin.ECSignature
+var Transaction = Bitcoin.Transaction
+var Script = Bitcoin.Script
 
 var base58_encode_decode = require("./fixtures/core/base58_encode_decode.json")
 var base58_keys_invalid = require("./fixtures/core/base58_keys_invalid.json")
@@ -120,8 +122,8 @@ describe('Bitcoin-core', function() {
 
       it('throws on ' + string, function() {
         assert.throws(function() {
-          var privKey = ECKey.fromWIF(string)
-          var version = base58check.decode(string).version
+          ECKey.fromWIF(string)
+          var version = base58check.decode(string).readUInt8(0)
 
           assert.notEqual(allowedNetworks.indexOf(version), -1, 'Invalid network')
         }, /Invalid (checksum|compression flag|network|WIF payload)/)
