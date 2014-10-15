@@ -1,11 +1,10 @@
 var assert = require('assert')
 
 var base58 = require('bs58')
-//var base58check = require('bs58check')
+var base58check = require('bs58check')
 
 var Bitcoin = require('../')
 var Address = Bitcoin.Address
-var base58check = Bitcoin.base58check
 var networks = Bitcoin.networks
 var ECKey = Bitcoin.ECKey
 var ECSignature = Bitcoin.ECSignature
