@@ -1,5 +1,4 @@
 var assert = require('assert')
-var networks = require('../src/networks')
 
 var base58 = require('bs58')
 //var base58check = require('bs58check')
@@ -7,6 +6,7 @@ var base58 = require('bs58')
 var Bitcoin = require('../')
 var Address = Bitcoin.Address
 var base58check = Bitcoin.base58check
+var networks = Bitcoin.networks
 var ECKey = Bitcoin.ECKey
 var ECSignature = Bitcoin.ECSignature
 var Transaction = Bitcoin.Transaction
@@ -191,7 +191,7 @@ describe('Bitcoin-core', function() {
           if (!e.message.match(/not yet supported/)) throw e
         }
 
-        if (actualHash != undefined) {
+        if (actualHash !== undefined) {
           // Test data is big-endian
           Array.prototype.reverse.call(actualHash)
 
