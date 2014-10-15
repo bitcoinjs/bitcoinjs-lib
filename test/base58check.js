@@ -11,15 +11,17 @@ describe('base58check', function() {
   })
 
   it('wraps bs58check.decode', sinon.test(function() {
-    this.mock(bs58check).expects('decode')
-      .once().calledWith(param).returns('foo')
+    var expectation = this.mock(bs58check).expects('decode')
+    expectation.once().calledWith(param)
+    expectation.onCall(0).returns('foo')
 
     assert.equal(base58check.decode(param), 'foo')
   }))
 
   it('wraps bs58check.encode', sinon.test(function() {
-    this.mock(bs58check).expects('encode')
-      .once().calledWith(param).returns('foo')
+    var expectation = this.mock(bs58check).expects('encode')
+    expectation.once().calledWith(param)
+    expectation.onCall(0).returns('foo')
 
     assert.equal(base58check.encode(param), 'foo')
   }))
