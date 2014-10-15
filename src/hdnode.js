@@ -167,7 +167,7 @@ HDNode.prototype.toBase58 = function(isPrivate) {
 
 // FIXME: remove in 2.x.y
 HDNode.prototype.toBuffer = function(isPrivate, __ignoreDeprecation) {
-  if (isPrivate == undefined) {
+  if (isPrivate === undefined) {
     isPrivate = !!this.privKey
 
   // FIXME: remove in 2.x.y
