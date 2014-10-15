@@ -57,7 +57,7 @@ describe('Bitcoin-js', function() {
       })
 
       // broadcast our transaction
-      helloblock.transactions.propagate(txb.build().toHex(), function(err, res) {
+      helloblock.transactions.propagate(txb.build().toHex(), function(err) {
         // no err means that the transaction has been successfully propagated
         if (err) return done(err)
 
