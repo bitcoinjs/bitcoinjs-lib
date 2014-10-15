@@ -10,30 +10,8 @@ var assert = require('assert');
 var Bitcoin = require('../../')
 var BigInteger = require('bigi');
 
-function msg_numToVarInt(i) {
-    if (i < 0xfd) {
-        return [i];
-    } else if (i <= 0xffff) {
-        // can't use numToVarInt from bitcoinjs, BitcoinQT wants big endian here (!)
-        return [0xfd, i & 255, i >>> 8];
-    } else {
-        throw ("message too large");
-    }
-}
-
 function sha256(b) {
     return Bitcoin.crypto.sha256(b);
-}
-
-
-function msg_bytes(message) {
-    var b = new Buffer(message, 'UTF8');
-    return Buffer.concat([new Buffer(msg_numToVarInt(b.length)), b]);
-}
-
-function msg_digest(message) {
-    var b = Buffer.concat([msg_bytes("Bitcoin Signed Message:\n"), msg_bytes(message)]);
-    return sha256(sha256(new Buffer(b)));
 }
 
 function bitcoinsig_test() {
@@ -46,9 +24,10 @@ function bitcoinsig_test() {
 
     // Part un - Verify pre-signed message
     var siginfo = new Bitcoin.ECSignature.parseCompact(new Buffer(s,"base64"));
-    var hash =  msg_digest(m);
+    //var hash = Bitcoin.Message.magicHash(m, Bitcoin.networks.bitcoin);
+    var hash = Bitcoin.Message.magicHash(m, {magicPrefix: '\x18Bitcoin Signed Message:\n'});
     assert.equal(hash.toString("base64"), "EiYXnd9jg/vPUQLJSSU4tyBsc5rnnrBkQIwqvWfTm+0=");
-    // hash.toString("base64") ‌9YdKhI6dqPsHun4O6UIhoLHRyx8VOaEBpJPd/7z4TQU=
+
     // Is there way to do this without pulling in BigInteger?
     var e = BigInteger.fromBuffer(hash);
     var pubkeyQ = Bitcoin.ecdsa.recoverPubKey(secp256k1, e, siginfo.signature, siginfo.i);
