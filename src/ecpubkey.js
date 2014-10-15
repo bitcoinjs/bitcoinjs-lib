@@ -6,7 +6,7 @@ var networks = require('./networks')
 var Address = require('./address')
 
 var ecurve = require('ecurve')
-var curve = ecurve.getCurveByName('secp256k1')
+var secp256k1 = ecurve.getCurveByName('secp256k1')
 
 function ECPubKey(Q, compressed) {
   if (compressed === undefined) compressed = true
@@ -18,9 +18,12 @@ function ECPubKey(Q, compressed) {
   this.Q = Q
 }
 
+// Constants
+ECPubKey.curve = secp256k1
+
 // Static constructors
 ECPubKey.fromBuffer = function(buffer) {
-  var Q = ecurve.Point.decodeFrom(curve, buffer)
+  var Q = ecurve.Point.decodeFrom(ECPubKey.curve, buffer)
   return new ECPubKey(Q, Q.compressed)
 }
 
@@ -36,7 +39,7 @@ ECPubKey.prototype.getAddress = function(network) {
 }
 
 ECPubKey.prototype.verify = function(hash, signature) {
-  return ecdsa.verify(curve, hash, signature, this.Q)
+  return ecdsa.verify(ECPubKey.curve, hash, signature, this.Q)
 }
 
 // Export functions

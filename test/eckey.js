@@ -1,5 +1,6 @@
 var assert = require('assert')
 var crypto = require('crypto')
+var ecurve = require('ecurve')
 var networks = require('../src/networks')
 var sinon = require('sinon')
 
@@ -40,6 +41,21 @@ describe('ECKey', function() {
         }, new RegExp(f.exception))
       })
     })
+  })
+
+  it('uses the secp256k1 curve by default', function() {
+    var secp256k1 = ecurve.getCurveByName('secp256k1')
+
+    for (var property in secp256k1) {
+      // FIXME: circular structures in ecurve
+      if (property === 'G') continue
+      if (property === 'infinity') continue
+
+      var actual = ECKey.curve[property]
+      var expected = secp256k1[property]
+
+      assert.deepEqual(actual, expected)
+    }
   })
 
   describe('fromWIF', function() {
