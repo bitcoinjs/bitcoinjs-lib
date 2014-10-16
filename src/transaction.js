@@ -113,14 +113,17 @@ Transaction.prototype.toBuffer = function () {
     slice.copy(buffer, offset)
     offset += slice.length
   }
+
   function writeUInt32(i) {
     buffer.writeUInt32LE(i, offset)
     offset += 4
   }
+
   function writeUInt64(i) {
     bufferutils.writeUInt64LE(buffer, i, offset)
     offset += 8
   }
+
   function writeVarInt(i) {
     var n = bufferutils.writeVarInt(buffer, i, offset)
     offset += n
@@ -247,20 +250,27 @@ Transaction.fromBuffer = function(buffer) {
     offset += n
     return buffer.slice(offset - n, offset)
   }
+
   function readUInt32() {
     var i = buffer.readUInt32LE(offset)
     offset += 4
     return i
   }
+
   function readUInt64() {
     var i = bufferutils.readUInt64LE(buffer, offset)
     offset += 8
     return i
   }
+
   function readVarInt() {
     var vi = bufferutils.readVarInt(buffer, offset)
     offset += vi.size
     return vi.number
+  }
+
+  function readScript() {
+    return Script.fromBuffer(readSlice(readVarInt()))
   }
 
   var tx = new Transaction()
@@ -268,29 +278,19 @@ Transaction.fromBuffer = function(buffer) {
 
   var vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
-    var hash = readSlice(32)
-    var vout = readUInt32()
-    var scriptLen = readVarInt()
-    var script = readSlice(scriptLen)
-    var sequence = readUInt32()
-
     tx.ins.push({
-      hash: hash,
-      index: vout,
-      script: Script.fromBuffer(script),
-      sequence: sequence
+      hash: readSlice(32),
+      index: readUInt32(),
+      script: readScript(),
+      sequence: readUInt32()
     })
   }
 
   var voutLen = readVarInt()
   for (i = 0; i < voutLen; ++i) {
-    var value = readUInt64()
-    var scriptLen = readVarInt()
-    var script = readSlice(scriptLen)
-
     tx.outs.push({
-      value: value,
-      script: Script.fromBuffer(script)
+      value: readUInt64(),
+      script: readScript(),
     })
   }
 
