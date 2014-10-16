@@ -32,8 +32,9 @@ Transaction.SIGHASH_ANYONECANPAY = 0x80
  *
  * Note that this method does not sign the created input.
  */
-Transaction.prototype.addInput = function(hash, index, sequence) {
+Transaction.prototype.addInput = function(hash, index, sequence, script) {
   if (sequence === undefined) sequence = Transaction.DEFAULT_SEQUENCE
+  script = script || Script.EMPTY
 
   if (typeof hash === 'string') {
     // TxId hex is big-endian, we need little-endian
@@ -47,6 +48,7 @@ Transaction.prototype.addInput = function(hash, index, sequence) {
   enforceType('Buffer', hash)
   enforceType('Number', index)
   enforceType('Number', sequence)
+  enforceType(Script, script)
 
   assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
 
@@ -54,7 +56,7 @@ Transaction.prototype.addInput = function(hash, index, sequence) {
   return (this.ins.push({
     hash: hash,
     index: index,
-    script: Script.EMPTY,
+    script: script,
     sequence: sequence
   }) - 1)
 }

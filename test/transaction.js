@@ -5,6 +5,7 @@ var scripts = require('../src/scripts')
 var Address = require('../src/address')
 var ECKey = require('../src/eckey')
 var Transaction = require('../src/transaction')
+var Script = require('../src/script')
 
 var fixtures = require('./fixtures/transaction')
 
@@ -96,20 +97,30 @@ describe('Transaction', function() {
       assert.equal(tx.ins[0].sequence, Transaction.DEFAULT_SEQUENCE)
     })
 
+    it('defaults to empty script', function() {
+      var tx = new Transaction()
+      tx.addInput(prevTxHash, 0)
+
+      assert.equal(tx.ins[0].script, Script.EMPTY)
+    })
+
     fixtures.valid.forEach(function(f) {
       it('should add the inputs for ' + f.txid + ' correctly', function() {
         var tx = new Transaction()
 
         f.raw.ins.forEach(function(txIn, i) {
-          var j = tx.addInput(txIn.hash, txIn.index, txIn.sequence)
+          var script = txIn.script ? Script.fromHex(txIn.script) : Script.EMPTY
+          var j = tx.addInput(txIn.hash, txIn.index, txIn.sequence, script)
 
           assert.equal(i, j)
           assert.deepEqual(tx.ins[i].hash, txIn.hash)
           assert.equal(tx.ins[i].index, txIn.index)
 
           var sequence = txIn.sequence
-          if (sequence == undefined) sequence = Transaction.DEFAULT_SEQUENCE
+          if (sequence === undefined) sequence = Transaction.DEFAULT_SEQUENCE
+
           assert.equal(tx.ins[i].sequence, sequence)
+          assert.equal(tx.ins[i].script, script)
         })
       })
     })
