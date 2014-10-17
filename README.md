@@ -110,7 +110,7 @@ console.log(tx.toHex())
 ```
 
 
-### Creating a P2SH Multsig Address
+### Creating a P2SH Multisig Address
 
 ``` javascript
 var bitcoin = require('bitcoinjs-lib')
