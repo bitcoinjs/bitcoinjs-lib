@@ -1,5 +1,4 @@
 var assert = require('assert')
-var networks = require('../src/networks')
 var scripts = require('../src/scripts')
 
 var Address = require('../src/address')
@@ -109,7 +108,7 @@ describe('Transaction', function() {
         var tx = new Transaction()
 
         f.raw.ins.forEach(function(txIn, i) {
-          var script = txIn.script ? Script.fromHex(txIn.script) : Script.EMPTY
+          var script = txIn.script ? Script.fromHex(txIn.script) : undefined
           var j = tx.addInput(txIn.hash, txIn.index, txIn.sequence, script)
 
           assert.equal(i, j)
@@ -120,7 +119,7 @@ describe('Transaction', function() {
           if (sequence === undefined) sequence = Transaction.DEFAULT_SEQUENCE
 
           assert.equal(tx.ins[i].sequence, sequence)
-          assert.equal(tx.ins[i].script, script)
+          assert.equal(tx.ins[i].script, script || Script.EMPTY)
         })
       })
     })
