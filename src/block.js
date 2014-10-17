@@ -120,13 +120,7 @@ Block.prototype.toBuffer = function(headersOnly) {
 
   if (headersOnly || !this.transactions) return buffer
 
-  function varIntBuffer(i) {
-    var ib = new Buffer(bufferutils.varIntSize(i))
-    bufferutils.writeVarInt(ib, i, 0)
-    return ib
-  }
-
-  var txLenBuffer = varIntBuffer(this.transactions.length)
+  var txLenBuffer = bufferutils.varIntBuffer(this.transactions.length)
   var txBuffers = this.transactions.map(function(tx) {
     return tx.toBuffer()
   })
