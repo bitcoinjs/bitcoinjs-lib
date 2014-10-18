@@ -7,7 +7,7 @@ module.exports = {
   ECKey: require('./eckey'),
   ECPubKey: require('./ecpubkey'),
   ECSignature: require('./ecsignature'),
-  Message: require('./message'),
+  message: require('./message'),
   opcodes: require('./opcodes'),
   HDNode: require('./hdnode'),
   Script: require('./script'),
