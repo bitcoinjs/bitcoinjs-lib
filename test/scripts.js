@@ -184,4 +184,19 @@ describe('Scripts', function() {
       })
     })
   })
+
+  describe('data', function() {
+    fixtures.valid.forEach(function(f) {
+      if (f.type !== 'nulldata') return
+
+      var data = new Buffer(f.data, 'hex')
+      var scriptPubKey = scripts.dataOutput(data)
+
+      describe('output script', function() {
+        it('is generated correctly for ' + f.scriptPubKey, function() {
+          assert.equal(scriptPubKey.toASM(), f.scriptPubKey)
+        })
+      })
+    })
+  })
 })
