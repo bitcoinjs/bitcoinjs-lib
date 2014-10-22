@@ -1,7 +1,7 @@
+var address = require('./address')
 var assert = require('assert')
 var scripts = require('./scripts')
 
-var Address = require('./address')
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var RawTransaction = require('./raw_transaction')
@@ -152,7 +152,7 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
 
   // Attempt to get a valid script if it's a base58 address
   if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.toOutputScript(scriptPubKey)
+    scriptPubKey = address.toOutputScript(scriptPubKey)
   }
 
   return this.tx.addOutput(scriptPubKey, value)
@@ -241,7 +241,7 @@ Transaction.prototype.sign = function(index, keyPair, redeemScript, hashType) {
     hash = this.tx.hashForSignature(index, redeemScript, hashType)
 
   } else {
-    prevOutScript = prevOutScript || Address.toOutputScript(keyPair.getAddress())
+    prevOutScript = prevOutScript || address.toOutputScript(keyPair.getAddress())
     prevOutType = prevOutType || 'pubkeyhash'
 
     assert.notEqual(prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')

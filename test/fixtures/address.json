@@ -4,25 +4,33 @@
       "description": "pubKeyHash",
       "network": "bitcoin",
       "address": "1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH",
-      "script": "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac"
+      "script": "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac",
+      "version": 0,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6"
     },
     {
       "description": "scriptHash",
       "network": "bitcoin",
       "address": "3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr",
-      "script": "a914cd7b44d0b03f2d026d1e586d7ae18903b0d385f687"
+      "script": "a914cd7b44d0b03f2d026d1e586d7ae18903b0d385f687",
+      "version": 5,
+      "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6"
     },
     {
       "description": "pubKeyHash",
       "network": "testnet",
       "address": "mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r",
-      "script": "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac"
+      "script": "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac",
+      "version": 111,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6"
     },
     {
       "description": "scriptHash",
       "network": "testnet",
       "address": "2NByiBUaEXrhmqAsg7BbLpcQSAQs1EDwt5w",
-      "script": "a914cd7b44d0b03f2d026d1e586d7ae18903b0d385f687"
+      "script": "a914cd7b44d0b03f2d026d1e586d7ae18903b0d385f687",
+      "version": 196,
+      "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6"
     }
   ],
   "invalid": {

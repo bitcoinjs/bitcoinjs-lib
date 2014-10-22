@@ -1,3 +1,4 @@
+var address = require('./address')
 var assert = require('assert')
 var base58check = require('bs58check')
 var bcrypto = require('./crypto')
@@ -122,11 +123,7 @@ ECPair.prototype.getAddress = function() {
   var hash = bcrypto.hash160(pubKey)
   var version = this.network.pubKeyHash
 
-  var payload = new Buffer(21)
-  payload.writeUInt8(version, 0)
-  hash.copy(payload, 1)
-
-  return base58check.encode(payload)
+  return address.encode(version, hash)
 }
 
 ECPair.prototype.getPublicKeyBuffer = function() {
