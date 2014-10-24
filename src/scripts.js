@@ -241,9 +241,14 @@ function multisigInput(signatures, scriptPubKey) {
   return Script.fromChunks([].concat(ops.OP_0, signatures))
 }
 
+function dataOutput(data) {
+  return Script.fromChunks([ops.OP_RETURN, data])
+}
+
 module.exports = {
   classifyInput: classifyInput,
   classifyOutput: classifyOutput,
+  dataOutput: dataOutput,
   multisigInput: multisigInput,
   multisigOutput: multisigOutput,
   pubKeyHashInput: pubKeyHashInput,

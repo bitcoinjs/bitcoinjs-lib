@@ -51,7 +51,8 @@
     },
     {
       "type": "nulldata",
-      "scriptPubKey": "OP_RETURN ffffffffffffffffffffffffffffffffffffffff"
+      "data": "deadffffffffffffffffffffffffffffffffbeef",
+      "scriptPubKey": "OP_RETURN deadffffffffffffffffffffffffffffffffbeef"
     }
   ],
   "invalid": {
