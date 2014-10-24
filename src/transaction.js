@@ -22,6 +22,66 @@ Transaction.SIGHASH_NONE = 0x02
 Transaction.SIGHASH_SINGLE = 0x03
 Transaction.SIGHASH_ANYONECANPAY = 0x80
 
+Transaction.fromBuffer = function(buffer) {
+  var offset = 0
+  function readSlice(n) {
+    offset += n
+    return buffer.slice(offset - n, offset)
+  }
+
+  function readUInt32() {
+    var i = buffer.readUInt32LE(offset)
+    offset += 4
+    return i
+  }
+
+  function readUInt64() {
+    var i = bufferutils.readUInt64LE(buffer, offset)
+    offset += 8
+    return i
+  }
+
+  function readVarInt() {
+    var vi = bufferutils.readVarInt(buffer, offset)
+    offset += vi.size
+    return vi.number
+  }
+
+  function readScript() {
+    return Script.fromBuffer(readSlice(readVarInt()))
+  }
+
+  var tx = new Transaction()
+  tx.version = readUInt32()
+
+  var vinLen = readVarInt()
+  for (var i = 0; i < vinLen; ++i) {
+    tx.ins.push({
+      hash: readSlice(32),
+      index: readUInt32(),
+      script: readScript(),
+      sequence: readUInt32()
+    })
+  }
+
+  var voutLen = readVarInt()
+  for (i = 0; i < voutLen; ++i) {
+    tx.outs.push({
+      value: readUInt64(),
+      script: readScript(),
+    })
+  }
+
+  tx.locktime = readUInt32()
+  assert.equal(offset, buffer.length, 'Transaction has unexpected data')
+
+  return tx
+}
+
+Transaction.fromHex = function(hex) {
+  return Transaction.fromBuffer(new Buffer(hex, 'hex'))
+}
+
 /**
  * Create a new txin.
  *
@@ -91,69 +151,28 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
   }) - 1)
 }
 
-Transaction.prototype.toBuffer = function () {
-  var txInSize = this.ins.reduce(function(a, x) {
-    return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
+Transaction.prototype.clone = function () {
+  var newTx = new Transaction()
+  newTx.version = this.version
+  newTx.locktime = this.locktime
 
-  var txOutSize = this.outs.reduce(function(a, x) {
-    return a + (8 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
-
-  var buffer = new Buffer(
-    8 +
-    bufferutils.varIntSize(this.ins.length) +
-    bufferutils.varIntSize(this.outs.length) +
-    txInSize +
-    txOutSize
-  )
-
-  var offset = 0
-  function writeSlice(slice) {
-    slice.copy(buffer, offset)
-    offset += slice.length
-  }
-
-  function writeUInt32(i) {
-    buffer.writeUInt32LE(i, offset)
-    offset += 4
-  }
-
-  function writeUInt64(i) {
-    bufferutils.writeUInt64LE(buffer, i, offset)
-    offset += 8
-  }
-
-  function writeVarInt(i) {
-    var n = bufferutils.writeVarInt(buffer, i, offset)
-    offset += n
-  }
-
-  writeUInt32(this.version)
-  writeVarInt(this.ins.length)
-
-  this.ins.forEach(function(txin) {
-    writeSlice(txin.hash)
-    writeUInt32(txin.index)
-    writeVarInt(txin.script.buffer.length)
-    writeSlice(txin.script.buffer)
-    writeUInt32(txin.sequence)
+  newTx.ins = this.ins.map(function(txin) {
+    return {
+      hash: txin.hash,
+      index: txin.index,
+      script: txin.script,
+      sequence: txin.sequence
+    }
   })
 
-  writeVarInt(this.outs.length)
-  this.outs.forEach(function(txout) {
-    writeUInt64(txout.value)
-    writeVarInt(txout.script.buffer.length)
-    writeSlice(txout.script.buffer)
+  newTx.outs = this.outs.map(function(txout) {
+    return {
+      script: txout.script,
+      value: txout.value
+    }
   })
 
-  writeUInt32(this.locktime)
-
-  return buffer
-}
-
-Transaction.prototype.toHex = function() {
-  return this.toBuffer().toString('hex')
+  return newTx
 }
 
 /**
@@ -220,88 +239,69 @@ Transaction.prototype.getId = function () {
   return bufferutils.reverse(this.getHash()).toString('hex')
 }
 
-Transaction.prototype.clone = function () {
-  var newTx = new Transaction()
-  newTx.version = this.version
-  newTx.locktime = this.locktime
+Transaction.prototype.toBuffer = function () {
+  var txInSize = this.ins.reduce(function(a, x) {
+    return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
+  }, 0)
 
-  newTx.ins = this.ins.map(function(txin) {
-    return {
-      hash: txin.hash,
-      index: txin.index,
-      script: txin.script,
-      sequence: txin.sequence
-    }
-  })
+  var txOutSize = this.outs.reduce(function(a, x) {
+    return a + (8 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
+  }, 0)
 
-  newTx.outs = this.outs.map(function(txout) {
-    return {
-      script: txout.script,
-      value: txout.value
-    }
-  })
+  var buffer = new Buffer(
+    8 +
+    bufferutils.varIntSize(this.ins.length) +
+    bufferutils.varIntSize(this.outs.length) +
+    txInSize +
+    txOutSize
+  )
 
-  return newTx
-}
-
-Transaction.fromBuffer = function(buffer) {
   var offset = 0
-  function readSlice(n) {
-    offset += n
-    return buffer.slice(offset - n, offset)
+  function writeSlice(slice) {
+    slice.copy(buffer, offset)
+    offset += slice.length
   }
 
-  function readUInt32() {
-    var i = buffer.readUInt32LE(offset)
+  function writeUInt32(i) {
+    buffer.writeUInt32LE(i, offset)
     offset += 4
-    return i
   }
 
-  function readUInt64() {
-    var i = bufferutils.readUInt64LE(buffer, offset)
+  function writeUInt64(i) {
+    bufferutils.writeUInt64LE(buffer, i, offset)
     offset += 8
-    return i
   }
 
-  function readVarInt() {
-    var vi = bufferutils.readVarInt(buffer, offset)
-    offset += vi.size
-    return vi.number
+  function writeVarInt(i) {
+    var n = bufferutils.writeVarInt(buffer, i, offset)
+    offset += n
   }
 
-  function readScript() {
-    return Script.fromBuffer(readSlice(readVarInt()))
-  }
+  writeUInt32(this.version)
+  writeVarInt(this.ins.length)
 
-  var tx = new Transaction()
-  tx.version = readUInt32()
+  this.ins.forEach(function(txin) {
+    writeSlice(txin.hash)
+    writeUInt32(txin.index)
+    writeVarInt(txin.script.buffer.length)
+    writeSlice(txin.script.buffer)
+    writeUInt32(txin.sequence)
+  })
 
-  var vinLen = readVarInt()
-  for (var i = 0; i < vinLen; ++i) {
-    tx.ins.push({
-      hash: readSlice(32),
-      index: readUInt32(),
-      script: readScript(),
-      sequence: readUInt32()
-    })
-  }
+  writeVarInt(this.outs.length)
+  this.outs.forEach(function(txout) {
+    writeUInt64(txout.value)
+    writeVarInt(txout.script.buffer.length)
+    writeSlice(txout.script.buffer)
+  })
 
-  var voutLen = readVarInt()
-  for (i = 0; i < voutLen; ++i) {
-    tx.outs.push({
-      value: readUInt64(),
-      script: readScript(),
-    })
-  }
+  writeUInt32(this.locktime)
 
-  tx.locktime = readUInt32()
-  assert.equal(offset, buffer.length, 'Transaction has unexpected data')
-
-  return tx
+  return buffer
 }
 
-Transaction.fromHex = function(hex) {
-  return Transaction.fromBuffer(new Buffer(hex, 'hex'))
+Transaction.prototype.toHex = function() {
+  return this.toBuffer().toString('hex')
 }
 
 Transaction.prototype.setInputScript = function(index, script) {
