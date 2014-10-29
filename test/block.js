@@ -69,4 +69,20 @@ describe('Block', function() {
       })
     })
   })
+
+  describe('getUTCDate', function() {
+    fixtures.valid.forEach(function(f) {
+      var block
+
+      beforeEach(function() {
+        block = Block.fromHex(f.hex)
+      })
+
+      it('returns UTC date of ' + f.id, function() {
+        var utcDate = block.getUTCDate().getTime()
+
+        assert.equal(utcDate, f.timestamp * 1e3)
+      })
+    })
+  })
 })
