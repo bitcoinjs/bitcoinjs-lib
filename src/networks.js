@@ -15,6 +15,20 @@ var networks = {
     feePerKb: 10000, // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/main.cpp#L53
     estimateFee: estimateFee('bitcoin')
   },
+  gamerscoin: {
+    magicPrefix: '\x19Gamerscoin Signed Message:\n',
+    bip32: {
+      public: 0x019da462,
+      private: 0x019d9cfe
+    },
+    pubKeyHash: 0x26,
+    scriptHash: 0x05,
+    wif: 0xA6,
+    dustThreshold: 0, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L358-L363
+    dustSoftThreshold: 100000, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L51
+    feePerKb: 100000, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L54
+    estimateFee: estimateFee('gamerscoin')
+  },
   dogecoin: {
     magicPrefix: '\x19Dogecoin Signed Message:\n',
     bip32: {
