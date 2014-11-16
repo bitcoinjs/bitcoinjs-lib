@@ -98,6 +98,20 @@ var networks = {
     feePerKb: 100000, 
     estimateFee: estimateFee('viacointestnet')
   },
+  jumbucks: {
+    magicPrefix: '\x19Jumbucks Signed Message:\n',
+    bip32: {
+      public: 0x037a689a,
+      private: 0x037a6460
+    },
+    pubKeyHash: 0x2b,
+    scriptHash: 0x05,
+    wif: 0xab,
+    dustThreshold: 0,
+    dustSoftThreshold: 10000,
+    feePerKb: 10000,
+    estimateFee: estimateFee('jumbucks')
+  },
   zetacoin: {
     magicPrefix: '\x18Zetacoin Signed Message:\n',
     bip32: {
