@@ -1,12 +1,27 @@
 var assert = require('assert')
 
 var bitcoin = require('../../')
+var crypto = require('crypto')
+var sinon = require('sinon')
 
 describe('bitcoinjs-lib (README)', function() {
-  it('can generate a Bitcoin address from a WIF private key', function() {
-    var key = bitcoin.ECKey.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
+  it('can generate a random bitcoin address', sinon.test(function() {
+    // for testing only
+    this.mock(crypto).expects('randomBytes')
+      .onCall(0).returns(new Buffer('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'))
 
-    assert.equal(key.pub.getAddress().toString(), '19AAjaTUbRjQCMuVczepkoPswiZRhjtg31')
+    // generate random key
+    var key = bitcoin.ECKey.makeRandom()
+    var address = key.pub.getAddress().toString()
+
+    assert.equal(address, '1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64')
+  }))
+
+  it('can import a WIF encoded private key', function() {
+    var key = bitcoin.ECKey.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
+    var address = key.pub.getAddress().toString()
+
+    assert.equal(address, '19AAjaTUbRjQCMuVczepkoPswiZRhjtg31')
   })
 
   it('can create a Transaction', function() {
@@ -35,17 +50,16 @@ describe('bitcoinjs-lib (README)', function() {
   })
 
   it('can create a P2SH Multisig Address', function() {
-    var privKeys = [
-      'Kwv4iik3zSrMoR8RztogbMzV3i3CFRHjFPyQ8SME88g8c7fB4ouL',
-      'KyahXPPP45jSmWVSd9687wPhqEAtRZCNfP3ENyZyV7CJ5gWWWWW1',
-      'KzGaNk5adgZsjfsaWqwrCZhQn63BkQiKUWrCYBLTNspoDZ1d83F3'
-    ].map(bitcoin.ECKey.fromWIF)
-    var pubKeys = privKeys.map(function(x) { return x.pub })
+    var pubKeys = [
+      '026477115981fe981a6918a6297d9803c4dc04f328f22041bedff886bbc2962e01',
+      '02c96db2302d19b43d4c69368babace7854cc84eb9e061cde51cfa77ca4a22b8b9',
+      '03c6103b3b83e4a24a0e33a4df246ef11772f9992663db0c35759a5e2ebf68d8e9'
+    ].map(bitcoin.ECPubKey.fromHex)
 
     var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
     var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
-    var p2shAddress = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
+    var address = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
 
-    assert.equal(p2shAddress, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
+    assert.equal(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
   })
 })
