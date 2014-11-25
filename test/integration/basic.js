@@ -18,7 +18,7 @@ describe('bitcoinjs-lib (basic)', function() {
     assert.equal(address, '1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64')
   }))
 
-  it('can initialize a ECKey from a sha256 hash', function() {
+  it('can generate an address from a SHA256 hash', function() {
     var hash = bitcoin.crypto.sha256('correct horse battery staple')
     var d = bigi.fromBuffer(hash)
 
@@ -27,7 +27,7 @@ describe('bitcoinjs-lib (basic)', function() {
     assert.equal(key.pub.getAddress().toString(), '1C7zdTfnkzmr13HfA2vNm5SJYRK6nEKyq8')
   })
 
-  it('can import a WIF encoded private key', function() {
+  it('can import an address via WIF', function() {
     var key = bitcoin.ECKey.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
     var address = key.pub.getAddress().toString()
 
