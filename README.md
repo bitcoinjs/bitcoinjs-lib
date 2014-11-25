@@ -69,19 +69,17 @@ After loading this file in your browser, you will be able to use the global `bit
 
 The below examples are implemented as integration tests, but should be very easy to follow.  Pull requests welcome.
 
-- [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L9)
-- [Generate a address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L21)
-- [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L30)
-- [Create a Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L37)
-
-- [Sign a Bitcoin message](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L7)
-- [Verify a Bitcoin message](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L15)
-- [Generate a single-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L23)
-- [Generate a dual-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L56)
-- [Create an OP RETURN transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L58)
-
-- [Create a 2-of-3 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/multisig.js#L10)
-- [Spend from a 2-of-2 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/multisig.js#L24)
+- [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L8)
+- [Generate a address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L20)
+- [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L29)
+- [Create a Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L36)
+- [Sign a Bitcoin message](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L9)
+- [Verify a Bitcoin message](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L17)
+- [Generate a single-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L25)
+- [Generate a dual-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L58)
+- [Create an OP RETURN transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L60)
+- [Create a 2-of-3 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/multisig.js#L8)
+- [Spend from a 2-of-2 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/multisig.js#L22)
 
 
 ## Projects utilizing BitcoinJS
