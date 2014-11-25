@@ -1,7 +1,5 @@
 var assert = require('assert')
-
 var bitcoin = require('../../')
-
 var helloblock = require('helloblock-js')({
   network: 'testnet'
 })
@@ -30,14 +28,14 @@ describe('bitcoinjs-lib (multisig)', function() {
 
     var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 2
     var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
-    var address = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
+    var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
 
     // Attempt to send funds to the source address
     helloblock.faucet.withdraw(address, 2e4, function(err) {
       if (err) return done(err)
 
       // get latest unspents from the address
-      helloblock.addresses.getUnspents(address, function(err, res, unspents) {
+      helloblock.addresses.getUnspents(address, function(err, _, unspents) {
         if (err) return done(err)
 
         // filter small unspents

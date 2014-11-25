@@ -1,5 +1,4 @@
 var assert = require('assert')
-
 var bigi = require('bigi')
 var bitcoin = require('../../')
 var crypto = require('crypto')
