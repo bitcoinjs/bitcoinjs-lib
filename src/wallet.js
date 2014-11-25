@@ -10,6 +10,8 @@ var TransactionBuilder = require('./transaction_builder')
 var Script = require('./script')
 
 function Wallet(seed, network) {
+  console.warn('Wallet is deprecated and will be removed in 2.0.0, see #296')
+
   seed = seed || crypto.randomBytes(32)
   network = network || networks.bitcoin
 
