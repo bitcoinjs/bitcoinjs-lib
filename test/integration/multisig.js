@@ -20,6 +20,8 @@ describe('bitcoinjs-lib (multisig)', function() {
   })
 
   it('can spend from a 2-of-2 multsig P2SH address', function(done) {
+    this.timeout(20000)
+
     var privKeys = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT'
