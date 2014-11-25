@@ -1,7 +1,9 @@
 var assert = require('assert')
-
 var bigi = require('bigi')
 var bitcoin = require('../../')
+var helloblock = require('helloblock-js')({
+  network: 'testnet'
+})
 
 describe('bitcoinjs-lib (advanced)', function() {
   it('can sign a Bitcoin message', function() {
@@ -55,17 +57,52 @@ describe('bitcoinjs-lib (advanced)', function() {
   // TODO
   it.skip('can generate a dual-key stealth address', function() {})
 
-  it('can create an OP_RETURN transaction', function() {
+  it('can create an OP_RETURN transaction', function(done) {
+    this.timeout(20000)
+
     var key = bitcoin.ECKey.fromWIF("L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy")
-    var tx = new bitcoin.TransactionBuilder()
+    var address = key.pub.getAddress(bitcoin.networks.testnet).toString()
 
-    var data = new Buffer('cafedeadbeef', 'hex')
-    var dataScript = bitcoin.scripts.dataOutput(data)
+    helloblock.faucet.withdraw(address, 2e4, function(err) {
+      if (err) return done(err)
 
-    tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 0)
-    tx.addOutput(dataScript, 1000)
-    tx.sign(0, key)
+      helloblock.addresses.getUnspents(address, function(err, _, unspents) {
+        if (err) return done(err)
 
-    assert.equal(tx.build().toHex(), '0100000001313eb630b128102b60241ca895f1d0ffca2170d5a0990e094f2182c102ab94aa000000006a4730440220578f9df41a0e5c5052ad6eef46d005b41f966c7fda01d5f71e9c65026c9025c002202e0159ea0db47ca1bf7713e3a08bbba8cc4fdd90a2eff12591c42049c7cad6c30121029f50f51d63b345039a290c94bffd3180c99ed659ff6ea6b1242bca47eb93b59fffffffff01e803000000000000086a06cafedeadbeef00000000')
+        // filter small unspents
+        unspents = unspents.filter(function(unspent) { return unspent.value > 1e4 })
+
+        // use the oldest unspent
+        var unspent = unspents.pop()
+
+        var tx = new bitcoin.TransactionBuilder()
+
+        var data = new Buffer('cafedeadbeef', 'hex')
+        var dataScript = bitcoin.scripts.dataOutput(data)
+
+        tx.addInput(unspent.txHash, unspent.index)
+        tx.addOutput(dataScript, 1000)
+        tx.sign(0, key)
+
+        helloblock.transactions.propagate(tx.build().toHex(), function(err) {
+          if (err) return done(err)
+
+          // check that the message was propagated
+          helloblock.addresses.getTransactions(address, function(err, res, transactions) {
+            if (err) return done(err)
+
+            var transaction = transactions[0]
+            var output = transaction.outputs[0]
+            var dataScript2 = bitcoin.Script.fromHex(output.scriptPubKey)
+            var data2 = dataScript2.chunks[1]
+
+            assert.deepEqual(dataScript, dataScript2)
+            assert.deepEqual(data, data2)
+
+            done()
+          })
+        })
+      })
+    })
   })
 })
