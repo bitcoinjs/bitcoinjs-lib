@@ -28,6 +28,7 @@ A continued implementation of the original `0.1.3` version used by over a millio
 
 
 ## Should I use this in production?
+
 If you are thinking of using the master branch of this library in production, *stop*.
 Master is not stable; it is our development branch, and only tagged releases may be classified as stable.
 
@@ -64,72 +65,26 @@ From NPM:
 After loading this file in your browser, you will be able to use the global `bitcoin` object.
 
 
-## Usage
+## Examples
 
-These examples assume you are running bitcoinjs-lib in the browser.
+The below examples are implemented as integration tests, but should be very easy to follow.  Pull requests welcome.
 
+- [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L9)
+- [Generate a address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L21)
+- [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L30)
+- [Create a Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/basic.js#L37)
 
-### Generating a Bitcoin address
+- [Sign a Bitcoin message](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L7)
+- [Verify a Bitcoin message](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L15)
+- [Generate a single-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L23)
+- [Generate a dual-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L56)
+- [Create an OP RETURN transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/advanced.js#L58)
 
-```javascript
-
-key = bitcoin.ECKey.makeRandom()
-
-// Print your private key (in WIF format)
-console.log(key.toWIF())
-// => Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct
-
-// Print your public key (toString defaults to a Bitcoin address)
-console.log(key.pub.getAddress().toString())
-// => 14bZ7YWde4KdRb5YN7GYkToz3EHVCvRxkF
-```
-
-
-### Creating a Transaction
-
-```javascript
-tx = new bitcoin.Transaction()
-
-// Add the input (who is paying) of the form [previous transaction hash, index of the output to use]
-tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 0)
-
-// Add the output (who to pay to) of the form [payee's address, amount in satoshis]
-tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000)
-
-// Initialize a private key using WIF
-key = bitcoin.ECKey.fromWIF("L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy")
-
-// Sign the first input with the new key
-tx.sign(0, key)
-
-// Print transaction serialized as hex
-console.log(tx.toHex())
-// => 0100000001313eb630b128102b60241ca895f1d0ffca2170d5a0990e094f2182c102ab94aa000000008a47304402200169f1f844936dc60df54e812345f5dd3e6681fea52e33c25154ad9cc23a330402204381ed8e73d74a95b15f312f33d5a0072c7a12dd6c3294df6e8efbe4aff27426014104e75628573696aed32d7656fb35e9c71ea08eb6492837e13d2662b9a36821d0fff992692fd14d74fdec20fae29128ba12653249cbeef521fc5eba84dde0689f27ffffffff01983a0000000000001976a914ad618cf4333b3b248f9744e8e81db2964d0ae39788ac00000000
-
-// You could now push the transaction onto the Bitcoin network manually (see https://blockchain.info/pushtx)
-```
-
-
-### Creating a P2SH Multisig Address
-
-``` javascript
-var bitcoin = require('bitcoinjs-lib')
-
-var privKeys = [bitcoin.ECKey.makeRandom(), bitcoin.ECKey.makeRandom(), bitcoin.ECKey.makeRandom()]
-var pubKeys = privKeys.map(function(x) { return x.pub })
-
-var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
-var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
-
-var multisigAddress = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
-
-console.log("multisigP2SH:", multisigAddress)
-// => multisigP2SH: 35k9EWv2F1X5JKXHSF1DhTm7Ybdiwx4RkD
-```
+- [Create a 2-of-3 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/multisig.js#L10)
+- [Spend from a 2-of-2 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/inttests/test/integration/multisig.js#L24)
 
 
 ## Projects utilizing BitcoinJS
-
 
 - [BitAddress](https://www.bitaddress.org)
 - [Blockchain.info](https://blockchain.info/wallet)
