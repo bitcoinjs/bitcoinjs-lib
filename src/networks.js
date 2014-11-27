@@ -15,33 +15,18 @@ var networks = {
     feePerKb: 10000, // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/main.cpp#L53
     estimateFee: estimateFee('bitcoin')
   },
-  gamerscoin: {
-    magicPrefix: '\x19Gamerscoin Signed Message:\n',
+  testnet: {
+    magicPrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
-      public: 0x019da462,
-      private: 0x019d9cfe
+      public: 0x043587cf,
+      private: 0x04358394
     },
-    pubKeyHash: 0x26,
-    scriptHash: 0x05,
-    wif: 0xA6,
-    dustThreshold: 0, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L358-L363
-    dustSoftThreshold: 100000, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L51
-    feePerKb: 100000, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L54
-    estimateFee: estimateFee('gamerscoin')
-  },
-  dogecoin: {
-    magicPrefix: '\x19Dogecoin Signed Message:\n',
-    bip32: {
-      public: 0x02facafd,
-      private: 0x02fac398
-    },
-    pubKeyHash: 0x1e,
-    scriptHash: 0x16,
-    wif: 0x9e,
-    dustThreshold: 0, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/core.h#L155-L160
-    dustSoftThreshold: 100000000, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.h#L62
-    feePerKb: 100000000, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.cpp#L58
-    estimateFee: estimateFee('dogecoin')
+    pubKeyHash: 0x6f,
+    scriptHash: 0xc4,
+    wif: 0xef,
+    dustThreshold: 546,
+    feePerKb: 10000,
+    estimateFee: estimateFee('testnet')
   },
   litecoin: {
     magicPrefix: '\x19Litecoin Signed Message:\n',
@@ -57,18 +42,19 @@ var networks = {
     feePerKb: 100000, // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L56
     estimateFee: estimateFee('litecoin')
   },
-  testnet: {
-    magicPrefix: '\x18Bitcoin Signed Message:\n',
+  dogecoin: {
+    magicPrefix: '\x19Dogecoin Signed Message:\n',
     bip32: {
-      public: 0x043587cf,
-      private: 0x04358394
+      public: 0x02facafd,
+      private: 0x02fac398
     },
-    pubKeyHash: 0x6f,
-    scriptHash: 0xc4,
-    wif: 0xef,
-    dustThreshold: 546,
-    feePerKb: 10000,
-    estimateFee: estimateFee('testnet')
+    pubKeyHash: 0x1e,
+    scriptHash: 0x16,
+    wif: 0x9e,
+    dustThreshold: 0, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/core.h#L155-L160
+    dustSoftThreshold: 100000000, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.h#L62
+    feePerKb: 100000000, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.cpp#L58
+    estimateFee: estimateFee('dogecoin')
   },
   viacoin: {
     magicPrefix: '\x18Viacoin Signed Message:\n',
@@ -95,8 +81,22 @@ var networks = {
     wif: 0xff,
     dustThreshold: 560,
     dustSoftThreshold: 100000,
-    feePerKb: 100000, 
+    feePerKb: 100000,
     estimateFee: estimateFee('viacointestnet')
+  },
+  gamerscoin: {
+    magicPrefix: '\x19Gamerscoin Signed Message:\n',
+    bip32: {
+      public: 0x019da462,
+      private: 0x019d9cfe
+    },
+    pubKeyHash: 0x26,
+    scriptHash: 0x05,
+    wif: 0xA6,
+    dustThreshold: 0, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L358-L363
+    dustSoftThreshold: 100000, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L51
+    feePerKb: 100000, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L54
+    estimateFee: estimateFee('gamerscoin')
   },
   jumbucks: {
     magicPrefix: '\x19Jumbucks Signed Message:\n',
