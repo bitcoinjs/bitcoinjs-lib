@@ -97,6 +97,21 @@ Block.fromHex = function(hex) {
   return Block.fromBuffer(new Buffer(hex, 'hex'))
 }
 
+Block.prototype.getHash = function() {
+  return crypto.hash256(this.toBuffer(true))
+}
+
+Block.prototype.getId = function() {
+  return bufferutils.reverse(this.getHash()).toString('hex')
+}
+
+Block.prototype.getUTCDate = function() {
+  var date = new Date(0) // epoch
+  date.setUTCSeconds(this.timestamp)
+
+  return date
+}
+
 Block.prototype.toBuffer = function(headersOnly) {
   var buffer = new Buffer(80)
 
@@ -130,21 +145,6 @@ Block.prototype.toBuffer = function(headersOnly) {
 
 Block.prototype.toHex = function(headersOnly) {
   return this.toBuffer(headersOnly).toString('hex')
-}
-
-Block.prototype.getHash = function() {
-  return crypto.hash256(this.toBuffer(true))
-}
-
-Block.prototype.getId = function() {
-  return bufferutils.reverse(this.getHash()).toString('hex')
-}
-
-Block.prototype.getUTCDate = function() {
-  var date = new Date(0) // epoch
-  date.setUTCSeconds(this.timestamp)
-
-  return date
 }
 
 module.exports = Block
