@@ -35,12 +35,10 @@ Address.fromBase58Check = function(string) {
 Address.fromOutputScript = function(script, network) {
   network = network || networks.bitcoin
 
-  var type = scripts.classifyOutput(script)
+  if (scripts.isPubKeyHashOutput(script)) return new Address(script.chunks[2], network.pubKeyHash)
+  if (scripts.isScriptHashOutput(script)) return new Address(script.chunks[1], network.scriptHash)
 
-  if (type === 'pubkeyhash') return new Address(script.chunks[2], network.pubKeyHash)
-  if (type === 'scripthash') return new Address(script.chunks[1], network.scriptHash)
-
-  assert(false, type + ' has no matching Address')
+  assert(false, script.toASM() + ' has no matching Address')
 }
 
 // Export functions
