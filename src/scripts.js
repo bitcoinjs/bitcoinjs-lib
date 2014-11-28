@@ -112,7 +112,7 @@ function isMultisigOutput(script) {
   return pubKeys.every(isCanonicalPubKey)
 }
 
-function isNulldataOutput(script) {
+function isNullDataOutput(script) {
   return script.chunks[0] === ops.OP_RETURN
 }
 
@@ -127,7 +127,7 @@ function classifyOutput(script) {
     return 'multisig'
   } else if (isPubKeyOutput(script)) {
     return 'pubkey'
-  } else if (isNulldataOutput(script)) {
+  } else if (isNullDataOutput(script)) {
     return 'nulldata'
   }
 
@@ -241,16 +241,16 @@ function multisigInput(signatures, scriptPubKey) {
   return Script.fromChunks([].concat(ops.OP_0, signatures))
 }
 
-function dataOutput(data) {
+function nullDataOutput(data) {
   return Script.fromChunks([ops.OP_RETURN, data])
 }
 
 module.exports = {
   classifyInput: classifyInput,
   classifyOutput: classifyOutput,
-  dataOutput: dataOutput,
   multisigInput: multisigInput,
   multisigOutput: multisigOutput,
+  nullDataOutput: nullDataOutput,
   pubKeyHashInput: pubKeyHashInput,
   pubKeyHashOutput: pubKeyHashOutput,
   pubKeyInput: pubKeyInput,

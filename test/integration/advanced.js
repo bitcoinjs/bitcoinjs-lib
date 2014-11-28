@@ -78,7 +78,7 @@ describe('bitcoinjs-lib (advanced)', function() {
         var tx = new bitcoin.TransactionBuilder()
 
         var data = new Buffer('cafedeadbeef', 'hex')
-        var dataScript = bitcoin.scripts.dataOutput(data)
+        var dataScript = bitcoin.scripts.nullDataOutput(data)
 
         tx.addInput(unspent.txHash, unspent.index)
         tx.addOutput(dataScript, 1000)

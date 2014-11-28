@@ -190,7 +190,7 @@ describe('Scripts', function() {
       if (f.type !== 'nulldata') return
 
       var data = new Buffer(f.data, 'hex')
-      var scriptPubKey = scripts.dataOutput(data)
+      var scriptPubKey = scripts.nullDataOutput(data)
 
       describe('output script', function() {
         it('is generated correctly for ' + f.scriptPubKey, function() {
