@@ -7,6 +7,10 @@ var Script = require('../src/script')
 var fixtures = require('./fixtures/scripts.json')
 
 describe('Scripts', function() {
+  // TODO
+  describe.skip('isCanonicalPubKey', function() {})
+  describe.skip('isCanonicalSignature', function() {})
+
   describe('classifyInput', function() {
     fixtures.valid.forEach(function(f) {
       if (!f.scriptSig) return
