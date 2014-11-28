@@ -246,15 +246,26 @@ function nullDataOutput(data) {
 }
 
 module.exports = {
-  classifyInput: classifyInput,
+  isCanonicalPubKey: isCanonicalPubKey,
+  isCanonicalSignature: isCanonicalSignature,
+  isPubKeyHashInput: isPubKeyHashInput,
+  isPubKeyHashOutput: isPubKeyHashOutput,
+  isPubKeyInput: isPubKeyInput,
+  isPubKeyOutput: isPubKeyOutput,
+  isScriptHashInput: isScriptHashInput,
+  isScriptHashOutput: isScriptHashOutput,
+  isMultisigInput: isMultisigInput,
+  isMultisigOutput: isMultisigOutput,
+  isNullDataOutput: isNullDataOutput,
   classifyOutput: classifyOutput,
-  multisigInput: multisigInput,
-  multisigOutput: multisigOutput,
-  nullDataOutput: nullDataOutput,
-  pubKeyHashInput: pubKeyHashInput,
-  pubKeyHashOutput: pubKeyHashOutput,
-  pubKeyInput: pubKeyInput,
+  classifyInput: classifyInput,
   pubKeyOutput: pubKeyOutput,
+  pubKeyHashOutput: pubKeyHashOutput,
+  scriptHashOutput: scriptHashOutput,
+  multisigOutput: multisigOutput,
+  pubKeyInput: pubKeyInput,
+  pubKeyHashInput: pubKeyHashInput,
   scriptHashInput: scriptHashInput,
-  scriptHashOutput: scriptHashOutput
+  multisigInput: multisigInput,
+  nullDataOutput: nullDataOutput
 }
