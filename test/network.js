@@ -25,7 +25,7 @@ describe('networks', function() {
         var extb58 = f.bip32[name]
 
         it('resolves ' + extb58 + ' to ' + f.network, function() {
-          assert.equal(HDNode.fromBase58(extb58).network, network)
+          assert.equal(HDNode.fromBase58(extb58, network).network, network)
         })
       })
     })
