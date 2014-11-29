@@ -67,7 +67,7 @@ After loading this file in your browser, you will be able to use the global `bit
 
 ## Examples
 
-The below examples are implemented as integration tests, but should be very easy to follow.  Pull requests welcome.
+The below examples are implemented as integration tests, they should be very easy to understand.  Otherwise, pull requests are appreciated.
 
 - [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L8)
 - [Generate a address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L20)
