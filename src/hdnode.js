@@ -15,11 +15,11 @@ function findBIP32ParamsByVersion(version) {
   for (var name in networks) {
     var network = networks[name]
 
-    for (var type in network.bip32) {
-      if (version != network.bip32[type]) continue
+    if (version === network.bip32.private ||
+        version === network.bip32.public) {
 
       return {
-        isPrivate: (type === 'private'),
+        isPrivate: (version === network.bip32.private),
         network: network
       }
     }
