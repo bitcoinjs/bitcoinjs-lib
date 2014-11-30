@@ -1,36 +1,32 @@
 {
   "valid": [
     {
-      "description": "pubKeyHash",
       "network": "bitcoin",
       "version": 0,
-      "hex": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
       "base58check": "1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH",
-      "script": "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac"
+      "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
     },
     {
-      "description": "scriptHash",
       "network": "bitcoin",
       "version": 5,
-      "hex": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
+      "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
       "base58check": "3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr",
-      "script": "a914cd7b44d0b03f2d026d1e586d7ae18903b0d385f687"
+      "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
     },
     {
-      "description": "pubKeyHash",
       "network": "testnet",
       "version": 111,
-      "hex": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
       "base58check": "mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r",
-      "script": "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac"
+      "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
     },
     {
-      "description": "scriptHash",
       "network": "testnet",
       "version": 196,
-      "hex": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
+      "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
       "base58check": "2NByiBUaEXrhmqAsg7BbLpcQSAQs1EDwt5w",
-      "script": "a914cd7b44d0b03f2d026d1e586d7ae18903b0d385f687"
+      "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
     }
   ],
   "invalid": {
@@ -48,22 +44,22 @@
     ],
     "fromOutputScript": [
       {
-        "description": "pubkey has no matching Address",
-        "hex": "21031f1e68f82112b373f0fe980b3a89d212d2b5c01fb51eb25acb8b4c4b4299ce95ac"
+        "description": "has no matching Address",
+        "script": "031f1e68f82112b373f0fe980b3a89d212d2b5c01fb51eb25acb8b4c4b4299ce95 OP_CHECKSIG"
       },
       {
-        "description": "multisig has no matching Address",
-        "hex": "5121032487c2a32f7c8d57d2a93906a6457afd00697925b0e6e145d89af6d3bca330162102308673d16987eaa010e540901cc6fe3695e758c19f46ce604e174dac315e685a52ae"
+        "description": "has no matching Address",
+        "script": "OP_TRUE 032487c2a32f7c8d57d2a93906a6457afd00697925b0e6e145d89af6d3bca33016 02308673d16987eaa010e540901cc6fe3695e758c19f46ce604e174dac315e685a OP_2 OP_CHECKMULTISIG"
       },
       {
-        "description": "nulldata has no matching Address",
-        "hex": "6a2606deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474"
+        "description": "has no matching Address",
+        "script": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474"
       }
     ],
     "toOutputScript": [
       {
         "description": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE has no matching Script",
-        "hex": "751e76e8199196d454941c45d1b3a323f1433bd6",
+        "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
         "version": 153
       }
     ]

@@ -112,7 +112,7 @@ function isMultisigOutput(script) {
   return pubKeys.every(isCanonicalPubKey)
 }
 
-function isNulldataOutput(script) {
+function isNullDataOutput(script) {
   return script.chunks[0] === ops.OP_RETURN
 }
 
@@ -127,7 +127,7 @@ function classifyOutput(script) {
     return 'multisig'
   } else if (isPubKeyOutput(script)) {
     return 'pubkey'
-  } else if (isNulldataOutput(script)) {
+  } else if (isNullDataOutput(script)) {
     return 'nulldata'
   }
 
@@ -241,20 +241,35 @@ function multisigInput(signatures, scriptPubKey) {
   return Script.fromChunks([].concat(ops.OP_0, signatures))
 }
 
-function dataOutput(data) {
+function nullDataOutput(data) {
   return Script.fromChunks([ops.OP_RETURN, data])
 }
 
 module.exports = {
-  classifyInput: classifyInput,
+  isCanonicalPubKey: isCanonicalPubKey,
+  isCanonicalSignature: isCanonicalSignature,
+  isPubKeyHashInput: isPubKeyHashInput,
+  isPubKeyHashOutput: isPubKeyHashOutput,
+  isPubKeyInput: isPubKeyInput,
+  isPubKeyOutput: isPubKeyOutput,
+  isScriptHashInput: isScriptHashInput,
+  isScriptHashOutput: isScriptHashOutput,
+  isMultisigInput: isMultisigInput,
+  isMultisigOutput: isMultisigOutput,
+  isNullDataOutput: isNullDataOutput,
   classifyOutput: classifyOutput,
-  dataOutput: dataOutput,
-  multisigInput: multisigInput,
-  multisigOutput: multisigOutput,
-  pubKeyHashInput: pubKeyHashInput,
-  pubKeyHashOutput: pubKeyHashOutput,
-  pubKeyInput: pubKeyInput,
+  classifyInput: classifyInput,
   pubKeyOutput: pubKeyOutput,
+  pubKeyHashOutput: pubKeyHashOutput,
+  scriptHashOutput: scriptHashOutput,
+  multisigOutput: multisigOutput,
+  pubKeyInput: pubKeyInput,
+  pubKeyHashInput: pubKeyHashInput,
   scriptHashInput: scriptHashInput,
-  scriptHashOutput: scriptHashOutput
+  multisigInput: multisigInput,
+  dataOutput: function(data) {
+    console.warn('dataOutput is deprecated, use nullDataOutput by 2.0.0')
+    return nullDataOutput(data)
+  },
+  nullDataOutput: nullDataOutput
 }
