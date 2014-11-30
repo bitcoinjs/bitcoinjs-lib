@@ -199,7 +199,7 @@
         "string": "xprvQQQQQQQQQQQQQQQQCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334"
       },
       {
-        "exception": "Could not find version 0",
+        "exception": "Could not find network for 0",
         "string": "1111111111111adADjFaSNPxwXqLjHLj4mBfYxuewDPbw9hEj1uaXCzMxRPXDFF3cUoezTFYom4sEmEVSQmENPPR315cFk9YUFVek73wE9"
       },
       {
@@ -226,7 +226,7 @@
         "hex": "0488b21e0000000000ffffffff7ffc03d4a1f2fb41ef93374c69e4d19e42e27c9a87ec8b799a205eecd3b43b5f02948d03e260a571e21bcf5bfd8e3b6602800df154906e06b2bc88eee410aee355"
       },
       {
-        "exception": "Could not find version 22222222",
+        "exception": "Could not find network for 22222222",
         "hex": "222222220000000000000000007ffc03d4a1f2fb41ef93374c69e4d19e42e27c9a87ec8b799a205eecd3b43b5f02948d03e260a571e21bcf5bfd8e3b6602800df154906e06b2bc88eee410aee355"
       },
       {

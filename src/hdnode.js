@@ -11,21 +11,18 @@ var ECPubKey = require('./ecpubkey')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
-function findBIP32ParamsByVersion(version) {
+function findBIP32NetworkByVersion(version) {
   for (var name in networks) {
     var network = networks[name]
 
     if (version === network.bip32.private ||
         version === network.bip32.public) {
 
-      return {
-        isPrivate: (version === network.bip32.private),
-        network: network
-      }
+      return network
     }
   }
 
-  assert(false, 'Could not find version ' + version.toString(16))
+  assert(false, 'Could not find network for ' + version.toString(16))
 }
 
 function HDNode(K, chainCode, network) {
@@ -88,18 +85,13 @@ HDNode.fromBuffer = function(buffer, network, __ignoreDeprecation) {
 
   // 4 byte: version bytes
   var version = buffer.readUInt32BE(0)
-  var isPrivate
 
   if (network) {
     assert(version === network.bip32.private || version === network.bip32.public, 'Network doesn\'t match')
-    isPrivate = (version === network.bip32.private)
 
-  // auto-detection
+  // auto-detect
   } else {
-    var params = findBIP32ParamsByVersion(version)
-
-    isPrivate = params.isPrivate
-    network = params.network
+    network = findBIP32NetworkByVersion(version)
   }
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
@@ -121,7 +113,7 @@ HDNode.fromBuffer = function(buffer, network, __ignoreDeprecation) {
   var data, hd
 
   // 33 bytes: private key data (0x00 + k)
-  if (isPrivate) {
+  if (version === network.bip32.private) {
     assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
     data = buffer.slice(46, 78)
     var d = BigInteger.fromBuffer(data)
