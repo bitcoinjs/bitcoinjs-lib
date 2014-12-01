@@ -65,9 +65,10 @@ describe('HDNode', function() {
   describe('fromSeed*', function() {
     fixtures.valid.forEach(function(f) {
       it('calculates privKey and chainCode for ' + f.master.fingerprint, function() {
-        var hd = HDNode.fromSeedHex(f.master.seed)
+        var network = networks[f.network]
+        var hd = HDNode.fromSeedHex(f.master.seed, network)
 
-        assert.equal(hd.privKey.toWIF(), f.master.wif)
+        assert.equal(hd.privKey.toWIF(network), f.master.wif)
         assert.equal(hd.chainCode.toString('hex'), f.master.chainCode)
       })
     })
@@ -88,7 +89,8 @@ describe('HDNode', function() {
   describe('toBase58', function() {
     fixtures.valid.forEach(function(f) {
       it('exports ' + f.master.base58 + ' (public) correctly', function() {
-        var hd = HDNode.fromSeedHex(f.master.seed).neutered()
+        var network = networks[f.network]
+        var hd = HDNode.fromSeedHex(f.master.seed, network).neutered()
 
         assert.equal(hd.toBase58(), f.master.base58)
       })
@@ -96,7 +98,8 @@ describe('HDNode', function() {
 
     fixtures.valid.forEach(function(f) {
       it('exports ' + f.master.base58Priv + ' (private) correctly', function() {
-        var hd = HDNode.fromSeedHex(f.master.seed)
+        var network = networks[f.network]
+        var hd = HDNode.fromSeedHex(f.master.seed, network)
 
         assert.equal(hd.toBase58(), f.master.base58Priv)
       })
@@ -132,7 +135,9 @@ describe('HDNode', function() {
     fixtures.invalid.fromBase58.forEach(function(f) {
       it('throws on ' + f.string, function() {
         assert.throws(function() {
-          HDNode.fromBase58(f.string)
+          var network = networks[f.network]
+
+          HDNode.fromBase58(f.string, network)
         }, new RegExp(f.exception))
       })
     })
@@ -175,7 +180,8 @@ describe('HDNode', function() {
 
     fixtures.valid.forEach(function(f) {
       it('exports ' + f.master.hexPriv + ' (private) correctly', function() {
-        var hd = HDNode.fromSeedHex(f.master.seed)
+        var network = networks[f.network]
+        var hd = HDNode.fromSeedHex(f.master.seed, network)
 
         assert.equal(hd.toHex(), f.master.hexPriv)
       })
@@ -212,19 +218,12 @@ describe('HDNode', function() {
   })
 
   describe('getAddress', function() {
-    var f = fixtures.valid[0]
+    fixtures.valid.forEach(function(f) {
+      it('returns ' + f.master.address + ' for ' + f.master.fingerprint, function() {
+        var hd = HDNode.fromBase58(f.master.base58)
 
-    it('returns the Address (pubHash) for ' + f.master.fingerprint, function() {
-      var hd = HDNode.fromBase58(f.master.base58)
-
-      assert.equal(hd.getAddress().toString(), f.master.address)
-    })
-
-    it('supports alternative networks', function() {
-      var hd = HDNode.fromBase58(f.master.base58)
-      hd.network = networks.testnet
-
-      assert.equal(hd.getAddress().version, networks.testnet.pubKeyHash)
+        assert.equal(hd.getAddress().toString(), f.master.address)
+      })
     })
   })
 
@@ -244,8 +243,8 @@ describe('HDNode', function() {
   })
 
   describe('derive', function() {
-    function verifyVector(hd, v, depth) {
-      assert.equal(hd.privKey.toWIF(), v.wif)
+    function verifyVector(hd, network, v, depth) {
+      assert.equal(hd.privKey.toWIF(network), v.wif)
       assert.equal(hd.pubKey.toHex(), v.pubKey)
       assert.equal(hd.chainCode.toString('hex'), v.chainCode)
       assert.equal(hd.depth, depth || 0)
@@ -257,8 +256,9 @@ describe('HDNode', function() {
       }
     }
 
-    fixtures.valid.forEach(function(f, j) {
-      var hd = HDNode.fromSeedHex(f.master.seed)
+    fixtures.valid.forEach(function(f) {
+      var network = networks[f.network]
+      var hd = HDNode.fromSeedHex(f.master.seed, network)
 
       // FIXME: test data is only testing Private -> private for now
       f.children.forEach(function(c, i) {
@@ -270,7 +270,7 @@ describe('HDNode', function() {
             hd = hd.derive(c.m)
           }
 
-          verifyVector(hd, c, i + 1)
+          verifyVector(hd, network, c, i + 1)
         })
       })
     })

@@ -11,21 +11,18 @@ var ECPubKey = require('./ecpubkey')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
-function findBIP32ParamsByVersion(version) {
+function findBIP32NetworkByVersion(version) {
   for (var name in networks) {
     var network = networks[name]
 
     if (version === network.bip32.private ||
         version === network.bip32.public) {
 
-      return {
-        isPrivate: (version === network.bip32.private),
-        network: network
-      }
+      return network
     }
   }
 
-  assert(false, 'Could not find version ' + version.toString(16))
+  assert(false, 'Could not find network for ' + version.toString(16))
 }
 
 function HDNode(K, chainCode, network) {
@@ -74,12 +71,12 @@ HDNode.fromSeedHex = function(hex, network) {
   return HDNode.fromSeedBuffer(new Buffer(hex, 'hex'), network)
 }
 
-HDNode.fromBase58 = function(string) {
-  return HDNode.fromBuffer(base58check.decode(string), true)
+HDNode.fromBase58 = function(string, network) {
+  return HDNode.fromBuffer(base58check.decode(string), network, true)
 }
 
 // FIXME: remove in 2.x.y
-HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
+HDNode.fromBuffer = function(buffer, network, __ignoreDeprecation) {
   if (!__ignoreDeprecation) {
     console.warn('HDNode.fromBuffer() is deprecated for removal in 2.x.y, use fromBase58 instead')
   }
@@ -88,7 +85,14 @@ HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
 
   // 4 byte: version bytes
   var version = buffer.readUInt32BE(0)
-  var params = findBIP32ParamsByVersion(version)
+
+  if (network) {
+    assert(version === network.bip32.private || version === network.bip32.public, 'Network doesn\'t match')
+
+  // auto-detect
+  } else {
+    network = findBIP32NetworkByVersion(version)
+  }
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer.readUInt8(4)
@@ -109,11 +113,11 @@ HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
   var data, hd
 
   // 33 bytes: private key data (0x00 + k)
-  if (params.isPrivate) {
+  if (version === network.bip32.private) {
     assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
     data = buffer.slice(46, 78)
     var d = BigInteger.fromBuffer(data)
-    hd = new HDNode(d, chainCode, params.network)
+    hd = new HDNode(d, chainCode, network)
 
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
@@ -125,7 +129,7 @@ HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
     // If not, the extended public key is invalid.
     curve.validate(Q)
 
-    hd = new HDNode(Q, chainCode, params.network)
+    hd = new HDNode(Q, chainCode, network)
   }
 
   hd.depth = depth
@@ -136,8 +140,8 @@ HDNode.fromBuffer = function(buffer, __ignoreDeprecation) {
 }
 
 // FIXME: remove in 2.x.y
-HDNode.fromHex = function(hex) {
-  return HDNode.fromBuffer(new Buffer(hex, 'hex'))
+HDNode.fromHex = function(hex, network) {
+  return HDNode.fromBuffer(new Buffer(hex, 'hex'), network)
 }
 
 HDNode.prototype.getIdentifier = function() {
