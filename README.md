@@ -68,7 +68,7 @@ After loading this file in your browser, you will be able to use the global `bit
 The below examples are implemented as [integration tests](https://github.com/bitcoinjs/bitcoinjs-lib/tree/master/test/integration), they should be very easy to understand. Otherwise, pull requests are appreciated.
 
 - [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L8)
-- [Generate a address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L20)
+- [Generate an address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L20)
 - [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L29)
 - [Create a Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L36)
 - [Sign a Bitcoin message](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/advanced.js#L9)
@@ -87,10 +87,15 @@ An easy way to start would be transfering the integation tests into small docume
 
 ###Overview
 
-- [Generate a random address](#generate-a-random-address)
-- [Create a Transaction](#create-a-transaction)
+- [Addresses](#addresses)
+  - [Generate a random address](#generate-a-random-address)
+  - [Generate a address from a SHA256 hash](#generate-an-address-from-a-SHA256-hash)
+- [Transactions](#transactions)
+  - [Create a Transaction](#create-a-transaction)
 
-###Generate a random address
+###Addresses
+
+####Generate a random address
 Generating a random address is easily done in bitcoinjs:
 
 ````javascript
@@ -106,8 +111,23 @@ console.log(key.pub.getAddress().toString());
 // => 14bZ7YWde4KdRb5YN7GYkToz3EHVCvRxkF
 ```
 
+####Generate a address from a SHA256 hash
 
-###Create a Transaction
+````javascript
+// convert any string to a sha56 hash and convert it to a buffer
+// using the standard node syntax
+var hash = bitcoin.crypto.sha256('correct horse battery staple')
+var d = bigi.fromBuffer(hash)
+
+// create a key pair by entering the buffer as a constructor
+// parameter
+var key = new bitcoin.ECKey(d)
+```
+
+
+###Transactions
+
+####Create a Transaction
 In order to create a transaction the first thing we need to do is [create a private key and convert it
 to WIF format](#generate-a-random-address). 
 
