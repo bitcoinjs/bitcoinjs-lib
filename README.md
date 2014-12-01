@@ -87,11 +87,29 @@ An easy way to start would be transfering the integation tests into small docume
 
 ###Overview
 
+- [Generate a random address](#generate-a-random-address)
 - [Create a Transaction](#create-a-transaction)
+
+###Generate a random address
+Generating a random address is easily done in bitcoinjs:
+
+````javascript
+// Generate the private key
+var key = bitcoin.ECKey.makeRandom();
+
+// Print your private key (in WIF format)
+console.log(key.toWIF());
+// => Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct
+
+// Print your public key (toString defaults to a Bitcoin address)
+console.log(key.pub.getAddress().toString());
+// => 14bZ7YWde4KdRb5YN7GYkToz3EHVCvRxkF
+```
+
 
 ###Create a Transaction
 In order to create a transaction the first thing we need to do is [create a private key and convert it
-to WIF format](####generate-a-random-address). 
+to WIF format](#generate-a-random-address). 
 
 Please note that when sending transactions with leftover bitcoins in an input address, those bitcoins **will be included**
 in the transaction as **mining fees**.
@@ -112,8 +130,13 @@ tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000);
 
 // For signing the first input this statement is used
 tx.sign(0, key);
-```
 
+// Print transaction serialized as hex
+console.log(tx.toHex());
+// => 0100000001313eb630b128102b60241ca895f1d0ffca21 ...
+
+// You could now push the transaction onto the Bitcoin network manually (see https://blockchain.info/pushtx)
+```
 
 
 
