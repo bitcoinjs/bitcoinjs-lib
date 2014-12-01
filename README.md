@@ -90,6 +90,7 @@ An easy way to start would be transfering the integation tests into small docume
 - [Addresses](#addresses)
   - [Generate a random address](#generate-a-random-address)
   - [Generate a address from a SHA256 hash](#generate-an-address-from-a-SHA256-hash)
+  - [Import an address via WIF](#import-an-address-via-wif)
 - [Transactions](#transactions)
   - [Create a Transaction](#create-a-transaction)
 
@@ -116,14 +117,21 @@ console.log(key.pub.getAddress().toString());
 ````javascript
 // convert any string to a sha56 hash and convert it to a buffer
 // using the standard node syntax
-var hash = bitcoin.crypto.sha256('correct horse battery staple')
-var d = bigi.fromBuffer(hash)
+var hash = bitcoin.crypto.sha256('correct horse battery staple');
+var d = bigi.fromBuffer(hash);
 
 // create a key pair by entering the buffer as a constructor
 // parameter
-var key = new bitcoin.ECKey(d)
+var key = new bitcoin.ECKey(d);
 ```
 
+####Import an address via WIF
+You can also import wif-formated addresses with one simple command:
+
+````javascript
+var key = bitcoin.ECKey.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
+var address = key.pub.getAddress().toString();
+```
 
 ###Transactions
 
