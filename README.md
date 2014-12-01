@@ -42,11 +42,11 @@ If you are looking for the original, it is tagged as `0.1.3`. Unless you need it
 
 ### Node.js
 
-    var bitcoin = require('bitcoinjs-lib')
+    var bitcoin = require('bitcoinjs-lib');
 
 From the repo:
 
-    var bitcoin = require('./src/index.js')
+    var bitcoin = require('./src/index.js');
 
 
 ### Browser
@@ -65,7 +65,7 @@ After loading this file in your browser, you will be able to use the global `bit
 
 ## Examples
 
-The below examples are implemented as integration tests, they should be very easy to understand.  Otherwise, pull requests are appreciated.
+The below examples are implemented as [integration tests](https://github.com/bitcoinjs/bitcoinjs-lib/tree/master/test/integration), they should be very easy to understand. Otherwise, pull requests are appreciated.
 
 - [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L8)
 - [Generate a address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/basic.js#L20)
@@ -78,6 +78,43 @@ The below examples are implemented as integration tests, they should be very eas
 - [Create an OP RETURN transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/advanced.js#L60)
 - [Create a 2-of-3 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/multisig.js#L8)
 - [Spend from a 2-of-2 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/multisig.js#L22)
+
+
+## Documentation
+Unfortunately our documentation is not quite finished yet.
+If you have time to spare and know a little bit about bitcoinjs, please consider helping.
+An easy way to start would be transfering the integation tests into small documentation snippets.
+
+###Overview
+
+- [Create a Transaction](#create-a-transaction)
+
+###Create a Transaction
+In order to create a transaction the first thing we need to do is [create a private key and convert it
+to WIF format](####generate-a-random-address). 
+
+Please note that when sending transactions with leftover bitcoins in an input address, those bitcoins **will be included**
+in the transaction as **mining fees**.
+
+
+````javascript
+// Importing a WIF formated private key: L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy
+// and creating a boilerplate transaction from TransactionBuilder() 
+var key = bitcoin.ECKey.fromWIF("L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy");
+var tx = new bitcoin.TransactionBuilder();
+
+// Adding inputs is done by specifing their hash and an index (in this case 0)
+tx.addInput("aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31", 0);
+
+// Adding outputs is done by specifing an address base58Check encoded address and 
+// an amount of satoshis 
+tx.addOutput("1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK", 15000);
+
+// For signing the first input this statement is used
+tx.sign(0, key);
+```
+
+
 
 
 ## Projects utilizing BitcoinJS
