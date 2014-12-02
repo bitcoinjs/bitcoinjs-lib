@@ -20,26 +20,26 @@ TransactionBuilder.fromTransaction = function(transaction) {
   var txb = new TransactionBuilder()
 
   // Extract/add inputs
-  transaction.ins.forEach(function(txin) {
-    txb.addInput(txin.hash, txin.index, txin.sequence)
+  transaction.ins.forEach(function(txIn) {
+    txb.addInput(txIn.hash, txIn.index, txIn.sequence)
   })
 
   // Extract/add outputs
-  transaction.outs.forEach(function(txout) {
-    txb.addOutput(txout.script, txout.value)
+  transaction.outs.forEach(function(txOut) {
+    txb.addOutput(txOut.script, txOut.value)
   })
 
   // Extract/add signatures
-  transaction.ins.forEach(function(txin, i) {
+  transaction.ins.forEach(function(txIn, i) {
     // Ignore empty scripts
-    if (txin.script.buffer.length === 0) return
+    if (txIn.script.buffer.length === 0) return
 
-    assert(!Array.prototype.every.call(txin.hash, function(x) {
+    assert(!Array.prototype.every.call(txIn.hash, function(x) {
       return x === 0
     }), 'coinbase inputs not supported')
 
     var redeemScript
-    var scriptSig = txin.script
+    var scriptSig = txIn.script
     var scriptType = scripts.classifyInput(scriptSig)
 
     // Re-classify if P2SH

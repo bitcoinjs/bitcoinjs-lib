@@ -83,7 +83,7 @@ Transaction.fromHex = function(hex) {
 }
 
 /**
- * Create a new txin.
+ * Create a new txIn.
  *
  * Can be called with any of:
  *
@@ -122,7 +122,7 @@ Transaction.prototype.addInput = function(hash, index, sequence, script) {
 }
 
 /**
- * Create a new txout.
+ * Create a new txOut.
  *
  * Can be called with:
  *
@@ -156,19 +156,19 @@ Transaction.prototype.clone = function () {
   newTx.version = this.version
   newTx.locktime = this.locktime
 
-  newTx.ins = this.ins.map(function(txin) {
+  newTx.ins = this.ins.map(function(txIn) {
     return {
-      hash: txin.hash,
-      index: txin.index,
-      script: txin.script,
-      sequence: txin.sequence
+      hash: txIn.hash,
+      index: txIn.index,
+      script: txIn.script,
+      sequence: txIn.sequence
     }
   })
 
-  newTx.outs = this.outs.map(function(txout) {
+  newTx.outs = this.outs.map(function(txOut) {
     return {
-      script: txout.script,
-      value: txout.value
+      script: txOut.script,
+      value: txOut.value
     }
   })
 
@@ -205,8 +205,8 @@ Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashTy
   var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
 
   // Blank out other inputs' signatures
-  txTmp.ins.forEach(function(txin) {
-    txin.script = Script.EMPTY
+  txTmp.ins.forEach(function(txIn) {
+    txIn.script = Script.EMPTY
   })
   txTmp.ins[inIndex].script = hashScript
 
@@ -280,19 +280,19 @@ Transaction.prototype.toBuffer = function () {
   writeUInt32(this.version)
   writeVarInt(this.ins.length)
 
-  this.ins.forEach(function(txin) {
-    writeSlice(txin.hash)
-    writeUInt32(txin.index)
-    writeVarInt(txin.script.buffer.length)
-    writeSlice(txin.script.buffer)
-    writeUInt32(txin.sequence)
+  this.ins.forEach(function(txIn) {
+    writeSlice(txIn.hash)
+    writeUInt32(txIn.index)
+    writeVarInt(txIn.script.buffer.length)
+    writeSlice(txIn.script.buffer)
+    writeUInt32(txIn.sequence)
   })
 
   writeVarInt(this.outs.length)
-  this.outs.forEach(function(txout) {
-    writeUInt64(txout.value)
-    writeVarInt(txout.script.buffer.length)
-    writeSlice(txout.script.buffer)
+  this.outs.forEach(function(txOut) {
+    writeUInt64(txOut.value)
+    writeVarInt(txOut.script.buffer.length)
+    writeSlice(txOut.script.buffer)
   })
 
   writeUInt32(this.locktime)
