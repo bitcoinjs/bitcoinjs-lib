@@ -1,9 +1,12 @@
 var assert = require('assert')
-var crypto = require('./crypto')
+var crypto = require('crypto')
 var enforceType = require('./types')
 
 var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
+
+var ZERO = new Buffer([0])
+var ONE = new Buffer([1])
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
 function deterministicGenerateK(curve, hash, d) {
@@ -24,27 +27,41 @@ function deterministicGenerateK(curve, hash, d) {
   k.fill(0)
 
   // Step D
-  k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
+  k = crypto.createHmac('sha256', k)
+    .update(v)
+    .update(ZERO)
+    .update(x)
+    .update(hash)
+    .digest()
 
   // Step E
-  v = crypto.HmacSHA256(v, k)
+  v = crypto.createHmac('sha256', k).update(v).digest()
 
   // Step F
-  k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
+  k = crypto.createHmac('sha256', k)
+    .update(v)
+    .update(ONE)
+    .update(x)
+    .update(hash)
+    .digest()
 
   // Step G
-  v = crypto.HmacSHA256(v, k)
+  v = crypto.createHmac('sha256', k).update(v).digest()
 
   // Step H1/H2a, ignored as tlen === qlen (256 bit)
   // Step H2b
-  v = crypto.HmacSHA256(v, k)
+  v = crypto.createHmac('sha256', k).update(v).digest()
 
   var T = BigInteger.fromBuffer(v)
 
   // Step H3, repeat until T is within the interval [1, n - 1]
   while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0)) {
-    k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0])]), k)
-    v = crypto.HmacSHA256(v, k)
+    k = crypto.createHmac('sha256', k)
+      .update(v)
+      .update(ZERO)
+      .digest()
+
+    v = crypto.createHmac('sha256', k).update(v).digest()
 
     T = BigInteger.fromBuffer(v)
   }
