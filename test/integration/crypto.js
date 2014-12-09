@@ -1,6 +1,8 @@
 var assert = require('assert')
+var async = require('async')
 var bigi = require('bigi')
 var bitcoin = require('../../')
+var blockchain = new (require('cb-helloblock'))('bitcoin')
 var crypto = require('crypto')
 
 describe('bitcoinjs-lib (crypto)', function() {
@@ -83,5 +85,99 @@ describe('bitcoinjs-lib (crypto)', function() {
     var neuteredMaster = master.neutered()
     var recovered = recoverParent(neuteredMaster, child)
     assert.equal(recovered.toBase58(), master.toBase58())
+  })
+
+  it('can recover a private key from duplicate R values', function() {
+    var inputs = [
+      {
+        txId: "f4c16475f2a6e9c602e4a287f9db3040e319eb9ece74761a4b84bc820fbeef50",
+        vout: 0
+      },
+      {
+        txId: "f4c16475f2a6e9c602e4a287f9db3040e319eb9ece74761a4b84bc820fbeef50",
+        vout: 1
+      }
+    ]
+
+    var txIds = inputs.map(function(x) { return x.txId })
+
+    // first retrieve the relevant transactions
+    blockchain.transactions.get(txIds, function(err, results) {
+      assert.ifError(err)
+
+      var transactions = {}
+      results.forEach(function(tx) {
+        transactions[tx.txId] = bitcoin.Transaction.fromHex(tx.txHex)
+      })
+
+      var tasks = []
+
+      // now we need to collect/transform a bit of data from the selected inputs
+      inputs.forEach(function(input) {
+        var transaction = transactions[input.txId]
+        var script = transaction.ins[input.vout].script
+        assert(bitcoin.scripts.isPubKeyHashInput(script), 'Expected pubKeyHash script')
+
+        var prevOutTxId = bitcoin.bufferutils.reverse(transaction.ins[input.vout].hash).toString('hex')
+        var prevVout = transaction.ins[input.vout].index
+
+        tasks.push(function(callback) {
+          blockchain.transactions.get(prevOutTxId, function(err, result) {
+            if (err) return callback(err)
+
+            var prevOut = bitcoin.Transaction.fromHex(result.txHex)
+            var prevOutScript = prevOut.outs[prevVout].script
+
+            var scriptSignature = bitcoin.ECSignature.parseScriptSignature(script.chunks[0])
+            var publicKey = bitcoin.ECPubKey.fromBuffer(script.chunks[1])
+
+            var m = transaction.hashForSignature(input.vout, prevOutScript, scriptSignature.hashType)
+            assert(publicKey.verify(m, scriptSignature.signature), 'Invalid m')
+
+            // store the required information
+            input.signature = scriptSignature.signature
+            input.z = bigi.fromBuffer(m)
+
+            return callback()
+          })
+        })
+      })
+
+      // finally, run the tasks, then on to the math
+      async.parallel(tasks, function(err) {
+        if (err) throw err
+        var n = bitcoin.ECKey.curve.n
+
+        for (var i = 0; i < inputs.length; ++i) {
+          for (var j = i + 1; j < inputs.length; ++j) {
+            var inputA = inputs[i]
+            var inputB = inputs[j]
+
+            // enforce matching r values
+            assert.equal(inputA.signature.r.toString(), inputB.signature.r.toString())
+            var r = inputA.signature.r
+            var rInv = r.modInverse(n)
+
+            var s1 = inputA.signature.s
+            var s2 = inputB.signature.s
+            var z1 = inputA.z
+            var z2 = inputB.z
+
+            var zz = z1.subtract(z2).mod(n)
+            var ss = s1.subtract(s2).mod(n)
+
+            // k = (z1 - z2) / (s1 - s2)
+            // d1 = (s1 * k - z1) / r
+            // d2 = (s2 * k - z2) / r
+            var k = zz.multiply(ss.modInverse(n)).mod(n)
+            var d1 = (( s1.multiply(k).mod(n) ).subtract(z1).mod(n) ).multiply(rInv).mod(n)
+            var d2 = (( s2.multiply(k).mod(n) ).subtract(z2).mod(n) ).multiply(rInv).mod(n)
+
+            // enforce matching private keys
+            assert.equal(d1.toString(), d2.toString())
+          }
+        }
+      })
+    })
   })
 })
