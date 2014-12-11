@@ -1,8 +1,6 @@
 var assert = require('assert')
 var bitcoin = require('../../')
-var helloblock = require('helloblock-js')({
-  network: 'testnet'
-})
+var blockchain = new (require('cb-helloblock'))('testnet')
 
 describe('bitcoinjs-lib (multisig)', function() {
   it('can create a 2-of-3 multisig P2SH address', function() {
@@ -33,11 +31,11 @@ describe('bitcoinjs-lib (multisig)', function() {
     var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
 
     // Attempt to send funds to the source address
-    helloblock.faucet.withdraw(address, 2e4, function(err) {
+    blockchain.addresses.__faucetWithdraw(address, 2e4, function(err) {
       if (err) return done(err)
 
       // get latest unspents from the address
-      helloblock.addresses.getUnspents(address, function(err, _, unspents) {
+      blockchain.addresses.unspents(address, function(err, unspents) {
         if (err) return done(err)
 
         // filter small unspents
@@ -50,7 +48,7 @@ describe('bitcoinjs-lib (multisig)', function() {
         var targetAddress = bitcoin.ECKey.makeRandom().pub.getAddress(bitcoin.networks.testnet).toString()
 
         var txb = new bitcoin.TransactionBuilder()
-        txb.addInput(unspent.txHash, unspent.index)
+        txb.addInput(unspent.txId, unspent.vout)
         txb.addOutput(targetAddress, 1e4)
 
         // sign w/ each private key
@@ -59,14 +57,14 @@ describe('bitcoinjs-lib (multisig)', function() {
         })
 
         // broadcast our transaction
-        helloblock.transactions.propagate(txb.build().toHex(), function(err) {
+        blockchain.transactions.propagate(txb.build().toHex(), function(err) {
           if (err) return done(err)
 
           // check that the funds (1e4 Satoshis) indeed arrived at the intended address
-          helloblock.addresses.get(targetAddress, function(err, res, addrInfo) {
+          blockchain.addresses.summary(targetAddress, function(err, result) {
             if (err) return done(err)
 
-            assert.equal(addrInfo.balance, 1e4)
+            assert.equal(result.balance, 1e4)
             done()
           })
         })

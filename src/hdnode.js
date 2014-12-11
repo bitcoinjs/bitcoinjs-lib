@@ -37,6 +37,7 @@ function HDNode(K, chainCode, network) {
   this.chainCode = chainCode
   this.depth = 0
   this.index = 0
+  this.parentFingerprint = 0x00000000
   this.network = network
 
   if (K instanceof BigInteger) {
@@ -196,8 +197,7 @@ HDNode.prototype.toBuffer = function(isPrivate, __ignoreDeprecation) {
   buffer.writeUInt8(this.depth, 4)
 
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
-  var fingerprint = (this.depth === 0) ? 0x00000000 : this.parentFingerprint
-  buffer.writeUInt32BE(fingerprint, 5)
+  buffer.writeUInt32BE(this.parentFingerprint, 5)
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
   // This is encoded in Big endian. (0x00000000 if master key)
