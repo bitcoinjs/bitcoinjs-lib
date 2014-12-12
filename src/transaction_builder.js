@@ -33,10 +33,9 @@ function extractSignature(txIn) {
   switch (scriptType) {
     case 'pubkeyhash':
       parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
-      var pubKey = ECPubKey.fromBuffer(scriptSig.chunks[1])
-
       hashType = parsed.hashType
-      pubKeys = [pubKey]
+
+      pubKeys = [ECPubKey.fromBuffer(scriptSig.chunks[1])]
       signatures = [parsed.signature]
 
       break
@@ -50,6 +49,10 @@ function extractSignature(txIn) {
       pubKeys = []
       signatures = parsed.map(function(p) { return p.signature })
 
+      if (redeemScript) {
+        pubKeys = redeemScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
+      }
+
       break
 
     case 'pubkey':
@@ -58,6 +61,10 @@ function extractSignature(txIn) {
       hashType = parsed.hashType
       pubKeys = []
       signatures = [parsed.signature]
+
+      if (redeemScript) {
+        pubKeys = [ECPubKey.fromBuffer(redeemScript.chunks[0])]
+      }
 
       break
 
@@ -249,15 +256,26 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
 
   var input = this.signatures[index]
   if (!input) {
+    var pubKeys = []
+
+    if (redeemScript && scriptType === 'multisig') {
+      pubKeys = redeemScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
+
+    } else {
+      pubKeys.push(privKey.pub)
+    }
+
     input = {
       hashType: hashType,
-      pubKeys: [],
+      pubKeys: pubKeys,
       redeemScript: redeemScript,
       scriptType: scriptType,
       signatures: []
     }
 
     this.signatures[index] = input
+    this.prevOutScripts[index] = prevOutScript
+    this.prevOutTypes[index] = prevOutType
 
   } else {
     assert.equal(scriptType, 'multisig', scriptType + ' doesn\'t support multiple signatures')
@@ -265,13 +283,15 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
     assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
   }
 
-  this.prevOutScripts[index] = prevOutScript
-  this.prevOutTypes[index] = prevOutType
+  // enforce signing in order of public keys
+  assert(input.pubKeys.some(function(pubKey, i) {
+    if (!privKey.pub.Q.equals(pubKey.Q)) return false // FIXME: could be better?
 
-  // TODO: order signatures for multisig, enforce m < n
-  var signature = privKey.sign(hash)
-  input.pubKeys.push(privKey.pub)
-  input.signatures.push(signature)
+    assert(!input.signatures[i], 'Signature already exists')
+    input.signatures[i] = privKey.sign(hash)
+
+    return true
+  }), 'privateKey cannot sign for this input')
 }
 
 module.exports = TransactionBuilder
