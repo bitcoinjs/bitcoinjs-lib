@@ -93,7 +93,10 @@ Transaction.fromHex = function(hex) {
  * Note that this method does not sign the created input.
  */
 Transaction.prototype.addInput = function(hash, index, sequence, script) {
-  if (sequence === undefined) sequence = Transaction.DEFAULT_SEQUENCE
+  if (sequence === undefined || sequence === null) {
+    sequence = Transaction.DEFAULT_SEQUENCE
+  }
+  
   script = script || Script.EMPTY
 
   if (typeof hash === 'string') {
