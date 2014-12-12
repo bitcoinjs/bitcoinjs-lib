@@ -184,6 +184,27 @@ describe('TransactionBuilder', function() {
         }, /RedeemScript not supported \(nonstandard\)/)
       })
     })
+
+    it('throws if signature already exists', function() {
+      var redeemScript = scripts.multisigOutput(1, [privKey.pub])
+
+      txb.addInput(prevTxHash, 0)
+      txb.sign(0, privKey, redeemScript)
+
+      assert.throws(function() {
+        txb.sign(0, privKey, redeemScript)
+      }, /Signature already exists/)
+    })
+
+    it('throws if private key is unable to sign for that input', function() {
+      var redeemScript = scripts.multisigOutput(1, [privKey.pub])
+
+      txb.addInput(prevTxHash, 0)
+
+      assert.throws(function() {
+        txb.sign(0, ECKey.makeRandom(), redeemScript)
+      }, /privateKey cannot sign for this input/)
+    })
   })
 
   describe('build', function() {
