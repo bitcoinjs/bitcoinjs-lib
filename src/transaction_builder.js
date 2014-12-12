@@ -251,25 +251,28 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
     hash = this.tx.hashForSignature(index, prevOutScript, hashType)
   }
 
-  this.prevOutScripts[index] = prevOutScript
-  this.prevOutTypes[index] = prevOutType
-
-  if (!(index in this.signatures)) {
-    this.signatures[index] = {
+  var input = this.signatures[index]
+  if (!input) {
+    input = {
       hashType: hashType,
       pubKeys: [],
       redeemScript: redeemScript,
       scriptType: scriptType,
       signatures: []
     }
+
+    this.signatures[index] = input
+
   } else {
     assert.equal(scriptType, 'multisig', scriptType + ' doesn\'t support multiple signatures')
+    assert.equal(input.hashType, hashType, 'Inconsistent hashType')
+    assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
   }
 
-  var input = this.signatures[index]
-  assert.equal(input.hashType, hashType, 'Inconsistent hashType')
-  assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
+  this.prevOutScripts[index] = prevOutScript
+  this.prevOutTypes[index] = prevOutType
 
+  // TODO: order signatures for multisig, enforce m < n
   var signature = privKey.sign(hash)
   input.pubKeys.push(privKey.pub)
   input.signatures.push(signature)

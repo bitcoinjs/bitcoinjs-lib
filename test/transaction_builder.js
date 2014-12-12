@@ -153,6 +153,29 @@ describe('TransactionBuilder', function() {
         }, /RedeemScript can\'t be P2SH/)
       })
 
+      it('throws if hashType is inconsistent', function() {
+        var redeemScript = scripts.multisigOutput(1, [privKey.pub])
+
+        txb.addInput(prevTxHash, 0)
+        txb.sign(0, privKey, redeemScript, 83)
+
+        assert.throws(function() {
+          txb.sign(0, privKey, redeemScript, 82)
+        }, /Inconsistent hashType/)
+      })
+
+      it('throws if redeemScript is inconsistent', function() {
+        var firstScript = scripts.multisigOutput(1, [privKey.pub])
+        var otherScript = scripts.multisigOutput(2, [privKey.pub, privKey.pub])
+
+        txb.addInput(prevTxHash, 0)
+        txb.sign(0, privKey, firstScript)
+
+        assert.throws(function() {
+          txb.sign(0, privKey, otherScript)
+        }, /Inconsistent redeemScript/)
+      })
+
       it('throws if redeemScript not supported', function() {
         txb.addInput(prevTxHash, 0)
 
