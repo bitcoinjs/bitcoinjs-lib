@@ -16,6 +16,71 @@ function TransactionBuilder() {
   this.tx = new Transaction()
 }
 
+function extractSignature(txIn) {
+  assert(!Array.prototype.every.call(txIn.hash, function(x) {
+    return x === 0
+  }), 'coinbase inputs not supported')
+
+  var redeemScript
+  var scriptSig = txIn.script
+  var scriptType = scripts.classifyInput(scriptSig, true)
+
+  // Re-classify if P2SH
+  if (scriptType === 'scripthash') {
+    redeemScript = Script.fromBuffer(scriptSig.chunks.slice(-1)[0])
+    scriptSig = Script.fromChunks(scriptSig.chunks.slice(0, -1))
+
+    scriptType = scripts.classifyInput(scriptSig, true)
+    assert.equal(scripts.classifyOutput(redeemScript), scriptType, 'Non-matching scriptSig and scriptPubKey in input')
+  }
+
+  // Extract hashType, pubKeys and signatures
+  var hashType, parsed, pubKeys, signatures
+
+  switch (scriptType) {
+    case 'pubkeyhash':
+      parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+      var pubKey = ECPubKey.fromBuffer(scriptSig.chunks[1])
+
+      hashType = parsed.hashType
+      pubKeys = [pubKey]
+      signatures = [parsed.signature]
+
+      break
+
+    case 'multisig':
+      parsed = scriptSig.chunks.slice(1).filter(function(chunk) {
+        return chunk !== ops.OP_0
+      }).map(ECSignature.parseScriptSignature)
+
+      hashType = parsed[0].hashType
+      pubKeys = []
+      signatures = parsed.map(function(p) { return p.signature })
+
+      break
+
+    case 'pubkey':
+      parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+
+      hashType = parsed.hashType
+      pubKeys = []
+      signatures = [parsed.signature]
+
+      break
+
+    default:
+      assert(false, scriptType + ' inputs not supported')
+  }
+
+  return {
+    hashType: hashType,
+    pubKeys: pubKeys,
+    redeemScript: redeemScript,
+    scriptType: scriptType,
+    signatures: signatures
+  }
+}
+
 // Static constructors
 TransactionBuilder.fromTransaction = function(transaction) {
   var txb = new TransactionBuilder()
@@ -35,72 +100,16 @@ TransactionBuilder.fromTransaction = function(transaction) {
   })
 
   // Extract/add signatures
-  transaction.ins.forEach(function(txIn, i) {
-    // Ignore empty scripts
-    if (txIn.script.buffer.length === 0) return
-
+  txb.signatures = transaction.ins.map(function(txIn) {
+    // Coinbase inputs not supported
     assert(!Array.prototype.every.call(txIn.hash, function(x) {
       return x === 0
     }), 'coinbase inputs not supported')
 
-    var redeemScript
-    var scriptSig = txIn.script
-    var scriptType = scripts.classifyInput(scriptSig, true)
+    // Ignore empty scripts
+    if (txIn.script.buffer.length === 0) return
 
-    // Re-classify if P2SH
-    if (scriptType === 'scripthash') {
-      redeemScript = Script.fromBuffer(scriptSig.chunks.slice(-1)[0])
-      scriptSig = Script.fromChunks(scriptSig.chunks.slice(0, -1))
-
-      scriptType = scripts.classifyInput(scriptSig, true)
-      assert.equal(scripts.classifyOutput(redeemScript), scriptType, 'Non-matching scriptSig and scriptPubKey in input')
-    }
-
-    // Extract hashType, pubKeys and signatures
-    var hashType, parsed, pubKeys, signatures
-
-    switch (scriptType) {
-      case 'pubkeyhash':
-        parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
-        var pubKey = ECPubKey.fromBuffer(scriptSig.chunks[1])
-
-        hashType = parsed.hashType
-        pubKeys = [pubKey]
-        signatures = [parsed.signature]
-
-        break
-
-      case 'multisig':
-        parsed = scriptSig.chunks.slice(1).filter(function(chunk) {
-          return chunk !== ops.OP_0
-        }).map(ECSignature.parseScriptSignature)
-
-        hashType = parsed[0].hashType
-        pubKeys = []
-        signatures = parsed.map(function(p) { return p.signature })
-
-        break
-
-      case 'pubkey':
-        parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
-
-        hashType = parsed.hashType
-        pubKeys = []
-        signatures = [parsed.signature]
-
-        break
-
-      default:
-        assert(false, scriptType + ' inputs not supported')
-    }
-
-    txb.signatures[i] = {
-      hashType: hashType,
-      pubKeys: pubKeys,
-      redeemScript: redeemScript,
-      scriptType: scriptType,
-      signatures: signatures
-    }
+    return extractSignature(txIn)
   })
 
   return txb
