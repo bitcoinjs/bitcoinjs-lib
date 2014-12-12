@@ -1,8 +1,6 @@
 var assert = require('assert')
-var ecdsa = require('../src/ecdsa')
 var scripts = require('../src/scripts')
 
-var Address = require('../src/address')
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
 var Script = require('../src/script')
@@ -24,12 +22,10 @@ describe('TransactionBuilder', function() {
     prevTx.addOutput('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH', 0)
     prevTx.addOutput('1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP', 1)
     prevTxHash = prevTx.getHash()
-    prevTxId = prevTx.getId()
 
     privKey = new ECKey(BigInteger.ONE, false)
     privAddress = privKey.pub.getAddress()
     privScript = privAddress.toOutputScript()
-    value = 10000
   })
 
   describe('addInput', function() {
@@ -90,7 +86,7 @@ describe('TransactionBuilder', function() {
   describe('addOutput', function() {
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function() {
       txb.addInput(prevTxHash, 0)
-      txb.addOutput(privScript, value)
+      txb.addOutput(privScript, 2000)
       txb.sign(0, privKey)
 
       assert.throws(function() {
@@ -256,7 +252,7 @@ describe('TransactionBuilder', function() {
       })
     })
 
-    fixtures.invalid.fromTransaction.forEach(function(f,i) {
+    fixtures.invalid.fromTransaction.forEach(function(f) {
       it('throws on ' + f.exception, function() {
         var tx = Transaction.fromHex(f.hex)
 
