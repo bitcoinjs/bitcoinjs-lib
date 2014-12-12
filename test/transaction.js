@@ -30,7 +30,7 @@ describe('Transaction', function() {
 
   describe('fromBuffer/fromHex', function() {
     fixtures.valid.forEach(function(f) {
-      it('imports ' + f.txid + ' correctly', function() {
+      it('imports ' + f.id + ' correctly', function() {
         var actual = Transaction.fromHex(f.hex)
 
         assert.deepEqual(actual.toHex(), f.hex)
@@ -48,7 +48,7 @@ describe('Transaction', function() {
 
   describe('toBuffer/toHex', function() {
     fixtures.valid.forEach(function(f) {
-      it('exports ' + f.txid + ' correctly', function() {
+      it('exports ' + f.id + ' correctly', function() {
         var actual = fromRaw(f.raw)
 
         assert.deepEqual(actual.toHex(), f.hex)
@@ -109,7 +109,7 @@ describe('Transaction', function() {
     })
 
     fixtures.valid.forEach(function(f) {
-      it('should add the inputs for ' + f.txid + ' correctly', function() {
+      it('should add the inputs for ' + f.id + ' correctly', function() {
         var tx = new Transaction()
 
         f.raw.ins.forEach(function(txIn, i) {
@@ -183,7 +183,7 @@ describe('Transaction', function() {
     })
 
     fixtures.valid.forEach(function(f) {
-      it('should add the outputs for ' + f.txid + ' correctly', function() {
+      it('should add the outputs for ' + f.id + ' correctly', function() {
         var tx = new Transaction()
 
         f.raw.outs.forEach(function(txOut, i) {
@@ -215,18 +215,18 @@ describe('Transaction', function() {
 
   describe('getId', function() {
     fixtures.valid.forEach(function(f) {
-      it('should return the txid for ' + f.txid, function() {
+      it('should return the id for ' + f.id, function() {
         var tx = Transaction.fromHex(f.hex)
         var actual = tx.getId()
 
-        assert.equal(actual, f.txid)
+        assert.equal(actual, f.id)
       })
     })
   })
 
   describe('getHash', function() {
     fixtures.valid.forEach(function(f) {
-      it('should return the hash for ' + f.txid, function() {
+      it('should return the hash for ' + f.id, function() {
         var tx = Transaction.fromHex(f.hex)
         var actual = tx.getHash().toString('hex')
 

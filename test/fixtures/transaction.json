@@ -2,7 +2,7 @@
   "valid": [
     {
       "description": "Standard transaction (1:1)",
-      "txid": "a0ff943d3f644d8832b1fa74be4d0ad2577615dc28a7ef74ff8c271b603a082a",
+      "id": "a0ff943d3f644d8832b1fa74be4d0ad2577615dc28a7ef74ff8c271b603a082a",
       "hash": "2a083a601b278cff74efa728dc157657d20a4dbe74fab132884d643f3d94ffa0",
       "raw": {
         "version": 1,
@@ -25,7 +25,7 @@
     },
     {
       "description": "Standard transaction (2:2)",
-      "txid": "fcdd6d89c43e76dcff94285d9b6e31d5c60cb5e397a76ebc4920befad30907bc",
+      "id": "fcdd6d89c43e76dcff94285d9b6e31d5c60cb5e397a76ebc4920befad30907bc",
       "hash": "bc0709d3fabe2049bc6ea797e3b50cc6d5316e9b5d2894ffdc763ec4896dddfc",
       "raw": {
         "version": 1,
@@ -59,7 +59,7 @@
     },
     {
       "description": "Standard transaction (14:2)",
-      "txid": "39d57bc27f72e904d81f6b5ef7b4e6e17fa33a06b11e5114a43435830d7b5563",
+      "id": "39d57bc27f72e904d81f6b5ef7b4e6e17fa33a06b11e5114a43435830d7b5563",
       "hash": "63557b0d833534a414511eb1063aa37fe1e6b4f75e6b1fd804e9727fc27bd539",
       "raw": {
         "version": 1,
