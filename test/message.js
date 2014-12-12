@@ -33,7 +33,6 @@ describe('Message', function() {
       it('verifies a valid signature for \"' + f.message + '\" (' + f.network + ')', function() {
         var network = networks[f.network]
 
-        var signature = f.signature
         assert(Message.verify(f.address, f.signature, f.message, network))
 
         if (f.compressed) {
