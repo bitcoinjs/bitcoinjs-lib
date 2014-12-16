@@ -117,7 +117,7 @@ describe('Transaction', function() {
           var script = txIn.script ? Script.fromASM(txIn.script) : undefined
           var j = tx.addInput(txHash, txIn.index, txIn.sequence, script)
           var sequence = txIn.sequence
-          if (sequence === undefined) {
+          if (sequence === undefined || sequence === null ) {
             sequence = Transaction.DEFAULT_SEQUENCE
           }
 
