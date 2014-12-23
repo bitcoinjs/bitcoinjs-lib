@@ -185,7 +185,7 @@ function scriptHashOutput(hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 function multisigOutput(m, pubKeys) {
-  typeForce('Array', pubKeys)
+  typeForce(['ECPubKey'], pubKeys)
 
   assert(pubKeys.length >= m, 'Not enough pubKeys provided')
 
