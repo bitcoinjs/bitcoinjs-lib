@@ -2,7 +2,7 @@ var assert = require('assert')
 var base58check = require('bs58check')
 var crypto = require('crypto')
 var ecdsa = require('./ecdsa')
-var enforceType = require('./types')
+var typeForce = require('typeforce')
 var networks = require('./networks')
 
 var BigInteger = require('bigi')
@@ -50,7 +50,7 @@ ECKey.makeRandom = function(compressed, rng) {
   rng = rng || crypto.randomBytes
 
   var buffer = rng(32)
-  enforceType('Buffer', buffer)
+  typeForce('Buffer', buffer)
   assert.equal(buffer.length, 32, 'Expected 256-bit Buffer from RNG')
 
   var d = BigInteger.fromBuffer(buffer)

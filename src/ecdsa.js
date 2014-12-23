@@ -1,6 +1,6 @@
 var assert = require('assert')
 var crypto = require('crypto')
-var enforceType = require('./types')
+var typeForce = require('typeforce')
 
 var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
@@ -10,8 +10,8 @@ var ONE = new Buffer([1])
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
 function deterministicGenerateK(curve, hash, d) {
-  enforceType('Buffer', hash)
-  enforceType(BigInteger, d)
+  typeForce('Buffer', hash)
+  typeForce('BigInteger', d)
 
   // sanity check
   assert.equal(hash.length, 32, 'Hash must be 256 bit')

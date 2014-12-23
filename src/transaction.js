@@ -1,7 +1,7 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
-var enforceType = require('./types')
+var typeForce = require('typeforce')
 var opcodes = require('./opcodes')
 var scripts = require('./scripts')
 
@@ -96,7 +96,7 @@ Transaction.prototype.addInput = function(hash, index, sequence, script) {
   if (sequence === undefined || sequence === null) {
     sequence = Transaction.DEFAULT_SEQUENCE
   }
-  
+
   script = script || Script.EMPTY
 
   if (typeof hash === 'string') {
@@ -108,10 +108,10 @@ Transaction.prototype.addInput = function(hash, index, sequence, script) {
 
   }
 
-  enforceType('Buffer', hash)
-  enforceType('Number', index)
-  enforceType('Number', sequence)
-  enforceType(Script, script)
+  typeForce('Buffer', hash)
+  typeForce('Number', index)
+  typeForce('Number', sequence)
+  typeForce('Script', script)
 
   assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
 
@@ -144,8 +144,8 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
     scriptPubKey = scriptPubKey.toOutputScript()
   }
 
-  enforceType(Script, scriptPubKey)
-  enforceType('Number', value)
+  typeForce('Script', scriptPubKey)
+  typeForce('Number', value)
 
   // Add the output and return the output's index
   return (this.outs.push({
@@ -197,9 +197,9 @@ Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashTy
     prevOutScript = tmp
   }
 
-  enforceType('Number', inIndex)
-  enforceType(Script, prevOutScript)
-  enforceType('Number', hashType)
+  typeForce('Number', inIndex)
+  typeForce('Script', prevOutScript)
+  typeForce('Number', hashType)
 
   assert(inIndex >= 0, 'Invalid vin index')
   assert(inIndex < this.ins.length, 'Invalid vin index')
