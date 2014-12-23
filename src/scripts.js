@@ -1,5 +1,5 @@
 var assert = require('assert')
-var enforceType = require('./types')
+var typeForce = require('typeforce')
 var ops = require('./opcodes')
 
 var ecurve = require('ecurve')
@@ -117,7 +117,7 @@ function isNullDataOutput(script) {
 }
 
 function classifyOutput(script) {
-  enforceType(Script, script)
+  typeForce('Script', script)
 
   if (isPubKeyHashOutput(script)) {
     return 'pubkeyhash'
@@ -135,7 +135,7 @@ function classifyOutput(script) {
 }
 
 function classifyInput(script) {
-  enforceType(Script, script)
+  typeForce('Script', script)
 
   if (isPubKeyHashInput(script)) {
     return 'pubkeyhash'
@@ -161,7 +161,7 @@ function pubKeyOutput(pubKey) {
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 function pubKeyHashOutput(hash) {
-  enforceType('Buffer', hash)
+  typeForce('Buffer', hash)
 
   return Script.fromChunks([
     ops.OP_DUP,
@@ -174,7 +174,7 @@ function pubKeyHashOutput(hash) {
 
 // OP_HASH160 {scriptHash} OP_EQUAL
 function scriptHashOutput(hash) {
-  enforceType('Buffer', hash)
+  typeForce('Buffer', hash)
 
   return Script.fromChunks([
     ops.OP_HASH160,
@@ -185,7 +185,7 @@ function scriptHashOutput(hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 function multisigOutput(m, pubKeys) {
-  enforceType('Array', pubKeys)
+  typeForce(['ECPubKey'], pubKeys)
 
   assert(pubKeys.length >= m, 'Not enough pubKeys provided')
 
@@ -204,14 +204,14 @@ function multisigOutput(m, pubKeys) {
 
 // {signature}
 function pubKeyInput(signature) {
-  enforceType('Buffer', signature)
+  typeForce('Buffer', signature)
 
   return Script.fromChunks([signature])
 }
 
 // {signature} {pubKey}
 function pubKeyHashInput(signature, pubKey) {
-  enforceType('Buffer', signature)
+  typeForce('Buffer', signature)
 
   return Script.fromChunks([signature, pubKey.toBuffer()])
 }

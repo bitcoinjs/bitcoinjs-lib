@@ -1,6 +1,6 @@
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
-var enforceType = require('./types')
+var typeForce = require('typeforce')
 var networks = require('./networks')
 
 var Address = require('./address')
@@ -11,8 +11,8 @@ var secp256k1 = ecurve.getCurveByName('secp256k1')
 function ECPubKey(Q, compressed) {
   if (compressed === undefined) compressed = true
 
-  enforceType(ecurve.Point, Q)
-  enforceType('Boolean', compressed)
+  typeForce('Point', Q)
+  typeForce('Boolean', compressed)
 
   this.compressed = compressed
   this.Q = Q

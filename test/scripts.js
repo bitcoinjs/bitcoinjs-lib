@@ -168,7 +168,7 @@ describe('Scripts', function() {
     })
 
     fixtures.invalid.multisigOutput.forEach(function(f) {
-      var pubKeys = f.pubKeys.map(function(p) { return new Buffer(p, 'hex') })
+      var pubKeys = f.pubKeys.map(ECPubKey.fromHex)
 
       it('throws on ' + f.exception, function() {
         assert.throws(function() {

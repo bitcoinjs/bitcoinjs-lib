@@ -1,6 +1,6 @@
 var assert = require('assert')
 var base58check = require('bs58check')
-var enforceType = require('./types')
+var typeForce = require('typeforce')
 var networks = require('./networks')
 var scripts = require('./scripts')
 
@@ -14,7 +14,7 @@ function findScriptTypeByVersion(version) {
 }
 
 function Address(hash, version) {
-  enforceType('Buffer', hash)
+  typeForce('Buffer', hash)
 
   assert.strictEqual(hash.length, 20, 'Invalid hash length')
   assert.strictEqual(version & 0xff, version, 'Invalid version byte')

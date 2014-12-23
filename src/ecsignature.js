@@ -1,11 +1,11 @@
 var assert = require('assert')
-var enforceType = require('./types')
+var typeForce = require('typeforce')
 
 var BigInteger = require('bigi')
 
 function ECSignature(r, s) {
-  enforceType(BigInteger, r)
-  enforceType(BigInteger, s)
+  typeForce('BigInteger', r)
+  typeForce('BigInteger', s)
 
   this.r = r
   this.s = s
