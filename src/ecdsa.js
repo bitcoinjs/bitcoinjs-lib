@@ -20,6 +20,7 @@ function deterministicGenerateK(curve, hash, d) {
   var k = new Buffer(32)
   var v = new Buffer(32)
 
+  // Step A, ignored as hash already provided
   // Step B
   v.fill(1)
 
