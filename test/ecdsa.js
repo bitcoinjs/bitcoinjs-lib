@@ -15,12 +15,14 @@ var fixtures = require('./fixtures/ecdsa.json')
 
 describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
+    function checkSig() { return true }
+
     fixtures.valid.forEach(function(f) {
       it('for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var h1 = crypto.sha256(f.message)
 
-        var k = ecdsa.deterministicGenerateK(curve, h1, d)
+        var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
         assert.equal(k.toHex(), f.k)
       })
     })
@@ -35,7 +37,7 @@ describe('ecdsa', function() {
       var d = new BigInteger('1')
       var h1 = new Buffer(32)
 
-      var k = ecdsa.deterministicGenerateK(curve, h1, d)
+      var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
 
       assert.equal(k.toString(), '42')
     }))
