@@ -51,16 +51,33 @@ From the repo:
 
 ### Browser
 
-From the repository: Compile `bitcoinjs-min.js` with the following command:
+If you're familiar with how to use browserify, ignore this and proceed normally.
+These steps are advisory only and allow you to use the API to its full extent.
 
-    $ npm run-script compile
+[Browserify](https://github.com/substack/node-browserify) is assumed to be installed for these steps.
 
-From NPM:
 
-    $ npm -g install bitcoinjs-lib browserify uglify-js
-    $ browserify -r bitcoinjs-lib -s bitcoin | uglifyjs > bitcoinjs.min.js
+From your repository, create a `bitcoin.js` file
 
-After loading this file in your browser, you will be able to use the global `bitcoin` object.
+``` javascript
+var bitcoin = {
+  base58: require('bs58'),
+  ecurve: require('ecurve'),
+  BigInteger: require('bigi'),
+  Buffer: require('buffer')
+}
+
+var bitcoinjs = require('bitcoinjs-lib')
+for (var a in bitcoinjs) bitcoin[a] = bitcoinjs[a]
+
+module.exports = bitcoin
+```
+
+Then, using browserify, compile `bitcoin.js` for use in the browser:
+
+    $ browserify bitcoin.js -s bitcoin > dist/bitcoin.js
+
+You will then be able to load `dist/bitcoin.js` into your browser, with each of the dependencies above accessible from the global `bitcoin` object.
 
 
 ## Examples
