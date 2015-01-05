@@ -56,29 +56,27 @@ These steps are advisory only and allow you to use the API to its full extent.
 
 [Browserify](https://github.com/substack/node-browserify) is assumed to be installed for these steps.
 
-From your repository, create a `bitcoin.js` file
+From your repository, create a `foobar.js` file
 
 ``` javascript
-var bitcoin = {
+var foobar = {
   base58: require('bs58'),
+  bitcoin: require('bitcoinjs-lib'),
   ecurve: require('ecurve'),
   BigInteger: require('bigi'),
   Buffer: require('buffer')
 }
 
-var bitcoinjs = require('bitcoinjs-lib')
-for (var a in bitcoinjs) bitcoin[a] = bitcoinjs[a]
-
-module.exports = bitcoin
+module.exports = foobar
 ```
 
-Then, using browserify, compile `bitcoin.js` for use in the browser:
+Then, using browserify, compile `foobar.js` for use in the browser:
 
-    $ browserify bitcoin.js -s bitcoin > dist/bitcoin.js
+    $ browserify foobar.js -s foobar > dist/foobar.js
 
-You will then be able to load `dist/bitcoin.js` into your browser, with each of the dependencies above accessible from the global `bitcoin` object.
+You will then be able to load `dist/foobar.js` into your browser, with each of the dependencies above accessible from the global `foobar` object.
 
-**NOTE**: See the package.json for the currently supported version of browserify used by this repository.
+**NOTE**: See our package.json for the currently supported version of browserify used by this repository.
 
 
 ## Examples
