@@ -191,9 +191,8 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
 
     switch (scriptType) {
       case 'pubkeyhash':
-        var signature = signatures[0]
         var pubKey = input.pubKeys[0]
-        scriptSig = scripts.pubKeyHashInput(signature, pubKey)
+        scriptSig = scripts.pubKeyHashInput(signatures[0], pubKey)
 
         break
 
@@ -204,8 +203,7 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
         break
 
       case 'pubkey':
-        var signature = signatures[0]
-        scriptSig = scripts.pubKeyInput(signature)
+        scriptSig = scripts.pubKeyInput(signatures[0])
 
         break
 
