@@ -17,7 +17,7 @@ describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
     function checkSig() { return true }
 
-    fixtures.valid.forEach(function(f) {
+    fixtures.valid.ecdsa.forEach(function(f) {
       it('for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var h1 = crypto.sha256(f.message)
@@ -60,10 +60,29 @@ describe('ecdsa', function() {
 
       assert.equal(k.toString(), '53')
     }))
+
+    // TODO: this could be done better?
+    fixtures.valid.rfc6979.forEach(function(f) {
+      it('produces the expected k values for ' + f.message + ' if k wasn\'t suitable', sinon.test(function() {
+        var d = BigInteger.fromHex(f.d)
+        var h1 = crypto.sha256(f.message)
+
+        var i = 0
+        ecdsa.deterministicGenerateK(curve, h1, d, function(k) {
+          var expected = f['k' + i]
+
+          if (expected !== undefined) {
+            assert.equal(k.toHex(), expected)
+          }
+
+          return ++i > 15
+        })
+      }))
+    })
   })
 
   describe('recoverPubKey', function() {
-    fixtures.valid.forEach(function(f) {
+    fixtures.valid.ecdsa.forEach(function(f) {
       it('recovers the pubKey for ' + f.d, function() {
         var d = BigInteger.fromHex(f.d)
         var Q = curve.G.multiply(d)
@@ -115,7 +134,7 @@ describe('ecdsa', function() {
   })
 
   describe('sign', function() {
-    fixtures.valid.forEach(function(f) {
+    fixtures.valid.ecdsa.forEach(function(f) {
       it('produces a deterministic signature for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var hash = crypto.sha256(f.message)
@@ -137,7 +156,7 @@ describe('ecdsa', function() {
   })
 
   describe('verify/verifyRaw', function() {
-    fixtures.valid.forEach(function(f) {
+    fixtures.valid.ecdsa.forEach(function(f) {
       it('verifies a valid signature for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var H = crypto.sha256(f.message)
