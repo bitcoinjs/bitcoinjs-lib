@@ -7,7 +7,7 @@ var Script = require('./script')
 var Transaction = require('./transaction')
 
 function TransactionBuilder() {
-  this.prevOutMap = {}
+  this.prevTxMap = {}
   this.prevOutScripts = {}
   this.prevOutTypes = {}
 
@@ -146,10 +146,10 @@ TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOu
   }), 'No, this would invalidate signatures')
 
   var prevOut = prevOutHash.toString('hex') + ':' + index
-  assert(!(prevOut in this.prevOutMap), 'Transaction is already an input')
+  assert(!(prevOut in this.prevTxMap), 'Transaction is already an input')
 
   var vout = this.tx.addInput(prevOutHash, index, sequence)
-  this.prevOutMap[prevOut] = true
+  this.prevTxMap[prevOut] = true
   this.prevOutScripts[vout] = prevOutScript
   this.prevOutTypes[vout] = prevOutType
 
