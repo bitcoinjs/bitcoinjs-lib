@@ -61,23 +61,22 @@ describe('ecdsa', function() {
       assert.equal(k.toString(), '53')
     }))
 
-    // TODO: this could be done better?
     fixtures.valid.rfc6979.forEach(function(f) {
-      it('produces the expected k values for ' + f.message + ' if k wasn\'t suitable', sinon.test(function() {
+      it('produces the expected k values for ' + f.message + ' if k wasn\'t suitable', function() {
         var d = BigInteger.fromHex(f.d)
         var h1 = crypto.sha256(f.message)
 
-        var i = 0
+        var results = []
         ecdsa.deterministicGenerateK(curve, h1, d, function(k) {
-          var expected = f['k' + i]
+          results.push(k)
 
-          if (expected !== undefined) {
-            assert.equal(k.toHex(), expected)
-          }
-
-          return ++i > 15
+          return results.length === 16
         })
-      }))
+
+        assert.equal(results[0].toHex(), f.k0)
+        assert.equal(results[1].toHex(), f.k1)
+        assert.equal(results[15].toHex(), f.k15)
+      })
     })
   })
 
