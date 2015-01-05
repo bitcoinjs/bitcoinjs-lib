@@ -30,16 +30,35 @@ describe('ecdsa', function() {
     it('loops until an appropriate k value is found', sinon.test(function() {
       this.mock(BigInteger).expects('fromBuffer')
         .exactly(3)
-        .onCall(0).returns(new BigInteger('0'))
-        .onCall(1).returns(curve.n)
-        .onCall(2).returns(new BigInteger('42'))
+        .onCall(0).returns(new BigInteger('0')) // < 1
+        .onCall(1).returns(curve.n) // > n-1
+        .onCall(2).returns(new BigInteger('42')) // valid
 
       var d = new BigInteger('1')
       var h1 = new Buffer(32)
-
       var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
 
       assert.equal(k.toString(), '42')
+    }))
+
+    it('loops until a suitable signature is found', sinon.test(function() {
+      this.mock(BigInteger).expects('fromBuffer')
+        .exactly(4)
+        .onCall(0).returns(new BigInteger('0')) // < 1
+        .onCall(1).returns(curve.n) // > n-1
+        .onCall(2).returns(new BigInteger('42')) // valid, but 'bad' signature
+        .onCall(3).returns(new BigInteger('53')) // valid, good signature
+
+      var checkSig = this.mock()
+      checkSig.exactly(2)
+      checkSig.onCall(0).returns(false) // bad signature
+      checkSig.onCall(1).returns(true) // good signature
+
+      var d = new BigInteger('1')
+      var h1 = new Buffer(32)
+      var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
+
+      assert.equal(k.toString(), '53')
     }))
   })
 
