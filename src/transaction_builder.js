@@ -242,6 +242,7 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
     scriptType = scripts.classifyOutput(redeemScript)
 
     assert.notEqual(scriptType, 'scripthash', 'RedeemScript can\'t be P2SH')
+    assert.notEqual(scriptType, 'nulldata', 'RedeemScript not supported (nulldata)')
     assert.notEqual(scriptType, 'nonstandard', 'RedeemScript not supported (nonstandard)')
 
     hash = this.tx.hashForSignature(index, redeemScript, hashType)
