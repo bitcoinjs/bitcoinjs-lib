@@ -27,6 +27,17 @@ describe('ecdsa', function() {
       })
     })
 
+    // FIXME: remove in 2.0.0
+    fixtures.valid.ecdsa.forEach(function(f) {
+      it('(deprecated) for \"' + f.message + '\"', function() {
+        var d = BigInteger.fromHex(f.d)
+        var h1 = crypto.sha256(f.message)
+
+        var k = ecdsa.deterministicGenerateK(curve, h1, d) // default checkSig
+        assert.equal(k.toHex(), f.k)
+      })
+    })
+
     it('loops until an appropriate k value is found', sinon.test(function() {
       this.mock(BigInteger).expects('fromBuffer')
         .exactly(3)
