@@ -7,20 +7,13 @@ var ECSignature = require('./ecsignature')
 var Script = require('./script')
 var Transaction = require('./transaction')
 
-function TransactionBuilder() {
-  this.prevOutMap = {}
-  this.prevOutScripts = {}
-  this.prevOutTypes = {}
-
-  this.signatures = []
-  this.tx = new Transaction()
+function isCoinbase(txHash) {
+  return Array.prototype.every.call(txHash, function(x) {
+    return x === 0
+  })
 }
 
 function extractSignature(txIn) {
-  assert(!Array.prototype.every.call(txIn.hash, function(x) {
-    return x === 0
-  }), 'coinbase inputs not supported')
-
   var redeemScript
   var scriptSig = txIn.script
   var scriptType = scripts.classifyInput(scriptSig, true)
@@ -81,7 +74,15 @@ function extractSignature(txIn) {
   }
 }
 
-// Static constructors
+function TransactionBuilder() {
+  this.prevOutMap = {}
+  this.prevOutScripts = {}
+  this.prevOutTypes = {}
+
+  this.signatures = []
+  this.tx = new Transaction()
+}
+
 TransactionBuilder.fromTransaction = function(transaction) {
   var txb = new TransactionBuilder()
 
@@ -101,10 +102,8 @@ TransactionBuilder.fromTransaction = function(transaction) {
 
   // Extract/add signatures
   txb.signatures = transaction.ins.map(function(txIn) {
-    // Coinbase inputs not supported
-    assert(!Array.prototype.every.call(txIn.hash, function(x) {
-      return x === 0
-    }), 'coinbase inputs not supported')
+    // TODO: remove me after testcase added
+    assert(!isCoinbase(txIn.hash), 'coinbase inputs not supported')
 
     // Ignore empty scripts
     if (txIn.script.buffer.length === 0) return
@@ -115,7 +114,6 @@ TransactionBuilder.fromTransaction = function(transaction) {
   return txb
 }
 
-// Operations
 TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOutScript) {
   var prevOutHash
 
