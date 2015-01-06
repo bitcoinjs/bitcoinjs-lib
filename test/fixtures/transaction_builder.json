@@ -3,11 +3,11 @@
     "build": [
       {
         "description": "pubKeyHash->pubKeyHash 1:1 transaction",
-        "txhex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
         "inputs": [
           {
-            "index": 0,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
             ]
@@ -22,11 +22,11 @@
       },
       {
         "description": "pubKey->pubKeyHash 1:1 transaction",
-        "txhex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000494830450221009833abb3ab49d7004c06bcc79eafd6905ada3eee91f3376ad388548034acd9a702202e84dda6ef2678c82256afcfc459aaa68e179b2bb0e6b2dc3f1410e132c5e6c301ffffffff0100f90295000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000494830450221009833abb3ab49d7004c06bcc79eafd6905ada3eee91f3376ad388548034acd9a702202e84dda6ef2678c82256afcfc459aaa68e179b2bb0e6b2dc3f1410e132c5e6c301ffffffff0100f90295000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
         "inputs": [
           {
-            "index": 0,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
             "prevTxScript": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 OP_CHECKSIG",
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
@@ -42,11 +42,11 @@
       },
       {
         "description": "2-of-2 P2SH multisig -> pubKeyHash 1:1 Transaction",
-        "txhex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd1a0100473044022040039a3d0a806d6c2c0ac8a62f2467c979c897c945f3f11905b9c5ea76b4a88002200976f187f852f7d186e8e8aa39332092aa8a504b63a7ae3d0eca09ebea1497fd0147304402205522d1949d13347054bd5ea86cdcad2344f49628a935faaee8f5e744bd3ef87e022063a28ab077817222ccd7d5a70e77ed7274840b9ba8db5dd93a33bdd41813d548014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd1a0100473044022040039a3d0a806d6c2c0ac8a62f2467c979c897c945f3f11905b9c5ea76b4a88002200976f187f852f7d186e8e8aa39332092aa8a504b63a7ae3d0eca09ebea1497fd0147304402205522d1949d13347054bd5ea86cdcad2344f49628a935faaee8f5e744bd3ef87e022063a28ab077817222ccd7d5a70e77ed7274840b9ba8db5dd93a33bdd41813d548014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
         "inputs": [
           {
-            "index": 0,
-            "prevTx": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
             "privKeys": [
               "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
               "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
@@ -63,11 +63,11 @@
       },
       {
         "description": "2-of-2 raw multisig -> pubKeyHash 1:1 Transaction",
-        "txhex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f07149000000009100473044022040039a3d0a806d6c2c0ac8a62f2467c979c897c945f3f11905b9c5ea76b4a88002200976f187f852f7d186e8e8aa39332092aa8a504b63a7ae3d0eca09ebea1497fd0147304402205522d1949d13347054bd5ea86cdcad2344f49628a935faaee8f5e744bd3ef87e022063a28ab077817222ccd7d5a70e77ed7274840b9ba8db5dd93a33bdd41813d54801ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f07149000000009100473044022040039a3d0a806d6c2c0ac8a62f2467c979c897c945f3f11905b9c5ea76b4a88002200976f187f852f7d186e8e8aa39332092aa8a504b63a7ae3d0eca09ebea1497fd0147304402205522d1949d13347054bd5ea86cdcad2344f49628a935faaee8f5e744bd3ef87e022063a28ab077817222ccd7d5a70e77ed7274840b9ba8db5dd93a33bdd41813d54801ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
         "inputs": [
           {
-            "index": 0,
-            "prevTx": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
             "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
             "privKeys": [
               "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
@@ -84,11 +84,11 @@
       },
       {
         "description": "Transaction w/ non-zero vin inputs",
-        "txhex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205c80bbb5125b35d5e5a8324b1336832d29a6fc004859c8a9ff6bef47ba7fc348022018612216e57a521b2c4543f1f4fd738a76814c37c074e88adfe12464fff31cf901210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205c80bbb5125b35d5e5a8324b1336832d29a6fc004859c8a9ff6bef47ba7fc348022018612216e57a521b2c4543f1f4fd738a76814c37c074e88adfe12464fff31cf901210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
         "inputs": [
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
             ]
@@ -103,14 +103,13 @@
       },
       {
         "description": "Transaction w/ non-default input sequence numbers, version and locktime",
-        "txid": "4503038f144af7b0c11fad6e09cf8deb4ef04645d203e1c90b86f25b7b243fe8",
-        "txhex": "0400000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff020000006b483045022100c5bcd521df085481e2dcc2c0f14173043f0fa2001dca582b45186a95d248d28002204c571eabcec1410bd53a7da29b9da6b4c858c3fdabbfdb110a030c507ff5bc0501210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798b9c220000110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac09990400",
+        "txHex": "0400000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff020000006b483045022100c5bcd521df085481e2dcc2c0f14173043f0fa2001dca582b45186a95d248d28002204c571eabcec1410bd53a7da29b9da6b4c858c3fdabbfdb110a030c507ff5bc0501210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798b9c220000110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac09990400",
         "version": 4,
         "locktime": 301321,
         "inputs": [
           {
-            "index": 2,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 2,
             "sequence": 2147001,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
@@ -142,8 +141,8 @@
         "exception": "Transaction has no outputs",
         "inputs": [
           {
-            "index": 0,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
             "privKeys": []
           }
         ],
@@ -154,8 +153,8 @@
         "exception": "Transaction is not complete",
         "inputs": [
           {
-            "index": 0,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
             "privKeys": []
           }
         ],
@@ -171,15 +170,15 @@
         "exception": "Transaction is not complete",
         "inputs": [
           {
-            "index": 0,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
             ]
           },
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "privKeys": []
           }
@@ -197,8 +196,8 @@
         "exception": "pubkeyhash doesn\\'t support multiple signatures",
         "inputs": [
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
@@ -217,8 +216,8 @@
         "exception": "RedeemScript not supported \\(nulldata\\)",
         "inputs": [
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
             ],
@@ -237,8 +236,8 @@
         "exception": "PrevOutScript is P2SH, missing redeemScript",
         "inputs": [
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "prevTxScript": "OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL",
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
@@ -257,8 +256,8 @@
         "exception": "RedeemScript not supported \\(scripthash\\)",
         "inputs": [
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
             ],
@@ -277,8 +276,8 @@
         "exception": "PrevOutScript must be P2SH",
         "inputs": [
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
@@ -298,8 +297,8 @@
         "exception": "Signature already exists",
         "inputs": [
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
@@ -320,8 +319,8 @@
         "exception": "privateKey cannot sign for this input",
         "inputs": [
           {
-            "index": 1,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "privKeys": [
               "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx"
             ],
@@ -340,8 +339,8 @@
         "exception": "nulldata not supported",
         "inputs": [
           {
-            "index": 0,
-            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
             "prevTxScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"

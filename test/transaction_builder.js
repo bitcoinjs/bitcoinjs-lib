@@ -33,10 +33,10 @@ describe('TransactionBuilder', function() {
       var vin = txb.addInput(prevTxHash, 1, 54)
       assert.equal(vin, 0)
 
-      var txin = txb.tx.ins[0]
-      assert.equal(txin.hash, prevTxHash)
-      assert.equal(txin.index, 1)
-      assert.equal(txin.sequence, 54)
+      var txIn = txb.tx.ins[0]
+      assert.equal(txIn.hash, prevTxHash)
+      assert.equal(txIn.index, 1)
+      assert.equal(txIn.sequence, 54)
       assert.equal(txb.inputs[0].prevOutScript, undefined)
     })
 
@@ -44,10 +44,10 @@ describe('TransactionBuilder', function() {
       var vin = txb.addInput(prevTxHash, 1, 54, prevTx.outs[1].script)
       assert.equal(vin, 0)
 
-      var txin = txb.tx.ins[0]
-      assert.equal(txin.hash, prevTxHash)
-      assert.equal(txin.index, 1)
-      assert.equal(txin.sequence, 54)
+      var txIn = txb.tx.ins[0]
+      assert.equal(txIn.hash, prevTxHash)
+      assert.equal(txIn.index, 1)
+      assert.equal(txIn.sequence, 54)
       assert.equal(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
     })
 
@@ -55,10 +55,10 @@ describe('TransactionBuilder', function() {
       var vin = txb.addInput(prevTx, 1, 54)
       assert.equal(vin, 0)
 
-      var txin = txb.tx.ins[0]
-      assert.deepEqual(txin.hash, prevTxHash)
-      assert.equal(txin.index, 1)
-      assert.equal(txin.sequence, 54)
+      var txIn = txb.tx.ins[0]
+      assert.deepEqual(txIn.hash, prevTxHash)
+      assert.equal(txIn.index, 1)
+      assert.equal(txIn.sequence, 54)
       assert.equal(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
     })
 
@@ -142,7 +142,7 @@ describe('TransactionBuilder', function() {
             prevTxScript = Script.fromASM(input.prevTxScript)
           }
 
-          txb.addInput(input.prevTx, input.index, input.sequence, prevTxScript)
+          txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
         })
 
         f.outputs.forEach(function(output) {
@@ -177,7 +177,7 @@ describe('TransactionBuilder', function() {
 
   describe('build', function() {
     fixtures.valid.build.forEach(function(f) {
-      it('builds the correct transaction', function() {
+      it('builds \"' + f.description + '\"', function() {
         f.inputs.forEach(function(input) {
           var prevTxScript
 
@@ -185,7 +185,7 @@ describe('TransactionBuilder', function() {
             prevTxScript = Script.fromASM(input.prevTxScript)
           }
 
-          txb.addInput(input.prevTx, input.index, input.sequence, prevTxScript)
+          txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
         })
 
         f.outputs.forEach(function(output) {
@@ -213,7 +213,7 @@ describe('TransactionBuilder', function() {
         if (f.locktime !== undefined) txb.tx.locktime = f.locktime
 
         var tx = txb.build()
-        assert.equal(tx.toHex(), f.txhex)
+        assert.equal(tx.toHex(), f.txHex)
       })
     })
 
@@ -226,7 +226,7 @@ describe('TransactionBuilder', function() {
             prevTxScript = Script.fromASM(input.prevTxScript)
           }
 
-          txb.addInput(input.prevTx, input.index, input.sequence, prevTxScript)
+          txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
         })
 
         f.outputs.forEach(function(output) {
@@ -259,16 +259,16 @@ describe('TransactionBuilder', function() {
   describe('fromTransaction', function() {
     fixtures.valid.build.forEach(function(f) {
       it('builds the correct TransactionBuilder for ' + f.description, function() {
-        var tx = Transaction.fromHex(f.txhex)
+        var tx = Transaction.fromHex(f.txHex)
         var txb = TransactionBuilder.fromTransaction(tx)
 
-        assert.equal(txb.build().toHex(), f.txhex)
+        assert.equal(txb.build().toHex(), f.txHex)
       })
     })
 
     fixtures.invalid.fromTransaction.forEach(function(f) {
       it('throws on ' + f.exception, function() {
-        var tx = Transaction.fromHex(f.hex)
+        var tx = Transaction.fromHex(f.txHex)
 
         assert.throws(function() {
           TransactionBuilder.fromTransaction(tx)
