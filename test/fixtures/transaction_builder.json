@@ -187,7 +187,9 @@
             "value": 1000
           }
         ]
-      },
+      }
+    ],
+    "sign": [
       {
         "exception": "nulldata not supported",
         "inputs": [
@@ -195,6 +197,7 @@
             "index": 0,
             "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "prevTxScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
+            "throws": true,
             "privKeys": [
               "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
             ]
