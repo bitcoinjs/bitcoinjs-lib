@@ -205,6 +205,47 @@ describe('TransactionBuilder', function() {
         txb.sign(0, ECKey.makeRandom(), redeemScript)
       }, /privateKey cannot sign for this input/)
     })
+
+    fixtures.invalid.sign.forEach(function(f) {
+      it('throws on ' + f.exception, function() {
+        f.inputs.forEach(function(input) {
+          var prevTxScript
+
+          if (input.prevTxScript) {
+            prevTxScript = Script.fromASM(input.prevTxScript)
+          }
+
+          txb.addInput(input.prevTx, input.index, input.sequence, prevTxScript)
+        })
+
+        f.outputs.forEach(function(output) {
+          var script = Script.fromASM(output.script)
+
+          txb.addOutput(script, output.value)
+        })
+
+        f.inputs.forEach(function(input, index) {
+          var redeemScript
+
+          if (input.redeemScript) {
+            redeemScript = Script.fromASM(input.redeemScript)
+          }
+
+          input.privKeys.forEach(function(wif) {
+            var privKey = ECKey.fromWIF(wif)
+
+            if (!input.throws) {
+              txb.sign(index, privKey, redeemScript)
+
+            } else {
+              assert.throws(function() {
+                txb.sign(index, privKey, redeemScript)
+              }, new RegExp(f.exception))
+            }
+          })
+        })
+      })
+    })
   })
 
   describe('build', function() {
