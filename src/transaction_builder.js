@@ -49,13 +49,14 @@ function extractInput(txIn) {
       break
 
     case 'multisig':
-      parsed = scriptSig.chunks.slice(1).filter(function(chunk) {
-        return chunk !== ops.OP_0
-      }).map(ECSignature.parseScriptSignature)
+      signatures = scriptSig.chunks.slice(1).map(function(chunk) {
+        if (chunk === ops.OP_0) return chunk
 
-      hashType = parsed[0].hashType
-      signatures = parsed.map(function(p) { return p.signature })
-      initialized = true
+        var parsed = ECSignature.parseScriptSignature(chunk)
+        hashType = parsed.hashType
+
+        return parsed.signature
+      })
 
       if (redeemScript) {
         pubKeys = redeemScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
@@ -124,10 +125,8 @@ TransactionBuilder.fromTransaction = function(transaction) {
 
   // Extract/add signatures
   txb.inputs = transaction.ins.map(function(txIn) {
-    // Coinbase inputs not supported
-    assert(!Array.prototype.every.call(txIn.hash, function(x) {
-      return x === 0
-    }), 'coinbase inputs not supported')
+    // TODO: remove me after testcase added
+    assert(!isCoinbase(txIn.hash), 'coinbase inputs not supported')
 
     // Ignore empty scripts
     if (txIn.script.buffer.length === 0) return
@@ -236,9 +235,17 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
       case 'multisig':
         assert(input.signatures, 'Transaction is missing signatures')
 
-        var signatures = input.signatures.map(function(signature) {
+        // Array.prototype.map is sparse-compatible
+        var msSignatures = input.signatures.map(function(signature) {
           return signature.toScriptSignature(input.hashType)
-        }).filter(function(signature) { return !!signature })
+        })
+
+        // fill in blanks with OP_0
+        for (var i = 0; i < msSignatures.length; ++i) {
+          if (msSignatures[i]) continue
+
+          msSignatures[i] = ops.OP_0
+        }
 
         var redeemScript = allowIncomplete ? undefined : input.redeemScript
         scriptSig = scripts.multisigInput(signatures, redeemScript)
