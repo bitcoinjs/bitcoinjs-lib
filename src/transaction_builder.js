@@ -6,7 +6,7 @@ var ECSignature = require('./ecsignature')
 var Script = require('./script')
 var Transaction = require('./transaction')
 
-function extractInput(txIn) {
+function extractInput(txIn, tx, vout) {
   assert(!Array.prototype.every.call(txIn.hash, function(x) {
     return x === 0
   }), 'coinbase inputs not supported')
@@ -65,6 +65,18 @@ function extractInput(txIn) {
 
       if (redeemScript) {
         pubKeys = redeemScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
+
+        // offset signatures such that they are in order
+        var signatureHash = tx.hashForSignature(vout, redeemScript, hashType)
+
+        var offset = 0
+        pubKeys.some(function(pubKey) {
+          if (pubKey.verify(signatureHash, signatures[offset])) return true
+
+          offset++
+          signatures = [,].concat(signatures)
+          assert(signatures.length <= pubKeys.length, 'Invalid multisig scriptSig')
+        })
       }
 
       break
@@ -115,7 +127,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
   })
 
   // Extract/add signatures
-  txb.inputs = transaction.ins.map(function(txIn) {
+  txb.inputs = transaction.ins.map(function(txIn, vout) {
     // Coinbase inputs not supported
     assert(!Array.prototype.every.call(txIn.hash, function(x) {
       return x === 0
@@ -124,7 +136,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
     // Ignore empty scripts
     if (txIn.script.buffer.length === 0) return
 
-    return extractInput(txIn)
+    return extractInput(txIn, transaction, vout)
   })
 
   return txb
