@@ -37,7 +37,7 @@ describe('TransactionBuilder', function() {
       assert.equal(txin.hash, prevTxHash)
       assert.equal(txin.index, 1)
       assert.equal(txin.sequence, 54)
-      assert.equal(txb.prevOutScripts[0], undefined)
+      assert.equal(txb.inputs[0].prevOutScript, undefined)
     })
 
     it('accepts a txHash, index [, sequence number and scriptPubKey]', function() {
@@ -48,7 +48,7 @@ describe('TransactionBuilder', function() {
       assert.equal(txin.hash, prevTxHash)
       assert.equal(txin.index, 1)
       assert.equal(txin.sequence, 54)
-      assert.equal(txb.prevOutScripts[0], prevTx.outs[1].script)
+      assert.equal(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
     })
 
     it('accepts a prevTx, index [and sequence number]', function() {
@@ -59,18 +59,12 @@ describe('TransactionBuilder', function() {
       assert.deepEqual(txin.hash, prevTxHash)
       assert.equal(txin.index, 1)
       assert.equal(txin.sequence, 54)
-      assert.equal(txb.prevOutScripts[0], prevTx.outs[1].script)
+      assert.equal(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
     })
 
     it('returns the input index', function() {
       assert.equal(txb.addInput(prevTxHash, 0), 0)
       assert.equal(txb.addInput(prevTxHash, 1), 1)
-    })
-
-    it('throws if prevOutScript is not supported', function() {
-      assert.throws(function() {
-        txb.addInput(prevTxHash, 0, undefined, Script.EMPTY)
-      }, /PrevOutScript not supported \(nonstandard\)/)
     })
 
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function() {
@@ -101,8 +95,8 @@ describe('TransactionBuilder', function() {
         txb.addInput(prevTxHash, 0)
         txb.sign(0, privKey)
 
-        assert.strictEqual(txb.signatures[0].redeemScript, undefined)
-        assert.equal(txb.signatures[0].scriptType, 'pubkeyhash')
+        assert.equal(txb.inputs[0].scriptType, 'pubkeyhash')
+        assert.equal(txb.inputs[0].redeemScript, undefined)
       })
     })
 
@@ -111,7 +105,8 @@ describe('TransactionBuilder', function() {
         txb.addInput(prevTxHash, 0)
         txb.sign(0, privKey, privScript)
 
-        assert.equal(txb.signatures[0].redeemScript, privScript)
+        assert.equal(txb.inputs[0].prevOutType, 'scripthash')
+        assert.equal(txb.inputs[0].redeemScript, privScript)
       })
 
       it('throws if hashType is inconsistent', function() {
@@ -139,7 +134,7 @@ describe('TransactionBuilder', function() {
     })
 
     fixtures.invalid.sign.forEach(function(f) {
-      it('throws on ' + f.exception, function() {
+      it('throws on ' + f.exception + ' (' + f.description + ')', function() {
         f.inputs.forEach(function(input) {
           var prevTxScript
 
@@ -218,13 +213,12 @@ describe('TransactionBuilder', function() {
         if (f.locktime !== undefined) txb.tx.locktime = f.locktime
 
         var tx = txb.build()
-
         assert.equal(tx.toHex(), f.txhex)
       })
     })
 
     fixtures.invalid.build.forEach(function(f) {
-      it('throws on ' + f.exception, function() {
+      it('throws on ' + f.exception + ' (' + f.description + ')', function() {
         f.inputs.forEach(function(input) {
           var prevTxScript
 
@@ -282,6 +276,7 @@ describe('TransactionBuilder', function() {
       })
     })
 
+    // TODO: test for reverse order signing
     it('works for the P2SH multisig case', function() {
       var privKeys = [
         "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
