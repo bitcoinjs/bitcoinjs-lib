@@ -150,7 +150,8 @@
         "outputs": []
       },
       {
-        "exception": "Transaction has no signatures",
+        "description": "Incomplete transaction, nothing assumed",
+        "exception": "Transaction is not complete",
         "inputs": [
           {
             "index": 0,
@@ -166,7 +167,8 @@
         ]
       },
       {
-        "exception": "Transaction is missing signatures",
+        "description": "Incomplete transaction w/ prevTxScript defined",
+        "exception": "Transaction is not complete",
         "inputs": [
           {
             "index": 0,
@@ -178,6 +180,7 @@
           {
             "index": 1,
             "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "privKeys": []
           }
         ],
@@ -251,7 +254,7 @@
         ]
       },
       {
-        "exception": "RedeemScript can\\'t be P2SH",
+        "exception": "RedeemScript not supported \\(scripthash\\)",
         "inputs": [
           {
             "index": 1,
@@ -313,13 +316,14 @@
         ]
       },
       {
+        "description": "Wrong private key for multisig redeemScript",
         "exception": "privateKey cannot sign for this input",
         "inputs": [
           {
             "index": 1,
             "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "privKeys": [
-              "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
+              "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx"
             ],
             "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
             "throws": 0
@@ -356,11 +360,7 @@
     "fromTransaction": [
       {
         "exception": "coinbase inputs not supported",
-        "hex": "01000000010000000000000000000000000000000000000000000000000000000000000000000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
-      },
-      {
-        "exception": "nonstandard inputs not supported",
-        "hex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000023aa206fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d619000000000087ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
+        "txHex": "01000000010000000000000000000000000000000000000000000000000000000000000000000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
       }
     ]
   }
