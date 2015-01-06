@@ -106,51 +106,12 @@ describe('TransactionBuilder', function() {
       })
     })
 
-    it('throws if scriptType doesn\'t support multiple signatures', function() {
-      txb.addInput(prevTxHash, 0)
-      txb.sign(0, privKey)
-
-      assert.throws(function() {
-        txb.sign(0, privKey)
-      }, /pubkeyhash doesn\'t support multiple signatures/)
-    })
-
-    describe('when redeemScript is undefined', function() {
-      it('throws if prevOutScript is P2SH', function() {
-        var privScriptP2SH = scripts.scriptHashOutput(privScript.getHash())
-
-        txb.addInput(prevTxHash, 0, undefined, privScriptP2SH)
-
-        assert.throws(function() {
-          txb.sign(0, privKey)
-        }, /PrevOutScript is P2SH, missing redeemScript/)
-      })
-    })
-
     describe('when redeemScript is defined', function() {
       it('assumes scriptHash', function() {
         txb.addInput(prevTxHash, 0)
         txb.sign(0, privKey, privScript)
 
         assert.equal(txb.signatures[0].redeemScript, privScript)
-      })
-
-      it('throws if prevOutScript is not P2SH', function() {
-        txb.addInput(prevTx, 0)
-
-        assert.throws(function() {
-          txb.sign(0, privKey, privScript)
-        }, /PrevOutScript must be P2SH/)
-      })
-
-      it('throws if redeemScript is P2SH', function() {
-        txb.addInput(prevTxHash, 0)
-
-        var privScriptP2SH = scripts.scriptHashOutput(privScript.getHash())
-
-        assert.throws(function() {
-          txb.sign(0, privKey, privScriptP2SH)
-        }, /RedeemScript can\'t be P2SH/)
       })
 
       it('throws if hashType is inconsistent', function() {
@@ -175,35 +136,6 @@ describe('TransactionBuilder', function() {
           txb.sign(0, privKey, otherScript)
         }, /Inconsistent redeemScript/)
       })
-
-      it('throws if redeemScript not supported', function() {
-        txb.addInput(prevTxHash, 0)
-
-        assert.throws(function() {
-          txb.sign(0, privKey, Script.EMPTY)
-        }, /RedeemScript not supported \(nonstandard\)/)
-      })
-    })
-
-    it('throws if signature already exists', function() {
-      var redeemScript = scripts.multisigOutput(1, [privKey.pub])
-
-      txb.addInput(prevTxHash, 0)
-      txb.sign(0, privKey, redeemScript)
-
-      assert.throws(function() {
-        txb.sign(0, privKey, redeemScript)
-      }, /Signature already exists/)
-    })
-
-    it('throws if private key is unable to sign for that input', function() {
-      var redeemScript = scripts.multisigOutput(1, [privKey.pub])
-
-      txb.addInput(prevTxHash, 0)
-
-      assert.throws(function() {
-        txb.sign(0, ECKey.makeRandom(), redeemScript)
-      }, /privateKey cannot sign for this input/)
     })
 
     fixtures.invalid.sign.forEach(function(f) {
@@ -231,10 +163,10 @@ describe('TransactionBuilder', function() {
             redeemScript = Script.fromASM(input.redeemScript)
           }
 
-          input.privKeys.forEach(function(wif) {
+          input.privKeys.forEach(function(wif, i) {
             var privKey = ECKey.fromWIF(wif)
 
-            if (!input.throws) {
+            if (input.throws !== i) {
               txb.sign(index, privKey, redeemScript)
 
             } else {
