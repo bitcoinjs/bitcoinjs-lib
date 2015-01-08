@@ -12,9 +12,10 @@ var ONE = new Buffer([1])
 function deterministicGenerateK(curve, hash, d, checkSig) {
   typeForce('Buffer', hash)
   typeForce('BigInteger', d)
+
+  // FIXME: remove/uncomment for 2.0.0
 //  typeForce('Function', checkSig)
 
-  // FIXME: remove in 2.0.0
   if (typeof checkSig !== 'function') {
     console.warn('deterministicGenerateK requires a checkSig callback in 2.0.0, see #337 for more information')
 
