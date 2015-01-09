@@ -48,9 +48,9 @@
     "crypto": "crypto-browserify"
   },
   "dependencies": {
-    "bigi": "^1.1.0",
+    "bigi": "^1.4.0",
     "bs58check": "1.0.3",
-    "crypto-browserify": "^3.2.6",
+    "crypto-browserify": "^3.9.0",
     "ecurve": "1.0.0",
     "typeforce": "0.1.0"
   },
