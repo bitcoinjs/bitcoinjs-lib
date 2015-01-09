@@ -124,6 +124,32 @@ var networks = {
     dustThreshold: 546, // https://github.com/zetacoin/zetacoin/blob/master/src/core.h#L159
     feePerKb: 10000, // https://github.com/zetacoin/zetacoin/blob/master/src/main.cpp#L54
     estimateFee: estimateFee('zetacoin')
+  },
+  myriadcoin: {
+    magicPrefix: '\x18Myriadcoin Signed Message:\n',
+    bip32: {
+      public: 0x0488b21e,
+      private: 0x0488ade4
+    },
+    pubKeyHash: 0x32,
+    scriptHash: 0x09,
+    wif: 0xb2,
+    dustThreshold: 546, // https://github.com/myriadcoin/myriadcoin/blob/master/src/core.h#L220
+    feePerKb: 10000, // https://github.com/myriadcoin/myriadcoin/blob/master/src/main.cpp#L53
+    estimateFee: estimateFee('myriadcoin')
+  },
+  unobtanium: {
+    magicPrefix: '\x18Unobtanium Signed Message:\n',
+    bip32: {
+      public: 0x0488b21e, // https://github.com/unobtanium-official/Unobtanium/pull/8/files
+      private: 0x0488ade4 // https://github.com/unobtanium-official/Unobtanium/pull/8/files
+    },
+    pubKeyHash: 0x82,
+    scriptHash: 0x1e,
+    wif: 0xe0,
+    dustThreshold: 5460, // https://github.com/unobtanium-official/Unobtanium/blob/master/src/core.h#L155
+    feePerKb: 10000, // https://github.com/unobtanium-official/Unobtanium/blob/master/src/main.cpp#L54
+    estimateFee: estimateFee('unobtanium')
   }
 }
 
