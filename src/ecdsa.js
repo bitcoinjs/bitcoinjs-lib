@@ -9,9 +9,37 @@ var ZERO = new Buffer([0])
 var ONE = new Buffer([1])
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
-function deterministicGenerateK(curve, hash, d) {
+function deterministicGenerateK(curve, hash, d, checkSig) {
   typeForce('Buffer', hash)
   typeForce('BigInteger', d)
+
+  // FIXME: remove/uncomment for 2.0.0
+//  typeForce('Function', checkSig)
+
+  if (typeof checkSig !== 'function') {
+    console.warn('deterministicGenerateK requires a checkSig callback in 2.0.0, see #337 for more information')
+
+    checkSig = function(k) {
+      var G = curve.G
+      var n = curve.n
+      var e = BigInteger.fromBuffer(hash)
+
+      var Q = G.multiply(k)
+
+      if (curve.isInfinity(Q))
+        return false
+
+      var r = Q.affineX.mod(n)
+      if (r.signum() === 0)
+        return false
+
+      var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
+      if (s.signum() === 0)
+        return false
+
+      return true
+    }
+  }
 
   // sanity check
   assert.equal(hash.length, 32, 'Hash must be 256 bit')
@@ -20,6 +48,7 @@ function deterministicGenerateK(curve, hash, d) {
   var k = new Buffer(32)
   var v = new Buffer(32)
 
+  // Step A, ignored as hash already provided
   // Step B
   v.fill(1)
 
@@ -54,8 +83,8 @@ function deterministicGenerateK(curve, hash, d) {
 
   var T = BigInteger.fromBuffer(v)
 
-  // Step H3, repeat until T is within the interval [1, n - 1]
-  while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0)) {
+  // Step H3, repeat until T is within the interval [1, n - 1] and is suitable for ECDSA
+  while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0) || !checkSig(T)) {
     k = crypto.createHmac('sha256', k)
       .update(v)
       .update(ZERO)
@@ -63,6 +92,9 @@ function deterministicGenerateK(curve, hash, d) {
 
     v = crypto.createHmac('sha256', k).update(v).digest()
 
+    // Step H1/H2a, again, ignored as tlen === qlen (256 bit)
+    // Step H2b again
+    v = crypto.createHmac('sha256', k).update(v).digest()
     T = BigInteger.fromBuffer(v)
   }
 
@@ -70,18 +102,28 @@ function deterministicGenerateK(curve, hash, d) {
 }
 
 function sign(curve, hash, d) {
-  var k = deterministicGenerateK(curve, hash, d)
+  var r, s
 
+  var e = BigInteger.fromBuffer(hash)
   var n = curve.n
   var G = curve.G
-  var Q = G.multiply(k)
-  var e = BigInteger.fromBuffer(hash)
 
-  var r = Q.affineX.mod(n)
-  assert.notEqual(r.signum(), 0, 'Invalid R value')
+  deterministicGenerateK(curve, hash, d, function(k) {
+    var Q = G.multiply(k)
 
-  var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
-  assert.notEqual(s.signum(), 0, 'Invalid S value')
+    if (curve.isInfinity(Q))
+      return false
+
+    r = Q.affineX.mod(n)
+    if (r.signum() === 0)
+      return false
+
+    s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
+    if (s.signum() === 0)
+      return false
+
+    return true
+  })
 
   var N_OVER_TWO = n.shiftRight(1)
 

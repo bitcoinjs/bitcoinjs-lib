@@ -15,12 +15,25 @@ var fixtures = require('./fixtures/ecdsa.json')
 
 describe('ecdsa', function() {
   describe('deterministicGenerateK', function() {
-    fixtures.valid.forEach(function(f) {
+    function checkSig() { return true }
+
+    fixtures.valid.ecdsa.forEach(function(f) {
       it('for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var h1 = crypto.sha256(f.message)
 
-        var k = ecdsa.deterministicGenerateK(curve, h1, d)
+        var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
+        assert.equal(k.toHex(), f.k)
+      })
+    })
+
+    // FIXME: remove in 2.0.0
+    fixtures.valid.ecdsa.forEach(function(f) {
+      it('(deprecated) for \"' + f.message + '\"', function() {
+        var d = BigInteger.fromHex(f.d)
+        var h1 = crypto.sha256(f.message)
+
+        var k = ecdsa.deterministicGenerateK(curve, h1, d) // default checkSig
         assert.equal(k.toHex(), f.k)
       })
     })
@@ -28,21 +41,58 @@ describe('ecdsa', function() {
     it('loops until an appropriate k value is found', sinon.test(function() {
       this.mock(BigInteger).expects('fromBuffer')
         .exactly(3)
-        .onCall(0).returns(new BigInteger('0'))
-        .onCall(1).returns(curve.n)
-        .onCall(2).returns(new BigInteger('42'))
+        .onCall(0).returns(new BigInteger('0')) // < 1
+        .onCall(1).returns(curve.n) // > n-1
+        .onCall(2).returns(new BigInteger('42')) // valid
 
       var d = new BigInteger('1')
       var h1 = new Buffer(32)
-
-      var k = ecdsa.deterministicGenerateK(curve, h1, d)
+      var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
 
       assert.equal(k.toString(), '42')
     }))
+
+    it('loops until a suitable signature is found', sinon.test(function() {
+      this.mock(BigInteger).expects('fromBuffer')
+        .exactly(4)
+        .onCall(0).returns(new BigInteger('0')) // < 1
+        .onCall(1).returns(curve.n) // > n-1
+        .onCall(2).returns(new BigInteger('42')) // valid, but 'bad' signature
+        .onCall(3).returns(new BigInteger('53')) // valid, good signature
+
+      var checkSig = this.mock()
+      checkSig.exactly(2)
+      checkSig.onCall(0).returns(false) // bad signature
+      checkSig.onCall(1).returns(true) // good signature
+
+      var d = new BigInteger('1')
+      var h1 = new Buffer(32)
+      var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
+
+      assert.equal(k.toString(), '53')
+    }))
+
+    fixtures.valid.rfc6979.forEach(function(f) {
+      it('produces the expected k values for ' + f.message + ' if k wasn\'t suitable', function() {
+        var d = BigInteger.fromHex(f.d)
+        var h1 = crypto.sha256(f.message)
+
+        var results = []
+        ecdsa.deterministicGenerateK(curve, h1, d, function(k) {
+          results.push(k)
+
+          return results.length === 16
+        })
+
+        assert.equal(results[0].toHex(), f.k0)
+        assert.equal(results[1].toHex(), f.k1)
+        assert.equal(results[15].toHex(), f.k15)
+      })
+    })
   })
 
   describe('recoverPubKey', function() {
-    fixtures.valid.forEach(function(f) {
+    fixtures.valid.ecdsa.forEach(function(f) {
       it('recovers the pubKey for ' + f.d, function() {
         var d = BigInteger.fromHex(f.d)
         var Q = curve.G.multiply(d)
@@ -94,7 +144,7 @@ describe('ecdsa', function() {
   })
 
   describe('sign', function() {
-    fixtures.valid.forEach(function(f) {
+    fixtures.valid.ecdsa.forEach(function(f) {
       it('produces a deterministic signature for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var hash = crypto.sha256(f.message)
@@ -116,7 +166,7 @@ describe('ecdsa', function() {
   })
 
   describe('verify/verifyRaw', function() {
-    fixtures.valid.forEach(function(f) {
+    fixtures.valid.ecdsa.forEach(function(f) {
       it('verifies a valid signature for \"' + f.message + '\"', function() {
         var d = BigInteger.fromHex(f.d)
         var H = crypto.sha256(f.message)
