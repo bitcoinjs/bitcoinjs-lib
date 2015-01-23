@@ -19,6 +19,10 @@ function TransactionBuilder() {
 TransactionBuilder.fromTransaction = function(transaction) {
   var txb = new TransactionBuilder()
 
+  // Copy other transaction fields
+  txb.tx.version = transaction.version
+  txb.tx.locktime = transaction.locktime
+
   // Extract/add inputs
   transaction.ins.forEach(function(txIn) {
     txb.addInput(txIn.hash, txIn.index, txIn.sequence)
