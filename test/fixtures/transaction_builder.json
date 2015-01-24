@@ -83,6 +83,29 @@
             "value": 10000
           }
         ]
+      },
+      {
+        "description": "Transaction w/ non-default input sequence numbers, version and locktime",
+        "txid": "4503038f144af7b0c11fad6e09cf8deb4ef04645d203e1c90b86f25b7b243fe8",
+        "txhex": "0400000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff020000006b483045022100c5bcd521df085481e2dcc2c0f14173043f0fa2001dca582b45186a95d248d28002204c571eabcec1410bd53a7da29b9da6b4c858c3fdabbfdb110a030c507ff5bc0501210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798b9c220000110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac09990400",
+        "version": 4,
+        "locktime": 301321,
+        "inputs": [
+          {
+            "index": 2,
+            "prevTx": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "sequence": 2147001,
+            "privKeys": [
+              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
       }
     ]
   },
@@ -171,11 +194,11 @@
     "fromTransaction": [
       {
         "exception": "coinbase inputs not supported",
-        "hex":"01000000010000000000000000000000000000000000000000000000000000000000000000000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000" 
+        "hex": "01000000010000000000000000000000000000000000000000000000000000000000000000000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
       },
       {
         "exception": "nonstandard inputs not supported",
-        "hex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000023aa206fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d619000000000087ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000" 
+        "hex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000023aa206fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d619000000000087ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
       }
     ]
   }

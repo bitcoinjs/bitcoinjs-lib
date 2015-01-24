@@ -196,6 +196,10 @@ describe('TransactionBuilder', function() {
           })
         })
 
+        // FIXME: add support for locktime/version in TransactionBuilder API
+        if (f.version !== undefined) txb.tx.version = f.version
+        if (f.locktime !== undefined) txb.tx.locktime = f.locktime
+
         var tx = txb.build()
 
         assert.equal(tx.getId(), f.txid)
