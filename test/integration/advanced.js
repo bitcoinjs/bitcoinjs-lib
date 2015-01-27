@@ -32,7 +32,7 @@ describe('bitcoinjs-lib (advanced)', function() {
         if (err) return done(err)
 
         var tx = new bitcoin.TransactionBuilder()
-        var data = new Buffer('cafedeadbeef', 'hex')
+        var data = new Buffer('bitcoinjs-lib')
         var dataScript = bitcoin.scripts.nullDataOutput(data)
 
         var unspent = unspents.pop()
