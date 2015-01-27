@@ -31,30 +31,27 @@ describe('bitcoinjs-lib (advanced)', function() {
       blockchain.addresses.unspents(address, function(err, unspents) {
         if (err) return done(err)
 
-        // filter small unspents
-        unspents = unspents.filter(function(unspent) { return unspent.value > 1e4 })
-
-        // use the oldest unspent
-        var unspent = unspents.pop()
-
         var tx = new bitcoin.TransactionBuilder()
-
         var data = new Buffer('cafedeadbeef', 'hex')
         var dataScript = bitcoin.scripts.nullDataOutput(data)
+
+        var unspent = unspents.pop()
 
         tx.addInput(unspent.txId, unspent.vout)
         tx.addOutput(dataScript, 1000)
         tx.sign(0, key)
 
-        blockchain.transactions.propagate(tx.build().toHex(), function(err) {
+        var txBuilt = tx.build()
+
+        blockchain.transactions.propagate(txBuilt.toHex(), function(err) {
           if (err) return done(err)
 
           // check that the message was propagated
-          blockchain.addresses.transactions(address, function(err, transactions) {
+          blockchain.transactions.get(txBuilt.getId(), function(err, transaction) {
             if (err) return done(err)
 
-            var transaction = bitcoin.Transaction.fromHex(transactions[0].txHex)
-            var dataScript2 = transaction.outs[0].script
+            var actual = bitcoin.Transaction.fromHex(transaction.txHex)
+            var dataScript2 = actual.outs[0].script
             var data2 = dataScript2.chunks[1]
 
             assert.deepEqual(dataScript, dataScript2)
