@@ -2,7 +2,7 @@
   "valid": {
     "build": [
       {
-        "description": "pubKeyHash->pubKeyHash 1:1 transaction",
+        "description": "Transaction w/ pubKeyHash -> pubKeyHash",
         "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
         "inputs": [
           {
@@ -21,7 +21,7 @@
         ]
       },
       {
-        "description": "pubKey->pubKeyHash 1:1 transaction",
+        "description": "Transaction w/ pubKey -> pubKeyHash",
         "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000494830450221009833abb3ab49d7004c06bcc79eafd6905ada3eee91f3376ad388548034acd9a702202e84dda6ef2678c82256afcfc459aaa68e179b2bb0e6b2dc3f1410e132c5e6c301ffffffff0100f90295000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
         "inputs": [
           {
@@ -41,7 +41,7 @@
         ]
       },
       {
-        "description": "2-of-2 P2SH multisig -> pubKeyHash 1:1 Transaction",
+        "description": "Transaction w/ scriptHash(multisig 2-of-2) -> pubKeyHash",
         "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd1a0100473044022040039a3d0a806d6c2c0ac8a62f2467c979c897c945f3f11905b9c5ea76b4a88002200976f187f852f7d186e8e8aa39332092aa8a504b63a7ae3d0eca09ebea1497fd0147304402205522d1949d13347054bd5ea86cdcad2344f49628a935faaee8f5e744bd3ef87e022063a28ab077817222ccd7d5a70e77ed7274840b9ba8db5dd93a33bdd41813d548014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
         "inputs": [
           {
@@ -62,7 +62,7 @@
         ]
       },
       {
-        "description": "2-of-2 raw multisig -> pubKeyHash 1:1 Transaction",
+        "description": "Transaction w/ multisig 2-of-2 -> pubKeyHash",
         "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f07149000000009100473044022040039a3d0a806d6c2c0ac8a62f2467c979c897c945f3f11905b9c5ea76b4a88002200976f187f852f7d186e8e8aa39332092aa8a504b63a7ae3d0eca09ebea1497fd0147304402205522d1949d13347054bd5ea86cdcad2344f49628a935faaee8f5e744bd3ef87e022063a28ab077817222ccd7d5a70e77ed7274840b9ba8db5dd93a33bdd41813d54801ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
         "inputs": [
           {
