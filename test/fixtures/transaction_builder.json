@@ -211,6 +211,11 @@
             "value": 1000
           }
         ]
+      },
+      {
+        "description": "Complete transaction w/ non-standard inputs",
+        "exception": "nonstandard not supported",
+        "txHex": "010000000100000000171a0000e028f2000000000050178500000000000d0000000e000000000000002009f691b2263260e71f363d1db51ff3100d285956a40cc0e4f8c8c2c4a80559b1ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
       }
     ],
     "sign": [
