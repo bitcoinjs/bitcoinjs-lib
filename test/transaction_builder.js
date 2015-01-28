@@ -9,6 +9,44 @@ var TransactionBuilder = require('../src/transaction_builder')
 
 var fixtures = require('./fixtures/transaction_builder')
 
+function construct(txb, f, sign) {
+  f.inputs.forEach(function(input) {
+    var prevTxScript
+
+    if (input.prevTxScript) {
+      prevTxScript = Script.fromASM(input.prevTxScript)
+    }
+
+    txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
+  })
+
+  f.outputs.forEach(function(output) {
+    var script = Script.fromASM(output.script)
+
+    txb.addOutput(script, output.value)
+  })
+
+  if (sign === undefined || sign) {
+    f.inputs.forEach(function(input, index) {
+      var redeemScript
+
+      if (input.redeemScript) {
+        redeemScript = Script.fromASM(input.redeemScript)
+      }
+
+      input.privKeys.forEach(function(wif) {
+        var privKey = ECKey.fromWIF(wif)
+
+        txb.sign(index, privKey, redeemScript)
+      })
+    })
+  }
+
+  // FIXME: add support for locktime/version in TransactionBuilder API
+  if (f.version !== undefined) txb.tx.version = f.version
+  if (f.locktime !== undefined) txb.tx.locktime = f.locktime
+}
+
 describe('TransactionBuilder', function() {
   var privAddress, privScript
   var prevTx, prevTxHash
@@ -135,21 +173,7 @@ describe('TransactionBuilder', function() {
 
     fixtures.invalid.sign.forEach(function(f) {
       it('throws on ' + f.exception + ' (' + f.description + ')', function() {
-        f.inputs.forEach(function(input) {
-          var prevTxScript
-
-          if (input.prevTxScript) {
-            prevTxScript = Script.fromASM(input.prevTxScript)
-          }
-
-          txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
-        })
-
-        f.outputs.forEach(function(output) {
-          var script = Script.fromASM(output.script)
-
-          txb.addOutput(script, output.value)
-        })
+        construct(txb, f, false)
 
         f.inputs.forEach(function(input, index) {
           var redeemScript
@@ -178,39 +202,7 @@ describe('TransactionBuilder', function() {
   describe('build', function() {
     fixtures.valid.build.forEach(function(f) {
       it('builds \"' + f.description + '\"', function() {
-        f.inputs.forEach(function(input) {
-          var prevTxScript
-
-          if (input.prevTxScript) {
-            prevTxScript = Script.fromASM(input.prevTxScript)
-          }
-
-          txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
-        })
-
-        f.outputs.forEach(function(output) {
-          var script = Script.fromASM(output.script)
-
-          txb.addOutput(script, output.value)
-        })
-
-        f.inputs.forEach(function(input, index) {
-          var redeemScript
-
-          if (input.redeemScript) {
-            redeemScript = Script.fromASM(input.redeemScript)
-          }
-
-          input.privKeys.forEach(function(wif) {
-            var privKey = ECKey.fromWIF(wif)
-
-            txb.sign(index, privKey, redeemScript)
-          })
-        })
-
-        // FIXME: add support for locktime/version in TransactionBuilder API
-        if (f.version !== undefined) txb.tx.version = f.version
-        if (f.locktime !== undefined) txb.tx.locktime = f.locktime
+        construct(txb, f)
 
         var tx = txb.build()
         assert.equal(tx.toHex(), f.txHex)
@@ -218,40 +210,27 @@ describe('TransactionBuilder', function() {
     })
 
     fixtures.invalid.build.forEach(function(f) {
-      it('throws on ' + f.exception + ' (' + f.description + ')', function() {
-        f.inputs.forEach(function(input) {
-          var prevTxScript
+      describe('for ' + f.description, function() {
+        beforeEach(function() {
+          if (f.txHex) {
+            var tx = Transaction.fromHex(f.txHex)
+            txb = TransactionBuilder.fromTransaction(tx)
 
-          if (input.prevTxScript) {
-            prevTxScript = Script.fromASM(input.prevTxScript)
+          } else {
+            construct(txb, f)
           }
-
-          txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
         })
 
-        f.outputs.forEach(function(output) {
-          var script = Script.fromASM(output.script)
-
-          txb.addOutput(script, output.value)
+        it('throws on ' + f.exception, function() {
+          assert.throws(function() {
+            txb.build()
+          }, new RegExp(f.exception))
         })
 
-        f.inputs.forEach(function(input, index) {
-          var redeemScript
-
-          if (input.redeemScript) {
-            redeemScript = Script.fromASM(input.redeemScript)
-          }
-
-          input.privKeys.forEach(function(wif) {
-            var privKey = ECKey.fromWIF(wif)
-
-            txb.sign(index, privKey, redeemScript)
-          })
+        if (f.alwaysThrows) return
+        it('doesn\'t throw if building incomplete', function() {
+          txb.buildIncomplete()
         })
-
-        assert.throws(function() {
-          txb.build()
-        }, new RegExp(f.exception))
       })
     })
   })

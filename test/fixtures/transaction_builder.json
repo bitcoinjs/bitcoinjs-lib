@@ -189,6 +189,7 @@
       {
         "description": "Incomplete transaction w/ prevTxScript defined",
         "exception": "Transaction is not complete",
+        "alwaysThrows": true,
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
