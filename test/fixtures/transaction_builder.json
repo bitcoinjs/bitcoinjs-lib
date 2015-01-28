@@ -83,6 +83,27 @@
         ]
       },
       {
+        "description": "Transaction w/ scriptHash(pubKey) -> pubKeyHash",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006c47304402201115644b134932c8a7a8e925769d130a801288d477130e2bf6fadda20b33754d02202ecefbf63844d7cb2d5868539c39f973fe019f72e5c31a707836c0d61ef317db012321033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70facffffffff0100f90295000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_HASH160 e89677d91455e541630d62c63718bef738b478b1 OP_EQUAL",
+            "privKeys": [
+              "KxLDMPtVM7sLSu2v5n1LybDibw6P9FFbL4pUwJ51UDm7rp5AmXWW"
+            ],
+            "redeemScript": "033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70f OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 2500000000
+          }
+        ]
+      },
+      {
         "description": "Transaction w/ non-zero vin inputs",
         "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205c80bbb5125b35d5e5a8324b1336832d29a6fc004859c8a9ff6bef47ba7fc348022018612216e57a521b2c4543f1f4fd738a76814c37c074e88adfe12464fff31cf901210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
         "inputs": [
