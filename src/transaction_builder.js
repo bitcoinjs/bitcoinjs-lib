@@ -76,7 +76,9 @@ TransactionBuilder.fromTransaction = function(transaction) {
         })
 
         hashType = parsed[0].hashType
-        pubKeys = []
+        pubKeys = redeemScript.chunks.slice(1, -2).map(function(pubKey) {
+          return ECPubKey.fromBuffer(pubKey)
+        })
         signatures = parsed.map(function(p) { return p.signature })
 
         break
@@ -191,8 +193,20 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
         break
 
       case 'multisig':
+        // we need to put the signatures in the correct order
+        var hash = tx.hashForSignature(index, input.redeemScript, input.hashType)
+        var multisigSignatures = input.pubKeys.map(function(pubKey, i) {
+          var signature = null;
+          input.signatures.forEach(function(_signature) {
+            if (!signature && pubKey.verify(hash, _signature)) {
+              signature = _signature.toScriptSignature(input.hashType)
+            }
+          })
+          return signature;
+        }).filter(function(signature) { return !!signature })
+
         var redeemScript = allowIncomplete ? undefined : input.redeemScript
-        scriptSig = scripts.multisigInput(signatures, redeemScript)
+        scriptSig = scripts.multisigInput(multisigSignatures, redeemScript)
 
         break
 
@@ -223,7 +237,7 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   var prevOutScript = this.prevOutScripts[index]
   var prevOutType = this.prevOutTypes[index]
 
-  var scriptType, hash
+  var scriptType, hash, pubKeys
   if (redeemScript) {
     prevOutScript = prevOutScript || scripts.scriptHashOutput(redeemScript.getHash())
     prevOutType = prevOutType || 'scripthash'
@@ -234,6 +248,13 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
 
     assert.notEqual(scriptType, 'scripthash', 'RedeemScript can\'t be P2SH')
     assert.notEqual(scriptType, 'nonstandard', 'RedeemScript not supported (nonstandard)')
+
+    // for multisig we need to get the pubKeys from the redeemScript since their order is important
+    if (scriptType === 'multisig') {
+      pubKeys = redeemScript.chunks.slice(1, -2).map(function(pubKey) {
+        return ECPubKey.fromBuffer(pubKey)
+      })
+    }
 
     hash = this.tx.hashForSignature(index, redeemScript, hashType)
 
@@ -268,8 +289,13 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
 
   var signature = privKey.sign(hash)
-  input.pubKeys.push(privKey.pub)
   input.signatures.push(signature)
+
+  if (pubKeys) {
+    input.pubKeys = pubKeys
+  } else {
+    input.pubKeys.push(privKey.pub)
+  }
 }
 
 module.exports = TransactionBuilder
