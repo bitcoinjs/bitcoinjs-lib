@@ -1,5 +1,4 @@
 var assert = require('assert')
-var scripts = require('../src/scripts')
 
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
@@ -28,16 +27,15 @@ function construct(txb, f, sign) {
 
   if (sign === undefined || sign) {
     f.inputs.forEach(function(input, index) {
-      var redeemScript
+      input.signs.forEach(function(sign) {
+        var privKey = ECKey.fromWIF(sign.privKey)
+        var redeemScript
 
-      if (input.redeemScript) {
-        redeemScript = Script.fromASM(input.redeemScript)
-      }
+        if (sign.redeemScript) {
+          redeemScript = Script.fromASM(sign.redeemScript)
+        }
 
-      input.privKeys.forEach(function(wif) {
-        var privKey = ECKey.fromWIF(wif)
-
-        txb.sign(index, privKey, redeemScript)
+        txb.sign(index, privKey, redeemScript, sign.hashType)
       })
     })
   }
@@ -128,69 +126,25 @@ describe('TransactionBuilder', function() {
   })
 
   describe('sign', function() {
-    describe('when prevOutScript is undefined', function() {
-      it('assumes pubKeyHash', function() {
-        txb.addInput(prevTxHash, 0)
-        txb.sign(0, privKey)
-
-        assert.equal(txb.inputs[0].scriptType, 'pubkeyhash')
-        assert.equal(txb.inputs[0].redeemScript, undefined)
-      })
-    })
-
-    describe('when redeemScript is defined', function() {
-      it('assumes scriptHash', function() {
-        txb.addInput(prevTxHash, 0)
-        txb.sign(0, privKey, privScript)
-
-        assert.equal(txb.inputs[0].prevOutType, 'scripthash')
-        assert.equal(txb.inputs[0].redeemScript, privScript)
-      })
-
-      it('throws if hashType is inconsistent', function() {
-        var redeemScript = scripts.multisigOutput(1, [privKey.pub])
-
-        txb.addInput(prevTxHash, 0)
-        txb.sign(0, privKey, redeemScript, 83)
-
-        assert.throws(function() {
-          txb.sign(0, privKey, redeemScript, 82)
-        }, /Inconsistent hashType/)
-      })
-
-      it('throws if redeemScript is inconsistent', function() {
-        var firstScript = scripts.multisigOutput(1, [privKey.pub])
-        var otherScript = scripts.multisigOutput(2, [privKey.pub, privKey.pub])
-
-        txb.addInput(prevTxHash, 0)
-        txb.sign(0, privKey, firstScript)
-
-        assert.throws(function() {
-          txb.sign(0, privKey, otherScript)
-        }, /Inconsistent redeemScript/)
-      })
-    })
-
     fixtures.invalid.sign.forEach(function(f) {
       it('throws on ' + f.exception + ' (' + f.description + ')', function() {
         construct(txb, f, false)
 
         f.inputs.forEach(function(input, index) {
-          var redeemScript
+          input.signs.forEach(function(sign) {
+            var privKey = ECKey.fromWIF(sign.privKey)
+            var redeemScript
 
-          if (input.redeemScript) {
-            redeemScript = Script.fromASM(input.redeemScript)
-          }
+            if (sign.redeemScript) {
+              redeemScript = Script.fromASM(sign.redeemScript)
+            }
 
-          input.privKeys.forEach(function(wif, i) {
-            var privKey = ECKey.fromWIF(wif)
-
-            if (input.throws !== i) {
-              txb.sign(index, privKey, redeemScript)
+            if (!sign.throws) {
+              txb.sign(index, privKey, redeemScript, sign.hashType)
 
             } else {
               assert.throws(function() {
-                txb.sign(index, privKey, redeemScript)
+                txb.sign(index, privKey, redeemScript, sign.hashType)
               }, new RegExp(f.exception))
             }
           })
