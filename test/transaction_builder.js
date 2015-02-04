@@ -28,16 +28,15 @@ function construct(txb, f, sign) {
 
   if (sign === undefined || sign) {
     f.inputs.forEach(function(input, index) {
-      var redeemScript
+      input.signs.forEach(function(sign) {
+        var privKey = ECKey.fromWIF(sign.privKey)
+        var redeemScript
 
-      if (input.redeemScript) {
-        redeemScript = Script.fromASM(input.redeemScript)
-      }
+        if (sign.redeemScript) {
+          redeemScript = Script.fromASM(sign.redeemScript)
+        }
 
-      input.privKeys.forEach(function(wif) {
-        var privKey = ECKey.fromWIF(wif)
-
-        txb.sign(index, privKey, redeemScript)
+        txb.sign(index, privKey, redeemScript, sign.hashType)
       })
     })
   }
@@ -176,21 +175,20 @@ describe('TransactionBuilder', function() {
         construct(txb, f, false)
 
         f.inputs.forEach(function(input, index) {
-          var redeemScript
+          input.signs.forEach(function(sign) {
+            var privKey = ECKey.fromWIF(sign.privKey)
+            var redeemScript
 
-          if (input.redeemScript) {
-            redeemScript = Script.fromASM(input.redeemScript)
-          }
+            if (sign.redeemScript) {
+              redeemScript = Script.fromASM(sign.redeemScript)
+            }
 
-          input.privKeys.forEach(function(wif, i) {
-            var privKey = ECKey.fromWIF(wif)
-
-            if (input.throws !== i) {
-              txb.sign(index, privKey, redeemScript)
+            if (!sign.throws) {
+              txb.sign(index, privKey, redeemScript, sign.hashType)
 
             } else {
               assert.throws(function() {
-                txb.sign(index, privKey, redeemScript)
+                txb.sign(index, privKey, redeemScript, sign.hashType)
               }, new RegExp(f.exception))
             }
           })

@@ -8,8 +8,10 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 0,
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
             ]
           }
         ],
@@ -28,8 +30,10 @@
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 0,
             "prevTxScript": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 OP_CHECKSIG",
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
             ]
           }
         ],
@@ -47,11 +51,15 @@
           {
             "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
             "vout": 0,
-            "privKeys": [
-              "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
-              "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
-            ],
-            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG"
+            "signs": [
+              {
+                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG"
+              },
+              {
+                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+              }
+            ]
           }
         ],
         "outputs": [
@@ -69,9 +77,13 @@
             "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
             "vout": 0,
             "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
-            "privKeys": [
-              "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
-              "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+            "signs": [
+              {
+                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
+              },
+              {
+                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+              }
             ]
           }
         ],
@@ -90,10 +102,12 @@
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 0,
             "prevTxScript": "OP_HASH160 e89677d91455e541630d62c63718bef738b478b1 OP_EQUAL",
-            "privKeys": [
-              "KxLDMPtVM7sLSu2v5n1LybDibw6P9FFbL4pUwJ51UDm7rp5AmXWW"
-            ],
-            "redeemScript": "033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70f OP_CHECKSIG"
+            "signs": [
+              {
+                "privKey": "KxLDMPtVM7sLSu2v5n1LybDibw6P9FFbL4pUwJ51UDm7rp5AmXWW",
+                "redeemScript": "033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70f OP_CHECKSIG"
+              }
+            ]
           }
         ],
         "outputs": [
@@ -110,8 +124,10 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
             ]
           }
         ],
@@ -132,8 +148,10 @@
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 2,
             "sequence": 2147001,
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
             ]
           }
         ],
@@ -164,7 +182,7 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 0,
-            "privKeys": []
+            "signs": []
           }
         ],
         "outputs": []
@@ -176,7 +194,7 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 0,
-            "privKeys": []
+            "signs": []
           }
         ],
         "outputs": [
@@ -194,15 +212,17 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 0,
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
             ]
           },
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
             "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
-            "privKeys": []
+            "signs": []
           }
         ],
         "outputs": [
@@ -225,11 +245,15 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
-            ],
-            "throws": 1
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              },
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
           }
         ],
         "outputs": [
@@ -245,11 +269,13 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
-            ],
-            "redeemScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
-            "throws": 0
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
+                "throws": true
+              }
+            ]
           }
         ],
         "outputs": [
@@ -266,10 +292,65 @@
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
             "prevTxScript": "OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL",
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
-            ],
-            "throws": 0
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "Inconsistent redeemScript",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              },
+              {
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "Inconsistent hashType",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "hashType": 4
+              },
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "hashType": 2,
+                "throws": true
+              }
+            ]
           }
         ],
         "outputs": [
@@ -285,11 +366,13 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
-            ],
-            "redeemScript": "OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL",
-            "throws": 0
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL",
+                "throws": true
+              }
+            ]
           }
         ],
         "outputs": [
@@ -306,11 +389,13 @@
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
             "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
-            ],
-            "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
-            "throws": 0
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
+                "throws": true
+              }
+            ]
           }
         ],
         "outputs": [
@@ -326,12 +411,17 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
-            ],
-            "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
-            "throws": 1
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG"
+              },
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
+                "throws": true
+              }
+            ]
           }
         ],
         "outputs": [
@@ -348,11 +438,13 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
-            "privKeys": [
-              "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx"
-            ],
-            "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
-            "throws": 0
+            "signs": [
+              {
+                "privKey": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
+                "throws": true
+              }
+            ]
           }
         ],
         "outputs": [
@@ -369,10 +461,12 @@
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 0,
             "prevTxScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
-            "privKeys": [
-              "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
-            ],
-            "throws": 0
+            "signs": [
+              {
+                "privKey": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
           }
         ],
         "outputs": [
