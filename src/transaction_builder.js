@@ -318,17 +318,15 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
 
         var scriptHash = input.prevOutScript.chunks[1]
         assert.deepEqual(scriptHash, redeemScript.getHash(), 'RedeemScript does not match ' + scriptHash.toString('hex'))
-
-      } else {
-        input.prevOutScript = scripts.scriptHashOutput(redeemScript.getHash())
-        input.prevOutType = 'scripthash'
       }
 
       var scriptType = scripts.classifyOutput(redeemScript)
+      assert(scriptType in canSignTypes, 'RedeemScript not supported (' + scriptType + ')')
 
+      var pubKeys = []
       switch (scriptType) {
         case 'multisig':
-          input.pubKeys = redeemScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
+          pubKeys = redeemScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
           break
 
         case 'pubkeyhash':
@@ -336,17 +334,20 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
           var pkh2 = privKey.pub.getAddress().hash
 
           assert.deepEqual(pkh1, pkh2, 'privateKey cannot sign for this input')
-          input.pubKeys = [privKey.pub]
+          pubKeys = [privKey.pub]
           break
 
         case 'pubkey':
-          input.pubKeys = redeemScript.chunks.slice(0, 1).map(ECPubKey.fromBuffer)
+          pubKeys = redeemScript.chunks.slice(0, 1).map(ECPubKey.fromBuffer)
           break
-
-        default:
-          assert(false, 'RedeemScript not supported (' + scriptType + ')')
       }
 
+      if (!input.prevOutScript) {
+        input.prevOutScript = scripts.scriptHashOutput(redeemScript.getHash())
+        input.prevOutType = 'scripthash'
+      }
+
+      input.pubKeys = pubKeys
       input.redeemScript = redeemScript
       input.scriptType = scriptType
 
@@ -369,14 +370,8 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   // do we know how to sign this?
   assert(input.scriptType in canSignTypes, input.scriptType + ' not supported')
 
-  var signatureHash
-  if (input.redeemScript) {
-    signatureHash = this.tx.hashForSignature(index, input.redeemScript, hashType)
-
-  } else {
-    signatureHash = this.tx.hashForSignature(index, input.prevOutScript, hashType)
-  }
-
+  var signatureScript = input.redeemScript || input.prevOutScript
+  var signatureHash = this.tx.hashForSignature(index, signatureScript, hashType)
   var signature = privKey.sign(signatureHash)
 
   // enforce signing in order of public keys
