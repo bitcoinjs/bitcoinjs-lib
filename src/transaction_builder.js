@@ -293,13 +293,6 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
 
   // are we already initialized?
   if (input.initialized) {
-    if (input.prevOutType === 'scripthash') {
-      assert(input.redeemScript, 'PrevOutScript is P2SH, missing redeemScript')
-
-    } else {
-      assert(!input.redeemScript, 'PrevOutScript must be P2SH')
-    }
-
     // redeemScript only needed to initialize, but if provided again, enforce consistency
     if (redeemScript) {
       assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
