@@ -208,7 +208,7 @@ describe('TransactionBuilder', function() {
     })
 
     fixtures.invalid.build.forEach(function(f) {
-      describe('for ' + f.description, function() {
+      describe('for ' + f.description || f.exception, function() {
         beforeEach(function() {
           if (f.txHex) {
             var tx = Transaction.fromHex(f.txHex)
