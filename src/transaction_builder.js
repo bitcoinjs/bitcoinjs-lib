@@ -279,6 +279,8 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
   return tx
 }
 
+var canSignTypes = { 'pubkeyhash': true, 'multisig': true, 'pubkey': true }
+
 TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashType) {
   assert(index in this.inputs, 'No input at index: ' + index)
   hashType = hashType || Transaction.SIGHASH_ALL
@@ -364,15 +366,8 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
     input.signatures = input.signatures || []
   }
 
-  switch (input.scriptType) {
-    case 'pubkeyhash':
-    case 'multisig':
-    case 'pubkey':
-      break
-
-    default:
-      assert(false, input.scriptType + ' not supported')
-  }
+  // do we know how to sign this?
+  assert(input.scriptType in canSignTypes, input.scriptType + ' not supported')
 
   var signatureHash
   if (input.redeemScript) {
