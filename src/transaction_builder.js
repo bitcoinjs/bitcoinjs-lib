@@ -306,6 +306,7 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   // initialize it
   } else {
     if (redeemScript) {
+      // if we have a prevOutScript, enforce scriptHash equality to the redeemScript
       if (input.prevOutScript) {
         assert.equal(input.prevOutType, 'scripthash', 'PrevOutScript must be P2SH')
 
