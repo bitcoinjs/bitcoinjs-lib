@@ -186,12 +186,11 @@ TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOu
   var prevOut = prevOutHash.toString('hex') + ':' + index
   assert(!(prevOut in this.prevTxMap), 'Transaction is already an input')
 
-  var vout = this.tx.addInput(prevOutHash, index, sequence)
+  var vin = this.tx.addInput(prevOutHash, index, sequence)
+  this.inputs[vin] = input
+  this.prevTxMap[prevOut] = vin
 
-  this.prevTxMap[prevOut] = true
-  this.inputs[vout] = input
-
-  return vout
+  return vin
 }
 
 TransactionBuilder.prototype.addOutput = function(scriptPubKey, value) {
