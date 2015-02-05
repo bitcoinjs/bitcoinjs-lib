@@ -85,7 +85,10 @@ function isScriptHashOutput(script) {
 
 function isMultisigInput(script) {
   return script.chunks[0] === ops.OP_0 &&
-    script.chunks.slice(1).every(isCanonicalSignature)
+    script.chunks.every(function(c) {
+      // Allow for zeroed-out missing signatures
+      return c === ops.OP_0 || isCanonicalSignature(c);
+    })
 }
 
 function isMultisigOutput(script) {
