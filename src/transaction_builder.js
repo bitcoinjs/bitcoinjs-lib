@@ -273,10 +273,11 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
     assert.equal(input.hashType, hashType, 'Inconsistent hashType')
   }
 
-  var initialized = input.prevOutScript &&
+  var initialized = input.hashType &&
+                    input.prevOutScript &&
                     input.prevOutType &&
-                    input.hashType &&
                     input.pubKeys &&
+                    input.scriptType &&
                     input.signatures
 
   // are we already initialized?
@@ -331,21 +332,23 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
     } else {
       assert.notEqual(input.prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
 
-      // if nothing known, assume pubKeyHash
-      if (!input.scriptType) {
+      // can we sign this?
+      if (input.scriptType) {
+        assert(input.pubKeys, input.scriptType + ' not supported')
+
+      // we know nothin' Jon Snow, assume pubKeyHash
+      } else {
         input.prevOutScript = privKey.pub.getAddress().toOutputScript()
         input.prevOutType = 'pubkeyhash'
         input.pubKeys = [privKey.pub]
         input.scriptType = input.prevOutType
+
       }
     }
 
     input.hashType = hashType
     input.signatures = input.signatures || []
   }
-
-  // do we know how to sign this?
-  assert(input.scriptType in canSignTypes, input.scriptType + ' not supported')
 
   // enforce in order signing of public keys
   assert(input.pubKeys.some(function(pubKey, i) {
