@@ -249,12 +249,15 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
       }
     }
 
-    // if we built a scriptSig, wrap as scriptHash if necessary
-    if (scriptSig && input.prevOutType === 'scripthash') {
-      scriptSig = scripts.scriptHashInput(scriptSig, input.redeemScript)
-    }
+    // did we build a scriptSig?
+    if (scriptSig) {
+      // wrap as scriptHash if necessary
+      if (input.prevOutType === 'scripthash') {
+        scriptSig = scripts.scriptHashInput(scriptSig, input.redeemScript)
+      }
 
-    tx.setInputScript(index, scriptSig)
+      tx.setInputScript(index, scriptSig)
+    }
   })
 
   return tx
