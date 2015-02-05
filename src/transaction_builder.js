@@ -205,6 +205,9 @@ TransactionBuilder.prototype.addOutput = function(scriptPubKey, value) {
 
 TransactionBuilder.prototype.build = function() { return this.__build(false) }
 TransactionBuilder.prototype.buildIncomplete = function() { return this.__build(true) }
+
+var canSignTypes = { 'pubkeyhash': true, 'multisig': true, 'pubkey': true }
+
 TransactionBuilder.prototype.__build = function(allowIncomplete) {
   if (!allowIncomplete) {
     assert(this.tx.ins.length > 0, 'Transaction has no inputs')
@@ -215,24 +218,22 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
 
   // Create script signatures from signature meta-data
   this.inputs.forEach(function(input, index) {
-    if (!allowIncomplete) {
-      assert(input.initialized, 'Transaction is not complete')
-    }
-
+    var scriptType = input.scriptType
     var scriptSig
 
-    switch (input.scriptType) {
-      case 'pubkeyhash':
-        assert(input.signatures, 'Transaction is missing signatures')
-        assert.equal(input.signatures.length, 1, 'Transaction is missing signatures')
+    if (!allowIncomplete) {
+      assert(input.initialized, 'Transaction is not complete')
+      assert(scriptType in canSignTypes, scriptType + ' not supported')
+      assert(input.signatures, 'Transaction is missing signatures')
+    }
 
+    switch (scriptType) {
+      case 'pubkeyhash':
         var pkhSignature = input.signatures[0].toScriptSignature(input.hashType)
         scriptSig = scripts.pubKeyHashInput(pkhSignature, input.pubKeys[0])
         break
 
       case 'multisig':
-        assert(input.signatures, 'Transaction is missing signatures')
-
         // Array.prototype.map is sparse-compatible
         var msSignatures = input.signatures.map(function(signature) {
           return signature.toScriptSignature(input.hashType)
@@ -250,20 +251,13 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
         break
 
       case 'pubkey':
-        assert(input.signatures, 'Transaction is missing signatures')
-        assert.equal(input.signatures.length, 1, 'Transaction is missing signatures')
-
         var pkSignature = input.signatures[0].toScriptSignature(input.hashType)
         scriptSig = scripts.pubKeyInput(pkSignature)
         break
-
-      default:
-        if (allowIncomplete) return
-
-        assert(false, input.scriptType + ' not supported')
     }
 
-    if (input.redeemScript) {
+    // if we built a scriptSig, wrap as scriptHash if necessary
+    if (scriptSig && input.prevOutType === 'scripthash') {
       scriptSig = scripts.scriptHashInput(scriptSig, input.redeemScript)
     }
 
@@ -272,8 +266,6 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
 
   return tx
 }
-
-var canSignTypes = { 'pubkeyhash': true, 'multisig': true, 'pubkey': true }
 
 TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashType) {
   assert(index in this.inputs, 'No input at index: ' + index)
@@ -342,6 +334,7 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
     } else {
       assert.notEqual(input.prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
 
+      // if nothing known, assume pubKeyHash
       if (!input.scriptType) {
         input.prevOutScript = privKey.pub.getAddress().toOutputScript()
         input.prevOutType = 'pubkeyhash'
