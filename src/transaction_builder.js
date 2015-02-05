@@ -268,26 +268,23 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   hashType = hashType || Transaction.SIGHASH_ALL
 
   var input = this.inputs[index]
+  var canSign = input.hashType &&
+                input.prevOutScript &&
+                input.prevOutType &&
+                input.pubKeys &&
+                input.scriptType &&
+                input.signatures
 
-  if (input.hashType !== undefined) {
-    assert.equal(input.hashType, hashType, 'Inconsistent hashType')
-  }
-
-  var initialized = input.hashType &&
-                    input.prevOutScript &&
-                    input.prevOutType &&
-                    input.pubKeys &&
-                    input.scriptType &&
-                    input.signatures
-
-  // are we already initialized?
-  if (initialized) {
-    // redeemScript only needed to initialize, but if provided again, enforce consistency
+  // are we almost ready to sign?
+  if (canSign) {
+    // if redeemScript was provided, enforce consistency
     if (redeemScript) {
       assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
     }
 
-  // initialize it
+    assert.equal(input.hashType, hashType, 'Inconsistent hashType')
+
+  // no? prepare
   } else {
     if (redeemScript) {
       // if we have a prevOutScript, enforce scriptHash equality to the redeemScript
