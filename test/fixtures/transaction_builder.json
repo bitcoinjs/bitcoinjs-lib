@@ -206,7 +206,7 @@
       },
       {
         "description": "Incomplete transaction w/ prevTxScript defined",
-        "exception": "Transaction is not complete",
+        "exception": "Transaction is missing signatures",
         "alwaysThrows": true,
         "inputs": [
           {
@@ -240,7 +240,8 @@
     ],
     "sign": [
       {
-        "exception": "pubkeyhash doesn\\'t support multiple signatures",
+        "description": "Too many signatures - pubKeyHash",
+        "exception": "Signature already exists",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -406,6 +407,7 @@
         ]
       },
       {
+        "description": "Too many signatures - scriptHash(multisig 1-of-1)",
         "exception": "Signature already exists",
         "inputs": [
           {
@@ -418,7 +420,6 @@
               },
               {
                 "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
-                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
                 "throws": true
               }
             ]
