@@ -85,9 +85,10 @@ function isScriptHashOutput(script) {
 
 function isMultisigInput(script) {
   return script.chunks[0] === ops.OP_0 &&
-    script.chunks.every(function(c) {
+    script.chunks.every(function(chunk) {
       // Allow for zeroed-out missing signatures
-      return c === ops.OP_0 || isCanonicalSignature(c);
+      // See: https://github.com/bitcoin/bitcoin/blob/f425050546644a36b0b8e0eb2f6934a3e0f6f80f/src/script/sign.cpp#L195-L197
+      return chunk === ops.OP_0 || isCanonicalSignature(chunk);
     })
 }
 

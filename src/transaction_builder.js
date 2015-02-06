@@ -60,10 +60,8 @@ function extractInput(txIn, tx, vout) {
       break
 
     case 'multisig':
-      parsed = scriptSig.chunks.filter(
-        // filter out OP_0 chunks
-        function(c) { return c; }
-      ).map(ECSignature.parseScriptSignature)
+      // Strip out initial OP_0 and any missing signatures
+      parsed = scriptSig.chunks.filter(function(chunk) { return chunk !== opcodes.OP_0 }).map(ECSignature.parseScriptSignature)
       hashType = parsed[0].hashType
       signatures = parsed.map(function(p) { return p.signature })
       initialized = true
