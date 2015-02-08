@@ -66,11 +66,14 @@ var foobar = {
 module.exports = foobar
 ```
 
-Then, using browserify, compile `foobar.js` for use in the browser:
+Each of these included packages are seperate to `bitcoinjs-lib`, and must be installed separately.
+They are however used in the bitcoinjs-lib public API.
 
-    $ browserify foobar.js -s foobar > dist/foobar.js
+Using browserify, compile `foobar.js` for use in the browser:
 
-You will then be able to load `dist/foobar.js` into your browser, with each of the dependencies above accessible from the global `foobar` object.
+    $ browserify foobar.js -s foobar > foobar.js
+
+You will then be able to load `foobar.js` into your browser, with each of the dependencies above accessible from the global `foobar` object.
 
 **NOTE**: See our package.json for the currently supported version of browserify used by this repository.
 
