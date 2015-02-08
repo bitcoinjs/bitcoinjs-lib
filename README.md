@@ -44,10 +44,6 @@ If you are looking for the original, it is tagged as `0.1.3`. Unless you need it
 
     var bitcoin = require('bitcoinjs-lib')
 
-From the repo:
-
-    var bitcoin = require('./src/index.js')
-
 
 ### Browser
 
