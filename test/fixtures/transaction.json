@@ -4,6 +4,8 @@
       "description": "Standard transaction (1:1)",
       "id": "a0ff943d3f644d8832b1fa74be4d0ad2577615dc28a7ef74ff8c271b603a082a",
       "hash": "2a083a601b278cff74efa728dc157657d20a4dbe74fab132884d643f3d94ffa0",
+      "normalizedId": "321caa7f62477e0c2a8efe97374eb7e2d963f4aa9cdf471821086d788bcc60b3",
+      "normalizedHash": "b360cc8b786d08211847df9caaf463d9e2b74e3797fe8e2a0c7e47627faa1c32",
       "raw": {
         "version": 1,
         "ins": [
@@ -27,6 +29,8 @@
       "description": "Standard transaction (2:2)",
       "id": "fcdd6d89c43e76dcff94285d9b6e31d5c60cb5e397a76ebc4920befad30907bc",
       "hash": "bc0709d3fabe2049bc6ea797e3b50cc6d5316e9b5d2894ffdc763ec4896dddfc",
+      "normalizedId": "f77a93848b52cad088f413949aea17c42ba4f4dcde545a00a9f1ceb4fc5e74c2",
+      "normalizedHash": "c2745efcb4cef1a9005a54dedcf4a42bc417ea9a9413f488d0ca528b84937af7",
       "raw": {
         "version": 1,
         "ins": [
@@ -61,6 +65,8 @@
       "description": "Standard transaction (14:2)",
       "id": "39d57bc27f72e904d81f6b5ef7b4e6e17fa33a06b11e5114a43435830d7b5563",
       "hash": "63557b0d833534a414511eb1063aa37fe1e6b4f75e6b1fd804e9727fc27bd539",
+      "normalizedId": "ab9ad02839bd9f680f3b7764038098614c19d357ee7e3e8674362c22cba7d854",
+      "normalizedHash": "54d8a7cb222c3674863e7eee57d3194c6198800364773b0f689fbd3928d09aab",
       "raw": {
         "version": 1,
         "locktime": 0,
