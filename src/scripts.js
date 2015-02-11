@@ -1,6 +1,6 @@
 var assert = require('assert')
-var typeForce = require('typeforce')
 var ops = require('./opcodes')
+var typeForce = require('typeforce')
 
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
@@ -63,7 +63,7 @@ function isPubKeyOutput(script) {
     script.chunks[1] === ops.OP_CHECKSIG
 }
 
-function isScriptHashInput(script) {
+function isScriptHashInput(script, allowIncomplete) {
   if (script.chunks.length < 2) return false
   var lastChunk = script.chunks[script.chunks.length - 1]
 
@@ -72,7 +72,7 @@ function isScriptHashInput(script) {
   var scriptSig = Script.fromChunks(script.chunks.slice(0, -1))
   var scriptPubKey = Script.fromBuffer(lastChunk)
 
-  return classifyInput(scriptSig) === classifyOutput(scriptPubKey)
+  return classifyInput(scriptSig, allowIncomplete) === classifyOutput(scriptPubKey)
 }
 
 function isScriptHashOutput(script) {
@@ -83,9 +83,19 @@ function isScriptHashOutput(script) {
     script.chunks[2] === ops.OP_EQUAL
 }
 
-function isMultisigInput(script) {
-  return script.chunks[0] === ops.OP_0 &&
-    script.chunks.slice(1).every(isCanonicalSignature)
+// allowIncomplete is to account for combining signatures
+// See https://github.com/bitcoin/bitcoin/blob/f425050546644a36b0b8e0eb2f6934a3e0f6f80f/src/script/sign.cpp#L195-L197
+function isMultisigInput(script, allowIncomplete) {
+  if (script.chunks.length < 2) return false
+  if (script.chunks[0] !== ops.OP_0) return false
+
+  if (allowIncomplete) {
+    return script.chunks.slice(1).every(function(chunk) {
+      return chunk === ops.OP_0 || isCanonicalSignature(chunk)
+    })
+  }
+
+  return script.chunks.slice(1).every(isCanonicalSignature)
 }
 
 function isMultisigOutput(script) {
@@ -134,15 +144,15 @@ function classifyOutput(script) {
   return 'nonstandard'
 }
 
-function classifyInput(script) {
+function classifyInput(script, allowIncomplete) {
   typeForce('Script', script)
 
   if (isPubKeyHashInput(script)) {
     return 'pubkeyhash'
-  } else if (isScriptHashInput(script)) {
-    return 'scripthash'
-  } else if (isMultisigInput(script)) {
+  } else if (isMultisigInput(script, allowIncomplete)) {
     return 'multisig'
+  } else if (isScriptHashInput(script, allowIncomplete)) {
+    return 'scripthash'
   } else if (isPubKeyInput(script)) {
     return 'pubkey'
   }
@@ -234,8 +244,13 @@ function multisigInput(signatures, scriptPubKey) {
     var m = mOp - (ops.OP_1 - 1)
     var n = nOp - (ops.OP_1 - 1)
 
-    assert(signatures.length >= m, 'Not enough signatures provided')
-    assert(signatures.length <= n, 'Too many signatures provided')
+    var count = 0
+    signatures.forEach(function(signature) {
+      count += (signature !== ops.OP_0)
+    })
+
+    assert(count >= m, 'Not enough signatures provided')
+    assert(count <= n, 'Too many signatures provided')
   }
 
   return Script.fromChunks([].concat(ops.OP_0, signatures))

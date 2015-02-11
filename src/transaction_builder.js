@@ -1,4 +1,5 @@
 var assert = require('assert')
+var ops = require('./opcodes')
 var scripts = require('./scripts')
 
 var ECPubKey = require('./ecpubkey')
@@ -44,23 +45,23 @@ TransactionBuilder.fromTransaction = function(transaction) {
 
     var redeemScript
     var scriptSig = txIn.script
-    var scriptType = scripts.classifyInput(scriptSig)
+    var scriptType = scripts.classifyInput(scriptSig, true)
 
     // Re-classify if P2SH
     if (scriptType === 'scripthash') {
       redeemScript = Script.fromBuffer(scriptSig.chunks.slice(-1)[0])
       scriptSig = Script.fromChunks(scriptSig.chunks.slice(0, -1))
 
-      scriptType = scripts.classifyInput(scriptSig)
+      scriptType = scripts.classifyInput(scriptSig, true)
       assert.equal(scripts.classifyOutput(redeemScript), scriptType, 'Non-matching scriptSig and scriptPubKey in input')
     }
 
     // Extract hashType, pubKeys and signatures
-    var hashType, pubKeys, signatures
+    var hashType, parsed, pubKeys, signatures
 
     switch (scriptType) {
       case 'pubkeyhash':
-        var parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+        parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
         var pubKey = ECPubKey.fromBuffer(scriptSig.chunks[1])
 
         hashType = parsed.hashType
@@ -70,10 +71,9 @@ TransactionBuilder.fromTransaction = function(transaction) {
         break
 
       case 'multisig':
-        var scriptSigs = scriptSig.chunks.slice(1) // ignore OP_0
-        var parsed = scriptSigs.map(function(scriptSig) {
-          return ECSignature.parseScriptSignature(scriptSig)
-        })
+        parsed = scriptSig.chunks.slice(1).filter(function(chunk) {
+          return chunk !== ops.OP_0
+        }).map(ECSignature.parseScriptSignature)
 
         hashType = parsed[0].hashType
         pubKeys = []
@@ -82,7 +82,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
         break
 
       case 'pubkey':
-        var parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+        parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
 
         hashType = parsed.hashType
         pubKeys = []
