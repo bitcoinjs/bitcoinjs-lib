@@ -68,12 +68,12 @@ ECSignature.fromDER = function(buffer) {
   return new ECSignature(r, s)
 }
 
-// FIXME: 0x00, 0x04, 0x80 are SIGHASH_* boundary constants, importing Transaction causes a circular dependency
+// BIP62: 1 byte hashType flag (only 0x01, 0x02, 0x03, 0x81, 0x82 and 0x83 are allowed)
 ECSignature.parseScriptSignature = function(buffer) {
   var hashType = buffer.readUInt8(buffer.length - 1)
   var hashTypeMod = hashType & ~0x80
 
-  assert(hashTypeMod > 0x00 && hashTypeMod < 0x04, 'Invalid hashType')
+  assert(hashTypeMod > 0x00 && hashTypeMod < 0x04, 'Invalid hashType ' + hashType)
 
   return {
     signature: ECSignature.fromDER(buffer.slice(0, -1)),
@@ -115,6 +115,9 @@ ECSignature.prototype.toDER = function() {
 }
 
 ECSignature.prototype.toScriptSignature = function(hashType) {
+  var hashTypeMod = hashType & ~0x80
+  assert(hashTypeMod > 0x00 && hashTypeMod < 0x04, 'Invalid hashType ' + hashType)
+
   var hashTypeBuffer = new Buffer(1)
   hashTypeBuffer.writeUInt8(hashType, 0)
 
