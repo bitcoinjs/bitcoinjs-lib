@@ -1,4 +1,5 @@
 var assert = require('assert')
+var ops = require('../src/opcodes')
 var scripts = require('../src/scripts')
 
 var ECPubKey = require('../src/ecpubkey')
@@ -20,6 +21,18 @@ describe('Scripts', function() {
         var type = scripts.classifyInput(script)
 
         assert.equal(type, f.type)
+      })
+    })
+
+    fixtures.valid.forEach(function(f) {
+      if (!f.scriptSig) return
+      if (!f.typeIncomplete) return
+
+      it('classifies incomplete ' + f.scriptSig + ' as ' + f.typeIncomplete, function() {
+        var script = Script.fromASM(f.scriptSig)
+        var type = scripts.classifyInput(script, true)
+
+        assert.equal(type, f.typeIncomplete)
       })
     })
   })
@@ -51,6 +64,16 @@ describe('Scripts', function() {
 
             assert.equal(inputFn(script), expected)
           })
+
+          if (f.typeIncomplete) {
+            var expectedIncomplete = type.toLowerCase() === f.typeIncomplete
+
+            it('returns ' + expected + ' for ' + f.scriptSig, function() {
+              var script = Script.fromASM(f.scriptSig)
+
+              assert.equal(inputFn(script, true), expectedIncomplete)
+            })
+          }
         }
       })
     })
@@ -131,7 +154,7 @@ describe('Scripts', function() {
 
       it('returns ' + f.scriptSig, function() {
         var signatures = f.signatures.map(function(signature) {
-          return new Buffer(signature, 'hex')
+          return signature ? new Buffer(signature, 'hex') : ops.OP_0
         })
 
         var scriptSig = scripts.multisigInput(signatures)
@@ -145,7 +168,7 @@ describe('Scripts', function() {
 
       it('throws on ' + f.exception, function() {
         var signatures = f.signatures.map(function(signature) {
-          return new Buffer(signature, 'hex')
+          return signature ? new Buffer(signature, 'hex') : ops.OP_0
         })
 
         assert.throws(function() {
