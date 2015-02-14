@@ -27,7 +27,7 @@ function findBIP32NetworkByVersion(version) {
 }
 
 function HDNode(K, chainCode, network) {
-  network = network || networks.bitcoin
+  network = network || networks.digibyte
 
   typeForce('Buffer', chainCode)
 

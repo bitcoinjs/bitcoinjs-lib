@@ -20,7 +20,7 @@ function magicHash(message, network) {
 }
 
 function sign(privKey, message, network) {
-  network = network || networks.bitcoin
+  network = network || networks.digibyte
 
   var hash = magicHash(message, network)
   var signature = privKey.sign(hash)
@@ -36,7 +36,7 @@ function verify(address, signature, message, network) {
     signature = new Buffer(signature, 'base64')
   }
 
-  network = network || networks.bitcoin
+  network = network || networks.digibyte
 
   var hash = magicHash(message, network)
   var parsed = ECSignature.parseCompact(signature)

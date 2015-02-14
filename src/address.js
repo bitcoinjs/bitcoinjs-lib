@@ -33,7 +33,7 @@ Address.fromBase58Check = function(string) {
 }
 
 Address.fromOutputScript = function(script, network) {
-  network = network || networks.bitcoin
+  network = network || networks.digibyte
 
   if (scripts.isPubKeyHashOutput(script)) return new Address(script.chunks[2], network.pubKeyHash)
   if (scripts.isScriptHashOutput(script)) return new Address(script.chunks[1], network.scriptHash)

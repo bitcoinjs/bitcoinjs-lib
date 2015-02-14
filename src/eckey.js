@@ -61,7 +61,7 @@ ECKey.makeRandom = function(compressed, rng) {
 
 // Export functions
 ECKey.prototype.toWIF = function(network) {
-  network = network || networks.bitcoin
+  network = network || networks.digibyte
 
   var bufferLen = this.pub.compressed ? 34 : 33
   var buffer = new Buffer(bufferLen)

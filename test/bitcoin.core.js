@@ -49,7 +49,7 @@ describe('Bitcoin-core', function() {
       var string = f[0]
       var hex = f[1]
       var params = f[2]
-      var network = networks.bitcoin
+      var network = networks.digibyte
 
       if (params.isPrivkey) return
       if (params.isTestnet) network = networks.testnet
@@ -71,8 +71,8 @@ describe('Bitcoin-core', function() {
   // base58_keys_invalid
   describe('Address', function() {
     var allowedNetworks = [
-      networks.bitcoin.pubkeyhash,
-      networks.bitcoin.scripthash,
+      networks.digibyte.pubkeyhash,
+      networks.digibyte.scripthash,
       networks.testnet.pubkeyhash,
       networks.testnet.scripthash
     ]

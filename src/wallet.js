@@ -13,7 +13,7 @@ function Wallet(seed, network) {
   console.warn('Wallet is deprecated and will be removed in 2.0.0, see #296')
 
   seed = seed || crypto.randomBytes(32)
-  network = network || networks.bitcoin
+  network = network || networks.digibyte
 
   // Stored in a closure to make accidental serialization less likely
   var masterKey = HDNode.fromSeedBuffer(seed, network)

@@ -1,38 +1,24 @@
 {
-  "name": "bitcoinjs-lib",
+  "name": "digibytejs-lib",
   "version": "1.4.4",
-  "description": "Client-side Bitcoin JavaScript library",
+  "description": "Client-side Digibyte JavaScript library",
   "main": "./src/index.js",
   "keywords": [
-    "bitcoin",
+    "digibyte",
     "browser",
     "client",
     "library"
   ],
   "contributors": [
     {
-      "name": "Daniel Cousens",
-      "email": "bitcoin@dcousens.com",
-      "url": "http://dcousens.com"
-    },
-    {
-      "name": "Kyle Drake",
-      "email": "kyle@kyledrake.net",
-      "url": "http://kyledrake.net/"
-    },
-    {
-      "name": "Wei Lu",
-      "email": "luwei.here@gmail.com",
-      "url": "http://weilu.github.io/"
-    },
-    {
-      "name": "Stefan Thomas",
-      "email": "justmoon@members.fsf.org",
-      "url": "http://www.justmoon.net"
+      "name": "Esotericizm",
+      "email": "esotericizm@cryptoservices.net",
+      "url": "http://cryptoservices.net"
+    }
     }
   ],
   "scripts": {
-    "compile": "browserify ./src/index.js -s bitcoin | uglifyjs > bitcoinjs-min.js",
+    "compile": "browserify ./src/index.js -s digibyte | uglifyjs > digibytejs-min.js",
     "coverage": "istanbul cover _mocha -- test/*.js",
     "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info",
     "integration": "mocha --reporter list test/integration/*.js",
@@ -42,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
+    "url": "https://github.com/DigiByte-Team/digibytejs-lib"
   },
   "dependencies": {
     "bigi": "^1.4.0",

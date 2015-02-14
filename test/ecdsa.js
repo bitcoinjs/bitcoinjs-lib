@@ -109,7 +109,7 @@ describe('ecdsa', function() {
     })
 
     describe('with i ∈ {0,1,2,3}', function() {
-      var hash = message.magicHash('1111', networks.bitcoin)
+      var hash = message.magicHash('1111', networks.digibyte)
       var e = BigInteger.fromBuffer(hash)
 
       var signatureBuffer = new Buffer('INcvXVVEFyIfHLbDX+xoxlKFn3Wzj9g0UbhObXdMq+YMKC252o5RHFr0/cKdQe1WsBLUBi4morhgZ77obDJVuV0=', 'base64')
