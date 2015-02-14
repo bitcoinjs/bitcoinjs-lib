@@ -34,7 +34,7 @@
       "name": "Esotericizm",
       "email": "esotericizm@cryptoservices.net",
       "url": "http://www.cryptoservices.net"
-    },    
+    }    
   ],
   "scripts": {
     "compile": "browserify ./src/index.js -s digibyte | uglifyjs > digibytejs-min.js",
