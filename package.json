@@ -11,10 +11,30 @@
   ],
   "contributors": [
     {
+      "name": "Daniel Cousens",
+      "email": "bitcoin@dcousens.com",
+      "url": "http://dcousens.com"
+    },
+    {
+      "name": "Kyle Drake",
+      "email": "kyle@kyledrake.net",
+      "url": "http://kyledrake.net/"
+    },
+    {
+      "name": "Wei Lu",
+      "email": "luwei.here@gmail.com",
+      "url": "http://weilu.github.io/"
+    },
+    {
+      "name": "Stefan Thomas",
+      "email": "justmoon@members.fsf.org",
+      "url": "http://www.justmoon.net"
+    },
+    {
       "name": "Esotericizm",
       "email": "esotericizm@cryptoservices.net",
-      "url": "http://cryptoservices.net"
-    }
+      "url": "http://www.cryptoservices.net"
+    },    
   ],
   "scripts": {
     "compile": "browserify ./src/index.js -s digibyte | uglifyjs > digibytejs-min.js",
@@ -27,7 +47,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/DigiByte-Team/digibytejs-lib"
+    "url": "https://github.com/DigiByte-Team/digibytejs-lib.git"
   },
   "dependencies": {
     "bigi": "^1.4.0",
