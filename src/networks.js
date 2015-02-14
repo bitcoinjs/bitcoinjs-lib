@@ -124,7 +124,20 @@ var networks = {
     dustThreshold: 546, // https://github.com/zetacoin/zetacoin/blob/master/src/core.h#L159
     feePerKb: 10000, // https://github.com/zetacoin/zetacoin/blob/master/src/main.cpp#L54
     estimateFee: estimateFee('zetacoin')
-  }
+  },
+  digibyte: {
+    magicPrefix: '\x18Digibyte Signed Message:\n',
+    bip32: {
+      public: 0x0488b21e,
+      private: 0x0488ade4
+    },
+    pubKeyHash: 0x1e,
+    scriptHash: 0x05,
+    wif: 0x80,
+    dustThreshold: 546, //
+    feePerKb: 10000, // 
+    estimateFee: estimateFee('digibyte')
+  }  
 }
 
 function estimateFee(type) {
