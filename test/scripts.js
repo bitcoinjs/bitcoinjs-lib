@@ -51,8 +51,11 @@ describe('Scripts', function() {
   })
 
   ;['PubKey', 'PubKeyHash', 'ScriptHash', 'Multisig', 'NullData'].forEach(function(type) {
-    var inputFn = scripts['is' + type + 'Input']
-    var outputFn= scripts['is' + type + 'Output']
+    var inputFnName = 'is' + type + 'Input'
+    var outputFnName = 'is' + type + 'Output'
+
+    var inputFn = scripts[inputFnName]
+    var outputFn= scripts[outputFnName]
 
     describe('is' + type + 'Input', function() {
       fixtures.valid.forEach(function(f) {
@@ -76,6 +79,18 @@ describe('Scripts', function() {
           }
         }
       })
+
+      if (!(inputFnName in fixtures.invalid)) return
+
+      fixtures.invalid[inputFnName].forEach(function(f) {
+        if (inputFn && f.scriptSig) {
+          it('returns false for ' + f.scriptSig, function() {
+            var script = Script.fromASM(f.scriptSig)
+
+            assert.equal(inputFn(script), false)
+          })
+        }
+      })
     })
 
     describe('is' + type + 'Output', function() {
@@ -87,6 +102,18 @@ describe('Scripts', function() {
             var script = Script.fromASM(f.scriptPubKey)
 
             assert.equal(outputFn(script), expected)
+          })
+        }
+      })
+
+      if (!(outputFnName in fixtures.invalid)) return
+
+      fixtures.invalid[outputFnName].forEach(function(f) {
+        if (outputFn && f.scriptPubKey) {
+          it('returns false for ' + f.scriptPubKey, function() {
+            var script = Script.fromASM(f.scriptPubKey)
+
+            assert.equal(outputFn(script), false)
           })
         }
       })
