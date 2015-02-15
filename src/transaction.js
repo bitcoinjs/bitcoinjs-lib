@@ -308,6 +308,9 @@ Transaction.prototype.toHex = function() {
 }
 
 Transaction.prototype.setInputScript = function(index, script) {
+  typeForce('Number', index)
+  typeForce('Script', script)
+
   this.ins[index].script = script
 }
 

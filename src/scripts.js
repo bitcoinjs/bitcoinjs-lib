@@ -65,8 +65,8 @@ function isPubKeyOutput(script) {
 
 function isScriptHashInput(script, allowIncomplete) {
   if (script.chunks.length < 2) return false
-  var lastChunk = script.chunks[script.chunks.length - 1]
 
+  var lastChunk = script.chunks[script.chunks.length - 1]
   if (!Buffer.isBuffer(lastChunk)) return false
 
   var scriptSig = Script.fromChunks(script.chunks.slice(0, -1))
