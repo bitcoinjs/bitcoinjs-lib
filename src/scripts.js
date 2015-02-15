@@ -70,7 +70,13 @@ function isScriptHashInput(script, allowIncomplete) {
   if (!Buffer.isBuffer(lastChunk)) return false
 
   var scriptSig = Script.fromChunks(script.chunks.slice(0, -1))
-  var scriptPubKey = Script.fromBuffer(lastChunk)
+  var scriptPubKey
+
+  try {
+    scriptPubKey = Script.fromBuffer(lastChunk)
+  } catch (e) {
+    return false
+  }
 
   return classifyInput(scriptSig, allowIncomplete) === classifyOutput(scriptPubKey)
 }
