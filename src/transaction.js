@@ -185,6 +185,9 @@ Transaction.prototype.clone = function () {
  * method copies the transaction, makes the necessary changes based on the
  * hashType, serializes and finally hashes the result. This hash can then be
  * used to sign the transaction input in question.
+ * When a negative inIndex and no prevOutScript are given, it computes the hash
+ * with all transaction inputs set to zero. This can be used to identify a
+ * transaction independently of its signing status.
  */
 Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashType) {
   // FIXME: remove in 2.x.y
@@ -198,20 +201,27 @@ Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashTy
   }
 
   typeForce('Number', inIndex)
-  typeForce('Script', prevOutScript)
+  if (prevOutScript) {
+    typeForce('Script', prevOutScript)
+  }
   typeForce('Number', hashType)
 
-  assert(inIndex >= 0, 'Invalid vin index')
+  if (prevOutScript) {
+    assert(inIndex >= 0, 'Invalid vin index')
+  }
   assert(inIndex < this.ins.length, 'Invalid vin index')
 
   var txTmp = this.clone()
-  var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
 
-  // Blank out other inputs' signatures
+  // Blank out all inputs' signatures
   txTmp.ins.forEach(function(txIn) {
     txIn.script = Script.EMPTY
   })
-  txTmp.ins[inIndex].script = hashScript
+
+  // Set stripped prevOutScript for the given input, unless we want an "empty" hash
+  if (prevOutScript && inIndex >= 0) {
+    txTmp.ins[inIndex].script = prevOutScript.without(opcodes.OP_CODESEPARATOR)
+  }
 
   var hashTypeModifier = hashType & 0x1f
   if (hashTypeModifier === Transaction.SIGHASH_NONE) {
@@ -240,6 +250,14 @@ Transaction.prototype.getHash = function () {
 Transaction.prototype.getId = function () {
   // TxHash is little-endian, we need big-endian
   return bufferutils.reverse(this.getHash()).toString('hex')
+}
+
+Transaction.prototype.getNormalizedHash = function () {
+  return this.hashForSignature(-1, null, Transaction.SIGHASH_ALL)
+}
+
+Transaction.prototype.getNormalizedId = function () {
+  return bufferutils.reverse(this.getNormalizedHash()).toString('hex');
 }
 
 Transaction.prototype.toBuffer = function () {

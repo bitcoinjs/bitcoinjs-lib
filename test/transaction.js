@@ -235,6 +235,28 @@ describe('Transaction', function() {
     })
   })
 
+  describe('getNormalizedId', function() {
+    fixtures.valid.forEach(function(f) {
+      it('should return the normalized id for ' + f.id, function() {
+        var tx = Transaction.fromHex(f.hex)
+        var actual = tx.getNormalizedId()
+
+        assert.equal(actual, f.normalizedId)
+      })
+    })
+  })
+
+  describe('getNormalizedHash', function() {
+    fixtures.valid.forEach(function(f) {
+      it('should return the normalized hash for ' + f.id, function() {
+        var tx = Transaction.fromHex(f.hex)
+        var actual = tx.getNormalizedHash().toString('hex')
+
+        assert.equal(actual, f.normalizedHash)
+      })
+    })
+  })
+
   // TODO:
   //  hashForSignature: [Function],
 
