@@ -200,8 +200,12 @@ describe('Transaction', function() {
 
   describe('clone', function() {
     fixtures.valid.forEach(function(f) {
-      var expected = Transaction.fromHex(f.hex)
-      var actual = expected.clone()
+      var actual, expected
+
+      beforeEach(function() {
+        expected = Transaction.fromHex(f.hex)
+        actual = expected.clone()
+      })
 
       it('should have value equality', function() {
         assert.deepEqual(actual, expected)
