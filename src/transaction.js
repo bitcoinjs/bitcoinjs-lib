@@ -51,17 +51,33 @@ Transaction.fromBuffer = function(buffer, __disableAssert) {
     return Script.fromBuffer(readSlice(readVarInt()))
   }
 
+  function readGenerationScript() {
+    return new Script(readSlice(readVarInt()), [])
+  }
+
   var tx = new Transaction()
   tx.version = readUInt32()
 
   var vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
-    tx.ins.push({
-      hash: readSlice(32),
-      index: readUInt32(),
-      script: readScript(),
-      sequence: readUInt32()
-    })
+    var hash = readSlice(32)
+
+    if (Transaction.isCoinbaseHash(hash)) {
+      tx.ins.push({
+        hash: hash,
+        index: readUInt32(),
+        script: readGenerationScript(),
+        sequence: readUInt32()
+      })
+
+    } else {
+      tx.ins.push({
+        hash: hash,
+        index: readUInt32(),
+        script: readScript(),
+        sequence: readUInt32()
+      })
+    }
   }
 
   var voutLen = readVarInt()
