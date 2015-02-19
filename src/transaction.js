@@ -85,6 +85,12 @@ Transaction.fromHex = function(hex) {
   return Transaction.fromBuffer(new Buffer(hex, 'hex'))
 }
 
+Transaction.isCoinbaseHash = function(buffer) {
+  return Array.prototype.every.call(buffer, function(x) {
+    return x === 0
+  })
+}
+
 /**
  * Create a new txIn.
  *
