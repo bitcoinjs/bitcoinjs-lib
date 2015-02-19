@@ -68,7 +68,7 @@ Transaction.fromBuffer = function(buffer, __disableAssert) {
   for (i = 0; i < voutLen; ++i) {
     tx.outs.push({
       value: readUInt64(),
-      script: readScript(),
+      script: readScript()
     })
   }
 
@@ -252,20 +252,18 @@ Transaction.prototype.getId = function () {
 }
 
 Transaction.prototype.toBuffer = function () {
-  var txInSize = this.ins.reduce(function(a, x) {
-    return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
+  function scriptSize(script) {
+    var length = script.buffer.length
 
-  var txOutSize = this.outs.reduce(function(a, x) {
-    return a + (8 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
+    return bufferutils.varIntSize(length) + length
+  }
 
   var buffer = new Buffer(
     8 +
     bufferutils.varIntSize(this.ins.length) +
     bufferutils.varIntSize(this.outs.length) +
-    txInSize +
-    txOutSize
+    this.ins.reduce(function(sum, input) { return sum + 40 + scriptSize(input.script) }, 0) +
+    this.outs.reduce(function(sum, output) { return sum + 8 + scriptSize(output.script) }, 0)
   )
 
   var offset = 0
