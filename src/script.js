@@ -29,7 +29,6 @@ Script.fromASM = function(asm) {
 
 Script.fromBuffer = function(buffer) {
   var chunks = []
-
   var i = 0
 
   while (i < buffer.length) {
