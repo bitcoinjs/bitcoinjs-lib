@@ -16,7 +16,14 @@ describe('Transaction', function() {
 
     raw.ins.forEach(function(txIn) {
       var txHash = new Buffer(txIn.hash, 'hex')
-      var script = txIn.script ? Script.fromASM(txIn.script) : undefined
+      var script
+
+      if (txIn.data) {
+        script = new Script(new Buffer(txIn.data, 'hex'), [])
+
+      } else if (txIn.script) {
+        script = Script.fromASM(txIn.script)
+      }
 
       tx.addInput(txHash, txIn.index, txIn.sequence, script)
     })
