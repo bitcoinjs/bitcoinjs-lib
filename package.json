@@ -37,6 +37,7 @@
     "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info",
     "integration": "mocha --reporter list test/integration/*.js",
     "jshint": "jshint --config jshint.json src/*.js ; true",
+    "standard": "standard",
     "test": "npm run-script unit",
     "unit": "istanbul test mocha -- --reporter list test/*.js"
   },
