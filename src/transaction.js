@@ -9,7 +9,7 @@ var Address = require('./address')
 var ECSignature = require('./ecsignature')
 var Script = require('./script')
 
-function Transaction() {
+function Transaction () {
   this.version = 1
   this.locktime = 0
   this.ins = []
@@ -22,36 +22,36 @@ Transaction.SIGHASH_NONE = 0x02
 Transaction.SIGHASH_SINGLE = 0x03
 Transaction.SIGHASH_ANYONECANPAY = 0x80
 
-Transaction.fromBuffer = function(buffer, __disableAssert) {
+Transaction.fromBuffer = function (buffer, __disableAssert) {
   var offset = 0
-  function readSlice(n) {
+  function readSlice (n) {
     offset += n
     return buffer.slice(offset - n, offset)
   }
 
-  function readUInt32() {
+  function readUInt32 () {
     var i = buffer.readUInt32LE(offset)
     offset += 4
     return i
   }
 
-  function readUInt64() {
+  function readUInt64 () {
     var i = bufferutils.readUInt64LE(buffer, offset)
     offset += 8
     return i
   }
 
-  function readVarInt() {
+  function readVarInt () {
     var vi = bufferutils.readVarInt(buffer, offset)
     offset += vi.size
     return vi.number
   }
 
-  function readScript() {
+  function readScript () {
     return Script.fromBuffer(readSlice(readVarInt()))
   }
 
-  function readGenerationScript() {
+  function readGenerationScript () {
     return new Script(readSlice(readVarInt()), [])
   }
 
@@ -69,7 +69,6 @@ Transaction.fromBuffer = function(buffer, __disableAssert) {
         script: readGenerationScript(),
         sequence: readUInt32()
       })
-
     } else {
       tx.ins.push({
         hash: hash,
@@ -97,12 +96,12 @@ Transaction.fromBuffer = function(buffer, __disableAssert) {
   return tx
 }
 
-Transaction.fromHex = function(hex) {
+Transaction.fromHex = function (hex) {
   return Transaction.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-Transaction.isCoinbaseHash = function(buffer) {
-  return Array.prototype.every.call(buffer, function(x) {
+Transaction.isCoinbaseHash = function (buffer) {
+  return Array.prototype.every.call(buffer, function (x) {
     return x === 0
   })
 }
@@ -117,7 +116,7 @@ Transaction.isCoinbaseHash = function(buffer) {
  *
  * Note that this method does not sign the created input.
  */
-Transaction.prototype.addInput = function(hash, index, sequence, script) {
+Transaction.prototype.addInput = function (hash, index, sequence, script) {
   if (sequence === undefined || sequence === null) {
     sequence = Transaction.DEFAULT_SEQUENCE
   }
@@ -127,10 +126,8 @@ Transaction.prototype.addInput = function(hash, index, sequence, script) {
   if (typeof hash === 'string') {
     // TxId hex is big-endian, we need little-endian
     hash = bufferutils.reverse(new Buffer(hash, 'hex'))
-
   } else if (hash instanceof Transaction) {
     hash = hash.getHash()
-
   }
 
   typeForce('Buffer', hash)
@@ -142,11 +139,11 @@ Transaction.prototype.addInput = function(hash, index, sequence, script) {
 
   // Add the input and return the input's index
   return (this.ins.push({
-    hash: hash,
-    index: index,
-    script: script,
-    sequence: sequence
-  }) - 1)
+      hash: hash,
+      index: index,
+      script: script,
+      sequence: sequence
+    }) - 1)
 }
 
 /**
@@ -158,7 +155,7 @@ Transaction.prototype.addInput = function(hash, index, sequence, script) {
  * - An Address object and a value
  * - A scriptPubKey Script and a value
  */
-Transaction.prototype.addOutput = function(scriptPubKey, value) {
+Transaction.prototype.addOutput = function (scriptPubKey, value) {
   // Attempt to get a valid address if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
     scriptPubKey = Address.fromBase58Check(scriptPubKey)
@@ -174,9 +171,9 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
 
   // Add the output and return the output's index
   return (this.outs.push({
-    script: scriptPubKey,
-    value: value
-  }) - 1)
+      script: scriptPubKey,
+      value: value
+    }) - 1)
 }
 
 Transaction.prototype.clone = function () {
@@ -184,7 +181,7 @@ Transaction.prototype.clone = function () {
   newTx.version = this.version
   newTx.locktime = this.locktime
 
-  newTx.ins = this.ins.map(function(txIn) {
+  newTx.ins = this.ins.map(function (txIn) {
     return {
       hash: txIn.hash,
       index: txIn.index,
@@ -193,7 +190,7 @@ Transaction.prototype.clone = function () {
     }
   })
 
-  newTx.outs = this.outs.map(function(txOut) {
+  newTx.outs = this.outs.map(function (txOut) {
     return {
       script: txOut.script,
       value: txOut.value
@@ -211,7 +208,7 @@ Transaction.prototype.clone = function () {
  * hashType, serializes and finally hashes the result. This hash can then be
  * used to sign the transaction input in question.
  */
-Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashType) {
+Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashType) {
   // FIXME: remove in 2.x.y
   if (arguments[0] instanceof Script) {
     console.warn('hashForSignature(prevOutScript, inIndex, ...) has been deprecated. Use hashForSignature(inIndex, prevOutScript, ...)')
@@ -233,18 +230,17 @@ Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashTy
   var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
 
   // Blank out other inputs' signatures
-  txTmp.ins.forEach(function(txIn) {
+  txTmp.ins.forEach(function (txIn) {
     txIn.script = Script.EMPTY
   })
   txTmp.ins[inIndex].script = hashScript
 
   var hashTypeModifier = hashType & 0x1f
+
   if (hashTypeModifier === Transaction.SIGHASH_NONE) {
     assert(false, 'SIGHASH_NONE not yet supported')
-
   } else if (hashTypeModifier === Transaction.SIGHASH_SINGLE) {
     assert(false, 'SIGHASH_SINGLE not yet supported')
-
   }
 
   if (hashType & Transaction.SIGHASH_ANYONECANPAY) {
@@ -268,37 +264,41 @@ Transaction.prototype.getId = function () {
 }
 
 Transaction.prototype.toBuffer = function () {
-  function scriptSize(script) {
+  function scriptSize (script) {
     var length = script.buffer.length
 
     return bufferutils.varIntSize(length) + length
   }
 
   var buffer = new Buffer(
-    8 +
+  8 +
     bufferutils.varIntSize(this.ins.length) +
     bufferutils.varIntSize(this.outs.length) +
-    this.ins.reduce(function(sum, input) { return sum + 40 + scriptSize(input.script) }, 0) +
-    this.outs.reduce(function(sum, output) { return sum + 8 + scriptSize(output.script) }, 0)
+    this.ins.reduce(function (sum, input) {
+      return sum + 40 + scriptSize(input.script)
+    }, 0) +
+    this.outs.reduce(function (sum, output) {
+      return sum + 8 + scriptSize(output.script)
+    }, 0)
   )
 
   var offset = 0
-  function writeSlice(slice) {
+  function writeSlice (slice) {
     slice.copy(buffer, offset)
     offset += slice.length
   }
 
-  function writeUInt32(i) {
+  function writeUInt32 (i) {
     buffer.writeUInt32LE(i, offset)
     offset += 4
   }
 
-  function writeUInt64(i) {
+  function writeUInt64 (i) {
     bufferutils.writeUInt64LE(buffer, i, offset)
     offset += 8
   }
 
-  function writeVarInt(i) {
+  function writeVarInt (i) {
     var n = bufferutils.writeVarInt(buffer, i, offset)
     offset += n
   }
@@ -306,7 +306,7 @@ Transaction.prototype.toBuffer = function () {
   writeUInt32(this.version)
   writeVarInt(this.ins.length)
 
-  this.ins.forEach(function(txIn) {
+  this.ins.forEach(function (txIn) {
     writeSlice(txIn.hash)
     writeUInt32(txIn.index)
     writeVarInt(txIn.script.buffer.length)
@@ -315,7 +315,7 @@ Transaction.prototype.toBuffer = function () {
   })
 
   writeVarInt(this.outs.length)
-  this.outs.forEach(function(txOut) {
+  this.outs.forEach(function (txOut) {
     writeUInt64(txOut.value)
     writeVarInt(txOut.script.buffer.length)
     writeSlice(txOut.script.buffer)
@@ -326,11 +326,11 @@ Transaction.prototype.toBuffer = function () {
   return buffer
 }
 
-Transaction.prototype.toHex = function() {
+Transaction.prototype.toHex = function () {
   return this.toBuffer().toString('hex')
 }
 
-Transaction.prototype.setInputScript = function(index, script) {
+Transaction.prototype.setInputScript = function (index, script) {
   typeForce('Number', index)
   typeForce('Script', script)
 
@@ -338,8 +338,8 @@ Transaction.prototype.setInputScript = function(index, script) {
 }
 
 // FIXME: remove in 2.x.y
-Transaction.prototype.sign = function(index, privKey, hashType) {
-  console.warn("Transaction.prototype.sign is deprecated.  Use TransactionBuilder instead.")
+Transaction.prototype.sign = function (index, privKey, hashType) {
+  console.warn('Transaction.prototype.sign is deprecated.  Use TransactionBuilder instead.')
 
   var prevOutScript = privKey.pub.getAddress().toOutputScript()
   var signature = this.signInput(index, prevOutScript, privKey, hashType)
@@ -349,8 +349,8 @@ Transaction.prototype.sign = function(index, privKey, hashType) {
 }
 
 // FIXME: remove in 2.x.y
-Transaction.prototype.signInput = function(index, prevOutScript, privKey, hashType) {
-  console.warn("Transaction.prototype.signInput is deprecated.  Use TransactionBuilder instead.")
+Transaction.prototype.signInput = function (index, prevOutScript, privKey, hashType) {
+  console.warn('Transaction.prototype.signInput is deprecated.  Use TransactionBuilder instead.')
 
   hashType = hashType || Transaction.SIGHASH_ALL
 
@@ -361,8 +361,8 @@ Transaction.prototype.signInput = function(index, prevOutScript, privKey, hashTy
 }
 
 // FIXME: remove in 2.x.y
-Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, buffer) {
-  console.warn("Transaction.prototype.validateInput is deprecated.  Use TransactionBuilder instead.")
+Transaction.prototype.validateInput = function (index, prevOutScript, pubKey, buffer) {
+  console.warn('Transaction.prototype.validateInput is deprecated.  Use TransactionBuilder instead.')
 
   var parsed = ECSignature.parseScriptSignature(buffer)
   var hash = this.hashForSignature(index, prevOutScript, parsed.hashType)

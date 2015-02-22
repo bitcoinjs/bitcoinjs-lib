@@ -1,3 +1,6 @@
+/* global describe, it, beforeEach, afterEach */
+/* eslint-disable no-new */
+
 var assert = require('assert')
 var crypto = require('crypto')
 var ecurve = require('ecurve')
@@ -9,22 +12,22 @@ var ECKey = require('../src/eckey')
 
 var fixtures = require('./fixtures/eckey.json')
 
-describe('ECKey', function() {
-  describe('constructor', function() {
-    it('defaults to compressed', function() {
+describe('ECKey', function () {
+  describe('constructor', function () {
+    it('defaults to compressed', function () {
       var privKey = new ECKey(BigInteger.ONE)
 
       assert.equal(privKey.pub.compressed, true)
     })
 
-    it('supports the uncompressed flag', function() {
+    it('supports the uncompressed flag', function () {
       var privKey = new ECKey(BigInteger.ONE, false)
 
       assert.equal(privKey.pub.compressed, false)
     })
 
-    fixtures.valid.forEach(function(f) {
-      it('calculates the matching pubKey for ' + f.d, function() {
+    fixtures.valid.forEach(function (f) {
+      it('calculates the matching pubKey for ' + f.d, function () {
         var d = new BigInteger(f.d)
         var privKey = new ECKey(d)
 
@@ -32,18 +35,18 @@ describe('ECKey', function() {
       })
     })
 
-    fixtures.invalid.constructor.forEach(function(f) {
-      it('throws on ' + f.d, function() {
+    fixtures.invalid.constructor.forEach(function (f) {
+      it('throws on ' + f.d, function () {
         var d = new BigInteger(f.d)
 
-        assert.throws(function() {
+        assert.throws(function () {
           new ECKey(d)
         }, new RegExp(f.exception))
       })
     })
   })
 
-  it('uses the secp256k1 curve by default', function() {
+  it('uses the secp256k1 curve by default', function () {
     var secp256k1 = ecurve.getCurveByName('secp256k1')
 
     for (var property in secp256k1) {
@@ -58,10 +61,10 @@ describe('ECKey', function() {
     }
   })
 
-  describe('fromWIF', function() {
-    fixtures.valid.forEach(function(f) {
-      f.WIFs.forEach(function(wif) {
-        it('imports ' + wif.string + ' correctly', function() {
+  describe('fromWIF', function () {
+    fixtures.valid.forEach(function (f) {
+      f.WIFs.forEach(function (wif) {
+        it('imports ' + wif.string + ' correctly', function () {
           var privKey = ECKey.fromWIF(wif.string)
 
           assert.equal(privKey.d.toString(), f.d)
@@ -70,19 +73,19 @@ describe('ECKey', function() {
       })
     })
 
-    fixtures.invalid.WIF.forEach(function(f) {
-      it('throws on ' + f.string, function() {
-        assert.throws(function() {
+    fixtures.invalid.WIF.forEach(function (f) {
+      it('throws on ' + f.string, function () {
+        assert.throws(function () {
           ECKey.fromWIF(f.string)
         }, new RegExp(f.exception))
       })
     })
   })
 
-  describe('toWIF', function() {
-    fixtures.valid.forEach(function(f) {
-      f.WIFs.forEach(function(wif) {
-        it('exports ' + wif.string + ' correctly', function() {
+  describe('toWIF', function () {
+    fixtures.valid.forEach(function (f) {
+      f.WIFs.forEach(function (wif) {
+        it('exports ' + wif.string + ' correctly', function () {
           var privKey = ECKey.fromWIF(wif.string)
           var network = networks[wif.network]
           var result = privKey.toWIF(network)
@@ -93,34 +96,34 @@ describe('ECKey', function() {
     })
   })
 
-  describe('makeRandom', function() {
+  describe('makeRandom', function () {
     var exWIF = 'KwMWvwRJeFqxYyhZgNwYuYjbQENDAPAudQx5VEmKJrUZcq6aL2pv'
     var exPrivKey = ECKey.fromWIF(exWIF)
     var exBuffer = exPrivKey.d.toBuffer(32)
 
-    describe('uses default crypto RNG', function() {
-      beforeEach(function() {
+    describe('uses default crypto RNG', function () {
+      beforeEach(function () {
         sinon.stub(crypto, 'randomBytes').returns(exBuffer)
       })
 
-      afterEach(function() {
+      afterEach(function () {
         crypto.randomBytes.restore()
       })
 
-      it('generates a ECKey', function() {
+      it('generates a ECKey', function () {
         var privKey = ECKey.makeRandom()
 
         assert.equal(privKey.toWIF(), exWIF)
       })
 
-      it('supports compression', function() {
+      it('supports compression', function () {
         assert.equal(ECKey.makeRandom(true).pub.compressed, true)
         assert.equal(ECKey.makeRandom(false).pub.compressed, false)
       })
     })
 
-    it('allows a custom RNG to be used', function() {
-      function rng(size) {
+    it('allows a custom RNG to be used', function () {
+      function rng (size) {
         return exBuffer.slice(0, size)
       }
 
@@ -129,16 +132,16 @@ describe('ECKey', function() {
     })
   })
 
-  describe('signing', function() {
+  describe('signing', function () {
     var hash = crypto.randomBytes(32)
     var priv = ECKey.makeRandom()
     var signature = priv.sign(hash)
 
-    it('should verify against the public key', function() {
+    it('should verify against the public key', function () {
       assert(priv.pub.verify(hash, signature))
     })
 
-    it('should not verify against the wrong public key', function() {
+    it('should not verify against the wrong public key', function () {
       var priv2 = ECKey.makeRandom()
 
       assert(!priv2.pub.verify(hash, signature))

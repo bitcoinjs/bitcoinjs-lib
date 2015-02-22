@@ -1,7 +1,7 @@
-var assert = require('assert')
+/* global describe, it */
 
+var assert = require('assert')
 var base58 = require('bs58')
-//var base58check = require('bs58check')
 
 var Bitcoin = require('../')
 var Address = Bitcoin.Address
@@ -12,29 +12,29 @@ var ECSignature = Bitcoin.ECSignature
 var Transaction = Bitcoin.Transaction
 var Script = Bitcoin.Script
 
-var base58_encode_decode = require("./fixtures/core/base58_encode_decode.json")
-var base58_keys_invalid = require("./fixtures/core/base58_keys_invalid.json")
-var base58_keys_valid = require("./fixtures/core/base58_keys_valid.json")
-var sig_canonical = require("./fixtures/core/sig_canonical.json")
-var sig_noncanonical = require("./fixtures/core/sig_noncanonical.json")
-var sighash = require("./fixtures/core/sighash.json")
-var tx_valid = require("./fixtures/core/tx_valid.json")
+var base58_encode_decode = require('./fixtures/core/base58_encode_decode.json')
+var base58_keys_invalid = require('./fixtures/core/base58_keys_invalid.json')
+var base58_keys_valid = require('./fixtures/core/base58_keys_valid.json')
+var sig_canonical = require('./fixtures/core/sig_canonical.json')
+var sig_noncanonical = require('./fixtures/core/sig_noncanonical.json')
+var sighash = require('./fixtures/core/sighash.json')
+var tx_valid = require('./fixtures/core/tx_valid.json')
 
-describe('Bitcoin-core', function() {
+describe('Bitcoin-core', function () {
   // base58_encode_decode
-  describe('base58', function() {
-    base58_encode_decode.forEach(function(f) {
+  describe('base58', function () {
+    base58_encode_decode.forEach(function (f) {
       var fhex = f[0]
       var fb58 = f[1]
 
-      it('can decode ' + fb58, function() {
+      it('can decode ' + fb58, function () {
         var buffer = base58.decode(fb58)
         var actual = new Buffer(buffer).toString('hex')
 
         assert.equal(actual, fhex)
       })
 
-      it('can encode ' + fhex, function() {
+      it('can encode ' + fhex, function () {
         var buffer = new Buffer(fhex, 'hex')
         var actual = base58.encode(buffer)
 
@@ -44,32 +44,33 @@ describe('Bitcoin-core', function() {
   })
 
   // base58_keys_valid
-  describe('Address', function() {
-    base58_keys_valid.forEach(function(f) {
+  describe('Address', function () {
+    var typeMap = {
+      'pubkey': 'pubKeyHash',
+      'script': 'scriptHash'
+    }
+
+    base58_keys_valid.forEach(function (f) {
       var string = f[0]
       var hex = f[1]
       var params = f[2]
       var network = networks.bitcoin
 
       if (params.isPrivkey) return
-      if (params.isTestnet) network = networks.testnet
+      if (params.isTestnet)
+        network = networks.testnet
 
-      it('can import ' + string, function() {
+      it('can import ' + string, function () {
         var address = Address.fromBase58Check(string)
 
         assert.equal(address.hash.toString('hex'), hex)
-        if (params.addrType === 'pubkey') {
-          assert.equal(address.version, network.pubKeyHash)
-
-        } else if (params.addrType === 'script') {
-          assert.equal(address.version, network.scriptHash)
-        }
+        assert.equal(address.version, network[typeMap[params.addrType]])
       })
     })
   })
 
   // base58_keys_invalid
-  describe('Address', function() {
+  describe('Address', function () {
     var allowedNetworks = [
       networks.bitcoin.pubkeyhash,
       networks.bitcoin.scripthash,
@@ -77,11 +78,11 @@ describe('Bitcoin-core', function() {
       networks.testnet.scripthash
     ]
 
-    base58_keys_invalid.forEach(function(f) {
+    base58_keys_invalid.forEach(function (f) {
       var string = f[0]
 
-      it('throws on ' + string, function() {
-        assert.throws(function() {
+      it('throws on ' + string, function () {
+        assert.throws(function () {
           var address = Address.fromBase58Check(string)
 
           assert.notEqual(allowedNetworks.indexOf(address.version), -1, 'Invalid network')
@@ -91,8 +92,8 @@ describe('Bitcoin-core', function() {
   })
 
   // base58_keys_valid
-  describe('ECKey', function() {
-    base58_keys_valid.forEach(function(f) {
+  describe('ECKey', function () {
+    base58_keys_valid.forEach(function (f) {
       var string = f[0]
       var hex = f[1]
       var params = f[2]
@@ -101,29 +102,29 @@ describe('Bitcoin-core', function() {
       if (!params.isPrivkey) return
       var privKey = ECKey.fromWIF(string)
 
-      it('imports ' + string + ' correctly', function() {
+      it('imports ' + string + ' correctly', function () {
         assert.equal(privKey.d.toHex(), hex)
         assert.equal(privKey.pub.compressed, params.isCompressed)
       })
 
-      it('exports ' + hex + ' to ' + string, function() {
+      it('exports ' + hex + ' to ' + string, function () {
         assert.equal(privKey.toWIF(network), string)
       })
     })
   })
 
   // base58_keys_invalid
-  describe('ECKey', function() {
+  describe('ECKey', function () {
     var allowedNetworks = [
       networks.bitcoin.wif,
       networks.testnet.wif
     ]
 
-    base58_keys_invalid.forEach(function(f) {
+    base58_keys_invalid.forEach(function (f) {
       var string = f[0]
 
-      it('throws on ' + string, function() {
-        assert.throws(function() {
+      it('throws on ' + string, function () {
+        assert.throws(function () {
           ECKey.fromWIF(string)
           var version = base58check.decode(string).readUInt8(0)
 
@@ -134,23 +135,23 @@ describe('Bitcoin-core', function() {
   })
 
   // tx_valid
-  describe('Transaction', function() {
-    tx_valid.forEach(function(f) {
+  describe('Transaction', function () {
+    tx_valid.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
 
       var inputs = f[0]
       var fhex = f[1]
-  //      var verifyFlags = f[2] // TODO: do we need to test this?
+      //      var verifyFlags = f[2] // TODO: do we need to test this?
 
-      it('can decode ' + fhex, function() {
+      it('can decode ' + fhex, function () {
         var transaction = Transaction.fromHex(fhex)
 
-        transaction.ins.forEach(function(txin, i) {
+        transaction.ins.forEach(function (txin, i) {
           var input = inputs[i]
           var prevOutHash = input[0]
           var prevOutIndex = input[1]
-  //          var prevOutScriptPubKey = input[2] // TODO: we don't have a ASM parser
+          //          var prevOutScriptPubKey = input[2] // TODO: we don't have a ASM parser
 
           var actualHash = txin.hash
 
@@ -167,8 +168,8 @@ describe('Bitcoin-core', function() {
   })
 
   // sighash
-  describe('Transaction', function() {
-    sighash.forEach(function(f) {
+  describe('Transaction', function () {
+    sighash.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
 
@@ -178,7 +179,7 @@ describe('Bitcoin-core', function() {
       var hashType = f[3]
       var expectedHash = f[4]
 
-      it('should hash ' + txHex + ' correctly', function() {
+      it('should hash ' + txHex + ' correctly', function () {
         var transaction = Transaction.fromHex(txHex)
         assert.equal(transaction.toHex(), txHex)
 
@@ -190,7 +191,8 @@ describe('Bitcoin-core', function() {
           actualHash = transaction.hashForSignature(inIndex, script, hashType)
         } catch (e) {
           // don't fail if we don't support it yet, TODO
-          if (!e.message.match(/not yet supported/)) throw e
+          if (!e.message.match(/not yet supported/))
+            throw e
         }
 
         if (actualHash !== undefined) {
@@ -203,18 +205,18 @@ describe('Bitcoin-core', function() {
     })
   })
 
-  describe('ECSignature', function() {
-    sig_canonical.forEach(function(hex) {
+  describe('ECSignature', function () {
+    sig_canonical.forEach(function (hex) {
       var buffer = new Buffer(hex, 'hex')
 
-      it('can parse ' + hex, function() {
+      it('can parse ' + hex, function () {
         var parsed = ECSignature.parseScriptSignature(buffer)
         var actual = parsed.signature.toScriptSignature(parsed.hashType)
         assert.equal(actual.toString('hex'), hex)
       })
     })
 
-    sig_noncanonical.forEach(function(hex, i) {
+    sig_noncanonical.forEach(function (hex, i) {
       if (i === 0) return
       if (i % 2 !== 0) return
 
@@ -223,8 +225,8 @@ describe('Bitcoin-core', function() {
 
       var buffer = new Buffer(hex, 'hex')
 
-      it('throws on ' + description, function() {
-        assert.throws(function() {
+      it('throws on ' + description, function () {
+        assert.throws(function () {
           ECSignature.parseScriptSignature(buffer)
         })
       })

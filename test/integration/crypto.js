@@ -1,3 +1,5 @@
+/* global describe, it */
+
 var assert = require('assert')
 var async = require('async')
 var bigi = require('bigi')
@@ -5,8 +7,8 @@ var bitcoin = require('../../')
 var blockchain = new (require('cb-helloblock'))('bitcoin')
 var crypto = require('crypto')
 
-describe('bitcoinjs-lib (crypto)', function() {
-  it('can generate a single-key stealth address', function() {
+describe('bitcoinjs-lib (crypto)', function () {
+  it('can generate a single-key stealth address', function () {
     var receiver = bitcoin.ECKey.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss')
 
     // XXX: ephemeral, must be random (and secret to sender) to preserve privacy
@@ -39,10 +41,10 @@ describe('bitcoinjs-lib (crypto)', function() {
   })
 
   // TODO
-  it.skip('can generate a dual-key stealth address', function() {})
+  it.skip('can generate a dual-key stealth address', function () {})
 
-  it('can recover a parent private key from the parent\'s public key and a derived non-hardened child private key', function() {
-    function recoverParent(master, child) {
+  it("can recover a parent private key from the parent's public key and a derived non-hardened child private key", function () {
+    function recoverParent (master, child) {
       assert(!master.privKey, 'You already have the parent private key')
       assert(child.privKey, 'Missing child private key')
 
@@ -87,33 +89,35 @@ describe('bitcoinjs-lib (crypto)', function() {
     assert.equal(recovered.toBase58(), master.toBase58())
   })
 
-  it('can recover a private key from duplicate R values', function() {
+  it('can recover a private key from duplicate R values', function () {
     var inputs = [
       {
-        txId: "f4c16475f2a6e9c602e4a287f9db3040e319eb9ece74761a4b84bc820fbeef50",
+        txId: 'f4c16475f2a6e9c602e4a287f9db3040e319eb9ece74761a4b84bc820fbeef50',
         vout: 0
       },
       {
-        txId: "f4c16475f2a6e9c602e4a287f9db3040e319eb9ece74761a4b84bc820fbeef50",
+        txId: 'f4c16475f2a6e9c602e4a287f9db3040e319eb9ece74761a4b84bc820fbeef50',
         vout: 1
       }
     ]
 
-    var txIds = inputs.map(function(x) { return x.txId })
+    var txIds = inputs.map(function (x) {
+      return x.txId
+    })
 
     // first retrieve the relevant transactions
-    blockchain.transactions.get(txIds, function(err, results) {
+    blockchain.transactions.get(txIds, function (err, results) {
       assert.ifError(err)
 
       var transactions = {}
-      results.forEach(function(tx) {
+      results.forEach(function (tx) {
         transactions[tx.txId] = bitcoin.Transaction.fromHex(tx.txHex)
       })
 
       var tasks = []
 
       // now we need to collect/transform a bit of data from the selected inputs
-      inputs.forEach(function(input) {
+      inputs.forEach(function (input) {
         var transaction = transactions[input.txId]
         var script = transaction.ins[input.vout].script
         assert(bitcoin.scripts.isPubKeyHashInput(script), 'Expected pubKeyHash script')
@@ -121,8 +125,8 @@ describe('bitcoinjs-lib (crypto)', function() {
         var prevOutTxId = bitcoin.bufferutils.reverse(transaction.ins[input.vout].hash).toString('hex')
         var prevVout = transaction.ins[input.vout].index
 
-        tasks.push(function(callback) {
-          blockchain.transactions.get(prevOutTxId, function(err, result) {
+        tasks.push(function (callback) {
+          blockchain.transactions.get(prevOutTxId, function (err, result) {
             if (err) return callback(err)
 
             var prevOut = bitcoin.Transaction.fromHex(result.txHex)
@@ -144,8 +148,9 @@ describe('bitcoinjs-lib (crypto)', function() {
       })
 
       // finally, run the tasks, then on to the math
-      async.parallel(tasks, function(err) {
-        if (err) throw err
+      async.parallel(tasks, function (err) {
+        if (err)
+          throw err
         var n = bitcoin.ECKey.curve.n
 
         for (var i = 0; i < inputs.length; ++i) {
@@ -170,8 +175,8 @@ describe('bitcoinjs-lib (crypto)', function() {
             // d1 = (s1 * k - z1) / r
             // d2 = (s2 * k - z2) / r
             var k = zz.multiply(ss.modInverse(n)).mod(n)
-            var d1 = (( s1.multiply(k).mod(n) ).subtract(z1).mod(n) ).multiply(rInv).mod(n)
-            var d2 = (( s2.multiply(k).mod(n) ).subtract(z2).mod(n) ).multiply(rInv).mod(n)
+            var d1 = ((s1.multiply(k).mod(n)).subtract(z1).mod(n)).multiply(rInv).mod(n)
+            var d2 = ((s2.multiply(k).mod(n)).subtract(z2).mod(n)).multiply(rInv).mod(n)
 
             // enforce matching private keys
             assert.equal(d1.toString(), d2.toString())

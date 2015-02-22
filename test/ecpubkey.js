@@ -1,3 +1,5 @@
+/* global describe, it, beforeEach */
+
 var assert = require('assert')
 var crypto = require('../src/crypto')
 var networks = require('../src/networks')
@@ -10,10 +12,10 @@ var curve = ecurve.getCurveByName('secp256k1')
 
 var fixtures = require('./fixtures/ecpubkey.json')
 
-describe('ECPubKey', function() {
+describe('ECPubKey', function () {
   var Q
 
-  beforeEach(function() {
+  beforeEach(function () {
     Q = ecurve.Point.fromAffine(
       curve,
       new BigInteger(fixtures.Q.x),
@@ -21,21 +23,21 @@ describe('ECPubKey', function() {
     )
   })
 
-  describe('constructor', function() {
-    it('defaults to compressed', function() {
+  describe('constructor', function () {
+    it('defaults to compressed', function () {
       var pubKey = new ECPubKey(Q)
 
       assert.equal(pubKey.compressed, true)
     })
 
-    it('supports the uncompressed flag', function() {
+    it('supports the uncompressed flag', function () {
       var pubKey = new ECPubKey(Q, false)
 
       assert.equal(pubKey.compressed, false)
     })
   })
 
-  it('uses the secp256k1 curve by default', function() {
+  it('uses the secp256k1 curve by default', function () {
     var secp256k1 = ecurve.getCurveByName('secp256k1')
 
     for (var property in secp256k1) {
@@ -50,8 +52,8 @@ describe('ECPubKey', function() {
     }
   })
 
-  describe('fromHex/toHex', function() {
-    it('supports compressed points', function() {
+  describe('fromHex/toHex', function () {
+    it('supports compressed points', function () {
       var pubKey = ECPubKey.fromHex(fixtures.compressed.hex)
 
       assert(pubKey.Q.equals(Q))
@@ -59,7 +61,7 @@ describe('ECPubKey', function() {
       assert.equal(pubKey.compressed, true)
     })
 
-    it('supports uncompressed points', function() {
+    it('supports uncompressed points', function () {
       var pubKey = ECPubKey.fromHex(fixtures.uncompressed.hex)
 
       assert(pubKey.Q.equals(Q))
@@ -68,22 +70,22 @@ describe('ECPubKey', function() {
     })
   })
 
-  describe('getAddress', function() {
-    it('calculates the expected hash (compressed)', function() {
+  describe('getAddress', function () {
+    it('calculates the expected hash (compressed)', function () {
       var pubKey = new ECPubKey(Q, true)
       var address = pubKey.getAddress()
 
       assert.equal(address.hash.toString('hex'), fixtures.compressed.hash160)
     })
 
-    it('calculates the expected hash (uncompressed)', function() {
+    it('calculates the expected hash (uncompressed)', function () {
       var pubKey = new ECPubKey(Q, false)
       var address = pubKey.getAddress()
 
       assert.equal(address.hash.toString('hex'), fixtures.uncompressed.hash160)
     })
 
-    it('supports alternative networks', function() {
+    it('supports alternative networks', function () {
       var pubKey = new ECPubKey(Q)
       var address = pubKey.getAddress(networks.testnet)
 
@@ -92,9 +94,9 @@ describe('ECPubKey', function() {
     })
   })
 
-  describe('verify', function() {
+  describe('verify', function () {
     var pubKey, signature
-    beforeEach(function() {
+    beforeEach(function () {
       pubKey = new ECPubKey(Q)
 
       signature = {
@@ -103,13 +105,13 @@ describe('ECPubKey', function() {
       }
     })
 
-    it('verifies a valid signature', function() {
+    it('verifies a valid signature', function () {
       var hash = crypto.sha256(fixtures.message)
 
       assert(pubKey.verify(hash, signature))
     })
 
-    it('doesn\'t verify the wrong signature', function() {
+    it("doesn't verify the wrong signature", function () {
       var hash = crypto.sha256('mushrooms')
 
       assert(!pubKey.verify(hash, signature))
