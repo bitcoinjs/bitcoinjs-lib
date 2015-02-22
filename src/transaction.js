@@ -22,7 +22,7 @@ Transaction.SIGHASH_NONE = 0x02
 Transaction.SIGHASH_SINGLE = 0x03
 Transaction.SIGHASH_ANYONECANPAY = 0x80
 
-Transaction.fromBuffer = function(buffer) {
+Transaction.fromBuffer = function(buffer, __disableAssert) {
   var offset = 0
   function readSlice(n) {
     offset += n
@@ -51,35 +51,60 @@ Transaction.fromBuffer = function(buffer) {
     return Script.fromBuffer(readSlice(readVarInt()))
   }
 
+  function readGenerationScript() {
+    return new Script(readSlice(readVarInt()), [])
+  }
+
   var tx = new Transaction()
   tx.version = readUInt32()
 
   var vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
-    tx.ins.push({
-      hash: readSlice(32),
-      index: readUInt32(),
-      script: readScript(),
-      sequence: readUInt32()
-    })
+    var hash = readSlice(32)
+
+    if (Transaction.isCoinbaseHash(hash)) {
+      tx.ins.push({
+        hash: hash,
+        index: readUInt32(),
+        script: readGenerationScript(),
+        sequence: readUInt32()
+      })
+
+    } else {
+      tx.ins.push({
+        hash: hash,
+        index: readUInt32(),
+        script: readScript(),
+        sequence: readUInt32()
+      })
+    }
   }
 
   var voutLen = readVarInt()
   for (i = 0; i < voutLen; ++i) {
     tx.outs.push({
       value: readUInt64(),
-      script: readScript(),
+      script: readScript()
     })
   }
 
   tx.locktime = readUInt32()
-  assert.equal(offset, buffer.length, 'Transaction has unexpected data')
+
+  if (!__disableAssert) {
+    assert.equal(offset, buffer.length, 'Transaction has unexpected data')
+  }
 
   return tx
 }
 
 Transaction.fromHex = function(hex) {
   return Transaction.fromBuffer(new Buffer(hex, 'hex'))
+}
+
+Transaction.isCoinbaseHash = function(buffer) {
+  return Array.prototype.every.call(buffer, function(x) {
+    return x === 0
+  })
 }
 
 /**
@@ -243,20 +268,18 @@ Transaction.prototype.getId = function () {
 }
 
 Transaction.prototype.toBuffer = function () {
-  var txInSize = this.ins.reduce(function(a, x) {
-    return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
+  function scriptSize(script) {
+    var length = script.buffer.length
 
-  var txOutSize = this.outs.reduce(function(a, x) {
-    return a + (8 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
+    return bufferutils.varIntSize(length) + length
+  }
 
   var buffer = new Buffer(
     8 +
     bufferutils.varIntSize(this.ins.length) +
     bufferutils.varIntSize(this.outs.length) +
-    txInSize +
-    txOutSize
+    this.ins.reduce(function(sum, input) { return sum + 40 + scriptSize(input.script) }, 0) +
+    this.outs.reduce(function(sum, output) { return sum + 8 + scriptSize(output.script) }, 0)
   )
 
   var offset = 0

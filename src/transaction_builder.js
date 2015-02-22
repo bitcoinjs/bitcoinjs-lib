@@ -7,12 +7,6 @@ var ECSignature = require('./ecsignature')
 var Script = require('./script')
 var Transaction = require('./transaction')
 
-function isCoinbase(txHash) {
-  return Array.prototype.every.call(txHash, function(x) {
-    return x === 0
-  })
-}
-
 function extractInput(txIn) {
   var redeemScript
   var scriptSig = txIn.script
@@ -116,7 +110,7 @@ TransactionBuilder.fromTransaction = function(transaction) {
   // Extract/add signatures
   txb.inputs = transaction.ins.map(function(txIn) {
     // TODO: remove me after testcase added
-    assert(!isCoinbase(txIn.hash), 'coinbase inputs not supported')
+    assert(!Transaction.isCoinbaseHash(txIn.hash), 'coinbase inputs not supported')
 
     // Ignore empty scripts
     if (txIn.script.buffer.length === 0) return

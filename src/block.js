@@ -39,46 +39,17 @@ Block.fromBuffer = function(buffer) {
 
   if (buffer.length === 80) return block
 
-  function readUInt64() {
-    var i = bufferutils.readUInt64LE(buffer, offset)
-    offset += 8
-    return i
-  }
-
   function readVarInt() {
     var vi = bufferutils.readVarInt(buffer, offset)
     offset += vi.size
     return vi.number
   }
 
-  function readScript() {
-    return Script.fromBuffer(readSlice(readVarInt()))
-  }
-
+  // FIXME: poor performance
   function readTransaction() {
-    var tx = new Transaction()
-    tx.version = readUInt32()
+    var tx = Transaction.fromBuffer(buffer.slice(offset), true)
 
-    var vinLen = readVarInt()
-    for (var i = 0; i < vinLen; ++i) {
-      tx.ins.push({
-        hash: readSlice(32),
-        index: readUInt32(),
-        script: readScript(),
-        sequence: readUInt32()
-      })
-    }
-
-    var voutLen = readVarInt()
-    for (i = 0; i < voutLen; ++i) {
-      tx.outs.push({
-        value: readUInt64(),
-        script: readScript(),
-      })
-    }
-
-    tx.locktime = readUInt32()
-
+    offset += tx.toBuffer().length
     return tx
   }
 

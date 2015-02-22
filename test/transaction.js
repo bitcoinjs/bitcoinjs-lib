@@ -16,7 +16,14 @@ describe('Transaction', function() {
 
     raw.ins.forEach(function(txIn) {
       var txHash = new Buffer(txIn.hash, 'hex')
-      var script = txIn.script ? Script.fromASM(txIn.script) : undefined
+      var script
+
+      if (txIn.data) {
+        script = new Script(new Buffer(txIn.data, 'hex'), [])
+
+      } else if (txIn.script) {
+        script = Script.fromASM(txIn.script)
+      }
 
       tx.addInput(txHash, txIn.index, txIn.sequence, script)
     })
@@ -108,28 +115,6 @@ describe('Transaction', function() {
       assert.equal(tx.ins[0].script, Script.EMPTY)
     })
 
-    fixtures.valid.forEach(function(f) {
-      it('should add the inputs for ' + f.id + ' correctly', function() {
-        var tx = new Transaction()
-
-        f.raw.ins.forEach(function(txIn, i) {
-          var txHash = new Buffer(txIn.hash, 'hex')
-          var script = txIn.script ? Script.fromASM(txIn.script) : undefined
-          var j = tx.addInput(txHash, txIn.index, txIn.sequence, script)
-          var sequence = txIn.sequence
-          if (sequence === undefined || sequence === null ) {
-            sequence = Transaction.DEFAULT_SEQUENCE
-          }
-
-          assert.equal(i, j)
-          assert.equal(tx.ins[i].hash.toString('hex'), txIn.hash)
-          assert.equal(tx.ins[i].index, txIn.index)
-          assert.equal(tx.ins[i].sequence, sequence)
-          assert.deepEqual(tx.ins[i].script, script || Script.EMPTY)
-        })
-      })
-    })
-
     fixtures.invalid.addInput.forEach(function(f) {
       it('throws on ' + f.exception, function() {
         var tx = new Transaction()
@@ -180,21 +165,6 @@ describe('Transaction', function() {
       var tx = new Transaction()
       assert.equal(tx.addOutput(destScript, 40000), 0)
       assert.equal(tx.addOutput(destScript, 40000), 1)
-    })
-
-    fixtures.valid.forEach(function(f) {
-      it('should add the outputs for ' + f.id + ' correctly', function() {
-        var tx = new Transaction()
-
-        f.raw.outs.forEach(function(txOut, i) {
-          var scriptPubKey = Script.fromASM(txOut.script)
-          var j = tx.addOutput(scriptPubKey, txOut.value)
-
-          assert.equal(i, j)
-          assert.equal(tx.outs[i].script, scriptPubKey)
-          assert.equal(tx.outs[i].value, txOut.value)
-        })
-      })
     })
   })
 
