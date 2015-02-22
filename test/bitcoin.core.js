@@ -96,16 +96,18 @@ describe('Bitcoin-core', function() {
       var string = f[0]
       var hex = f[1]
       var params = f[2]
-      var network = networks.bitcoin
+      var network = params.isTestnet ? networks.testnet : networks.bitcoin
 
       if (!params.isPrivkey) return
-      if (params.isTestnet) network = networks.testnet
+      var privKey = ECKey.fromWIF(string)
 
       it('imports ' + string + ' correctly', function() {
-        var privKey = ECKey.fromWIF(string)
-
         assert.equal(privKey.d.toHex(), hex)
         assert.equal(privKey.pub.compressed, params.isCompressed)
+      })
+
+      it('exports ' + hex + ' to ' + string, function() {
+        assert.equal(privKey.toWIF(network), string)
       })
     })
   })
