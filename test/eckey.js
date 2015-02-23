@@ -1,8 +1,7 @@
 var assert = require('assert')
-var crypto = require('../src/crypto')
+var crypto = require('crypto')
+var ecurve = require('ecurve')
 var networks = require('../src/networks')
-
-var secureRandom = require('secure-random')
 var sinon = require('sinon')
 
 var BigInteger = require('bigi')
@@ -42,6 +41,21 @@ describe('ECKey', function() {
         }, new RegExp(f.exception))
       })
     })
+  })
+
+  it('uses the secp256k1 curve by default', function() {
+    var secp256k1 = ecurve.getCurveByName('secp256k1')
+
+    for (var property in secp256k1) {
+      // FIXME: circular structures in ecurve
+      if (property === 'G') continue
+      if (property === 'infinity') continue
+
+      var actual = ECKey.curve[property]
+      var expected = secp256k1[property]
+
+      assert.deepEqual(actual, expected)
+    }
   })
 
   describe('fromWIF', function() {
@@ -84,13 +98,13 @@ describe('ECKey', function() {
     var exPrivKey = ECKey.fromWIF(exWIF)
     var exBuffer = exPrivKey.d.toBuffer(32)
 
-    describe('using default RNG', function() {
+    describe('uses default crypto RNG', function() {
       beforeEach(function() {
-        sinon.stub(secureRandom, 'randomBuffer').returns(exBuffer)
+        sinon.stub(crypto, 'randomBytes').returns(exBuffer)
       })
 
       afterEach(function() {
-        secureRandom.randomBuffer.restore()
+        crypto.randomBytes.restore()
       })
 
       it('generates a ECKey', function() {
@@ -116,7 +130,7 @@ describe('ECKey', function() {
   })
 
   describe('signing', function() {
-    var hash = crypto.sha256('Vires in numeris')
+    var hash = crypto.randomBytes(32)
     var priv = ECKey.makeRandom()
     var signature = priv.sign(hash)
 

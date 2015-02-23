@@ -1,84 +1,151 @@
 {
-  "valid": [
-    {
-      "description": "when txSize < 1kb",
-      "network": "bitcoin",
-      "txSize": 1,
-      "fee": 10000
-    },
-    {
-      "description": "when txSize >= 1kb",
-      "network": "bitcoin",
-      "txSize": 1000,
-      "fee": 10000
-    },
-    {
-      "description": "rounding",
-      "network": "bitcoin",
-      "txSize": 2800,
-      "fee": 30000
-    },
-   {
-      "description": "when outputs.value > DUST_SOFT_LIMIT, feePerKb is used",
-      "network": "dogecoin",
-      "txSize": 1000,
-      "outputs": [
-        {
-          "value": 100000000
+  "valid": {
+    "constants": [
+      {
+        "network": "bitcoin",
+        "bip32": {
+          "private": "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+          "public": "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"
         }
-      ],
-      "fee": 100000000
-    },
-    {
-      "description": "when not every outputs.value > DUST_SOFT_LIMIT",
-      "network": "dogecoin",
-      "txSize": 1000,
-      "outputs": [
-        {
-          "value": 99999999
-        },
-        {
-          "value": 99999999
+      },
+      {
+        "network": "testnet",
+        "bip32": {
+          "private": "tprv8ZgxMBicQKsPeDgjzdC36fs6bMjGApWDNLR9erAXMs5skhMv36j9MV5ecvfavji5khqjWaWSFhN3YcCUUdiKH6isR4Pwy3U5y5egddBr16m",
+          "public": "tpubD6NzVbkrYhZ4XgiXtGrdW5XDAPFCL9h7we1vwNCpn8tGbBcgfVYjXyhWo4E1xkh56hjod1RhGjxbaTLV3X4FyWuejifB9jusQ46QzG87VKp"
         }
-      ],
-      "fee": 300000000
-    },
-    {
-      "description": "rounding",
-      "network": "dogecoin",
-      "txSize": 2800,
-      "fee": 300000000
-    },
-    {
-      "description": "when outputs.value > DUST_SOFT_LIMIT, feePerKb is used",
-      "network": "litecoin",
-      "txSize": 1000,
-      "outputs": [
-        {
-          "value": 100000
+      },
+      {
+        "network": "litecoin",
+        "bip32": {
+          "private": "Ltpv71G8qDifUiNetP6nmxPA5STrUVmv2J9YSmXajv8VsYBUyuPhvN9xCaQrfX2wo5xxJNtEazYCFRUu5FmokYMM79pcqz8pcdo4rNXAFPgyB4k",
+          "public": "Ltub2SSUS19CirucWFod2ZsYA2J4v4U76YiCXHdcQttnoiy5aGanFHCPDBX7utfG6f95u1cUbZJNafmvzNCzZZJTw1EmyFoL8u1gJbGM8ipu491"
         }
-      ],
-      "fee": 100000
-    },
-    {
-      "description": "when not every outputs.value > DUST_SOFT_LIMIT",
-      "network": "litecoin",
-      "txSize": 1000,
-      "outputs": [
-        {
-          "value": 99999
-        },
-        {
-          "value": 99999
+      },
+      {
+        "network": "dogecoin",
+        "bip32": {
+          "private": "dgpv51eADS3spNJh9Gjth94XcPwAczvQaDJs9rqx11kvxKs6r3Ek8AgERHhjLs6mzXQFHRzQqGwqdeoDkZmr8jQMBfi43b7sT3sx3cCSk5fGeUR",
+          "public": "dgub8kXBZ7ymNWy2S8Q3jNgVjFUm5ZJ3QLLaSTdAA89ukSv7Q6MSXwE14b7Nv6eDpE9JJXinTKc8LeLVu19uDPrm5uJuhpKNzV2kAgncwo6bNpP"
         }
-      ],
-      "fee": 300000
-    },
-    {
-      "description": "rounding",
-      "network": "litecoin",
-      "txSize": 2800,
-      "fee": 300000
-    }
-  ]
+      },
+      {
+        "network": "viacoin",
+        "bip32": {
+          "private": "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+          "public": "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"
+        }
+      },
+      {
+        "network": "viacointestnet",
+        "bip32": {
+          "private": "tprv8ZgxMBicQKsPeDgjzdC36fs6bMjGApWDNLR9erAXMs5skhMv36j9MV5ecvfavji5khqjWaWSFhN3YcCUUdiKH6isR4Pwy3U5y5egddBr16m",
+          "public": "tpubD6NzVbkrYhZ4XgiXtGrdW5XDAPFCL9h7we1vwNCpn8tGbBcgfVYjXyhWo4E1xkh56hjod1RhGjxbaTLV3X4FyWuejifB9jusQ46QzG87VKp"
+        }
+      },
+      {
+        "network": "gamerscoin",
+        "bip32": {
+          "private": "Ltpv71G8qDifUiNetP6nmxPA5STrUVmv2J9YSmXajv8VsYBUyuPhvN9xCaQrfX2wo5xxJNtEazYCFRUu5FmokYMM79pcqz8pcdo4rNXAFPgyB4k",
+          "public": "Ltub2SSUS19CirucWFod2ZsYA2J4v4U76YiCXHdcQttnoiy5aGanFHCPDBX7utfG6f95u1cUbZJNafmvzNCzZZJTw1EmyFoL8u1gJbGM8ipu491"
+        }
+      },
+      {
+        "network": "jumbucks",
+        "bip32": {
+          "private": "jprv5eCacBgN4Bz4zYxgVQ7RDt1a3eREhEaj8KjAcJ7YwogxGo2rmBF5kvAQS53JwZpo5wnUmJ9Q7kB6b2gQ1MzC6yaTc188hr6hXZ5t8Ruria1",
+          "public": "jpub1sBw1hDFtZYND339bReRb1xJbgFj6hJaVYemQgXAW9Dw9bN1JiZLJiUtHLgcTTEs1UgRGFAYm3XQPYsYJbpqj1aYPhrMsNcJHfgdAhvFZBB"
+        }
+      },
+      {
+        "network": "zetacoin",
+        "bip32": {
+          "private": "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+          "public": "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"
+        }
+      }
+    ],
+    "estimateFee": [
+      {
+        "description": "when txSize < 1kb",
+        "network": "bitcoin",
+        "txSize": 1,
+        "fee": 10000
+      },
+      {
+        "description": "when txSize >= 1kb",
+        "network": "bitcoin",
+        "txSize": 1000,
+        "fee": 10000
+      },
+      {
+        "description": "rounding",
+        "network": "bitcoin",
+        "txSize": 2800,
+        "fee": 30000
+      },
+      {
+        "description": "when outputs.value > DUST_SOFT_LIMIT, feePerKb is used",
+        "network": "dogecoin",
+        "txSize": 1000,
+        "outputs": [
+          {
+            "value": 100000000
+          }
+        ],
+        "fee": 100000000
+      },
+      {
+        "description": "when not every outputs.value > DUST_SOFT_LIMIT",
+        "network": "dogecoin",
+        "txSize": 1000,
+        "outputs": [
+          {
+            "value": 99999999
+          },
+          {
+            "value": 99999999
+          }
+        ],
+        "fee": 300000000
+      },
+      {
+        "description": "rounding",
+        "network": "dogecoin",
+        "txSize": 2800,
+        "fee": 300000000
+      },
+      {
+        "description": "when outputs.value > DUST_SOFT_LIMIT, feePerKb is used",
+        "network": "litecoin",
+        "txSize": 1000,
+        "outputs": [
+          {
+            "value": 100000
+          }
+        ],
+        "fee": 100000
+      },
+      {
+        "description": "when not every outputs.value > DUST_SOFT_LIMIT",
+        "network": "litecoin",
+        "txSize": 1000,
+        "outputs": [
+          {
+            "value": 99999
+          },
+          {
+            "value": 99999
+          }
+        ],
+        "fee": 300000
+      },
+      {
+        "description": "rounding",
+        "network": "litecoin",
+        "txSize": 2800,
+        "fee": 300000
+      }
+    ]
+  }
 }

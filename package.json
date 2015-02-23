@@ -1,6 +1,6 @@
 {
   "name": "bitcoinjs-lib",
-  "version": "1.0.0",
+  "version": "1.4.5",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
   "keywords": [
@@ -31,53 +31,35 @@
       "url": "http://www.justmoon.net"
     }
   ],
+  "scripts": {
+    "compile": "browserify ./src/index.js -s bitcoin > bitcoin.js",
+    "coverage": "istanbul cover _mocha -- test/*.js",
+    "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info",
+    "integration": "mocha --reporter list test/integration/*.js",
+    "jshint": "jshint --config jshint.json src/*.js ; true",
+    "test": "npm run-script unit",
+    "unit": "istanbul test mocha -- --reporter list test/*.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
-  "devDependencies": {
-    "browserify": "4.1.11",
-    "coveralls": "~2.10.0",
-    "helloblock-js": "^0.2.1",
-    "istanbul": "0.1.30",
-    "jshint": "2.5.1",
-    "mocha": "1.18.2",
-    "mocha-lcov-reporter": "0.0.1",
-    "sinon": "1.9.0",
-    "uglify-js": "2.4.13"
-  },
-  "testling": {
-    "browsers": [
-      "android-browser/4.2..latest",
-      "chrome/20..latest",
-      "firefox/21..latest",
-      "ipad/6..latest",
-      "iphone/6..latest",
-      "opera/15..latest",
-      "safari/latest"
-    ],
-    "harness": "mocha-bdd",
-    "files": "test/*.js"
-  },
-  "scripts": {
-    "compile": "./node_modules/.bin/browserify ./src/index.js -s Bitcoin | ./node_modules/.bin/uglifyjs > bitcoinjs-min.js",
-    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter list test/*.js",
-    "coveralls": "npm run-script coverage && node ./node_modules/.bin/coveralls < coverage/lcov.info",
-    "integration": "./node_modules/.bin/_mocha --reporter list test/integration/*.js",
-    "jshint": "./node_modules/.bin/jshint --config jshint.json src/*.js ; true",
-    "test": "npm run-script unit",
-    "unit": "./node_modules/.bin/istanbul test ./node_modules/.bin/_mocha -- --reporter list `find test -maxdepth 1 -not -type d`"
-  },
-  "browser": {
-    "crypto": "crypto-browserify"
-  },
   "dependencies": {
-    "bigi": "1.1.0",
-    "bs58": "1.1.0",
-    "bs58check": "1.0.0",
-    "crypto-js": "3.1.2-3",
-    "crypto-browserify": "2.1.8",
-    "ecurve": "0.10.0",
-    "secure-random": "1.1.1"
+    "bigi": "^1.4.0",
+    "bs58check": "^1.0.4",
+    "ecurve": "^1.0.0",
+    "typeforce": "^0.1.0"
+  },
+  "devDependencies": {
+    "async": "^0.9.0",
+    "browserify": "^9.0.3",
+    "bs58": "^2.0.1",
+    "cb-helloblock": "^0.4.10",
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.5",
+    "jshint": "^2.5.11",
+    "mocha": "^2.1.0",
+    "mocha-lcov-reporter": "0.0.1",
+    "sinon": "^1.12.2"
   }
 }

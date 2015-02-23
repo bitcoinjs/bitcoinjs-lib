@@ -35,6 +35,21 @@ describe('ECPubKey', function() {
     })
   })
 
+  it('uses the secp256k1 curve by default', function() {
+    var secp256k1 = ecurve.getCurveByName('secp256k1')
+
+    for (var property in secp256k1) {
+      // FIXME: circular structures in ecurve
+      if (property === 'G') continue
+      if (property === 'infinity') continue
+
+      var actual = ECPubKey.curve[property]
+      var expected = secp256k1[property]
+
+      assert.deepEqual(actual, expected)
+    }
+  })
+
   describe('fromHex/toHex', function() {
     it('supports compressed points', function() {
       var pubKey = ECPubKey.fromHex(fixtures.compressed.hex)
@@ -91,13 +106,13 @@ describe('ECPubKey', function() {
     it('verifies a valid signature', function() {
       var hash = crypto.sha256(fixtures.message)
 
-      assert.ok(pubKey.verify(hash, signature))
+      assert(pubKey.verify(hash, signature))
     })
 
     it('doesn\'t verify the wrong signature', function() {
       var hash = crypto.sha256('mushrooms')
 
-      assert.ok(!pubKey.verify(hash, signature))
+      assert(!pubKey.verify(hash, signature))
     })
   })
 })

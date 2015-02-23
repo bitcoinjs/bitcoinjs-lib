@@ -1,7 +1,8 @@
 module.exports = {
   Address: require('./address'),
+  base58check: require('./base58check'),
+  Block: require('./block'),
   bufferutils: require('./bufferutils'),
-  convert: require('./convert'),
   crypto: require('./crypto'),
   ecdsa: require('./ecdsa'),
   ECKey: require('./eckey'),
@@ -13,6 +14,7 @@ module.exports = {
   Script: require('./script'),
   scripts: require('./scripts'),
   Transaction: require('./transaction'),
+  TransactionBuilder: require('./transaction_builder'),
   networks: require('./networks'),
   Wallet: require('./wallet')
 }

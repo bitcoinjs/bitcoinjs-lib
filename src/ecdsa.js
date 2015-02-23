@@ -1,20 +1,54 @@
 var assert = require('assert')
-var crypto = require('./crypto')
+var crypto = require('crypto')
+var typeForce = require('typeforce')
 
 var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
-var Point = require('ecurve').Point
+
+var ZERO = new Buffer([0])
+var ONE = new Buffer([1])
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
-function deterministicGenerateK(curve, hash, d) {
-  assert(Buffer.isBuffer(hash), 'Hash must be a Buffer, not ' + hash)
+function deterministicGenerateK(curve, hash, d, checkSig) {
+  typeForce('Buffer', hash)
+  typeForce('BigInteger', d)
+
+  // FIXME: remove/uncomment for 2.0.0
+//  typeForce('Function', checkSig)
+
+  if (typeof checkSig !== 'function') {
+    console.warn('deterministicGenerateK requires a checkSig callback in 2.0.0, see #337 for more information')
+
+    checkSig = function(k) {
+      var G = curve.G
+      var n = curve.n
+      var e = BigInteger.fromBuffer(hash)
+
+      var Q = G.multiply(k)
+
+      if (curve.isInfinity(Q))
+        return false
+
+      var r = Q.affineX.mod(n)
+      if (r.signum() === 0)
+        return false
+
+      var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
+      if (s.signum() === 0)
+        return false
+
+      return true
+    }
+  }
+
+  // sanity check
   assert.equal(hash.length, 32, 'Hash must be 256 bit')
-  assert(d instanceof BigInteger, 'Private key must be a BigInteger')
 
   var x = d.toBuffer(32)
   var k = new Buffer(32)
   var v = new Buffer(32)
 
+  // Step A, ignored as hash already provided
   // Step B
   v.fill(1)
 
@@ -22,28 +56,45 @@ function deterministicGenerateK(curve, hash, d) {
   k.fill(0)
 
   // Step D
-  k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
+  k = crypto.createHmac('sha256', k)
+    .update(v)
+    .update(ZERO)
+    .update(x)
+    .update(hash)
+    .digest()
 
   // Step E
-  v = crypto.HmacSHA256(v, k)
+  v = crypto.createHmac('sha256', k).update(v).digest()
 
   // Step F
-  k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
+  k = crypto.createHmac('sha256', k)
+    .update(v)
+    .update(ONE)
+    .update(x)
+    .update(hash)
+    .digest()
 
   // Step G
-  v = crypto.HmacSHA256(v, k)
+  v = crypto.createHmac('sha256', k).update(v).digest()
 
   // Step H1/H2a, ignored as tlen === qlen (256 bit)
   // Step H2b
-  v = crypto.HmacSHA256(v, k)
+  v = crypto.createHmac('sha256', k).update(v).digest()
 
   var T = BigInteger.fromBuffer(v)
 
-  // Step H3, repeat until T is within the interval [1, n - 1]
-  while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0)) {
-    k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0])]), k)
-    v = crypto.HmacSHA256(v, k)
+  // Step H3, repeat until T is within the interval [1, n - 1] and is suitable for ECDSA
+  while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0) || !checkSig(T)) {
+    k = crypto.createHmac('sha256', k)
+      .update(v)
+      .update(ZERO)
+      .digest()
 
+    v = crypto.createHmac('sha256', k).update(v).digest()
+
+    // Step H1/H2a, again, ignored as tlen === qlen (256 bit)
+    // Step H2b again
+    v = crypto.createHmac('sha256', k).update(v).digest()
     T = BigInteger.fromBuffer(v)
   }
 
@@ -51,18 +102,28 @@ function deterministicGenerateK(curve, hash, d) {
 }
 
 function sign(curve, hash, d) {
-  var k = deterministicGenerateK(curve, hash, d)
+  var r, s
 
+  var e = BigInteger.fromBuffer(hash)
   var n = curve.n
   var G = curve.G
-  var Q = G.multiply(k)
-  var e = BigInteger.fromBuffer(hash)
 
-  var r = Q.affineX.mod(n)
-  assert.notEqual(r.signum(), 0, 'Invalid R value')
+  deterministicGenerateK(curve, hash, d, function(k) {
+    var Q = G.multiply(k)
 
-  var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
-  assert.notEqual(s.signum(), 0, 'Invalid S value')
+    if (curve.isInfinity(Q))
+      return false
+
+    r = Q.affineX.mod(n)
+    if (r.signum() === 0)
+      return false
+
+    s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
+    if (s.signum() === 0)
+      return false
+
+    return true
+  })
 
   var N_OVER_TWO = n.shiftRight(1)
 
@@ -74,12 +135,6 @@ function sign(curve, hash, d) {
   return new ECSignature(r, s)
 }
 
-function verify(curve, hash, signature, Q) {
-  var e = BigInteger.fromBuffer(hash)
-
-  return verifyRaw(curve, e, signature, Q)
-}
-
 function verifyRaw(curve, e, signature, Q) {
   var n = curve.n
   var G = curve.G
@@ -87,18 +142,35 @@ function verifyRaw(curve, e, signature, Q) {
   var r = signature.r
   var s = signature.s
 
-  if (r.signum() === 0 || r.compareTo(n) >= 0) return false
-  if (s.signum() === 0 || s.compareTo(n) >= 0) return false
+  // 1.4.1 Enforce r and s are both integers in the interval [1, n − 1]
+  if (r.signum() <= 0 || r.compareTo(n) >= 0) return false
+  if (s.signum() <= 0 || s.compareTo(n) >= 0) return false
 
+  // c = s^-1 mod n
   var c = s.modInverse(n)
 
+  // 1.4.4 Compute u1 = es^−1 mod n
+  //               u2 = rs^−1 mod n
   var u1 = e.multiply(c).mod(n)
   var u2 = r.multiply(c).mod(n)
 
-  var point = G.multiplyTwo(u1, Q, u2)
-  var v = point.affineX.mod(n)
+  // 1.4.5 Compute R = (xR, yR) = u1G + u2Q
+  var R = G.multiplyTwo(u1, Q, u2)
+  var v = R.affineX.mod(n)
 
+  // 1.4.5 (cont.) Enforce R is not at infinity
+  if (curve.isInfinity(R)) return false
+
+  // 1.4.8 If v = r, output "valid", and if v != r, output "invalid"
   return v.equals(r)
+}
+
+function verify(curve, hash, signature, Q) {
+  // 1.4.2 H = Hash(M), already done by the user
+  // 1.4.3 e = H
+  var e = BigInteger.fromBuffer(hash)
+
+  return verifyRaw(curve, e, signature, Q)
 }
 
 /**
@@ -112,8 +184,14 @@ function verifyRaw(curve, e, signature, Q) {
 function recoverPubKey(curve, e, signature, i) {
   assert.strictEqual(i & 3, i, 'Recovery param is more than two bits')
 
+  var n = curve.n
+  var G = curve.G
+
   var r = signature.r
   var s = signature.s
+
+  assert(r.signum() > 0 && r.compareTo(n) < 0, 'Invalid r value')
+  assert(s.signum() > 0 && s.compareTo(n) < 0, 'Invalid s value')
 
   // A set LSB signifies that the y-coordinate is odd
   var isYOdd = i & 1
@@ -121,9 +199,6 @@ function recoverPubKey(curve, e, signature, i) {
   // The more significant bit specifies whether we should use the
   // first or second candidate key.
   var isSecondKey = i >> 1
-
-  var n = curve.n
-  var G = curve.G
 
   // 1.1 Let x = r + jn
   var x = isSecondKey ? r.add(n) : r

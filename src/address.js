@@ -1,5 +1,6 @@
 var assert = require('assert')
 var base58check = require('bs58check')
+var typeForce = require('typeforce')
 var networks = require('./networks')
 var scripts = require('./scripts')
 
@@ -13,7 +14,8 @@ function findScriptTypeByVersion(version) {
 }
 
 function Address(hash, version) {
-  assert(Buffer.isBuffer(hash), 'Expected Buffer, got ' + hash)
+  typeForce('Buffer', hash)
+
   assert.strictEqual(hash.length, 20, 'Invalid hash length')
   assert.strictEqual(version & 0xff, version, 'Invalid version byte')
 
@@ -21,7 +23,6 @@ function Address(hash, version) {
   this.version = version
 }
 
-// Import functions
 Address.fromBase58Check = function(string) {
   var payload = base58check.decode(string)
   var version = payload.readUInt8(0)
@@ -33,15 +34,12 @@ Address.fromBase58Check = function(string) {
 Address.fromOutputScript = function(script, network) {
   network = network || networks.bitcoin
 
-  var type = scripts.classifyOutput(script)
+  if (scripts.isPubKeyHashOutput(script)) return new Address(script.chunks[2], network.pubKeyHash)
+  if (scripts.isScriptHashOutput(script)) return new Address(script.chunks[1], network.scriptHash)
 
-  if (type === 'pubkeyhash') return new Address(script.chunks[2], network.pubKeyHash)
-  if (type === 'scripthash') return new Address(script.chunks[1], network.scriptHash)
-
-  assert(false, type + ' has no matching Address')
+  assert(false, script.toASM() + ' has no matching Address')
 }
 
-// Export functions
 Address.prototype.toBase58Check = function () {
   var payload = new Buffer(21)
   payload.writeUInt8(this.version, 0)

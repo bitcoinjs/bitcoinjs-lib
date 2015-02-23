@@ -1,14 +1,16 @@
 var assert = require('assert')
+var typeForce = require('typeforce')
+
 var BigInteger = require('bigi')
 
 function ECSignature(r, s) {
-  assert(r instanceof BigInteger, 'Expected BigInteger, got ' + r)
-  assert(s instanceof BigInteger, 'Expected BigInteger, got ' + s)
+  typeForce('BigInteger', r)
+  typeForce('BigInteger', s)
+
   this.r = r
   this.s = s
 }
 
-// Import operations
 ECSignature.parseCompact = function(buffer) {
   assert.equal(buffer.length, 65, 'Invalid signature length')
   var i = buffer.readUInt8(0) - 27
@@ -66,12 +68,12 @@ ECSignature.fromDER = function(buffer) {
   return new ECSignature(r, s)
 }
 
-// FIXME: 0x00, 0x04, 0x80 are SIGHASH_* boundary constants, importing Transaction causes a circular dependency
+// BIP62: 1 byte hashType flag (only 0x01, 0x02, 0x03, 0x81, 0x82 and 0x83 are allowed)
 ECSignature.parseScriptSignature = function(buffer) {
   var hashType = buffer.readUInt8(buffer.length - 1)
   var hashTypeMod = hashType & ~0x80
 
-  assert(hashTypeMod > 0x00 && hashTypeMod < 0x04, 'Invalid hashType')
+  assert(hashTypeMod > 0x00 && hashTypeMod < 0x04, 'Invalid hashType ' + hashType)
 
   return {
     signature: ECSignature.fromDER(buffer.slice(0, -1)),
@@ -79,7 +81,6 @@ ECSignature.parseScriptSignature = function(buffer) {
   }
 }
 
-// Export operations
 ECSignature.prototype.toCompact = function(i, compressed) {
   if (compressed) i += 4
   i += 27
@@ -114,6 +115,9 @@ ECSignature.prototype.toDER = function() {
 }
 
 ECSignature.prototype.toScriptSignature = function(hashType) {
+  var hashTypeMod = hashType & ~0x80
+  assert(hashTypeMod > 0x00 && hashTypeMod < 0x04, 'Invalid hashType ' + hashType)
+
   var hashTypeBuffer = new Buffer(1)
   hashTypeBuffer.writeUInt8(hashType, 0)
 

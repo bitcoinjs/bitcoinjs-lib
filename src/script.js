@@ -1,17 +1,17 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
+var typeForce = require('typeforce')
 var opcodes = require('./opcodes')
 
 function Script(buffer, chunks) {
-  assert(Buffer.isBuffer(buffer), 'Expected Buffer, got ' + buffer)
-  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
+  typeForce('Buffer', buffer)
+  typeForce('Array', chunks)
 
   this.buffer = buffer
   this.chunks = chunks
 }
 
-// Import operations
 Script.fromASM = function(asm) {
   var strChunks = asm.split(' ')
 
@@ -29,7 +29,6 @@ Script.fromASM = function(asm) {
 
 Script.fromBuffer = function(buffer) {
   var chunks = []
-
   var i = 0
 
   while (i < buffer.length) {
@@ -55,7 +54,7 @@ Script.fromBuffer = function(buffer) {
 }
 
 Script.fromChunks = function(chunks) {
-  assert(Array.isArray(chunks), 'Expected Array, got ' + chunks)
+  typeForce('Array', chunks)
 
   var bufferSize = chunks.reduce(function(accum, chunk) {
     if (Buffer.isBuffer(chunk)) {
@@ -89,10 +88,8 @@ Script.fromHex = function(hex) {
   return Script.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-// Constants
 Script.EMPTY = Script.fromChunks([])
 
-// Operations
 Script.prototype.getHash = function() {
   return crypto.hash160(this.buffer)
 }
@@ -104,7 +101,6 @@ Script.prototype.without = function(needle) {
   }))
 }
 
-// Export operations
 var reverseOps = []
 for (var op in opcodes) {
   var code = opcodes[op]

@@ -1,14 +1,16 @@
 var assert = require('assert')
-var base58 = require('bs58')
-var base58check = require('bs58check')
-var networks = require('../src/networks')
 
-var Address = require('../src/address')
-var BigInteger = require('bigi')
-var ECKey = require('../src/eckey')
-var ECSignature = require('../src/ecsignature')
-var Transaction = require('../src/transaction')
-var Script = require('../src/script')
+var base58 = require('bs58')
+//var base58check = require('bs58check')
+
+var Bitcoin = require('../')
+var Address = Bitcoin.Address
+var base58check = Bitcoin.base58check
+var networks = Bitcoin.networks
+var ECKey = Bitcoin.ECKey
+var ECSignature = Bitcoin.ECSignature
+var Transaction = Bitcoin.Transaction
+var Script = Bitcoin.Script
 
 var base58_encode_decode = require("./fixtures/core/base58_encode_decode.json")
 var base58_keys_invalid = require("./fixtures/core/base58_keys_invalid.json")
@@ -27,7 +29,7 @@ describe('Bitcoin-core', function() {
 
       it('can decode ' + fb58, function() {
         var buffer = base58.decode(fb58)
-        var actual = buffer.toString('hex')
+        var actual = new Buffer(buffer).toString('hex')
 
         assert.equal(actual, fhex)
       })
@@ -94,16 +96,18 @@ describe('Bitcoin-core', function() {
       var string = f[0]
       var hex = f[1]
       var params = f[2]
-      var network = networks.bitcoin
+      var network = params.isTestnet ? networks.testnet : networks.bitcoin
 
       if (!params.isPrivkey) return
-      if (params.isTestnet) network = networks.testnet
+      var privKey = ECKey.fromWIF(string)
 
       it('imports ' + string + ' correctly', function() {
-        var privKey = ECKey.fromWIF(string)
-
         assert.equal(privKey.d.toHex(), hex)
         assert.equal(privKey.pub.compressed, params.isCompressed)
+      })
+
+      it('exports ' + hex + ' to ' + string, function() {
+        assert.equal(privKey.toWIF(network), string)
       })
     })
   })
@@ -120,8 +124,8 @@ describe('Bitcoin-core', function() {
 
       it('throws on ' + string, function() {
         assert.throws(function() {
-          var privKey = ECKey.fromWIF(string)
-          var version = base58check.decode(string).version
+          ECKey.fromWIF(string)
+          var version = base58check.decode(string).readUInt8(0)
 
           assert.notEqual(allowedNetworks.indexOf(version), -1, 'Invalid network')
         }, /Invalid (checksum|compression flag|network|WIF payload)/)
@@ -183,13 +187,13 @@ describe('Bitcoin-core', function() {
 
         var actualHash
         try {
-          actualHash = transaction.hashForSignature(script, inIndex, hashType)
+          actualHash = transaction.hashForSignature(inIndex, script, hashType)
         } catch (e) {
           // don't fail if we don't support it yet, TODO
           if (!e.message.match(/not yet supported/)) throw e
         }
 
-        if (actualHash != undefined) {
+        if (actualHash !== undefined) {
           // Test data is big-endian
           Array.prototype.reverse.call(actualHash)
 

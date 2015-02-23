@@ -1,6 +1,8 @@
 var assert = require('assert')
 var base58check = require('bs58check')
-var crypto = require('./crypto')
+var bcrypto = require('./crypto')
+var crypto = require('crypto')
+var typeForce = require('typeforce')
 var networks = require('./networks')
 
 var BigInteger = require('bigi')
@@ -10,32 +12,32 @@ var ECPubKey = require('./ecpubkey')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
-function findBIP32ParamsByVersion(version) {
+function findBIP32NetworkByVersion(version) {
   for (var name in networks) {
     var network = networks[name]
 
-    for (var type in network.bip32) {
-      if (version != network.bip32[type]) continue
+    if (version === network.bip32.private ||
+        version === network.bip32.public) {
 
-      return {
-        isPrivate: (type === 'private'),
-        network: network
-      }
+      return network
     }
   }
 
-  assert(false, 'Could not find version ' + version.toString(16))
+  assert(false, 'Could not find network for ' + version.toString(16))
 }
 
 function HDNode(K, chainCode, network) {
   network = network || networks.bitcoin
 
-  assert(Buffer.isBuffer(chainCode), 'Expected Buffer, got ' + chainCode)
+  typeForce('Buffer', chainCode)
+
+  assert.equal(chainCode.length, 32, 'Expected chainCode length of 32, got ' + chainCode.length)
   assert(network.bip32, 'Unknown BIP32 constants for network')
 
   this.chainCode = chainCode
   this.depth = 0
   this.index = 0
+  this.parentFingerprint = 0x00000000
   this.network = network
 
   if (K instanceof BigInteger) {
@@ -51,11 +53,12 @@ HDNode.HIGHEST_BIT = 0x80000000
 HDNode.LENGTH = 78
 
 HDNode.fromSeedBuffer = function(seed, network) {
-  assert(Buffer.isBuffer(seed), 'Expected Buffer, got' + seed)
+  typeForce('Buffer', seed)
+
   assert(seed.length >= 16, 'Seed should be at least 128 bits')
   assert(seed.length <= 64, 'Seed should be at most 512 bits')
 
-  var I = crypto.HmacSHA512(seed, HDNode.MASTER_SECRET)
+  var I = crypto.createHmac('sha512', HDNode.MASTER_SECRET).update(seed).digest()
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 
@@ -70,16 +73,28 @@ HDNode.fromSeedHex = function(hex, network) {
   return HDNode.fromSeedBuffer(new Buffer(hex, 'hex'), network)
 }
 
-HDNode.fromBase58 = function(string) {
-  return HDNode.fromBuffer(base58check.decode(string))
+HDNode.fromBase58 = function(string, network) {
+  return HDNode.fromBuffer(base58check.decode(string), network, true)
 }
 
-HDNode.fromBuffer = function(buffer) {
+// FIXME: remove in 2.x.y
+HDNode.fromBuffer = function(buffer, network, __ignoreDeprecation) {
+  if (!__ignoreDeprecation) {
+    console.warn('HDNode.fromBuffer() is deprecated for removal in 2.x.y, use fromBase58 instead')
+  }
+
   assert.strictEqual(buffer.length, HDNode.LENGTH, 'Invalid buffer length')
 
   // 4 byte: version bytes
   var version = buffer.readUInt32BE(0)
-  var params = findBIP32ParamsByVersion(version)
+
+  if (network) {
+    assert(version === network.bip32.private || version === network.bip32.public, 'Network doesn\'t match')
+
+  // auto-detect
+  } else {
+    network = findBIP32NetworkByVersion(version)
+  }
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer.readUInt8(4)
@@ -97,18 +112,18 @@ HDNode.fromBuffer = function(buffer) {
 
   // 32 bytes: the chain code
   var chainCode = buffer.slice(13, 45)
-  var hd
+  var data, hd
 
   // 33 bytes: private key data (0x00 + k)
-  if (params.isPrivate) {
+  if (version === network.bip32.private) {
     assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
-    var data = buffer.slice(46, 78)
+    data = buffer.slice(46, 78)
     var d = BigInteger.fromBuffer(data)
-    hd = new HDNode(d, chainCode, params.network)
+    hd = new HDNode(d, chainCode, network)
 
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
-    var data = buffer.slice(45, 78)
+    data = buffer.slice(45, 78)
     var Q = ecurve.Point.decodeFrom(curve, data)
     assert.equal(Q.compressed, true, 'Invalid public key')
 
@@ -116,7 +131,7 @@ HDNode.fromBuffer = function(buffer) {
     // If not, the extended public key is invalid.
     curve.validate(Q)
 
-    hd = new HDNode(Q, chainCode, params.network)
+    hd = new HDNode(Q, chainCode, network)
   }
 
   hd.depth = depth
@@ -126,12 +141,13 @@ HDNode.fromBuffer = function(buffer) {
   return hd
 }
 
-HDNode.fromHex = function(hex) {
-  return HDNode.fromBuffer(new Buffer(hex, 'hex'))
+// FIXME: remove in 2.x.y
+HDNode.fromHex = function(hex, network) {
+  return HDNode.fromBuffer(new Buffer(hex, 'hex'), network)
 }
 
 HDNode.prototype.getIdentifier = function() {
-  return crypto.hash160(this.pubKey.toBuffer())
+  return bcrypto.hash160(this.pubKey.toBuffer())
 }
 
 HDNode.prototype.getFingerprint = function() {
@@ -142,12 +158,32 @@ HDNode.prototype.getAddress = function() {
   return this.pubKey.getAddress(this.network)
 }
 
-HDNode.prototype.toBase58 = function(isPrivate) {
-  return base58check.encode(this.toBuffer(isPrivate))
+HDNode.prototype.neutered = function() {
+  var neutered = new HDNode(this.pubKey.Q, this.chainCode, this.network)
+  neutered.depth = this.depth
+  neutered.index = this.index
+  neutered.parentFingerprint = this.parentFingerprint
+
+  return neutered
 }
 
-HDNode.prototype.toBuffer = function(isPrivate) {
-  if (isPrivate == undefined) isPrivate = !!this.privKey
+HDNode.prototype.toBase58 = function(isPrivate) {
+  return base58check.encode(this.toBuffer(isPrivate, true))
+}
+
+// FIXME: remove in 2.x.y
+HDNode.prototype.toBuffer = function(isPrivate, __ignoreDeprecation) {
+  if (isPrivate === undefined) {
+    isPrivate = !!this.privKey
+
+  // FIXME: remove in 2.x.y
+  } else {
+    console.warn('isPrivate flag is deprecated, please use the .neutered() method instead')
+  }
+
+  if (!__ignoreDeprecation) {
+    console.warn('HDNode.toBuffer() is deprecated for removal in 2.x.y, use toBase58 instead')
+  }
 
   // Version
   var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
@@ -161,8 +197,7 @@ HDNode.prototype.toBuffer = function(isPrivate) {
   buffer.writeUInt8(this.depth, 4)
 
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
-  var fingerprint = (this.depth === 0) ? 0x00000000 : this.parentFingerprint
-  buffer.writeUInt32BE(fingerprint, 5)
+  buffer.writeUInt32BE(this.parentFingerprint, 5)
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
   // This is encoded in Big endian. (0x00000000 if master key)
@@ -173,6 +208,7 @@ HDNode.prototype.toBuffer = function(isPrivate) {
 
   // 33 bytes: the public key or private key data
   if (isPrivate) {
+    // FIXME: remove in 2.x.y
     assert(this.privKey, 'Missing private key')
 
     // 0x00 + k for private keys
@@ -187,6 +223,7 @@ HDNode.prototype.toBuffer = function(isPrivate) {
   return buffer
 }
 
+// FIXME: remove in 2.x.y
 HDNode.prototype.toHex = function(isPrivate) {
   return this.toBuffer(isPrivate).toString('hex')
 }
@@ -219,7 +256,7 @@ HDNode.prototype.derive = function(index) {
     ])
   }
 
-  var I = crypto.HmacSHA512(data, this.chainCode)
+  var I = crypto.createHmac('sha512', this.chainCode).update(data).digest()
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 

@@ -92,6 +92,19 @@ describe('ECSignature', function() {
         assert.equal(scriptSignature.toString('hex'), f.scriptSignature.hex)
       })
     })
+
+    fixtures.invalid.scriptSignature.forEach(function(f) {
+      it('throws ' + f.exception, function() {
+        var signature = new ECSignature(
+          new BigInteger(f.signature.r),
+          new BigInteger(f.signature.s)
+        )
+
+        assert.throws(function() {
+          signature.toScriptSignature(f.hashType)
+        }, new RegExp(f.exception))
+      })
+    })
   })
 
   describe('parseScriptSignature', function() {
@@ -106,9 +119,9 @@ describe('ECSignature', function() {
       })
     })
 
-    fixtures.invalid.DER.forEach(function(f) {
+    fixtures.invalid.scriptSignature.forEach(function(f) {
       it('throws on ' + f.hex, function() {
-        var buffer = new Buffer(f.hex + '01', 'hex')
+        var buffer = new Buffer(f.hex, 'hex')
 
         assert.throws(function() {
           ECSignature.parseScriptSignature(buffer)

@@ -1,19 +1,13 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
+var typeForce = require('typeforce')
 var opcodes = require('./opcodes')
 var scripts = require('./scripts')
 
 var Address = require('./address')
-var ECKey = require('./eckey')
 var ECSignature = require('./ecsignature')
 var Script = require('./script')
-
-Transaction.DEFAULT_SEQUENCE = 0xffffffff
-Transaction.SIGHASH_ALL = 0x01
-Transaction.SIGHASH_NONE = 0x02
-Transaction.SIGHASH_SINGLE = 0x03
-Transaction.SIGHASH_ANYONECANPAY = 0x80
 
 function Transaction() {
   this.version = 1
@@ -22,8 +16,99 @@ function Transaction() {
   this.outs = []
 }
 
+Transaction.DEFAULT_SEQUENCE = 0xffffffff
+Transaction.SIGHASH_ALL = 0x01
+Transaction.SIGHASH_NONE = 0x02
+Transaction.SIGHASH_SINGLE = 0x03
+Transaction.SIGHASH_ANYONECANPAY = 0x80
+
+Transaction.fromBuffer = function(buffer, __disableAssert) {
+  var offset = 0
+  function readSlice(n) {
+    offset += n
+    return buffer.slice(offset - n, offset)
+  }
+
+  function readUInt32() {
+    var i = buffer.readUInt32LE(offset)
+    offset += 4
+    return i
+  }
+
+  function readUInt64() {
+    var i = bufferutils.readUInt64LE(buffer, offset)
+    offset += 8
+    return i
+  }
+
+  function readVarInt() {
+    var vi = bufferutils.readVarInt(buffer, offset)
+    offset += vi.size
+    return vi.number
+  }
+
+  function readScript() {
+    return Script.fromBuffer(readSlice(readVarInt()))
+  }
+
+  function readGenerationScript() {
+    return new Script(readSlice(readVarInt()), [])
+  }
+
+  var tx = new Transaction()
+  tx.version = readUInt32()
+
+  var vinLen = readVarInt()
+  for (var i = 0; i < vinLen; ++i) {
+    var hash = readSlice(32)
+
+    if (Transaction.isCoinbaseHash(hash)) {
+      tx.ins.push({
+        hash: hash,
+        index: readUInt32(),
+        script: readGenerationScript(),
+        sequence: readUInt32()
+      })
+
+    } else {
+      tx.ins.push({
+        hash: hash,
+        index: readUInt32(),
+        script: readScript(),
+        sequence: readUInt32()
+      })
+    }
+  }
+
+  var voutLen = readVarInt()
+  for (i = 0; i < voutLen; ++i) {
+    tx.outs.push({
+      value: readUInt64(),
+      script: readScript()
+    })
+  }
+
+  tx.locktime = readUInt32()
+
+  if (!__disableAssert) {
+    assert.equal(offset, buffer.length, 'Transaction has unexpected data')
+  }
+
+  return tx
+}
+
+Transaction.fromHex = function(hex) {
+  return Transaction.fromBuffer(new Buffer(hex, 'hex'))
+}
+
+Transaction.isCoinbaseHash = function(buffer) {
+  return Array.prototype.every.call(buffer, function(x) {
+    return x === 0
+  })
+}
+
 /**
- * Create a new txin.
+ * Create a new txIn.
  *
  * Can be called with any of:
  *
@@ -32,38 +117,40 @@ function Transaction() {
  *
  * Note that this method does not sign the created input.
  */
-Transaction.prototype.addInput = function(tx, index, sequence) {
-  if (sequence == undefined) sequence = Transaction.DEFAULT_SEQUENCE
-
-  var hash
-
-  if (typeof tx === 'string') {
-    hash = new Buffer(tx, 'hex')
-
-    // TxId hex is big-endian, we need little-endian
-    Array.prototype.reverse.call(hash)
-
-  } else if (tx instanceof Transaction) {
-    hash = tx.getHash()
-
-  } else {
-    hash = tx
+Transaction.prototype.addInput = function(hash, index, sequence, script) {
+  if (sequence === undefined || sequence === null) {
+    sequence = Transaction.DEFAULT_SEQUENCE
   }
 
-  assert(Buffer.isBuffer(hash), 'Expected Transaction, txId or txHash, got ' + tx)
-  assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
-  assert.equal(typeof index, 'number', 'Expected number index, got ' + index)
+  script = script || Script.EMPTY
 
+  if (typeof hash === 'string') {
+    // TxId hex is big-endian, we need little-endian
+    hash = bufferutils.reverse(new Buffer(hash, 'hex'))
+
+  } else if (hash instanceof Transaction) {
+    hash = hash.getHash()
+
+  }
+
+  typeForce('Buffer', hash)
+  typeForce('Number', index)
+  typeForce('Number', sequence)
+  typeForce('Script', script)
+
+  assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
+
+  // Add the input and return the input's index
   return (this.ins.push({
     hash: hash,
     index: index,
-    script: Script.EMPTY,
+    script: script,
     sequence: sequence
   }) - 1)
 }
 
 /**
- * Create a new txout.
+ * Create a new txOut.
  *
  * Can be called with:
  *
@@ -79,79 +166,41 @@ Transaction.prototype.addOutput = function(scriptPubKey, value) {
 
   // Attempt to get a valid script if it's an Address object
   if (scriptPubKey instanceof Address) {
-    var address = scriptPubKey
-
-    scriptPubKey = address.toOutputScript()
+    scriptPubKey = scriptPubKey.toOutputScript()
   }
 
-  assert(scriptPubKey instanceof Script, 'Expected Address or Script, got ' + scriptPubKey)
+  typeForce('Script', scriptPubKey)
+  typeForce('Number', value)
 
+  // Add the output and return the output's index
   return (this.outs.push({
     script: scriptPubKey,
     value: value
   }) - 1)
 }
 
-Transaction.prototype.toBuffer = function () {
-  var txInSize = this.ins.reduce(function(a, x) {
-    return a + (40 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
+Transaction.prototype.clone = function () {
+  var newTx = new Transaction()
+  newTx.version = this.version
+  newTx.locktime = this.locktime
 
-  var txOutSize = this.outs.reduce(function(a, x) {
-    return a + (8 + bufferutils.varIntSize(x.script.buffer.length) + x.script.buffer.length)
-  }, 0)
-
-  var buffer = new Buffer(
-    8 +
-    bufferutils.varIntSize(this.ins.length) +
-    bufferutils.varIntSize(this.outs.length) +
-    txInSize +
-    txOutSize
-  )
-
-  var offset = 0
-  function writeSlice(slice) {
-    slice.copy(buffer, offset)
-    offset += slice.length
-  }
-  function writeUInt32(i) {
-    buffer.writeUInt32LE(i, offset)
-    offset += 4
-  }
-  function writeUInt64(i) {
-    bufferutils.writeUInt64LE(buffer, i, offset)
-    offset += 8
-  }
-  function writeVarInt(i) {
-    var n = bufferutils.writeVarInt(buffer, i, offset)
-    offset += n
-  }
-
-  writeUInt32(this.version)
-  writeVarInt(this.ins.length)
-
-  this.ins.forEach(function(txin) {
-    writeSlice(txin.hash)
-    writeUInt32(txin.index)
-    writeVarInt(txin.script.buffer.length)
-    writeSlice(txin.script.buffer)
-    writeUInt32(txin.sequence)
+  newTx.ins = this.ins.map(function(txIn) {
+    return {
+      hash: txIn.hash,
+      index: txIn.index,
+      script: txIn.script,
+      sequence: txIn.sequence
+    }
   })
 
-  writeVarInt(this.outs.length)
-  this.outs.forEach(function(txout) {
-    writeUInt64(txout.value)
-    writeVarInt(txout.script.buffer.length)
-    writeSlice(txout.script.buffer)
+  newTx.outs = this.outs.map(function(txOut) {
+    return {
+      script: txOut.script,
+      value: txOut.value
+    }
   })
 
-  writeUInt32(this.locktime)
-
-  return buffer
-}
-
-Transaction.prototype.toHex = function() {
-  return this.toBuffer().toString('hex')
+  return newTx
 }
 
 /**
@@ -162,17 +211,30 @@ Transaction.prototype.toHex = function() {
  * hashType, serializes and finally hashes the result. This hash can then be
  * used to sign the transaction input in question.
  */
-Transaction.prototype.hashForSignature = function(prevOutScript, inIndex, hashType) {
+Transaction.prototype.hashForSignature = function(inIndex, prevOutScript, hashType) {
+  // FIXME: remove in 2.x.y
+  if (arguments[0] instanceof Script) {
+    console.warn('hashForSignature(prevOutScript, inIndex, ...) has been deprecated. Use hashForSignature(inIndex, prevOutScript, ...)')
+
+    // swap the arguments (must be stored in tmp, arguments is special)
+    var tmp = arguments[0]
+    inIndex = arguments[1]
+    prevOutScript = tmp
+  }
+
+  typeForce('Number', inIndex)
+  typeForce('Script', prevOutScript)
+  typeForce('Number', hashType)
+
   assert(inIndex >= 0, 'Invalid vin index')
   assert(inIndex < this.ins.length, 'Invalid vin index')
-  assert(prevOutScript instanceof Script, 'Invalid Script object')
 
   var txTmp = this.clone()
   var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
 
   // Blank out other inputs' signatures
-  txTmp.ins.forEach(function(txin) {
-    txin.script = Script.EMPTY
+  txTmp.ins.forEach(function(txIn) {
+    txIn.script = Script.EMPTY
   })
   txTmp.ins[inIndex].script = hashScript
 
@@ -201,130 +263,109 @@ Transaction.prototype.getHash = function () {
 }
 
 Transaction.prototype.getId = function () {
-  var buffer = this.getHash()
-
-  // Big-endian is used for TxHash
-  Array.prototype.reverse.call(buffer)
-
-  return buffer.toString('hex')
+  // TxHash is little-endian, we need big-endian
+  return bufferutils.reverse(this.getHash()).toString('hex')
 }
 
-Transaction.prototype.clone = function () {
-  var newTx = new Transaction()
-  newTx.version = this.version
-  newTx.locktime = this.locktime
+Transaction.prototype.toBuffer = function () {
+  function scriptSize(script) {
+    var length = script.buffer.length
 
-  newTx.ins = this.ins.map(function(txin) {
-    return {
-      hash: txin.hash,
-      index: txin.index,
-      script: txin.script,
-      sequence: txin.sequence
-    }
-  })
+    return bufferutils.varIntSize(length) + length
+  }
 
-  newTx.outs = this.outs.map(function(txout) {
-    return {
-      script: txout.script,
-      value: txout.value
-    }
-  })
+  var buffer = new Buffer(
+    8 +
+    bufferutils.varIntSize(this.ins.length) +
+    bufferutils.varIntSize(this.outs.length) +
+    this.ins.reduce(function(sum, input) { return sum + 40 + scriptSize(input.script) }, 0) +
+    this.outs.reduce(function(sum, output) { return sum + 8 + scriptSize(output.script) }, 0)
+  )
 
-  return newTx
-}
-
-Transaction.fromBuffer = function(buffer) {
   var offset = 0
-  function readSlice(n) {
-    offset += n
-    return buffer.slice(offset - n, offset)
+  function writeSlice(slice) {
+    slice.copy(buffer, offset)
+    offset += slice.length
   }
-  function readUInt32() {
-    var i = buffer.readUInt32LE(offset)
+
+  function writeUInt32(i) {
+    buffer.writeUInt32LE(i, offset)
     offset += 4
-    return i
   }
-  function readUInt64() {
-    var i = bufferutils.readUInt64LE(buffer, offset)
+
+  function writeUInt64(i) {
+    bufferutils.writeUInt64LE(buffer, i, offset)
     offset += 8
-    return i
-  }
-  function readVarInt() {
-    var vi = bufferutils.readVarInt(buffer, offset)
-    offset += vi.size
-    return vi.number
   }
 
-  var tx = new Transaction()
-  tx.version = readUInt32()
-
-  var vinLen = readVarInt()
-  for (var i = 0; i < vinLen; ++i) {
-    var hash = readSlice(32)
-    var vout = readUInt32()
-    var scriptLen = readVarInt()
-    var script = readSlice(scriptLen)
-    var sequence = readUInt32()
-
-    tx.ins.push({
-      hash: hash,
-      index: vout,
-      script: Script.fromBuffer(script),
-      sequence: sequence
-    })
+  function writeVarInt(i) {
+    var n = bufferutils.writeVarInt(buffer, i, offset)
+    offset += n
   }
 
-  var voutLen = readVarInt()
-  for (i = 0; i < voutLen; ++i) {
-    var value = readUInt64()
-    var scriptLen = readVarInt()
-    var script = readSlice(scriptLen)
+  writeUInt32(this.version)
+  writeVarInt(this.ins.length)
 
-    tx.outs.push({
-      value: value,
-      script: Script.fromBuffer(script)
-    })
-  }
+  this.ins.forEach(function(txIn) {
+    writeSlice(txIn.hash)
+    writeUInt32(txIn.index)
+    writeVarInt(txIn.script.buffer.length)
+    writeSlice(txIn.script.buffer)
+    writeUInt32(txIn.sequence)
+  })
 
-  tx.locktime = readUInt32()
-  assert.equal(offset, buffer.length, 'Transaction has unexpected data')
+  writeVarInt(this.outs.length)
+  this.outs.forEach(function(txOut) {
+    writeUInt64(txOut.value)
+    writeVarInt(txOut.script.buffer.length)
+    writeSlice(txOut.script.buffer)
+  })
 
-  return tx
+  writeUInt32(this.locktime)
+
+  return buffer
 }
 
-Transaction.fromHex = function(hex) {
-  return Transaction.fromBuffer(new Buffer(hex, 'hex'))
+Transaction.prototype.toHex = function() {
+  return this.toBuffer().toString('hex')
 }
 
-/**
- * Signs a pubKeyHash output at some index with the given key
- */
+Transaction.prototype.setInputScript = function(index, script) {
+  typeForce('Number', index)
+  typeForce('Script', script)
+
+  this.ins[index].script = script
+}
+
+// FIXME: remove in 2.x.y
 Transaction.prototype.sign = function(index, privKey, hashType) {
+  console.warn("Transaction.prototype.sign is deprecated.  Use TransactionBuilder instead.")
+
   var prevOutScript = privKey.pub.getAddress().toOutputScript()
   var signature = this.signInput(index, prevOutScript, privKey, hashType)
 
-  // FIXME: Assumed prior TX was pay-to-pubkey-hash
   var scriptSig = scripts.pubKeyHashInput(signature, privKey.pub)
   this.setInputScript(index, scriptSig)
 }
 
+// FIXME: remove in 2.x.y
 Transaction.prototype.signInput = function(index, prevOutScript, privKey, hashType) {
+  console.warn("Transaction.prototype.signInput is deprecated.  Use TransactionBuilder instead.")
+
   hashType = hashType || Transaction.SIGHASH_ALL
 
-  var hash = this.hashForSignature(prevOutScript, index, hashType)
+  var hash = this.hashForSignature(index, prevOutScript, hashType)
   var signature = privKey.sign(hash)
 
   return signature.toScriptSignature(hashType)
 }
 
-Transaction.prototype.setInputScript = function(index, script) {
-  this.ins[index].script = script
-}
-
-// FIXME: could be validateInput(index, prevTxOut, pub)
+// FIXME: remove in 2.x.y
 Transaction.prototype.validateInput = function(index, prevOutScript, pubKey, buffer) {
+  console.warn("Transaction.prototype.validateInput is deprecated.  Use TransactionBuilder instead.")
+
   var parsed = ECSignature.parseScriptSignature(buffer)
-  var hash = this.hashForSignature(prevOutScript, index, parsed.hashType)
+  var hash = this.hashForSignature(index, prevOutScript, parsed.hashType)
 
   return pubKey.verify(hash, parsed.signature)
 }

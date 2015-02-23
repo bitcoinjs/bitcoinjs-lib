@@ -159,11 +159,27 @@ function writeVarInt(buffer, number, offset) {
   return size
 }
 
+function varIntBuffer(i) {
+  var size = varIntSize(i)
+  var buffer = new Buffer(size)
+  writeVarInt(buffer, i, 0)
+
+  return buffer
+}
+
+function reverse(buffer) {
+  var buffer2 = new Buffer(buffer)
+  Array.prototype.reverse.call(buffer2)
+  return buffer2
+}
+
 module.exports = {
   pushDataSize: pushDataSize,
   readPushDataInt: readPushDataInt,
   readUInt64LE: readUInt64LE,
   readVarInt: readVarInt,
+  reverse: reverse,
+  varIntBuffer: varIntBuffer,
   varIntSize: varIntSize,
   writePushDataInt: writePushDataInt,
   writeUInt64LE: writeUInt64LE,

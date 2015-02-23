@@ -1,8 +1,4 @@
-// Crypto, crypto, where art thou crypto
-var assert = require('assert')
-var CryptoJS = require('crypto-js')
 var crypto = require('crypto')
-var convert = require('./convert')
 
 function hash160(buffer) {
   return ripemd160(sha256(buffer))
@@ -26,19 +22,13 @@ function sha256(buffer) {
 
 // FIXME: Name not consistent with others
 function HmacSHA256(buffer, secret) {
+  console.warn('Hmac* functions are deprecated for removal in 2.0.0, use node crypto instead')
   return crypto.createHmac('sha256', secret).update(buffer).digest()
 }
 
-function HmacSHA512(data, secret) {
-  assert(Buffer.isBuffer(data), 'Expected Buffer for data, got ' + data)
-  assert(Buffer.isBuffer(secret), 'Expected Buffer for secret, got ' + secret)
-
-  var dataWords = convert.bufferToWordArray(data)
-  var secretWords = convert.bufferToWordArray(secret)
-
-  var hash = CryptoJS.HmacSHA512(dataWords, secretWords)
-
-  return convert.wordArrayToBuffer(hash)
+function HmacSHA512(buffer, secret) {
+  console.warn('Hmac* functions are deprecated for removal in 2.0.0, use node crypto instead')
+  return crypto.createHmac('sha512', secret).update(buffer).digest()
 }
 
 module.exports = {

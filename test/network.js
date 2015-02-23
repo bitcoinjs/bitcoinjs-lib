@@ -1,6 +1,8 @@
 var assert = require('assert')
 var networks = require('../src/networks')
 var sinon = require('sinon')
+
+var HDNode = require('../src/hdnode')
 var Transaction = require('../src/transaction')
 
 var fixtures = require('./fixtures/network')
@@ -15,19 +17,35 @@ describe('networks', function() {
     Transaction.prototype.toBuffer.restore()
   })
 
-  fixtures.valid.forEach(function(f) {
-    describe(f.network + ' estimateFee', function() {
+  describe('constants', function() {
+    fixtures.valid.constants.forEach(function(f) {
       var network = networks[f.network]
 
-      it('calculates the fee correctly for ' + f.description, function() {
-        var buffer = new Buffer(f.txSize)
-        txToBuffer.returns(buffer)
+      Object.keys(f.bip32).forEach(function(name) {
+        var extb58 = f.bip32[name]
 
-        var estimateFee = network.estimateFee
-        var tx = new Transaction()
-        tx.outs = f.outputs || []
+        it('resolves ' + extb58 + ' to ' + f.network, function() {
+          assert.equal(HDNode.fromBase58(extb58, network).network, network)
+        })
+      })
+    })
+  })
 
-        assert.equal(estimateFee(tx), f.fee)
+  describe('estimateFee', function() {
+    fixtures.valid.estimateFee.forEach(function(f) {
+      describe('(' + f.network + ')', function() {
+        var network = networks[f.network]
+
+        it('calculates the fee correctly for ' + f.description, function() {
+          var buffer = new Buffer(f.txSize)
+          txToBuffer.returns(buffer)
+
+          var estimateFee = network.estimateFee
+          var tx = new Transaction()
+          tx.outs = f.outputs || []
+
+          assert.equal(estimateFee(tx), f.fee)
+        })
       })
     })
   })

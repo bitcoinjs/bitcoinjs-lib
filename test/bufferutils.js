@@ -75,6 +75,29 @@ describe('bufferutils', function() {
     })
   })
 
+  describe('reverse', function() {
+    fixtures.valid.forEach(function(f) {
+      it('reverses ' + f.hex64 + ' correctly', function() {
+        var buffer = new Buffer(f.hex64, 'hex')
+        var buffer2 = bufferutils.reverse(buffer)
+
+        Array.prototype.reverse.call(buffer)
+
+        assert.deepEqual(buffer, buffer2)
+      })
+    })
+  })
+
+  describe('varIntBuffer', function() {
+    fixtures.valid.forEach(function(f) {
+      it('encodes ' + f.dec + ' correctly', function() {
+        var buffer = bufferutils.varIntBuffer(f.dec)
+
+        assert.equal(buffer.toString('hex'), f.hexVI)
+      })
+    })
+  })
+
   describe('varIntSize', function() {
     fixtures.valid.forEach(function(f) {
       it('determines the varIntSize of ' + f.dec + ' correctly', function() {
@@ -86,7 +109,7 @@ describe('bufferutils', function() {
   })
 
   describe('writePushDataInt', function() {
-    fixtures.valid.forEach(function(f, i) {
+    fixtures.valid.forEach(function(f) {
       if (!f.hexPD) return
 
       it('encodes ' + f.dec + ' correctly', function() {

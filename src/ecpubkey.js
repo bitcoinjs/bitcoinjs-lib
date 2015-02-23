@@ -1,26 +1,29 @@
-var assert = require('assert')
 var crypto = require('./crypto')
 var ecdsa = require('./ecdsa')
+var typeForce = require('typeforce')
 var networks = require('./networks')
 
 var Address = require('./address')
 
 var ecurve = require('ecurve')
-var curve = ecurve.getCurveByName('secp256k1')
+var secp256k1 = ecurve.getCurveByName('secp256k1')
 
 function ECPubKey(Q, compressed) {
-  assert(Q instanceof ecurve.Point, 'Expected Point, got ' + Q)
+  if (compressed === undefined) compressed = true
 
-  if (compressed == undefined) compressed = true
-  assert.strictEqual(typeof compressed, 'boolean', 'Expected boolean, got ' + compressed)
+  typeForce('Point', Q)
+  typeForce('Boolean', compressed)
 
   this.compressed = compressed
   this.Q = Q
 }
 
+// Constants
+ECPubKey.curve = secp256k1
+
 // Static constructors
 ECPubKey.fromBuffer = function(buffer) {
-  var Q = ecurve.Point.decodeFrom(curve, buffer)
+  var Q = ecurve.Point.decodeFrom(ECPubKey.curve, buffer)
   return new ECPubKey(Q, Q.compressed)
 }
 
@@ -36,7 +39,7 @@ ECPubKey.prototype.getAddress = function(network) {
 }
 
 ECPubKey.prototype.verify = function(hash, signature) {
-  return ecdsa.verify(curve, hash, signature, this.Q)
+  return ecdsa.verify(ECPubKey.curve, hash, signature, this.Q)
 }
 
 // Export functions
