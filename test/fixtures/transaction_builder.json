@@ -95,6 +95,31 @@
         ]
       },
       {
+        "description": "Transaction w/ multisig 2-of-2 (reverse order) -> pubKeyHash",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000009200483045022100b7a9bab60c4307349de9571ce0bd26ebb9d68d4e9ab3f9173e1f736f1390a04a022020931ff70e87033cdd94bdf434e865993b2258065c5c222a53f29d077bcfa4480147304402206d79ad83f1ab12fc9feee9e66412de842fcbf8de0632beb4433d469f24f0fb4e022079e6df186582f2686a3292bde8e50dac36cb9bec3991995fe331e1daef7df8a401ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+              },
+              {
+                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 faf1d99bf040ea9c7f8cc9f14ac6733ad75ce246 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
         "description": "Transaction w/ scriptHash(pubKey) -> pubKeyHash",
         "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006c47304402201115644b134932c8a7a8e925769d130a801288d477130e2bf6fadda20b33754d02202ecefbf63844d7cb2d5868539c39f973fe019f72e5c31a707836c0d61ef317db012321033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70facffffffff0100f90295000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
         "inputs": [
