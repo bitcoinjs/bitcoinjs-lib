@@ -2,6 +2,8 @@ var assert = require('assert')
 var networks = require('../src/networks')
 
 var BigInteger = require('bigi')
+var ECKey = require('../src/eckey')
+var ECPubKey = require('../src/ecpubkey')
 var HDNode = require('../src/hdnode')
 
 var ecurve = require('ecurve')
@@ -20,6 +22,36 @@ describe('HDNode', function() {
       var hd = new HDNode(d, chainCode)
 
       assert(hd.pubKey.Q.equals(Q))
+    })
+
+    it('allows initialization directly from an ECKey', function() {
+      var ek = new ECKey(d)
+      var hd = new HDNode(ek, chainCode)
+
+      assert.equal(hd.privKey, ek)
+    })
+
+    it('allows initialization directly from an ECPubKey', function() {
+      var ek = new ECPubKey(Q)
+      var hd = new HDNode(ek, chainCode)
+
+      assert.equal(hd.pubKey, ek)
+    })
+
+    it('throws if ECKey is not compressed', function() {
+      var ek = new ECKey(d, false)
+
+      assert.throws(function() {
+        new HDNode(ek, chainCode)
+      }, /ECKey must be compressed/)
+    })
+
+    it('throws if ECPubKey is not compressed', function() {
+      var ek = new ECPubKey(Q, false)
+
+      assert.throws(function() {
+        new HDNode(ek, chainCode)
+      }, /ECPubKey must be compressed/)
     })
 
     it('only uses compressed points', function() {

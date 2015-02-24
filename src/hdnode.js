@@ -43,7 +43,11 @@ function HDNode(K, chainCode, network) {
   if (K instanceof BigInteger) {
     this.privKey = new ECKey(K, true)
     this.pubKey = this.privKey.pub
+  } else if (K instanceof ECKey) {
+    assert(K.pub.compressed, 'ECKey must be compressed')
+    this.privKey = K
   } else if (K instanceof ECPubKey) {
+    assert(K.compressed, 'ECPubKey must be compressed')
     this.pubKey = K
   } else {
     this.pubKey = new ECPubKey(K, true)
