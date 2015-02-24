@@ -43,6 +43,8 @@ function HDNode(K, chainCode, network) {
   if (K instanceof BigInteger) {
     this.privKey = new ECKey(K, true)
     this.pubKey = this.privKey.pub
+  } else if (K instanceof ECPubKey) {
+    this.pubKey = K
   } else {
     this.pubKey = new ECPubKey(K, true)
   }
