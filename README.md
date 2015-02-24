@@ -109,7 +109,6 @@ The below examples are implemented as integration tests, they should be very eas
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
 - [Hive Wallet](https://www.hivewallet.com)
-- [Justchain Exchange](https://justcoin.com)
 - [QuickCoin](https://wallet.quickcoin.co)
 - [Robocoin](https://wallet.robocoin.com)
 - [Skyhook ATM](http://projectskyhook.com)
