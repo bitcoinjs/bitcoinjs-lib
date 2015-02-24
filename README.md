@@ -105,7 +105,7 @@ The below examples are implemented as integration tests, they should be very eas
 - [Coinkite](https://coinkite.com)
 - [Coinpunk](https://coinpunk.com)
 - [Dark Wallet](https://darkwallet.unsystem.net)
-- [DecentralBank](http://decentralbank.co)
+- [DecentralBank](http://decentralbank.com/)
 - [Dogechain Wallet](https://dogechain.info)
 - [GreenAddress](https://greenaddress.it)
 - [Hive Wallet](https://www.hivewallet.com)
