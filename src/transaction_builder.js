@@ -7,7 +7,7 @@ var ECSignature = require('./ecsignature')
 var Script = require('./script')
 var Transaction = require('./transaction')
 
-function extractInput(txIn) {
+function extractInput (txIn) {
   var redeemScript
   var scriptSig = txIn.script
   var prevOutScript
@@ -21,7 +21,6 @@ function extractInput(txIn) {
 
     scriptSig = Script.fromChunks(scriptSig.chunks.slice(0, -1))
     scriptType = scripts.classifyInput(scriptSig, true)
-
   } else {
     scriptType = prevOutType
   }
@@ -53,7 +52,7 @@ function extractInput(txIn) {
     }
 
     case 'multisig': {
-      signatures = scriptSig.chunks.slice(1).map(function(chunk) {
+      signatures = scriptSig.chunks.slice(1).map(function (chunk) {
         if (chunk === ops.OP_0) return chunk
 
         var parsed = ECSignature.parseScriptSignature(chunk)
@@ -81,7 +80,7 @@ function extractInput(txIn) {
   }
 }
 
-function TransactionBuilder() {
+function TransactionBuilder () {
   this.prevTxMap = {}
   this.prevOutScripts = {}
   this.prevOutTypes = {}
@@ -90,7 +89,7 @@ function TransactionBuilder() {
   this.tx = new Transaction()
 }
 
-TransactionBuilder.fromTransaction = function(transaction) {
+TransactionBuilder.fromTransaction = function (transaction) {
   var txb = new TransactionBuilder()
 
   // Copy other transaction fields
@@ -98,17 +97,17 @@ TransactionBuilder.fromTransaction = function(transaction) {
   txb.tx.locktime = transaction.locktime
 
   // Extract/add inputs
-  transaction.ins.forEach(function(txIn) {
+  transaction.ins.forEach(function (txIn) {
     txb.addInput(txIn.hash, txIn.index, txIn.sequence)
   })
 
   // Extract/add outputs
-  transaction.outs.forEach(function(txOut) {
+  transaction.outs.forEach(function (txOut) {
     txb.addOutput(txOut.script, txOut.value)
   })
 
   // Extract/add signatures
-  txb.inputs = transaction.ins.map(function(txIn) {
+  txb.inputs = transaction.ins.map(function (txIn) {
     // TODO: remove me after testcase added
     assert(!Transaction.isCoinbaseHash(txIn.hash), 'coinbase inputs not supported')
 
@@ -121,22 +120,24 @@ TransactionBuilder.fromTransaction = function(transaction) {
   return txb
 }
 
-TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOutScript) {
+TransactionBuilder.prototype.addInput = function (prevTx, index, sequence, prevOutScript) {
   var prevOutHash
 
+  // txId
   if (typeof prevTx === 'string') {
     prevOutHash = new Buffer(prevTx, 'hex')
 
     // TxId hex is big-endian, we want little-endian hash
     Array.prototype.reverse.call(prevOutHash)
 
+  // Transaction
   } else if (prevTx instanceof Transaction) {
     prevOutHash = prevTx.getHash()
     prevOutScript = prevTx.outs[index].script
 
+  // txHash
   } else {
     prevOutHash = prevTx
-
   }
 
   var input = {}
@@ -147,11 +148,11 @@ TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOu
     switch (prevOutType) {
       case 'multisig':
         input.pubKeys = prevOutScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
-        break
+      break
 
       case 'pubkey':
         input.pubKeys = prevOutScript.chunks.slice(0, 1).map(ECPubKey.fromBuffer)
-        break
+      break
     }
 
     if (prevOutType !== 'scripthash') {
@@ -162,7 +163,7 @@ TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOu
     input.prevOutType = prevOutType
   }
 
-  assert(this.inputs.every(function(input2) {
+  assert(this.inputs.every(function (input2) {
     if (input2.hashType === undefined) return true
 
     return input2.hashType & Transaction.SIGHASH_ANYONECANPAY
@@ -178,8 +179,8 @@ TransactionBuilder.prototype.addInput = function(prevTx, index, sequence, prevOu
   return vin
 }
 
-TransactionBuilder.prototype.addOutput = function(scriptPubKey, value) {
-  assert(this.inputs.every(function(input) {
+TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
+  assert(this.inputs.every(function (input) {
     if (input.hashType === undefined) return true
 
     return (input.hashType & 0x1f) === Transaction.SIGHASH_SINGLE
@@ -188,12 +189,20 @@ TransactionBuilder.prototype.addOutput = function(scriptPubKey, value) {
   return this.tx.addOutput(scriptPubKey, value)
 }
 
-TransactionBuilder.prototype.build = function() { return this.__build(false) }
-TransactionBuilder.prototype.buildIncomplete = function() { return this.__build(true) }
+TransactionBuilder.prototype.build = function () {
+  return this.__build(false)
+}
+TransactionBuilder.prototype.buildIncomplete = function () {
+  return this.__build(true)
+}
 
-var canSignTypes = { 'pubkeyhash': true, 'multisig': true, 'pubkey': true }
+var canSignTypes = {
+  'pubkeyhash': true,
+  'multisig': true,
+  'pubkey': true
+}
 
-TransactionBuilder.prototype.__build = function(allowIncomplete) {
+TransactionBuilder.prototype.__build = function (allowIncomplete) {
   if (!allowIncomplete) {
     assert(this.tx.ins.length > 0, 'Transaction has no inputs')
     assert(this.tx.outs.length > 0, 'Transaction has no outputs')
@@ -202,7 +211,7 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
   var tx = this.tx.clone()
 
   // Create script signatures from signature meta-data
-  this.inputs.forEach(function(input, index) {
+  this.inputs.forEach(function (input, index) {
     var scriptType = input.scriptType
     var scriptSig
 
@@ -217,11 +226,11 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
         case 'pubkeyhash':
           var pkhSignature = input.signatures[0].toScriptSignature(input.hashType)
           scriptSig = scripts.pubKeyHashInput(pkhSignature, input.pubKeys[0])
-          break
+        break
 
         case 'multisig':
           // Array.prototype.map is sparse-compatible
-          var msSignatures = input.signatures.map(function(signature) {
+          var msSignatures = input.signatures.map(function (signature) {
             return signature.toScriptSignature(input.hashType)
           })
 
@@ -234,12 +243,12 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
 
           var redeemScript = allowIncomplete ? undefined : input.redeemScript
           scriptSig = scripts.multisigInput(msSignatures, redeemScript)
-          break
+        break
 
         case 'pubkey':
           var pkSignature = input.signatures[0].toScriptSignature(input.hashType)
           scriptSig = scripts.pubKeyInput(pkSignature)
-          break
+        break
       }
     }
 
@@ -257,17 +266,17 @@ TransactionBuilder.prototype.__build = function(allowIncomplete) {
   return tx
 }
 
-TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashType) {
+TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hashType) {
   assert(index in this.inputs, 'No input at index: ' + index)
   hashType = hashType || Transaction.SIGHASH_ALL
 
   var input = this.inputs[index]
   var canSign = input.hashType &&
-                input.prevOutScript &&
-                input.prevOutType &&
-                input.pubKeys &&
-                input.scriptType &&
-                input.signatures
+    input.prevOutScript &&
+    input.prevOutType &&
+    input.pubKeys &&
+    input.scriptType &&
+    input.signatures
 
   // are we almost ready to sign?
   if (canSign) {
@@ -280,6 +289,7 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
 
   // no? prepare
   } else {
+    // must be pay-to-scriptHash?
     if (redeemScript) {
       // if we have a prevOutScript, enforce scriptHash equality to the redeemScript
       if (input.prevOutScript) {
@@ -296,7 +306,7 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
       switch (scriptType) {
         case 'multisig':
           pubKeys = redeemScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
-          break
+        break
 
         case 'pubkeyhash':
           var pkh1 = redeemScript.chunks[2]
@@ -304,11 +314,11 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
 
           assert.deepEqual(pkh1, pkh2, 'privateKey cannot sign for this input')
           pubKeys = [privKey.pub]
-          break
+        break
 
         case 'pubkey':
           pubKeys = redeemScript.chunks.slice(0, 1).map(ECPubKey.fromBuffer)
-          break
+        break
       }
 
       if (!input.prevOutScript) {
@@ -320,10 +330,11 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
       input.redeemScript = redeemScript
       input.scriptType = scriptType
 
+    // cannot be pay-to-scriptHash
     } else {
       assert.notEqual(input.prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
 
-      // can we sign this?
+      // can we otherwise sign this?
       if (input.scriptType) {
         assert(input.pubKeys, input.scriptType + ' not supported')
 
@@ -333,7 +344,6 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
         input.prevOutType = 'pubkeyhash'
         input.pubKeys = [privKey.pub]
         input.scriptType = input.prevOutType
-
       }
     }
 
@@ -342,7 +352,7 @@ TransactionBuilder.prototype.sign = function(index, privKey, redeemScript, hashT
   }
 
   // enforce in order signing of public keys
-  assert(input.pubKeys.some(function(pubKey, i) {
+  assert(input.pubKeys.some(function (pubKey, i) {
     if (!privKey.pub.Q.equals(pubKey.Q)) return false
 
     assert(!input.signatures[i], 'Signature already exists')

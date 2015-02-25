@@ -9,7 +9,7 @@ var HDNode = require('./hdnode')
 var TransactionBuilder = require('./transaction_builder')
 var Script = require('./script')
 
-function Wallet(seed, network) {
+function Wallet (seed, network) {
   console.warn('Wallet is deprecated and will be removed in 2.0.0, see #296')
 
   seed = seed || crypto.randomBytes(32)
@@ -34,7 +34,7 @@ function Wallet(seed, network) {
 
   // FIXME: remove in 2.0.0
   var me = this
-  this.newMasterKey = function(seed) {
+  this.newMasterKey = function (seed) {
     console.warn('newMasterKey is deprecated, please make a new Wallet instance instead')
 
     seed = seed || crypto.randomBytes(32)
@@ -51,13 +51,21 @@ function Wallet(seed, network) {
     me.unspentMap = {}
   }
 
-  this.getMasterKey = function() { return masterKey }
-  this.getAccountZero = function() { return accountZero }
-  this.getExternalAccount = function() { return externalAccount }
-  this.getInternalAccount = function() { return internalAccount }
+  this.getMasterKey = function () {
+    return masterKey
+  }
+  this.getAccountZero = function () {
+    return accountZero
+  }
+  this.getExternalAccount = function () {
+    return externalAccount
+  }
+  this.getInternalAccount = function () {
+    return internalAccount
+  }
 }
 
-Wallet.prototype.createTransaction = function(to, value, options) {
+Wallet.prototype.createTransaction = function (to, value, options) {
   // FIXME: remove in 2.0.0
   if (typeof options !== 'object') {
     if (options !== undefined) {
@@ -79,11 +87,11 @@ Wallet.prototype.createTransaction = function(to, value, options) {
   var minConf = options.minConf === undefined ? 0 : options.minConf // FIXME: change minConf:1 by default in 2.0.0
 
   // filter by minConf, then pending and sort by descending value
-  var unspents = this.unspents.filter(function(unspent) {
+  var unspents = this.unspents.filter(function (unspent) {
     return unspent.confirmations >= minConf
-  }).filter(function(unspent) {
+  }).filter(function (unspent) {
     return !unspent.pending
-  }).sort(function(o1, o2) {
+  }).sort(function (o1, o2) {
     return o2.value - o1.value
   })
 
@@ -122,29 +130,30 @@ Wallet.prototype.createTransaction = function(to, value, options) {
 }
 
 // FIXME: remove in 2.0.0
-Wallet.prototype.processPendingTx = function(tx){
+Wallet.prototype.processPendingTx = function (tx) {
   this.__processTx(tx, true)
 }
 
 // FIXME: remove in 2.0.0
-Wallet.prototype.processConfirmedTx = function(tx){
+Wallet.prototype.processConfirmedTx = function (tx) {
   this.__processTx(tx, false)
 }
 
 // FIXME: remove in 2.0.0
-Wallet.prototype.__processTx = function(tx, isPending) {
+Wallet.prototype.__processTx = function (tx, isPending) {
   console.warn('processTransaction is considered harmful, see issue #260 for more information')
 
   var txId = tx.getId()
   var txHash = tx.getHash()
 
-  tx.outs.forEach(function(txOut, i) {
+  tx.outs.forEach(function (txOut, i) {
     var address
 
     try {
       address = Address.fromOutputScript(txOut.script, this.network).toString()
-    } catch(e) {
-      if (!(e.message.match(/has no matching Address/))) throw e
+    } catch (e) {
+      if (!(e.message.match(/has no matching Address/)))
+        throw e
     }
 
     var myAddresses = this.addresses.concat(this.changeAddresses)
@@ -168,7 +177,7 @@ Wallet.prototype.__processTx = function(tx, isPending) {
     }
   }, this)
 
-  tx.ins.forEach(function(txIn, i) {
+  tx.ins.forEach(function (txIn) {
     // copy and convert to big-endian hex
     var txInId = bufferutils.reverse(txIn.hash).toString('hex')
 
@@ -180,18 +189,17 @@ Wallet.prototype.__processTx = function(tx, isPending) {
     if (isPending) {
       unspent.pending = true
       unspent.spent = true
-
     } else {
       delete this.unspentMap[lookup]
 
-      this.unspents = this.unspents.filter(function(unspent2) {
+      this.unspents = this.unspents.filter(function (unspent2) {
         return unspent !== unspent2
       })
     }
   }, this)
 }
 
-Wallet.prototype.generateAddress = function() {
+Wallet.prototype.generateAddress = function () {
   var k = this.addresses.length
   var address = this.getExternalAccount().derive(k).getAddress()
 
@@ -200,7 +208,7 @@ Wallet.prototype.generateAddress = function() {
   return this.getReceiveAddress()
 }
 
-Wallet.prototype.generateChangeAddress = function() {
+Wallet.prototype.generateChangeAddress = function () {
   var k = this.changeAddresses.length
   var address = this.getInternalAccount().derive(k).getAddress()
 
@@ -209,7 +217,7 @@ Wallet.prototype.generateChangeAddress = function() {
   return this.getChangeAddress()
 }
 
-Wallet.prototype.getAddress = function() {
+Wallet.prototype.getAddress = function () {
   if (this.addresses.length === 0) {
     this.generateAddress()
   }
@@ -217,21 +225,21 @@ Wallet.prototype.getAddress = function() {
   return this.addresses[this.addresses.length - 1]
 }
 
-Wallet.prototype.getBalance = function(minConf) {
+Wallet.prototype.getBalance = function (minConf) {
   minConf = minConf || 0
 
-  return this.unspents.filter(function(unspent) {
+  return this.unspents.filter(function (unspent) {
     return unspent.confirmations >= minConf
 
-  // FIXME: remove spent filter in 2.0.0
-  }).filter(function(unspent) {
+      // FIXME: remove spent filter in 2.0.0
+  }).filter(function (unspent) {
     return !unspent.spent
-  }).reduce(function(accum, unspent) {
+  }).reduce(function (accum, unspent) {
     return accum + unspent.value
   }, 0)
 }
 
-Wallet.prototype.getChangeAddress = function() {
+Wallet.prototype.getChangeAddress = function () {
   if (this.changeAddresses.length === 0) {
     this.generateChangeAddress()
   }
@@ -239,15 +247,15 @@ Wallet.prototype.getChangeAddress = function() {
   return this.changeAddresses[this.changeAddresses.length - 1]
 }
 
-Wallet.prototype.getInternalPrivateKey = function(index) {
+Wallet.prototype.getInternalPrivateKey = function (index) {
   return this.getInternalAccount().derive(index).privKey
 }
 
-Wallet.prototype.getPrivateKey = function(index) {
+Wallet.prototype.getPrivateKey = function (index) {
   return this.getExternalAccount().derive(index).privKey
 }
 
-Wallet.prototype.getPrivateKeyForAddress = function(address) {
+Wallet.prototype.getPrivateKeyForAddress = function (address) {
   var index
 
   if ((index = this.addresses.indexOf(address)) > -1) {
@@ -261,16 +269,16 @@ Wallet.prototype.getPrivateKeyForAddress = function(address) {
   assert(false, 'Unknown address. Make sure the address is from the keychain and has been generated')
 }
 
-Wallet.prototype.getUnspentOutputs = function(minConf) {
+Wallet.prototype.getUnspentOutputs = function (minConf) {
   minConf = minConf || 0
 
-  return this.unspents.filter(function(unspent) {
+  return this.unspents.filter(function (unspent) {
     return unspent.confirmations >= minConf
 
-  // FIXME: remove spent filter in 2.0.0
-  }).filter(function(unspent) {
+      // FIXME: remove spent filter in 2.0.0
+  }).filter(function (unspent) {
     return !unspent.spent
-  }).map(function(unspent) {
+  }).map(function (unspent) {
     return {
       address: unspent.address,
       confirmations: unspent.confirmations,
@@ -285,9 +293,9 @@ Wallet.prototype.getUnspentOutputs = function(minConf) {
   })
 }
 
-Wallet.prototype.setUnspentOutputs = function(unspents) {
+Wallet.prototype.setUnspentOutputs = function (unspents) {
   this.unspentMap = {}
-  this.unspents = unspents.map(function(unspent) {
+  this.unspents = unspents.map(function (unspent) {
     // FIXME: remove unspent.hash in 2.0.0
     var txId = unspent.txId || unspent.hash
     var index = unspent.index
@@ -308,7 +316,9 @@ Wallet.prototype.setUnspentOutputs = function(unspents) {
     typeForce('Number', unspent.value)
 
     assert.equal(txId.length, 64, 'Expected valid txId, got ' + txId)
-    assert.doesNotThrow(function() { Address.fromBase58Check(unspent.address) }, 'Expected Base58 Address, got ' + unspent.address)
+    assert.doesNotThrow(function () {
+      Address.fromBase58Check(unspent.address)
+    }, 'Expected Base58 Address, got ' + unspent.address)
     assert(isFinite(index), 'Expected finite index, got ' + index)
 
     // FIXME: remove branch in 2.0.0
@@ -337,8 +347,8 @@ Wallet.prototype.setUnspentOutputs = function(unspents) {
   }, this)
 }
 
-Wallet.prototype.signWith = function(tx, addresses) {
-  addresses.forEach(function(address, i) {
+Wallet.prototype.signWith = function (tx, addresses) {
+  addresses.forEach(function (address, i) {
     var privKey = this.getPrivateKeyForAddress(address)
 
     tx.sign(i, privKey)
@@ -347,7 +357,7 @@ Wallet.prototype.signWith = function(tx, addresses) {
   return tx
 }
 
-function estimatePaddedFee(tx, network) {
+function estimatePaddedFee (tx, network) {
   var tmpTx = tx.clone()
   tmpTx.addOutput(Script.EMPTY, network.dustSoftThreshold || 0)
 

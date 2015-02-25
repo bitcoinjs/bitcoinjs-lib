@@ -11,7 +11,7 @@ var ECPubKey = require('./ecpubkey')
 var ecurve = require('ecurve')
 var secp256k1 = ecurve.getCurveByName('secp256k1')
 
-function ECKey(d, compressed) {
+function ECKey (d, compressed) {
   assert(d.signum() > 0, 'Private key must be greater than 0')
   assert(d.compareTo(ECKey.curve.n) < 0, 'Private key must be less than the curve order')
 
@@ -25,7 +25,7 @@ function ECKey(d, compressed) {
 ECKey.curve = secp256k1
 
 // Static constructors
-ECKey.fromWIF = function(string) {
+ECKey.fromWIF = function (string) {
   var payload = base58check.decode(string)
   var compressed = false
 
@@ -46,7 +46,7 @@ ECKey.fromWIF = function(string) {
   return new ECKey(d, compressed)
 }
 
-ECKey.makeRandom = function(compressed, rng) {
+ECKey.makeRandom = function (compressed, rng) {
   rng = rng || crypto.randomBytes
 
   var buffer = rng(32)
@@ -60,7 +60,7 @@ ECKey.makeRandom = function(compressed, rng) {
 }
 
 // Export functions
-ECKey.prototype.toWIF = function(network) {
+ECKey.prototype.toWIF = function (network) {
   network = network || networks.bitcoin
 
   var bufferLen = this.pub.compressed ? 34 : 33
@@ -77,7 +77,7 @@ ECKey.prototype.toWIF = function(network) {
 }
 
 // Operations
-ECKey.prototype.sign = function(hash) {
+ECKey.prototype.sign = function (hash) {
   return ecdsa.sign(ECKey.curve, hash, this.d)
 }
 

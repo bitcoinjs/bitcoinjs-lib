@@ -1,12 +1,14 @@
+/* global describe, it */
+
 var assert = require('assert')
 var bufferutils = require('../src/bufferutils')
 
 var fixtures = require('./fixtures/bufferutils.json')
 
-describe('bufferutils', function() {
-  describe('pushDataSize', function() {
-    fixtures.valid.forEach(function(f) {
-      it('determines the pushDataSize of ' + f.dec + ' correctly', function() {
+describe('bufferutils', function () {
+  describe('pushDataSize', function () {
+    fixtures.valid.forEach(function (f) {
+      it('determines the pushDataSize of ' + f.dec + ' correctly', function () {
         if (!f.hexPD) return
 
         var size = bufferutils.pushDataSize(f.dec)
@@ -16,11 +18,11 @@ describe('bufferutils', function() {
     })
   })
 
-  describe('readPushDataInt', function() {
-    fixtures.valid.forEach(function(f) {
+  describe('readPushDataInt', function () {
+    fixtures.valid.forEach(function (f) {
       if (!f.hexPD) return
 
-      it('decodes ' + f.hexPD + ' correctly', function() {
+      it('decodes ' + f.hexPD + ' correctly', function () {
         var buffer = new Buffer(f.hexPD, 'hex')
         var d = bufferutils.readPushDataInt(buffer, 0)
         var fopcode = parseInt(f.hexPD.substr(0, 2), 16)
@@ -32,9 +34,9 @@ describe('bufferutils', function() {
     })
   })
 
-  describe('readUInt64LE', function() {
-    fixtures.valid.forEach(function(f) {
-      it('decodes ' + f.hex64 + ' correctly', function() {
+  describe('readUInt64LE', function () {
+    fixtures.valid.forEach(function (f) {
+      it('decodes ' + f.hex64 + ' correctly', function () {
         var buffer = new Buffer(f.hex64, 'hex')
         var number = bufferutils.readUInt64LE(buffer, 0)
 
@@ -42,20 +44,20 @@ describe('bufferutils', function() {
       })
     })
 
-    fixtures.invalid.forEach(function(f) {
-      it('throws on ' + f.description, function() {
+    fixtures.invalid.forEach(function (f) {
+      it('throws on ' + f.description, function () {
         var buffer = new Buffer(f.hex64, 'hex')
 
-        assert.throws(function() {
+        assert.throws(function () {
           bufferutils.readUInt64LE(buffer, 0)
         }, new RegExp(f.exception))
       })
     })
   })
 
-  describe('readVarInt', function() {
-    fixtures.valid.forEach(function(f) {
-      it('decodes ' + f.hexVI + ' correctly', function() {
+  describe('readVarInt', function () {
+    fixtures.valid.forEach(function (f) {
+      it('decodes ' + f.hexVI + ' correctly', function () {
         var buffer = new Buffer(f.hexVI, 'hex')
         var d = bufferutils.readVarInt(buffer, 0)
 
@@ -64,20 +66,20 @@ describe('bufferutils', function() {
       })
     })
 
-    fixtures.invalid.forEach(function(f) {
-      it('throws on ' + f.description, function() {
+    fixtures.invalid.forEach(function (f) {
+      it('throws on ' + f.description, function () {
         var buffer = new Buffer(f.hexVI, 'hex')
 
-        assert.throws(function() {
+        assert.throws(function () {
           bufferutils.readVarInt(buffer, 0)
         }, new RegExp(f.exception))
       })
     })
   })
 
-  describe('reverse', function() {
-    fixtures.valid.forEach(function(f) {
-      it('reverses ' + f.hex64 + ' correctly', function() {
+  describe('reverse', function () {
+    fixtures.valid.forEach(function (f) {
+      it('reverses ' + f.hex64 + ' correctly', function () {
         var buffer = new Buffer(f.hex64, 'hex')
         var buffer2 = bufferutils.reverse(buffer)
 
@@ -88,9 +90,9 @@ describe('bufferutils', function() {
     })
   })
 
-  describe('varIntBuffer', function() {
-    fixtures.valid.forEach(function(f) {
-      it('encodes ' + f.dec + ' correctly', function() {
+  describe('varIntBuffer', function () {
+    fixtures.valid.forEach(function (f) {
+      it('encodes ' + f.dec + ' correctly', function () {
         var buffer = bufferutils.varIntBuffer(f.dec)
 
         assert.equal(buffer.toString('hex'), f.hexVI)
@@ -98,9 +100,9 @@ describe('bufferutils', function() {
     })
   })
 
-  describe('varIntSize', function() {
-    fixtures.valid.forEach(function(f) {
-      it('determines the varIntSize of ' + f.dec + ' correctly', function() {
+  describe('varIntSize', function () {
+    fixtures.valid.forEach(function (f) {
+      it('determines the varIntSize of ' + f.dec + ' correctly', function () {
         var size = bufferutils.varIntSize(f.dec)
 
         assert.equal(size, f.hexVI.length / 2)
@@ -108,11 +110,11 @@ describe('bufferutils', function() {
     })
   })
 
-  describe('writePushDataInt', function() {
-    fixtures.valid.forEach(function(f) {
+  describe('writePushDataInt', function () {
+    fixtures.valid.forEach(function (f) {
       if (!f.hexPD) return
 
-      it('encodes ' + f.dec + ' correctly', function() {
+      it('encodes ' + f.dec + ' correctly', function () {
         var buffer = new Buffer(5)
         buffer.fill(0)
 
@@ -122,9 +124,9 @@ describe('bufferutils', function() {
     })
   })
 
-  describe('writeUInt64LE', function() {
-    fixtures.valid.forEach(function(f) {
-      it('encodes ' + f.dec + ' correctly', function() {
+  describe('writeUInt64LE', function () {
+    fixtures.valid.forEach(function (f) {
+      it('encodes ' + f.dec + ' correctly', function () {
         var buffer = new Buffer(8)
         buffer.fill(0)
 
@@ -133,21 +135,21 @@ describe('bufferutils', function() {
       })
     })
 
-    fixtures.invalid.forEach(function(f) {
-      it('throws on ' + f.description, function() {
+    fixtures.invalid.forEach(function (f) {
+      it('throws on ' + f.description, function () {
         var buffer = new Buffer(8)
         buffer.fill(0)
 
-        assert.throws(function() {
+        assert.throws(function () {
           bufferutils.writeUInt64LE(buffer, f.dec, 0)
         }, new RegExp(f.exception))
       })
     })
   })
 
-  describe('writeVarInt', function() {
-    fixtures.valid.forEach(function(f) {
-      it('encodes ' + f.dec + ' correctly', function() {
+  describe('writeVarInt', function () {
+    fixtures.valid.forEach(function (f) {
+      it('encodes ' + f.dec + ' correctly', function () {
         var buffer = new Buffer(9)
         buffer.fill(0)
 
@@ -156,12 +158,12 @@ describe('bufferutils', function() {
       })
     })
 
-    fixtures.invalid.forEach(function(f) {
-      it('throws on ' + f.description, function() {
+    fixtures.invalid.forEach(function (f) {
+      it('throws on ' + f.description, function () {
         var buffer = new Buffer(9)
         buffer.fill(0)
 
-        assert.throws(function() {
+        assert.throws(function () {
           bufferutils.writeVarInt(buffer, f.dec, 0)
         }, new RegExp(f.exception))
       })
