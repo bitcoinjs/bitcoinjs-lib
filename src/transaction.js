@@ -4,7 +4,6 @@ var crypto = require('./crypto')
 var typeForce = require('typeforce')
 var opcodes = require('./opcodes')
 
-var Address = require('./address')
 var Script = require('./script')
 
 function Transaction () {
@@ -104,29 +103,12 @@ Transaction.isCoinbaseHash = function (buffer) {
   })
 }
 
-/**
- * Create a new txIn.
- *
- * Can be called with any of:
- *
- * - A transaction and an index
- * - A transaction hash and an index
- *
- * Note that this method does not sign the created input.
- */
 Transaction.prototype.addInput = function (hash, index, sequence, script) {
   if (sequence === undefined || sequence === null) {
     sequence = Transaction.DEFAULT_SEQUENCE
   }
 
   script = script || Script.EMPTY
-
-  if (typeof hash === 'string') {
-    // TxId hex is big-endian, we need little-endian
-    hash = bufferutils.reverse(new Buffer(hash, 'hex'))
-  } else if (hash instanceof Transaction) {
-    hash = hash.getHash()
-  }
 
   typeForce('Buffer', hash)
   typeForce('Number', index)
@@ -144,26 +126,7 @@ Transaction.prototype.addInput = function (hash, index, sequence, script) {
   }) - 1)
 }
 
-/**
- * Create a new txOut.
- *
- * Can be called with:
- *
- * - A base58 address string and a value
- * - An Address object and a value
- * - A scriptPubKey Script and a value
- */
 Transaction.prototype.addOutput = function (scriptPubKey, value) {
-  // Attempt to get a valid address if it's a base58 address string
-  if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.fromBase58Check(scriptPubKey)
-  }
-
-  // Attempt to get a valid script if it's an Address object
-  if (scriptPubKey instanceof Address) {
-    scriptPubKey = scriptPubKey.toOutputScript()
-  }
-
   typeForce('Script', scriptPubKey)
   typeForce('Number', value)
 
@@ -201,10 +164,10 @@ Transaction.prototype.clone = function () {
 /**
  * Hash transaction for signing a specific input.
  *
- * Bitcoin uses a different hash for each signed transaction input. This
- * method copies the transaction, makes the necessary changes based on the
- * hashType, serializes and finally hashes the result. This hash can then be
- * used to sign the transaction input in question.
+ * Bitcoin uses a different hash for each signed transaction input.
+ * This method copies the transaction, makes the necessary changes based on the
+ * hashType, and then hashes the result.
+ * This hash can then be used to sign the provided transaction input.
  */
 Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashType) {
   typeForce('Number', inIndex)
