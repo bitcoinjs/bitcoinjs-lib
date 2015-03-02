@@ -202,8 +202,7 @@ describe('Scripts', function () {
     })
 
     fixtures.invalid.multisigInput.forEach(function (f) {
-      var pubKeys = f.pubKeys.map(ECPubKey.fromHex)
-      var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
+      var scriptPubKey = Script.fromASM(f.scriptPubKey)
 
       it('throws on ' + f.exception, function () {
         var signatures = f.signatures.map(function (signature) {

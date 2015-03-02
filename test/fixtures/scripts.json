@@ -179,31 +179,19 @@
       {
         "description": "Not enough signatures provided",
         "type": "multisig",
-        "pubKeys": [
-          "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
-          "02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340"
-        ],
-        "signatures": [
-          null,
-          null
-        ]
+        "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG",
+        "signatures": []
       },
       {
         "exception": "Not enough signatures provided",
-        "pubKeys": [
-          "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1",
-          "0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a"
-        ],
+        "scriptPubKey": "OP_2 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a OP_2 OP_CHECKMULTISIG",
         "signatures": [
           "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801"
         ]
       },
       {
         "exception": "Too many signatures provided",
-        "pubKeys": [
-          "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1",
-          "0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a"
-        ],
+        "scriptPubKey": "OP_2 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a OP_2 OP_CHECKMULTISIG",
         "signatures": [
           "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801",
           "3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501",
