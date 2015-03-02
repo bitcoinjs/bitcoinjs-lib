@@ -238,10 +238,15 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
           })
 
           // fill in blanks with OP_0
-          for (var i = 0; i < msSignatures.length; ++i) {
-            if (msSignatures[i]) continue
+          if (allowIncomplete) {
+            for (var i = 0; i < msSignatures.length; ++i) {
+              if (msSignatures[i]) continue
 
-            msSignatures[i] = ops.OP_0
+              msSignatures[i] = ops.OP_0
+            }
+          } else {
+            // Array.prototype.filter returns non-sparse array
+            msSignatures = msSignatures.filter(function (x) { return x })
           }
 
           var redeemScript = allowIncomplete ? undefined : input.redeemScript
