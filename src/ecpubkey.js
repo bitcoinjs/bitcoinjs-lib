@@ -9,8 +9,9 @@ var ecurve = require('ecurve')
 var secp256k1 = ecurve.getCurveByName('secp256k1')
 
 function ECPubKey (Q, compressed) {
-  if (compressed === undefined)
+  if (compressed === undefined) {
     compressed = true
+  }
 
   typeForce('Point', Q)
   typeForce('Boolean', compressed)

@@ -146,7 +146,7 @@ function verifyRaw (curve, e, signature, Q) {
   if (r.signum() <= 0 || r.compareTo(n) >= 0) return false
   if (s.signum() <= 0 || s.compareTo(n) >= 0) return false
 
-      // c = s^-1 mod n
+  // c = s^-1 mod n
   var c = s.modInverse(n)
 
   // 1.4.4 Compute u1 = es^−1 mod n
@@ -161,7 +161,7 @@ function verifyRaw (curve, e, signature, Q) {
   // 1.4.5 (cont.) Enforce R is not at infinity
   if (curve.isInfinity(R)) return false
 
-      // 1.4.8 If v = r, output "valid", and if v != r, output "invalid"
+  // 1.4.8 If v = r, output "valid", and if v != r, output "invalid"
   return v.equals(r)
 }
 
