@@ -20,7 +20,7 @@ function readPushDataInt (buffer, offset) {
   var opcode = buffer.readUInt8(offset)
   var number, size
 
-    // ~6 bit
+  // ~6 bit
   if (opcode < opcodes.OP_PUSHDATA1) {
     number = opcode
     size = 1
@@ -64,7 +64,7 @@ function readVarInt (buffer, offset) {
   var t = buffer.readUInt8(offset)
   var number, size
 
-    // 8 bit
+  // 8 bit
   if (t < 253) {
     number = t
     size = 1

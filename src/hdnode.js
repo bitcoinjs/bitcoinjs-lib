@@ -118,7 +118,7 @@ HDNode.fromBuffer = function (buffer, network, __ignoreDeprecation) {
   var chainCode = buffer.slice(13, 45)
   var data, hd
 
-    // 33 bytes: private key data (0x00 + k)
+  // 33 bytes: private key data (0x00 + k)
   if (version === network.bip32.private) {
     assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
     data = buffer.slice(46, 78)

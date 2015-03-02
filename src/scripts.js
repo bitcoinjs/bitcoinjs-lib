@@ -29,8 +29,9 @@ function isCanonicalSignature (buffer) {
   try {
     ECSignature.parseScriptSignature(buffer)
   } catch (e) {
-    if (!(e.message.match(/Not a DER sequence|Invalid sequence length|Expected a DER integer|R length is zero|S length is zero|R value excessively padded|S value excessively padded|R value is negative|S value is negative|Invalid hashType/)))
+    if (!(e.message.match(/Not a DER sequence|Invalid sequence length|Expected a DER integer|R length is zero|S length is zero|R value excessively padded|S value excessively padded|R value is negative|S value is negative|Invalid hashType/))) {
       throw e
+    }
 
     return false
   }

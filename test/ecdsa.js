@@ -175,10 +175,7 @@ describe('ecdsa', function () {
         var d = BigInteger.fromHex(f.d)
         var H = crypto.sha256(f.message)
         var e = BigInteger.fromBuffer(H)
-        var signature = new ECSignature(
-        new BigInteger(f.signature.r),
-        new BigInteger(f.signature.s)
-        )
+        var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
         var Q = curve.G.multiply(d)
 
         assert(ecdsa.verify(curve, H, signature, Q))
@@ -191,10 +188,7 @@ describe('ecdsa', function () {
         var H = crypto.sha256(f.message)
         var e = BigInteger.fromBuffer(H)
         var d = BigInteger.fromHex(f.d)
-        var signature = new ECSignature(
-        new BigInteger(f.signature.r),
-        new BigInteger(f.signature.s)
-        )
+        var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
         var Q = curve.G.multiply(d)
 
         assert.equal(ecdsa.verify(curve, H, signature, Q), false)

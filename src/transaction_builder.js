@@ -146,13 +146,15 @@ TransactionBuilder.prototype.addInput = function (prevTx, index, sequence, prevO
 
     // if we can, extract pubKey information
     switch (prevOutType) {
-      case 'multisig':
+      case 'multisig': {
         input.pubKeys = prevOutScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
-      break
+        break
+      }
 
-      case 'pubkey':
+      case 'pubkey': {
         input.pubKeys = prevOutScript.chunks.slice(0, 1).map(ECPubKey.fromBuffer)
-      break
+        break
+      }
     }
 
     if (prevOutType !== 'scripthash') {
@@ -223,12 +225,13 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 
     if (input.signatures) {
       switch (scriptType) {
-        case 'pubkeyhash':
+        case 'pubkeyhash': {
           var pkhSignature = input.signatures[0].toScriptSignature(input.hashType)
           scriptSig = scripts.pubKeyHashInput(pkhSignature, input.pubKeys[0])
-        break
+          break
+        }
 
-        case 'multisig':
+        case 'multisig': {
           // Array.prototype.map is sparse-compatible
           var msSignatures = input.signatures.map(function (signature) {
             return signature.toScriptSignature(input.hashType)
@@ -243,12 +246,14 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 
           var redeemScript = allowIncomplete ? undefined : input.redeemScript
           scriptSig = scripts.multisigInput(msSignatures, redeemScript)
-        break
+          break
+        }
 
-        case 'pubkey':
+        case 'pubkey': {
           var pkSignature = input.signatures[0].toScriptSignature(input.hashType)
           scriptSig = scripts.pubKeyInput(pkSignature)
-        break
+          break
+        }
       }
     }
 
@@ -304,21 +309,24 @@ TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hash
 
       var pubKeys = []
       switch (scriptType) {
-        case 'multisig':
+        case 'multisig': {
           pubKeys = redeemScript.chunks.slice(1, -2).map(ECPubKey.fromBuffer)
-        break
+          break
+        }
 
-        case 'pubkeyhash':
+        case 'pubkeyhash': {
           var pkh1 = redeemScript.chunks[2]
           var pkh2 = privKey.pub.getAddress().hash
 
           assert.deepEqual(pkh1, pkh2, 'privateKey cannot sign for this input')
           pubKeys = [privKey.pub]
-        break
+          break
+        }
 
-        case 'pubkey':
+        case 'pubkey': {
           pubKeys = redeemScript.chunks.slice(0, 1).map(ECPubKey.fromBuffer)
-        break
+          break
+        }
       }
 
       if (!input.prevOutScript) {

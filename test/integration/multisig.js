@@ -38,11 +38,11 @@ describe('bitcoinjs-lib (multisig)', function () {
     blockchain.addresses.__faucetWithdraw(address, 2e4, function (err) {
       if (err) return done(err)
 
-        // get latest unspents from the address
+      // get latest unspents from the address
       blockchain.addresses.unspents(address, function (err, unspents) {
         if (err) return done(err)
 
-          // filter small unspents
+        // filter small unspents
         unspents = unspents.filter(function (unspent) {
           return unspent.value > 1e4
         })
@@ -66,7 +66,7 @@ describe('bitcoinjs-lib (multisig)', function () {
         blockchain.transactions.propagate(txb.build().toHex(), function (err) {
           if (err) return done(err)
 
-            // check that the funds (1e4 Satoshis) indeed arrived at the intended address
+          // check that the funds (1e4 Satoshis) indeed arrived at the intended address
           blockchain.addresses.summary(targetAddress, function (err, result) {
             if (err) return done(err)
 

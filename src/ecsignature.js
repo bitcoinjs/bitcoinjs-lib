@@ -82,8 +82,10 @@ ECSignature.parseScriptSignature = function (buffer) {
 }
 
 ECSignature.prototype.toCompact = function (i, compressed) {
-  if (compressed)
+  if (compressed) {
     i += 4
+  }
+
   i += 27
 
   var buffer = new Buffer(65)

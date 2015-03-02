@@ -139,11 +139,11 @@ Transaction.prototype.addInput = function (hash, index, sequence, script) {
 
   // Add the input and return the input's index
   return (this.ins.push({
-      hash: hash,
-      index: index,
-      script: script,
-      sequence: sequence
-    }) - 1)
+    hash: hash,
+    index: index,
+    script: script,
+    sequence: sequence
+  }) - 1)
 }
 
 /**
@@ -171,9 +171,9 @@ Transaction.prototype.addOutput = function (scriptPubKey, value) {
 
   // Add the output and return the output's index
   return (this.outs.push({
-      script: scriptPubKey,
-      value: value
-    }) - 1)
+    script: scriptPubKey,
+    value: value
+  }) - 1)
 }
 
 Transaction.prototype.clone = function () {
@@ -271,15 +271,11 @@ Transaction.prototype.toBuffer = function () {
   }
 
   var buffer = new Buffer(
-  8 +
+    8 +
     bufferutils.varIntSize(this.ins.length) +
     bufferutils.varIntSize(this.outs.length) +
-    this.ins.reduce(function (sum, input) {
-      return sum + 40 + scriptSize(input.script)
-    }, 0) +
-    this.outs.reduce(function (sum, output) {
-      return sum + 8 + scriptSize(output.script)
-    }, 0)
+    this.ins.reduce(function (sum, input) { return sum + 40 + scriptSize(input.script) }, 0) +
+    this.outs.reduce(function (sum, output) { return sum + 8 + scriptSize(output.script) }, 0)
   )
 
   var offset = 0

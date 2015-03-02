@@ -48,7 +48,7 @@ describe('bitcoinjs-lib (advanced)', function () {
         blockchain.transactions.propagate(txBuilt.toHex(), function (err) {
           if (err) return done(err)
 
-            // check that the message was propagated
+          // check that the message was propagated
           blockchain.transactions.get(txBuilt.getId(), function (err, transaction) {
             if (err) return done(err)
 
