@@ -121,24 +121,17 @@ TransactionBuilder.fromTransaction = function (transaction) {
   return txb
 }
 
-TransactionBuilder.prototype.addInput = function (prevTx, index, sequence, prevOutScript) {
-  var prevOutHash
+TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOutScript) {
+  // is it a txId?
+  if (typeof txHash === 'string') {
+    // a txId is big-endian hex, we want a little-endian Buffer
+    txHash = new Buffer(txHash, 'hex')
+    Array.prototype.reverse.call(txHash)
 
-  // txId
-  if (typeof prevTx === 'string') {
-    prevOutHash = new Buffer(prevTx, 'hex')
-
-    // TxId hex is big-endian, we want little-endian hash
-    Array.prototype.reverse.call(prevOutHash)
-
-  // Transaction
-  } else if (prevTx instanceof Transaction) {
-    prevOutHash = prevTx.getHash()
-    prevOutScript = prevTx.outs[index].script
-
-  // txHash
-  } else {
-    prevOutHash = prevTx
+  // is it a Transaction?
+  } else if (txHash instanceof Transaction) {
+    prevOutScript = txHash.outs[vout].script
+    txHash = txHash.getHash()
   }
 
   var input = {}
@@ -172,10 +165,10 @@ TransactionBuilder.prototype.addInput = function (prevTx, index, sequence, prevO
     return input2.hashType & Transaction.SIGHASH_ANYONECANPAY
   }), 'No, this would invalidate signatures')
 
-  var prevOut = prevOutHash.toString('hex') + ':' + index
+  var prevOut = txHash.toString('hex') + ':' + vout
   assert(!(prevOut in this.prevTxMap), 'Transaction is already an input')
 
-  var vin = this.tx.addInput(prevOutHash, index, sequence)
+  var vin = this.tx.addInput(txHash, vout, sequence)
   this.inputs[vin] = input
   this.prevTxMap[prevOut] = vin
 
