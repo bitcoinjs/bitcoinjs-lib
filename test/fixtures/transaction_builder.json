@@ -142,6 +142,31 @@
         ]
       },
       {
+        "description": "Transaction w/ scriptHash(multisig 2-of-3)",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000fd5e0100483045022100eec19e061cad41610f9b42d2b06638b6b0fec3da0de9c6858e7f8c06053979900220622936dd47e202b2ad17639cda680e52334d407149252959936bb1f38e4acc52014830450221009aac215157a74a18234fd06be27448dccee809986bbf93be457a9262f0c69a9402203ff41d7c757f0e8951e4471f205087ecff499f986400ab18210eaad9a628e33c014cc952410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "privKey": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG"
+              },
+              {
+                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
         "description": "Transaction w/ scriptHash(pubKey) -> pubKeyHash",
         "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006c47304402201115644b134932c8a7a8e925769d130a801288d477130e2bf6fadda20b33754d02202ecefbf63844d7cb2d5868539c39f973fe019f72e5c31a707836c0d61ef317db012321033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70facffffffff0100f90295000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
         "inputs": [
