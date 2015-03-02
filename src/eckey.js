@@ -1,15 +1,21 @@
 var assert = require('assert')
 var base58check = require('bs58check')
 var crypto = require('crypto')
-var ecdsa = require('./ecdsa')
 var typeForce = require('typeforce')
 var networks = require('./networks')
 
 var BigInteger = require('bigi')
 var ECPubKey = require('./ecpubkey')
+var ECSignature = require('./ecsignature')
 
 var ecurve = require('ecurve')
-var secp256k1 = ecurve.getCurveByName('secp256k1')
+var ecdsa = require('./ecdsa')
+
+try {
+  var secp256k1 = require('secp256k1')
+} catch (e) {
+  secp256k1 = null
+}
 
 function ECKey (d, compressed) {
   assert(d.signum() > 0, 'Private key must be greater than 0')
@@ -22,7 +28,7 @@ function ECKey (d, compressed) {
 }
 
 // Constants
-ECKey.curve = secp256k1
+ECKey.curve = ecurve.getCurveByName('secp256k1')
 
 // Static constructors
 ECKey.fromWIF = function (string) {
@@ -78,7 +84,11 @@ ECKey.prototype.toWIF = function (network) {
 
 // Operations
 ECKey.prototype.sign = function (hash) {
-  return ecdsa.sign(ECKey.curve, hash, this.d)
+  if (secp256k1) {
+    return ECSignature.fromDER(secp256k1.sign(this.d.toBuffer(32), hash))
+  } else {
+    return ecdsa.sign(ECKey.curve, hash, this.d)
+  }
 }
 
 module.exports = ECKey

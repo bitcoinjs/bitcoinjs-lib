@@ -1,12 +1,18 @@
 var crypto = require('./crypto')
-var ecdsa = require('./ecdsa')
 var typeForce = require('typeforce')
 var networks = require('./networks')
 
 var Address = require('./address')
+var ECSignature = require('./ecsignature')
 
 var ecurve = require('ecurve')
-var secp256k1 = ecurve.getCurveByName('secp256k1')
+var ecdsa = require('./ecdsa')
+
+try {
+  var secp256k1 = require('secp256k1')
+} catch (e) {
+  secp256k1 = null
+}
 
 function ECPubKey (Q, compressed) {
   if (compressed === undefined) {
@@ -21,7 +27,7 @@ function ECPubKey (Q, compressed) {
 }
 
 // Constants
-ECPubKey.curve = secp256k1
+ECPubKey.curve = ecurve.getCurveByName('secp256k1')
 
 // Static constructors
 ECPubKey.fromBuffer = function (buffer) {
@@ -41,7 +47,12 @@ ECPubKey.prototype.getAddress = function (network) {
 }
 
 ECPubKey.prototype.verify = function (hash, signature) {
-  return ecdsa.verify(ECPubKey.curve, hash, signature, this.Q)
+  if (secp256k1) {
+    signature = new ECSignature(signature.r, signature.s)
+    return secp256k1.verify(this.toBuffer(), hash, signature.toDER()) === 1
+  } else {
+    return ecdsa.verify(ECPubKey.curve, hash, signature, this.Q)
+  }
 }
 
 // Export functions

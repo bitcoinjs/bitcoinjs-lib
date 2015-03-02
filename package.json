@@ -61,5 +61,8 @@
     "mocha-lcov-reporter": "0.0.1",
     "sinon": "^1.12.2",
     "standard": "^2.7.3"
+  },
+  "optionalDependencies": {
+    "secp256k1": "~0.0.15"
   }
 }
