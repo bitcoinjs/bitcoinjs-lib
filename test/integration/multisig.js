@@ -77,4 +77,63 @@ describe('bitcoinjs-lib (multisig)', function () {
       })
     })
   })
+
+  it('can spend from a 2-of-3 multsig P2SH address', function (done) {
+    this.timeout(20000)
+
+    var privKeys = [
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT',
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe'
+    ].map(bitcoin.ECKey.fromWIF)
+    var pubKeys = privKeys.map(function (x) {
+      return x.pub
+    })
+
+    var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
+    var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
+    var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
+
+    // Attempt to send funds to the source address
+    blockchain.addresses.__faucetWithdraw(address, 2e4, function (err) {
+      if (err) return done(err)
+
+      // get latest unspents from the address
+      blockchain.addresses.unspents(address, function (err, unspents) {
+        if (err) return done(err)
+
+        // filter small unspents
+        unspents = unspents.filter(function (unspent) {
+          return unspent.value > 1e4
+        })
+
+        // use the oldest unspent
+        var unspent = unspents.pop()
+
+        // make a random destination address
+        var targetAddress = bitcoin.ECKey.makeRandom().pub.getAddress(bitcoin.networks.testnet).toString()
+
+        var txb = new bitcoin.TransactionBuilder()
+        txb.addInput(unspent.txId, unspent.vout)
+        txb.addOutput(targetAddress, 1e4)
+
+        // sign with 1st and 3rd key
+        txb.sign(0, privKeys[0], redeemScript)
+        txb.sign(0, privKeys[2], redeemScript)
+
+        // broadcast our transaction
+        blockchain.transactions.propagate(txb.build().toHex(), function (err) {
+          if (err) return done(err)
+
+          // check that the funds (1e4 Satoshis) indeed arrived at the intended address
+          blockchain.addresses.summary(targetAddress, function (err, result) {
+            if (err) return done(err)
+
+            assert.equal(result.balance, 1e4)
+            done()
+          })
+        })
+      })
+    })
+  })
 })
