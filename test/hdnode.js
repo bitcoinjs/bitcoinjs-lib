@@ -139,15 +139,6 @@ describe('HDNode', function () {
         assert.equal(hd.toBase58(), f.master.base58Priv)
       })
     })
-
-    // FIXME: remove in 2.x.y
-    it('fails when there is no private key', function () {
-      var hd = HDNode.fromBase58(fixtures.valid[0].master.base58)
-
-      assert.throws(function () {
-        hd.toBase58(true)
-      }, /Missing private key/)
-    })
   })
 
   describe('fromBase58', function () {
@@ -175,60 +166,6 @@ describe('HDNode', function () {
           HDNode.fromBase58(f.string, network)
         }, new RegExp(f.exception))
       })
-    })
-  })
-
-  describe('fromBuffer/fromHex', function () {
-    fixtures.valid.forEach(function (f) {
-      it('imports ' + f.master.hex + ' (public) correctly', function () {
-        var hd = HDNode.fromHex(f.master.hex)
-
-        assert.equal(hd.toBuffer().toString('hex'), f.master.hex)
-      })
-    })
-
-    fixtures.valid.forEach(function (f) {
-      it('imports ' + f.master.hexPriv + ' (private) correctly', function () {
-        var hd = HDNode.fromHex(f.master.hexPriv)
-
-        assert.equal(hd.toBuffer().toString('hex'), f.master.hexPriv)
-      })
-    })
-
-    fixtures.invalid.fromBuffer.forEach(function (f) {
-      it('throws on ' + f.hex, function () {
-        assert.throws(function () {
-          HDNode.fromHex(f.hex)
-        }, new RegExp(f.exception))
-      })
-    })
-  })
-
-  describe('toBuffer/toHex', function () {
-    fixtures.valid.forEach(function (f) {
-      it('exports ' + f.master.hex + ' (public) correctly', function () {
-        var hd = HDNode.fromSeedHex(f.master.seed).neutered()
-
-        assert.equal(hd.toHex(), f.master.hex)
-      })
-    })
-
-    fixtures.valid.forEach(function (f) {
-      it('exports ' + f.master.hexPriv + ' (private) correctly', function () {
-        var network = networks[f.network]
-        var hd = HDNode.fromSeedHex(f.master.seed, network)
-
-        assert.equal(hd.toHex(), f.master.hexPriv)
-      })
-    })
-
-    // FIXME: remove in 2.x.y
-    it('fails when there is no private key', function () {
-      var hd = HDNode.fromHex(fixtures.valid[0].master.hex)
-
-      assert.throws(function () {
-        hd.toHex(true)
-      }, /Missing private key/)
     })
   })
 

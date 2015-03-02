@@ -78,15 +78,7 @@ HDNode.fromSeedHex = function (hex, network) {
 }
 
 HDNode.fromBase58 = function (string, network) {
-  return HDNode.fromBuffer(base58check.decode(string), network, true)
-}
-
-// FIXME: remove in 2.x.y
-HDNode.fromBuffer = function (buffer, network, __ignoreDeprecation) {
-  if (!__ignoreDeprecation) {
-    console.warn('HDNode.fromBuffer() is deprecated for removal in 2.x.y, use fromBase58 instead')
-  }
-
+  var buffer = base58check.decode(string)
   assert.strictEqual(buffer.length, HDNode.LENGTH, 'Invalid buffer length')
 
   // 4 byte: version bytes
@@ -145,11 +137,6 @@ HDNode.fromBuffer = function (buffer, network, __ignoreDeprecation) {
   return hd
 }
 
-// FIXME: remove in 2.x.y
-HDNode.fromHex = function (hex, network) {
-  return HDNode.fromBuffer(new Buffer(hex, 'hex'), network)
-}
-
 HDNode.prototype.getIdentifier = function () {
   return bcrypto.hash160(this.pubKey.toBuffer())
 }
@@ -171,26 +158,11 @@ HDNode.prototype.neutered = function () {
   return neutered
 }
 
-HDNode.prototype.toBase58 = function (isPrivate) {
-  return base58check.encode(this.toBuffer(isPrivate, true))
-}
-
-// FIXME: remove in 2.x.y
-HDNode.prototype.toBuffer = function (isPrivate, __ignoreDeprecation) {
-  if (isPrivate === undefined) {
-    isPrivate = !!this.privKey
-
-  // FIXME: remove in 2.x.y
-  } else {
-    console.warn('isPrivate flag is deprecated, please use the .neutered() method instead')
-  }
-
-  if (!__ignoreDeprecation) {
-    console.warn('HDNode.toBuffer() is deprecated for removal in 2.x.y, use toBase58 instead')
-  }
+HDNode.prototype.toBase58 = function (__isPrivate) {
+  assert.strictEqual(__isPrivate, undefined, 'Unsupported argument in 2.0.0')
 
   // Version
-  var version = isPrivate ? this.network.bip32.private : this.network.bip32.public
+  var version = this.privKey ? this.network.bip32.private : this.network.bip32.public
   var buffer = new Buffer(HDNode.LENGTH)
 
   // 4 bytes: version bytes
@@ -210,25 +182,19 @@ HDNode.prototype.toBuffer = function (isPrivate, __ignoreDeprecation) {
   // 32 bytes: the chain code
   this.chainCode.copy(buffer, 13)
 
-  // 33 bytes: the public key or private key data
-  if (isPrivate) {
-    // FIXME: remove in 2.x.y
-    assert(this.privKey, 'Missing private key')
-
+  // 33 bytes: the private key, or
+  if (this.privKey) {
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
     this.privKey.d.toBuffer(32).copy(buffer, 46)
+
+  // 33 bytes: the public key
   } else {
     // X9.62 encoding for public keys
     this.pubKey.toBuffer().copy(buffer, 45)
   }
 
-  return buffer
-}
-
-// FIXME: remove in 2.x.y
-HDNode.prototype.toHex = function (isPrivate) {
-  return this.toBuffer(isPrivate).toString('hex')
+  return base58check.encode(buffer)
 }
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions

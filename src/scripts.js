@@ -291,9 +291,5 @@ module.exports = {
   pubKeyHashInput: pubKeyHashInput,
   scriptHashInput: scriptHashInput,
   multisigInput: multisigInput,
-  dataOutput: function (data) {
-    console.warn('dataOutput is deprecated, use nullDataOutput by 2.0.0')
-    return nullDataOutput(data)
-  },
   nullDataOutput: nullDataOutput
 }

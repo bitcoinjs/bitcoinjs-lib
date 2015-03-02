@@ -12,34 +12,7 @@ var ONE = new Buffer([1])
 function deterministicGenerateK (curve, hash, d, checkSig) {
   typeForce('Buffer', hash)
   typeForce('BigInteger', d)
-
-  // FIXME: remove/uncomment for 2.0.0
-  //  typeForce('Function', checkSig)
-
-  if (typeof checkSig !== 'function') {
-    console.warn('deterministicGenerateK requires a checkSig callback in 2.0.0, see #337 for more information')
-
-    checkSig = function (k) {
-      var G = curve.G
-      var n = curve.n
-      var e = BigInteger.fromBuffer(hash)
-
-      var Q = G.multiply(k)
-
-      if (curve.isInfinity(Q))
-        return false
-
-      var r = Q.affineX.mod(n)
-      if (r.signum() === 0)
-        return false
-
-      var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
-      if (s.signum() === 0)
-        return false
-
-      return true
-    }
-  }
+  typeForce('Function', checkSig)
 
   // sanity check
   assert.equal(hash.length, 32, 'Hash must be 256 bit')

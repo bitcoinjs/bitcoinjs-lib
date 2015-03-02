@@ -2,6 +2,7 @@ var assert = require('assert')
 var ops = require('./opcodes')
 var scripts = require('./scripts')
 
+var Address = require('./address')
 var ECPubKey = require('./ecpubkey')
 var ECSignature = require('./ecsignature')
 var Script = require('./script')
@@ -120,24 +121,17 @@ TransactionBuilder.fromTransaction = function (transaction) {
   return txb
 }
 
-TransactionBuilder.prototype.addInput = function (prevTx, index, sequence, prevOutScript) {
-  var prevOutHash
+TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOutScript) {
+  // is it a txId?
+  if (typeof txHash === 'string') {
+    // a txId is big-endian hex, we want a little-endian Buffer
+    txHash = new Buffer(txHash, 'hex')
+    Array.prototype.reverse.call(txHash)
 
-  // txId
-  if (typeof prevTx === 'string') {
-    prevOutHash = new Buffer(prevTx, 'hex')
-
-    // TxId hex is big-endian, we want little-endian hash
-    Array.prototype.reverse.call(prevOutHash)
-
-  // Transaction
-  } else if (prevTx instanceof Transaction) {
-    prevOutHash = prevTx.getHash()
-    prevOutScript = prevTx.outs[index].script
-
-  // txHash
-  } else {
-    prevOutHash = prevTx
+  // is it a Transaction?
+  } else if (txHash instanceof Transaction) {
+    prevOutScript = txHash.outs[vout].script
+    txHash = txHash.getHash()
   }
 
   var input = {}
@@ -171,10 +165,10 @@ TransactionBuilder.prototype.addInput = function (prevTx, index, sequence, prevO
     return input2.hashType & Transaction.SIGHASH_ANYONECANPAY
   }), 'No, this would invalidate signatures')
 
-  var prevOut = prevOutHash.toString('hex') + ':' + index
+  var prevOut = txHash.toString('hex') + ':' + vout
   assert(!(prevOut in this.prevTxMap), 'Transaction is already an input')
 
-  var vin = this.tx.addInput(prevOutHash, index, sequence)
+  var vin = this.tx.addInput(txHash, vout, sequence)
   this.inputs[vin] = input
   this.prevTxMap[prevOut] = vin
 
@@ -187,6 +181,16 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
 
     return (input.hashType & 0x1f) === Transaction.SIGHASH_SINGLE
   }), 'No, this would invalidate signatures')
+
+  // Attempt to get a valid address if it's a base58 address string
+  if (typeof scriptPubKey === 'string') {
+    scriptPubKey = Address.fromBase58Check(scriptPubKey)
+  }
+
+  // Attempt to get a valid script if it's an Address object
+  if (scriptPubKey instanceof Address) {
+    scriptPubKey = scriptPubKey.toOutputScript()
+  }
 
   return this.tx.addOutput(scriptPubKey, value)
 }
