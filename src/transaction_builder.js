@@ -238,8 +238,13 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
         case 'multisig': {
           // Array.prototype.map is sparse-compatible
           var msSignatures = input.signatures.map(function (signature) {
-            return signature.toScriptSignature(input.hashType)
-          }).filter(function(signature) { return !!signature })
+            return signature && signature.toScriptSignature(input.hashType) || ops.OP_0
+          })
+
+          // filter out OP_0s when we're not building an incomplete TX
+          if (!allowIncomplete) {
+            msSignatures = msSignatures.filter(function (signature) { return !!signature })
+          }
 
           var redeemScript = allowIncomplete ? undefined : input.redeemScript
           scriptSig = scripts.multisigInput(msSignatures, redeemScript)
@@ -268,7 +273,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   return tx
 }
 
-TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hashType) {
+TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hashType, forceFixSignatures) {
   assert(index in this.inputs, 'No input at index: ' + index)
   hashType = hashType || Transaction.SIGHASH_ALL
 
@@ -358,21 +363,25 @@ TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hash
   var signatureScript = input.redeemScript || input.prevOutScript
   var signatureHash = this.tx.hashForSignature(index, signatureScript, hashType)
 
-  // fix the order of the signatures
-  // store signatures locally
-  var signatures = input.signatures
-  // empty signatures so we can set them in the correct order
-  input.signatures = []
-  // loop over pubKeys to set their respective signature or leave it blank so it can be signed
-  input.pubKeys.forEach(function (pubKey, pubKeyIdx) {
-    signatures.forEach(function (signature, sigIdx) {
-      // check if the signature is not null / false / OP_0 and verify if it belongs to the pubKey
-      if (signature && pubKey.verify(signatureHash, signature)) {
-        // use .splice to remove the signature from the list, so we won't verify it again
-        input.signatures[pubKeyIdx] = signatures.splice(sigIdx, 1)[0]
-      }
+  // fill the signatures with OP_0 and put them in the right order
+  if (forceFixSignatures || input.signatures.length !== input.pubKeys.length) {
+    // store signatures locally
+    var signatures = input.signatures.slice()
+
+    // loop over pubKeys to set their respective signature or set it to OP_0
+    input.signatures = input.pubKeys.map(function (pubKey, pubKeyIdx) {
+      var signature = null
+      signatures.forEach(function (_signature, _sigIdx) {
+        // check if the signature is not null / false / OP_0 and verify if it belongs to the pubKey
+        if (!signature && _signature && pubKey.verify(signatureHash, _signature)) {
+          // use .splice to remove the signature from the list, so we won't verify it again
+          signature = signatures.splice(_sigIdx, 1)[0]
+        }
+      })
+
+      return signature || ops.OP_0
     })
-  })
+  }
 
   // enforce in order signing of public keys
   assert(input.pubKeys.some(function (pubKey, i) {
