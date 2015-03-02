@@ -275,7 +275,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   return tx
 }
 
-TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hashType) {
+TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hashType, fixSignatureOrder) {
   assert(index in this.inputs, 'No input at index: ' + index)
   hashType = hashType || Transaction.SIGHASH_ALL
 
@@ -362,14 +362,33 @@ TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hash
     input.hashType = hashType
     input.signatures = input.signatures || []
   }
+  var signatureScript = input.redeemScript || input.prevOutScript
+  var signatureHash = this.tx.hashForSignature(index, signatureScript, hashType)
+
+  if (fixSignatureOrder) {
+    // store signatures locally
+    var signatures = input.signatures
+
+    // empty signatures so we can set them in the correct order
+    input.signatures = []
+
+    // loop over pubKeys to set their respective signature or leave it blank so it can be signed
+    input.pubKeys.forEach(function (pubKey, pubKeyIdx) {
+      signatures.forEach(function (signature, sigIdx) {
+        // check if the signature is not null / false / OP_0 and verify if it belongs to the pubKey
+        if (signature && pubKey.verify(signatureHash, signature)) {
+          // use .splice to remove the signature from the list, so we won't verify it again
+          input.signatures[pubKeyIdx] = signatures.splice(sigIdx, 1)[0]
+        }
+      })
+    })
+  }
 
   // enforce in order signing of public keys
   assert(input.pubKeys.some(function (pubKey, i) {
     if (!privKey.pub.Q.equals(pubKey.Q)) return false
 
     assert(!input.signatures[i], 'Signature already exists')
-    var signatureScript = input.redeemScript || input.prevOutScript
-    var signatureHash = this.tx.hashForSignature(index, signatureScript, hashType)
     var signature = privKey.sign(signatureHash)
     input.signatures[i] = signature
 
