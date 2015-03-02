@@ -6,7 +6,7 @@ var scripts = require('../src/scripts')
 
 var Address = require('../src/address')
 var BigInteger = require('bigi')
-var ECKey = require('../src/eckey')
+var ECPair = require('../src/ecpair')
 var Script = require('../src/script')
 var Transaction = require('../src/transaction')
 var TransactionBuilder = require('../src/transaction_builder')
@@ -33,14 +33,14 @@ function construct (txb, f, sign) {
   if (sign === undefined || sign) {
     f.inputs.forEach(function (input, index) {
       input.signs.forEach(function (sign) {
-        var privKey = ECKey.fromWIF(sign.privKey)
+        var keyPair = ECPair.fromWIF(sign.keyPair)
         var redeemScript
 
         if (sign.redeemScript) {
           redeemScript = Script.fromASM(sign.redeemScript)
         }
 
-        txb.sign(index, privKey, redeemScript, sign.hashType)
+        txb.sign(index, keyPair, redeemScript, sign.hashType)
       })
     })
   }
@@ -58,7 +58,7 @@ function construct (txb, f, sign) {
 describe('TransactionBuilder', function () {
   var privAddress, privScript
   var prevTx, prevTxHash
-  var privKey
+  var keyPair
   var txb
 
   beforeEach(function () {
@@ -69,8 +69,8 @@ describe('TransactionBuilder', function () {
     prevTx.addOutput(Address.fromBase58Check('1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP').toOutputScript(), 1)
     prevTxHash = prevTx.getHash()
 
-    privKey = new ECKey(BigInteger.ONE, false)
-    privAddress = privKey.pub.getAddress()
+    keyPair = new ECPair(BigInteger.ONE)
+    privAddress = keyPair.getAddress()
     privScript = privAddress.toOutputScript()
   })
 
@@ -115,7 +115,7 @@ describe('TransactionBuilder', function () {
 
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
       txb.addInput(prevTxHash, 0)
-      txb.sign(0, privKey)
+      txb.sign(0, keyPair)
 
       assert.throws(function () {
         txb.addInput(prevTxHash, 0)
@@ -154,7 +154,7 @@ describe('TransactionBuilder', function () {
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
       txb.addInput(prevTxHash, 0)
       txb.addOutput(privScript, 2000)
-      txb.sign(0, privKey)
+      txb.sign(0, keyPair)
 
       assert.throws(function () {
         txb.addOutput(privScript, 9000)
@@ -169,7 +169,7 @@ describe('TransactionBuilder', function () {
 
         f.inputs.forEach(function (input, index) {
           input.signs.forEach(function (sign) {
-            var privKey = ECKey.fromWIF(sign.privKey)
+            var keyPair = ECPair.fromWIF(sign.keyPair)
             var redeemScript
 
             if (sign.redeemScript) {
@@ -177,10 +177,11 @@ describe('TransactionBuilder', function () {
             }
 
             if (!sign.throws) {
-              txb.sign(index, privKey, redeemScript, sign.hashType)
+              txb.sign(index, keyPair, redeemScript, sign.hashType)
+
             } else {
               assert.throws(function () {
-                txb.sign(index, privKey, redeemScript, sign.hashType)
+                txb.sign(index, keyPair, redeemScript, sign.hashType)
               }, new RegExp(f.exception))
             }
           })
@@ -256,8 +257,8 @@ describe('TransactionBuilder', function () {
               txb = TransactionBuilder.fromTransaction(tx)
             }
 
-            var privKey = ECKey.fromWIF(sign.privKey)
-            txb.sign(i, privKey, redeemScript, sign.hashType)
+            var keyPair = ECPair.fromWIF(sign.keyPair)
+            txb.sign(i, keyPair, redeemScript, sign.hashType)
 
             // update the tx
             tx = txb.buildIncomplete()

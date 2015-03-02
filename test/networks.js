@@ -15,7 +15,7 @@ describe('networks', function () {
       var extb58 = f.bip32[name]
 
       it(extb58 + ' auto-detects ' + f.network, function () {
-        assert.equal(HDNode.fromBase58(extb58).network, network)
+        assert.equal(HDNode.fromBase58(extb58).keyPair.network, network)
       })
     })
   })
