@@ -19,18 +19,19 @@ describe('bitcoinjs-lib (multisig)', function () {
     assert.equal(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
   })
 
-  it('can spend from a 2-of-2 multsig P2SH address', function (done) {
+  it('can spend from a 2-of-3 multsig P2SH address', function (done) {
     this.timeout(20000)
 
     var privKeys = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
-      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT'
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT',
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe'
     ].map(bitcoin.ECKey.fromWIF)
     var pubKeys = privKeys.map(function (x) {
       return x.pub
     })
 
-    var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 2
+    var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
     var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
     var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
 
@@ -57,10 +58,9 @@ describe('bitcoinjs-lib (multisig)', function () {
         txb.addInput(unspent.txId, unspent.vout)
         txb.addOutput(targetAddress, 1e4)
 
-        // sign w/ each private key
-        privKeys.forEach(function (privKey) {
-          txb.sign(0, privKey, redeemScript)
-        })
+        // sign with 1st and 3rd key
+        txb.sign(0, privKeys[0], redeemScript)
+        txb.sign(0, privKeys[2], redeemScript)
 
         // broadcast our transaction
         blockchain.transactions.propagate(txb.build().toHex(), function (err) {
