@@ -1,9 +1,9 @@
 /* global describe, it, beforeEach */
 
 var assert = require('assert')
-
 var Address = require('../src/address')
 var BigInteger = require('bigi')
+var bitcoin = require('../src')
 var ECKey = require('../src/eckey')
 var Script = require('../src/script')
 var Transaction = require('../src/transaction')
@@ -222,6 +222,72 @@ describe('TransactionBuilder', function () {
     })
   })
 
+  describe('multisig', function () {
+    fixtures.valid.multisig.forEach(function (f) {
+      it(f.description, function () {
+        var signs = 0
+        f.inputs.forEach(function (input) {
+          txb.addInput(input.txId, input.vout)
+          signs = Math.max(signs, input.signs.length)
+        })
+        f.outputs.forEach(function (output) {
+          txb.addOutput(Script.fromASM(output.script), output.value)
+        })
+
+        f.inputs.forEach(function (input) {
+          var redeemScript = bitcoin.scripts.multisigOutput(input.n, input.pubKeys.map(bitcoin.ECPubKey.fromHex))
+          assert.equal(redeemScript.toASM(), input.redeemScript)
+        })
+
+        var tx
+        var forceFixMultisigSigOrder = false
+
+        for (var i = 0; i < signs; i++) {
+          if (tx) {
+            txb = TransactionBuilder.fromTransaction(tx)
+          }
+
+          f.inputs.forEach(function (input, index) {
+            var privKey = bitcoin.ECKey.fromWIF(input.signs[i].privKey)
+            var redeemScript = bitcoin.Script.fromASM(input.redeemScript)
+            txb.sign(index, privKey, redeemScript, null, forceFixMultisigSigOrder)
+          })
+
+          tx = txb.buildIncomplete()
+
+          f.inputs.forEach(function (input, index) {
+            assert(bitcoin.scripts.isCanonicalSignature(tx.ins[index].script.chunks[input.signs[i].pubKeyIndex + 1]))
+            assert(tx.ins[index].script.chunks.slice(1, -1).every(function (chunk) {
+              return chunk === bitcoin.opcodes.OP_0 || bitcoin.scripts.isCanonicalSignature(chunk)
+            }))
+          })
+
+          forceFixMultisigSigOrder = false
+
+          // manually mess up the signatures
+          f.inputs.forEach(function (input, index) {
+            // remove all OP_0s
+            if (input.signs[i].removeOp0s) {
+              tx.ins[index].script.chunks = tx.ins[index].script.chunks.filter(function (chunk) {
+                return chunk !== bitcoin.opcodes.OP_0
+              })
+
+              // we removed one OP_0 too many, gotta add it back
+              tx.ins[index].script.chunks.unshift(bitcoin.opcodes.OP_0)
+            }
+          })
+        }
+
+        assert.equal(tx.toHex(), f.txHexIncomplete, 'txHexIncomplete')
+
+        tx = txb.build()
+
+        assert.equal(tx.toHex(), f.txHexComplete, 'txHexComplete')
+
+      })
+    })
+  })
+
   describe('fromTransaction', function () {
     fixtures.valid.build.forEach(function (f) {
       it('builds the correct TransactionBuilder for ' + f.description, function () {
@@ -242,29 +308,5 @@ describe('TransactionBuilder', function () {
       })
     })
 
-    it('works for the out-of-order P2SH multisig case', function () {
-      var privKeys = [
-        '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT',
-        '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx'
-      ].map(ECKey.fromWIF)
-      var redeemScript = Script.fromASM('OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG')
-
-      txb.addInput('4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf', 0)
-      txb.addOutput('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH', 10000)
-      txb.sign(0, privKeys[0], redeemScript)
-
-      var tx = txb.buildIncomplete()
-
-      // in another galaxy...
-      // ... far, far away
-      var txb2 = TransactionBuilder.fromTransaction(tx)
-
-      // [you should] verify that Transaction is what you want...
-      // ... then sign it
-      txb2.sign(0, privKeys[1], redeemScript)
-      var tx2 = txb2.build()
-
-      assert.equal(tx2.toHex(), '0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd1c01004830450221009c92c1ae1767ac04e424da7f6db045d979b08cde86b1ddba48621d59a109d818022004f5bb21ad72255177270abaeb2d7940ac18f1e5ca1f53db4f3fd1045647a8a8014830450221009418caa5bc18da87b188a180125c0cf06dce6092f75b2d3c01a29493466800fd02206ead65e7ca6e0f17eefe6f78457c084eab59af7c9882be1437de2e7116358eb9014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0110270000000000001976a914751e76e8199196d454941c45d1b3a323f1433bd688ac00000000')
-    })
   })
 })
