@@ -113,7 +113,7 @@
         "scriptSig": "OP_0 304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801 3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501 OP_RESERVED"
       },
       {
-        "description": "signature forms invalid script",
+        "description": "redeemScript is a signature, therefore not a valid script",
         "scriptSig": "OP_0 3045022100e12b17b3a4c80c401a1687487bd2bafee9e5f1f8f1ffc6180ce186672ad7b43a02205e316d1e5e71822f5ef301b694e578fa9c94af4f5f098c952c833f4691307f4e01"
       }
     ],

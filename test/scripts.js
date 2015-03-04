@@ -86,7 +86,7 @@ describe('Scripts', function () {
 
       fixtures.invalid[inputFnName].forEach(function (f) {
         if (inputFn && f.scriptSig) {
-          it('returns false for ' + f.scriptSig, function () {
+          it('returns false for ' + f.description + ' (' + f.scriptSig + ')', function () {
             var script = Script.fromASM(f.scriptSig)
 
             assert.equal(inputFn(script), false)
@@ -112,7 +112,7 @@ describe('Scripts', function () {
 
       fixtures.invalid[outputFnName].forEach(function (f) {
         if (outputFn && f.scriptPubKey) {
-          it('returns false for ' + f.scriptPubKey, function () {
+          it('returns false for ' + f.description + ' (' + f.scriptPubKey + ')', function () {
             var script = Script.fromASM(f.scriptPubKey)
 
             assert.equal(outputFn(script), false)
