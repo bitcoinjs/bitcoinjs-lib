@@ -4,7 +4,7 @@ var crypto = require('./crypto')
 var typeForce = require('typeforce')
 var opcodes = require('./opcodes')
 
-function Script(buffer, chunks) {
+function Script (buffer, chunks) {
   typeForce('Buffer', buffer)
   typeForce('Array', chunks)
 
@@ -12,13 +12,14 @@ function Script(buffer, chunks) {
   this.chunks = chunks
 }
 
-Script.fromASM = function(asm) {
+Script.fromASM = function (asm) {
   var strChunks = asm.split(' ')
-
-  var chunks = strChunks.map(function(strChunk) {
+  var chunks = strChunks.map(function (strChunk) {
+    // opcode
     if (strChunk in opcodes) {
       return opcodes[strChunk]
 
+    // data chunk
     } else {
       return new Buffer(strChunk, 'hex')
     }
@@ -27,13 +28,14 @@ Script.fromASM = function(asm) {
   return Script.fromChunks(chunks)
 }
 
-Script.fromBuffer = function(buffer) {
+Script.fromBuffer = function (buffer) {
   var chunks = []
   var i = 0
 
   while (i < buffer.length) {
     var opcode = buffer.readUInt8(i)
 
+    // data chunk
     if ((opcode > opcodes.OP_0) && (opcode <= opcodes.OP_PUSHDATA4)) {
       var d = bufferutils.readPushDataInt(buffer, i)
       i += d.size
@@ -43,6 +45,7 @@ Script.fromBuffer = function(buffer) {
 
       chunks.push(data)
 
+    // opcode
     } else {
       chunks.push(opcode)
 
@@ -53,27 +56,31 @@ Script.fromBuffer = function(buffer) {
   return new Script(buffer, chunks)
 }
 
-Script.fromChunks = function(chunks) {
+Script.fromChunks = function (chunks) {
   typeForce('Array', chunks)
 
-  var bufferSize = chunks.reduce(function(accum, chunk) {
+  var bufferSize = chunks.reduce(function (accum, chunk) {
+    // data chunk
     if (Buffer.isBuffer(chunk)) {
       return accum + bufferutils.pushDataSize(chunk.length) + chunk.length
     }
 
+    // opcode
     return accum + 1
   }, 0.0)
 
   var buffer = new Buffer(bufferSize)
   var offset = 0
 
-  chunks.forEach(function(chunk) {
+  chunks.forEach(function (chunk) {
+    // data chunk
     if (Buffer.isBuffer(chunk)) {
       offset += bufferutils.writePushDataInt(buffer, chunk.length, offset)
 
       chunk.copy(buffer, offset)
       offset += chunk.length
 
+    // opcode
     } else {
       buffer.writeUInt8(chunk, offset)
       offset += 1
@@ -84,19 +91,19 @@ Script.fromChunks = function(chunks) {
   return new Script(buffer, chunks)
 }
 
-Script.fromHex = function(hex) {
+Script.fromHex = function (hex) {
   return Script.fromBuffer(new Buffer(hex, 'hex'))
 }
 
 Script.EMPTY = Script.fromChunks([])
 
-Script.prototype.getHash = function() {
+Script.prototype.getHash = function () {
   return crypto.hash160(this.buffer)
 }
 
 // FIXME: doesn't work for data chunks, maybe time to use buffertools.compare...
-Script.prototype.without = function(needle) {
-  return Script.fromChunks(this.chunks.filter(function(op) {
+Script.prototype.without = function (needle) {
+  return Script.fromChunks(this.chunks.filter(function (op) {
     return op !== needle
   }))
 }
@@ -107,22 +114,24 @@ for (var op in opcodes) {
   reverseOps[code] = op
 }
 
-Script.prototype.toASM = function() {
-  return this.chunks.map(function(chunk) {
+Script.prototype.toASM = function () {
+  return this.chunks.map(function (chunk) {
+    // data chunk
     if (Buffer.isBuffer(chunk)) {
       return chunk.toString('hex')
 
+    // opcode
     } else {
       return reverseOps[chunk]
     }
   }).join(' ')
 }
 
-Script.prototype.toBuffer = function() {
+Script.prototype.toBuffer = function () {
   return this.buffer
 }
 
-Script.prototype.toHex = function() {
+Script.prototype.toHex = function () {
   return this.toBuffer().toString('hex')
 }
 

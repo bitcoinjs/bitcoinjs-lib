@@ -9,37 +9,10 @@ var ZERO = new Buffer([0])
 var ONE = new Buffer([1])
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
-function deterministicGenerateK(curve, hash, d, checkSig) {
+function deterministicGenerateK (curve, hash, d, checkSig) {
   typeForce('Buffer', hash)
   typeForce('BigInteger', d)
-
-  // FIXME: remove/uncomment for 2.0.0
-//  typeForce('Function', checkSig)
-
-  if (typeof checkSig !== 'function') {
-    console.warn('deterministicGenerateK requires a checkSig callback in 2.0.0, see #337 for more information')
-
-    checkSig = function(k) {
-      var G = curve.G
-      var n = curve.n
-      var e = BigInteger.fromBuffer(hash)
-
-      var Q = G.multiply(k)
-
-      if (curve.isInfinity(Q))
-        return false
-
-      var r = Q.affineX.mod(n)
-      if (r.signum() === 0)
-        return false
-
-      var s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
-      if (s.signum() === 0)
-        return false
-
-      return true
-    }
-  }
+  typeForce('Function', checkSig)
 
   // sanity check
   assert.equal(hash.length, 32, 'Hash must be 256 bit')
@@ -101,14 +74,14 @@ function deterministicGenerateK(curve, hash, d, checkSig) {
   return T
 }
 
-function sign(curve, hash, d) {
+function sign (curve, hash, d) {
   var r, s
 
   var e = BigInteger.fromBuffer(hash)
   var n = curve.n
   var G = curve.G
 
-  deterministicGenerateK(curve, hash, d, function(k) {
+  deterministicGenerateK(curve, hash, d, function (k) {
     var Q = G.multiply(k)
 
     if (curve.isInfinity(Q))
@@ -135,7 +108,7 @@ function sign(curve, hash, d) {
   return new ECSignature(r, s)
 }
 
-function verifyRaw(curve, e, signature, Q) {
+function verifyRaw (curve, e, signature, Q) {
   var n = curve.n
   var G = curve.G
 
@@ -165,7 +138,7 @@ function verifyRaw(curve, e, signature, Q) {
   return v.equals(r)
 }
 
-function verify(curve, hash, signature, Q) {
+function verify (curve, hash, signature, Q) {
   // 1.4.2 H = Hash(M), already done by the user
   // 1.4.3 e = H
   var e = BigInteger.fromBuffer(hash)
@@ -181,7 +154,7 @@ function verify(curve, hash, signature, Q) {
   *
   * http://www.secg.org/download/aid-780/sec1-v2.pdf
   */
-function recoverPubKey(curve, e, signature, i) {
+function recoverPubKey (curve, e, signature, i) {
   assert.strictEqual(i & 3, i, 'Recovery param is more than two bits')
 
   var n = curve.n
@@ -232,7 +205,7 @@ function recoverPubKey(curve, e, signature, i) {
   * This function simply tries all four cases and returns the value
   * that resulted in a successful pubkey recovery.
   */
-function calcPubKeyRecoveryParam(curve, e, signature, Q) {
+function calcPubKeyRecoveryParam (curve, e, signature, Q) {
   for (var i = 0; i < 4; i++) {
     var Qprime = recoverPubKey(curve, e, signature, i)
 

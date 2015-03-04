@@ -4,7 +4,7 @@ var typeForce = require('typeforce')
 var networks = require('./networks')
 var scripts = require('./scripts')
 
-function findScriptTypeByVersion(version) {
+function findScriptTypeByVersion (version) {
   for (var networkName in networks) {
     var network = networks[networkName]
 
@@ -13,7 +13,7 @@ function findScriptTypeByVersion(version) {
   }
 }
 
-function Address(hash, version) {
+function Address (hash, version) {
   typeForce('Buffer', hash)
 
   assert.strictEqual(hash.length, 20, 'Invalid hash length')
@@ -23,7 +23,7 @@ function Address(hash, version) {
   this.version = version
 }
 
-Address.fromBase58Check = function(string) {
+Address.fromBase58Check = function (string) {
   var payload = base58check.decode(string)
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
@@ -31,7 +31,7 @@ Address.fromBase58Check = function(string) {
   return new Address(hash, version)
 }
 
-Address.fromOutputScript = function(script, network) {
+Address.fromOutputScript = function (script, network) {
   network = network || networks.bitcoin
 
   if (scripts.isPubKeyHashOutput(script)) return new Address(script.chunks[2], network.pubKeyHash)
@@ -48,7 +48,7 @@ Address.prototype.toBase58Check = function () {
   return base58check.encode(payload)
 }
 
-Address.prototype.toOutputScript = function() {
+Address.prototype.toOutputScript = function () {
   var scriptType = findScriptTypeByVersion(this.version)
 
   if (scriptType === 'pubkeyhash') return scripts.pubKeyHashOutput(this.hash)

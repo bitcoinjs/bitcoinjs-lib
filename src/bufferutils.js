@@ -2,21 +2,21 @@ var assert = require('assert')
 var opcodes = require('./opcodes')
 
 // https://github.com/feross/buffer/blob/master/index.js#L1127
-function verifuint(value, max) {
+function verifuint (value, max) {
   assert(typeof value === 'number', 'cannot write a non-number as a number')
   assert(value >= 0, 'specified a negative value for writing an unsigned value')
   assert(value <= max, 'value is larger than maximum value for type')
   assert(Math.floor(value) === value, 'value has a fractional component')
 }
 
-function pushDataSize(i) {
+function pushDataSize (i) {
   return i < opcodes.OP_PUSHDATA1 ? 1
-    : i < 0xff        ? 2
-    : i < 0xffff      ? 3
-    :                   5
+  : i < 0xff ? 2
+  : i < 0xffff ? 3
+  : 5
 }
 
-function readPushDataInt(buffer, offset) {
+function readPushDataInt (buffer, offset) {
   var opcode = buffer.readUInt8(offset)
   var number, size
 
@@ -41,7 +41,6 @@ function readPushDataInt(buffer, offset) {
 
     number = buffer.readUInt32LE(offset + 1)
     size = 5
-
   }
 
   return {
@@ -51,7 +50,7 @@ function readPushDataInt(buffer, offset) {
   }
 }
 
-function readUInt64LE(buffer, offset) {
+function readUInt64LE (buffer, offset) {
   var a = buffer.readUInt32LE(offset)
   var b = buffer.readUInt32LE(offset + 4)
   b *= 0x100000000
@@ -61,7 +60,7 @@ function readUInt64LE(buffer, offset) {
   return b + a
 }
 
-function readVarInt(buffer, offset) {
+function readVarInt (buffer, offset) {
   var t = buffer.readUInt8(offset)
   var number, size
 
@@ -92,7 +91,7 @@ function readVarInt(buffer, offset) {
   }
 }
 
-function writePushDataInt(buffer, number, offset) {
+function writePushDataInt (buffer, number, offset) {
   var size = pushDataSize(number)
 
   // ~6 bit
@@ -113,27 +112,26 @@ function writePushDataInt(buffer, number, offset) {
   } else {
     buffer.writeUInt8(opcodes.OP_PUSHDATA4, offset)
     buffer.writeUInt32LE(number, offset + 1)
-
   }
 
   return size
 }
 
-function writeUInt64LE(buffer, value, offset) {
+function writeUInt64LE (buffer, value, offset) {
   verifuint(value, 0x001fffffffffffff)
 
   buffer.writeInt32LE(value & -1, offset)
   buffer.writeUInt32LE(Math.floor(value / 0x100000000), offset + 4)
 }
 
-function varIntSize(i) {
-  return i < 253      ? 1
-    : i < 0x10000     ? 3
-    : i < 0x100000000 ? 5
-    :                   9
+function varIntSize (i) {
+  return i < 253 ? 1
+  : i < 0x10000 ? 3
+  : i < 0x100000000 ? 5
+  : 9
 }
 
-function writeVarInt(buffer, number, offset) {
+function writeVarInt (buffer, number, offset) {
   var size = varIntSize(number)
 
   // 8 bit
@@ -159,7 +157,7 @@ function writeVarInt(buffer, number, offset) {
   return size
 }
 
-function varIntBuffer(i) {
+function varIntBuffer (i) {
   var size = varIntSize(i)
   var buffer = new Buffer(size)
   writeVarInt(buffer, i, 0)
@@ -167,13 +165,24 @@ function varIntBuffer(i) {
   return buffer
 }
 
-function reverse(buffer) {
+function equal (a, b) {
+  if (a.length !== b.length) return false
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false
+  }
+
+  return true
+}
+
+function reverse (buffer) {
   var buffer2 = new Buffer(buffer)
   Array.prototype.reverse.call(buffer2)
   return buffer2
 }
 
 module.exports = {
+  equal: equal,
   pushDataSize: pushDataSize,
   readPushDataInt: readPushDataInt,
   readUInt64LE: readUInt64LE,

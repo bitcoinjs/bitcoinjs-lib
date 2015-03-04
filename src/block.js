@@ -3,9 +3,8 @@ var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 
 var Transaction = require('./transaction')
-var Script = require('./script')
 
-function Block() {
+function Block () {
   this.version = 1
   this.prevHash = null
   this.merkleRoot = null
@@ -14,16 +13,16 @@ function Block() {
   this.nonce = 0
 }
 
-Block.fromBuffer = function(buffer) {
+Block.fromBuffer = function (buffer) {
   assert(buffer.length >= 80, 'Buffer too small (< 80 bytes)')
 
   var offset = 0
-  function readSlice(n) {
+  function readSlice (n) {
     offset += n
     return buffer.slice(offset - n, offset)
   }
 
-  function readUInt32() {
+  function readUInt32 () {
     var i = buffer.readUInt32LE(offset)
     offset += 4
     return i
@@ -39,14 +38,14 @@ Block.fromBuffer = function(buffer) {
 
   if (buffer.length === 80) return block
 
-  function readVarInt() {
+  function readVarInt () {
     var vi = bufferutils.readVarInt(buffer, offset)
     offset += vi.size
     return vi.number
   }
 
   // FIXME: poor performance
-  function readTransaction() {
+  function readTransaction () {
     var tx = Transaction.fromBuffer(buffer.slice(offset), true)
 
     offset += tx.toBuffer().length
@@ -64,35 +63,35 @@ Block.fromBuffer = function(buffer) {
   return block
 }
 
-Block.fromHex = function(hex) {
+Block.fromHex = function (hex) {
   return Block.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-Block.prototype.getHash = function() {
+Block.prototype.getHash = function () {
   return crypto.hash256(this.toBuffer(true))
 }
 
-Block.prototype.getId = function() {
+Block.prototype.getId = function () {
   return bufferutils.reverse(this.getHash()).toString('hex')
 }
 
-Block.prototype.getUTCDate = function() {
+Block.prototype.getUTCDate = function () {
   var date = new Date(0) // epoch
   date.setUTCSeconds(this.timestamp)
 
   return date
 }
 
-Block.prototype.toBuffer = function(headersOnly) {
+Block.prototype.toBuffer = function (headersOnly) {
   var buffer = new Buffer(80)
 
   var offset = 0
-  function writeSlice(slice) {
+  function writeSlice (slice) {
     slice.copy(buffer, offset)
     offset += slice.length
   }
 
-  function writeUInt32(i) {
+  function writeUInt32 (i) {
     buffer.writeUInt32LE(i, offset)
     offset += 4
   }
@@ -107,14 +106,14 @@ Block.prototype.toBuffer = function(headersOnly) {
   if (headersOnly || !this.transactions) return buffer
 
   var txLenBuffer = bufferutils.varIntBuffer(this.transactions.length)
-  var txBuffers = this.transactions.map(function(tx) {
+  var txBuffers = this.transactions.map(function (tx) {
     return tx.toBuffer()
   })
 
   return Buffer.concat([buffer, txLenBuffer].concat(txBuffers))
 }
 
-Block.prototype.toHex = function(headersOnly) {
+Block.prototype.toHex = function (headersOnly) {
   return this.toBuffer(headersOnly).toString('hex')
 }
 

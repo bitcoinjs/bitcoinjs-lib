@@ -127,16 +127,16 @@ var networks = {
   }
 }
 
-function estimateFee(type) {
-  return function(tx) {
+function estimateFee (type) {
+  return function (tx) {
     var network = networks[type]
     var baseFee = network.feePerKb
     var byteSize = tx.toBuffer().length
 
     var fee = baseFee * Math.ceil(byteSize / 1000)
-    if (network.dustSoftThreshold == undefined) return fee
+    if (network.dustSoftThreshold === undefined) return fee
 
-    tx.outs.forEach(function(e){
+    tx.outs.forEach(function (e) {
       if (e.value < network.dustSoftThreshold) {
         fee += baseFee
       }
