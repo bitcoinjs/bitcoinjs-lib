@@ -3,6 +3,7 @@ var base58check = require('bs58check')
 var typeForce = require('typeforce')
 var networks = require('./networks')
 var scripts = require('./scripts')
+var crypto = require('./crypto')
 
 function findScriptTypeByVersion (version) {
   for (var networkName in networks) {
@@ -36,6 +37,7 @@ Address.fromOutputScript = function (script, network) {
 
   if (scripts.isPubKeyHashOutput(script)) return new Address(script.chunks[2], network.pubKeyHash)
   if (scripts.isScriptHashOutput(script)) return new Address(script.chunks[1], network.scriptHash)
+  if (scripts.isPubKeyOutput(script)) return new Address(crypto.hash160(script.chunks[0]), network.pubKeyHash)
 
   assert(false, script.toASM() + ' has no matching Address')
 }
