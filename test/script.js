@@ -44,7 +44,7 @@ describe('Script', function () {
 
   describe('getHash', function () {
     fixtures.valid.forEach(function (f) {
-      it('produces a HASH160 of "' + f.asm + '"', function () {
+      it('produces a HASH160 of ' + f.description, function () {
         var script = Script.fromHex(f.hex)
 
         assert.equal(script.getHash().toString('hex'), f.hash)

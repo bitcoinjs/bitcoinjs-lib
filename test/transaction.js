@@ -21,7 +21,8 @@ describe('Transaction', function () {
       var script
 
       if (txIn.data) {
-        script = new Script(new Buffer(txIn.data, 'hex'), [])
+        var data = new Buffer(txIn.data, 'hex')
+        script = new Script(data, [])
       } else if (txIn.script) {
         script = Script.fromASM(txIn.script)
       }
@@ -30,7 +31,16 @@ describe('Transaction', function () {
     })
 
     raw.outs.forEach(function (txOut) {
-      tx.addOutput(Script.fromASM(txOut.script), txOut.value)
+      var script
+
+      if (txOut.data) {
+        var data = new Buffer(txOut.data, 'hex')
+        script = new Script(data, [])
+      } else if (txOut.script) {
+        script = Script.fromASM(txOut.script)
+      }
+
+      tx.addOutput(script, txOut.value)
     })
 
     return tx
@@ -38,10 +48,10 @@ describe('Transaction', function () {
 
   describe('fromBuffer/fromHex', function () {
     fixtures.valid.forEach(function (f) {
-      it('imports ' + f.id + ' correctly', function () {
+      it('imports ' + f.description + ' (' + f.id + ')', function () {
         var actual = Transaction.fromHex(f.hex)
 
-        assert.deepEqual(actual.toHex(), f.hex)
+        assert.equal(actual.toHex(), f.hex, actual.toHex())
       })
     })
 
@@ -56,10 +66,10 @@ describe('Transaction', function () {
 
   describe('toBuffer/toHex', function () {
     fixtures.valid.forEach(function (f) {
-      it('exports ' + f.id + ' correctly', function () {
+      it('exports ' + f.description + ' (' + f.id + ')', function () {
         var actual = fromRaw(f.raw)
 
-        assert.deepEqual(actual.toHex(), f.hex)
+        assert.equal(actual.toHex(), f.hex, actual.toHex())
       })
     })
   })
@@ -164,8 +174,8 @@ describe('Transaction', function () {
 
     it('returns an index', function () {
       var tx = new Transaction()
-      assert.equal(tx.addOutput(destScript, 40000), 0)
-      assert.equal(tx.addOutput(destScript, 40000), 1)
+      assert.equal(tx.addOutput(Script.EMPTY, 0), 0)
+      assert.equal(tx.addOutput(Script.EMPTY, 0), 1)
     })
   })
 
