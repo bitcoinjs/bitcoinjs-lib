@@ -38,8 +38,11 @@ Script.fromBuffer = function (buffer) {
     // data chunk
     if ((opcode > opcodes.OP_0) && (opcode <= opcodes.OP_PUSHDATA4)) {
       var d = bufferutils.readPushDataInt(buffer, i)
-      i += d.size
 
+      // did reading a pushDataInt fail? return non-chunked script
+      if (d === null) return new Script(buffer, [])
+
+      i += d.size
       var data = buffer.slice(i, i + d.number)
       i += d.number
 
