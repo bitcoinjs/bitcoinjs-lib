@@ -73,15 +73,12 @@ function isScriptHashInput (script, allowIncomplete) {
   if (!Buffer.isBuffer(lastChunk)) return false
 
   var scriptSig = Script.fromChunks(script.chunks.slice(0, -1))
-  var scriptPubKey
+  var redeemScript = Script.fromBuffer(lastChunk)
 
-  try {
-    scriptPubKey = Script.fromBuffer(lastChunk)
-  } catch (e) {
-    return false
-  }
+  // is redeemScript a valid script?
+  if (redeemScript.chunks.length === 0) return false
 
-  return classifyInput(scriptSig, allowIncomplete) === classifyOutput(scriptPubKey)
+  return classifyInput(scriptSig, allowIncomplete) === classifyOutput(redeemScript)
 }
 
 function isScriptHashOutput (script) {
