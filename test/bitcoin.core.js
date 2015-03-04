@@ -5,16 +5,19 @@ var base58 = require('bs58')
 
 var Bitcoin = require('../')
 var Address = Bitcoin.Address
-var base58check = Bitcoin.base58check
-var networks = Bitcoin.networks
+var Block = Bitcoin.Block
 var ECKey = Bitcoin.ECKey
 var ECSignature = Bitcoin.ECSignature
 var Transaction = Bitcoin.Transaction
 var Script = Bitcoin.Script
 
+var base58check = Bitcoin.base58check
+var networks = Bitcoin.networks
+
 var base58_encode_decode = require('./fixtures/core/base58_encode_decode.json')
 var base58_keys_invalid = require('./fixtures/core/base58_keys_invalid.json')
 var base58_keys_valid = require('./fixtures/core/base58_keys_valid.json')
+var blocks_valid = require('./fixtures/core/blocks.json')
 var sig_canonical = require('./fixtures/core/sig_canonical.json')
 var sig_noncanonical = require('./fixtures/core/sig_noncanonical.json')
 var sighash = require('./fixtures/core/sighash.json')
@@ -130,6 +133,17 @@ describe('Bitcoin-core', function () {
 
           assert.notEqual(allowedNetworks.indexOf(version), -1, 'Invalid network')
         }, /Invalid (checksum|compression flag|network|WIF payload)/)
+      })
+    })
+  })
+
+  describe('Block', function () {
+    blocks_valid.forEach(function (f) {
+      it('fromHex can parse ' + f.id, function () {
+        var block = Block.fromHex(f.hex)
+
+        assert.equal(block.getId(), f.id)
+        assert.equal(block.transactions.length, f.transactions)
       })
     })
   })
