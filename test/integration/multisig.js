@@ -19,19 +19,20 @@ describe('bitcoinjs-lib (multisig)', function () {
     assert.equal(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
   })
 
-  it('can spend from a 2-of-3 multsig P2SH address', function (done) {
+  it('can spend from a 2-of-4 multsig P2SH address', function (done) {
     this.timeout(20000)
 
     var privKeys = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT',
-      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe'
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe',
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx9rcrL7'
     ].map(bitcoin.ECKey.fromWIF)
     var pubKeys = privKeys.map(function (x) {
       return x.pub
     })
 
-    var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
+    var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 4
     var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
     var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
 
