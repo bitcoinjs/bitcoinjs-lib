@@ -79,7 +79,7 @@ describe('Address', function () {
         var addr = Address.fromBase58Check(f.base58check)
         var script = addr.toOutputScript()
 
-        assert.equal(script.toASM(), f.script)
+        assert.equal(script.toASM(), f.toScript)
       })
     })
 
