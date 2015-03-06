@@ -73,15 +73,12 @@ function isScriptHashInput (script, allowIncomplete) {
   if (!Buffer.isBuffer(lastChunk)) return false
 
   var scriptSig = Script.fromChunks(script.chunks.slice(0, -1))
-  var scriptPubKey
+  var redeemScript = Script.fromBuffer(lastChunk)
 
-  try {
-    scriptPubKey = Script.fromBuffer(lastChunk)
-  } catch (e) {
-    return false
-  }
+  // is redeemScript a valid script?
+  if (redeemScript.chunks.length === 0) return false
 
-  return classifyInput(scriptSig, allowIncomplete) === classifyOutput(scriptPubKey)
+  return classifyInput(scriptSig, allowIncomplete) === classifyOutput(redeemScript)
 }
 
 function isScriptHashOutput (script) {
@@ -253,13 +250,8 @@ function multisigInput (signatures, scriptPubKey) {
     var m = mOp - (ops.OP_1 - 1)
     var n = nOp - (ops.OP_1 - 1)
 
-    var count = 0
-    signatures.forEach(function (signature) {
-      count += (signature !== ops.OP_0)
-    })
-
-    assert(count >= m, 'Not enough signatures provided')
-    assert(count <= n, 'Too many signatures provided')
+    assert(signatures.length >= m, 'Not enough signatures provided')
+    assert(signatures.length <= n, 'Too many signatures provided')
   }
 
   return Script.fromChunks([].concat(ops.OP_0, signatures))

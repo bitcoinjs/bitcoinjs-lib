@@ -18,7 +18,8 @@ describe('Transaction', function () {
       var script
 
       if (txIn.data) {
-        script = new Script(new Buffer(txIn.data, 'hex'), [])
+        var data = new Buffer(txIn.data, 'hex')
+        script = new Script(data, [])
       } else if (txIn.script) {
         script = Script.fromASM(txIn.script)
       }
@@ -27,7 +28,16 @@ describe('Transaction', function () {
     })
 
     raw.outs.forEach(function (txOut) {
-      tx.addOutput(Script.fromASM(txOut.script), txOut.value)
+      var script
+
+      if (txOut.data) {
+        var data = new Buffer(txOut.data, 'hex')
+        script = new Script(data, [])
+      } else if (txOut.script) {
+        script = Script.fromASM(txOut.script)
+      }
+
+      tx.addOutput(script, txOut.value)
     })
 
     return tx
@@ -35,10 +45,10 @@ describe('Transaction', function () {
 
   describe('fromBuffer/fromHex', function () {
     fixtures.valid.forEach(function (f) {
-      it('imports ' + f.id + ' correctly', function () {
+      it('imports ' + f.description + ' (' + f.id + ')', function () {
         var actual = Transaction.fromHex(f.hex)
 
-        assert.deepEqual(actual.toHex(), f.hex)
+        assert.equal(actual.toHex(), f.hex, actual.toHex())
       })
     })
 
@@ -53,10 +63,10 @@ describe('Transaction', function () {
 
   describe('toBuffer/toHex', function () {
     fixtures.valid.forEach(function (f) {
-      it('exports ' + f.id + ' correctly', function () {
+      it('exports ' + f.description + ' (' + f.id + ')', function () {
         var actual = fromRaw(f.raw)
 
-        assert.deepEqual(actual.toHex(), f.hex)
+        assert.equal(actual.toHex(), f.hex, actual.toHex())
       })
     })
   })
@@ -108,19 +118,10 @@ describe('Transaction', function () {
   })
 
   describe('addOutput', function () {
-    fixtures.valid.forEach(function (f) {
-      it('should add the outputs for ' + f.id + ' correctly', function () {
-        var tx = new Transaction()
-
-        f.raw.outs.forEach(function (txOut, i) {
-          var scriptPubKey = Script.fromASM(txOut.script)
-          var j = tx.addOutput(scriptPubKey, txOut.value)
-
-          assert.equal(i, j)
-          assert.equal(tx.outs[i].script, scriptPubKey)
-          assert.equal(tx.outs[i].value, txOut.value)
-        })
-      })
+    it('returns an index', function () {
+      var tx = new Transaction()
+      assert.equal(tx.addOutput(Script.EMPTY, 0), 0)
+      assert.equal(tx.addOutput(Script.EMPTY, 0), 1)
     })
   })
 
@@ -158,7 +159,7 @@ describe('Transaction', function () {
       it('should return the hash for ' + f.id, function () {
         var tx = Transaction.fromHex(f.hex)
 
-        assert.deepEqual(tx.getHash().toString('hex'), f.hash)
+        assert.equal(tx.getHash().toString('hex'), f.hash)
       })
     })
   })

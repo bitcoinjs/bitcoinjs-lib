@@ -32,6 +32,17 @@ describe('bufferutils', function () {
         assert.equal(d.size, buffer.length)
       })
     })
+
+    fixtures.invalid.readPushDataInt.forEach(function (f) {
+      if (!f.hexPD) return
+
+      it('decodes ' + f.hexPD + ' as null', function () {
+        var buffer = new Buffer(f.hexPD, 'hex')
+
+        var n = bufferutils.readPushDataInt(buffer, 0)
+        assert.equal(n, null)
+      })
+    })
   })
 
   describe('readUInt64LE', function () {
@@ -44,7 +55,7 @@ describe('bufferutils', function () {
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.readUInt64LE.forEach(function (f) {
       it('throws on ' + f.description, function () {
         var buffer = new Buffer(f.hex64, 'hex')
 
@@ -66,7 +77,7 @@ describe('bufferutils', function () {
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.readUInt64LE.forEach(function (f) {
       it('throws on ' + f.description, function () {
         var buffer = new Buffer(f.hexVI, 'hex')
 
@@ -151,7 +162,7 @@ describe('bufferutils', function () {
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.readUInt64LE.forEach(function (f) {
       it('throws on ' + f.description, function () {
         var buffer = new Buffer(8)
         buffer.fill(0)
@@ -174,7 +185,7 @@ describe('bufferutils', function () {
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.readUInt64LE.forEach(function (f) {
       it('throws on ' + f.description, function () {
         var buffer = new Buffer(9)
         buffer.fill(0)
