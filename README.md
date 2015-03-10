@@ -101,6 +101,7 @@ The below examples are implemented as integration tests, they should be very eas
 
 - [BitAddress](https://www.bitaddress.org)
 - [Blockchain.info](https://blockchain.info/wallet)
+- [Blocktrail](https://www.blocktrail.com/)
 - [Brainwallet](https://brainwallet.github.io)
 - [Coinkite](https://coinkite.com)
 - [Coinpunk](https://coinpunk.com)
