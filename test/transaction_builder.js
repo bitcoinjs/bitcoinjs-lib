@@ -230,6 +230,7 @@ describe('TransactionBuilder', function () {
           txb.addInput(input.txId, input.vout)
           signs = Math.max(signs, input.signs.length)
         })
+
         f.outputs.forEach(function (output) {
           txb.addOutput(Script.fromASM(output.script), output.value)
         })
@@ -240,7 +241,6 @@ describe('TransactionBuilder', function () {
         })
 
         var tx
-        var forceFixMultisigSigOrder = false
 
         for (var i = 0; i < signs; i++) {
           if (tx) {
@@ -250,7 +250,7 @@ describe('TransactionBuilder', function () {
           f.inputs.forEach(function (input, index) {
             var privKey = bitcoin.ECKey.fromWIF(input.signs[i].privKey)
             var redeemScript = bitcoin.Script.fromASM(input.redeemScript)
-            txb.sign(index, privKey, redeemScript, null, forceFixMultisigSigOrder)
+            txb.sign(index, privKey, redeemScript)
           })
 
           tx = txb.buildIncomplete()
@@ -261,8 +261,6 @@ describe('TransactionBuilder', function () {
               return chunk === bitcoin.opcodes.OP_0 || bitcoin.scripts.isCanonicalSignature(chunk)
             }))
           })
-
-          forceFixMultisigSigOrder = false
 
           // manually mess up the signatures
           f.inputs.forEach(function (input, index) {
@@ -281,9 +279,7 @@ describe('TransactionBuilder', function () {
         assert.equal(tx.toHex(), f.txHexIncomplete, 'txHexIncomplete')
 
         tx = txb.build()
-
         assert.equal(tx.toHex(), f.txHexComplete, 'txHexComplete')
-
       })
     })
   })
