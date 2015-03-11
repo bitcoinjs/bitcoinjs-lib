@@ -1,9 +1,11 @@
 /* global describe, it, beforeEach */
 
 var assert = require('assert')
+var ops = require('../src/opcodes')
+var scripts = require('../src/scripts')
+
 var Address = require('../src/address')
 var BigInteger = require('bigi')
-var bitcoin = require('../src')
 var ECKey = require('../src/eckey')
 var Script = require('../src/script')
 var Transaction = require('../src/transaction')
@@ -225,51 +227,44 @@ describe('TransactionBuilder', function () {
   describe('multisig', function () {
     fixtures.valid.multisig.forEach(function (f) {
       it(f.description, function () {
-        var signs = 0
-        f.inputs.forEach(function (input) {
-          txb.addInput(input.txId, input.vout)
-          signs = Math.max(signs, input.signs.length)
-        })
-
-        f.outputs.forEach(function (output) {
-          txb.addOutput(Script.fromASM(output.script), output.value)
-        })
+        construct(txb, f, false)
 
         var tx
 
-        for (var i = 0; i < signs; i++) {
-          if (tx) {
-            txb = TransactionBuilder.fromTransaction(tx)
-          }
+        f.inputs.forEach(function (input, i) {
+          var redeemScript = Script.fromASM(input.redeemScript)
 
-          f.inputs.forEach(function (input, index) {
-            var privKey = bitcoin.ECKey.fromWIF(input.signs[i].privKey)
-            var redeemScript = bitcoin.Script.fromASM(input.redeemScript)
-            txb.sign(index, privKey, redeemScript)
-          })
+          input.signs.forEach(function (sign) {
+            // rebuild the transaction each-time after the first
+            if (tx) {
+              // do we filter OP_0's beforehand?
+              if (sign.filterOP_0) {
+                var scriptSig = tx.ins[i].script
 
-          tx = txb.buildIncomplete()
+                // ignore OP_0 on the front, ignore redeemScript
+                var signatures = scriptSig.chunks.slice(1, -1).filter(function(x) { return x !== ops.OP_0 })
 
-          f.inputs.forEach(function (input, index) {
-            assert(bitcoin.scripts.isCanonicalSignature(tx.ins[index].script.chunks[input.signs[i].pubKeyIndex + 1]))
-            assert(tx.ins[index].script.chunks.slice(1, -1).every(function (chunk) {
-              return chunk === bitcoin.opcodes.OP_0 || bitcoin.scripts.isCanonicalSignature(chunk)
-            }))
-          })
+                // rebuild/replace the scriptSig without them
+                var replacement = scripts.scriptHashInput(scripts.multisigInput(signatures), redeemScript)
+                tx.ins[i].script = replacement
+              }
 
-          // manually mess up the signatures
-          f.inputs.forEach(function (input, index) {
-            // remove all OP_0s
-            if (input.signs[i].removeOp0s) {
-              tx.ins[index].script.chunks = tx.ins[index].script.chunks.filter(function (chunk) {
-                return chunk !== bitcoin.opcodes.OP_0
-              })
+              // now import it
+              txb = TransactionBuilder.fromTransaction(tx)
+            }
 
-              // we removed one OP_0 too many, gotta add it back
-              tx.ins[index].script.chunks.unshift(bitcoin.opcodes.OP_0)
+            var privKey = ECKey.fromWIF(sign.privKey)
+            txb.sign(i, privKey, redeemScript, sign.hashType)
+
+            // update the tx
+            tx = txb.buildIncomplete()
+
+            // now verify the serialized transaction is as expected
+            if (sign.txHexIncomplete) {
+              assert.equal(txb.buildIncomplete(), sign.txHexIncomplete)
             }
           })
-        }
+        })
 
         assert.equal(tx.toHex(), f.txHexIncomplete, 'txHexIncomplete')
 
