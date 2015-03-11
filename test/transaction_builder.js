@@ -209,11 +209,6 @@ describe('TransactionBuilder', function () {
           txb.addOutput(Script.fromASM(output.script), output.value)
         })
 
-        f.inputs.forEach(function (input) {
-          var redeemScript = bitcoin.scripts.multisigOutput(input.n, input.pubKeys.map(bitcoin.ECPubKey.fromHex))
-          assert.equal(redeemScript.toASM(), input.redeemScript)
-        })
-
         var tx
 
         for (var i = 0; i < signs; i++) {
@@ -277,6 +272,5 @@ describe('TransactionBuilder', function () {
         }, new RegExp(f.exception))
       })
     })
-
   })
 })
