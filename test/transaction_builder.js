@@ -242,7 +242,7 @@ describe('TransactionBuilder', function () {
                 var scriptSig = tx.ins[i].script
 
                 // ignore OP_0 on the front, ignore redeemScript
-                var signatures = scriptSig.chunks.slice(1, -1).filter(function(x) { return x !== ops.OP_0 })
+                var signatures = scriptSig.chunks.slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
 
                 // rebuild/replace the scriptSig without them
                 var replacement = scripts.scriptHashInput(scripts.multisigInput(signatures), redeemScript)
