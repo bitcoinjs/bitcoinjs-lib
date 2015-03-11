@@ -442,10 +442,10 @@
             "signs": [
               {
                 "pubKeyIndex": 2,
-                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
-                "removeOp0s": true
+                "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe"
               },
               {
+                "filterOP_0": true,
                 "pubKeyIndex": 0,
                 "privKey": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
               }
