@@ -246,6 +246,9 @@ describe('TransactionBuilder', function () {
 
                 // rebuild/replace the scriptSig without them
                 var replacement = scripts.scriptHashInput(scripts.multisigInput(signatures), redeemScript)
+                assert.equal(replacement.toASM(), sign.scriptSigFiltered)
+                sign.scriptSigFiltered = replacement.toASM()
+
                 tx.ins[i].script = replacement
               }
 
@@ -259,17 +262,13 @@ describe('TransactionBuilder', function () {
             // update the tx
             tx = txb.buildIncomplete()
 
-            // now verify the serialized transaction is as expected
-            if (sign.txHexIncomplete) {
-              assert.equal(txb.buildIncomplete(), sign.txHexIncomplete)
-            }
+            // now verify the serialized scriptSig is as expected
+            assert.equal(tx.ins[i].script.toASM(), sign.scriptSig)
           })
         })
 
-        assert.equal(tx.toHex(), f.txHexIncomplete, 'txHexIncomplete')
-
         tx = txb.build()
-        assert.equal(tx.toHex(), f.txHexComplete, 'txHexComplete')
+        assert.equal(tx.toHex(), f.txHex)
       })
     })
   })
