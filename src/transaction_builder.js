@@ -369,13 +369,19 @@ TransactionBuilder.prototype.sign = function (index, privKey, redeemScript, hash
 
   // enforce signature order matches public keys
   if (input.scriptType === 'multisig' && input.redeemScript && input.signatures.length !== input.pubKeys.length) {
+    // maintain a local copy of unmatched signatures
+    var unmatched = input.signatures.slice()
+
     input.signatures = input.pubKeys.map(function (pubKey) {
       var match
 
       // check for any matching signatures
-      input.signatures.some(function (signature) {
+      unmatched.some(function (signature, i) {
         if (!pubKey.verify(signatureHash, signature)) return false
         match = signature
+
+        // remove matched signature from unmatched
+        unmatched.splice(i, 1)
 
         return true
       })
