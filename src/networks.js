@@ -3,7 +3,8 @@
 
 var networks = {
   bitcoin: {
-    magicPrefix: '\x18Bitcoin Signed Message:\n',
+    magic: 0xd9b4bef9,
+    messagePrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4
@@ -16,7 +17,8 @@ var networks = {
     estimateFee: estimateFee('bitcoin')
   },
   testnet: {
-    magicPrefix: '\x18Bitcoin Signed Message:\n',
+    magic: 0xd9b4bef9,
+    messagePrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
       public: 0x043587cf,
       private: 0x04358394
@@ -29,7 +31,8 @@ var networks = {
     estimateFee: estimateFee('testnet')
   },
   litecoin: {
-    magicPrefix: '\x19Litecoin Signed Message:\n',
+    magic: 0xd9b4bef9,
+    messagePrefix: '\x19Litecoin Signed Message:\n',
     bip32: {
       public: 0x019da462,
       private: 0x019d9cfe
@@ -43,7 +46,7 @@ var networks = {
     estimateFee: estimateFee('litecoin')
   },
   dogecoin: {
-    magicPrefix: '\x19Dogecoin Signed Message:\n',
+    messagePrefix: '\x19Dogecoin Signed Message:\n',
     bip32: {
       public: 0x02facafd,
       private: 0x02fac398
@@ -57,7 +60,7 @@ var networks = {
     estimateFee: estimateFee('dogecoin')
   },
   viacoin: {
-    magicPrefix: '\x18Viacoin Signed Message:\n',
+    messagePrefix: '\x18Viacoin Signed Message:\n',
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4
@@ -71,7 +74,7 @@ var networks = {
     estimateFee: estimateFee('viacoin')
   },
   viacointestnet: {
-    magicPrefix: '\x18Viacoin Signed Message:\n',
+    messagePrefix: '\x18Viacoin Signed Message:\n',
     bip32: {
       public: 0x043587cf,
       private: 0x04358394
@@ -85,7 +88,7 @@ var networks = {
     estimateFee: estimateFee('viacointestnet')
   },
   gamerscoin: {
-    magicPrefix: '\x19Gamerscoin Signed Message:\n',
+    messagePrefix: '\x19Gamerscoin Signed Message:\n',
     bip32: {
       public: 0x019da462,
       private: 0x019d9cfe
@@ -99,7 +102,7 @@ var networks = {
     estimateFee: estimateFee('gamerscoin')
   },
   jumbucks: {
-    magicPrefix: '\x19Jumbucks Signed Message:\n',
+    messagePrefix: '\x19Jumbucks Signed Message:\n',
     bip32: {
       public: 0x037a689a,
       private: 0x037a6460
@@ -113,7 +116,7 @@ var networks = {
     estimateFee: estimateFee('jumbucks')
   },
   zetacoin: {
-    magicPrefix: '\x18Zetacoin Signed Message:\n',
+    messagePrefix: '\x18Zetacoin Signed Message:\n',
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4
@@ -144,6 +147,13 @@ function estimateFee (type) {
 
     return fee
   }
+}
+
+// FIXME: 1.5.3 compatibility patch(s)
+for (var networkName in networks) {
+  var network = networks[networkName]
+
+  network.magicPrefix = network.messagePrefix
 }
 
 module.exports = networks
