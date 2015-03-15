@@ -10,13 +10,13 @@ var Transaction = require('../src/transaction')
 var fixtures = require('./fixtures/network')
 
 describe('networks', function () {
-  var txToBuffer
+  var txByteLength
   before(function () {
-    txToBuffer = sinon.stub(Transaction.prototype, 'toBuffer')
+    txByteLength = sinon.stub(Transaction.prototype, 'byteLength')
   })
 
   after(function () {
-    Transaction.prototype.toBuffer.restore()
+    Transaction.prototype.byteLength.restore()
   })
 
   describe('constants', function () {
@@ -39,8 +39,7 @@ describe('networks', function () {
         var network = networks[f.network]
 
         it('calculates the fee correctly for ' + f.description, function () {
-          var buffer = new Buffer(f.txSize)
-          txToBuffer.returns(buffer)
+          txByteLength.returns(f.txSize)
 
           var estimateFee = network.estimateFee
           var tx = new Transaction()
