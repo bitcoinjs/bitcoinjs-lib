@@ -11,11 +11,11 @@ var ecurve = require('ecurve')
 var ecparams = ecurve.getCurveByName('secp256k1')
 
 function magicHash (message, network) {
-  var magicPrefix = new Buffer(network.magicPrefix)
+  var messagePrefix = new Buffer(network.messagePrefix)
   var messageBuffer = new Buffer(message)
   var lengthBuffer = bufferutils.varIntBuffer(messageBuffer.length)
 
-  var buffer = Buffer.concat([magicPrefix, lengthBuffer, messageBuffer])
+  var buffer = Buffer.concat([messagePrefix, lengthBuffer, messageBuffer])
   return crypto.hash256(buffer)
 }
 
