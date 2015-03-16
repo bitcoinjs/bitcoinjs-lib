@@ -144,17 +144,21 @@ describe('HDNode', function () {
   describe('fromBase58', function () {
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.master.base58 + ' (public) correctly', function () {
+        var network = networks[f.network]
         var hd = HDNode.fromBase58(f.master.base58)
 
         assert.equal(hd.toBase58(), f.master.base58)
+        assert.equal(hd.network, network)
       })
     })
 
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.master.base58Priv + ' (private) correctly', function () {
-        var hd = HDNode.fromBase58(f.master.base58Priv)
+        var network = networks[f.network]
+        var hd = HDNode.fromBase58(f.master.base58Priv, network)
 
         assert.equal(hd.toBase58(), f.master.base58Priv)
+        assert.equal(hd.network, network)
       })
     })
 
