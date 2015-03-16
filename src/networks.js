@@ -1,7 +1,7 @@
 // https://en.bitcoin.it/wiki/List_of_address_prefixes
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
 
-var networks = {
+module.exports = {
   bitcoin: {
     magic: 0xd9b4bef9,
     messagePrefix: '\x18Bitcoin Signed Message:\n',
@@ -12,8 +12,7 @@ var networks = {
     pubKeyHash: 0x00,
     scriptHash: 0x05,
     wif: 0x80,
-    dustThreshold: 546, // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/core.h#L151-L162
-    feePerKb: 10000 // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/main.cpp#L53
+    dustThreshold: 546 // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/core.h#L151-L162
   },
   testnet: {
     magic: 0xd9b4bef9,
@@ -25,8 +24,7 @@ var networks = {
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
     wif: 0xef,
-    dustThreshold: 546,
-    feePerKb: 10000
+    dustThreshold: 546
   },
   litecoin: {
     magic: 0xd9b4bef9,
@@ -38,9 +36,7 @@ var networks = {
     pubKeyHash: 0x30,
     scriptHash: 0x05,
     wif: 0xb0,
-    dustThreshold: 0, // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L360-L365
-    dustSoftThreshold: 100000, // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.h#L53
-    feePerKb: 100000 // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L56
+    dustThreshold: 0 // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L360-L365
   },
   dogecoin: {
     messagePrefix: '\x19Dogecoin Signed Message:\n',
@@ -51,37 +47,6 @@ var networks = {
     pubKeyHash: 0x1e,
     scriptHash: 0x16,
     wif: 0x9e,
-    dustThreshold: 0, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/core.h#L155-L160
-    dustSoftThreshold: 100000000, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.h#L62
-    feePerKb: 100000000 // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.cpp#L58
+    dustThreshold: 0 // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/core.h#L155-L160
   }
 }
-
-function estimateFee (tx, network) {
-  var baseFee = network.feePerKb
-  var byteSize = tx.byteLength()
-
-  var fee = baseFee * Math.ceil(byteSize / 1000)
-  if (network.dustSoftThreshold === undefined) return fee
-
-  tx.outs.forEach(function (output) {
-    if (output.value < network.dustSoftThreshold) {
-      fee += baseFee
-    }
-  })
-
-  return fee
-}
-
-// FIXME: 1.5.3 compatibility patch(s)
-function patchEstimateFee (network, tx) {
-  return estimateFee(tx, network)
-}
-
-for (var networkName in networks) {
-  var network = networks[networkName]
-
-  network.estimateFee = patchEstimateFee.bind(null, network)
-}
-
-module.exports = networks
