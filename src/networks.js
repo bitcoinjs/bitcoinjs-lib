@@ -128,8 +128,8 @@ function estimateFee (tx, network) {
   var fee = baseFee * Math.ceil(byteSize / 1000)
   if (network.dustSoftThreshold === undefined) return fee
 
-  tx.outs.forEach(function (e) {
-    if (e.value < network.dustSoftThreshold) {
+  tx.outs.forEach(function (output) {
+    if (output.value < network.dustSoftThreshold) {
       fee += baseFee
     }
   })
