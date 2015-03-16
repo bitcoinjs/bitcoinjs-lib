@@ -112,7 +112,7 @@ TransactionBuilder.fromTransaction = function (transaction) {
     assert(!Transaction.isCoinbaseHash(txIn.hash), 'coinbase inputs not supported')
 
     // Ignore empty scripts
-    if (txIn.script.buffer.length === 0) return
+    if (txIn.script.buffer.length === 0) return {}
 
     return extractInput(txIn)
   })
