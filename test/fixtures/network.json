@@ -28,13 +28,6 @@
           "private": "dgpv51eADS3spNJh9Gjth94XcPwAczvQaDJs9rqx11kvxKs6r3Ek8AgERHhjLs6mzXQFHRzQqGwqdeoDkZmr8jQMBfi43b7sT3sx3cCSk5fGeUR",
           "public": "dgub8kXBZ7ymNWy2S8Q3jNgVjFUm5ZJ3QLLaSTdAA89ukSv7Q6MSXwE14b7Nv6eDpE9JJXinTKc8LeLVu19uDPrm5uJuhpKNzV2kAgncwo6bNpP"
         }
-      },
-      {
-        "network": "jumbucks",
-        "bip32": {
-          "private": "jprv5eCacBgN4Bz4zYxgVQ7RDt1a3eREhEaj8KjAcJ7YwogxGo2rmBF5kvAQS53JwZpo5wnUmJ9Q7kB6b2gQ1MzC6yaTc188hr6hXZ5t8Ruria1",
-          "public": "jpub1sBw1hDFtZYND339bReRb1xJbgFj6hJaVYemQgXAW9Dw9bN1JiZLJiUtHLgcTTEs1UgRGFAYm3XQPYsYJbpqj1aYPhrMsNcJHfgdAhvFZBB"
-        }
       }
     ],
     "estimateFee": [
