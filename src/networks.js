@@ -146,7 +146,6 @@ for (var networkName in networks) {
   var network = networks[networkName]
 
   network.estimateFee = patchEstimateFee.bind(null, network)
-  network.magicPrefix = network.messagePrefix
 }
 
 module.exports = networks
