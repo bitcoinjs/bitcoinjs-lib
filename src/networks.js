@@ -3,7 +3,8 @@
 
 var networks = {
   bitcoin: {
-    magicPrefix: '\x18Bitcoin Signed Message:\n',
+    magic: 0xd9b4bef9,
+    messagePrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4
@@ -12,11 +13,11 @@ var networks = {
     scriptHash: 0x05,
     wif: 0x80,
     dustThreshold: 546, // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/core.h#L151-L162
-    feePerKb: 10000, // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/main.cpp#L53
-    estimateFee: estimateFee('bitcoin')
+    feePerKb: 10000 // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/main.cpp#L53
   },
   testnet: {
-    magicPrefix: '\x18Bitcoin Signed Message:\n',
+    magic: 0xd9b4bef9,
+    messagePrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
       public: 0x043587cf,
       private: 0x04358394
@@ -25,11 +26,11 @@ var networks = {
     scriptHash: 0xc4,
     wif: 0xef,
     dustThreshold: 546,
-    feePerKb: 10000,
-    estimateFee: estimateFee('testnet')
+    feePerKb: 10000
   },
   litecoin: {
-    magicPrefix: '\x19Litecoin Signed Message:\n',
+    magic: 0xd9b4bef9,
+    messagePrefix: '\x19Litecoin Signed Message:\n',
     bip32: {
       public: 0x019da462,
       private: 0x019d9cfe
@@ -39,11 +40,10 @@ var networks = {
     wif: 0xb0,
     dustThreshold: 0, // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L360-L365
     dustSoftThreshold: 100000, // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.h#L53
-    feePerKb: 100000, // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L56
-    estimateFee: estimateFee('litecoin')
+    feePerKb: 100000 // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L56
   },
   dogecoin: {
-    magicPrefix: '\x19Dogecoin Signed Message:\n',
+    messagePrefix: '\x19Dogecoin Signed Message:\n',
     bip32: {
       public: 0x02facafd,
       private: 0x02fac398
@@ -53,11 +53,10 @@ var networks = {
     wif: 0x9e,
     dustThreshold: 0, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/core.h#L155-L160
     dustSoftThreshold: 100000000, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.h#L62
-    feePerKb: 100000000, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.cpp#L58
-    estimateFee: estimateFee('dogecoin')
+    feePerKb: 100000000 // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/main.cpp#L58
   },
   viacoin: {
-    magicPrefix: '\x18Viacoin Signed Message:\n',
+    messagePrefix: '\x18Viacoin Signed Message:\n',
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4
@@ -67,11 +66,10 @@ var networks = {
     wif: 0xc7,
     dustThreshold: 560,
     dustSoftThreshold: 100000,
-    feePerKb: 100000, //
-    estimateFee: estimateFee('viacoin')
+    feePerKb: 100000
   },
   viacointestnet: {
-    magicPrefix: '\x18Viacoin Signed Message:\n',
+    messagePrefix: '\x18Viacoin Signed Message:\n',
     bip32: {
       public: 0x043587cf,
       private: 0x04358394
@@ -81,11 +79,10 @@ var networks = {
     wif: 0xff,
     dustThreshold: 560,
     dustSoftThreshold: 100000,
-    feePerKb: 100000,
-    estimateFee: estimateFee('viacointestnet')
+    feePerKb: 100000
   },
   gamerscoin: {
-    magicPrefix: '\x19Gamerscoin Signed Message:\n',
+    messagePrefix: '\x19Gamerscoin Signed Message:\n',
     bip32: {
       public: 0x019da462,
       private: 0x019d9cfe
@@ -95,11 +92,10 @@ var networks = {
     wif: 0xA6,
     dustThreshold: 0, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L358-L363
     dustSoftThreshold: 100000, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L51
-    feePerKb: 100000, // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L54
-    estimateFee: estimateFee('gamerscoin')
+    feePerKb: 100000 // https://github.com/gamers-coin/gamers-coinv3/blob/master/src/main.cpp#L54
   },
   jumbucks: {
-    magicPrefix: '\x19Jumbucks Signed Message:\n',
+    messagePrefix: '\x19Jumbucks Signed Message:\n',
     bip32: {
       public: 0x037a689a,
       private: 0x037a6460
@@ -109,11 +105,10 @@ var networks = {
     wif: 0xab,
     dustThreshold: 0,
     dustSoftThreshold: 10000,
-    feePerKb: 10000,
-    estimateFee: estimateFee('jumbucks')
+    feePerKb: 10000
   },
   zetacoin: {
-    magicPrefix: '\x18Zetacoin Signed Message:\n',
+    messagePrefix: '\x18Zetacoin Signed Message:\n',
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4
@@ -122,28 +117,35 @@ var networks = {
     scriptHash: 0x09,
     wif: 0xe0,
     dustThreshold: 546, // https://github.com/zetacoin/zetacoin/blob/master/src/core.h#L159
-    feePerKb: 10000, // https://github.com/zetacoin/zetacoin/blob/master/src/main.cpp#L54
-    estimateFee: estimateFee('zetacoin')
+    feePerKb: 10000 // https://github.com/zetacoin/zetacoin/blob/master/src/main.cpp#L54
   }
 }
 
-function estimateFee (type) {
-  return function (tx) {
-    var network = networks[type]
-    var baseFee = network.feePerKb
-    var byteSize = tx.toBuffer().length
+function estimateFee (tx, network) {
+  var baseFee = network.feePerKb
+  var byteSize = tx.byteLength()
 
-    var fee = baseFee * Math.ceil(byteSize / 1000)
-    if (network.dustSoftThreshold === undefined) return fee
+  var fee = baseFee * Math.ceil(byteSize / 1000)
+  if (network.dustSoftThreshold === undefined) return fee
 
-    tx.outs.forEach(function (e) {
-      if (e.value < network.dustSoftThreshold) {
-        fee += baseFee
-      }
-    })
+  tx.outs.forEach(function (output) {
+    if (output.value < network.dustSoftThreshold) {
+      fee += baseFee
+    }
+  })
 
-    return fee
-  }
+  return fee
+}
+
+// FIXME: 1.5.3 compatibility patch(s)
+function patchEstimateFee (network, tx) {
+  return estimateFee(tx, network)
+}
+
+for (var networkName in networks) {
+  var network = networks[networkName]
+
+  network.estimateFee = patchEstimateFee.bind(null, network)
 }
 
 module.exports = networks
