@@ -48,7 +48,7 @@
     "bigi": "^1.4.0",
     "bs58check": "^1.0.4",
     "ecurve": "^1.0.0",
-    "typeforce": "^0.1.0"
+    "typeforce": "^1.0.0"
   },
   "devDependencies": {
     "async": "^0.9.0",
@@ -57,9 +57,9 @@
     "cb-helloblock": "^0.4.10",
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.5",
-    "mocha": "^2.1.0",
+    "mocha": "^2.2.0",
     "mocha-lcov-reporter": "0.0.1",
     "sinon": "^1.12.2",
-    "standard": "^2.7.3"
+    "standard": "^2.11.0"
   }
 }
