@@ -1,5 +1,5 @@
 var assert = require('assert')
-var crypto = require('crypto')
+var createHmac = require('create-hmac')
 var typeForce = require('typeforce')
 
 var BigInteger = require('bigi')
@@ -56,7 +56,7 @@ function deterministicGenerateK (curve, hash, d, checkSig) {
   k.fill(0)
 
   // Step D
-  k = crypto.createHmac('sha256', k)
+  k = createHmac('sha256', k)
     .update(v)
     .update(ZERO)
     .update(x)
@@ -64,10 +64,10 @@ function deterministicGenerateK (curve, hash, d, checkSig) {
     .digest()
 
   // Step E
-  v = crypto.createHmac('sha256', k).update(v).digest()
+  v = createHmac('sha256', k).update(v).digest()
 
   // Step F
-  k = crypto.createHmac('sha256', k)
+  k = createHmac('sha256', k)
     .update(v)
     .update(ONE)
     .update(x)
@@ -75,26 +75,26 @@ function deterministicGenerateK (curve, hash, d, checkSig) {
     .digest()
 
   // Step G
-  v = crypto.createHmac('sha256', k).update(v).digest()
+  v = createHmac('sha256', k).update(v).digest()
 
   // Step H1/H2a, ignored as tlen === qlen (256 bit)
   // Step H2b
-  v = crypto.createHmac('sha256', k).update(v).digest()
+  v = createHmac('sha256', k).update(v).digest()
 
   var T = BigInteger.fromBuffer(v)
 
   // Step H3, repeat until T is within the interval [1, n - 1] and is suitable for ECDSA
   while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0) || !checkSig(T)) {
-    k = crypto.createHmac('sha256', k)
+    k = createHmac('sha256', k)
       .update(v)
       .update(ZERO)
       .digest()
 
-    v = crypto.createHmac('sha256', k).update(v).digest()
+    v = createHmac('sha256', k).update(v).digest()
 
     // Step H1/H2a, again, ignored as tlen === qlen (256 bit)
     // Step H2b again
-    v = crypto.createHmac('sha256', k).update(v).digest()
+    v = createHmac('sha256', k).update(v).digest()
     T = BigInteger.fromBuffer(v)
   }
 
