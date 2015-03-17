@@ -1,7 +1,7 @@
 var assert = require('assert')
 var base58check = require('bs58check')
 var bcrypto = require('./crypto')
-var crypto = require('crypto')
+var createHmac = require('create-hmac')
 var typeForce = require('typeforce')
 var networks = require('./networks')
 
@@ -62,7 +62,7 @@ HDNode.fromSeedBuffer = function (seed, network) {
   assert(seed.length >= 16, 'Seed should be at least 128 bits')
   assert(seed.length <= 64, 'Seed should be at most 512 bits')
 
-  var I = crypto.createHmac('sha512', HDNode.MASTER_SECRET).update(seed).digest()
+  var I = createHmac('sha512', HDNode.MASTER_SECRET).update(seed).digest()
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 
@@ -225,7 +225,7 @@ HDNode.prototype.derive = function (index) {
     ])
   }
 
-  var I = crypto.createHmac('sha512', this.chainCode).update(data).digest()
+  var I = createHmac('sha512', this.chainCode).update(data).digest()
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 
