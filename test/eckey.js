@@ -2,10 +2,10 @@
 /* eslint-disable no-new */
 
 var assert = require('assert')
-var crypto = require('crypto')
 var ecurve = require('ecurve')
 var networks = require('../src/networks')
-var sinon = require('sinon')
+var proxyquire =  require('proxyquire')
+var randomBytes = require('randombytes')
 
 var BigInteger = require('bigi')
 var ECKey = require('../src/eckey')
@@ -101,25 +101,13 @@ describe('ECKey', function () {
     var exPrivKey = ECKey.fromWIF(exWIF)
     var exBuffer = exPrivKey.d.toBuffer(32)
 
-    describe('uses default crypto RNG', function () {
-      beforeEach(function () {
-        sinon.stub(crypto, 'randomBytes').returns(exBuffer)
-      })
+    it("uses the RNG provided by the 'randombytes' module by default", function () {
+      var stub = { randombytes: function() { return exBuffer } }
+      var ProxiedECKey = proxyquire('../src/eckey', stub)
 
-      afterEach(function () {
-        crypto.randomBytes.restore()
-      })
+      var privKey = ProxiedECKey.makeRandom()
 
-      it('generates a ECKey', function () {
-        var privKey = ECKey.makeRandom()
-
-        assert.equal(privKey.toWIF(), exWIF)
-      })
-
-      it('supports compression', function () {
-        assert.equal(ECKey.makeRandom(true).pub.compressed, true)
-        assert.equal(ECKey.makeRandom(false).pub.compressed, false)
-      })
+      assert.equal(privKey.toWIF(), exWIF)
     })
 
     it('allows a custom RNG to be used', function () {
@@ -130,10 +118,15 @@ describe('ECKey', function () {
       var privKey = ECKey.makeRandom(undefined, rng)
       assert.equal(privKey.toWIF(), exWIF)
     })
+
+    it('supports compression', function () {
+      assert.equal(ECKey.makeRandom(true).pub.compressed, true)
+      assert.equal(ECKey.makeRandom(false).pub.compressed, false)
+    })
   })
 
   describe('signing', function () {
-    var hash = crypto.randomBytes(32)
+    var hash = randomBytes(32)
     var priv = ECKey.makeRandom()
     var signature = priv.sign(hash)
 

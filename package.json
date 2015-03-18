@@ -61,6 +61,7 @@
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.5",
     "mocha": "^2.2.0",
+    "proxyquire": "^1.4.0",
     "sinon": "^1.12.2",
     "standard": "^2.11.0"
   }
