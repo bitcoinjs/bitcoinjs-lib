@@ -47,7 +47,7 @@ function ECPair (d, Q, options) {
 }
 
 Object.defineProperty(ECPair.prototype, 'Q', {
-  get: function() {
+  get: function () {
     if (!this.__Q && this.d) {
       this.__Q = ECPair.curve.G.multiply(this.d)
     }

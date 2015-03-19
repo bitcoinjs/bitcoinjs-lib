@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, beforeEach */
 /* eslint-disable no-new */
 
 var assert = require('assert')
