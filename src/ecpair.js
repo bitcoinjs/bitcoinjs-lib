@@ -34,18 +34,27 @@ function ECPair (d, Q, options) {
     assert(d.compareTo(ECPair.curve.n) < 0, 'Private key must be less than the curve order')
 
     assert(!Q, 'Unexpected publicKey parameter')
-    Q = ECPair.curve.G.multiply(d)
+    this.d = d
 
   // enforce Q is a public key if no private key given
   } else {
     typeForce('Point', Q)
+    this.__Q = Q
   }
 
   this.compressed = compressed
-  this.d = d
-  this.Q = Q
   this.network = network
 }
+
+Object.defineProperty(ECPair.prototype, 'Q', {
+  get: function() {
+    if (!this.__Q && this.d) {
+      this.__Q = ECPair.curve.G.multiply(this.d)
+    }
+
+    return this.__Q
+  }
+})
 
 // Public access to secp256k1 curve
 ECPair.curve = ecurve.getCurveByName('secp256k1')
