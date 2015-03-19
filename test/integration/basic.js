@@ -3,21 +3,18 @@
 var assert = require('assert')
 var bigi = require('bigi')
 var bitcoin = require('../../')
-var crypto = require('crypto')
-var sinon = require('sinon')
 
 describe('bitcoinjs-lib (basic)', function () {
-  it('can generate a random bitcoin address', sinon.test(function () {
+  it('can generate a random bitcoin address', function () {
     // for testing only
-    this.mock(crypto).expects('randomBytes')
-      .onCall(0).returns(new Buffer('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'))
+    function rng () { return new Buffer('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
 
-    // generate random key
-    var key = bitcoin.ECKey.makeRandom()
+    // generate random key (custom rng for testing only)
+    var key = bitcoin.ECKey.makeRandom(undefined, rng)
     var address = key.pub.getAddress().toString()
 
     assert.equal(address, '1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64')
-  }))
+  })
 
   it('can generate an address from a SHA256 hash', function () {
     var hash = bitcoin.crypto.sha256('correct horse battery staple')

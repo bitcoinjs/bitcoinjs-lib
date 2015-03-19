@@ -1,9 +1,9 @@
 var assert = require('assert')
 var base58check = require('bs58check')
-var crypto = require('crypto')
 var ecdsa = require('./ecdsa')
-var typeForce = require('typeforce')
 var networks = require('./networks')
+var randomBytes = require('randombytes')
+var typeForce = require('typeforce')
 
 var BigInteger = require('bigi')
 var ECPubKey = require('./ecpubkey')
@@ -47,7 +47,7 @@ ECKey.fromWIF = function (string) {
 }
 
 ECKey.makeRandom = function (compressed, rng) {
-  rng = rng || crypto.randomBytes
+  rng = rng || randomBytes
 
   var buffer = rng(32)
   typeForce('Buffer', buffer)
