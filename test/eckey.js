@@ -1,10 +1,10 @@
-/* global describe, it, beforeEach, afterEach */
+/* global describe, it */
 /* eslint-disable no-new */
 
 var assert = require('assert')
 var ecurve = require('ecurve')
 var networks = require('../src/networks')
-var proxyquire =  require('proxyquire')
+var proxyquire = require('proxyquire')
 var randomBytes = require('randombytes')
 
 var BigInteger = require('bigi')
@@ -102,7 +102,7 @@ describe('ECKey', function () {
     var exBuffer = exPrivKey.d.toBuffer(32)
 
     it("uses the RNG provided by the 'randombytes' module by default", function () {
-      var stub = { randombytes: function() { return exBuffer } }
+      var stub = { randombytes: function () { return exBuffer } }
       var ProxiedECKey = proxyquire('../src/eckey', stub)
 
       var privKey = ProxiedECKey.makeRandom()
