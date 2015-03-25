@@ -21,14 +21,16 @@ function sha256 (buffer) {
 }
 
 // FIXME: Name not consistent with others
+var createHmac = require('create-hmac')
+
 function HmacSHA256 (buffer, secret) {
   console.warn('Hmac* functions are deprecated for removal in 2.0.0, use node crypto instead')
-  return crypto.createHmac('sha256', secret).update(buffer).digest()
+  return createHmac('sha256', secret).update(buffer).digest()
 }
 
 function HmacSHA512 (buffer, secret) {
   console.warn('Hmac* functions are deprecated for removal in 2.0.0, use node crypto instead')
-  return crypto.createHmac('sha512', secret).update(buffer).digest()
+  return createHmac('sha512', secret).update(buffer).digest()
 }
 
 module.exports = {
