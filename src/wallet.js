@@ -1,8 +1,8 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
-var crypto = require('crypto')
 var typeForce = require('typeforce')
 var networks = require('./networks')
+var randomBytes = require('randombytes')
 
 var Address = require('./address')
 var HDNode = require('./hdnode')
@@ -12,7 +12,7 @@ var Script = require('./script')
 function Wallet (seed, network) {
   console.warn('Wallet is deprecated and will be removed in 2.0.0, see #296')
 
-  seed = seed || crypto.randomBytes(32)
+  seed = seed || randomBytes(32)
   network = network || networks.bitcoin
 
   // Stored in a closure to make accidental serialization less likely
@@ -37,7 +37,7 @@ function Wallet (seed, network) {
   this.newMasterKey = function (seed) {
     console.warn('newMasterKey is deprecated, please make a new Wallet instance instead')
 
-    seed = seed || crypto.randomBytes(32)
+    seed = seed || randomBytes(32)
     masterKey = HDNode.fromSeedBuffer(seed, network)
 
     accountZero = masterKey.deriveHardened(0)
