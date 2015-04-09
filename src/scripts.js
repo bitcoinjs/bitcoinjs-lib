@@ -170,7 +170,7 @@ function classifyInput (script, allowIncomplete) {
 // {pubKey} OP_CHECKSIG
 function pubKeyOutput (pubKey) {
   return Script.fromChunks([
-    pubKey.toBuffer(),
+    pubKey,
     ops.OP_CHECKSIG
   ])
 }
@@ -201,18 +201,14 @@ function scriptHashOutput (hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 function multisigOutput (m, pubKeys) {
-  typeForce(['ECPubKey'], pubKeys)
+  typeForce(['Buffer'], pubKeys)
 
-  assert(pubKeys.length >= m, 'Not enough pubKeys provided')
-
-  var pubKeyBuffers = pubKeys.map(function (pubKey) {
-    return pubKey.toBuffer()
-  })
   var n = pubKeys.length
+  assert(n >= m, 'Not enough pubKeys provided')
 
   return Script.fromChunks([].concat(
     (ops.OP_1 - 1) + m,
-    pubKeyBuffers,
+    pubKeys,
     (ops.OP_1 - 1) + n,
     ops.OP_CHECKMULTISIG
   ))
@@ -228,8 +224,9 @@ function pubKeyInput (signature) {
 // {signature} {pubKey}
 function pubKeyHashInput (signature, pubKey) {
   typeForce('Buffer', signature)
+  typeForce('Buffer', pubKey)
 
-  return Script.fromChunks([signature, pubKey.toBuffer()])
+  return Script.fromChunks([signature, pubKey])
 }
 
 // <scriptSig> {serialized scriptPubKey script}
