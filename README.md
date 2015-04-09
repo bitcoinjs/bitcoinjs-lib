@@ -77,6 +77,9 @@ You will then be able to load `foobar.js` into your browser, with each of the de
 
 **NOTE**: See our package.json for the currently supported version of browserify used by this repository.
 
+**NOTE**: If you're planning to uglify/minify the javascript, make sure to exclude the following variable names from being mangled:  
+`['Buffer', 'BitInteger', 'Point', 'Script', 'ECPubKey', 'ECKey']`
+
 
 ## Examples
 
