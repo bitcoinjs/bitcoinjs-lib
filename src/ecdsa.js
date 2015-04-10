@@ -75,25 +75,21 @@ function deterministicGenerateK (curve, hash, d, checkSig) {
 }
 
 function sign (curve, hash, d) {
-  var r, s
-
   var e = BigInteger.fromBuffer(hash)
   var n = curve.n
   var G = curve.G
 
+  var r, s
   deterministicGenerateK(curve, hash, d, function (k) {
     var Q = G.multiply(k)
 
-    if (curve.isInfinity(Q))
-      return false
+    if (curve.isInfinity(Q)) return false
 
     r = Q.affineX.mod(n)
-    if (r.signum() === 0)
-      return false
+    if (r.signum() === 0) return false
 
     s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
-    if (s.signum() === 0)
-      return false
+    if (s.signum() === 0) return false
 
     return true
   })
