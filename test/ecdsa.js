@@ -158,30 +158,26 @@ describe('ecdsa', function () {
     })
   })
 
-  describe('verify/verifyRaw', function () {
+  describe('verify', function () {
     fixtures.valid.ecdsa.forEach(function (f) {
       it('verifies a valid signature for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
         var H = crypto.sha256(f.message)
-        var e = BigInteger.fromBuffer(H)
         var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
         var Q = curve.G.multiply(d)
 
         assert(ecdsa.verify(curve, H, signature, Q))
-        assert(ecdsa.verifyRaw(curve, e, signature, Q))
       })
     })
 
-    fixtures.invalid.verifyRaw.forEach(function (f) {
+    fixtures.invalid.verify.forEach(function (f) {
       it('fails to verify with ' + f.description, function () {
         var H = crypto.sha256(f.message)
-        var e = BigInteger.fromBuffer(H)
         var d = BigInteger.fromHex(f.d)
         var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
         var Q = curve.G.multiply(d)
 
         assert.equal(ecdsa.verify(curve, H, signature, Q), false)
-        assert.equal(ecdsa.verifyRaw(curve, e, signature, Q), false)
       })
     })
   })

@@ -218,7 +218,7 @@
         "i": 4
       }
     ],
-    "verifyRaw": [
+    "verify": [
       {
         "description": "The wrong signature",
         "d": "01",

@@ -104,7 +104,7 @@ function sign (curve, hash, d) {
   return new ECSignature(r, s)
 }
 
-function verifyRaw (curve, e, signature, Q) {
+function verify (curve, hash, signature, Q) {
   var n = curve.n
   var G = curve.G
 
@@ -114,6 +114,10 @@ function verifyRaw (curve, e, signature, Q) {
   // 1.4.1 Enforce r and s are both integers in the interval [1, n − 1]
   if (r.signum() <= 0 || r.compareTo(n) >= 0) return false
   if (s.signum() <= 0 || s.compareTo(n) >= 0) return false
+
+  // 1.4.2 H = Hash(M), already done by the user
+  // 1.4.3 e = H
+  var e = BigInteger.fromBuffer(hash)
 
   // Compute s^-1
   var sInv = s.modInverse(n)
@@ -138,14 +142,6 @@ function verifyRaw (curve, e, signature, Q) {
 
   // 1.4.8 If v = r, output "valid", and if v != r, output "invalid"
   return v.equals(r)
-}
-
-function verify (curve, hash, signature, Q) {
-  // 1.4.2 H = Hash(M), already done by the user
-  // 1.4.3 e = H
-  var e = BigInteger.fromBuffer(hash)
-
-  return verifyRaw(curve, e, signature, Q)
 }
 
 /**
@@ -227,6 +223,5 @@ module.exports = {
   deterministicGenerateK: deterministicGenerateK,
   recoverPubKey: recoverPubKey,
   sign: sign,
-  verify: verify,
-  verifyRaw: verifyRaw
+  verify: verify
 }
