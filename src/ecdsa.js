@@ -177,14 +177,16 @@ function recoverPubKey (curve, e, signature, i) {
   var nR = R.multiply(n)
   assert(curve.isInfinity(nR), 'nR is not a valid curve point')
 
+  // Compute r^-1
+  var rInv = r.modInverse(n)
+
   // Compute -e from e
   var eNeg = e.negate().mod(n)
 
   // 1.6.1 Compute Q = r^-1 (sR -  eG)
   //               Q = r^-1 (sR + -eG)
-  var rInv = r.modInverse(n)
-
   var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
+
   curve.validate(Q)
 
   return Q
