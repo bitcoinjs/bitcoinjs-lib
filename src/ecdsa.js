@@ -115,20 +115,26 @@ function verifyRaw (curve, e, signature, Q) {
   if (r.signum() <= 0 || r.compareTo(n) >= 0) return false
   if (s.signum() <= 0 || s.compareTo(n) >= 0) return false
 
-  // c = s^-1 mod n
-  var c = s.modInverse(n)
+  // Compute s^-1
+  var sInv = s.modInverse(n)
 
   // 1.4.4 Compute u1 = es^−1 mod n
   //               u2 = rs^−1 mod n
-  var u1 = e.multiply(c).mod(n)
-  var u2 = r.multiply(c).mod(n)
+  var u1 = e.multiply(sInv).mod(n)
+  var u2 = r.multiply(sInv).mod(n)
 
-  // 1.4.5 Compute R = (xR, yR) = u1G + u2Q
+  // 1.4.5 Compute R = (xR, yR)
+  //               R = u1G + u2Q
   var R = G.multiplyTwo(u1, Q, u2)
-  var v = R.affineX.mod(n)
 
   // 1.4.5 (cont.) Enforce R is not at infinity
   if (curve.isInfinity(R)) return false
+
+  // 1.4.6 Convert the field element R.x to an integer
+  var xR = R.affineX
+
+  // 1.4.7 Set v = xR mod n
+  var v = xR.mod(n)
 
   // 1.4.8 If v = r, output "valid", and if v != r, output "invalid"
   return v.equals(r)
