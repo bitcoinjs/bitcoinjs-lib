@@ -77,7 +77,7 @@ You will then be able to load `foobar.js` into your browser, with each of the de
 
 **NOTE**: See our package.json for the currently supported version of browserify used by this repository.
 
-**NOTE**: When uglifying the javascript, you must exclude the following variable names from being mangled: `Array`, `BigInteger`,`Boolean`, `Buffer`, `ECPair`, `Function`, `Number`, `Point` and `Script`.
+**NOTE**: When uglifying the javascript, you must exclude the following variable names from being mangled: `Array`, `BigInteger`, `Boolean`, `Buffer`, `ECPair`, `Function`, `Number`, `Point` and `Script`.
 This is because of the function-name-duck-typing used in [typeforce](https://github.com/dcousens/typeforce).
 
 
