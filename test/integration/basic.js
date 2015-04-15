@@ -26,6 +26,20 @@ describe('bitcoinjs-lib (basic)', function () {
     assert.equal(address, '1C7zdTfnkzmr13HfA2vNm5SJYRK6nEKyq8')
   })
 
+  it('can generate a random keypair for alternative networks', function () {
+    // for testing only
+    function rng () { return new Buffer('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
+
+    var litecoin = bitcoin.networks.litecoin
+
+    var keyPair = bitcoin.ECPair.makeRandom({ network: litecoin, rng: rng })
+    var wif = keyPair.toWIF()
+    var address = keyPair.getAddress().toString()
+
+    assert.equal(address, 'LZJSxZbjqJ2XVEquqfqHg1RQTDdfST5PTn')
+    assert.equal(wif, 'T7A4PUSgTDHecBxW1ZiYFrDNRih2o7M8Gf9xpoCgudPF9gDiNvuS')
+  })
+
   it('can import an address via WIF', function () {
     var keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
     var address = keyPair.getAddress().toString()
