@@ -162,5 +162,5 @@ This library is free and open-source software released under the MIT license.
 
 ## Copyright
 
-BitcoinJS (c) 2011-2014 Bitcoinjs-lib contributors
+BitcoinJS (c) 2011-2015 Bitcoinjs-lib contributors
 Released under MIT license
