@@ -6,6 +6,7 @@ var Transaction = require('../src/transaction')
 var Script = require('../src/script')
 
 var fixtures = require('./fixtures/transaction')
+var sighash_fixtures = require('./fixtures/transaction_sighash');
 
 describe('Transaction', function () {
   function fromRaw (raw) {
@@ -165,8 +166,7 @@ describe('Transaction', function () {
   })
 
   describe('hashForSignature/SIGHASH_ALL', function () {
-    fixtures.valid.forEach(function (f) {
-      if (f.signatures) {
+    sighash_fixtures.valid.forEach(function (f) {
         f.signatures.forEach(function (g) {
           if (g.hashType == "SIGHASH_ALL") {
             it('should return SIGHASH_ALL hash for ' + f.id, function () {
@@ -179,13 +179,11 @@ describe('Transaction', function () {
             })
           }
         })
-      }
     })
   })
 
   describe('hashForSignature/SIGHASH_NONE', function () {
-    fixtures.valid.forEach(function (f) {
-      if (f.signatures) {
+    sighash_fixtures.valid.forEach(function (f) {
         f.signatures.forEach(function (g) {
           if (g.hashType == "SIGHASH_NONE") {
             it('should return SIGHASH_NONE hash for ' + f.id, function () {
@@ -196,13 +194,11 @@ describe('Transaction', function () {
             })
           }
         })
-      }
     })
   })
 
   describe('hashForSignature/SIGHASH_SINGLE', function () {
-    fixtures.valid.forEach(function (f) {
-      if (f.signatures) {
+    sighash_fixtures.valid.forEach(function (f) {
         f.signatures.forEach(function (g) {
           if (g.hashType == "SIGHASH_SINGLE") {
             it('should return SIGHASH_SINGLE hash for ' + f.id, function () {
@@ -213,13 +209,11 @@ describe('Transaction', function () {
             })
           }
         })
-      }
     })
   })
 
   describe('hashForSignature/SIGHASH_SINGLE | SIGHASH_ANYONECANPAY', function () {
-    fixtures.valid.forEach(function (f) {
-      if (f.signatures) {
+    sighash_fixtures.valid.forEach(function (f) {
         f.signatures.forEach(function (g) {
           if (g.hashType == "SIGHASH_SINGLE | SIGHASH_ANYONECANPAY") {
             it('should return SIGHASH_SINGLE | SIGHASH_ANYONECANPAY hash for ' + f.id, function () {
@@ -230,7 +224,6 @@ describe('Transaction', function () {
             })
           }
         })
-      }
     })
   })
 })
