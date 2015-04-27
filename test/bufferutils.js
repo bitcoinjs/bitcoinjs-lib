@@ -88,22 +88,6 @@ describe('bufferutils', function () {
     })
   })
 
-  describe('equal', function () {
-    fixtures.valid.forEach(function (f) {
-      describe('for ' + f.hexVI, function () {
-        fixtures.valid.forEach(function (f2) {
-          it('equates the string comparison: ' + f.hexVI + ' === ' + f2.hexVI, function () {
-            var a = new Buffer(f.hexVI, 'hex')
-            var b = new Buffer(f2.hexVI, 'hex')
-            var expected = f.hexVI === f2.hexVI
-
-            assert.equal(bufferutils.equal(a, b), expected)
-          })
-        })
-      })
-    })
-  })
-
   describe('reverse', function () {
     fixtures.valid.forEach(function (f) {
       it('reverses ' + f.hex64 + ' correctly', function () {
