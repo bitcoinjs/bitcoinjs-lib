@@ -6,6 +6,7 @@ var Transaction = require('../src/transaction')
 var Script = require('../src/script')
 
 var fixtures = require('./fixtures/transaction')
+var sighash_fixtures = require('./fixtures/transaction_sighash');
 
 describe('Transaction', function () {
   function fromRaw (raw) {
@@ -164,6 +165,65 @@ describe('Transaction', function () {
     })
   })
 
-  // TODO:
-  //  hashForSignature: [Function],
+  describe('hashForSignature/SIGHASH_ALL', function () {
+    sighash_fixtures.valid.forEach(function (f) {
+        f.signatures.forEach(function (g) {
+          if (g.hashType == "SIGHASH_ALL") {
+            it('should return SIGHASH_ALL hash for ' + f.id, function () {
+              var tx = Transaction.fromHex(f.hex);
+
+              // tx.ins[g.input].script may not be the correct prevOutScript, but it doesn't really matter
+              // because all we're interested in testing is the hash value, not private key signature verification
+              var actual = tx.hashForSignature(g.input, tx.ins[g.input].script, Transaction.SIGHASH_ALL);
+              assert.equal(actual, g.hash);
+            })
+          }
+        })
+    })
+  })
+
+  describe('hashForSignature/SIGHASH_NONE', function () {
+    sighash_fixtures.valid.forEach(function (f) {
+        f.signatures.forEach(function (g) {
+          if (g.hashType == "SIGHASH_NONE") {
+            it('should return SIGHASH_NONE hash for ' + f.id, function () {
+              var tx = Transaction.fromHex(f.hex);
+
+              var actual = tx.hashForSignature(g.input, tx.ins[g.input].script, Transaction.SIGHASH_NONE);
+              assert.equal(actual, g.hash);
+            })
+          }
+        })
+    })
+  })
+
+  describe('hashForSignature/SIGHASH_SINGLE', function () {
+    sighash_fixtures.valid.forEach(function (f) {
+        f.signatures.forEach(function (g) {
+          if (g.hashType == "SIGHASH_SINGLE") {
+            it('should return SIGHASH_SINGLE hash for ' + f.id, function () {
+              var tx = Transaction.fromHex(f.hex);
+
+              var actual = tx.hashForSignature(g.input, tx.ins[g.input].script, Transaction.SIGHASH_SINGLE);
+              assert.equal(actual, g.hash);
+            })
+          }
+        })
+    })
+  })
+
+  describe('hashForSignature/SIGHASH_SINGLE | SIGHASH_ANYONECANPAY', function () {
+    sighash_fixtures.valid.forEach(function (f) {
+        f.signatures.forEach(function (g) {
+          if (g.hashType == "SIGHASH_SINGLE | SIGHASH_ANYONECANPAY") {
+            it('should return SIGHASH_SINGLE | SIGHASH_ANYONECANPAY hash for ' + f.id, function () {
+              var tx = Transaction.fromHex(f.hex);
+
+              var actual = tx.hashForSignature(g.input, tx.ins[g.input].script, Transaction.SIGHASH_SINGLE | Transaction.SIGHASH_ANYONECANPAY);
+              assert.equal(actual, g.hash);
+            })
+          }
+        })
+    })
+  })
 })

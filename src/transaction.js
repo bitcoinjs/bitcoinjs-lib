@@ -200,18 +200,46 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   txTmp.ins.forEach(function (txIn) {
     txIn.script = Script.EMPTY
   })
-  txTmp.ins[inIndex].script = hashScript
+  txTmp.ins[inIndex].script = hashScript;
 
-  var hashTypeModifier = hashType & 0x1f
+  if ((hashType & 0x1f) === Transaction.SIGHASH_NONE) {
+    //The output of txTmp is set to a vector of zero size.
+    txTmp.outs = [];
 
-  if (hashTypeModifier === Transaction.SIGHASH_NONE) {
-    assert(false, 'SIGHASH_NONE not yet supported')
-  } else if (hashTypeModifier === Transaction.SIGHASH_SINGLE) {
-    assert(false, 'SIGHASH_SINGLE not yet supported')
+    //All other inputs aside from the current input in txTmp have their nSequence index set to zero
+    txTmp.ins.forEach(function (input, i) {
+      if (i != inIndex) {
+        txCopy.Inputs[i].Sequence = 0;
+      }
+    });
   }
 
+  if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE) {
+    //Resize the outputs to inIndex+1 number of entries
+    txTmp.outs = txTmp.outs.slice(0, inIndex);
+
+    //All other txTmp outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
+    var stubOut = {
+      script: Script.EMPTY,
+      value: -1
+    }
+    txTmp.outs.forEach(function (output, i) {
+      if (i != inIndex) {
+        txTmp.outs[i] = stubOut;
+      }
+    });
+
+    //All other inputs aside from the current input in txTmp have their nSequence index set to zero
+    txTmp.ins.forEach(function (input, i) {
+      if (i != inIndex) {
+        txCopy.Inputs[i].Sequence = 0;
+      }
+    });
+  }
+  
   if (hashType & Transaction.SIGHASH_ANYONECANPAY) {
-    assert(false, 'SIGHASH_ANYONECANPAY not yet supported')
+    txTmp.ins = txTmp.slice(inIndex, inIndex);
+    txTmp.ins[0].script = hashScript;
   }
 
   var hashTypeBuffer = new Buffer(4)
