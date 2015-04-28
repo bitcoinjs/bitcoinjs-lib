@@ -104,7 +104,7 @@ describe('Bitcoin-core', function () {
       if (!params.isPrivkey) return
       var keyPair = ECPair.fromWIF(string)
 
-      it('imports ' + string + ' correctly', function () {
+      it('imports ' + string, function () {
         assert.equal(keyPair.d.toHex(), hex)
         assert.equal(keyPair.compressed, params.isCompressed)
       })
