@@ -11,6 +11,7 @@ var ECSignature = Bitcoin.ECSignature
 var Transaction = Bitcoin.Transaction
 var Script = Bitcoin.Script
 
+var bufferutils = Bitcoin.bufferutils
 var networks = Bitcoin.networks
 
 var base58_encode_decode = require('./fixtures/core/base58_encode_decode.json')
@@ -158,21 +159,18 @@ describe('Bitcoin-core', function () {
       it('can decode ' + fhex, function () {
         var transaction = Transaction.fromHex(fhex)
 
-        transaction.ins.forEach(function (txin, i) {
+        transaction.ins.forEach(function (txIn, i) {
           var input = inputs[i]
-          var prevOutHash = input[0]
+
+          // reverse because test data is big-endian
+          var prevOutHash = bufferutils.reverse(new Buffer(input[0], 'hex'))
           var prevOutIndex = input[1]
           //          var prevOutScriptPubKey = input[2] // TODO: we don't have a ASM parser
 
-          var actualHash = txin.hash
-
-          // Test data is big-endian
-          Array.prototype.reverse.call(actualHash)
-
-          assert.equal(actualHash.toString('hex'), prevOutHash)
+          assert.deepEqual(txIn.hash, prevOutHash)
 
           // we read UInt32, not Int32
-          assert.equal(txin.index & 0xffffffff, prevOutIndex)
+          assert.equal(txIn.index & 0xffffffff, prevOutIndex)
         })
       })
     })
@@ -188,7 +186,9 @@ describe('Bitcoin-core', function () {
       var scriptHex = f[1]
       var inIndex = f[2]
       var hashType = f[3]
-      var expectedHash = f[4]
+
+      // reverse because test data is big-endian
+      var expectedHash = bufferutils.reverse(new Buffer(f[4], 'hex'))
 
       it('should hash ' + txHex + ' correctly', function () {
         var transaction = Transaction.fromHex(txHex)
@@ -207,10 +207,7 @@ describe('Bitcoin-core', function () {
         }
 
         if (actualHash !== undefined) {
-          // Test data is big-endian
-          Array.prototype.reverse.call(actualHash)
-
-          assert.equal(actualHash.toString('hex'), expectedHash)
+          assert.deepEqual(actualHash, expectedHash)
         }
       })
     })
