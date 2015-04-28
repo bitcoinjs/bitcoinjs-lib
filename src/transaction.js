@@ -223,7 +223,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE) {
     var nOut = inIndex
 
-    // only lock-in the txout payee at same index as txIn
+    // only lock-in the txOut payee at same index as txIn
     // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L60
     if (nOut >= this.outs.length) return one
 
