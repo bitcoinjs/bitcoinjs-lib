@@ -9,17 +9,17 @@ var crypto = require('crypto')
 
 describe('bitcoinjs-lib (crypto)', function () {
   it('can generate a single-key stealth address', function () {
-    var receiver = bitcoin.ECKey.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss')
+    var receiver = bitcoin.ECPair.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss')
 
     // XXX: ephemeral, must be random (and secret to sender) to preserve privacy
-    var sender = bitcoin.ECKey.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
+    var sender = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
 
-    var G = bitcoin.ECKey.curve.G
+    var G = bitcoin.ECPair.curve.G
     var d = receiver.d // secret (receiver only)
-    var Q = receiver.pub.Q // shared
+    var Q = receiver.Q // shared
 
     var e = sender.d // secret (sender only)
-    var P = sender.pub.Q // shared
+    var P = sender.Q // shared
 
     // derived shared secret
     var eQ = Q.multiply(e) // sender
@@ -35,7 +35,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     assert.deepEqual(QprimeR.getEncoded(), QprimeS.getEncoded())
 
     // derived shared-secret address
-    var address = new bitcoin.ECPubKey(QprimeS).getAddress().toString()
+    var address = new bitcoin.ECPair(null, QprimeS).getAddress().toString()
 
     assert.equal(address, '1EwCNJNZM5q58YPPTnjR1H5BvYRNeyZi47')
   })
@@ -45,13 +45,14 @@ describe('bitcoinjs-lib (crypto)', function () {
 
   it("can recover a parent private key from the parent's public key and a derived non-hardened child private key", function () {
     function recoverParent (master, child) {
-      assert(!master.privKey, 'You already have the parent private key')
-      assert(child.privKey, 'Missing child private key')
+      assert(!master.keyPair.d, 'You already have the parent private key')
+      assert(child.keyPair.d, 'Missing child private key')
 
-      var curve = bitcoin.ECKey.curve
-      var QP = master.pubKey.toBuffer()
-      var QP64 = QP.toString('base64')
-      var d1 = child.privKey.d
+      var curve = bitcoin.ECPair.curve
+      var QP = master.keyPair.Q
+      var serQP = master.keyPair.getPublicKeyBuffer()
+
+      var d1 = child.keyPair.d
       var d2
       var indexBuffer = new Buffer(4)
 
@@ -60,7 +61,7 @@ describe('bitcoinjs-lib (crypto)', function () {
         indexBuffer.writeUInt32BE(i, 0)
 
         // calculate I
-        var data = Buffer.concat([QP, indexBuffer])
+        var data = Buffer.concat([serQP, indexBuffer])
         var I = crypto.createHmac('sha512', master.chainCode).update(data).digest()
         var IL = I.slice(0, 32)
         var pIL = bigi.fromBuffer(IL)
@@ -68,11 +69,11 @@ describe('bitcoinjs-lib (crypto)', function () {
         // See hdnode.js:273 to understand
         d2 = d1.subtract(pIL).mod(curve.n)
 
-        var Qp = new bitcoin.ECKey(d2, true).pub.toBuffer()
-        if (Qp.toString('base64') === QP64) break
+        var Qp = new bitcoin.ECPair(d2).Q
+        if (Qp.equals(QP)) break
       }
 
-      var node = new bitcoin.HDNode(d2, master.chainCode, master.network)
+      var node = new bitcoin.HDNode(new bitcoin.ECPair(d2), master.chainCode, master.network)
       node.depth = master.depth
       node.index = master.index
       node.masterFingerprint = master.masterFingerprint
@@ -133,7 +134,7 @@ describe('bitcoinjs-lib (crypto)', function () {
             var prevOutScript = prevOut.outs[prevVout].script
 
             var scriptSignature = bitcoin.ECSignature.parseScriptSignature(script.chunks[0])
-            var publicKey = bitcoin.ECPubKey.fromBuffer(script.chunks[1])
+            var publicKey = bitcoin.ECPair.fromPublicKeyBuffer(script.chunks[1])
 
             var m = transaction.hashForSignature(input.vout, prevOutScript, scriptSignature.hashType)
             assert(publicKey.verify(m, scriptSignature.signature), 'Invalid m')
@@ -151,7 +152,8 @@ describe('bitcoinjs-lib (crypto)', function () {
       async.parallel(tasks, function (err) {
         if (err)
           throw err
-        var n = bitcoin.ECKey.curve.n
+
+        var n = bitcoin.ECPair.curve.n
 
         for (var i = 0; i < inputs.length; ++i) {
           for (var j = i + 1; j < inputs.length; ++j) {

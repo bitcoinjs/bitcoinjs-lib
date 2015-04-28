@@ -32,6 +32,17 @@ describe('bufferutils', function () {
         assert.equal(d.size, buffer.length)
       })
     })
+
+    fixtures.invalid.readPushDataInt.forEach(function (f) {
+      if (!f.hexPD) return
+
+      it('decodes ' + f.hexPD + ' as null', function () {
+        var buffer = new Buffer(f.hexPD, 'hex')
+
+        var n = bufferutils.readPushDataInt(buffer, 0)
+        assert.equal(n, null)
+      })
+    })
   })
 
   describe('readUInt64LE', function () {
@@ -44,7 +55,7 @@ describe('bufferutils', function () {
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.readUInt64LE.forEach(function (f) {
       it('throws on ' + f.description, function () {
         var buffer = new Buffer(f.hex64, 'hex')
 
@@ -66,29 +77,13 @@ describe('bufferutils', function () {
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.readUInt64LE.forEach(function (f) {
       it('throws on ' + f.description, function () {
         var buffer = new Buffer(f.hexVI, 'hex')
 
         assert.throws(function () {
           bufferutils.readVarInt(buffer, 0)
         }, new RegExp(f.exception))
-      })
-    })
-  })
-
-  describe('equal', function () {
-    fixtures.valid.forEach(function (f) {
-      describe('for ' + f.hexVI, function () {
-        fixtures.valid.forEach(function (f2) {
-          it('equates the string comparison: ' + f.hexVI + ' === ' + f2.hexVI, function () {
-            var a = new Buffer(f.hexVI, 'hex')
-            var b = new Buffer(f2.hexVI, 'hex')
-            var expected = f.hexVI === f2.hexVI
-
-            assert.equal(bufferutils.equal(a, b), expected)
-          })
-        })
       })
     })
   })
@@ -151,7 +146,7 @@ describe('bufferutils', function () {
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.readUInt64LE.forEach(function (f) {
       it('throws on ' + f.description, function () {
         var buffer = new Buffer(8)
         buffer.fill(0)
@@ -174,7 +169,7 @@ describe('bufferutils', function () {
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.readUInt64LE.forEach(function (f) {
       it('throws on ' + f.description, function () {
         var buffer = new Buffer(9)
         buffer.fill(0)

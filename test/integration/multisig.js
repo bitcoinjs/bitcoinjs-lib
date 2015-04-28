@@ -10,27 +10,29 @@ describe('bitcoinjs-lib (multisig)', function () {
       '026477115981fe981a6918a6297d9803c4dc04f328f22041bedff886bbc2962e01',
       '02c96db2302d19b43d4c69368babace7854cc84eb9e061cde51cfa77ca4a22b8b9',
       '03c6103b3b83e4a24a0e33a4df246ef11772f9992663db0c35759a5e2ebf68d8e9'
-    ].map(bitcoin.ECPubKey.fromHex)
+    ].map(function (hex) {
+      return new Buffer(hex, 'hex')
+    })
 
     var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
     var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
-    var address = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
+    var address = bitcoin.Address.fromOutputScript(scriptPubKey)
 
     assert.equal(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
   })
 
-  it('can spend from a 2-of-2 multsig P2SH address', function (done) {
+  it('can spend from a 2-of-4 multsig P2SH address', function (done) {
     this.timeout(20000)
 
-    var privKeys = [
+    var keyPairs = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
-      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT'
-    ].map(bitcoin.ECKey.fromWIF)
-    var pubKeys = privKeys.map(function (x) {
-      return x.pub
-    })
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT',
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe',
+      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx9rcrL7'
+    ].map(bitcoin.ECPair.fromWIF)
+    var pubKeys = keyPairs.map(function (x) { return x.getPublicKeyBuffer() })
 
-    var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 2
+    var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 4
     var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
     var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
 
@@ -42,7 +44,7 @@ describe('bitcoinjs-lib (multisig)', function () {
       blockchain.addresses.unspents(address, function (err, unspents) {
         if (err) return done(err)
 
-        // filter small unspents
+          // filter small unspents
         unspents = unspents.filter(function (unspent) {
           return unspent.value > 1e4
         })
@@ -51,16 +53,17 @@ describe('bitcoinjs-lib (multisig)', function () {
         var unspent = unspents.pop()
 
         // make a random destination address
-        var targetAddress = bitcoin.ECKey.makeRandom().pub.getAddress(bitcoin.networks.testnet).toString()
+        var targetAddress = bitcoin.ECPair.makeRandom({
+          network: bitcoin.networks.testnet
+        }).getAddress().toString()
 
         var txb = new bitcoin.TransactionBuilder()
         txb.addInput(unspent.txId, unspent.vout)
         txb.addOutput(targetAddress, 1e4)
 
-        // sign w/ each private key
-        privKeys.forEach(function (privKey) {
-          txb.sign(0, privKey, redeemScript)
-        })
+        // sign with 1st and 3rd key
+        txb.sign(0, keyPairs[0], redeemScript)
+        txb.sign(0, keyPairs[2], redeemScript)
 
         // broadcast our transaction
         blockchain.transactions.propagate(txb.build().toHex(), function (err) {

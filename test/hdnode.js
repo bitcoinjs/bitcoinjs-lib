@@ -1,98 +1,54 @@
-/* global describe, it */
+/* global describe, it, beforeEach */
 /* eslint-disable no-new */
 
 var assert = require('assert')
 var networks = require('../src/networks')
+var sinon = require('sinon')
 
 var BigInteger = require('bigi')
-var ECKey = require('../src/eckey')
-var ECPubKey = require('../src/ecpubkey')
+var ECPair = require('../src/ecpair')
 var HDNode = require('../src/hdnode')
-
-var ecurve = require('ecurve')
-var curve = ecurve.getCurveByName('secp256k1')
 
 var fixtures = require('./fixtures/hdnode.json')
 
 describe('HDNode', function () {
   describe('Constructor', function () {
-    var d = BigInteger.ONE
-    var Q = curve.G.multiply(d)
-    var chainCode = new Buffer(32)
-    chainCode.fill(1)
+    var keyPair, chainCode
 
-    it('calculates the publicKey from a BigInteger', function () {
-      var hd = new HDNode(d, chainCode)
+    beforeEach(function () {
+      var d = BigInteger.ONE
 
-      assert(hd.pubKey.Q.equals(Q))
-    })
-
-    it('allows initialization directly from an ECKey', function () {
-      var ek = new ECKey(d)
-      var hd = new HDNode(ek, chainCode)
-
-      assert.equal(hd.privKey, ek)
-    })
-
-    it('allows initialization directly from an ECPubKey', function () {
-      var ek = new ECPubKey(Q)
-      var hd = new HDNode(ek, chainCode)
-
-      assert.equal(hd.pubKey, ek)
-    })
-
-    it('throws if ECKey is not compressed', function () {
-      var ek = new ECKey(d, false)
-
-      assert.throws(function () {
-        new HDNode(ek, chainCode)
-      }, /ECKey must be compressed/)
-    })
-
-    it('throws if ECPubKey is not compressed', function () {
-      var ek = new ECPubKey(Q, false)
-
-      assert.throws(function () {
-        new HDNode(ek, chainCode)
-      }, /ECPubKey must be compressed/)
-    })
-
-    it('only uses compressed points', function () {
-      var hd = new HDNode(Q, chainCode)
-      var hdP = new HDNode(d, chainCode)
-
-      assert.strictEqual(hd.pubKey.compressed, true)
-      assert.strictEqual(hdP.pubKey.compressed, true)
+      keyPair = new ECPair(d, null)
+      chainCode = new Buffer(32)
+      chainCode.fill(1)
     })
 
     it('has a default depth/index of 0', function () {
-      var hd = new HDNode(Q, chainCode)
+      var hd = new HDNode(keyPair, chainCode)
 
       assert.strictEqual(hd.depth, 0)
       assert.strictEqual(hd.index, 0)
     })
 
-    it('defaults to the bitcoin network', function () {
-      var hd = new HDNode(Q, chainCode)
+    it('throws on uncompressed keyPair', function () {
+      keyPair.compressed = false
 
-      assert.equal(hd.network, networks.bitcoin)
-    })
-
-    it('supports alternative networks', function () {
-      var hd = new HDNode(Q, chainCode, networks.testnet)
-
-      assert.equal(hd.network, networks.testnet)
+      assert.throws(function () {
+        new HDNode(keyPair, chainCode)
+      }, /BIP32 only allows compressed keyPairs/)
     })
 
     it('throws when an invalid length chain code is given', function () {
       assert.throws(function () {
-        new HDNode(d, chainCode.slice(0, 20), networks.testnet)
+        new HDNode(keyPair, chainCode.slice(0, 20))
       }, /Expected chainCode length of 32, got 20/)
     })
 
     it('throws when an unknown network is given', function () {
+      keyPair.network = {}
+
       assert.throws(function () {
-        new HDNode(d, chainCode, {})
+        new HDNode(keyPair, chainCode)
       }, /Unknown BIP32 constants for network/)
     })
   })
@@ -103,7 +59,7 @@ describe('HDNode', function () {
         var network = networks[f.network]
         var hd = HDNode.fromSeedHex(f.master.seed, network)
 
-        assert.equal(hd.privKey.toWIF(network), f.master.wif)
+        assert.equal(hd.keyPair.toWIF(), f.master.wif)
         assert.equal(hd.chainCode.toString('hex'), f.master.chainCode)
       })
     })
@@ -144,17 +100,21 @@ describe('HDNode', function () {
   describe('fromBase58', function () {
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.master.base58 + ' (public) correctly', function () {
+        var network = networks[f.network]
         var hd = HDNode.fromBase58(f.master.base58)
 
         assert.equal(hd.toBase58(), f.master.base58)
+        assert.equal(hd.keyPair.network, network)
       })
     })
 
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.master.base58Priv + ' (private) correctly', function () {
-        var hd = HDNode.fromBase58(f.master.base58Priv)
+        var network = networks[f.network]
+        var hd = HDNode.fromBase58(f.master.base58Priv, network)
 
         assert.equal(hd.toBase58(), f.master.base58Priv)
+        assert.equal(hd.keyPair.network, network)
       })
     })
 
@@ -190,13 +150,20 @@ describe('HDNode', function () {
   })
 
   describe('getAddress', function () {
-    fixtures.valid.forEach(function (f) {
-      it('returns ' + f.master.address + ' for ' + f.master.fingerprint, function () {
-        var hd = HDNode.fromBase58(f.master.base58)
+    var hd
 
-        assert.equal(hd.getAddress().toString(), f.master.address)
-      })
+    beforeEach(function () {
+      var f = fixtures.valid[0]
+
+      hd = HDNode.fromBase58(f.master.base58)
     })
+
+    it('wraps ECPair.getAddress', sinon.test(function () {
+      this.mock(hd.keyPair).expects('getAddress')
+        .once().returns('foobar')
+
+      assert.equal(hd.getAddress(), 'foobar')
+    }))
   })
 
   describe('neutered', function () {
@@ -206,8 +173,8 @@ describe('HDNode', function () {
       var hd = HDNode.fromBase58(f.master.base58)
       var hdn = hd.neutered()
 
-      assert.equal(hdn.privKey, undefined)
-      assert.equal(hdn.pubKey.toHex(), hd.pubKey.toHex())
+      assert.equal(hdn.keyPair.d, null)
+      assert.equal(hdn.keyPair.Q, hd.keyPair.Q)
       assert.equal(hdn.chainCode, hd.chainCode)
       assert.equal(hdn.depth, hd.depth)
       assert.equal(hdn.index, hd.index)
@@ -215,9 +182,9 @@ describe('HDNode', function () {
   })
 
   describe('derive', function () {
-    function verifyVector (hd, network, v, depth) {
-      assert.equal(hd.privKey.toWIF(network), v.wif)
-      assert.equal(hd.pubKey.toHex(), v.pubKey)
+    function verifyVector (hd, v, depth) {
+      assert.equal(hd.keyPair.toWIF(), v.wif)
+      assert.equal(hd.keyPair.getPublicKeyBuffer().toString('hex'), v.pubKey)
       assert.equal(hd.chainCode.toString('hex'), v.chainCode)
       assert.equal(hd.depth, depth || 0)
 
@@ -241,7 +208,7 @@ describe('HDNode', function () {
             hd = hd.derive(c.m)
           }
 
-          verifyVector(hd, network, c, i + 1)
+          verifyVector(hd, c, i + 1)
         })
       })
     })

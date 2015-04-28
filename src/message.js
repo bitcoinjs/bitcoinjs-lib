@@ -4,30 +4,30 @@ var ecdsa = require('./ecdsa')
 var networks = require('./networks')
 
 var BigInteger = require('bigi')
-var ECPubKey = require('./ecpubkey')
+var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 
 var ecurve = require('ecurve')
 var ecparams = ecurve.getCurveByName('secp256k1')
 
 function magicHash (message, network) {
-  var magicPrefix = new Buffer(network.magicPrefix)
+  var messagePrefix = new Buffer(network.messagePrefix)
   var messageBuffer = new Buffer(message)
   var lengthBuffer = bufferutils.varIntBuffer(messageBuffer.length)
 
-  var buffer = Buffer.concat([magicPrefix, lengthBuffer, messageBuffer])
+  var buffer = Buffer.concat([messagePrefix, lengthBuffer, messageBuffer])
   return crypto.hash256(buffer)
 }
 
-function sign (privKey, message, network) {
+function sign (keyPair, message, network) {
   network = network || networks.bitcoin
 
   var hash = magicHash(message, network)
-  var signature = privKey.sign(hash)
+  var signature = keyPair.sign(hash)
   var e = BigInteger.fromBuffer(hash)
-  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, signature, privKey.pub.Q)
+  var i = ecdsa.calcPubKeyRecoveryParam(ecparams, e, signature, keyPair.Q)
 
-  return signature.toCompact(i, privKey.pub.compressed)
+  return signature.toCompact(i, keyPair.compressed)
 }
 
 // TODO: network could be implied from address
@@ -42,9 +42,12 @@ function verify (address, signature, message, network) {
   var parsed = ECSignature.parseCompact(signature)
   var e = BigInteger.fromBuffer(hash)
   var Q = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
+  var keyPair = new ECPair(null, Q, {
+    compressed: parsed.compressed,
+    network: network
+  })
 
-  var pubKey = new ECPubKey(Q, parsed.compressed)
-  return pubKey.getAddress(network).toString() === address.toString()
+  return keyPair.getAddress().toString() === address.toString()
 }
 
 module.exports = {

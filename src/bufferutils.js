@@ -27,16 +27,19 @@ function readPushDataInt (buffer, offset) {
 
   // 8 bit
   } else if (opcode === opcodes.OP_PUSHDATA1) {
+    if (offset + 2 > buffer.length) return null
     number = buffer.readUInt8(offset + 1)
     size = 2
 
   // 16 bit
   } else if (opcode === opcodes.OP_PUSHDATA2) {
+    if (offset + 3 > buffer.length) return null
     number = buffer.readUInt16LE(offset + 1)
     size = 3
 
   // 32 bit
   } else {
+    if (offset + 5 > buffer.length) return null
     assert.equal(opcode, opcodes.OP_PUSHDATA4, 'Unexpected opcode')
 
     number = buffer.readUInt32LE(offset + 1)
@@ -165,16 +168,6 @@ function varIntBuffer (i) {
   return buffer
 }
 
-function equal (a, b) {
-  if (a.length !== b.length) return false
-
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false
-  }
-
-  return true
-}
-
 function reverse (buffer) {
   var buffer2 = new Buffer(buffer)
   Array.prototype.reverse.call(buffer2)
@@ -182,7 +175,6 @@ function reverse (buffer) {
 }
 
 module.exports = {
-  equal: equal,
   pushDataSize: pushDataSize,
   readPushDataInt: readPushDataInt,
   readUInt64LE: readUInt64LE,

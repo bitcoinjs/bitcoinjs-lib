@@ -28,8 +28,13 @@ describe('Script', function () {
 
   describe('fromASM/toASM', function () {
     fixtures.valid.forEach(function (f) {
+      if (!f.asm) return
+
       it('decodes/encodes ' + f.description, function () {
-        assert.equal(Script.fromASM(f.asm).toASM(), f.asm)
+        var script = Script.fromASM(f.asm)
+
+        assert.equal(script.toASM(), f.asm)
+        assert.equal(script.toHex(), f.hex)
       })
     })
   })
@@ -37,14 +42,17 @@ describe('Script', function () {
   describe('fromHex/toHex', function () {
     fixtures.valid.forEach(function (f) {
       it('decodes/encodes ' + f.description, function () {
-        assert.equal(Script.fromHex(f.hex).toHex(), f.hex)
+        var script = Script.fromHex(f.hex)
+
+        assert.equal(script.toASM(), f.asm)
+        assert.equal(script.toHex(), f.hex)
       })
     })
   })
 
   describe('getHash', function () {
     fixtures.valid.forEach(function (f) {
-      it('produces a HASH160 of "' + f.asm + '"', function () {
+      it('produces a HASH160 of ' + f.description, function () {
         var script = Script.fromHex(f.hex)
 
         assert.equal(script.getHash().toString('hex'), f.hash)
