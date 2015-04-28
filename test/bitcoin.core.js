@@ -190,25 +190,23 @@ describe('Bitcoin-core', function () {
       // reverse because test data is big-endian
       var expectedHash = bufferutils.reverse(new Buffer(f[4], 'hex'))
 
-      it('should hash ' + txHex + ' correctly', function () {
+      var hashTypes = []
+      if ((hashType & 0x1f) === Transaction.SIGHASH_NONE) hashTypes.push('SIGHASH_NONE')
+      else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE) hashTypes.push('SIGHASH_SINGLE')
+      else hashTypes.push('SIGHASH_ALL')
+      if (hashType & Transaction.SIGHASH_ANYONECANPAY) hashTypes.push('SIGHASH_ANYONECANPAY')
+
+      var hashTypeName = hashTypes.join(' | ')
+
+      it('should hash ' + txHex.slice(0, 40) + '... (' + hashTypeName + ')', function () {
         var transaction = Transaction.fromHex(txHex)
         assert.equal(transaction.toHex(), txHex)
 
         var script = Script.fromHex(scriptHex)
         assert.equal(script.toHex(), scriptHex)
 
-        var actualHash
-        try {
-          actualHash = transaction.hashForSignature(inIndex, script, hashType)
-        } catch (e) {
-          // don't fail if we don't support it yet, TODO
-          if (!e.message.match(/not yet supported/))
-            throw e
-        }
-
-        if (actualHash !== undefined) {
-          assert.deepEqual(actualHash, expectedHash)
-        }
+        var hash = transaction.hashForSignature(inIndex, script, hashType)
+        assert.deepEqual(hash, expectedHash)
       })
     })
   })
