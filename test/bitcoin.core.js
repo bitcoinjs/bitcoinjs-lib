@@ -166,12 +166,42 @@ describe('Bitcoin-core', function () {
           // reverse because test data is big-endian
           var prevOutHash = bufferutils.reverse(new Buffer(input[0], 'hex'))
           var prevOutIndex = input[1]
-          //          var prevOutScriptPubKey = input[2] // TODO: we don't have a ASM parser
 
           assert.deepEqual(txIn.hash, prevOutHash)
 
           // we read UInt32, not Int32
           assert.strictEqual(txIn.index & 0xffffffff, prevOutIndex)
+        })
+      })
+    })
+  })
+
+  describe('Script', function () {
+    tx_valid.forEach(function (f) {
+      // Objects that are only a single string are ignored
+      if (f.length === 1) return
+
+      var inputs = f[0]
+
+      inputs.forEach(function (input) {
+        var prevOutScriptPubKey = input[2]
+        .replace(/(^| )1( |$)/g, 'OP_1 ').replace(/(^| )2( |$)/g, 'OP_2 ').replace(/(^| )3( |$)/g, 'OP_3 ')
+        .replace(/(^| )4( |$)/g, 'OP_4 ').replace(/(^| )5( |$)/g, 'OP_5 ').replace(/(^| )6( |$)/g, 'OP_6 ')
+        .replace(/(^| )7( |$)/g, 'OP_7 ').replace(/(^| )8( |$)/g, 'OP_8 ').replace(/(^| )9( |$)/g, 'OP_9 ')
+        .replace(/0x[a-f0-9]+ 0x([a-f0-9]+)/, '$1')
+        .replace(/DUP/g, 'OP_DUP')
+        .replace(/NOT/g, 'OP_NOT')
+        .replace(/HASH160/g, 'OP_HASH160')
+        .replace(/EQUALVERIFY/g, 'OP_EQUALVERIFY')
+        .replace(/EQUAL( |$)/g, 'OP_EQUAL ')
+        .replace(/CHECKSIG/g, 'OP_CHECKSIG')
+        .replace(/ CHECKMULTISIG/g, ' OP_CHECKMULTISIG')
+        .replace(/CODESEPARATOR/g, 'OP_CODESEPARATOR')
+        .replace(/CHECKSIGVERIFY/g, 'OP_CHECKSIGVERIFY')
+
+        it('can decode ' + prevOutScriptPubKey, function () {
+          // TODO: we can probably do better validation than this
+          Script.fromASM(prevOutScriptPubKey)
         })
       })
     })
