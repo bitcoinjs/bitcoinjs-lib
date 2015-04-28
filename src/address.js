@@ -1,62 +1,67 @@
 var assert = require('assert')
-var base58check = require('bs58check')
-var typeForce = require('typeforce')
+var bs58check = require('bs58check')
 var networks = require('./networks')
 var scripts = require('./scripts')
 
-function findScriptTypeByVersion (version) {
-  for (var networkName in networks) {
-    var network = networks[networkName]
+function fromOutputScript(script, network) {
+  var payload = new Buffer(21)
+  var hash, version
 
-    if (version === network.pubKeyHash) return 'pubkeyhash'
-    if (version === network.scriptHash) return 'scripthash'
+  if (scripts.isPubKeyHashOutput(script)) {
+    version = network.pubKeyHash
+    hash = script.chunks[2]
+
+  } else if (scripts.isScriptHashOutput(script)) {
+    version = network.scriptHash
+    hash = script.chunks[1]
+
+  } else {
+    assert(false, script.toASM() + ' has no matching Address')
   }
+
+  payload.writeUInt8(version, 0)
+  hash.copy(payload, 1)
+
+  return bs58check.encode(payload)
 }
 
-function Address (hash, version) {
-  typeForce('Buffer', hash)
-
-  assert.strictEqual(hash.length, 20, 'Invalid hash length')
-  assert.strictEqual(version & 0xff, version, 'Invalid version byte')
-
-  this.hash = hash
-  this.version = version
-}
-
-Address.fromBase58Check = function (string) {
-  var payload = base58check.decode(string)
+// FIXME: remove network search
+function toOutputScript(address) {
+  var payload = bs58check.decode(address)
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
 
-  return new Address(hash, version)
+  for (var networkStr in networks) {
+    var network = networks[networkStr]
+
+    if (version === network.pubKeyHash) {
+      return scripts.pubKeyHashOutput(hash)
+
+    } else if (version === network.scriptHash) {
+      return scripts.scriptHashOutput(hash)
+    }
+  }
+
+  assert(false, address + ' has no matching Script')
 }
 
-Address.fromOutputScript = function (script, network) {
-  network = network || networks.bitcoin
+function validate(address, network) {
+  if (typeof network === 'string') network = networks[network]
 
-  if (scripts.isPubKeyHashOutput(script)) return new Address(script.chunks[2], network.pubKeyHash)
-  if (scripts.isScriptHashOutput(script)) return new Address(script.chunks[1], network.scriptHash)
+  try { var payload = bs58check.decode(address)
+    assert.equal(payload.length, 21)
 
-  assert(false, script.toASM() + ' has no matching Address')
+    var version = payload.readUInt8(0)
+
+    assert(version === network.pubKeyHash || version === network.scriptHash)
+
+  } catch (e) {
+    throw new Error(address + ' is not a valid ' + network + ' address')
+  }
 }
 
-Address.prototype.toBase58Check = function () {
-  var payload = new Buffer(21)
-  payload.writeUInt8(this.version, 0)
-  this.hash.copy(payload, 1)
-
-  return base58check.encode(payload)
+module.exports = {
+  fromOutputScript: fromOutputScript,
+  toOutputScript: toOutputScript,
+  validate: validate
 }
-
-Address.prototype.toOutputScript = function () {
-  var scriptType = findScriptTypeByVersion(this.version)
-
-  if (scriptType === 'pubkeyhash') return scripts.pubKeyHashOutput(this.hash)
-  if (scriptType === 'scripthash') return scripts.scriptHashOutput(this.hash)
-
-  assert(false, this.toString() + ' has no matching Script')
-}
-
-Address.prototype.toString = Address.prototype.toBase58Check
-
-module.exports = Address
