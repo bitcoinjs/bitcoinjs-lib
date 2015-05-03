@@ -11,6 +11,7 @@ var ECSignature = Bitcoin.ECSignature
 var Transaction = Bitcoin.Transaction
 var Script = Bitcoin.Script
 
+var bufferutils = Bitcoin.bufferutils
 var networks = Bitcoin.networks
 
 var base58_encode_decode = require('./fixtures/core/base58_encode_decode.json')
@@ -103,7 +104,7 @@ describe('Bitcoin-core', function () {
       if (!params.isPrivkey) return
       var keyPair = ECPair.fromWIF(string)
 
-      it('imports ' + string + ' correctly', function () {
+      it('imports ' + string, function () {
         assert.equal(keyPair.d.toHex(), hex)
         assert.equal(keyPair.compressed, params.isCompressed)
       })
@@ -158,21 +159,18 @@ describe('Bitcoin-core', function () {
       it('can decode ' + fhex, function () {
         var transaction = Transaction.fromHex(fhex)
 
-        transaction.ins.forEach(function (txin, i) {
+        transaction.ins.forEach(function (txIn, i) {
           var input = inputs[i]
-          var prevOutHash = input[0]
+
+          // reverse because test data is big-endian
+          var prevOutHash = bufferutils.reverse(new Buffer(input[0], 'hex'))
           var prevOutIndex = input[1]
           //          var prevOutScriptPubKey = input[2] // TODO: we don't have a ASM parser
 
-          var actualHash = txin.hash
-
-          // Test data is big-endian
-          Array.prototype.reverse.call(actualHash)
-
-          assert.equal(actualHash.toString('hex'), prevOutHash)
+          assert.deepEqual(txIn.hash, prevOutHash)
 
           // we read UInt32, not Int32
-          assert.equal(txin.index & 0xffffffff, prevOutIndex)
+          assert.equal(txIn.index & 0xffffffff, prevOutIndex)
         })
       })
     })
@@ -188,30 +186,27 @@ describe('Bitcoin-core', function () {
       var scriptHex = f[1]
       var inIndex = f[2]
       var hashType = f[3]
-      var expectedHash = f[4]
 
-      it('should hash ' + txHex + ' correctly', function () {
+      // reverse because test data is big-endian
+      var expectedHash = bufferutils.reverse(new Buffer(f[4], 'hex'))
+
+      var hashTypes = []
+      if ((hashType & 0x1f) === Transaction.SIGHASH_NONE) hashTypes.push('SIGHASH_NONE')
+      else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE) hashTypes.push('SIGHASH_SINGLE')
+      else hashTypes.push('SIGHASH_ALL')
+      if (hashType & Transaction.SIGHASH_ANYONECANPAY) hashTypes.push('SIGHASH_ANYONECANPAY')
+
+      var hashTypeName = hashTypes.join(' | ')
+
+      it('should hash ' + txHex.slice(0, 40) + '... (' + hashTypeName + ')', function () {
         var transaction = Transaction.fromHex(txHex)
         assert.equal(transaction.toHex(), txHex)
 
         var script = Script.fromHex(scriptHex)
         assert.equal(script.toHex(), scriptHex)
 
-        var actualHash
-        try {
-          actualHash = transaction.hashForSignature(inIndex, script, hashType)
-        } catch (e) {
-          // don't fail if we don't support it yet, TODO
-          if (!e.message.match(/not yet supported/))
-            throw e
-        }
-
-        if (actualHash !== undefined) {
-          // Test data is big-endian
-          Array.prototype.reverse.call(actualHash)
-
-          assert.equal(actualHash.toString('hex'), expectedHash)
-        }
+        var hash = transaction.hashForSignature(inIndex, script, hashType)
+        assert.deepEqual(hash, expectedHash)
       })
     })
   })
