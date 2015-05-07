@@ -37,7 +37,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     // derived shared-secret address
     var address = new bitcoin.ECPair(null, QprimeS).getAddress().toString()
 
-    assert.equal(address, '1EwCNJNZM5q58YPPTnjR1H5BvYRNeyZi47')
+    assert.strictEqual(address, '1EwCNJNZM5q58YPPTnjR1H5BvYRNeyZi47')
   })
 
   // TODO
@@ -87,7 +87,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     // now for the recovery
     var neuteredMaster = master.neutered()
     var recovered = recoverParent(neuteredMaster, child)
-    assert.equal(recovered.toBase58(), master.toBase58())
+    assert.strictEqual(recovered.toBase58(), master.toBase58())
   })
 
   it('can recover a private key from duplicate R values', function () {
@@ -161,7 +161,7 @@ describe('bitcoinjs-lib (crypto)', function () {
             var inputB = inputs[j]
 
             // enforce matching r values
-            assert.equal(inputA.signature.r.toString(), inputB.signature.r.toString())
+            assert.strictEqual(inputA.signature.r.toString(), inputB.signature.r.toString())
             var r = inputA.signature.r
             var rInv = r.modInverse(n)
 
@@ -181,7 +181,7 @@ describe('bitcoinjs-lib (crypto)', function () {
             var d2 = ((s2.multiply(k).mod(n)).subtract(z2).mod(n)).multiply(rInv).mod(n)
 
             // enforce matching private keys
-            assert.equal(d1.toString(), d2.toString())
+            assert.strictEqual(d1.toString(), d2.toString())
           }
         }
       })

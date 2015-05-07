@@ -15,8 +15,8 @@ describe('Script', function () {
       var chunks = [1]
       var script = new Script(buffer, chunks)
 
-      assert.equal(script.buffer, buffer)
-      assert.equal(script.chunks, chunks)
+      assert.strictEqual(script.buffer, buffer)
+      assert.strictEqual(script.chunks, chunks)
     })
 
     it('throws an error when input is not an array', function () {
@@ -33,8 +33,8 @@ describe('Script', function () {
       it('decodes/encodes ' + f.description, function () {
         var script = Script.fromASM(f.asm)
 
-        assert.equal(script.toASM(), f.asm)
-        assert.equal(script.toHex(), f.hex)
+        assert.strictEqual(script.toASM(), f.asm)
+        assert.strictEqual(script.toHex(), f.hex)
       })
     })
   })
@@ -44,8 +44,8 @@ describe('Script', function () {
       it('decodes/encodes ' + f.description, function () {
         var script = Script.fromHex(f.hex)
 
-        assert.equal(script.toASM(), f.asm)
-        assert.equal(script.toHex(), f.hex)
+        assert.strictEqual(script.toASM(), f.asm)
+        assert.strictEqual(script.toHex(), f.hex)
       })
     })
   })
@@ -55,7 +55,7 @@ describe('Script', function () {
       it('produces a HASH160 of ' + f.description, function () {
         var script = Script.fromHex(f.hex)
 
-        assert.equal(script.getHash().toString('hex'), f.hash)
+        assert.strictEqual(script.getHash().toString('hex'), f.hash)
       })
     })
   })
@@ -71,7 +71,7 @@ describe('Script', function () {
         opcodes.OP_EQUAL
       ])
 
-      assert.equal(script.toHex(), 'a920000000000000000000000000000000000000000000000000000000000000000087')
+      assert.strictEqual(script.toHex(), 'a920000000000000000000000000000000000000000000000000000000000000000087')
     })
   })
 
@@ -82,14 +82,14 @@ describe('Script', function () {
     it('should return a script without the given value', function () {
       var subScript = script.without(opcodes.OP_HASH160)
 
-      assert.equal(subScript.toHex(), '14e8c300c87986efa94c37c0519929019ef86eb5b487')
+      assert.strictEqual(subScript.toHex(), '14e8c300c87986efa94c37c0519929019ef86eb5b487')
     })
 
     it('shouldnt mutate the original script', function () {
       var subScript = script.without(opcodes.OP_EQUAL)
 
       assert.notEqual(subScript.toHex(), hex)
-      assert.equal(script.toHex(), hex)
+      assert.strictEqual(script.toHex(), hex)
     })
   })
 })

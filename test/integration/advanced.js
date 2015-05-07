@@ -10,7 +10,7 @@ describe('bitcoinjs-lib (advanced)', function () {
     var message = 'This is an example of a signed message.'
 
     var signature = bitcoin.message.sign(keyPair, message)
-    assert.equal(signature.toString('base64'), 'G9L5yLFjti0QTHhPyFrZCT1V/MMnBtXKmoiKDZ78NDBjERki6ZTQZdSMCtkgoNmp17By9ItJr8o7ChX0XxY91nk=')
+    assert.strictEqual(signature.toString('base64'), 'G9L5yLFjti0QTHhPyFrZCT1V/MMnBtXKmoiKDZ78NDBjERki6ZTQZdSMCtkgoNmp17By9ItJr8o7ChX0XxY91nk=')
   })
 
   it('can verify a Bitcoin message', function () {

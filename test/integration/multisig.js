@@ -16,9 +16,9 @@ describe('bitcoinjs-lib (multisig)', function () {
 
     var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
     var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
-    var address = bitcoin.Address.fromOutputScript(scriptPubKey)
+    var address = bitcoin.Address.fromOutputScript(scriptPubKey).toString()
 
-    assert.equal(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
+    assert.strictEqual(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
   })
 
   it('can spend from a 2-of-4 multsig P2SH address', function (done) {
@@ -73,7 +73,7 @@ describe('bitcoinjs-lib (multisig)', function () {
           blockchain.addresses.summary(targetAddress, function (err, result) {
             if (err) return done(err)
 
-            assert.equal(result.balance, 1e4)
+            assert.strictEqual(result.balance, 1e4)
             done()
           })
         })

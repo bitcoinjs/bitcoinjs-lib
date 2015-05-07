@@ -15,8 +15,8 @@ describe('Address', function () {
         var hash = new Buffer(f.hash, 'hex')
         var addr = new Address(hash, f.version)
 
-        assert.equal(addr.version, f.version)
-        assert.equal(addr.hash.toString('hex'), f.hash)
+        assert.strictEqual(addr.version, f.version)
+        assert.strictEqual(addr.hash.toString('hex'), f.hash)
       })
     })
   })
@@ -26,8 +26,8 @@ describe('Address', function () {
       it('imports ' + f.script + ' (' + f.network + ') correctly', function () {
         var addr = Address.fromBase58Check(f.base58check)
 
-        assert.equal(addr.version, f.version)
-        assert.equal(addr.hash.toString('hex'), f.hash)
+        assert.strictEqual(addr.version, f.version)
+        assert.strictEqual(addr.hash.toString('hex'), f.hash)
       })
     })
 
@@ -46,8 +46,8 @@ describe('Address', function () {
         var script = Script.fromASM(f.script)
         var addr = Address.fromOutputScript(script, networks[f.network])
 
-        assert.equal(addr.version, f.version)
-        assert.equal(addr.hash.toString('hex'), f.hash)
+        assert.strictEqual(addr.version, f.version)
+        assert.strictEqual(addr.hash.toString('hex'), f.hash)
       })
     })
 
@@ -68,7 +68,7 @@ describe('Address', function () {
         var addr = Address.fromBase58Check(f.base58check)
         var result = addr.toBase58Check()
 
-        assert.equal(result, f.base58check)
+        assert.strictEqual(result, f.base58check)
       })
     })
   })
@@ -79,7 +79,7 @@ describe('Address', function () {
         var addr = Address.fromBase58Check(f.base58check)
         var script = addr.toOutputScript()
 
-        assert.equal(script.toASM(), f.script)
+        assert.strictEqual(script.toASM(), f.script)
       })
     })
 

@@ -77,40 +77,40 @@ describe('TransactionBuilder', function () {
   describe('addInput', function () {
     it('accepts a txHash, index [and sequence number]', function () {
       var vin = txb.addInput(prevTxHash, 1, 54)
-      assert.equal(vin, 0)
+      assert.strictEqual(vin, 0)
 
       var txIn = txb.tx.ins[0]
-      assert.equal(txIn.hash, prevTxHash)
-      assert.equal(txIn.index, 1)
-      assert.equal(txIn.sequence, 54)
-      assert.equal(txb.inputs[0].prevOutScript, undefined)
+      assert.strictEqual(txIn.hash, prevTxHash)
+      assert.strictEqual(txIn.index, 1)
+      assert.strictEqual(txIn.sequence, 54)
+      assert.strictEqual(txb.inputs[0].prevOutScript, undefined)
     })
 
     it('accepts a txHash, index [, sequence number and scriptPubKey]', function () {
       var vin = txb.addInput(prevTxHash, 1, 54, prevTx.outs[1].script)
-      assert.equal(vin, 0)
+      assert.strictEqual(vin, 0)
 
       var txIn = txb.tx.ins[0]
-      assert.equal(txIn.hash, prevTxHash)
-      assert.equal(txIn.index, 1)
-      assert.equal(txIn.sequence, 54)
-      assert.equal(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
+      assert.strictEqual(txIn.hash, prevTxHash)
+      assert.strictEqual(txIn.index, 1)
+      assert.strictEqual(txIn.sequence, 54)
+      assert.strictEqual(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
     })
 
     it('accepts a prevTx, index [and sequence number]', function () {
       var vin = txb.addInput(prevTx, 1, 54)
-      assert.equal(vin, 0)
+      assert.strictEqual(vin, 0)
 
       var txIn = txb.tx.ins[0]
       assert.deepEqual(txIn.hash, prevTxHash)
-      assert.equal(txIn.index, 1)
-      assert.equal(txIn.sequence, 54)
-      assert.equal(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
+      assert.strictEqual(txIn.index, 1)
+      assert.strictEqual(txIn.sequence, 54)
+      assert.strictEqual(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
     })
 
     it('returns the input index', function () {
-      assert.equal(txb.addInput(prevTxHash, 0), 0)
-      assert.equal(txb.addInput(prevTxHash, 1), 1)
+      assert.strictEqual(txb.addInput(prevTxHash, 0), 0)
+      assert.strictEqual(txb.addInput(prevTxHash, 1), 1)
     })
 
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
@@ -126,29 +126,29 @@ describe('TransactionBuilder', function () {
   describe('addOutput', function () {
     it('accepts an address string and value', function () {
       var vout = txb.addOutput(privAddress.toBase58Check(), 1000)
-      assert.equal(vout, 0)
+      assert.strictEqual(vout, 0)
 
       var txout = txb.tx.outs[0]
       assert.deepEqual(txout.script, privScript)
-      assert.equal(txout.value, 1000)
+      assert.strictEqual(txout.value, 1000)
     })
 
     it('accepts an Address object and value', function () {
       var vout = txb.addOutput(privAddress, 1000)
-      assert.equal(vout, 0)
+      assert.strictEqual(vout, 0)
 
       var txout = txb.tx.outs[0]
       assert.deepEqual(txout.script, privScript)
-      assert.equal(txout.value, 1000)
+      assert.strictEqual(txout.value, 1000)
     })
 
     it('accepts a ScriptPubKey and value', function () {
       var vout = txb.addOutput(privScript, 1000)
-      assert.equal(vout, 0)
+      assert.strictEqual(vout, 0)
 
       var txout = txb.tx.outs[0]
       assert.deepEqual(txout.script, privScript)
-      assert.equal(txout.value, 1000)
+      assert.strictEqual(txout.value, 1000)
     })
 
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
@@ -196,7 +196,7 @@ describe('TransactionBuilder', function () {
         construct(txb, f)
 
         var tx = txb.build()
-        assert.equal(tx.toHex(), f.txHex)
+        assert.strictEqual(tx.toHex(), f.txHex)
       })
     })
 
@@ -247,7 +247,7 @@ describe('TransactionBuilder', function () {
 
                 // rebuild/replace the scriptSig without them
                 var replacement = scripts.scriptHashInput(scripts.multisigInput(signatures), redeemScript)
-                assert.equal(replacement.toASM(), sign.scriptSigFiltered)
+                assert.strictEqual(replacement.toASM(), sign.scriptSigFiltered)
                 sign.scriptSigFiltered = replacement.toASM()
 
                 tx.ins[i].script = replacement
@@ -264,12 +264,12 @@ describe('TransactionBuilder', function () {
             tx = txb.buildIncomplete()
 
             // now verify the serialized scriptSig is as expected
-            assert.equal(tx.ins[i].script.toASM(), sign.scriptSig)
+            assert.strictEqual(tx.ins[i].script.toASM(), sign.scriptSig)
           })
         })
 
         tx = txb.build()
-        assert.equal(tx.toHex(), f.txHex)
+        assert.strictEqual(tx.toHex(), f.txHex)
       })
     })
   })
@@ -280,7 +280,7 @@ describe('TransactionBuilder', function () {
         var tx = Transaction.fromHex(f.txHex)
         var txb = TransactionBuilder.fromTransaction(tx)
 
-        assert.equal(txb.build().toHex(), f.txHex)
+        assert.strictEqual(txb.build().toHex(), f.txHex)
       })
     })
 

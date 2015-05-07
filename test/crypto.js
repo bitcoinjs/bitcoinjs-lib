@@ -16,7 +16,7 @@ describe('Crypto', function () {
           var data = new Buffer(f.hex, 'hex')
           var actual = fn(data).toString('hex')
 
-          assert.equal(actual, expected)
+          assert.strictEqual(actual, expected)
         })
       })
     })

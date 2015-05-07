@@ -18,7 +18,7 @@ describe('ECPair', function () {
     it('defaults to compressed', function () {
       var keyPair = new ECPair(BigInteger.ONE)
 
-      assert.equal(keyPair.compressed, true)
+      assert.strictEqual(keyPair.compressed, true)
     })
 
     it('supports the uncompressed option', function () {
@@ -26,7 +26,7 @@ describe('ECPair', function () {
         compressed: false
       })
 
-      assert.equal(keyPair.compressed, false)
+      assert.strictEqual(keyPair.compressed, false)
     })
 
     it('supports the network option', function () {
@@ -35,7 +35,7 @@ describe('ECPair', function () {
         network: networks.testnet
       })
 
-      assert.equal(keyPair.network, networks.testnet)
+      assert.strictEqual(keyPair.network, networks.testnet)
     })
 
     it('throws if compressed option is not a bool', function () {
@@ -70,7 +70,7 @@ describe('ECPair', function () {
           compressed: f.compressed
         })
 
-        assert.equal(keyPair.getPublicKeyBuffer().toString('hex'), f.Q)
+        assert.strictEqual(keyPair.getPublicKeyBuffer().toString('hex'), f.Q)
       })
     })
 
@@ -105,9 +105,9 @@ describe('ECPair', function () {
       it('imports ' + f.WIF + ' correctly', function () {
         var keyPair = ECPair.fromWIF(f.WIF)
 
-        assert.equal(keyPair.d.toString(), f.d)
-        assert.equal(keyPair.compressed, f.compressed)
-        assert.equal(keyPair.network, networks[f.network])
+        assert.strictEqual(keyPair.d.toString(), f.d)
+        assert.strictEqual(keyPair.compressed, f.compressed)
+        assert.strictEqual(keyPair.network, networks[f.network])
       })
     })
 
@@ -126,7 +126,7 @@ describe('ECPair', function () {
         var keyPair = ECPair.fromWIF(f.WIF)
         var result = keyPair.toWIF()
 
-        assert.equal(result, f.WIF)
+        assert.strictEqual(result, f.WIF)
       })
     })
   })
@@ -141,7 +141,7 @@ describe('ECPair', function () {
         var ProxiedECPair = proxyquire('../src/ecpair', stub)
 
         var keyPair = ProxiedECPair.makeRandom()
-        assert.equal(keyPair.toWIF(), exWIF)
+        assert.strictEqual(keyPair.toWIF(), exWIF)
       })
 
       it('passes the options param', sinon.test(function () {
@@ -162,7 +162,7 @@ describe('ECPair', function () {
         rng: function (size) { return d.slice(0, size) }
       })
 
-      assert.equal(keyPair.toWIF(), exWIF)
+      assert.strictEqual(keyPair.toWIF(), exWIF)
     })
   })
 
@@ -171,7 +171,7 @@ describe('ECPair', function () {
       it('returns ' + f.address + ' for ' + f.WIF, function () {
         var keyPair = ECPair.fromWIF(f.WIF)
 
-        assert.equal(keyPair.getAddress().toString(), f.address)
+        assert.strictEqual(keyPair.getAddress().toString(), f.address)
       })
     })
   })

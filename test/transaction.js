@@ -48,7 +48,7 @@ describe('Transaction', function () {
       it('imports ' + f.description + ' (' + f.id + ')', function () {
         var actual = Transaction.fromHex(f.hex)
 
-        assert.equal(actual.toHex(), f.hex, actual.toHex())
+        assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
       })
     })
 
@@ -66,7 +66,7 @@ describe('Transaction', function () {
       it('exports ' + f.description + ' (' + f.id + ')', function () {
         var actual = fromRaw(f.raw)
 
-        assert.equal(actual.toHex(), f.hex, actual.toHex())
+        assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
       })
     })
   })
@@ -87,22 +87,22 @@ describe('Transaction', function () {
 
     it('returns an index', function () {
       var tx = new Transaction()
-      assert.equal(tx.addInput(prevTxHash, 0), 0)
-      assert.equal(tx.addInput(prevTxHash, 0), 1)
+      assert.strictEqual(tx.addInput(prevTxHash, 0), 0)
+      assert.strictEqual(tx.addInput(prevTxHash, 0), 1)
     })
 
     it('defaults to DEFAULT_SEQUENCE', function () {
       var tx = new Transaction()
       tx.addInput(prevTxHash, 0)
 
-      assert.equal(tx.ins[0].sequence, Transaction.DEFAULT_SEQUENCE)
+      assert.strictEqual(tx.ins[0].sequence, Transaction.DEFAULT_SEQUENCE)
     })
 
     it('defaults to empty script', function () {
       var tx = new Transaction()
       tx.addInput(prevTxHash, 0)
 
-      assert.equal(tx.ins[0].script, Script.EMPTY)
+      assert.strictEqual(tx.ins[0].script, Script.EMPTY)
     })
 
     fixtures.invalid.addInput.forEach(function (f) {
@@ -120,8 +120,8 @@ describe('Transaction', function () {
   describe('addOutput', function () {
     it('returns an index', function () {
       var tx = new Transaction()
-      assert.equal(tx.addOutput(Script.EMPTY, 0), 0)
-      assert.equal(tx.addOutput(Script.EMPTY, 0), 1)
+      assert.strictEqual(tx.addOutput(Script.EMPTY, 0), 0)
+      assert.strictEqual(tx.addOutput(Script.EMPTY, 0), 1)
     })
   })
 
@@ -149,7 +149,7 @@ describe('Transaction', function () {
       it('should return the id for ' + f.id, function () {
         var tx = Transaction.fromHex(f.hex)
 
-        assert.equal(tx.getId(), f.id)
+        assert.strictEqual(tx.getId(), f.id)
       })
     })
   })
@@ -159,7 +159,7 @@ describe('Transaction', function () {
       it('should return the hash for ' + f.id, function () {
         var tx = Transaction.fromHex(f.hex)
 
-        assert.equal(tx.getHash().toString('hex'), f.hash)
+        assert.strictEqual(tx.getHash().toString('hex'), f.hash)
       })
     })
   })

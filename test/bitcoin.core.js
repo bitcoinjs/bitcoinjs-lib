@@ -34,14 +34,14 @@ describe('Bitcoin-core', function () {
         var buffer = base58.decode(fb58)
         var actual = new Buffer(buffer).toString('hex')
 
-        assert.equal(actual, fhex)
+        assert.strictEqual(actual, fhex)
       })
 
       it('can encode ' + fhex, function () {
         var buffer = new Buffer(fhex, 'hex')
         var actual = base58.encode(buffer)
 
-        assert.equal(actual, fb58)
+        assert.strictEqual(actual, fb58)
       })
     })
   })
@@ -66,8 +66,8 @@ describe('Bitcoin-core', function () {
       it('can import ' + string, function () {
         var address = Address.fromBase58Check(string)
 
-        assert.equal(address.hash.toString('hex'), hex)
-        assert.equal(address.version, network[typeMap[params.addrType]])
+        assert.strictEqual(address.hash.toString('hex'), hex)
+        assert.strictEqual(address.version, network[typeMap[params.addrType]])
       })
     })
   })
@@ -105,12 +105,12 @@ describe('Bitcoin-core', function () {
       var keyPair = ECPair.fromWIF(string)
 
       it('imports ' + string, function () {
-        assert.equal(keyPair.d.toHex(), hex)
-        assert.equal(keyPair.compressed, params.isCompressed)
+        assert.strictEqual(keyPair.d.toHex(), hex)
+        assert.strictEqual(keyPair.compressed, params.isCompressed)
       })
 
       it('exports ' + hex + ' to ' + string, function () {
-        assert.equal(keyPair.toWIF(), string)
+        assert.strictEqual(keyPair.toWIF(), string)
       })
     })
   })
@@ -140,8 +140,8 @@ describe('Bitcoin-core', function () {
       it('fromHex can parse ' + f.id, function () {
         var block = Block.fromHex(f.hex)
 
-        assert.equal(block.getId(), f.id)
-        assert.equal(block.transactions.length, f.transactions)
+        assert.strictEqual(block.getId(), f.id)
+        assert.strictEqual(block.transactions.length, f.transactions)
       })
     })
   })
@@ -170,7 +170,7 @@ describe('Bitcoin-core', function () {
           assert.deepEqual(txIn.hash, prevOutHash)
 
           // we read UInt32, not Int32
-          assert.equal(txIn.index & 0xffffffff, prevOutIndex)
+          assert.strictEqual(txIn.index & 0xffffffff, prevOutIndex)
         })
       })
     })
@@ -200,10 +200,10 @@ describe('Bitcoin-core', function () {
 
       it('should hash ' + txHex.slice(0, 40) + '... (' + hashTypeName + ')', function () {
         var transaction = Transaction.fromHex(txHex)
-        assert.equal(transaction.toHex(), txHex)
+        assert.strictEqual(transaction.toHex(), txHex)
 
         var script = Script.fromHex(scriptHex)
-        assert.equal(script.toHex(), scriptHex)
+        assert.strictEqual(script.toHex(), scriptHex)
 
         var hash = transaction.hashForSignature(inIndex, script, hashType)
         assert.deepEqual(hash, expectedHash)
@@ -218,7 +218,7 @@ describe('Bitcoin-core', function () {
       it('can parse ' + hex, function () {
         var parsed = ECSignature.parseScriptSignature(buffer)
         var actual = parsed.signature.toScriptSignature(parsed.hashType)
-        assert.equal(actual.toString('hex'), hex)
+        assert.strictEqual(actual.toString('hex'), hex)
       })
     })
 
