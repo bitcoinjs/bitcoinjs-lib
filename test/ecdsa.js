@@ -27,7 +27,7 @@ describe('ecdsa', function () {
         var h1 = crypto.sha256(f.message)
 
         var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
-        assert.equal(k.toHex(), f.k)
+        assert.strictEqual(k.toHex(), f.k)
       })
     })
 
@@ -42,7 +42,7 @@ describe('ecdsa', function () {
       var h1 = new Buffer(32)
       var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
 
-      assert.equal(k.toString(), '42')
+      assert.strictEqual(k.toString(), '42')
     }))
 
     it('loops until a suitable signature is found', sinon.test(function () {
@@ -62,7 +62,7 @@ describe('ecdsa', function () {
       var h1 = new Buffer(32)
       var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
 
-      assert.equal(k.toString(), '53')
+      assert.strictEqual(k.toString(), '53')
     }))
 
     fixtures.valid.rfc6979.forEach(function (f) {
@@ -77,9 +77,9 @@ describe('ecdsa', function () {
           return results.length === 16
         })
 
-        assert.equal(results[0].toHex(), f.k0)
-        assert.equal(results[1].toHex(), f.k1)
-        assert.equal(results[15].toHex(), f.k15)
+        assert.strictEqual(results[0].toHex(), f.k0)
+        assert.strictEqual(results[1].toHex(), f.k1)
+        assert.strictEqual(results[15].toHex(), f.k15)
       })
     })
   })
@@ -119,7 +119,7 @@ describe('ecdsa', function () {
           var Qprime = ecdsa.recoverPubKey(curve, e, signature, i)
           var QprimeHex = Qprime.getEncoded().toString('hex')
 
-          assert.equal(QprimeHex, expectedHex)
+          assert.strictEqual(QprimeHex, expectedHex)
         })
       })
     })
@@ -143,8 +143,8 @@ describe('ecdsa', function () {
         var hash = crypto.sha256(f.message)
         var signature = ecdsa.sign(curve, hash, d)
 
-        assert.equal(signature.r.toString(), f.signature.r)
-        assert.equal(signature.s.toString(), f.signature.s)
+        assert.strictEqual(signature.r.toString(), f.signature.r)
+        assert.strictEqual(signature.s.toString(), f.signature.s)
       })
     })
 
@@ -177,7 +177,7 @@ describe('ecdsa', function () {
         var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
         var Q = curve.G.multiply(d)
 
-        assert.equal(ecdsa.verify(curve, H, signature, Q), false)
+        assert.strictEqual(ecdsa.verify(curve, H, signature, Q), false)
       })
     })
   })

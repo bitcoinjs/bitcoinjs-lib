@@ -17,7 +17,7 @@ describe('message', function () {
         var network = networks[f.network]
         var actual = message.magicHash(f.message, network)
 
-        assert.equal(actual.toString('hex'), f.magicHash)
+        assert.strictEqual(actual.toString('hex'), f.magicHash)
       })
     })
   })
@@ -59,13 +59,13 @@ describe('message', function () {
           compressed: false
         })
         var signature = message.sign(keyPair, f.message, network)
-        assert.equal(signature.toString('base64'), f.signature)
+        assert.strictEqual(signature.toString('base64'), f.signature)
 
         if (f.compressed) {
           var compressedPrivKey = new ECPair(new BigInteger(f.d))
           var compressedSignature = message.sign(compressedPrivKey, f.message)
 
-          assert.equal(compressedSignature.toString('base64'), f.compressed.signature)
+          assert.strictEqual(compressedSignature.toString('base64'), f.compressed.signature)
         }
       })
     })

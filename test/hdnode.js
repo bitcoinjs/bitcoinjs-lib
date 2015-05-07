@@ -66,8 +66,8 @@ describe('HDNode', function () {
         var network = networks[f.network]
         var hd = HDNode.fromSeedHex(f.master.seed, network)
 
-        assert.equal(hd.keyPair.toWIF(), f.master.wif)
-        assert.equal(hd.chainCode.toString('hex'), f.master.chainCode)
+        assert.strictEqual(hd.keyPair.toWIF(), f.master.wif)
+        assert.strictEqual(hd.chainCode.toString('hex'), f.master.chainCode)
       })
     })
 
@@ -90,7 +90,7 @@ describe('HDNode', function () {
         var network = networks[f.network]
         var hd = HDNode.fromSeedHex(f.master.seed, network).neutered()
 
-        assert.equal(hd.toBase58(), f.master.base58)
+        assert.strictEqual(hd.toBase58(), f.master.base58)
       })
     })
 
@@ -99,7 +99,7 @@ describe('HDNode', function () {
         var network = networks[f.network]
         var hd = HDNode.fromSeedHex(f.master.seed, network)
 
-        assert.equal(hd.toBase58(), f.master.base58Priv)
+        assert.strictEqual(hd.toBase58(), f.master.base58Priv)
       })
     })
   })
@@ -110,8 +110,8 @@ describe('HDNode', function () {
         var network = networks[f.network]
         var hd = HDNode.fromBase58(f.master.base58)
 
-        assert.equal(hd.toBase58(), f.master.base58)
-        assert.equal(hd.keyPair.network, network)
+        assert.strictEqual(hd.toBase58(), f.master.base58)
+        assert.strictEqual(hd.keyPair.network, network)
       })
     })
 
@@ -120,8 +120,8 @@ describe('HDNode', function () {
         var network = networks[f.network]
         var hd = HDNode.fromBase58(f.master.base58Priv, network)
 
-        assert.equal(hd.toBase58(), f.master.base58Priv)
-        assert.equal(hd.keyPair.network, network)
+        assert.strictEqual(hd.toBase58(), f.master.base58Priv)
+        assert.strictEqual(hd.keyPair.network, network)
       })
     })
 
@@ -142,7 +142,7 @@ describe('HDNode', function () {
     it('returns the identifier for ' + f.master.fingerprint, function () {
       var hd = HDNode.fromBase58(f.master.base58)
 
-      assert.equal(hd.getIdentifier().toString('hex'), f.master.identifier)
+      assert.strictEqual(hd.getIdentifier().toString('hex'), f.master.identifier)
     })
   })
 
@@ -152,7 +152,7 @@ describe('HDNode', function () {
     it('returns the fingerprint for ' + f.master.fingerprint, function () {
       var hd = HDNode.fromBase58(f.master.base58)
 
-      assert.equal(hd.getFingerprint().toString('hex'), f.master.fingerprint)
+      assert.strictEqual(hd.getFingerprint().toString('hex'), f.master.fingerprint)
     })
   })
 
@@ -169,7 +169,7 @@ describe('HDNode', function () {
       this.mock(hd.keyPair).expects('getAddress')
         .once().returns('foobar')
 
-      assert.equal(hd.getAddress(), 'foobar')
+      assert.strictEqual(hd.getAddress(), 'foobar')
     }))
   })
 
@@ -180,25 +180,25 @@ describe('HDNode', function () {
       var hd = HDNode.fromBase58(f.master.base58)
       var hdn = hd.neutered()
 
-      assert.equal(hdn.keyPair.d, null)
-      assert.equal(hdn.keyPair.Q, hd.keyPair.Q)
-      assert.equal(hdn.chainCode, hd.chainCode)
-      assert.equal(hdn.depth, hd.depth)
-      assert.equal(hdn.index, hd.index)
+      assert.strictEqual(hdn.keyPair.d, undefined)
+      assert.strictEqual(hdn.keyPair.Q, hd.keyPair.Q)
+      assert.strictEqual(hdn.chainCode, hd.chainCode)
+      assert.strictEqual(hdn.depth, hd.depth)
+      assert.strictEqual(hdn.index, hd.index)
     })
   })
 
   describe('derive', function () {
     function verifyVector (hd, v, depth) {
-      assert.equal(hd.keyPair.toWIF(), v.wif)
-      assert.equal(hd.keyPair.getPublicKeyBuffer().toString('hex'), v.pubKey)
-      assert.equal(hd.chainCode.toString('hex'), v.chainCode)
-      assert.equal(hd.depth, depth || 0)
+      assert.strictEqual(hd.keyPair.toWIF(), v.wif)
+      assert.strictEqual(hd.keyPair.getPublicKeyBuffer().toString('hex'), v.pubKey)
+      assert.strictEqual(hd.chainCode.toString('hex'), v.chainCode)
+      assert.strictEqual(hd.depth, depth || 0)
 
       if (v.hardened) {
-        assert.equal(hd.index, v.m + HDNode.HIGHEST_BIT)
+        assert.strictEqual(hd.index, v.m + HDNode.HIGHEST_BIT)
       } else {
-        assert.equal(hd.index, v.m)
+        assert.strictEqual(hd.index, v.m)
       }
     }
 
@@ -227,7 +227,7 @@ describe('HDNode', function () {
       var master = HDNode.fromBase58(f.master.base58Priv)
       var child = master.derive(c.m).neutered()
 
-      assert.equal(child.toBase58(), c.base58)
+      assert.strictEqual(child.toBase58(), c.base58)
     })
 
     it('works for Private -> public (neutered, hardened)', function () {
@@ -237,7 +237,7 @@ describe('HDNode', function () {
       var master = HDNode.fromBase58(f.master.base58Priv)
       var child = master.deriveHardened(c.m).neutered()
 
-      assert.equal(child.toBase58(), c.base58)
+      assert.strictEqual(child.toBase58(), c.base58)
     })
 
     it('works for Public -> public', function () {
@@ -247,7 +247,7 @@ describe('HDNode', function () {
       var master = HDNode.fromBase58(f.master.base58)
       var child = master.derive(c.m)
 
-      assert.equal(child.toBase58(), c.base58)
+      assert.strictEqual(child.toBase58(), c.base58)
     })
 
     it('throws on Public -> public (hardened)', function () {
