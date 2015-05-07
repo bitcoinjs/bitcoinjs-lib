@@ -24,6 +24,7 @@ describe('HDNode', function () {
     it('calculates the publicKey from a BigInteger', function () {
       var hd = new HDNode(d, chainCode)
 
+      assert.equal(hd.privKey.d, d)
       assert(hd.pubKey.Q.equals(Q))
     })
 
@@ -32,12 +33,14 @@ describe('HDNode', function () {
       var hd = new HDNode(ek, chainCode)
 
       assert.equal(hd.privKey, ek)
+      assert.equal(hd.pubKey, ek.pub)
     })
 
     it('allows initialization directly from an ECPubKey', function () {
       var ek = new ECPubKey(Q)
       var hd = new HDNode(ek, chainCode)
 
+      assert.equal(hd.privKey, null)
       assert.equal(hd.pubKey, ek)
     })
 
