@@ -23,6 +23,13 @@ describe('HDNode', function () {
       chainCode.fill(1)
     })
 
+    it('stores the keyPair/chainCode directly', function () {
+      var hd = new HDNode(keyPair, chainCode)
+
+      assert.strictEqual(hd.keyPair, keyPair)
+      assert.strictEqual(hd.chainCode, chainCode)
+    })
+
     it('has a default depth/index of 0', function () {
       var hd = new HDNode(keyPair, chainCode)
 
