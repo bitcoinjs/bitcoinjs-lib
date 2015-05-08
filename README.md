@@ -5,6 +5,8 @@
 [![tip for next commit](http://tip4commit.com/projects/735.svg)](http://tip4commit.com/projects/735)
 
 [![NPM](https://nodei.co/npm/bitcoinjs-lib.png)](https://nodei.co/npm/bitcoinjs-lib/)
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
 
 The pure JavaScript Bitcoin library for node.js and browsers.
 A continued implementation of the original `0.1.3` version used by over a million wallet users; the backbone for almost all Bitcoin web wallets in production today.
