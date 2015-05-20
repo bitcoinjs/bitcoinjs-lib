@@ -60,8 +60,9 @@ describe('Bitcoin-core', function () {
       var network = networks.bitcoin
 
       if (params.isPrivkey) return
-      if (params.isTestnet)
+      if (params.isTestnet) {
         network = networks.testnet
+      }
 
       it('can import ' + string, function () {
         var address = Address.fromBase58Check(string)

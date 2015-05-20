@@ -14,8 +14,9 @@ function isCanonicalPubKey (buffer) {
   try {
     ecurve.Point.decodeFrom(curve, buffer)
   } catch (e) {
-    if (!(e.message.match(/Invalid sequence (length|tag)/)))
+    if (!(e.message.match(/Invalid sequence (length|tag)/))) {
       throw e
+    }
 
     return false
   }

@@ -150,8 +150,7 @@ describe('bitcoinjs-lib (crypto)', function () {
 
       // finally, run the tasks, then on to the math
       async.parallel(tasks, function (err) {
-        if (err)
-          throw err
+        if (err) throw err
 
         var n = bitcoin.ECPair.curve.n
 
