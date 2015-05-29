@@ -9,6 +9,10 @@
     "client",
     "library"
   ],
+  "engines" : {
+    "iojs": "^1.0.0",
+    "node": ">=0.12.0"
+  },
   "contributors": [
     {
       "name": "Daniel Cousens",
