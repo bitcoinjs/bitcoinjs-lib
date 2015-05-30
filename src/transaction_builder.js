@@ -399,7 +399,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
   // enforce in order signing of public keys
   assert(input.pubKeys.some(function (pubKey, i) {
-    if (kpPubKey.compare(pubKey) !== 0) return false
+    if (!bufferutils.equal(kpPubKey, pubKey)) return false
 
     assert(!input.signatures[i], 'Signature already exists')
 
@@ -407,7 +407,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
     input.signatures[i] = signature
 
     return true
-  }), 'key pair cannot sign for this input')
+  }, this), 'key pair cannot sign for this input')
 }
 
 module.exports = TransactionBuilder
