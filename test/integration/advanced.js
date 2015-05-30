@@ -4,6 +4,7 @@ var assert = require('assert')
 var bitcoin = require('../../')
 var blockchain = new (require('cb-insight'))('https://test-insight.bitpay.com')
 var faucetWithdraw = require('./utils').faucetWithdraw
+var pollUnspent = require('./utils').pollUnspent
 
 describe('bitcoinjs-lib (advanced)', function () {
   it('can sign a Bitcoin message', function () {
@@ -33,7 +34,7 @@ describe('bitcoinjs-lib (advanced)', function () {
     faucetWithdraw(address, 2e4, function (err) {
       if (err) return done(err)
 
-      blockchain.addresses.unspents(address, function (err, unspents) {
+      pollUnspent(blockchain, address, function (err, unspents) {
         if (err) return done(err)
 
         var tx = new bitcoin.TransactionBuilder()

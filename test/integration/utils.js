@@ -7,6 +7,22 @@ function faucetWithdraw(address, amount, done) {
   }).on('error', done)
 }
 
+function pollUnspent(blockchain, address, done) {
+  blockchain.addresses.unspents(address, function (err, unspents) {
+    if (err) return done(err)
+
+    if(unspents == null || unspents.length === 0) {
+      return setTimeout(function() {
+        pollUnspent(blockchain, address, done)
+      }, 200)
+    }
+
+    done(null, unspents)
+  })
+
+}
+
 module.exports = {
-  faucetWithdraw: faucetWithdraw
+  faucetWithdraw: faucetWithdraw,
+  pollUnspent: pollUnspent
 }
