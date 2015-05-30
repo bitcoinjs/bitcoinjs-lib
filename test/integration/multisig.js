@@ -2,7 +2,8 @@
 
 var assert = require('assert')
 var bitcoin = require('../../')
-var blockchain = new (require('cb-helloblock'))('testnet')
+var blockchain = new (require('cb-insight'))('https://test-insight.bitpay.com')
+var faucetWithdraw = require('./utils').faucetWithdraw
 
 describe('bitcoinjs-lib (multisig)', function () {
   it('can create a 2-of-3 multisig P2SH address', function () {
@@ -37,7 +38,7 @@ describe('bitcoinjs-lib (multisig)', function () {
     var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
 
     // Attempt to send funds to the source address
-    blockchain.addresses.__faucetWithdraw(address, 2e4, function (err) {
+    faucetWithdraw(address, 2e4, function (err) {
       if (err) return done(err)
 
       // get latest unspents from the address

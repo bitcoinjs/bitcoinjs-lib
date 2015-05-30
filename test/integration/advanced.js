@@ -2,7 +2,8 @@
 
 var assert = require('assert')
 var bitcoin = require('../../')
-var blockchain = new (require('cb-helloblock'))('testnet')
+var blockchain = new (require('cb-insight'))('https://test-insight.bitpay.com')
+var faucetWithdraw = require('./utils').faucetWithdraw
 
 describe('bitcoinjs-lib (advanced)', function () {
   it('can sign a Bitcoin message', function () {
@@ -29,7 +30,7 @@ describe('bitcoinjs-lib (advanced)', function () {
     })
     var address = keyPair.getAddress().toString()
 
-    blockchain.addresses.__faucetWithdraw(address, 2e4, function (err) {
+    faucetWithdraw(address, 2e4, function (err) {
       if (err) return done(err)
 
       blockchain.addresses.unspents(address, function (err, unspents) {

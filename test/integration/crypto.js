@@ -4,7 +4,7 @@ var assert = require('assert')
 var async = require('async')
 var bigi = require('bigi')
 var bitcoin = require('../../')
-var blockchain = new (require('cb-helloblock'))('bitcoin')
+var blockchain = new (require('cb-blockr'))('bitcoin')
 var crypto = require('crypto')
 
 describe('bitcoinjs-lib (crypto)', function () {
