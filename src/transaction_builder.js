@@ -408,7 +408,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
     input.signatures[i] = signature
 
     return true
-  }, this), 'key pair cannot sign for this input')
+  }), 'key pair cannot sign for this input')
 }
 
 module.exports = TransactionBuilder
