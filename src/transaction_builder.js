@@ -1,4 +1,5 @@
 var assert = require('assert')
+var bufferutils = require('./bufferutils')
 var ops = require('./opcodes')
 var scripts = require('./scripts')
 
