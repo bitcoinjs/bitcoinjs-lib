@@ -19,10 +19,24 @@ function pollUnspent(blockchain, address, done) {
 
     done(null, unspents)
   })
+}
 
+function pollSummary(blockchain, address, done) {
+  blockchain.addresses.summary(address, function (err, result) {
+    if (err) return done(err)
+
+    if(result.balance == 0) {
+      return setTimeout(function() {
+        pollSummary(blockchain, address, done)
+      }, 200)
+    }
+
+    done(null, result)
+  })
 }
 
 module.exports = {
   faucetWithdraw: faucetWithdraw,
-  pollUnspent: pollUnspent
+  pollUnspent: pollUnspent,
+  pollSummary: pollSummary
 }

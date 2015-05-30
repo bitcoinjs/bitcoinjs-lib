@@ -5,6 +5,7 @@ var bitcoin = require('../../')
 var blockchain = new (require('cb-insight'))('https://test-insight.bitpay.com')
 var faucetWithdraw = require('./utils').faucetWithdraw
 var pollUnspent = require('./utils').pollUnspent
+var pollSummary = require('./utils').pollSummary
 
 describe('bitcoinjs-lib (multisig)', function () {
   it('can create a 2-of-3 multisig P2SH address', function () {
@@ -72,7 +73,7 @@ describe('bitcoinjs-lib (multisig)', function () {
           if (err) return done(err)
 
           // check that the funds (1e4 Satoshis) indeed arrived at the intended address
-          blockchain.addresses.summary(targetAddress, function (err, result) {
+          pollSummary(blockchain, targetAddress, function (err, result) {
             if (err) return done(err)
 
             assert.strictEqual(result.balance, 1e4)
