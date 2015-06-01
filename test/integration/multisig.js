@@ -2,7 +2,10 @@
 
 var assert = require('assert')
 var bitcoin = require('../../')
-var blockchain = new (require('cb-helloblock'))('testnet')
+var blockchain = new (require('cb-insight'))('https://test-insight.bitpay.com')
+var faucetWithdraw = require('./utils').faucetWithdraw
+var pollUnspent = require('./utils').pollUnspent
+var pollSummary = require('./utils').pollSummary
 
 describe('bitcoinjs-lib (multisig)', function () {
   it('can create a 2-of-3 multisig P2SH address', function () {
@@ -37,11 +40,11 @@ describe('bitcoinjs-lib (multisig)', function () {
     var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
 
     // Attempt to send funds to the source address
-    blockchain.addresses.__faucetWithdraw(address, 2e4, function (err) {
+    faucetWithdraw(address, 2e4, function (err) {
       if (err) return done(err)
 
       // get latest unspents from the address
-      blockchain.addresses.unspents(address, function (err, unspents) {
+      pollUnspent(blockchain, address, function (err, unspents) {
         if (err) return done(err)
 
           // filter small unspents
@@ -70,7 +73,7 @@ describe('bitcoinjs-lib (multisig)', function () {
           if (err) return done(err)
 
           // check that the funds (1e4 Satoshis) indeed arrived at the intended address
-          blockchain.addresses.summary(targetAddress, function (err, result) {
+          pollSummary(blockchain, targetAddress, function (err, result) {
             if (err) return done(err)
 
             assert.strictEqual(result.balance, 1e4)
