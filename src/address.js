@@ -37,7 +37,7 @@ Address.fromOutputScript = function (script, network) {
   if (scripts.isPubKeyHashOutput(script)) return new Address(script.chunks[2], network.pubKeyHash)
   if (scripts.isScriptHashOutput(script)) return new Address(script.chunks[1], network.scriptHash)
 
-  assert(false, script.toASM() + ' has no matching Address')
+  throw new Error(script.toASM() + ' has no matching Address')
 }
 
 Address.prototype.toBase58Check = function () {
@@ -54,7 +54,7 @@ Address.prototype.toOutputScript = function () {
   if (scriptType === 'pubkeyhash') return scripts.pubKeyHashOutput(this.hash)
   if (scriptType === 'scripthash') return scripts.scriptHashOutput(this.hash)
 
-  assert(false, this.toString() + ' has no matching Script')
+  throw new Error(this.toString() + ' has no matching Script')
 }
 
 Address.prototype.toString = Address.prototype.toBase58Check

@@ -17,7 +17,7 @@ function findNetworkByWIFVersion (version) {
     if (network.wif === version) return network
   }
 
-  assert(false, 'Unknown network')
+  throw new Error('Unknown network')
 }
 
 function ECPair (d, Q, options) {

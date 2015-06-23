@@ -20,7 +20,7 @@ function findBIP32NetworkByVersion (version) {
     }
   }
 
-  assert(false, 'Could not find network for ' + version.toString(16))
+  throw new Error('Could not find network for ' + version.toString(16))
 }
 
 function HDNode (keyPair, chainCode) {
