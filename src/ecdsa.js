@@ -75,6 +75,10 @@ function deterministicGenerateK (curve, hash, d, checkSig) {
 }
 
 function sign (curve, hash, d) {
+  typeForce('Curve', curve)
+  typeForce('Buffer', hash)
+  typeForce('BigInteger', d)
+
   var e = BigInteger.fromBuffer(hash)
   var n = curve.n
   var G = curve.G
@@ -105,6 +109,11 @@ function sign (curve, hash, d) {
 }
 
 function verify (curve, hash, signature, Q) {
+  typeForce('Curve', curve)
+  typeForce('Buffer', hash)
+  typeForce('ECSignature', signature)
+  typeForce('Point', Q)
+
   var n = curve.n
   var G = curve.G
 
@@ -153,6 +162,10 @@ function verify (curve, hash, signature, Q) {
   * http://www.secg.org/download/aid-780/sec1-v2.pdf
   */
 function recoverPubKey (curve, e, signature, i) {
+  typeForce('Curve', curve)
+  typeForce('BigInteger', e)
+  typeForce('ECSignature', signature)
+  typeForce('Number', i)
   assert.strictEqual(i & 3, i, 'Recovery param is more than two bits')
 
   var n = curve.n
@@ -206,6 +219,11 @@ function recoverPubKey (curve, e, signature, i) {
   * that resulted in a successful pubkey recovery.
   */
 function calcPubKeyRecoveryParam (curve, e, signature, Q) {
+  typeForce('Curve', curve)
+  typeForce('BigInteger', e)
+  typeForce('ECSignature', signature)
+  typeForce('Point', Q)
+
   for (var i = 0; i < 4; i++) {
     var Qprime = recoverPubKey(curve, e, signature, i)
 

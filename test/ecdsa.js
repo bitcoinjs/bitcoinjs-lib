@@ -89,10 +89,7 @@ describe('ecdsa', function () {
       it('recovers the pubKey for ' + f.d, function () {
         var d = BigInteger.fromHex(f.d)
         var Q = curve.G.multiply(d)
-        var signature = {
-          r: new BigInteger(f.signature.r),
-          s: new BigInteger(f.signature.s)
-        }
+        var signature = ECSignature.fromDER(new Buffer(f.signature, 'hex'))
         var h1 = crypto.sha256(f.message)
         var e = BigInteger.fromBuffer(h1)
         var Qprime = ecdsa.recoverPubKey(curve, e, signature, f.i)
@@ -125,9 +122,9 @@ describe('ecdsa', function () {
     })
 
     fixtures.invalid.recoverPubKey.forEach(function (f) {
-      it('throws on ' + f.description, function () {
+      it('throws on ' + f.description + ' (' + f.exception + ')', function () {
         var e = BigInteger.fromHex(f.e)
-        var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
+        var signature = new ECSignature(new BigInteger(f.signatureRaw.r, 16), new BigInteger(f.signatureRaw.s, 16))
 
         assert.throws(function () {
           ecdsa.recoverPubKey(curve, e, signature, f.i)
@@ -141,10 +138,9 @@ describe('ecdsa', function () {
       it('produces a deterministic signature for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
         var hash = crypto.sha256(f.message)
-        var signature = ecdsa.sign(curve, hash, d)
+        var signature = ecdsa.sign(curve, hash, d).toDER()
 
-        assert.strictEqual(signature.r.toString(), f.signature.r)
-        assert.strictEqual(signature.s.toString(), f.signature.s)
+        assert.strictEqual(signature.toString('hex'), f.signature)
       })
     })
 
@@ -163,7 +159,7 @@ describe('ecdsa', function () {
       it('verifies a valid signature for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
         var H = crypto.sha256(f.message)
-        var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
+        var signature = ECSignature.fromDER(new Buffer(f.signature, 'hex'))
         var Q = curve.G.multiply(d)
 
         assert(ecdsa.verify(curve, H, signature, Q))
@@ -174,7 +170,15 @@ describe('ecdsa', function () {
       it('fails to verify with ' + f.description, function () {
         var H = crypto.sha256(f.message)
         var d = BigInteger.fromHex(f.d)
-        var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
+
+        var signature
+        if (f.signature) {
+          signature = ECSignature.fromDER(new Buffer(f.signature, 'hex'))
+
+        } else if (f.signatureRaw) {
+          signature = new ECSignature(new BigInteger(f.signatureRaw.r, 16), new BigInteger(f.signatureRaw.s, 16))
+        }
+
         var Q = curve.G.multiply(d)
 
         assert.strictEqual(ecdsa.verify(curve, H, signature, Q), false)
