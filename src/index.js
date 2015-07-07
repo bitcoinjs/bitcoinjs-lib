@@ -3,7 +3,6 @@ module.exports = {
   Block: require('./block'),
   bufferutils: require('./bufferutils'),
   crypto: require('./crypto'),
-  ecdsa: require('./ecdsa'),
   ECPair: require('./ecpair'),
   ECSignature: require('./ecsignature'),
   message: require('./message'),
