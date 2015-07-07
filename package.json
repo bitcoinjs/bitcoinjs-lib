@@ -35,10 +35,10 @@
     "compile": "browserify ./src/index.js -s bitcoin > bitcoin.js",
     "coverage": "istanbul cover _mocha -- test/*.js",
     "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info",
-    "integration": "mocha --reporter list test/integration/*.js",
+    "integration": "mocha test/integration/",
     "standard": "standard",
     "test": "npm run-script unit && npm run standard",
-    "unit": "istanbul test mocha -- --reporter list test/*.js"
+    "unit": "mocha"
   },
   "repository": {
     "type": "git",
