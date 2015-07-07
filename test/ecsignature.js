@@ -66,7 +66,7 @@ describe('ECSignature', function () {
     })
 
     fixtures.invalid.DER.forEach(function (f) {
-      it('throws on ' + f.hex, function () {
+      it('throws "' + f.exception + '" for ' + f.hex, function () {
         var buffer = new Buffer(f.hex, 'hex')
 
         assert.throws(function () {

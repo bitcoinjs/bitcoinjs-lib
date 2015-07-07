@@ -147,7 +147,11 @@
       },
       {
         "exception": "Invalid DER encoding",
-        "hex": "300c020400ffffff020200ffffff"
+        "hex": "300c02040fffffff020200ffffff"
+      },
+      {
+        "exception": "Invalid DER encoding \\(2\\)",
+        "hex": "300c020400ffffff020800ffffff"
       },
       {
         "exception": "R length is zero",
