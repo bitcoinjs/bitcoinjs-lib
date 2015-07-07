@@ -36,53 +36,25 @@ ECSignature.parseCompact = function (buffer) {
 // NOTE: SIGHASH byte ignored
 ECSignature.fromDER = function (buffer) {
   // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
-
-  // Minimum and maximum size constraints.
   if (buffer.length < 8) throw new Error('DER sequence too short')
   if (buffer.length > 72) throw new Error('DER sequence too long')
-
-  // A signature is of type 0x30 (compound).
   if (buffer[0] !== 0x30) throw new Error('Not a DER sequence')
-
-  // Make sure the length covers the entire signature.
   if (buffer[1] !== buffer.length - 2) throw new Error('Invalid sequence length')
-
-  // Check whether the R element is an integer.
   if (buffer[2] !== 0x02) throw new Error('Expected a DER integer')
 
-  // Extract the length of the R element.
   var lenR = buffer.readUInt8(3)
-
-  // Zero-length integers are not allowed for R.
   if (lenR === 0) throw new Error('R length is zero')
-
-  // Make sure the length of the R element is still inside the signature.
   if (5 + lenR >= buffer.length) throw new Error('Invalid DER encoding')
-
-  // Check whether the S element is an integer.
   if (buffer[4 + lenR] !== 0x02) throw new Error('Expected a DER integer (2)')
 
   var lenS = buffer[5 + lenR]
-
-  // Zero-length integers are not allowed for S.
   if (lenS === 0) throw new Error('S length is zero')
-
-  // Verify that the length of the signature matches the sum of the length
-  // of the elements.
   if ((lenR + lenS + 6) !== buffer.length) throw new Error('Invalid DER encoding (2)')
 
-  // Negative numbers are not allowed for R.
   if (buffer[4] & 0x80) throw new Error('R value is negative')
-
-  // Null bytes at the start of R are not allowed, unless R would
-  // otherwise be interpreted as a negative number.
   if (lenR > 1 && (buffer[4] === 0x00) && !(buffer[5] & 0x80)) throw new Error('R value excessively padded')
 
-  // Negative numbers are not allowed for S.
   if (buffer[lenR + 6] & 0x80) throw new Error('S value is negative')
-
-  // Null bytes at the start of S are not allowed, unless S would otherwise be
-  // interpreted as a negative number.
   if (lenS > 1 && (buffer[lenR + 6] === 0x00) && !(buffer[lenR + 7] & 0x80)) throw new Error('S value excessively padded')
 
   // non-BIP66 - extract R, S values
