@@ -130,6 +130,14 @@
     ],
     "DER": [
       {
+        "exception": "DER sequence too short",
+        "hex": "ffffffffffffff"
+      },
+      {
+        "exception": "DER sequence too long",
+        "hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      {
         "exception": "Invalid sequence length",
         "hex": "30ff020400ffffff020400ffffff"
       },

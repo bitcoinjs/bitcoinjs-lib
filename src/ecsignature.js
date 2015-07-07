@@ -35,9 +35,11 @@ ECSignature.parseCompact = function (buffer) {
 // Strict DER - https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
 // NOTE: SIGHASH byte ignored
 ECSignature.fromDER = function (buffer) {
+  // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
+
   // Minimum and maximum size constraints.
-  if (buffer.length < 9) throw new Error('Invalid sequence length')
-  if (buffer.length > 73) throw new Error('Invalid sequence length')
+  if (buffer.length < 8) throw new Error('DER sequence too short')
+  if (buffer.length > 72) throw new Error('DER sequence too long')
 
   // A signature is of type 0x30 (compound).
   if (buffer[0] !== 0x30) throw new Error('Not a DER sequence')
