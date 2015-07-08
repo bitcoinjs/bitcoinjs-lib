@@ -185,9 +185,7 @@ describe('Bitcoin-core', function () {
 
       inputs.forEach(function (input) {
         var prevOutScriptPubKey = input[2]
-        .replace(/(^| )1( |$)/g, 'OP_1 ').replace(/(^| )2( |$)/g, 'OP_2 ').replace(/(^| )3( |$)/g, 'OP_3 ')
-        .replace(/(^| )4( |$)/g, 'OP_4 ').replace(/(^| )5( |$)/g, 'OP_5 ').replace(/(^| )6( |$)/g, 'OP_6 ')
-        .replace(/(^| )7( |$)/g, 'OP_7 ').replace(/(^| )8( |$)/g, 'OP_8 ').replace(/(^| )9( |$)/g, 'OP_9 ')
+        .replace(/(^| )([0-9])( |$)/g, 'OP_$2 ')
         .replace(/0x[a-f0-9]+ 0x([a-f0-9]+)/, '$1')
         .replace(/DUP/g, 'OP_DUP')
         .replace(/NOT/g, 'OP_NOT')
