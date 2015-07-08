@@ -110,8 +110,10 @@ TransactionBuilder.fromTransaction = function (transaction) {
 
   // Extract/add signatures
   txb.inputs = transaction.ins.map(function (txIn) {
-    // TODO: remove me after testcase added
-    assert(!Transaction.isCoinbaseHash(txIn.hash), 'coinbase inputs not supported')
+    // TODO: verify whether extractInput is sane with coinbase scripts
+    if (Transaction.isCoinbaseHash(txIn.hash)) {
+      throw new Error('coinbase inputs not supported')
+    }
 
     // Ignore empty scripts
     if (txIn.script.buffer.length === 0) return {}
