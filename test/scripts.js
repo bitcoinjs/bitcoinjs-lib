@@ -1,10 +1,10 @@
 /* global describe, it */
 
 var assert = require('assert')
+var bcrypto = require('../src/crypto')
 var ops = require('../src/opcodes')
 var scripts = require('../src/scripts')
 
-var ECPair = require('../src/ecpair')
 var Script = require('../src/script')
 
 var fixtures = require('./fixtures/scripts.json')
@@ -177,10 +177,10 @@ describe('Scripts', function () {
       if (f.type !== 'pubkeyhash') return
 
       var pubKey = new Buffer(f.pubKey, 'hex')
-      var address = ECPair.fromPublicKeyBuffer(pubKey).getAddress()
+      var pubKeyHash = bcrypto.hash160(pubKey)
 
       it('returns ' + f.scriptPubKey, function () {
-        var scriptPubKey = scripts.pubKeyHashOutput(address.hash)
+        var scriptPubKey = scripts.pubKeyHashOutput(pubKeyHash)
         assert.strictEqual(scriptPubKey.toASM(), f.scriptPubKey)
       })
     })

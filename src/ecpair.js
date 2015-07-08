@@ -1,5 +1,5 @@
 var assert = require('assert')
-var base58check = require('bs58check')
+var bs58check = require('bs58check')
 var bcrypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var ecurve = require('ecurve')
@@ -7,7 +7,6 @@ var networks = require('./networks')
 var randomBytes = require('randombytes')
 var typeForce = require('typeforce')
 
-var Address = require('./address')
 var BigInteger = require('bigi')
 
 function findNetworkByWIFVersion (version) {
@@ -69,7 +68,7 @@ ECPair.fromPublicKeyBuffer = function (buffer, network) {
 }
 
 ECPair.fromWIF = function (string) {
-  var payload = base58check.decode(string)
+  var payload = bs58check.decode(string)
   var version = payload.readUInt8(0)
   var compressed
 
@@ -125,13 +124,18 @@ ECPair.prototype.toWIF = function () {
     buffer.writeUInt8(0x01, 33)
   }
 
-  return base58check.encode(buffer)
+  return bs58check.encode(buffer)
 }
 
 ECPair.prototype.getAddress = function () {
   var pubKey = this.getPublicKeyBuffer()
+  var pubKeyHash = bcrypto.hash160(pubKey)
 
-  return new Address(bcrypto.hash160(pubKey), this.network.pubKeyHash)
+  var payload = new Buffer(21)
+  payload.writeUInt8(this.network.pubKeyHash, 0)
+  pubKeyHash.copy(payload, 1)
+
+  return bs58check.encode(payload)
 }
 
 ECPair.prototype.getPublicKeyBuffer = function () {

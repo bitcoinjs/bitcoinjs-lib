@@ -35,7 +35,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     assert.deepEqual(QprimeR.getEncoded(), QprimeS.getEncoded())
 
     // derived shared-secret address
-    var address = new bitcoin.ECPair(null, QprimeS).getAddress().toString()
+    var address = new bitcoin.ECPair(null, QprimeS).getAddress()
 
     assert.strictEqual(address, '1EwCNJNZM5q58YPPTnjR1H5BvYRNeyZi47')
   })

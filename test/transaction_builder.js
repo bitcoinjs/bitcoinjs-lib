@@ -71,7 +71,7 @@ describe('TransactionBuilder', function () {
 
     keyPair = new ECPair(BigInteger.ONE)
     privAddress = keyPair.getAddress()
-    privScript = privAddress.toOutputScript()
+    privScript = Address.fromBase58Check(privAddress).toOutputScript()
   })
 
   describe('addInput', function () {
@@ -125,7 +125,7 @@ describe('TransactionBuilder', function () {
 
   describe('addOutput', function () {
     it('accepts an address string and value', function () {
-      var vout = txb.addOutput(privAddress.toBase58Check(), 1000)
+      var vout = txb.addOutput(privAddress, 1000)
       assert.strictEqual(vout, 0)
 
       var txout = txb.tx.outs[0]
