@@ -47,7 +47,7 @@ describe('Bitcoin-core', function () {
   })
 
   // base58_keys_valid
-  describe('Address', function () {
+  describe('Address.formBase58Check', function () {
     var typeMap = {
       'pubkey': 'pubKeyHash',
       'script': 'scriptHash'
@@ -74,7 +74,7 @@ describe('Bitcoin-core', function () {
   })
 
   // base58_keys_invalid
-  describe('Address', function () {
+  describe('Address.fromBase58Check', function () {
     var allowedNetworks = [
       networks.bitcoin.pubkeyhash,
       networks.bitcoin.scripthash,
@@ -105,19 +105,19 @@ describe('Bitcoin-core', function () {
       if (!params.isPrivkey) return
       var keyPair = ECPair.fromWIF(string)
 
-      it('imports ' + string, function () {
+      it('fromWIF imports ' + string, function () {
         assert.strictEqual(keyPair.d.toHex(), hex)
         assert.strictEqual(keyPair.compressed, params.isCompressed)
       })
 
-      it('exports ' + hex + ' to ' + string, function () {
+      it('toWIF exports ' + hex + ' to ' + string, function () {
         assert.strictEqual(keyPair.toWIF(), string)
       })
     })
   })
 
   // base58_keys_invalid
-  describe('ECPair', function () {
+  describe('ECPair.fromWIF', function () {
     var allowedNetworks = [
       networks.bitcoin,
       networks.testnet
@@ -136,9 +136,9 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  describe('Block', function () {
+  describe('Block.fromHex', function () {
     blocks_valid.forEach(function (f) {
-      it('fromHex can parse ' + f.id, function () {
+      it('can parse ' + f.id, function () {
         var block = Block.fromHex(f.hex)
 
         assert.strictEqual(block.getId(), f.id)
@@ -148,7 +148,7 @@ describe('Bitcoin-core', function () {
   })
 
   // tx_valid
-  describe('Transaction', function () {
+  describe('Transaction.fromHex', function () {
     tx_valid.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
@@ -176,7 +176,7 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  describe('Script', function () {
+  describe('Script.fromASM', function () {
     tx_valid.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
@@ -197,7 +197,7 @@ describe('Bitcoin-core', function () {
         .replace(/CODESEPARATOR/g, 'OP_CODESEPARATOR')
         .replace(/CHECKSIGVERIFY/g, 'OP_CHECKSIGVERIFY')
 
-        it('can decode ' + prevOutScriptPubKey, function () {
+        it('can parse ' + prevOutScriptPubKey, function () {
           // TODO: we can probably do better validation than this
           Script.fromASM(prevOutScriptPubKey)
         })
@@ -240,7 +240,7 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  describe('ECSignature', function () {
+  describe('ECSignature.parseScriptSignature', function () {
     sig_canonical.forEach(function (hex) {
       var buffer = new Buffer(hex, 'hex')
 
