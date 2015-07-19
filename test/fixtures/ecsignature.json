@@ -130,6 +130,14 @@
     ],
     "DER": [
       {
+        "exception": "DER sequence too short",
+        "hex": "ffffffffffffff"
+      },
+      {
+        "exception": "DER sequence too long",
+        "hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      {
         "exception": "Invalid sequence length",
         "hex": "30ff020400ffffff020400ffffff"
       },
@@ -147,7 +155,11 @@
       },
       {
         "exception": "Invalid DER encoding",
-        "hex": "300c020400ffffff020200ffffff"
+        "hex": "300c0204ddffffff020200ffffff"
+      },
+      {
+        "exception": "Invalid DER encoding \\(2\\)",
+        "hex": "300c020400ffffff02dd00ffffff"
       },
       {
         "exception": "R length is zero",

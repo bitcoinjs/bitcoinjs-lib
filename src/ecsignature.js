@@ -32,38 +32,36 @@ ECSignature.parseCompact = function (buffer) {
   }
 }
 
+// Strict DER - https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
+// NOTE: SIGHASH byte ignored
 ECSignature.fromDER = function (buffer) {
-  assert.equal(buffer.readUInt8(0), 0x30, 'Not a DER sequence')
-  assert.equal(buffer.readUInt8(1), buffer.length - 2, 'Invalid sequence length')
-  assert.equal(buffer.readUInt8(2), 0x02, 'Expected a DER integer')
+  // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
+  if (buffer.length < 8) throw new Error('DER sequence too short')
+  if (buffer.length > 72) throw new Error('DER sequence too long')
+  if (buffer[0] !== 0x30) throw new Error('Not a DER sequence')
+  if (buffer[1] !== buffer.length - 2) throw new Error('Invalid sequence length')
+  if (buffer[2] !== 0x02) throw new Error('Expected a DER integer')
 
-  var rLen = buffer.readUInt8(3)
-  assert(rLen > 0, 'R length is zero')
+  var lenR = buffer.readUInt8(3)
+  if (lenR === 0) throw new Error('R length is zero')
+  if (5 + lenR >= buffer.length) throw new Error('Invalid DER encoding')
+  if (buffer[4 + lenR] !== 0x02) throw new Error('Expected a DER integer (2)')
 
-  var offset = 4 + rLen
-  assert.equal(buffer.readUInt8(offset), 0x02, 'Expected a DER integer (2)')
+  var lenS = buffer[5 + lenR]
+  if (lenS === 0) throw new Error('S length is zero')
+  if ((lenR + lenS + 6) !== buffer.length) throw new Error('Invalid DER encoding (2)')
 
-  var sLen = buffer.readUInt8(offset + 1)
-  assert(sLen > 0, 'S length is zero')
+  if (buffer[4] & 0x80) throw new Error('R value is negative')
+  if (lenR > 1 && (buffer[4] === 0x00) && !(buffer[5] & 0x80)) throw new Error('R value excessively padded')
 
-  var rB = buffer.slice(4, offset)
-  var sB = buffer.slice(offset + 2)
-  offset += 2 + sLen
+  if (buffer[lenR + 6] & 0x80) throw new Error('S value is negative')
+  if (lenS > 1 && (buffer[lenR + 6] === 0x00) && !(buffer[lenR + 7] & 0x80)) throw new Error('S value excessively padded')
 
-  if (rLen > 1 && rB.readUInt8(0) === 0x00) {
-    assert(rB.readUInt8(1) & 0x80, 'R value excessively padded')
-  }
-
-  if (sLen > 1 && sB.readUInt8(0) === 0x00) {
-    assert(sB.readUInt8(1) & 0x80, 'S value excessively padded')
-  }
-
-  assert.equal(offset, buffer.length, 'Invalid DER encoding')
+  // non-BIP66 - extract R, S values
+  var rB = buffer.slice(4, 4 + lenR)
+  var sB = buffer.slice(lenR + 6)
   var r = BigInteger.fromDERInteger(rB)
   var s = BigInteger.fromDERInteger(sB)
-
-  assert(r.signum() >= 0, 'R value is negative')
-  assert(s.signum() >= 0, 'S value is negative')
 
   return new ECSignature(r, s)
 }
