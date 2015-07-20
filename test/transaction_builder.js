@@ -133,15 +133,6 @@ describe('TransactionBuilder', function () {
       assert.strictEqual(txout.value, 1000)
     })
 
-    it('accepts an Address object and value', function () {
-      var vout = txb.addOutput(privAddress, 1000)
-      assert.strictEqual(vout, 0)
-
-      var txout = txb.tx.outs[0]
-      assert.deepEqual(txout.script, privScript)
-      assert.strictEqual(txout.value, 1000)
-    })
-
     it('accepts a ScriptPubKey and value', function () {
       var vout = txb.addOutput(privScript, 1000)
       assert.strictEqual(vout, 0)

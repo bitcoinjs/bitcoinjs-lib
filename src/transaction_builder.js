@@ -188,12 +188,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
 
   // Attempt to get a valid address if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.fromBase58Check(scriptPubKey)
-  }
-
-  // Attempt to get a valid script if it's an Address object
-  if (scriptPubKey instanceof Address) {
-    scriptPubKey = scriptPubKey.toOutputScript()
+    scriptPubKey = Address.fromBase58Check(scriptPubKey).toOutputScript()
   }
 
   return this.tx.addOutput(scriptPubKey, value)
