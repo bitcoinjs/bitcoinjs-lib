@@ -47,7 +47,7 @@ describe('Bitcoin-core', function () {
   })
 
   // base58_keys_valid
-  describe('Address.formBase58Check', function () {
+  describe('Address.fromBase58Check', function () {
     var typeMap = {
       'pubkey': 'pubKeyHash',
       'script': 'scriptHash'
