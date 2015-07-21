@@ -34,12 +34,12 @@
       {
         "description": "hash too short",
         "base58check": "7SeEnXWPaCCALbVrTnszCVGfRU8cGfx",
-        "exception": "Invalid hash length"
+        "exception": "Invalid address length"
       },
       {
         "description": "hash too long",
         "base58check": "j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe",
-        "exception": "Invalid hash length"
+        "exception": "Invalid address length"
       }
     ],
     "fromOutputScript": [

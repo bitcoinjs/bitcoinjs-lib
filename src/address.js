@@ -14,11 +14,10 @@ function findScriptTypeByVersion (version) {
 
 function fromBase58Check (string) {
   var payload = base58check.decode(string)
+  if (payload.length !== 21) throw new TypeError('Invalid address length')
+
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
-
-  if (hash.length !== 20) throw new TypeError('Invalid hash length')
-  if (version & ~0xff) throw new TypeError('Invalid version byte')
 
   return { hash: hash, version: version }
 }
@@ -46,11 +45,15 @@ function toBase58Check (hash, version) {
 }
 
 function toOutputScript (address) {
-  var decode = fromBase58Check(address)
-  var scriptType = findScriptTypeByVersion(decode.version)
+  var payload = base58check.decode(address)
+  if (payload.length !== 21) throw new TypeError('Invalid hash length')
 
-  if (scriptType === 'pubkeyhash') return scripts.pubKeyHashOutput(decode.hash)
-  if (scriptType === 'scripthash') return scripts.scriptHashOutput(decode.hash)
+  var version = payload.readUInt8(0)
+  var hash = payload.slice(1)
+  var scriptType = findScriptTypeByVersion(version)
+
+  if (scriptType === 'pubkeyhash') return scripts.pubKeyHashOutput(hash)
+  if (scriptType === 'scripthash') return scripts.scriptHashOutput(hash)
 
   throw new Error(address + ' has no matching Script')
 }
