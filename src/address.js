@@ -1,4 +1,3 @@
-var assert = require('assert')
 var base58check = require('bs58check')
 var typeForce = require('typeforce')
 var networks = require('./networks')
@@ -13,50 +12,52 @@ function findScriptTypeByVersion (version) {
   }
 }
 
-function Address (hash, version) {
-  typeForce('Buffer', hash)
-
-  assert.strictEqual(hash.length, 20, 'Invalid hash length')
-  assert.strictEqual(version & 0xff, version, 'Invalid version byte')
-
-  this.hash = hash
-  this.version = version
-}
-
-Address.fromBase58Check = function (string) {
+function fromBase58Check (string) {
   var payload = base58check.decode(string)
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
 
-  return new Address(hash, version)
+  if (hash.length !== 20) throw new TypeError('Invalid hash length')
+  if (version & ~0xff) throw new TypeError('Invalid version byte')
+
+  return { hash: hash, version: version }
 }
 
-Address.fromOutputScript = function (script, network) {
+function fromOutputScript (script, network) {
   network = network || networks.bitcoin
 
-  if (scripts.isPubKeyHashOutput(script)) return new Address(script.chunks[2], network.pubKeyHash)
-  if (scripts.isScriptHashOutput(script)) return new Address(script.chunks[1], network.scriptHash)
+  if (scripts.isPubKeyHashOutput(script)) return toBase58Check(script.chunks[2], network.pubKeyHash)
+  if (scripts.isScriptHashOutput(script)) return toBase58Check(script.chunks[1], network.scriptHash)
 
   throw new Error(script.toASM() + ' has no matching Address')
 }
 
-Address.prototype.toBase58Check = function () {
+function toBase58Check (hash, version) {
+  typeForce('Buffer', hash)
+
+  if (hash.length !== 20) throw new TypeError('Invalid hash length')
+  if (version & ~0xff) throw new TypeError('Invalid version byte')
+
   var payload = new Buffer(21)
-  payload.writeUInt8(this.version, 0)
-  this.hash.copy(payload, 1)
+  payload.writeUInt8(version, 0)
+  hash.copy(payload, 1)
 
   return base58check.encode(payload)
 }
 
-Address.prototype.toOutputScript = function () {
-  var scriptType = findScriptTypeByVersion(this.version)
+function toOutputScript (address) {
+  var decode = fromBase58Check(address)
+  var scriptType = findScriptTypeByVersion(decode.version)
 
-  if (scriptType === 'pubkeyhash') return scripts.pubKeyHashOutput(this.hash)
-  if (scriptType === 'scripthash') return scripts.scriptHashOutput(this.hash)
+  if (scriptType === 'pubkeyhash') return scripts.pubKeyHashOutput(decode.hash)
+  if (scriptType === 'scripthash') return scripts.scriptHashOutput(decode.hash)
 
-  throw new Error(this.toString() + ' has no matching Script')
+  throw new Error(address + ' has no matching Script')
 }
 
-Address.prototype.toString = Address.prototype.toBase58Check
-
-module.exports = Address
+module.exports = {
+  fromBase58Check: fromBase58Check,
+  fromOutputScript: fromOutputScript,
+  toBase58Check: toBase58Check,
+  toOutputScript: toOutputScript
+}

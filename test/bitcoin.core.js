@@ -65,10 +65,10 @@ describe('Bitcoin-core', function () {
       }
 
       it('can import ' + string, function () {
-        var address = Address.fromBase58Check(string)
+        var decode = Address.fromBase58Check(string)
 
-        assert.strictEqual(address.hash.toString('hex'), hex)
-        assert.strictEqual(address.version, network[typeMap[params.addrType]])
+        assert.strictEqual(decode.hash.toString('hex'), hex)
+        assert.strictEqual(decode.version, network[typeMap[params.addrType]])
       })
     })
   })

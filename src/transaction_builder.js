@@ -37,7 +37,7 @@ function extractInput (txIn) {
       hashType = parsed.hashType
       pubKeys = scriptSig.chunks.slice(1)
       signatures = [parsed.signature]
-      prevOutScript = Address.fromBase58Check(ECPair.fromPublicKeyBuffer(pubKeys[0]).getAddress()).toOutputScript()
+      prevOutScript = Address.toOutputScript(ECPair.fromPublicKeyBuffer(pubKeys[0]).getAddress())
 
       break
     }
@@ -188,7 +188,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
 
   // Attempt to get a valid address if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.fromBase58Check(scriptPubKey).toOutputScript()
+    scriptPubKey = Address.toOutputScript(scriptPubKey)
   }
 
   return this.tx.addOutput(scriptPubKey, value)
@@ -358,7 +358,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
       // we know nothin' Jon Snow, assume pubKeyHash
       } else {
-        input.prevOutScript = Address.fromBase58Check(keyPair.getAddress()).toOutputScript()
+        input.prevOutScript = Address.toOutputScript(keyPair.getAddress())
         input.prevOutType = 'pubkeyhash'
         input.pubKeys = [kpPubKey]
         input.scriptType = input.prevOutType

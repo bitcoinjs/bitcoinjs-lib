@@ -9,25 +9,13 @@ var Script = require('../src/script')
 var fixtures = require('./fixtures/address.json')
 
 describe('Address', function () {
-  describe('Constructor', function () {
-    it('does not mutate the input', function () {
-      fixtures.valid.forEach(function (f) {
-        var hash = new Buffer(f.hash, 'hex')
-        var addr = new Address(hash, f.version)
-
-        assert.strictEqual(addr.version, f.version)
-        assert.strictEqual(addr.hash.toString('hex'), f.hash)
-      })
-    })
-  })
-
   describe('fromBase58Check', function () {
     fixtures.valid.forEach(function (f) {
-      it('imports ' + f.script + ' (' + f.network + ') correctly', function () {
-        var addr = Address.fromBase58Check(f.base58check)
+      it('decodes ' + f.base58check, function () {
+        var decode = Address.fromBase58Check(f.base58check)
 
-        assert.strictEqual(addr.version, f.version)
-        assert.strictEqual(addr.hash.toString('hex'), f.hash)
+        assert.strictEqual(decode.version, f.version)
+        assert.strictEqual(decode.hash.toString('hex'), f.hash)
       })
     })
 
@@ -42,12 +30,11 @@ describe('Address', function () {
 
   describe('fromOutputScript', function () {
     fixtures.valid.forEach(function (f) {
-      it('imports ' + f.script + ' (' + f.network + ') correctly', function () {
+      it('parses ' + f.script + ' (' + f.network + ')', function () {
         var script = Script.fromASM(f.script)
-        var addr = Address.fromOutputScript(script, networks[f.network])
+        var address = Address.fromOutputScript(script, networks[f.network])
 
-        assert.strictEqual(addr.version, f.version)
-        assert.strictEqual(addr.hash.toString('hex'), f.hash)
+        assert.strictEqual(address, f.base58check)
       })
     })
 
@@ -64,20 +51,18 @@ describe('Address', function () {
 
   describe('toBase58Check', function () {
     fixtures.valid.forEach(function (f) {
-      it('exports ' + f.script + ' (' + f.network + ') correctly', function () {
-        var addr = Address.fromBase58Check(f.base58check)
-        var result = addr.toBase58Check()
+      it('formats ' + f.hash + ' (' + f.network + ')', function () {
+        var address = Address.toBase58Check(new Buffer(f.hash, 'hex'), f.version)
 
-        assert.strictEqual(result, f.base58check)
+        assert.strictEqual(address, f.base58check)
       })
     })
   })
 
   describe('toOutputScript', function () {
     fixtures.valid.forEach(function (f) {
-      it('imports ' + f.script + ' (' + f.network + ') correctly', function () {
-        var addr = Address.fromBase58Check(f.base58check)
-        var script = addr.toOutputScript()
+      it('exports ' + f.script + '(' + f.network + ')', function () {
+        var script = Address.toOutputScript(f.base58check)
 
         assert.strictEqual(script.toASM(), f.script)
       })
@@ -85,10 +70,8 @@ describe('Address', function () {
 
     fixtures.invalid.toOutputScript.forEach(function (f) {
       it('throws when ' + f.description, function () {
-        var addr = new Address(new Buffer(f.hash, 'hex'), f.version)
-
         assert.throws(function () {
-          addr.toOutputScript()
+          Address.toOutputScript(f.address)
         }, new RegExp(f.description))
       })
     })

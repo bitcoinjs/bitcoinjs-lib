@@ -65,13 +65,13 @@ describe('TransactionBuilder', function () {
     txb = new TransactionBuilder()
 
     prevTx = new Transaction()
-    prevTx.addOutput(Address.fromBase58Check('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH').toOutputScript(), 0)
-    prevTx.addOutput(Address.fromBase58Check('1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP').toOutputScript(), 1)
+    prevTx.addOutput(Address.toOutputScript('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH'), 0)
+    prevTx.addOutput(Address.toOutputScript('1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'), 1)
     prevTxHash = prevTx.getHash()
 
     keyPair = new ECPair(BigInteger.ONE)
     privAddress = keyPair.getAddress()
-    privScript = Address.fromBase58Check(privAddress).toOutputScript()
+    privScript = Address.toOutputScript(privAddress)
   })
 
   describe('addInput', function () {

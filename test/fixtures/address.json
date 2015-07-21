@@ -59,8 +59,7 @@
     "toOutputScript": [
       {
         "description": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE has no matching Script",
-        "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
-        "version": 153
+        "address": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE"
       }
     ]
   }
