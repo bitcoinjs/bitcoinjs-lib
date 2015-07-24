@@ -1,6 +1,7 @@
 var assert = require('assert')
 var bcrypto = require('./crypto')
 var bufferutils = require('./bufferutils')
+var networks = require('./networks')
 var ops = require('./opcodes')
 var scripts = require('./scripts')
 
@@ -83,10 +84,11 @@ function extractInput (txIn) {
   }
 }
 
-function TransactionBuilder () {
+function TransactionBuilder (network) {
   this.prevTxMap = {}
   this.prevOutScripts = {}
   this.prevOutTypes = {}
+  this.network = network || networks.bitcoin
 
   this.inputs = []
   this.tx = new Transaction()
@@ -188,7 +190,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
 
   // Attempt to get a valid address if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.toOutputScript(scriptPubKey)
+    scriptPubKey = Address.toOutputScript(scriptPubKey, this.network)
   }
 
   return this.tx.addOutput(scriptPubKey, value)

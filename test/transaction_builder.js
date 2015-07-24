@@ -142,6 +142,12 @@ describe('TransactionBuilder', function () {
       assert.strictEqual(txout.value, 1000)
     })
 
+    it('throws if address is of the wrong network', function () {
+      assert.throws(function () {
+        txb.addOutput('2NGHjvjw83pcVFgMcA7QvSMh2c246rxLVz9', 1000)
+      }, /2NGHjvjw83pcVFgMcA7QvSMh2c246rxLVz9 has no matching Script/)
+    })
+
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
       txb.addInput(prevTxHash, 0)
       txb.addOutput(privScript, 2000)
