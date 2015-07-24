@@ -37,7 +37,7 @@ function extractInput (txIn) {
       hashType = parsed.hashType
       pubKeys = scriptSig.chunks.slice(1)
       signatures = [parsed.signature]
-      prevOutScript = Address.toOutputScript(ECPair.fromPublicKeyBuffer(pubKeys[0]).getAddress())
+      prevOutScript = scripts.pubKeyHashOutput(bcrypto.hash160(pubKeys[0]))
 
       break
     }
@@ -358,7 +358,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
       // we know nothin' Jon Snow, assume pubKeyHash
       } else {
-        input.prevOutScript = Address.toOutputScript(keyPair.getAddress())
+        input.prevOutScript = scripts.pubKeyHashOutput(bcrypto.hash160(keyPair.getPublicKeyBuffer()))
         input.prevOutType = 'pubkeyhash'
         input.pubKeys = [kpPubKey]
         input.scriptType = input.prevOutType
