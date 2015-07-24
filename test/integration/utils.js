@@ -1,10 +1,15 @@
-var https = require('https')
+var httpify = require('httpify')
 
-function faucetWithdraw (address, amount, done) {
-  var url = 'https://coconut-macaroon.herokuapp.com/withdrawal?address=' + address + '&amount=' + amount
-  https.get(url, function (res) {
-    res.statusCode === 200 ? done(null) : done(new Error('non-200 status: ' + res.statusCode))
-  }).on('error', done)
+function faucetWithdraw (address, amount, callback) {
+  httpify({
+    method: 'POST',
+    url: 'https://api.blocktrail.com/v1/tBTC/faucet/withdrawl?api_key=c0bd8155c66e3fb148bb1664adc1e4dacd872548',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      address: address,
+      amount: amount
+    })
+  }, callback)
 }
 
 function pollUnspent (blockchain, address, done) {
