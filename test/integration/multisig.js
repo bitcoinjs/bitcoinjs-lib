@@ -32,7 +32,7 @@ describe('bitcoinjs-lib (multisig)', function () {
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT',
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe',
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx9rcrL7'
-    ].map(bitcoin.ECPair.fromWIF)
+    ].map(function (wif) { return bitcoin.ECPair.fromWIF(wif, bitcoin.networks.testnet) })
     var pubKeys = keyPairs.map(function (x) { return x.getPublicKeyBuffer() })
 
     var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 4
