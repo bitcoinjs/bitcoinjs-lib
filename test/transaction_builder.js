@@ -14,8 +14,9 @@ var NETWORKS = require('../src/networks')
 
 var fixtures = require('./fixtures/transaction_builder')
 
-function construct (txb, f, sign) {
+function construct (f, sign) {
   var network = NETWORKS[f.network]
+  var txb = new TransactionBuilder(network)
 
   f.inputs.forEach(function (input) {
     var prevTxScript
@@ -56,6 +57,8 @@ function construct (txb, f, sign) {
   if (f.locktime !== undefined) {
     txb.tx.locktime = f.locktime
   }
+
+  return txb
 }
 
 describe('TransactionBuilder', function () {
@@ -165,7 +168,7 @@ describe('TransactionBuilder', function () {
   describe('sign', function () {
     fixtures.invalid.sign.forEach(function (f) {
       it('throws on ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
-        construct(txb, f, false)
+        txb = construct(f, false)
 
         f.inputs.forEach(function (input, index) {
           input.signs.forEach(function (sign) {
@@ -193,7 +196,7 @@ describe('TransactionBuilder', function () {
   describe('build', function () {
     fixtures.valid.build.forEach(function (f) {
       it('builds "' + f.description + '"', function () {
-        construct(txb, f)
+        txb = construct(f)
 
         var tx = txb.build()
         assert.strictEqual(tx.toHex(), f.txHex)
@@ -207,7 +210,7 @@ describe('TransactionBuilder', function () {
             var tx = Transaction.fromHex(f.txHex)
             txb = TransactionBuilder.fromTransaction(tx)
           } else {
-            construct(txb, f)
+            txb = construct(f)
           }
         })
 
@@ -228,7 +231,7 @@ describe('TransactionBuilder', function () {
   describe('multisig', function () {
     fixtures.valid.multisig.forEach(function (f) {
       it(f.description, function () {
-        construct(txb, f, false)
+        txb = construct(f, false)
 
         var tx
 
