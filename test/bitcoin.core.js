@@ -47,15 +47,15 @@ describe('Bitcoin-core', function () {
   })
 
   // base58_keys_valid
-  describe('Address.formBase58Check', function () {
+  describe('Address.toBase58Check', function () {
     var typeMap = {
       'pubkey': 'pubKeyHash',
       'script': 'scriptHash'
     }
 
     base58_keys_valid.forEach(function (f) {
-      var string = f[0]
-      var hex = f[1]
+      var expected = f[0]
+      var hash = new Buffer(f[1], 'hex')
       var params = f[2]
       var network = networks.bitcoin
 
@@ -64,11 +64,10 @@ describe('Bitcoin-core', function () {
         network = networks.testnet
       }
 
-      it('can import ' + string, function () {
-        var address = Address.fromBase58Check(string)
+      var version = network[typeMap[params.addrType]]
 
-        assert.strictEqual(address.hash.toString('hex'), hex)
-        assert.strictEqual(address.version, network[typeMap[params.addrType]])
+      it('can export ' + expected, function () {
+        assert.strictEqual(Address.toBase58Check(hash, version), expected)
       })
     })
   })
@@ -90,7 +89,7 @@ describe('Bitcoin-core', function () {
           var address = Address.fromBase58Check(string)
 
           assert.notEqual(allowedNetworks.indexOf(address.version), -1, 'Invalid network')
-        }, /Invalid (checksum|hash length|network)/)
+        }, /Invalid (checksum|address length|network)/)
       })
     })
   })

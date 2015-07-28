@@ -47,7 +47,7 @@ function verify (address, signature, message, network) {
     network: network
   })
 
-  return keyPair.getAddress().toString() === address.toString()
+  return keyPair.getAddress() === address
 }
 
 module.exports = {

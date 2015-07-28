@@ -4,7 +4,6 @@ var assert = require('assert')
 var message = require('../src/message')
 var networks = require('../src/networks')
 
-var Address = require('../src/address')
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
 
@@ -23,14 +22,6 @@ describe('message', function () {
   })
 
   describe('verify', function () {
-    it('accepts an Address object', function () {
-      var f = fixtures.valid.verify[0]
-      var network = networks[f.network]
-
-      var address = Address.fromBase58Check(f.address)
-      assert(message.verify(address, f.signature, f.message, network))
-    })
-
     fixtures.valid.verify.forEach(function (f) {
       it('verifies a valid signature for "' + f.message + '" (' + f.network + ')', function () {
         var network = networks[f.network]

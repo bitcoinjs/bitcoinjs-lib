@@ -171,7 +171,7 @@ describe('ECPair', function () {
       it('returns ' + f.address + ' for ' + f.WIF, function () {
         var keyPair = ECPair.fromWIF(f.WIF)
 
-        assert.strictEqual(keyPair.getAddress().toString(), f.address)
+        assert.strictEqual(keyPair.getAddress(), f.address)
       })
     })
   })

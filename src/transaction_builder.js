@@ -1,4 +1,5 @@
 var assert = require('assert')
+var bcrypto = require('./crypto')
 var bufferutils = require('./bufferutils')
 var ops = require('./opcodes')
 var scripts = require('./scripts')
@@ -36,7 +37,7 @@ function extractInput (txIn) {
       hashType = parsed.hashType
       pubKeys = scriptSig.chunks.slice(1)
       signatures = [parsed.signature]
-      prevOutScript = ECPair.fromPublicKeyBuffer(pubKeys[0]).getAddress().toOutputScript()
+      prevOutScript = Address.toOutputScript(ECPair.fromPublicKeyBuffer(pubKeys[0]).getAddress())
 
       break
     }
@@ -187,12 +188,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
 
   // Attempt to get a valid address if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.fromBase58Check(scriptPubKey)
-  }
-
-  // Attempt to get a valid script if it's an Address object
-  if (scriptPubKey instanceof Address) {
-    scriptPubKey = scriptPubKey.toOutputScript()
+    scriptPubKey = Address.toOutputScript(scriptPubKey)
   }
 
   return this.tx.addOutput(scriptPubKey, value)
@@ -330,7 +326,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
         case 'pubkeyhash': {
           var pkh1 = redeemScript.chunks[2]
-          var pkh2 = keyPair.getAddress().hash
+          var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
 
           assert.deepEqual(pkh1, pkh2, 'privateKey cannot sign for this input')
           pubKeys = [kpPubKey]
@@ -362,7 +358,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
       // we know nothin' Jon Snow, assume pubKeyHash
       } else {
-        input.prevOutScript = keyPair.getAddress().toOutputScript()
+        input.prevOutScript = Address.toOutputScript(keyPair.getAddress())
         input.prevOutType = 'pubkeyhash'
         input.pubKeys = [kpPubKey]
         input.scriptType = input.prevOutType

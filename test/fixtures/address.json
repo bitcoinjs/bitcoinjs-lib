@@ -34,12 +34,12 @@
       {
         "description": "hash too short",
         "base58check": "7SeEnXWPaCCALbVrTnszCVGfRU8cGfx",
-        "exception": "Invalid hash length"
+        "exception": "Invalid address length"
       },
       {
         "description": "hash too long",
         "base58check": "j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe",
-        "exception": "Invalid hash length"
+        "exception": "Invalid address length"
       }
     ],
     "fromOutputScript": [
@@ -59,8 +59,7 @@
     "toOutputScript": [
       {
         "description": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE has no matching Script",
-        "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
-        "version": 153
+        "address": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE"
       }
     ]
   }

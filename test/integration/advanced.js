@@ -29,7 +29,7 @@ describe('bitcoinjs-lib (advanced)', function () {
     var keyPair = bitcoin.ECPair.makeRandom({
       network: bitcoin.networks.testnet
     })
-    var address = keyPair.getAddress().toString()
+    var address = keyPair.getAddress()
 
     faucetWithdraw(address, 2e4, function (err) {
       if (err) return done(err)

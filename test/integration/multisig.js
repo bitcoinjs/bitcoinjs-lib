@@ -58,7 +58,7 @@ describe('bitcoinjs-lib (multisig)', function () {
         // make a random destination address
         var targetAddress = bitcoin.ECPair.makeRandom({
           network: bitcoin.networks.testnet
-        }).getAddress().toString()
+        }).getAddress()
 
         var txb = new bitcoin.TransactionBuilder()
         txb.addInput(unspent.txId, unspent.vout)

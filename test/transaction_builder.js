@@ -65,13 +65,13 @@ describe('TransactionBuilder', function () {
     txb = new TransactionBuilder()
 
     prevTx = new Transaction()
-    prevTx.addOutput(Address.fromBase58Check('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH').toOutputScript(), 0)
-    prevTx.addOutput(Address.fromBase58Check('1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP').toOutputScript(), 1)
+    prevTx.addOutput(Address.toOutputScript('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH'), 0)
+    prevTx.addOutput(Address.toOutputScript('1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'), 1)
     prevTxHash = prevTx.getHash()
 
     keyPair = new ECPair(BigInteger.ONE)
     privAddress = keyPair.getAddress()
-    privScript = privAddress.toOutputScript()
+    privScript = Address.toOutputScript(privAddress)
   })
 
   describe('addInput', function () {
@@ -125,15 +125,6 @@ describe('TransactionBuilder', function () {
 
   describe('addOutput', function () {
     it('accepts an address string and value', function () {
-      var vout = txb.addOutput(privAddress.toBase58Check(), 1000)
-      assert.strictEqual(vout, 0)
-
-      var txout = txb.tx.outs[0]
-      assert.deepEqual(txout.script, privScript)
-      assert.strictEqual(txout.value, 1000)
-    })
-
-    it('accepts an Address object and value', function () {
       var vout = txb.addOutput(privAddress, 1000)
       assert.strictEqual(vout, 0)
 
