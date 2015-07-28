@@ -3,27 +3,17 @@ var bs58check = require('bs58check')
 var bcrypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var ecurve = require('ecurve')
-var networks = require('./networks')
+var NETWORKS = require('./networks')
 var randomBytes = require('randombytes')
 var typeForce = require('typeforce')
 
 var BigInteger = require('bigi')
 
-function findNetworkByWIFVersion (version) {
-  for (var networkName in networks) {
-    var network = networks[networkName]
-
-    if (network.wif === version) return network
-  }
-
-  throw new Error('Unknown network')
-}
-
 function ECPair (d, Q, options) {
   options = options || {}
 
   var compressed = options.compressed === undefined ? true : options.compressed
-  var network = options.network === undefined ? networks.bitcoin : options.network
+  var network = options.network === undefined ? NETWORKS.bitcoin : options.network
 
   typeForce('Boolean', compressed)
   assert('pubKeyHash' in network, 'Unknown pubKeyHash constants for network')
@@ -67,7 +57,7 @@ ECPair.fromPublicKeyBuffer = function (buffer, network) {
   })
 }
 
-ECPair.fromWIF = function (string) {
+ECPair.fromWIF = function (string, networks) {
   var payload = bs58check.decode(string)
   var version = payload.readUInt8(0)
   var compressed
@@ -88,7 +78,23 @@ ECPair.fromWIF = function (string) {
     compressed = false
   }
 
-  var network = findNetworkByWIFVersion(version)
+  var network
+
+  // list of networks?
+  if (Array.isArray(networks)) {
+    network = networks.filter(function (network) {
+      return network.wif === version
+    }).pop() || {}
+
+  // otherwise, assume a network object (or default to bitcoin)
+  } else {
+    network = networks || NETWORKS.bitcoin
+  }
+
+  if (network.wif !== version) {
+    throw new Error('Invalid network')
+  }
+
   var d = BigInteger.fromBuffer(payload)
 
   return new ECPair(d, null, {

@@ -4,7 +4,7 @@
 var assert = require('assert')
 var ecdsa = require('../src/ecdsa')
 var ecurve = require('ecurve')
-var networks = require('../src/networks')
+var NETWORKS = require('../src/networks')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
 
@@ -12,6 +12,11 @@ var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
 
 var fixtures = require('./fixtures/ecpair.json')
+
+var NETWORKS_LIST = [] // Object.values(NETWORKS)
+for (var networkName in NETWORKS) {
+  NETWORKS_LIST.push(NETWORKS[networkName])
+}
 
 describe('ECPair', function () {
   describe('constructor', function () {
@@ -32,10 +37,10 @@ describe('ECPair', function () {
     it('supports the network option', function () {
       var keyPair = new ECPair(BigInteger.ONE, null, {
         compressed: false,
-        network: networks.testnet
+        network: NETWORKS.testnet
       })
 
-      assert.strictEqual(keyPair.network, networks.testnet)
+      assert.strictEqual(keyPair.network, NETWORKS.testnet)
     })
 
     it('throws if compressed option is not a bool', function () {
@@ -102,12 +107,23 @@ describe('ECPair', function () {
 
   describe('fromWIF', function () {
     fixtures.valid.forEach(function (f) {
-      it('imports ' + f.WIF + ' correctly', function () {
-        var keyPair = ECPair.fromWIF(f.WIF)
+      it('imports ' + f.WIF + ' (' + f.network + ')', function () {
+        var network = NETWORKS[f.network]
+        var keyPair = ECPair.fromWIF(f.WIF, network)
 
         assert.strictEqual(keyPair.d.toString(), f.d)
         assert.strictEqual(keyPair.compressed, f.compressed)
-        assert.strictEqual(keyPair.network, networks[f.network])
+        assert.strictEqual(keyPair.network, network)
+      })
+    })
+
+    fixtures.valid.forEach(function (f) {
+      it('imports ' + f.WIF + ' (via list of networks)', function () {
+        var keyPair = ECPair.fromWIF(f.WIF, NETWORKS_LIST)
+
+        assert.strictEqual(keyPair.d.toString(), f.d)
+        assert.strictEqual(keyPair.compressed, f.compressed)
+        assert.strictEqual(keyPair.network, NETWORKS[f.network])
       })
     })
 
@@ -122,8 +138,8 @@ describe('ECPair', function () {
 
   describe('toWIF', function () {
     fixtures.valid.forEach(function (f) {
-      it('exports ' + f.WIF + ' correctly', function () {
-        var keyPair = ECPair.fromWIF(f.WIF)
+      it('exports ' + f.WIF, function () {
+        var keyPair = ECPair.fromWIF(f.WIF, NETWORKS_LIST)
         var result = keyPair.toWIF()
 
         assert.strictEqual(result, f.WIF)
@@ -169,7 +185,7 @@ describe('ECPair', function () {
   describe('getAddress', function () {
     fixtures.valid.forEach(function (f) {
       it('returns ' + f.address + ' for ' + f.WIF, function () {
-        var keyPair = ECPair.fromWIF(f.WIF)
+        var keyPair = ECPair.fromWIF(f.WIF, NETWORKS_LIST)
 
         assert.strictEqual(keyPair.getAddress(), f.address)
       })

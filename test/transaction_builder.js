@@ -10,10 +10,13 @@ var ECPair = require('../src/ecpair')
 var Script = require('../src/script')
 var Transaction = require('../src/transaction')
 var TransactionBuilder = require('../src/transaction_builder')
+var NETWORKS = require('../src/networks')
 
 var fixtures = require('./fixtures/transaction_builder')
 
 function construct (txb, f, sign) {
+  var network = NETWORKS[f.network]
+
   f.inputs.forEach(function (input) {
     var prevTxScript
 
@@ -33,7 +36,7 @@ function construct (txb, f, sign) {
   if (sign === undefined || sign) {
     f.inputs.forEach(function (input, index) {
       input.signs.forEach(function (sign) {
-        var keyPair = ECPair.fromWIF(sign.keyPair)
+        var keyPair = ECPair.fromWIF(sign.keyPair, network)
         var redeemScript
 
         if (sign.redeemScript) {
@@ -161,12 +164,12 @@ describe('TransactionBuilder', function () {
 
   describe('sign', function () {
     fixtures.invalid.sign.forEach(function (f) {
-      it('throws on ' + f.exception + ' (' + f.description + ')', function () {
+      it('throws on ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
         construct(txb, f, false)
 
         f.inputs.forEach(function (input, index) {
           input.signs.forEach(function (sign) {
-            var keyPair = ECPair.fromWIF(sign.keyPair)
+            var keyPair = ECPair.fromWIF(sign.keyPair, NETWORKS[f.network])
             var redeemScript
 
             if (sign.redeemScript) {
@@ -254,7 +257,7 @@ describe('TransactionBuilder', function () {
               txb = TransactionBuilder.fromTransaction(tx)
             }
 
-            var keyPair = ECPair.fromWIF(sign.keyPair)
+            var keyPair = ECPair.fromWIF(sign.keyPair, NETWORKS[f.network])
             txb.sign(i, keyPair, redeemScript, sign.hashType)
 
             // update the tx
@@ -277,7 +280,7 @@ describe('TransactionBuilder', function () {
 
       var redeemScript = Script.fromASM('OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG')
 
-      var keyPair = ECPair.fromWIF('91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe')
+      var keyPair = ECPair.fromWIF('91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe', NETWORKS.testnet)
       txb.sign(0, keyPair, redeemScript)
 
       var tx = txb.build()
