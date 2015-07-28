@@ -1,4 +1,3 @@
-var assert = require('assert')
 var base58check = require('bs58check')
 var bcrypto = require('./crypto')
 var createHmac = require('create-hmac')
@@ -27,9 +26,9 @@ function HDNode (keyPair, chainCode) {
   typeForce('ECPair', keyPair)
   typeForce('Buffer', chainCode)
 
-  assert.equal(chainCode.length, 32, 'Expected chainCode length of 32, got ' + chainCode.length)
-  assert('bip32' in keyPair.network, 'Unknown BIP32 constants for network')
-  assert.equal(keyPair.compressed, true, 'BIP32 only allows compressed keyPairs')
+  if (chainCode.length !== 32) throw new TypeError('Expected chainCode length of 32, got ' + chainCode.length)
+  if (!keyPair.network.bip32) throw new TypeError('Unknown BIP32 constants for network')
+  if (!keyPair.compressed) throw new TypeError('BIP32 only allows compressed keyPairs')
 
   this.keyPair = keyPair
   this.chainCode = chainCode
@@ -45,8 +44,8 @@ HDNode.LENGTH = 78
 HDNode.fromSeedBuffer = function (seed, network) {
   typeForce('Buffer', seed)
 
-  assert(seed.length >= 16, 'Seed should be at least 128 bits')
-  assert(seed.length <= 64, 'Seed should be at most 512 bits')
+  if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
+  if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
 
   var I = createHmac('sha512', HDNode.MASTER_SECRET).update(seed).digest()
   var IL = I.slice(0, 32)
@@ -68,13 +67,14 @@ HDNode.fromSeedHex = function (hex, network) {
 
 HDNode.fromBase58 = function (string, network) {
   var buffer = base58check.decode(string)
-  assert.strictEqual(buffer.length, HDNode.LENGTH, 'Invalid buffer length')
+  if (buffer.length !== HDNode.LENGTH) throw new Error('Invalid buffer length')
 
   // 4 byte: version bytes
   var version = buffer.readUInt32BE(0)
 
   if (network) {
-    assert(version === network.bip32.private || version === network.bip32.public, "Network doesn't match")
+    if (version !== network.bip32.private &&
+        version !== network.bip32.public) throw new Error('Invalid network')
 
   // auto-detect
   } else {
@@ -87,13 +87,13 @@ HDNode.fromBase58 = function (string, network) {
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
   var parentFingerprint = buffer.readUInt32BE(5)
   if (depth === 0) {
-    assert.strictEqual(parentFingerprint, 0x00000000, 'Invalid parent fingerprint')
+    if (parentFingerprint !== 0x00000000) throw new Error('Invalid parent fingerprint')
   }
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
   // This is encoded in MSB order. (0x00000000 if master key)
   var index = buffer.readUInt32BE(9)
-  assert(depth > 0 || index === 0, 'Invalid index')
+  if (depth === 0 && index !== 0) throw new Error('Invalid index')
 
   // 32 bytes: the chain code
   var chainCode = buffer.slice(13, 45)
@@ -101,7 +101,8 @@ HDNode.fromBase58 = function (string, network) {
 
   // 33 bytes: private key data (0x00 + k)
   if (version === network.bip32.private) {
-    assert.strictEqual(buffer.readUInt8(45), 0x00, 'Invalid private key')
+    if (buffer.readUInt8(45) !== 0x00) throw new Error('Invalid private key')
+
     data = buffer.slice(46, 78)
     var d = BigInteger.fromBuffer(data)
 
@@ -113,7 +114,7 @@ HDNode.fromBase58 = function (string, network) {
   } else {
     data = buffer.slice(45, 78)
     var Q = ecurve.Point.decodeFrom(curve, data)
-    assert.equal(Q.compressed, true, 'Invalid public key')
+    if (!Q.compressed) throw new Error('Invalid public key')
 
     // Verify that the X coordinate in the public point corresponds to a point on the curve.
     // If not, the extended public key is invalid.
@@ -158,7 +159,7 @@ HDNode.prototype.neutered = function () {
 }
 
 HDNode.prototype.toBase58 = function (__isPrivate) {
-  assert.strictEqual(__isPrivate, undefined, 'Unsupported argument in 2.0.0')
+  if (__isPrivate !== undefined) throw new TypeError('Unsupported argument in 2.0.0')
 
   // Version
   var network = this.keyPair.network
@@ -207,7 +208,7 @@ HDNode.prototype.derive = function (index) {
 
   // Hardened child
   if (isHardened) {
-    assert(this.keyPair.d, 'Could not derive hardened child key')
+    if (!this.keyPair.d) throw new TypeError('Could not derive hardened child key')
 
     // data = 0x00 || ser256(kpar) || ser32(index)
     data = Buffer.concat([
