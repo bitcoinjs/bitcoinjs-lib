@@ -91,9 +91,7 @@ ECPair.fromWIF = function (string, networks) {
     network = networks || NETWORKS.bitcoin
   }
 
-  if (network.wif !== version) {
-    throw new Error('Invalid network')
-  }
+  if (network.wif !== version) throw new Error('Invalid network')
 
   var d = BigInteger.fromBuffer(payload)
 
