@@ -83,7 +83,7 @@ ECPair.fromWIF = function (string, networks) {
   // list of networks?
   if (Array.isArray(networks)) {
     network = networks.filter(function (network) {
-      return network.wif === version
+      return version === network.wif
     }).pop() || {}
 
   // otherwise, assume a network object (or default to bitcoin)
@@ -91,7 +91,7 @@ ECPair.fromWIF = function (string, networks) {
     network = networks || NETWORKS.bitcoin
   }
 
-  if (network.wif !== version) throw new Error('Invalid network')
+  if (version !== network.wif) throw new Error('Invalid network')
 
   var d = BigInteger.fromBuffer(payload)
 

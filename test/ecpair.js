@@ -4,7 +4,6 @@
 var assert = require('assert')
 var ecdsa = require('../src/ecdsa')
 var ecurve = require('ecurve')
-var NETWORKS = require('../src/networks')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
 
@@ -13,6 +12,7 @@ var ECPair = require('../src/ecpair')
 
 var fixtures = require('./fixtures/ecpair.json')
 
+var NETWORKS = require('../src/networks')
 var NETWORKS_LIST = [] // Object.values(NETWORKS)
 for (var networkName in NETWORKS) {
   NETWORKS_LIST.push(NETWORKS[networkName])

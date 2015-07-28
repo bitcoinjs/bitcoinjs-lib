@@ -2,7 +2,6 @@
 /* eslint-disable no-new */
 
 var assert = require('assert')
-var networks = require('../src/networks')
 var sinon = require('sinon')
 
 var BigInteger = require('bigi')
@@ -10,6 +9,12 @@ var ECPair = require('../src/ecpair')
 var HDNode = require('../src/hdnode')
 
 var fixtures = require('./fixtures/hdnode.json')
+
+var NETWORKS = require('../src/networks')
+var NETWORKS_LIST = [] // Object.values(NETWORKS)
+for (var networkName in NETWORKS) {
+  NETWORKS_LIST.push(NETWORKS[networkName])
+}
 
 describe('HDNode', function () {
   describe('Constructor', function () {
@@ -63,7 +68,7 @@ describe('HDNode', function () {
   describe('fromSeed*', function () {
     fixtures.valid.forEach(function (f) {
       it('calculates privKey and chainCode for ' + f.master.fingerprint, function () {
-        var network = networks[f.network]
+        var network = NETWORKS[f.network]
         var hd = HDNode.fromSeedHex(f.master.seed, network)
 
         assert.strictEqual(hd.keyPair.toWIF(), f.master.wif)
@@ -87,7 +92,7 @@ describe('HDNode', function () {
   describe('toBase58', function () {
     fixtures.valid.forEach(function (f) {
       it('exports ' + f.master.base58 + ' (public) correctly', function () {
-        var network = networks[f.network]
+        var network = NETWORKS[f.network]
         var hd = HDNode.fromSeedHex(f.master.seed, network).neutered()
 
         assert.strictEqual(hd.toBase58(), f.master.base58)
@@ -96,7 +101,7 @@ describe('HDNode', function () {
 
     fixtures.valid.forEach(function (f) {
       it('exports ' + f.master.base58Priv + ' (private) correctly', function () {
-        var network = networks[f.network]
+        var network = NETWORKS[f.network]
         var hd = HDNode.fromSeedHex(f.master.seed, network)
 
         assert.strictEqual(hd.toBase58(), f.master.base58Priv)
@@ -107,8 +112,8 @@ describe('HDNode', function () {
   describe('fromBase58', function () {
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.master.base58 + ' (public) correctly', function () {
-        var network = networks[f.network]
-        var hd = HDNode.fromBase58(f.master.base58)
+        var network = NETWORKS[f.network]
+        var hd = HDNode.fromBase58(f.master.base58, network)
 
         assert.strictEqual(hd.toBase58(), f.master.base58)
         assert.strictEqual(hd.keyPair.network, network)
@@ -117,7 +122,7 @@ describe('HDNode', function () {
 
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.master.base58Priv + ' (private) correctly', function () {
-        var network = networks[f.network]
+        var network = NETWORKS[f.network]
         var hd = HDNode.fromBase58(f.master.base58Priv, network)
 
         assert.strictEqual(hd.toBase58(), f.master.base58Priv)
@@ -128,7 +133,7 @@ describe('HDNode', function () {
     fixtures.invalid.fromBase58.forEach(function (f) {
       it('throws on ' + f.string, function () {
         assert.throws(function () {
-          var network = networks[f.network]
+          var network = NETWORKS[f.network]
 
           HDNode.fromBase58(f.string, network)
         }, new RegExp(f.exception))
@@ -140,7 +145,7 @@ describe('HDNode', function () {
     var f = fixtures.valid[0]
 
     it('returns the identifier for ' + f.master.fingerprint, function () {
-      var hd = HDNode.fromBase58(f.master.base58)
+      var hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
 
       assert.strictEqual(hd.getIdentifier().toString('hex'), f.master.identifier)
     })
@@ -150,7 +155,7 @@ describe('HDNode', function () {
     var f = fixtures.valid[0]
 
     it('returns the fingerprint for ' + f.master.fingerprint, function () {
-      var hd = HDNode.fromBase58(f.master.base58)
+      var hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
 
       assert.strictEqual(hd.getFingerprint().toString('hex'), f.master.fingerprint)
     })
@@ -162,7 +167,7 @@ describe('HDNode', function () {
     beforeEach(function () {
       var f = fixtures.valid[0]
 
-      hd = HDNode.fromBase58(f.master.base58)
+      hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
     })
 
     it('wraps ECPair.getAddress', sinon.test(function () {
@@ -177,7 +182,7 @@ describe('HDNode', function () {
     var f = fixtures.valid[0]
 
     it('strips all private information', function () {
-      var hd = HDNode.fromBase58(f.master.base58)
+      var hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
       var hdn = hd.neutered()
 
       assert.strictEqual(hdn.keyPair.d, undefined)
@@ -203,7 +208,7 @@ describe('HDNode', function () {
     }
 
     fixtures.valid.forEach(function (f) {
-      var network = networks[f.network]
+      var network = NETWORKS[f.network]
       var hd = HDNode.fromSeedHex(f.master.seed, network)
 
       // FIXME: test data is only testing Private -> private for now
@@ -224,7 +229,7 @@ describe('HDNode', function () {
       var f = fixtures.valid[1]
       var c = f.children[0]
 
-      var master = HDNode.fromBase58(f.master.base58Priv)
+      var master = HDNode.fromBase58(f.master.base58Priv, NETWORKS_LIST)
       var child = master.derive(c.m).neutered()
 
       assert.strictEqual(child.toBase58(), c.base58)
@@ -234,7 +239,7 @@ describe('HDNode', function () {
       var f = fixtures.valid[0]
       var c = f.children[0]
 
-      var master = HDNode.fromBase58(f.master.base58Priv)
+      var master = HDNode.fromBase58(f.master.base58Priv, NETWORKS_LIST)
       var child = master.deriveHardened(c.m).neutered()
 
       assert.strictEqual(child.toBase58(), c.base58)
@@ -244,7 +249,7 @@ describe('HDNode', function () {
       var f = fixtures.valid[1]
       var c = f.children[0]
 
-      var master = HDNode.fromBase58(f.master.base58)
+      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
       var child = master.derive(c.m)
 
       assert.strictEqual(child.toBase58(), c.base58)
@@ -254,7 +259,7 @@ describe('HDNode', function () {
       var f = fixtures.valid[0]
       var c = f.children[0]
 
-      var master = HDNode.fromBase58(f.master.base58)
+      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
 
       assert.throws(function () {
         master.deriveHardened(c.m)
