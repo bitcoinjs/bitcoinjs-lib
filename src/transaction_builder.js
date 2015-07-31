@@ -3,6 +3,7 @@ var bcrypto = require('./crypto')
 var bufferutils = require('./bufferutils')
 var ops = require('./opcodes')
 var scripts = require('./scripts')
+var networks = require('./networks')
 
 var Address = require('./address')
 var ECPair = require('./ecpair')
@@ -83,20 +84,22 @@ function extractInput (txIn) {
   }
 }
 
-function TransactionBuilder () {
+function TransactionBuilder (network) {
+  this.network = network || networks.bitcoin
   this.prevTxMap = {}
   this.prevOutScripts = {}
   this.prevOutTypes = {}
 
   this.inputs = []
-  this.tx = new Transaction()
+  this.tx = new Transaction(network)
 }
 
 TransactionBuilder.fromTransaction = function (transaction) {
-  var txb = new TransactionBuilder()
+  var txb = new TransactionBuilder(transaction.network)
 
   // Copy other transaction fields
   txb.tx.version = transaction.version
+  txb.tx.time = transaction.time
   txb.tx.locktime = transaction.locktime
 
   // Extract/add inputs

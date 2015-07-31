@@ -13,7 +13,7 @@ function Block () {
   this.nonce = 0
 }
 
-Block.fromBuffer = function (buffer) {
+Block.fromBuffer = function (buffer, network) {
   assert(buffer.length >= 80, 'Buffer too small (< 80 bytes)')
 
   var offset = 0
@@ -46,7 +46,7 @@ Block.fromBuffer = function (buffer) {
 
   // FIXME: poor performance
   function readTransaction () {
-    var tx = Transaction.fromBuffer(buffer.slice(offset), true)
+    var tx = Transaction.fromBuffer(buffer.slice(offset), true, network)
 
     offset += tx.toBuffer().length
     return tx
@@ -63,8 +63,8 @@ Block.fromBuffer = function (buffer) {
   return block
 }
 
-Block.fromHex = function (hex) {
-  return Block.fromBuffer(new Buffer(hex, 'hex'))
+Block.fromHex = function (hex, network) {
+  return Block.fromBuffer(new Buffer(hex, 'hex'), network)
 }
 
 Block.prototype.getHash = function () {

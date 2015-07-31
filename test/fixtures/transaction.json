@@ -2,6 +2,7 @@
   "valid": [
     {
       "description": "Standard transaction (1:1)",
+      "network": "bitcoin",
       "id": "a0ff943d3f644d8832b1fa74be4d0ad2577615dc28a7ef74ff8c271b603a082a",
       "hash": "2a083a601b278cff74efa728dc157657d20a4dbe74fab132884d643f3d94ffa0",
       "raw": {
@@ -25,6 +26,7 @@
     },
     {
       "description": "Standard transaction (2:2)",
+      "network": "bitcoin",
       "id": "fcdd6d89c43e76dcff94285d9b6e31d5c60cb5e397a76ebc4920befad30907bc",
       "hash": "bc0709d3fabe2049bc6ea797e3b50cc6d5316e9b5d2894ffdc763ec4896dddfc",
       "raw": {
@@ -59,6 +61,7 @@
     },
     {
       "description": "Standard transaction (14:2)",
+      "network": "bitcoin",
       "id": "39d57bc27f72e904d81f6b5ef7b4e6e17fa33a06b11e5114a43435830d7b5563",
       "hash": "63557b0d833534a414511eb1063aa37fe1e6b4f75e6b1fd804e9727fc27bd539",
       "raw": {
@@ -152,6 +155,7 @@
     },
     {
       "description": "Coinbase transaction",
+      "network": "bitcoin",
       "id": "8e070d4eb85eb02e02dd938d6552316b9d723330707870c518064b7a0d232da3",
       "hash": "a32d230d7a4b0618c57078703033729d6b3152658d93dd022eb05eb84e0d078e",
       "hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff29032832051c4d696e656420627920416e74506f6f6c20626a343a45ef0454c5de8d5e5300004e2c0000ffffffff01414f1995000000001976a914b05793fe86a9f51a5f5ae3a6f07fd31932128a3f88ac00000000",
@@ -176,6 +180,7 @@
     },
     {
       "description": "Transaction that ignores script chunking rules - Bug #367",
+      "network": "bitcoin",
       "id": "ebc9fa1196a59e192352d76c0f6e73167046b9d37b8302b6bb6968dfd279b767",
       "hash": "67b779d2df6869bbb602837bd3b9467016736e0f6cd75223199ea59611fac9eb",
       "hex": "01000000019ac03d5ae6a875d970128ef9086cef276a1919684a6988023cc7254691d97e6d010000006b4830450221009d41dc793ba24e65f571473d40b299b6459087cea1509f0d381740b1ac863cb6022039c425906fcaf51b2b84d8092569fb3213de43abaff2180e2a799d4fcb4dd0aa012102d5ede09a8ae667d0f855ef90325e27f6ce35bbe60a1e6e87af7f5b3c652140fdffffffff080100000000000000010101000000000000000202010100000000000000014c0100000000000000034c02010100000000000000014d0100000000000000044dffff010100000000000000014e0100000000000000064effffffff0100000000",
@@ -224,6 +229,35 @@
           }
         ]
       }
+    },
+    {
+      "description": "PoS-type transaction",
+      "network": "peercoin",
+      "id": "38111c55598e25d907bfe068387a16e534994d60f51e5e94f476e461737bf8cc",
+      "hash": "ccf87b7361e476f4945e1ef5604d9934e5167a3868e0bf07d9258e59551c1138",
+      "raw": {
+        "version": 1,
+        "time": 1438355334,
+        "ins": [
+          {
+            "hash": "b74cf38a325cd254272e6d2765968c32e131259b50df543ce11024ae8f2b9ea8",
+            "index": 1,
+            "script": "3045022037d3ff9e09d5fdc0bf7616347304e1b6054d41af61e05b35d76b7666e382072c022100873e394549dc81ce35621cef9b4163860de2a3d3da573aa09f07d193fd1f3c5a01 03c2344a43c43e8dcaeae6493ee1efd05e9600fc0fdc2128a6802bb6e1bf1ab5c6"
+          }
+        ],
+        "outs": [
+          {
+            "script": "OP_DUP OP_HASH160 dd4b6cf230446589a3844faf08687993f3a3e545 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 809869
+          },
+          {
+            "script": "OP_DUP OP_HASH160 927e84c9f01066713223c59c9ad25986130b8a06 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 9970000
+          }
+        ],
+        "locktime": 0
+      },
+      "hex": "01000000868fbb5501b74cf38a325cd254272e6d2765968c32e131259b50df543ce11024ae8f2b9ea8010000006b483045022037d3ff9e09d5fdc0bf7616347304e1b6054d41af61e05b35d76b7666e382072c022100873e394549dc81ce35621cef9b4163860de2a3d3da573aa09f07d193fd1f3c5a012103c2344a43c43e8dcaeae6493ee1efd05e9600fc0fdc2128a6802bb6e1bf1ab5c6ffffffff028d5b0c00000000001976a914dd4b6cf230446589a3844faf08687993f3a3e54588ac50219800000000001976a914927e84c9f01066713223c59c9ad25986130b8a0688ac00000000"
     }
   ],
   "invalid": {
