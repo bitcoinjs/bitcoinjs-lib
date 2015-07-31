@@ -3,6 +3,7 @@
 var assert = require('assert')
 var ops = require('../src/opcodes')
 var scripts = require('../src/scripts')
+var networks = require('../src/networks')
 
 var Address = require('../src/address')
 var BigInteger = require('bigi')
@@ -14,6 +15,8 @@ var TransactionBuilder = require('../src/transaction_builder')
 var fixtures = require('./fixtures/transaction_builder')
 
 function construct (txb, f, sign) {
+  txb.tx.time = f.time
+
   f.inputs.forEach(function (input) {
     var prevTxScript
 
@@ -156,6 +159,7 @@ describe('TransactionBuilder', function () {
   describe('sign', function () {
     fixtures.invalid.sign.forEach(function (f) {
       it('throws on ' + f.exception + ' (' + f.description + ')', function () {
+        var txb = new TransactionBuilder(networks[f.network])
         construct(txb, f, false)
 
         f.inputs.forEach(function (input, index) {
@@ -184,6 +188,7 @@ describe('TransactionBuilder', function () {
   describe('build', function () {
     fixtures.valid.build.forEach(function (f) {
       it('builds "' + f.description + '"', function () {
+        var txb = new TransactionBuilder(networks[f.network])
         construct(txb, f)
 
         var tx = txb.build()
@@ -195,7 +200,7 @@ describe('TransactionBuilder', function () {
       describe('for ' + (f.description || f.exception), function () {
         beforeEach(function () {
           if (f.txHex) {
-            var tx = Transaction.fromHex(f.txHex)
+            var tx = Transaction.fromHex(f.txHex, networks[f.network])
             txb = TransactionBuilder.fromTransaction(tx)
           } else {
             construct(txb, f)
@@ -282,7 +287,7 @@ describe('TransactionBuilder', function () {
   describe('fromTransaction', function () {
     fixtures.valid.build.forEach(function (f) {
       it('builds the correct TransactionBuilder for ' + f.description, function () {
-        var tx = Transaction.fromHex(f.txHex)
+        var tx = Transaction.fromHex(f.txHex, networks[f.network])
         var txb = TransactionBuilder.fromTransaction(tx)
 
         assert.strictEqual(txb.build().toHex(), f.txHex)
@@ -291,7 +296,7 @@ describe('TransactionBuilder', function () {
 
     fixtures.invalid.fromTransaction.forEach(function (f) {
       it('throws on ' + f.exception, function () {
-        var tx = Transaction.fromHex(f.txHex)
+        var tx = Transaction.fromHex(f.txHex, networks[f.network])
 
         assert.throws(function () {
           TransactionBuilder.fromTransaction(tx)
