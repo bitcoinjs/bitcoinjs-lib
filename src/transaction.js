@@ -58,7 +58,7 @@ Transaction.fromBuffer = function (buffer, __disableAssert, network) {
 
   var tx = new Transaction(network)
   tx.version = readUInt32()
-  if (network.timeInTransaction) tx.time = readUInt32()
+  if (network.isPoS) tx.time = readUInt32()
 
   var vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
@@ -150,7 +150,7 @@ Transaction.prototype.byteLength = function () {
   }
 
   return (
-    (this.network.timeInTransaction ? 12 : 8) +
+    (this.network.isPoS ? 12 : 8) +
     bufferutils.varIntSize(this.ins.length) +
     bufferutils.varIntSize(this.outs.length) +
     this.ins.reduce(function (sum, input) { return sum + 40 + scriptSize(input.script) }, 0) +
@@ -301,7 +301,7 @@ Transaction.prototype.toBuffer = function () {
   }
 
   writeUInt32(this.version)
-  if (this.network.timeInTransaction) writeUInt32(this.time)
+  if (this.network.isPoS) writeUInt32(this.time)
   writeVarInt(this.ins.length)
 
   this.ins.forEach(function (txIn) {

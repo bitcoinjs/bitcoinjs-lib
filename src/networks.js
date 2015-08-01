@@ -13,7 +13,7 @@ module.exports = {
     scriptHash: 0x05,
     wif: 0x80,
     dustThreshold: 546, // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/core.h#L151-L162
-    timeInTransaction: false
+    isPoS: false
   },
   testnet: {
     magic: 0xd9b4bef9,
@@ -26,7 +26,7 @@ module.exports = {
     scriptHash: 0xc4,
     wif: 0xef,
     dustThreshold: 546,
-    timeInTransaction: false
+    isPoS: false
   },
   litecoin: {
     magic: 0xd9b4bef9,
@@ -39,7 +39,7 @@ module.exports = {
     scriptHash: 0x05,
     wif: 0xb0,
     dustThreshold: 0, // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L360-L365
-    timeInTransaction: false
+    isPoS: false
   },
   dogecoin: {
     messagePrefix: '\x19Dogecoin Signed Message:\n',
@@ -51,7 +51,7 @@ module.exports = {
     scriptHash: 0x16,
     wif: 0x9e,
     dustThreshold: 0, // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/core.h#L155-L160
-    timeInTransaction: false
+    isPoS: false
   },
   peercoin: {
     messagePrefix: '\x17PPcoin Signed Message:\n',
@@ -63,6 +63,6 @@ module.exports = {
     scriptHash: 0x75,
     wif: 0xb7,
     dustThreshold: 0,
-    timeInTransaction: true
+    isPoS: true
   }
 }
