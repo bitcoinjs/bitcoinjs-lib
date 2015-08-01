@@ -60,6 +60,13 @@ Block.fromBuffer = function (buffer, network) {
     block.transactions.push(tx)
   }
 
+  // Read block signature (vchBlockSig) for PoS coins.
+  block.blockSig = null
+  if (offset < buffer.length) {
+    var blockSigSize = readVarInt()
+    block.blockSig = readSlice(blockSigSize)
+  }
+
   return block
 }
 
@@ -110,7 +117,15 @@ Block.prototype.toBuffer = function (headersOnly) {
     return tx.toBuffer()
   })
 
-  return Buffer.concat([buffer, txLenBuffer].concat(txBuffers))
+  var ret = Buffer.concat([buffer, txLenBuffer].concat(txBuffers))
+
+  // Block Signature.
+  if (this.blockSig) {
+    var blockSigLenBuffer = bufferutils.varIntBuffer(this.blockSig.length)
+    ret = Buffer.concat([ret, blockSigLenBuffer, this.blockSig])
+  }
+
+  return ret
 }
 
 Block.prototype.toHex = function (headersOnly) {
