@@ -4,13 +4,16 @@ var assert = require('assert')
 
 var Transaction = require('../src/transaction')
 var Script = require('../src/script')
+var networks = require('../src/networks')
 
 var fixtures = require('./fixtures/transaction')
 
 describe('Transaction', function () {
-  function fromRaw (raw) {
-    var tx = new Transaction()
+  function fromRaw (f) {
+    var raw = f.raw
+    var tx = new Transaction(networks[f.network])
     tx.version = raw.version
+    tx.time = raw.time
     tx.locktime = raw.locktime
 
     raw.ins.forEach(function (txIn) {
@@ -46,7 +49,7 @@ describe('Transaction', function () {
   describe('fromBuffer/fromHex', function () {
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.description + ' (' + f.id + ')', function () {
-        var actual = Transaction.fromHex(f.hex)
+        var actual = Transaction.fromHex(f.hex, networks[f.network])
 
         assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
       })
@@ -55,7 +58,7 @@ describe('Transaction', function () {
     fixtures.invalid.fromBuffer.forEach(function (f) {
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
-          Transaction.fromHex(f.hex)
+          Transaction.fromHex(f.hex, networks[f.network])
         }, new RegExp(f.exception))
       })
     })
@@ -64,7 +67,7 @@ describe('Transaction', function () {
   describe('toBuffer/toHex', function () {
     fixtures.valid.forEach(function (f) {
       it('exports ' + f.description + ' (' + f.id + ')', function () {
-        var actual = fromRaw(f.raw)
+        var actual = fromRaw(f)
 
         assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
       })
@@ -130,7 +133,7 @@ describe('Transaction', function () {
       var actual, expected
 
       beforeEach(function () {
-        expected = Transaction.fromHex(f.hex)
+        expected = Transaction.fromHex(f.hex, networks[f.network])
         actual = expected.clone()
       })
 
@@ -147,7 +150,7 @@ describe('Transaction', function () {
   describe('getId', function () {
     fixtures.valid.forEach(function (f) {
       it('should return the id for ' + f.id, function () {
-        var tx = Transaction.fromHex(f.hex)
+        var tx = Transaction.fromHex(f.hex, networks[f.network])
 
         assert.strictEqual(tx.getId(), f.id)
       })
@@ -157,7 +160,7 @@ describe('Transaction', function () {
   describe('getHash', function () {
     fixtures.valid.forEach(function (f) {
       it('should return the hash for ' + f.id, function () {
-        var tx = Transaction.fromHex(f.hex)
+        var tx = Transaction.fromHex(f.hex, networks[f.network])
 
         assert.strictEqual(tx.getHash().toString('hex'), f.hash)
       })

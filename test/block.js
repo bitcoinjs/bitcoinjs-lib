@@ -2,6 +2,7 @@
 
 var assert = require('assert')
 
+var networks = require('../src/networks')
 var Block = require('../src/block')
 
 var fixtures = require('./fixtures/block')
@@ -10,7 +11,7 @@ describe('Block', function () {
   describe('fromBuffer/fromHex', function () {
     fixtures.valid.forEach(function (f) {
       it('imports the block: ' + f.description + ' correctly', function () {
-        var block = Block.fromHex(f.hex)
+        var block = Block.fromHex(f.hex, networks[f.network])
 
         assert.strictEqual(block.version, f.version)
         assert.strictEqual(block.prevHash.toString('hex'), f.prevHash)
@@ -24,7 +25,7 @@ describe('Block', function () {
     fixtures.invalid.forEach(function (f) {
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
-          Block.fromHex(f.hex)
+          Block.fromHex(f.hex, networks[f.network])
         }, new RegExp(f.exception))
       })
     })
@@ -35,7 +36,7 @@ describe('Block', function () {
       var block
 
       beforeEach(function () {
-        block = Block.fromHex(f.hex)
+        block = Block.fromHex(f.hex, networks[f.network])
       })
 
       it('exports the block: ' + f.description + ' correctly', function () {
@@ -49,7 +50,7 @@ describe('Block', function () {
       var block
 
       beforeEach(function () {
-        block = Block.fromHex(f.hex)
+        block = Block.fromHex(f.hex, networks[f.network])
       })
 
       it('calculates ' + f.hash + ' for the block: ' + f.description, function () {
@@ -63,7 +64,7 @@ describe('Block', function () {
       var block
 
       beforeEach(function () {
-        block = Block.fromHex(f.hex)
+        block = Block.fromHex(f.hex, networks[f.network])
       })
 
       it('calculates ' + f.id + ' for the block: ' + f.description, function () {
@@ -77,7 +78,7 @@ describe('Block', function () {
       var block
 
       beforeEach(function () {
-        block = Block.fromHex(f.hex)
+        block = Block.fromHex(f.hex, networks[f.network])
       })
 
       it('returns UTC date of ' + f.id, function () {

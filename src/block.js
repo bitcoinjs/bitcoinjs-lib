@@ -13,7 +13,7 @@ function Block () {
   this.nonce = 0
 }
 
-Block.fromBuffer = function (buffer) {
+Block.fromBuffer = function (buffer, network) {
   assert(buffer.length >= 80, 'Buffer too small (< 80 bytes)')
 
   var offset = 0
@@ -46,7 +46,7 @@ Block.fromBuffer = function (buffer) {
 
   // FIXME: poor performance
   function readTransaction () {
-    var tx = Transaction.fromBuffer(buffer.slice(offset), true)
+    var tx = Transaction.fromBuffer(buffer.slice(offset), true, network)
 
     offset += tx.toBuffer().length
     return tx
@@ -60,11 +60,18 @@ Block.fromBuffer = function (buffer) {
     block.transactions.push(tx)
   }
 
+  // Read block signature (vchBlockSig) for PoS coins.
+  block.blockSig = null
+  if (offset < buffer.length) {
+    var blockSigSize = readVarInt()
+    block.blockSig = readSlice(blockSigSize)
+  }
+
   return block
 }
 
-Block.fromHex = function (hex) {
-  return Block.fromBuffer(new Buffer(hex, 'hex'))
+Block.fromHex = function (hex, network) {
+  return Block.fromBuffer(new Buffer(hex, 'hex'), network)
 }
 
 Block.prototype.getHash = function () {
@@ -110,7 +117,15 @@ Block.prototype.toBuffer = function (headersOnly) {
     return tx.toBuffer()
   })
 
-  return Buffer.concat([buffer, txLenBuffer].concat(txBuffers))
+  var ret = Buffer.concat([buffer, txLenBuffer].concat(txBuffers))
+
+  // Block Signature.
+  if (this.blockSig) {
+    var blockSigLenBuffer = bufferutils.varIntBuffer(this.blockSig.length)
+    ret = Buffer.concat([ret, blockSigLenBuffer, this.blockSig])
+  }
+
+  return ret
 }
 
 Block.prototype.toHex = function (headersOnly) {
