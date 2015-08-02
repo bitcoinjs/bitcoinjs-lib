@@ -60,7 +60,7 @@ describe('bitcoinjs-lib (multisig)', function () {
           network: bitcoin.networks.testnet
         }).getAddress()
 
-        var txb = new bitcoin.TransactionBuilder()
+        var txb = new bitcoin.TransactionBuilder(bitcoin.networks.testnet)
         txb.addInput(unspent.txId, unspent.vout)
         txb.addOutput(targetAddress, 1e4)
 
