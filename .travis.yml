@@ -11,3 +11,4 @@ env:
   - TEST_SUITE=standard
   - TEST_SUITE=unit
 script: "npm run-script $TEST_SUITE"
+sudo: false
