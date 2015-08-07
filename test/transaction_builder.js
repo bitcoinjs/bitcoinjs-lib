@@ -195,7 +195,8 @@ describe('TransactionBuilder', function () {
 
         f.inputs.forEach(function (input, index) {
           input.signs.forEach(function (sign) {
-            var keyPair = ECPair.fromWIF(sign.keyPair, NETWORKS[f.network])
+            var keyPairNetwork = NETWORKS[sign.network || f.network]
+            var keyPair = ECPair.fromWIF(sign.keyPair, keyPairNetwork)
             var redeemScript
 
             if (sign.redeemScript) {

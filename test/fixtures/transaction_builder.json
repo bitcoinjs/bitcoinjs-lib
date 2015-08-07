@@ -755,6 +755,30 @@
         ]
       },
       {
+        "description": "Wrong network for keyPair",
+        "exception": "Inconsistent network",
+        "network": "bitcoin",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "network": "testnet",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
         "description": "Wrong key pair for multisig redeemScript",
         "exception": "key pair cannot sign for this input",
         "inputs": [
