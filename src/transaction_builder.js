@@ -1,6 +1,7 @@
 var assert = require('assert')
 var bcrypto = require('./crypto')
 var bufferutils = require('./bufferutils')
+var networks = require('./networks')
 var ops = require('./opcodes')
 var scripts = require('./scripts')
 
@@ -37,7 +38,7 @@ function extractInput (txIn) {
       hashType = parsed.hashType
       pubKeys = scriptSig.chunks.slice(1)
       signatures = [parsed.signature]
-      prevOutScript = Address.toOutputScript(ECPair.fromPublicKeyBuffer(pubKeys[0]).getAddress())
+      prevOutScript = scripts.pubKeyHashOutput(bcrypto.hash160(pubKeys[0]))
 
       break
     }
@@ -83,17 +84,18 @@ function extractInput (txIn) {
   }
 }
 
-function TransactionBuilder () {
+function TransactionBuilder (network) {
   this.prevTxMap = {}
   this.prevOutScripts = {}
   this.prevOutTypes = {}
+  this.network = network || networks.bitcoin
 
   this.inputs = []
   this.tx = new Transaction()
 }
 
-TransactionBuilder.fromTransaction = function (transaction) {
-  var txb = new TransactionBuilder()
+TransactionBuilder.fromTransaction = function (transaction, network) {
+  var txb = new TransactionBuilder(network)
 
   // Copy other transaction fields
   txb.tx.version = transaction.version
@@ -188,7 +190,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
 
   // Attempt to get a valid address if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.toOutputScript(scriptPubKey)
+    scriptPubKey = Address.toOutputScript(scriptPubKey, this.network)
   }
 
   return this.tx.addOutput(scriptPubKey, value)
@@ -280,6 +282,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 }
 
 TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hashType) {
+  assert.equal(keyPair.network, this.network, 'Inconsistent network')
   assert(index in this.inputs, 'No input at index: ' + index)
   hashType = hashType || Transaction.SIGHASH_ALL
 
@@ -358,7 +361,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
       // we know nothin' Jon Snow, assume pubKeyHash
       } else {
-        input.prevOutScript = Address.toOutputScript(keyPair.getAddress())
+        input.prevOutScript = scripts.pubKeyHashOutput(bcrypto.hash160(keyPair.getPublicKeyBuffer()))
         input.prevOutType = 'pubkeyhash'
         input.pubKeys = [kpPubKey]
         input.scriptType = input.prevOutType

@@ -61,8 +61,10 @@ describe('Address', function () {
 
   describe('toOutputScript', function () {
     fixtures.valid.forEach(function (f) {
+      var network = networks[f.network]
+
       it('exports ' + f.script + '(' + f.network + ')', function () {
-        var script = Address.toOutputScript(f.base58check)
+        var script = Address.toOutputScript(f.base58check, network)
 
         assert.strictEqual(script.toASM(), f.script)
       })

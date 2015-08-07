@@ -2,25 +2,13 @@ var base58check = require('bs58check')
 var bcrypto = require('./crypto')
 var createHmac = require('create-hmac')
 var typeForce = require('typeforce')
-var networks = require('./networks')
+var NETWORKS = require('./networks')
 
 var BigInteger = require('bigi')
 var ECPair = require('./ecpair')
 
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
-
-function findBIP32NetworkByVersion (version) {
-  for (var name in networks) {
-    var network = networks[name]
-
-    if (version === network.bip32.private || version === network.bip32.public) {
-      return network
-    }
-  }
-
-  throw new Error('Could not find network for ' + version.toString(16))
-}
 
 function HDNode (keyPair, chainCode) {
   typeForce('ECPair', keyPair)
@@ -65,21 +53,28 @@ HDNode.fromSeedHex = function (hex, network) {
   return HDNode.fromSeedBuffer(new Buffer(hex, 'hex'), network)
 }
 
-HDNode.fromBase58 = function (string, network) {
+HDNode.fromBase58 = function (string, networks) {
   var buffer = base58check.decode(string)
   if (buffer.length !== HDNode.LENGTH) throw new Error('Invalid buffer length')
 
   // 4 byte: version bytes
   var version = buffer.readUInt32BE(0)
+  var network
 
-  if (network) {
-    if (version !== network.bip32.private &&
-        version !== network.bip32.public) throw new Error('Invalid network')
+  // list of networks?
+  if (Array.isArray(networks)) {
+    network = networks.filter(function (network) {
+      return version === network.bip32.private ||
+             version === network.bip32.public
+    }).pop() || {}
 
-  // auto-detect
+  // otherwise, assume a network object (or default to bitcoin)
   } else {
-    network = findBIP32NetworkByVersion(version)
+    network = networks || NETWORKS.bitcoin
   }
+
+  if (version !== network.bip32.private &&
+      version !== network.bip32.public) throw new Error('Invalid network')
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer.readUInt8(4)

@@ -57,13 +57,10 @@ describe('Bitcoin-core', function () {
       var expected = f[0]
       var hash = new Buffer(f[1], 'hex')
       var params = f[2]
-      var network = networks.bitcoin
 
       if (params.isPrivkey) return
-      if (params.isTestnet) {
-        network = networks.testnet
-      }
 
+      var network = params.isTestnet ? networks.testnet : networks.bitcoin
       var version = network[typeMap[params.addrType]]
 
       it('can export ' + expected, function () {
@@ -102,7 +99,9 @@ describe('Bitcoin-core', function () {
       var params = f[2]
 
       if (!params.isPrivkey) return
-      var keyPair = ECPair.fromWIF(string)
+
+      var network = params.isTestnet ? networks.testnet : networks.bitcoin
+      var keyPair = ECPair.fromWIF(string, network)
 
       it('fromWIF imports ' + string, function () {
         assert.strictEqual(keyPair.d.toHex(), hex)
@@ -127,9 +126,7 @@ describe('Bitcoin-core', function () {
 
       it('throws on ' + string, function () {
         assert.throws(function () {
-          var keyPair = ECPair.fromWIF(string)
-
-          assert(allowedNetworks.indexOf(keyPair.network) > -1, 'Invalid network')
+          ECPair.fromWIF(string, allowedNetworks)
         }, /(Invalid|Unknown) (checksum|compression flag|network|WIF payload)/)
       })
     })
