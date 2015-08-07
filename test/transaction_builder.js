@@ -209,6 +209,7 @@ describe('TransactionBuilder', function () {
           if (f.txHex) {
             var tx = Transaction.fromHex(f.txHex)
             txb = TransactionBuilder.fromTransaction(tx)
+
           } else {
             txb = construct(f)
           }
@@ -234,6 +235,7 @@ describe('TransactionBuilder', function () {
         txb = construct(f, false)
 
         var tx
+        var network = NETWORKS[f.network]
 
         f.inputs.forEach(function (input, i) {
           var redeemScript = Script.fromASM(input.redeemScript)
@@ -257,10 +259,10 @@ describe('TransactionBuilder', function () {
               }
 
               // now import it
-              txb = TransactionBuilder.fromTransaction(tx)
+              txb = TransactionBuilder.fromTransaction(tx, network)
             }
 
-            var keyPair = ECPair.fromWIF(sign.keyPair, NETWORKS[f.network])
+            var keyPair = ECPair.fromWIF(sign.keyPair, network)
             txb.sign(i, keyPair, redeemScript, sign.hashType)
 
             // update the tx
@@ -294,8 +296,9 @@ describe('TransactionBuilder', function () {
   describe('fromTransaction', function () {
     fixtures.valid.build.forEach(function (f) {
       it('builds the correct TransactionBuilder for ' + f.description, function () {
+        var network = NETWORKS[f.network]
         var tx = Transaction.fromHex(f.txHex)
-        var txb = TransactionBuilder.fromTransaction(tx)
+        var txb = TransactionBuilder.fromTransaction(tx, network)
 
         assert.strictEqual(txb.build().toHex(), f.txHex)
       })
