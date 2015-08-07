@@ -95,7 +95,7 @@ function TransactionBuilder (network) {
 }
 
 TransactionBuilder.fromTransaction = function (transaction, network) {
-  var txb = new TransactionBuilder(/* remove after failing test added: network*/)
+  var txb = new TransactionBuilder(network)
 
   // Copy other transaction fields
   txb.tx.version = transaction.version
