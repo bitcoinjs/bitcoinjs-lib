@@ -34,7 +34,7 @@ describe('Script', function () {
         var script = Script.fromASM(f.asm)
 
         assert.strictEqual(script.toASM(), f.asm)
-        assert.strictEqual(script.toHex(), f.hex)
+        assert.strictEqual(script.buffer.toString('hex'), f.hex)
       })
     })
   })
@@ -45,17 +45,7 @@ describe('Script', function () {
         var script = Script.fromHex(f.hex)
 
         assert.strictEqual(script.toASM(), f.asm)
-        assert.strictEqual(script.toHex(), f.hex)
-      })
-    })
-  })
-
-  describe('getHash', function () {
-    fixtures.valid.forEach(function (f) {
-      it('produces a HASH160 of ' + f.description, function () {
-        var script = Script.fromHex(f.hex)
-
-        assert.strictEqual(script.getHash().toString('hex'), f.hash)
+        assert.strictEqual(script.buffer.toString('hex'), f.hex)
       })
     })
   })
@@ -71,7 +61,7 @@ describe('Script', function () {
         opcodes.OP_EQUAL
       ])
 
-      assert.strictEqual(script.toHex(), 'a920000000000000000000000000000000000000000000000000000000000000000087')
+      assert.strictEqual(script.buffer.toString('hex'), 'a920000000000000000000000000000000000000000000000000000000000000000087')
     })
   })
 
@@ -82,14 +72,14 @@ describe('Script', function () {
     it('should return a script without the given value', function () {
       var subScript = script.without(opcodes.OP_HASH160)
 
-      assert.strictEqual(subScript.toHex(), '14e8c300c87986efa94c37c0519929019ef86eb5b487')
+      assert.strictEqual(subScript.buffer.toString('hex'), '14e8c300c87986efa94c37c0519929019ef86eb5b487')
     })
 
     it('shouldnt mutate the original script', function () {
       var subScript = script.without(opcodes.OP_EQUAL)
 
-      assert.notEqual(subScript.toHex(), hex)
-      assert.strictEqual(script.toHex(), hex)
+      assert.notEqual(subScript.buffer.toString('hex'), hex)
+      assert.strictEqual(script.buffer.toString('hex'), hex)
     })
   })
 })

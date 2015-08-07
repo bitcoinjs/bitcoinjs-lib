@@ -19,7 +19,7 @@ describe('Scripts', function () {
       if (!f.scriptSig) return
 
       it('classifies ' + f.scriptSig + ' as ' + f.type, function () {
-        var script = Script.fromASM(f.scriptSig)
+        var script = Script.fromASM(f.scriptSig).buffer
         var type = scripts.classifyInput(script)
 
         assert.strictEqual(type, f.type)
@@ -31,7 +31,7 @@ describe('Scripts', function () {
       if (!f.typeIncomplete) return
 
       it('classifies incomplete ' + f.scriptSig + ' as ' + f.typeIncomplete, function () {
-        var script = Script.fromASM(f.scriptSig)
+        var script = Script.fromASM(f.scriptSig).buffer
         var type = scripts.classifyInput(script, true)
 
         assert.strictEqual(type, f.typeIncomplete)
@@ -44,7 +44,7 @@ describe('Scripts', function () {
       if (!f.scriptPubKey) return
 
       it('classifies ' + f.scriptPubKey + ' as ' + f.type, function () {
-        var script = Script.fromASM(f.scriptPubKey)
+        var script = Script.fromASM(f.scriptPubKey).buffer
         var type = scripts.classifyOutput(script)
 
         assert.strictEqual(type, f.type)
@@ -67,9 +67,9 @@ describe('Scripts', function () {
           var script
 
           if (f.scriptSig) {
-            script = Script.fromASM(f.scriptSig)
+            script = Script.fromASM(f.scriptSig).buffer
           } else {
-            script = Script.fromHex(f.scriptSigHex)
+            script = Script.fromHex(f.scriptSigHex).buffer
           }
 
           it('returns ' + expected + ' for ' + f.scriptSig, function () {
@@ -94,9 +94,9 @@ describe('Scripts', function () {
             var script
 
             if (f.scriptSig) {
-              script = Script.fromASM(f.scriptSig)
+              script = Script.fromASM(f.scriptSig).buffer
             } else {
-              script = Script.fromHex(f.scriptSigHex)
+              script = Script.fromHex(f.scriptSigHex).buffer
             }
 
             assert.strictEqual(inputFn(script), false)
@@ -111,7 +111,7 @@ describe('Scripts', function () {
 
         if (outputFn && f.scriptPubKey) {
           it('returns ' + expected + ' for ' + f.scriptPubKey, function () {
-            var script = Script.fromASM(f.scriptPubKey)
+            var script = Script.fromASM(f.scriptPubKey).buffer
 
             assert.strictEqual(outputFn(script), expected)
           })
@@ -123,7 +123,7 @@ describe('Scripts', function () {
       fixtures.invalid[outputFnName].forEach(function (f) {
         if (outputFn && f.scriptPubKey) {
           it('returns false for ' + f.description + ' (' + f.scriptPubKey + ')', function () {
-            var script = Script.fromASM(f.scriptPubKey)
+            var script = Script.fromASM(f.scriptPubKey).buffer
 
             assert.strictEqual(outputFn(script), false)
           })
@@ -140,7 +140,7 @@ describe('Scripts', function () {
         var signature = new Buffer(f.signature, 'hex')
 
         var scriptSig = scripts.pubKeyInput(signature)
-        assert.strictEqual(scriptSig.toASM(), f.scriptSig)
+        assert.strictEqual(Script.fromBuffer(scriptSig).toASM(), f.scriptSig)
       })
     })
   })
@@ -152,7 +152,7 @@ describe('Scripts', function () {
       it('returns ' + f.scriptPubKey, function () {
         var pubKey = new Buffer(f.pubKey, 'hex')
         var scriptPubKey = scripts.pubKeyOutput(pubKey)
-        assert.strictEqual(scriptPubKey.toASM(), f.scriptPubKey)
+        assert.strictEqual(Script.fromBuffer(scriptPubKey).toASM(), f.scriptPubKey)
       })
     })
   })
@@ -167,7 +167,7 @@ describe('Scripts', function () {
         var signature = new Buffer(f.signature, 'hex')
 
         var scriptSig = scripts.pubKeyHashInput(signature, pubKey)
-        assert.strictEqual(scriptSig.toASM(), f.scriptSig)
+        assert.strictEqual(Script.fromBuffer(scriptSig).toASM(), f.scriptSig)
       })
     })
   })
@@ -181,7 +181,7 @@ describe('Scripts', function () {
 
       it('returns ' + f.scriptPubKey, function () {
         var scriptPubKey = scripts.pubKeyHashOutput(pubKeyHash)
-        assert.strictEqual(scriptPubKey.toASM(), f.scriptPubKey)
+        assert.strictEqual(Script.fromBuffer(scriptPubKey).toASM(), f.scriptPubKey)
       })
     })
   })
@@ -196,12 +196,12 @@ describe('Scripts', function () {
         })
 
         var scriptSig = scripts.multisigInput(signatures)
-        assert.strictEqual(scriptSig.toASM(), f.scriptSig)
+        assert.strictEqual(Script.fromBuffer(scriptSig).toASM(), f.scriptSig)
       })
     })
 
     fixtures.invalid.multisigInput.forEach(function (f) {
-      var scriptPubKey = Script.fromASM(f.scriptPubKey)
+      var scriptPubKey = Script.fromASM(f.scriptPubKey).buffer
 
       it('throws on ' + f.exception, function () {
         var signatures = f.signatures.map(function (signature) {
@@ -223,7 +223,7 @@ describe('Scripts', function () {
       var scriptPubKey = scripts.multisigOutput(pubKeys.length, pubKeys)
 
       it('returns ' + f.scriptPubKey, function () {
-        assert.strictEqual(scriptPubKey.toASM(), f.scriptPubKey)
+        assert.strictEqual(Script.fromBuffer(scriptPubKey).toASM(), f.scriptPubKey)
       })
     })
 
@@ -244,16 +244,16 @@ describe('Scripts', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'scripthash') return
 
-      var redeemScript = Script.fromASM(f.redeemScript)
-      var redeemScriptSig = Script.fromASM(f.redeemScriptSig)
+      var redeemScript = Script.fromASM(f.redeemScript).buffer
+      var redeemScriptSig = Script.fromASM(f.redeemScriptSig).buffer
 
       it('returns ' + f.scriptSig, function () {
         var scriptSig = scripts.scriptHashInput(redeemScriptSig, redeemScript)
 
         if (f.scriptSig) {
-          assert.strictEqual(scriptSig.toASM(), f.scriptSig)
+          assert.strictEqual(Script.fromBuffer(scriptSig).toASM(), f.scriptSig)
         } else {
-          assert.strictEqual(scriptSig.toHex(), f.scriptSigHex)
+          assert.strictEqual(Script.fromBuffer(scriptSig).toHex(), f.scriptSigHex)
         }
       })
     })
@@ -265,10 +265,10 @@ describe('Scripts', function () {
       if (!f.scriptPubKey) return
 
       it('returns ' + f.scriptPubKey, function () {
-        var redeemScript = Script.fromASM(f.redeemScript)
-        var scriptPubKey = scripts.scriptHashOutput(redeemScript.getHash())
+        var redeemScript = Script.fromASM(f.redeemScript).buffer
+        var scriptPubKey = scripts.scriptHashOutput(bcrypto.hash160(redeemScript))
 
-        assert.strictEqual(scriptPubKey.toASM(), f.scriptPubKey)
+        assert.strictEqual(Script.fromBuffer(scriptPubKey).toASM(), f.scriptPubKey)
       })
     })
   })
@@ -281,7 +281,7 @@ describe('Scripts', function () {
       var scriptPubKey = scripts.nullDataOutput(data)
 
       it('returns ' + f.scriptPubKey, function () {
-        assert.strictEqual(scriptPubKey.toASM(), f.scriptPubKey)
+        assert.strictEqual(Script.fromBuffer(scriptPubKey).toASM(), f.scriptPubKey)
       })
     })
   })

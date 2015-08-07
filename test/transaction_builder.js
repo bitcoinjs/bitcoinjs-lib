@@ -22,14 +22,14 @@ function construct (f, sign) {
     var prevTxScript
 
     if (input.prevTxScript) {
-      prevTxScript = Script.fromASM(input.prevTxScript)
+      prevTxScript = Script.fromASM(input.prevTxScript).buffer
     }
 
     txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
   })
 
   f.outputs.forEach(function (output) {
-    var script = Script.fromASM(output.script)
+    var script = Script.fromASM(output.script).buffer
 
     txb.addOutput(script, output.value)
   })
@@ -41,7 +41,7 @@ function construct (f, sign) {
         var redeemScript
 
         if (sign.redeemScript) {
-          redeemScript = Script.fromASM(sign.redeemScript)
+          redeemScript = Script.fromASM(sign.redeemScript).buffer
         }
 
         txb.sign(index, keyPair, redeemScript, sign.hashType)
@@ -200,7 +200,7 @@ describe('TransactionBuilder', function () {
             var redeemScript
 
             if (sign.redeemScript) {
-              redeemScript = Script.fromASM(sign.redeemScript)
+              redeemScript = Script.fromASM(sign.redeemScript).buffer
             }
 
             if (!sign.throws) {
@@ -262,7 +262,7 @@ describe('TransactionBuilder', function () {
         var network = NETWORKS[f.network]
 
         f.inputs.forEach(function (input, i) {
-          var redeemScript = Script.fromASM(input.redeemScript)
+          var redeemScript = Script.fromASM(input.redeemScript).buffer
 
           input.signs.forEach(function (sign) {
             // rebuild the transaction each-time after the first
@@ -272,11 +272,11 @@ describe('TransactionBuilder', function () {
                 var scriptSig = tx.ins[i].script
 
                 // ignore OP_0 on the front, ignore redeemScript
-                var signatures = scriptSig.chunks.slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
+                var signatures = Script.fromBuffer(scriptSig).chunks.slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
 
                 // rebuild/replace the scriptSig without them
                 var replacement = scripts.scriptHashInput(scripts.multisigInput(signatures), redeemScript)
-                assert.strictEqual(replacement.toASM(), sign.scriptSigFiltered)
+                assert.strictEqual(Script.fromBuffer(replacement).toASM(), sign.scriptSigFiltered)
 
                 tx.ins[i].script = replacement
               }
@@ -292,7 +292,7 @@ describe('TransactionBuilder', function () {
             tx = txb.buildIncomplete()
 
             // now verify the serialized scriptSig is as expected
-            assert.strictEqual(tx.ins[i].script.toASM(), sign.scriptSig)
+            assert.strictEqual(Script.fromBuffer(tx.ins[i].script).toASM(), sign.scriptSig)
           })
         })
 
@@ -309,7 +309,7 @@ describe('TransactionBuilder', function () {
 
       txb = TransactionBuilder.fromTransaction(lameTx, network)
 
-      var redeemScript = Script.fromASM('OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG')
+      var redeemScript = Script.fromASM('OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG').buffer
 
       var keyPair = ECPair.fromWIF('91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe', network)
       txb.sign(0, keyPair, redeemScript)
