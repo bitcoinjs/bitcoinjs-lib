@@ -4,7 +4,7 @@ var assert = require('assert')
 var async = require('async')
 var bigi = require('bigi')
 var bitcoin = require('../../')
-var blockchain = new (require('cb-blockr'))('bitcoin')
+var blockchain = require('./_blockchain')
 var crypto = require('crypto')
 
 describe('bitcoinjs-lib (crypto)', function () {
@@ -91,6 +91,8 @@ describe('bitcoinjs-lib (crypto)', function () {
   })
 
   it('can recover a private key from duplicate R values', function (done) {
+    this.timeout(10000)
+
     var inputs = [
       {
         txId: 'f4c16475f2a6e9c602e4a287f9db3040e319eb9ece74761a4b84bc820fbeef50',
@@ -105,7 +107,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     var txIds = inputs.map(function (x) { return x.txId })
 
     // first retrieve the relevant transactions
-    blockchain.transactions.get(txIds, function (err, results) {
+    blockchain.m.transactions.get(txIds, function (err, results) {
       assert.ifError(err)
 
       var transactions = {}
@@ -125,7 +127,7 @@ describe('bitcoinjs-lib (crypto)', function () {
         var prevVout = transaction.ins[input.vout].index
 
         tasks.push(function (callback) {
-          blockchain.transactions.get(prevOutTxId, function (err, result) {
+          blockchain.m.transactions.get(prevOutTxId, function (err, result) {
             if (err) return callback(err)
 
             var prevOut = bitcoin.Transaction.fromHex(result.txHex)

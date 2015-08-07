@@ -2,9 +2,7 @@
 
 var assert = require('assert')
 var bitcoin = require('../../')
-var blockchain = new (require('cb-insight'))('https://test-insight.bitpay.com')
-var faucetWithdraw = require('./utils').faucetWithdraw
-var pollUnspent = require('./utils').pollUnspent
+var blockchain = require('./_blockchain')
 
 describe('bitcoinjs-lib (advanced)', function () {
   it('can sign a Bitcoin message', function () {
@@ -30,10 +28,10 @@ describe('bitcoinjs-lib (advanced)', function () {
     var keyPair = bitcoin.ECPair.makeRandom({ network: network })
     var address = keyPair.getAddress()
 
-    faucetWithdraw(address, 2e4, function (err) {
+    blockchain.t.faucet(address, 2e4, function (err) {
       if (err) return done(err)
 
-      pollUnspent(blockchain, address, function (err, unspents) {
+      blockchain.t.addresses.unspents(address, function (err, unspents) {
         if (err) return done(err)
 
         var tx = new bitcoin.TransactionBuilder(network)
@@ -48,11 +46,11 @@ describe('bitcoinjs-lib (advanced)', function () {
 
         var txBuilt = tx.build()
 
-        blockchain.transactions.propagate(txBuilt.toHex(), function (err) {
+        blockchain.t.transactions.propagate(txBuilt.toHex(), function (err) {
           if (err) return done(err)
 
           // check that the message was propagated
-          blockchain.transactions.get(txBuilt.getId(), function (err, transaction) {
+          blockchain.t.transactions.get(txBuilt.getId(), function (err, transaction) {
             if (err) return done(err)
 
             var actual = bitcoin.Transaction.fromHex(transaction.txHex)
