@@ -26,9 +26,8 @@ describe('bitcoinjs-lib (advanced)', function () {
   it('can create an OP_RETURN transaction', function (done) {
     this.timeout(20000)
 
-    var keyPair = bitcoin.ECPair.makeRandom({
-      network: bitcoin.networks.testnet
-    })
+    var network = bitcoin.networks.testnet
+    var keyPair = bitcoin.ECPair.makeRandom({ network: network })
     var address = keyPair.getAddress()
 
     faucetWithdraw(address, 2e4, function (err) {
@@ -37,7 +36,7 @@ describe('bitcoinjs-lib (advanced)', function () {
       pollUnspent(blockchain, address, function (err, unspents) {
         if (err) return done(err)
 
-        var tx = new bitcoin.TransactionBuilder()
+        var tx = new bitcoin.TransactionBuilder(network)
         var data = new Buffer('bitcoinjs-lib')
         var dataScript = bitcoin.scripts.nullDataOutput(data)
 
