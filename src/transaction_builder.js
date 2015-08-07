@@ -282,6 +282,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 }
 
 TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hashType) {
+  assert.equal(keyPair.network, this.network, 'Inconsistent network')
   assert(index in this.inputs, 'No input at index: ' + index)
   hashType = hashType || Transaction.SIGHASH_ALL
 
