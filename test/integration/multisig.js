@@ -2,10 +2,7 @@
 
 var assert = require('assert')
 var bitcoin = require('../../')
-var blockchain = new (require('cb-insight'))('https://test-insight.bitpay.com')
-var faucetWithdraw = require('./utils').faucetWithdraw
-var pollUnspent = require('./utils').pollUnspent
-var pollSummary = require('./utils').pollSummary
+var blockchain = require('./_blockchain')
 
 describe('bitcoinjs-lib (multisig)', function () {
   it('can create a 2-of-3 multisig P2SH address', function () {
@@ -39,15 +36,15 @@ describe('bitcoinjs-lib (multisig)', function () {
     var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
     var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet).toString()
 
-    // Attempt to send funds to the source address
-    faucetWithdraw(address, 2e4, function (err) {
+    // attempt to send funds to the source address
+    blockchain.t.faucet(address, 2e4, function (err) {
       if (err) return done(err)
 
       // get latest unspents from the address
-      pollUnspent(blockchain, address, function (err, unspents) {
+      blockchain.t.addresses.unspents(address, function (err, unspents) {
         if (err) return done(err)
 
-          // filter small unspents
+        // filter small unspents
         unspents = unspents.filter(function (unspent) {
           return unspent.value > 1e4
         })
@@ -69,11 +66,11 @@ describe('bitcoinjs-lib (multisig)', function () {
         txb.sign(0, keyPairs[2], redeemScript)
 
         // broadcast our transaction
-        blockchain.transactions.propagate(txb.build().toHex(), function (err) {
+        blockchain.t.transactions.propagate(txb.build().toHex(), function (err) {
           if (err) return done(err)
 
           // check that the funds (1e4 Satoshis) indeed arrived at the intended address
-          pollSummary(blockchain, targetAddress, function (err, result) {
+          blockchain.t.addresses.summary(targetAddress, function (err, result) {
             if (err) return done(err)
 
             assert.strictEqual(result.balance, 1e4)
