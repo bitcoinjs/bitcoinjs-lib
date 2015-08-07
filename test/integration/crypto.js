@@ -90,7 +90,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     assert.strictEqual(recovered.toBase58(), master.toBase58())
   })
 
-  it('can recover a private key from duplicate R values', function () {
+  it('can recover a private key from duplicate R values', function (done) {
     var inputs = [
       {
         txId: 'f4c16475f2a6e9c602e4a287f9db3040e319eb9ece74761a4b84bc820fbeef50',
@@ -102,9 +102,7 @@ describe('bitcoinjs-lib (crypto)', function () {
       }
     ]
 
-    var txIds = inputs.map(function (x) {
-      return x.txId
-    })
+    var txIds = inputs.map(function (x) { return x.txId })
 
     // first retrieve the relevant transactions
     blockchain.transactions.get(txIds, function (err, results) {
@@ -183,6 +181,8 @@ describe('bitcoinjs-lib (crypto)', function () {
             assert.strictEqual(d1.toString(), d2.toString())
           }
         }
+
+        done()
       })
     })
   })
