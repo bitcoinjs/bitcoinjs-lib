@@ -102,6 +102,10 @@ Script.fromHex = function (hex) {
 
 Script.EMPTY = Script.fromChunks([])
 
+Script.prototype.equals = function (script) {
+  return bufferutils.equal(this.buffer, script.buffer)
+}
+
 Script.prototype.getHash = function () {
   return crypto.hash160(this.buffer)
 }
