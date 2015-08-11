@@ -177,7 +177,7 @@ Transaction.prototype.clone = function () {
   return newTx
 }
 
-var one = new Buffer('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+var ONE = new Buffer('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
 
 /**
  * Hash transaction for signing a specific input.
@@ -195,7 +195,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   assert(inIndex >= 0, 'Invalid vin index')
 
   // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L29
-  if (inIndex >= this.ins.length) return one
+  if (inIndex >= this.ins.length) return ONE
 
   var txTmp = this.clone()
 
@@ -225,7 +225,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 
     // only lock-in the txOut payee at same index as txIn
     // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L60
-    if (nOut >= this.outs.length) return one
+    if (nOut >= this.outs.length) return ONE
 
     txTmp.outs = txTmp.outs.slice(0, nOut + 1)
 
