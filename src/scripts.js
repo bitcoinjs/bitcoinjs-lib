@@ -1,4 +1,3 @@
-var assert = require('assert')
 var ops = require('./opcodes')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -206,7 +205,7 @@ function multisigOutput (m, pubKeys) {
   typeforce(types.tuple(types.Number, [types.Buffer]), arguments)
 
   var n = pubKeys.length
-  assert(n >= m, 'Not enough pubKeys provided')
+  if (n < m) throw new Error('Not enough pubKeys provided')
 
   return Script.fromChunks([].concat(
     (ops.OP_1 - 1) + m,
@@ -241,15 +240,15 @@ function scriptHashInput (scriptSig, scriptPubKey) {
 // OP_0 [signatures ...]
 function multisigInput (signatures, scriptPubKey) {
   if (scriptPubKey) {
-    assert(isMultisigOutput(scriptPubKey))
+    if (!isMultisigOutput(scriptPubKey)) throw new Error('Expected multisig scriptPubKey')
 
     var mOp = scriptPubKey.chunks[0]
     var nOp = scriptPubKey.chunks[scriptPubKey.chunks.length - 2]
     var m = mOp - (ops.OP_1 - 1)
     var n = nOp - (ops.OP_1 - 1)
 
-    assert(signatures.length >= m, 'Not enough signatures provided')
-    assert(signatures.length <= n, 'Too many signatures provided')
+    if (signatures.length < m) throw new Error('Not enough signatures provided')
+    if (signatures.length > n) throw new Error('Too many signatures provided')
   }
 
   return Script.fromChunks([].concat(ops.OP_0, signatures))
