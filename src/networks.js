@@ -3,7 +3,6 @@
 
 module.exports = {
   bitcoin: {
-    magic: 0xd9b4bef9,
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
       public: 0x0488b21e,
@@ -15,7 +14,6 @@ module.exports = {
     dustThreshold: 546 // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/core.h#L151-L162
   },
   testnet: {
-    magic: 0xd9b4bef9,
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
       public: 0x043587cf,
@@ -27,7 +25,6 @@ module.exports = {
     dustThreshold: 546
   },
   litecoin: {
-    magic: 0xd9b4bef9,
     messagePrefix: '\x19Litecoin Signed Message:\n',
     bip32: {
       public: 0x019da462,
