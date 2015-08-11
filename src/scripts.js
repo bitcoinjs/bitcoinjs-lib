@@ -1,6 +1,7 @@
 var assert = require('assert')
 var ops = require('./opcodes')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
+var types = require('./types')
 
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
@@ -134,7 +135,7 @@ function isNullDataOutput (script) {
 }
 
 function classifyOutput (script) {
-  typeForce('Script', script)
+  typeforce(types.Script, script)
 
   if (isPubKeyHashOutput(script)) {
     return 'pubkeyhash'
@@ -152,7 +153,7 @@ function classifyOutput (script) {
 }
 
 function classifyInput (script, allowIncomplete) {
-  typeForce('Script', script)
+  typeforce(types.Script, script)
 
   if (isPubKeyHashInput(script)) {
     return 'pubkeyhash'
@@ -178,7 +179,7 @@ function pubKeyOutput (pubKey) {
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 function pubKeyHashOutput (hash) {
-  typeForce('Buffer', hash)
+  typeforce(types.Hash160bit, hash)
 
   return Script.fromChunks([
     ops.OP_DUP,
@@ -191,7 +192,7 @@ function pubKeyHashOutput (hash) {
 
 // OP_HASH160 {scriptHash} OP_EQUAL
 function scriptHashOutput (hash) {
-  typeForce('Buffer', hash)
+  typeforce(types.Hash160bit, hash)
 
   return Script.fromChunks([
     ops.OP_HASH160,
@@ -202,7 +203,7 @@ function scriptHashOutput (hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 function multisigOutput (m, pubKeys) {
-  typeForce(['Buffer'], pubKeys)
+  typeforce(types.tuple(types.Number, [types.Buffer]), arguments)
 
   var n = pubKeys.length
   assert(n >= m, 'Not enough pubKeys provided')
@@ -217,15 +218,14 @@ function multisigOutput (m, pubKeys) {
 
 // {signature}
 function pubKeyInput (signature) {
-  typeForce('Buffer', signature)
+  typeforce(types.Buffer, signature)
 
   return Script.fromChunks([signature])
 }
 
 // {signature} {pubKey}
 function pubKeyHashInput (signature, pubKey) {
-  typeForce('Buffer', signature)
-  typeForce('Buffer', pubKey)
+  typeforce(types.tuple(types.Buffer, types.Buffer), arguments)
 
   return Script.fromChunks([signature, pubKey])
 }

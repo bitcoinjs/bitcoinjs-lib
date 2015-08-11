@@ -188,7 +188,7 @@
       },
       {
         "description": "Invalid i value (> 3)",
-        "exception": "Recovery param is more than two bits",
+        "exception": "Expected UInt2, got Number 4",
         "e": "01",
         "signatureRaw": {
           "r": "00",

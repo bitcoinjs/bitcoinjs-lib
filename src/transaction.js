@@ -1,7 +1,8 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
+var types = require('./types')
 var opcodes = require('./opcodes')
 
 var Script = require('./script')
@@ -104,18 +105,18 @@ Transaction.isCoinbaseHash = function (buffer) {
 }
 
 Transaction.prototype.addInput = function (hash, index, sequence, script) {
-  if (sequence === undefined || sequence === null) {
+  typeforce(types.tuple(
+    types.Hash256bit,
+    types.UInt32,
+    types.maybe(types.UInt32),
+    types.maybe(types.Script)
+  ), arguments)
+
+  if (types.Null(sequence)) {
     sequence = Transaction.DEFAULT_SEQUENCE
   }
 
   script = script || Script.EMPTY
-
-  typeForce('Buffer', hash)
-  typeForce('Number', index)
-  typeForce('Number', sequence)
-  typeForce('Script', script)
-
-  assert.equal(hash.length, 32, 'Expected hash length of 32, got ' + hash.length)
 
   // Add the input and return the input's index
   return (this.ins.push({
@@ -127,8 +128,7 @@ Transaction.prototype.addInput = function (hash, index, sequence, script) {
 }
 
 Transaction.prototype.addOutput = function (scriptPubKey, value) {
-  typeForce('Script', scriptPubKey)
-  typeForce('Number', value)
+  typeforce(types.tuple(types.Script, types.UInt53), arguments)
 
   // Add the output and return the output's index
   return (this.outs.push({
@@ -188,11 +188,7 @@ var ONE = new Buffer('0000000000000000000000000000000000000000000000000000000000
  * This hash can then be used to sign the provided transaction input.
  */
 Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashType) {
-  typeForce('Number', inIndex)
-  typeForce('Script', prevOutScript)
-  typeForce('Number', hashType)
-
-  assert(inIndex >= 0, 'Invalid vin index')
+  typeforce(types.tuple(types.UInt32, types.Script, /* types.UInt8 */ types.Number), arguments)
 
   // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L29
   if (inIndex >= this.ins.length) return ONE
@@ -327,8 +323,7 @@ Transaction.prototype.toHex = function () {
 }
 
 Transaction.prototype.setInputScript = function (index, script) {
-  typeForce('Number', index)
-  typeForce('Script', script)
+  typeforce(types.tuple(types.Number, types.Script), arguments)
 
   this.ins[index].script = script
 }

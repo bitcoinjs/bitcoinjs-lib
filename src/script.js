@@ -1,12 +1,12 @@
 var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
+var types = require('./types')
 var opcodes = require('./opcodes')
 
 function Script (buffer, chunks) {
-  typeForce('Buffer', buffer)
-  typeForce('Array', chunks)
+  typeforce(types.tuple(types.Buffer, types.Array), arguments)
 
   this.buffer = buffer
   this.chunks = chunks
@@ -63,7 +63,7 @@ Script.fromBuffer = function (buffer) {
 }
 
 Script.fromChunks = function (chunks) {
-  typeForce('Array', chunks)
+  typeforce(types.Array, chunks)
 
   var bufferSize = chunks.reduce(function (accum, chunk) {
     // data chunk

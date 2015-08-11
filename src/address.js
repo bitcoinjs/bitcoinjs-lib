@@ -1,7 +1,8 @@
 var base58check = require('bs58check')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
 var networks = require('./networks')
 var scripts = require('./scripts')
+var types = require('./types')
 
 function fromBase58Check (string) {
   var payload = base58check.decode(string)
@@ -23,10 +24,7 @@ function fromOutputScript (script, network) {
 }
 
 function toBase58Check (hash, version) {
-  typeForce('Buffer', hash)
-
-  if (hash.length !== 20) throw new TypeError('Invalid hash length')
-  if (version & ~0xff) throw new TypeError('Invalid version byte')
+  typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
 
   var payload = new Buffer(21)
   payload.writeUInt8(version, 0)
