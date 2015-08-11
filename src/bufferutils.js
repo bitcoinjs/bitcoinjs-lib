@@ -1,12 +1,11 @@
-var assert = require('assert')
 var opcodes = require('./opcodes')
 
 // https://github.com/feross/buffer/blob/master/index.js#L1127
 function verifuint (value, max) {
-  assert(typeof value === 'number', 'cannot write a non-number as a number')
-  assert(value >= 0, 'specified a negative value for writing an unsigned value')
-  assert(value <= max, 'value is larger than maximum value for type')
-  assert(Math.floor(value) === value, 'value has a fractional component')
+  if (typeof value !== 'number') throw new Error('cannot write a non-number as a number')
+  if (value < 0) throw new Error('specified a negative value for writing an unsigned value')
+  if (value > max) throw new Error('value is larger than maximum value for type')
+  if (Math.floor(value) !== value) throw new Error('value has a fractional component')
 }
 
 function pushDataSize (i) {
@@ -40,7 +39,7 @@ function readPushDataInt (buffer, offset) {
   // 32 bit
   } else {
     if (offset + 5 > buffer.length) return null
-    assert.equal(opcode, opcodes.OP_PUSHDATA4, 'Unexpected opcode')
+    if (opcode !== opcodes.OP_PUSHDATA4) throw new Error('Unexpected opcode')
 
     number = buffer.readUInt32LE(offset + 1)
     size = 5
