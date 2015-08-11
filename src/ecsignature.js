@@ -1,4 +1,3 @@
-var assert = require('assert')
 var typeforce = require('typeforce')
 var types = require('./types')
 
@@ -13,22 +12,20 @@ function ECSignature (r, s) {
 }
 
 ECSignature.parseCompact = function (buffer) {
-  assert.equal(buffer.length, 65, 'Invalid signature length')
-  var i = buffer.readUInt8(0) - 27
+  if (buffer.length !== 65) throw new Error('Invalid signature length')
 
-  // At most 3 bits
-  assert.equal(i, i & 7, 'Invalid signature parameter')
-  var compressed = !!(i & 4)
+  var flagByte = buffer.readUInt8(0) - 27
+  if (flagByte !== (flagByte & 7)) throw new Error('Invalid signature parameter')
 
-  // Recovery param only
-  i = i & 3
+  var compressed = !!(flagByte & 4)
+  var recoveryParam = flagByte & 3
 
   var r = BigInteger.fromBuffer(buffer.slice(1, 33))
   var s = BigInteger.fromBuffer(buffer.slice(33))
 
   return {
     compressed: compressed,
-    i: i,
+    i: recoveryParam,
     signature: new ECSignature(r, s)
   }
 }
@@ -118,7 +115,7 @@ ECSignature.prototype.toDER = function () {
 
 ECSignature.prototype.toScriptSignature = function (hashType) {
   var hashTypeMod = hashType & ~0x80
-  assert(hashTypeMod > 0x00 && hashTypeMod < 0x04, 'Invalid hashType ' + hashType)
+  if (hashTypeMod <= 0 || hashTypeMod >= 4) throw new Error('Invalid hashType ' + hashType)
 
   var hashTypeBuffer = new Buffer(1)
   hashTypeBuffer.writeUInt8(hashType, 0)
