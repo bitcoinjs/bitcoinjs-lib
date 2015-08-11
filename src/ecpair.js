@@ -1,4 +1,3 @@
-var assert = require('assert')
 var bs58check = require('bs58check')
 var bcrypto = require('./crypto')
 var ecdsa = require('./ecdsa')
@@ -63,7 +62,7 @@ ECPair.fromWIF = function (string, networks) {
   var compressed
 
   if (payload.length === 34) {
-    assert.strictEqual(payload[33], 0x01, 'Invalid compression flag')
+    if (payload[33] !== 0x01) throw new Error('Invalid compression flag')
 
     // truncate the version/compression bytes
     payload = payload.slice(1, -1)
@@ -71,7 +70,7 @@ ECPair.fromWIF = function (string, networks) {
 
   // no compression flag
   } else {
-    assert.equal(payload.length, 33, 'Invalid WIF payload length')
+    if (payload.length !== 33) throw new Error('Invalid WIF payload length')
 
     // Truncate the version byte
     payload = payload.slice(1)
@@ -115,7 +114,7 @@ ECPair.makeRandom = function (options) {
 }
 
 ECPair.prototype.toWIF = function () {
-  assert(this.d, 'Missing private key')
+  if (!this.d) throw new Error('Missing private key')
 
   var bufferLen = this.compressed ? 34 : 33
   var buffer = new Buffer(bufferLen)
@@ -146,7 +145,7 @@ ECPair.prototype.getPublicKeyBuffer = function () {
 }
 
 ECPair.prototype.sign = function (hash) {
-  assert(this.d, 'Missing private key')
+  if (!this.d) throw new Error('Missing private key')
 
   return ecdsa.sign(ECPair.curve, hash, this.d)
 }
