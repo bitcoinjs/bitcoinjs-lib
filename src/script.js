@@ -1,4 +1,3 @@
-var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 var typeforce = require('typeforce')
@@ -93,7 +92,7 @@ Script.fromChunks = function (chunks) {
     }
   })
 
-  assert.equal(offset, buffer.length, 'Could not decode chunks')
+  if (offset !== buffer.length) throw new Error('Could not decode chunks')
   return new Script(buffer, chunks)
 }
 
