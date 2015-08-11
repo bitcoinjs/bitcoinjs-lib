@@ -30,7 +30,6 @@ function sign (keyPair, message, network) {
   return signature.toCompact(i, keyPair.compressed)
 }
 
-// TODO: network could be implied from address
 function verify (address, signature, message, network) {
   if (!Buffer.isBuffer(signature)) {
     signature = new Buffer(signature, 'base64')
