@@ -4,8 +4,7 @@ var types = require('./types')
 var BigInteger = require('bigi')
 
 function ECSignature (r, s) {
-  typeforce(types.BigInt, r)
-  typeforce(types.BigInt, s)
+  typeforce(types.tuple(types.BigInt, types.BigInt), arguments)
 
   this.r = r
   this.s = s
@@ -40,7 +39,7 @@ ECSignature.fromDER = function (buffer) {
   if (buffer[1] !== buffer.length - 2) throw new Error('Invalid sequence length')
   if (buffer[2] !== 0x02) throw new Error('Expected a DER integer')
 
-  var lenR = buffer.readUInt8(3)
+  var lenR = buffer[3]
   if (lenR === 0) throw new Error('R length is zero')
   if (5 + lenR >= buffer.length) throw new Error('Invalid DER encoding')
   if (buffer[4 + lenR] !== 0x02) throw new Error('Expected a DER integer (2)')
