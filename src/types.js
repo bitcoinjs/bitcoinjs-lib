@@ -39,7 +39,7 @@ var Network = typeforce.compile({
   pubKeyHash: UInt8,
   scriptHash: UInt8,
   wif: UInt8,
-  dustThreshold: typeforce.Number
+  dustThreshold: UInt53
 })
 
 var Script = typeforce.compile({
