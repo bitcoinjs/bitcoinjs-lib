@@ -19,7 +19,7 @@ Transaction.SIGHASH_NONE = 0x02
 Transaction.SIGHASH_SINGLE = 0x03
 Transaction.SIGHASH_ANYONECANPAY = 0x80
 
-Transaction.fromBuffer = function (buffer, __disableExcess) {
+Transaction.fromBuffer = function (buffer, __noStrict) {
   var offset = 0
   function readSlice (n) {
     offset += n
@@ -86,9 +86,8 @@ Transaction.fromBuffer = function (buffer, __disableExcess) {
 
   tx.locktime = readUInt32()
 
-  if (!__disableExcess) {
-    if (offset !== buffer.length) throw new Error('Transaction has unexpected data')
-  }
+  if (__noStrict) return tx
+  if (offset !== buffer.length) throw new Error('Transaction has unexpected data')
 
   return tx
 }
