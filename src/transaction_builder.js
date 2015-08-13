@@ -33,7 +33,7 @@ function extractInput (txIn) {
   var hashType, parsed, pubKeys, signatures
 
   switch (scriptType) {
-    case 'pubkeyhash': {
+    case 'pubkeyhash':
       parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
       hashType = parsed.hashType
       pubKeys = scriptSig.chunks.slice(1)
@@ -41,9 +41,8 @@ function extractInput (txIn) {
       prevOutScript = scripts.pubKeyHashOutput(bcrypto.hash160(pubKeys[0]))
 
       break
-    }
 
-    case 'pubkey': {
+    case 'pubkey':
       parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
       hashType = parsed.hashType
       signatures = [parsed.signature]
@@ -53,9 +52,8 @@ function extractInput (txIn) {
       }
 
       break
-    }
 
-    case 'multisig': {
+    case 'multisig':
       signatures = scriptSig.chunks.slice(1).map(function (chunk) {
         if (chunk === ops.OP_0) return chunk
 
@@ -70,7 +68,6 @@ function extractInput (txIn) {
       }
 
       break
-    }
   }
 
   return {
@@ -146,15 +143,13 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
 
     // if we can, extract pubKey information
     switch (prevOutType) {
-      case 'multisig': {
+      case 'multisig':
         input.pubKeys = prevOutScript.chunks.slice(1, -2)
         break
-      }
 
-      case 'pubkey': {
+      case 'pubkey':
         input.pubKeys = prevOutScript.chunks.slice(0, 1)
         break
-      }
     }
 
     if (prevOutType !== 'scripthash') {
@@ -230,13 +225,12 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 
     if (input.signatures) {
       switch (scriptType) {
-        case 'pubkeyhash': {
+        case 'pubkeyhash':
           var pkhSignature = input.signatures[0].toScriptSignature(input.hashType)
           scriptSig = scripts.pubKeyHashInput(pkhSignature, input.pubKeys[0])
           break
-        }
 
-        case 'multisig': {
+        case 'multisig':
           // Array.prototype.map is sparse-compatible
           var msSignatures = input.signatures.map(function (signature) {
             return signature && signature.toScriptSignature(input.hashType)
@@ -257,13 +251,11 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
           var redeemScript = allowIncomplete ? undefined : input.redeemScript
           scriptSig = scripts.multisigInput(msSignatures, redeemScript)
           break
-        }
 
-        case 'pubkey': {
+        case 'pubkey':
           var pkSignature = input.signatures[0].toScriptSignature(input.hashType)
           scriptSig = scripts.pubKeyInput(pkSignature)
           break
-        }
       }
     }
 
@@ -322,24 +314,21 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
       var pubKeys = []
       switch (scriptType) {
-        case 'multisig': {
+        case 'multisig':
           pubKeys = redeemScript.chunks.slice(1, -2)
           break
-        }
 
-        case 'pubkeyhash': {
+        case 'pubkeyhash':
           var pkh1 = redeemScript.chunks[2]
           var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
 
           assert.deepEqual(pkh1, pkh2, 'privateKey cannot sign for this input')
           pubKeys = [kpPubKey]
           break
-        }
 
-        case 'pubkey': {
+        case 'pubkey':
           pubKeys = redeemScript.chunks.slice(0, 1)
           break
-        }
       }
 
       if (!input.prevOutScript) {
