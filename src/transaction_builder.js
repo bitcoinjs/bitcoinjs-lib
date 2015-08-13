@@ -183,7 +183,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
     return (input.hashType & 0x1f) === Transaction.SIGHASH_SINGLE
   }), 'No, this would invalidate signatures')
 
-  // Attempt to get a valid address if it's a base58 address string
+  // Attempt to get a script if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
     scriptPubKey = Address.toOutputScript(scriptPubKey, this.network)
   }
