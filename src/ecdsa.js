@@ -107,7 +107,8 @@ function sign (curve, hash, d) {
 }
 
 function verify (curve, hash, signature, Q) {
-  typeforce(types.tuple(types.ECCurve,
+  typeforce(types.tuple(
+    types.ECCurve,
     types.Hash256bit,
     types.ECSignature,
     types.ECPoint
