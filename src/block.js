@@ -44,11 +44,10 @@ Block.fromBuffer = function (buffer) {
     return vi.number
   }
 
-  // FIXME: poor performance
   function readTransaction () {
     var tx = Transaction.fromBuffer(buffer.slice(offset), true)
 
-    offset += tx.toBuffer().length
+    offset += tx.byteLength()
     return tx
   }
 
