@@ -3,7 +3,6 @@
 
 var assert = require('assert')
 var Script = require('../src/script')
-var OPS = require('../src/opcodes')
 
 var fixtures = require('./fixtures/script.json')
 
@@ -21,17 +20,24 @@ describe('Script', function () {
   })
 
   describe('compile', function () {
-    it('should match expected behaviour', function () {
-      var hash = new Buffer(32)
-      hash.fill(0)
+    fixtures.valid.forEach(function (f) {
+      if (!f.asm) return
 
-      var script = Script.compile([
-        OPS.OP_HASH160,
-        hash,
-        OPS.OP_EQUAL
-      ])
+      it('decodes/encodes ' + f.description, function () {
+        var script = Script.fromASM(f.asm)
 
-      assert.strictEqual(script.toString('hex'), 'a920000000000000000000000000000000000000000000000000000000000000000087')
+        assert.strictEqual(Script.compile(script).toString('hex'), f.hex)
+      })
+    })
+  })
+
+  describe('decompile', function () {
+    fixtures.valid.forEach(function (f) {
+      it('decodes/encodes ' + f.description, function () {
+        var script = Script.decompile(new Buffer(f.hex, 'hex'))
+
+        assert.strictEqual(Script.toASM(script), f.asm)
+      })
     })
   })
 })
