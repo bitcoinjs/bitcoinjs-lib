@@ -277,7 +277,6 @@ describe('TransactionBuilder', function () {
                 // rebuild/replace the scriptSig without them
                 var replacement = scripts.scriptHashInput(scripts.multisigInput(signatures), redeemScript)
                 assert.strictEqual(replacement.toASM(), sign.scriptSigFiltered)
-                sign.scriptSigFiltered = replacement.toASM()
 
                 tx.ins[i].script = replacement
               }
