@@ -4,7 +4,15 @@ var typeforce = require('typeforce')
 var types = require('./types')
 
 function coerceChunks (chunks) {
-  return types.Array(chunks) ? chunks : decompile(chunks)
+  if (types.Array(chunks)) return chunks
+
+  return decompile(chunks)
+}
+
+function coerceBuffer (buffer) {
+  if (types.Buffer(buffer)) return buffer
+
+  return compile(buffer)
 }
 
 function toASM (chunks) {
@@ -41,6 +49,8 @@ function fromASM (asm) {
 }
 
 function compile (chunks) {
+  chunks = coerceChunks(chunks)
+
   typeforce(types.Array, chunks)
 
   var bufferSize = chunks.reduce(function (accum, chunk) {
@@ -76,6 +86,8 @@ function compile (chunks) {
 }
 
 function decompile (buffer) {
+  buffer = coerceBuffer(buffer)
+
   typeforce(types.Buffer, buffer)
 
   var chunks = []
