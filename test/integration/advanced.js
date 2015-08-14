@@ -55,7 +55,7 @@ describe('bitcoinjs-lib (advanced)', function () {
 
             var actual = bitcoin.Transaction.fromHex(transaction.txHex)
             var dataScript2 = actual.outs[0].script
-            var data2 = dataScript2.chunks[1]
+            var data2 = bitcoin.scripts.decompile(dataScript2)[1]
 
             assert.deepEqual(dataScript, dataScript2)
             assert.deepEqual(data, data2)
