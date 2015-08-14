@@ -32,6 +32,12 @@ function extractInput (txIn) {
     scriptType = prevOutType
   }
 
+  // pre-empt redeemScript decompilation
+  var redeemScriptChunks
+  if (redeemScript) {
+    redeemScriptChunks = Script.decompile(redeemScript)
+  }
+
   // Extract hashType, pubKeys and signatures
   var hashType, parsed, pubKeys, signatures
 
@@ -51,7 +57,7 @@ function extractInput (txIn) {
       signatures = [parsed.signature]
 
       if (redeemScript) {
-        pubKeys = Script.decompile(redeemScript).slice(0, 1)
+        pubKeys = redeemScriptChunks.slice(0, 1)
       }
 
       break
@@ -67,7 +73,7 @@ function extractInput (txIn) {
       })
 
       if (redeemScript) {
-        pubKeys = Script.decompile(redeemScript).slice(1, -2)
+        pubKeys = redeemScriptChunks.slice(1, -2)
       }
 
       break

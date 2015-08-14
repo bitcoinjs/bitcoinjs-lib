@@ -22,7 +22,7 @@ describe('Transaction', function () {
         script = data
 
       } else if (txIn.script) {
-        script = Script.compile(Script.fromASM(txIn.script))
+        script = Script.fromASM(txIn.script)
       }
 
       tx.addInput(txHash, txIn.index, txIn.sequence, script)
@@ -36,7 +36,7 @@ describe('Transaction', function () {
         script = data
 
       } else if (txOut.script) {
-        script = Script.compile(Script.fromASM(txOut.script))
+        script = Script.fromASM(txOut.script)
       }
 
       tx.addOutput(script, txOut.value)

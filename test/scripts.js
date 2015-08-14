@@ -267,7 +267,7 @@ describe('Scripts', function () {
       if (!f.scriptPubKey) return
 
       it('returns ' + f.scriptPubKey, function () {
-        var redeemScript = Script.compile(Script.fromASM(f.redeemScript))
+        var redeemScript = Script.fromASM(f.redeemScript)
         var scriptPubKey = scripts.scriptHashOutput(bcrypto.hash160(redeemScript))
 
         assert.strictEqual(Script.toASM(scriptPubKey), f.scriptPubKey)

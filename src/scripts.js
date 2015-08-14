@@ -40,24 +40,16 @@ function isCanonicalSignature (buffer) {
   return true
 }
 
-function coerceBuffer (buffer) {
-  return types.Buffer(buffer) ? buffer : Script.compile(buffer)
-}
-
-function coerceChunks (chunks) {
-  return types.Array(chunks) ? chunks : Script.decompile(chunks)
-}
-
-function isPubKeyHashInput (chunks) {
-  chunks = coerceChunks(chunks)
+function isPubKeyHashInput (script) {
+  var chunks = Script.decompile(script)
 
   return chunks.length === 2 &&
     isCanonicalSignature(chunks[0]) &&
     isCanonicalPubKey(chunks[1])
 }
 
-function isPubKeyHashOutput (chunks) {
-  chunks = coerceChunks(chunks)
+function isPubKeyHashOutput (script) {
+  var chunks = Script.decompile(script)
 
   return chunks.length === 5 &&
     chunks[0] === ops.OP_DUP &&
@@ -68,23 +60,23 @@ function isPubKeyHashOutput (chunks) {
     chunks[4] === ops.OP_CHECKSIG
 }
 
-function isPubKeyInput (chunks) {
-  chunks = coerceChunks(chunks)
+function isPubKeyInput (script) {
+  var chunks = Script.decompile(script)
 
   return chunks.length === 1 &&
     isCanonicalSignature(chunks[0])
 }
 
-function isPubKeyOutput (chunks) {
-  chunks = coerceChunks(chunks)
+function isPubKeyOutput (script) {
+  var chunks = Script.decompile(script)
 
   return chunks.length === 2 &&
     isCanonicalPubKey(chunks[0]) &&
     chunks[1] === ops.OP_CHECKSIG
 }
 
-function isScriptHashInput (chunks, allowIncomplete) {
-  chunks = coerceChunks(chunks)
+function isScriptHashInput (script, allowIncomplete) {
+  var chunks = Script.decompile(script)
   if (chunks.length < 2) return false
 
   var lastChunk = chunks[chunks.length - 1]
@@ -99,8 +91,8 @@ function isScriptHashInput (chunks, allowIncomplete) {
   return classifyInput(scriptSigChunks, allowIncomplete) === classifyOutput(redeemScriptChunks)
 }
 
-function isScriptHashOutput (chunks) {
-  chunks = coerceChunks(chunks)
+function isScriptHashOutput (script) {
+  var chunks = Script.decompile(script)
 
   return chunks.length === 3 &&
     chunks[0] === ops.OP_HASH160 &&
@@ -111,8 +103,8 @@ function isScriptHashOutput (chunks) {
 
 // allowIncomplete is to account for combining signatures
 // See https://github.com/bitcoin/bitcoin/blob/f425050546644a36b0b8e0eb2f6934a3e0f6f80f/src/script/sign.cpp#L195-L197
-function isMultisigInput (chunks, allowIncomplete) {
-  chunks = coerceChunks(chunks)
+function isMultisigInput (script, allowIncomplete) {
+  var chunks = Script.decompile(script)
   if (chunks.length < 2) return false
   if (chunks[0] !== ops.OP_0) return false
 
@@ -125,8 +117,8 @@ function isMultisigInput (chunks, allowIncomplete) {
   return chunks.slice(1).every(isCanonicalSignature)
 }
 
-function isMultisigOutput (chunks) {
-  chunks = coerceChunks(chunks)
+function isMultisigOutput (script) {
+  var chunks = Script.decompile(script)
   if (chunks.length < 4) return false
   if (chunks[chunks.length - 1] !== ops.OP_CHECKMULTISIG) return false
 
@@ -150,13 +142,14 @@ function isMultisigOutput (chunks) {
   return pubKeys.every(isCanonicalPubKey)
 }
 
-function isNullDataOutput (chunks) {
-  chunks = coerceChunks(chunks)
+function isNullDataOutput (script) {
+  var chunks = Script.decompile(script)
   return chunks[0] === ops.OP_RETURN
 }
 
-function classifyOutput (chunks) {
-  chunks = coerceChunks(chunks)
+function classifyOutput (script) {
+  var chunks = Script.decompile(script)
+
   if (isPubKeyHashOutput(chunks)) {
     return 'pubkeyhash'
   } else if (isScriptHashOutput(chunks)) {
@@ -172,8 +165,9 @@ function classifyOutput (chunks) {
   return 'nonstandard'
 }
 
-function classifyInput (chunks, allowIncomplete) {
-  chunks = coerceChunks(chunks)
+function classifyInput (script, allowIncomplete) {
+  var chunks = Script.decompile(script)
+
   if (isPubKeyHashInput(chunks)) {
     return 'pubkeyhash'
   } else if (isMultisigInput(chunks, allowIncomplete)) {
@@ -237,24 +231,24 @@ function pubKeyHashInput (signature, pubKey) {
 }
 
 // <scriptSig> {serialized scriptPubKey script}
-function scriptHashInput (scriptSig, scriptPubKeyBuffer) {
-  scriptSig = coerceChunks(scriptSig)
-  scriptPubKeyBuffer = coerceBuffer(scriptPubKeyBuffer)
+function scriptHashInput (scriptSig, scriptPubKey) {
+  var scriptSigChunks = Script.decompile(scriptSig)
+  var serializedScriptPubKey = Script.compile(scriptPubKey)
 
   return Script.compile([].concat(
-    scriptSig,
-    scriptPubKeyBuffer
+    scriptSigChunks,
+    serializedScriptPubKey
   ))
 }
 
 // OP_0 [signatures ...]
 function multisigInput (signatures, scriptPubKey) {
   if (scriptPubKey) {
-    if (!isMultisigOutput(scriptPubKey)) throw new Error('Expected multisig scriptPubKey')
-    scriptPubKey = coerceChunks(scriptPubKey)
+    var chunks = Script.decompile(scriptPubKey)
+    if (!isMultisigOutput(chunks)) throw new Error('Expected multisig scriptPubKey')
 
-    var mOp = scriptPubKey[0]
-    var nOp = scriptPubKey[scriptPubKey.length - 2]
+    var mOp = chunks[0]
+    var nOp = chunks[chunks.length - 2]
     var m = mOp - (ops.OP_1 - 1)
     var n = nOp - (ops.OP_1 - 1)
 

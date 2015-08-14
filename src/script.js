@@ -3,20 +3,10 @@ var opcodes = require('./opcodes')
 var typeforce = require('typeforce')
 var types = require('./types')
 
-function coerceChunks (chunks) {
-  if (types.Array(chunks)) return chunks
-
-  return decompile(chunks)
-}
-
-function coerceBuffer (buffer) {
-  if (types.Buffer(buffer)) return buffer
-
-  return compile(buffer)
-}
-
 function toASM (chunks) {
-  chunks = coerceChunks(chunks)
+  if (types.Buffer(chunks)) {
+    chunks = decompile(chunks)
+  }
 
   return chunks.map(function (chunk) {
     // data chunk
@@ -45,11 +35,12 @@ function fromASM (asm) {
     }
   })
 
-  return chunks
+  return compile(chunks)
 }
 
 function compile (chunks) {
-  chunks = coerceChunks(chunks)
+  // TODO: remove me
+  if (types.Buffer(chunks)) return chunks
 
   typeforce(types.Array, chunks)
 
@@ -86,7 +77,8 @@ function compile (chunks) {
 }
 
 function decompile (buffer) {
-  buffer = coerceBuffer(buffer)
+  // TODO: remove me
+  if (types.Array(buffer)) return buffer
 
   typeforce(types.Buffer, buffer)
 
@@ -132,6 +124,6 @@ for (var op in opcodes) {
 module.exports = {
   compile: compile,
   decompile: decompile,
-  toASM: toASM,
-  fromASM: fromASM
+  fromASM: fromASM,
+  toASM: toASM
 }
