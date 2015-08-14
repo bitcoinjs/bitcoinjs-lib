@@ -1,9 +1,9 @@
 /* global describe, it, beforeEach */
 
 var assert = require('assert')
+var scripts = require('../src/scripts')
 
 var Transaction = require('../src/transaction')
-var Script = require('../src/script')
 
 var fixtures = require('./fixtures/transaction')
 
@@ -22,7 +22,7 @@ describe('Transaction', function () {
         script = data
 
       } else if (txIn.script) {
-        script = Script.fromASM(txIn.script)
+        script = scripts.fromASM(txIn.script)
       }
 
       tx.addInput(txHash, txIn.index, txIn.sequence, script)
@@ -36,7 +36,7 @@ describe('Transaction', function () {
         script = data
 
       } else if (txOut.script) {
-        script = Script.fromASM(txOut.script)
+        script = scripts.fromASM(txOut.script)
       }
 
       tx.addOutput(script, txOut.value)

@@ -1,12 +1,129 @@
-var ops = require('./opcodes')
+var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
 
+var ECSignature = require('./ecsignature')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
-var ECSignature = require('./ecsignature')
-var Script = require('./script')
+var OPS = require('./opcodes')
+var REVERSE_OPS = []
+for (var op in OPS) {
+  var code = OPS[op]
+  REVERSE_OPS[code] = op
+}
+
+function toASM (chunks) {
+  if (types.Buffer(chunks)) {
+    chunks = decompile(chunks)
+  }
+
+  return chunks.map(function (chunk) {
+    // data chunk
+    if (Buffer.isBuffer(chunk)) {
+      return chunk.toString('hex')
+
+    // opcode
+    } else {
+      return REVERSE_OPS[chunk]
+    }
+  }).join(' ')
+}
+
+function fromASM (asm) {
+  typeforce(types.String, asm)
+
+  var strChunks = asm.split(' ')
+  var chunks = strChunks.map(function (strChunk) {
+    // opcode
+    if (strChunk in OPS) {
+      return OPS[strChunk]
+
+    // data chunk
+    } else {
+      return new Buffer(strChunk, 'hex')
+    }
+  })
+
+  return compile(chunks)
+}
+
+function compile (chunks) {
+  // TODO: remove me
+  if (types.Buffer(chunks)) return chunks
+
+  typeforce(types.Array, chunks)
+
+  var bufferSize = chunks.reduce(function (accum, chunk) {
+    // data chunk
+    if (Buffer.isBuffer(chunk)) {
+      return accum + bufferutils.pushDataSize(chunk.length) + chunk.length
+    }
+
+    // opcode
+    return accum + 1
+  }, 0.0)
+
+  var buffer = new Buffer(bufferSize)
+  var offset = 0
+
+  chunks.forEach(function (chunk) {
+    // data chunk
+    if (Buffer.isBuffer(chunk)) {
+      offset += bufferutils.writePushDataInt(buffer, chunk.length, offset)
+
+      chunk.copy(buffer, offset)
+      offset += chunk.length
+
+    // opcode
+    } else {
+      buffer.writeUInt8(chunk, offset)
+      offset += 1
+    }
+  })
+
+  if (offset !== buffer.length) throw new Error('Could not decode chunks')
+  return buffer
+}
+
+function decompile (buffer) {
+  // TODO: remove me
+  if (types.Array(buffer)) return buffer
+
+  typeforce(types.Buffer, buffer)
+
+  var chunks = []
+  var i = 0
+
+  while (i < buffer.length) {
+    var opcode = buffer.readUInt8(i)
+
+    // data chunk
+    if ((opcode > OPS.OP_0) && (opcode <= OPS.OP_PUSHDATA4)) {
+      var d = bufferutils.readPushDataInt(buffer, i)
+
+      // did reading a pushDataInt fail? empty script
+      if (d === null) return []
+      i += d.size
+
+      // attempt to read too much data? empty script
+      if (i + d.number > buffer.length) return []
+
+      var data = buffer.slice(i, i + d.number)
+      i += d.number
+
+      chunks.push(data)
+
+    // opcode
+    } else {
+      chunks.push(opcode)
+
+      i += 1
+    }
+  }
+
+  return chunks
+}
 
 function isCanonicalPubKey (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
@@ -41,7 +158,7 @@ function isCanonicalSignature (buffer) {
 }
 
 function isPubKeyHashInput (script) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
 
   return chunks.length === 2 &&
     isCanonicalSignature(chunks[0]) &&
@@ -49,41 +166,41 @@ function isPubKeyHashInput (script) {
 }
 
 function isPubKeyHashOutput (script) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
 
   return chunks.length === 5 &&
-    chunks[0] === ops.OP_DUP &&
-    chunks[1] === ops.OP_HASH160 &&
+    chunks[0] === OPS.OP_DUP &&
+    chunks[1] === OPS.OP_HASH160 &&
     Buffer.isBuffer(chunks[2]) &&
     chunks[2].length === 20 &&
-    chunks[3] === ops.OP_EQUALVERIFY &&
-    chunks[4] === ops.OP_CHECKSIG
+    chunks[3] === OPS.OP_EQUALVERIFY &&
+    chunks[4] === OPS.OP_CHECKSIG
 }
 
 function isPubKeyInput (script) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
 
   return chunks.length === 1 &&
     isCanonicalSignature(chunks[0])
 }
 
 function isPubKeyOutput (script) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
 
   return chunks.length === 2 &&
     isCanonicalPubKey(chunks[0]) &&
-    chunks[1] === ops.OP_CHECKSIG
+    chunks[1] === OPS.OP_CHECKSIG
 }
 
 function isScriptHashInput (script, allowIncomplete) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
   if (chunks.length < 2) return false
 
   var lastChunk = chunks[chunks.length - 1]
   if (!Buffer.isBuffer(lastChunk)) return false
 
   var scriptSigChunks = chunks.slice(0, -1)
-  var redeemScriptChunks = Script.decompile(lastChunk)
+  var redeemScriptChunks = decompile(lastChunk)
 
   // is redeemScript a valid script?
   if (redeemScriptChunks.length === 0) return false
@@ -92,25 +209,25 @@ function isScriptHashInput (script, allowIncomplete) {
 }
 
 function isScriptHashOutput (script) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
 
   return chunks.length === 3 &&
-    chunks[0] === ops.OP_HASH160 &&
+    chunks[0] === OPS.OP_HASH160 &&
     Buffer.isBuffer(chunks[1]) &&
     chunks[1].length === 20 &&
-    chunks[2] === ops.OP_EQUAL
+    chunks[2] === OPS.OP_EQUAL
 }
 
 // allowIncomplete is to account for combining signatures
 // See https://github.com/bitcoin/bitcoin/blob/f425050546644a36b0b8e0eb2f6934a3e0f6f80f/src/script/sign.cpp#L195-L197
 function isMultisigInput (script, allowIncomplete) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
   if (chunks.length < 2) return false
-  if (chunks[0] !== ops.OP_0) return false
+  if (chunks[0] !== OPS.OP_0) return false
 
   if (allowIncomplete) {
     return chunks.slice(1).every(function (chunk) {
-      return chunk === ops.OP_0 || isCanonicalSignature(chunk)
+      return chunk === OPS.OP_0 || isCanonicalSignature(chunk)
     })
   }
 
@@ -118,22 +235,22 @@ function isMultisigInput (script, allowIncomplete) {
 }
 
 function isMultisigOutput (script) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
   if (chunks.length < 4) return false
-  if (chunks[chunks.length - 1] !== ops.OP_CHECKMULTISIG) return false
+  if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) return false
 
   var mOp = chunks[0]
-  if (mOp === ops.OP_0) return false
-  if (mOp < ops.OP_1) return false
-  if (mOp > ops.OP_16) return false
+  if (mOp === OPS.OP_0) return false
+  if (mOp < OPS.OP_1) return false
+  if (mOp > OPS.OP_16) return false
 
   var nOp = chunks[chunks.length - 2]
-  if (nOp === ops.OP_0) return false
-  if (nOp < ops.OP_1) return false
-  if (nOp > ops.OP_16) return false
+  if (nOp === OPS.OP_0) return false
+  if (nOp < OPS.OP_1) return false
+  if (nOp > OPS.OP_16) return false
 
-  var m = mOp - (ops.OP_1 - 1)
-  var n = nOp - (ops.OP_1 - 1)
+  var m = mOp - (OPS.OP_1 - 1)
+  var n = nOp - (OPS.OP_1 - 1)
   if (n < m) return false
 
   var pubKeys = chunks.slice(1, -2)
@@ -143,12 +260,12 @@ function isMultisigOutput (script) {
 }
 
 function isNullDataOutput (script) {
-  var chunks = Script.decompile(script)
-  return chunks[0] === ops.OP_RETURN
+  var chunks = decompile(script)
+  return chunks[0] === OPS.OP_RETURN
 }
 
 function classifyOutput (script) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
 
   if (isPubKeyHashOutput(chunks)) {
     return 'pubkeyhash'
@@ -166,7 +283,7 @@ function classifyOutput (script) {
 }
 
 function classifyInput (script, allowIncomplete) {
-  var chunks = Script.decompile(script)
+  var chunks = decompile(script)
 
   if (isPubKeyHashInput(chunks)) {
     return 'pubkeyhash'
@@ -184,21 +301,21 @@ function classifyInput (script, allowIncomplete) {
 // Standard Script Templates
 // {pubKey} OP_CHECKSIG
 function pubKeyOutput (pubKey) {
-  return Script.compile([pubKey, ops.OP_CHECKSIG])
+  return compile([pubKey, OPS.OP_CHECKSIG])
 }
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 function pubKeyHashOutput (pubKeyHash) {
   typeforce(typeforce.Buffer, pubKeyHash)
 
-  return Script.compile([ops.OP_DUP, ops.OP_HASH160, pubKeyHash, ops.OP_EQUALVERIFY, ops.OP_CHECKSIG])
+  return compile([OPS.OP_DUP, OPS.OP_HASH160, pubKeyHash, OPS.OP_EQUALVERIFY, OPS.OP_CHECKSIG])
 }
 
 // OP_HASH160 {scriptHash} OP_EQUAL
 function scriptHashOutput (scriptHash) {
   typeforce(typeforce.Buffer, scriptHash)
 
-  return Script.compile([ops.OP_HASH160, scriptHash, ops.OP_EQUAL])
+  return compile([OPS.OP_HASH160, scriptHash, OPS.OP_EQUAL])
 }
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
@@ -208,11 +325,11 @@ function multisigOutput (m, pubKeys) {
   var n = pubKeys.length
   if (n < m) throw new Error('Not enough pubKeys provided')
 
-  return Script.compile([].concat(
-    (ops.OP_1 - 1) + m,
+  return compile([].concat(
+    (OPS.OP_1 - 1) + m,
     pubKeys,
-    (ops.OP_1 - 1) + n,
-    ops.OP_CHECKMULTISIG
+    (OPS.OP_1 - 1) + n,
+    OPS.OP_CHECKMULTISIG
   ))
 }
 
@@ -220,22 +337,22 @@ function multisigOutput (m, pubKeys) {
 function pubKeyInput (signature) {
   typeforce(types.Buffer, signature)
 
-  return Script.compile([signature])
+  return compile([signature])
 }
 
 // {signature} {pubKey}
 function pubKeyHashInput (signature, pubKey) {
   typeforce(types.tuple(types.Buffer, types.Buffer), arguments)
 
-  return Script.compile([signature, pubKey])
+  return compile([signature, pubKey])
 }
 
 // <scriptSig> {serialized scriptPubKey script}
 function scriptHashInput (scriptSig, scriptPubKey) {
-  var scriptSigChunks = Script.decompile(scriptSig)
-  var serializedScriptPubKey = Script.compile(scriptPubKey)
+  var scriptSigChunks = decompile(scriptSig)
+  var serializedScriptPubKey = compile(scriptPubKey)
 
-  return Script.compile([].concat(
+  return compile([].concat(
     scriptSigChunks,
     serializedScriptPubKey
   ))
@@ -244,26 +361,31 @@ function scriptHashInput (scriptSig, scriptPubKey) {
 // OP_0 [signatures ...]
 function multisigInput (signatures, scriptPubKey) {
   if (scriptPubKey) {
-    var chunks = Script.decompile(scriptPubKey)
+    var chunks = decompile(scriptPubKey)
     if (!isMultisigOutput(chunks)) throw new Error('Expected multisig scriptPubKey')
 
     var mOp = chunks[0]
     var nOp = chunks[chunks.length - 2]
-    var m = mOp - (ops.OP_1 - 1)
-    var n = nOp - (ops.OP_1 - 1)
+    var m = mOp - (OPS.OP_1 - 1)
+    var n = nOp - (OPS.OP_1 - 1)
 
     if (signatures.length < m) throw new Error('Not enough signatures provided')
     if (signatures.length > n) throw new Error('Too many signatures provided')
   }
 
-  return Script.compile([].concat(ops.OP_0, signatures))
+  return compile([].concat(OPS.OP_0, signatures))
 }
 
 function nullDataOutput (data) {
-  return Script.compile([ops.OP_RETURN, data])
+  return compile([OPS.OP_RETURN, data])
 }
 
 module.exports = {
+  compile: compile,
+  decompile: decompile,
+  fromASM: fromASM,
+  toASM: toASM,
+
   isCanonicalPubKey: isCanonicalPubKey,
   isCanonicalSignature: isCanonicalSignature,
   isPubKeyHashInput: isPubKeyHashInput,

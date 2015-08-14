@@ -1,10 +1,9 @@
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
+var opcodes = require('./opcodes')
+var scripts = require('./scripts')
 var typeforce = require('typeforce')
 var types = require('./types')
-var opcodes = require('./opcodes')
-
-var Script = require('./script')
 
 function Transaction () {
   this.version = 1
@@ -193,7 +192,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 
   // in case concatenating two scripts ends up with two codeseparators,
   // or an extra one at the end, this prevents all those possible incompatibilities.
-  var hashScript = Script.compile(Script.decompile(prevOutScript).filter(function (x) {
+  var hashScript = scripts.compile(scripts.decompile(prevOutScript).filter(function (x) {
     return x !== opcodes.OP_CODESEPARATOR
   }))
   var i
