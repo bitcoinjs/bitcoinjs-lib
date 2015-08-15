@@ -57,20 +57,20 @@ Transaction.fromBuffer = function (buffer, __disableAssert) {
 
   var vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
-    var hash = readSlice(32)
+    var txHash = readSlice(32)
 
-    if (Transaction.isCoinbaseHash(hash)) {
+    if (Transaction.isCoinbaseHash(txHash)) {
       tx.ins.push({
-        hash: hash,
-        index: readUInt32(),
-        script: readGenerationScript(),
+        txHash: txHash,
+        vout: readUInt32(),
+        scriptSig: readGenerationScript(),
         sequence: readUInt32()
       })
     } else {
       tx.ins.push({
-        hash: hash,
-        index: readUInt32(),
-        script: readScript(),
+        txHash: txHash,
+        vout: readUInt32(),
+        scriptSig: readScript(),
         sequence: readUInt32()
       })
     }
@@ -80,11 +80,11 @@ Transaction.fromBuffer = function (buffer, __disableAssert) {
   for (i = 0; i < voutLen; ++i) {
     tx.outs.push({
       value: readUInt64(),
-      script: readScript()
+      scriptPubKey: readScript()
     })
   }
 
-  tx.locktime = readUInt32()
+  tx.nLockTime = readUInt32()
 
   if (!__disableAssert) {
     assert.equal(offset, buffer.length, 'Transaction has unexpected data')
