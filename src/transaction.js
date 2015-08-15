@@ -62,6 +62,7 @@ Transaction.fromBuffer = function (buffer, __disableAssert) {
     if (Transaction.isCoinbaseHash(hash)) {
       tx.ins.push({
         hash: hash,
+        id: bufferutils.reverse(hash).toString('hex'),
         index: readUInt32(),
         script: readGenerationScript(),
         sequence: readUInt32()
@@ -69,6 +70,7 @@ Transaction.fromBuffer = function (buffer, __disableAssert) {
     } else {
       tx.ins.push({
         hash: hash,
+        id: bufferutils.reverse(hash).toString('hex'),
         index: readUInt32(),
         script: readScript(),
         sequence: readUInt32()
@@ -120,6 +122,7 @@ Transaction.prototype.addInput = function (hash, index, sequence, script) {
   // Add the input and return the input's index
   return (this.ins.push({
     hash: hash,
+    id: bufferutils.reverse(hash).toString('hex'),
     index: index,
     script: script,
     sequence: sequence
@@ -161,6 +164,7 @@ Transaction.prototype.clone = function () {
   newTx.ins = this.ins.map(function (txIn) {
     return {
       hash: txIn.hash,
+      id: bufferutils.reverse(txIn.hash()).toString('hex'),
       index: txIn.index,
       script: txIn.script,
       sequence: txIn.sequence
