@@ -32,33 +32,31 @@
   "invalid": {
     "fromBase58Check": [
       {
-        "description": "hash too short",
-        "base58check": "7SeEnXWPaCCALbVrTnszCVGfRU8cGfx",
-        "exception": "Invalid address length"
+        "address": "7SeEnXWPaCCALbVrTnszCVGfRU8cGfx",
+        "exception": "is too short"
       },
       {
-        "description": "hash too long",
-        "base58check": "j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe",
-        "exception": "Invalid address length"
+        "address": "j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe",
+        "exception": "is too long"
       }
     ],
     "fromOutputScript": [
       {
-        "description": "has no matching Address",
+        "exception": "has no matching Address",
         "script": "031f1e68f82112b373f0fe980b3a89d212d2b5c01fb51eb25acb8b4c4b4299ce95 OP_CHECKSIG"
       },
       {
-        "description": "has no matching Address",
+        "exception": "has no matching Address",
         "script": "OP_TRUE 032487c2a32f7c8d57d2a93906a6457afd00697925b0e6e145d89af6d3bca33016 02308673d16987eaa010e540901cc6fe3695e758c19f46ce604e174dac315e685a OP_2 OP_CHECKMULTISIG"
       },
       {
-        "description": "has no matching Address",
+        "exception": "has no matching Address",
         "script": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474"
       }
     ],
     "toOutputScript": [
       {
-        "description": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE has no matching Script",
+        "exception": "has no matching Script",
         "address": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE"
       }
     ]
