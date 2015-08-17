@@ -19,33 +19,24 @@ function toASM (chunks) {
   }
 
   return chunks.map(function (chunk) {
-    // data chunk
-    if (Buffer.isBuffer(chunk)) {
-      return chunk.toString('hex')
+    // data?
+    if (Buffer.isBuffer(chunk)) return chunk.toString('hex')
 
-    // opcode
-    } else {
-      return REVERSE_OPS[chunk]
-    }
+    // opcode!
+    return REVERSE_OPS[chunk]
   }).join(' ')
 }
 
 function fromASM (asm) {
   typeforce(types.String, asm)
 
-  var strChunks = asm.split(' ')
-  var chunks = strChunks.map(function (strChunk) {
-    // opcode
-    if (strChunk in OPS) {
-      return OPS[strChunk]
+  return compile(asm.split(' ').map(function (chunkStr) {
+    // opcode?
+    if (OPS[chunkStr] !== undefined) return OPS[chunkStr]
 
-    // data chunk
-    } else {
-      return new Buffer(strChunk, 'hex')
-    }
-  })
-
-  return compile(chunks)
+    // data!
+    return new Buffer(chunkStr, 'hex')
+  }))
 }
 
 function compile (chunks) {
