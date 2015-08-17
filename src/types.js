@@ -4,7 +4,7 @@ var typeforce = require('typeforce')
 
 function nBuffer (value, n) {
   if (!Buffer.isBuffer(value)) return false
-  if (value.length !== n) throw new Error('Expected ' + (n * 8) + '-bit Buffer, got ' + (value.length * 8) + '-bit')
+  if (value.length !== n) throw new Error('Expected ' + (n * 8) + '-bit Buffer, got ' + (value.length * 8) + '-bit Buffer')
   return true
 }
 

@@ -265,6 +265,18 @@
           "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801"
         ]
       }
+    ],
+    "pubKeyHashOutput": [
+      {
+        "exception": "Expected 160-bit Buffer, got 16-bit Buffer",
+        "hash": "ffff"
+      }
+    ],
+    "scriptHashOutput": [
+      {
+        "exception": "Expected 160-bit Buffer, got 24-bit Buffer",
+        "hash": "ffffff"
+      }
     ]
   }
 }

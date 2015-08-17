@@ -245,6 +245,16 @@ describe('scripts', function () {
         assert.strictEqual(scripts.toASM(scriptPubKey), f.scriptPubKey)
       })
     })
+
+    fixtures.invalid.pubKeyHashOutput.forEach(function (f) {
+      var hash = new Buffer(f.hash, 'hex')
+
+      it('throws on ' + f.exception, function () {
+        assert.throws(function () {
+          scripts.pubKeyHashOutput(hash)
+        }, new RegExp(f.exception))
+      })
+    })
   })
 
   describe('multisigInput', function () {
@@ -331,6 +341,16 @@ describe('scripts', function () {
         var scriptPubKey = scripts.scriptHashOutput(bcrypto.hash160(redeemScript))
 
         assert.strictEqual(scripts.toASM(scriptPubKey), f.scriptPubKey)
+      })
+    })
+
+    fixtures.invalid.scriptHashOutput.forEach(function (f) {
+      var hash = new Buffer(f.hash, 'hex')
+
+      it('throws on ' + f.exception, function () {
+        assert.throws(function () {
+          scripts.scriptHashOutput(hash)
+        }, new RegExp(f.exception))
       })
     })
   })
