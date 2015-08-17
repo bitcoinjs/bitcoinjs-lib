@@ -97,7 +97,7 @@ Transaction.isCoinbaseHash = function (buffer) {
   })
 }
 
-var EMPTY = new Buffer(0)
+var EMPTY_SCRIPT = new Buffer(0)
 
 Transaction.prototype.addInput = function (hash, index, sequence, script) {
   typeforce(types.tuple(
@@ -111,7 +111,7 @@ Transaction.prototype.addInput = function (hash, index, sequence, script) {
     sequence = Transaction.DEFAULT_SEQUENCE
   }
 
-  script = script || EMPTY
+  script = script || EMPTY_SCRIPT
 
   // Add the input and return the input's index
   return (this.ins.push({
@@ -173,6 +173,7 @@ Transaction.prototype.clone = function () {
 }
 
 var ONE = new Buffer('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+var VALUE_UINT64_MAX = new Buffer('ffffffffffffffff', 'hex')
 
 /**
  * Hash transaction for signing a specific input.
@@ -198,7 +199,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   var i
 
   // blank out other inputs' signatures
-  txTmp.ins.forEach(function (input) { input.script = EMPTY })
+  txTmp.ins.forEach(function (input) { input.script = EMPTY_SCRIPT })
   txTmp.ins[inIndex].script = hashScript
 
   // blank out some of the inputs
@@ -224,8 +225,8 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 
     // blank all other outputs (clear scriptPubKey, value === -1)
     var stubOut = {
-      script: EMPTY,
-      valueBuffer: new Buffer('ffffffffffffffff', 'hex')
+      script: EMPTY_SCRIPT,
+      valueBuffer: VALUE_UINT64_MAX
     }
 
     for (i = 0; i < nOut; i++) {
