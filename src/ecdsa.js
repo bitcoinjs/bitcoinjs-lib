@@ -1,6 +1,6 @@
-var assert = require('assert')
 var createHmac = require('create-hmac')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
+var types = require('./types')
 
 var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
@@ -10,12 +10,12 @@ var ONE = new Buffer([1])
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
 function deterministicGenerateK (curve, hash, d, checkSig) {
-  typeForce('Buffer', hash)
-  typeForce('BigInteger', d)
-  typeForce('Function', checkSig)
-
-  // sanity check
-  assert.equal(hash.length, 32, 'Hash must be 256 bit')
+  typeforce(types.tuple(
+    types.ECCurve,
+    types.Hash256bit,
+    types.BigInt,
+    types.Function
+  ), arguments)
 
   var x = d.toBuffer(32)
   var k = new Buffer(32)
@@ -75,9 +75,7 @@ function deterministicGenerateK (curve, hash, d, checkSig) {
 }
 
 function sign (curve, hash, d) {
-  typeForce('Curve', curve)
-  typeForce('Buffer', hash)
-  typeForce('BigInteger', d)
+  typeforce(types.tuple(types.ECCurve, types.Hash256bit, types.BigInt), arguments)
 
   var e = BigInteger.fromBuffer(hash)
   var n = curve.n
@@ -109,10 +107,12 @@ function sign (curve, hash, d) {
 }
 
 function verify (curve, hash, signature, Q) {
-  typeForce('Curve', curve)
-  typeForce('Buffer', hash)
-  typeForce('ECSignature', signature)
-  typeForce('Point', Q)
+  typeforce(types.tuple(
+    types.ECCurve,
+    types.Hash256bit,
+    types.ECSignature,
+    types.ECPoint
+  ), arguments)
 
   var n = curve.n
   var G = curve.G
@@ -162,20 +162,20 @@ function verify (curve, hash, signature, Q) {
   * http://www.secg.org/download/aid-780/sec1-v2.pdf
   */
 function recoverPubKey (curve, e, signature, i) {
-  typeForce('Curve', curve)
-  typeForce('BigInteger', e)
-  typeForce('ECSignature', signature)
-  typeForce('Number', i)
-  assert.strictEqual(i & 3, i, 'Recovery param is more than two bits')
+  typeforce(types.tuple(
+    types.ECCurve,
+    types.BigInt,
+    types.ECSignature,
+    types.UInt2
+  ), arguments)
 
   var n = curve.n
   var G = curve.G
-
   var r = signature.r
   var s = signature.s
 
-  assert(r.signum() > 0 && r.compareTo(n) < 0, 'Invalid r value')
-  assert(s.signum() > 0 && s.compareTo(n) < 0, 'Invalid s value')
+  if (r.signum() <= 0 || r.compareTo(n) >= 0) throw new Error('Invalid r value')
+  if (s.signum() <= 0 || s.compareTo(n) >= 0) throw new Error('Invalid s value')
 
   // A set LSB signifies that the y-coordinate is odd
   var isYOdd = i & 1
@@ -190,7 +190,7 @@ function recoverPubKey (curve, e, signature, i) {
 
   // 1.4 Check that nR is at infinity
   var nR = R.multiply(n)
-  assert(curve.isInfinity(nR), 'nR is not a valid curve point')
+  if (!curve.isInfinity(nR)) throw new Error('nR is not a valid curve point')
 
   // Compute r^-1
   var rInv = r.modInverse(n)
@@ -219,10 +219,12 @@ function recoverPubKey (curve, e, signature, i) {
   * that resulted in a successful pubkey recovery.
   */
 function calcPubKeyRecoveryParam (curve, e, signature, Q) {
-  typeForce('Curve', curve)
-  typeForce('BigInteger', e)
-  typeForce('ECSignature', signature)
-  typeForce('Point', Q)
+  typeforce(types.tuple(
+    types.ECCurve,
+    types.BigInt,
+    types.ECSignature,
+    types.ECPoint
+  ), arguments)
 
   for (var i = 0; i < 4; i++) {
     var Qprime = recoverPubKey(curve, e, signature, i)

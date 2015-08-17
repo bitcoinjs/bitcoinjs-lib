@@ -1,12 +1,11 @@
-var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
+var types = require('./types')
 var opcodes = require('./opcodes')
 
 function Script (buffer, chunks) {
-  typeForce('Buffer', buffer)
-  typeForce('Array', chunks)
+  typeforce(types.tuple(types.Buffer, types.Array), arguments)
 
   this.buffer = buffer
   this.chunks = chunks
@@ -63,7 +62,7 @@ Script.fromBuffer = function (buffer) {
 }
 
 Script.fromChunks = function (chunks) {
-  typeForce('Array', chunks)
+  typeforce(types.Array, chunks)
 
   var bufferSize = chunks.reduce(function (accum, chunk) {
     // data chunk
@@ -93,7 +92,7 @@ Script.fromChunks = function (chunks) {
     }
   })
 
-  assert.equal(offset, buffer.length, 'Could not decode chunks')
+  if (offset !== buffer.length) throw new Error('Could not decode chunks')
   return new Script(buffer, chunks)
 }
 
@@ -102,6 +101,10 @@ Script.fromHex = function (hex) {
 }
 
 Script.EMPTY = Script.fromChunks([])
+
+Script.prototype.equals = function (script) {
+  return bufferutils.equal(this.buffer, script.buffer)
+}
 
 Script.prototype.getHash = function () {
   return crypto.hash160(this.buffer)

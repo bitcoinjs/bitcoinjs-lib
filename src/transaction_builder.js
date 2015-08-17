@@ -1,4 +1,3 @@
-var assert = require('assert')
 var bcrypto = require('./crypto')
 var bufferutils = require('./bufferutils')
 var networks = require('./networks')
@@ -160,14 +159,16 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
     input.prevOutType = prevOutType
   }
 
-  assert(this.inputs.every(function (input2) {
+  var valid = this.inputs.every(function (input2) {
     if (input2.hashType === undefined) return true
 
     return input2.hashType & Transaction.SIGHASH_ANYONECANPAY
-  }), 'No, this would invalidate signatures')
+  })
+
+  if (!valid) throw new Error('No, this would invalidate signatures')
 
   var prevOut = txHash.toString('hex') + ':' + vout
-  assert(!(prevOut in this.prevTxMap), 'Transaction is already an input')
+  if (this.prevTxMap[prevOut]) throw new Error('Transaction is already an input')
 
   var vin = this.tx.addInput(txHash, vout, sequence)
   this.inputs[vin] = input
@@ -177,11 +178,13 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
 }
 
 TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
-  assert(this.inputs.every(function (input) {
+  var valid = this.inputs.every(function (input) {
     if (input.hashType === undefined) return true
 
     return (input.hashType & 0x1f) === Transaction.SIGHASH_SINGLE
-  }), 'No, this would invalidate signatures')
+  })
+
+  if (!valid) throw new Error('No, this would invalidate signatures')
 
   // Attempt to get a script if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
@@ -206,8 +209,8 @@ var canSignTypes = {
 
 TransactionBuilder.prototype.__build = function (allowIncomplete) {
   if (!allowIncomplete) {
-    assert(this.tx.ins.length > 0, 'Transaction has no inputs')
-    assert(this.tx.outs.length > 0, 'Transaction has no outputs')
+    if (!this.tx.ins.length) throw new Error('Transaction has no inputs')
+    if (!this.tx.outs.length) throw new Error('Transaction has no outputs')
   }
 
   var tx = this.tx.clone()
@@ -218,9 +221,9 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
     var scriptSig
 
     if (!allowIncomplete) {
-      assert(!!scriptType, 'Transaction is not complete')
-      assert(scriptType in canSignTypes, scriptType + ' not supported')
-      assert(input.signatures, 'Transaction is missing signatures')
+      if (!scriptType) throw new Error('Transaction is not complete')
+      if (!canSignTypes[scriptType]) throw new Error(scriptType + ' not supported')
+      if (!input.signatures) throw new Error('Transaction is missing signatures')
     }
 
     if (input.signatures) {
@@ -274,8 +277,8 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 }
 
 TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hashType) {
-  assert.equal(keyPair.network, this.network, 'Inconsistent network')
-  assert(index in this.inputs, 'No input at index: ' + index)
+  if (keyPair.network !== this.network) throw new Error('Inconsistent network')
+  if (!this.inputs[index]) throw new Error('No input at index: ' + index)
   hashType = hashType || Transaction.SIGHASH_ALL
 
   var input = this.inputs[index]
@@ -292,10 +295,10 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
   if (canSign) {
     // if redeemScript was provided, enforce consistency
     if (redeemScript) {
-      assert.deepEqual(input.redeemScript, redeemScript, 'Inconsistent redeemScript')
+      if (!input.redeemScript.equals(redeemScript)) throw new Error('Inconsistent redeemScript')
     }
 
-    assert.equal(input.hashType, hashType, 'Inconsistent hashType')
+    if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
 
   // no? prepare
   } else {
@@ -303,14 +306,14 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
     if (redeemScript) {
       // if we have a prevOutScript, enforce scriptHash equality to the redeemScript
       if (input.prevOutScript) {
-        assert.equal(input.prevOutType, 'scripthash', 'PrevOutScript must be P2SH')
+        if (input.prevOutType !== 'scripthash') throw new Error('PrevOutScript must be P2SH')
 
         var scriptHash = input.prevOutScript.chunks[1]
-        assert.deepEqual(scriptHash, redeemScript.getHash(), 'RedeemScript does not match ' + scriptHash.toString('hex'))
+        if (!bufferutils.equal(scriptHash, redeemScript.getHash())) throw new Error('RedeemScript does not match ' + scriptHash.toString('hex'))
       }
 
       var scriptType = scripts.classifyOutput(redeemScript)
-      assert(scriptType in canSignTypes, 'RedeemScript not supported (' + scriptType + ')')
+      if (!canSignTypes[scriptType]) throw new Error('RedeemScript not supported (' + scriptType + ')')
 
       var pubKeys = []
       switch (scriptType) {
@@ -322,7 +325,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
           var pkh1 = redeemScript.chunks[2]
           var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
 
-          assert.deepEqual(pkh1, pkh2, 'privateKey cannot sign for this input')
+          if (!bufferutils.equal(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
           pubKeys = [kpPubKey]
           break
 
@@ -342,11 +345,11 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
     // cannot be pay-to-scriptHash
     } else {
-      assert.notEqual(input.prevOutType, 'scripthash', 'PrevOutScript is P2SH, missing redeemScript')
+      if (input.prevOutType === 'scripthash') throw new Error('PrevOutScript is P2SH, missing redeemScript')
 
       // can we otherwise sign this?
       if (input.scriptType) {
-        assert(input.pubKeys, input.scriptType + ' not supported')
+        if (!input.pubKeys) throw new Error(input.scriptType + ' not supported')
 
       // we know nothin' Jon Snow, assume pubKeyHash
       } else {
@@ -389,16 +392,17 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
   }
 
   // enforce in order signing of public keys
-  assert(input.pubKeys.some(function (pubKey, i) {
+  var valid = input.pubKeys.some(function (pubKey, i) {
     if (!bufferutils.equal(kpPubKey, pubKey)) return false
-
-    assert(!input.signatures[i], 'Signature already exists')
+    if (input.signatures[i]) throw new Error('Signature already exists')
 
     var signature = keyPair.sign(signatureHash)
     input.signatures[i] = signature
 
     return true
-  }), 'key pair cannot sign for this input')
+  })
+
+  if (!valid) throw new Error('Key pair cannot sign for this input')
 }
 
 module.exports = TransactionBuilder

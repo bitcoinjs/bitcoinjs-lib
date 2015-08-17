@@ -1,4 +1,3 @@
-var assert = require('assert')
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
 
@@ -14,7 +13,7 @@ function Block () {
 }
 
 Block.fromBuffer = function (buffer) {
-  assert(buffer.length >= 80, 'Buffer too small (< 80 bytes)')
+  if (buffer.length < 80) throw new Error('Buffer too small (< 80 bytes)')
 
   var offset = 0
   function readSlice (n) {

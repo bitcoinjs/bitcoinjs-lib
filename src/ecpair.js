@@ -1,38 +1,37 @@
-var assert = require('assert')
 var bs58check = require('bs58check')
 var bcrypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var ecurve = require('ecurve')
 var NETWORKS = require('./networks')
 var randomBytes = require('randombytes')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
+var types = require('./types')
 
 var BigInteger = require('bigi')
 
 function ECPair (d, Q, options) {
   options = options || {}
 
-  var compressed = options.compressed === undefined ? true : options.compressed
-  var network = options.network === undefined ? NETWORKS.bitcoin : options.network
-
-  typeForce('Boolean', compressed)
-  assert('pubKeyHash' in network, 'Unknown pubKeyHash constants for network')
+  typeforce({
+    compressed: types.maybe(types.Boolean),
+    network: types.maybe(types.Network)
+  }, options)
 
   if (d) {
-    assert(d.signum() > 0, 'Private key must be greater than 0')
-    assert(d.compareTo(ECPair.curve.n) < 0, 'Private key must be less than the curve order')
+    if (d.signum() <= 0) throw new Error('Private key must be greater than 0')
+    if (d.compareTo(ECPair.curve.n) >= 0) throw new Error('Private key must be less than the curve order')
+    if (Q) throw new TypeError('Unexpected publicKey parameter')
 
-    assert(!Q, 'Unexpected publicKey parameter')
     this.d = d
 
-  // enforce Q is a public key if no private key given
   } else {
-    typeForce('Point', Q)
+    typeforce(types.ECPoint, Q)
+
     this.__Q = Q
   }
 
-  this.compressed = compressed
-  this.network = network
+  this.compressed = options.compressed === undefined ? true : options.compressed
+  this.network = options.network || NETWORKS.bitcoin
 }
 
 Object.defineProperty(ECPair.prototype, 'Q', {
@@ -63,7 +62,7 @@ ECPair.fromWIF = function (string, networks) {
   var compressed
 
   if (payload.length === 34) {
-    assert.strictEqual(payload[33], 0x01, 'Invalid compression flag')
+    if (payload[33] !== 0x01) throw new Error('Invalid compression flag')
 
     // truncate the version/compression bytes
     payload = payload.slice(1, -1)
@@ -71,7 +70,7 @@ ECPair.fromWIF = function (string, networks) {
 
   // no compression flag
   } else {
-    assert.equal(payload.length, 33, 'Invalid WIF payload length')
+    if (payload.length !== 33) throw new Error('Invalid WIF payload length')
 
     // Truncate the version byte
     payload = payload.slice(1)
@@ -106,8 +105,7 @@ ECPair.makeRandom = function (options) {
 
   var rng = options.rng || randomBytes
   var buffer = rng(32)
-  typeForce('Buffer', buffer)
-  assert.equal(buffer.length, 32, 'Expected 256-bit Buffer from RNG')
+  typeforce(types.Buffer256bit, buffer)
 
   var d = BigInteger.fromBuffer(buffer)
   d = d.mod(ECPair.curve.n)
@@ -116,7 +114,7 @@ ECPair.makeRandom = function (options) {
 }
 
 ECPair.prototype.toWIF = function () {
-  assert(this.d, 'Missing private key')
+  if (!this.d) throw new Error('Missing private key')
 
   var bufferLen = this.compressed ? 34 : 33
   var buffer = new Buffer(bufferLen)
@@ -147,7 +145,7 @@ ECPair.prototype.getPublicKeyBuffer = function () {
 }
 
 ECPair.prototype.sign = function (hash) {
-  assert(this.d, 'Missing private key')
+  if (!this.d) throw new Error('Missing private key')
 
   return ecdsa.sign(ECPair.curve, hash, this.d)
 }

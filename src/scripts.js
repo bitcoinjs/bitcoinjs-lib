@@ -1,6 +1,6 @@
-var assert = require('assert')
 var ops = require('./opcodes')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
+var types = require('./types')
 
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
@@ -134,7 +134,7 @@ function isNullDataOutput (script) {
 }
 
 function classifyOutput (script) {
-  typeForce('Script', script)
+  typeforce(types.Script, script)
 
   if (isPubKeyHashOutput(script)) {
     return 'pubkeyhash'
@@ -152,7 +152,7 @@ function classifyOutput (script) {
 }
 
 function classifyInput (script, allowIncomplete) {
-  typeForce('Script', script)
+  typeforce(types.Script, script)
 
   if (isPubKeyHashInput(script)) {
     return 'pubkeyhash'
@@ -178,7 +178,7 @@ function pubKeyOutput (pubKey) {
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 function pubKeyHashOutput (hash) {
-  typeForce('Buffer', hash)
+  typeforce(types.Hash160bit, hash)
 
   return Script.fromChunks([
     ops.OP_DUP,
@@ -191,7 +191,7 @@ function pubKeyHashOutput (hash) {
 
 // OP_HASH160 {scriptHash} OP_EQUAL
 function scriptHashOutput (hash) {
-  typeForce('Buffer', hash)
+  typeforce(types.Hash160bit, hash)
 
   return Script.fromChunks([
     ops.OP_HASH160,
@@ -202,10 +202,10 @@ function scriptHashOutput (hash) {
 
 // m [pubKeys ...] n OP_CHECKMULTISIG
 function multisigOutput (m, pubKeys) {
-  typeForce(['Buffer'], pubKeys)
+  typeforce(types.tuple(types.Number, [types.Buffer]), arguments)
 
   var n = pubKeys.length
-  assert(n >= m, 'Not enough pubKeys provided')
+  if (n < m) throw new Error('Not enough pubKeys provided')
 
   return Script.fromChunks([].concat(
     (ops.OP_1 - 1) + m,
@@ -217,15 +217,14 @@ function multisigOutput (m, pubKeys) {
 
 // {signature}
 function pubKeyInput (signature) {
-  typeForce('Buffer', signature)
+  typeforce(types.Buffer, signature)
 
   return Script.fromChunks([signature])
 }
 
 // {signature} {pubKey}
 function pubKeyHashInput (signature, pubKey) {
-  typeForce('Buffer', signature)
-  typeForce('Buffer', pubKey)
+  typeforce(types.tuple(types.Buffer, types.Buffer), arguments)
 
   return Script.fromChunks([signature, pubKey])
 }
@@ -241,15 +240,15 @@ function scriptHashInput (scriptSig, scriptPubKey) {
 // OP_0 [signatures ...]
 function multisigInput (signatures, scriptPubKey) {
   if (scriptPubKey) {
-    assert(isMultisigOutput(scriptPubKey))
+    if (!isMultisigOutput(scriptPubKey)) throw new Error('Expected multisig scriptPubKey')
 
     var mOp = scriptPubKey.chunks[0]
     var nOp = scriptPubKey.chunks[scriptPubKey.chunks.length - 2]
     var m = mOp - (ops.OP_1 - 1)
     var n = nOp - (ops.OP_1 - 1)
 
-    assert(signatures.length >= m, 'Not enough signatures provided')
-    assert(signatures.length <= n, 'Too many signatures provided')
+    if (signatures.length < m) throw new Error('Not enough signatures provided')
+    if (signatures.length > n) throw new Error('Too many signatures provided')
   }
 
   return Script.fromChunks([].concat(ops.OP_0, signatures))

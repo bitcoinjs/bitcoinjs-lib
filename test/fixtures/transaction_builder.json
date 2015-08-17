@@ -780,7 +780,7 @@
       },
       {
         "description": "Wrong key pair for multisig redeemScript",
-        "exception": "key pair cannot sign for this input",
+        "exception": "Key pair cannot sign for this input",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",

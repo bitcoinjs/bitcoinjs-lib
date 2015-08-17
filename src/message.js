@@ -41,6 +41,7 @@ function verify (address, signature, message, network) {
   var parsed = ECSignature.parseCompact(signature)
   var e = BigInteger.fromBuffer(hash)
   var Q = ecdsa.recoverPubKey(ecparams, e, parsed.signature, parsed.i)
+
   var keyPair = new ECPair(null, Q, {
     compressed: parsed.compressed,
     network: network

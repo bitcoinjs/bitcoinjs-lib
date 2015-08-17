@@ -229,12 +229,12 @@
   "invalid": {
     "addInput": [
       {
-        "exception": "Expected hash length of 32, got 30",
+        "exception": "Expected 256-bit Buffer, got 240-bit",
         "hash": "0aed1366a73b6057ee7800d737bff1bdf8c448e98d86bc0998f2b009816d",
         "index": 0
       },
       {
-        "exception": "Expected hash length of 32, got 34",
+        "exception": "Expected 256-bit Buffer, got 272-bit",
         "hash": "0aed1366a73b6057ee7800d737bff1bdf8c448e98d86bc0998f2b009816da9b0ffff",
         "index": 0
       }
