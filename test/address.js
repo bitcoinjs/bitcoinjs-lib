@@ -20,17 +20,17 @@ describe('Address', function () {
     })
 
     fixtures.invalid.fromBase58Check.forEach(function (f) {
-      it('throws on ' + f.description, function () {
+      it('throws on ' + f.exception, function () {
         assert.throws(function () {
-          Address.fromBase58Check(f.base58check)
-        }, new RegExp(f.exception))
+          Address.fromBase58Check(f.address)
+        }, new RegExp(f.address + ' ' + f.exception))
       })
     })
   })
 
   describe('fromOutputScript', function () {
     fixtures.valid.forEach(function (f) {
-      it('parses ' + f.script + ' (' + f.network + ')', function () {
+      it('parses ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
         var script = Script.fromASM(f.script)
         var address = Address.fromOutputScript(script, networks[f.network])
 
@@ -39,12 +39,12 @@ describe('Address', function () {
     })
 
     fixtures.invalid.fromOutputScript.forEach(function (f) {
-      it('throws when ' + f.description, function () {
+      it('throws when ' + f.script.slice(0, 30) + '... ' + f.exception, function () {
         var script = Script.fromASM(f.script)
 
         assert.throws(function () {
           Address.fromOutputScript(script)
-        }, new RegExp(f.description))
+        }, new RegExp(f.script + ' ' + f.exception))
       })
     })
   })
@@ -63,7 +63,7 @@ describe('Address', function () {
     fixtures.valid.forEach(function (f) {
       var network = networks[f.network]
 
-      it('exports ' + f.script + '(' + f.network + ')', function () {
+      it('exports ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
         var script = Address.toOutputScript(f.base58check, network)
 
         assert.strictEqual(script.toASM(), f.script)
@@ -71,10 +71,10 @@ describe('Address', function () {
     })
 
     fixtures.invalid.toOutputScript.forEach(function (f) {
-      it('throws when ' + f.description, function () {
+      it('throws when ' + f.exception, function () {
         assert.throws(function () {
           Address.toOutputScript(f.address)
-        }, new RegExp(f.description))
+        }, new RegExp(f.address + ' ' + f.exception))
       })
     })
   })

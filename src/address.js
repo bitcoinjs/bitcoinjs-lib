@@ -4,9 +4,10 @@ var networks = require('./networks')
 var scripts = require('./scripts')
 var types = require('./types')
 
-function fromBase58Check (string) {
-  var payload = base58check.decode(string)
-  if (payload.length !== 21) throw new TypeError('Invalid address length')
+function fromBase58Check (address) {
+  var payload = base58check.decode(address)
+  if (payload.length < 21) throw new TypeError(address + ' is too short')
+  if (payload.length > 21) throw new TypeError(address + ' is too long')
 
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
@@ -37,7 +38,8 @@ function toOutputScript (address, network) {
   network = network || networks.bitcoin
 
   var payload = base58check.decode(address)
-  if (payload.length !== 21) throw new TypeError('Invalid hash length')
+  if (payload.length < 21) throw new TypeError(address + ' is too short')
+  if (payload.length > 21) throw new TypeError(address + ' is too long')
 
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
