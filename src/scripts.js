@@ -306,14 +306,14 @@ function pubKeyOutput (pubKey) {
 
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 function pubKeyHashOutput (pubKeyHash) {
-  typeforce(typeforce.Buffer, pubKeyHash)
+  typeforce(types.Hash160bit, pubKeyHash)
 
   return compile([OPS.OP_DUP, OPS.OP_HASH160, pubKeyHash, OPS.OP_EQUALVERIFY, OPS.OP_CHECKSIG])
 }
 
 // OP_HASH160 {scriptHash} OP_EQUAL
 function scriptHashOutput (scriptHash) {
-  typeforce(typeforce.Buffer, scriptHash)
+  typeforce(types.Hash160bit, scriptHash)
 
   return compile([OPS.OP_HASH160, scriptHash, OPS.OP_EQUAL])
 }
