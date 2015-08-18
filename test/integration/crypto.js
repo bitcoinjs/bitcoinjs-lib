@@ -12,8 +12,8 @@ describe('bitcoinjs-lib (crypto)', function () {
     var G = bitcoin.ECPair.curve.G
     var n = bitcoin.ECPair.curve.n
 
-    function stealthSend (Q, nonce) {
-      var noncePair = new bitcoin.ECPair(bigi.fromBuffer(nonce))
+    function stealthSend (Q) {
+      var noncePair = bitcoin.ECPair.makeRandom()
       var e = noncePair.d
       var eQ = Q.multiply(e)
       var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
@@ -38,10 +38,11 @@ describe('bitcoinjs-lib (crypto)', function () {
 
     // receiver private key
     var receiver = bitcoin.ECPair.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss')
-    var nonce = crypto.randomBytes(32)
 
-    var stealthS = stealthSend(receiver.Q, nonce)
-    var stealthR = stealthReceive(receiver.d, stealthS.nonceQ)
+    var stealthS = stealthSend(receiver.Q) // public, done by sender
+    // ... sender now reveals nonceQ to receiver
+
+    var stealthR = stealthReceive(receiver.d, stealthS.nonceQ) // private, done by receiver
 
     // and check that we derived both sides correctly
     assert.equal(stealthS.address, stealthR.keyPair.getAddress())
