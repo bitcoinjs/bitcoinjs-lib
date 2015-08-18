@@ -86,7 +86,7 @@ describe('Bitcoin-core', function () {
           var address = Address.fromBase58Check(string)
 
           assert.notEqual(allowedNetworks.indexOf(address.version), -1, 'Invalid network')
-        }, /Invalid (checksum|address length|network)/)
+        }, /(Invalid (checksum|network))|(too (short|long))/)
       })
     })
   })
