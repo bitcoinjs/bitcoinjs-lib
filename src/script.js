@@ -1,17 +1,30 @@
 var bufferutils = require('./bufferutils')
-var crypto = require('./crypto')
+var opcodes = require('./opcodes')
 var typeforce = require('typeforce')
 var types = require('./types')
-var opcodes = require('./opcodes')
 
-function Script (buffer, chunks) {
-  typeforce(types.tuple(types.Buffer, types.Array), arguments)
-
-  this.buffer = buffer
-  this.chunks = chunks
+function coerceChunks (chunks) {
+  return types.Array(chunks) ? chunks : decompile(chunks)
 }
 
-Script.fromASM = function (asm) {
+function toASM (chunks) {
+  chunks = coerceChunks(chunks)
+
+  return chunks.map(function (chunk) {
+    // data chunk
+    if (Buffer.isBuffer(chunk)) {
+      return chunk.toString('hex')
+
+    // opcode
+    } else {
+      return reverseOps[chunk]
+    }
+  }).join(' ')
+}
+
+function fromASM (asm) {
+  typeforce(types.String, asm)
+
   var strChunks = asm.split(' ')
   var chunks = strChunks.map(function (strChunk) {
     // opcode
@@ -24,44 +37,10 @@ Script.fromASM = function (asm) {
     }
   })
 
-  return Script.fromChunks(chunks)
+  return chunks
 }
 
-Script.fromBuffer = function (buffer) {
-  var chunks = []
-  var i = 0
-
-  while (i < buffer.length) {
-    var opcode = buffer.readUInt8(i)
-
-    // data chunk
-    if ((opcode > opcodes.OP_0) && (opcode <= opcodes.OP_PUSHDATA4)) {
-      var d = bufferutils.readPushDataInt(buffer, i)
-
-      // did reading a pushDataInt fail? return non-chunked script
-      if (d === null) return new Script(buffer, [])
-      i += d.size
-
-      // attempt to read too much data?
-      if (i + d.number > buffer.length) return new Script(buffer, [])
-
-      var data = buffer.slice(i, i + d.number)
-      i += d.number
-
-      chunks.push(data)
-
-    // opcode
-    } else {
-      chunks.push(opcode)
-
-      i += 1
-    }
-  }
-
-  return new Script(buffer, chunks)
-}
-
-Script.fromChunks = function (chunks) {
+function compile (chunks) {
   typeforce(types.Array, chunks)
 
   var bufferSize = chunks.reduce(function (accum, chunk) {
@@ -93,28 +72,43 @@ Script.fromChunks = function (chunks) {
   })
 
   if (offset !== buffer.length) throw new Error('Could not decode chunks')
-  return new Script(buffer, chunks)
+  return buffer
 }
 
-Script.fromHex = function (hex) {
-  return Script.fromBuffer(new Buffer(hex, 'hex'))
-}
+function decompile (buffer) {
+  typeforce(types.Buffer, buffer)
 
-Script.EMPTY = Script.fromChunks([])
+  var chunks = []
+  var i = 0
 
-Script.prototype.equals = function (script) {
-  return bufferutils.equal(this.buffer, script.buffer)
-}
+  while (i < buffer.length) {
+    var opcode = buffer.readUInt8(i)
 
-Script.prototype.getHash = function () {
-  return crypto.hash160(this.buffer)
-}
+    // data chunk
+    if ((opcode > opcodes.OP_0) && (opcode <= opcodes.OP_PUSHDATA4)) {
+      var d = bufferutils.readPushDataInt(buffer, i)
 
-// FIXME: doesn't work for data chunks, maybe time to use buffertools.compare...
-Script.prototype.without = function (needle) {
-  return Script.fromChunks(this.chunks.filter(function (op) {
-    return op !== needle
-  }))
+      // did reading a pushDataInt fail? empty script
+      if (d === null) return []
+      i += d.size
+
+      // attempt to read too much data? empty script
+      if (i + d.number > buffer.length) return []
+
+      var data = buffer.slice(i, i + d.number)
+      i += d.number
+
+      chunks.push(data)
+
+    // opcode
+    } else {
+      chunks.push(opcode)
+
+      i += 1
+    }
+  }
+
+  return chunks
 }
 
 var reverseOps = []
@@ -123,25 +117,9 @@ for (var op in opcodes) {
   reverseOps[code] = op
 }
 
-Script.prototype.toASM = function () {
-  return this.chunks.map(function (chunk) {
-    // data chunk
-    if (Buffer.isBuffer(chunk)) {
-      return chunk.toString('hex')
-
-    // opcode
-    } else {
-      return reverseOps[chunk]
-    }
-  }).join(' ')
+module.exports = {
+  compile: compile,
+  decompile: decompile,
+  toASM: toASM,
+  fromASM: fromASM
 }
-
-Script.prototype.toBuffer = function () {
-  return this.buffer
-}
-
-Script.prototype.toHex = function () {
-  return this.toBuffer().toString('hex')
-}
-
-module.exports = Script

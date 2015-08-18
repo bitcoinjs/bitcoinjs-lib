@@ -20,8 +20,9 @@ describe('Transaction', function () {
       if (txIn.data) {
         var data = new Buffer(txIn.data, 'hex')
         script = data
+
       } else if (txIn.script) {
-        script = Script.fromASM(txIn.script).buffer
+        script = Script.compile(Script.fromASM(txIn.script))
       }
 
       tx.addInput(txHash, txIn.index, txIn.sequence, script)
@@ -33,8 +34,9 @@ describe('Transaction', function () {
       if (txOut.data) {
         var data = new Buffer(txOut.data, 'hex')
         script = data
+
       } else if (txOut.script) {
-        script = Script.fromASM(txOut.script).buffer
+        script = Script.compile(Script.fromASM(txOut.script))
       }
 
       tx.addOutput(script, txOut.value)

@@ -227,8 +227,9 @@ describe('Bitcoin-core', function () {
         var transaction = Transaction.fromHex(txHex)
         assert.strictEqual(transaction.toHex(), txHex)
 
-        var script = Script.fromHex(scriptHex).buffer
-        assert.strictEqual(Script.fromBuffer(script).toHex(), scriptHex)
+        var script = new Buffer(scriptHex, 'hex')
+        var scriptChunks = Script.decompile(script)
+        assert.strictEqual(Script.compile(scriptChunks).toString('hex'), scriptHex)
 
         var hash = transaction.hashForSignature(inIndex, script, hashType)
         assert.deepEqual(hash, expectedHash)

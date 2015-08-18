@@ -31,7 +31,7 @@ describe('Address', function () {
   describe('fromOutputScript', function () {
     fixtures.valid.forEach(function (f) {
       it('parses ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
-        var script = Script.fromASM(f.script).buffer
+        var script = Script.fromASM(f.script)
         var address = Address.fromOutputScript(script, networks[f.network])
 
         assert.strictEqual(address, f.base58check)
@@ -40,7 +40,7 @@ describe('Address', function () {
 
     fixtures.invalid.fromOutputScript.forEach(function (f) {
       it('throws when ' + f.script.slice(0, 30) + '... ' + f.exception, function () {
-        var script = Script.fromASM(f.script).buffer
+        var script = Script.fromASM(f.script)
 
         assert.throws(function () {
           Address.fromOutputScript(script)
@@ -66,7 +66,7 @@ describe('Address', function () {
       it('exports ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
         var script = Address.toOutputScript(f.base58check, network)
 
-        assert.strictEqual(Script.fromBuffer(script).toASM(), f.script)
+        assert.strictEqual(Script.toASM(script), f.script)
       })
     })
 

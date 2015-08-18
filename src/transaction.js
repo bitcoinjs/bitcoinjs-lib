@@ -193,7 +193,9 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 
   // in case concatenating two scripts ends up with two codeseparators,
   // or an extra one at the end, this prevents all those possible incompatibilities.
-  var hashScript = Script.fromBuffer(prevOutScript).without(opcodes.OP_CODESEPARATOR).buffer
+  var hashScript = Script.compile(Script.decompile(prevOutScript).filter(function (x) {
+    return x !== opcodes.OP_CODESEPARATOR
+  }))
   var i
 
   // blank out other inputs' signatures
