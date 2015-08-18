@@ -52,16 +52,8 @@ describe('HDNode', function () {
 
     it('throws when an invalid length chain code is given', function () {
       assert.throws(function () {
-        new HDNode(keyPair, chainCode.slice(0, 20))
-      }, /Expected chainCode length of 32, got 20/)
-    })
-
-    it('throws when an unknown network is given', function () {
-      keyPair.network = {}
-
-      assert.throws(function () {
-        new HDNode(keyPair, chainCode)
-      }, /Unknown BIP32 constants for network/)
+        new HDNode(keyPair, new Buffer(20))
+      }, /Expected 256-bit Buffer, got 160-bit/)
     })
   })
 

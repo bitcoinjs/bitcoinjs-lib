@@ -1,7 +1,8 @@
 var base58check = require('bs58check')
 var bcrypto = require('./crypto')
 var createHmac = require('create-hmac')
-var typeForce = require('typeforce')
+var typeforce = require('typeforce')
+var types = require('./types')
 var NETWORKS = require('./networks')
 
 var BigInteger = require('bigi')
@@ -11,11 +12,8 @@ var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
 function HDNode (keyPair, chainCode) {
-  typeForce('ECPair', keyPair)
-  typeForce('Buffer', chainCode)
+  typeforce(types.tuple('ECPair', types.Buffer256bit), arguments)
 
-  if (chainCode.length !== 32) throw new TypeError('Expected chainCode length of 32, got ' + chainCode.length)
-  if (!keyPair.network.bip32) throw new TypeError('Unknown BIP32 constants for network')
   if (!keyPair.compressed) throw new TypeError('BIP32 only allows compressed keyPairs')
 
   this.keyPair = keyPair
@@ -30,7 +28,7 @@ HDNode.HIGHEST_BIT = 0x80000000
 HDNode.LENGTH = 78
 
 HDNode.fromSeedBuffer = function (seed, network) {
-  typeForce('Buffer', seed)
+  typeforce(types.tuple(types.Buffer, types.maybe(types.Network)), arguments)
 
   if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
   if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
