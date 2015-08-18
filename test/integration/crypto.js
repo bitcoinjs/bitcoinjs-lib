@@ -9,35 +9,42 @@ var crypto = require('crypto')
 
 describe('bitcoinjs-lib (crypto)', function () {
   it('can generate a single-key stealth address', function () {
-    var receiver = bitcoin.ECPair.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss')
-
-    // XXX: ephemeral, must be random (and secret to sender) to preserve privacy
-    var sender = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
-
     var G = bitcoin.ECPair.curve.G
-    var d = receiver.d // secret (receiver only)
-    var Q = receiver.Q // shared
+    var n = bitcoin.ECPair.curve.n
 
-    var e = sender.d // secret (sender only)
-    var P = sender.Q // shared
+    function stealthSend (Q, nonce) {
+      var noncePair = new bitcoin.ECPair(bigi.fromBuffer(nonce))
+      var e = noncePair.d
+      var eQ = Q.multiply(e)
+      var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
+      var cG = G.multiply(c)
+      var Qprime = Q.add(cG)
 
-    // derived shared secret
-    var eQ = Q.multiply(e) // sender
-    var dP = P.multiply(d) // receiver
-    assert.deepEqual(eQ.getEncoded(), dP.getEncoded())
+      return {
+        address: new bitcoin.ECPair(null, Qprime).getAddress(),
+        nonceQ: noncePair.Q
+      }
+    }
 
-    var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
-    var cG = G.multiply(c)
+    function stealthReceive (d, P) {
+      var dP = P.multiply(d)
+      var c = bigi.fromBuffer(bitcoin.crypto.sha256(dP.getEncoded()))
+      var derived = new bitcoin.ECPair(d.add(c).mod(n))
 
-    // derived public key
-    var QprimeS = Q.add(cG)
-    var QprimeR = G.multiply(d.add(c))
-    assert.deepEqual(QprimeR.getEncoded(), QprimeS.getEncoded())
+      return {
+        keyPair: derived
+      }
+    }
 
-    // derived shared-secret address
-    var address = new bitcoin.ECPair(null, QprimeS).getAddress()
+    // receiver private key
+    var receiver = bitcoin.ECPair.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss')
+    var nonce = crypto.randomBytes(32)
 
-    assert.strictEqual(address, '1EwCNJNZM5q58YPPTnjR1H5BvYRNeyZi47')
+    var stealthS = stealthSend(receiver.Q, nonce)
+    var stealthR = stealthReceive(receiver.d, stealthS.nonceQ)
+
+    // and check that we derived both sides correctly
+    assert.equal(stealthS.address, stealthR.keyPair.getAddress())
   })
 
   // TODO
