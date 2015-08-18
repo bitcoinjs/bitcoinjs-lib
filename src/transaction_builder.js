@@ -305,7 +305,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
   if (canSign) {
     // if redeemScript was provided, enforce consistency
     if (redeemScript) {
-      if (!input.redeemScript.equals(redeemScript)) throw new Error('Inconsistent redeemScript')
+      if (!bufferutils.equal(input.redeemScript, redeemScript)) throw new Error('Inconsistent redeemScript')
     }
 
     if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
