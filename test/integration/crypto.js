@@ -15,7 +15,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     function stealthSend (Q) {
       var noncePair = bitcoin.ECPair.makeRandom()
       var e = noncePair.d
-      var eQ = Q.multiply(e)
+      var eQ = Q.multiply(e) // shared secret
       var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
       var cG = G.multiply(c)
       var Qprime = Q.add(cG)
@@ -27,7 +27,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     }
 
     function stealthReceive (d, P) {
-      var dP = P.multiply(d)
+      var dP = P.multiply(d) // shared secret
       var c = bigi.fromBuffer(bitcoin.crypto.sha256(dP.getEncoded()))
       var derived = new bitcoin.ECPair(d.add(c).mod(n))
 
