@@ -11,6 +11,7 @@ var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
 
 var fixtures = require('./fixtures/ecpair.json')
+var secp256k1 = ecurve.getCurveByName('secp256k1')
 
 var NETWORKS = require('../src/networks')
 var NETWORKS_LIST = [] // Object.values(NETWORKS)
@@ -53,7 +54,7 @@ describe('ECPair', function () {
 
     it('throws if public and private key given', function () {
       var qBuffer = new Buffer('0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 'hex')
-      var Q = ecurve.Point.decodeFrom(ECPair.curve, qBuffer)
+      var Q = ecurve.Point.decodeFrom(secp256k1, qBuffer)
 
       assert.throws(function () {
         new ECPair(BigInteger.ONE, Q)
@@ -200,25 +201,10 @@ describe('ECPair', function () {
       hash = new Buffer(32)
     })
 
-    it('uses the secp256k1 curve by default', function () {
-      var secp256k1 = ecurve.getCurveByName('secp256k1')
-
-      for (var property in secp256k1) {
-        // FIXME: circular structures in ecurve
-        if (property === 'G') continue
-        if (property === 'infinity') continue
-
-        var actual = ECPair.curve[property]
-        var expected = secp256k1[property]
-
-        assert.deepEqual(actual, expected)
-      }
-    })
-
     describe('signing', function () {
       it('wraps ecdsa.sign', sinon.test(function () {
         this.mock(ecdsa).expects('sign')
-          .once().calledWith(ECPair.curve, hash, keyPair.d)
+          .once().calledWith(secp256k1, hash, keyPair.d)
 
         keyPair.sign(hash)
       }))
@@ -241,7 +227,7 @@ describe('ECPair', function () {
 
       it('wraps ecdsa.verify', sinon.test(function () {
         this.mock(ecdsa).expects('verify')
-          .once().calledWith(ECPair.curve, hash, signature, keyPair.Q)
+          .once().calledWith(secp256k1, hash, signature, keyPair.Q)
 
         keyPair.verify(hash, signature)
       }))

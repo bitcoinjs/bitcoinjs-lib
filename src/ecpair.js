@@ -1,25 +1,29 @@
-var bs58check = require('bs58check')
 var bcrypto = require('./crypto')
+var bs58check = require('bs58check')
 var ecdsa = require('./ecdsa')
 var ecurve = require('ecurve')
-var NETWORKS = require('./networks')
 var randomBytes = require('randombytes')
 var typeforce = require('typeforce')
 var types = require('./types')
 
+var NETWORKS = require('./networks')
 var BigInteger = require('bigi')
 
-function ECPair (d, Q, options) {
-  options = options || {}
+var secp256k1 = ecurve.getCurveByName('secp256k1')
 
-  typeforce({
-    compressed: types.maybe(types.Boolean),
-    network: types.maybe(types.Network)
-  }, options)
+function ECPair (d, Q, options) {
+  if (options) {
+    typeforce({
+      compressed: types.maybe(types.Boolean),
+      network: types.maybe(types.Network)
+    }, options)
+  }
+
+  options = options || {}
 
   if (d) {
     if (d.signum() <= 0) throw new Error('Private key must be greater than 0')
-    if (d.compareTo(ECPair.curve.n) >= 0) throw new Error('Private key must be less than the curve order')
+    if (d.compareTo(secp256k1.n) >= 0) throw new Error('Private key must be less than the curve order')
     if (Q) throw new TypeError('Unexpected publicKey parameter')
 
     this.d = d
@@ -37,18 +41,15 @@ function ECPair (d, Q, options) {
 Object.defineProperty(ECPair.prototype, 'Q', {
   get: function () {
     if (!this.__Q && this.d) {
-      this.__Q = ECPair.curve.G.multiply(this.d)
+      this.__Q = secp256k1.G.multiply(this.d)
     }
 
     return this.__Q
   }
 })
 
-// Public access to secp256k1 curve
-ECPair.curve = ecurve.getCurveByName('secp256k1')
-
 ECPair.fromPublicKeyBuffer = function (buffer, network) {
-  var Q = ecurve.Point.decodeFrom(ECPair.curve, buffer)
+  var Q = ecurve.Point.decodeFrom(secp256k1, buffer)
 
   return new ECPair(null, Q, {
     compressed: Q.compressed,
@@ -108,7 +109,7 @@ ECPair.makeRandom = function (options) {
   typeforce(types.Buffer256bit, buffer)
 
   var d = BigInteger.fromBuffer(buffer)
-  d = d.mod(ECPair.curve.n)
+  d = d.mod(secp256k1.n)
 
   return new ECPair(d, null, options)
 }
@@ -147,11 +148,11 @@ ECPair.prototype.getPublicKeyBuffer = function () {
 ECPair.prototype.sign = function (hash) {
   if (!this.d) throw new Error('Missing private key')
 
-  return ecdsa.sign(ECPair.curve, hash, this.d)
+  return ecdsa.sign(secp256k1, hash, this.d)
 }
 
 ECPair.prototype.verify = function (hash, signature) {
-  return ecdsa.verify(ECPair.curve, hash, signature, this.Q)
+  return ecdsa.verify(secp256k1, hash, signature, this.Q)
 }
 
 module.exports = ECPair
