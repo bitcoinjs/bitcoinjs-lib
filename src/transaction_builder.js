@@ -12,7 +12,7 @@ var Transaction = require('./transaction')
 function extractInput (txIn) {
   var redeemScript
   var scriptSig = txIn.script
-  var scriptSigChunks = scripts.decompile(scriptSig)
+  var scriptSigChunks = scripts.decompileToChunks(scriptSig)
 
   var prevOutScript
   var prevOutType = scripts.classifyInput(scriptSig, true)
@@ -23,7 +23,7 @@ function extractInput (txIn) {
     redeemScript = scriptSigChunks.slice(-1)[0]
     prevOutScript = scripts.scriptHashOutput(bcrypto.hash160(redeemScript))
 
-    scriptSig = scripts.compile(scriptSigChunks.slice(0, -1))
+    scriptSig = scripts.compileToBuffer(scriptSigChunks.slice(0, -1))
     scriptSigChunks = scriptSigChunks.slice(0, -1)
 
     scriptType = scripts.classifyInput(scriptSig, true)
@@ -34,7 +34,7 @@ function extractInput (txIn) {
   // pre-empt redeemScript decompilation
   var redeemScriptChunks
   if (redeemScript) {
-    redeemScriptChunks = scripts.decompile(redeemScript)
+    redeemScriptChunks = scripts.decompileToChunks(redeemScript)
   }
 
   // Extract hashType, pubKeys and signatures
@@ -147,7 +147,7 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
 
   var input = {}
   if (prevOutScript) {
-    var prevOutScriptChunks = scripts.decompile(prevOutScript)
+    var prevOutScriptChunks = scripts.decompileToChunks(prevOutScript)
     var prevOutType = scripts.classifyOutput(prevOutScriptChunks)
 
     // if we can, extract pubKey information
@@ -318,14 +318,14 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
       if (input.prevOutScript) {
         if (input.prevOutType !== 'scripthash') throw new Error('PrevOutScript must be P2SH')
 
-        var scriptHash = scripts.decompile(input.prevOutScript)[1]
+        var scriptHash = scripts.decompileToChunks(input.prevOutScript)[1]
         if (!bufferutils.equal(scriptHash, bcrypto.hash160(redeemScript))) throw new Error('RedeemScript does not match ' + scriptHash.toString('hex'))
       }
 
       var scriptType = scripts.classifyOutput(redeemScript)
       if (!canSignTypes[scriptType]) throw new Error('RedeemScript not supported (' + scriptType + ')')
 
-      var redeemScriptChunks = scripts.decompile(redeemScript)
+      var redeemScriptChunks = scripts.decompileToChunks(redeemScript)
       var pubKeys = []
       switch (scriptType) {
         case 'multisig':

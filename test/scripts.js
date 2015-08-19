@@ -32,13 +32,13 @@ describe('scripts', function () {
     })
   })
 
-  describe('compile', function () {
+  describe('compileToBuffer', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSig) {
         it('compiles ' + f.scriptSig, function () {
           var script = scripts.fromASM(f.scriptSig)
 
-          assert.strictEqual(scripts.compile(script).toString('hex'), f.scriptSigHex)
+          assert.strictEqual(scripts.compileToBuffer(script).toString('hex'), f.scriptSigHex)
         })
       }
 
@@ -46,17 +46,17 @@ describe('scripts', function () {
         it('compiles ' + f.scriptPubKey, function () {
           var script = scripts.fromASM(f.scriptPubKey)
 
-          assert.strictEqual(scripts.compile(script).toString('hex'), f.scriptPubKeyHex)
+          assert.strictEqual(scripts.compileToBuffer(script).toString('hex'), f.scriptPubKeyHex)
         })
       }
     })
   })
 
-  describe('decompile', function () {
+  describe('decompileToChunks', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSigHex) {
         it('decompiles ' + f.scriptSig, function () {
-          var chunks = scripts.decompile(new Buffer(f.scriptSigHex, 'hex'))
+          var chunks = scripts.decompileToChunks(new Buffer(f.scriptSigHex, 'hex'))
 
           assert.strictEqual(scripts.toASM(chunks), f.scriptSig)
         })
@@ -64,7 +64,7 @@ describe('scripts', function () {
 
       if (f.scriptPubKeyHex) {
         it('decompiles ' + f.scriptPubKey, function () {
-          var chunks = scripts.decompile(new Buffer(f.scriptPubKeyHex, 'hex'))
+          var chunks = scripts.decompileToChunks(new Buffer(f.scriptPubKeyHex, 'hex'))
 
           assert.strictEqual(scripts.toASM(chunks), f.scriptPubKey)
         })
@@ -73,7 +73,7 @@ describe('scripts', function () {
 
     fixtures.invalid.decompile.forEach(function (f) {
       it('decompiles ' + f.hex + ' to [] because of "' + f.description + '"', function () {
-        var chunks = scripts.decompile(new Buffer(f.hex, 'hex'))
+        var chunks = scripts.decompileToChunks(new Buffer(f.hex, 'hex'))
 
         assert.strictEqual(chunks.length, 0)
       })
