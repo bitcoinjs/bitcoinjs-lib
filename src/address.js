@@ -1,7 +1,7 @@
 var base58check = require('bs58check')
-var typeforce = require('typeforce')
 var networks = require('./networks')
 var scripts = require('./scripts')
+var typeforce = require('typeforce')
 var types = require('./types')
 
 function fromBase58Check (address) {
@@ -18,10 +18,11 @@ function fromBase58Check (address) {
 function fromOutputScript (script, network) {
   network = network || networks.bitcoin
 
-  if (scripts.isPubKeyHashOutput(script)) return toBase58Check(script.chunks[2], network.pubKeyHash)
-  if (scripts.isScriptHashOutput(script)) return toBase58Check(script.chunks[1], network.scriptHash)
+  var chunks = scripts.decompile(script)
+  if (scripts.isPubKeyHashOutput(chunks)) return toBase58Check(chunks[2], network.pubKeyHash)
+  if (scripts.isScriptHashOutput(chunks)) return toBase58Check(chunks[1], network.scriptHash)
 
-  throw new Error(script.toASM() + ' has no matching Address')
+  throw new Error(scripts.toASM(chunks) + ' has no matching Address')
 }
 
 function toBase58Check (hash, version) {

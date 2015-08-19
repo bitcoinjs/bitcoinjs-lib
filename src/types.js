@@ -4,7 +4,7 @@ var typeforce = require('typeforce')
 
 function nBuffer (value, n) {
   if (!Buffer.isBuffer(value)) return false
-  if (value.length !== n) throw new Error('Expected ' + (n * 8) + '-bit Buffer, got ' + (value.length * 8) + '-bit')
+  if (value.length !== n) throw new Error('Expected ' + (n * 8) + '-bit Buffer, got ' + (value.length * 8) + '-bit Buffer')
   return true
 }
 
@@ -42,11 +42,6 @@ var Network = typeforce.compile({
   dustThreshold: UInt53
 })
 
-var Script = typeforce.compile({
-  buffer: typeforce.Buffer,
-  chunks: typeforce.arrayOf(typeforce.oneOf(typeforce.Number, typeforce.Buffer))
-})
-
 // extend typeforce types with ours
 var types = {
   BigInt: BigInt,
@@ -57,7 +52,6 @@ var types = {
   Hash160bit: Hash160bit,
   Hash256bit: Hash256bit,
   Network: Network,
-  Script: Script,
   UInt2: UInt2,
   UInt8: UInt8,
   UInt32: UInt32,

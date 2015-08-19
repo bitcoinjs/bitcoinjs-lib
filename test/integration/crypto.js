@@ -129,7 +129,9 @@ describe('bitcoinjs-lib (crypto)', function () {
       inputs.forEach(function (input) {
         var transaction = transactions[input.txId]
         var script = transaction.ins[input.vout].script
-        assert(bitcoin.scripts.isPubKeyHashInput(script), 'Expected pubKeyHash script')
+        var scriptChunks = bitcoin.scripts.decompile(script)
+
+        assert(bitcoin.scripts.isPubKeyHashInput(scriptChunks), 'Expected pubKeyHash script')
 
         var prevOutTxId = bitcoin.bufferutils.reverse(transaction.ins[input.vout].hash).toString('hex')
         var prevVout = transaction.ins[input.vout].index
@@ -141,8 +143,8 @@ describe('bitcoinjs-lib (crypto)', function () {
             var prevOut = bitcoin.Transaction.fromHex(result.txHex)
             var prevOutScript = prevOut.outs[prevVout].script
 
-            var scriptSignature = bitcoin.ECSignature.parseScriptSignature(script.chunks[0])
-            var publicKey = bitcoin.ECPair.fromPublicKeyBuffer(script.chunks[1])
+            var scriptSignature = bitcoin.ECSignature.parseScriptSignature(scriptChunks[0])
+            var publicKey = bitcoin.ECPair.fromPublicKeyBuffer(scriptChunks[1])
 
             var m = transaction.hashForSignature(input.vout, prevOutScript, scriptSignature.hashType)
             assert(publicKey.verify(m, scriptSignature.signature), 'Invalid m')

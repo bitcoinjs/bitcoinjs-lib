@@ -7,25 +7,34 @@ var scripts = require('./scripts')
 var Address = require('./address')
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
-var Script = require('./script')
 var Transaction = require('./transaction')
 
 function extractInput (txIn) {
   var redeemScript
   var scriptSig = txIn.script
+  var scriptSigChunks = scripts.decompile(scriptSig)
+
   var prevOutScript
   var prevOutType = scripts.classifyInput(scriptSig, true)
   var scriptType
 
   // Re-classify if scriptHash
   if (prevOutType === 'scripthash') {
-    redeemScript = Script.fromBuffer(scriptSig.chunks.slice(-1)[0])
-    prevOutScript = scripts.scriptHashOutput(redeemScript.getHash())
+    redeemScript = scriptSigChunks.slice(-1)[0]
+    prevOutScript = scripts.scriptHashOutput(bcrypto.hash160(redeemScript))
 
-    scriptSig = Script.fromChunks(scriptSig.chunks.slice(0, -1))
+    scriptSig = scripts.compile(scriptSigChunks.slice(0, -1))
+    scriptSigChunks = scriptSigChunks.slice(0, -1)
+
     scriptType = scripts.classifyInput(scriptSig, true)
   } else {
     scriptType = prevOutType
+  }
+
+  // pre-empt redeemScript decompilation
+  var redeemScriptChunks
+  if (redeemScript) {
+    redeemScriptChunks = scripts.decompile(redeemScript)
   }
 
   // Extract hashType, pubKeys and signatures
@@ -33,27 +42,27 @@ function extractInput (txIn) {
 
   switch (scriptType) {
     case 'pubkeyhash':
-      parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+      parsed = ECSignature.parseScriptSignature(scriptSigChunks[0])
       hashType = parsed.hashType
-      pubKeys = scriptSig.chunks.slice(1)
+      pubKeys = scriptSigChunks.slice(1)
       signatures = [parsed.signature]
       prevOutScript = scripts.pubKeyHashOutput(bcrypto.hash160(pubKeys[0]))
 
       break
 
     case 'pubkey':
-      parsed = ECSignature.parseScriptSignature(scriptSig.chunks[0])
+      parsed = ECSignature.parseScriptSignature(scriptSigChunks[0])
       hashType = parsed.hashType
       signatures = [parsed.signature]
 
       if (redeemScript) {
-        pubKeys = redeemScript.chunks.slice(0, 1)
+        pubKeys = redeemScriptChunks.slice(0, 1)
       }
 
       break
 
     case 'multisig':
-      signatures = scriptSig.chunks.slice(1).map(function (chunk) {
+      signatures = scriptSigChunks.slice(1).map(function (chunk) {
         if (chunk === ops.OP_0) return chunk
 
         var parsed = ECSignature.parseScriptSignature(chunk)
@@ -63,7 +72,7 @@ function extractInput (txIn) {
       })
 
       if (redeemScript) {
-        pubKeys = redeemScript.chunks.slice(1, -2)
+        pubKeys = redeemScriptChunks.slice(1, -2)
       }
 
       break
@@ -115,7 +124,7 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
     }
 
     // Ignore empty scripts
-    if (txIn.script.buffer.length === 0) return {}
+    if (txIn.script.length === 0) return {}
 
     return extractInput(txIn)
   })
@@ -138,16 +147,17 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
 
   var input = {}
   if (prevOutScript) {
-    var prevOutType = scripts.classifyOutput(prevOutScript)
+    var prevOutScriptChunks = scripts.decompile(prevOutScript)
+    var prevOutType = scripts.classifyOutput(prevOutScriptChunks)
 
     // if we can, extract pubKey information
     switch (prevOutType) {
       case 'multisig':
-        input.pubKeys = prevOutScript.chunks.slice(1, -2)
+        input.pubKeys = prevOutScriptChunks.slice(1, -2)
         break
 
       case 'pubkey':
-        input.pubKeys = prevOutScript.chunks.slice(0, 1)
+        input.pubKeys = prevOutScriptChunks.slice(0, 1)
         break
     }
 
@@ -295,7 +305,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
   if (canSign) {
     // if redeemScript was provided, enforce consistency
     if (redeemScript) {
-      if (!input.redeemScript.equals(redeemScript)) throw new Error('Inconsistent redeemScript')
+      if (!bufferutils.equal(input.redeemScript, redeemScript)) throw new Error('Inconsistent redeemScript')
     }
 
     if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
@@ -308,21 +318,22 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
       if (input.prevOutScript) {
         if (input.prevOutType !== 'scripthash') throw new Error('PrevOutScript must be P2SH')
 
-        var scriptHash = input.prevOutScript.chunks[1]
-        if (!bufferutils.equal(scriptHash, redeemScript.getHash())) throw new Error('RedeemScript does not match ' + scriptHash.toString('hex'))
+        var scriptHash = scripts.decompile(input.prevOutScript)[1]
+        if (!bufferutils.equal(scriptHash, bcrypto.hash160(redeemScript))) throw new Error('RedeemScript does not match ' + scriptHash.toString('hex'))
       }
 
       var scriptType = scripts.classifyOutput(redeemScript)
       if (!canSignTypes[scriptType]) throw new Error('RedeemScript not supported (' + scriptType + ')')
 
+      var redeemScriptChunks = scripts.decompile(redeemScript)
       var pubKeys = []
       switch (scriptType) {
         case 'multisig':
-          pubKeys = redeemScript.chunks.slice(1, -2)
+          pubKeys = redeemScriptChunks.slice(1, -2)
           break
 
         case 'pubkeyhash':
-          var pkh1 = redeemScript.chunks[2]
+          var pkh1 = redeemScriptChunks[2]
           var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
 
           if (!bufferutils.equal(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
@@ -330,12 +341,13 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
           break
 
         case 'pubkey':
-          pubKeys = redeemScript.chunks.slice(0, 1)
+          pubKeys = redeemScriptChunks.slice(0, 1)
           break
       }
 
+      // if we don't have a prevOutScript, generate a P2SH script
       if (!input.prevOutScript) {
-        input.prevOutScript = scripts.scriptHashOutput(redeemScript.getHash())
+        input.prevOutScript = scripts.scriptHashOutput(bcrypto.hash160(redeemScript))
         input.prevOutType = 'scripthash'
       }
 

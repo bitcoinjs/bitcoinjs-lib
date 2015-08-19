@@ -1,10 +1,9 @@
 var bufferutils = require('./bufferutils')
 var crypto = require('./crypto')
+var opcodes = require('./opcodes')
+var scripts = require('./scripts')
 var typeforce = require('typeforce')
 var types = require('./types')
-var opcodes = require('./opcodes')
-
-var Script = require('./script')
 
 function Transaction () {
   this.version = 1
@@ -45,11 +44,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
   }
 
   function readScript () {
-    return Script.fromBuffer(readSlice(readVarInt()))
-  }
-
-  function readGenerationScript () {
-    return new Script(readSlice(readVarInt()), [])
+    return readSlice(readVarInt())
   }
 
   var tx = new Transaction()
@@ -63,7 +58,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
       tx.ins.push({
         hash: hash,
         index: readUInt32(),
-        script: readGenerationScript(),
+        script: readScript(),
         sequence: readUInt32()
       })
     } else {
@@ -102,19 +97,21 @@ Transaction.isCoinbaseHash = function (buffer) {
   })
 }
 
+var EMPTY_SCRIPT = new Buffer(0)
+
 Transaction.prototype.addInput = function (hash, index, sequence, script) {
   typeforce(types.tuple(
     types.Hash256bit,
     types.UInt32,
     types.maybe(types.UInt32),
-    types.maybe(types.Script)
+    types.maybe(types.Buffer)
   ), arguments)
 
   if (types.Null(sequence)) {
     sequence = Transaction.DEFAULT_SEQUENCE
   }
 
-  script = script || Script.EMPTY
+  script = script || EMPTY_SCRIPT
 
   // Add the input and return the input's index
   return (this.ins.push({
@@ -126,7 +123,7 @@ Transaction.prototype.addInput = function (hash, index, sequence, script) {
 }
 
 Transaction.prototype.addOutput = function (scriptPubKey, value) {
-  typeforce(types.tuple(types.Script, types.UInt53), arguments)
+  typeforce(types.tuple(types.Buffer, types.UInt53), arguments)
 
   // Add the output and return the output's index
   return (this.outs.push({
@@ -137,7 +134,7 @@ Transaction.prototype.addOutput = function (scriptPubKey, value) {
 
 Transaction.prototype.byteLength = function () {
   function scriptSize (script) {
-    var length = script.buffer.length
+    var length = script.length
 
     return bufferutils.varIntSize(length) + length
   }
@@ -176,6 +173,7 @@ Transaction.prototype.clone = function () {
 }
 
 var ONE = new Buffer('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+var VALUE_UINT64_MAX = new Buffer('ffffffffffffffff', 'hex')
 
 /**
  * Hash transaction for signing a specific input.
@@ -186,7 +184,7 @@ var ONE = new Buffer('0000000000000000000000000000000000000000000000000000000000
  * This hash can then be used to sign the provided transaction input.
  */
 Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashType) {
-  typeforce(types.tuple(types.UInt32, types.Script, /* types.UInt8 */ types.Number), arguments)
+  typeforce(types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number), arguments)
 
   // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L29
   if (inIndex >= this.ins.length) return ONE
@@ -195,11 +193,13 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 
   // in case concatenating two scripts ends up with two codeseparators,
   // or an extra one at the end, this prevents all those possible incompatibilities.
-  var hashScript = prevOutScript.without(opcodes.OP_CODESEPARATOR)
+  var hashScript = scripts.compile(scripts.decompile(prevOutScript).filter(function (x) {
+    return x !== opcodes.OP_CODESEPARATOR
+  }))
   var i
 
   // blank out other inputs' signatures
-  txTmp.ins.forEach(function (input) { input.script = Script.EMPTY })
+  txTmp.ins.forEach(function (input) { input.script = EMPTY_SCRIPT })
   txTmp.ins[inIndex].script = hashScript
 
   // blank out some of the inputs
@@ -225,8 +225,8 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 
     // blank all other outputs (clear scriptPubKey, value === -1)
     var stubOut = {
-      script: Script.EMPTY,
-      valueBuffer: new Buffer('ffffffffffffffff', 'hex')
+      script: EMPTY_SCRIPT,
+      valueBuffer: VALUE_UINT64_MAX
     }
 
     for (i = 0; i < nOut; i++) {
@@ -294,8 +294,8 @@ Transaction.prototype.toBuffer = function () {
   this.ins.forEach(function (txIn) {
     writeSlice(txIn.hash)
     writeUInt32(txIn.index)
-    writeVarInt(txIn.script.buffer.length)
-    writeSlice(txIn.script.buffer)
+    writeVarInt(txIn.script.length)
+    writeSlice(txIn.script)
     writeUInt32(txIn.sequence)
   })
 
@@ -307,8 +307,8 @@ Transaction.prototype.toBuffer = function () {
       writeSlice(txOut.valueBuffer)
     }
 
-    writeVarInt(txOut.script.buffer.length)
-    writeSlice(txOut.script.buffer)
+    writeVarInt(txOut.script.length)
+    writeSlice(txOut.script)
   })
 
   writeUInt32(this.locktime)
@@ -321,7 +321,7 @@ Transaction.prototype.toHex = function () {
 }
 
 Transaction.prototype.setInputScript = function (index, script) {
-  typeforce(types.tuple(types.Number, types.Script), arguments)
+  typeforce(types.tuple(types.Number, types.Buffer), arguments)
 
   this.ins[index].script = script
 }

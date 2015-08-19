@@ -15,7 +15,7 @@ describe('bitcoinjs-lib (multisig)', function () {
     })
 
     var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 3
-    var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
+    var scriptPubKey = bitcoin.scripts.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.Address.fromOutputScript(scriptPubKey)
 
     assert.strictEqual(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
@@ -33,7 +33,7 @@ describe('bitcoinjs-lib (multisig)', function () {
     var pubKeys = keyPairs.map(function (x) { return x.getPublicKeyBuffer() })
 
     var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys) // 2 of 4
-    var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash())
+    var scriptPubKey = bitcoin.scripts.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.Address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet)
 
     // attempt to send funds to the source address

@@ -9,10 +9,10 @@ var Block = Bitcoin.Block
 var ECPair = Bitcoin.ECPair
 var ECSignature = Bitcoin.ECSignature
 var Transaction = Bitcoin.Transaction
-var Script = Bitcoin.Script
 
 var bufferutils = Bitcoin.bufferutils
 var networks = Bitcoin.networks
+var scripts = Bitcoin.scripts
 
 var base58_encode_decode = require('./fixtures/core/base58_encode_decode.json')
 var base58_keys_invalid = require('./fixtures/core/base58_keys_invalid.json')
@@ -172,7 +172,7 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  describe('Script.fromASM', function () {
+  describe('scripts.fromASM', function () {
     tx_valid.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
@@ -195,7 +195,7 @@ describe('Bitcoin-core', function () {
 
         it('can parse ' + prevOutScriptPubKey, function () {
           // TODO: we can probably do better validation than this
-          Script.fromASM(prevOutScriptPubKey)
+          scripts.fromASM(prevOutScriptPubKey)
         })
       })
     })
@@ -227,8 +227,9 @@ describe('Bitcoin-core', function () {
         var transaction = Transaction.fromHex(txHex)
         assert.strictEqual(transaction.toHex(), txHex)
 
-        var script = Script.fromHex(scriptHex)
-        assert.strictEqual(script.toHex(), scriptHex)
+        var script = new Buffer(scriptHex, 'hex')
+        var scriptChunks = scripts.decompile(script)
+        assert.strictEqual(scripts.compile(scriptChunks).toString('hex'), scriptHex)
 
         var hash = transaction.hashForSignature(inIndex, script, hashType)
         assert.deepEqual(hash, expectedHash)
