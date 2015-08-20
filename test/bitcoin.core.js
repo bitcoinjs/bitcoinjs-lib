@@ -37,7 +37,7 @@ describe('Bitcoin-core', function () {
   })
 
   // base58_keys_valid
-  describe('Address.toBase58Check', function () {
+  describe('address.toBase58Check', function () {
     var typeMap = {
       'pubkey': 'pubKeyHash',
       'script': 'scriptHash'
@@ -60,7 +60,7 @@ describe('Bitcoin-core', function () {
   })
 
   // base58_keys_invalid
-  describe('Address.fromBase58Check', function () {
+  describe('address.fromBase58Check', function () {
     var allowedNetworks = [
       bitcoin.networks.bitcoin.pubkeyhash,
       bitcoin.networks.bitcoin.scripthash,
@@ -73,7 +73,7 @@ describe('Bitcoin-core', function () {
 
       it('throws on ' + string, function () {
         assert.throws(function () {
-          var address = bitcoin.Address.fromBase58Check(string)
+          var address = bitcoin.address.fromBase58Check(string)
 
           assert.notEqual(allowedNetworks.indexOf(address.version), -1, 'Invalid network')
         }, /(Invalid (checksum|network))|(too (short|long))/)

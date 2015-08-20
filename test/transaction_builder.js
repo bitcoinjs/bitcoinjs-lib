@@ -1,10 +1,10 @@
 /* global describe, it, beforeEach */
 
+var address = require('../src/address')
 var assert = require('assert')
 var ops = require('../src/opcodes')
 var script = require('../src/scripts')
 
-var Address = require('../src/address')
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
 var Transaction = require('../src/transaction')
@@ -58,14 +58,14 @@ function construct (f, sign) {
   return txb
 }
 
-describe.only('TransactionBuilder', function () {
+describe('TransactionBuilder', function () {
   // constants
   var keyPair = new ECPair(BigInteger.ONE)
   var scripts = [
     '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
     '1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'
   ].map(function (x) {
-    return Address.toOutputScript(x)
+    return address.toOutputScript(x)
   })
   var txHash = new Buffer('0e7cea811c0be9f73c0aca591034396e7264473fc25c1ca45195d7417b36cbe2', 'hex')
   var txb

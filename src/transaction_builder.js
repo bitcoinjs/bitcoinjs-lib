@@ -1,10 +1,10 @@
+var address = require('./address')
 var bcrypto = require('./crypto')
 var bufferutils = require('./bufferutils')
 var networks = require('./networks')
 var ops = require('./opcodes')
 var scripts = require('./scripts')
 
-var Address = require('./address')
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var Transaction = require('./transaction')
@@ -198,7 +198,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
 
   // Attempt to get a script if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
-    scriptPubKey = Address.toOutputScript(scriptPubKey, this.network)
+    scriptPubKey = address.toOutputScript(scriptPubKey, this.network)
   }
 
   return this.tx.addOutput(scriptPubKey, value)
