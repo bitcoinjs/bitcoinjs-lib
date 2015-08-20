@@ -65,14 +65,14 @@ describe('bitcoinjs-lib (crypto)', function () {
 
       var d1 = child.keyPair.d
       var d2
-      var indexBuffer = new Buffer(4)
+      var data = new Buffer(37)
+      serQP.copy(data, 0)
 
       // search index space until we find it
       for (var i = 0; i < bitcoin.HDNode.HIGHEST_BIT; ++i) {
-        indexBuffer.writeUInt32BE(i, 0)
+        data.writeUInt32BE(i, 33)
 
         // calculate I
-        var data = Buffer.concat([serQP, indexBuffer])
         var I = crypto.createHmac('sha512', master.chainCode).update(data).digest()
         var IL = I.slice(0, 32)
         var pIL = bigi.fromBuffer(IL)
