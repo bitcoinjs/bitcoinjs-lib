@@ -90,14 +90,13 @@ HDNode.fromBase58 = function (string, networks) {
 
   // 32 bytes: the chain code
   var chainCode = buffer.slice(13, 45)
-  var data, keyPair
+  var keyPair
 
   // 33 bytes: private key data (0x00 + k)
   if (version === network.bip32.private) {
     if (buffer.readUInt8(45) !== 0x00) throw new Error('Invalid private key')
 
-    data = buffer.slice(46, 78)
-    var d = BigInteger.fromBuffer(data)
+    var d = BigInteger.fromBuffer(buffer.slice(46, 78))
 
     keyPair = new ECPair(d, null, {
       network: network
@@ -105,8 +104,7 @@ HDNode.fromBase58 = function (string, networks) {
 
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
-    data = buffer.slice(45, 78)
-    var Q = ecurve.Point.decodeFrom(curve, data)
+    var Q = ecurve.Point.decodeFrom(curve, buffer.slice(45, 78))
     if (!Q.compressed) throw new Error('Invalid public key')
 
     // Verify that the X coordinate in the public point corresponds to a point on the curve.
@@ -194,29 +192,23 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
 HDNode.prototype.derive = function (index) {
   var isHardened = index >= HDNode.HIGHEST_BIT
-  var indexBuffer = new Buffer(4)
-  indexBuffer.writeUInt32BE(index, 0)
-
-  var data
+  var data = new Buffer(37)
 
   // Hardened child
   if (isHardened) {
     if (!this.keyPair.d) throw new TypeError('Could not derive hardened child key')
 
     // data = 0x00 || ser256(kpar) || ser32(index)
-    data = Buffer.concat([
-      this.keyPair.d.toBuffer(33),
-      indexBuffer
-    ])
+    data[0] = 0x00
+    this.keyPair.d.toBuffer(32).copy(data, 1)
+    data.writeUInt32BE(index, 33)
 
   // Normal child
   } else {
     // data = serP(point(kpar)) || ser32(index)
     //      = serP(Kpar) || ser32(index)
-    data = Buffer.concat([
-      this.keyPair.getPublicKeyBuffer(),
-      indexBuffer
-    ])
+    this.keyPair.getPublicKeyBuffer().copy(data, 0)
+    data.writeUInt32BE(index, 33)
   }
 
   var I = createHmac('sha512', this.chainCode).update(data).digest()
