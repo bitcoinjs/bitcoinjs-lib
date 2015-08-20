@@ -1,7 +1,7 @@
 /* global describe, it, beforeEach */
 
 var assert = require('assert')
-var scripts = require('../src/scripts')
+var bscript = require('../src/script')
 
 var Transaction = require('../src/transaction')
 
@@ -15,17 +15,16 @@ describe('Transaction', function () {
 
     raw.ins.forEach(function (txIn) {
       var txHash = new Buffer(txIn.hash, 'hex')
-      var script
+      var scriptSig
 
       if (txIn.data) {
-        var data = new Buffer(txIn.data, 'hex')
-        script = data
+        scriptSig = new Buffer(txIn.data, 'hex')
 
       } else if (txIn.script) {
-        script = scripts.fromASM(txIn.script)
+        scriptSig = bscript.fromASM(txIn.script)
       }
 
-      tx.addInput(txHash, txIn.index, txIn.sequence, script)
+      tx.addInput(txHash, txIn.index, txIn.sequence, scriptSig)
     })
 
     raw.outs.forEach(function (txOut) {
@@ -36,7 +35,7 @@ describe('Transaction', function () {
         script = data
 
       } else if (txOut.script) {
-        script = scripts.fromASM(txOut.script)
+        script = bscript.fromASM(txOut.script)
       }
 
       tx.addOutput(script, txOut.value)

@@ -12,5 +12,5 @@ module.exports = {
   message: require('./message'),
   networks: require('./networks'),
   opcodes: require('./opcodes'),
-  scripts: require('./scripts')
+  script: require('./script')
 }

@@ -162,7 +162,7 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  describe('scripts.fromASM', function () {
+  describe('script.fromASM', function () {
     tx_valid.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
@@ -185,7 +185,7 @@ describe('Bitcoin-core', function () {
 
         it('can parse ' + prevOutScriptPubKey, function () {
           // TODO: we can probably do better validation than this
-          bitcoin.scripts.fromASM(prevOutScriptPubKey)
+          bitcoin.script.fromASM(prevOutScriptPubKey)
         })
       })
     })
@@ -218,8 +218,8 @@ describe('Bitcoin-core', function () {
         assert.strictEqual(transaction.toHex(), txHex)
 
         var script = new Buffer(scriptHex, 'hex')
-        var scriptChunks = bitcoin.scripts.decompile(script)
-        assert.strictEqual(bitcoin.scripts.compile(scriptChunks).toString('hex'), scriptHex)
+        var scriptChunks = bitcoin.script.decompile(script)
+        assert.strictEqual(bitcoin.script.compile(scriptChunks).toString('hex'), scriptHex)
 
         var hash = transaction.hashForSignature(inIndex, script, hashType)
         assert.deepEqual(hash, expectedHash)

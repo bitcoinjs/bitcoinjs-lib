@@ -36,7 +36,7 @@ describe('bitcoinjs-lib (advanced)', function () {
 
         var tx = new bitcoin.TransactionBuilder(network)
         var data = new Buffer('bitcoinjs-lib')
-        var dataScript = bitcoin.scripts.nullDataOutput(data)
+        var dataScript = bitcoin.script.nullDataOutput(data)
 
         var unspent = unspents.pop()
 
@@ -55,7 +55,7 @@ describe('bitcoinjs-lib (advanced)', function () {
 
             var actual = bitcoin.Transaction.fromHex(transaction.txHex)
             var dataScript2 = actual.outs[0].script
-            var data2 = bitcoin.scripts.decompile(dataScript2)[1]
+            var data2 = bitcoin.script.decompile(dataScript2)[1]
 
             assert.deepEqual(dataScript, dataScript2)
             assert.deepEqual(data, data2)

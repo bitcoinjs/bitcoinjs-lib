@@ -3,7 +3,7 @@
 var address = require('../src/address')
 var assert = require('assert')
 var ops = require('../src/opcodes')
-var script = require('../src/scripts')
+var script = require('../src/script')
 
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')

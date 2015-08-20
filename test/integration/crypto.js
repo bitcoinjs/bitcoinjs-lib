@@ -132,9 +132,9 @@ describe('bitcoinjs-lib (crypto)', function () {
       inputs.forEach(function (input) {
         var transaction = transactions[input.txId]
         var script = transaction.ins[input.vout].script
-        var scriptChunks = bitcoin.scripts.decompile(script)
+        var scriptChunks = bitcoin.script.decompile(script)
 
-        assert(bitcoin.scripts.isPubKeyHashInput(scriptChunks), 'Expected pubKeyHash script')
+        assert(bitcoin.script.isPubKeyHashInput(scriptChunks), 'Expected pubKeyHash script')
 
         var prevOutTxId = bitcoin.bufferutils.reverse(transaction.ins[input.vout].hash).toString('hex')
         var prevVout = transaction.ins[input.vout].index

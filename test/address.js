@@ -3,7 +3,7 @@
 var assert = require('assert')
 var baddress = require('../src/address')
 var networks = require('../src/networks')
-var scripts = require('../src/scripts')
+var bscript = require('../src/script')
 var fixtures = require('./fixtures/address.json')
 
 describe('address', function () {
@@ -29,7 +29,7 @@ describe('address', function () {
   describe('fromOutputScript', function () {
     fixtures.valid.forEach(function (f) {
       it('parses ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
-        var script = scripts.fromASM(f.script)
+        var script = bscript.fromASM(f.script)
         var address = baddress.fromOutputScript(script, networks[f.network])
 
         assert.strictEqual(address, f.base58check)
@@ -38,7 +38,7 @@ describe('address', function () {
 
     fixtures.invalid.fromOutputScript.forEach(function (f) {
       it('throws when ' + f.script.slice(0, 30) + '... ' + f.exception, function () {
-        var script = scripts.fromASM(f.script)
+        var script = bscript.fromASM(f.script)
 
         assert.throws(function () {
           baddress.fromOutputScript(script)
@@ -64,7 +64,7 @@ describe('address', function () {
       it('exports ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
         var script = baddress.toOutputScript(f.base58check, network)
 
-        assert.strictEqual(scripts.toASM(script), f.script)
+        assert.strictEqual(bscript.toASM(script), f.script)
       })
     })
 
