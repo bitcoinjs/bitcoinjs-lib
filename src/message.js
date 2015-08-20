@@ -1,5 +1,5 @@
 var bufferutils = require('./bufferutils')
-var crypto = require('./crypto')
+var bcrypto = require('./crypto')
 var ecdsa = require('./ecdsa')
 var networks = require('./networks')
 
@@ -16,7 +16,7 @@ function magicHash (message, network) {
   var lengthBuffer = bufferutils.varIntBuffer(messageBuffer.length)
 
   var buffer = Buffer.concat([messagePrefix, lengthBuffer, messageBuffer])
-  return crypto.hash256(buffer)
+  return bcrypto.hash256(buffer)
 }
 
 function sign (keyPair, message, network) {

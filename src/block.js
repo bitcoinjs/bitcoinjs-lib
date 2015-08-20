@@ -1,5 +1,5 @@
 var bufferutils = require('./bufferutils')
-var crypto = require('./crypto')
+var bcrypto = require('./crypto')
 
 var Transaction = require('./transaction')
 
@@ -66,7 +66,7 @@ Block.fromHex = function (hex) {
 }
 
 Block.prototype.getHash = function () {
-  return crypto.hash256(this.toBuffer(true))
+  return bcrypto.hash256(this.toBuffer(true))
 }
 
 Block.prototype.getId = function () {
