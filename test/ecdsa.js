@@ -1,7 +1,7 @@
 /* global describe, it */
 
 var assert = require('assert')
-var crypto = require('../src/crypto')
+var bcrypto = require('../src/crypto')
 var ecdsa = require('../src/ecdsa')
 var message = require('../src/message')
 var networks = require('../src/networks')
@@ -24,7 +24,7 @@ describe('ecdsa', function () {
     fixtures.valid.ecdsa.forEach(function (f) {
       it('for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
-        var h1 = crypto.sha256(f.message)
+        var h1 = bcrypto.sha256(f.message)
 
         var k = ecdsa.deterministicGenerateK(curve, h1, d, checkSig)
         assert.strictEqual(k.toHex(), f.k)
@@ -68,7 +68,7 @@ describe('ecdsa', function () {
     fixtures.valid.rfc6979.forEach(function (f) {
       it('produces the expected k values for ' + f.message + " if k wasn't suitable", function () {
         var d = BigInteger.fromHex(f.d)
-        var h1 = crypto.sha256(f.message)
+        var h1 = bcrypto.sha256(f.message)
 
         var results = []
         ecdsa.deterministicGenerateK(curve, h1, d, function (k) {
@@ -90,7 +90,7 @@ describe('ecdsa', function () {
         var d = BigInteger.fromHex(f.d)
         var Q = curve.G.multiply(d)
         var signature = ECSignature.fromDER(new Buffer(f.signature, 'hex'))
-        var h1 = crypto.sha256(f.message)
+        var h1 = bcrypto.sha256(f.message)
         var e = BigInteger.fromBuffer(h1)
         var Qprime = ecdsa.recoverPubKey(curve, e, signature, f.i)
 
@@ -137,7 +137,7 @@ describe('ecdsa', function () {
     fixtures.valid.ecdsa.forEach(function (f) {
       it('produces a deterministic signature for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
-        var hash = crypto.sha256(f.message)
+        var hash = bcrypto.sha256(f.message)
         var signature = ecdsa.sign(curve, hash, d).toDER()
 
         assert.strictEqual(signature.toString('hex'), f.signature)
@@ -145,7 +145,7 @@ describe('ecdsa', function () {
     })
 
     it('should sign with low S value', function () {
-      var hash = crypto.sha256('Vires in numeris')
+      var hash = bcrypto.sha256('Vires in numeris')
       var sig = ecdsa.sign(curve, hash, BigInteger.ONE)
 
       // See BIP62 for more information
@@ -158,7 +158,7 @@ describe('ecdsa', function () {
     fixtures.valid.ecdsa.forEach(function (f) {
       it('verifies a valid signature for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
-        var H = crypto.sha256(f.message)
+        var H = bcrypto.sha256(f.message)
         var signature = ECSignature.fromDER(new Buffer(f.signature, 'hex'))
         var Q = curve.G.multiply(d)
 
@@ -168,7 +168,7 @@ describe('ecdsa', function () {
 
     fixtures.invalid.verify.forEach(function (f) {
       it('fails to verify with ' + f.description, function () {
-        var H = crypto.sha256(f.message)
+        var H = bcrypto.sha256(f.message)
         var d = BigInteger.fromHex(f.d)
 
         var signature

@@ -1,11 +1,11 @@
-var base58check = require('bs58check')
+var bs58check = require('bs58check')
+var bscript = require('./script')
 var networks = require('./networks')
-var scripts = require('./scripts')
 var typeforce = require('typeforce')
 var types = require('./types')
 
 function fromBase58Check (address) {
-  var payload = base58check.decode(address)
+  var payload = bs58check.decode(address)
   if (payload.length < 21) throw new TypeError(address + ' is too short')
   if (payload.length > 21) throw new TypeError(address + ' is too long')
 
@@ -15,14 +15,14 @@ function fromBase58Check (address) {
   return { hash: hash, version: version }
 }
 
-function fromOutputScript (script, network) {
+function fromOutputScript (scriptPubKey, network) {
   network = network || networks.bitcoin
 
-  var chunks = scripts.decompile(script)
-  if (scripts.isPubKeyHashOutput(chunks)) return toBase58Check(chunks[2], network.pubKeyHash)
-  if (scripts.isScriptHashOutput(chunks)) return toBase58Check(chunks[1], network.scriptHash)
+  var chunks = bscript.decompile(scriptPubKey)
+  if (bscript.isPubKeyHashOutput(chunks)) return toBase58Check(chunks[2], network.pubKeyHash)
+  if (bscript.isScriptHashOutput(chunks)) return toBase58Check(chunks[1], network.scriptHash)
 
-  throw new Error(scripts.toASM(chunks) + ' has no matching Address')
+  throw new Error(bscript.toASM(chunks) + ' has no matching Address')
 }
 
 function toBase58Check (hash, version) {
@@ -32,21 +32,21 @@ function toBase58Check (hash, version) {
   payload.writeUInt8(version, 0)
   hash.copy(payload, 1)
 
-  return base58check.encode(payload)
+  return bs58check.encode(payload)
 }
 
 function toOutputScript (address, network) {
   network = network || networks.bitcoin
 
-  var payload = base58check.decode(address)
+  var payload = bs58check.decode(address)
   if (payload.length < 21) throw new TypeError(address + ' is too short')
   if (payload.length > 21) throw new TypeError(address + ' is too long')
 
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
 
-  if (version === network.pubKeyHash) return scripts.pubKeyHashOutput(hash)
-  if (version === network.scriptHash) return scripts.scriptHashOutput(hash)
+  if (version === network.pubKeyHash) return bscript.pubKeyHashOutput(hash)
+  if (version === network.scriptHash) return bscript.scriptHashOutput(hash)
 
   throw new Error(address + ' has no matching Script')
 }

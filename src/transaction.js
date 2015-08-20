@@ -1,7 +1,7 @@
 var bufferutils = require('./bufferutils')
-var crypto = require('./crypto')
+var bcrypto = require('./crypto')
 var opcodes = require('./opcodes')
-var scripts = require('./scripts')
+var bscript = require('./script')
 var typeforce = require('typeforce')
 var types = require('./types')
 
@@ -99,7 +99,7 @@ Transaction.isCoinbaseHash = function (buffer) {
 
 var EMPTY_SCRIPT = new Buffer(0)
 
-Transaction.prototype.addInput = function (hash, index, sequence, script) {
+Transaction.prototype.addInput = function (hash, index, sequence, scriptSig) {
   typeforce(types.tuple(
     types.Hash256bit,
     types.UInt32,
@@ -111,13 +111,11 @@ Transaction.prototype.addInput = function (hash, index, sequence, script) {
     sequence = Transaction.DEFAULT_SEQUENCE
   }
 
-  script = script || EMPTY_SCRIPT
-
   // Add the input and return the input's index
   return (this.ins.push({
     hash: hash,
     index: index,
-    script: script,
+    script: scriptSig || EMPTY_SCRIPT,
     sequence: sequence
   }) - 1)
 }
@@ -133,8 +131,8 @@ Transaction.prototype.addOutput = function (scriptPubKey, value) {
 }
 
 Transaction.prototype.byteLength = function () {
-  function scriptSize (script) {
-    var length = script.length
+  function scriptSize (someScript) {
+    var length = someScript.length
 
     return bufferutils.varIntSize(length) + length
   }
@@ -193,7 +191,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 
   // in case concatenating two scripts ends up with two codeseparators,
   // or an extra one at the end, this prevents all those possible incompatibilities.
-  var hashScript = scripts.compile(scripts.decompile(prevOutScript).filter(function (x) {
+  var hashScript = bscript.compile(bscript.decompile(prevOutScript).filter(function (x) {
     return x !== opcodes.OP_CODESEPARATOR
   }))
   var i
@@ -252,11 +250,11 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   buffer.writeInt32LE(hashType, buffer.length - 4)
   txTmp.toBuffer().copy(buffer, 0)
 
-  return crypto.hash256(buffer)
+  return bcrypto.hash256(buffer)
 }
 
 Transaction.prototype.getHash = function () {
-  return crypto.hash256(this.toBuffer())
+  return bcrypto.hash256(this.toBuffer())
 }
 
 Transaction.prototype.getId = function () {
@@ -320,10 +318,10 @@ Transaction.prototype.toHex = function () {
   return this.toBuffer().toString('hex')
 }
 
-Transaction.prototype.setInputScript = function (index, script) {
+Transaction.prototype.setInputScript = function (index, scriptSig) {
   typeforce(types.tuple(types.Number, types.Buffer), arguments)
 
-  this.ins[index].script = script
+  this.ins[index].script = scriptSig
 }
 
 module.exports = Transaction

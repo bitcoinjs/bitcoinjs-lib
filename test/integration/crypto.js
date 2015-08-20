@@ -7,10 +7,13 @@ var bitcoin = require('../../')
 var blockchain = require('./_blockchain')
 var crypto = require('crypto')
 
+var ecurve = require('ecurve')
+var secp256k1 = ecurve.getCurveByName('secp256k1')
+
 describe('bitcoinjs-lib (crypto)', function () {
   it('can generate a single-key stealth address', function () {
-    var G = bitcoin.ECPair.curve.G
-    var n = bitcoin.ECPair.curve.n
+    var G = secp256k1.G
+    var n = secp256k1.n
 
     function stealthSend (Q) {
       var noncePair = bitcoin.ECPair.makeRandom()
@@ -56,7 +59,7 @@ describe('bitcoinjs-lib (crypto)', function () {
       assert(!master.keyPair.d, 'You already have the parent private key')
       assert(child.keyPair.d, 'Missing child private key')
 
-      var curve = bitcoin.ECPair.curve
+      var curve = secp256k1
       var QP = master.keyPair.Q
       var serQP = master.keyPair.getPublicKeyBuffer()
 
@@ -129,9 +132,9 @@ describe('bitcoinjs-lib (crypto)', function () {
       inputs.forEach(function (input) {
         var transaction = transactions[input.txId]
         var script = transaction.ins[input.vout].script
-        var scriptChunks = bitcoin.scripts.decompile(script)
+        var scriptChunks = bitcoin.script.decompile(script)
 
-        assert(bitcoin.scripts.isPubKeyHashInput(scriptChunks), 'Expected pubKeyHash script')
+        assert(bitcoin.script.isPubKeyHashInput(scriptChunks), 'Expected pubKeyHash script')
 
         var prevOutTxId = bitcoin.bufferutils.reverse(transaction.ins[input.vout].hash).toString('hex')
         var prevVout = transaction.ins[input.vout].index
@@ -162,7 +165,7 @@ describe('bitcoinjs-lib (crypto)', function () {
       async.parallel(tasks, function (err) {
         if (err) throw err
 
-        var n = bitcoin.ECPair.curve.n
+        var n = secp256k1.n
 
         for (var i = 0; i < inputs.length; ++i) {
           for (var j = i + 1; j < inputs.length; ++j) {
