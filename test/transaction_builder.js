@@ -2,7 +2,7 @@
 
 var assert = require('assert')
 var ops = require('../src/opcodes')
-var scripts = require('../src/scripts')
+var script = require('../src/scripts')
 
 var Address = require('../src/address')
 var BigInteger = require('bigi')
@@ -21,16 +21,14 @@ function construct (f, sign) {
     var prevTxScript
 
     if (input.prevTxScript) {
-      prevTxScript = scripts.fromASM(input.prevTxScript)
+      prevTxScript = script.fromASM(input.prevTxScript)
     }
 
     txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
   })
 
   f.outputs.forEach(function (output) {
-    var script = scripts.fromASM(output.script)
-
-    txb.addOutput(script, output.value)
+    txb.addOutput(script.fromASM(output.script), output.value)
   })
 
   if (sign === undefined || sign) {
@@ -40,7 +38,7 @@ function construct (f, sign) {
         var redeemScript
 
         if (sign.redeemScript) {
-          redeemScript = scripts.fromASM(sign.redeemScript)
+          redeemScript = script.fromASM(sign.redeemScript)
         }
 
         txb.sign(index, keyPair, redeemScript, sign.hashType)
@@ -60,23 +58,20 @@ function construct (f, sign) {
   return txb
 }
 
-describe('TransactionBuilder', function () {
-  var privAddress, privScript
-  var prevTx, prevTxHash
-  var keyPair
+describe.only('TransactionBuilder', function () {
+  // constants
+  var keyPair = new ECPair(BigInteger.ONE)
+  var scripts = [
+    '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
+    '1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'
+  ].map(function (x) {
+    return Address.toOutputScript(x)
+  })
+  var txHash = new Buffer('0e7cea811c0be9f73c0aca591034396e7264473fc25c1ca45195d7417b36cbe2', 'hex')
   var txb
 
   beforeEach(function () {
     txb = new TransactionBuilder()
-
-    prevTx = new Transaction()
-    prevTx.addOutput(Address.toOutputScript('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH'), 0)
-    prevTx.addOutput(Address.toOutputScript('1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'), 1)
-    prevTxHash = prevTx.getHash()
-
-    keyPair = new ECPair(BigInteger.ONE)
-    privAddress = keyPair.getAddress()
-    privScript = Address.toOutputScript(privAddress)
   })
 
   describe('fromTransaction', function () {
@@ -104,69 +99,73 @@ describe('TransactionBuilder', function () {
 
   describe('addInput', function () {
     it('accepts a txHash, index [and sequence number]', function () {
-      var vin = txb.addInput(prevTxHash, 1, 54)
+      var vin = txb.addInput(txHash, 1, 54)
       assert.strictEqual(vin, 0)
 
       var txIn = txb.tx.ins[0]
-      assert.strictEqual(txIn.hash, prevTxHash)
+      assert.strictEqual(txIn.hash, txHash)
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
       assert.strictEqual(txb.inputs[0].prevOutScript, undefined)
     })
 
     it('accepts a txHash, index [, sequence number and scriptPubKey]', function () {
-      var vin = txb.addInput(prevTxHash, 1, 54, prevTx.outs[1].script)
+      var vin = txb.addInput(txHash, 1, 54, scripts[1])
       assert.strictEqual(vin, 0)
 
       var txIn = txb.tx.ins[0]
-      assert.strictEqual(txIn.hash, prevTxHash)
+      assert.strictEqual(txIn.hash, txHash)
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
-      assert.strictEqual(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
+      assert.strictEqual(txb.inputs[0].prevOutScript, scripts[1])
     })
 
     it('accepts a prevTx, index [and sequence number]', function () {
+      var prevTx = new Transaction()
+      prevTx.addOutput(scripts[0], 0)
+      prevTx.addOutput(scripts[1], 1)
+
       var vin = txb.addInput(prevTx, 1, 54)
       assert.strictEqual(vin, 0)
 
       var txIn = txb.tx.ins[0]
-      assert.deepEqual(txIn.hash, prevTxHash)
+      assert.deepEqual(txIn.hash, prevTx.getHash())
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
-      assert.strictEqual(txb.inputs[0].prevOutScript, prevTx.outs[1].script)
+      assert.strictEqual(txb.inputs[0].prevOutScript, scripts[1])
     })
 
     it('returns the input index', function () {
-      assert.strictEqual(txb.addInput(prevTxHash, 0), 0)
-      assert.strictEqual(txb.addInput(prevTxHash, 1), 1)
+      assert.strictEqual(txb.addInput(txHash, 0), 0)
+      assert.strictEqual(txb.addInput(txHash, 1), 1)
     })
 
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
-      txb.addInput(prevTxHash, 0)
+      txb.addInput(txHash, 0)
       txb.sign(0, keyPair)
 
       assert.throws(function () {
-        txb.addInput(prevTxHash, 0)
+        txb.addInput(txHash, 0)
       }, /No, this would invalidate signatures/)
     })
   })
 
   describe('addOutput', function () {
     it('accepts an address string and value', function () {
-      var vout = txb.addOutput(privAddress, 1000)
+      var vout = txb.addOutput(keyPair.getAddress(), 1000)
       assert.strictEqual(vout, 0)
 
       var txout = txb.tx.outs[0]
-      assert.deepEqual(txout.script, privScript)
+      assert.deepEqual(txout.script, scripts[0])
       assert.strictEqual(txout.value, 1000)
     })
 
     it('accepts a ScriptPubKey and value', function () {
-      var vout = txb.addOutput(privScript, 1000)
+      var vout = txb.addOutput(scripts[0], 1000)
       assert.strictEqual(vout, 0)
 
       var txout = txb.tx.outs[0]
-      assert.deepEqual(txout.script, privScript)
+      assert.deepEqual(txout.script, scripts[0])
       assert.strictEqual(txout.value, 1000)
     })
 
@@ -177,12 +176,12 @@ describe('TransactionBuilder', function () {
     })
 
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
-      txb.addInput(prevTxHash, 0)
-      txb.addOutput(privScript, 2000)
+      txb.addInput(txHash, 0)
+      txb.addOutput(scripts[0], 2000)
       txb.sign(0, keyPair)
 
       assert.throws(function () {
-        txb.addOutput(privScript, 9000)
+        txb.addOutput(scripts[1], 9000)
       }, /No, this would invalidate signatures/)
     })
   })
@@ -199,7 +198,7 @@ describe('TransactionBuilder', function () {
             var redeemScript
 
             if (sign.redeemScript) {
-              redeemScript = scripts.fromASM(sign.redeemScript)
+              redeemScript = script.fromASM(sign.redeemScript)
             }
 
             if (!sign.throws) {
@@ -261,7 +260,7 @@ describe('TransactionBuilder', function () {
         var network = NETWORKS[f.network]
 
         f.inputs.forEach(function (input, i) {
-          var redeemScript = scripts.fromASM(input.redeemScript)
+          var redeemScript = script.fromASM(input.redeemScript)
 
           input.signs.forEach(function (sign) {
             // rebuild the transaction each-time after the first
@@ -271,11 +270,11 @@ describe('TransactionBuilder', function () {
                 var scriptSig = tx.ins[i].script
 
                 // ignore OP_0 on the front, ignore redeemScript
-                var signatures = scripts.decompile(scriptSig).slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
+                var signatures = script.decompile(scriptSig).slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
 
                 // rebuild/replace the scriptSig without them
-                var replacement = scripts.scriptHashInput(scripts.multisigInput(signatures), redeemScript)
-                assert.strictEqual(scripts.toASM(replacement), sign.scriptSigFiltered)
+                var replacement = script.scriptHashInput(script.multisigInput(signatures), redeemScript)
+                assert.strictEqual(script.toASM(replacement), sign.scriptSigFiltered)
 
                 tx.ins[i].script = replacement
               }
@@ -291,7 +290,7 @@ describe('TransactionBuilder', function () {
             tx = txb.buildIncomplete()
 
             // now verify the serialized scriptSig is as expected
-            assert.strictEqual(scripts.toASM(tx.ins[i].script), sign.scriptSig)
+            assert.strictEqual(script.toASM(tx.ins[i].script), sign.scriptSig)
           })
         })
 
@@ -308,7 +307,7 @@ describe('TransactionBuilder', function () {
 
       txb = TransactionBuilder.fromTransaction(lameTx, network)
 
-      var redeemScript = scripts.fromASM('OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG')
+      var redeemScript = script.fromASM('OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG')
 
       var keyPair = ECPair.fromWIF('91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe', network)
       txb.sign(0, keyPair, redeemScript)
