@@ -243,14 +243,12 @@ describe('Bitcoin-core', function () {
       if (i % 2 !== 0) return
 
       var description = sig_noncanonical[i - 1].slice(0, -1)
-      if (description === 'too long') return // we support non secp256k1 signatures
-
       var buffer = new Buffer(hex, 'hex')
 
       it('throws on ' + description, function () {
         assert.throws(function () {
           bitcoin.ECSignature.parseScriptSignature(buffer)
-        })
+        }, /Expected DER (integer|sequence)|(R|S) value (excessively padded|is negative)|(R|S|DER sequence) length is (zero|too short|too long|invalid)|Invalid hashType/)
       })
     })
   })
