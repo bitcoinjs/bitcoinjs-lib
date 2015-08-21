@@ -49,12 +49,15 @@ ECKey.fromWIF = function (string) {
 ECKey.makeRandom = function (compressed, rng) {
   rng = rng || randomBytes
 
-  var buffer = rng(32)
-  typeForce('Buffer', buffer)
-  assert.equal(buffer.length, 32, 'Expected 256-bit Buffer from RNG')
+  var d
 
-  var d = BigInteger.fromBuffer(buffer)
-  d = d.mod(ECKey.curve.n)
+  do {
+    var buffer = rng(32)
+    typeForce('Buffer', buffer)
+    assert.equal(buffer.length, 32, 'Expected 256-bit Buffer from RNG')
+
+    d = BigInteger.fromBuffer(buffer)
+  } while (d.compareTo(ECKey.curve) >= 0)
 
   return new ECKey(d, compressed)
 }
