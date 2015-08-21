@@ -105,11 +105,14 @@ ECPair.makeRandom = function (options) {
   options = options || {}
 
   var rng = options.rng || randomBytes
-  var buffer = rng(32)
-  typeforce(types.Buffer256bit, buffer)
 
-  var d = BigInteger.fromBuffer(buffer)
-  d = d.mod(secp256k1.n)
+  var d
+  do {
+    var buffer = rng(32)
+    typeforce(types.Buffer256bit, buffer)
+
+    d = BigInteger.fromBuffer(buffer)
+  } while (d.compareTo(secp256k1.n) > 0)
 
   return new ECPair(d, null, options)
 }
