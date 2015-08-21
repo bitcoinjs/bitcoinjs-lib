@@ -1,3 +1,4 @@
+var bip66 = require('bip66')
 var typeforce = require('typeforce')
 var types = require('./types')
 
@@ -29,36 +30,10 @@ ECSignature.parseCompact = function (buffer) {
   }
 }
 
-// Strict DER - https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
-// NOTE: SIGHASH byte ignored
 ECSignature.fromDER = function (buffer) {
-  // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
-  if (buffer.length < 8) throw new Error('DER sequence too short')
-  if (buffer.length > 72) throw new Error('DER sequence too long')
-  if (buffer[0] !== 0x30) throw new Error('Not a DER sequence')
-  if (buffer[1] !== buffer.length - 2) throw new Error('Invalid sequence length')
-  if (buffer[2] !== 0x02) throw new Error('Expected a DER integer')
-
-  var lenR = buffer[3]
-  if (lenR === 0) throw new Error('R length is zero')
-  if (5 + lenR >= buffer.length) throw new Error('Invalid DER encoding')
-  if (buffer[4 + lenR] !== 0x02) throw new Error('Expected a DER integer (2)')
-
-  var lenS = buffer[5 + lenR]
-  if (lenS === 0) throw new Error('S length is zero')
-  if ((lenR + lenS + 6) !== buffer.length) throw new Error('Invalid DER encoding (2)')
-
-  if (buffer[4] & 0x80) throw new Error('R value is negative')
-  if (lenR > 1 && (buffer[4] === 0x00) && !(buffer[5] & 0x80)) throw new Error('R value excessively padded')
-
-  if (buffer[lenR + 6] & 0x80) throw new Error('S value is negative')
-  if (lenS > 1 && (buffer[lenR + 6] === 0x00) && !(buffer[lenR + 7] & 0x80)) throw new Error('S value excessively padded')
-
-  // non-BIP66 - extract R, S values
-  var rB = buffer.slice(4, 4 + lenR)
-  var sB = buffer.slice(lenR + 6)
-  var r = BigInteger.fromDERInteger(rB)
-  var s = BigInteger.fromDERInteger(sB)
+  var decode = bip66.decode(buffer)
+  var r = BigInteger.fromDERInteger(decode.r)
+  var s = BigInteger.fromDERInteger(decode.s)
 
   return new ECSignature(r, s)
 }
@@ -93,23 +68,10 @@ ECSignature.prototype.toCompact = function (i, compressed) {
 }
 
 ECSignature.prototype.toDER = function () {
-  var rBa = this.r.toDERInteger()
-  var sBa = this.s.toDERInteger()
+  var r = new Buffer(this.r.toDERInteger())
+  var s = new Buffer(this.s.toDERInteger())
 
-  var sequence = []
-
-  // INTEGER
-  sequence.push(0x02, rBa.length)
-  sequence = sequence.concat(rBa)
-
-  // INTEGER
-  sequence.push(0x02, sBa.length)
-  sequence = sequence.concat(sBa)
-
-  // SEQUENCE
-  sequence.unshift(0x30, sequence.length)
-
-  return new Buffer(sequence)
+  return bip66.encode(r, s)
 }
 
 ECSignature.prototype.toScriptSignature = function (hashType) {
