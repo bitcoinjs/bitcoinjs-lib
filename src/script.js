@@ -134,8 +134,16 @@ function isCanonicalPubKey (buffer) {
 
 function isCanonicalSignature (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
+  if (!isDefinedHashType(buffer[buffer.length - 1])) return false
 
   return bip66.check(buffer.slice(0, -1))
+}
+
+function isDefinedHashType (hashType) {
+  var hashTypeMod = hashType & ~0x80
+
+// return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
+  return hashTypeMod > 0x00 && hashTypeMod < 0x04
 }
 
 function isPubKeyHashInput (script) {
@@ -369,6 +377,7 @@ module.exports = {
 
   isCanonicalPubKey: isCanonicalPubKey,
   isCanonicalSignature: isCanonicalSignature,
+  isDefinedHashType: isDefinedHashType,
   isPubKeyHashInput: isPubKeyHashInput,
   isPubKeyHashOutput: isPubKeyHashOutput,
   isPubKeyInput: isPubKeyInput,
