@@ -168,7 +168,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
   buffer.writeUInt32BE(this.parentFingerprint, 5)
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
-  // This is encoded in Big endian. (0x00000000 if master key)
+  // This is encoded in big endian. (0x00000000 if master key)
   buffer.writeUInt32BE(this.index, 9)
 
   // 32 bytes: the chain code
