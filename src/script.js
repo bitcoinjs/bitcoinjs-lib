@@ -3,9 +3,6 @@ var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
 
-var ecurve = require('ecurve')
-var curve = ecurve.getCurveByName('secp256k1')
-
 var OPS = require('./opcodes')
 var REVERSE_OPS = []
 for (var op in OPS) {
