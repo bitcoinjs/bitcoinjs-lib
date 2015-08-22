@@ -1,8 +1,8 @@
+var bip66 = require('bip66')
 var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
 
-var ECSignature = require('./ecsignature')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
@@ -135,17 +135,7 @@ function isCanonicalPubKey (buffer) {
 function isCanonicalSignature (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
 
-  try {
-    ECSignature.parseScriptSignature(buffer)
-  } catch (e) {
-    if (!(e.message.match(/Not a DER sequence|Invalid sequence length|Expected a DER integer|R length is zero|S length is zero|R value excessively padded|S value excessively padded|R value is negative|S value is negative|Invalid hashType/))) {
-      throw e
-    }
-
-    return false
-  }
-
-  return true
+  return bip66.check(buffer.slice(0, -1))
 }
 
 function isPubKeyHashInput (script) {
