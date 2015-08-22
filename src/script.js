@@ -118,18 +118,17 @@ function decompile (buffer) {
 
 function isCanonicalPubKey (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
+  if (buffer.length < 33) return false
 
-  try {
-    ecurve.Point.decodeFrom(curve, buffer)
-  } catch (e) {
-    if (!(e.message.match(/Invalid sequence (length|tag)/))) {
-      throw e
-    }
-
-    return false
+  switch (buffer[0]) {
+    case 0x02:
+    case 0x03:
+      return buffer.length === 33
+    case 0x04:
+      return buffer.length === 65
   }
 
-  return true
+  return false
 }
 
 function isCanonicalSignature (buffer) {
