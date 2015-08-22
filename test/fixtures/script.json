@@ -178,8 +178,18 @@
     ],
     "isPubKeyInput": [
       {
-        "description": "non-canonical signature",
+        "description": "non-canonical signature (too long)",
         "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf7593ffffffffffffffff"
+      }
+    ],
+    "isPubKeyOutput": [
+      {
+        "description": "non-canonical pubkey (too short)",
+        "scriptPubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce OP_CHECKSIG"
+      },
+      {
+        "description": "non-canonical pubkey (too long)",
+        "scriptPubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1ffffff OP_CHECKSIG"
       }
     ],
     "isMultisigOutput": [
