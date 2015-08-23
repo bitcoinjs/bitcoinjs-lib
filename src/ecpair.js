@@ -68,8 +68,6 @@ ECPair.fromWIF = function (string, network) {
     network = network.filter(function (network) {
       return version === network.wif
     }).pop() || {}
-
-    if (version !== network.wif) throw new Error('Invalid network version')
   }
 
   var decoded = wif.decodeRaw(network.wif, buffer)
