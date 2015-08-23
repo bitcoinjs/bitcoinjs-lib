@@ -129,9 +129,9 @@ describe('ECPair', function () {
     })
 
     fixtures.invalid.fromWIF.forEach(function (f) {
-      it('throws on ' + f.string, function () {
+      it('throws on ' + f.WIF, function () {
         assert.throws(function () {
-          ECPair.fromWIF(f.string)
+          ECPair.fromWIF(f.WIF)
         }, new RegExp(f.exception))
       })
     })

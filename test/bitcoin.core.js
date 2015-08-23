@@ -117,7 +117,7 @@ describe('Bitcoin-core', function () {
       it('throws on ' + string, function () {
         assert.throws(function () {
           bitcoin.ECPair.fromWIF(string, allowedNetworks)
-        }, /(Invalid|Unknown) (checksum|compression flag|network|WIF payload)/)
+        }, /(Invalid|Unknown) (checksum|compression flag|network version|WIF length)/)
       })
     })
   })

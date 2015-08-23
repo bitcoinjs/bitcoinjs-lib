@@ -5,6 +5,7 @@ var ecurve = require('ecurve')
 var randomBytes = require('randombytes')
 var typeforce = require('typeforce')
 var types = require('./types')
+var wif = require('wif')
 
 var NETWORKS = require('./networks')
 var BigInteger = require('bigi')
@@ -57,46 +58,23 @@ ECPair.fromPublicKeyBuffer = function (buffer, network) {
   })
 }
 
-ECPair.fromWIF = function (string, networks) {
-  var payload = bs58check.decode(string)
-  var version = payload.readUInt8(0)
-  var compressed
+ECPair.fromWIF = function (string, network) {
+  network = network || NETWORKS.bitcoin
+  var buffer = bs58check.decode(string)
 
-  if (payload.length === 34) {
-    if (payload[33] !== 0x01) throw new Error('Invalid compression flag')
+  if (types.Array(network)) {
+    var version = buffer[0]
 
-    // truncate the version/compression bytes
-    payload = payload.slice(1, -1)
-    compressed = true
-
-  // no compression flag
-  } else {
-    if (payload.length !== 33) throw new Error('Invalid WIF payload length')
-
-    // Truncate the version byte
-    payload = payload.slice(1)
-    compressed = false
-  }
-
-  var network
-
-  // list of networks?
-  if (Array.isArray(networks)) {
-    network = networks.filter(function (network) {
+    network = network.filter(function (network) {
       return version === network.wif
     }).pop() || {}
-
-  // otherwise, assume a network object (or default to bitcoin)
-  } else {
-    network = networks || NETWORKS.bitcoin
   }
 
-  if (version !== network.wif) throw new Error('Invalid network')
-
-  var d = BigInteger.fromBuffer(payload)
+  var decoded = wif.decodeRaw(network.wif, buffer)
+  var d = BigInteger.fromBuffer(decoded.d)
 
   return new ECPair(d, null, {
-    compressed: compressed,
+    compressed: decoded.compressed,
     network: network
   })
 }
@@ -115,22 +93,6 @@ ECPair.makeRandom = function (options) {
   } while (d.compareTo(secp256k1.n) >= 0)
 
   return new ECPair(d, null, options)
-}
-
-ECPair.prototype.toWIF = function () {
-  if (!this.d) throw new Error('Missing private key')
-
-  var bufferLen = this.compressed ? 34 : 33
-  var buffer = new Buffer(bufferLen)
-
-  buffer.writeUInt8(this.network.wif, 0)
-  this.d.toBuffer(32).copy(buffer, 1)
-
-  if (this.compressed) {
-    buffer.writeUInt8(0x01, 33)
-  }
-
-  return bs58check.encode(buffer)
 }
 
 ECPair.prototype.getAddress = function () {
@@ -152,6 +114,12 @@ ECPair.prototype.sign = function (hash) {
   if (!this.d) throw new Error('Missing private key')
 
   return ecdsa.sign(secp256k1, hash, this.d)
+}
+
+ECPair.prototype.toWIF = function () {
+  if (!this.d) throw new Error('Missing private key')
+
+  return wif.encode(this.network.wif, this.d.toBuffer(32), this.compressed)
 }
 
 ECPair.prototype.verify = function (hash, signature) {

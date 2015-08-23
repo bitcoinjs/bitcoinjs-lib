@@ -86,16 +86,20 @@
     ],
     "fromWIF": [
       {
+        "exception": "Invalid network version",
+        "WIF": "92Qba5hnyWSn5Ffcka56yMQauaWY6ZLd91Vzxbi4a9CCetaHtYj"
+      },
+      {
         "exception": "Invalid compression flag",
-        "string": "ju9rooVsmagsb4qmNyTysUSFB1GB6MdpD7eoGjUTPmZRAApJxRz"
+        "WIF": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sfZr2ym"
       },
       {
-        "exception": "Invalid WIF payload length",
-        "string": "7ZEtRQLhCsDQrd6ZKfmcESdXgas8ggZPN24ByEi5ey6VJW"
+        "exception": "Invalid WIF length",
+        "WIF": "3tq8Vmhh9SN5XhjTGSWgx8iKk59XbKG6UH4oqpejRuJhfYD"
       },
       {
-        "exception": "Invalid WIF payload length",
-        "string": "5qibUKwsnMo1qDiNp3prGaQkD2JfVJa8F8Na87H2CkMHvuVg6uKhw67Rh"
+        "exception": "Invalid WIF length",
+        "WIF": "38uMpGARR2BJy5p4dNFKYg9UsWNoBtkpbdrXDjmfvz8krCtw3T1W92ZDSR"
       }
     ]
   }
