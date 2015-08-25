@@ -51,6 +51,7 @@ describe('bitcoinjs-lib (multisig)', function () {
 
         // use the oldest unspent
         var unspent = unspents.pop()
+        if (!unspent) throw new Error('Faucet didn\'t provide an unspent')
 
         // make a random destination address
         var targetAddress = bitcoin.ECPair.makeRandom({

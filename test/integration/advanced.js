@@ -34,11 +34,18 @@ describe('bitcoinjs-lib (advanced)', function () {
       blockchain.t.addresses.unspents(address, function (err, unspents) {
         if (err) return done(err)
 
+        // filter small unspents
+        unspents = unspents.filter(function (unspent) {
+          return unspent.value > 1e4
+        })
+
+        // use the oldest unspent
+        var unspent = unspents.pop()
+        if (!unspent) throw new Error('Faucet didn\'t provide an unspent')
+
         var tx = new bitcoin.TransactionBuilder(network)
         var data = new Buffer('bitcoinjs-lib')
         var dataScript = bitcoin.script.nullDataOutput(data)
-
-        var unspent = unspents.pop()
 
         tx.addInput(unspent.txId, unspent.vout)
         tx.addOutput(dataScript, 1000)
