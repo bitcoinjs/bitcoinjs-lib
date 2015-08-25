@@ -1,5 +1,3 @@
-var bigi = require('bigi')
-var ecurve = require('ecurve')
 var typeforce = require('typeforce')
 
 function nBuffer (value, n) {
@@ -24,9 +22,9 @@ function UInt53 (value) {
 }
 
 // external dependent types
-function BigInt (value) { return !typeforce.Null(value) && value.constructor === bigi }
-function ECCurve (value) { return !typeforce.Null(value) && value.constructor === ecurve.Curve }
-function ECPoint (value) { return !typeforce.Null(value) && value.constructor === ecurve.Point }
+var BigInt = typeforce.quacksLike('BigInteger')
+var ECCurve = typeforce.quacksLike('Curve')
+var ECPoint = typeforce.quacksLike('Point')
 
 // exposed, external API
 var ECSignature = typeforce.compile({ r: BigInt, s: BigInt })
