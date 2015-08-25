@@ -1,10 +1,7 @@
+var bip66 = require('bip66')
 var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
-
-var ECSignature = require('./ecsignature')
-var ecurve = require('ecurve')
-var curve = ecurve.getCurveByName('secp256k1')
 
 var OPS = require('./opcodes')
 var REVERSE_OPS = []
@@ -118,34 +115,31 @@ function decompile (buffer) {
 
 function isCanonicalPubKey (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
+  if (buffer.length < 33) return false
 
-  try {
-    ecurve.Point.decodeFrom(curve, buffer)
-  } catch (e) {
-    if (!(e.message.match(/Invalid sequence (length|tag)/))) {
-      throw e
-    }
-
-    return false
+  switch (buffer[0]) {
+    case 0x02:
+    case 0x03:
+      return buffer.length === 33
+    case 0x04:
+      return buffer.length === 65
   }
 
-  return true
+  return false
 }
 
 function isCanonicalSignature (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
+  if (!isDefinedHashType(buffer[buffer.length - 1])) return false
 
-  try {
-    ECSignature.parseScriptSignature(buffer)
-  } catch (e) {
-    if (!(e.message.match(/Not a DER sequence|Invalid sequence length|Expected a DER integer|R length is zero|S length is zero|R value excessively padded|S value excessively padded|R value is negative|S value is negative|Invalid hashType/))) {
-      throw e
-    }
+  return bip66.check(buffer.slice(0, -1))
+}
 
-    return false
-  }
+function isDefinedHashType (hashType) {
+  var hashTypeMod = hashType & ~0x80
 
-  return true
+// return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
+  return hashTypeMod > 0x00 && hashTypeMod < 0x04
 }
 
 function isPubKeyHashInput (script) {
@@ -379,6 +373,7 @@ module.exports = {
 
   isCanonicalPubKey: isCanonicalPubKey,
   isCanonicalSignature: isCanonicalSignature,
+  isDefinedHashType: isDefinedHashType,
   isPubKeyHashInput: isPubKeyHashInput,
   isPubKeyHashOutput: isPubKeyHashOutput,
   isPubKeyInput: isPubKeyInput,
