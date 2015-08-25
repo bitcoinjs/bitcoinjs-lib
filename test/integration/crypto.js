@@ -24,7 +24,7 @@ describe('bitcoinjs-lib (crypto)', function () {
       var Qprime = Q.add(cG)
 
       return {
-        address: new bitcoin.ECPair(null, Qprime).getAddress(),
+        sharedQ: Qprime,
         nonceQ: noncePair.Q
       }
     }
@@ -34,9 +34,7 @@ describe('bitcoinjs-lib (crypto)', function () {
       var c = bigi.fromBuffer(bitcoin.crypto.sha256(dP.getEncoded()))
       var derived = new bitcoin.ECPair(d.add(c).mod(n))
 
-      return {
-        keyPair: derived
-      }
+      return derived
     }
 
     // receiver private key
@@ -48,7 +46,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     var stealthR = stealthReceive(receiver.d, stealthS.nonceQ) // private, done by receiver
 
     // and check that we derived both sides correctly
-    assert.equal(stealthS.address, stealthR.keyPair.getAddress())
+    assert.equal(stealthS.sharedQ.getAddress(), stealthR.getAddress())
   })
 
   // TODO
