@@ -193,7 +193,7 @@ describe('HDNode', function () {
       assert.strictEqual(hd.depth, depth || 0)
 
       if (v.hardened) {
-        assert.strictEqual(hd.index, v.m + HDNode.HIGHEST_BIT)
+        assert.strictEqual(hd.index, v.m + 0x80000000)
       } else {
         assert.strictEqual(hd.index, v.m)
       }

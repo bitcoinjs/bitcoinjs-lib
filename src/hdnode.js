@@ -11,6 +11,9 @@ var ECPair = require('./ecpair')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
+var MASTER_SECRET = new Buffer('Bitcoin seed')
+var HIGHEST_BIT = 0x80000000
+
 function HDNode (keyPair, chainCode) {
   typeforce(types.tuple('ECPair', types.Buffer256bit), arguments)
 
@@ -23,17 +26,13 @@ function HDNode (keyPair, chainCode) {
   this.parentFingerprint = 0x00000000
 }
 
-HDNode.MASTER_SECRET = new Buffer('Bitcoin seed')
-HDNode.HIGHEST_BIT = 0x80000000
-HDNode.LENGTH = 78
-
 HDNode.fromSeedBuffer = function (seed, network) {
   typeforce(types.tuple(types.Buffer, types.maybe(types.Network)), arguments)
 
   if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
   if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
 
-  var I = createHmac('sha512', HDNode.MASTER_SECRET).update(seed).digest()
+  var I = createHmac('sha512', MASTER_SECRET).update(seed).digest()
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 
@@ -53,9 +52,9 @@ HDNode.fromSeedHex = function (hex, network) {
 
 HDNode.fromBase58 = function (string, networks) {
   var buffer = base58check.decode(string)
-  if (buffer.length !== HDNode.LENGTH) throw new Error('Invalid buffer length')
+  if (buffer.length !== 78) throw new Error('Invalid buffer length')
 
-  // 4 byte: version bytes
+  // 4 bytes: version bytes
   var version = buffer.readUInt32BE(0)
   var network
 
@@ -75,7 +74,7 @@ HDNode.fromBase58 = function (string, networks) {
     version !== network.bip32.public) throw new Error('Invalid network')
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
-  var depth = buffer.readUInt8(4)
+  var depth = buffer[4]
 
   // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
   var parentFingerprint = buffer.readUInt32BE(5)
@@ -155,12 +154,11 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
   // Version
   var network = this.keyPair.network
   var version = this.keyPair.d ? network.bip32.private : network.bip32.public
-  var buffer = new Buffer(HDNode.LENGTH)
+  var buffer = new Buffer(78)
 
   // 4 bytes: version bytes
   buffer.writeUInt32BE(version, 0)
 
-  // Depth
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ....
   buffer.writeUInt8(this.depth, 4)
 
@@ -191,7 +189,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
 HDNode.prototype.derive = function (index) {
-  var isHardened = index >= HDNode.HIGHEST_BIT
+  var isHardened = index >= HIGHEST_BIT
   var data = new Buffer(37)
 
   // Hardened child
@@ -263,7 +261,7 @@ HDNode.prototype.derive = function (index) {
 
 HDNode.prototype.deriveHardened = function (index) {
   // Only derives hardened private keys by default
-  return this.derive(index + HDNode.HIGHEST_BIT)
+  return this.derive(index + HIGHEST_BIT)
 }
 
 HDNode.prototype.toString = HDNode.prototype.toBase58
