@@ -211,7 +211,6 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
         input.sequence = 0
       }
     })
-
   } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE) {
     var nOut = inIndex
 

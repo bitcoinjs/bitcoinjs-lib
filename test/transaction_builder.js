@@ -203,7 +203,6 @@ describe('TransactionBuilder', function () {
 
             if (!sign.throws) {
               txb.sign(index, keyPair, redeemScript, sign.hashType)
-
             } else {
               assert.throws(function () {
                 txb.sign(index, keyPair, redeemScript, sign.hashType)
@@ -229,9 +228,7 @@ describe('TransactionBuilder', function () {
       describe('for ' + (f.description || f.exception), function () {
         beforeEach(function () {
           if (f.txHex) {
-            var tx = Transaction.fromHex(f.txHex)
-            txb = TransactionBuilder.fromTransaction(tx)
-
+            txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
           } else {
             txb = construct(f)
           }

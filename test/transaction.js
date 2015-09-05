@@ -19,7 +19,6 @@ describe('Transaction', function () {
 
       if (txIn.data) {
         scriptSig = new Buffer(txIn.data, 'hex')
-
       } else if (txIn.script) {
         scriptSig = bscript.fromASM(txIn.script)
       }
@@ -31,9 +30,7 @@ describe('Transaction', function () {
       var script
 
       if (txOut.data) {
-        var data = new Buffer(txOut.data, 'hex')
-        script = data
-
+        script = new Buffer(txOut.data, 'hex')
       } else if (txOut.script) {
         script = bscript.fromASM(txOut.script)
       }

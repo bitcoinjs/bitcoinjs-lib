@@ -323,7 +323,6 @@ describe('script', function () {
 
         if (f.scriptSig) {
           assert.strictEqual(bscript.toASM(scriptSig), f.scriptSig)
-
         } else {
           assert.strictEqual(scriptSig.toString('hex'), f.scriptSigHex)
         }
