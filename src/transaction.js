@@ -52,23 +52,12 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
 
   var vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
-    var hash = readSlice(32)
-
-    if (Transaction.isCoinbaseHash(hash)) {
-      tx.ins.push({
-        hash: hash,
-        index: readUInt32(),
-        script: readScript(),
-        sequence: readUInt32()
-      })
-    } else {
-      tx.ins.push({
-        hash: hash,
-        index: readUInt32(),
-        script: readScript(),
-        sequence: readUInt32()
-      })
-    }
+    tx.ins.push({
+      hash: readSlice(32),
+      index: readUInt32(),
+      script: readScript(),
+      sequence: readUInt32()
+    })
   }
 
   var voutLen = readVarInt()
