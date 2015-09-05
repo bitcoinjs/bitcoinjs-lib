@@ -84,7 +84,7 @@ function decompile (buffer) {
   var i = 0
 
   while (i < buffer.length) {
-    var opcode = buffer.readUInt8(i)
+    var opcode = buffer[i]
 
     // data chunk
     if ((opcode > OPS.OP_0) && (opcode <= OPS.OP_PUSHDATA4)) {

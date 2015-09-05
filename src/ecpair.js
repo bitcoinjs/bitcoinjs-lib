@@ -1,7 +1,6 @@
 var bcrypto = require('./crypto')
 var bs58check = require('bs58check')
 var ecdsa = require('./ecdsa')
-var ecurve = require('ecurve')
 var randomBytes = require('randombytes')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -10,7 +9,8 @@ var wif = require('wif')
 var NETWORKS = require('./networks')
 var BigInteger = require('bigi')
 
-var secp256k1 = ecurve.getCurveByName('secp256k1')
+var ecurve = require('ecurve')
+var secp256k1 = ecdsa.__curve
 
 function ECPair (d, Q, options) {
   if (options) {
@@ -112,7 +112,7 @@ ECPair.prototype.getPublicKeyBuffer = function () {
 ECPair.prototype.sign = function (hash) {
   if (!this.d) throw new Error('Missing private key')
 
-  return ecdsa.sign(secp256k1, hash, this.d)
+  return ecdsa.sign(hash, this.d)
 }
 
 ECPair.prototype.toWIF = function () {
@@ -122,7 +122,7 @@ ECPair.prototype.toWIF = function () {
 }
 
 ECPair.prototype.verify = function (hash, signature) {
-  return ecdsa.verify(secp256k1, hash, signature, this.Q)
+  return ecdsa.verify(hash, signature, this.Q)
 }
 
 module.exports = ECPair

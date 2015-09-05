@@ -9,7 +9,7 @@ function fromBase58Check (address) {
   if (payload.length < 21) throw new TypeError(address + ' is too short')
   if (payload.length > 21) throw new TypeError(address + ' is too long')
 
-  var version = payload.readUInt8(0)
+  var version = payload[0]
   var hash = payload.slice(1)
 
   return { hash: hash, version: version }
@@ -38,15 +38,9 @@ function toBase58Check (hash, version) {
 function toOutputScript (address, network) {
   network = network || networks.bitcoin
 
-  var payload = bs58check.decode(address)
-  if (payload.length < 21) throw new TypeError(address + ' is too short')
-  if (payload.length > 21) throw new TypeError(address + ' is too long')
-
-  var version = payload.readUInt8(0)
-  var hash = payload.slice(1)
-
-  if (version === network.pubKeyHash) return bscript.pubKeyHashOutput(hash)
-  if (version === network.scriptHash) return bscript.scriptHashOutput(hash)
+  var decode = fromBase58Check(address)
+  if (decode.version === network.pubKeyHash) return bscript.pubKeyHashOutput(decode.hash)
+  if (decode.version === network.scriptHash) return bscript.scriptHashOutput(decode.hash)
 
   throw new Error(address + ' has no matching Script')
 }
