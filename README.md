@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
 [![NPM](http://img.shields.io/npm/v/bip66.svg)](https://www.npmjs.org/package/bip66)
-[![Coverage Status](https://coveralls.io/repos/bitcoinjs/bitcoinjs-lib/badge.png)](https://coveralls.io/r/bitcoinjs/bitcoinjs-lib)
 [![tip for next commit](http://tip4commit.com/projects/735.svg)](http://tip4commit.com/projects/735)
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
