@@ -23,7 +23,6 @@ function UInt53 (value) {
 
 // external dependent types
 var BigInt = typeforce.quacksLike('BigInteger')
-var ECCurve = typeforce.quacksLike('Curve')
 var ECPoint = typeforce.quacksLike('Point')
 
 // exposed, external API
@@ -44,7 +43,6 @@ var Network = typeforce.compile({
 var types = {
   BigInt: BigInt,
   Buffer256bit: Buffer256bit,
-  ECCurve: ECCurve,
   ECPoint: ECPoint,
   ECSignature: ECSignature,
   Hash160bit: Hash160bit,
