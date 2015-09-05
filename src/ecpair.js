@@ -28,7 +28,6 @@ function ECPair (d, Q, options) {
     if (Q) throw new TypeError('Unexpected publicKey parameter')
 
     this.d = d
-
   } else {
     typeforce(types.ECPoint, Q)
 

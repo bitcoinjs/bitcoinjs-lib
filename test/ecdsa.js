@@ -174,7 +174,6 @@ describe('ecdsa', function () {
         var signature
         if (f.signature) {
           signature = ECSignature.fromDER(new Buffer(f.signature, 'hex'))
-
         } else if (f.signatureRaw) {
           signature = new ECSignature(new BigInteger(f.signatureRaw.r, 16), new BigInteger(f.signatureRaw.s, 16))
         }
