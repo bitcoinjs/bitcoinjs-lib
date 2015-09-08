@@ -265,6 +265,64 @@
         ]
       }
     ],
+    "fromTransaction": [
+      {
+        "description": "Transaction w/ scriptHash(multisig 2-of-2) -> OP_RETURN | 1 OP_0, no signatures",
+        "network": "testnet",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ scriptHash(multisig 2-of-2) -> OP_RETURN | missing OP_0, 1 signature",
+        "network": "testnet",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 OP_0 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ scriptHash(multisig 2-of-2) -> OP_RETURN | no OP_0, 2 signatures",
+        "network": "testnet",
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      }
+    ],
     "multisig": [
       {
         "description": "P2SH 2-of-2 multisig, signed in correct order",
