@@ -3,6 +3,7 @@
 var assert = require('assert')
 var baddress = require('../src/address')
 var bscript = require('../src/script')
+var bufferutils = require('../src/bufferutils')
 var ops = require('../src/opcodes')
 
 var BigInteger = require('bigi')
@@ -76,13 +77,40 @@ describe('TransactionBuilder', function () {
 
   describe('fromTransaction', function () {
     fixtures.valid.build.forEach(function (f) {
-      it('builds the correct TransactionBuilder for ' + f.description, function () {
+      it('builds TransactionBuilder, with ' + f.description, function () {
         var network = NETWORKS[f.network || 'bitcoin']
         var tx = Transaction.fromHex(f.txHex)
         var txb = TransactionBuilder.fromTransaction(tx, network)
 
         assert.strictEqual(txb.build().toHex(), f.txHex)
         assert.strictEqual(txb.network, network)
+      })
+    })
+
+    fixtures.valid.fromTransaction.forEach(function (f) {
+      it('builds TransactionBuilder, with ' + f.description, function () {
+        var tx = new Transaction()
+
+        f.inputs.forEach(function (input) {
+          var txHash = bufferutils.reverse(new Buffer(input.txId, 'hex'))
+
+          tx.addInput(txHash, input.vout, undefined, bscript.fromASM(input.scriptSig))
+        })
+
+        f.outputs.forEach(function (output) {
+          tx.addOutput(bscript.fromASM(output.script), output.value)
+        })
+
+        var txb = TransactionBuilder.fromTransaction(tx)
+        var txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
+
+        txAfter.ins.forEach(function (input, i) {
+          assert.equal(bscript.toASM(input.script), f.inputs[i].scriptSigAfter)
+        })
+
+        txAfter.outs.forEach(function (output, i) {
+          assert.equal(bscript.toASM(output.script), f.outputs[i].script)
+        })
       })
     })
 

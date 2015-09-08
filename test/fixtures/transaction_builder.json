@@ -119,6 +119,32 @@
         ]
       },
       {
+        "description": "Transaction w/ multisig 2-of-3 -> pubKeyHash",
+        "network": "testnet",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000910047304402206b2fc7d3182e2853cab5bcffb85c3ef5470d2d05c496295538c9947af3bfd0ec0220300aa705a985c74f76c26c6d68da9b61b5c4cd5432e8c6a54623f376c8bf8cde01473044022031059c4dd6a97d84e3a4eb1ca21a9870bd1762fbd5db7c1932d75e56da78794502200f22d85be3c5f7035e89a147ee2619a066df19aff14a62e6bb3f649b6da19edf01ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
+              },
+              {
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 faf1d99bf040ea9c7f8cc9f14ac6733ad75ce246 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
         "description": "Transaction w/ multisig 2-of-2 (reverse order) -> pubKeyHash",
         "network": "testnet",
         "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000009200483045022100b7a9bab60c4307349de9571ce0bd26ebb9d68d4e9ab3f9173e1f736f1390a04a022020931ff70e87033cdd94bdf434e865993b2258065c5c222a53f29d077bcfa4480147304402206d79ad83f1ab12fc9feee9e66412de842fcbf8de0632beb4433d469f24f0fb4e022079e6df186582f2686a3292bde8e50dac36cb9bec3991995fe331e1daef7df8a401ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
@@ -235,6 +261,64 @@
           {
             "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "value": 10000
+          }
+        ]
+      }
+    ],
+    "fromTransaction": [
+      {
+        "description": "Transaction w/ scriptHash(multisig 2-of-2) -> OP_RETURN | 1 OP_0, no signatures",
+        "network": "testnet",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ scriptHash(multisig 2-of-2) -> OP_RETURN | missing OP_0, 1 signature",
+        "network": "testnet",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 OP_0 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ scriptHash(multisig 2-of-2) -> OP_RETURN | no OP_0, 2 signatures",
+        "network": "testnet",
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
           }
         ]
       }
