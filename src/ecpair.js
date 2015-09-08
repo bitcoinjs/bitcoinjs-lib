@@ -89,7 +89,7 @@ ECPair.makeRandom = function (options) {
     typeforce(types.Buffer256bit, buffer)
 
     d = BigInteger.fromBuffer(buffer)
-  } while (d.signum() === 0 || d.compareTo(secp256k1.n) >= 0)
+  } while (d.signum() <= 0 || d.compareTo(secp256k1.n) >= 0)
 
   return new ECPair(d, null, options)
 }
