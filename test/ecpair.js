@@ -11,7 +11,7 @@ var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
 
 var fixtures = require('./fixtures/ecpair.json')
-var secp256k1 = ecurve.getCurveByName('secp256k1')
+var curve = ecdsa.__curve
 
 var NETWORKS = require('../src/networks')
 var NETWORKS_LIST = [] // Object.values(NETWORKS)
@@ -54,7 +54,7 @@ describe('ECPair', function () {
 
     it('throws if public and private key given', function () {
       var qBuffer = new Buffer('0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 'hex')
-      var Q = ecurve.Point.decodeFrom(secp256k1, qBuffer)
+      var Q = ecurve.Point.decodeFrom(curve, qBuffer)
 
       assert.throws(function () {
         new ECPair(BigInteger.ONE, Q)
@@ -100,7 +100,7 @@ describe('ECPair', function () {
 
     it('wraps Q.getEncoded', sinon.test(function () {
       this.mock(keyPair.Q).expects('getEncoded')
-        .once().calledWith(keyPair.compressed)
+        .once().withArgs(keyPair.compressed)
 
       keyPair.getPublicKeyBuffer()
     }))
@@ -160,18 +160,6 @@ describe('ECPair', function () {
         var keyPair = ProxiedECPair.makeRandom()
         assert.strictEqual(keyPair.toWIF(), exWIF)
       })
-
-      it('passes the options param', sinon.test(function () {
-        var options = {
-          compressed: true
-        }
-
-        // FIXME: waiting on https://github.com/cjohansen/Sinon.JS/issues/613
-//        this.mock(ECPair).expects('constructor')
-//          .once().calledWith(options)
-
-        ECPair.makeRandom(options)
-      }))
     })
 
     it('allows a custom RNG to be used', function () {
@@ -204,7 +192,7 @@ describe('ECPair', function () {
     describe('signing', function () {
       it('wraps ecdsa.sign', sinon.test(function () {
         this.mock(ecdsa).expects('sign')
-          .once().calledWith(secp256k1, hash, keyPair.d)
+          .once().withArgs(hash, keyPair.d)
 
         keyPair.sign(hash)
       }))
@@ -227,7 +215,7 @@ describe('ECPair', function () {
 
       it('wraps ecdsa.verify', sinon.test(function () {
         this.mock(ecdsa).expects('verify')
-          .once().calledWith(secp256k1, hash, signature, keyPair.Q)
+          .once().withArgs(hash, signature, keyPair.Q)
 
         keyPair.verify(hash, signature)
       }))
