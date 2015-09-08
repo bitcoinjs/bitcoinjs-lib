@@ -3,7 +3,6 @@ before_install:
   - "npm install npm -g"
 node_js:
   - "0.12"
-  - "0.11"
   - "0.10"
 env:
   - TEST_SUITE=coverage
