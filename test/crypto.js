@@ -5,10 +5,10 @@ var bcrypto = require('../src/crypto')
 
 var fixtures = require('./fixtures/crypto')
 
-describe('Crypto', function () {
+describe('crypto', function () {
   ['hash160', 'hash256', 'ripemd160', 'sha1', 'sha256'].forEach(function (algorithm) {
     describe(algorithm, function () {
-      fixtures.valid.forEach(function (f) {
+      fixtures.forEach(function (f) {
         var fn = bcrypto[algorithm]
         var expected = f[algorithm]
 
