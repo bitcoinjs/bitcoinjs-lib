@@ -67,7 +67,7 @@ describe('bitcoinjs-lib (crypto)', function () {
       serQP.copy(data, 0)
 
       // search index space until we find it
-      for (var i = 0; i < bitcoin.HDNode.HIGHEST_BIT; ++i) {
+      for (var i = 0; i < 0x80000000; ++i) {
         data.writeUInt32BE(i, 33)
 
         // calculate I
