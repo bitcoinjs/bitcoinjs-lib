@@ -11,9 +11,6 @@ var ECPair = require('./ecpair')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
-var MASTER_SECRET = new Buffer('Bitcoin seed')
-var HIGHEST_BIT = 0x80000000
-
 function HDNode (keyPair, chainCode) {
   typeforce(types.tuple('ECPair', types.Buffer256bit), arguments)
 
@@ -26,13 +23,17 @@ function HDNode (keyPair, chainCode) {
   this.parentFingerprint = 0x00000000
 }
 
+HDNode.HIGHEST_BIT = 0x80000000
+HDNode.LENGTH = 78
+HDNode.MASTER_SECRET = new Buffer('Bitcoin seed')
+
 HDNode.fromSeedBuffer = function (seed, network) {
   typeforce(types.tuple(types.Buffer, types.maybe(types.Network)), arguments)
 
   if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
   if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
 
-  var I = createHmac('sha512', MASTER_SECRET).update(seed).digest()
+  var I = createHmac('sha512', HDNode.MASTER_SECRET).update(seed).digest()
   var IL = I.slice(0, 32)
   var IR = I.slice(32)
 
@@ -189,7 +190,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
 HDNode.prototype.derive = function (index) {
-  var isHardened = index >= HIGHEST_BIT
+  var isHardened = index >= HDNode.HIGHEST_BIT
   var data = new Buffer(37)
 
   // Hardened child
@@ -261,7 +262,7 @@ HDNode.prototype.derive = function (index) {
 
 HDNode.prototype.deriveHardened = function (index) {
   // Only derives hardened private keys by default
-  return this.derive(index + HIGHEST_BIT)
+  return this.derive(index + HDNode.HIGHEST_BIT)
 }
 
 HDNode.prototype.toString = HDNode.prototype.toBase58
