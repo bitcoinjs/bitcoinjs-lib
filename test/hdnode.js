@@ -2,6 +2,7 @@
 /* eslint-disable no-new */
 
 var assert = require('assert')
+var ecdsa = require('../src/ecdsa')
 var sinon = require('sinon')
 
 var BigInteger = require('bigi')
@@ -9,6 +10,7 @@ var ECPair = require('../src/ecpair')
 var HDNode = require('../src/hdnode')
 
 var fixtures = require('./fixtures/hdnode.json')
+var curve = ecdsa.__curve
 
 var NETWORKS = require('../src/networks')
 var NETWORKS_LIST = [] // Object.values(NETWORKS)
@@ -67,6 +69,24 @@ describe('HDNode', function () {
         assert.strictEqual(hd.chainCode.toString('hex'), f.master.chainCode)
       })
     })
+
+    it('throws if IL is not within interval [1, n - 1] | IL === 0', sinon.test(function () {
+      this.mock(BigInteger).expects('fromBuffer')
+        .once().returns(BigInteger.ZERO)
+
+      assert.throws(function () {
+        HDNode.fromSeedHex('ffffffffffffffffffffffffffffffff')
+      }, /Private key must be greater than 0/)
+    }))
+
+    it('throws if IL is not within interval [1, n - 1] | IL === n', sinon.test(function () {
+      this.mock(BigInteger).expects('fromBuffer')
+        .once().returns(curve.n)
+
+      assert.throws(function () {
+        HDNode.fromSeedHex('ffffffffffffffffffffffffffffffff')
+      }, /Private key must be less than the curve order/)
+    }))
 
     it('throws on low entropy seed', function () {
       assert.throws(function () {

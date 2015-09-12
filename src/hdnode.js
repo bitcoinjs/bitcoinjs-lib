@@ -124,16 +124,16 @@ HDNode.fromBase58 = function (string, networks) {
   return hd
 }
 
+HDNode.prototype.getAddress = function () {
+  return this.keyPair.getAddress()
+}
+
 HDNode.prototype.getIdentifier = function () {
   return bcrypto.hash160(this.keyPair.getPublicKeyBuffer())
 }
 
 HDNode.prototype.getFingerprint = function () {
   return this.getIdentifier().slice(0, 4)
-}
-
-HDNode.prototype.getAddress = function () {
-  return this.keyPair.getAddress()
 }
 
 HDNode.prototype.neutered = function () {
