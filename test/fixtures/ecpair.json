@@ -82,7 +82,27 @@
       {
         "exception": "Private key must be less than the curve order",
         "d": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+      },
+      {
+        "exception": "Expected property \"compressed\" of type \\?Boolean, got Number 2",
+        "d": "1",
+        "options": {
+          "compressed": 2
+        }
+      },
+      {
+        "exception": "Unexpected publicKey parameter",
+        "d": "1",
+        "Q": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      {
+        "exception": "Expected property \"network.messagePrefix\" of type Buffer|String, got undefined",
+        "d": "1",
+        "options": {
+          "network": {}
+        }
       }
+
     ],
     "fromWIF": [
       {

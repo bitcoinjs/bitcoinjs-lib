@@ -44,31 +44,6 @@ describe('ECPair', function () {
       assert.strictEqual(keyPair.network, NETWORKS.testnet)
     })
 
-    it('throws if compressed option is not a bool', function () {
-      assert.throws(function () {
-        new ECPair(null, null, {
-          compressed: 2
-        }, /Expected Boolean, got 2/)
-      })
-    })
-
-    it('throws if public and private key given', function () {
-      var qBuffer = new Buffer('0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 'hex')
-      var Q = ecurve.Point.decodeFrom(curve, qBuffer)
-
-      assert.throws(function () {
-        new ECPair(BigInteger.ONE, Q)
-      }, /Unexpected publicKey parameter/)
-    })
-
-    it('throws if network is missing pubKeyHash constants', function () {
-      assert.throws(function () {
-        new ECPair(null, null, {
-          network: {}
-        }, /Unknown pubKeyHash constants for network/)
-      })
-    })
-
     fixtures.valid.forEach(function (f) {
       it('calculates the public point for ' + f.WIF, function () {
         var d = new BigInteger(f.d)
@@ -81,11 +56,12 @@ describe('ECPair', function () {
     })
 
     fixtures.invalid.constructor.forEach(function (f) {
-      it('throws on ' + f.d, function () {
-        var d = new BigInteger(f.d)
+      it('throws ' + f.exception, function () {
+        var d = f.d && new BigInteger(f.d)
+        var Q = f.Q && ecurve.Point.decodeFrom(curve, new Buffer(f.Q, 'hex'))
 
         assert.throws(function () {
-          new ECPair(d)
+          new ECPair(d, Q, f.options)
         }, new RegExp(f.exception))
       })
     })
