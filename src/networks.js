@@ -129,6 +129,8 @@ var networks = {
 
 function estimateFee (type) {
   return function (tx) {
+    console.warn('network.*.estimateFee has been removed in 2.0.0, see #470 CHANGELOG')
+
     var network = networks[type]
     var baseFee = network.feePerKb
     var byteSize = tx.toBuffer().length
