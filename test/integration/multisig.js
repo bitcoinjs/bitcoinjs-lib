@@ -22,7 +22,7 @@ describe('bitcoinjs-lib (multisig)', function () {
   })
 
   it('can spend from a 2-of-4 multsig P2SH address', function (done) {
-    this.timeout(20000)
+    this.timeout(22000)
 
     var keyPairs = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
@@ -51,6 +51,7 @@ describe('bitcoinjs-lib (multisig)', function () {
 
         // use the oldest unspent
         var unspent = unspents.pop()
+
         if (!unspent) throw new Error('Faucet didn\'t provide an unspent')
 
         // make a random destination address
@@ -67,14 +68,20 @@ describe('bitcoinjs-lib (multisig)', function () {
         txb.sign(0, keyPairs[2], redeemScript)
 
         // broadcast our transaction
-        blockchain.t.transactions.propagate(txb.build().toHex(), function (err) {
+        var tx = txb.build()
+        var txId = tx.getId()
+
+        blockchain.t.transactions.propagate(tx.toHex(), function (err) {
           if (err) return done(err)
 
-          // check that the funds (1e4 Satoshis) indeed arrived at the intended address
-          blockchain.t.addresses.summary(targetAddress, function (err, result) {
+          // check that the above transaction included the intended address
+          blockchain.t.addresses.unspents(targetAddress, function (err, unspents) {
             if (err) return done(err)
 
-            assert.strictEqual(result.balance, 1e4)
+            assert(unspents.some(function (unspent) {
+              return unspent.txId === txId && unspent.value === 1e4
+            }))
+
             done()
           })
         })
