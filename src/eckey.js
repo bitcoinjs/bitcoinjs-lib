@@ -25,9 +25,13 @@ function ECKey (d, compressed) {
 ECKey.curve = secp256k1
 
 // Static constructors
-ECKey.fromWIF = function (string) {
+ECKey.fromWIF = function (string, network) {
   var payload = base58check.decode(string)
   var compressed = false
+
+  if (!network || (network.wif !== payload[0])) {
+    console.warn('Network detection has been removed in 2.0.0, see #402, #425')
+  }
 
   // Ignore the version byte
   payload = payload.slice(1)
