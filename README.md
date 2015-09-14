@@ -145,8 +145,15 @@ Please make your best effort to adhere to these when contributing to save on tri
 
 ## Complementing Libraries
 
-- [BIP39](https://github.com/weilu/bip39) - Mnemonic code for generating deterministic keys
-- [BIP38](https://github.com/cryptocoinjs/bip38) - Passphrase-protected private keys
+- [BIP21](https://github.com/bitcoinjs/bip21) - A BIP21 compatible URL encoding utility library
+- [BIP38](https://github.com/bitcoinjs/bip38) - Mnemonic generation for deterministic keys
+- [BIP39](https://github.com/bitcoinjs/bip39) - Passphrase-protected private keys
+- [BIP32-Utils](https://github.com/bitcoinjs/bip32-utils) - A set of utilities for working with BIP32
+- [BIP32-Wallet](https://github.com/bitcoinjs/bip32-wallet) - A BIP32 Wallet backed by bitcoinjs-lib, lite on features but heavily tested
+- [BIP66](https://github.com/bitcoinjs/bip66) - Strict DER signature decoding
+- [BIP69](https://github.com/bitcoinjs/bip69) - Mnemonic generation for deterministic keys
+- [Base58](https://github.com/cryptocoinjs/bs58) - Base58 encoding/decoding
+- [Base58 Check](https://github.com/bitcoinjs/bs58check) - Base58 check encoding/decoding
 - [BCoin](https://github.com/indutny/bcoin) - BIP37 / Bloom Filters / SPV client
 - [insight](https://github.com/bitpay/insight) - A bitcoin blockchain API for web wallets.
 
