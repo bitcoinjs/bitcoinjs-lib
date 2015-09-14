@@ -246,7 +246,7 @@ Transaction.prototype.getHash = function () {
 }
 
 Transaction.prototype.getId = function () {
-  // TxHash is little-endian, we need big-endian
+  // transaction hash's are displayed in reverse order
   return bufferutils.reverse(this.getHash()).toString('hex')
 }
 

@@ -169,13 +169,13 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
 }
 
 TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOutScript) {
-  // is it a txId?
+  // is it a hex string?
   if (typeof txHash === 'string') {
-    // a txId is big-endian hex, we want a little-endian Buffer
+    // transaction hashs's are displayed in reverse order, un-reverse it
     txHash = new Buffer(txHash, 'hex')
     Array.prototype.reverse.call(txHash)
 
-  // is it a Transaction?
+  // is it a Transaction object?
   } else if (txHash instanceof Transaction) {
     prevOutScript = txHash.outs[vout].script
     txHash = txHash.getHash()
