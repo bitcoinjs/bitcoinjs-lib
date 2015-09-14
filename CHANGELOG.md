@@ -51,6 +51,7 @@ __removed__
 
 - `networks.*.magic`, see the comment [here](https://github.com/bitcoinjs/bitcoinjs-lib/pull/432/files#r36715792)
 - `networks.[viacoin|viacointestnet|gamerscoin|jumbucks|zetacoin]`, import these yourself (see #383/a0e6ee7)
+- `networks.*.estimateFee`, out-dated
 
 __renamed__
 - `Message` -> `message`
