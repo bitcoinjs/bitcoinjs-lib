@@ -149,7 +149,7 @@ describe('Bitcoin-core', function () {
         transaction.ins.forEach(function (txIn, i) {
           var input = inputs[i]
 
-          // reverse because test data is big-endian
+          // reverse because test data is reversed
           var prevOutHash = bitcoin.bufferutils.reverse(new Buffer(input[0], 'hex'))
           var prevOutIndex = input[1]
 
@@ -202,7 +202,7 @@ describe('Bitcoin-core', function () {
       var inIndex = f[2]
       var hashType = f[3]
 
-      // reverse because test data is big-endian
+      // reverse because test data is reversed
       var expectedHash = bitcoin.bufferutils.reverse(new Buffer(f[4], 'hex'))
 
       var hashTypes = []
