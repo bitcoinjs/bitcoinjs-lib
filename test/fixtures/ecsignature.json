@@ -130,24 +130,32 @@
     ],
     "DER": [
       {
-        "exception": "Invalid sequence length",
+        "exception": "DER sequence length is too short",
+        "hex": "ffffffffffffff"
+      },
+      {
+        "exception": "DER sequence length is too long",
+        "hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      {
+        "exception": "Expected DER sequence",
+        "hex": "00ffff0400ffffff020400ffffff"
+      },
+      {
+        "exception": "DER sequence length is invalid",
         "hex": "30ff020400ffffff020400ffffff"
       },
       {
-        "exception": "Invalid sequence length",
+        "exception": "DER sequence length is invalid",
         "hex": "300c030400ffffff030400ffffff0000"
       },
       {
-        "exception": "Expected a DER integer",
+        "exception": "Expected DER integer",
         "hex": "300cff0400ffffff020400ffffff"
       },
       {
-        "exception": "Expected a DER integer \\(2\\)",
+        "exception": "Expected DER integer \\(2\\)",
         "hex": "300c020200ffffff020400ffffff"
-      },
-      {
-        "exception": "Invalid DER encoding",
-        "hex": "300c020400ffffff020200ffffff"
       },
       {
         "exception": "R length is zero",
@@ -158,12 +166,20 @@
         "hex": "3008020400ffffff0200"
       },
       {
+        "exception": "R length is too long",
+        "hex": "300c02dd00ffffff020400ffffff"
+      },
+      {
+        "exception": "S length is invalid",
+        "hex": "300c020400ffffff02dd00ffffff"
+      },
+      {
         "exception": "R value is negative",
-        "hex": "300c0204ffffffff020400ffffff"
+        "hex": "300c020480000000020400ffffff"
       },
       {
         "exception": "S value is negative",
-        "hex": "300c020400ffffff0204ffffffff"
+        "hex": "300c020400ffffff020480000000"
       },
       {
         "exception": "R value excessively padded",

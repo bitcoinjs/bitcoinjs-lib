@@ -14,7 +14,7 @@ describe('ECSignature', function () {
         var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
 
         var buffer = signature.toCompact(f.compact.i, f.compact.compressed)
-        assert.equal(buffer.toString('hex'), f.compact.hex)
+        assert.strictEqual(buffer.toString('hex'), f.compact.hex)
       })
     })
   })
@@ -25,10 +25,10 @@ describe('ECSignature', function () {
         var buffer = new Buffer(f.compact.hex, 'hex')
         var parsed = ECSignature.parseCompact(buffer)
 
-        assert.equal(parsed.compressed, f.compact.compressed)
-        assert.equal(parsed.i, f.compact.i)
-        assert.equal(parsed.signature.r.toString(), f.signature.r)
-        assert.equal(parsed.signature.s.toString(), f.signature.s)
+        assert.strictEqual(parsed.compressed, f.compact.compressed)
+        assert.strictEqual(parsed.i, f.compact.i)
+        assert.strictEqual(parsed.signature.r.toString(), f.signature.r)
+        assert.strictEqual(parsed.signature.s.toString(), f.signature.s)
       })
     })
 
@@ -49,7 +49,7 @@ describe('ECSignature', function () {
         var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
 
         var DER = signature.toDER()
-        assert.equal(DER.toString('hex'), f.DER)
+        assert.strictEqual(DER.toString('hex'), f.DER)
       })
     })
   })
@@ -60,13 +60,13 @@ describe('ECSignature', function () {
         var buffer = new Buffer(f.DER, 'hex')
         var signature = ECSignature.fromDER(buffer)
 
-        assert.equal(signature.r.toString(), f.signature.r)
-        assert.equal(signature.s.toString(), f.signature.s)
+        assert.strictEqual(signature.r.toString(), f.signature.r)
+        assert.strictEqual(signature.s.toString(), f.signature.s)
       })
     })
 
     fixtures.invalid.DER.forEach(function (f) {
-      it('throws on ' + f.hex, function () {
+      it('throws "' + f.exception + '" for ' + f.hex, function () {
         var buffer = new Buffer(f.hex, 'hex')
 
         assert.throws(function () {
@@ -82,7 +82,7 @@ describe('ECSignature', function () {
         var signature = new ECSignature(new BigInteger(f.signature.r), new BigInteger(f.signature.s))
 
         var scriptSignature = signature.toScriptSignature(f.scriptSignature.hashType)
-        assert.equal(scriptSignature.toString('hex'), f.scriptSignature.hex)
+        assert.strictEqual(scriptSignature.toString('hex'), f.scriptSignature.hex)
       })
     })
 
@@ -103,9 +103,9 @@ describe('ECSignature', function () {
         var buffer = new Buffer(f.scriptSignature.hex, 'hex')
         var parsed = ECSignature.parseScriptSignature(buffer)
 
-        assert.equal(parsed.signature.r.toString(), f.signature.r)
-        assert.equal(parsed.signature.s.toString(), f.signature.s)
-        assert.equal(parsed.hashType, f.scriptSignature.hashType)
+        assert.strictEqual(parsed.signature.r.toString(), f.signature.r)
+        assert.strictEqual(parsed.signature.s.toString(), f.signature.s)
+        assert.strictEqual(parsed.hashType, f.scriptSignature.hashType)
       })
     })
 
