@@ -136,6 +136,10 @@ HDNode.prototype.getFingerprint = function () {
   return this.getIdentifier().slice(0, 4)
 }
 
+HDNode.prototype.getNetwork = function () {
+  return this.keyPair.getNetwork()
+}
+
 HDNode.prototype.getPublicKeyBuffer = function () {
   return this.keyPair.getPublicKeyBuffer()
 }

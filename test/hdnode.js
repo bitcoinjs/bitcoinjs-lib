@@ -121,6 +121,15 @@ describe('HDNode', function () {
       }))
     })
 
+    describe('getNetwork', function () {
+      it('wraps keyPair.getNetwork', sinon.test(function () {
+        this.mock(keyPair).expects('getNetwork')
+          .once().withArgs().returns('network')
+
+        assert.strictEqual(hd.getNetwork(), 'network')
+      }))
+    })
+
     describe('getPublicKeyBuffer', function () {
       it('wraps keyPair.getPublicKeyBuffer', sinon.test(function () {
         this.mock(keyPair).expects('getPublicKeyBuffer')

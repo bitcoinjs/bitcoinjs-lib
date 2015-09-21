@@ -167,6 +167,17 @@ describe('ECPair', function () {
     })
   })
 
+  describe('getNetwork', function () {
+    fixtures.valid.forEach(function (f) {
+      it('returns ' + f.network + ' for ' + f.WIF, function () {
+        var network = NETWORKS[f.network]
+        var keyPair = ECPair.fromWIF(f.WIF, NETWORKS_LIST)
+
+        assert.strictEqual(keyPair.getNetwork(), network)
+      })
+    })
+  })
+
   describe('ecdsa wrappers', function () {
     var keyPair, hash
 
