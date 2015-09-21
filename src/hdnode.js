@@ -149,6 +149,14 @@ HDNode.prototype.neutered = function () {
   return neutered
 }
 
+HDNode.prototype.sign = function (hash) {
+  return this.keyPair.sign(hash)
+}
+
+HDNode.prototype.verify = function (hash, signature) {
+  return this.keyPair.verify(hash, signature)
+}
+
 HDNode.prototype.toBase58 = function (__isPrivate) {
   if (__isPrivate !== undefined) throw new TypeError('Unsupported argument in 2.0.0')
 
