@@ -136,6 +136,10 @@ HDNode.prototype.getFingerprint = function () {
   return this.getIdentifier().slice(0, 4)
 }
 
+HDNode.prototype.getPublicKeyBuffer = function () {
+  return this.keyPair.getPublicKeyBuffer()
+}
+
 HDNode.prototype.neutered = function () {
   var neuteredKeyPair = new ECPair(null, this.keyPair.Q, {
     network: this.keyPair.network
