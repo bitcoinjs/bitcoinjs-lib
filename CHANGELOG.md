@@ -1,3 +1,16 @@
+# 2.1.0
+
+From this release users should use the HDNode directly (compared to accessing `.keyPair`) when performing ECDSA operations such as `sign` or `verify`.
+Ideally you shoud not have to directly access `HDNode` internals for general usage,  as it can often be confusing and error prone.
+
+__added__
+- `ECPair.prototype.getNetwork`
+- `HDNode.prototype.getNetwork`, wraps the underyling keyPair's `getNetwork` method
+- `HDNode.prototype.getPublicKeyBuffer`, wraps the underyling keyPair's `getPublicKeyBuffer` method
+- `HDNode.prototype.sign`, wraps the underlying keyPair's `sign` method
+- `HDNode.prototype.verify`, wraps the underlying keyPair's `verify` method
+
+
 # 2.0.0
 
 In this release we have strived to simplify the API,  [using native types](https://github.com/bitcoinjs/bitcoinjs-lib/issues/407) wherevever possible to encourage cross-compatibility with other open source community modules.

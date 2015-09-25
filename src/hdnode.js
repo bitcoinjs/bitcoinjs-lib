@@ -136,6 +136,14 @@ HDNode.prototype.getFingerprint = function () {
   return this.getIdentifier().slice(0, 4)
 }
 
+HDNode.prototype.getNetwork = function () {
+  return this.keyPair.getNetwork()
+}
+
+HDNode.prototype.getPublicKeyBuffer = function () {
+  return this.keyPair.getPublicKeyBuffer()
+}
+
 HDNode.prototype.neutered = function () {
   var neuteredKeyPair = new ECPair(null, this.keyPair.Q, {
     network: this.keyPair.network
@@ -147,6 +155,14 @@ HDNode.prototype.neutered = function () {
   neutered.parentFingerprint = this.parentFingerprint
 
   return neutered
+}
+
+HDNode.prototype.sign = function (hash) {
+  return this.keyPair.sign(hash)
+}
+
+HDNode.prototype.verify = function (hash, signature) {
+  return this.keyPair.verify(hash, signature)
 }
 
 HDNode.prototype.toBase58 = function (__isPrivate) {

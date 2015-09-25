@@ -101,6 +101,69 @@ describe('HDNode', function () {
     })
   })
 
+  describe('ECPair wrappers', function () {
+    var keyPair, hd, hash
+
+    beforeEach(function () {
+      keyPair = ECPair.makeRandom()
+      hash = new Buffer(32)
+
+      var chainCode = new Buffer(32)
+      hd = new HDNode(keyPair, chainCode)
+    })
+
+    describe('getAddress', function () {
+      it('wraps keyPair.getAddress', sinon.test(function () {
+        this.mock(keyPair).expects('getAddress')
+          .once().withArgs().returns('foobar')
+
+        assert.strictEqual(hd.getAddress(), 'foobar')
+      }))
+    })
+
+    describe('getNetwork', function () {
+      it('wraps keyPair.getNetwork', sinon.test(function () {
+        this.mock(keyPair).expects('getNetwork')
+          .once().withArgs().returns('network')
+
+        assert.strictEqual(hd.getNetwork(), 'network')
+      }))
+    })
+
+    describe('getPublicKeyBuffer', function () {
+      it('wraps keyPair.getPublicKeyBuffer', sinon.test(function () {
+        this.mock(keyPair).expects('getPublicKeyBuffer')
+          .once().withArgs().returns('pubKeyBuffer')
+
+        assert.strictEqual(hd.getPublicKeyBuffer(), 'pubKeyBuffer')
+      }))
+    })
+
+    describe('sign', function () {
+      it('wraps keyPair.sign', sinon.test(function () {
+        this.mock(keyPair).expects('sign')
+          .once().withArgs(hash).returns('signed')
+
+        assert.strictEqual(hd.sign(hash), 'signed')
+      }))
+    })
+
+    describe('verify', function () {
+      var signature
+
+      beforeEach(function () {
+        signature = hd.sign(hash)
+      })
+
+      it('wraps keyPair.verify', sinon.test(function () {
+        this.mock(keyPair).expects('verify')
+          .once().withArgs(hash, signature).returns('verified')
+
+        assert.strictEqual(hd.verify(hash, signature), 'verified')
+      }))
+    })
+  })
+
   describe('toBase58', function () {
     fixtures.valid.forEach(function (f) {
       it('exports ' + f.master.base58 + ' (public) correctly', function () {
@@ -171,23 +234,6 @@ describe('HDNode', function () {
 
       assert.strictEqual(hd.getFingerprint().toString('hex'), f.master.fingerprint)
     })
-  })
-
-  describe('getAddress', function () {
-    var hd
-
-    beforeEach(function () {
-      var f = fixtures.valid[0]
-
-      hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
-    })
-
-    it('wraps ECPair.getAddress', sinon.test(function () {
-      this.mock(hd.keyPair).expects('getAddress')
-        .once().returns('foobar')
-
-      assert.strictEqual(hd.getAddress(), 'foobar')
-    }))
   })
 
   describe('neutered', function () {

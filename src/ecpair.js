@@ -105,6 +105,10 @@ ECPair.prototype.getAddress = function () {
   return bs58check.encode(payload)
 }
 
+ECPair.prototype.getNetwork = function () {
+  return this.network
+}
+
 ECPair.prototype.getPublicKeyBuffer = function () {
   return this.Q.getEncoded(this.compressed)
 }
