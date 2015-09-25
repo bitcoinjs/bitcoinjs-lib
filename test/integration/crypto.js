@@ -5,6 +5,7 @@ var async = require('async')
 var bigi = require('bigi')
 var bitcoin = require('../../')
 var blockchain = require('./_blockchain')
+var bufferReverse = require('buffer-reverse')
 var crypto = require('crypto')
 
 var ecurve = require('ecurve')
@@ -134,7 +135,7 @@ describe('bitcoinjs-lib (crypto)', function () {
 
         assert(bitcoin.script.isPubKeyHashInput(scriptChunks), 'Expected pubKeyHash script')
 
-        var prevOutTxId = bitcoin.bufferutils.reverse(transaction.ins[input.vout].hash).toString('hex')
+        var prevOutTxId = bufferReverse(transaction.ins[input.vout].hash).toString('hex')
         var prevVout = transaction.ins[input.vout].index
 
         tasks.push(function (callback) {

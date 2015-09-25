@@ -167,19 +167,13 @@ function varIntBuffer (i) {
   return buffer
 }
 
-function reverse (buffer) {
-  var buffer2 = new Buffer(buffer)
-  Array.prototype.reverse.call(buffer2)
-  return buffer2
-}
-
 module.exports = {
   equal: require('buffer-equals'),
   pushDataSize: pushDataSize,
   readPushDataInt: readPushDataInt,
   readUInt64LE: readUInt64LE,
   readVarInt: readVarInt,
-  reverse: reverse,
+  reverse: require('buffer-reverse'),
   varIntBuffer: varIntBuffer,
   varIntSize: varIntSize,
   writePushDataInt: writePushDataInt,

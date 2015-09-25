@@ -88,19 +88,6 @@ describe('bufferutils', function () {
     })
   })
 
-  describe('reverse', function () {
-    fixtures.valid.forEach(function (f) {
-      it('reverses ' + f.hex64 + ' correctly', function () {
-        var buffer = new Buffer(f.hex64, 'hex')
-        var buffer2 = bufferutils.reverse(buffer)
-
-        Array.prototype.reverse.call(buffer)
-
-        assert.deepEqual(buffer, buffer2)
-      })
-    })
-  })
-
   describe('varIntBuffer', function () {
     fixtures.valid.forEach(function (f) {
       it('encodes ' + f.dec + ' correctly', function () {
