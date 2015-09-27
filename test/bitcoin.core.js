@@ -150,7 +150,7 @@ describe('Bitcoin-core', function () {
           var input = inputs[i]
 
           // reverse because test data is reversed
-          var prevOutHash = Array.prototype.reverse.call(new Buffer(input[0], 'hex'))
+          var prevOutHash = [].reverse.call(new Buffer(input[0], 'hex'))
           var prevOutIndex = input[1]
 
           assert.deepEqual(txIn.hash, prevOutHash)
@@ -203,7 +203,7 @@ describe('Bitcoin-core', function () {
       var hashType = f[3]
 
       // reverse because test data is reversed
-      var expectedHash = Array.prototype.reverse.call(new Buffer(f[4], 'hex'))
+      var expectedHash = [].reverse.call(new Buffer(f[4], 'hex'))
 
       var hashTypes = []
       if ((hashType & 0x1f) === bitcoin.Transaction.SIGHASH_NONE) hashTypes.push('SIGHASH_NONE')
