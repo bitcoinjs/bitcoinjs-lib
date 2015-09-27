@@ -3,7 +3,6 @@
 var assert = require('assert')
 var base58 = require('bs58')
 var bitcoin = require('../')
-var bufferReverse = require('buffer-reverse')
 
 var base58_encode_decode = require('./fixtures/core/base58_encode_decode.json')
 var base58_keys_invalid = require('./fixtures/core/base58_keys_invalid.json')
@@ -151,7 +150,7 @@ describe('Bitcoin-core', function () {
           var input = inputs[i]
 
           // reverse because test data is reversed
-          var prevOutHash = bufferReverse(new Buffer(input[0], 'hex'))
+          var prevOutHash = Array.prototype.reverse.call(new Buffer(input[0], 'hex'))
           var prevOutIndex = input[1]
 
           assert.deepEqual(txIn.hash, prevOutHash)
@@ -204,7 +203,7 @@ describe('Bitcoin-core', function () {
       var hashType = f[3]
 
       // reverse because test data is reversed
-      var expectedHash = bufferReverse(new Buffer(f[4], 'hex'))
+      var expectedHash = Array.prototype.reverse.call(new Buffer(f[4], 'hex'))
 
       var hashTypes = []
       if ((hashType & 0x1f) === bitcoin.Transaction.SIGHASH_NONE) hashTypes.push('SIGHASH_NONE')

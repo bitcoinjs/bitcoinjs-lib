@@ -3,7 +3,6 @@
 var assert = require('assert')
 var baddress = require('../src/address')
 var bscript = require('../src/script')
-var bufferReverse = require('buffer-reverse')
 var ops = require('../src/opcodes')
 
 var BigInteger = require('bigi')
@@ -92,7 +91,7 @@ describe('TransactionBuilder', function () {
         var tx = new Transaction()
 
         f.inputs.forEach(function (input) {
-          var txHash = bufferReverse(new Buffer(input.txId, 'hex'))
+          var txHash = Array.prototype.reverse.call(new Buffer(input.txId, 'hex'))
 
           tx.addInput(txHash, input.vout, undefined, bscript.fromASM(input.scriptSig))
         })
