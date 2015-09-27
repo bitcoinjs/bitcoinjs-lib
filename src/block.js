@@ -70,7 +70,7 @@ Block.prototype.getHash = function () {
 }
 
 Block.prototype.getId = function () {
-  return Array.prototype.reverse.call(this.getHash()).toString('hex')
+  return [].reverse.call(this.getHash()).toString('hex')
 }
 
 Block.prototype.getUTCDate = function () {
