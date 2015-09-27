@@ -167,29 +167,13 @@ function varIntBuffer (i) {
   return buffer
 }
 
-function equal (a, b) {
-  if (a.length !== b.length) return false
-
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false
-  }
-
-  return true
-}
-
-function reverse (buffer) {
-  var buffer2 = new Buffer(buffer)
-  Array.prototype.reverse.call(buffer2)
-  return buffer2
-}
-
 module.exports = {
-  equal: equal,
+  equal: require('buffer-equals'),
   pushDataSize: pushDataSize,
   readPushDataInt: readPushDataInt,
   readUInt64LE: readUInt64LE,
   readVarInt: readVarInt,
-  reverse: reverse,
+  reverse: require('buffer-reverse'),
   varIntBuffer: varIntBuffer,
   varIntSize: varIntSize,
   writePushDataInt: writePushDataInt,

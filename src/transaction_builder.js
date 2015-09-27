@@ -1,7 +1,8 @@
 var baddress = require('./address')
 var bcrypto = require('./crypto')
 var bscript = require('./script')
-var bufferutils = require('./bufferutils')
+var bufferEquals = require('buffer-equals')
+var bufferReverse = require('buffer-reverse/inplace')
 var networks = require('./networks')
 var ops = require('./opcodes')
 
@@ -17,7 +18,7 @@ function fixMSSignatures (transaction, vin, pubKeys, signatures, prevOutScript, 
 
   return pubKeys.map(function (pubKey) {
     // skip optionally provided pubKey
-    if (skipPubKey && bufferutils.equal(skipPubKey, pubKey)) return undefined
+    if (skipPubKey && bufferEquals(skipPubKey, pubKey)) return undefined
 
     var matched
     var keyPair2 = ECPair.fromPublicKeyBuffer(pubKey)
@@ -173,7 +174,7 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
   if (typeof txHash === 'string') {
     // transaction hashs's are displayed in reverse order, un-reverse it
     txHash = new Buffer(txHash, 'hex')
-    Array.prototype.reverse.call(txHash)
+    bufferReverse(txHash)
 
   // is it a Transaction object?
   } else if (txHash instanceof Transaction) {
@@ -346,7 +347,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
   if (canSign) {
     // if redeemScript was provided, enforce consistency
     if (redeemScript) {
-      if (!bufferutils.equal(input.redeemScript, redeemScript)) throw new Error('Inconsistent redeemScript')
+      if (!bufferEquals(input.redeemScript, redeemScript)) throw new Error('Inconsistent redeemScript')
     }
 
     if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
@@ -360,7 +361,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
         if (input.prevOutType !== 'scripthash') throw new Error('PrevOutScript must be P2SH')
 
         var scriptHash = bscript.decompile(input.prevOutScript)[1]
-        if (!bufferutils.equal(scriptHash, bcrypto.hash160(redeemScript))) throw new Error('RedeemScript does not match ' + scriptHash.toString('hex'))
+        if (!bufferEquals(scriptHash, bcrypto.hash160(redeemScript))) throw new Error('RedeemScript does not match ' + scriptHash.toString('hex'))
       }
 
       var scriptType = bscript.classifyOutput(redeemScript)
@@ -377,7 +378,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
           var pkh1 = redeemScriptChunks[2]
           var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
 
-          if (!bufferutils.equal(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
+          if (!bufferEquals(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
           pubKeys = [kpPubKey]
 
           break
@@ -427,7 +428,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
   // enforce in order signing of public keys
   var valid = input.pubKeys.some(function (pubKey, i) {
-    if (!bufferutils.equal(kpPubKey, pubKey)) return false
+    if (!bufferEquals(kpPubKey, pubKey)) return false
     if (input.signatures[i]) throw new Error('Signature already exists')
 
     var signature = keyPair.sign(signatureHash)
