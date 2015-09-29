@@ -149,19 +149,17 @@ describe('script', function () {
       if (!(inputFnName in fixtures.invalid)) return
 
       fixtures.invalid[inputFnName].forEach(function (f) {
-        if (inputFn && (f.scriptSig || f.scriptSigHex)) {
-          it('returns false for ' + f.description + ' (' + (f.scriptSig || f.scriptSigHex) + ')', function () {
-            var scriptSig
+        it('returns false for ' + f.description + ' (' + (f.scriptSig || f.scriptSigHex) + ')', function () {
+          var scriptSig
 
-            if (f.scriptSig) {
-              scriptSig = bscript.fromASM(f.scriptSig)
-            } else {
-              scriptSig = bscript.fromHex(f.scriptSigHex)
-            }
+          if (f.scriptSig) {
+            scriptSig = bscript.fromASM(f.scriptSig)
+          } else {
+            scriptSig = new Buffer(f.scriptSigHex, 'hex')
+          }
 
-            assert.strictEqual(inputFn(scriptSig), false)
-          })
-        }
+          assert.strictEqual(inputFn(scriptSig), false)
+        })
       })
     })
 
@@ -181,13 +179,17 @@ describe('script', function () {
       if (!(outputFnName in fixtures.invalid)) return
 
       fixtures.invalid[outputFnName].forEach(function (f) {
-        if (outputFn && f.scriptPubKey) {
-          it('returns false for ' + f.description + ' (' + f.scriptPubKey + ')', function () {
-            var scriptPubKey = bscript.fromASM(f.scriptPubKey)
+        it('returns false for ' + f.description + ' (' + (f.scriptPubKey || f.scriptPubKeyHex) + ')', function () {
+          var scriptPubKey
 
-            assert.strictEqual(outputFn(scriptPubKey), false)
-          })
-        }
+          if (f.scriptPubKey) {
+            scriptPubKey = bscript.fromASM(f.scriptPubKey)
+          } else {
+            scriptPubKey = new Buffer(f.scriptPubKeyHex, 'hex')
+          }
+
+          assert.strictEqual(outputFn(scriptPubKey), false)
+        })
       })
     })
   })
