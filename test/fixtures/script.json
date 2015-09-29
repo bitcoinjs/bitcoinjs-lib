@@ -200,6 +200,18 @@
         "scriptPubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1ffffff OP_CHECKSIG"
       }
     ],
+    "isPubKeyHashOutput": [
+      {
+        "description": "non-minimal encoded isPubKeyHashOutput (non BIP62 compliant)",
+        "scriptPubKeyHex": "76a94c14aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+      }
+    ],
+    "isScriptHashOutput": [
+      {
+        "description": "non-minimal encoded isScriptHashOutput (non BIP62 compliant)",
+        "scriptPubKeyHex": "a94c14c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
+      }
+    ],
     "isMultisigOutput": [
       {
         "description": "OP_CHECKMULTISIG not found",
