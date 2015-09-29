@@ -156,15 +156,14 @@ function isPubKeyHashInput (script) {
 }
 
 function isPubKeyHashOutput (script) {
-  var chunks = decompile(script)
+  var buffer = compile(script)
 
-  return chunks.length === 5 &&
-    chunks[0] === OPS.OP_DUP &&
-    chunks[1] === OPS.OP_HASH160 &&
-    Buffer.isBuffer(chunks[2]) &&
-    chunks[2].length === 20 &&
-    chunks[3] === OPS.OP_EQUALVERIFY &&
-    chunks[4] === OPS.OP_CHECKSIG
+  return buffer.length === 25 &&
+    buffer[0] === OPS.OP_DUP &&
+    buffer[1] === OPS.OP_HASH160 &&
+    buffer[2] === 0x14 &&
+    buffer[23] === OPS.OP_EQUALVERIFY &&
+    buffer[24] === OPS.OP_CHECKSIG
 }
 
 function isPubKeyInput (script) {
@@ -199,13 +198,12 @@ function isScriptHashInput (script, allowIncomplete) {
 }
 
 function isScriptHashOutput (script) {
-  var chunks = decompile(script)
+  var buffer = compile(script)
 
-  return chunks.length === 3 &&
-    chunks[0] === OPS.OP_HASH160 &&
-    Buffer.isBuffer(chunks[1]) &&
-    chunks[1].length === 20 &&
-    chunks[2] === OPS.OP_EQUAL
+  return buffer.length === 23 &&
+    buffer[0] === OPS.OP_HASH160 &&
+    buffer[1] === 0x14 &&
+    buffer[22] === OPS.OP_EQUAL
 }
 
 // allowIncomplete is to account for combining signatures
