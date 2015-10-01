@@ -225,12 +225,10 @@ function isMultisigOutput (script) {
   if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) return false
 
   var mOp = chunks[0]
-  if (mOp === OPS.OP_0) return false
   if (mOp < OPS.OP_1) return false
   if (mOp > OPS.OP_16) return false
 
   var nOp = chunks[chunks.length - 2]
-  if (nOp === OPS.OP_0) return false
   if (nOp < OPS.OP_1) return false
   if (nOp > OPS.OP_16) return false
 
@@ -239,7 +237,7 @@ function isMultisigOutput (script) {
   if (n < m) return false
 
   var pubKeys = chunks.slice(1, -2)
-  if (n < pubKeys.length) return false
+  if (n !== pubKeys.length) return false
 
   return pubKeys.every(isCanonicalPubKey)
 }
