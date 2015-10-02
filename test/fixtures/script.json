@@ -246,6 +246,14 @@
         "scriptPubKey": "OP_1 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_2 OP_CHECKMULTISIG"
       },
       {
+        "description": "m is data",
+        "scriptPubKey": "ffff 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_1 OP_CHECKMULTISIG"
+      },
+      {
+        "description": "n is data",
+        "scriptPubKey": "OP_1 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 ffff OP_CHECKMULTISIG"
+      },
+      {
         "description": "non-canonical pubKey (bad length)",
         "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffff OP_1 OP_CHECKMULTISIG"
       }
