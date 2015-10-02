@@ -1,3 +1,13 @@
+# 2.1.1
+
+__changed__
+- removed use of `buffer-reverse`, dependency only kept for `bufferutils.reverse`, to be deprecated
+
+__fixed__
+- `isMultisigOutput` no longer allows data chunks for `m`/`n` (#482)
+- `isMultisigOutput`'s `n` value must now match the number of public keys (as per bitcoin/bitcoin) (#484)
+
+
 # 2.1.0
 
 From this release users should use the HDNode directly (compared to accessing `.keyPair`) when performing ECDSA operations such as `sign` or `verify`.
