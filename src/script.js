@@ -13,6 +13,8 @@ var REVERSE_OPS = (function () {
   return result
 })()
 
+const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
+
 function toASM (chunks) {
   if (types.Buffer(chunks)) {
     chunks = decompile(chunks)
@@ -228,18 +230,18 @@ function isMultisigOutput (script) {
   if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) return false
 
   var mOp = chunks[0]
-  if (!types.Number(mOp)) return false
-  if (mOp < OPS.OP_1) return false
-  if (mOp > OPS.OP_16) return false
-
   var nOp = chunks[chunks.length - 2]
-  if (!types.Number(nOp)) return false
-  if (nOp < OPS.OP_1) return false
-  if (nOp > OPS.OP_16) return false
 
-  var m = mOp - (OPS.OP_1 - 1)
-  var n = nOp - (OPS.OP_1 - 1)
-  if (n < m) return false
+  if (!types.Number(mOp)) return false
+  if (!types.Number(nOp)) return false
+
+  var m = mOp - OP_INT_BASE
+  var n = nOp - OP_INT_BASE
+
+  // 0 < m <= n <= 16
+  if (m <= 0) return false
+  if (m > n) return false
+  if (n > 16) return false
 
   var pubKeys = chunks.slice(1, -2)
   if (n !== pubKeys.length) return false
@@ -314,9 +316,9 @@ function multisigOutput (m, pubKeys) {
   if (n < m) throw new Error('Not enough pubKeys provided')
 
   return compile([].concat(
-    (OPS.OP_1 - 1) + m,
+    OP_INT_BASE + m,
     pubKeys,
-    (OPS.OP_1 - 1) + n,
+    OP_INT_BASE + n,
     OPS.OP_CHECKMULTISIG
   ))
 }
@@ -354,8 +356,8 @@ function multisigInput (signatures, scriptPubKey) {
 
     var mOp = chunks[0]
     var nOp = chunks[chunks.length - 2]
-    var m = mOp - (OPS.OP_1 - 1)
-    var n = nOp - (OPS.OP_1 - 1)
+    var m = mOp - OP_INT_BASE
+    var n = nOp - OP_INT_BASE
 
     if (signatures.length < m) throw new Error('Not enough signatures provided')
     if (signatures.length > n) throw new Error('Too many signatures provided')
