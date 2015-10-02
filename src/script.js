@@ -225,10 +225,12 @@ function isMultisigOutput (script) {
   if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) return false
 
   var mOp = chunks[0]
+  if (!types.Number(mOp)) return false
   if (mOp < OPS.OP_1) return false
   if (mOp > OPS.OP_16) return false
 
   var nOp = chunks[chunks.length - 2]
+  if (!types.Number(nOp)) return false
   if (nOp < OPS.OP_1) return false
   if (nOp > OPS.OP_16) return false
 
