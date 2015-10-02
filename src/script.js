@@ -242,11 +242,9 @@ function isMultisigOutput (script) {
   if (m <= 0) return false
   if (m > n) return false
   if (n > 16) return false
+  if (n !== chunks.length - 3) return false
 
-  var pubKeys = chunks.slice(1, -2)
-  if (n !== pubKeys.length) return false
-
-  return pubKeys.every(isCanonicalPubKey)
+  return chunks.slice(1, -2).every(isCanonicalPubKey)
 }
 
 function isNullDataOutput (script) {
