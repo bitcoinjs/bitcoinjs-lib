@@ -1,7 +1,7 @@
 # 2.1.1
 
 __changed__
-- removed use of `buffer-reverse`, dependency only kept for `bufferutils.reverse`, to be deprecated
+- removed use of `buffer-reverse`, dependency only kept for `bufferutils.reverse`, to be deprecated (#478)
 
 __fixed__
 - `isMultisigOutput` no longer allows data chunks for `m`/`n` (#482)
