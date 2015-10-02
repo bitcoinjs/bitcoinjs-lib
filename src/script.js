@@ -4,11 +4,14 @@ var typeforce = require('typeforce')
 var types = require('./types')
 
 var OPS = require('./opcodes')
-var REVERSE_OPS = []
-for (var op in OPS) {
-  var code = OPS[op]
-  REVERSE_OPS[code] = op
-}
+var REVERSE_OPS = (function () {
+  var result = {}
+  for (var op in OPS) {
+    var code = OPS[op]
+    result[code] = op
+  }
+  return result
+})()
 
 function toASM (chunks) {
   if (types.Buffer(chunks)) {
