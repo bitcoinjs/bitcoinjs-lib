@@ -1,3 +1,8 @@
+# 2.1.2
+
+__fixed__
+- Add missing CHANGELOG entry for 2.1.1
+
 # 2.1.1
 
 __changed__
