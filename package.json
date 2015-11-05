@@ -72,7 +72,7 @@
     "wif": "^1.1.0"
   },
   "devDependencies": {
-    "async": "^0.9.0",
+    "async": "^1.5.0",
     "blanket": "^1.1.0",
     "browserify": "^10.0.0",
     "bs58": "^2.0.1",
