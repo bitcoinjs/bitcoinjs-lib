@@ -52,7 +52,7 @@
     "create-hmac": "^1.1.3",
     "ecurve": "^1.0.0",
     "randombytes": "^2.0.1",
-    "typeforce": "^1.0.0"
+    "typeforce": "~1.4.0"
   },
   "devDependencies": {
     "async": "^0.9.0",
