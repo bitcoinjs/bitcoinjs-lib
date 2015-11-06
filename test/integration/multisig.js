@@ -37,53 +37,41 @@ describe('bitcoinjs-lib (multisig)', function () {
     var address = bitcoin.address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet)
 
     // attempt to send funds to the source address
-    blockchain.t.faucet(address, 2e4, function (err) {
+    blockchain.t.faucet(address, 2e4, function (err, unspents) {
       if (err) return done(err)
 
-      // get latest unspents from the address
-      blockchain.t.addresses.unspents(address, function (err, unspents) {
+      // use the oldest unspent
+      var unspent = unspents.pop()
+
+      // make a random destination address
+      var targetAddress = bitcoin.ECPair.makeRandom({
+        network: bitcoin.networks.testnet
+      }).getAddress()
+
+      var txb = new bitcoin.TransactionBuilder(bitcoin.networks.testnet)
+      txb.addInput(unspent.txId, unspent.vout)
+      txb.addOutput(targetAddress, 1e4)
+
+      // sign with 1st and 3rd key
+      txb.sign(0, keyPairs[0], redeemScript)
+      txb.sign(0, keyPairs[2], redeemScript)
+
+      // broadcast our transaction
+      var tx = txb.build()
+      var txId = tx.getId()
+
+      blockchain.t.transactions.propagate(tx.toHex(), function (err) {
         if (err) return done(err)
 
-        // filter small unspents
-        unspents = unspents.filter(function (unspent) {
-          return unspent.value > 1e4
-        })
-
-        // use the oldest unspent
-        var unspent = unspents.pop()
-
-        if (!unspent) throw new Error('Faucet didn\'t provide an unspent')
-
-        // make a random destination address
-        var targetAddress = bitcoin.ECPair.makeRandom({
-          network: bitcoin.networks.testnet
-        }).getAddress()
-
-        var txb = new bitcoin.TransactionBuilder(bitcoin.networks.testnet)
-        txb.addInput(unspent.txId, unspent.vout)
-        txb.addOutput(targetAddress, 1e4)
-
-        // sign with 1st and 3rd key
-        txb.sign(0, keyPairs[0], redeemScript)
-        txb.sign(0, keyPairs[2], redeemScript)
-
-        // broadcast our transaction
-        var tx = txb.build()
-        var txId = tx.getId()
-
-        blockchain.t.transactions.propagate(tx.toHex(), function (err) {
+        // check that the above transaction included the intended address
+        blockchain.t.addresses.unspents(targetAddress, function (err, unspents) {
           if (err) return done(err)
 
-          // check that the above transaction included the intended address
-          blockchain.t.addresses.unspents(targetAddress, function (err, unspents) {
-            if (err) return done(err)
+          assert(unspents.some(function (unspent) {
+            return unspent.txId === txId && unspent.value === 1e4
+          }))
 
-            assert(unspents.some(function (unspent) {
-              return unspent.txId === txId && unspent.value === 1e4
-            }))
-
-            done()
-          })
+          done()
         })
       })
     })
