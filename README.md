@@ -148,8 +148,8 @@ Please make your best effort to adhere to these when contributing to save on tri
 ## Complementing Libraries
 
 - [BIP21](https://github.com/bitcoinjs/bip21) - A BIP21 compatible URL encoding utility library
-- [BIP38](https://github.com/bitcoinjs/bip38) - Mnemonic generation for deterministic keys
-- [BIP39](https://github.com/bitcoinjs/bip39) - Passphrase-protected private keys
+- [BIP38](https://github.com/bitcoinjs/bip38) - Passphrase-protected private keys
+- [BIP39](https://github.com/bitcoinjs/bip39) - Mnemonic generation for deterministic keys
 - [BIP32-Utils](https://github.com/bitcoinjs/bip32-utils) - A set of utilities for working with BIP32
 - [BIP32-Wallet](https://github.com/bitcoinjs/bip32-wallet) - A BIP32 Wallet backed by bitcoinjs-lib, lite on features but heavily tested
 - [BIP66](https://github.com/bitcoinjs/bip66) - Strict DER signature decoding
