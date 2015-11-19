@@ -1,3 +1,8 @@
+# 2.1.3
+
+__fixed__
+- Bumped typeforce to 1.5.5 (see #493)
+
 # 2.1.2
 
 __fixed__
