@@ -1,15 +1,21 @@
-# 2.1.3
+# 2.1.4
+__fixed__
+- script.isPubKeyHashOutput and script.isScriptHashOutput no longer allow for non-minimal data pushes (per bitcoin/bitcoin `IsStandard` policy) (#499)
+- TransactionBuilder.addOutput now allows for SIGHASH_SINGLE, throwing if the contract is violated (#504)
+- remove use of `const`, use ES5 only (#502)
 
+
+# 2.1.3
 __fixed__
 - Bumped typeforce to 1.5.5 (see #493)
 
-# 2.1.2
 
+# 2.1.2
 __fixed__
 - Add missing CHANGELOG entry for 2.1.1
 
-# 2.1.1
 
+# 2.1.1
 __changed__
 - removed use of `buffer-reverse`, dependency only kept for `bufferutils.reverse`, to be deprecated (#478)
 
@@ -19,7 +25,6 @@ __fixed__
 
 
 # 2.1.0
-
 From this release users should use the HDNode directly (compared to accessing `.keyPair`) when performing ECDSA operations such as `sign` or `verify`.
 Ideally you shoud not have to directly access `HDNode` internals for general usage,  as it can often be confusing and error prone.
 
@@ -32,7 +37,6 @@ __added__
 
 
 # 2.0.0
-
 In this release we have strived to simplify the API,  [using native types](https://github.com/bitcoinjs/bitcoinjs-lib/issues/407) wherevever possible to encourage cross-compatibility with other open source community modules.
 
 The `ecdsa` module has been removed in lieu of using a new ECDSA module (for performance and safety reasons) during the `2.x.y` major release.
