@@ -202,6 +202,34 @@ describe('TransactionBuilder', function () {
       }, /2NGHjvjw83pcVFgMcA7QvSMh2c246rxLVz9 has no matching Script/)
     })
 
+    it('add second output after signed first input with SIGHASH_NONE', function () {
+      txb.addInput(txHash, 0)
+      txb.addOutput(scripts[0], 2000)
+      txb.sign(0, keyPair, undefined, Transaction.SIGHASH_NONE)
+      assert.equal(txb.addOutput(scripts[1], 9000), 1)
+    })
+
+    it('add first output after signed first input with SIGHASH_NONE', function () {
+      txb.addInput(txHash, 0)
+      txb.sign(0, keyPair, undefined, Transaction.SIGHASH_NONE)
+      assert.equal(txb.addOutput(scripts[0], 2000), 0)
+    })
+
+    it('add second output after signed first input with SIGHASH_SINGLE', function () {
+      txb.addInput(txHash, 0)
+      txb.addOutput(scripts[0], 2000)
+      txb.sign(0, keyPair, undefined, Transaction.SIGHASH_SINGLE)
+      assert.equal(txb.addOutput(scripts[1], 9000), 1)
+    })
+
+    it('add first output after signed first input with SIGHASH_SINGLE', function () {
+      txb.addInput(txHash, 0)
+      txb.sign(0, keyPair, undefined, Transaction.SIGHASH_SINGLE)
+      assert.throws(function () {
+        txb.addOutput(scripts[0], 2000)
+      }, /No, this would invalidate signatures/)
+    })
+
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
       txb.addInput(txHash, 0)
       txb.addOutput(scripts[0], 2000)
