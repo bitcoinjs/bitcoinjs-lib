@@ -16,7 +16,7 @@ var REVERSE_OPS = (function () {
 var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function toASM (chunks) {
-  if (types.Buffer(chunks)) {
+  if (Buffer.isBuffer(chunks)) {
     chunks = decompile(chunks)
   }
 
@@ -43,7 +43,7 @@ function fromASM (asm) {
 
 function compile (chunks) {
   // TODO: remove me
-  if (types.Buffer(chunks)) return chunks
+  if (Buffer.isBuffer(chunks)) return chunks
 
   typeforce(types.Array, chunks)
 
