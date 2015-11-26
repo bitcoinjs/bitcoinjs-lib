@@ -208,13 +208,16 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
     input.prevOutType = prevOutType
   }
 
-  var valid = this.inputs.every(function (input2) {
-    if (input2.hashType === undefined) return true
+  // if signatures exist, adding inputs is only acceptable if SIGHASH_ANYONECANPAY is used
+  // throw if any signatures *didn't* use SIGHASH_ANYONECANPAY
+  if (!this.inputs.every(function (otherInput) {
+    // no signature
+    if (otherInput.hashType === undefined) return true
 
-    return input2.hashType & Transaction.SIGHASH_ANYONECANPAY
-  })
-
-  if (!valid) throw new Error('No, this would invalidate signatures')
+    return otherInput.hashType & Transaction.SIGHASH_ANYONECANPAY
+  })) {
+    throw new Error('No, this would invalidate signatures')
+  }
 
   var prevOut = txHash.toString('hex') + ':' + vout
   if (this.prevTxMap[prevOut]) throw new Error('Transaction is already an input')
@@ -227,23 +230,32 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
 }
 
 TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
-  var tx = this.tx
-  var valid = this.inputs.every(function (input, index) {
+  var nOutputs = this.tx.outs.length
+
+  // if signatures exist, adding outputs is only acceptable if SIGHASH_NONE or SIGHASH_SINGLE is used
+  // throws if any signatures didn't use SIGHASH_NONE|SIGHASH_SINGLE
+  if (!this.inputs.every(function (input, index) {
+    // no signature
     if (input.hashType === undefined) return true
 
-    var hashType = input.hashType & 0x1f
-    return hashType === Transaction.SIGHASH_NONE ||
-           (hashType === Transaction.SIGHASH_SINGLE && index < tx.outs.length)
-  })
+    var hashTypeMod = input.hashType & 0x1f
+    if (hashTypeMod === Transaction.SIGHASH_NONE) return true
+    if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
+      // account for SIGHASH_SINGLE signing of a non-existing output, aka the "SIGHASH_SINGLE" bug
+      return index < nOutputs
+    }
 
-  if (!valid) throw new Error('No, this would invalidate signatures')
+    return false
+  })) {
+    throw new Error('No, this would invalidate signatures')
+  }
 
   // Attempt to get a script if it's a base58 address string
   if (typeof scriptPubKey === 'string') {
     scriptPubKey = baddress.toOutputScript(scriptPubKey, this.network)
   }
 
-  return tx.addOutput(scriptPubKey, value)
+  return this.tx.addOutput(scriptPubKey, value)
 }
 
 TransactionBuilder.prototype.build = function () {
