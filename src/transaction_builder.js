@@ -4,6 +4,8 @@ var bscript = require('./script')
 var bufferEquals = require('buffer-equals')
 var networks = require('./networks')
 var ops = require('./opcodes')
+var typeforce = require('typeforce')
+var types = require('./types')
 
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
@@ -133,6 +135,21 @@ function TransactionBuilder (network) {
 
   this.inputs = []
   this.tx = new Transaction()
+}
+
+TransactionBuilder.prototype.setLockTime = function (locktime) {
+  typeforce(types.UInt32, locktime)
+
+  // if any signatures exist, throw
+  if (this.inputs.some(function (input) {
+    if (!input.signatures) return false
+
+    return input.signatures.some(function (s) { return s })
+  })) {
+    throw new Error('No, this would invalidate signatures')
+  }
+
+  this.tx.locktime = locktime
 }
 
 TransactionBuilder.fromTransaction = function (transaction, network) {
