@@ -227,13 +227,13 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
 }
 
 TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
-  var tx = this.tx
+  var nOutputs = this.tx.outs.length
   var valid = this.inputs.every(function (input, index) {
     if (input.hashType === undefined) return true
 
-    var hashType = input.hashType & 0x1f
-    return hashType === Transaction.SIGHASH_NONE ||
-           (hashType === Transaction.SIGHASH_SINGLE && index < tx.outs.length)
+    var hashTypeMod = input.hashType & 0x1f
+    return (hashTypeMod === Transaction.SIGHASH_NONE) ||
+           (hashTypeMod === Transaction.SIGHASH_SINGLE && index < nOutputs)
   })
 
   if (!valid) throw new Error('No, this would invalidate signatures')
@@ -243,7 +243,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
     scriptPubKey = baddress.toOutputScript(scriptPubKey, this.network)
   }
 
-  return tx.addOutput(scriptPubKey, value)
+  return this.tx.addOutput(scriptPubKey, value)
 }
 
 TransactionBuilder.prototype.build = function () {
