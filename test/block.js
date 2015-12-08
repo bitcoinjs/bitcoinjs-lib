@@ -87,4 +87,18 @@ describe('Block', function () {
       })
     })
   })
+
+  describe('verifyPow', function () {
+    fixtures.valid.forEach(function (f) {
+      var block
+
+      beforeEach(function () {
+        block = Block.fromHex(f.hex)
+      })
+
+      it('returns ' + f.valid + ' for ' + f.id, function () {
+        assert.strictEqual(block.verifyPow(), f.valid)
+      })
+    })
+  })
 })

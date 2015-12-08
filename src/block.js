@@ -1,3 +1,4 @@
+var BigInteger = require('bigi')
 var bufferutils = require('./bufferutils')
 var bcrypto = require('./crypto')
 
@@ -113,6 +114,16 @@ Block.prototype.toBuffer = function (headersOnly) {
 
 Block.prototype.toHex = function (headersOnly) {
   return this.toBuffer(headersOnly).toString('hex')
+}
+
+Block.prototype.verifyPow = function () {
+  var hash = BigInteger.fromBuffer([].reverse.call(this.getHash()))
+  var mov = ((this.bits >>> 24) - 3) << 3
+  var target = new BigInteger()
+  target.fromInt(this.bits & 0x000ffffff)
+  target = target.shiftLeft(mov)
+
+  return hash.compareTo(target) <= 0
 }
 
 module.exports = Block
