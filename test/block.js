@@ -52,7 +52,7 @@ describe('Block', function () {
         block = Block.fromHex(f.hex)
       })
 
-      it('calculates ' + f.hash + ' for the block: ' + f.description, function () {
+      it('returns ' + f.hash + ' for the block: ' + f.description, function () {
         assert.strictEqual(block.getHash().toString('hex'), f.hash)
       })
     })
@@ -66,7 +66,7 @@ describe('Block', function () {
         block = Block.fromHex(f.hex)
       })
 
-      it('calculates ' + f.id + ' for the block: ' + f.description, function () {
+      it('returns ' + f.id + ' for the block: ' + f.description, function () {
         assert.strictEqual(block.getId(), f.id)
       })
     })
