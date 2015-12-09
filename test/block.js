@@ -1,12 +1,21 @@
 /* global describe, it, beforeEach */
 
 var assert = require('assert')
-
 var Block = require('../src/block')
 
 var fixtures = require('./fixtures/block')
 
 describe('Block', function () {
+  describe('calculateTarget', function () {
+    fixtures.targets.forEach(function (f) {
+      it('returns ' + f.expected + ' for 0x' + f.bits, function () {
+        var bits = parseInt(f.bits, 16)
+
+        assert.equal(Block.calculateTarget(bits).toString('hex'), f.expected)
+      })
+    })
+  })
+
   describe('fromBuffer/fromHex', function () {
     fixtures.valid.forEach(function (f) {
       it('imports the block: ' + f.description + ' correctly', function () {

@@ -1,6 +1,6 @@
-var BigInteger = require('bigi')
 var bufferutils = require('./bufferutils')
 var bcrypto = require('./crypto')
+var compare = require('buffer-compare')
 
 var Transaction = require('./transaction')
 
@@ -116,14 +116,21 @@ Block.prototype.toHex = function (headersOnly) {
   return this.toBuffer(headersOnly).toString('hex')
 }
 
-Block.prototype.verifyPow = function () {
-  var hash = BigInteger.fromBuffer([].reverse.call(this.getHash()))
-  var mov = ((this.bits >>> 24) - 3) << 3
-  var target = new BigInteger()
-  target.fromInt(this.bits & 0x000ffffff)
-  target = target.shiftLeft(mov)
+var ZEROS = '0000000000000000000000000000000000000000000000000000000000000000'
 
-  return hash.compareTo(target) <= 0
+Block.calculateTarget = function (bits) {
+  var exponent = ((bits & 0xff000000) >> 24) - 3
+  var mantissa = bits & 0x00ffffff
+  var target = mantissa * Math.pow(2, 8 * exponent)
+  var targetHex = Math.floor(target).toString(16)
+
+  return new Buffer(ZEROS.slice(0, 64 - targetHex.length) + targetHex, 'hex')
+}
+
+Block.prototype.verifyPow = function () {
+  var hash = [].reverse.call(this.getHash())
+
+  return compare(hash, Block.calculateTarget(this.bits)) <= 0
 }
 
 module.exports = Block
