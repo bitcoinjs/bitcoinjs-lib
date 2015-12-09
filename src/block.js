@@ -116,15 +116,20 @@ Block.prototype.toHex = function (headersOnly) {
   return this.toBuffer(headersOnly).toString('hex')
 }
 
-var ZEROS = '0000000000000000000000000000000000000000000000000000000000000000'
-
 Block.calculateTarget = function (bits) {
   var exponent = ((bits & 0xff000000) >> 24) - 3
-  var mantissa = bits & 0x00ffffff
-  var target = mantissa * Math.pow(2, 8 * exponent)
-  var targetHex = Math.floor(target).toString(16)
+  var mantissa = bits & 0x007fffff
+  var i = 31 - exponent
 
-  return new Buffer(ZEROS.slice(0, 64 - targetHex.length) + targetHex, 'hex')
+  var target = new Buffer(32)
+  target.fill(0)
+
+  target[i] = mantissa & 0xff
+  target[i - 1] = mantissa >> 8
+  target[i - 2] = mantissa >> 16
+  target[i - 3] = mantissa >> 24
+
+  return target
 }
 
 Block.prototype.verifyPow = function () {
