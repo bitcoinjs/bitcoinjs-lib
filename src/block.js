@@ -134,8 +134,9 @@ Block.calculateTarget = function (bits) {
 
 Block.prototype.verifyPow = function () {
   var hash = [].reverse.call(this.getHash())
+  var target = Block.calculateTarget(this.bits)
 
-  return compare(hash, Block.calculateTarget(this.bits)) <= 0
+  return compare(hash, target) <= 0
 }
 
 module.exports = Block
