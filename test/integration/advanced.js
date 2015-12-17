@@ -21,7 +21,7 @@ describe('bitcoinjs-lib (advanced)', function () {
     assert(bitcoin.message.verify(address, signature, message))
   })
 
-  it('can create an OP_RETURN transaction', function (done) {
+  it('can create a transaction using OP_RETURN', function (done) {
     this.timeout(30000)
 
     var network = bitcoin.networks.testnet
@@ -51,8 +51,8 @@ describe('bitcoinjs-lib (advanced)', function () {
           if (err) return done(err)
 
           var actual = bitcoin.Transaction.fromHex(transaction.txHex)
-          var dataScript2 = actual.outs[0].script
-          var data2 = bitcoin.script.decompile(dataScript2)[1]
+          var actualScript = actual.outs[0].script
+          assert.deepEqual(actualScript, dataScript)
 
           assert.deepEqual(dataScript, dataScript2)
           assert.deepEqual(data, data2)
