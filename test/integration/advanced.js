@@ -74,8 +74,8 @@ describe('bitcoinjs-lib (advanced)', function () {
       var unspent = unspents.pop()
       var tx = new bitcoin.TransactionBuilder(network)
 
-      // now + 1 month
-      var hodlDate = Math.floor((Date.now() + new Date(0).setMonth(1)) / 1000)
+      // now + 2 hours
+      var hodlDate = Math.floor((Date.now() + new Date(0).setSeconds(7200)) / 1000)
       var hodlLockTimeBuffer = new Buffer(4)
       hodlLockTimeBuffer.writeInt32LE(hodlDate | 0, 0)
 
