@@ -57,6 +57,43 @@
     "travis-cov": {
       "threshold": 99
     }
+  "devDependencies": {
+    "browserify": "^5.12.0",
+    "bs58": "^2.0.0",
+    "coveralls": "^2.11.2",
+    "helloblock-js": "^0.2.5",
+    "istanbul": "^0.3.2",
+    "jshint": "^2.5.6",
+    "mocha": "^1.21.4",
+    "mocha-lcov-reporter": "0.0.1",
+    "sinon": "^1.10.3",
+    "uglify-js": "^2.4.15"
+  },
+  "testling": {
+    "browsers": [
+      "android-browser/4.2..latest",
+      "chrome/20..latest",
+      "firefox/21..latest",
+      "ipad/6..latest",
+      "iphone/6..latest",
+      "opera/15..latest",
+      "safari/latest"
+    ],
+    "harness": "mocha-bdd",
+    "files": "test/*.js"
+  },
+  "scripts": {
+    "compile": "browserify ./src/index.js -s bitcoin | uglifyjs > bitcoinjs-min.js",
+    "compile-debug": "browserify ./src/index.js -s bitcoin > bitcoinjs-debug.js",
+    "coverage": "istanbul cover _mocha -- test/*.js",
+    "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info",
+    "integration": "mocha --reporter list test/integration/*.js",
+    "jshint": "jshint --config jshint.json src/*.js ; true",
+    "test": "npm run-script unit",
+    "unit": "istanbul test mocha -- --reporter list test/*.js"
+  },
+  "browser": {
+    "crypto": "crypto-browserify"
   },
   "dependencies": {
     "bigi": "^1.4.0",

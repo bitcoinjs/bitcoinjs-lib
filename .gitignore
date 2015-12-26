@@ -1,3 +1,5 @@
 bitcoin.js
+node_modules
+bitcoinjs-*.js
 coverage
 node_modules
