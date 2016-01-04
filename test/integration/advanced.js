@@ -21,7 +21,7 @@ describe('bitcoinjs-lib (advanced)', function () {
     assert(bitcoin.message.verify(address, signature, message))
   })
 
-  it('can create an OP_RETURN transaction', function (done) {
+  it('can create a transaction using OP_RETURN', function (done) {
     this.timeout(30000)
 
     var network = bitcoin.networks.testnet
@@ -46,16 +46,70 @@ describe('bitcoinjs-lib (advanced)', function () {
       blockchain.t.transactions.propagate(txBuilt.toHex(), function (err) {
         if (err) return done(err)
 
-        // check that the message was propagated
+        // check that the transaction was propagated
         blockchain.t.transactions.get(txBuilt.getId(), function (err, transaction) {
           if (err) return done(err)
 
           var actual = bitcoin.Transaction.fromHex(transaction.txHex)
-          var dataScript2 = actual.outs[0].script
-          var data2 = bitcoin.script.decompile(dataScript2)[1]
+          var actualScript = actual.outs[0].script
+          assert.deepEqual(actualScript, dataScript)
 
-          assert.deepEqual(dataScript, dataScript2)
-          assert.deepEqual(data, data2)
+          done()
+        })
+      })
+    })
+  })
+
+  it('can create a transaction using OP_CHECKLOCKTIMEVERIFY', function (done) {
+    this.timeout(30000)
+
+    var network = bitcoin.networks.testnet
+    var keyPair = bitcoin.ECPair.makeRandom({ network: network })
+    var address = keyPair.getAddress()
+
+    blockchain.t.faucet(address, 2e4, function (err, unspents) {
+      if (err) return done(err)
+
+      // use the oldest unspent
+      var unspent = unspents.pop()
+      var tx = new bitcoin.TransactionBuilder(network)
+
+      // now + 2 hours
+      var hodlDate = Math.floor((Date.now() + new Date(0).setSeconds(7200)) / 1000)
+      var hodlLockTimeBuffer = new Buffer(4)
+      hodlLockTimeBuffer.writeInt32LE(hodlDate | 0, 0)
+
+      // {signature} {signature} or
+      // OP_0 {signature} after 1 month
+      var hodlScript = bitcoin.script.compile([
+        bitcoin.opcodes.OP_IF,
+        hodlLockTimeBuffer,
+        bitcoin.opcodes.OP_CHECKLOCKTIMEVERIFY,
+        bitcoin.opcodes.OP_DROP,
+        bitcoin.opcodes.OP_ELSE,
+        keyPair.getPublicKeyBuffer(),
+        bitcoin.opcodes.OP_CHECKSIGVERIFY,
+        bitcoin.opcodes.OP_ENDIF,
+        keyPair.getPublicKeyBuffer(),
+        bitcoin.opcodes.OP_CHECKSIG
+      ])
+
+      tx.addInput(unspent.txId, unspent.vout)
+      tx.addOutput(hodlScript, 1000)
+      tx.sign(0, keyPair)
+
+      var txBuilt = tx.build()
+
+      blockchain.t.transactions.propagate(txBuilt.toHex(), function (err) {
+        if (err) return done(err)
+
+        // check that the transaction was propagated
+        blockchain.t.transactions.get(txBuilt.getId(), function (err, transaction) {
+          if (err) return done(err)
+
+          var actual = bitcoin.Transaction.fromHex(transaction.txHex)
+          var actualScript = actual.outs[0].script
+          assert.deepEqual(actualScript, hodlScript)
 
           done()
         })
