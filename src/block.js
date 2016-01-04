@@ -132,7 +132,7 @@ Block.calculateTarget = function (bits) {
   return target
 }
 
-Block.prototype.verifyPow = function () {
+Block.prototype.checkProofOfWork = function () {
   var hash = [].reverse.call(this.getHash())
   var target = Block.calculateTarget(this.bits)
 

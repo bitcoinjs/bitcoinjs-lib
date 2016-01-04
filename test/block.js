@@ -97,7 +97,7 @@ describe('Block', function () {
     })
   })
 
-  describe('verifyPow', function () {
+  describe('checkProofOfWork', function () {
     fixtures.valid.forEach(function (f) {
       var block
 
@@ -106,7 +106,7 @@ describe('Block', function () {
       })
 
       it('returns ' + f.valid + ' for ' + f.id, function () {
-        assert.strictEqual(block.verifyPow(), f.valid)
+        assert.strictEqual(block.checkProofOfWork(), f.valid)
       })
     })
   })
