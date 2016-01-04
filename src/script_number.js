@@ -20,23 +20,11 @@ function decode (buffer, maxLength, minimal) {
 
     if (b & 0x80) return -((b & ~0x80) * 0x100000000 + a)
     return b * 0x100000000 + a
+  }
 
-  // 32-bit
-  } else if (length === 4) {
-    result = buffer.readUInt32LE(0)
-
-  // 24-bit
-  } else if (length === 3) {
-    result = buffer.readUInt16LE(0)
-    result |= buffer.readUInt8(2) << 16
-
-  // 16-bit
-  } else if (length === 2) {
-    result = buffer.readUInt16LE(0)
-
-  // 8-bit
-  } else {
-    result = buffer.readUInt8(0)
+  // 32-bit / 24-bit / 16-bit / 8-bit
+  for (var i = 0; i < length; ++i) {
+    result |= buffer[i] << (8 * i)
   }
 
   if (buffer[length - 1] & 0x80) return -(result & ~(0x80 << (8 * (length - 1))))
