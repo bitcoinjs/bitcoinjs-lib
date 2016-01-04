@@ -11,36 +11,36 @@ function decode (buffer, maxLength, minimal) {
     }
   }
 
-  // 32-bit?
-  if (length < 5) {
-    var result = 0
-
-    for (var i = 0; i < length; ++i) {
-      result += buffer[i] << (8 * i)
-    }
-
-    if (buffer[length - 1] & 0x80) return -(result & ~(0x80 << (8 * (length - 1))))
-    return result
-  }
+  var result
 
   // 40-bit
-  var a = buffer.readUInt32LE(0)
-  var b = buffer.readUInt8(4)
+  if (length === 5) {
+    var a = buffer.readUInt32LE(0)
+    var b = buffer.readUInt8(4)
 
-  // TODO: refactor
-  var neg = false
-  if (b & 0x80) {
-    b &= ~0x80
-    neg = true
+    if (b & 0x80) return -((b & ~0x80) * 0x100000000 + a)
+    return b * 0x100000000 + a
+
+  // 32-bit
+  } else if (length === 4) {
+    result = buffer.readUInt32LE(0)
+
+  // 24-bit
+  } else if (length === 3) {
+    result = buffer.readUInt16LE(0)
+    result |= buffer.readUInt8(2) << 16
+
+  // 16-bit
+  } else if (length === 2) {
+    result = buffer.readUInt16LE(0)
+
+  // 8-bit
+  } else {
+    result = buffer.readUInt8(0)
   }
 
-  var r = b * 0x100000000 + a
-
-  if (neg) {
-    r = -r
-  }
-
-  return r
+  if (buffer[length - 1] & 0x80) return -(result & ~(0x80 << (8 * (length - 1))))
+  return result
 }
 
 function scriptNumSize (i) {
