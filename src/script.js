@@ -372,6 +372,8 @@ module.exports = {
   fromASM: fromASM,
   toASM: toASM,
 
+  number: require('./script_number'),
+
   isCanonicalPubKey: isCanonicalPubKey,
   isCanonicalSignature: isCanonicalSignature,
   isDefinedHashType: isDefinedHashType,
