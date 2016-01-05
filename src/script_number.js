@@ -11,8 +11,6 @@ function decode (buffer, maxLength, minimal) {
     }
   }
 
-  var result
-
   // 40-bit
   if (length === 5) {
     var a = buffer.readUInt32LE(0)
@@ -21,6 +19,8 @@ function decode (buffer, maxLength, minimal) {
     if (b & 0x80) return -((b & ~0x80) * 0x100000000 + a)
     return b * 0x100000000 + a
   }
+
+  var result = 0
 
   // 32-bit / 24-bit / 16-bit / 8-bit
   for (var i = 0; i < length; ++i) {
