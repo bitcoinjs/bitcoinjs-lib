@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, beforeEach */
 
 var assert = require('assert')
 var bitcoin = require('../../')
@@ -40,80 +40,109 @@ describe('bitcoinjs-lib (advanced)', function () {
       tx.addInput(unspent.txId, unspent.vout)
       tx.addOutput(dataScript, 1000)
       tx.sign(0, keyPair)
+      var txRaw = tx.build()
 
-      var txBuilt = tx.build()
-
-      blockchain.t.transactions.propagate(txBuilt.toHex(), function (err) {
-        if (err) return done(err)
-
-        // check that the transaction was propagated
-        blockchain.t.transactions.get(txBuilt.getId(), function (err, transaction) {
-          if (err) return done(err)
-
-          var actual = bitcoin.Transaction.fromHex(transaction.txHex)
-          var actualScript = actual.outs[0].script
-          assert.deepEqual(actualScript, dataScript)
-
-          done()
-        })
-      })
+      blockchain.t.transactions.propagate(txRaw.toHex(), done)
     })
   })
 
-  it('can create a transaction using OP_CHECKLOCKTIMEVERIFY', function (done) {
-    this.timeout(30000)
-
+  describe('can create transactions using OP_CHECKLOCKTIMEVERIFY', function (done) {
     var network = bitcoin.networks.testnet
-    var keyPair = bitcoin.ECPair.makeRandom({ network: network })
-    var address = keyPair.getAddress()
+    var alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', network)
+    var bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', network)
 
-    blockchain.t.faucet(address, 2e4, function (err, unspents) {
-      if (err) return done(err)
+    // now - 3 hours
+    var threeHoursAgo = Math.floor(Date.now() / 1000) - (3600 * 3)
+    var redeemScript = bitcoin.script.compile([
+      bitcoin.opcodes.OP_IF,
 
-      // use the oldest unspent
-      var unspent = unspents.pop()
-      var tx = new bitcoin.TransactionBuilder(network)
+      bitcoin.script.number.encode(threeHoursAgo),
+      bitcoin.opcodes.OP_CHECKLOCKTIMEVERIFY,
+      bitcoin.opcodes.OP_DROP,
 
-      // now + 2 hours
-      var hodlDate = Math.floor((Date.now() + new Date(0).setSeconds(7200)) / 1000)
-      var hodlLockTimeBuffer = new Buffer(4)
-      hodlLockTimeBuffer.writeInt32LE(hodlDate | 0, 0)
+      bitcoin.opcodes.OP_ELSE,
 
-      // {signature} {signature} or
-      // OP_0 {signature} after 1 month
-      var hodlScript = bitcoin.script.compile([
-        bitcoin.opcodes.OP_IF,
-        hodlLockTimeBuffer,
-        bitcoin.opcodes.OP_CHECKLOCKTIMEVERIFY,
-        bitcoin.opcodes.OP_DROP,
-        bitcoin.opcodes.OP_ELSE,
-        keyPair.getPublicKeyBuffer(),
-        bitcoin.opcodes.OP_CHECKSIGVERIFY,
-        bitcoin.opcodes.OP_ENDIF,
-        keyPair.getPublicKeyBuffer(),
-        bitcoin.opcodes.OP_CHECKSIG
-      ])
+      bob.getPublicKeyBuffer(),
+      bitcoin.opcodes.OP_CHECKSIGVERIFY,
 
-      tx.addInput(unspent.txId, unspent.vout)
-      tx.addOutput(hodlScript, 1000)
-      tx.sign(0, keyPair)
+      bitcoin.opcodes.OP_ENDIF,
 
-      var txBuilt = tx.build()
+      alice.getPublicKeyBuffer(),
+      bitcoin.opcodes.OP_CHECKSIG
+    ])
+    var scriptPubKey = bitcoin.script.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
 
-      blockchain.t.transactions.propagate(txBuilt.toHex(), function (err) {
+    var txId
+    beforeEach(function (done) {
+      this.timeout(10000)
+
+      blockchain.t.faucet(alice.getAddress(), 2e4, function (err, unspents) {
         if (err) return done(err)
 
-        // check that the transaction was propagated
-        blockchain.t.transactions.get(txBuilt.getId(), function (err, transaction) {
-          if (err) return done(err)
+        // use the oldest unspent
+        var unspent = unspents.pop()
 
-          var actual = bitcoin.Transaction.fromHex(transaction.txHex)
-          var actualScript = actual.outs[0].script
-          assert.deepEqual(actualScript, hodlScript)
+        // build the transaction
+        var tx = new bitcoin.TransactionBuilder(network)
+        tx.addInput(unspent.txId, unspent.vout)
+        tx.addOutput(scriptPubKey, 1e4)
+        tx.sign(0, alice)
+        var txRaw = tx.build()
 
-          done()
-        })
+        txId = txRaw.getId()
+
+        blockchain.t.transactions.propagate(txRaw.toHex(), done)
       })
+    })
+
+    // expiry past, {Alice's signature} OP_TRUE
+    it('where Alice can redeem after the expiry is past', function (done) {
+      this.timeout(30000)
+
+      var tx2 = new bitcoin.TransactionBuilder(network)
+//       tx2.setLockTime(threeHoursAgo) // TODO
+      tx2.addInput(txId, 0, 0xfffffffe)
+      tx2.addOutput(alice.getAddress(), 1000)
+
+      var tx2Raw = tx2.buildIncomplete()
+      tx2Raw.locktime = threeHoursAgo // TODO
+
+      var hashType = bitcoin.Transaction.SIGHASH_ALL
+      var signatureHash = tx2Raw.hashForSignature(0, redeemScript, hashType)
+      var signature = alice.sign(signatureHash)
+
+      var redeemScriptSig = bitcoin.script.scriptHashInput([
+        signature.toScriptSignature(hashType), bitcoin.opcodes.OP_TRUE
+      ], redeemScript)
+
+      tx2Raw.setInputScript(0, redeemScriptSig)
+
+      blockchain.t.transactions.propagate(tx2Raw.toHex(), done)
+    })
+
+    // {Bob's signature} {Alice's signature} OP_FALSE
+    it('where Alice and Bob can redeem at any time', function (done) {
+      this.timeout(30000)
+
+      var tx2 = new bitcoin.TransactionBuilder(network)
+//       tx2.setLockTime(threeHoursAgo) // TODO
+      tx2.addInput(txId, 0, 0xfffffffe)
+      tx2.addOutput(alice.getAddress(), 1000)
+
+      var tx2Raw = tx2.buildIncomplete()
+      tx2Raw.locktime = threeHoursAgo // TODO
+
+      var hashType = bitcoin.Transaction.SIGHASH_ALL
+      var signatureHash = tx2Raw.hashForSignature(0, redeemScript, hashType)
+      var signatureA = alice.sign(signatureHash)
+      var signatureB = bob.sign(signatureHash)
+      var redeemScriptSig = bitcoin.script.scriptHashInput([
+        signatureA.toScriptSignature(hashType), signatureB.toScriptSignature(hashType), bitcoin.opcodes.OP_FALSE
+      ], redeemScript)
+
+      tx2Raw.setInputScript(0, redeemScriptSig)
+
+      blockchain.t.transactions.propagate(tx2Raw.toHex(), done)
     })
   })
 })
