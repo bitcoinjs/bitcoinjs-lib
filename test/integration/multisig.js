@@ -22,7 +22,7 @@ describe('bitcoinjs-lib (multisig)', function () {
   })
 
   it('can spend from a 2-of-4 multsig P2SH address', function (done) {
-    this.timeout(22000)
+    this.timeout(30000)
 
     var keyPairs = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
