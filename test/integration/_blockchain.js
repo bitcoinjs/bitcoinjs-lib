@@ -27,6 +27,8 @@ testnet.faucet = function faucet (address, amount, done) {
           return unspent.value > 1e3
         }).pop()
 
+        if (!unspent) return callback(new Error('No unspent given'))
+
         testnet.transactions.get(unspent.txId, function (err, tx) {
           if (err) return callback(err)
 
