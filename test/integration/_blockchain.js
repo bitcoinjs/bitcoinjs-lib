@@ -28,16 +28,7 @@ testnet.faucet = function faucet (address, amount, done) {
         }).pop()
 
         if (!unspent) return callback(new Error('No unspent given'))
-
-        testnet.transactions.get(unspent.txId, function (err, tx) {
-          if (err) return callback(err)
-
-          testnet.transactions.propagate(tx.txHex, function (err) {
-            if (err) return callback(err)
-
-            callback(null, unspent)
-          })
-        })
+        callback(null, unspent)
       })
     })
   }, done)
