@@ -8,40 +8,30 @@ var mainnet = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/BTC', { api_k
 var testnet = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/tBTC', { api_key: BLOCKTRAIL_API_KEY })
 
 testnet.faucet = function faucet (address, amount, done) {
-  var unspents = []
+  async.retry(5, function (callback) {
+    httpify({
+      method: 'POST',
+      url: 'https://api.blocktrail.com/v1/tBTC/faucet/withdrawl?api_key=' + BLOCKTRAIL_API_KEY,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        address: address,
+        amount: amount
+      })
+    }, function (err) {
+      if (err) return callback(err)
 
-  async.whilst(
-    function condition () { return unspents.length === 0 },
-    function f (callback) {
-      httpify({
-        method: 'POST',
-        url: 'https://api.blocktrail.com/v1/tBTC/faucet/withdrawl?api_key=' + BLOCKTRAIL_API_KEY,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          address: address,
-          amount: amount
-        })
-      }, function (err) {
+      testnet.addresses.unspents(address, function (err, result) {
         if (err) return callback(err)
 
-        testnet.addresses.unspents(address, function (err, result) {
-          if (err) return callback(err)
+        var unspent = result.filter(function (unspent) {
+          return unspent.value > 1e3
+        }).pop()
 
-          // filter small unspents
-          unspents = result.filter(function (unspent) {
-            return unspent.value > 1e3
-          })
-
-          callback()
-        })
+        if (!unspent) return callback(new Error('No unspent given'))
+        callback(null, unspent)
       })
-    },
-    function (err) {
-      if (err) return done(err)
-
-      done(null, unspents)
-    }
-  )
+    })
+  }, done)
 }
 
 module.exports = {

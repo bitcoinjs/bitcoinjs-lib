@@ -22,7 +22,7 @@ describe('bitcoinjs-lib (multisig)', function () {
   })
 
   it('can spend from a 2-of-4 multsig P2SH address', function (done) {
-    this.timeout(22000)
+    this.timeout(30000)
 
     var keyPairs = [
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
@@ -37,11 +37,8 @@ describe('bitcoinjs-lib (multisig)', function () {
     var address = bitcoin.address.fromOutputScript(scriptPubKey, bitcoin.networks.testnet)
 
     // attempt to send funds to the source address
-    blockchain.t.faucet(address, 2e4, function (err, unspents) {
+    blockchain.t.faucet(address, 2e4, function (err, unspent) {
       if (err) return done(err)
-
-      // use the oldest unspent
-      var unspent = unspents.pop()
 
       // make a random destination address
       var targetAddress = bitcoin.ECPair.makeRandom({

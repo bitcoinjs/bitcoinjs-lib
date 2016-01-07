@@ -28,11 +28,9 @@ describe('bitcoinjs-lib (advanced)', function () {
     var keyPair = bitcoin.ECPair.makeRandom({ network: network })
     var address = keyPair.getAddress()
 
-    blockchain.t.faucet(address, 2e4, function (err, unspents) {
+    blockchain.t.faucet(address, 2e4, function (err, unspent) {
       if (err) return done(err)
 
-      // use the oldest unspent
-      var unspent = unspents.pop()
       var tx = new bitcoin.TransactionBuilder(network)
       var data = new Buffer('bitcoinjs-lib')
       var dataScript = bitcoin.script.nullDataOutput(data)
@@ -76,11 +74,8 @@ describe('bitcoinjs-lib (advanced)', function () {
     beforeEach(function (done) {
       this.timeout(10000)
 
-      blockchain.t.faucet(alice.getAddress(), 2e4, function (err, unspents) {
+      blockchain.t.faucet(alice.getAddress(), 2e4, function (err, unspent) {
         if (err) return done(err)
-
-        // use the oldest unspent
-        var unspent = unspents.pop()
 
         // build the transaction
         var tx = new bitcoin.TransactionBuilder(network)
