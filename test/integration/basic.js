@@ -40,6 +40,19 @@ describe('bitcoinjs-lib (basic)', function () {
     assert.strictEqual(wif, 'T7A4PUSgTDHecBxW1ZiYFrDNRih2o7M8Gf9xpoCgudPF9gDiNvuS')
   })
 
+  it('can generate a random keypair for Nubits', function () {
+    function rng () { return new Buffer('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
+
+    var nubits = bitcoin.networks.nubits
+
+    var keyPair = bitcoin.ECPair.makeRandom({ network: nubits, rng: rng })
+    var wif = keyPair.toWIF()
+    var address = keyPair.getAddress()
+
+    assert.strictEqual(address, 'BJXaK4k7W9NNgGdvH2AxX8AJychy2FMLhi')
+    assert.strictEqual(wif, 'PG5fXH5HuDU5GjcXdbTKZKkhxRU56EJE3AxaGzCE9Bnjq4zBKHxA')
+  })
+
   it('can import an address via WIF', function () {
     var keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
     var address = keyPair.getAddress()
