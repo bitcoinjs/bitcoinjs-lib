@@ -242,7 +242,7 @@
       },
       {
         "description": "Transaction w/ non-default input sequence numbers, version and locktime",
-        "txHex": "0400000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff020000006b483045022100c5bcd521df085481e2dcc2c0f14173043f0fa2001dca582b45186a95d248d28002204c571eabcec1410bd53a7da29b9da6b4c858c3fdabbfdb110a030c507ff5bc0501210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798b9c220000110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac09990400",
+        "txHex": "0400000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff020000006a47304402200e7c0330f39c04e3c1b9e3daf71d106c7129c095f6ebb494d06f0ef8013b74ea022003fc0fe05e71a2a4f8434feb0632cdb6883676d0ccb9b19d7a8a9e5fc02a616401210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798b9c220000110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac09990400",
         "version": 4,
         "locktime": 301321,
         "inputs": [
