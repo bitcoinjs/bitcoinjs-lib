@@ -241,6 +241,17 @@ describe('TransactionBuilder', function () {
     })
   })
 
+  describe('setLockTime', function () {
+    it('throws if if there exist any scriptSigs', function () {
+      txb.addInput(txHash, 0)
+      txb.sign(0, keyPair)
+
+      assert.throws(function () {
+        txb.setLockTime(65535)
+      }, /No, this would invalidate signatures/)
+    })
+  })
+
   describe('sign', function () {
     fixtures.invalid.sign.forEach(function (f) {
       it('throws on ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
