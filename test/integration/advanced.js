@@ -95,13 +95,11 @@ describe('bitcoinjs-lib (advanced)', function () {
       this.timeout(30000)
 
       var tx2 = new bitcoin.TransactionBuilder(network)
-//       tx2.setLockTime(threeHoursAgo) // TODO
+      tx2.setLockTime(threeHoursAgo)
       tx2.addInput(txId, 0, 0xfffffffe)
       tx2.addOutput(alice.getAddress(), 1000)
 
       var tx2Raw = tx2.buildIncomplete()
-      tx2Raw.locktime = threeHoursAgo // TODO
-
       var hashType = bitcoin.Transaction.SIGHASH_ALL
       var signatureHash = tx2Raw.hashForSignature(0, redeemScript, hashType)
       var signature = alice.sign(signatureHash)
@@ -120,13 +118,11 @@ describe('bitcoinjs-lib (advanced)', function () {
       this.timeout(30000)
 
       var tx2 = new bitcoin.TransactionBuilder(network)
-//       tx2.setLockTime(threeHoursAgo) // TODO
+      tx2.setLockTime(threeHoursAgo)
       tx2.addInput(txId, 0, 0xfffffffe)
       tx2.addOutput(alice.getAddress(), 1000)
 
       var tx2Raw = tx2.buildIncomplete()
-      tx2Raw.locktime = threeHoursAgo // TODO
-
       var hashType = bitcoin.Transaction.SIGHASH_ALL
       var signatureHash = tx2Raw.hashForSignature(0, redeemScript, hashType)
       var signatureA = alice.sign(signatureHash)

@@ -17,13 +17,13 @@ function construct (f, sign) {
   var network = NETWORKS[f.network]
   var txb = new TransactionBuilder(network)
 
-  // FIXME: add support for locktime/version in TransactionBuilder API
+  // FIXME: add support for version in TransactionBuilder API
   if (f.version !== undefined) {
     txb.tx.version = f.version
   }
 
   if (f.locktime !== undefined) {
-    txb.tx.locktime = f.locktime
+    txb.setLockTime(f.locktime)
   }
 
   f.inputs.forEach(function (input) {
@@ -237,6 +237,17 @@ describe('TransactionBuilder', function () {
 
       assert.throws(function () {
         txb.addOutput(scripts[1], 9000)
+      }, /No, this would invalidate signatures/)
+    })
+  })
+
+  describe('setLockTime', function () {
+    it('throws if if there exist any scriptSigs', function () {
+      txb.addInput(txHash, 0)
+      txb.sign(0, keyPair)
+
+      assert.throws(function () {
+        txb.setLockTime(65535)
       }, /No, this would invalidate signatures/)
     })
   })
