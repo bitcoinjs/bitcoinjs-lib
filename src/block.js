@@ -1,5 +1,6 @@
 var bufferutils = require('./bufferutils')
 var bcrypto = require('./crypto')
+var compare = require('buffer-compare')
 
 var Transaction = require('./transaction')
 
@@ -113,6 +114,29 @@ Block.prototype.toBuffer = function (headersOnly) {
 
 Block.prototype.toHex = function (headersOnly) {
   return this.toBuffer(headersOnly).toString('hex')
+}
+
+Block.calculateTarget = function (bits) {
+  var exponent = ((bits & 0xff000000) >> 24) - 3
+  var mantissa = bits & 0x007fffff
+  var i = 31 - exponent
+
+  var target = new Buffer(32)
+  target.fill(0)
+
+  target[i] = mantissa & 0xff
+  target[i - 1] = mantissa >> 8
+  target[i - 2] = mantissa >> 16
+  target[i - 3] = mantissa >> 24
+
+  return target
+}
+
+Block.prototype.checkProofOfWork = function () {
+  var hash = [].reverse.call(this.getHash())
+  var target = Block.calculateTarget(this.bits)
+
+  return compare(hash, target) <= 0
 }
 
 module.exports = Block
