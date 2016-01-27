@@ -165,9 +165,7 @@ Please make your best effort to adhere to these when contributing to save on tri
 - [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
 
 
-## License
-
-This library is free and open-source software released under the MIT license.
+## LICENSE [MIT](LICENSE)
 
 
 ## Copyright
