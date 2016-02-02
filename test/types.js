@@ -26,14 +26,14 @@ describe('types', function () {
       assert(types.Hash256bit(buffer32byte))
     })
 
-    it('return false for incorrect size', function () {
+    it('throws for incorrect size', function () {
       assert.throws(function () {
         types.Hash160bit(buffer32byte)
-      }, 'Expected 160-bit Buffer, got Number 256')
+      }, /Expected 160-bit Buffer, got 256-bit Buffer/)
 
       assert.throws(function () {
         types.Hash256bit(buffer20byte)
-      }, 'Expected 256-bit Buffer, got Number 160')
+      }, /Expected 256-bit Buffer, got 160-bit Buffer/)
     })
 
     it('return true for oneOf', function () {
