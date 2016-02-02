@@ -2,7 +2,8 @@ var typeforce = require('typeforce')
 
 function nBuffer (value, n) {
   typeforce(types.Buffer, value)
-  if (value.length !== n) throw new Error('Expected ' + (n * 8) + '-bit Buffer, got ' + (value.length * 8) + '-bit Buffer')
+  if (value.length !== n) throw new typeforce.TfTypeError('Expected ' + (n * 8) + '-bit Buffer, got ' + (value.length * 8) + '-bit Buffer')
+
   return true
 }
 
