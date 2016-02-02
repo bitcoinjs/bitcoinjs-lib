@@ -29,7 +29,9 @@ function construct (f, sign) {
   f.inputs.forEach(function (input) {
     var prevTxScript
 
-    if (input.prevTxScript) {
+    if (input.prevTxScriptHex) {
+      prevTxScript = new Buffer(input.prevTxScriptHex, 'hex')
+    } else if (input.prevTxScript) {
       prevTxScript = bscript.fromASM(input.prevTxScript)
     }
 
@@ -42,15 +44,16 @@ function construct (f, sign) {
 
   if (sign === undefined || sign) {
     f.inputs.forEach(function (input, index) {
+      var redeemScript
+
       input.signs.forEach(function (sign) {
         var keyPair = ECPair.fromWIF(sign.keyPair, network)
-        var redeemScript
 
         if (sign.redeemScript) {
           redeemScript = bscript.fromASM(sign.redeemScript)
         }
 
-        txb.sign(index, keyPair, redeemScript, sign.hashType)
+        txb.sign(index, keyPair, redeemScript, sign.hashType, sign.segWit, input.value)
       })
     })
   }
@@ -76,18 +79,23 @@ describe('TransactionBuilder', function () {
 
   describe('fromTransaction', function () {
     fixtures.valid.build.forEach(function (f) {
-      it('builds TransactionBuilder, with ' + f.description, function () {
+      it('builds TransactionBuilder fromHex, with ' + f.description, function () {
         var network = NETWORKS[f.network || 'bitcoin']
-        var tx = Transaction.fromHex(f.txHex)
+        var tx = Transaction.fromHex(f.txHexWithWitness || f.txHex)
         var txb = TransactionBuilder.fromTransaction(tx, network)
 
-        assert.strictEqual(txb.build().toHex(), f.txHex)
         assert.strictEqual(txb.network, network)
+
+        assert.strictEqual(txb.build().toHex(), f.txHex, 'build().toHex() === txHex')
+
+        if (typeof f.txHexWithWitness !== 'undefined') {
+          assert.strictEqual(txb.build().toHex(true), f.txHexWithWitness, 'build().toHex(true) === txHexWithWitness')
+        }
       })
     })
 
     fixtures.valid.fromTransaction.forEach(function (f) {
-      it('builds TransactionBuilder, with ' + f.description, function () {
+      it('builds TransactionBuilder with calls, with ' + f.description, function () {
         var tx = new Transaction()
 
         f.inputs.forEach(function (input) {
@@ -286,15 +294,20 @@ describe('TransactionBuilder', function () {
         txb = construct(f)
 
         var tx = txb.build()
-        assert.strictEqual(tx.toHex(), f.txHex)
+
+        assert.strictEqual(tx.toHex(), f.txHex, 'toHex() === txHex')
+
+        if (typeof f.txHexWithWitness !== 'undefined') {
+          assert.strictEqual(tx.toHex(true), f.txHexWithWitness, 'toHex() === txHexWithWitness')
+        }
       })
     })
 
     fixtures.invalid.build.forEach(function (f) {
       describe('for ' + (f.description || f.exception), function () {
         beforeEach(function () {
-          if (f.txHex) {
-            txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
+          if (f.txHexWithWitness || f.txHex) {
+            txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHexWithWitness || f.txHex))
           } else {
             txb = construct(f)
           }
@@ -325,7 +338,7 @@ describe('TransactionBuilder', function () {
         f.inputs.forEach(function (input, i) {
           var redeemScript = bscript.fromASM(input.redeemScript)
 
-          input.signs.forEach(function (sign) {
+          input.signs.forEach(function (sign, keyIndex) {
             // rebuild the transaction each-time after the first
             if (tx) {
               // do we filter OP_0's beforehand?

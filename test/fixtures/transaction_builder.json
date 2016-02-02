@@ -285,6 +285,97 @@
             "value": 10000
           }
         ]
+      },
+      {
+        "description": "Transaction w/ segWitPubKeyHash -> segWitPubKeyHash",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c500000000",
+        "txHexWithWitness": "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c502483045022100a8fc5e4c6d7073474eff2af5d756966e75be0cdfbba299518526080ce8b584be02200f26d41082764df89e3c815b8eaf51034a3b68a25f1be51208f54222c1bb6c1601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179800000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "value": 10000,
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "segWit": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ segWitPubKeyHash as scriptHash -> segWitPubKeyHash",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000017160014751e76e8199196d454941c45d1b3a323f1433bd6ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c500000000",
+        "txHexWithWitness": "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000017160014751e76e8199196d454941c45d1b3a323f1433bd6ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c502483045022100a8fc5e4c6d7073474eff2af5d756966e75be0cdfbba299518526080ce8b584be02200f26d41082764df89e3c815b8eaf51034a3b68a25f1be51208f54222c1bb6c1601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179800000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "value": 10000,
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "segWit": true,
+                "redeemScript": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "example from; https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki",
+        "txHex": "0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f00000000494830450221008b9d1dc26ba6a9cb62127b02742fa9d754cd3bebf337f7a55d114c8e5cdd30be022040529b194ba3f9281a99f2b1c0a19c0489bc22ede944ccf4ecbab4cc618ef3ed01eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000",
+        "txHexWithWitness": "01000000000102fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f00000000494830450221008b9d1dc26ba6a9cb62127b02742fa9d754cd3bebf337f7a55d114c8e5cdd30be022040529b194ba3f9281a99f2b1c0a19c0489bc22ede944ccf4ecbab4cc618ef3ed01eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac000247304402203609e17b84f6a7d30c80bfa610b5b4542f32a8a0d5447a12fb1366d7f01cc44a0220573a954c4518331561406f90300e8f3358f51928d43c212a8caed02de67eebee0121025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee635711000000",
+        "locktime": 17,
+        "inputs": [
+          {
+            "txId": "9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff",
+            "vout": 0,
+            "value": 626000000,
+            "sequence": 4294967278,
+            "prevTxScriptHex": "2103c9f4836b9a4f77fc0d81f7bcb01b7f1b35916864b9476c241ce9fc198bd25432ac",
+            "signs": [
+              {
+                "keyPair": "L3Wh2WPg21MWqzMFYsVC7PeBXcq1ow32KRccRihnTUnAhJaZUvg1"
+              }
+            ]
+          },
+          {
+            "txId": "8ac60eb9575db5b2d987e29f301b5b819ea83a5c6579d282d189cc04b8e151ef",
+            "vout": 1,
+            "value": 600000000,
+            "sequence": 4294967295,
+            "signs": [
+              {
+                "keyPair": "KzVTBhbMaKrAYagJ11VdTaBrb6yzLykLGyuMBkf9sCFPDxdT8shL",
+                "segWit": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 8280b37df378db99f66f85c95a783a76ac7a6d59 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 112340000
+          },
+          {
+            "script": "OP_DUP OP_HASH160 3bde42dbee7e4dbe6a21b2d50ce2f0167faa8159 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 223450000
+          }
+        ]
       }
     ],
     "fromTransaction": [

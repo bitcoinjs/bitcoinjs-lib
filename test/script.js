@@ -259,6 +259,21 @@ describe('script', function () {
     })
   })
 
+  describe('segWitPubKeyHashOutput', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.type !== 'segwitpubkeyhash') return
+
+      var pubKey = new Buffer(f.pubKey, 'hex')
+      var pubKeyHash = bcrypto.hash160(pubKey)
+
+      it('returns ' + f.scriptPubKey, function () {
+        var scriptPubKey = bscript.segWitPubKeyHashOutput(pubKeyHash)
+        assert.strictEqual(bscript.toASM(scriptPubKey), f.scriptPubKey)
+        assert.strictEqual(scriptPubKey.toString('hex'), f.scriptPubKeyHex)
+      })
+    })
+  })
+
   describe('multisigInput', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'multisig') return

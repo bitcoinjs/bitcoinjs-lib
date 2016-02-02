@@ -166,6 +166,13 @@ function isPubKeyHashOutput (script) {
     buffer[24] === OPS.OP_CHECKSIG
 }
 
+function isSegWitPubKeyHashOutput (script) {
+  var buffer = compile(script)
+
+  return buffer.length === 22 &&
+      buffer[0] === OPS.OP_0
+}
+
 function isPubKeyInput (script) {
   var chunks = decompile(script)
 
@@ -194,7 +201,14 @@ function isScriptHashInput (script, allowIncomplete) {
   // is redeemScript a valid script?
   if (redeemScriptChunks.length === 0) return false
 
-  return classifyInput(scriptSigChunks, allowIncomplete) === classifyOutput(redeemScriptChunks)
+  var inputType = classifyInput(scriptSigChunks, allowIncomplete)
+  var outputType = classifyOutput(redeemScriptChunks)
+
+  if (outputType === 'segwitpubkeyhash') {
+    return inputType === 'pubkeyhash'
+  }
+
+  return inputType === outputType
 }
 
 function isScriptHashOutput (script) {
@@ -204,6 +218,13 @@ function isScriptHashOutput (script) {
     buffer[0] === OPS.OP_HASH160 &&
     buffer[1] === 0x14 &&
     buffer[22] === OPS.OP_EQUAL
+}
+
+function isSegWitScriptHashOutput (script) {
+  var buffer = compile(script)
+
+  return buffer.length === 34 &&
+    buffer[0] === OPS.OP_0
 }
 
 // allowIncomplete is to account for combining signatures
@@ -257,6 +278,10 @@ function classifyOutput (script) {
     return 'pubkeyhash'
   } else if (isScriptHashOutput(chunks)) {
     return 'scripthash'
+  } else if (isSegWitPubKeyHashOutput(chunks)) {
+    return 'segwitpubkeyhash'
+  } else if (isSegWitScriptHashOutput(chunks)) {
+    return 'segwitscripthash'
   } else if (isMultisigOutput(chunks)) {
     return 'multisig'
   } else if (isPubKeyOutput(chunks)) {
@@ -295,6 +320,20 @@ function pubKeyHashOutput (pubKeyHash) {
   typeforce(types.Hash160bit, pubKeyHash)
 
   return compile([OPS.OP_DUP, OPS.OP_HASH160, pubKeyHash, OPS.OP_EQUALVERIFY, OPS.OP_CHECKSIG])
+}
+
+// OP_0 PUSH[{20-byte pubKeyHash}]
+function segWitPubKeyHashOutput (pubKeyHash) {
+  typeforce(types.Hash160bit, pubKeyHash)
+
+  return compile([OPS.OP_0, pubKeyHash])
+}
+
+// OP_0 PUSH[{32-byte scriptHash}}]
+function segWitScriptHashOutput (scriptHash) {
+  typeforce(types.Hash256bit, scriptHash)
+
+  return compile([OPS.OP_0, scriptHash])
 }
 
 // OP_HASH160 {scriptHash} OP_EQUAL
@@ -379,10 +418,12 @@ module.exports = {
   isDefinedHashType: isDefinedHashType,
   isPubKeyHashInput: isPubKeyHashInput,
   isPubKeyHashOutput: isPubKeyHashOutput,
+  isSegWitPubKeyHashOutput: isSegWitPubKeyHashOutput,
   isPubKeyInput: isPubKeyInput,
   isPubKeyOutput: isPubKeyOutput,
   isScriptHashInput: isScriptHashInput,
   isScriptHashOutput: isScriptHashOutput,
+  isSegWitScriptHashOutput: isSegWitScriptHashOutput,
   isMultisigInput: isMultisigInput,
   isMultisigOutput: isMultisigOutput,
   isNullDataOutput: isNullDataOutput,
@@ -390,7 +431,9 @@ module.exports = {
   classifyInput: classifyInput,
   pubKeyOutput: pubKeyOutput,
   pubKeyHashOutput: pubKeyHashOutput,
+  segWitPubKeyHashOutput: segWitPubKeyHashOutput,
   scriptHashOutput: scriptHashOutput,
+  segWitScriptHashOutput: segWitScriptHashOutput,
   multisigOutput: multisigOutput,
   pubKeyInput: pubKeyInput,
   pubKeyHashInput: pubKeyHashInput,
