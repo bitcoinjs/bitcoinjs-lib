@@ -240,7 +240,7 @@ describe('HDNode', function () {
     var f = fixtures.valid[0]
 
     it('strips all private information', function () {
-      var hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+      var hd = HDNode.fromBase58(f.master.base58Priv, NETWORKS_LIST)
       var hdn = hd.neutered()
 
       assert.strictEqual(hdn.keyPair.d, undefined)
