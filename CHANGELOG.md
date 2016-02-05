@@ -1,3 +1,15 @@
+# 2.2.0
+__added__
+- Added `Block.calculateTarget` for difficulty calculations
+- Added `Block.prototype.checkProofOfWork`
+- Added `opcodes.OP_CHECKLOCKTIMEVERIFY` alias for `OP_NOP2`,
+- Added `script.number.[encode/decode]` for CScriptNum-encoded `Buffer`s
+- Added `TransactionBuilder.prototype.setLockTime`
+
+__fixed__
+- Bumped `typeforce` version to fix erroneous error message from `types.Hash*bit` types
+
+
 # 2.1.4
 __fixed__
 - script.isPubKeyHashOutput and script.isScriptHashOutput no longer allow for non-minimal data pushes (per bitcoin/bitcoin `IsStandard` policy) (#499)
