@@ -192,6 +192,7 @@ describe('HDNode', function () {
 
         assert.strictEqual(hd.toBase58(), f.master.base58)
         assert.strictEqual(hd.keyPair.network, network)
+        assert.strictEqual(hd.isNeutered(), true)
       })
     })
 
@@ -202,6 +203,7 @@ describe('HDNode', function () {
 
         assert.strictEqual(hd.toBase58(), f.master.base58Priv)
         assert.strictEqual(hd.keyPair.network, network)
+        assert.strictEqual(hd.isNeutered(), false)
       })
     })
 
@@ -240,7 +242,7 @@ describe('HDNode', function () {
     var f = fixtures.valid[0]
 
     it('strips all private information', function () {
-      var hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+      var hd = HDNode.fromBase58(f.master.base58Priv, NETWORKS_LIST)
       var hdn = hd.neutered()
 
       assert.strictEqual(hdn.keyPair.d, undefined)
@@ -248,6 +250,8 @@ describe('HDNode', function () {
       assert.strictEqual(hdn.chainCode, hd.chainCode)
       assert.strictEqual(hdn.depth, hd.depth)
       assert.strictEqual(hdn.index, hd.index)
+      assert.strictEqual(hdn.isNeutered(), true)
+      assert.strictEqual(hd.isNeutered(), false)
     })
   })
 

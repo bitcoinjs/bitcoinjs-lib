@@ -170,7 +170,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
 
   // Version
   var network = this.keyPair.network
-  var version = this.keyPair.d ? network.bip32.private : network.bip32.public
+  var version = (!this.isNeutered()) ? network.bip32.private : network.bip32.public
   var buffer = new Buffer(78)
 
   // 4 bytes: version bytes
@@ -190,7 +190,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
   this.chainCode.copy(buffer, 13)
 
   // 33 bytes: the public key or private key data
-  if (this.keyPair.d) {
+  if (!this.isNeutered()) {
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
     this.keyPair.d.toBuffer(32).copy(buffer, 46)
@@ -211,7 +211,7 @@ HDNode.prototype.derive = function (index) {
 
   // Hardened child
   if (isHardened) {
-    if (!this.keyPair.d) throw new TypeError('Could not derive hardened child key')
+    if (this.isNeutered()) throw new TypeError('Could not derive hardened child key')
 
     // data = 0x00 || ser256(kpar) || ser32(index)
     data[0] = 0x00
@@ -239,7 +239,7 @@ HDNode.prototype.derive = function (index) {
 
   // Private parent key -> private child key
   var derivedKeyPair
-  if (this.keyPair.d) {
+  if (!this.isNeutered()) {
     // ki = parse256(IL) + kpar (mod n)
     var ki = pIL.add(this.keyPair.d).mod(curve.n)
 
@@ -279,6 +279,12 @@ HDNode.prototype.derive = function (index) {
 HDNode.prototype.deriveHardened = function (index) {
   // Only derives hardened private keys by default
   return this.derive(index + HDNode.HIGHEST_BIT)
+}
+
+// Private === not neutered
+// Public === neutered
+HDNode.prototype.isNeutered = function () {
+  return !(this.keyPair.d)
 }
 
 HDNode.prototype.toString = HDNode.prototype.toBase58
