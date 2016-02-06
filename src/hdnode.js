@@ -206,6 +206,8 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
 HDNode.prototype.derive = function (index) {
+  typeforce(types.UInt32, index)
+
   var isHardened = index >= HDNode.HIGHEST_BIT
   var data = new Buffer(37)
 
@@ -277,6 +279,8 @@ HDNode.prototype.derive = function (index) {
 }
 
 HDNode.prototype.deriveHardened = function (index) {
+  typeforce(types.UInt31, index)
+
   // Only derives hardened private keys by default
   return this.derive(index + HDNode.HIGHEST_BIT)
 }

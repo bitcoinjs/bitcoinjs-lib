@@ -327,5 +327,47 @@ describe('HDNode', function () {
         master.deriveHardened(c.m)
       }, /Could not derive hardened child key/)
     })
+
+    it('throws on negative indexes', function () {
+      var f = fixtures.valid[0]
+      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+
+      assert.throws(function () {
+        master.deriveHardened(-1)
+      }, /Expected UInt31/)
+      assert.throws(function () {
+        master.derive(-1)
+      }, /Expected UInt32/)
+    })
+
+    it('throws on high indexes', function () {
+      var f = fixtures.valid[0]
+      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+
+      assert.throws(function () {
+        master.deriveHardened(0x80000000)
+      }, /Expected UInt31/)
+      assert.throws(function () {
+        master.derive(0x100000000)
+      }, /Expected UInt32/)
+    })
+
+    it('throws on non-numbers', function () {
+      var f = fixtures.valid[0]
+      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+
+      assert.throws(function () {
+        master.deriveHardened()
+      }, /Expected UInt31/)
+      assert.throws(function () {
+        master.derive()
+      }, /Expected UInt32/)
+      assert.throws(function () {
+        master.deriveHardened('foo')
+      }, /Expected UInt31/)
+      assert.throws(function () {
+        master.derive('foo')
+      }, /Expected UInt32/)
+    })
   })
 })
