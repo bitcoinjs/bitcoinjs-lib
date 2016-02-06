@@ -272,6 +272,7 @@ describe('HDNode', function () {
     fixtures.valid.forEach(function (f) {
       var network = NETWORKS[f.network]
       var hd = HDNode.fromSeedHex(f.master.seed, network)
+      var master = hd
 
       // FIXME: test data is only testing Private -> private for now
       f.children.forEach(function (c, i) {
@@ -283,6 +284,41 @@ describe('HDNode', function () {
           }
 
           verifyVector(hd, c, i + 1)
+        })
+      })
+
+      // testing deriving path from master
+      f.children.forEach(function (c) {
+        it(c.description + ' from ' + f.master.fingerprint + ' by path', function () {
+          var path = c.description
+          var child = master.derivePath(path)
+
+          var pathSplit = path.split('/').slice(1)
+          var pathNotM = pathSplit.join('/')
+          var childNotM = master.derivePath(pathNotM)
+
+          verifyVector(child, c, pathSplit.length)
+          verifyVector(childNotM, c, pathSplit.length)
+        })
+      })
+
+      // testing deriving path from the first child
+      var firstChild = master.derivePath(f.children[0].description)
+
+      f.children.slice(1).forEach(function (c) {
+        it(c.description + ' from ' + f.children[0].fingerprint + ' by path', function () {
+          var path = c.description
+
+          var pathSplit = path.split('/').slice(2)
+          var pathEnd = pathSplit.join('/')
+          var pathEndM = 'm/' + path
+
+          var child = firstChild.derivePath(pathEnd)
+          verifyVector(child, c, pathSplit.length + 1)
+
+          assert.throws(function () {
+            firstChild.derivePath(pathEndM)
+          }, /Not a master node/)
         })
       })
     })

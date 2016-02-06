@@ -109,7 +109,7 @@
           "address": "19EuDJdgfRkwCmRzbzVBHZWQG9QNWhftbZ"
         },
         {
-          "description": "m/0/2147483647",
+          "description": "m/0/2147483647'",
           "m": 2147483647,
           "hardened": true,
           "wif": "L1m5VpbXmMp57P3knskwhoMTLdhAAaXiHvnGLMribbfwzVRpz2Sr",
@@ -134,7 +134,7 @@
           "address": "1BxrAr2pHpeBheusmd6fHDP2tSLAUa3qsW"
         },
         {
-          "description": "m/0/2147483647'/1/2147483646",
+          "description": "m/0/2147483647'/1/2147483646'",
           "m": 2147483646,
           "hardened": true,
           "wif": "L5KhaMvPYRW1ZoFmRjUtxxPypQ94m6BcDrPhqArhggdaTbbAFJEF",
