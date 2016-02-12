@@ -302,23 +302,25 @@ describe('HDNode', function () {
         })
       })
 
-      // testing deriving path from the first child
-      var firstChild = master.derivePath(f.children[0].description)
+      // testing deriving path from children
+      f.children.forEach(function (c, i) {
+        var cn = master.derivePath(c.description)
 
-      f.children.slice(1).forEach(function (c) {
-        it(c.description + ' from ' + f.children[0].fingerprint + ' by path', function () {
-          var path = c.description
+        f.children.slice(i + 1).forEach(function (cc) {
+          it(cc.description + ' from ' + c.fingerprint + ' by path', function () {
+            var path = cc.description
 
-          var pathSplit = path.split('/').slice(2)
-          var pathEnd = pathSplit.join('/')
-          var pathEndM = 'm/' + path
+            var pathSplit = path.split('/').slice(i + 2)
+            var pathEnd = pathSplit.join('/')
+            var pathEndM = 'm/' + path
 
-          var child = firstChild.derivePath(pathEnd)
-          verifyVector(child, c, pathSplit.length + 1)
+            var child = cn.derivePath(pathEnd)
+            verifyVector(child, cc, pathSplit.length + i + 1)
 
-          assert.throws(function () {
-            firstChild.derivePath(pathEndM)
-          }, /Not a master node/)
+            assert.throws(function () {
+              cn.derivePath(pathEndM)
+            }, /Not a master node/)
+          })
         })
       })
     })
