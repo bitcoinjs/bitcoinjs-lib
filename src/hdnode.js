@@ -306,10 +306,10 @@ HDNode.prototype.derivePath = function (path) {
   return splitPath.reduce(function (prevHd, indexStr) {
     var index
     if (indexStr.slice(-1) === "'") {
-      index = +(indexStr.slice(0, -1))
+      index = parseInt(indexStr.slice(0, -1), 10)
       return prevHd.deriveHardened(index)
     } else {
-      index = +indexStr
+      index = parseInt(indexStr, 10)
       return prevHd.derive(index)
     }
   }, this)
