@@ -26,6 +26,11 @@ function UInt53 (value) {
     Math.floor(value) === value
 }
 
+function Path (value) {
+  return typeforce.String(value) &&
+    value.match(/^([m]\/)?([0-9]+[']?\/)*([0-9]+[']?)$/)
+}
+
 // external dependent types
 var BigInt = typeforce.quacksLike('BigInteger')
 var ECPoint = typeforce.quacksLike('Point')
@@ -57,7 +62,8 @@ var types = {
   UInt8: UInt8,
   UInt31: UInt31,
   UInt32: UInt32,
-  UInt53: UInt53
+  UInt53: UInt53,
+  Path: Path
 }
 
 for (var typeName in typeforce) {

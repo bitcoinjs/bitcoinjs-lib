@@ -292,7 +292,7 @@ HDNode.prototype.isNeutered = function () {
 }
 
 HDNode.prototype.derivePath = function (path) {
-  typeforce(types.String, path)
+  typeforce(types.Path, path)
 
   var splitPath = path.split('/')
   if (splitPath[0] === 'm') {

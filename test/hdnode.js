@@ -312,8 +312,7 @@ describe('HDNode', function () {
 
             var pathSplit = path.split('/').slice(i + 2)
             var pathEnd = pathSplit.join('/')
-            var pathEndM = 'm/' + path
-
+            var pathEndM = 'm/' + pathEnd
             var child = cn.derivePath(pathEnd)
             verifyVector(child, cc, pathSplit.length + i + 1)
 
@@ -390,7 +389,7 @@ describe('HDNode', function () {
       }, /Expected UInt32/)
     })
 
-    it('throws on non-numbers', function () {
+    it('throws on wrong types', function () {
       var f = fixtures.valid[0]
       var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
 
@@ -406,6 +405,30 @@ describe('HDNode', function () {
       assert.throws(function () {
         master.derive('foo')
       }, /Expected UInt32/)
+      assert.throws(function () {
+        master.derivePath()
+      }, /Expected Path/)
+      assert.throws(function () {
+        master.derivePath(2)
+      }, /Expected Path/)
+      assert.throws(function () {
+        master.derivePath([2, 3, 4])
+      }, /Expected Path/)
+      assert.throws(function () {
+        master.derivePath('/')
+      }, /Expected Path/)
+      assert.throws(function () {
+        master.derivePath('m/m/123')
+      }, /Expected Path/)
+      assert.throws(function () {
+        master.derivePath('a/0/1/2')
+      }, /Expected Path/)
+      assert.throws(function () {
+        master.derivePath('m/0/  1  /2')
+      }, /Expected Path/)
+      assert.throws(function () {
+        master.derivePath('m/0/1.5/2')
+      }, /Expected Path/)
     })
   })
 })
