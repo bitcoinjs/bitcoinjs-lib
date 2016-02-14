@@ -272,6 +272,7 @@ describe('HDNode', function () {
     fixtures.valid.forEach(function (f) {
       var network = NETWORKS[f.network]
       var hd = HDNode.fromSeedHex(f.master.seed, network)
+      var master = hd
 
       // FIXME: test data is only testing Private -> private for now
       f.children.forEach(function (c, i) {
@@ -283,6 +284,42 @@ describe('HDNode', function () {
           }
 
           verifyVector(hd, c, i + 1)
+        })
+      })
+
+      // testing deriving path from master
+      f.children.forEach(function (c) {
+        it(c.description + ' from ' + f.master.fingerprint + ' by path', function () {
+          var path = c.description
+          var child = master.derivePath(path)
+
+          var pathSplit = path.split('/').slice(1)
+          var pathNotM = pathSplit.join('/')
+          var childNotM = master.derivePath(pathNotM)
+
+          verifyVector(child, c, pathSplit.length)
+          verifyVector(childNotM, c, pathSplit.length)
+        })
+      })
+
+      // testing deriving path from children
+      f.children.forEach(function (c, i) {
+        var cn = master.derivePath(c.description)
+
+        f.children.slice(i + 1).forEach(function (cc) {
+          it(cc.description + ' from ' + c.fingerprint + ' by path', function () {
+            var path = cc.description
+
+            var pathSplit = path.split('/').slice(i + 2)
+            var pathEnd = pathSplit.join('/')
+            var pathEndM = 'm/' + pathEnd
+            var child = cn.derivePath(pathEnd)
+            verifyVector(child, cc, pathSplit.length + i + 1)
+
+            assert.throws(function () {
+              cn.derivePath(pathEndM)
+            }, /Not a master node/)
+          })
         })
       })
     })
@@ -328,46 +365,27 @@ describe('HDNode', function () {
       }, /Could not derive hardened child key/)
     })
 
-    it('throws on negative indexes', function () {
+    it('throws on wrong types', function () {
       var f = fixtures.valid[0]
       var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
 
-      assert.throws(function () {
-        master.deriveHardened(-1)
-      }, /Expected UInt31/)
-      assert.throws(function () {
-        master.derive(-1)
-      }, /Expected UInt32/)
-    })
+      fixtures.invalid.derive.forEach(function (fx) {
+        assert.throws(function () {
+          master.derive(fx)
+        }, /Expected UInt32/)
+      })
 
-    it('throws on high indexes', function () {
-      var f = fixtures.valid[0]
-      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+      fixtures.invalid.deriveHardened.forEach(function (fx) {
+        assert.throws(function () {
+          master.deriveHardened(fx)
+        }, /Expected UInt31/)
+      })
 
-      assert.throws(function () {
-        master.deriveHardened(0x80000000)
-      }, /Expected UInt31/)
-      assert.throws(function () {
-        master.derive(0x100000000)
-      }, /Expected UInt32/)
-    })
-
-    it('throws on non-numbers', function () {
-      var f = fixtures.valid[0]
-      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
-
-      assert.throws(function () {
-        master.deriveHardened()
-      }, /Expected UInt31/)
-      assert.throws(function () {
-        master.derive()
-      }, /Expected UInt32/)
-      assert.throws(function () {
-        master.deriveHardened('foo')
-      }, /Expected UInt31/)
-      assert.throws(function () {
-        master.derive('foo')
-      }, /Expected UInt32/)
+      fixtures.invalid.derivePath.forEach(function (fx) {
+        assert.throws(function () {
+          master.derivePath(fx)
+        }, /Expected Bip32Path/)
+      })
     })
   })
 })

@@ -291,6 +291,30 @@ HDNode.prototype.isNeutered = function () {
   return !(this.keyPair.d)
 }
 
+HDNode.prototype.derivePath = function (path) {
+  typeforce(types.Bip32Path, path)
+
+  var splitPath = path.split('/')
+  if (splitPath[0] === 'm') {
+    if (this.parentFingerprint) {
+      throw new Error('Not a master node')
+    }
+
+    splitPath = splitPath.slice(1)
+  }
+
+  return splitPath.reduce(function (prevHd, indexStr) {
+    var index
+    if (indexStr.slice(-1) === "'") {
+      index = parseInt(indexStr.slice(0, -1), 10)
+      return prevHd.deriveHardened(index)
+    } else {
+      index = parseInt(indexStr, 10)
+      return prevHd.derive(index)
+    }
+  }, this)
+}
+
 HDNode.prototype.toString = HDNode.prototype.toBase58
 
 module.exports = HDNode
