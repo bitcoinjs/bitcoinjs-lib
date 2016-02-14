@@ -28,7 +28,7 @@ function UInt53 (value) {
 
 function Bip32Path (value) {
   return typeforce.String(value) &&
-    value.match(/^([m]\/)?([0-9]+[']?\/)*([0-9]+[']?)$/)
+    value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
 }
 
 // external dependent types
