@@ -365,70 +365,27 @@ describe('HDNode', function () {
       }, /Could not derive hardened child key/)
     })
 
-    it('throws on negative indexes', function () {
-      var f = fixtures.valid[0]
-      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
-
-      assert.throws(function () {
-        master.deriveHardened(-1)
-      }, /Expected UInt31/)
-      assert.throws(function () {
-        master.derive(-1)
-      }, /Expected UInt32/)
-    })
-
-    it('throws on high indexes', function () {
-      var f = fixtures.valid[0]
-      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
-
-      assert.throws(function () {
-        master.deriveHardened(0x80000000)
-      }, /Expected UInt31/)
-      assert.throws(function () {
-        master.derive(0x100000000)
-      }, /Expected UInt32/)
-    })
-
     it('throws on wrong types', function () {
       var f = fixtures.valid[0]
       var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
 
-      assert.throws(function () {
-        master.deriveHardened()
-      }, /Expected UInt31/)
-      assert.throws(function () {
-        master.derive()
-      }, /Expected UInt32/)
-      assert.throws(function () {
-        master.deriveHardened('foo')
-      }, /Expected UInt31/)
-      assert.throws(function () {
-        master.derive('foo')
-      }, /Expected UInt32/)
-      assert.throws(function () {
-        master.derivePath()
-      }, /Expected Path/)
-      assert.throws(function () {
-        master.derivePath(2)
-      }, /Expected Path/)
-      assert.throws(function () {
-        master.derivePath([2, 3, 4])
-      }, /Expected Path/)
-      assert.throws(function () {
-        master.derivePath('/')
-      }, /Expected Path/)
-      assert.throws(function () {
-        master.derivePath('m/m/123')
-      }, /Expected Path/)
-      assert.throws(function () {
-        master.derivePath('a/0/1/2')
-      }, /Expected Path/)
-      assert.throws(function () {
-        master.derivePath('m/0/  1  /2')
-      }, /Expected Path/)
-      assert.throws(function () {
-        master.derivePath('m/0/1.5/2')
-      }, /Expected Path/)
+      fixtures.invalid.derive.forEach(function (fx) {
+        assert.throws(function () {
+          master.derive(fx)
+        }, /Expected UInt32/)
+      })
+
+      fixtures.invalid.deriveHardened.forEach(function (fx) {
+        assert.throws(function () {
+          master.deriveHardened(fx)
+        }, /Expected UInt31/)
+      })
+
+      fixtures.invalid.derivePath.forEach(function (fx) {
+        assert.throws(function () {
+          master.derivePath(fx)
+        }, /Expected Bip32Path/)
+      })
     })
   })
 })

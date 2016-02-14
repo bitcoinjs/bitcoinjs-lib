@@ -26,7 +26,7 @@ function UInt53 (value) {
     Math.floor(value) === value
 }
 
-function Path (value) {
+function Bip32Path (value) {
   return typeforce.String(value) &&
     value.match(/^([m]\/)?([0-9]+[']?\/)*([0-9]+[']?)$/)
 }
@@ -63,7 +63,7 @@ var types = {
   UInt31: UInt31,
   UInt32: UInt32,
   UInt53: UInt53,
-  Path: Path
+  Bip32Path: Bip32Path
 }
 
 for (var typeName in typeforce) {
