@@ -112,6 +112,10 @@ ECPair.prototype.getPublicKeyBuffer = function () {
   return this.Q.getEncoded(this.compressed)
 }
 
+ECPair.prototype.getPubKeyHash = function () {
+  return bcrypto.hash160(this.getPublicKeyBuffer())
+}
+
 ECPair.prototype.sign = function (hash) {
   if (!this.d) throw new Error('Missing private key')
 
