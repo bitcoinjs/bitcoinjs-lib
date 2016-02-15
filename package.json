@@ -44,6 +44,9 @@
     "type": "git",
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
+  "files": [
+    "src"
+  ],
   "config": {
     "blanket": {
       "pattern": [
