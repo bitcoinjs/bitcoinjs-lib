@@ -84,5 +84,6 @@
     "sinon": "^1.12.2",
     "standard": "^5.0.0",
     "travis-cov": "^0.2.0"
-  }
+  },
+  "license": "MIT"
 }
