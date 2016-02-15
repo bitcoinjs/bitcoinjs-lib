@@ -53,6 +53,15 @@ describe('ECPair', function () {
 
         assert.strictEqual(keyPair.getPublicKeyBuffer().toString('hex'), f.Q)
       })
+
+      it('calculates the pubkeyhash ' + f.WIF, function () {
+        var d = new BigInteger(f.d)
+        var keyPair = new ECPair(d, null, {
+          compressed: f.compressed
+        })
+
+        assert.strictEqual(keyPair.getPubKeyHash().toString('hex'), f.pubKeyHash)
+      })
     })
 
     fixtures.invalid.constructor.forEach(function (f) {
