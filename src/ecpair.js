@@ -66,11 +66,12 @@ ECPair.fromWIF = function (string, network) {
 
     network = network.filter(function (network) {
       return version === network.wif
-    }).pop() || {}
+    }).pop()
+    if (!network) throw new Error('Invalid network version')
   }
 
-  var decoded = wif.decodeRaw(network.wif, buffer)
-  var d = BigInteger.fromBuffer(decoded.d)
+  var decoded = wif.decodeRaw(buffer, network.wif)
+  var d = BigInteger.fromBuffer(decoded.privateKey)
 
   return new ECPair(d, null, {
     compressed: decoded.compressed,
