@@ -58,7 +58,6 @@ ECPair.fromPublicKeyBuffer = function (buffer, network) {
 }
 
 ECPair.fromWIF = function (string, network) {
-  network = network || NETWORKS.bitcoin
   var buffer = bs58check.decode(string)
 
   if (types.Array(network)) {
@@ -67,9 +66,9 @@ ECPair.fromWIF = function (string, network) {
     network = network.filter(function (network) {
       return version === network.wif
     }).pop()
-    if (!network) throw new Error('Invalid network version')
   }
 
+  network = network || NETWORKS.bitcoin
   var decoded = wif.decodeRaw(buffer, network.wif)
   var d = BigInteger.fromBuffer(decoded.privateKey)
 
