@@ -50,7 +50,7 @@ function extractInput (transaction, txIn, vin) {
   var scriptSigChunks = bscript.decompile(txIn.script)
   var prevOutType = bscript.classifyInput(scriptSigChunks, true)
 
-  var processScript = function (scriptType, scriptSigChunks, redeemScriptChunks) {
+  function processScript (scriptType, scriptSigChunks, redeemScriptChunks) {
     // ensure chunks are decompiled
     scriptSigChunks = bscript.decompile(scriptSigChunks)
     redeemScriptChunks = redeemScriptChunks ? bscript.decompile(redeemScriptChunks) : undefined
