@@ -64,7 +64,9 @@ HDNode.fromBase58 = function (string, networks) {
     network = networks.filter(function (network) {
       return version === network.bip32.private ||
              version === network.bip32.public
-    }).pop() || {}
+    }).pop()
+
+    if (!network) throw new Error('Unknown network version')
 
   // otherwise, assume a network object (or default to bitcoin)
   } else {
@@ -72,7 +74,7 @@ HDNode.fromBase58 = function (string, networks) {
   }
 
   if (version !== network.bip32.private &&
-    version !== network.bip32.public) throw new Error('Invalid network')
+    version !== network.bip32.public) throw new Error('Invalid network version')
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer[4]
