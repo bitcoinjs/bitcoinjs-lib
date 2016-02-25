@@ -296,6 +296,48 @@ var canBuildTypes = {
   'pubkeyhash': true
 }
 
+function buildFromInputData (input, scriptType, parentType, redeemScript, allowIncomplete) {
+  var scriptSig
+
+  switch (scriptType) {
+    case 'pubkeyhash':
+      var pkhSignature = input.signatures[0].toScriptSignature(input.hashType)
+      scriptSig = bscript.pubKeyHashInput(pkhSignature, input.pubKeys[0])
+      break
+
+    case 'pubkey':
+      var pkSignature = input.signatures[0].toScriptSignature(input.hashType)
+      scriptSig = bscript.pubKeyInput(pkSignature)
+      break
+
+    case 'multisig':
+      var msSignatures = input.signatures.map(function (signature) {
+        return signature && signature.toScriptSignature(input.hashType)
+      })
+
+      // fill in blanks with OP_0
+      if (allowIncomplete) {
+        for (var i = 0; i < msSignatures.length; ++i) {
+          msSignatures[i] = msSignatures[i] || ops.OP_0
+        }
+
+      // remove blank signatures
+      } else {
+        msSignatures = msSignatures.filter(function (x) { return x })
+      }
+
+      scriptSig = bscript.multisigInput(msSignatures, allowIncomplete ? undefined : redeemScript)
+      break
+  }
+
+  // wrap as scriptHash if necessary
+  if (parentType === 'scripthash') {
+    scriptSig = bscript.scriptHashInput(scriptSig, redeemScript)
+  }
+
+  return scriptSig
+}
+
 TransactionBuilder.prototype.__build = function (allowIncomplete) {
   if (!allowIncomplete) {
     if (!this.tx.ins.length) throw new Error('Transaction has no inputs')
@@ -318,51 +360,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
     }
 
     if (input.signatures) {
-      var processScript = function (scriptType, parentType, redeemScript) {
-        var scriptSig
-        var pkhSignature
-
-        switch (scriptType) {
-          case 'pubkeyhash':
-            pkhSignature = input.signatures[0].toScriptSignature(input.hashType)
-            scriptSig = bscript.pubKeyHashInput(pkhSignature, input.pubKeys[0])
-            break
-
-          case 'multisig':
-            var msSignatures = input.signatures.map(function (signature) {
-              return signature && signature.toScriptSignature(input.hashType)
-            })
-
-            // fill in blanks with OP_0
-            if (allowIncomplete) {
-              for (var i = 0; i < msSignatures.length; ++i) {
-                msSignatures[i] = msSignatures[i] || ops.OP_0
-              }
-
-            // remove blank signatures
-            } else {
-              msSignatures = msSignatures.filter(function (x) { return x })
-            }
-
-            scriptSig = bscript.multisigInput(msSignatures, allowIncomplete ? undefined : redeemScript)
-
-            break
-
-          case 'pubkey':
-            var pkSignature = input.signatures[0].toScriptSignature(input.hashType)
-            scriptSig = bscript.pubKeyInput(pkSignature)
-            break
-        }
-
-        // wrap as scriptHash if necessary
-        if (parentType === 'scripthash') {
-          scriptSig = bscript.scriptHashInput(scriptSig, redeemScript)
-        }
-
-        return scriptSig
-      }
-
-      scriptSig = processScript(scriptType, input.prevOutType, input.redeemScript)
+      scriptSig = buildFromInputData(input, scriptType, input.prevOutType, input.redeemScript, allowIncomplete)
     }
 
     // did we build a scriptSig? Buffer('') is allowed
@@ -379,12 +377,6 @@ function extractFromOutputScript (outputScript, keyPair, kpPubKey) {
   var outputScriptChunks = bscript.decompile(outputScript)
 
   switch (scriptType) {
-    case 'multisig':
-      return {
-        pubKeys: outputScriptChunks.slice(1, -2),
-        scriptType: scriptType
-      }
-
     case 'pubkeyhash':
       var pkh1 = outputScriptChunks[2]
       var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
@@ -402,7 +394,11 @@ function extractFromOutputScript (outputScript, keyPair, kpPubKey) {
         scriptType: scriptType
       }
 
-    default:
+    case 'multisig':
+      return {
+        pubKeys: outputScriptChunks.slice(1, -2),
+        scriptType: scriptType
+      }
   }
 }
 
