@@ -45,12 +45,10 @@ function fixMSSignatures (transaction, vin, pubKeys, signatures, prevOutScript, 
 }
 
 function extractInput (transaction, txIn, vin) {
+  if (txIn.script.length === 0) return {}
+
   var scriptSigChunks = bscript.decompile(txIn.script)
   var prevOutType = bscript.classifyInput(scriptSigChunks, true)
-
-  if (txIn.script.length === 0) {
-    return {}
-  }
 
   var processScript = function (scriptType, scriptSigChunks, redeemScriptChunks) {
     // ensure chunks are decompiled
