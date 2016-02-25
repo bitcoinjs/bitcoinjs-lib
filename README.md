@@ -8,7 +8,7 @@
 
 
 The pure JavaScript Bitcoin library for node.js and browsers.
-A continued implementation of the original `0.1.3` version used by over a million wallet users; the backbone for almost all Bitcoin web wallets in production today.
+Used by over a million wallet users and the backbone for almost all Bitcoin web wallets in production today.
 
 
 ## Features
