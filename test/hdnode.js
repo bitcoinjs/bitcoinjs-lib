@@ -210,9 +210,9 @@ describe('HDNode', function () {
     fixtures.invalid.fromBase58.forEach(function (f) {
       it('throws on ' + f.string, function () {
         assert.throws(function () {
-          var network = NETWORKS[f.network]
+          var networks = f.network ? NETWORKS[f.network] : NETWORKS_LIST
 
-          HDNode.fromBase58(f.string, network)
+          HDNode.fromBase58(f.string, networks)
         }, new RegExp(f.exception))
       })
     })
