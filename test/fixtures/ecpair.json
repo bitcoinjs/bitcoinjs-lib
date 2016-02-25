@@ -111,7 +111,7 @@
         "WIF": "92Qba5hnyWSn5Ffcka56yMQauaWY6ZLd91Vzxbi4a9CCetaHtYj"
       },
       {
-        "exception": "Invalid network version",
+        "exception": "Unknown network version",
         "WIF": "brQnSed3Fia1w9VcbbS6ZGDgJ6ENkgwuQY2LS7pEC5bKHD1fMF"
       },
       {

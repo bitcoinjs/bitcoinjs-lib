@@ -66,6 +66,8 @@ ECPair.fromWIF = function (string, network) {
     network = network.filter(function (network) {
       return version === network.wif
     }).pop()
+
+    if (!network) throw new Error('Unknown network version')
   }
 
   network = network || NETWORKS.bitcoin

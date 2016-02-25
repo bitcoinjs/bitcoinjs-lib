@@ -66,7 +66,7 @@ HDNode.fromBase58 = function (string, networks) {
              version === network.bip32.public
     }).pop()
 
-    if (!network) throw new Error('Invalid network version')
+    if (!network) throw new Error('Unknown network version')
 
   // otherwise, assume a network object (or default to bitcoin)
   } else {
