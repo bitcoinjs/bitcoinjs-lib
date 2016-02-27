@@ -7,7 +7,7 @@ var Transaction = require('../src/transaction')
 
 var fixtures = require('./fixtures/transaction')
 
-describe('Transaction', function () {
+describe.only('Transaction', function () {
   function fromRaw (raw) {
     var tx = new Transaction()
     tx.version = raw.version

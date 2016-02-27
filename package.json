@@ -73,6 +73,8 @@
     "ecurve": "^1.0.0",
     "randombytes": "^2.0.1",
     "typeforce": "^1.6.2",
+    "varstruct": "^5.0.1",
+    "varuint-bitcoin": "^1.0.1",
     "wif": "^2.0.1"
   },
   "devDependencies": {
