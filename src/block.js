@@ -1,6 +1,7 @@
 var bufferutils = require('./bufferutils')
 var bcrypto = require('./crypto')
-var compare = require('buffer-compare')
+var bufferCompare = require('buffer-compare')
+var bufferReverse = require('buffer-reverse')
 
 var Transaction = require('./transaction')
 
@@ -71,7 +72,7 @@ Block.prototype.getHash = function () {
 }
 
 Block.prototype.getId = function () {
-  return [].reverse.call(this.getHash()).toString('hex')
+  return bufferReverse(this.getHash()).toString('hex')
 }
 
 Block.prototype.getUTCDate = function () {
@@ -133,10 +134,10 @@ Block.calculateTarget = function (bits) {
 }
 
 Block.prototype.checkProofOfWork = function () {
-  var hash = [].reverse.call(this.getHash())
+  var hash = bufferReverse(this.getHash())
   var target = Block.calculateTarget(this.bits)
 
-  return compare(hash, target) <= 0
+  return bufferCompare(hash, target) <= 0
 }
 
 module.exports = Block
