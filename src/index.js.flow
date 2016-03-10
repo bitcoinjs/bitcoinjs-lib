@@ -1,4 +1,6 @@
 /* @flow */
+import * as BigInteger from 'bigi';
+
 export type Network = {
   messagePrefix: string;
   bip32: {
@@ -40,11 +42,22 @@ declare export var crypto: {
   hash160(buffer: Buffer): Buffer;
 }
 
+type ECurvePoint = any; // FIXME
+
 declare export class ECPair {
   d: ?Buffer;
-  Q: ?Buffer;
-  constructor(d: ?Buffer, Q: ?Buffer): void;
+  Q: ?ECurvePoint;
+  compressed: boolean;
+  network: Network;
+  constructor(d: ?Buffer, Q: ?ECurvePoint): void;
   getPublicKeyBuffer(): Buffer;
+  toWIF(): string;
+  static makeRandom(): ECPair;
+}
+
+declare export class ECSignature {
+  r: BigInteger;
+  s: BigInteger;
 }
 
 declare export class HDNode {
@@ -55,13 +68,25 @@ declare export class HDNode {
   chainCode: Buffer;
   static fromBase58(
     str: string,
-    networks: Array<Network> | Network
+    networks?: ?(Array<Network> | Network)
   ): HDNode;
+  static fromSeedHex(seed: string, network?: ?Network): HDNode;
+  static fromSeedBuffer(seed: Buffer, network?: ?Network): HDNode;
   derive(index: number): HDNode;
   toBase58(): string;
   getAddress(): string;
+  getFingerprint(): Buffer;
   getIdentifier(): Buffer;
+  getNetwork(): Network;
+  getPublicKeyBuffer(): Buffer;
+  sign(): ECSignature;
+  verify(hash: Buffer, signature: ECSignature): Buffer;
+  neutered(): HDNode;
+  isNeutered(): boolean;
+  deriveHardened(index: number): HDNode;
+  derivePath(path: string): HDNode;
   constructor(keyPair: ECPair, chainCode: Buffer): void;
+  static HIGHEST_BIT: number;
 }
 
 declare export class Transaction {
