@@ -1,0 +1,26 @@
+hdnode.js:373
+373:       fixtures.invalid.derive.forEach(function (fx) {
+           ^ call of method `forEach`
+375:           master.derive(fx)
+                             ^^ mixed. This type is incompatible with
+ 75:   derive(index: number): HDNode;
+                     ^^^^^^ number. See: ../src/index.js.flow:75
+
+hdnode.js:379
+379:       fixtures.invalid.deriveHardened.forEach(function (fx) {
+           ^ call of method `forEach`
+381:           master.deriveHardened(fx)
+                                     ^^ mixed. This type is incompatible with
+ 86:   deriveHardened(index: number): HDNode;
+                             ^^^^^^ number. See: ../src/index.js.flow:86
+
+hdnode.js:385
+385:       fixtures.invalid.derivePath.forEach(function (fx) {
+           ^ call of method `forEach`
+387:           master.derivePath(fx)
+                                 ^^ mixed. This type is incompatible with
+ 87:   derivePath(path: string): HDNode;
+                        ^^^^^^ string. See: ../src/index.js.flow:87
+
+
+Found 3 errors

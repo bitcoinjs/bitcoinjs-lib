@@ -1,3 +1,4 @@
+/* @flow */
 /* global describe, it, beforeEach */
 /* eslint-disable no-new */
 
@@ -6,13 +7,13 @@ var ecdsa = require('../src/ecdsa')
 var sinon = require('sinon')
 
 var BigInteger = require('bigi')
-var ECPair = require('../src/ecpair')
-var HDNode = require('../src/hdnode')
+var ECPair = require('../src').ECPair
+var HDNode = require('../src').HDNode
 
 var fixtures = require('./fixtures/hdnode.json')
 var curve = ecdsa.__curve
 
-var NETWORKS = require('../src/networks')
+var NETWORKS = require('../src').networks
 var NETWORKS_LIST = [] // Object.values(NETWORKS)
 for (var networkName in NETWORKS) {
   NETWORKS_LIST.push(NETWORKS[networkName])

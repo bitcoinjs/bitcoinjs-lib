@@ -1,0 +1,44 @@
+declare module './fixtures/hdnode.json' {
+  declare var valid: Array<{
+    network: string;
+    master: {
+      seed: string;
+      wif: string;
+      pubKey: string;
+      chainCode: string;
+      hex: string;
+      hexPriv: string;
+      base58: string;
+      base58Priv: string;
+      identifier: string;
+      fingerprint: string;
+      address: string;
+    };
+    children: Array<{
+      description: string;
+      m: number;
+      wif: string;
+      pubKey: string;
+      chainCode: string;
+      base58: string;
+      base58Priv: string;
+      identifier: string;
+      fingerprint: string;
+      address: string;
+    }>;
+  }>;
+  declare var invalid: {
+    fromBase58: Array<{
+      exception: string;
+      string: string;
+      network: ?string;
+    }>;
+    fromBuffer: Array<{
+      exception: string;
+      hex: string;
+    }>;
+    deriveHardened: Array<mixed>;
+    derive: Array<mixed>;
+    derivePath: Array<mixed>;
+  };
+}

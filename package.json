@@ -38,7 +38,8 @@
     "prepublish": "npm run test",
     "standard": "standard",
     "test": "npm run standard && npm run unit",
-    "unit": "mocha"
+    "unit": "mocha",
+    "flowtest": "bash ./test/flow/run-test.sh"
   },
   "repository": {
     "type": "git",
