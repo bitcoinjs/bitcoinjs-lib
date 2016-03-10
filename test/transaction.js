@@ -14,8 +14,14 @@ describe('Transaction', function () {
     tx.locktime = raw.locktime
 
     raw.ins.forEach(function (txIn) {
-      var txHash = new Buffer(txIn.hash, 'hex')
+      var txHash
+      if (txIn.txId) {
+        txHash = [].reverse.call(new Buffer(txIn.txId, 'hex'))
+      } else {
+        txHash = new Buffer(txIn.hash, 'hex')
+      }
       var scriptSig
+      var witness
 
       if (txIn.data) {
         scriptSig = new Buffer(txIn.data, 'hex')
@@ -23,7 +29,11 @@ describe('Transaction', function () {
         scriptSig = bscript.fromASM(txIn.script)
       }
 
-      tx.addInput(txHash, txIn.index, txIn.sequence, scriptSig)
+      if (txIn.witness) {
+        witness = txIn.witness.map(function (witnessChunkHex) { return new Buffer(witnessChunkHex, 'hex') })
+      }
+
+      tx.addInput(txHash, txIn.index, txIn.sequence, scriptSig, witness)
     })
 
     raw.outs.forEach(function (txOut) {
@@ -46,7 +56,14 @@ describe('Transaction', function () {
       it('imports ' + f.description + ' (' + f.id + ')', function () {
         var actual = Transaction.fromHex(f.hex)
 
-        assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
+        assert.strictEqual(actual.toHex(), f.hex, 'actual.toHex() === hex')
+
+        if (typeof f.hexWithWitness !== 'undefined') {
+          var actualWithWitness = Transaction.fromHex(f.hexWithWitness)
+
+          assert.strictEqual(actualWithWitness.toHex(), f.hex, 'actualWithWitness.toHex() === hex')
+          assert.strictEqual(actualWithWitness.toHex(true), f.hexWithWitness, 'actualWithWitness.toHex(true) === hexWithWitness')
+        }
       })
     })
 
@@ -64,7 +81,10 @@ describe('Transaction', function () {
       it('exports ' + f.description + ' (' + f.id + ')', function () {
         var actual = fromRaw(f.raw)
 
-        assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
+        assert.strictEqual(actual.toHex(), f.hex, 'actual.toHex() === hex')
+        if (typeof f.hexWithWitness !== 'undefined') {
+          assert.strictEqual(actual.toHex(true), f.hexWithWitness, 'actual.toHex(true) === hexWithWitness')
+        }
       })
     })
   })
@@ -132,11 +152,34 @@ describe('Transaction', function () {
         actual = expected.clone()
       })
 
-      it('should have value equality', function () {
+      it('should have value equality (' + f.id + ')', function () {
         assert.deepEqual(actual, expected)
       })
 
-      it('should not have reference equality', function () {
+      it('should not have reference equality (' + f.id + ')', function () {
+        assert.notEqual(actual, expected)
+      })
+    })
+  })
+
+  describe('clone from hexWithWitness', function () {
+    fixtures.valid.forEach(function (f) {
+      var actual, expected
+
+      if (typeof f.hexWithWitness === 'undefined') {
+        return
+      }
+
+      beforeEach(function () {
+        expected = Transaction.fromHex(f.hexWithWitness)
+        actual = expected.clone()
+      })
+
+      it('should have value equality (' + f.id + ')', function () {
+        assert.deepEqual(actual, expected)
+      })
+
+      it('should not have reference equality (' + f.id + ')', function () {
         assert.notEqual(actual, expected)
       })
     })
@@ -147,7 +190,13 @@ describe('Transaction', function () {
       it('should return the id for ' + f.id, function () {
         var tx = Transaction.fromHex(f.hex)
 
-        assert.strictEqual(tx.getId(), f.id)
+        assert.strictEqual(tx.getId(), f.id, 'getId() === id')
+
+        if (typeof f.hexWithWitness !== 'undefined') {
+          var txWithWitness = Transaction.fromHex(f.hexWithWitness)
+
+          assert.strictEqual(txWithWitness.getId(), f.id, 'txWithWitness.getId() === id')
+        }
       })
     })
   })
@@ -157,7 +206,13 @@ describe('Transaction', function () {
       it('should return the hash for ' + f.id, function () {
         var tx = Transaction.fromHex(f.hex)
 
-        assert.strictEqual(tx.getHash().toString('hex'), f.hash)
+        assert.strictEqual(tx.getHash().toString('hex'), f.hash, 'getHash() === hash')
+
+        if (typeof f.hexWithWitness !== 'undefined') {
+          var txWithWitness = Transaction.fromHex(f.hexWithWitness)
+
+          assert.strictEqual(txWithWitness.getHash().toString('hex'), f.hash, 'txWithWitness.getHash() === hash')
+        }
       })
     })
   })

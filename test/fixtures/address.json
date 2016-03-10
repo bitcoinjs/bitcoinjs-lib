@@ -15,6 +15,22 @@
       "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
     },
     {
+      "network": "bitcoin",
+      "version": 6,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "segWitVersion": 0,
+      "base58check": "p2y59b9U5YTUAYEDBr5zwSHFoM8pn3ozAhRD",
+      "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6"
+    },
+    {
+      "network": "bitcoin",
+      "version": 10,
+      "hash": "b6148e3abb0116ef3bf752c4a0377cd35aa9b6c3db8073103472fc69f615318d",
+      "segWitVersion": 0,
+      "base58check": "7XhQas9H1tJ1e1QqgdoojWoBSrSGFZKPorV3eTcq5w15JeNTngReA",
+      "script": "OP_0 b6148e3abb0116ef3bf752c4a0377cd35aa9b6c3db8073103472fc69f615318d"
+    },
+    {
       "network": "testnet",
       "version": 111,
       "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
@@ -27,6 +43,60 @@
       "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
       "base58check": "2NByiBUaEXrhmqAsg7BbLpcQSAQs1EDwt5w",
       "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
+    },
+    {
+      "network": "testnet",
+      "version": 3,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "segWitVersion": 0,
+      "base58check": "QWz8QvrJz5QmWegmBv9tXP447AdU7JQtyakg",
+      "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6"
+    },
+    {
+      "network": "testnet",
+      "version": 40,
+      "hash": "b6148e3abb0116ef3bf752c4a0377cd35aa9b6c3db8073103472fc69f615318d",
+      "segWitVersion": 0,
+      "base58check": "T7nZBtafiNv9ZhaZ7ujAFbTjzBPC6q9rk5KCdrFeAsy7Z6aDM1RPt",
+      "script": "OP_0 b6148e3abb0116ef3bf752c4a0377cd35aa9b6c3db8073103472fc69f615318d"
+    },
+    {
+      "network": "segnet",
+      "version": 30,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "base58check": "DFpN6QqFfUm3gKNaxN6tNcab1FArL9cZLE",
+      "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
+    },
+    {
+      "network": "segnet",
+      "version": 50,
+      "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
+      "base58check": "MSdeRd4AsX3rRtX2Xvxp2JfaGmFHUYVk9A",
+      "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
+    },
+    {
+      "network": "segnet",
+      "version": 3,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "segWitVersion": 0,
+      "base58check": "QWz8QvrJz5QmWegmBv9tXP447AdU7JQtyakg",
+      "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6"
+    },
+    {
+      "network": "segnet",
+      "version": 3,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "segWitVersion": 0,
+      "base58check": "QWz8QvrJz5QmWegmBv9tXP447AdU7JQtyakg",
+      "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6"
+    },
+    {
+      "network": "segnet",
+      "version": 40,
+      "hash": "b6148e3abb0116ef3bf752c4a0377cd35aa9b6c3db8073103472fc69f615318d",
+      "segWitVersion": 0,
+      "base58check": "T7nZBtafiNv9ZhaZ7ujAFbTjzBPC6q9rk5KCdrFeAsy7Z6aDM1RPt",
+      "script": "OP_0 b6148e3abb0116ef3bf752c4a0377cd35aa9b6c3db8073103472fc69f615318d"
     }
   ],
   "invalid": {
@@ -36,7 +106,7 @@
         "exception": "is too short"
       },
       {
-        "address": "j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe",
+        "address": "4D4eKTV3yGLjaJr4mzovRDqKT2iVxZpCp4ALzk",
         "exception": "is too long"
       }
     ],

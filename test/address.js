@@ -14,11 +14,15 @@ describe('address', function () {
 
         assert.strictEqual(decode.version, f.version)
         assert.strictEqual(decode.hash.toString('hex'), f.hash)
+
+        if (typeof f.segWitVersion !== 'undefined') {
+          assert.strictEqual(decode.segWitVersion, f.segWitVersion)
+        }
       })
     })
 
     fixtures.invalid.fromBase58Check.forEach(function (f) {
-      it('throws on ' + f.exception, function () {
+      it('throws on ' + f.exception + ' (' + f.address + ')', function () {
         assert.throws(function () {
           baddress.fromBase58Check(f.address)
         }, new RegExp(f.address + ' ' + f.exception))
@@ -59,7 +63,7 @@ describe('address', function () {
   describe('toBase58Check', function () {
     fixtures.valid.forEach(function (f) {
       it('formats ' + f.hash + ' (' + f.network + ')', function () {
-        var address = baddress.toBase58Check(new Buffer(f.hash, 'hex'), f.version)
+        var address = baddress.toBase58Check(new Buffer(f.hash, 'hex'), f.version, f.segWitVersion)
 
         assert.strictEqual(address, f.base58check)
       })

@@ -40,5 +40,10 @@ describe('types', function () {
         types.Hash256bit(buffer20byte)
       }, /Expected 256-bit Buffer, got 160-bit Buffer/)
     })
+
+    it('return true for oneOf', function () {
+      assert(typeforce(types.oneOf(types.Hash256bit, types.Hash160bit), buffer32byte))
+      assert(typeforce(types.oneOf(types.Hash160bit, types.Hash256bit), buffer32byte))
+    })
   })
 })

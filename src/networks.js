@@ -10,6 +10,8 @@ module.exports = {
     },
     pubKeyHash: 0x00,
     scriptHash: 0x05,
+    segWitPubKeyHash: 0x06,
+    segWitScriptHash: 0x0A,
     wif: 0x80,
     dustThreshold: 546 // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/core.h#L151-L162
   },
@@ -21,7 +23,22 @@ module.exports = {
     },
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
+    segWitPubKeyHash: 0x03,
+    segWitScriptHash: 0x28,
     wif: 0xef,
+    dustThreshold: 546
+  },
+  segnet: {
+    messagePrefix: '\x18Bitcoin Signed Message:\n',
+    bip32: {
+      public: 0x053587CF,
+      private: 0x05358394
+    },
+    pubKeyHash: 0x1e,
+    scriptHash: 0x32,
+    segWitPubKeyHash: 0x03,
+    segWitScriptHash: 0x28,
+    wif: 0x9e,
     dustThreshold: 546
   },
   litecoin: {

@@ -60,6 +60,12 @@
       "scriptPubKeyHex": "a914722ff0bc2c3f47b35c20df646c395594da24e90e87"
     },
     {
+      "type": "segwitpubkeyhash",
+      "pubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1",
+      "scriptPubKey": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+      "scriptPubKeyHex": "0014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5"
+    },
+    {
       "type": "nulldata",
       "data": "06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
       "scriptPubKey": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
