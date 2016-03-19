@@ -44,6 +44,9 @@
     "type": "git",
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
+  "files": [
+    "src"
+  ],
   "config": {
     "blanket": {
       "pattern": [
@@ -70,7 +73,7 @@
     "ecurve": "^1.0.0",
     "randombytes": "^2.0.1",
     "typeforce": "^1.6.2",
-    "wif": "^1.1.0"
+    "wif": "^2.0.1"
   },
   "devDependencies": {
     "async": "^1.5.0",
@@ -84,5 +87,6 @@
     "sinon": "^1.12.2",
     "standard": "^5.0.0",
     "travis-cov": "^0.2.0"
-  }
+  },
+  "license": "MIT"
 }

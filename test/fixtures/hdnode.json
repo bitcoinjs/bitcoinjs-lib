@@ -109,7 +109,7 @@
           "address": "19EuDJdgfRkwCmRzbzVBHZWQG9QNWhftbZ"
         },
         {
-          "description": "m/0/2147483647",
+          "description": "m/0/2147483647'",
           "m": 2147483647,
           "hardened": true,
           "wif": "L1m5VpbXmMp57P3knskwhoMTLdhAAaXiHvnGLMribbfwzVRpz2Sr",
@@ -134,7 +134,7 @@
           "address": "1BxrAr2pHpeBheusmd6fHDP2tSLAUa3qsW"
         },
         {
-          "description": "m/0/2147483647'/1/2147483646",
+          "description": "m/0/2147483647'/1/2147483646'",
           "m": 2147483646,
           "hardened": true,
           "wif": "L5KhaMvPYRW1ZoFmRjUtxxPypQ94m6BcDrPhqArhggdaTbbAFJEF",
@@ -199,11 +199,12 @@
         "string": "xprvQQQQQQQQQQQQQQQQCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334"
       },
       {
-        "exception": "Invalid network",
+        "exception": "Unknown network version",
         "string": "1111111111111adADjFaSNPxwXqLjHLj4mBfYxuewDPbw9hEj1uaXCzMxRPXDFF3cUoezTFYom4sEmEVSQmENPPR315cFk9YUFVek73wE9"
       },
       {
-        "exception": "Invalid network",
+        "exception": "Invalid network version",
+        "network": "bitcoin",
         "string": "Ltpv73XYpw28ZyVe2zEVyiFnxUZxoKLGQNdZ8NxUi1WcqjNmMBgtLbh3KimGSnPHCoLv1RmvxHs4dnKmo1oXQ8dXuDu8uroxrbVxZPA1gXboYvx"
       }
     ],
@@ -232,6 +233,27 @@
         "exception": "Point is not on the curve",
         "hex": "0488b21e000000000000000000873dff81c02f525623fd1fe5167eac3a55a049de3d314bb42ee227ffed37d508020045400697100007000037899988826500030092003000016366806305909050"
       }
+    ],
+    "deriveHardened": [
+      2147483648,
+      null,
+      "foo",
+      -1
+    ],
+    "derive": [
+      4294967296,
+      null,
+      "foo",
+      -1
+    ],
+    "derivePath": [
+      2,
+      [2, 3, 4],
+      "/",
+      "m/m/123",
+      "a/0/1/2",
+      "m/0/  1  /2",
+      "m/0/1.5/2"
     ]
   }
 }

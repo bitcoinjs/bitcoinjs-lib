@@ -64,7 +64,9 @@ HDNode.fromBase58 = function (string, networks) {
     network = networks.filter(function (network) {
       return version === network.bip32.private ||
              version === network.bip32.public
-    }).pop() || {}
+    }).pop()
+
+    if (!network) throw new Error('Unknown network version')
 
   // otherwise, assume a network object (or default to bitcoin)
   } else {
@@ -72,7 +74,7 @@ HDNode.fromBase58 = function (string, networks) {
   }
 
   if (version !== network.bip32.private &&
-    version !== network.bip32.public) throw new Error('Invalid network')
+    version !== network.bip32.public) throw new Error('Invalid network version')
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer[4]
@@ -206,6 +208,8 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
 HDNode.prototype.derive = function (index) {
+  typeforce(types.UInt32, index)
+
   var isHardened = index >= HDNode.HIGHEST_BIT
   var data = new Buffer(37)
 
@@ -277,6 +281,8 @@ HDNode.prototype.derive = function (index) {
 }
 
 HDNode.prototype.deriveHardened = function (index) {
+  typeforce(types.UInt31, index)
+
   // Only derives hardened private keys by default
   return this.derive(index + HDNode.HIGHEST_BIT)
 }
@@ -285,6 +291,30 @@ HDNode.prototype.deriveHardened = function (index) {
 // Public === neutered
 HDNode.prototype.isNeutered = function () {
   return !(this.keyPair.d)
+}
+
+HDNode.prototype.derivePath = function (path) {
+  typeforce(types.Bip32Path, path)
+
+  var splitPath = path.split('/')
+  if (splitPath[0] === 'm') {
+    if (this.parentFingerprint) {
+      throw new Error('Not a master node')
+    }
+
+    splitPath = splitPath.slice(1)
+  }
+
+  return splitPath.reduce(function (prevHd, indexStr) {
+    var index
+    if (indexStr.slice(-1) === "'") {
+      index = parseInt(indexStr.slice(0, -1), 10)
+      return prevHd.deriveHardened(index)
+    } else {
+      index = parseInt(indexStr, 10)
+      return prevHd.derive(index)
+    }
+  }, this)
 }
 
 HDNode.prototype.toString = HDNode.prototype.toBase58
