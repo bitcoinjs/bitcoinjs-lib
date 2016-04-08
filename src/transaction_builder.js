@@ -45,14 +45,12 @@ function fixMSSignatures (transaction, vin, pubKeys, signatures, prevOutScript, 
 }
 
 function extractInput (transaction, txIn, vin) {
+  if (txIn.script.length === 0) return {}
+
   var scriptSigChunks = bscript.decompile(txIn.script)
   var prevOutType = bscript.classifyInput(scriptSigChunks, true)
 
-  if (txIn.script.length === 0) {
-    return {}
-  }
-
-  var processScript = function (scriptType, scriptSigChunks, redeemScriptChunks) {
+  function processScript (scriptType, scriptSigChunks, redeemScriptChunks) {
     // ensure chunks are decompiled
     scriptSigChunks = bscript.decompile(scriptSigChunks)
     redeemScriptChunks = redeemScriptChunks ? bscript.decompile(redeemScriptChunks) : undefined
@@ -298,6 +296,48 @@ var canBuildTypes = {
   'pubkeyhash': true
 }
 
+function buildFromInputData (input, scriptType, parentType, redeemScript, allowIncomplete) {
+  var scriptSig
+
+  switch (scriptType) {
+    case 'pubkeyhash':
+      var pkhSignature = input.signatures[0].toScriptSignature(input.hashType)
+      scriptSig = bscript.pubKeyHashInput(pkhSignature, input.pubKeys[0])
+      break
+
+    case 'pubkey':
+      var pkSignature = input.signatures[0].toScriptSignature(input.hashType)
+      scriptSig = bscript.pubKeyInput(pkSignature)
+      break
+
+    case 'multisig':
+      var msSignatures = input.signatures.map(function (signature) {
+        return signature && signature.toScriptSignature(input.hashType)
+      })
+
+      // fill in blanks with OP_0
+      if (allowIncomplete) {
+        for (var i = 0; i < msSignatures.length; ++i) {
+          msSignatures[i] = msSignatures[i] || ops.OP_0
+        }
+
+      // remove blank signatures
+      } else {
+        msSignatures = msSignatures.filter(function (x) { return x })
+      }
+
+      scriptSig = bscript.multisigInput(msSignatures, allowIncomplete ? undefined : redeemScript)
+      break
+  }
+
+  // wrap as scriptHash if necessary
+  if (parentType === 'scripthash') {
+    scriptSig = bscript.scriptHashInput(scriptSig, redeemScript)
+  }
+
+  return scriptSig
+}
+
 TransactionBuilder.prototype.__build = function (allowIncomplete) {
   if (!allowIncomplete) {
     if (!this.tx.ins.length) throw new Error('Transaction has no inputs')
@@ -320,51 +360,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
     }
 
     if (input.signatures) {
-      var processScript = function (scriptType, parentType, redeemScript) {
-        var scriptSig
-        var pkhSignature
-
-        switch (scriptType) {
-          case 'pubkeyhash':
-            pkhSignature = input.signatures[0].toScriptSignature(input.hashType)
-            scriptSig = bscript.pubKeyHashInput(pkhSignature, input.pubKeys[0])
-            break
-
-          case 'multisig':
-            var msSignatures = input.signatures.map(function (signature) {
-              return signature && signature.toScriptSignature(input.hashType)
-            })
-
-            // fill in blanks with OP_0
-            if (allowIncomplete) {
-              for (var i = 0; i < msSignatures.length; ++i) {
-                msSignatures[i] = msSignatures[i] || ops.OP_0
-              }
-
-            // remove blank signatures
-            } else {
-              msSignatures = msSignatures.filter(function (x) { return x })
-            }
-
-            scriptSig = bscript.multisigInput(msSignatures, allowIncomplete ? undefined : redeemScript)
-
-            break
-
-          case 'pubkey':
-            var pkSignature = input.signatures[0].toScriptSignature(input.hashType)
-            scriptSig = bscript.pubKeyInput(pkSignature)
-            break
-        }
-
-        // wrap as scriptHash if necessary
-        if (parentType === 'scripthash') {
-          scriptSig = bscript.scriptHashInput(scriptSig, redeemScript)
-        }
-
-        return scriptSig
-      }
-
-      scriptSig = processScript(scriptType, input.prevOutType, input.redeemScript)
+      scriptSig = buildFromInputData(input, scriptType, input.prevOutType, input.redeemScript, allowIncomplete)
     }
 
     // did we build a scriptSig? Buffer('') is allowed
@@ -374,6 +370,36 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   })
 
   return tx
+}
+
+function extractFromOutputScript (outputScript, keyPair, kpPubKey) {
+  var scriptType = bscript.classifyOutput(outputScript)
+  var outputScriptChunks = bscript.decompile(outputScript)
+
+  switch (scriptType) {
+    case 'pubkeyhash':
+      var pkh1 = outputScriptChunks[2]
+      var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
+
+      if (!bufferEquals(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
+
+      return {
+        pubKeys: [kpPubKey],
+        scriptType: scriptType
+      }
+
+    case 'pubkey':
+      return {
+        pubKeys: outputScriptChunks.slice(0, 1),
+        scriptType: scriptType
+      }
+
+    case 'multisig':
+      return {
+        pubKeys: outputScriptChunks.slice(1, -2),
+        scriptType: scriptType
+      }
+  }
 }
 
 TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hashType) {
@@ -405,7 +431,6 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
   // no? prepare
   } else {
     // must be pay-to-scriptHash?
-
     if (redeemScript) {
       // if we have a prevOutScript, enforce scriptHash equality to the redeemScript
       if (input.prevOutScript) {
@@ -415,42 +440,8 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
         if (!bufferEquals(scriptHash, bcrypto.hash160(redeemScript))) throw new Error('RedeemScript does not match ' + scriptHash.toString('hex'))
       }
 
-      var pubKeys, pkh1, pkh2
-
-      var redeemScriptType
-
-      var processScript = function (redeemScript) {
-        var scriptType = bscript.classifyOutput(redeemScript)
-        var redeemScriptChunks = bscript.decompile(redeemScript)
-
-        switch (scriptType) {
-          case 'multisig':
-            pubKeys = redeemScriptChunks.slice(1, -2)
-
-            break
-
-          case 'pubkeyhash':
-            pkh1 = redeemScriptChunks[2]
-            pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
-
-            if (!bufferEquals(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
-            pubKeys = [kpPubKey]
-
-            break
-
-          case 'pubkey':
-            pubKeys = redeemScriptChunks.slice(0, 1)
-
-            break
-
-          default:
-            throw new Error('RedeemScript not supported (' + scriptType + ')')
-        }
-
-        return scriptType
-      }
-
-      redeemScriptType = processScript(redeemScript)
+      var extracted = extractFromOutputScript(redeemScript, keyPair, kpPubKey)
+      if (!extracted) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
 
       // if we don't have a prevOutScript, generate a P2SH script
       if (!input.prevOutScript) {
@@ -458,10 +449,10 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
         input.prevOutType = 'scripthash'
       }
 
-      input.pubKeys = pubKeys
+      input.pubKeys = extracted.pubKeys
       input.redeemScript = redeemScript
-      input.redeemScriptType = redeemScriptType
-      input.signatures = pubKeys.map(function () { return undefined })
+      input.redeemScriptType = extracted.scriptType
+      input.signatures = extracted.pubKeys.map(function () { return undefined })
     } else {
       // pay-to-scriptHash is not possible without a redeemScript
       if (input.prevOutType === 'scripthash') throw new Error('PrevOutScript is P2SH, missing redeemScript')
