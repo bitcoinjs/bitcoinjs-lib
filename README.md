@@ -80,6 +80,10 @@ You will then be able to load `foobar.js` into your browser, with each of the de
 
 **NOTE**: When uglifying the javascript, you must exclude the following variable names from being mangled: `Array`, `BigInteger`, `Boolean`, `Buffer`, `ECPair`, `Function`, `Number`, `Point` and `Script`.
 This is because of the function-name-duck-typing used in [typeforce](https://github.com/dcousens/typeforce).
+Example:
+``` bash
+uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,Buffer,ECPair,Function,Number,Point'
+```
 
 
 ## Examples
