@@ -3,6 +3,7 @@
 var assert = require('assert')
 var bigi = require('bigi')
 var bitcoin = require('../../')
+var blockchain = require('./_blockchain')
 
 describe('bitcoinjs-lib (basic)', function () {
   it('can generate a random bitcoin address', function () {
@@ -56,5 +57,33 @@ describe('bitcoinjs-lib (basic)', function () {
     tx.sign(0, keyPair)
 
     assert.strictEqual(tx.build().toHex(), '0100000001313eb630b128102b60241ca895f1d0ffca2170d5a0990e094f2182c102ab94aa000000006b483045022100aefbcf847900b01dd3e3debe054d3b6d03d715d50aea8525f5ea3396f168a1fb022013d181d05b15b90111808b22ef4f9ebe701caf2ab48db269691fdf4e9048f4f60121029f50f51d63b345039a290c94bffd3180c99ed659ff6ea6b1242bca47eb93b59fffffffff01983a0000000000001976a914ad618cf4333b3b248f9744e8e81db2964d0ae39788ac00000000')
+  })
+
+  it('can create a [complex] Transaction', function (done) {
+    this.timeout(30000)
+
+    var network = bitcoin.networks.testnet
+    var alice = bitcoin.ECPair.makeRandom({ network: network })
+    var bob = bitcoin.ECPair.makeRandom({ network: network })
+    var alicesAddress = alice.getAddress()
+    var bobsAddress = bob.getAddress()
+
+    blockchain.t.faucet(alicesAddress, 2e4, function (err, unspentA) {
+      if (err) return done(err)
+
+      blockchain.t.faucet(bobsAddress, 2e4, function (err, unspentB) {
+        if (err) return done(err)
+
+        var tx = new bitcoin.TransactionBuilder(network)
+        tx.addInput(unspentA.txId, unspentA.vout)
+        tx.addInput(unspentB.txId, unspentB.vout)
+        tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1e4)
+        tx.addOutput('2NByiBUaEXrhmqAsg7BbLpcQSAQs1EDwt5w', 1e4)
+        tx.sign(0, alice)
+        tx.sign(1, bob)
+
+        blockchain.t.transactions.propagate(tx.build().toHex(), done)
+      })
+    })
   })
 })
