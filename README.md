@@ -28,10 +28,8 @@ Used by over a million wallet users and the backbone for almost all Bitcoin web 
 
 ## Should I use this in production?
 
-If you are thinking of using the master branch of this library in production, *stop*.
-Master is not stable; it is our development branch, and only tagged releases may be classified as stable.
-
-If you are looking for the latest releases,  look at the [repositories tags](https://github.com/bitcoinjs/bitcoinjs-lib/tags) or download from `npm` (see below).
+If you are thinking of using the master branch of this library in production, **stop**.
+Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/bitcoinjs/bitcoinjs-lib/tags).
 
 
 ## Installation
