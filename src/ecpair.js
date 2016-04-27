@@ -1,3 +1,4 @@
+var baddress = require('./address')
 var bcrypto = require('./crypto')
 var bs58check = require('bs58check')
 var ecdsa = require('./ecdsa')
@@ -97,14 +98,7 @@ ECPair.makeRandom = function (options) {
 }
 
 ECPair.prototype.getAddress = function () {
-  var pubKey = this.getPublicKeyBuffer()
-  var pubKeyHash = bcrypto.hash160(pubKey)
-
-  var payload = new Buffer(21)
-  payload.writeUInt8(this.network.pubKeyHash, 0)
-  pubKeyHash.copy(payload, 1)
-
-  return bs58check.encode(payload)
+  return baddress.toBase58Check(bcrypto.hash160(this.getPublicKeyBuffer()), this.getNetwork().pubKeyHash)
 }
 
 ECPair.prototype.getNetwork = function () {
