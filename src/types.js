@@ -2,7 +2,8 @@ var typeforce = require('typeforce')
 
 function nBuffer (value, n) {
   typeforce(types.Buffer, value)
-  if (value.length !== n) throw new Error('Expected ' + (n * 8) + '-bit Buffer, got ' + (value.length * 8) + '-bit Buffer')
+  if (value.length !== n) throw new typeforce.TfTypeError('Expected ' + (n * 8) + '-bit Buffer, got ' + (value.length * 8) + '-bit Buffer')
+
   return true
 }
 
@@ -11,14 +12,23 @@ function Hash256bit (value) { return nBuffer(value, 32) }
 function Buffer256bit (value) { return nBuffer(value, 32) }
 
 var UINT53_MAX = Math.pow(2, 53) - 1
+var UINT31_MAX = Math.pow(2, 31) - 1
 function UInt2 (value) { return (value & 3) === value }
 function UInt8 (value) { return (value & 0xff) === value }
 function UInt32 (value) { return (value >>> 0) === value }
+function UInt31 (value) {
+  return UInt32(value) && value <= UINT31_MAX
+}
 function UInt53 (value) {
   return typeforce.Number(value) &&
     value >= 0 &&
     value <= UINT53_MAX &&
     Math.floor(value) === value
+}
+
+function Bip32Path (value) {
+  return typeforce.String(value) &&
+    value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
 }
 
 // external dependent types
@@ -50,8 +60,10 @@ var types = {
   Network: Network,
   UInt2: UInt2,
   UInt8: UInt8,
+  UInt31: UInt31,
   UInt32: UInt32,
-  UInt53: UInt53
+  UInt53: UInt53,
+  Bip32Path: Bip32Path
 }
 
 for (var typeName in typeforce) {

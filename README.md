@@ -8,7 +8,7 @@
 
 
 The pure JavaScript Bitcoin library for node.js and browsers.
-A continued implementation of the original `0.1.3` version used by over a million wallet users; the backbone for almost all Bitcoin web wallets in production today.
+Used by over a million wallet users and the backbone for almost all Bitcoin web wallets in production today.
 
 
 ## Features
@@ -80,6 +80,10 @@ You will then be able to load `foobar.js` into your browser, with each of the de
 
 **NOTE**: When uglifying the javascript, you must exclude the following variable names from being mangled: `Array`, `BigInteger`, `Boolean`, `Buffer`, `ECPair`, `Function`, `Number`, `Point` and `Script`.
 This is because of the function-name-duck-typing used in [typeforce](https://github.com/dcousens/typeforce).
+Example:
+``` bash
+uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,Buffer,ECPair,Function,Number,Point'
+```
 
 
 ## Examples
@@ -115,6 +119,7 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 - [Dark Wallet](https://darkwallet.unsystem.net)
 - [DecentralBank](http://decentralbank.com/)
 - [Dogechain Wallet](https://dogechain.info)
+- [EI8HT Wallet](http://ei8.ht/)
 - [GreenAddress](https://greenaddress.it)
 - [Hive Wallet](https://www.hivewallet.com)
 - [QuickCoin](https://wallet.quickcoin.co)

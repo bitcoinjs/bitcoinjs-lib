@@ -192,6 +192,7 @@ describe('HDNode', function () {
 
         assert.strictEqual(hd.toBase58(), f.master.base58)
         assert.strictEqual(hd.keyPair.network, network)
+        assert.strictEqual(hd.isNeutered(), true)
       })
     })
 
@@ -202,15 +203,16 @@ describe('HDNode', function () {
 
         assert.strictEqual(hd.toBase58(), f.master.base58Priv)
         assert.strictEqual(hd.keyPair.network, network)
+        assert.strictEqual(hd.isNeutered(), false)
       })
     })
 
     fixtures.invalid.fromBase58.forEach(function (f) {
       it('throws on ' + f.string, function () {
         assert.throws(function () {
-          var network = NETWORKS[f.network]
+          var networks = f.network ? NETWORKS[f.network] : NETWORKS_LIST
 
-          HDNode.fromBase58(f.string, network)
+          HDNode.fromBase58(f.string, networks)
         }, new RegExp(f.exception))
       })
     })
@@ -240,7 +242,7 @@ describe('HDNode', function () {
     var f = fixtures.valid[0]
 
     it('strips all private information', function () {
-      var hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+      var hd = HDNode.fromBase58(f.master.base58Priv, NETWORKS_LIST)
       var hdn = hd.neutered()
 
       assert.strictEqual(hdn.keyPair.d, undefined)
@@ -248,6 +250,8 @@ describe('HDNode', function () {
       assert.strictEqual(hdn.chainCode, hd.chainCode)
       assert.strictEqual(hdn.depth, hd.depth)
       assert.strictEqual(hdn.index, hd.index)
+      assert.strictEqual(hdn.isNeutered(), true)
+      assert.strictEqual(hd.isNeutered(), false)
     })
   })
 
@@ -268,6 +272,7 @@ describe('HDNode', function () {
     fixtures.valid.forEach(function (f) {
       var network = NETWORKS[f.network]
       var hd = HDNode.fromSeedHex(f.master.seed, network)
+      var master = hd
 
       // FIXME: test data is only testing Private -> private for now
       f.children.forEach(function (c, i) {
@@ -279,6 +284,42 @@ describe('HDNode', function () {
           }
 
           verifyVector(hd, c, i + 1)
+        })
+      })
+
+      // testing deriving path from master
+      f.children.forEach(function (c) {
+        it(c.description + ' from ' + f.master.fingerprint + ' by path', function () {
+          var path = c.description
+          var child = master.derivePath(path)
+
+          var pathSplit = path.split('/').slice(1)
+          var pathNotM = pathSplit.join('/')
+          var childNotM = master.derivePath(pathNotM)
+
+          verifyVector(child, c, pathSplit.length)
+          verifyVector(childNotM, c, pathSplit.length)
+        })
+      })
+
+      // testing deriving path from children
+      f.children.forEach(function (c, i) {
+        var cn = master.derivePath(c.description)
+
+        f.children.slice(i + 1).forEach(function (cc) {
+          it(cc.description + ' from ' + c.fingerprint + ' by path', function () {
+            var path = cc.description
+
+            var pathSplit = path.split('/').slice(i + 2)
+            var pathEnd = pathSplit.join('/')
+            var pathEndM = 'm/' + pathEnd
+            var child = cn.derivePath(pathEnd)
+            verifyVector(child, cc, pathSplit.length + i + 1)
+
+            assert.throws(function () {
+              cn.derivePath(pathEndM)
+            }, /Not a master node/)
+          })
         })
       })
     })
@@ -322,6 +363,29 @@ describe('HDNode', function () {
       assert.throws(function () {
         master.deriveHardened(c.m)
       }, /Could not derive hardened child key/)
+    })
+
+    it('throws on wrong types', function () {
+      var f = fixtures.valid[0]
+      var master = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+
+      fixtures.invalid.derive.forEach(function (fx) {
+        assert.throws(function () {
+          master.derive(fx)
+        }, /Expected UInt32/)
+      })
+
+      fixtures.invalid.deriveHardened.forEach(function (fx) {
+        assert.throws(function () {
+          master.deriveHardened(fx)
+        }, /Expected UInt31/)
+      })
+
+      fixtures.invalid.derivePath.forEach(function (fx) {
+        assert.throws(function () {
+          master.derivePath(fx)
+        }, /Expected Bip32Path/)
+      })
     })
   })
 })

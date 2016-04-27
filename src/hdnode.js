@@ -64,7 +64,9 @@ HDNode.fromBase58 = function (string, networks) {
     network = networks.filter(function (network) {
       return version === network.bip32.private ||
              version === network.bip32.public
-    }).pop() || {}
+    }).pop()
+
+    if (!network) throw new Error('Unknown network version')
 
   // otherwise, assume a network object (or default to bitcoin)
   } else {
@@ -72,7 +74,7 @@ HDNode.fromBase58 = function (string, networks) {
   }
 
   if (version !== network.bip32.private &&
-    version !== network.bip32.public) throw new Error('Invalid network')
+    version !== network.bip32.public) throw new Error('Invalid network version')
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer[4]
@@ -170,7 +172,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
 
   // Version
   var network = this.keyPair.network
-  var version = this.keyPair.d ? network.bip32.private : network.bip32.public
+  var version = (!this.isNeutered()) ? network.bip32.private : network.bip32.public
   var buffer = new Buffer(78)
 
   // 4 bytes: version bytes
@@ -190,7 +192,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
   this.chainCode.copy(buffer, 13)
 
   // 33 bytes: the public key or private key data
-  if (this.keyPair.d) {
+  if (!this.isNeutered()) {
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
     this.keyPair.d.toBuffer(32).copy(buffer, 46)
@@ -206,12 +208,14 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
 
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
 HDNode.prototype.derive = function (index) {
+  typeforce(types.UInt32, index)
+
   var isHardened = index >= HDNode.HIGHEST_BIT
   var data = new Buffer(37)
 
   // Hardened child
   if (isHardened) {
-    if (!this.keyPair.d) throw new TypeError('Could not derive hardened child key')
+    if (this.isNeutered()) throw new TypeError('Could not derive hardened child key')
 
     // data = 0x00 || ser256(kpar) || ser32(index)
     data[0] = 0x00
@@ -239,7 +243,7 @@ HDNode.prototype.derive = function (index) {
 
   // Private parent key -> private child key
   var derivedKeyPair
-  if (this.keyPair.d) {
+  if (!this.isNeutered()) {
     // ki = parse256(IL) + kpar (mod n)
     var ki = pIL.add(this.keyPair.d).mod(curve.n)
 
@@ -277,8 +281,40 @@ HDNode.prototype.derive = function (index) {
 }
 
 HDNode.prototype.deriveHardened = function (index) {
+  typeforce(types.UInt31, index)
+
   // Only derives hardened private keys by default
   return this.derive(index + HDNode.HIGHEST_BIT)
+}
+
+// Private === not neutered
+// Public === neutered
+HDNode.prototype.isNeutered = function () {
+  return !(this.keyPair.d)
+}
+
+HDNode.prototype.derivePath = function (path) {
+  typeforce(types.Bip32Path, path)
+
+  var splitPath = path.split('/')
+  if (splitPath[0] === 'm') {
+    if (this.parentFingerprint) {
+      throw new Error('Not a master node')
+    }
+
+    splitPath = splitPath.slice(1)
+  }
+
+  return splitPath.reduce(function (prevHd, indexStr) {
+    var index
+    if (indexStr.slice(-1) === "'") {
+      index = parseInt(indexStr.slice(0, -1), 10)
+      return prevHd.deriveHardened(index)
+    } else {
+      index = parseInt(indexStr, 10)
+      return prevHd.derive(index)
+    }
+  }, this)
 }
 
 HDNode.prototype.toString = HDNode.prototype.toBase58
