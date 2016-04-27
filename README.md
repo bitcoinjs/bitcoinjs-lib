@@ -31,7 +31,7 @@ Used by over a million wallet users and the backbone for almost all Bitcoin web 
 If you are thinking of using the master branch of this library in production, *stop*.
 Master is not stable; it is our development branch, and only tagged releases may be classified as stable.
 
-If you are looking for the original, it is tagged as `0.1.3`. Unless you need it for dependency reasons, it is strongly recommended that you use (or upgrade to) the newest version, which adds major functionality, cleans up the interface, fixes many bugs, and adds over 1,300 more tests.
+If you are looking for the latest releases,  look at the [repositories tags](https://github.com/bitcoinjs/bitcoinjs-lib/tags) or download from `npm` (see below).
 
 
 ## Installation
@@ -130,10 +130,9 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 ## Contributors
 
 Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
+Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of the library from 0.1.3 to 1.0.0.
 
 Since then, many people have contributed. [Click here](https://github.com/bitcoinjs/bitcoinjs-lib/graphs/contributors) to see the comprehensive list.
-
-Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of the library from 0.1.3 to 1.0.0.
 
 
 ## Contributing
