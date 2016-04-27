@@ -1,6 +1,5 @@
 var baddress = require('./address')
 var bcrypto = require('./crypto')
-var bs58check = require('bs58check')
 var ecdsa = require('./ecdsa')
 var randomBytes = require('randombytes')
 var typeforce = require('typeforce')
@@ -59,20 +58,24 @@ ECPair.fromPublicKeyBuffer = function (buffer, network) {
 }
 
 ECPair.fromWIF = function (string, network) {
-  var buffer = bs58check.decode(string)
+  network = network || NETWORKS.bitcoin
+  var decoded = wif.decode(string)
+  var version = decoded.version
 
+  // [network, ...]
   if (types.Array(network)) {
-    var version = buffer[0]
-
     network = network.filter(function (network) {
       return version === network.wif
     }).pop()
 
     if (!network) throw new Error('Unknown network version')
+
+  // network
+  } else if (network) {
+    // check version only if defined
+    if (version !== network.wif) throw new Error('Invalid network version')
   }
 
-  network = network || NETWORKS.bitcoin
-  var decoded = wif.decodeRaw(buffer, network.wif)
   var d = BigInteger.fromBuffer(decoded.privateKey)
 
   return new ECPair(d, null, {
