@@ -82,9 +82,11 @@ Transaction.fromHex = function (hex) {
 }
 
 Transaction.isCoinbaseHash = function (buffer) {
-  return Array.prototype.every.call(buffer, function (x) {
-    return x === 0
-  })
+  typeforce(types.Hash256bit, buffer)
+  for (var i = 0; i < 32; ++i) {
+    if (buffer[i] !== 0) return false
+  }
+  return true
 }
 
 Transaction.prototype.isCoinbase = function () {
