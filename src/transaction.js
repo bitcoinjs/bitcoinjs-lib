@@ -87,6 +87,10 @@ Transaction.isCoinbaseHash = function (buffer) {
   })
 }
 
+Transaction.prototype.isCoinbase = function () {
+  return this.ins.length === 1 && Transaction.isCoinbaseHash(this.ins[0].hash)
+}
+
 var EMPTY_SCRIPT = new Buffer(0)
 
 Transaction.prototype.addInput = function (hash, index, sequence, scriptSig) {
