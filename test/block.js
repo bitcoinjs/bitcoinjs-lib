@@ -97,6 +97,44 @@ describe('Block', function () {
     })
   })
 
+  describe('calculateMerkleRoot', function () {
+    it('should throw on zero-length transaction array', function () {
+      assert.throws(function () {
+        Block.calculateMerkleRoot([])
+      }, /Cannot compute merkle root for zero transactions/)
+    })
+
+    fixtures.valid.forEach(function (f) {
+      if (f.hex.length === 160) return
+
+      var block
+
+      beforeEach(function () {
+        block = Block.fromHex(f.hex)
+      })
+
+      it('returns ' + f.merkleRoot + ' for ' + f.id, function () {
+        assert.strictEqual(Block.calculateMerkleRoot(block.transactions).toString('hex'), f.merkleRoot)
+      })
+    })
+  })
+
+  describe('checkMerkleRoot', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.hex.length === 160) return
+
+      var block
+
+      beforeEach(function () {
+        block = Block.fromHex(f.hex)
+      })
+
+      it('returns ' + f.valid + ' for ' + f.id, function () {
+        assert.strictEqual(block.checkMerkleRoot(), true)
+      })
+    })
+  })
+
   describe('checkProofOfWork', function () {
     fixtures.valid.forEach(function (f) {
       var block
