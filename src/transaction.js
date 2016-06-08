@@ -2,7 +2,7 @@ var bcrypto = require('./crypto')
 var bscript = require('./script')
 var bufferutils = require('./bufferutils')
 var bufferReverse = require('buffer-reverse')
-var opcodes = require('./opcodes')
+var opcodes = require('./opcodes.json')
 var typeforce = require('typeforce')
 var types = require('./types')
 
