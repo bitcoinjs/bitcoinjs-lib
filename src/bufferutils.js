@@ -1,4 +1,4 @@
-var opcodes = require('./opcodes')
+var opcodes = require('./opcodes.json')
 
 // https://github.com/feross/buffer/blob/master/index.js#L1127
 function verifuint (value, max) {

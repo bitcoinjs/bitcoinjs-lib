@@ -4,7 +4,7 @@ var bscript = require('./script')
 var bufferEquals = require('buffer-equals')
 var bufferReverse = require('buffer-reverse')
 var networks = require('./networks')
-var ops = require('./opcodes')
+var ops = require('./opcodes.json')
 var typeforce = require('typeforce')
 var types = require('./types')
 
