@@ -3,7 +3,7 @@ var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
 
-var OPS = require('./opcodes')
+var OPS = require('./opcodes.json')
 var REVERSE_OPS = (function () {
   var result = {}
   for (var op in OPS) {
