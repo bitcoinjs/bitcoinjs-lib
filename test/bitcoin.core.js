@@ -201,9 +201,7 @@ describe('Bitcoin-core', function () {
       var scriptHex = f[1]
       var inIndex = f[2]
       var hashType = f[3]
-
-      // reverse because test data is reversed
-      var expectedHash = [].reverse.call(new Buffer(f[4], 'hex'))
+      var expectedHash = f[4]
 
       var hashTypes = []
       if ((hashType & 0x1f) === bitcoin.Transaction.SIGHASH_NONE) hashTypes.push('SIGHASH_NONE')
@@ -222,7 +220,9 @@ describe('Bitcoin-core', function () {
         assert.strictEqual(bitcoin.script.compile(scriptChunks).toString('hex'), scriptHex)
 
         var hash = transaction.hashForSignature(inIndex, script, hashType)
-        assert.deepEqual(hash, expectedHash)
+
+        // reverse because test data is reversed
+        assert.equal([].reverse.call(hash).toString('hex'), expectedHash)
       })
     })
   })
