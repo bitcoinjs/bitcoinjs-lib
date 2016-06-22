@@ -168,6 +168,10 @@ Transaction.prototype.clone = function () {
 
 var ONE = new Buffer('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
 var VALUE_UINT64_MAX = new Buffer('ffffffffffffffff', 'hex')
+var BLANK_OUTPUT = {
+  script: EMPTY_SCRIPT,
+  valueBuffer: VALUE_UINT64_MAX
+}
 
 /**
  * Hash transaction for signing a specific input.
@@ -183,61 +187,55 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L29
   if (inIndex >= this.ins.length) return ONE
 
-  var txTmp = this.clone()
-
-  // in case concatenating two scripts ends up with two codeseparators,
-  // or an extra one at the end, this prevents all those possible incompatibilities.
-  var hashScript = bscript.compile(bscript.decompile(prevOutScript).filter(function (x) {
+  // ignore OP_CODESEPARATOR
+  var ourScript = bscript.compile(bscript.decompile(prevOutScript).filter(function (x) {
     return x !== opcodes.OP_CODESEPARATOR
   }))
-  var i
 
-  // blank out other inputs' signatures
-  txTmp.ins.forEach(function (input) { input.script = EMPTY_SCRIPT })
-  txTmp.ins[inIndex].script = hashScript
+  var txTmp = this.clone()
 
-  // blank out some of the inputs
+  // SIGHASH_NONE: ignore all outputs? (wildcard payee)
   if ((hashType & 0x1f) === Transaction.SIGHASH_NONE) {
-    // wildcard payee
     txTmp.outs = []
 
-    // let the others update at will
+    // ignore sequence numbers (except at inIndex)
     txTmp.ins.forEach(function (input, i) {
-      if (i !== inIndex) {
-        input.sequence = 0
-      }
+      if (i === inIndex) return
+
+      input.sequence = 0
     })
+
+  // SIGHASH_SINGLE: ignore all outputs, except at the same index?
   } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE) {
-    var nOut = inIndex
-
-    // only lock-in the txOut payee at same index as txIn
     // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L60
-    if (nOut >= this.outs.length) return ONE
+    if (inIndex >= this.outs.length) return ONE
 
-    txTmp.outs = txTmp.outs.slice(0, nOut + 1)
+    // truncate outputs after
+    txTmp.outs.length = inIndex + 1
 
-    // blank all other outputs (clear scriptPubKey, value === -1)
-    var stubOut = {
-      script: EMPTY_SCRIPT,
-      valueBuffer: VALUE_UINT64_MAX
+    // "blank" outputs before
+    for (var i = 0; i < inIndex; i++) {
+      txTmp.outs[i] = BLANK_OUTPUT
     }
 
-    for (i = 0; i < nOut; i++) {
-      txTmp.outs[i] = stubOut
-    }
-
-    // let the others update at will
+    // ignore sequence numbers (except at inIndex)
     txTmp.ins.forEach(function (input, i) {
-      if (i !== inIndex) {
-        input.sequence = 0
-      }
+      if (i === inIndex) return
+
+      input.sequence = 0
     })
   }
 
-  // blank out other inputs completely, not recommended for open transactions
+  // SIGHASH_ANYONECANPAY: ignore inputs entirely?
   if (hashType & Transaction.SIGHASH_ANYONECANPAY) {
-    txTmp.ins[0] = txTmp.ins[inIndex]
-    txTmp.ins = txTmp.ins.slice(0, 1)
+    txTmp.ins = [txTmp.ins[inIndex]]
+    txTmp.ins[0].script = ourScript
+
+  // SIGHASH_ALL: only ignore input scripts
+  } else {
+    // "blank" others input scripts
+    txTmp.ins.forEach(function (input) { input.script = EMPTY_SCRIPT })
+    txTmp.ins[inIndex].script = ourScript
   }
 
   // serialize and hash
