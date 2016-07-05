@@ -1,0 +1,110 @@
+/* @flow */
+import * as BigInteger from 'bigi';
+
+export type Network = {
+  messagePrefix: string;
+  bip32: {
+    public: number;
+    private: number;
+  };
+  pubKeyHash: number;
+  scriptHash: number;
+  wif: number;
+  dustThreshold: number;
+  feePerKB: number;
+}
+
+export type Output = {
+  script: Buffer;
+  value: number;
+}
+
+export type Input = {
+  script: Buffer;
+  hash: Buffer;
+  index: number;
+  sequence: number;
+}
+
+declare export var address: {
+  fromBase58Check(address: string): {hash: Buffer, version: number};
+  fromOutputScript(script: Buffer, network?: Network): string;
+}
+
+declare export var script: {
+  fromAddress(address: string, network?: Network): Buffer;
+  pubKeyHashOutput(pkh: Buffer): Buffer;
+  scriptHashOutput(sho: Buffer): Buffer;
+}
+
+declare export var crypto: {
+  hash256(buffer: Buffer): Buffer;
+  hash160(buffer: Buffer): Buffer;
+}
+
+type ECurvePoint = any; // FIXME
+
+declare export class ECPair {
+  d: ?Buffer;
+  Q: ?ECurvePoint;
+  compressed: boolean;
+  network: Network;
+  constructor(d: ?Buffer, Q: ?ECurvePoint): void;
+  getPublicKeyBuffer(): Buffer;
+  toWIF(): string;
+  static makeRandom(): ECPair;
+}
+
+declare export class ECSignature {
+  r: BigInteger;
+  s: BigInteger;
+}
+
+declare export class HDNode {
+  depth: number;
+  parentFingerprint: number;
+  index: number;
+  keyPair: ECPair;
+  chainCode: Buffer;
+  static fromBase58(
+    str: string,
+    networks?: ?(Array<Network> | Network)
+  ): HDNode;
+  static fromSeedHex(seed: string, network?: ?Network): HDNode;
+  static fromSeedBuffer(seed: Buffer, network?: ?Network): HDNode;
+  derive(index: number): HDNode;
+  toBase58(): string;
+  getAddress(): string;
+  getFingerprint(): Buffer;
+  getIdentifier(): Buffer;
+  getNetwork(): Network;
+  getPublicKeyBuffer(): Buffer;
+  sign(): ECSignature;
+  verify(hash: Buffer, signature: ECSignature): Buffer;
+  neutered(): HDNode;
+  isNeutered(): boolean;
+  deriveHardened(index: number): HDNode;
+  derivePath(path: string): HDNode;
+  constructor(keyPair: ECPair, chainCode: Buffer): void;
+  static HIGHEST_BIT: number;
+}
+
+declare export class Transaction {
+  version: number;
+  locktime: number;
+
+  constructor(): void;
+  static fromHex(hex: string): Transaction;
+  ins: Array<Input>;
+  outs: Array<Output>;
+  toHex(): string;
+  addInput(hash: Buffer, index: number, sequence?: ?number, scriptSig?: Buffer): void;
+  addOutput(scriptPubKey: Buffer, value: number): void;
+  getHash(): Buffer;
+  toBuffer(): Buffer;
+  getId(): string;
+
+  static isCoinbaseHash(buffer: Buffer): boolean;
+}
+
+declare export var networks: {[key: string]: Network}

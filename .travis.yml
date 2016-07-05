@@ -2,6 +2,7 @@ sudo: false
 language: node_js
 before_install:
   - npm install npm -g
+  - npm install flow-bin
 node_js:
   - "0.10"
   - "0.12"
@@ -17,4 +18,5 @@ env:
   - TEST_SUITE=coverage
   - TEST_SUITE=integration
   - TEST_SUITE=unit
+  - TEST_SUITE=flowtest
 script: npm run-script $TEST_SUITE

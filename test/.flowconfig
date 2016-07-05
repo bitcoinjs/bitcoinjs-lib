@@ -1,0 +1,13 @@
+[ignore]
+
+[include]
+../node_modules/assert
+../node_modules/bigi
+../node_modules/sinon
+../src
+
+[libs]
+./flow/mocha.js.flow
+./flow/fixtures.js.flow
+
+[options]
