@@ -386,7 +386,7 @@ function extractFromOutputScript (outputScript, keyPair, kpPubKey) {
   switch (scriptType) {
     case 'pubkeyhash':
       var pkh1 = outputScriptChunks[2]
-      var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
+      var pkh2 = keyPair.getPubKeyHash()
 
       if (!bufferEquals(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
 
@@ -466,7 +466,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
       // if we don't have a scriptType, assume pubKeyHash otherwise
       if (!input.scriptType) {
-        input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(keyPair.getPublicKeyBuffer()))
+        input.prevOutScript = bscript.pubKeyHashOutput(keyPair.getPubKeyHash())
         input.prevOutType = 'pubkeyhash'
 
         input.pubKeys = [kpPubKey]

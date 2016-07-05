@@ -1,5 +1,4 @@
 var base58check = require('bs58check')
-var bcrypto = require('./crypto')
 var createHmac = require('create-hmac')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -131,7 +130,11 @@ HDNode.prototype.getAddress = function () {
 }
 
 HDNode.prototype.getIdentifier = function () {
-  return bcrypto.hash160(this.keyPair.getPublicKeyBuffer())
+  return this.getPubKeyHash()
+}
+
+HDNode.prototype.getPubKeyHash = function () {
+  return this.keyPair.getPubKeyHash()
 }
 
 HDNode.prototype.getFingerprint = function () {

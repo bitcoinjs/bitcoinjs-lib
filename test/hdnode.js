@@ -221,10 +221,24 @@ describe('HDNode', function () {
   describe('getIdentifier', function () {
     var f = fixtures.valid[0]
 
-    it('returns the identifier for ' + f.master.fingerprint, function () {
-      var hd = HDNode.fromBase58(f.master.base58, NETWORKS_LIST)
+    new Array(f.master).concat(f.children).forEach(function (c) {
+      it('returns the identifier for ' + c.fingerprint, function () {
+        var hd = HDNode.fromBase58(c.base58, NETWORKS_LIST)
 
-      assert.strictEqual(hd.getIdentifier().toString('hex'), f.master.identifier)
+        assert.strictEqual(hd.getIdentifier().toString('hex'), c.identifier)
+      })
+    })
+  })
+
+  describe('getPubKeyHash', function () {
+    var f = fixtures.valid[0]
+
+    new Array(f.master).concat(f.children).forEach(function (c) {
+      it('returns the pubKeyHash for ' + c.fingerprint, function () {
+        var hd = HDNode.fromBase58(c.base58, NETWORKS_LIST)
+
+        assert.strictEqual(hd.getPubKeyHash().toString('hex'), c.identifier)
+      })
     })
   })
 
