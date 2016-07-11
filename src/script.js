@@ -206,6 +206,20 @@ function isScriptHashOutput (script) {
     buffer[22] === OPS.OP_EQUAL
 }
 
+function isWitnessPubKeyHashOutput (script) {
+  var buffer = compile(script)
+
+  return buffer.length === 22 &&
+    buffer[0] === OPS.OP_0
+}
+
+function isWitnessScriptHashOutput (script) {
+  var buffer = compile(script)
+
+  return buffer.length === 34 &&
+    buffer[0] === OPS.OP_0
+}
+
 // allowIncomplete is to account for combining signatures
 // See https://github.com/bitcoin/bitcoin/blob/f425050546644a36b0b8e0eb2f6934a3e0f6f80f/src/script/sign.cpp#L195-L197
 function isMultisigInput (script, allowIncomplete) {
@@ -253,7 +267,11 @@ function isNullDataOutput (script) {
 function classifyOutput (script) {
   var chunks = decompile(script)
 
-  if (isPubKeyHashOutput(chunks)) {
+  if (isWitnessPubKeyHashOutput(chunks)) {
+    return 'witnesspubkeyhash'
+  } else if (isWitnessScriptHashOutput(chunks)) {
+    return 'witnessscripthash'
+  } else if (isPubKeyHashOutput(chunks)) {
     return 'pubkeyhash'
   } else if (isScriptHashOutput(chunks)) {
     return 'scripthash'
@@ -319,6 +337,20 @@ function multisigOutput (m, pubKeys) {
   ))
 }
 
+// OP_0 {pubKeyHash}
+function witnessPubKeyHashOutput (pubKeyHash) {
+  typeforce(types.Hash160bit, pubKeyHash)
+
+  return compile([OPS.OP_0, pubKeyHash])
+}
+
+// OP_0 {scriptHash}
+function witnessScriptHashOutput (scriptHash) {
+  typeforce(types.Hash256bit, scriptHash)
+
+  return compile([OPS.OP_0, scriptHash])
+}
+
 // {signature}
 function pubKeyInput (signature) {
   typeforce(types.Buffer, signature)
@@ -342,6 +374,11 @@ function scriptHashInput (scriptSig, scriptPubKey) {
     scriptSigChunks,
     serializedScriptPubKey
   ))
+}
+
+// <scriptSig> {serialized scriptPubKey script}
+function witnessScriptHashInput (scriptSig, scriptPubKey) {
+  return scriptHashInput(scriptSig, scriptPubKey)
 }
 
 // OP_0 [signatures ...]
@@ -383,14 +420,21 @@ module.exports = {
   isPubKeyOutput: isPubKeyOutput,
   isScriptHashInput: isScriptHashInput,
   isScriptHashOutput: isScriptHashOutput,
+  isWitnessPubKeyHashOutput: isWitnessPubKeyHashOutput,
+  isWitnessScriptHashOutput: isWitnessScriptHashOutput,
   isMultisigInput: isMultisigInput,
   isMultisigOutput: isMultisigOutput,
   isNullDataOutput: isNullDataOutput,
+
   classifyOutput: classifyOutput,
   classifyInput: classifyInput,
   pubKeyOutput: pubKeyOutput,
   pubKeyHashOutput: pubKeyHashOutput,
   scriptHashOutput: scriptHashOutput,
+  witnessPubKeyHashOutput: witnessPubKeyHashOutput,
+  witnessScriptHashInput: witnessScriptHashInput,
+  witnessScriptHashOutput: witnessScriptHashOutput,
+
   multisigOutput: multisigOutput,
   pubKeyInput: pubKeyInput,
   pubKeyHashInput: pubKeyHashInput,
