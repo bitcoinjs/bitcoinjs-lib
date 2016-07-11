@@ -172,6 +172,14 @@ describe('Transaction', function () {
     })
   })
 
-  // TODO:
-  //  hashForSignature: [Function],
+  describe('hashForSignature', function () {
+    fixtures.hashForSignature.forEach(function (f) {
+      it('should return ' + f.hash + ' for ' + (f.description ? ('case "' + f.description + '"') : f.script), function () {
+        var tx = Transaction.fromHex(f.txHex)
+        var script = bscript.fromASM(f.script)
+
+        assert.strictEqual(tx.hashForSignature(f.inIndex, script, f.type).toString('hex'), f.hash)
+      })
+    })
+  })
 })
