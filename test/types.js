@@ -18,8 +18,8 @@ describe('types', function () {
   })
 
   describe('Buffer Hash160/Hash256', function () {
-    var buffer20byte = new Buffer((new Array(20 + 1)).join('00'), 'hex')
-    var buffer32byte = new Buffer((new Array(32 + 1)).join('00'), 'hex')
+    var buffer20byte = new Buffer(20)
+    var buffer32byte = new Buffer(32)
 
     it('return true for valid size', function () {
       assert(types.Hash160bit(buffer20byte))
