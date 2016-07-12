@@ -210,14 +210,16 @@ function isWitnessPubKeyHashOutput (script) {
   var buffer = compile(script)
 
   return buffer.length === 22 &&
-    buffer[0] === OPS.OP_0
+    buffer[0] === OPS.OP_0 &&
+    buffer[1] === 0x14
 }
 
 function isWitnessScriptHashOutput (script) {
   var buffer = compile(script)
 
   return buffer.length === 34 &&
-    buffer[0] === OPS.OP_0
+    buffer[0] === OPS.OP_0 &&
+    buffer[1] === 0x20
 }
 
 // allowIncomplete is to account for combining signatures
