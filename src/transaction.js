@@ -241,7 +241,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   // serialize and hash
   var buffer = new Buffer(txTmp.byteLength() + 4)
   buffer.writeInt32LE(hashType, buffer.length - 4)
-  txTmp.toBuffer().copy(buffer, 0)
+  txTmp.toBuffer(buffer, 0)
 
   return bcrypto.hash256(buffer)
 }
@@ -255,10 +255,10 @@ Transaction.prototype.getId = function () {
   return bufferReverse(this.getHash()).toString('hex')
 }
 
-Transaction.prototype.toBuffer = function () {
-  var buffer = new Buffer(this.byteLength())
+Transaction.prototype.toBuffer = function (buffer, offset) {
+  if (!buffer) buffer = new Buffer(this.byteLength())
 
-  var offset = 0
+  offset = offset || 0
   function writeSlice (slice) {
     slice.copy(buffer, offset)
     offset += slice.length
