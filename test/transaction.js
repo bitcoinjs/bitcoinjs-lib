@@ -50,6 +50,14 @@ describe('Transaction', function () {
       })
     })
 
+    fixtures.witness.forEach(function (f) {
+      it('imports ' + f.description + ' (' + f.id + ')', function () {
+        var actual = Transaction.fromHex(f.hex)
+
+        assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
+      })
+    })
+
     fixtures.invalid.fromBuffer.forEach(function (f) {
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -204,6 +212,17 @@ describe('Transaction', function () {
         var script = bscript.fromASM(f.script)
 
         assert.strictEqual(tx.hashForSignature(f.inIndex, script, f.type).toString('hex'), f.hash)
+      })
+    })
+  })
+
+  describe('hashForWitnessV0', function () {
+    fixtures.hashForWitnessV0.forEach(function (f) {
+      it('should return ' + f.hash + ' for ' + (f.description ? ('case "' + f.description + '"') : ''), function () {
+        var tx = Transaction.fromHex(f.txHex)
+        var script = bscript.fromASM(f.script)
+
+        assert.strictEqual(tx.hashForWitnessV0(f.inIndex, script, f.value, f.type).toString('hex'), f.hash)
       })
     })
   })
