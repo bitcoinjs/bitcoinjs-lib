@@ -60,6 +60,20 @@
       "scriptPubKeyHex": "a914722ff0bc2c3f47b35c20df646c395594da24e90e87"
     },
     {
+      "type": "witnesspubkeyhash",
+      "pubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1",
+      "scriptPubKey": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+      "scriptPubKeyHex": "0014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5"
+    },
+    {
+      "type": "witnessscripthash",
+      "witnessScriptPubKey": "OP_2 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a OP_2 OP_CHECKMULTISIG",
+      "witnessScriptSig": "OP_0 304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801 3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501",
+      "scriptPubKey": "OP_0 32447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b80",
+      "scriptPubKeyHex": "002032447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b80",
+      "witness": "OP_0 304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801 3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501 522102359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1210395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a52ae"
+    },
+    {
       "type": "nulldata",
       "data": "06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
       "scriptPubKey": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
@@ -317,6 +331,18 @@
     "scriptHashOutput": [
       {
         "exception": "Expected 160-bit Buffer, got 24-bit Buffer",
+        "hash": "ffffff"
+      }
+    ],
+    "witnessPubKeyHashOutput": [
+      {
+        "exception": "Expected 160-bit Buffer, got 24-bit Buffer",
+        "hash": "ffffff"
+      }
+    ],
+    "witnessScriptHashOutput": [
+      {
+        "exception": "Expected 256-bit Buffer, got 24-bit Buffer",
         "hash": "ffffff"
       }
     ]

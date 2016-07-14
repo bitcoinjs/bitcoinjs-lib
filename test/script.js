@@ -35,7 +35,7 @@ describe('script', function () {
   describe('compile', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSig) {
-        it('compiles ' + f.scriptSig, function () {
+        it('(' + f.type + ') compiles ' + f.scriptSig, function () {
           var scriptSig = bscript.fromASM(f.scriptSig)
 
           assert.strictEqual(bscript.compile(scriptSig).toString('hex'), f.scriptSigHex)
@@ -43,7 +43,7 @@ describe('script', function () {
       }
 
       if (f.scriptPubKey) {
-        it('compiles ' + f.scriptPubKey, function () {
+        it('(' + f.type + ') compiles ' + f.scriptPubKey, function () {
           var scriptPubKey = bscript.fromASM(f.scriptPubKey)
 
           assert.strictEqual(bscript.compile(scriptPubKey).toString('hex'), f.scriptPubKeyHex)
@@ -118,7 +118,15 @@ describe('script', function () {
     })
   })
 
-  ;['PubKey', 'PubKeyHash', 'ScriptHash', 'Multisig', 'NullData'].forEach(function (type) {
+  ;[
+    'PubKey',
+    'PubKeyHash',
+    'ScriptHash',
+    'WitnessPubKeyHash',
+    'WitnessScriptHash',
+    'Multisig',
+    'NullData'
+  ].forEach(function (type) {
     var inputFnName = 'is' + type + 'Input'
     var outputFnName = 'is' + type + 'Output'
 
@@ -351,6 +359,70 @@ describe('script', function () {
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
           bscript.scriptHashOutput(hash)
+        }, new RegExp(f.exception))
+      })
+    })
+  })
+
+  describe('witnessPubKeyHashOutput', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.type !== 'witnesspubkeyhash') return
+      if (!f.scriptPubKey) return
+
+      var pubKey = new Buffer(f.pubKey, 'hex')
+      var pubKeyHash = bcrypto.hash160(pubKey)
+
+      it('returns ' + f.scriptPubKey, function () {
+        var scriptPubKey = bscript.witnessPubKeyHashOutput(pubKeyHash)
+        assert.strictEqual(bscript.toASM(scriptPubKey), f.scriptPubKey)
+      })
+    })
+
+    fixtures.invalid.witnessPubKeyHashOutput.forEach(function (f) {
+      var hash = new Buffer(f.hash, 'hex')
+
+      it('throws on ' + f.exception, function () {
+        assert.throws(function () {
+          bscript.witnessPubKeyHashOutput(hash)
+        }, new RegExp(f.exception))
+      })
+    })
+  })
+
+  describe('witnessScriptHashInput', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.type !== 'witnessscripthash') return
+
+      var witnessScript = bscript.fromASM(f.witnessScriptPubKey)
+      var witnessScriptSig = bscript.fromASM(f.witnessScriptSig)
+
+      it('returns ' + f.witness, function () {
+        var witness = bscript.witnessScriptHashInput(witnessScriptSig, witnessScript)
+
+        assert.strictEqual(bscript.toASM(witness), f.witness)
+      })
+    })
+  })
+
+  describe('witnessScriptHashOutput', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.type !== 'witnessscripthash') return
+      if (!f.scriptPubKey) return
+
+      it('returns ' + f.scriptPubKey, function () {
+        var witnessScriptPubKey = bscript.fromASM(f.witnessScriptPubKey)
+        var scriptPubKey = bscript.witnessScriptHashOutput(bcrypto.hash256(witnessScriptPubKey))
+
+        assert.strictEqual(bscript.toASM(scriptPubKey), f.scriptPubKey)
+      })
+    })
+
+    fixtures.invalid.witnessScriptHashOutput.forEach(function (f) {
+      var hash = new Buffer(f.hash, 'hex')
+
+      it('throws on ' + f.exception, function () {
+        assert.throws(function () {
+          bscript.witnessScriptHashOutput(hash)
         }, new RegExp(f.exception))
       })
     })
