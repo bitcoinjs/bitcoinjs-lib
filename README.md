@@ -47,31 +47,32 @@ Master is not stable; it is our development branch, and [only tagged releases ma
 ### Browser
 
 If you're familiar with how to use browserify, ignore this and proceed normally.
-These steps are advisory only and allow you to use the API to its full extent.
+These steps are advisory only,  and may not be necessary for your application.
 
 [Browserify](https://github.com/substack/node-browserify) is assumed to be installed for these steps.
 
-From your repository, create a `foo.js` file
-
+From your repository, create an `index.js` file
 ``` javascript
-var foobar = {
+module.exports = {
   base58: require('bs58'),
   bitcoin: require('bitcoinjs-lib'),
   ecurve: require('ecurve'),
   BigInteger: require('bigi'),
   Buffer: require('buffer')
 }
-
-module.exports = foobar
 ```
 
-Each of these included packages are separate to `bitcoinjs-lib`, and must be `npm install`'d individually.
+Install each of the above packages locally
+``` bash
+npm install bs58 bitcoinjs-lib ecurve bigi buffer
+```
 
-Using browserify, compile `foo.js` for use in the browser:
+After installation, use browserify to compile `index.js` for use in the browser:
+``` bash
+    $ browserify index.js --standalone foo > app.js
+```
 
-    $ browserify foo.js -s foobar > bar.js
-
-You will then be able to load `bar.js` into your browser, with each of the dependencies above accessible from the global `foobar` object.
+You will now be able to load `app.js` into your browser, with each of the above dependencies accessible via the global `foo` object (or whatever you chose for the `--standalone` parameter above).
 
 **NOTE**: See our package.json for the currently supported version of browserify used by this repository.
 
