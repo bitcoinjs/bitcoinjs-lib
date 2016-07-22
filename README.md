@@ -72,7 +72,7 @@ After installation, use browserify to compile `index.js` for use in the browser:
     $ browserify index.js --standalone foo > app.js
 ```
 
-You will now be able to load `app.js` into your browser, with each of the above dependencies accessible via the global `foo` object (or whatever you chose for the `--standalone` parameter above).
+You will now be able to use `<script src="app.js" />` in your browser, with each of the above exports accessible via the global `foo` object (or whatever you chose for the `--standalone` parameter above).
 
 **NOTE**: See our package.json for the currently supported version of browserify used by this repository.
 
