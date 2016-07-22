@@ -32,9 +32,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     function stealthReceive (d, P) {
       var dP = P.multiply(d) // shared secret
       var c = bigi.fromBuffer(bitcoin.crypto.sha256(dP.getEncoded()))
-      var derived = new bitcoin.ECPair(d.add(c).mod(n))
-
-      return derived
+      return new bitcoin.ECPair(d.add(c).mod(n))
     }
 
     // receiver private key
