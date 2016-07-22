@@ -65,8 +65,7 @@ var foobar = {
 module.exports = foobar
 ```
 
-Each of these included packages are seperate to `bitcoinjs-lib`, and must be installed separately.
-They are however used in the bitcoinjs-lib public API.
+Each of these included packages are separate to `bitcoinjs-lib`, and must be `npm install`'d individually.
 
 Using browserify, compile `foo.js` for use in the browser:
 
