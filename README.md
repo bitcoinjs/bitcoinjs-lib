@@ -51,7 +51,7 @@ These steps are advisory only and allow you to use the API to its full extent.
 
 [Browserify](https://github.com/substack/node-browserify) is assumed to be installed for these steps.
 
-From your repository, create a `foobar.js` file
+From your repository, create a `foo.js` file
 
 ``` javascript
 var foobar = {
