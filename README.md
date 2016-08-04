@@ -120,7 +120,7 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 - [BitAddress](https://www.bitaddress.org)
 - [Blockchain.info](https://blockchain.info/wallet)
 - [Blocktrail](https://www.blocktrail.com/)
-- [Brainwallet](https://brainwallet.github.io)
+- [Brainwallet](https://brainwallet.io/)
 - [Coinkite](https://coinkite.com)
 - [Coinpunk](https://coinpunk.com)
 - [Dark Wallet](https://darkwallet.unsystem.net)
