@@ -120,7 +120,6 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 - [BitAddress](https://www.bitaddress.org)
 - [Blockchain.info](https://blockchain.info/wallet)
 - [Blocktrail](https://www.blocktrail.com/)
-- [Brainwallet](https://brainwallet.io/)
 - [Dark Wallet](https://www.darkwallet.is/)
 - [DecentralBank](http://decentralbank.com/)
 - [Dogechain Wallet](https://dogechain.info)
