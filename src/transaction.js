@@ -6,6 +6,23 @@ var opcodes = require('./opcodes.json')
 var typeforce = require('typeforce')
 var types = require('./types')
 
+var VStruct = require('varstruct')
+var VarUIntBitcoin = require('varuint-bitcoin')
+var TxStruct = VStruct([
+  { name: 'version', type: VStruct.UInt32LE },
+  { name: 'ins', type: VStruct.VarArray(VarUIntBitcoin, VStruct([
+    { name: 'hash', type: VStruct.Buffer(32) },
+    { name: 'index', type: VStruct.UInt32LE },
+    { name: 'script', type: VStruct.VarBuffer(VarUIntBitcoin) },
+    { name: 'sequence', type: VStruct.UInt32LE }
+  ])) },
+  { name: 'outs', type: VStruct.VarArray(VarUIntBitcoin, VStruct([
+    { name: 'value', type: VStruct.UInt64LE },
+    { name: 'script', type: VStruct.VarBuffer(VarUIntBitcoin) }
+  ])) },
+  { name: 'locktime', type: VStruct.UInt32LE }
+])
+
 function Transaction () {
   this.version = 1
   this.locktime = 0
@@ -20,59 +37,15 @@ Transaction.SIGHASH_SINGLE = 0x03
 Transaction.SIGHASH_ANYONECANPAY = 0x80
 
 Transaction.fromBuffer = function (buffer, __noStrict) {
-  var offset = 0
-  function readSlice (n) {
-    offset += n
-    return buffer.slice(offset - n, offset)
-  }
-
-  function readUInt32 () {
-    var i = buffer.readUInt32LE(offset)
-    offset += 4
-    return i
-  }
-
-  function readUInt64 () {
-    var i = bufferutils.readUInt64LE(buffer, offset)
-    offset += 8
-    return i
-  }
-
-  function readVarInt () {
-    var vi = bufferutils.readVarInt(buffer, offset)
-    offset += vi.size
-    return vi.number
-  }
-
-  function readScript () {
-    return readSlice(readVarInt())
-  }
-
+  var obj = TxStruct.decode(buffer)
   var tx = new Transaction()
-  tx.version = readUInt32()
-
-  var vinLen = readVarInt()
-  for (var i = 0; i < vinLen; ++i) {
-    tx.ins.push({
-      hash: readSlice(32),
-      index: readUInt32(),
-      script: readScript(),
-      sequence: readUInt32()
-    })
-  }
-
-  var voutLen = readVarInt()
-  for (i = 0; i < voutLen; ++i) {
-    tx.outs.push({
-      value: readUInt64(),
-      script: readScript()
-    })
-  }
-
-  tx.locktime = readUInt32()
+  tx.version = obj.version
+  tx.ins = obj.ins
+  tx.outs = obj.outs
+  tx.locktime = obj.locktime
 
   if (__noStrict) return tx
-  if (offset !== buffer.length) throw new Error('Transaction has unexpected data')
+  if (TxStruct.decode.bytes !== buffer.length) throw new Error('Transaction has unexpected data')
 
   return tx
 }
@@ -256,6 +229,8 @@ Transaction.prototype.getId = function () {
 }
 
 Transaction.prototype.toBuffer = function () {
+  return TxStruct.encode(this)
+
   var buffer = new Buffer(this.byteLength())
 
   var offset = 0
