@@ -255,10 +255,10 @@ Transaction.prototype.getId = function () {
   return bufferReverse(this.getHash()).toString('hex')
 }
 
-Transaction.prototype.toBuffer = function (buffer, offset) {
+Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   if (!buffer) buffer = new Buffer(this.byteLength())
 
-  offset = offset || 0
+  var offset = initialOffset || 0
   function writeSlice (slice) {
     slice.copy(buffer, offset)
     offset += slice.length
@@ -303,6 +303,9 @@ Transaction.prototype.toBuffer = function (buffer, offset) {
   })
 
   writeUInt32(this.locktime)
+
+  // avoid slicing unless necessary
+  if (initialOffset !== undefined) return buffer.slice(initialOffset, offset)
 
   return buffer
 }
