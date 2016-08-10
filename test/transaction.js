@@ -67,6 +67,24 @@ describe('Transaction', function () {
         assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
       })
     })
+
+    it('accepts target Buffer and offset parameters', function () {
+      var f = fixtures.valid[0]
+      var actual = fromRaw(f.raw)
+      var byteLength = actual.byteLength()
+
+      var target = new Buffer(byteLength * 2)
+      var a = actual.toBuffer(target, 0)
+      var b = actual.toBuffer(target, byteLength)
+
+      assert.strictEqual(a.length, byteLength)
+      assert.strictEqual(b.length, byteLength)
+      assert.strictEqual(a.toString('hex'), f.hex)
+      assert.strictEqual(b.toString('hex'), f.hex)
+      assert.deepEqual(a, b)
+      assert.deepEqual(a, target.slice(0, byteLength))
+      assert.deepEqual(b, target.slice(byteLength))
+    })
   })
 
   describe('addInput', function () {
