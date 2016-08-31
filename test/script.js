@@ -3,6 +3,7 @@
 var assert = require('assert')
 var bcrypto = require('../src/crypto')
 var bscript = require('../src/script')
+var minimalData = require('minimaldata')
 var ops = require('../src/opcodes')
 
 var fixtures = require('./fixtures/script.json')
@@ -439,5 +440,38 @@ describe('script', function () {
         assert.strictEqual(bscript.toASM(scriptPubKey), f.scriptPubKey)
       })
     })
+  })
+
+  describe('SCRIPT_VERIFY_MINIMALDATA policy', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.scriptSigHex) {
+        it('compliant for ' + f.type + ' scriptSig ' + f.scriptSig, function () {
+          var script = new Buffer(f.scriptSigHex, 'hex')
+
+          assert(minimalData(script))
+        })
+      }
+
+      if (f.scriptPubKeyHex) {
+        it('compliant for ' + f.type + ' scriptPubKey ' + f.scriptPubKey, function () {
+          var script = new Buffer(f.scriptPubKeyHex, 'hex')
+
+          assert(minimalData(script))
+        })
+      }
+    })
+
+    function testEncodingForSize (i) {
+      it('compliant for data PUSH of length ' + i, function () {
+        var buffer = new Buffer(i)
+        var script = bscript.compile([buffer])
+
+        assert(minimalData(script), 'Failed for ' + i + ' length script')
+      })
+    }
+
+    for (var i = 0; i < 520; ++i) {
+      testEncodingForSize(i)
+    }
   })
 })
