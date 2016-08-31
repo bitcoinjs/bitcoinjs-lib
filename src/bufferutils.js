@@ -10,8 +10,8 @@ function verifuint (value, max) {
 
 function pushDataSize (i) {
   return i < opcodes.OP_PUSHDATA1 ? 1
-  : i < 0xff ? 2
-  : i < 0xffff ? 3
+  : i <= 0xff ? 2
+  : i <= 0xffff ? 3
   : 5
 }
 

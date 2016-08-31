@@ -34,7 +34,7 @@
       "dec": 255,
       "hex64": "ff00000000000000",
       "hexVI": "fdff00",
-      "hexPD": "4dff00"
+      "hexPD": "4cff"
     },
     {
       "dec": 65534,
@@ -46,7 +46,7 @@
       "dec": 65535,
       "hex64": "ffff000000000000",
       "hexVI": "fdffff",
-      "hexPD": "4effff0000"
+      "hexPD": "4dffff"
     },
     {
       "dec": 65536,
