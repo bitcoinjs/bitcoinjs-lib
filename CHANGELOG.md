@@ -1,3 +1,23 @@
+# 2.3.0
+__added__
+- Added `HDNode.prototype.isNeutered` (#536)
+- Added `HDNode.prototype.derivePath` (#538)
+- Added typeforce checking for `HDNode.prototype.derive*` (#539)
+- Added `Transaction.prototype.isCoinbase` (#578)
+- Added `Block.prototype.checkMerkleRoot` (#580)
+- Added `Block.calculateMerkleRoot` (#580)
+- Added `TransactionBuilder.prototype.setVersion` (#599)
+- Added `script.isWitnessPubKeyHashOutput` (#602)
+- Added `script.isWitnessScriptHashOutput` (#602)
+- Added `script.witnessPubKeyHashOutput` (#602)
+- Added `script.witnessScriptHashOutput` (#602)
+- Added `script.witnessScriptHashInput` (#602)
+
+__fixed__
+- Fixed "BIP32 is undefined" when network list given to `HDNode` but no compatible version found (#550)
+- Fixed `writePushDataInt` output to adhere to minimal data push policy (#617)
+
+
 # 2.2.0
 __added__
 - Added `Block.calculateTarget` for difficulty calculations (#509)
