@@ -4,7 +4,7 @@ var assert = require('assert')
 var scriptNumber = require('../src/script_number')
 var fixtures = require('./fixtures/script_number.json')
 
-describe('script', function () {
+describe('script-number', function () {
   describe('decode', function () {
     fixtures.forEach(function (f) {
       it(f.hex + ' returns ' + f.number, function () {
