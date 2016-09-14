@@ -32,8 +32,8 @@
     }
   ],
   "scripts": {
-    "coverage": "mocha --require blanket -R travis-cov",
-    "coverage-local": "mocha --require blanket -R html-cov",
+    "coverage-report": "nyc report --reporter=lcov",
+    "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
     "integration": "mocha test/integration/",
     "prepublish": "npm run test",
     "standard": "standard",
@@ -47,20 +47,6 @@
   "files": [
     "src"
   ],
-  "config": {
-    "blanket": {
-      "pattern": [
-        ""
-      ],
-      "data-cover-never": [
-        "node_modules",
-        "test"
-      ]
-    },
-    "travis-cov": {
-      "threshold": 99
-    }
-  },
   "dependencies": {
     "bigi": "^1.4.0",
     "bip66": "^1.1.0",
@@ -77,17 +63,16 @@
   },
   "devDependencies": {
     "async": "^1.5.0",
-    "blanket": "^1.1.0",
     "browserify": "^10.0.0",
     "bs58": "^2.0.1",
     "cb-http-client": "^0.2.0",
     "httpify": "^1.0.0",
     "minimaldata": "^1.0.0",
     "mocha": "^2.2.0",
+    "nyc": "^8.1.0",
     "proxyquire": "^1.4.0",
     "sinon": "^1.12.2",
-    "standard": "^5.0.0",
-    "travis-cov": "^0.2.0"
+    "standard": "^8.0.0"
   },
   "license": "MIT"
 }

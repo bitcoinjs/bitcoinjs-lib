@@ -4,19 +4,19 @@ var assert = require('assert')
 var base58 = require('bs58')
 var bitcoin = require('../')
 
-var base58_encode_decode = require('./fixtures/core/base58_encode_decode.json')
-var base58_keys_invalid = require('./fixtures/core/base58_keys_invalid.json')
-var base58_keys_valid = require('./fixtures/core/base58_keys_valid.json')
-var blocks_valid = require('./fixtures/core/blocks.json')
-var sig_canonical = require('./fixtures/core/sig_canonical.json')
-var sig_noncanonical = require('./fixtures/core/sig_noncanonical.json')
-var sighash = require('./fixtures/core/sighash.json')
-var tx_valid = require('./fixtures/core/tx_valid.json')
+var base58EncodeDecode = require('./fixtures/core/base58_encode_decode.json')
+var base58KeysInvalid = require('./fixtures/core/base58_keys_invalid.json')
+var base58KeysValid = require('./fixtures/core/base58_keys_valid.json')
+var blocksValid = require('./fixtures/core/blocks.json')
+var sigCanonical = require('./fixtures/core/sig_canonical.json')
+var sigHash = require('./fixtures/core/sighash.json')
+var sigNoncanonical = require('./fixtures/core/sig_noncanonical.json')
+var txValid = require('./fixtures/core/tx_valid.json')
 
 describe('Bitcoin-core', function () {
-  // base58_encode_decode
+  // base58EncodeDecode
   describe('base58', function () {
-    base58_encode_decode.forEach(function (f) {
+    base58EncodeDecode.forEach(function (f) {
       var fhex = f[0]
       var fb58 = f[1]
 
@@ -36,14 +36,14 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  // base58_keys_valid
+  // base58KeysValid
   describe('address.toBase58Check', function () {
     var typeMap = {
       'pubkey': 'pubKeyHash',
       'script': 'scriptHash'
     }
 
-    base58_keys_valid.forEach(function (f) {
+    base58KeysValid.forEach(function (f) {
       var expected = f[0]
       var hash = new Buffer(f[1], 'hex')
       var params = f[2]
@@ -59,7 +59,7 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  // base58_keys_invalid
+  // base58KeysInvalid
   describe('address.fromBase58Check', function () {
     var allowedNetworks = [
       bitcoin.networks.bitcoin.pubkeyhash,
@@ -68,7 +68,7 @@ describe('Bitcoin-core', function () {
       bitcoin.networks.testnet.scripthash
     ]
 
-    base58_keys_invalid.forEach(function (f) {
+    base58KeysInvalid.forEach(function (f) {
       var string = f[0]
 
       it('throws on ' + string, function () {
@@ -81,9 +81,9 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  // base58_keys_valid
+  // base58KeysValid
   describe('ECPair', function () {
-    base58_keys_valid.forEach(function (f) {
+    base58KeysValid.forEach(function (f) {
       var string = f[0]
       var hex = f[1]
       var params = f[2]
@@ -104,14 +104,14 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  // base58_keys_invalid
+  // base58KeysInvalid
   describe('ECPair.fromWIF', function () {
     var allowedNetworks = [
       bitcoin.networks.bitcoin,
       bitcoin.networks.testnet
     ]
 
-    base58_keys_invalid.forEach(function (f) {
+    base58KeysInvalid.forEach(function (f) {
       var string = f[0]
 
       it('throws on ' + string, function () {
@@ -123,7 +123,7 @@ describe('Bitcoin-core', function () {
   })
 
   describe('Block.fromHex', function () {
-    blocks_valid.forEach(function (f) {
+    blocksValid.forEach(function (f) {
       it('can parse ' + f.id, function () {
         var block = bitcoin.Block.fromHex(f.hex)
 
@@ -133,9 +133,9 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  // tx_valid
+  // txValid
   describe('Transaction.fromHex', function () {
-    tx_valid.forEach(function (f) {
+    txValid.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
 
@@ -163,7 +163,7 @@ describe('Bitcoin-core', function () {
   })
 
   describe('script.fromASM', function () {
-    tx_valid.forEach(function (f) {
+    txValid.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
 
@@ -193,7 +193,7 @@ describe('Bitcoin-core', function () {
 
   // sighash
   describe('Transaction', function () {
-    sighash.forEach(function (f) {
+    sigHash.forEach(function (f) {
       // Objects that are only a single string are ignored
       if (f.length === 1) return
 
@@ -228,7 +228,7 @@ describe('Bitcoin-core', function () {
   })
 
   describe('ECSignature.parseScriptSignature', function () {
-    sig_canonical.forEach(function (hex) {
+    sigCanonical.forEach(function (hex) {
       var buffer = new Buffer(hex, 'hex')
 
       it('can parse ' + hex, function () {
@@ -238,11 +238,11 @@ describe('Bitcoin-core', function () {
       })
     })
 
-    sig_noncanonical.forEach(function (hex, i) {
+    sigNoncanonical.forEach(function (hex, i) {
       if (i === 0) return
       if (i % 2 !== 0) return
 
-      var description = sig_noncanonical[i - 1].slice(0, -1)
+      var description = sigNoncanonical[i - 1].slice(0, -1)
       var buffer = new Buffer(hex, 'hex')
 
       it('throws on ' + description, function () {
