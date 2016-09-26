@@ -140,8 +140,6 @@ function extractInput (transaction, txIn, vin) {
 
 function TransactionBuilder (network) {
   this.prevTxMap = {}
-  this.prevOutScripts = {}
-  this.prevOutTypes = {}
   this.network = network || networks.bitcoin
 
   this.inputs = []
