@@ -6,6 +6,11 @@ function UInt31 (value) {
   return typeforce.UInt32(value) && value <= UINT31_MAX
 }
 
+var SATOSHI_MAX = 2.1 * 1e15
+function Satoshi (value) {
+  return typeforce.UInt53(value) && value <= SATOSHI_MAX
+}
+
 function Bip32Path (value) {
   return typeforce.String(value) &&
     value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
@@ -38,6 +43,7 @@ var types = {
   Hash160bit: typeforce.BufferN(20),
   Hash256bit: typeforce.BufferN(32),
   Network: Network,
+  Satoshi: Satoshi,
   UInt2: UInt2,
   UInt31: UInt31,
   Bip32Path: Bip32Path
