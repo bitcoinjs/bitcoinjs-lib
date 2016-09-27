@@ -16,7 +16,7 @@ var Transaction = require('./transaction')
 function fixMSSignatures (transaction, vin, pubKeys, signatures, prevOutScript, hashType, skipPubKey) {
   // maintain a local copy of unmatched signatures
   var unmatched = signatures.slice()
-  var cache = {}
+  var signatureHash
 
   return pubKeys.map(function (pubKey) {
     // skip optionally provided pubKey
@@ -30,7 +30,9 @@ function fixMSSignatures (transaction, vin, pubKeys, signatures, prevOutScript, 
       // skip if undefined || OP_0
       if (!signature) return false
 
-      var signatureHash = cache[hashType] = cache[hashType] || transaction.hashForSignature(vin, prevOutScript, hashType)
+      if (!signatureHash) {
+        signatureHash = transaction.hashForSignature(vin, prevOutScript, hashType)
+      }
       if (!keyPair2.verify(signatureHash, signature)) return false
 
       // remove matched signature from unmatched
