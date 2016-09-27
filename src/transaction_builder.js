@@ -249,12 +249,12 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
     throw new Error('No, this would invalidate signatures')
   }
 
-  var prevOut = txHash.toString('hex') + ':' + vout
-  if (this.prevTxMap[prevOut]) throw new Error('Transaction is already an input')
+  var prevTxOut = txHash.toString('hex') + ':' + vout
+  if (this.prevTxMap[prevTxOut]) throw new Error('Duplicate TxOut: ' + prevTxOut)
 
   var vin = this.tx.addInput(txHash, vout, sequence)
   this.inputs[vin] = input
-  this.prevTxMap[prevOut] = vin
+  this.prevTxMap[prevTxOut] = vin
 
   return vin
 }
