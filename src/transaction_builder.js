@@ -424,7 +424,6 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
     input.signatures.length === input.pubKeys.length
 
   var kpPubKey = keyPair.getPublicKeyBuffer()
-  var signatureScript
 
   // are we ready to sign?
   if (canSign) {
@@ -482,7 +481,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
   }
 
   // ready to sign?
-  signatureScript = signatureScript || input.redeemScript || input.prevOutScript
+  var signatureScript = input.redeemScript || input.prevOutScript
   var signatureHash = this.tx.hashForSignature(index, signatureScript, hashType)
 
   // enforce in order signing of public keys
