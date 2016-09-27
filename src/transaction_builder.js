@@ -256,7 +256,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
 
   // if signatures exist, adding outputs is only acceptable if SIGHASH_NONE or SIGHASH_SINGLE is used
   // throws if any signatures didn't use SIGHASH_NONE|SIGHASH_SINGLE
-  if (!this.inputs.every(function (input, index) {
+  if (!this.inputs.every(function (input, i) {
     // no signature
     if (input.hashType === undefined) return true
 
@@ -264,7 +264,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
     if (hashTypeMod === Transaction.SIGHASH_NONE) return true
     if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
       // account for SIGHASH_SINGLE signing of a non-existing output, aka the "SIGHASH_SINGLE" bug
-      return index < nOutputs
+      return i < nOutputs
     }
 
     return false
@@ -357,7 +357,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   var tx = this.tx.clone()
 
   // Create script signatures from inputs
-  this.inputs.forEach(function (input, index) {
+  this.inputs.forEach(function (input, i) {
     var scriptType = input.redeemScriptType || input.prevOutType
 
     if (!allowIncomplete) {
@@ -374,18 +374,18 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 
     // build a scriptSig
     var scriptSig = buildFromInputData(input, scriptType, allowIncomplete)
-    tx.setInputScript(index, scriptSig)
+    tx.setInputScript(i, scriptSig)
   })
 
   return tx
 }
 
-TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hashType) {
+TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashType) {
   if (keyPair.network !== this.network) throw new Error('Inconsistent network')
-  if (!this.inputs[index]) throw new Error('No input at index: ' + index)
+  if (!this.inputs[vin]) throw new Error('No input at index: ' + vin)
   hashType = hashType || Transaction.SIGHASH_ALL
 
-  var input = this.inputs[index]
+  var input = this.inputs[vin]
   var canSign = input.hashType !== undefined &&
     input.prevOutScript !== undefined &&
     input.pubKeys !== undefined &&
@@ -453,7 +453,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
   // ready to sign?
   var hashScript = input.redeemScript || input.prevOutScript
-  var signatureHash = this.tx.hashForSignature(index, hashScript, hashType)
+  var signatureHash = this.tx.hashForSignature(vin, hashScript, hashType)
 
   // enforce in order signing of public keys
   var valid = input.pubKeys.some(function (pubKey, i) {
