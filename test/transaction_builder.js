@@ -285,32 +285,53 @@ describe('TransactionBuilder', function () {
       it('builds "' + f.description + '"', function () {
         var txb = construct(f)
         var tx = txb.build()
+
         assert.strictEqual(tx.toHex(), f.txHex)
       })
     })
 
+    // TODO: remove duplicate test code
     fixtures.invalid.build.forEach(function (f) {
       describe('for ' + (f.description || f.exception), function () {
-        var txb
-
-        beforeEach(function () {
-          if (f.txHex) {
-            txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
-          } else {
-            txb = construct(f)
-          }
-        })
-
         it('throws ' + f.exception, function () {
           assert.throws(function () {
+            var txb
+            if (f.txHex) {
+              txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
+            } else {
+              txb = construct(f)
+            }
+
             txb.build()
           }, new RegExp(f.exception))
         })
 
-        if (f.alwaysThrows) return
-        it("doesn't throw if building incomplete", function () {
-          txb.buildIncomplete()
-        })
+        // if throws on incomplete too, enforce that
+        if (f.incomplete) {
+          it('throws ' + f.exception, function () {
+            assert.throws(function () {
+              var txb
+              if (f.txHex) {
+                txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
+              } else {
+                txb = construct(f)
+              }
+
+              txb.buildIncomplete()
+            }, new RegExp(f.exception))
+          })
+        } else {
+          it('does not throw if buildIncomplete', function () {
+            var txb
+            if (f.txHex) {
+              txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
+            } else {
+              txb = construct(f)
+            }
+
+            txb.buildIncomplete()
+          })
+        }
       })
     })
   })

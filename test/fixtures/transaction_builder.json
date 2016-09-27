@@ -633,7 +633,7 @@
       {
         "description": "Incomplete transaction w/ prevTxScript defined",
         "exception": "Not enough signatures provided",
-        "alwaysThrows": true,
+        "incomplete": true,
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -648,6 +648,29 @@
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
             "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "signs": []
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Duplicate transaction outs",
+        "exception": "Duplicate TxOut: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff:0",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": []
+          },
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
             "signs": []
           }
         ],
