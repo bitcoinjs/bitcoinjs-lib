@@ -144,29 +144,30 @@ function extractFromOutputScript (outputScript, kpPubKey) {
   var scriptType = bscript.classifyOutput(outputScript)
   var outputScriptChunks = bscript.decompile(outputScript)
 
+  var pubKeys
   switch (scriptType) {
     case 'pubkeyhash':
       var pkh1 = outputScriptChunks[2]
       var pkh2 = bcrypto.hash160(kpPubKey)
 
       if (!bufferEquals(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
-
-      return {
-        pubKeys: [kpPubKey],
-        scriptType: scriptType
-      }
+      pubKeys = [kpPubKey]
+      break
 
     case 'pubkey':
-      return {
-        pubKeys: outputScriptChunks.slice(0, 1),
-        scriptType: scriptType
-      }
+      pubKeys = outputScriptChunks.slice(0, 1)
+      break
 
     case 'multisig':
-      return {
-        pubKeys: outputScriptChunks.slice(1, -2),
-        scriptType: scriptType
-      }
+      pubKeys = outputScriptChunks.slice(1, -2)
+      break
+
+    default: return
+  }
+
+  return {
+    pubKeys: pubKeys,
+    scriptType: scriptType
   }
 }
 
