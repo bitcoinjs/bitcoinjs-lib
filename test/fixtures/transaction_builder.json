@@ -632,7 +632,7 @@
       },
       {
         "description": "Incomplete transaction w/ prevTxScript defined",
-        "exception": "Transaction is missing signatures",
+        "exception": "Not enough signatures provided",
         "alwaysThrows": true,
         "inputs": [
           {
