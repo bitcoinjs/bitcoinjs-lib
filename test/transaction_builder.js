@@ -108,7 +108,7 @@ describe('TransactionBuilder', function () {
     })
 
     fixtures.invalid.fromTransaction.forEach(function (f) {
-      it('throws on ' + f.exception, function () {
+      it('throws ' + f.exception, function () {
         var tx = Transaction.fromHex(f.txHex)
 
         assert.throws(function () {
@@ -294,7 +294,7 @@ describe('TransactionBuilder', function () {
           }
         })
 
-        it('throws', function () {
+        it('throws ' + f.exception, function () {
           assert.throws(function () {
             txb.build()
           }, new RegExp(f.exception))
