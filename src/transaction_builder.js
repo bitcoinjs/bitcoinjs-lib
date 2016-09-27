@@ -140,6 +140,36 @@ function extractInput (transaction, txIn, vin) {
   }
 }
 
+function extractFromOutputScript (outputScript, kpPubKey) {
+  var scriptType = bscript.classifyOutput(outputScript)
+  var outputScriptChunks = bscript.decompile(outputScript)
+
+  switch (scriptType) {
+    case 'pubkeyhash':
+      var pkh1 = outputScriptChunks[2]
+      var pkh2 = bcrypto.hash160(kpPubKey)
+
+      if (!bufferEquals(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
+
+      return {
+        pubKeys: [kpPubKey],
+        scriptType: scriptType
+      }
+
+    case 'pubkey':
+      return {
+        pubKeys: outputScriptChunks.slice(0, 1),
+        scriptType: scriptType
+      }
+
+    case 'multisig':
+      return {
+        pubKeys: outputScriptChunks.slice(1, -2),
+        scriptType: scriptType
+      }
+  }
+}
+
 function TransactionBuilder (network) {
   this.prevTxMap = {}
   this.network = network || networks.bitcoin
@@ -379,36 +409,6 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   return tx
 }
 
-function extractFromOutputScript (outputScript, keyPair, kpPubKey) {
-  var scriptType = bscript.classifyOutput(outputScript)
-  var outputScriptChunks = bscript.decompile(outputScript)
-
-  switch (scriptType) {
-    case 'pubkeyhash':
-      var pkh1 = outputScriptChunks[2]
-      var pkh2 = bcrypto.hash160(keyPair.getPublicKeyBuffer())
-
-      if (!bufferEquals(pkh1, pkh2)) throw new Error('privateKey cannot sign for this input')
-
-      return {
-        pubKeys: [kpPubKey],
-        scriptType: scriptType
-      }
-
-    case 'pubkey':
-      return {
-        pubKeys: outputScriptChunks.slice(0, 1),
-        scriptType: scriptType
-      }
-
-    case 'multisig':
-      return {
-        pubKeys: outputScriptChunks.slice(1, -2),
-        scriptType: scriptType
-      }
-  }
-}
-
 TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hashType) {
   if (keyPair.network !== this.network) throw new Error('Inconsistent network')
   if (!this.inputs[index]) throw new Error('No input at index: ' + index)
@@ -446,7 +446,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
         if (!bufferEquals(scriptHash, bcrypto.hash160(redeemScript))) throw new Error('RedeemScript does not match ' + scriptHash.toString('hex'))
       }
 
-      var extracted = extractFromOutputScript(redeemScript, keyPair, kpPubKey)
+      var extracted = extractFromOutputScript(redeemScript, kpPubKey)
       if (!extracted) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
 
       // if we don't have a prevOutScript, generate a P2SH script
@@ -465,7 +465,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
 
       // if we don't have a scriptType, assume pubKeyHash otherwise
       if (!input.scriptType) {
-        input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(keyPair.getPublicKeyBuffer()))
+        input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(kpPubKey))
         input.prevOutType = 'pubkeyhash'
 
         input.pubKeys = [kpPubKey]
