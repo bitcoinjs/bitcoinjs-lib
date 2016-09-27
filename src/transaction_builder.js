@@ -16,7 +16,7 @@ var Transaction = require('./transaction')
 function fixMSSignatures (transaction, vin, pubKeys, signatures, prevOutScript, hashType, skipPubKey) {
   // maintain a local copy of unmatched signatures
   var unmatched = signatures.slice()
-  var cache = {}
+  var signatureHash
 
   return pubKeys.map(function (pubKey) {
     // skip optionally provided pubKey
@@ -30,7 +30,9 @@ function fixMSSignatures (transaction, vin, pubKeys, signatures, prevOutScript, 
       // skip if undefined || OP_0
       if (!signature) return false
 
-      var signatureHash = cache[hashType] = cache[hashType] || transaction.hashForSignature(vin, prevOutScript, hashType)
+      if (!signatureHash) {
+        signatureHash = transaction.hashForSignature(vin, prevOutScript, hashType)
+      }
       if (!keyPair2.verify(signatureHash, signature)) return false
 
       // remove matched signature from unmatched
@@ -249,12 +251,12 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
     throw new Error('No, this would invalidate signatures')
   }
 
-  var prevOut = txHash.toString('hex') + ':' + vout
-  if (this.prevTxMap[prevOut]) throw new Error('Transaction is already an input')
+  var prevTxOut = txHash.toString('hex') + ':' + vout
+  if (this.prevTxMap[prevTxOut]) throw new Error('Duplicate TxOut: ' + prevTxOut)
 
   var vin = this.tx.addInput(txHash, vout, sequence)
   this.inputs[vin] = input
-  this.prevTxMap[prevOut] = vin
+  this.prevTxMap[prevTxOut] = vin
 
   return vin
 }
@@ -422,7 +424,6 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
     input.signatures.length === input.pubKeys.length
 
   var kpPubKey = keyPair.getPublicKeyBuffer()
-  var signatureScript
 
   // are we ready to sign?
   if (canSign) {
@@ -480,7 +481,7 @@ TransactionBuilder.prototype.sign = function (index, keyPair, redeemScript, hash
   }
 
   // ready to sign?
-  signatureScript = signatureScript || input.redeemScript || input.prevOutScript
+  var signatureScript = input.redeemScript || input.prevOutScript
   var signatureHash = this.tx.hashForSignature(index, signatureScript, hashType)
 
   // enforce in order signing of public keys
