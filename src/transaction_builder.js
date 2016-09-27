@@ -246,7 +246,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, sequence
 
   var vin = this.tx.addInput(txHash, vout, sequence, scriptSig)
   this.inputs[vin] = input
-  this.prevTxMap[prevTxOut] = vin
+  this.prevTxMap[prevTxOut] = true
 
   return vin
 }
