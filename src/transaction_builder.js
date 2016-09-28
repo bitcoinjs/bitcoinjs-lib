@@ -225,6 +225,40 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
   input.hashType = hashType
 }
 
+function fixMultisigOrder (input, transaction, vin) {
+  var hashScriptType = input.redeemScriptType || input.prevOutType
+  if (hashScriptType !== 'multisig') throw new TypeError('Expected multisig input')
+
+  var hashType = input.hashType || Transaction.SIGHASH_ALL
+  var hashScript = input.redeemScript || input.prevOutScript
+
+  // maintain a local copy of unmatched signatures
+  var unmatched = input.signatures.concat()
+  var signatureHash = transaction.hashForSignature(vin, hashScript, hashType)
+
+  input.signatures = input.pubKeys.map(function (pubKey, y) {
+    var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
+    var match
+
+    // check for a signature
+    unmatched.some(function (signature, i) {
+      // skip if undefined || OP_0
+      if (!signature) return false
+
+      // skip if signature does not match pubKey
+      if (!keyPair.verify(signatureHash, signature)) return false
+
+      // remove matched signature from unmatched
+      unmatched[i] = undefined
+      match = signature
+
+      return true
+    })
+
+    return match || undefined
+  })
+}
+
 function TransactionBuilder (network) {
   this.prevTxMap = {}
   this.network = network || networks.bitcoin
@@ -280,7 +314,7 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
       if (!input.pubKeys || !input.signatures) return
       if (input.pubKeys.length === input.signatures.length) return
 
-      txb.__fixMultisigOrder(transaction, i)
+      fixMultisigOrder(input, transaction, i)
     }
   })
 
@@ -465,41 +499,6 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   })
 
   if (!valid) throw new Error('Key pair cannot sign for this input')
-}
-
-TransactionBuilder.prototype.__fixMultisigOrder = function (transaction, vin) {
-  var input = this.inputs[vin]
-  var hashScriptType = input.redeemScriptType || input.prevOutType
-  if (hashScriptType !== 'multisig') throw new TypeError('Expected multisig input')
-
-  var hashType = input.hashType || Transaction.SIGHASH_ALL
-  var hashScript = input.redeemScript || input.prevOutScript
-
-  // maintain a local copy of unmatched signatures
-  var unmatched = input.signatures.concat()
-  var signatureHash = transaction.hashForSignature(vin, hashScript, hashType)
-
-  input.signatures = input.pubKeys.map(function (pubKey, y) {
-    var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
-    var match
-
-    // check for a signature
-    unmatched.some(function (signature, i) {
-      // skip if undefined || OP_0
-      if (!signature) return false
-
-      // skip if signature does not match pubKey
-      if (!keyPair.verify(signatureHash, signature)) return false
-
-      // remove matched signature from unmatched
-      unmatched[i] = undefined
-      match = signature
-
-      return true
-    })
-
-    return match || undefined
-  })
 }
 
 module.exports = TransactionBuilder
