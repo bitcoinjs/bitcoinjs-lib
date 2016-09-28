@@ -322,14 +322,7 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
 }
 
 TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOutScript) {
-  // if signatures exist, adding inputs is only acceptable if SIGHASH_ANYONECANPAY is used
-  // throw if any signatures *didn't* use SIGHASH_ANYONECANPAY
-  if (!this.inputs.every(function (otherInput) {
-    // no signature
-    if (otherInput.hashType === undefined) return true
-
-    return otherInput.hashType & Transaction.SIGHASH_ANYONECANPAY
-  })) {
+  if (!this.__canModifyInputs()) {
     throw new Error('No, this would invalidate signatures')
   }
 
@@ -387,23 +380,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, sequence
 }
 
 TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
-  var nOutputs = this.tx.outs.length
-
-  // if signatures exist, adding outputs is only acceptable if SIGHASH_NONE or SIGHASH_SINGLE is used
-  // throws if any signatures didn't use SIGHASH_NONE|SIGHASH_SINGLE
-  if (!this.inputs.every(function (input, i) {
-    // no signature
-    if (input.hashType === undefined) return true
-
-    var hashTypeMod = input.hashType & 0x1f
-    if (hashTypeMod === Transaction.SIGHASH_NONE) return true
-    if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
-      // account for SIGHASH_SINGLE signing of a non-existing output, aka the "SIGHASH_SINGLE" bug
-      return i < nOutputs
-    }
-
-    return false
-  })) {
+  if (!this.__canModifyOutputs()) {
     throw new Error('No, this would invalidate signatures')
   }
 
@@ -499,6 +476,38 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   })
 
   if (!valid) throw new Error('Key pair cannot sign for this input')
+}
+
+TransactionBuilder.prototype.__canModifyInputs = function () {
+  return this.inputs.every(function (otherInput) {
+    // no signature
+    if (otherInput.hashType === undefined) return true
+
+    // if SIGHASH_ANYONECANPAY is set, signatures would not
+    // be invalidated by more inputs
+    return otherInput.hashType & Transaction.SIGHASH_ANYONECANPAY
+  })
+}
+
+TransactionBuilder.prototype.__canModifyOutputs = function () {
+  var nInputs = this.tx.ins.length
+  var nOutputs = this.tx.outs.length
+
+  return this.inputs.every(function (input, i) {
+    // any signatures?
+    if (input.hashType === undefined) return true
+
+    var hashTypeMod = input.hashType & 0x1f
+    if (hashTypeMod === Transaction.SIGHASH_NONE) return true
+    if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
+      // if SIGHASH_SINGLE is set, and nInputs > nOutputs
+      // some signatures would be invalidated by the addition
+      // of more outputs
+      return nInputs <= nOutputs
+    }
+
+    return false
+  })
 }
 
 module.exports = TransactionBuilder
