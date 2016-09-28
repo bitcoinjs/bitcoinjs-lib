@@ -124,6 +124,107 @@ function expandOutput (script, ourPubKey) {
   }
 }
 
+function buildInput (input, scriptType, allowIncomplete) {
+  var signatures = input.signatures
+  var scriptSig
+
+  switch (scriptType) {
+    case 'pubkeyhash':
+      // remove blank signatures
+      signatures = signatures.filter(function (x) { return x })
+
+      if (signatures.length < 1) throw new Error('Not enough signatures provided')
+      if (signatures.length > 1) throw new Error('Too many signatures provided')
+
+      var pkhSignature = signatures[0].toScriptSignature(input.hashType)
+      scriptSig = bscript.pubKeyHashInput(pkhSignature, input.pubKeys[0])
+      break
+
+    case 'pubkey':
+      // remove blank signatures
+      signatures = signatures.filter(function (x) { return x })
+
+      if (signatures.length < 1) throw new Error('Not enough signatures provided')
+      if (signatures.length > 1) throw new Error('Too many signatures provided')
+
+      var pkSignature = signatures[0].toScriptSignature(input.hashType)
+      scriptSig = bscript.pubKeyInput(pkSignature)
+      break
+
+    // ref https://github.com/bitcoin/bitcoin/blob/d612837814020ae832499d18e6ee5eb919a87907/src/script/sign.cpp#L232
+    case 'multisig':
+      signatures = signatures.map(function (signature) {
+        return signature && signature.toScriptSignature(input.hashType)
+      })
+
+      if (allowIncomplete) {
+        // fill in blanks with OP_0
+        for (var i = 0; i < signatures.length; ++i) {
+          signatures[i] = signatures[i] || ops.OP_0
+        }
+      } else {
+        // remove blank signatures
+        signatures = signatures.filter(function (x) { return x })
+      }
+
+      scriptSig = bscript.multisigInput(signatures, allowIncomplete ? undefined : input.redeemScript)
+      break
+  }
+
+  // wrap as scriptHash if necessary
+  if (input.prevOutType === 'scripthash') {
+    scriptSig = bscript.scriptHashInput(scriptSig, input.redeemScript)
+  }
+
+  return scriptSig
+}
+
+function prepareInput (input, kpPubKey, redeemScript, hashType) {
+  if (redeemScript) {
+    var redeemScriptHash = bcrypto.hash160(redeemScript)
+
+    // if redeemScript exists, it is pay-to-scriptHash
+    // if we have a prevOutScript, enforce hash160(redeemScriptequality)  to the redeemScript
+    if (input.prevOutType) {
+      if (input.prevOutType !== 'scripthash') throw new Error('PrevOutScript must be P2SH')
+
+      var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
+      if (!bufferEquals(prevOutScriptScriptHash, redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
+
+    // or, we don't have a prevOutScript, so generate a P2SH script
+    } else {
+      input.prevOutScript = bscript.scriptHashOutput(redeemScriptHash)
+      input.prevOutType = 'scripthash'
+    }
+
+    var expanded = expandOutput(redeemScript, kpPubKey)
+    if (!expanded) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
+
+    input.pubKeys = expanded.pubKeys
+    input.redeemScript = redeemScript
+    input.redeemScriptType = expanded.scriptType
+    input.signatures = expanded.signatures
+
+  // maybe we have some prior knowledge
+  } else if (input.prevOutType) {
+    // pay-to-scriptHash is not possible without a redeemScript
+    if (input.prevOutType === 'scripthash') throw new Error('PrevOutScript is P2SH, missing redeemScript')
+
+    // throw if we can't sign with it
+    if (!input.pubKeys || !input.signatures) throw new Error(input.prevOutType + ' not supported')
+
+  // no prior knowledge, assume pubKeyHash
+  } else {
+    input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(kpPubKey))
+    input.prevOutType = 'pubkeyhash'
+
+    input.pubKeys = [kpPubKey]
+    input.signatures = [undefined]
+  }
+
+  input.hashType = hashType
+}
+
 function TransactionBuilder (network) {
   this.prevTxMap = {}
   this.network = network || networks.bitcoin
@@ -293,61 +394,6 @@ var canBuildTypes = {
   'pubkeyhash': true
 }
 
-function buildFromInputData (input, scriptType, allowIncomplete) {
-  var signatures = input.signatures
-  var scriptSig
-
-  switch (scriptType) {
-    case 'pubkeyhash':
-      // remove blank signatures
-      signatures = signatures.filter(function (x) { return x })
-
-      if (signatures.length < 1) throw new Error('Not enough signatures provided')
-      if (signatures.length > 1) throw new Error('Too many signatures provided')
-
-      var pkhSignature = signatures[0].toScriptSignature(input.hashType)
-      scriptSig = bscript.pubKeyHashInput(pkhSignature, input.pubKeys[0])
-      break
-
-    case 'pubkey':
-      // remove blank signatures
-      signatures = signatures.filter(function (x) { return x })
-
-      if (signatures.length < 1) throw new Error('Not enough signatures provided')
-      if (signatures.length > 1) throw new Error('Too many signatures provided')
-
-      var pkSignature = signatures[0].toScriptSignature(input.hashType)
-      scriptSig = bscript.pubKeyInput(pkSignature)
-      break
-
-    // ref https://github.com/bitcoin/bitcoin/blob/d612837814020ae832499d18e6ee5eb919a87907/src/script/sign.cpp#L232
-    case 'multisig':
-      signatures = signatures.map(function (signature) {
-        return signature && signature.toScriptSignature(input.hashType)
-      })
-
-      if (allowIncomplete) {
-        // fill in blanks with OP_0
-        for (var i = 0; i < signatures.length; ++i) {
-          signatures[i] = signatures[i] || ops.OP_0
-        }
-      } else {
-        // remove blank signatures
-        signatures = signatures.filter(function (x) { return x })
-      }
-
-      scriptSig = bscript.multisigInput(signatures, allowIncomplete ? undefined : input.redeemScript)
-      break
-  }
-
-  // wrap as scriptHash if necessary
-  if (input.prevOutType === 'scripthash') {
-    scriptSig = bscript.scriptHashInput(scriptSig, input.redeemScript)
-  }
-
-  return scriptSig
-}
-
 TransactionBuilder.prototype.__build = function (allowIncomplete) {
   if (!allowIncomplete) {
     if (!this.tx.ins.length) throw new Error('Transaction has no inputs')
@@ -373,7 +419,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
     if (!input.signatures) return
 
     // build a scriptSig
-    var scriptSig = buildFromInputData(input, scriptType, allowIncomplete)
+    var scriptSig = buildInput(input, scriptType, allowIncomplete)
     tx.setInputScript(i, scriptSig)
   })
 
@@ -394,7 +440,6 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
 
   var kpPubKey = keyPair.getPublicKeyBuffer()
 
-  // are we ready to sign?
   if (canSign) {
     // if redeemScript was provided, enforce consistency
     if (redeemScript) {
@@ -402,56 +447,11 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     }
 
     if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
-
-  // no? prepare
   } else {
-    if (redeemScript) {
-      var redeemScriptHash = bcrypto.hash160(redeemScript)
-
-      // if redeemScript exists, it is pay-to-scriptHash
-      // if we have a prevOutScript, enforce hash160(redeemScriptequality)  to the redeemScript
-      if (input.prevOutScript) {
-        if (input.prevOutType !== 'scripthash') throw new Error('PrevOutScript must be P2SH')
-
-        var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
-        if (!bufferEquals(prevOutScriptScriptHash, redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
-
-      // or, we don't have a prevOutScript, so generate a P2SH script
-      } else {
-        input.prevOutScript = bscript.scriptHashOutput(redeemScriptHash)
-        input.prevOutType = 'scripthash'
-      }
-
-      var expanded = expandOutput(redeemScript, kpPubKey)
-      if (!expanded) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
-
-      input.pubKeys = expanded.pubKeys
-      input.redeemScript = redeemScript
-      input.redeemScriptType = expanded.scriptType
-      input.signatures = expanded.signatures
-
-    // no redeemScript
-    } else {
-      // pay-to-scriptHash is not possible without a redeemScript
-      if (input.prevOutType === 'scripthash') throw new Error('PrevOutScript is P2SH, missing redeemScript')
-
-      // if we don't have a scriptType, assume pubKeyHash
-      if (!input.prevOutType) {
-        input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(kpPubKey))
-        input.prevOutType = 'pubkeyhash'
-
-        input.pubKeys = [kpPubKey]
-        input.signatures = [undefined]
-      } else {
-        // throw if we can't sign with it
-        if (!input.pubKeys || !input.signatures) throw new Error(input.prevOutType + ' not supported')
-      }
-    }
-
-    input.hashType = hashType
+    prepareInput(input, kpPubKey, redeemScript, hashType)
   }
 
-  // ready to sign?
+  // ready to sign
   var hashScript = input.redeemScript || input.prevOutScript
   var signatureHash = this.tx.hashForSignature(vin, hashScript, hashType)
 
