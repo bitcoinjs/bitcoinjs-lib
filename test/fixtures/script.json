@@ -338,25 +338,25 @@
     ],
     "pubKeyHashOutput": [
       {
-        "exception": "Expected 160-bit Buffer, got 16-bit Buffer",
+        "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 2\\)",
         "hash": "ffff"
       }
     ],
     "scriptHashOutput": [
       {
-        "exception": "Expected 160-bit Buffer, got 24-bit Buffer",
+        "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 3\\)",
         "hash": "ffffff"
       }
     ],
     "witnessPubKeyHashOutput": [
       {
-        "exception": "Expected 160-bit Buffer, got 24-bit Buffer",
+        "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 3\\)",
         "hash": "ffffff"
       }
     ],
     "witnessScriptHashOutput": [
       {
-        "exception": "Expected 256-bit Buffer, got 24-bit Buffer",
+        "exception": "Expected Buffer\\(Length: 32\\), got Buffer\\(Length: 3\\)",
         "hash": "ffffff"
       }
     ]

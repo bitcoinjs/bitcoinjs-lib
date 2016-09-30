@@ -188,7 +188,7 @@
       },
       {
         "description": "Invalid i value (> 3)",
-        "exception": "Expected UInt2, got Number 4",
+        "exception": "Expected property \"2\" of type UInt2, got Number 4",
         "e": "01",
         "signatureRaw": {
           "r": "00",

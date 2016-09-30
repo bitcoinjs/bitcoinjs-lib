@@ -273,12 +273,12 @@
   "invalid": {
     "addInput": [
       {
-        "exception": "Expected 256-bit Buffer, got 240-bit Buffer",
+        "exception": "Expected property \"0\" of type Buffer\\(Length: 32\\), got Buffer\\(Length: 30\\)",
         "hash": "0aed1366a73b6057ee7800d737bff1bdf8c448e98d86bc0998f2b009816d",
         "index": 0
       },
       {
-        "exception": "Expected 256-bit Buffer, got 272-bit Buffer",
+        "exception": "Expected property \"0\" of type Buffer\\(Length: 32\\), got Buffer\\(Length: 34\\)",
         "hash": "0aed1366a73b6057ee7800d737bff1bdf8c448e98d86bc0998f2b009816da9b0ffff",
         "index": 0
       }
