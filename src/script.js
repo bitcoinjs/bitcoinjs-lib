@@ -15,32 +15,6 @@ var REVERSE_OPS = (function () {
 
 var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
-function toASM (chunks) {
-  if (Buffer.isBuffer(chunks)) {
-    chunks = decompile(chunks)
-  }
-
-  return chunks.map(function (chunk) {
-    // data?
-    if (Buffer.isBuffer(chunk)) return chunk.toString('hex')
-
-    // opcode!
-    return REVERSE_OPS[chunk]
-  }).join(' ')
-}
-
-function fromASM (asm) {
-  typeforce(types.String, asm)
-
-  return compile(asm.split(' ').map(function (chunkStr) {
-    // opcode?
-    if (OPS[chunkStr] !== undefined) return OPS[chunkStr]
-
-    // data!
-    return new Buffer(chunkStr, 'hex')
-  }))
-}
-
 function compile (chunks) {
   // TODO: remove me
   if (Buffer.isBuffer(chunks)) return chunks
@@ -118,6 +92,32 @@ function decompile (buffer) {
   return chunks
 }
 
+function toASM (chunks) {
+  if (Buffer.isBuffer(chunks)) {
+    chunks = decompile(chunks)
+  }
+
+  return chunks.map(function (chunk) {
+    // data?
+    if (Buffer.isBuffer(chunk)) return chunk.toString('hex')
+
+    // opcode!
+    return REVERSE_OPS[chunk]
+  }).join(' ')
+}
+
+function fromASM (asm) {
+  typeforce(types.String, asm)
+
+  return compile(asm.split(' ').map(function (chunkStr) {
+    // opcode?
+    if (OPS[chunkStr] !== undefined) return OPS[chunkStr]
+
+    // data!
+    return new Buffer(chunkStr, 'hex')
+  }))
+}
+
 function isCanonicalPubKey (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
   if (buffer.length < 33) return false
@@ -133,18 +133,18 @@ function isCanonicalPubKey (buffer) {
   return false
 }
 
-function isCanonicalSignature (buffer) {
-  if (!Buffer.isBuffer(buffer)) return false
-  if (!isDefinedHashType(buffer[buffer.length - 1])) return false
-
-  return bip66.check(buffer.slice(0, -1))
-}
-
 function isDefinedHashType (hashType) {
   var hashTypeMod = hashType & ~0x80
 
 // return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
   return hashTypeMod > 0x00 && hashTypeMod < 0x04
+}
+
+function isCanonicalSignature (buffer) {
+  if (!Buffer.isBuffer(buffer)) return false
+  if (!isDefinedHashType(buffer[buffer.length - 1])) return false
+
+  return bip66.check(buffer.slice(0, -1))
 }
 
 function isPubKeyHashInput (script) {

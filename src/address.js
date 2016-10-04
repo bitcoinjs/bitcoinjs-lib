@@ -15,15 +15,6 @@ function fromBase58Check (address) {
   return { hash: hash, version: version }
 }
 
-function fromOutputScript (scriptPubKey, network) {
-  network = network || networks.bitcoin
-
-  if (bscript.isPubKeyHashOutput(scriptPubKey)) return toBase58Check(bscript.compile(scriptPubKey).slice(3, 23), network.pubKeyHash)
-  if (bscript.isScriptHashOutput(scriptPubKey)) return toBase58Check(bscript.compile(scriptPubKey).slice(2, 22), network.scriptHash)
-
-  throw new Error(bscript.toASM(scriptPubKey) + ' has no matching Address')
-}
-
 function toBase58Check (hash, version) {
   typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
 
@@ -32,6 +23,15 @@ function toBase58Check (hash, version) {
   hash.copy(payload, 1)
 
   return bs58check.encode(payload)
+}
+
+function fromOutputScript (scriptPubKey, network) {
+  network = network || networks.bitcoin
+
+  if (bscript.isPubKeyHashOutput(scriptPubKey)) return toBase58Check(bscript.compile(scriptPubKey).slice(3, 23), network.pubKeyHash)
+  if (bscript.isScriptHashOutput(scriptPubKey)) return toBase58Check(bscript.compile(scriptPubKey).slice(2, 22), network.scriptHash)
+
+  throw new Error(bscript.toASM(scriptPubKey) + ' has no matching Address')
 }
 
 function toOutputScript (address, network) {

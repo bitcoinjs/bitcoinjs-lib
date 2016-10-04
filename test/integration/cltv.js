@@ -11,7 +11,7 @@ var bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLw
 describe('bitcoinjs-lib (CLTV)', function () {
   var hashType = bitcoin.Transaction.SIGHASH_ALL
 
-  function cltvCheckSigInput (aQ, bQ, utcSeconds) {
+  function cltvCheckSigOutput (aQ, bQ, utcSeconds) {
     return bitcoin.script.compile([
       bitcoin.opcodes.OP_IF,
       bitcoin.script.number.encode(utcSeconds),
@@ -38,7 +38,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
 
     // three hours ago
     var timeUtc = utcNow() - (3600 * 3)
-    var redeemScript = cltvCheckSigInput(alice, bob, timeUtc)
+    var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
     var scriptPubKey = bitcoin.script.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.address.fromOutputScript(scriptPubKey, network)
 
@@ -72,7 +72,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
 
     // two hours ago
     var timeUtc = utcNow() - (3600 * 2)
-    var redeemScript = cltvCheckSigInput(alice, bob, timeUtc)
+    var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
     var scriptPubKey = bitcoin.script.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.address.fromOutputScript(scriptPubKey, network)
 
@@ -104,7 +104,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
 
     // two hours from now
     var timeUtc = utcNow() + (3600 * 2)
-    var redeemScript = cltvCheckSigInput(alice, bob, timeUtc)
+    var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
     var scriptPubKey = bitcoin.script.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.address.fromOutputScript(scriptPubKey, network)
 
