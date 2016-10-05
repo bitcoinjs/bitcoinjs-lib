@@ -24,6 +24,11 @@ function compile (chunks) {
   var bufferSize = chunks.reduce(function (accum, chunk) {
     // data chunk
     if (Buffer.isBuffer(chunk)) {
+      // adhere to BIP62.3, minimal push policy
+      if (chunk.length === 1 && chunk[0] >= 1 && chunk[0] <= 16) {
+        return accum + 1
+      }
+
       return accum + bufferutils.pushDataSize(chunk.length) + chunk.length
     }
 
@@ -37,6 +42,14 @@ function compile (chunks) {
   chunks.forEach(function (chunk) {
     // data chunk
     if (Buffer.isBuffer(chunk)) {
+      // adhere to BIP62.3, minimal push policy
+      if (chunk.length === 1 && chunk[0] >= 1 && chunk[0] <= 16) {
+        var opcode = OP_INT_BASE + chunk[0]
+        buffer.writeUInt8(opcode, offset)
+        offset += 1
+        return
+      }
+
       offset += bufferutils.writePushDataInt(buffer, chunk.length, offset)
 
       chunk.copy(buffer, offset)

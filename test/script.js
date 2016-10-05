@@ -33,13 +33,19 @@ describe('script', function () {
     })
   })
 
-  describe('compile', function () {
+  describe('compile (via fromASM)', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSig) {
         it('(' + f.type + ') compiles ' + f.scriptSig, function () {
           var scriptSig = bscript.fromASM(f.scriptSig)
 
-          assert.strictEqual(bscript.compile(scriptSig).toString('hex'), f.scriptSigHex)
+          assert.strictEqual(scriptSig.toString('hex'), f.scriptSigHex)
+
+          if (f.nonstandard) {
+            var scriptSigNS = bscript.fromASM(f.nonstandard.scriptSig)
+
+            assert.strictEqual(scriptSigNS.toString('hex'), f.scriptSigHex)
+          }
         })
       }
 
@@ -47,7 +53,7 @@ describe('script', function () {
         it('(' + f.type + ') compiles ' + f.scriptPubKey, function () {
           var scriptPubKey = bscript.fromASM(f.scriptPubKey)
 
-          assert.strictEqual(bscript.compile(scriptPubKey).toString('hex'), f.scriptPubKeyHex)
+          assert.strictEqual(scriptPubKey.toString('hex'), f.scriptPubKeyHex)
         })
       }
     })
@@ -59,7 +65,17 @@ describe('script', function () {
         it('decompiles ' + f.scriptSig, function () {
           var chunks = bscript.decompile(new Buffer(f.scriptSigHex, 'hex'))
 
+          assert.strictEqual(bscript.compile(chunks).toString('hex'), f.scriptSigHex)
           assert.strictEqual(bscript.toASM(chunks), f.scriptSig)
+
+          if (f.nonstandard) {
+            var chunksNS = bscript.decompile(new Buffer(f.nonstandard.scriptSigHex, 'hex'))
+
+            assert.strictEqual(bscript.compile(chunksNS).toString('hex'), f.scriptSigHex)
+
+            // toASM converts verbatim, only `compile` transforms the script to a minimalpush compliant script
+            assert.strictEqual(bscript.toASM(chunksNS), f.nonstandard.scriptSig)
+          }
         })
       }
 
@@ -67,6 +83,7 @@ describe('script', function () {
         it('decompiles ' + f.scriptPubKey, function () {
           var chunks = bscript.decompile(new Buffer(f.scriptPubKeyHex, 'hex'))
 
+          assert.strictEqual(bscript.compile(chunks).toString('hex'), f.scriptPubKeyHex)
           assert.strictEqual(bscript.toASM(chunks), f.scriptPubKey)
         })
       }
@@ -466,7 +483,7 @@ describe('script', function () {
         var buffer = new Buffer(i)
         var script = bscript.compile([buffer])
 
-        assert(minimalData(script), 'Failed for ' + i + ' length script')
+        assert(minimalData(script), 'Failed for ' + i + ' length script: ' + script.toString('hex'))
       })
     }
 
