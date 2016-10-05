@@ -206,13 +206,15 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
     input.signatures = expanded.signatures
 
   // maybe we have some prior knowledge
-  } else if (input.prevOutType) {
+  } else if (input.prevOutType && input.prevOutType !== 'pubkeyhash') {
     // pay-to-scriptHash is not possible without a redeemScript
     if (input.prevOutType === 'scripthash') throw new Error('PrevOutScript is P2SH, missing redeemScript')
 
     // throw if we can't sign with it
-    if (!input.pubKeys || !input.signatures) throw new Error(input.prevOutType + ' not supported')
-
+    if (!input.pubKeys || input.pubKeys.length === 0 || !input.signatures || input.signatures.length === 0) {
+      throw new Error(input.prevOutType + ' not supported')
+    }
+    
   // no prior knowledge, assume pubKeyHash
   } else {
     input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(kpPubKey))
