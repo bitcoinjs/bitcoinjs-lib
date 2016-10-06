@@ -1,7 +1,6 @@
 var createHash = require('create-hash')
 var bufferutils = require('./bufferutils')
 var bcrypto = require('./crypto')
-var bufferCompare = require('buffer-compare')
 var bufferReverse = require('buffer-reverse')
 
 var Transaction = require('./transaction')
@@ -160,14 +159,14 @@ Block.prototype.checkMerkleRoot = function () {
   if (!this.transactions) return false
 
   var actualMerkleRoot = Block.calculateMerkleRoot(this.transactions)
-  return bufferCompare(this.merkleRoot, actualMerkleRoot) === 0
+  return this.merkleRoot.compare(actualMerkleRoot) === 0
 }
 
 Block.prototype.checkProofOfWork = function () {
   var hash = bufferReverse(this.getHash())
   var target = Block.calculateTarget(this.bits)
 
-  return bufferCompare(hash, target) <= 0
+  return hash.compare(target) <= 0
 }
 
 module.exports = Block

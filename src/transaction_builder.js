@@ -1,7 +1,6 @@
 var baddress = require('./address')
 var bcrypto = require('./crypto')
 var bscript = require('./script')
-var bufferEquals = require('buffer-equals')
 var bufferReverse = require('buffer-reverse')
 var networks = require('./networks')
 var ops = require('./opcodes.json')
@@ -103,7 +102,7 @@ function expandOutput (script, ourPubKey) {
 
       var pkh1 = scriptChunks[2]
       var pkh2 = bcrypto.hash160(ourPubKey)
-      if (bufferEquals(pkh1, pkh2)) pubKeys = [ourPubKey]
+      if (pkh1.equals(pkh2)) pubKeys = [ourPubKey]
       break
 
     case 'pubkey':
@@ -189,7 +188,7 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
       if (input.prevOutType !== 'scripthash') throw new Error('PrevOutScript must be P2SH')
 
       var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
-      if (!bufferEquals(prevOutScriptScriptHash, redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
+      if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
 
     // or, we don't have a prevOutScript, so generate a P2SH script
     } else {
@@ -454,7 +453,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   if (canSign) {
     // if redeemScript was provided, enforce consistency
     if (redeemScript) {
-      if (!bufferEquals(input.redeemScript, redeemScript)) throw new Error('Inconsistent redeemScript')
+      if (!input.redeemScript.equals(redeemScript)) throw new Error('Inconsistent redeemScript')
     }
 
     if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
@@ -468,7 +467,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
 
   // enforce in order signing of public keys
   var valid = input.pubKeys.some(function (pubKey, i) {
-    if (!bufferEquals(kpPubKey, pubKey)) return false
+    if (!kpPubKey.equals(pubKey)) return false
     if (input.signatures[i]) throw new Error('Signature already exists')
 
     input.signatures[i] = keyPair.sign(signatureHash)

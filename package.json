@@ -54,8 +54,6 @@
     "bigi": "^1.4.0",
     "bip66": "^1.1.0",
     "bs58check": "^1.0.5",
-    "buffer-compare": "^1.1.0",
-    "buffer-equals": "^1.0.3",
     "buffer-reverse": "^1.0.0",
     "create-hash": "^1.1.0",
     "create-hmac": "^1.1.3",

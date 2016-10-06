@@ -168,15 +168,17 @@ function varIntBuffer (i) {
 }
 
 module.exports = {
-  equal: require('buffer-equals'),
   pushDataSize: pushDataSize,
   readPushDataInt: readPushDataInt,
   readUInt64LE: readUInt64LE,
   readVarInt: readVarInt,
-  reverse: require('buffer-reverse'),
   varIntBuffer: varIntBuffer,
   varIntSize: varIntSize,
   writePushDataInt: writePushDataInt,
   writeUInt64LE: writeUInt64LE,
-  writeVarInt: writeVarInt
+  writeVarInt: writeVarInt,
+
+  // TODO: remove in 3.0.0
+  equal: function BufferEquals (a, b) { return a.equals(b) },
+  reverse: require('buffer-reverse')
 }
