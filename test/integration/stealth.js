@@ -10,27 +10,28 @@ var G = secp256k1.G
 var n = secp256k1.n
 
 // c = sha256: e * (d * G)
-// cQ = (d * G) + (c * G)
+// vG = (d * G) + (c * G)
 function stealthSend (e, Q) {
   var eQ = Q.multiply(e) // shared secret
 
   var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
   var cG = G.multiply(c)
 
-  var cQ = new bitcoin.ECPair(null, Q.add(cG))
+  var vG = new bitcoin.ECPair(null, Q.add(cG))
 
-  return cQ
+  return vG
 }
 
 // c = sha256: d * (e * G)
-// cQ = (d + c) * G
+// v = (d + c)
+// vG = (d + c) * G
 function stealthReceive (d, eG) {
   var eQ = eG.multiply(d) // shared secret
 
   var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
-  var cQ = new bitcoin.ECPair(d.add(c).mod(n))
+  var v = new bitcoin.ECPair(d.add(c).mod(n))
 
-  return cQ
+  return v
 }
 
 describe('bitcoinjs-lib (crypto)', function () {
