@@ -87,11 +87,13 @@ function expandInput (scriptSig, redeemScript) {
   }
 }
 
-function expandOutput (script, ourPubKey) {
+function expandOutput (script, scriptType, ourPubKey) {
   typeforce(types.Buffer, script)
 
   var scriptChunks = bscript.decompile(script)
-  var scriptType = bscript.classifyOutput(script)
+  if (!scriptType) {
+    scriptType = bscript.classifyOutput(scriptChunks)
+  }
 
   var pubKeys = []
 
@@ -113,7 +115,7 @@ function expandOutput (script, ourPubKey) {
       pubKeys = scriptChunks.slice(1, -2)
       break
 
-    default: return
+    default: return { scriptType: scriptType }
   }
 
   return {
@@ -196,8 +198,8 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
       input.prevOutType = 'scripthash'
     }
 
-    var expanded = expandOutput(redeemScript, kpPubKey)
-    if (!expanded) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
+    var expanded = expandOutput(redeemScript, undefined, kpPubKey)
+    if (!expanded.pubKeys) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
 
     input.pubKeys = expanded.pubKeys
     input.redeemScript = redeemScript
@@ -209,8 +211,13 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
     // pay-to-scriptHash is not possible without a redeemScript
     if (input.prevOutType === 'scripthash') throw new Error('PrevOutScript is P2SH, missing redeemScript')
 
-    // throw if we can't sign with it
-    if (!input.pubKeys || !input.signatures) throw new Error(input.prevOutType + ' not supported')
+    // try to derive the missing information about the script now that we
+    // have a kpPubKey
+    expanded = expandOutput(input.prevOutScript, input.prevOutType, kpPubKey)
+    if (!expanded.pubKeys) return
+
+    input.pubKeys = expanded.pubKeys
+    input.signatures = expanded.signatures
 
   // no prior knowledge, assume pubKeyHash
   } else {
@@ -356,19 +363,21 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, sequence
 
   // derive what we can from the previous transactions output script
   if (!input.prevOutScript && prevOutScript) {
-    var prevOutScriptChunks = bscript.decompile(prevOutScript)
-    var prevOutType = bscript.classifyOutput(prevOutScriptChunks)
+    var prevOutType
 
     if (!input.pubKeys && !input.signatures) {
       var expanded = expandOutput(prevOutScript)
-      if (expanded) {
+
+      if (expanded.pubKeys) {
         input.pubKeys = expanded.pubKeys
         input.signatures = expanded.signatures
       }
+
+      prevOutType = expanded.scriptType
     }
 
     input.prevOutScript = prevOutScript
-    input.prevOutType = prevOutType
+    input.prevOutType = prevOutType || bscript.classifyOutput(prevOutScript)
   }
 
   var vin = this.tx.addInput(txHash, vout, sequence, scriptSig)
@@ -436,29 +445,36 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   return tx
 }
 
+function canSign (input) {
+  return input.hashType !== undefined &&
+    input.prevOutScript !== undefined &&
+    input.pubKeys !== undefined &&
+    input.signatures !== undefined &&
+    input.signatures.length === input.pubKeys.length &&
+    input.pubKeys.length > 0
+}
+
 TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashType) {
   if (keyPair.network !== this.network) throw new Error('Inconsistent network')
   if (!this.inputs[vin]) throw new Error('No input at index: ' + vin)
   hashType = hashType || Transaction.SIGHASH_ALL
 
   var input = this.inputs[vin]
-  var canSign = input.hashType !== undefined &&
-    input.prevOutScript !== undefined &&
-    input.pubKeys !== undefined &&
-    input.signatures !== undefined &&
-    input.signatures.length === input.pubKeys.length
+
+  // if redeemScript was provided, enforce consistency
+  if (input.redeemScript !== undefined && redeemScript) {
+    if (!input.redeemScript.equals(redeemScript)) throw new Error('Inconsistent redeemScript')
+  }
+
+  if (input.hashType !== undefined) {
+    if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
+  }
 
   var kpPubKey = keyPair.getPublicKeyBuffer()
-
-  if (canSign) {
-    // if redeemScript was provided, enforce consistency
-    if (redeemScript) {
-      if (!input.redeemScript.equals(redeemScript)) throw new Error('Inconsistent redeemScript')
-    }
-
-    if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
-  } else {
+  if (!canSign(input)) {
     prepareInput(input, kpPubKey, redeemScript, hashType)
+
+    if (!canSign(input)) throw Error(input.prevOutType + ' not supported')
   }
 
   // ready to sign
