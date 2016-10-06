@@ -55,7 +55,7 @@ describe('HDNode', function () {
     it('throws when an invalid length chain code is given', function () {
       assert.throws(function () {
         new HDNode(keyPair, new Buffer(20))
-      }, /Expected 256-bit Buffer, got 160-bit/)
+      }, /Expected property "1" of type Buffer\(Length: 32\), got Buffer\(Length: 20\)/)
     })
   })
 

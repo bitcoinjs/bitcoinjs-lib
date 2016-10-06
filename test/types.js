@@ -27,18 +27,23 @@ describe('types', function () {
     })
 
     it('return true for oneOf', function () {
-      assert(typeforce(types.oneOf(types.Hash160bit, types.Hash256bit), buffer32byte))
-      assert(typeforce(types.oneOf(types.Hash256bit, types.Hash160bit), buffer32byte))
+      assert.doesNotThrow(function () {
+        typeforce(types.oneOf(types.Hash160bit, types.Hash256bit), buffer32byte)
+      })
+
+      assert.doesNotThrow(function () {
+        typeforce(types.oneOf(types.Hash256bit, types.Hash160bit), buffer32byte)
+      })
     })
 
     it('throws for invalid size', function () {
       assert.throws(function () {
         types.Hash160bit(buffer32byte)
-      }, /Expected 160-bit Buffer, got 256-bit Buffer/)
+      }, /Expected Buffer\(Length: 20\), got Buffer\(Length: 32\)/)
 
       assert.throws(function () {
         types.Hash256bit(buffer20byte)
-      }, /Expected 256-bit Buffer, got 160-bit Buffer/)
+      }, /Expected Buffer\(Length: 32\), got Buffer\(Length: 20\)/)
     })
   })
 })
