@@ -3,6 +3,7 @@
 
 module.exports = {
   bitcoin: {
+    genesisBlockId: '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
       public: 0x0488b21e,
@@ -14,6 +15,7 @@ module.exports = {
     dustThreshold: 546 // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/core.h#L151-L162
   },
   testnet: {
+    genesisBlockId: '000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943', // testnet3
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bip32: {
       public: 0x043587cf,
@@ -25,6 +27,7 @@ module.exports = {
     dustThreshold: 546
   },
   litecoin: {
+    genesisBlockId: '12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2',
     messagePrefix: '\x19Litecoin Signed Message:\n',
     bip32: {
       public: 0x019da462,
@@ -36,6 +39,7 @@ module.exports = {
     dustThreshold: 0 // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L360-L365
   },
   dogecoin: {
+    genesisBlockId: '1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691',
     messagePrefix: '\x19Dogecoin Signed Message:\n',
     bip32: {
       public: 0x02facafd,
