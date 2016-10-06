@@ -23,11 +23,11 @@ function construct (f, sign) {
   f.inputs.forEach(function (input) {
     var prevTxScript
 
-    if (input.prevTxScript) {
+    if (!input.txHex && input.prevTxScript) {
       prevTxScript = bscript.fromASM(input.prevTxScript)
     }
 
-    txb.addInput(input.txId, input.vout, input.sequence, prevTxScript)
+    txb.addInput(input.txId || Transaction.fromHex(input.txHex), input.vout, input.sequence, prevTxScript)
   })
 
   f.outputs.forEach(function (output) {
