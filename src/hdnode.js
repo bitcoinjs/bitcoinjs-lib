@@ -314,7 +314,7 @@ HDNode.prototype.derivePath = function (path) {
       index = parseInt(indexStr, 10)
       return prevHd.derive(index)
     }
-  })
+  }, this)
 }
 
 HDNode.prototype.toString = HDNode.prototype.toBase58
