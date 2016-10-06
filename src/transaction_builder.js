@@ -191,15 +191,16 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
 
       var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
       if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
-
-    // or, we don't have a prevOutScript, so generate a P2SH script
-    } else {
-      input.prevOutScript = bscript.scriptHashOutput(redeemScriptHash)
-      input.prevOutType = 'scripthash'
     }
 
     var expanded = expandOutput(redeemScript, undefined, kpPubKey)
     if (!expanded.pubKeys) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
+
+    // if we don't have a prevOutScript, generate a P2SH script
+    if (!input.prevOutType) {
+      input.prevOutScript = bscript.scriptHashOutput(redeemScriptHash)
+      input.prevOutType = 'scripthash'
+    }
 
     input.pubKeys = expanded.pubKeys
     input.redeemScript = redeemScript
