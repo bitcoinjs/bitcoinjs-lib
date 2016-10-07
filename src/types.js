@@ -31,7 +31,7 @@ var Network = typeforce.compile({
   pubKeyHash: typeforce.UInt8,
   scriptHash: typeforce.UInt8,
   wif: typeforce.UInt8,
-  dustThreshold: typeforce.UInt53
+  dustThreshold: Satoshi
 })
 
 // extend typeforce types with ours
