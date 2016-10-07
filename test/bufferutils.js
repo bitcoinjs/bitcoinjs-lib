@@ -6,25 +6,6 @@ var bufferutils = require('../src/bufferutils')
 var fixtures = require('./fixtures/bufferutils.json')
 
 describe('bufferutils', function () {
-  // TODO: remove
-  describe('equals', function () {
-    it('works', function () {
-      var a = new Buffer('abcd', 'hex')
-      var b = new Buffer('bbbb', 'hex')
-
-      assert.strictEqual(bufferutils.equal(a, a), true)
-      assert.strictEqual(bufferutils.equal(a, b), false)
-    })
-  })
-
-  describe('reverse', function () {
-    it('works', function () {
-      var a = new Buffer('abcd', 'hex')
-
-      assert.strictEqual(bufferutils.reverse(a).toString('hex'), 'cdab')
-    })
-  })
-
   describe('pushDataSize', function () {
     fixtures.valid.forEach(function (f) {
       it('determines the pushDataSize of ' + f.dec + ' correctly', function () {

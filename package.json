@@ -60,6 +60,7 @@
     "ecurve": "^1.0.0",
     "randombytes": "^2.0.1",
     "typeforce": "^1.8.7",
+    "varuint-bitcoin": "^1.0.4",
     "wif": "^2.0.1"
   },
   "devDependencies": {
