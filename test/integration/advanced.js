@@ -5,7 +5,7 @@ var blockchain = require('./_blockchain')
 
 describe('bitcoinjs-lib (advanced)', function () {
   it('can create an OP_RETURN transaction', function (done) {
-    this.timeout(20000)
+    this.timeout(30000)
 
     var network = bitcoin.networks.testnet
     var keyPair = bitcoin.ECPair.makeRandom({ network: network })

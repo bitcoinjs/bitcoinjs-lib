@@ -59,7 +59,7 @@ describe('bitcoinjs-lib (crypto)', function () {
   })
 
   it('can recover a private key from duplicate R values', function (done) {
-    this.timeout(10000)
+    this.timeout(30000)
 
     var inputs = [
       {
