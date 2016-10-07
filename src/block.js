@@ -1,7 +1,7 @@
-var createHash = require('create-hash')
 var bufferutils = require('./bufferutils')
 var bcrypto = require('./crypto')
 var bufferReverse = require('buffer-reverse')
+var fastMerkleRoot = require('merkle-lib/fastRoot')
 
 var Transaction = require('./transaction')
 
@@ -134,25 +134,13 @@ Block.calculateTarget = function (bits) {
 }
 
 Block.calculateMerkleRoot = function (transactions) {
-  var length = transactions.length
-  if (length === 0) throw TypeError('Cannot compute merkle root for zero transactions')
+  if (transactions.length === 0) throw TypeError('Cannot compute merkle root for zero transactions')
 
-  var hashes = transactions.map(function (transaction) { return transaction.getHash() })
+  var hashes = transactions.map(function (transaction) {
+    return transaction.getHash()
+  })
 
-  while (length > 1) {
-    var j = 0
-
-    for (var i = 0; i < length; i += 2, ++j) {
-      var hasher = createHash('sha256')
-      hasher.update(hashes[i])
-      hasher.update(i + 1 !== length ? hashes[i + 1] : hashes[i])
-      hashes[j] = bcrypto.sha256(hasher.digest())
-    }
-
-    length = j
-  }
-
-  return hashes[0]
+  return fastMerkleRoot(hashes, bcrypto.hash256)
 }
 
 Block.prototype.checkMerkleRoot = function () {
