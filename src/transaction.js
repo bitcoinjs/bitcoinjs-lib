@@ -259,25 +259,10 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   if (!buffer) buffer = new Buffer(this.byteLength())
 
   var offset = initialOffset || 0
-  function writeSlice (slice) {
-    slice.copy(buffer, offset)
-    offset += slice.length
-  }
-
-  function writeUInt32 (i) {
-    buffer.writeUInt32LE(i, offset)
-    offset += 4
-  }
-
-  function writeUInt64 (i) {
-    bufferutils.writeUInt64LE(buffer, i, offset)
-    offset += 8
-  }
-
-  function writeVarInt (i) {
-    var n = bufferutils.writeVarInt(buffer, i, offset)
-    offset += n
-  }
+  function writeSlice (slice) { offset += slice.copy(buffer, offset) }
+  function writeUInt32 (i) { offset = buffer.writeUInt32LE(i, offset) }
+  function writeUInt64 (i) { offset = bufferutils.writeUInt64LE(buffer, i, offset) }
+  function writeVarInt (i) { offset += bufferutils.writeVarInt(buffer, i, offset) }
 
   writeUInt32(this.version)
   writeVarInt(this.ins.length)
