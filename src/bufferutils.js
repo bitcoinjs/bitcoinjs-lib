@@ -94,6 +94,7 @@ function writeUInt64LE (buffer, value, offset) {
 
   buffer.writeInt32LE(value & -1, offset)
   buffer.writeUInt32LE(Math.floor(value / 0x100000000), offset + 4)
+  return offset + 8
 }
 
 // TODO: remove in 4.0.0?
