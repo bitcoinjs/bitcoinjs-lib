@@ -148,6 +148,23 @@ describe('ECPair', function () {
       assert.strictEqual(keyPair.toWIF(), exWIF)
     })
 
+    it('retains the same defaults as ECPair constructor', function () {
+      var keyPair = ECPair.makeRandom()
+
+      assert.strictEqual(keyPair.compressed, true)
+      assert.strictEqual(keyPair.network, NETWORKS.bitcoin)
+    })
+
+    it('supports the options parameter', function () {
+      var keyPair = ECPair.makeRandom({
+        compressed: false,
+        network: NETWORKS.testnet
+      })
+
+      assert.strictEqual(keyPair.compressed, false)
+      assert.strictEqual(keyPair.network, NETWORKS.testnet)
+    })
+
     it('loops until d is within interval [1, n - 1]', sinon.test(function () {
       var rng = this.mock()
       rng.exactly(3)
