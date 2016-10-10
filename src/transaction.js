@@ -309,7 +309,9 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amoun
     hashPrevouts = bcrypto.hash256(tbuffer)
   }
 
-  if (!(hashType & Transaction.SIGHASH_ANYONECANPAY) && (hashType & 0x1f) !== Transaction.SIGHASH_SINGLE && (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
+  if (!(hashType & Transaction.SIGHASH_ANYONECANPAY) &&
+       (hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
+       (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
     tbuffer = new Buffer(4 * this.ins.length)
     toffset = 0
 
@@ -320,7 +322,8 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amoun
     hashSequence = bcrypto.hash256(tbuffer)
   }
 
-  if ((hashType & 0x1f) !== Transaction.SIGHASH_SINGLE && (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
+  if ((hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
+      (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
     var txOutsSize = this.outs.reduce(function (sum, output) {
       return sum + 8 + scriptSize(output.script)
     }, 0)
