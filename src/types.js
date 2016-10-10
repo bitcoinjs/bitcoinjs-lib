@@ -8,6 +8,7 @@ function UInt31 (value) {
 function BIP32Path (value) {
   return typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
 }
+BIP32Path.toJSON = function () { return 'BIP32 derivation path' }
 
 var SATOSHI_MAX = 2.1 * 1e15
 function Satoshi (value) {

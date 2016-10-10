@@ -384,7 +384,7 @@ describe('HDNode', function () {
       fixtures.invalid.derivePath.forEach(function (fx) {
         assert.throws(function () {
           master.derivePath(fx)
-        }, /Expected Bip32Path/)
+        }, /Expected BIP32 derivation path/)
       })
     })
   })
