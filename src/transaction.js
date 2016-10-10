@@ -287,6 +287,8 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 }
 
 Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amount, hashType) {
+  typeforce(types.tuple(types.UInt32, types.Buffer, types.Satoshi, types.UInt32), arguments)
+
   var hashOutputs, hashPrevouts, hashSequence
 
   var tbuffer, toffset
