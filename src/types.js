@@ -1,19 +1,17 @@
 var typeforce = require('typeforce')
 
 var UINT31_MAX = Math.pow(2, 31) - 1
-function UInt2 (value) { return (value & 3) === value }
 function UInt31 (value) {
   return typeforce.UInt32(value) && value <= UINT31_MAX
+}
+
+function BIP32Path (value) {
+  return typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
 }
 
 var SATOSHI_MAX = 2.1 * 1e15
 function Satoshi (value) {
   return typeforce.UInt53(value) && value <= SATOSHI_MAX
-}
-
-function Bip32Path (value) {
-  return typeforce.String(value) &&
-    value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
 }
 
 // external dependent types
@@ -37,6 +35,7 @@ var Network = typeforce.compile({
 // extend typeforce types with ours
 var types = {
   BigInt: BigInt,
+  BIP32Path: BIP32Path,
   Buffer256bit: typeforce.BufferN(32),
   ECPoint: ECPoint,
   ECSignature: ECSignature,
@@ -44,9 +43,7 @@ var types = {
   Hash256bit: typeforce.BufferN(32),
   Network: Network,
   Satoshi: Satoshi,
-  UInt2: UInt2,
-  UInt31: UInt31,
-  Bip32Path: Bip32Path
+  UInt31: UInt31
 }
 
 for (var typeName in typeforce) {
