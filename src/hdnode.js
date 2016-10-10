@@ -294,7 +294,7 @@ HDNode.prototype.isNeutered = function () {
 }
 
 HDNode.prototype.derivePath = function (path) {
-  typeforce(types.Bip32Path, path)
+  typeforce(types.BIP32Path, path)
 
   var splitPath = path.split('/')
   if (splitPath[0] === 'm') {
