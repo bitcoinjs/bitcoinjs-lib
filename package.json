@@ -39,7 +39,7 @@
     "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
     "integration": "mocha test/integration/",
     "standard": "standard",
-    "test": "npm run standard && npm run unit",
+    "test": "npm run standard && npm run coverage",
     "unit": "mocha"
   },
   "repository": {
