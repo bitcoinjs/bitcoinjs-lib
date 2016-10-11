@@ -462,13 +462,17 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
 
   var input = this.inputs[vin]
 
-  // if redeemScript was provided, enforce consistency
-  if (input.redeemScript !== undefined && redeemScript) {
-    if (!input.redeemScript.equals(redeemScript)) throw new Error('Inconsistent redeemScript')
+  // if redeemScript was previously provided, enforce consistency
+  if (input.redeemScript !== undefined &&
+      redeemScript &&
+      !input.redeemScript.equals(redeemScript)) {
+    throw new Error('Inconsistent redeemScript')
   }
 
-  if (input.hashType !== undefined) {
-    if (input.hashType !== hashType) throw new Error('Inconsistent hashType')
+  // if hashType was previously provided, enforce consistency
+  if (input.hashType !== undefined &&
+      input.hashType !== hashType) {
+    throw new Error('Inconsistent hashType')
   }
 
   var kpPubKey = keyPair.getPublicKeyBuffer()
@@ -483,7 +487,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   var signatureHash = this.tx.hashForSignature(vin, hashScript, hashType)
 
   // enforce in order signing of public keys
-  var valid = input.pubKeys.some(function (pubKey, i) {
+  var signed = input.pubKeys.some(function (pubKey, i) {
     if (!kpPubKey.equals(pubKey)) return false
     if (input.signatures[i]) throw new Error('Signature already exists')
 
@@ -491,7 +495,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     return true
   })
 
-  if (!valid) throw new Error('Key pair cannot sign for this input')
+  if (!signed) throw new Error('Key pair cannot sign for this input')
 }
 
 TransactionBuilder.prototype.__canModifyInputs = function () {
