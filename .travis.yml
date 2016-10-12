@@ -4,7 +4,6 @@ before_install:
   - npm install npm -g
 node_js:
   - "0.12"
-  - "io.js"
   - "4"
   - "5"
   - "6"
