@@ -87,6 +87,15 @@ describe('Transaction', function () {
     })
   })
 
+  describe('transactionVersion', function () {
+    it('should be interpreted as an int32le', function () {
+      var txHex = 'ffffffff0000ffffffff'
+      var tx = Transaction.fromHex(txHex)
+      assert.equal(-1, tx.version)
+      assert.equal(0xffffffff, tx.locktime)
+    })
+  })
+
   describe('addInput', function () {
     var prevTxHash
     beforeEach(function () {

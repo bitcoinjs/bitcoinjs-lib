@@ -31,8 +31,14 @@ Block.fromBuffer = function (buffer) {
     return i
   }
 
+  function readInt32 () {
+    var i = buffer.readInt32LE(offset)
+    offset += 4
+    return i
+  }
+
   var block = new Block()
-  block.version = readUInt32()
+  block.version = readInt32()
   block.prevHash = readSlice(32)
   block.merkleRoot = readSlice(32)
   block.timestamp = readUInt32()
@@ -93,12 +99,16 @@ Block.prototype.toBuffer = function (headersOnly) {
     offset += slice.length
   }
 
+  function writeInt32 (i) {
+    buffer.writeInt32LE(i, offset)
+    offset += 4
+  }
   function writeUInt32 (i) {
     buffer.writeUInt32LE(i, offset)
     offset += 4
   }
 
-  writeUInt32(this.version)
+  writeInt32(this.version)
   writeSlice(this.prevHash)
   writeSlice(this.merkleRoot)
   writeUInt32(this.timestamp)
