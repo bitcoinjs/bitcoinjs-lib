@@ -16,7 +16,7 @@ var Transaction = require('./transaction')
 function expandInput (scriptSig, redeemScript) {
   var scriptSigChunks = bscript.decompile(scriptSig)
   var prevOutType = bscript.classifyInput(scriptSigChunks, true)
-  var hashType, pubKeys, signatures, prevOutScript
+  var pubKeys, signatures, prevOutScript
 
   switch (prevOutType) {
     case 'scripthash':
@@ -35,10 +35,8 @@ function expandInput (scriptSig, redeemScript) {
 
     case 'pubkeyhash':
       // if (redeemScript) throw new Error('Nonstandard... P2SH(P2PKH)')
-      var s = ECSignature.parseScriptSignature(scriptSigChunks[0])
-      hashType = s.hashType
       pubKeys = scriptSigChunks.slice(1)
-      signatures = [s.signature]
+      signatures = scriptSigChunks.slice(0, 1)
 
       if (redeemScript) break
       prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(pubKeys[0]))
@@ -49,9 +47,7 @@ function expandInput (scriptSig, redeemScript) {
         pubKeys = bscript.decompile(redeemScript).slice(0, 1)
       }
 
-      var ss = ECSignature.parseScriptSignature(scriptSigChunks[0])
-      hashType = ss.hashType
-      signatures = [ss.signature]
+      signatures = scriptSigChunks.slice(0, 1)
       break
 
     case 'multisig':
@@ -60,23 +56,12 @@ function expandInput (scriptSig, redeemScript) {
       }
 
       signatures = scriptSigChunks.slice(1).map(function (chunk) {
-        if (chunk === ops.OP_0) return undefined
-
-        var sss = ECSignature.parseScriptSignature(chunk)
-
-        if (hashType !== undefined) {
-          if (sss.hashType !== hashType) throw new Error('Inconsistent hashType')
-        } else {
-          hashType = sss.hashType
-        }
-
-        return sss.signature
+        return chunk === ops.OP_0 ? undefined : chunk
       })
       break
   }
 
   return {
-    hashType: hashType,
     pubKeys: pubKeys,
     signatures: signatures,
     prevOutScript: prevOutScript,
@@ -90,8 +75,6 @@ function fixMultisigOrder (input, transaction, vin) {
   if (input.pubKeys.length === input.signatures.length) return
 
   var unmatched = input.signatures.concat()
-  var hashType = input.hashType || Transaction.SIGHASH_ALL
-  var hash = transaction.hashForSignature(vin, input.redeemScript, hashType)
 
   input.signatures = input.pubKeys.map(function (pubKey, y) {
     var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
@@ -102,8 +85,12 @@ function fixMultisigOrder (input, transaction, vin) {
       // skip if undefined || OP_0
       if (!signature) return false
 
+      // TODO: avoid O(n) hashForSignature
+      var parsed = ECSignature.parseScriptSignature(signature)
+      var hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
+
       // skip if signature does not match pubKey
-      if (!keyPair.verify(hash, signature)) return false
+      if (!keyPair.verify(hash, parsed.signature)) return false
 
       // remove matched signature from unmatched
       unmatched[i] = undefined
@@ -154,7 +141,7 @@ function expandOutput (script, scriptType, ourPubKey) {
   }
 }
 
-function prepareInput (input, kpPubKey, redeemScript, hashType) {
+function prepareInput (input, kpPubKey, redeemScript) {
   if (redeemScript) {
     var redeemScriptHash = bcrypto.hash160(redeemScript)
 
@@ -196,8 +183,6 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
     input.pubKeys = [kpPubKey]
     input.signatures = [undefined]
   }
-
-  input.hashType = hashType
 }
 
 function buildInput (input, allowIncomplete) {
@@ -209,12 +194,10 @@ function buildInput (input, allowIncomplete) {
     case 'pubkeyhash':
     case 'pubkey':
       if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
-
-      var pkSignature = signatures[0].toScriptSignature(input.hashType)
       if (scriptType === 'pubkeyhash') {
-        scriptSig = bscript.pubKeyHashInput(pkSignature, input.pubKeys[0])
+        scriptSig = bscript.pubKeyHashInput(signatures[0], input.pubKeys[0])
       } else {
-        scriptSig = bscript.pubKeyInput(pkSignature)
+        scriptSig = bscript.pubKeyInput(signatures[0])
       }
 
       break
@@ -222,7 +205,7 @@ function buildInput (input, allowIncomplete) {
     // ref https://github.com/bitcoin/bitcoin/blob/d612837814020ae832499d18e6ee5eb919a87907/src/script/sign.cpp#L232
     case 'multisig':
       signatures = signatures.map(function (signature) {
-        return (signature && signature.toScriptSignature(input.hashType)) || ops.OP_0
+        return signature || ops.OP_0
       })
 
       if (!allowIncomplete) {
@@ -408,8 +391,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 }
 
 function canSign (input) {
-  return input.hashType !== undefined &&
-    input.prevOutScript !== undefined &&
+  return input.prevOutScript !== undefined &&
     input.pubKeys !== undefined &&
     input.signatures !== undefined &&
     input.signatures.length === input.pubKeys.length &&
@@ -430,15 +412,9 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     throw new Error('Inconsistent redeemScript')
   }
 
-  // if hashType was previously provided, enforce consistency
-  if (input.hashType !== undefined &&
-      input.hashType !== hashType) {
-    throw new Error('Inconsistent hashType')
-  }
-
   var kpPubKey = keyPair.getPublicKeyBuffer()
   if (!canSign(input)) {
-    prepareInput(input, kpPubKey, redeemScript, hashType)
+    prepareInput(input, kpPubKey, redeemScript)
 
     if (!canSign(input)) throw Error(input.prevOutType + ' not supported')
   }
@@ -452,21 +428,30 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     if (!kpPubKey.equals(pubKey)) return false
     if (input.signatures[i]) throw new Error('Signature already exists')
 
-    input.signatures[i] = keyPair.sign(signatureHash)
+    input.signatures[i] = keyPair.sign(signatureHash).toScriptSignature(hashType)
     return true
   })
 
   if (!signed) throw new Error('Key pair cannot sign for this input')
 }
 
-TransactionBuilder.prototype.__canModifyInputs = function () {
-  return this.inputs.every(function (otherInput) {
-    // no signature
-    if (otherInput.hashType === undefined) return true
+function signatureHashType (buffer) {
+  return buffer.readUInt8(buffer.length - 1)
+}
 
-    // if SIGHASH_ANYONECANPAY is set, signatures would not
-    // be invalidated by more inputs
-    return otherInput.hashType & Transaction.SIGHASH_ANYONECANPAY
+TransactionBuilder.prototype.__canModifyInputs = function () {
+  return this.inputs.every(function (input) {
+    // any signatures?
+    if (input.signatures === undefined) return true
+
+    return input.signatures.every(function (signature) {
+      if (!signature) return true
+      var hashType = signatureHashType(signature)
+
+      // if SIGHASH_ANYONECANPAY is set, signatures would not
+      // be invalidated by more inputs
+      return hashType & Transaction.SIGHASH_ANYONECANPAY
+    })
   })
 }
 
@@ -474,20 +459,22 @@ TransactionBuilder.prototype.__canModifyOutputs = function () {
   var nInputs = this.tx.ins.length
   var nOutputs = this.tx.outs.length
 
-  return this.inputs.every(function (input, i) {
-    // any signatures?
-    if (input.hashType === undefined) return true
+  return this.inputs.every(function (input) {
+    if (input.signatures === undefined) return true
 
-    var hashTypeMod = input.hashType & 0x1f
-    if (hashTypeMod === Transaction.SIGHASH_NONE) return true
-    if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
-      // if SIGHASH_SINGLE is set, and nInputs > nOutputs
-      // some signatures would be invalidated by the addition
-      // of more outputs
-      return nInputs <= nOutputs
-    }
+    return input.signatures.every(function (signature) {
+      if (!signature) return true
+      var hashType = signatureHashType(signature)
 
-    return false
+      var hashTypeMod = hashType & 0x1f
+      if (hashTypeMod === Transaction.SIGHASH_NONE) return true
+      if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
+        // if SIGHASH_SINGLE is set, and nInputs > nOutputs
+        // some signatures would be invalidated by the addition
+        // of more outputs
+        return nInputs <= nOutputs
+      }
+    })
   })
 }
 
