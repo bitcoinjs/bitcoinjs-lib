@@ -77,8 +77,8 @@ describe('bitcoinjs-lib (basic)', function () {
         var tx = new bitcoin.TransactionBuilder(network)
         tx.addInput(unspentA.txId, unspentA.vout)
         tx.addInput(unspentB.txId, unspentB.vout)
-        tx.addOutput('mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r', 1e4)
-        tx.addOutput('2NByiBUaEXrhmqAsg7BbLpcQSAQs1EDwt5w', 1e4)
+        tx.addOutput('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', 1e4)
+        tx.addOutput('mvGVHWi6gbkBZZPaqBVRcxvKVPYd9r3fp7', 1e4)
         tx.sign(0, alice)
         tx.sign(1, bob)
 

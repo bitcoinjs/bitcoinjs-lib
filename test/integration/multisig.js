@@ -41,17 +41,9 @@ describe('bitcoinjs-lib (multisig)', function () {
     blockchain.t.faucet(address, 2e4, function (err, unspent) {
       if (err) return done(err)
 
-      var fee = 1e4
-      var targetValue = unspent.value - fee
-
-      // make a random destination address
-      var targetAddress = bitcoin.ECPair.makeRandom({
-        network: bitcoin.networks.testnet
-      }).getAddress()
-
       var txb = new bitcoin.TransactionBuilder(bitcoin.networks.testnet)
       txb.addInput(unspent.txId, unspent.vout)
-      txb.addOutput(targetAddress, targetValue)
+      txb.addOutput('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', 1e4)
 
       // sign with 1st and 3rd key
       txb.sign(0, keyPairs[0], redeemScript)
@@ -64,18 +56,16 @@ describe('bitcoinjs-lib (multisig)', function () {
       blockchain.t.transactions.propagate(tx.toHex(), function (err) {
         if (err) return done(err)
 
-        // allow for TX to be processed
+        // wait for TX to be accepted
         async.retry(5, function (callback) {
           setTimeout(function () {
             // check that the above transaction included the intended address
-            blockchain.t.addresses.unspents(targetAddress, function (err, unspents) {
+            blockchain.t.addresses.unspents('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', function (err, unspents) {
               if (err) return callback(err)
+              if (!unspents.some(function (unspent) {
+                return unspent.txId === txId && unspent.value === 1e4
+              })) return callback(new Error('Could not find unspent after broadcast'))
 
-              var unspentFound = unspents.some(function (unspent) {
-                return unspent.txId === txId && unspent.value === targetValue
-              })
-
-              if (!unspentFound) return callback(new Error('Could not find unspent after propagate'))
               callback()
             })
           }, 600)
