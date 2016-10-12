@@ -11,15 +11,14 @@ var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var Transaction = require('./transaction')
 
-// inspects a scriptSig w/ optional provided redeemScript and derives
-// all necessary input information as required by TransactionBuilder
+// inspects a scriptSig w/ optional redeemScript and
+// derives any input information required
 function expandInput (scriptSig, redeemScript) {
   var scriptSigChunks = bscript.decompile(scriptSig)
-  var scriptSigType = bscript.classifyInput(scriptSigChunks, true)
-
+  var prevOutType = bscript.classifyInput(scriptSigChunks, true)
   var hashType, pubKeys, signatures, prevOutScript
 
-  switch (scriptSigType) {
+  switch (prevOutType) {
     case 'scripthash':
       // FIXME: maybe depth limit instead, how possible is this anyway?
       if (redeemScript) throw new Error('Recursive P2SH script')
@@ -42,7 +41,6 @@ function expandInput (scriptSig, redeemScript) {
       signatures = [s.signature]
 
       if (redeemScript) break
-
       prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(pubKeys[0]))
       break
 
@@ -74,7 +72,6 @@ function expandInput (scriptSig, redeemScript) {
 
         return sss.signature
       })
-
       break
   }
 
@@ -83,7 +80,7 @@ function expandInput (scriptSig, redeemScript) {
     pubKeys: pubKeys,
     signatures: signatures,
     prevOutScript: prevOutScript,
-    prevOutType: scriptSigType
+    prevOutType: prevOutType
   }
 }
 
