@@ -32,6 +32,12 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
     return i
   }
 
+  function readInt32 () {
+    var i = buffer.readInt32LE(offset)
+    offset += 4
+    return i
+  }
+
   function readUInt64 () {
     var i = bufferutils.readUInt64LE(buffer, offset)
     offset += 8
@@ -49,7 +55,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
   }
 
   var tx = new Transaction()
-  tx.version = readUInt32()
+  tx.version = readInt32()
 
   var vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
@@ -261,10 +267,11 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   var offset = initialOffset || 0
   function writeSlice (slice) { offset += slice.copy(buffer, offset) }
   function writeUInt32 (i) { offset = buffer.writeUInt32LE(i, offset) }
+  function writeInt32 (i) { offset = buffer.writeInt32LE(i, offset) }
   function writeUInt64 (i) { offset = bufferutils.writeUInt64LE(buffer, i, offset) }
   function writeVarInt (i) { offset += bufferutils.writeVarInt(buffer, i, offset) }
 
-  writeUInt32(this.version)
+  writeInt32(this.version)
   writeVarInt(this.ins.length)
 
   this.ins.forEach(function (txIn) {

@@ -6,6 +6,15 @@ var Block = require('../src/block')
 var fixtures = require('./fixtures/block')
 
 describe('Block', function () {
+  describe('version', function () {
+    it('should be interpreted as an int32le', function () {
+      var blockHex = 'ffffffff0000000000000000000000000000000000000000000000000000000000000000414141414141414141414141414141414141414141414141414141414141414101000000020000000300000000'
+      var block = Block.fromHex(blockHex)
+      assert.equal(-1, block.version)
+      assert.equal(1, block.timestamp)
+    })
+  })
+
   describe('calculateTarget', function () {
     fixtures.targets.forEach(function (f) {
       it('returns ' + f.expected + ' for 0x' + f.bits, function () {
