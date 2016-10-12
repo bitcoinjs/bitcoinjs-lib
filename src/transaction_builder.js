@@ -218,14 +218,16 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
 
 function fixMultisigOrder (input, transaction, vin) {
   var hashScriptType = input.redeemScriptType || input.prevOutType
-  if (hashScriptType !== 'multisig') throw new TypeError('Expected multisig input')
+  if (hashScriptType !== 'multisig') return
 
-  var hashType = input.hashType || Transaction.SIGHASH_ALL
   var hashScript = input.redeemScript || input.prevOutScript
+  if (!hashScript) return
+  if (!input.pubKeys) return
+  if (input.pubKeys.length === input.signatures.length) return
 
-  // maintain a local copy of unmatched signatures
   var unmatched = input.signatures.concat()
-  var signatureHash = transaction.hashForSignature(vin, hashScript, hashType)
+  var hashType = input.hashType || Transaction.SIGHASH_ALL
+  var hash = transaction.hashForSignature(vin, hashScript, hashType)
 
   input.signatures = input.pubKeys.map(function (pubKey, y) {
     var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
@@ -237,7 +239,7 @@ function fixMultisigOrder (input, transaction, vin) {
       if (!signature) return false
 
       // skip if signature does not match pubKey
-      if (!keyPair.verify(signatureHash, signature)) return false
+      if (!keyPair.verify(hash, signature)) return false
 
       // remove matched signature from unmatched
       unmatched[i] = undefined
@@ -246,7 +248,7 @@ function fixMultisigOrder (input, transaction, vin) {
       return true
     })
 
-    return match || undefined
+    return match
   })
 }
 
@@ -299,14 +301,7 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
 
   // fix some things not possible through the public API
   txb.inputs.forEach(function (input, i) {
-    // attempt to fix any multisig inputs if they exist
-    if ((input.redeemScriptType || input.prevOutType) === 'multisig') {
-      // pubKeys will only exist for 'multisig' if a redeemScript was found
-      if (!input.pubKeys || !input.signatures) return
-      if (input.pubKeys.length === input.signatures.length) return
-
-      fixMultisigOrder(input, transaction, i)
-    }
+    fixMultisigOrder(input, transaction, i)
   })
 
   return txb
