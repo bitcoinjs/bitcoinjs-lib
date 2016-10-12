@@ -182,16 +182,12 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
     var expanded = expandOutput(redeemScript, undefined, kpPubKey)
     if (!expanded.pubKeys) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
 
-    // if we don't have a prevOutScript, generate a P2SH script
-    if (!input.prevOutType) {
-      input.prevOutScript = bscript.scriptHashOutput(redeemScriptHash)
-      input.prevOutType = 'scripthash'
-    }
-
     input.pubKeys = expanded.pubKeys
+    input.signatures = expanded.signatures
     input.redeemScript = redeemScript
     input.redeemScriptType = expanded.scriptType
-    input.signatures = expanded.signatures
+    input.prevOutScript = input.prevOutScript || bscript.scriptHashOutput(redeemScriptHash)
+    input.prevOutType = 'scripthash'
 
   // maybe we have some prevOut knowledge
   } else if (input.prevOutType) {
