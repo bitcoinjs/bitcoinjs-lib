@@ -213,17 +213,12 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
 }
 
 function fixMultisigOrder (input, transaction, vin) {
-  var hashScriptType = input.redeemScriptType || input.prevOutType
-  if (hashScriptType !== 'multisig') return
-
-  var hashScript = input.redeemScript || input.prevOutScript
-  if (!hashScript) return
-  if (!input.pubKeys) return
+  if (input.redeemScriptType !== 'multisig' || !input.redeemScript) return
   if (input.pubKeys.length === input.signatures.length) return
 
   var unmatched = input.signatures.concat()
   var hashType = input.hashType || Transaction.SIGHASH_ALL
-  var hash = transaction.hashForSignature(vin, hashScript, hashType)
+  var hash = transaction.hashForSignature(vin, input.redeemScript, hashType)
 
   input.signatures = input.pubKeys.map(function (pubKey, y) {
     var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
