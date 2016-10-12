@@ -49,7 +49,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
       var tx = new bitcoin.TransactionBuilder(network)
       tx.setLockTime(timeUtc)
       tx.addInput(unspent.txId, 0, 0xfffffffe)
-      tx.addOutput(alice.getAddress(), 1000)
+      tx.addOutput('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', 1e4)
 
       var txRaw = tx.buildIncomplete()
       var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)
@@ -82,7 +82,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
 
       var tx = new bitcoin.TransactionBuilder(network)
       tx.addInput(unspent.txId, 0, 0xfffffffe)
-      tx.addOutput(alice.getAddress(), 1000)
+      tx.addOutput('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', 1e4)
 
       var txRaw = tx.buildIncomplete()
       var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)
@@ -115,7 +115,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
       var tx = new bitcoin.TransactionBuilder(network)
       tx.setLockTime(timeUtc)
       tx.addInput(unspent.txId, 0, 0xfffffffe)
-      tx.addOutput(alice.getAddress(), 1000)
+      tx.addOutput('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', 1e4)
 
       var txRaw = tx.buildIncomplete()
       var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)

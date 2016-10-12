@@ -1,43 +1,57 @@
-var async = require('async')
+var bitcoin = require('../../')
 var Blockchain = require('cb-http-client')
-var httpify = require('httpify')
-
 var BLOCKTRAIL_API_KEY = process.env.BLOCKTRAIL_API_KEY || 'c0bd8155c66e3fb148bb1664adc1e4dacd872548'
+var coinSelect = require('coinselect')
+var typeforce = require('typeforce')
+var types = require('../../src/types')
 
 var mainnet = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/BTC', { api_key: BLOCKTRAIL_API_KEY })
 var testnet = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/tBTC', { api_key: BLOCKTRAIL_API_KEY })
 
+var kpNetwork = bitcoin.networks.testnet
+var keyPair = bitcoin.ECPair.fromWIF(process.env.BITCOINJS_TESTNET_WIF, kpNetwork)
+var kpAddress = keyPair.getAddress()
+
+function fundAddress (unspents, address, amount, callback) {
+  var result = coinSelect(unspents, [{
+    address: address,
+    value: amount
+  }], 10)
+
+  if (!result.inputs) return callback(new Error('Faucet empty'))
+
+  var txb = new bitcoin.TransactionBuilder(kpNetwork)
+  result.inputs.forEach(function (x) {
+    txb.addInput(x.txId, x.vout)
+  })
+
+  result.outputs.forEach(function (x) {
+    txb.addOutput(x.address || kpAddress, x.value)
+  })
+
+  result.inputs.forEach(function (x, i) {
+    txb.sign(i, keyPair)
+  })
+
+  var tx = txb.build()
+  testnet.transactions.propagate(tx.toHex(), function (err) {
+    callback(err, {
+      txId: tx.getId(),
+      vout: 0
+    }, 0)
+  })
+}
+
 testnet.faucet = function faucet (address, amount, done) {
-  httpify({
-    method: 'POST',
-    url: 'https://api.blocktrail.com/v1/tBTC/faucet/withdrawl?api_key=' + BLOCKTRAIL_API_KEY,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      address: address,
-      amount: amount
-    })
-  }, function (err, result) {
+  testnet.addresses.unspents(kpAddress, function (err, unspents) {
     if (err) return done(err)
+    typeforce([{
+      txId: types.Hex,
+      vout: types.UInt32,
+      value: types.Satoshi
+    }], unspents)
 
-    if (result.body.code === 401) {
-      return done(new Error('Hit faucet rate limit; ' + result.body.msg))
-    }
-
-    // allow for TX to be processed
-    async.retry(5, function (callback) {
-      setTimeout(function () {
-        testnet.addresses.unspents(address, function (err, result) {
-          if (err) return callback(err)
-
-          var unspent = result.filter(function (unspent) {
-            return unspent.value >= amount
-          }).pop()
-
-          if (!unspent) return callback(new Error('No unspent given'))
-          callback(null, unspent)
-        })
-      }, 600)
-    }, done)
+    fundAddress(unspents, address, amount, done)
   })
 }
 
