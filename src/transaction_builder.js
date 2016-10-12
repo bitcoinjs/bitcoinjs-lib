@@ -84,6 +84,37 @@ function expandInput (scriptSig, redeemScript) {
   }
 }
 
+function fixMultisigOrder (input, transaction, vin) {
+  if (input.redeemScriptType !== 'multisig' || !input.redeemScript) return
+  if (input.pubKeys.length === input.signatures.length) return
+
+  var unmatched = input.signatures.concat()
+  var hashType = input.hashType || Transaction.SIGHASH_ALL
+  var hash = transaction.hashForSignature(vin, input.redeemScript, hashType)
+
+  input.signatures = input.pubKeys.map(function (pubKey, y) {
+    var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
+    var match
+
+    // check for a signature
+    unmatched.some(function (signature, i) {
+      // skip if undefined || OP_0
+      if (!signature) return false
+
+      // skip if signature does not match pubKey
+      if (!keyPair.verify(hash, signature)) return false
+
+      // remove matched signature from unmatched
+      unmatched[i] = undefined
+      match = signature
+
+      return true
+    })
+
+    return match
+  })
+}
+
 function expandOutput (script, scriptType, ourPubKey) {
   typeforce(types.Buffer, script)
 
@@ -120,50 +151,6 @@ function expandOutput (script, scriptType, ourPubKey) {
     scriptType: scriptType,
     signatures: pubKeys.map(function () { return undefined })
   }
-}
-
-function buildInput (input, allowIncomplete) {
-  var signatures = input.signatures
-  var scriptType = input.redeemScriptType || input.prevOutType
-  var scriptSig
-
-  switch (scriptType) {
-    case 'pubkeyhash':
-    case 'pubkey':
-      if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
-
-      var pkSignature = signatures[0].toScriptSignature(input.hashType)
-      if (scriptType === 'pubkeyhash') {
-        scriptSig = bscript.pubKeyHashInput(pkSignature, input.pubKeys[0])
-      } else {
-        scriptSig = bscript.pubKeyInput(pkSignature)
-      }
-
-      break
-
-    // ref https://github.com/bitcoin/bitcoin/blob/d612837814020ae832499d18e6ee5eb919a87907/src/script/sign.cpp#L232
-    case 'multisig':
-      signatures = signatures.map(function (signature) {
-        return (signature && signature.toScriptSignature(input.hashType)) || ops.OP_0
-      })
-
-      if (!allowIncomplete) {
-        // remove blank signatures
-        signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
-      }
-
-      scriptSig = bscript.multisigInput(signatures, allowIncomplete ? undefined : input.redeemScript)
-      break
-
-    default: return
-  }
-
-  // wrap as scriptHash if necessary
-  if (input.prevOutType === 'scripthash') {
-    scriptSig = bscript.scriptHashInput(scriptSig, input.redeemScript)
-  }
-
-  return scriptSig
 }
 
 function prepareInput (input, kpPubKey, redeemScript, hashType) {
@@ -212,35 +199,48 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
   input.hashType = hashType
 }
 
-function fixMultisigOrder (input, transaction, vin) {
-  if (input.redeemScriptType !== 'multisig' || !input.redeemScript) return
-  if (input.pubKeys.length === input.signatures.length) return
+function buildInput (input, allowIncomplete) {
+  var signatures = input.signatures
+  var scriptType = input.redeemScriptType || input.prevOutType
+  var scriptSig
 
-  var unmatched = input.signatures.concat()
-  var hashType = input.hashType || Transaction.SIGHASH_ALL
-  var hash = transaction.hashForSignature(vin, input.redeemScript, hashType)
+  switch (scriptType) {
+    case 'pubkeyhash':
+    case 'pubkey':
+      if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
 
-  input.signatures = input.pubKeys.map(function (pubKey, y) {
-    var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
-    var match
+      var pkSignature = signatures[0].toScriptSignature(input.hashType)
+      if (scriptType === 'pubkeyhash') {
+        scriptSig = bscript.pubKeyHashInput(pkSignature, input.pubKeys[0])
+      } else {
+        scriptSig = bscript.pubKeyInput(pkSignature)
+      }
 
-    // check for a signature
-    unmatched.some(function (signature, i) {
-      // skip if undefined || OP_0
-      if (!signature) return false
+      break
 
-      // skip if signature does not match pubKey
-      if (!keyPair.verify(hash, signature)) return false
+    // ref https://github.com/bitcoin/bitcoin/blob/d612837814020ae832499d18e6ee5eb919a87907/src/script/sign.cpp#L232
+    case 'multisig':
+      signatures = signatures.map(function (signature) {
+        return (signature && signature.toScriptSignature(input.hashType)) || ops.OP_0
+      })
 
-      // remove matched signature from unmatched
-      unmatched[i] = undefined
-      match = signature
+      if (!allowIncomplete) {
+        // remove blank signatures
+        signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
+      }
 
-      return true
-    })
+      scriptSig = bscript.multisigInput(signatures, allowIncomplete ? undefined : input.redeemScript)
+      break
 
-    return match
-  })
+    default: return
+  }
+
+  // wrap as scriptHash if necessary
+  if (input.prevOutType === 'scripthash') {
+    scriptSig = bscript.scriptHashInput(scriptSig, input.redeemScript)
+  }
+
+  return scriptSig
 }
 
 function TransactionBuilder (network) {
