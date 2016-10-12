@@ -84,6 +84,7 @@ function expandInput (scriptSig, redeemScript) {
   }
 }
 
+// could be done in expandInput, but requires the original Transaction for hashForSignature
 function fixMultisigOrder (input, transaction, vin) {
   if (input.redeemScriptType !== 'multisig' || !input.redeemScript) return
   if (input.pubKeys.length === input.signatures.length) return
