@@ -125,51 +125,40 @@ function expandOutput (script, scriptType, ourPubKey) {
   }
 }
 
-function buildInput (input, scriptType, allowIncomplete) {
+function buildInput (input, allowIncomplete) {
   var signatures = input.signatures
+  var scriptType = input.redeemScriptType || input.prevOutType
   var scriptSig
 
   switch (scriptType) {
     case 'pubkeyhash':
-      // remove blank signatures
-      signatures = signatures.filter(function (x) { return x })
-
-      if (signatures.length < 1) throw new Error('Not enough signatures provided')
-      if (signatures.length > 1) throw new Error('Too many signatures provided')
-
-      var pkhSignature = signatures[0].toScriptSignature(input.hashType)
-      scriptSig = bscript.pubKeyHashInput(pkhSignature, input.pubKeys[0])
-      break
-
     case 'pubkey':
-      // remove blank signatures
-      signatures = signatures.filter(function (x) { return x })
-
-      if (signatures.length < 1) throw new Error('Not enough signatures provided')
-      if (signatures.length > 1) throw new Error('Too many signatures provided')
+      if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
 
       var pkSignature = signatures[0].toScriptSignature(input.hashType)
-      scriptSig = bscript.pubKeyInput(pkSignature)
+      if (scriptType === 'pubkeyhash') {
+        scriptSig = bscript.pubKeyHashInput(pkSignature, input.pubKeys[0])
+      } else {
+        scriptSig = bscript.pubKeyInput(pkSignature)
+      }
+
       break
 
     // ref https://github.com/bitcoin/bitcoin/blob/d612837814020ae832499d18e6ee5eb919a87907/src/script/sign.cpp#L232
     case 'multisig':
       signatures = signatures.map(function (signature) {
-        return signature && signature.toScriptSignature(input.hashType)
+        return (signature && signature.toScriptSignature(input.hashType)) || ops.OP_0
       })
 
-      if (allowIncomplete) {
-        // fill in blanks with OP_0
-        for (var i = 0; i < signatures.length; ++i) {
-          signatures[i] = signatures[i] || ops.OP_0
-        }
-      } else {
+      if (!allowIncomplete) {
         // remove blank signatures
-        signatures = signatures.filter(function (x) { return x })
+        signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
       }
 
       scriptSig = bscript.multisigInput(signatures, allowIncomplete ? undefined : input.redeemScript)
       break
+
+    default: return
   }
 
   // wrap as scriptHash if necessary
@@ -207,13 +196,12 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
     input.redeemScriptType = expanded.scriptType
     input.signatures = expanded.signatures
 
-  // maybe we have some prior knowledge
+  // maybe we have some prevOut knowledge
   } else if (input.prevOutType) {
     // pay-to-scriptHash is not possible without a redeemScript
     if (input.prevOutType === 'scripthash') throw new Error('PrevOutScript is P2SH, missing redeemScript')
 
-    // try to derive the missing information about the script now that we
-    // have a kpPubKey
+    // try to derive missing information using our kpPubKey
     expanded = expandOutput(input.prevOutScript, input.prevOutType, kpPubKey)
     if (!expanded.pubKeys) return
 
@@ -224,7 +212,6 @@ function prepareInput (input, kpPubKey, redeemScript, hashType) {
   } else {
     input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(kpPubKey))
     input.prevOutType = 'pubkeyhash'
-
     input.pubKeys = [kpPubKey]
     input.signatures = [undefined]
   }
@@ -408,12 +395,6 @@ TransactionBuilder.prototype.buildIncomplete = function () {
   return this.__build(true)
 }
 
-var canBuildTypes = {
-  'multisig': true,
-  'pubkey': true,
-  'pubkeyhash': true
-}
-
 TransactionBuilder.prototype.__build = function (allowIncomplete) {
   if (!allowIncomplete) {
     if (!this.tx.ins.length) throw new Error('Transaction has no inputs')
@@ -425,21 +406,17 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   // Create script signatures from inputs
   this.inputs.forEach(function (input, i) {
     var scriptType = input.redeemScriptType || input.prevOutType
-
-    if (!allowIncomplete) {
-      if (!scriptType) throw new Error('Transaction is not complete')
-      if (!canBuildTypes[scriptType]) throw new Error(scriptType + ' not supported')
-
-      // FIXME: only relevant to types that need signatures
-      if (!input.signatures) throw new Error('Transaction is missing signatures')
-    }
-
-    // FIXME: only relevant to types that need signatures
-    // skip if no scriptSig exists
-    if (!input.signatures) return
+    if (!scriptType && !allowIncomplete) throw new Error('Transaction is not complete')
 
     // build a scriptSig
-    var scriptSig = buildInput(input, scriptType, allowIncomplete)
+    var scriptSig = buildInput(input, allowIncomplete)
+
+    // skip if no scriptSig exists
+    if (!scriptSig) {
+      if (!allowIncomplete) throw new Error(scriptType + ' not supported')
+      return
+    }
+
     tx.setInputScript(i, scriptSig)
   })
 
