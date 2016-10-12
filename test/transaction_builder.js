@@ -34,20 +34,20 @@ function construct (f, sign) {
     txb.addOutput(bscript.fromASM(output.script), output.value)
   })
 
-  if (sign === undefined || sign) {
-    f.inputs.forEach(function (input, index) {
-      input.signs.forEach(function (sign) {
-        var keyPair = ECPair.fromWIF(sign.keyPair, network)
-        var redeemScript
+  if (sign === false) return txb
 
-        if (sign.redeemScript) {
-          redeemScript = bscript.fromASM(sign.redeemScript)
-        }
+  f.inputs.forEach(function (input, index) {
+    input.signs.forEach(function (sign) {
+      var keyPair = ECPair.fromWIF(sign.keyPair, network)
+      var redeemScript
 
-        txb.sign(index, keyPair, redeemScript, sign.hashType)
-      })
+      if (sign.redeemScript) {
+        redeemScript = bscript.fromASM(sign.redeemScript)
+      }
+
+      txb.sign(index, keyPair, redeemScript, sign.hashType)
     })
-  }
+  })
 
   return txb
 }
@@ -65,7 +65,7 @@ describe('TransactionBuilder', function () {
 
   describe('fromTransaction', function () {
     fixtures.valid.build.forEach(function (f) {
-      it('builds TransactionBuilder, with ' + f.description, function () {
+      it('returns TransactionBuilder, with ' + f.description, function () {
         var network = NETWORKS[f.network || 'bitcoin']
         var tx = Transaction.fromHex(f.txHex)
         var txb = TransactionBuilder.fromTransaction(tx, network)
@@ -76,7 +76,7 @@ describe('TransactionBuilder', function () {
     })
 
     fixtures.valid.fromTransaction.forEach(function (f) {
-      it('builds TransactionBuilder, with ' + f.description, function () {
+      it('returns TransactionBuilder, with ' + f.description, function () {
         var tx = new Transaction()
 
         f.inputs.forEach(function (input) {
