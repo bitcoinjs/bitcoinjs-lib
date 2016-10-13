@@ -41,6 +41,16 @@ describe('Transaction', function () {
     return tx
   }
 
+  describe('fromBuffer/fromHex (segwit) ', function () {
+    fixtures.witness.forEach(function (f) {
+      it('imports ' + f.description + ' (' + f.id + ')', function () {
+        var actual = Transaction.fromHex(f.hex)
+        var serialized = actual.toBufferWithWitness();
+        assert.strictEqual(serialized.toString('hex'), f.hex, serialized.toString('hex'))
+      })
+    })
+  })
+
   describe('fromBuffer/fromHex', function () {
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.description + ' (' + f.id + ')', function () {

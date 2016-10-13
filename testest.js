@@ -1,0 +1,10 @@
+var bitcoin = require('./src/index');
+var Transaction = bitcoin.Transaction;
+
+var hex = '0100000000010113ae35a2063ba413c3a1bb9b3820c76291e40e83bd3f23c8ff83333f0c64d623000000002322002086b2dcecbf2e0f0e4095ef11bc8834e2e148d245f844f0b8091389fef91b69ffffffffff0180969800000000001976a914b1ae3ceac136e4bdb733663e7a1e2f0961198a1788ac03004730440220121a629bb5fee3ecaf3e7a0b111101c51de816f427eaedd992b57f49b69b228e0220402ecd144a7321b4bad6ba3bfa5876b755b9c52a8c8ab17a33830d5929a76cbe0125512103b848ab6ac853cd69baaa750c70eb352ebeadb07da0ff5bbd642cb285895ee43f51ae00000000';
+var actual = Transaction.fromHex(hex)
+var serialized = actual.toBufferWithWitness();
+
+console.log(serialized);
+
+writeVector(serialized.ins[0].witness)

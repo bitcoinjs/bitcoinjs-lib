@@ -89,7 +89,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
 
   var hasWitnesses = false
   if (marker === Transaction.ADVANCED_TRANSACTION_MARKER &&
-      flag === Transaction.ADVANCED_TRANSACTION_FLAG) {
+    flag === Transaction.ADVANCED_TRANSACTION_FLAG) {
     offset += 2
     hasWitnesses = true
   }
@@ -115,7 +115,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
 
   if (hasWitnesses) {
     for (i = 0; i < vinLen; ++i) {
-      tx.inputs[i].witness = readVector()
+      tx.ins[i].witness = readVector()
     }
   }
 
@@ -194,13 +194,23 @@ Transaction.prototype._hasWitnesses = function () {
 Transaction.prototype.byteLength = function () {
   var hasWitnesses = this._hasWitnesses()
 
+  var wsSize = function (ins) {
+    return ins.reduce(function (inSize, input) {
+      return inSize +
+        bufferutils.varIntSize(input.witness.length) +
+        input.witness.reduce(function (witSize, element) {
+          return witSize + scriptSize(element)
+        }, 0)
+    }, 0)
+  }
+
   return (
     (hasWitnesses ? 10 : 8) +
     bufferutils.varIntSize(this.ins.length) +
     bufferutils.varIntSize(this.outs.length) +
     this.ins.reduce(function (sum, input) { return sum + 40 + scriptSize(input.script) }, 0) +
     this.outs.reduce(function (sum, output) { return sum + 8 + scriptSize(output.script) }, 0) +
-    (hasWitnesses ? this.ins.reduce(function (sum, input) { return sum + scriptSize(input.witness) }, 0) : 0)
+    (hasWitnesses ? wsSize(this.ins) : 0)
   )
 }
 
@@ -261,7 +271,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
       input.sequence = 0
     })
 
-  // SIGHASH_SINGLE: ignore all outputs, except at the same index?
+    // SIGHASH_SINGLE: ignore all outputs, except at the same index?
   } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE) {
     // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L60
     if (inIndex >= this.outs.length) return ONE
@@ -287,7 +297,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
     txTmp.ins = [txTmp.ins[inIndex]]
     txTmp.ins[0].script = ourScript
 
-  // SIGHASH_ALL: only ignore input scripts
+    // SIGHASH_ALL: only ignore input scripts
   } else {
     // "blank" others input scripts
     txTmp.ins.forEach(function (input) { input.script = EMPTY_SCRIPT })
@@ -326,8 +336,8 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amoun
   }
 
   if (!(hashType & Transaction.SIGHASH_ANYONECANPAY) &&
-       (hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
-       (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
+    (hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
+    (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
     tbuffer = new Buffer(4 * this.ins.length)
     toffset = 0
 
@@ -339,7 +349,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amoun
   }
 
   if ((hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
-      (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
+    (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
     var txOutsSize = this.outs.reduce(function (sum, output) {
       return sum + 8 + scriptSize(output.script)
     }, 0)
@@ -411,7 +421,7 @@ Transaction.prototype.serializeTransaction = function (flags, buffer, initialOff
   function writeUInt64 (i) { offset = bufferutils.writeUInt64LE(buffer, i, offset) }
   function writeVarInt (i) { offset += bufferutils.writeVarInt(buffer, i, offset) }
   function writeVarString (i) { writeVarInt(i.length); writeSlice(i) }
-  function writeVector (i) { writeVarInt(i.length); for (var c = 0, l = i.length; c < l; c++) writeVarString(i.length) }
+  function writeVector (i) { writeVarInt(i.length); for (var c = 0, l = i.length; c < l; c++) writeVarString(i[c]) }
 
   writeInt32(this.version)
 
