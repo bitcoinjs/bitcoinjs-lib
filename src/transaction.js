@@ -394,7 +394,13 @@ Transaction.prototype.getId = function () {
   return bufferReverse(this.getHash()).toString('hex')
 }
 
-Transaction.prototype.toBuffer = function (buffer, initialOffset) {
+var SerializationFlags = {}
+SerializationFlags.NONE = 0
+SerializationFlags.ALLOW_SEGWIT = 1 << 1
+
+Transaction.prototype.serializeTransaction = function (flags, buffer, initialOffset) {
+  var allowSegwit = flags & SerializationFlags.ALLOW_SEGWIT
+
   if (!buffer) buffer = new Buffer(this.byteLength())
 
   var offset = initialOffset || 0
@@ -410,7 +416,7 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   writeInt32(this.version)
 
   var hasWitnesses = this._hasWitnesses()
-  if (hasWitnesses) {
+  if (allowSegwit && hasWitnesses) {
     writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER)
     writeUInt8(Transaction.ADVANCED_TRANSACTION_FLAG)
   }
@@ -437,7 +443,7 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
     writeSlice(txOut.script)
   })
 
-  if (hasWitnesses) {
+  if (allowSegwit && hasWitnesses) {
     this.ins.forEach(function (input) {
       writeVector(input.witness)
     })
@@ -448,6 +454,14 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   // avoid slicing unless necessary
   if (initialOffset !== undefined) return buffer.slice(initialOffset, offset)
   return buffer
+}
+
+Transaction.prototype.toBuffer = function (buffer, initialOffset) {
+  return this.serializeTransaction(SerializationFlags.NONE, buffer, initialOffset)
+}
+
+Transaction.prototype.toBufferWithWitness = function (buffer, initialOffset) {
+  return this.serializeTransaction(SerializationFlags.ALLOW_SEGWIT, buffer, initialOffset)
 }
 
 Transaction.prototype.toHex = function () {
