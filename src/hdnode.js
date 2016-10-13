@@ -317,6 +317,4 @@ HDNode.prototype.derivePath = function (path) {
   }, this)
 }
 
-HDNode.prototype.toString = HDNode.prototype.toBase58
-
 module.exports = HDNode
