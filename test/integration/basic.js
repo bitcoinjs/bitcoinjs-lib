@@ -71,7 +71,7 @@ describe('bitcoinjs-lib (basic)', function () {
     blockchain.t.faucetMany([
       {
         address: alicesAddress,
-        value: 2e4
+        value: 4e4
       },
       {
         address: bobsAddress,
@@ -83,7 +83,7 @@ describe('bitcoinjs-lib (basic)', function () {
       var tx = new bitcoin.TransactionBuilder(network)
       tx.addInput(unspents[0].txId, unspents[0].vout)
       tx.addInput(unspents[1].txId, unspents[1].vout)
-      tx.addOutput(blockchain.t.RETURN, 1e4)
+      tx.addOutput(blockchain.t.RETURN, 3e4)
       tx.addOutput('mvGVHWi6gbkBZZPaqBVRcxvKVPYd9r3fp7', 1e4)
       tx.sign(0, alice)
       tx.sign(1, bob)
