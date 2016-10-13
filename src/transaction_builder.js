@@ -12,7 +12,6 @@ var SIGNABLE = [btemplates.types.P2PKH, btemplates.types.P2PK, btemplates.types.
 var P2SH = SIGNABLE.concat([btemplates.types.P2WPKH, btemplates.types.P2WSH])
 
 var ECPair = require('./ecpair')
-var ECSignature = require('./ecsignature')
 var Transaction = require('./transaction')
 
 function supportedType (type) {
@@ -190,7 +189,7 @@ function fixMultisigOrder (input, transaction, vin) {
       if (!signature) return false
 
       // TODO: avoid O(n) hashForSignature
-      var parsed = ECSignature.parseScriptSignature(signature)
+      var parsed = bscript.signature.decode(signature)
       var hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
 
       // skip if signature does not match pubKey
@@ -717,9 +716,9 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     )) throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
 
     var signature = keyPair.sign(signatureHash)
-    if (Buffer.isBuffer(signature)) signature = ECSignature.fromRSBuffer(signature)
+    if (Buffer.isBuffer(signature)) signature = bscript.signature.fromRSBuffer(signature)
 
-    input.signatures[i] = signature.toScriptSignature(hashType)
+    input.signatures[i] = bscript.signature.encode(signature, hashType)
     return true
   })
 

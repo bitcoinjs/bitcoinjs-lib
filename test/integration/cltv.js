@@ -56,7 +56,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
       var tx = txb.buildIncomplete()
       var signatureHash = tx.hashForSignature(0, redeemScript, hashType)
       var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
-        alice.sign(signatureHash).toScriptSignature(hashType),
+        bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
         bitcoin.opcodes.OP_TRUE
       ], redeemScript)
       tx.setInputScript(0, redeemScriptSig)
@@ -100,7 +100,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
         var tx = txb.buildIncomplete()
         var signatureHash = tx.hashForSignature(0, redeemScript, hashType)
         var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
-          alice.sign(signatureHash).toScriptSignature(hashType),
+          bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
           bitcoin.opcodes.OP_TRUE
         ], redeemScript)
         tx.setInputScript(0, redeemScriptSig)
@@ -154,8 +154,8 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
       var tx = txb.buildIncomplete()
       var signatureHash = tx.hashForSignature(0, redeemScript, hashType)
       var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
-        alice.sign(signatureHash).toScriptSignature(hashType),
-        bob.sign(signatureHash).toScriptSignature(hashType),
+        bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+        bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
         bitcoin.opcodes.OP_FALSE
       ], redeemScript)
       tx.setInputScript(0, redeemScriptSig)
@@ -196,7 +196,8 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
       var tx = txb.buildIncomplete()
       var signatureHash = tx.hashForSignature(0, redeemScript, hashType)
       var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
-        alice.sign(signatureHash).toScriptSignature(hashType),
+        bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+        bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
         bitcoin.opcodes.OP_TRUE
       ], redeemScript)
       tx.setInputScript(0, redeemScriptSig)
