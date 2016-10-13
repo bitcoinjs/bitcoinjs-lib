@@ -12,12 +12,8 @@ var kpNetwork = bitcoin.networks.testnet
 var keyPair = bitcoin.ECPair.fromWIF(process.env.BITCOINJS_TESTNET_WIF, kpNetwork)
 var kpAddress = keyPair.getAddress()
 
-function fundAddress (unspents, address, amount, callback) {
-  var result = coinSelect(unspents, [{
-    address: address,
-    value: amount
-  }], 10)
-
+function fundAddress (unspents, outputs, callback) {
+  var result = coinSelect(unspents, outputs, 10)
   if (!result.inputs) return callback(new Error('Faucet empty'))
 
   var txb = new bitcoin.TransactionBuilder(kpNetwork)
@@ -34,24 +30,32 @@ function fundAddress (unspents, address, amount, callback) {
   })
 
   var tx = txb.build()
+  var txId = tx.getId()
+
   testnet.transactions.propagate(tx.toHex(), function (err) {
-    callback(err, {
-      txId: tx.getId(),
-      vout: 0
-    }, 0)
+    callback(err, outputs.map(function (x, i) {
+      return { txId: txId, vout: i }
+    }))
   })
 }
 
-testnet.faucet = function faucet (address, amount, done) {
+testnet.faucetMany = function faucetMany (outputs, callback) {
   testnet.addresses.unspents(kpAddress, function (err, unspents) {
-    if (err) return done(err)
+    if (err) return callback(err)
+
     typeforce([{
       txId: types.Hex,
       vout: types.UInt32,
       value: types.Satoshi
     }], unspents)
 
-    fundAddress(unspents, address, amount, done)
+    fundAddress(unspents, outputs, callback)
+  })
+}
+
+testnet.faucet = function faucet (address, value, callback) {
+  testnet.faucetMany([{ address: address, value: value }], function (err, unspents) {
+    callback(err, unspents && unspents[0])
   })
 }
 

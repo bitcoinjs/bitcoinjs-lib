@@ -68,22 +68,27 @@ describe('bitcoinjs-lib (basic)', function () {
     var alicesAddress = alice.getAddress()
     var bobsAddress = bob.getAddress()
 
-    blockchain.t.faucet(alicesAddress, 2e4, function (err, unspentA) {
+    blockchain.t.faucetMany([
+      {
+        address: alicesAddress,
+        value: 2e4
+      },
+      {
+        address: bobsAddress,
+        value: 2e4
+      }
+    ], function (err, unspents) {
       if (err) return done(err)
 
-      blockchain.t.faucet(bobsAddress, 2e4, function (err, unspentB) {
-        if (err) return done(err)
+      var tx = new bitcoin.TransactionBuilder(network)
+      tx.addInput(unspents[0].txId, unspents[0].vout)
+      tx.addInput(unspents[1].txId, unspents[1].vout)
+      tx.addOutput('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', 1e4)
+      tx.addOutput('mvGVHWi6gbkBZZPaqBVRcxvKVPYd9r3fp7', 1e4)
+      tx.sign(0, alice)
+      tx.sign(1, bob)
 
-        var tx = new bitcoin.TransactionBuilder(network)
-        tx.addInput(unspentA.txId, unspentA.vout)
-        tx.addInput(unspentB.txId, unspentB.vout)
-        tx.addOutput('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', 1e4)
-        tx.addOutput('mvGVHWi6gbkBZZPaqBVRcxvKVPYd9r3fp7', 1e4)
-        tx.sign(0, alice)
-        tx.sign(1, bob)
-
-        blockchain.t.transactions.propagate(tx.build().toHex(), done)
-      })
+      blockchain.t.transactions.propagate(tx.build().toHex(), done)
     })
   })
 })
