@@ -20,6 +20,7 @@ describe('bitcoinjs-lib (advanced)', function () {
 
       tx.addInput(unspent.txId, unspent.vout)
       tx.addOutput(dataScript, 1000)
+      tx.addOutput(blockchain.t.RETURN, 1e4)
       tx.sign(0, keyPair)
       var txRaw = tx.build()
 
