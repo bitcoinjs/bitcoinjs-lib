@@ -59,6 +59,8 @@ testnet.faucet = function faucet (address, value, callback) {
   })
 }
 
+testnet.RETURN = kpAddress
+
 module.exports = {
   m: mainnet,
   t: testnet

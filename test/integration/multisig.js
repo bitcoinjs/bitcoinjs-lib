@@ -43,7 +43,7 @@ describe('bitcoinjs-lib (multisig)', function () {
 
       var txb = new bitcoin.TransactionBuilder(bitcoin.networks.testnet)
       txb.addInput(unspent.txId, unspent.vout)
-      txb.addOutput('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', 1e4)
+      txb.addOutput(blockchain.t.RETURN, 1e4)
 
       // sign with 1st and 3rd key
       txb.sign(0, keyPairs[0], redeemScript)
@@ -60,7 +60,7 @@ describe('bitcoinjs-lib (multisig)', function () {
         async.retry(5, function (callback) {
           setTimeout(function () {
             // check that the above transaction included the intended address
-            blockchain.t.addresses.unspents('n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi', function (err, unspents) {
+            blockchain.t.addresses.unspents(blockchain.t.RETURN, function (err, unspents) {
               if (err) return callback(err)
               if (!unspents.some(function (unspent) {
                 return unspent.txId === txId && unspent.value === 1e4
