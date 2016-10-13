@@ -137,8 +137,8 @@ Transaction.prototype.addInput = function (hash, index, sequence, scriptSig) {
   return this._addInput(hash, index, sequence, scriptSig, undefined)
 }
 
-Transaction.prototype.addWitnessInput = function (hash, index, sequence, witness) {
-  return this._addInput(hash, index, sequence, undefined, witness)
+Transaction.prototype.addWitnessInput = function (hash, index, sequence, scriptSig, witness) {
+  return this._addInput(hash, index, sequence, scriptSig, witness)
 }
 
 Transaction.prototype._addInput = function (hash, index, sequence, scriptSig, witness) {
@@ -426,7 +426,7 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   })
 
   if (hasWitnesses) {
-    this.inputs.forEach(function (input) {
+    this.ins.forEach(function (input) {
       writeVarInt(input.witness.length)
       writeSlice(input.witness)
     })
