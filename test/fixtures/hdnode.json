@@ -199,6 +199,26 @@
         "string": "xprvQQQQQQQQQQQQQQQQCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334"
       },
       {
+        "exception": "Invalid buffer length",
+        "network": "bitcoin",
+        "string": "HAsbc6CgKmTYEQg2CTz7m5STEPAB"
+      },
+      {
+        "exception": "Invalid parent fingerprint",
+        "network": "bitcoin",
+        "string": "xprv9tnJFvAXAXPfPnMTKfwpwnkty7MzJwELVgp4NTBquaKXy4RndyfJJCJJf7zNaVpBpzrwVRutZNLRCVLEcZHcvuCNG3zGbGBcZn57FbNnmSP"
+      },
+      {
+        "exception": "Invalid private key",
+        "network": "bitcoin",
+        "string": "xprv9s21ZrQH143K3yLysFvsu3n1dMwhNusmNHr7xArzAeCc7MQYqDBBStmqnZq6WLi668siBBNs3SjiyaexduHu9sXT9ixTsqptL67ADqcaBdm"
+      },
+      {
+        "exception": "Invalid index",
+        "network": "bitcoin",
+        "string": "xprv9s21ZrQYdgnodnKW4Drm1Qg7poU6Gf2WUDsjPxvYiK7iLBMrsjbnF1wsZZQgmXNeMSG3s7jmHk1b3JrzhG5w8mwXGxqFxfrweico7k8DtxR"
+      },
+      {
         "exception": "Unknown network version",
         "string": "1111111111111adADjFaSNPxwXqLjHLj4mBfYxuewDPbw9hEj1uaXCzMxRPXDFF3cUoezTFYom4sEmEVSQmENPPR315cFk9YUFVek73wE9"
       },
