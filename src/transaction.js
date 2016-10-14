@@ -157,9 +157,8 @@ Transaction.prototype._addInput = function (hash, index, sequence, scriptSig, wi
     types.UInt32,
     types.maybe(types.UInt32),
     types.maybe(types.Buffer),
-    types.maybe(types.Buffer)
+    types.maybe(types.tuple(types.Buffer))
   ), arguments)
-  if (scriptSig && witness) throw TypeError('scriptSig must be blank if witness is provided')
 
   if (types.Null(sequence)) {
     sequence = Transaction.DEFAULT_SEQUENCE
@@ -485,7 +484,7 @@ Transaction.prototype.setInputScript = function (index, scriptSig) {
 }
 
 Transaction.prototype.setWitness = function (index, witness) {
-  typeforce(types.tuple(types.Number, types.Buffer), arguments)
+  typeforce(types.tuple(types.Number, types.tuple(types.Buffer)), arguments)
 
   this.ins[index].witness = witness
 }
