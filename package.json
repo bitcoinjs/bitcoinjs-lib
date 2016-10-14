@@ -36,6 +36,7 @@
   ],
   "scripts": {
     "coverage-report": "nyc report --reporter=lcov",
+    "coverage-html": "nyc report --reporter=html",
     "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
     "integration": "mocha test/integration/",
     "standard": "standard",
