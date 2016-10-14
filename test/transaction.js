@@ -45,7 +45,7 @@ describe('Transaction', function () {
     fixtures.witness.forEach(function (f) {
       it('imports ' + f.description + ' (' + f.id + ')', function () {
         var actual = Transaction.fromHex(f.hex)
-        var serialized = actual.toBufferWithWitness();
+        var serialized = actual.toBufferWithWitness()
         assert.strictEqual(serialized.toString('hex'), f.hex, serialized.toString('hex'))
       })
     })
