@@ -107,7 +107,6 @@ HDNode.fromBase58 = function (string, networks) {
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
     var Q = ecurve.Point.decodeFrom(curve, buffer.slice(45, 78))
-    if (!Q.compressed) throw new Error('Invalid public key')
 
     // Verify that the X coordinate in the public point corresponds to a point on the curve.
     // If not, the extended public key is invalid.
