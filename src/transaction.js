@@ -321,6 +321,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amoun
   function writeUInt32 (i) { toffset = tbuffer.writeUInt32LE(i, toffset) }
   function writeUInt64 (i) { toffset = bufferutils.writeUInt64LE(tbuffer, i, toffset) }
   function writeVarInt (i) { toffset += bufferutils.writeVarInt(tbuffer, i, toffset) }
+  function writeTxOut (i) { writeUInt64(i.value); writeVarInt(i.script.length); writeSlice(i.script) }
 
   if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
     tbuffer = new Buffer(36 * this.ins.length)
@@ -356,23 +357,22 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amoun
     tbuffer = new Buffer(txOutsSize)
     toffset = 0
 
-    this.outs.forEach(function (out) {
-      writeUInt64(out.value)
-      writeVarInt(out.script.length)
-      writeSlice(out.script)
-    })
+    this.outs.forEach(writeTxOut)
 
     hashOutputs = bcrypto.hash256(tbuffer)
   } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE && inIndex < this.outs.length) {
     var output = this.outs[inIndex]
     tbuffer = new Buffer(8 + scriptSize(output.script))
+    toffset = 0
+
+    writeTxOut(output)
 
     hashOutputs = bcrypto.hash256(tbuffer)
   }
 
-  hashPrevouts = hashPrevouts || new Buffer(ZERO)
-  hashSequence = hashSequence || new Buffer(ZERO)
-  hashOutputs = hashOutputs || new Buffer(ZERO)
+  hashPrevouts = hashPrevouts || ZERO
+  hashSequence = hashSequence || ZERO
+  hashOutputs = hashOutputs || ZERO
 
   tbuffer = new Buffer(156 + scriptSize(prevOutScript))
   toffset = 0

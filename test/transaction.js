@@ -219,4 +219,18 @@ describe('Transaction', function () {
       })
     })
   })
+
+  describe('hashForSignatureWitness', function () {
+    fixtures.v1_sighash.forEach(function (f) {
+      it('should return ' + f.expectedHash + ' for ' + (f.description ? ('case "' + f.description + '"') : ''), function () {
+        var tx = Transaction.fromHex(f.unsignedTx)
+        var inputToSign = f.inputToSign
+        var valueSatoshis = f.outputValueBtc * 1e8
+        var scriptCode = new Buffer(f.hashScriptCode, 'hex')
+        var sigHashType = f.sigHashType
+
+        assert.strictEqual(tx.hashForWitnessV0(inputToSign, scriptCode, valueSatoshis, sigHashType).toString('hex'), f.expectedHash)
+      })
+    })
+  })
 })
