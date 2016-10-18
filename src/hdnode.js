@@ -99,22 +99,18 @@ HDNode.fromBase58 = function (string, networks) {
     if (buffer.readUInt8(45) !== 0x00) throw new Error('Invalid private key')
 
     var d = BigInteger.fromBuffer(buffer.slice(46, 78))
-
-    keyPair = new ECPair(d, null, {
-      network: network
-    })
+    keyPair = new ECPair(d, null, { network: network })
 
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
     var Q = ecurve.Point.decodeFrom(curve, buffer.slice(45, 78))
+    // Q.compressed is assumed, if somehow this assumption is broken, `new HDNode` will throw
 
     // Verify that the X coordinate in the public point corresponds to a point on the curve.
     // If not, the extended public key is invalid.
     curve.validate(Q)
 
-    keyPair = new ECPair(null, Q, {
-      network: network
-    })
+    keyPair = new ECPair(null, Q, { network: network })
   }
 
   var hd = new HDNode(keyPair, chainCode)
