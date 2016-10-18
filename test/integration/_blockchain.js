@@ -9,7 +9,7 @@ var mainnet = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/BTC', { api_k
 var testnet = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/tBTC', { api_key: BLOCKTRAIL_API_KEY })
 
 var kpNetwork = bitcoin.networks.testnet
-var keyPair = bitcoin.ECPair.fromWIF(process.env.BITCOINJS_TESTNET_WIF, kpNetwork)
+var keyPair = bitcoin.ECPair.fromWIF('cQqjeq2rxqwnqwMewJhkNtJDixtX8ctA4bYoWHdxY4xRPVvAEjmk', kpNetwork)
 var kpAddress = keyPair.getAddress()
 
 function fundAddress (unspents, outputs, callback) {
