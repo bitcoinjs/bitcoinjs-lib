@@ -387,5 +387,13 @@ describe('HDNode', function () {
         }, /Expected BIP32 derivation path/)
       })
     })
+
+    it('works when private key has leading zeros', function () {
+      var key = 'xprv9s21ZrQH143K3ckY9DgU79uMTJkQRLdbCCVDh81SnxTgPzLLGax6uHeBULTtaEtcAvKjXfT7ZWtHzKjTpujMkUd9dDb8msDeAfnJxrgAYhr'
+      var hdkey = HDNode.fromBase58(key)
+      assert.strictEqual(hdkey.keyPair.d.toBuffer(32).toString('hex'), '00000055378cf5fafb56c711c674143f9b0ee82ab0ba2924f19b64f5ae7cdbfd')
+      var child = hdkey.derivePath('m/44\'/0\'/0\'/0/0\'')
+      assert.strictEqual(child.keyPair.d.toBuffer().toString('hex'), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
+    })
   })
 })
