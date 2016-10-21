@@ -25,7 +25,9 @@
           "base58Priv": "xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7",
           "identifier": "5c1bd648ed23aa5fd50ba52b2457c11e9e80a6a7",
           "fingerprint": "5c1bd648",
-          "address": "19Q2WoS5hSS6T8GjhK8KZLMgmWaq4neXrh"
+          "address": "19Q2WoS5hSS6T8GjhK8KZLMgmWaq4neXrh",
+          "index": 2147483648,
+          "depth": 1
         },
         {
           "description": "m/0'/1",
@@ -37,7 +39,9 @@
           "base58Priv": "xprv9wTYmMFdV23N2TdNG573QoEsfRrWKQgWeibmLntzniatZvR9BmLnvSxqu53Kw1UmYPxLgboyZQaXwTCg8MSY3H2EU4pWcQDnRnrVA1xe8fs",
           "identifier": "bef5a2f9a56a94aab12459f72ad9cf8cf19c7bbe",
           "fingerprint": "bef5a2f9",
-          "address": "1JQheacLPdM5ySCkrZkV66G2ApAXe1mqLj"
+          "address": "1JQheacLPdM5ySCkrZkV66G2ApAXe1mqLj",
+          "index": 1,
+          "depth": 2
         },
         {
           "description": "m/0'/1/2'",
@@ -50,7 +54,9 @@
           "base58Priv": "xprv9z4pot5VBttmtdRTWfWQmoH1taj2axGVzFqSb8C9xaxKymcFzXBDptWmT7FwuEzG3ryjH4ktypQSAewRiNMjANTtpgP4mLTj34bhnZX7UiM",
           "identifier": "ee7ab90cde56a8c0e2bb086ac49748b8db9dce72",
           "fingerprint": "ee7ab90c",
-          "address": "1NjxqbA9aZWnh17q1UW3rB4EPu79wDXj7x"
+          "address": "1NjxqbA9aZWnh17q1UW3rB4EPu79wDXj7x",
+          "index": 2147483650,
+          "depth": 3
         },
         {
           "description": "m/0'/1/2'/2",
@@ -62,7 +68,9 @@
           "base58Priv": "xprvA2JDeKCSNNZky6uBCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334",
           "identifier": "d880d7d893848509a62d8fb74e32148dac68412f",
           "fingerprint": "d880d7d8",
-          "address": "1LjmJcdPnDHhNTUgrWyhLGnRDKxQjoxAgt"
+          "address": "1LjmJcdPnDHhNTUgrWyhLGnRDKxQjoxAgt",
+          "index": 2,
+          "depth": 4
         },
         {
           "description": "m/0'/1/2'/2/1000000000",
@@ -74,7 +82,9 @@
           "base58Priv": "xprvA41z7zogVVwxVSgdKUHDy1SKmdb533PjDz7J6N6mV6uS3ze1ai8FHa8kmHScGpWmj4WggLyQjgPie1rFSruoUihUZREPSL39UNdE3BBDu76",
           "identifier": "d69aa102255fed74378278c7812701ea641fdf32",
           "fingerprint": "d69aa102",
-          "address": "1LZiqrop2HGR4qrH1ULZPyBpU6AUP49Uam"
+          "address": "1LZiqrop2HGR4qrH1ULZPyBpU6AUP49Uam",
+          "index": 1000000000,
+          "depth": 5
         }
       ]
     },
@@ -102,7 +112,9 @@
           "base58Priv": "xprv9vHkqa6EV4sPZHYqZznhT2NPtPCjKuDKGY38FBWLvgaDx45zo9WQRUT3dKYnjwih2yJD9mkrocEZXo1ex8G81dwSM1fwqWpWkeS3v86pgKt",
           "identifier": "5a61ff8eb7aaca3010db97ebda76121610b78096",
           "fingerprint": "5a61ff8e",
-          "address": "19EuDJdgfRkwCmRzbzVBHZWQG9QNWhftbZ"
+          "address": "19EuDJdgfRkwCmRzbzVBHZWQG9QNWhftbZ",
+          "index": 0,
+          "depth": 1
         },
         {
           "description": "m/0/2147483647'",
@@ -115,7 +127,9 @@
           "base58Priv": "xprv9wSp6B7kry3Vj9m1zSnLvN3xH8RdsPP1Mh7fAaR7aRLcQMKTR2vidYEeEg2mUCTAwCd6vnxVrcjfy2kRgVsFawNzmjuHc2YmYRmagcEPdU9",
           "identifier": "d8ab493736da02f11ed682f88339e720fb0379d1",
           "fingerprint": "d8ab4937",
-          "address": "1Lke9bXGhn5VPrBuXgN12uGUphrttUErmk"
+          "address": "1Lke9bXGhn5VPrBuXgN12uGUphrttUErmk",
+          "index": 4294967295,
+          "depth": 2
         },
         {
           "description": "m/0/2147483647'/1",
@@ -127,7 +141,9 @@
           "base58Priv": "xprv9zFnWC6h2cLgpmSA46vutJzBcfJ8yaJGg8cX1e5StJh45BBciYTRXSd25UEPVuesF9yog62tGAQtHjXajPPdbRCHuWS6T8XA2ECKADdw4Ef",
           "identifier": "78412e3a2296a40de124307b6485bd19833e2e34",
           "fingerprint": "78412e3a",
-          "address": "1BxrAr2pHpeBheusmd6fHDP2tSLAUa3qsW"
+          "address": "1BxrAr2pHpeBheusmd6fHDP2tSLAUa3qsW",
+          "index": 1,
+          "depth": 3
         },
         {
           "description": "m/0/2147483647'/1/2147483646'",
@@ -140,7 +156,9 @@
           "base58Priv": "xprvA1RpRA33e1JQ7ifknakTFpgNXPmW2YvmhqLQYMmrj4xJXXWYpDPS3xz7iAxn8L39njGVyuoseXzU6rcxFLJ8HFsTjSyQbLYnMpCqE2VbFWc",
           "identifier": "31a507b815593dfc51ffc7245ae7e5aee304246e",
           "fingerprint": "31a507b8",
-          "address": "15XVotxCAV7sRx1PSCkQNsGw3W9jT9A94R"
+          "address": "15XVotxCAV7sRx1PSCkQNsGw3W9jT9A94R",
+          "index": 4294967294,
+          "depth": 4
         },
         {
           "description": "m/0/2147483647'/1/2147483646'/2",
@@ -152,7 +170,9 @@
           "base58Priv": "xprvA2nrNbFZABcdryreWet9Ea4LvTJcGsqrMzxHx98MMrotbir7yrKCEXw7nadnHM8Dq38EGfSh6dqA9QWTyefMLEcBYJUuekgW4BYPJcr9E7j",
           "identifier": "26132fdbe7bf89cbc64cf8dafa3f9f88b8666220",
           "fingerprint": "26132fdb",
-          "address": "14UKfRV9ZPUp6ZC9PLhqbRtxdihW9em3xt"
+          "address": "14UKfRV9ZPUp6ZC9PLhqbRtxdihW9em3xt",
+          "index": 2,
+          "depth": 5
         }
       ]
     },
@@ -181,7 +201,9 @@
           "base58Priv": "Ltpv73XYpw28ZyVe2zEVyiFnxUZxoKLGQNdZ8NxUi1WcqjNmMBgtLbh3KimGSnPHCoLv1RmvxHs4dnKmo1oXQ8dXuDu8uroxrbVxZPA1gXboYvx",
           "identifier": "5c1bd648ed23aa5fd50ba52b2457c11e9e80a6a7",
           "fingerprint": "5c1bd648",
-          "address": "LTcyn1jun6g9hvxtsT7cqMRSyix7AULC76"
+          "address": "LTcyn1jun6g9hvxtsT7cqMRSyix7AULC76",
+          "index": 2147483648,
+          "depth": 1
         }
       ]
     }
