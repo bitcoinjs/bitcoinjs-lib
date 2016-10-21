@@ -177,6 +177,22 @@
       ]
     },
     {
+      "comment": "Private key has leading zeros, see PR #673",
+      "network": "bitcoin",
+      "master": {
+        "seed": "d13de7bd1e54422d1a3b3b699a27fb460de2849e7e66a005c647e8e4a54075cb",
+        "wif": "KwDiCU5bs8xQwsRgxjhkcJcVuR7NE4Mei8X9uSAVviVTE7JmMoS6",
+        "pubKey": "0298ccc720d5dea817c7077605263bae52bca083cf8888fee77ff4c1b4797ee180",
+        "chainCode": "c23ab32b36ddff49fae350a1bed8ec6b4d9fc252238dd789b7273ba4416054eb",
+        "base58": "xpub661MyMwAqRbcGUbHLLJ5n2DzFAt8mmaDxbmbdimh68m8EiXGEQPiJya4BJat5yMzy4e68VSUoLGCu5uvzf8dUoGvwuJsLE6F1cibmWsxFNn",
+        "base58Priv": "xprv9s21ZrQH143K3zWpEJm5QtHFh93eNJrNbNqzqLN5XoE9MvC7gs5TmBFaL2PpaXpDc8FBYVe5EChc73ApjSQ5fWsXS7auHy1MmG6hdpywE1q",
+        "identifier": "1a87677be6f73cc9655e8b4c5d2fd0aeeb1b23c7",
+        "fingerprint": "1a87677b",
+        "address": "KyDarNhq8WK8rSU36UY7bDv9MAwdpKFZYKPN89Geh2dUwHjTqVh5"
+      },
+      "children": []
+    },
+    {
       "network": "litecoin",
       "master": {
         "seed": "000102030405060708090a0b0c0d0e0f",
