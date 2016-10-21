@@ -271,11 +271,9 @@ describe('HDNode', function () {
 
       // testing deriving path from master
       f.children.forEach(function (c) {
-        it(c.description + ' from ' + f.master.fingerprint + ' by path', function () {
-          var path = c.description
-          var child = master.derivePath(path)
-          var pathNoM = path.slice(2)
-          var childNoM = master.derivePath(pathNoM)
+        it(c.path + ' from ' + f.master.fingerprint + ' by path', function () {
+          var child = master.derivePath(c.path)
+          var childNoM = master.derivePath(c.path.slice(2)) // no m/ on path
 
           verifyVector(child, c)
           verifyVector(childNoM, c)
@@ -284,17 +282,16 @@ describe('HDNode', function () {
 
       // testing deriving path from children
       f.children.forEach(function (c, i) {
-        var cn = master.derivePath(c.description)
+        var cn = master.derivePath(c.path)
 
         f.children.slice(i + 1).forEach(function (cc) {
-          it(cc.description + ' from ' + c.fingerprint + ' by path', function () {
-            var path = cc.description
-            var iPath = path.slice(2).split('/').slice(i + 1).join('/')
-            var child = cn.derivePath(iPath)
+          it(cc.path + ' from ' + c.fingerprint + ' by path', function () {
+            var ipath = cc.path.slice(2).split('/').slice(i + 1).join('/')
+            var child = cn.derivePath(ipath)
             verifyVector(child, cc)
 
             assert.throws(function () {
-              cn.derivePath('m/' + iPath)
+              cn.derivePath('m/' + ipath)
             }, /Not a master node/)
           })
         })
@@ -304,7 +301,7 @@ describe('HDNode', function () {
       f.children.forEach(function (c, i) {
         if (c.m === undefined) return
 
-        it(c.description + ' from ' + f.master.fingerprint, function () {
+        it(c.path + ' from ' + f.master.fingerprint, function () {
           if (c.hardened) {
             hd = hd.deriveHardened(c.m)
           } else {
