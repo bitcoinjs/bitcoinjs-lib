@@ -164,6 +164,7 @@ Please make your best effort to adhere to these when contributing to save on tri
 - [Base58 Check](https://github.com/bitcoinjs/bs58check) - Base58 check encoding/decoding
 - [BCoin](https://github.com/indutny/bcoin) - BIP37 / Bloom Filters / SPV client
 - [insight](https://github.com/bitpay/insight) - A bitcoin blockchain API for web wallets.
+- [merkle-lib](https://github.com/bitcoinjs/merkle-lib) - A performance conscious library for merkle root and tree calculations.
 
 
 ## Alternatives
