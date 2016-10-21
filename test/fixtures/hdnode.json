@@ -15,7 +15,7 @@
       },
       "children": [
         {
-          "description": "m/0'",
+          "path": "m/0'",
           "m": 0,
           "hardened": true,
           "wif": "L5BmPijJjrKbiUfG4zbiFKNqkvuJ8usooJmzuD7Z8dkRoTThYnAT",
@@ -30,7 +30,7 @@
           "depth": 1
         },
         {
-          "description": "m/0'/1",
+          "path": "m/0'/1",
           "m": 1,
           "wif": "KyFAjQ5rgrKvhXvNMtFB5PCSKUYD1yyPEe3xr3T34TZSUHycXtMM",
           "pubKey": "03501e454bf00751f24b1b489aa925215d66af2234e3891c3b21a52bedb3cd711c",
@@ -44,7 +44,7 @@
           "depth": 2
         },
         {
-          "description": "m/0'/1/2'",
+          "path": "m/0'/1/2'",
           "m": 2,
           "hardened": true,
           "wif": "L43t3od1Gh7Lj55Bzjj1xDAgJDcL7YFo2nEcNaMGiyRZS1CidBVU",
@@ -59,7 +59,7 @@
           "depth": 3
         },
         {
-          "description": "m/0'/1/2'/2",
+          "path": "m/0'/1/2'/2",
           "m": 2,
           "wif": "KwjQsVuMjbCP2Zmr3VaFaStav7NvevwjvvkqrWd5Qmh1XVnCteBR",
           "pubKey": "02e8445082a72f29b75ca48748a914df60622a609cacfce8ed0e35804560741d29",
@@ -73,7 +73,7 @@
           "depth": 4
         },
         {
-          "description": "m/0'/1/2'/2/1000000000",
+          "path": "m/0'/1/2'/2/1000000000",
           "m": 1000000000,
           "wif": "Kybw8izYevo5xMh1TK7aUr7jHFCxXS1zv8p3oqFz3o2zFbhRXHYs",
           "pubKey": "022a471424da5e657499d1ff51cb43c47481a03b1e77f951fe64cec9f5a48f7011",
@@ -103,7 +103,7 @@
       },
       "children": [
         {
-          "description": "m/0",
+          "path": "m/0",
           "m": 0,
           "wif": "L2ysLrR6KMSAtx7uPqmYpoTeiRzydXBattRXjXz5GDFPrdfPzKbj",
           "pubKey": "02fc9e5af0ac8d9b3cecfe2a888e2117ba3d089d8585886c9c826b6b22a98d12ea",
@@ -117,7 +117,7 @@
           "depth": 1
         },
         {
-          "description": "m/0/2147483647'",
+          "path": "m/0/2147483647'",
           "m": 2147483647,
           "hardened": true,
           "wif": "L1m5VpbXmMp57P3knskwhoMTLdhAAaXiHvnGLMribbfwzVRpz2Sr",
@@ -132,7 +132,7 @@
           "depth": 2
         },
         {
-          "description": "m/0/2147483647'/1",
+          "path": "m/0/2147483647'/1",
           "m": 1,
           "wif": "KzyzXnznxSv249b4KuNkBwowaN3akiNeEHy5FWoPCJpStZbEKXN2",
           "pubKey": "03a7d1d856deb74c508e05031f9895dab54626251b3806e16b4bd12e781a7df5b9",
@@ -146,7 +146,7 @@
           "depth": 3
         },
         {
-          "description": "m/0/2147483647'/1/2147483646'",
+          "path": "m/0/2147483647'/1/2147483646'",
           "m": 2147483646,
           "hardened": true,
           "wif": "L5KhaMvPYRW1ZoFmRjUtxxPypQ94m6BcDrPhqArhggdaTbbAFJEF",
@@ -161,7 +161,7 @@
           "depth": 4
         },
         {
-          "description": "m/0/2147483647'/1/2147483646'/2",
+          "path": "m/0/2147483647'/1/2147483646'/2",
           "m": 2,
           "wif": "L3WAYNAZPxx1fr7KCz7GN9nD5qMBnNiqEJNJMU1z9MMaannAt4aK",
           "pubKey": "024d902e1a2fc7a8755ab5b694c575fce742c48d9ff192e63df5193e4c7afe1f9c",
@@ -192,7 +192,7 @@
       },
       "children": [
         {
-          "description": "m/44'/0'/0'/0/0'",
+          "path": "m/44'/0'/0'/0/0'",
           "wif": "L3z3MSqZtDQ1FPHKi7oWf1nc9rMEGFtZUDCoFa7n4F695g5qZiSu",
           "pubKey": "027c3591221e28939e45f8ea297d62c3640ebb09d7058b01d09c963d984a40ad49",
           "chainCode": "ca27553aa89617e982e621637d6478f564b32738f8bbe2e48d0a58a8e0f6da40",
@@ -221,7 +221,7 @@
       },
       "children": [
         {
-          "description": "m/0'",
+          "path": "m/0'",
           "m": 0,
           "hardened": true,
           "wif": "TB22qU2V9EJCVKJ8cdYaTfvDhnYcCzthcWgFm1k6hbvbKM1NLxoL",
