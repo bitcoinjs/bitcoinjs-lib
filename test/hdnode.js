@@ -247,6 +247,16 @@ describe('HDNode', function () {
 
   describe('derive', function () {
     function verifyVector (hd, v, depth) {
+      if (hd.isNeutered()) {
+        assert.strictEqual(hd.toBase58(), v.base58)
+      } else {
+        assert.strictEqual(hd.neutered().toBase58(), v.base58)
+        assert.strictEqual(hd.toBase58(), v.base58Priv)
+      }
+
+      assert.strictEqual(hd.getFingerprint().toString('hex'), v.fingerprint)
+      assert.strictEqual(hd.getIdentifier().toString('hex'), v.identifier)
+      assert.strictEqual(hd.getAddress(), v.address)
       assert.strictEqual(hd.keyPair.toWIF(), v.wif)
       assert.strictEqual(hd.keyPair.getPublicKeyBuffer().toString('hex'), v.pubKey)
       assert.strictEqual(hd.chainCode.toString('hex'), v.chainCode)
@@ -259,19 +269,6 @@ describe('HDNode', function () {
       var hd = HDNode.fromSeedHex(f.master.seed, network)
       var master = hd
 
-      // FIXME: test data is only testing Private -> private for now
-      f.children.forEach(function (c, i) {
-        it(c.description + ' from ' + f.master.fingerprint, function () {
-          if (c.hardened) {
-            hd = hd.deriveHardened(c.m)
-          } else {
-            hd = hd.derive(c.m)
-          }
-
-          verifyVector(hd, c, i + 1)
-        })
-      })
-
       // testing deriving path from master
       f.children.forEach(function (c) {
         it(c.description + ' from ' + f.master.fingerprint + ' by path', function () {
@@ -279,8 +276,8 @@ describe('HDNode', function () {
           var child = master.derivePath(path)
 
           var pathSplit = path.split('/').slice(1)
-          var pathNotM = pathSplit.join('/')
-          var childNotM = master.derivePath(pathNotM)
+          var pathNoM = pathSplit.join('/')
+          var childNotM = master.derivePath(pathNoM)
 
           verifyVector(child, c, pathSplit.length)
           verifyVector(childNotM, c, pathSplit.length)
@@ -305,6 +302,21 @@ describe('HDNode', function () {
               cn.derivePath(pathEndM)
             }, /Not a master node/)
           })
+        })
+      })
+
+      // FIXME: test data is only testing Private -> private for now
+      f.children.forEach(function (c, i) {
+        if (c.m === undefined) return
+
+        it(c.description + ' from ' + f.master.fingerprint, function () {
+          if (c.hardened) {
+            hd = hd.deriveHardened(c.m)
+          } else {
+            hd = hd.derive(c.m)
+          }
+
+          verifyVector(hd, c, i + 1)
         })
       })
     })

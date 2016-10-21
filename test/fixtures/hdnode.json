@@ -190,7 +190,21 @@
         "fingerprint": "1a87677b",
         "address": "KyDarNhq8WK8rSU36UY7bDv9MAwdpKFZYKPN89Geh2dUwHjTqVh5"
       },
-      "children": []
+      "children": [
+        {
+          "description": "m/44'/0'/0'/0/0'",
+          "wif": "L3z3MSqZtDQ1FPHKi7oWf1nc9rMEGFtZUDCoFa7n4F695g5qZiSu",
+          "pubKey": "027c3591221e28939e45f8ea297d62c3640ebb09d7058b01d09c963d984a40ad49",
+          "chainCode": "ca27553aa89617e982e621637d6478f564b32738f8bbe2e48d0a58a8e0f6da40",
+          "base58": "xpub6GcBnm7FfDg5ERWACCvtuotN6Tdoc37r3SZ1asBHvCWzPkqWn3MVKPWKzy6GsfmdMUGanR3D12dH1cp5tJauuubwc4FAJDn67SH2uUjwAT1",
+          "base58Priv": "xprvA3cqPFaMpr7n1wRh6BPtYfwdYRoKCaPzgDdQnUmgMrz1WxWNEW3EmbBr9ieh9BJAsRGKFPLvotb4p4Aq79jddUVKPVJt7exVzLHcv777JVf",
+          "identifier": "e371d69b5dae6eacee832a130ee9f55545275a09",
+          "fingerprint": "e371d69b",
+          "address": "1MjcmArHeqorgm9uJi4kPNQ6CbsrmCtASH",
+          "index": 2147483648,
+          "depth": 5
+        }
+      ]
     },
     {
       "network": "litecoin",
