@@ -10,8 +10,7 @@ module.exports = {
     },
     pubKeyHash: 0x00,
     scriptHash: 0x05,
-    wif: 0x80,
-    dustThreshold: 546 // https://github.com/bitcoin/bitcoin/blob/v0.9.2/src/core.h#L151-L162
+    wif: 0x80
   },
   testnet: {
     messagePrefix: '\x18Bitcoin Signed Message:\n',
@@ -21,8 +20,7 @@ module.exports = {
     },
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
-    wif: 0xef,
-    dustThreshold: 546
+    wif: 0xef
   },
   litecoin: {
     messagePrefix: '\x19Litecoin Signed Message:\n',
@@ -32,18 +30,6 @@ module.exports = {
     },
     pubKeyHash: 0x30,
     scriptHash: 0x05,
-    wif: 0xb0,
-    dustThreshold: 0 // https://github.com/litecoin-project/litecoin/blob/v0.8.7.2/src/main.cpp#L360-L365
-  },
-  dogecoin: {
-    messagePrefix: '\x19Dogecoin Signed Message:\n',
-    bip32: {
-      public: 0x02facafd,
-      private: 0x02fac398
-    },
-    pubKeyHash: 0x1e,
-    scriptHash: 0x16,
-    wif: 0x9e,
-    dustThreshold: 0 // https://github.com/dogecoin/dogecoin/blob/v1.7.1/src/core.h#L155-L160
+    wif: 0xb0
   }
 }
