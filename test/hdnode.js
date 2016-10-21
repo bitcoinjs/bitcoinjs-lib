@@ -246,7 +246,7 @@ describe('HDNode', function () {
   })
 
   describe('derive', function () {
-    function verifyVector (hd, v, depth) {
+    function verifyVector (hd, v) {
       if (hd.isNeutered()) {
         assert.strictEqual(hd.toBase58(), v.base58)
       } else {
@@ -260,7 +260,7 @@ describe('HDNode', function () {
       assert.strictEqual(hd.keyPair.toWIF(), v.wif)
       assert.strictEqual(hd.keyPair.getPublicKeyBuffer().toString('hex'), v.pubKey)
       assert.strictEqual(hd.chainCode.toString('hex'), v.chainCode)
-      assert.strictEqual(hd.depth, depth >>> 0)
+      assert.strictEqual(hd.depth, v.depth >>> 0)
       assert.strictEqual(hd.index, v.index >>> 0)
     }
 
@@ -279,8 +279,8 @@ describe('HDNode', function () {
           var pathNoM = pathSplit.join('/')
           var childNotM = master.derivePath(pathNoM)
 
-          verifyVector(child, c, pathSplit.length)
-          verifyVector(childNotM, c, pathSplit.length)
+          verifyVector(child, c)
+          verifyVector(childNotM, c)
         })
       })
 
@@ -296,7 +296,7 @@ describe('HDNode', function () {
             var pathEnd = pathSplit.join('/')
             var pathEndM = 'm/' + pathEnd
             var child = cn.derivePath(pathEnd)
-            verifyVector(child, cc, pathSplit.length + i + 1)
+            verifyVector(child, cc)
 
             assert.throws(function () {
               cn.derivePath(pathEndM)
@@ -316,7 +316,7 @@ describe('HDNode', function () {
             hd = hd.derive(c.m)
           }
 
-          verifyVector(hd, c, i + 1)
+          verifyVector(hd, c)
         })
       })
     })
