@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+           android:duration="@android:integer/config_shortAnimTime"
+           android:interpolator="@android:anim/accelerate_interpolator"
+           android:fromAlpha="0.0"
+           android:toAlpha="1.0"
+    />
+<!-- From: file:/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.react/react-native/0.35.0/res/anim/fade_in.xml -->

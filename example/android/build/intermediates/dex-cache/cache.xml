@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.2.1/jars/libs/internal_impl-23.2.1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="607a3d0b8013b4ccbfeb0b7cb293351994e021fb">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/internal_impl-23.2.1-2d992c54af4ee153cfc7c4087b2cc52e2ba17711.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp-urlconnection/3.4.1/63994437f62bc861bc20c605d12962f7246116d1/okhttp-urlconnection-3.4.1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="63994437f62bc861bc20c605d12962f7246116d1">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/okhttp-urlconnection-3.4.1-fef04081885e8c1cf98a641459ed39c5e326c858.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.react/react-native/0.35.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="cdc91752c90040ec7871c44963c63c751b1fa94b">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-f3e5c6ba004b4b05f2bf80c076d575a0fd257a79.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline/0.11.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="3341b66c54367e777a0647e2db96c045329bfeab">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-20e83cedadfcfb9f3045e270bfa0a9b37ee599e7.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline-base/0.11.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="ca63c521b5745ae9a09629d7ca67ff6bc2a967fe">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-10b7dbbb395ae54ac57ec8da49c49b3ad722bbf7.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="6975da39a7040257bd51d21a231b76c915872d38">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/javax.inject-1-0640706699211c730bf7eb43176b3d747b4568f1.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/23.2.1/support-annotations-23.2.1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="ccb693bc0774fcb637246f7360de25b4af7df318">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/support-annotations-23.2.1-e3198ddfc1500e79f02439e66a838ea8497dc5a7.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.2.3/jackson-core-2.2.3.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="1a0113da2cab5f4c216b4e5e7c1dbfaa67087e14">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/jackson-core-2.2.3-c3b0d6f3085a3a69d5619ded78c013c723e057d5.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp-ws/3.4.1/8ace66ef7002d98f633377c9e67daeeb196d8c3b/okhttp-ws-3.4.1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="8ace66ef7002d98f633377c9e67daeeb196d8c3b">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/okhttp-ws-3.4.1-6cb3fbd1d3629c4cd62dad6fe3133f1844e61519.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.0/5871fb60dc68d67da54a663c3fd636a10a532948/jsr305-3.0.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="5871fb60dc68d67da54a663c3fd636a10a532948">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/jsr305-3.0.0-e2534d9efffb5b5b310ece6374268420dc140537.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline-okhttp3/0.11.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="2b8a01ad9da5d26d0067894c22e87597bca2c500">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-cd0d66e84ef35ddcf07441bceb769e6ec1c3a821.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.react/react-native/0.35.0/jars/libs/infer-annotations-1.5.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="db2c76df02d034e8d49bca2a69af788a787b46b2">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/infer-annotations-1.5-45159df9780eebba2cfc87d9fd33f6caa3ced71f.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/RNBitcoinJSExample/react-native-randombytes/unspecified/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="840c046c9287c0ddcc7329abed594c5fc0b14fef">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-4140a155a5e707848eb83bd84e54db772a4ef5f4.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.gradle/caches/modules-2/files-2.1/com.nineoldandroids/library/2.4.0/e9b63380f3a242dbdbf103a2355ad7e43bad17cb/library-2.4.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="e9b63380f3a242dbdbf103a2355ad7e43bad17cb">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/library-2.4.0-cde23a220443561b061a9db0a81d5b577b7c30fd.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.gradle/caches/modules-2/files-2.1/com.parse.bolts/bolts-tasks/1.4.0/d85884acf6810a3bbbecb587f239005cbc846dc4/bolts-tasks-1.4.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="d85884acf6810a3bbbecb587f239005cbc846dc4">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/bolts-tasks-1.4.0-38cf11496303a4f3e65755a2afffac71520abc65.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.2.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="3be474b1b21b31cf2fa93fe6bd641ae108d96452">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-0b321ce2ec9a8e0f93a3e12c5ece56d0a6c54c79.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="d86429b0f0b3f3cafbeb78dda1b9d89119ccb05d">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-e793270f976a84f7b444e72d9335bd3f055772b4.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.fresco/drawee/0.11.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="1137942adeb03984c1311b662363dd38fc238fd3">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-dd0867285c657db968f29d126f3af253ab6b2704.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.0.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="4356e230a981d1bbf047d848b91bc0d9b7c5bacc">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-2f7517f0cdc101cc62c4d720a721be26b044aa40.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp/3.4.1/c7c4f9e35c2fd5900da24f9872e3971801f08ce0/okhttp-3.4.1.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="c7c4f9e35c2fd5900da24f9872e3971801f08ce0">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/okhttp-3.4.1-4dd20524ce4b4cb32c62338c08f9c05e16b232cc.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.soloader/soloader/0.1.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="8f615bca00639150c9eb6175d4b5471193f70794">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-ed0568eb127766da4eae8dd2c61fb4b44521b310.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.fresco/fresco/0.11.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="d31aadf33187c37a7cd63dc1b769f8c6e33f78c3">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-d7933f7547a66f93ded2b2e399f11ad456146ea2.jar" />
+    </item>
+    <item
+        jar="/home/alberto/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.9.0/f824591a0016efbaeddb8300bee54832a1398cfa/okio-1.9.0.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="f824591a0016efbaeddb8300bee54832a1398cfa">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/okio-1.9.0-b398dcadd063b1fdabb68c093e46da819fd4fa4f.jar" />
+    </item>
+    <item
+        jar="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.fresco/fbcore/0.11.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="98786c1770b531b9194fb6448b2a2692c64074b6">
+        <dex dex="/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/pre-dexed/debug/classes-205dbe2cff66d241bde013a203117bd2a10b201f.jar" />
+    </item>
+
+</items>
