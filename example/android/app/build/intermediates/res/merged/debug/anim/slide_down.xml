@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<translate xmlns:android="http://schemas.android.com/apk/res/android"
-           android:duration="@android:integer/config_shortAnimTime"
-           android:fromYDelta="0%p"
-           android:toYDelta="100%p"
-    />
-<!-- From: file:/home/alberto/Projects/mobile/nexustech/react-native-bitcoinjs-lib/example/android/app/build/intermediates/exploded-aar/com.facebook.react/react-native/0.35.0/res/anim/slide_down.xml -->

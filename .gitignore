@@ -33,6 +33,7 @@ project.xcworkspace
 .idea
 .gradle
 local.properties
+android/app/build/
 
 # node.js
 #

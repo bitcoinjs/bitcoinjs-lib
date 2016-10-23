@@ -1,4 +1,0 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="0.1.0" package="com.facebook.soloader">
-  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="21"/>
-  <application/>
-</manifest>
