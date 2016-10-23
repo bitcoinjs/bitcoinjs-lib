@@ -1,0 +1,46 @@
+{
+  "name": "RNBitcoinJSExample",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "postinstall": "rn-nodeify --install stream,buffer,events,assert --hack",
+    "test": "jest"
+  },
+  "dependencies": {
+    "assert": "^1.4.1",
+    "events": "^1.1.1",
+    "react": "15.3.2",
+    "react-native": "^0.35.0",
+    "react-native-bitcoinjs-lib": "^2.3.2",
+    "react-native-randombytes": "^2.1.0",
+    "readable-stream": "^1.0.33",
+    "stream-browserify": "^1.0.0"
+  },
+  "jest": {
+    "preset": "jest-react-native"
+  },
+  "devDependencies": {
+    "babel-jest": "16.0.0",
+    "babel-preset-react-native": "1.9.0",
+    "jest": "16.0.2",
+    "jest-react-native": "16.0.0",
+    "react-test-renderer": "15.3.2"
+  },
+  "react-native": {
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  },
+  "browser": {
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  }
+}
