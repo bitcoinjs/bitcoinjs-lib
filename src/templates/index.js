@@ -6,41 +6,52 @@ var pubKeyHash = require('./pubkeyhash')
 var scriptHash = require('./scripthash')
 var witnessPubKeyHash = require('./witnesspubkeyhash')
 var witnessScriptHash = require('./witnessscripthash')
+var types = {
+  MULTISIG: 'multisig',
+  NONSTANDARD: 'nonstandard',
+  NULLDATA: 'nulldata',
+  P2PK: 'pubkey',
+  P2PKH: 'pubkeyhash',
+  P2SH: 'scripthash',
+  P2WPKH: 'witnesspubkeyhash',
+  P2WSH: 'witnessscripthash'
+}
 
 function classifyOutput (script) {
-  if (witnessPubKeyHash.output.check(script)) return 'witnesspubkeyhash'
-  if (witnessScriptHash.output.check(script)) return 'witnessscripthash'
-  if (pubKeyHash.output.check(script)) return 'pubkeyhash'
-  if (scriptHash.output.check(script)) return 'scripthash'
+  if (witnessPubKeyHash.output.check(script)) return types.P2WPKH
+  if (witnessScriptHash.output.check(script)) return types.P2WSH
+  if (pubKeyHash.output.check(script)) return types.P2PKH
+  if (scriptHash.output.check(script)) return types.P2SH
 
   // XXX: optimization, below functions .decompile before use
   var chunks = decompile(script)
-  if (multisig.output.check(chunks)) return 'multisig'
-  if (pubKey.output.check(chunks)) return 'pubkey'
-  if (nullData.output.check(chunks)) return 'nulldata'
+  if (multisig.output.check(chunks)) return types.MULTISIG
+  if (pubKey.output.check(chunks)) return types.P2PK
+  if (nullData.output.check(chunks)) return types.NULLDATA
 
-  return 'nonstandard'
+  return types.NONSTANDARD
 }
 
 function classifyInput (script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
   var chunks = decompile(script)
 
-  if (pubKeyHash.input.check(chunks)) return 'pubkeyhash'
-  if (scriptHash.input.check(chunks, allowIncomplete)) return 'scripthash'
-  if (multisig.input.check(chunks, allowIncomplete)) return 'multisig'
-  if (pubKey.input.check(chunks)) return 'pubkey'
+  if (pubKeyHash.input.check(chunks)) return types.P2PKH
+  if (scriptHash.input.check(chunks, allowIncomplete)) return types.P2SH
+  if (multisig.input.check(chunks, allowIncomplete)) return types.MULTISIG
+  if (pubKey.input.check(chunks)) return types.P2PK
 
-  return 'nonstandard'
+  return types.NONSTANDARD
 }
 
 function classifyWitness (script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
   var chunks = decompile(script)
 
-  if (pubKeyHash.input.check(chunks)) return 'witnesspubkeyhash'
-  if (scriptHash.input.check(chunks)) return 'witnessscripthash'
-  return 'nonstandard'
+  if (pubKeyHash.input.check(chunks)) return types.P2WPKH
+  if (scriptHash.input.check(chunks)) return types.P2WSH
+
+  return types.NONSTANDARD
 }
 
 module.exports = {
@@ -53,5 +64,6 @@ module.exports = {
   pubKeyHash: pubKeyHash,
   scriptHash: scriptHash,
   witnessPubKeyHash: witnessPubKeyHash,
-  witnessScriptHash: witnessScriptHash
+  witnessScriptHash: witnessScriptHash,
+  types: types
 }
