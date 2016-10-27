@@ -2,7 +2,6 @@ var bip66 = require('bip66')
 var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
-
 var OPS = require('./opcodes.json')
 var REVERSE_OPS = (function () {
   var result = {}
@@ -251,27 +250,55 @@ function isMultisigInput (script, allowIncomplete) {
   return chunks.slice(1).every(isCanonicalSignature)
 }
 
+function parseMultisigScript (scriptPubKey) {
+  var chunks = decompile(scriptPubKey)
+  if (chunks.length < 4) {
+    throw new Error('Multisig script should contain at least 4 elements')
+  }
+  if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) {
+    throw new Error('Final opcode should be OP_CHECKMULTISIG')
+  }
+  if (!types.Number(chunks[0])) {
+    throw new Error('First element must be a number-push opcode')
+  }
+  if (!types.Number(chunks[chunks.length - 2])) {
+    throw new Error('Second-last element must be a number-push opcode')
+  }
+  var m = chunks[0] - OP_INT_BASE
+  var n = chunks[chunks.length - 2] - OP_INT_BASE
+
+  if (m <= 0) {
+    throw new Error('Number of signatures required must be greater than zero')
+  }
+  if (n > 16) {
+    throw new Error('Number of public keys must be less than 17')
+  }
+  if (m > n) {
+    throw new Error('Number of signatures cannot exceed the number of public keys')
+  }
+  if (n !== chunks.length - 3) {
+    throw new Error('n does not match the number of public keys')
+  }
+
+  var keys = chunks.slice(1, -2)
+  if (!keys.every(isCanonicalPubKey)) {
+    throw new Error('Non-canonical pubic key found')
+  }
+
+  return {
+    nRequiredSigs: m,
+    nPublicKeys: n,
+    publicKeyBuffers: keys
+  }
+}
+
 function isMultisigOutput (script) {
-  var chunks = decompile(script)
-  if (chunks.length < 4) return false
-  if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) return false
-
-  var mOp = chunks[0]
-  var nOp = chunks[chunks.length - 2]
-
-  if (!types.Number(mOp)) return false
-  if (!types.Number(nOp)) return false
-
-  var m = mOp - OP_INT_BASE
-  var n = nOp - OP_INT_BASE
-
-  // 0 < m <= n <= 16
-  if (m <= 0) return false
-  if (m > n) return false
-  if (n > 16) return false
-  if (n !== chunks.length - 3) return false
-
-  return chunks.slice(1, -2).every(isCanonicalPubKey)
+  try {
+    parseMultisigScript(script)
+    return true
+  } catch (e) {
+    return false
+  }
 }
 
 function isNullDataOutput (script) {
@@ -399,16 +426,9 @@ function witnessScriptHashInput (scriptSig, scriptPubKey) {
 // OP_0 [signatures ...]
 function multisigInput (signatures, scriptPubKey) {
   if (scriptPubKey) {
-    var chunks = decompile(scriptPubKey)
-    if (!isMultisigOutput(chunks)) throw new Error('Expected multisig scriptPubKey')
-
-    var mOp = chunks[0]
-    var nOp = chunks[chunks.length - 2]
-    var m = mOp - OP_INT_BASE
-    var n = nOp - OP_INT_BASE
-
-    if (signatures.length < m) throw new Error('Not enough signatures provided')
-    if (signatures.length > n) throw new Error('Too many signatures provided')
+    var scriptData = parseMultisigScript(scriptPubKey)
+    if (signatures.length < scriptData.nRequiredSigs) throw new Error('Not enough signatures provided')
+    if (signatures.length > scriptData.nPublicKeys) throw new Error('Too many signatures provided')
   }
 
   return compile([].concat(OPS.OP_0, signatures))
@@ -441,6 +461,7 @@ module.exports = {
   isMultisigOutput: isMultisigOutput,
   isNullDataOutput: isNullDataOutput,
 
+  parseMultisigScript: parseMultisigScript,
   classifyOutput: classifyOutput,
   classifyInput: classifyInput,
   pubKeyOutput: pubKeyOutput,
