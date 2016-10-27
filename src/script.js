@@ -11,7 +11,6 @@ var REVERSE_OPS = (function () {
   }
   return result
 })()
-
 var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function compile (chunks) {
