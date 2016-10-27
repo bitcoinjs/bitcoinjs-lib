@@ -40,6 +40,7 @@
     "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
     "integration": "mocha test/integration/",
     "standard": "standard",
+    "standard-fixer": "standard --fix",
     "test": "npm run standard && npm run coverage",
     "unit": "mocha"
   },

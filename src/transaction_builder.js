@@ -6,6 +6,7 @@ var networks = require('./networks')
 var ops = require('./opcodes.json')
 var typeforce = require('typeforce')
 var types = require('./types')
+var scriptTypes = bscript.types
 
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
@@ -19,7 +20,7 @@ function expandInput (scriptSig, redeemScript) {
   var pubKeys, signatures, prevOutScript
 
   switch (prevOutType) {
-    case 'scripthash':
+    case scriptTypes.P2SH:
       // FIXME: maybe depth limit instead, how possible is this anyway?
       if (redeemScript) throw new Error('Recursive P2SH script')
 
@@ -30,10 +31,10 @@ function expandInput (scriptSig, redeemScript) {
       result.redeemScript = redeemScript
       result.redeemScriptType = result.prevOutType
       result.prevOutScript = bscript.scriptHashOutput(bcrypto.hash160(redeemScript))
-      result.prevOutType = 'scripthash'
+      result.prevOutType = scriptTypes.P2SH
       return result
 
-    case 'pubkeyhash':
+    case scriptTypes.P2PKH:
       // if (redeemScript) throw new Error('Nonstandard... P2SH(P2PKH)')
       pubKeys = scriptSigChunks.slice(1)
       signatures = scriptSigChunks.slice(0, 1)
@@ -42,7 +43,7 @@ function expandInput (scriptSig, redeemScript) {
       prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(pubKeys[0]))
       break
 
-    case 'pubkey':
+    case scriptTypes.P2PK:
       if (redeemScript) {
         pubKeys = bscript.decompile(redeemScript).slice(0, 1)
       }
@@ -50,7 +51,7 @@ function expandInput (scriptSig, redeemScript) {
       signatures = scriptSigChunks.slice(0, 1)
       break
 
-    case 'multisig':
+    case scriptTypes.MULTISIG:
       if (redeemScript) {
         pubKeys = bscript.decompile(redeemScript).slice(1, -2)
       }
@@ -71,7 +72,7 @@ function expandInput (scriptSig, redeemScript) {
 
 // could be done in expandInput, but requires the original Transaction for hashForSignature
 function fixMultisigOrder (input, transaction, vin) {
-  if (input.redeemScriptType !== 'multisig' || !input.redeemScript) return
+  if (input.redeemScriptType !== scriptTypes.MULTISIG || !input.redeemScript) return
   if (input.pubKeys.length === input.signatures.length) return
 
   var unmatched = input.signatures.concat()
@@ -115,7 +116,7 @@ function expandOutput (script, scriptType, ourPubKey) {
 
   switch (scriptType) {
     // does our hash160(pubKey) match the output scripts?
-    case 'pubkeyhash':
+    case scriptTypes.P2PKH:
       if (!ourPubKey) break
 
       var pkh1 = scriptChunks[2]
@@ -123,11 +124,11 @@ function expandOutput (script, scriptType, ourPubKey) {
       if (pkh1.equals(pkh2)) pubKeys = [ourPubKey]
       break
 
-    case 'pubkey':
+    case scriptTypes.P2PK:
       pubKeys = scriptChunks.slice(0, 1)
       break
 
-    case 'multisig':
+    case scriptTypes.MULTISIG:
       pubKeys = scriptChunks.slice(1, -2)
       break
 
@@ -148,7 +149,7 @@ function prepareInput (input, kpPubKey, redeemScript) {
     // if redeemScript exists, it is pay-to-scriptHash
     // if we have a prevOutScript, enforce hash160(redeemScriptequality)  to the redeemScript
     if (input.prevOutType) {
-      if (input.prevOutType !== 'scripthash') throw new Error('PrevOutScript must be P2SH')
+      if (input.prevOutType !== scriptTypes.P2SH) throw new Error('PrevOutScript must be P2SH')
 
       var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
       if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
@@ -162,12 +163,12 @@ function prepareInput (input, kpPubKey, redeemScript) {
     input.redeemScript = redeemScript
     input.redeemScriptType = expanded.scriptType
     input.prevOutScript = input.prevOutScript || bscript.scriptHashOutput(redeemScriptHash)
-    input.prevOutType = 'scripthash'
+    input.prevOutType = scriptTypes.P2SH
 
   // maybe we have some prevOut knowledge
   } else if (input.prevOutType) {
     // pay-to-scriptHash is not possible without a redeemScript
-    if (input.prevOutType === 'scripthash') throw new Error('PrevOutScript is P2SH, missing redeemScript')
+    if (input.prevOutType === scriptTypes.P2SH) throw new Error('PrevOutScript is P2SH, missing redeemScript')
 
     // try to derive missing information using our kpPubKey
     expanded = expandOutput(input.prevOutScript, input.prevOutType, kpPubKey)
@@ -179,7 +180,7 @@ function prepareInput (input, kpPubKey, redeemScript) {
   // no prior knowledge, assume pubKeyHash
   } else {
     input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(kpPubKey))
-    input.prevOutType = 'pubkeyhash'
+    input.prevOutType = scriptTypes.P2PKH
     input.pubKeys = [kpPubKey]
     input.signatures = [undefined]
   }
@@ -191,10 +192,10 @@ function buildInput (input, allowIncomplete) {
   var scriptSig
 
   switch (scriptType) {
-    case 'pubkeyhash':
-    case 'pubkey':
+    case scriptTypes.P2PKH:
+    case scriptTypes.P2PK:
       if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
-      if (scriptType === 'pubkeyhash') {
+      if (scriptType === scriptTypes.P2PKH) {
         scriptSig = bscript.pubKeyHashInput(signatures[0], input.pubKeys[0])
       } else {
         scriptSig = bscript.pubKeyInput(signatures[0])
@@ -203,7 +204,7 @@ function buildInput (input, allowIncomplete) {
       break
 
     // ref https://github.com/bitcoin/bitcoin/blob/d612837814020ae832499d18e6ee5eb919a87907/src/script/sign.cpp#L232
-    case 'multisig':
+    case scriptTypes.MULTISIG:
       signatures = signatures.map(function (signature) {
         return signature || ops.OP_0
       })
@@ -220,7 +221,7 @@ function buildInput (input, allowIncomplete) {
   }
 
   // wrap as scriptHash if necessary
-  if (input.prevOutType === 'scripthash') {
+  if (input.prevOutType === scriptTypes.P2SH) {
     scriptSig = bscript.scriptHashInput(scriptSig, input.redeemScript)
   }
 

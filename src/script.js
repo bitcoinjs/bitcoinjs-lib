@@ -12,8 +12,17 @@ var REVERSE_OPS = (function () {
   }
   return result
 })()
-
 var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
+var scriptTypes = {
+  P2PKH: 'pubkeyhash',
+  P2PK: 'pubkey',
+  MULTISIG: 'multisig',
+  P2SH: 'scripthash',
+  P2WSH: 'witnessscripthash',
+  P2WPKH: 'witnesspubkeyhash',
+  NULLDATA: 'nulldata',
+  NONSTANDARD: 'nonstandard'
+}
 
 function compile (chunks) {
   // TODO: remove me
@@ -283,38 +292,38 @@ function classifyOutput (script) {
   var chunks = decompile(script)
 
   if (isWitnessPubKeyHashOutput(chunks)) {
-    return 'witnesspubkeyhash'
+    return scriptTypes.P2WPKH
   } else if (isWitnessScriptHashOutput(chunks)) {
-    return 'witnessscripthash'
+    return scriptTypes.P2WSH
   } else if (isPubKeyHashOutput(chunks)) {
-    return 'pubkeyhash'
+    return scriptTypes.P2PKH
   } else if (isScriptHashOutput(chunks)) {
-    return 'scripthash'
+    return scriptTypes.P2SH
   } else if (isMultisigOutput(chunks)) {
-    return 'multisig'
+    return scriptTypes.MULTISIG
   } else if (isPubKeyOutput(chunks)) {
-    return 'pubkey'
+    return scriptTypes.P2PK
   } else if (isNullDataOutput(chunks)) {
-    return 'nulldata'
+    return scriptTypes.NULLDATA
   }
 
-  return 'nonstandard'
+  return scriptTypes.NONSTANDARD
 }
 
 function classifyInput (script, allowIncomplete) {
   var chunks = decompile(script)
 
   if (isPubKeyHashInput(chunks)) {
-    return 'pubkeyhash'
+    return scriptTypes.P2PKH
   } else if (isMultisigInput(chunks, allowIncomplete)) {
-    return 'multisig'
+    return scriptTypes.MULTISIG
   } else if (isScriptHashInput(chunks, allowIncomplete)) {
-    return 'scripthash'
+    return scriptTypes.P2SH
   } else if (isPubKeyInput(chunks)) {
-    return 'pubkey'
+    return scriptTypes.P2PK
   }
 
-  return 'nonstandard'
+  return scriptTypes.NONSTANDARD
 }
 
 // Standard Script Templates
@@ -425,7 +434,7 @@ module.exports = {
   toASM: toASM,
 
   number: require('./script_number'),
-
+  types: scriptTypes,
   isCanonicalPubKey: isCanonicalPubKey,
   isCanonicalSignature: isCanonicalSignature,
   isDefinedHashType: isDefinedHashType,
