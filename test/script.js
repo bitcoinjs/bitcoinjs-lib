@@ -10,7 +10,16 @@ var fixtures = require('./fixtures/script.json')
 
 describe('script', function () {
   // TODO
-  describe.skip('isCanonicalPubKey', function () {})
+  describe('isCanonicalPubKey', function () {
+    it('rejects if not provided a Buffer', function () {
+      assert.strictEqual(false, bscript.isCanonicalPubKey(0))
+    })
+    it('rejects smaller than 33', function () {
+      for (var i = 0; i < 33; i++) {
+        assert.strictEqual(false, bscript.isCanonicalPubKey(new Buffer('', i)))
+      }
+    })
+  })
   describe.skip('isCanonicalSignature', function () {})
 
   describe('fromASM/toASM', function () {

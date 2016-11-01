@@ -36,15 +36,6 @@ describe('address', function () {
       })
     })
 
-    fixtures.valid.forEach(function (f) {
-      it('parses (as chunks) ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
-        var chunks = bscript.decompile(bscript.fromASM(f.script))
-        var address = baddress.fromOutputScript(chunks, networks[f.network])
-
-        assert.strictEqual(address, f.base58check)
-      })
-    })
-
     fixtures.invalid.fromOutputScript.forEach(function (f) {
       it('throws when ' + f.script.slice(0, 30) + '... ' + f.exception, function () {
         var script = bscript.fromASM(f.script)
