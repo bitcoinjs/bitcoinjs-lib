@@ -108,7 +108,7 @@ function expandOutput (script, scriptType, ourPubKey) {
 
   var scriptChunks = bscript.decompile(script)
   if (!scriptType) {
-    scriptType = bscript.classifyOutput(scriptChunks)
+    scriptType = bscript.classifyOutput(script)
   }
 
   var pubKeys = []

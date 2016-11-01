@@ -12,6 +12,16 @@ var REVERSE_OPS = (function () {
   return result
 })()
 
+var LIST_DECODE_NAMES = [
+  decodePubKeyOutput,
+  decodePubKeyHashOutput,
+  decodeMultisigOutput,
+  decodeNullDataOutput,
+  decodeScriptHashOutput,
+  decodeWitnessPubKeyHashOutput,
+  decodeWitnessScriptHashOutput
+]
+
 var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function compile (chunks) {
@@ -167,15 +177,34 @@ function isPubKeyHashInput (script) {
     isCanonicalPubKey(chunks[1])
 }
 
-function isPubKeyHashOutput (script) {
-  var buffer = compile(script)
+function decodePubKeyHashOutput (buffer, chunks) {
+  if (buffer.length !== 25) {
+    throw new Error('pub-key-hash output script is 25 bytes')
+  }
+  if (buffer[0] !== OPS.OP_DUP) {
+    throw new Error('PubKeyHash script missing OP_DUP')
+  }
+  if (buffer[1] !== OPS.OP_HASH160) {
+    throw new Error('PubKeyHash script missing OP_HASH160')
+  }
+  if (buffer[2] !== 0x14) {
+    throw new Error('Incorrect opcode for pubkeyhash')
+  }
+  if (buffer[23] !== OPS.OP_EQUALVERIFY) {
+    throw new Error('PubKeyHash script missing OP_EQUALVERIFY')
+  }
+  if (buffer[24] !== OPS.OP_CHECKSIG) {
+    throw new Error('PubKeyHash script missing OP_CHECKSIG')
+  }
 
-  return buffer.length === 25 &&
-    buffer[0] === OPS.OP_DUP &&
-    buffer[1] === OPS.OP_HASH160 &&
-    buffer[2] === 0x14 &&
-    buffer[23] === OPS.OP_EQUALVERIFY &&
-    buffer[24] === OPS.OP_CHECKSIG
+  return {
+    type: 'pubkeyhash',
+    pubKeyHash: chunks[2]
+  }
+}
+
+function isPubKeyHashOutput (script) {
+  return determinesTypeOrNonstandard([decodePubKeyHashOutput], script) === 'pubkeyhash'
 }
 
 function isPubKeyInput (script) {
@@ -185,12 +214,27 @@ function isPubKeyInput (script) {
     isCanonicalSignature(chunks[0])
 }
 
-function isPubKeyOutput (script) {
-  var chunks = decompile(script)
+function decodePubKeyOutput (script, chunks) {
+  if (script[0] !== 0x21 && script[0] !== 0x41) {
+    throw new Error('Bad (or non-minimal) public key length for pub')
+  }
+  if (!isCanonicalPubKey(chunks[0])) {
+    throw new Error('pub-key output does not have a canonical public key')
+  }
+  if (chunks[1] !== OPS.OP_CHECKSIG) {
+    throw new Error('pub-key output missing OP_CHECKSIG operator')
+  }
+  if (chunks.length !== 2) {
+    throw new Error('pub-key output has two elements')
+  }
+  return {
+    type: 'pubkey',
+    publicKey: chunks[0]
+  }
+}
 
-  return chunks.length === 2 &&
-    isCanonicalPubKey(chunks[0]) &&
-    chunks[1] === OPS.OP_CHECKSIG
+function isPubKeyOutput (script) {
+  return determinesTypeOrNonstandard([decodePubKeyOutput], script) === 'pubkey'
 }
 
 function isScriptHashInput (script, allowIncomplete) {
@@ -206,32 +250,69 @@ function isScriptHashInput (script, allowIncomplete) {
   // is redeemScript a valid script?
   if (redeemScriptChunks.length === 0) return false
 
-  return classifyInput(scriptSigChunks, allowIncomplete) === classifyOutput(redeemScriptChunks)
+  return classifyInput(scriptSigChunks, allowIncomplete) === classifyOutput(lastChunk)
+}
+
+function decodeScriptHashOutput (chunks) {
+  if (chunks[0] !== OPS.OP_HASH160) {
+    throw new Error()
+  }
+  if (chunks[1] !== 0x14) {
+    throw new Error()
+  }
+  if (chunks[22] !== OPS.OP_EQUAL) {
+    throw new Error()
+  }
+  return {
+    type: 'scripthash',
+    scriptHash: chunks[1]
+  }
 }
 
 function isScriptHashOutput (script) {
-  var buffer = compile(script)
+  return determinesTypeOrNonstandard([decodeScriptHashOutput], script) === 'scripthash'
+}
 
-  return buffer.length === 23 &&
-    buffer[0] === OPS.OP_HASH160 &&
-    buffer[1] === 0x14 &&
-    buffer[22] === OPS.OP_EQUAL
+function decodeWitnessPubKeyHashOutput (script, chunks) {
+  if (script.length !== 22) {
+    throw new Error('P2WPKH script should be 22 bytes')
+  }
+  if (script[0] !== OPS.OP_0) {
+    throw new Error('Missing v0 prefix for witness keyhash')
+  }
+  if (script[1] !== 0x14) {
+    throw new Error('Witness keyhash length marker is wrong')
+  }
+
+  return {
+    type: 'witnesspubkeyhash',
+    witnessKeyHash: chunks[2]
+  }
 }
 
 function isWitnessPubKeyHashOutput (script) {
-  var buffer = compile(script)
+  return determinesTypeOrNonstandard([decodeWitnessPubKeyHashOutput], script) === 'witnesspubkeyhash'
+}
 
-  return buffer.length === 22 &&
-    buffer[0] === OPS.OP_0 &&
-    buffer[1] === 0x14
+function decodeWitnessScriptHashOutput (script, chunks) {
+  if (script.length !== 34) {
+    throw new Error('P2WSH script should be 34 bytes')
+  }
+  if (script[0] !== OPS.OP_0) {
+    throw new Error('Missing v0 prefix for witness script hash')
+  }
+  if (script[1] !== 0x20) {
+    throw new Error('Witness program length marker is wrong')
+  }
+
+  return {
+    type: 'witnessscripthash',
+    witnessScriptHash: chunks[2]
+  }
 }
 
 function isWitnessScriptHashOutput (script) {
-  var buffer = compile(script)
-
-  return buffer.length === 34 &&
-    buffer[0] === OPS.OP_0 &&
-    buffer[1] === 0x20
+  return determinesTypeOrNonstandard([decodeWitnessScriptHashOutput], script) === 'witnessscripthash'
 }
 
 // allowIncomplete is to account for combining signatures
@@ -250,8 +331,7 @@ function isMultisigInput (script, allowIncomplete) {
   return chunks.slice(1).every(isCanonicalSignature)
 }
 
-function parseMultisigScript (scriptPubKey) {
-  var chunks = decompile(scriptPubKey)
+function decodeMultisigOutput (scriptPubKey, chunks) {
   if (chunks.length < 4) {
     throw new Error('Multisig script should contain at least 4 elements')
   }
@@ -286,6 +366,7 @@ function parseMultisigScript (scriptPubKey) {
   }
 
   return {
+    type: 'multisig',
     nRequiredSigs: m,
     nPublicKeys: n,
     publicKeyBuffers: keys
@@ -293,39 +374,47 @@ function parseMultisigScript (scriptPubKey) {
 }
 
 function isMultisigOutput (script) {
-  try {
-    parseMultisigScript(script)
-    return true
-  } catch (e) {
-    return false
-  }
+  return determinesTypeOrNonstandard([decodeMultisigOutput], script) === 'multisig'
 }
 
 function isNullDataOutput (script) {
-  var chunks = decompile(script)
-  return chunks[0] === OPS.OP_RETURN
+  return determinesTypeOrNonstandard([decodeNullDataOutput], script) === 'nulldata'
+}
+
+function decodeNullDataOutput (script, chunks) {
+  if (script[0] !== OPS.OP_RETURN) {
+    throw new Error('Missing OP_RETURN at start of script')
+  }
+
+  return {
+    type: 'nulldata'
+  }
+}
+
+function determinesTypeOrNonstandard (functions, script) {
+  if (!types.Array(functions)) {
+    throw new Error('Must provide an array of functions to determinesTypeOrNonstandard')
+  }
+  if (!types.Buffer(script)) {
+    throw new Error('Must provide a script to determinesTypeOrNonstandard')
+  }
+  var decoded
+  var decompiled = decompile(script)
+  var type = 'nonstandard'
+  for (var i = 0; i < functions.length && type === 'nonstandard'; i++) {
+    try {
+      decoded = functions[i](script, decompiled)
+      type = decoded.type
+    } catch (e) {
+
+    }
+  }
+
+  return type
 }
 
 function classifyOutput (script) {
-  var chunks = decompile(script)
-
-  if (isWitnessPubKeyHashOutput(chunks)) {
-    return 'witnesspubkeyhash'
-  } else if (isWitnessScriptHashOutput(chunks)) {
-    return 'witnessscripthash'
-  } else if (isPubKeyHashOutput(chunks)) {
-    return 'pubkeyhash'
-  } else if (isScriptHashOutput(chunks)) {
-    return 'scripthash'
-  } else if (isMultisigOutput(chunks)) {
-    return 'multisig'
-  } else if (isPubKeyOutput(chunks)) {
-    return 'pubkey'
-  } else if (isNullDataOutput(chunks)) {
-    return 'nulldata'
-  }
-
-  return 'nonstandard'
+  return determinesTypeOrNonstandard(LIST_DECODE_NAMES, script)
 }
 
 function classifyInput (script, allowIncomplete) {
@@ -426,7 +515,7 @@ function witnessScriptHashInput (scriptSig, scriptPubKey) {
 // OP_0 [signatures ...]
 function multisigInput (signatures, scriptPubKey) {
   if (scriptPubKey) {
-    var scriptData = parseMultisigScript(scriptPubKey)
+    var scriptData = decodeMultisigOutput(scriptPubKey, decompile(scriptPubKey))
     if (signatures.length < scriptData.nRequiredSigs) throw new Error('Not enough signatures provided')
     if (signatures.length > scriptData.nPublicKeys) throw new Error('Too many signatures provided')
   }
@@ -449,32 +538,41 @@ module.exports = {
   isCanonicalPubKey: isCanonicalPubKey,
   isCanonicalSignature: isCanonicalSignature,
   isDefinedHashType: isDefinedHashType,
-  isPubKeyHashInput: isPubKeyHashInput,
-  isPubKeyHashOutput: isPubKeyHashOutput,
-  isPubKeyInput: isPubKeyInput,
+
+  decodePubKeyOutput: decodePubKeyOutput,
+  decodePubKeyHashOutput: decodePubKeyHashOutput,
+  decodeMultisigOutput: decodeMultisigOutput,
+  decodeScriptHashOutput: decodeScriptHashOutput,
+  decodeNullDataOutput: decodeNullDataOutput,
+  decodeWitnessPubKeyHashOutput: decodeWitnessPubKeyHashOutput,
+  decodeWitnessScriptHashOutput: decodeWitnessScriptHashOutput,
+
   isPubKeyOutput: isPubKeyOutput,
-  isScriptHashInput: isScriptHashInput,
+  isPubKeyHashOutput: isPubKeyHashOutput,
+  isMultisigOutput: isMultisigOutput,
   isScriptHashOutput: isScriptHashOutput,
+  isNullDataOutput: isNullDataOutput,
   isWitnessPubKeyHashOutput: isWitnessPubKeyHashOutput,
   isWitnessScriptHashOutput: isWitnessScriptHashOutput,
-  isMultisigInput: isMultisigInput,
-  isMultisigOutput: isMultisigOutput,
-  isNullDataOutput: isNullDataOutput,
-
-  parseMultisigScript: parseMultisigScript,
   classifyOutput: classifyOutput,
+
+  isPubKeyInput: isPubKeyInput,
+  isPubKeyHashInput: isPubKeyHashInput,
+  isMultisigInput: isMultisigInput,
+  isScriptHashInput: isScriptHashInput,
   classifyInput: classifyInput,
+
   pubKeyOutput: pubKeyOutput,
   pubKeyHashOutput: pubKeyHashOutput,
+  multisigOutput: multisigOutput,
   scriptHashOutput: scriptHashOutput,
+  nullDataOutput: nullDataOutput,
   witnessPubKeyHashOutput: witnessPubKeyHashOutput,
-  witnessScriptHashInput: witnessScriptHashInput,
   witnessScriptHashOutput: witnessScriptHashOutput,
 
-  multisigOutput: multisigOutput,
   pubKeyInput: pubKeyInput,
   pubKeyHashInput: pubKeyHashInput,
-  scriptHashInput: scriptHashInput,
   multisigInput: multisigInput,
-  nullDataOutput: nullDataOutput
+  scriptHashInput: scriptHashInput,
+  witnessScriptHashInput: witnessScriptHashInput
 }

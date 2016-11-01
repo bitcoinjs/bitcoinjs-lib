@@ -226,18 +226,90 @@
       {
         "description": "non-canonical pubkey (too long)",
         "scriptPubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1ffffff OP_CHECKSIG"
+      },
+      {
+        "description": "last operator is wrong for pubkey-output",
+        "scriptPubKeyHex": "21027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752ae"
+      },
+      {
+        "description": "missing OP_CHECKSIG",
+        "scriptPubKeyHex": "21027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752"
+      },
+      {
+        "description": "non-canonical pubkey (bad prefix)",
+        "scriptPubKey": "427a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752 OP_CHECKSIG"
+      },
+      {
+        "description": "has extra opcode at the end isPubKeyOutput",
+        "scriptPubKey": "027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752 OP_CHECKSIG OP_0"
       }
     ],
     "isPubKeyHashOutput": [
       {
         "description": "non-minimal encoded isPubKeyHashOutput (non BIP62 compliant)",
         "scriptPubKeyHex": "76a94c14aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+      },
+      {
+        "description": "bad OP_DUP isPubKeyHashOutput",
+        "scriptPubKeyHex": "aca914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+      },
+      {
+        "description": "bad OP_HASH160 isPubKeyHashOutput",
+        "scriptPubKeyHex": "76ac14aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+      },
+      {
+        "description": "bad OP_EQUALVERIFY isPubKeyHashOutput",
+        "scriptPubKeyHex": "76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5acac"
+      },
+      {
+        "description": "bad OP_CHECKSIG isPubKeyHashOutput",
+        "scriptPubKeyHex": "76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c58888"
+      },
+      {
+        "description": "bad length isPubKeyHashOutput",
+        "scriptPubKeyHex": "76a920aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+      },
+      {
+        "description": "has something at the end isPubKeyHashOutput",
+        "scriptPubKeyHex": "76a920aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00"
       }
     ],
     "isScriptHashOutput": [
       {
         "description": "non-minimal encoded isScriptHashOutput (non BIP62 compliant)",
         "scriptPubKeyHex": "a94c14c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
+      },
+      {
+        "description": "wrong OP_HASH160 opcode",
+        "scriptPubKeyHex": "ac4c14c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
+      },
+      {
+        "description": "wrong length marker",
+        "scriptPubKeyHex": "a916c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
+      },
+      {
+        "description": "wrong OP_EQUAL opcode",
+        "scriptPubKeyHex": "a914c286a1af0947f58d1ad787385b1c2c4a976f9e7188"
+      }
+    ],
+    "isWitnessPubKeyHashOutput": [
+      {
+        "description": "wrong version",
+        "scriptPubKeyHex": "51149090909090909090909090909090909090909090"
+      },
+      {
+        "description": "wrong length marker",
+        "scriptPubKeyHex": "00209090909090909090909090909090909090909090"
+      }
+    ],
+    "isWitnessScriptHashOutput": [
+      {
+        "description": "wrong version",
+        "scriptPubKeyHex": "51209090909090909090909090909090909090909090909090909090909090909090"
+      },
+      {
+        "description": "wrong length marker",
+        "scriptPubKeyHex": "00219090909090909090909090909090909090909090909090909090909090909090"
       }
     ],
     "isMultisigOutput": [
