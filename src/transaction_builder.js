@@ -29,7 +29,7 @@ function expandInput (scriptSig, redeemScript) {
       var result = expandInput(redeemScriptSig, redeemScript)
       result.redeemScript = redeemScript
       result.redeemScriptType = result.prevOutType
-      result.prevOutScript = bscript.scriptHashOutput(bcrypto.hash160(redeemScript))
+      result.prevOutScript = bscript.scriptHash.output.encode(bcrypto.hash160(redeemScript))
       result.prevOutType = 'scripthash'
       return result
 
@@ -39,7 +39,7 @@ function expandInput (scriptSig, redeemScript) {
       signatures = scriptSigChunks.slice(0, 1)
 
       if (redeemScript) break
-      prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(pubKeys[0]))
+      prevOutScript = bscript.pubKeyHash.output.encode(bcrypto.hash160(pubKeys[0]))
       break
 
     case 'pubkey':
@@ -161,7 +161,7 @@ function prepareInput (input, kpPubKey, redeemScript) {
     input.signatures = expanded.signatures
     input.redeemScript = redeemScript
     input.redeemScriptType = expanded.scriptType
-    input.prevOutScript = input.prevOutScript || bscript.scriptHashOutput(redeemScriptHash)
+    input.prevOutScript = input.prevOutScript || bscript.scriptHash.output.encode(redeemScriptHash)
     input.prevOutType = 'scripthash'
 
   // maybe we have some prevOut knowledge
@@ -178,7 +178,7 @@ function prepareInput (input, kpPubKey, redeemScript) {
 
   // no prior knowledge, assume pubKeyHash
   } else {
-    input.prevOutScript = bscript.pubKeyHashOutput(bcrypto.hash160(kpPubKey))
+    input.prevOutScript = bscript.pubKeyHash.output.encode(bcrypto.hash160(kpPubKey))
     input.prevOutType = 'pubkeyhash'
     input.pubKeys = [kpPubKey]
     input.signatures = [undefined]
@@ -195,9 +195,9 @@ function buildInput (input, allowIncomplete) {
     case 'pubkey':
       if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
       if (scriptType === 'pubkeyhash') {
-        scriptSig = bscript.pubKeyHashInput(signatures[0], input.pubKeys[0])
+        scriptSig = bscript.pubKeyHash.input.encode(signatures[0], input.pubKeys[0])
       } else {
-        scriptSig = bscript.pubKeyInput(signatures[0])
+        scriptSig = bscript.pubKey.input.encode(signatures[0])
       }
 
       break
@@ -213,7 +213,7 @@ function buildInput (input, allowIncomplete) {
         signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
       }
 
-      scriptSig = bscript.multisigInput(signatures, allowIncomplete ? undefined : input.redeemScript)
+      scriptSig = bscript.multisig.input.encode(signatures, allowIncomplete ? undefined : input.redeemScript)
       break
 
     default: return
@@ -221,7 +221,7 @@ function buildInput (input, allowIncomplete) {
 
   // wrap as scriptHash if necessary
   if (input.prevOutType === 'scripthash') {
-    scriptSig = bscript.scriptHashInput(scriptSig, input.redeemScript)
+    scriptSig = bscript.scriptHash.input.encode(scriptSig, input.redeemScript)
   }
 
   return scriptSig

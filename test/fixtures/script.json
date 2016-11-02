@@ -188,249 +188,253 @@
         "hex": "4effffffff01"
       }
     ],
-    "isPubKeyHashInput": [
-      {
-        "description": "pubKeyHash input : extraneous data",
-        "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 ffffffff"
-      }
-    ],
-    "isScriptHashInput": [
-      {
-        "description": "redeemScript not data",
-        "scriptSig": "OP_0 304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801 3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501 OP_RESERVED"
-      },
-      {
-        "description": "redeemScript is a signature, therefore not a valid script",
-        "scriptSig": "OP_0 3045022100e12b17b3a4c80c401a1687487bd2bafee9e5f1f8f1ffc6180ce186672ad7b43a02205e316d1e5e71822f5ef301b694e578fa9c94af4f5f098c952c833f4691307f4e01"
-      }
-    ],
-    "isPubKeyInput": [
-      {
-        "description": "non-canonical signature (too short)",
-        "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf7593"
-      },
-      {
-        "description": "non-canonical signature (too long)",
-        "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca28ffffffff01"
-      },
-      {
-        "description": "non-canonical signature (invalid hashType)",
-        "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca28ff"
-      }
-    ],
-    "isPubKeyOutput": [
-      {
-        "description": "non-canonical pubkey (too short)",
-        "scriptPubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce OP_CHECKSIG"
-      },
-      {
-        "description": "non-canonical pubkey (too long)",
-        "scriptPubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1ffffff OP_CHECKSIG"
-      },
-      {
-        "description": "last operator is wrong for pubkey-output",
-        "scriptPubKeyHex": "21027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752ae"
-      },
-      {
-        "description": "missing OP_CHECKSIG",
-        "scriptPubKeyHex": "21027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752"
-      },
-      {
-        "description": "non-canonical pubkey (bad prefix)",
-        "scriptPubKey": "427a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752 OP_CHECKSIG"
-      },
-      {
-        "description": "has extra opcode at the end isPubKeyOutput",
-        "scriptPubKey": "027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752 OP_CHECKSIG OP_0"
-      }
-    ],
-    "isPubKeyHashOutput": [
-      {
-        "description": "non-minimal encoded isPubKeyHashOutput (non BIP62 compliant)",
-        "scriptPubKeyHex": "76a94c14aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
-      },
-      {
-        "description": "bad OP_DUP isPubKeyHashOutput",
-        "scriptPubKeyHex": "aca914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
-      },
-      {
-        "description": "bad OP_HASH160 isPubKeyHashOutput",
-        "scriptPubKeyHex": "76ac14aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
-      },
-      {
-        "description": "bad OP_EQUALVERIFY isPubKeyHashOutput",
-        "scriptPubKeyHex": "76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5acac"
-      },
-      {
-        "description": "bad OP_CHECKSIG isPubKeyHashOutput",
-        "scriptPubKeyHex": "76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c58888"
-      },
-      {
-        "description": "bad length isPubKeyHashOutput",
-        "scriptPubKeyHex": "76a920aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
-      },
-      {
-        "description": "has something at the end isPubKeyHashOutput",
-        "scriptPubKeyHex": "76a920aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00"
-      }
-    ],
-    "isScriptHashOutput": [
-      {
-        "description": "non-minimal encoded isScriptHashOutput (non BIP62 compliant)",
-        "scriptPubKeyHex": "a94c14c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
-      },
-      {
-        "description": "wrong OP_HASH160 opcode",
-        "scriptPubKeyHex": "ac4c14c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
-      },
-      {
-        "description": "wrong length marker",
-        "scriptPubKeyHex": "a916c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
-      },
-      {
-        "description": "wrong OP_EQUAL opcode",
-        "scriptPubKeyHex": "a914c286a1af0947f58d1ad787385b1c2c4a976f9e7188"
-      }
-    ],
-    "isWitnessPubKeyHashOutput": [
-      {
-        "description": "wrong version",
-        "scriptPubKeyHex": "51149090909090909090909090909090909090909090"
-      },
-      {
-        "description": "wrong length marker",
-        "scriptPubKeyHex": "00209090909090909090909090909090909090909090"
-      }
-    ],
-    "isWitnessScriptHashOutput": [
-      {
-        "description": "wrong version",
-        "scriptPubKeyHex": "51209090909090909090909090909090909090909090909090909090909090909090"
-      },
-      {
-        "description": "wrong length marker",
-        "scriptPubKeyHex": "00219090909090909090909090909090909090909090909090909090909090909090"
-      }
-    ],
-    "isMultisigOutput": [
-      {
-        "description": "OP_CHECKMULTISIG not found",
-        "scriptPubKey": "OP_0 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_HASH160"
-      },
-      {
-        "description": "less than 4 chunks",
-        "scriptPubKey": "OP_0 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 OP_HASH160"
-      },
-      {
-        "description": "m === 0",
-        "scriptPubKey": "OP_0 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG"
-      },
-      {
-        "description": "m < OP_1",
-        "scriptPubKey": "OP_1NEGATE 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG"
-      },
-      {
-        "description": "m > OP_16",
-        "scriptPubKey": "OP_NOP 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG"
-      },
-      {
-        "description": "n === 0",
-        "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_0 OP_CHECKMULTISIG"
-      },
-      {
-        "description": "n < OP_1",
-        "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_1NEGATE OP_CHECKMULTISIG"
-      },
-      {
-        "description": "n > OP_16",
-        "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_NOP OP_CHECKMULTISIG"
-      },
-      {
-        "description": "n < m",
-        "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_1 OP_CHECKMULTISIG"
-      },
-      {
-        "description": "n < len(pubKeys)",
-        "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_2 OP_CHECKMULTISIG"
-      },
-      {
-        "description": "n > len(pubKeys)",
-        "scriptPubKey": "OP_1 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_2 OP_CHECKMULTISIG"
-      },
-      {
-        "description": "m is data",
-        "scriptPubKey": "ffff 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_1 OP_CHECKMULTISIG"
-      },
-      {
-        "description": "n is data",
-        "scriptPubKey": "OP_1 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 ffff OP_CHECKMULTISIG"
-      },
-      {
-        "description": "non-canonical pubKey (bad length)",
-        "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffff OP_1 OP_CHECKMULTISIG"
-      }
-    ],
-    "multisigInput": [
-      {
-        "description": "Not enough signatures provided",
-        "type": "multisig",
-        "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG",
-        "signatures": []
-      },
-      {
-        "exception": "Not enough signatures provided",
-        "scriptPubKey": "OP_2 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a OP_2 OP_CHECKMULTISIG",
-        "signatures": [
-          "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801"
-        ]
-      },
-      {
-        "exception": "Too many signatures provided",
-        "scriptPubKey": "OP_2 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a OP_2 OP_CHECKMULTISIG",
-        "signatures": [
-          "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801",
-          "3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501",
-          "3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501"
-        ]
-      }
-    ],
-    "multisigOutput": [
-      {
-        "exception": "Not enough pubKeys provided",
-        "m": 4,
-        "pubKeys": [
-          "02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f",
-          "02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f",
-          "036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19"
-        ],
-        "signatures": [
-          "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801"
-        ]
-      }
-    ],
-    "pubKeyHashOutput": [
-      {
-        "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 2\\)",
-        "hash": "ffff"
-      }
-    ],
-    "scriptHashOutput": [
-      {
-        "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 3\\)",
-        "hash": "ffffff"
-      }
-    ],
-    "witnessPubKeyHashOutput": [
-      {
-        "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 3\\)",
-        "hash": "ffffff"
-      }
-    ],
-    "witnessScriptHashOutput": [
-      {
-        "exception": "Expected Buffer\\(Length: 32\\), got Buffer\\(Length: 3\\)",
-        "hash": "ffffff"
-      }
-    ]
+    "pubKey": {
+      "inputs": [
+        {
+          "description": "non-canonical signature (too short)",
+          "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf7593"
+        },
+        {
+          "description": "non-canonical signature (too long)",
+          "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca28ffffffff01"
+        },
+        {
+          "description": "non-canonical signature (invalid hashType)",
+          "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca28ff"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "non-canonical pubkey (too short)",
+          "scriptPubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce OP_CHECKSIG"
+        },
+        {
+          "description": "non-canonical pubkey (too long)",
+          "scriptPubKey": "02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1ffffff OP_CHECKSIG"
+        },
+        {
+          "description": "last operator is wrong for pubkey-output",
+          "scriptPubKeyHex": "21027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752ae"
+        },
+        {
+          "description": "missing OP_CHECKSIG",
+          "scriptPubKeyHex": "21027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752"
+        },
+        {
+          "description": "non-canonical pubkey (bad prefix)",
+          "scriptPubKey": "427a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752 OP_CHECKSIG"
+        },
+        {
+          "description": "has extra opcode at the end isPubKeyOutput",
+          "scriptPubKey": "027a71801ab59336de37785c50005b6abd8ea859eecce1edbe8e81afa74ee5c752 OP_CHECKSIG OP_0"
+        }
+      ]
+    },
+    "pubKeyHash": {
+      "inputs": [
+        {
+          "description": "pubKeyHash input : extraneous data",
+          "scriptSig": "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 ffffffff"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "non-minimal encoded isPubKeyHashOutput (non BIP62 compliant)",
+          "scriptPubKeyHex": "76a94c14aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+        },
+        {
+          "description": "bad OP_DUP isPubKeyHashOutput",
+          "scriptPubKeyHex": "aca914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+        },
+        {
+          "description": "bad OP_HASH160 isPubKeyHashOutput",
+          "scriptPubKeyHex": "76ac14aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+        },
+        {
+          "description": "bad OP_EQUALVERIFY isPubKeyHashOutput",
+          "scriptPubKeyHex": "76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5acac"
+        },
+        {
+          "description": "bad OP_CHECKSIG isPubKeyHashOutput",
+          "scriptPubKeyHex": "76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c58888"
+        },
+        {
+          "description": "bad length isPubKeyHashOutput",
+          "scriptPubKeyHex": "76a920aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
+        },
+        {
+          "description": "has something at the end isPubKeyHashOutput",
+          "scriptPubKeyHex": "76a920aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00"
+        },
+        {
+          "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 2\\)",
+          "hash": "ffff"
+        }
+      ]
+    },
+    "scriptHash": {
+      "inputs": [
+        {
+          "description": "redeemScript not data",
+          "scriptSig": "OP_0 304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801 3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501 OP_RESERVED"
+        },
+        {
+          "description": "redeemScript is a signature, therefore not a valid script",
+          "scriptSig": "OP_0 3045022100e12b17b3a4c80c401a1687487bd2bafee9e5f1f8f1ffc6180ce186672ad7b43a02205e316d1e5e71822f5ef301b694e578fa9c94af4f5f098c952c833f4691307f4e01"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "non-minimal encoded isScriptHashOutput (non BIP62 compliant)",
+          "scriptPubKeyHex": "a94c14c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
+        },
+        {
+          "description": "wrong OP_HASH160 opcode",
+          "scriptPubKeyHex": "ac4c14c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
+        },
+        {
+          "description": "wrong length marker",
+          "scriptPubKeyHex": "a916c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
+        },
+        {
+          "description": "wrong OP_EQUAL opcode",
+          "scriptPubKeyHex": "a914c286a1af0947f58d1ad787385b1c2c4a976f9e7188"
+        },
+        {
+          "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 3\\)",
+          "hash": "ffffff"
+        }
+      ]
+    },
+    "multisig": {
+      "inputs": [
+        {
+          "description": "Not enough signatures provided",
+          "type": "multisig",
+          "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG",
+          "signatures": []
+        },
+        {
+          "exception": "Not enough signatures provided",
+          "scriptPubKey": "OP_2 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a OP_2 OP_CHECKMULTISIG",
+          "signatures": [
+            "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801"
+          ]
+        },
+        {
+          "exception": "Too many signatures provided",
+          "scriptPubKey": "OP_2 02359c6e3f04cefbf089cf1d6670dc47c3fb4df68e2bad1fa5a369f9ce4b42bbd1 0395a9d84d47d524548f79f435758c01faec5da2b7e551d3b8c995b7e06326ae4a OP_2 OP_CHECKMULTISIG",
+          "signatures": [
+            "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801",
+            "3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501",
+            "3045022100ef253c1faa39e65115872519e5f0a33bbecf430c0f35cf562beabbad4da24d8d02201742be8ee49812a73adea3007c9641ce6725c32cd44ddb8e3a3af460015d140501"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "description": "OP_CHECKMULTISIG not found",
+          "scriptPubKey": "OP_0 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_HASH160"
+        },
+        {
+          "description": "less than 4 chunks",
+          "scriptPubKey": "OP_0 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 OP_HASH160"
+        },
+        {
+          "description": "m === 0",
+          "scriptPubKey": "OP_0 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG"
+        },
+        {
+          "description": "m < OP_1",
+          "scriptPubKey": "OP_1NEGATE 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG"
+        },
+        {
+          "description": "m > OP_16",
+          "scriptPubKey": "OP_NOP 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_2 OP_CHECKMULTISIG"
+        },
+        {
+          "description": "n === 0",
+          "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_0 OP_CHECKMULTISIG"
+        },
+        {
+          "description": "n < OP_1",
+          "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_1NEGATE OP_CHECKMULTISIG"
+        },
+        {
+          "description": "n > OP_16",
+          "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_NOP OP_CHECKMULTISIG"
+        },
+        {
+          "description": "n < m",
+          "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 OP_1 OP_CHECKMULTISIG"
+        },
+        {
+          "description": "n < len(pubKeys)",
+          "scriptPubKey": "OP_2 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_2 OP_CHECKMULTISIG"
+        },
+        {
+          "description": "n > len(pubKeys)",
+          "scriptPubKey": "OP_1 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_2 OP_CHECKMULTISIG"
+        },
+        {
+          "description": "m is data",
+          "scriptPubKey": "ffff 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 OP_1 OP_CHECKMULTISIG"
+        },
+        {
+          "description": "n is data",
+          "scriptPubKey": "OP_1 024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34 ffff OP_CHECKMULTISIG"
+        },
+        {
+          "description": "non-canonical pubKey (bad length)",
+          "scriptPubKey": "OP_1 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffff OP_1 OP_CHECKMULTISIG"
+        },
+        {
+          "exception": "Not enough pubKeys provided",
+          "m": 4,
+          "pubKeys": [
+            "02ea1297665dd733d444f31ec2581020004892cdaaf3dd6c0107c615afb839785f",
+            "02fab2dea1458990793f56f42e4a47dbf35a12a351f26fa5d7e0cc7447eaafa21f",
+            "036c6802ce7e8113723dd92cdb852e492ebb157a871ca532c3cb9ed08248ff0e19"
+          ],
+          "signatures": [
+            "304402207515cf147d201f411092e6be5a64a6006f9308fad7b2a8fdaab22cd86ce764c202200974b8aca7bf51dbf54150d3884e1ae04f675637b926ec33bf75939446f6ca2801"
+          ]
+        }
+      ]
+    },
+    "witnessPubKeyHash": {
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "wrong version",
+          "scriptPubKeyHex": "51149090909090909090909090909090909090909090"
+        },
+        {
+          "description": "wrong length marker",
+          "scriptPubKeyHex": "00209090909090909090909090909090909090909090"
+        },
+        {
+          "exception": "Expected Buffer\\(Length: 20\\), got Buffer\\(Length: 3\\)",
+          "hash": "ffffff"
+        }
+      ]
+    },
+    "witnessScriptHash": {
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "wrong version",
+          "scriptPubKeyHex": "51209090909090909090909090909090909090909090909090909090909090909090"
+        },
+        {
+          "description": "wrong length marker",
+          "scriptPubKeyHex": "00219090909090909090909090909090909090909090909090909090909090909090"
+        },
+        {
+          "exception": "Expected Buffer\\(Length: 32\\), got Buffer\\(Length: 3\\)",
+          "hash": "ffffff"
+        }
+      ]
+    }
   }
 }
