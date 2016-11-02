@@ -91,7 +91,7 @@ describe('bitcoinjs-lib (crypto)', function () {
         var script = transaction.ins[input.vout].script
         var scriptChunks = bitcoin.script.decompile(script)
 
-        assert(bitcoin.script.isPubKeyHashInput(scriptChunks), 'Expected pubKeyHash script')
+        assert(bitcoin.script.pubKeyHash.input.check(scriptChunks), 'Expected pubKeyHash script')
 
         var prevOutTxId = [].reverse.call(new Buffer(transaction.ins[input.vout].hash)).toString('hex')
         var prevVout = transaction.ins[input.vout].index

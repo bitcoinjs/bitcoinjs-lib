@@ -16,7 +16,7 @@ describe('bitcoinjs-lib (advanced)', function () {
 
       var tx = new bitcoin.TransactionBuilder(network)
       var data = new Buffer('bitcoinjs-lib')
-      var dataScript = bitcoin.script.nullDataOutput(data)
+      var dataScript = bitcoin.script.nullData.output.encode(data)
 
       tx.addInput(unspent.txId, unspent.vout)
       tx.addOutput(dataScript, 1000)
