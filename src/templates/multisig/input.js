@@ -43,9 +43,7 @@ function decode (buffer, allowIncomplete) {
   var chunks = bscript.decompile(buffer)
   typeforce(check, chunks, allowIncomplete)
 
-  return {
-    signatures: chunks.slice(1)
-  }
+  return chunks.slice(1)
 }
 
 module.exports = {
