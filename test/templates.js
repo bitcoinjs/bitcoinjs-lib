@@ -348,15 +348,19 @@ describe('script-templates', function () {
     })
   })
 
-  describe('nullData.output.encode', function () {
+  describe('nullData.output', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'nulldata') return
 
       var data = new Buffer(f.data, 'hex')
       var scriptPubKey = bscript.nullData.output.encode(data)
 
-      it('returns ' + f.scriptPubKey, function () {
+      it('encodes to ' + f.scriptPubKey, function () {
         assert.strictEqual(bscript.toASM(scriptPubKey), f.scriptPubKey)
+      })
+
+      it('decodes to ' + f.data, function () {
+        assert.deepEqual(bscript.nullData.output.decode(scriptPubKey), data)
       })
     })
   })

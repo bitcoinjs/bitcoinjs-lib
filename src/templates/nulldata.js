@@ -21,7 +21,7 @@ function encode (data) {
 function decode (buffer) {
   typeforce(check, buffer)
 
-  return buffer.slice(1)
+  return buffer.slice(2)
 }
 
 module.exports = {
