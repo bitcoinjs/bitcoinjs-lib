@@ -28,8 +28,8 @@ function toBase58Check (hash, version) {
 function fromOutputScript (scriptPubKey, network) {
   network = network || networks.bitcoin
 
-  if (bscript.isPubKeyHashOutput(scriptPubKey)) return toBase58Check(bscript.compile(scriptPubKey).slice(3, 23), network.pubKeyHash)
-  if (bscript.isScriptHashOutput(scriptPubKey)) return toBase58Check(bscript.compile(scriptPubKey).slice(2, 22), network.scriptHash)
+  if (bscript.pubKeyHash.output.check(scriptPubKey)) return toBase58Check(bscript.compile(scriptPubKey).slice(3, 23), network.pubKeyHash)
+  if (bscript.scriptHash.output.check(scriptPubKey)) return toBase58Check(bscript.compile(scriptPubKey).slice(2, 22), network.scriptHash)
 
   throw new Error(bscript.toASM(scriptPubKey) + ' has no matching Address')
 }
@@ -38,8 +38,8 @@ function toOutputScript (address, network) {
   network = network || networks.bitcoin
 
   var decode = fromBase58Check(address)
-  if (decode.version === network.pubKeyHash) return bscript.pubKeyHashOutput(decode.hash)
-  if (decode.version === network.scriptHash) return bscript.scriptHashOutput(decode.hash)
+  if (decode.version === network.pubKeyHash) return bscript.pubKeyHash.output.encode(decode.hash)
+  if (decode.version === network.scriptHash) return bscript.scriptHash.output.encode(decode.hash)
 
   throw new Error(address + ' has no matching Script')
 }
