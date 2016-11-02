@@ -39,7 +39,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
     // three hours ago
     var timeUtc = utcNow() - (3600 * 3)
     var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
-    var scriptPubKey = bitcoin.script.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
+    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.address.fromOutputScript(scriptPubKey, network)
 
     // fund the P2SH(CLTV) address
@@ -55,7 +55,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
       var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)
 
       // {Alice's signature} OP_TRUE
-      var redeemScriptSig = bitcoin.script.scriptHashInput([
+      var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
         alice.sign(signatureHash).toScriptSignature(hashType),
         bitcoin.opcodes.OP_TRUE
       ], redeemScript)
@@ -73,7 +73,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
     // two hours ago
     var timeUtc = utcNow() - (3600 * 2)
     var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
-    var scriptPubKey = bitcoin.script.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
+    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.address.fromOutputScript(scriptPubKey, network)
 
     // fund the P2SH(CLTV) address
@@ -86,7 +86,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
 
       var txRaw = tx.buildIncomplete()
       var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)
-      var redeemScriptSig = bitcoin.script.scriptHashInput([
+      var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
         alice.sign(signatureHash).toScriptSignature(hashType),
         bob.sign(signatureHash).toScriptSignature(hashType),
         bitcoin.opcodes.OP_FALSE
@@ -105,7 +105,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
     // two hours from now
     var timeUtc = utcNow() + (3600 * 2)
     var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
-    var scriptPubKey = bitcoin.script.scriptHashOutput(bitcoin.crypto.hash160(redeemScript))
+    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.address.fromOutputScript(scriptPubKey, network)
 
     // fund the P2SH(CLTV) address
@@ -121,7 +121,7 @@ describe('bitcoinjs-lib (CLTV)', function () {
       var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)
 
       // {Alice's signature} OP_TRUE
-      var redeemScriptSig = bitcoin.script.scriptHashInput([
+      var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
         alice.sign(signatureHash).toScriptSignature(hashType),
         bitcoin.opcodes.OP_TRUE
       ], redeemScript)
