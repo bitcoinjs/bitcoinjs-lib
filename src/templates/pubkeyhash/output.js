@@ -15,6 +15,7 @@ function check (script) {
     buffer[23] === OPS.OP_EQUALVERIFY &&
     buffer[24] === OPS.OP_CHECKSIG
 }
+check.toJSON = function () { return 'pubKeyHash output' }
 
 function encode (pubKeyHash) {
   typeforce(types.Hash160bit, pubKeyHash)

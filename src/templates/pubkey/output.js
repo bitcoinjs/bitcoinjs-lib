@@ -11,6 +11,7 @@ function check (script) {
     bscript.isCanonicalPubKey(chunks[0]) &&
     chunks[1] === OPS.OP_CHECKSIG
 }
+check.toJSON = function () { return 'pubKey output' }
 
 function encode (pubKey) {
   typeforce(bscript.isCanonicalPubKey, pubKey)

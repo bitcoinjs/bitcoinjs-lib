@@ -12,6 +12,7 @@ function check (script) {
     buffer[0] === OPS.OP_0 &&
     buffer[1] === 0x20
 }
+check.toJSON = function () { return 'Witness scriptHash output' }
 
 function encode (scriptHash) {
   typeforce(types.Hash256bit, scriptHash)

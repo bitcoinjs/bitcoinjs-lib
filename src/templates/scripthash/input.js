@@ -20,6 +20,7 @@ function check (script, allowIncomplete) {
   var outputType = bscript.classifyOutput(redeemScriptChunks)
   return inputType === outputType
 }
+check.toJSON = function () { return 'scriptHash input' }
 
 function encode (scriptSignature, scriptPubKey) {
   var scriptSigChunks = bscript.decompile(scriptSignature)

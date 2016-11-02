@@ -13,6 +13,7 @@ function check (script) {
     buffer[1] === 0x14 &&
     buffer[22] === OPS.OP_EQUAL
 }
+check.toJSON = function () { return 'scriptHash output' }
 
 function encode (scriptHash) {
   typeforce(types.Hash160bit, scriptHash)
