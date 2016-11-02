@@ -171,59 +171,7 @@ module.exports = {
   isDefinedHashType: isDefinedHashType
 }
 
-//
-
-var multisig = require('./templates/multisig')
-var nullData = require('./templates/nulldata')
-var pubKey = require('./templates/pubkey')
-var pubKeyHash = require('./templates/pubkeyhash')
-var scriptHash = require('./templates/scripthash')
-var witnessPubKeyHash = require('./templates/witnesspubkeyhash')
-var witnessScriptHash = require('./templates/witnessscripthash')
-
-function classifyOutput (script) {
-  if (witnessPubKeyHash.output.check(script)) return 'witnesspubkeyhash'
-  if (witnessScriptHash.output.check(script)) return 'witnessscripthash'
-  if (pubKeyHash.output.check(script)) return 'pubkeyhash'
-  if (scriptHash.output.check(script)) return 'scripthash'
-
-  // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
-  if (multisig.output.check(chunks)) return 'multisig'
-  if (pubKey.output.check(chunks)) return 'pubkey'
-  if (nullData.output.check(chunks)) return 'nulldata'
-
-  return 'nonstandard'
+var templates = require('./templates')
+for (var key in templates) {
+  module.exports[key] = templates[key]
 }
-
-function classifyInput (script, allowIncomplete) {
-  // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
-
-  if (pubKeyHash.input.check(chunks)) return 'pubkeyhash'
-  if (scriptHash.input.check(chunks, allowIncomplete)) return 'scripthash'
-  if (multisig.input.check(chunks, allowIncomplete)) return 'multisig'
-  if (pubKey.input.check(chunks)) return 'pubkey'
-
-  return 'nonstandard'
-}
-
-function classifyWitness (script, allowIncomplete) {
-  // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
-
-  if (pubKeyHash.input.check(chunks)) return 'witnesspubkeyhash'
-  if (scriptHash.input.check(chunks)) return 'witnessscripthash'
-  return 'nonstandard'
-}
-
-module.exports.classifyInput = classifyInput
-module.exports.classifyOutput = classifyOutput
-module.exports.classifyWitness = classifyWitness
-module.exports.multisig = multisig
-module.exports.nullData = nullData
-module.exports.pubKey = pubKey
-module.exports.pubKeyHash = pubKeyHash
-module.exports.scriptHash = scriptHash
-module.exports.witnessPubKeyHash = witnessPubKeyHash
-module.exports.witnessScriptHash = witnessScriptHash
