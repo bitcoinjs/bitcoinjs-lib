@@ -10,6 +10,7 @@ function check (script) {
   return chunks.length === 1 &&
     bscript.isCanonicalSignature(chunks[0])
 }
+check.toJSON = function () { return 'pubKey input' }
 
 function encode (signature) {
   typeforce(types.Buffer, signature)

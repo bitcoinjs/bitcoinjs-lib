@@ -11,6 +11,7 @@ function check (script) {
   return buffer.length > 1 &&
     buffer[0] === OPS.OP_RETURN
 }
+check.toJSON = function () { return 'null data output' }
 
 function encode (data) {
   typeforce(types.Buffer, data)

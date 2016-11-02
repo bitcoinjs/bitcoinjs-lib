@@ -25,6 +25,7 @@ function check (script, allowIncomplete) {
   var keys = chunks.slice(1, -2)
   return keys.every(bscript.isCanonicalPubKey)
 }
+check.toJSON = function () { return 'multi-sig output' }
 
 function encode (m, pubKeys) {
   typeforce({

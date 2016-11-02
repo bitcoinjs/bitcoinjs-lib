@@ -323,16 +323,21 @@ describe('script-templates', function () {
     })
   })
 
-  describe('witnessScriptHash.outputs.encode', function () {
+  describe('witnessScriptHash.output', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'witnessscripthash') return
       if (!f.scriptPubKey) return
 
-      it('returns ' + f.scriptPubKey, function () {
-        var witnessScriptPubKey = bscript.fromASM(f.witnessScriptPubKey)
-        var scriptPubKey = bscript.witnessScriptHash.output.encode(bcrypto.hash256(witnessScriptPubKey))
+      var witnessScriptPubKey = bscript.fromASM(f.witnessScriptPubKey)
+      var scriptHash = bcrypto.hash256(witnessScriptPubKey)
+      var scriptPubKey = bscript.witnessScriptHash.output.encode(scriptHash)
 
+      it('encodes to ' + f.scriptPubKey, function () {
         assert.strictEqual(bscript.toASM(scriptPubKey), f.scriptPubKey)
+      })
+
+      it('decodes to ' + scriptHash.toString('hex'), function () {
+        assert.deepEqual(bscript.witnessScriptHash.output.decode(scriptHash), witnessScriptPubKey)
       })
     })
 

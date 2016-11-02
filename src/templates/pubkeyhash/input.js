@@ -11,6 +11,7 @@ function check (script) {
     bscript.isCanonicalSignature(chunks[0]) &&
     bscript.isCanonicalPubKey(chunks[1])
 }
+check.toJSON = function () { return 'pubKeyHash input' }
 
 function encode (signature, pubKey) {
   typeforce({
