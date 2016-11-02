@@ -422,21 +422,6 @@ describe('script', function () {
     })
   })
 
-  describe('witnessScriptHash.inputs.encode', function () {
-    fixtures.valid.forEach(function (f) {
-      if (f.type !== 'witnessscripthash') return
-
-      var witnessScript = bscript.fromASM(f.witnessScriptPubKey)
-      var witnessScriptSig = bscript.fromASM(f.witnessScriptSig)
-
-      it('returns ' + f.witness, function () {
-        var witness = bscript.witnessScriptHash.input.encode(witnessScriptSig, witnessScript)
-
-        assert.strictEqual(bscript.toASM(witness), f.witness)
-      })
-    })
-  })
-
   describe('witnessScriptHash.outputs.encode', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'witnessscripthash') return
