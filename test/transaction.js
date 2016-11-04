@@ -42,21 +42,21 @@ describe('Transaction', function () {
   }
 
   describe('fromBuffer/fromHex', function () {
-    fixtures.valid.forEach(function (f) {
-      it('imports ' + f.description + ' (' + f.id + ')', function () {
-        var actual = Transaction.fromHex(f.hex)
+    function importExport (f) {
+      var id = f.id || f.hash
+      var txHex = f.hex || f.txHex
 
-        assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
+      it('imports ' + f.description + ' (' + id + ')', function () {
+        var actual = Transaction.fromHex(txHex)
+
+        assert.strictEqual(actual.toHex(), txHex, actual.toHex())
       })
-    })
+    }
 
-    fixtures.witness.forEach(function (f) {
-      it('imports ' + f.description + ' (' + f.id + ')', function () {
-        var actual = Transaction.fromHex(f.hex)
-
-        assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
-      })
-    })
+    fixtures.valid.forEach(importExport)
+    fixtures.witness.forEach(importExport)
+    fixtures.hashForSignature.forEach(importExport)
+    fixtures.hashForWitnessV0.forEach(importExport)
 
     fixtures.invalid.fromBuffer.forEach(function (f) {
       it('throws on ' + f.exception, function () {
