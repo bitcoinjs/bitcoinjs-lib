@@ -2,6 +2,7 @@ var bip66 = require('bip66')
 var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
+var scriptNumber = require('./script_number')
 var OPS = require('./opcodes.json')
 var REVERSE_OPS = (function () {
   var result = {}
@@ -103,6 +104,20 @@ function decompile (buffer) {
   return chunks
 }
 
+function toWitness (script) {
+  return decompile(script).map(function (op) {
+    if (op === OPS.OP_0) {
+      return new Buffer(0)
+    } else if (op instanceof Buffer) {
+      return op
+    } else if (op === OPS.OP_1NEGATE || op >= OPS.OP_1 && op <= OPS.OP_16) {
+      return scriptNumber.encode(op - OP_INT_BASE)
+    } else {
+      throw new Error('Script had a non pushdata opcode')
+    }
+  })
+}
+
 function toASM (chunks) {
   if (Buffer.isBuffer(chunks)) {
     chunks = decompile(chunks)
@@ -161,6 +176,7 @@ function isCanonicalSignature (buffer) {
 module.exports = {
   compile: compile,
   decompile: decompile,
+  toWitness: toWitness,
   fromASM: fromASM,
   toASM: toASM,
   number: require('./script_number'),
