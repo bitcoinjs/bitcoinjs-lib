@@ -46,6 +46,14 @@ describe('Transaction', function () {
       var id = f.id || f.hash
       var txHex = f.hex || f.txHex
 
+      if (f.hasWitness) {
+        it('imports ' + f.description + ' (' + id + ') as witness', function () {
+          var actual = Transaction.fromHex(f.witnessHex)
+
+          assert.strictEqual(actual.toHex(), f.witnessHex, actual.toHex())
+        })
+      }
+
       it('imports ' + f.description + ' (' + id + ')', function () {
         var actual = Transaction.fromHex(txHex)
 
