@@ -120,14 +120,12 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
   }
 
   if (hasWitnesses) {
-    var isNull = true
     for (i = 0; i < vinLen; ++i) {
       tx.ins[i].witness = readVector()
-      isNull = isNull && tx.ins[i].witness.length === 0
     }
-    if (isNull) {
-      throw new Error('Transaction has superfluous witness data')
-    }
+
+    // was this pointless?
+    if (!tx._hasWitnesses()) throw new Error('Transaction has superfluous witness data')
   }
 
   tx.locktime = readUInt32()
@@ -188,7 +186,7 @@ Transaction.prototype.addOutput = function (scriptPubKey, value) {
 
 Transaction.prototype._hasWitnesses = function () {
   return this.ins.some(function (x) {
-    return x.witness !== EMPTY_WITNESS
+    return x.witness.length !== 0
   })
 }
 
@@ -412,7 +410,6 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   writeInt32(this.version)
 
   var hasWitnesses = this._hasWitnesses()
-  var serializeWitnesses = hasWitnesses // TODO: remove this, temporary
 
   if (hasWitnesses) {
     writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER)
@@ -439,15 +436,10 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
     writeVarSlice(txOut.script)
   })
 
-  if (serializeWitnesses) {
-    var isNull = true
+  if (hasWitnesses) {
     this.ins.forEach(function (input) {
       writeVector(input.witness)
-      isNull = isNull && input.witness.length === 0
     })
-    if (isNull) {
-      throw new Error('Transaction has superfluous witness data')
-    }
   }
 
   writeUInt32(this.locktime)
