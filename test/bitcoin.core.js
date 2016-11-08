@@ -162,35 +162,6 @@ describe('Bitcoin-core', function () {
     })
   })
 
-  describe('script.fromASM', function () {
-    txValid.forEach(function (f) {
-      // Objects that are only a single string are ignored
-      if (f.length === 1) return
-
-      var inputs = f[0]
-
-      inputs.forEach(function (input) {
-        var prevOutScriptPubKey = input[2]
-        .replace(/(^| )([0-9])( |$)/g, 'OP_$2 ')
-        .replace(/0x[a-f0-9]+ 0x([a-f0-9]+)/, '$1')
-        .replace(/DUP/g, 'OP_DUP')
-        .replace(/NOT/g, 'OP_NOT')
-        .replace(/HASH160/g, 'OP_HASH160')
-        .replace(/EQUALVERIFY/g, 'OP_EQUALVERIFY')
-        .replace(/EQUAL( |$)/g, 'OP_EQUAL ')
-        .replace(/CHECKSIG/g, 'OP_CHECKSIG')
-        .replace(/ CHECKMULTISIG/g, ' OP_CHECKMULTISIG')
-        .replace(/CODESEPARATOR/g, 'OP_CODESEPARATOR')
-        .replace(/CHECKSIGVERIFY/g, 'OP_CHECKSIGVERIFY')
-
-        it('can parse ' + prevOutScriptPubKey, function () {
-          // TODO: we can probably do better validation than this
-          bitcoin.script.fromASM(prevOutScriptPubKey)
-        })
-      })
-    })
-  })
-
   // sighash
   describe('Transaction', function () {
     sigHash.forEach(function (f) {
