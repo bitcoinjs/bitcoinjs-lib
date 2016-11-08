@@ -119,7 +119,7 @@ function toASM (chunks) {
 }
 
 function fromASM (asm) {
-  typeforce(types.String, asm)
+  typeforce(types.ASM, asm)
 
   return compile(asm.split(' ').map(function (chunkStr) {
     // opcode?

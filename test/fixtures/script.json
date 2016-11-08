@@ -193,6 +193,12 @@
         "hex": "4effffffff01"
       }
     ],
+    "fromASM": [
+      {
+        "description": "Expected ASM, got String",
+        "script": "0xff OP_CHECKSIG"
+      }
+    ],
     "pubKey": {
       "inputs": [
         {
