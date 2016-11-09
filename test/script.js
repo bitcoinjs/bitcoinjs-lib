@@ -118,6 +118,30 @@ describe('script', function () {
     })
   })
 
+  describe('solveOutput', function () {
+    fixtures.valid.forEach(function (f) {
+      var script
+      if (f.scriptPubKeyHex) {
+        script = new Buffer(f.scriptPubKeyHex, 'hex')
+      } else if (f.scriptPubKey) {
+        script = bscript.fromASM(f.scriptPubKey)
+      } else {
+        return
+      }
+
+      it('solves ' + bscript.toASM(script) + ' as ' + f.type, function () {
+        var solution = bscript.solveOutput(script)
+        assert.equal(solution.type, f.type)
+        if ([bscript.types.P2SH].concat(bscript.P2SH_SCRIPTS).indexOf(f.type) === -1) {
+          assert.equal(solution.solvedBy, null)
+        }
+        if (solution.canSign) {
+          assert.notEqual(solution.requiredSigs, null)
+        }
+      })
+    })
+  })
+
   describe('SCRIPT_VERIFY_MINIMALDATA policy', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSigHex) {
