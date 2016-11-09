@@ -41,6 +41,16 @@ describe('Transaction', function () {
     return tx
   }
 
+  describe('fromBuffer/fromHex (segwit) ', function () {
+    fixtures.witness.forEach(function (f) {
+      it('imports ' + f.description + ' (' + f.id + ')', function () {
+        var actual = Transaction.fromHex(f.hex)
+        var serialized = actual.toBufferWithWitness()
+        assert.strictEqual(serialized.toString('hex'), f.hex, serialized.toString('hex'))
+      })
+    })
+  })
+
   describe('fromBuffer/fromHex', function () {
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.description + ' (' + f.id + ')', function () {
@@ -205,6 +215,67 @@ describe('Transaction', function () {
 
         assert.strictEqual(tx.hashForSignature(f.inIndex, script, f.type).toString('hex'), f.hash)
       })
+    })
+  })
+
+  describe('hashForSignatureWitness', function () {
+    fixtures.v1_sighash.forEach(function (f) {
+      it('should return ' + f.expectedHash + ' for ' + (f.description ? ('case "' + f.description + '"') : ''), function () {
+        var tx = Transaction.fromHex(f.unsignedTx)
+        var inputToSign = f.inputToSign
+        var valueSatoshis = f.outputValueBtc * 1e8
+        var scriptCode = new Buffer(f.hashScriptCode, 'hex')
+        var sigHashType = f.sigHashType
+
+        assert.strictEqual(tx.hashForWitnessV0(inputToSign, scriptCode, valueSatoshis, sigHashType).toString('hex'), f.expectedHash)
+      })
+    })
+  })
+
+  describe('setWitness', function () {
+    it('should be able to set the witness of an input', function () {
+      var hash = new Buffer('abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123', 'hex')
+      var index = 1
+      var sequence = 0xffffffff
+      var scriptSig = new Buffer('41', 'hex')
+      var tx = new Transaction()
+      tx.addInput(hash, index, sequence, scriptSig)
+
+      assert.strictEqual(hash, tx.ins[0].hash)
+      assert.strictEqual(index, tx.ins[0].index)
+      assert.strictEqual(sequence, tx.ins[0].sequence)
+      assert.strictEqual(scriptSig, tx.ins[0].script)
+      assert.equal(true, Array.isArray(tx.ins[0].witness))
+      assert.equal(0, tx.ins[0].witness.length)
+
+      var witness = [
+        new Buffer('00', 'hex'),
+        new Buffer('51', 'hex')
+      ]
+      tx.setWitness(0, witness)
+      assert.strictEqual(witness, tx.ins[0].witness)
+    })
+  })
+
+  describe('addWitnessInput', function () {
+    it('should add a witness bearing input', function () {
+      var hash = new Buffer('abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123', 'hex')
+      var index = 1
+      var sequence = 0xffffffff
+      var scriptSig = new Buffer('41', 'hex')
+      var witness = [
+        new Buffer('00', 'hex'),
+        new Buffer('51', 'hex')
+      ]
+
+      var tx = new Transaction()
+      tx.addWitnessInput(hash, index, sequence, scriptSig, witness)
+
+      assert.strictEqual(hash, tx.ins[0].hash)
+      assert.strictEqual(index, tx.ins[0].index)
+      assert.strictEqual(sequence, tx.ins[0].sequence)
+      assert.strictEqual(scriptSig, tx.ins[0].script)
+      assert.strictEqual(witness, tx.ins[0].witness)
     })
   })
 })
