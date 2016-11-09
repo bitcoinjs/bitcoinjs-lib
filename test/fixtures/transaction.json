@@ -387,6 +387,7 @@
             "scriptHex": "483045022100e57eba5380dcc8a7bdb5370b423dadd43070e1ca268f94bc97b2ded55ca45e9502206a43151c8af03a00f0ac86526d07981e303fc0daea8c6ed435abe8961533046d01",
             "sequence": 4294967295,
             "witness": [],
+            "value": 80000,
             "scriptPubKey": "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac",
             "redeemScript": "",
             "witnessScript": ""
@@ -420,6 +421,7 @@
             "scriptHex": "473044022026d2b56b6cb0269bf4e80dd655b9e917019e2ccef57f4b858d03bb45a2da59d9022010519a7f327f03e7c9613e0694f929544af29d3682e7ec8f19147e7a86651ecd012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac",
             "sequence": 4294967295,
             "witness": [],
+            "value": 80000,
             "scriptPubKey": "a914c99d9ebb5a4828e4e1b606dd6a51a2babebbdc0987",
             "redeemScript": "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac",
             "witnessScript": ""
@@ -456,6 +458,7 @@
               "3044022039725bb7291a14dd182dafdeaf3ea0d5c05c34f4617ccbaa46522ca913995c4e02203b170d072ed2e489e7424ad96d8fa888deb530be2d4c5d9aaddf111a7efdb2d301",
               "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac"
             ],
+            "value": 80000,
             "scriptPubKey": "00200f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
             "redeemScript": "",
             "witnessScript": "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac"
@@ -492,6 +495,7 @@
               "30440220014207a5f0601ed7b3c3f9d82309b32e8f76dd6776a55cb5f8684b9ff029e0850220693afd7b69471b51d9354cc1a956b68b8d48e32f6b0ad7a19bb5dd3e4499179a01",
               "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac"
             ],
+            "value": 80000,
             "scriptPubKey": "a9146d185c7042d01ea8276dc6be6603101dc441d8a487",
             "redeemScript": "00200f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
             "witnessScript": "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac"
@@ -525,6 +529,7 @@
             "scriptHex": "4830450221009bd6ff2561437155913c289923175d3f114cca1c0e2bc5989315d5261502c2c902201b71ad90dce076a5eb872330ed729e7c2c4bc2d0513efff099dbefb3b62eab4f0121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b",
             "sequence": 4294967295,
             "witness": [],
+            "value": 80000,
             "scriptPubKey": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac",
             "redeemScript": "",
             "witnessScript": ""
@@ -558,6 +563,7 @@
             "scriptHex": "473044022003d738d855d0c54a419ac62ebe1a1c0bf2dc6993c9585adb9a8666736658107002204d57ff62ee7efae6df73430bba62494faeba8c125a4abcf2488757a4f8877dd50121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b1976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac",
             "sequence": 4294967295,
             "witness": [],
+            "value": 80000,
             "scriptPubKey": "a9142162ff7c23d47a0c331f95c67d7c3e22abb12a0287",
             "redeemScript": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac",
             "witnessScript": ""
@@ -595,6 +601,7 @@
               "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b",
               "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
             ],
+            "value": 80000,
             "scriptPubKey": "0020578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0",
             "redeemScript": "",
             "witnessScript": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
@@ -632,6 +639,7 @@
               "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b",
               "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
             ],
+            "value": 80000,
             "scriptPubKey": "a91444a641c4e06eb6118c99e5ed29954b705b50fb6a87",
             "redeemScript": "0020578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0",
             "witnessScript": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
@@ -665,6 +673,7 @@
             "scriptHex": "00483045022100d269531f120f377ed2f94f42bef893ff2fe6544ac97fb477fa291bc6cfb7647e02200983f6a5bbd4ce6cf97f571995634805a7324cc5d8353ed954fa62477b0fcd0901",
             "sequence": 4294967295,
             "witness": [],
+            "value": 80000,
             "scriptPubKey": "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae",
             "redeemScript": "",
             "witnessScript": ""
@@ -698,6 +707,7 @@
             "scriptHex": "00473044022025f2e161f0a97888df948f4dcc7c04fe502510b8d8260ca9920f38d55e4d17720220271b6843224b3a34542a4df31781d048da56ee46b8c5fb99043e30abd527b2d801255121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae",
             "sequence": 4294967295,
             "witness": [],
+            "value": 80000,
             "scriptPubKey": "a91438c064c6387d1071eeb5c3d90350054aea0b3fc187",
             "redeemScript": "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae",
             "witnessScript": ""
@@ -735,6 +745,7 @@
               "3045022100d4c0cbdb45915b8a3162362fa5f74556de919aeda5337fc44a7fb000e833460d022017742c37d7a061e2ae3a086c7c585c9c85e5d31af468d3e00045c0f35b8f8eb601",
               "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
             ],
+            "value": 80000,
             "scriptPubKey": "00201b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99",
             "redeemScript": "",
             "witnessScript": "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
@@ -772,6 +783,7 @@
               "3045022100c97a5e205ce0023d3d44f846abf1f0e21b6f2646bd2496bbe92e4333fe4401be02201247e047d669f713582713e35d2eba430abc3d75a924bb500362bf47d6234ed501",
               "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
             ],
+            "value": 80000,
             "scriptPubKey": "a914cc6ea17c33de7996471e40892acdd6e5f61b9b6f87",
             "redeemScript": "00201b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99",
             "witnessScript": "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
@@ -808,6 +820,7 @@
               "304502210097c3006f0b390982eb47f762b2853773c6cedf83668a22d710f4c13c4fd6b15502205e26ef16a81fc818a37f3a34fc6d0700e61100ea6c6773907c9c046042c4403401",
               "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b"
             ],
+            "value": 80000,
             "scriptPubKey": "0014851a33a5ef0d4279bd5854949174e2c65b1d4500",
             "redeemScript": "",
             "witnessScript": ""
@@ -844,6 +857,7 @@
               "3045022100cb3929c128fec5108071b662e5af58e39ac8708882753a421455ca80462956f6022030c0f4738dd1a13fc7a34393002d25c6e8a6399f29c7db4b98f53a9475d94ca201",
               "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b"
             ],
+            "value": 80000,
             "scriptPubKey": "a9140d061ae2c8ad224a81142a2e02181f5173b576b387",
             "redeemScript": "0014851a33a5ef0d4279bd5854949174e2c65b1d4500",
             "witnessScript": ""
@@ -860,5 +874,4 @@
       }
     }
   ]
-
 }
