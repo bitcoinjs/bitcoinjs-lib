@@ -99,14 +99,12 @@ describe('Transaction', function () {
   describe('addInput', function () {
     var prevTxHash
     beforeEach(function () {
-      var f = fixtures.valid[0]
-      prevTxHash = new Buffer(f.hash, 'hex')
+      prevTxHash = new Buffer('ffffffff00ffff000000000000000000000000000000000000000000101010ff', 'hex')
     })
 
     it('accepts a transaction hash', function () {
       var tx = new Transaction()
       tx.addInput(prevTxHash, 0)
-
       assert.deepEqual(tx.ins[0].hash, prevTxHash)
     })
 
