@@ -75,12 +75,10 @@ Block.fromHex = function (hex) {
   return Block.fromBuffer(new Buffer(hex, 'hex'))
 }
 
-Block.prototype.getHash = function () {
-  return bcrypto.hash256(this.toBuffer(true))
-}
-
 Block.prototype.getId = function () {
-  return bufferReverse(this.getHash()).toString('hex')
+  var hash = bcrypto.hash256(this.toBuffer(true))
+
+  return bufferReverse(hash).toString('hex')
 }
 
 Block.prototype.getUTCDate = function () {
@@ -146,11 +144,11 @@ Block.calculateTarget = function (bits) {
 }
 
 Block.calculateMerkleRoot = function (transactions) {
-  typeforce([{ getHash: types.Function }], transactions)
+  typeforce([{ toBuffer: types.Function }], transactions)
   if (transactions.length === 0) throw TypeError('Cannot compute merkle root for zero transactions')
 
   var hashes = transactions.map(function (transaction) {
-    return transaction.getHash()
+    return bcrypto.hash256(transaction.toBuffer())
   })
 
   return fastMerkleRoot(hashes, bcrypto.hash256)
@@ -164,7 +162,7 @@ Block.prototype.checkMerkleRoot = function () {
 }
 
 Block.prototype.checkProofOfWork = function () {
-  var hash = bufferReverse(this.getHash())
+  var hash = bufferReverse(bcrypto.hash256(this.toBuffer(true)))
   var target = Block.calculateTarget(this.bits)
 
   return hash.compare(target) <= 0
