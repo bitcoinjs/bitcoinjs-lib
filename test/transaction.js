@@ -118,30 +118,19 @@ describe('Transaction', function () {
       prevTxHash = new Buffer('ffffffff00ffff000000000000000000000000000000000000000000101010ff', 'hex')
     })
 
-    it('accepts a transaction hash', function () {
-      var tx = new Transaction()
-      tx.addInput(prevTxHash, 0)
-      assert.deepEqual(tx.ins[0].hash, prevTxHash)
-    })
-
     it('returns an index', function () {
       var tx = new Transaction()
       assert.strictEqual(tx.addInput(prevTxHash, 0), 0)
       assert.strictEqual(tx.addInput(prevTxHash, 0), 1)
     })
 
-    it('defaults to DEFAULT_SEQUENCE', function () {
-      var tx = new Transaction()
-      tx.addInput(prevTxHash, 0)
-
-      assert.strictEqual(tx.ins[0].sequence, Transaction.DEFAULT_SEQUENCE)
-    })
-
-    it('defaults to empty script', function () {
+    it('defaults to empty script, witness and 0xffffffff SEQUENCE number', function () {
       var tx = new Transaction()
       tx.addInput(prevTxHash, 0)
 
       assert.strictEqual(tx.ins[0].script.length, 0)
+      assert.strictEqual(tx.ins[0].witness.length, 0)
+      assert.strictEqual(tx.ins[0].sequence, 0xffffffff)
     })
 
     fixtures.invalid.addInput.forEach(function (f) {
