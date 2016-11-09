@@ -303,7 +303,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   return bcrypto.hash256(buffer)
 }
 
-Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amount, hashType) {
+Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value, hashType) {
   typeforce(types.tuple(types.UInt32, types.Buffer, types.Satoshi, types.UInt32), arguments)
 
   var tbuffer, toffset
@@ -378,7 +378,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amoun
   writeSlice(input.hash)
   writeUInt32(input.index)
   writeVarSlice(prevOutScript)
-  writeUInt64(amount)
+  writeUInt64(value)
   writeUInt32(input.sequence)
   writeSlice(hashOutputs)
   writeUInt32(this.locktime)
