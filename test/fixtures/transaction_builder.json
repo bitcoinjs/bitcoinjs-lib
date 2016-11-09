@@ -657,11 +657,25 @@
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-            "vout": 0,
-            "signs": []
+            "vout": 0
           }
         ],
         "outputs": []
+      },
+      {
+        "exception": "Transaction has absurd fees",
+        "inputs": [
+          {
+            "txHex": "01000000000100e1f505000000000000000000",
+            "vout": 0
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 ff99e06c1a4ac394b4e1cb3d3a4b2b47749e339a OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 100000
+          }
+        ]
       },
       {
         "description": "Incomplete transaction, nothing assumed",
@@ -669,8 +683,7 @@
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-            "vout": 0,
-            "signs": []
+            "vout": 0
           }
         ],
         "outputs": [
@@ -697,8 +710,7 @@
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
-            "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
-            "signs": []
+            "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "outputs": [
@@ -715,13 +727,11 @@
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-            "vout": 0,
-            "signs": []
+            "vout": 0
           },
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-            "vout": 0,
-            "signs": []
+            "vout": 0
           }
         ],
         "outputs": [
