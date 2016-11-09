@@ -37,6 +37,7 @@ function construct (f, sign) {
   if (sign === false) return txb
 
   f.inputs.forEach(function (input, index) {
+    if (!input.signs) return
     input.signs.forEach(function (sign) {
       var keyPair = ECPair.fromWIF(sign.keyPair, network)
       var redeemScript

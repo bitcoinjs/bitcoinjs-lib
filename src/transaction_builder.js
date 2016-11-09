@@ -272,7 +272,10 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
 
   // Copy inputs
   transaction.ins.forEach(function (txIn) {
-    txb.__addInputUnsafe(txIn.hash, txIn.index, txIn.sequence, txIn.script)
+    txb.__addInputUnsafe(txIn.hash, txIn.index, {
+      sequence: txIn.sequence,
+      script: txIn.script
+    })
   })
 
   // fix some things not possible through the public API
@@ -288,6 +291,8 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
     throw new Error('No, this would invalidate signatures')
   }
 
+  var value
+
   // is it a hex string?
   if (typeof txHash === 'string') {
     // transaction hashs's are displayed in reverse order, un-reverse it
@@ -295,14 +300,21 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
 
   // is it a Transaction object?
   } else if (txHash instanceof Transaction) {
-    prevOutScript = txHash.outs[vout].script
+    var txOut = txHash.outs[vout]
+    prevOutScript = txOut.script
+    value = txOut.value
+
     txHash = txHash.getHash()
   }
 
-  return this.__addInputUnsafe(txHash, vout, sequence, null, prevOutScript)
+  return this.__addInputUnsafe(txHash, vout, {
+    sequence: sequence,
+    prevOutScript: prevOutScript,
+    value: value
+  })
 }
 
-TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, sequence, scriptSig, prevOutScript) {
+TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options) {
   if (Transaction.isCoinbaseHash(txHash)) {
     throw new Error('coinbase inputs not supported')
   }
@@ -313,16 +325,21 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, sequence
   var input = {}
 
   // derive what we can from the scriptSig
-  if (scriptSig) {
-    input = expandInput(scriptSig)
+  if (options.script !== undefined) {
+    input = expandInput(options.script)
+  }
+
+  // if an input value was given, retain it
+  if (options.value !== undefined) {
+    input.value = options.value
   }
 
   // derive what we can from the previous transactions output script
-  if (!input.prevOutScript && prevOutScript) {
+  if (!input.prevOutScript && options.prevOutScript) {
     var prevOutType
 
     if (!input.pubKeys && !input.signatures) {
-      var expanded = expandOutput(prevOutScript)
+      var expanded = expandOutput(options.prevOutScript)
 
       if (expanded.pubKeys) {
         input.pubKeys = expanded.pubKeys
@@ -332,11 +349,11 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, sequence
       prevOutType = expanded.scriptType
     }
 
-    input.prevOutScript = prevOutScript
-    input.prevOutType = prevOutType || bscript.classifyOutput(prevOutScript)
+    input.prevOutScript = options.prevOutScript
+    input.prevOutType = prevOutType || bscript.classifyOutput(options.prevOutScript)
   }
 
-  var vin = this.tx.addInput(txHash, vout, sequence, scriptSig)
+  var vin = this.tx.addInput(txHash, vout, options.sequence, options.scriptSig)
   this.inputs[vin] = input
   this.prevTxMap[prevTxOut] = true
 
@@ -367,6 +384,9 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   if (!allowIncomplete) {
     if (!this.tx.ins.length) throw new Error('Transaction has no inputs')
     if (!this.tx.outs.length) throw new Error('Transaction has no outputs')
+
+    // do not rely on this, its merely a last resort
+    if (this.__hasAbsurdFee()) throw new Error('Transaction has absurd fees')
   }
 
   var tx = this.tx.clone()
@@ -477,6 +497,20 @@ TransactionBuilder.prototype.__canModifyOutputs = function () {
       }
     })
   })
+}
+
+TransactionBuilder.prototype.__hasAbsurdFee = function () {
+  // not all inputs will have .value defined
+  var incoming = this.inputs.reduce(function (a, x) { return a + (x.value >>> 0) }, 0)
+
+  // but all outputs do, and if we have any input value
+  // we can immediately determine if the outputs are too small
+  var outgoing = this.tx.outs.reduce(function (a, x) { return a + x.value }, 0)
+  var fee = incoming - outgoing
+
+  // its not fool-proof, but, it might help somebody
+  // fee > 0.2BTC
+  return fee > (0.2 * 1e8)
 }
 
 module.exports = TransactionBuilder
