@@ -306,14 +306,16 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amount, hashType) {
   typeforce(types.tuple(types.UInt32, types.Buffer, types.Satoshi, types.UInt32), arguments)
 
-  var hashOutputs, hashPrevouts, hashSequence
-
   var tbuffer, toffset
   function writeSlice (slice) { toffset += slice.copy(tbuffer, toffset) }
   function writeUInt32 (i) { toffset = tbuffer.writeUInt32LE(i, toffset) }
   function writeUInt64 (i) { toffset = bufferutils.writeUInt64LE(tbuffer, i, toffset) }
   function writeVarInt (i) { toffset += bufferutils.writeVarInt(tbuffer, i, toffset) }
   function writeVarSlice (slice) { writeVarInt(slice.length); writeSlice(slice) }
+
+  var hashOutputs = ZERO
+  var hashPrevouts = ZERO
+  var hashSequence = ZERO
 
   if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
     tbuffer = new Buffer(36 * this.ins.length)
@@ -365,10 +367,6 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, amoun
 
     hashOutputs = bcrypto.hash256(tbuffer)
   }
-
-  hashPrevouts = hashPrevouts || ZERO
-  hashSequence = hashSequence || ZERO
-  hashOutputs = hashOutputs || ZERO
 
   tbuffer = new Buffer(156 + varSliceSize(prevOutScript))
   toffset = 0
