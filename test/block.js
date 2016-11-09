@@ -62,20 +62,6 @@ describe('Block', function () {
     })
   })
 
-  describe('getHash', function () {
-    fixtures.valid.forEach(function (f) {
-      var block
-
-      beforeEach(function () {
-        block = Block.fromHex(f.hex)
-      })
-
-      it('returns ' + f.hash + ' for the block: ' + f.description, function () {
-        assert.strictEqual(block.getHash().toString('hex'), f.hash)
-      })
-    })
-  })
-
   describe('getId', function () {
     fixtures.valid.forEach(function (f) {
       var block

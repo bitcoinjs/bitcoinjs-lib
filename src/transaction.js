@@ -252,13 +252,11 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   return bcrypto.hash256(buffer)
 }
 
-Transaction.prototype.getHash = function () {
-  return bcrypto.hash256(this.toBuffer())
-}
-
 Transaction.prototype.getId = function () {
+  var hash = bcrypto.hash256(this.toBuffer())
+
   // transaction hash's are displayed in reverse order
-  return bufferReverse(this.getHash()).toString('hex')
+  return bufferReverse(hash).toString('hex')
 }
 
 Transaction.prototype.toBuffer = function (buffer, initialOffset) {

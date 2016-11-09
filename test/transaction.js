@@ -177,16 +177,6 @@ describe('Transaction', function () {
     })
   })
 
-  describe('getHash', function () {
-    fixtures.valid.forEach(function (f) {
-      it('should return the hash for ' + f.id, function () {
-        var tx = Transaction.fromHex(f.hex)
-
-        assert.strictEqual(tx.getHash().toString('hex'), f.hash)
-      })
-    })
-  })
-
   describe('isCoinbase', function () {
     fixtures.valid.forEach(function (f) {
       it('should return ' + f.coinbase + ' for ' + f.id, function () {

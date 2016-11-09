@@ -296,7 +296,9 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
   // is it a Transaction object?
   } else if (txHash instanceof Transaction) {
     prevOutScript = txHash.outs[vout].script
-    txHash = txHash.getHash()
+
+    // TODO: must not change with SegWit
+    txHash = bcrypto.hash256(txHash.toBuffer())
   }
 
   return this.__addInputUnsafe(txHash, vout, sequence, null, prevOutScript)
