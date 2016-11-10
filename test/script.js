@@ -119,7 +119,7 @@ describe('script', function () {
       it('solves ' + bscript.toASM(script) + ' as ' + f.type, function () {
         var solution = bscript.solveOutput(script)
         assert.equal(solution.type, f.type)
-        if ([bscript.types.P2SH].concat(bscript.P2SH_SCRIPTS).indexOf(f.type) === -1) {
+        if ([bscript.types.P2SH, bscript.types.P2WSH, bscript.types.P2WPKH, bscript.types.P2PKH, bscript.types.P2PK, bscript.types.MULTISIG].indexOf(f.type) === -1) {
           assert.equal(solution.solvedBy, null)
         }
         if (solution.canSign) {
