@@ -17,9 +17,6 @@ var types = {
   P2WSH: 'witnessscripthash'
 }
 
-var SIGNABLE_SCRIPTS = [types.MULTISIG, types.P2PKH, types.P2PK]
-var P2SH_SCRIPTS = SIGNABLE_SCRIPTS.concat([types.P2WPKH, types.P2WSH])
-
 function classifyOutput (script) {
   if (witnessPubKeyHash.output.check(script)) return types.P2WPKH
   if (witnessScriptHash.output.check(script)) return types.P2WSH
@@ -102,7 +99,6 @@ function solveOutput (scriptCode) {
     type: outputType,
     script: scriptCode,
     solvedBy: solvedBy,
-    canSign: SIGNABLE_SCRIPTS.indexOf(outputType) !== -1,
     requiredSigs: requiredSigs
   }
 }
@@ -119,7 +115,5 @@ module.exports = {
   scriptHash: scriptHash,
   witnessPubKeyHash: witnessPubKeyHash,
   witnessScriptHash: witnessScriptHash,
-  types: types,
-  SIGNABLE_SCRIPTS: SIGNABLE_SCRIPTS,
-  P2SH_SCRIPTS: P2SH_SCRIPTS
+  types: types
 }
