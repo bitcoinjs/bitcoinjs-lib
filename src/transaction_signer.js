@@ -408,13 +408,11 @@ function serializeStandard (outputType, signatures, publicKeys) {
 }
 
 function serializeSigData (signatures, publicKeys, scriptPubKey, redeemScript, witnessScript) {
-  var sigData = {
-    scriptSig: EMPTY_SCRIPT,
-    witness: []
-  }
+  var scriptChunks = []
+  var witnessChunks = []
   var type = scriptPubKey.type
   if (scriptPubKey.canSign) {
-    sigData.scriptSig = pushAll(serializeStandard(type, signatures, publicKeys))
+    scriptChunks = serializeStandard(type, signatures, publicKeys)
   }
 
   var p2sh = false
@@ -425,29 +423,32 @@ function serializeSigData (signatures, publicKeys, scriptPubKey, redeemScript, w
     p2sh = true
     type = redeemScript.type
     if (redeemScript.canSign) {
-      sigData.scriptSig = pushAll(serializeStandard(type, signatures, publicKeys))
+      scriptChunks = serializeStandard(type, signatures, publicKeys)
     }
   }
 
   if (type === bscript.types.P2WPKH) {
-    sigData.witness = serializeStandard(bscript.types.P2PKH, signatures, publicKeys)
+    witnessChunks = serializeStandard(bscript.types.P2PKH, signatures, publicKeys)
   } else if (type === bscript.types.P2WSH) {
     if (witnessScript === undefined) {
       throw new Error('Witness script not provided')
     }
     type = witnessScript.type
     if (witnessScript.canSign) {
-      sigData.scriptSig = EMPTY_SCRIPT
-      sigData.witness = serializeStandard(type, signatures, publicKeys)
-      sigData.witness.push(witnessScript.script)
+      scriptChunks = []
+      witnessChunks = serializeStandard(type, signatures, publicKeys)
+      witnessChunks.push(witnessScript.script);
     }
   }
 
   if (p2sh) {
-    sigData.scriptSig = bscript.scriptHash.input.encode(sigData.scriptSig, redeemScript.script)
+    scriptChunks.push(redeemScript.script)
   }
 
-  return sigData
+  return {
+    scriptSig: pushAll(scriptChunks),
+    witness: witnessChunks
+  }
 }
 
 InSigner.prototype.serializeSigData = function () {
