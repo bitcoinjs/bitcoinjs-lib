@@ -236,6 +236,8 @@ function TransactionBuilder (network) {
   this.tx = new Transaction()
 }
 
+TransactionBuilder.ABSURD_FEERATE = 1000
+
 TransactionBuilder.prototype.setLockTime = function (locktime) {
   typeforce(types.UInt32, locktime)
 
@@ -513,7 +515,7 @@ TransactionBuilder.prototype.__hasAbsurdFeeRate = function (bytes) {
   var fee = incoming - outgoing
   var feeRate = fee / bytes
 
-  return feeRate > 1000
+  return feeRate > TransactionBuilder.ABSURD_FEERATE
 }
 
 module.exports = TransactionBuilder
