@@ -188,7 +188,7 @@ Transaction.prototype.addOutput = function (scriptPubKey, value) {
 
 Transaction.prototype._hasWitnesses = function () {
   return this.ins.some(function (x) {
-    return x.witness !== EMPTY_WITNESS
+    return x.witness.length > 0
   })
 }
 
