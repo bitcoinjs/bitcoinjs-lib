@@ -2,6 +2,10 @@
 
 var assert = require('assert')
 var bscript = require('../src/script')
+var bcrypto = require('../src/crypto')
+var bufferReverse = require('buffer-reverse')
+var Transaction = require('../src/transaction')
+
 var fixtures = require('./fixtures/transaction')
 var Transaction = require('../src/transaction')
 
@@ -224,5 +228,76 @@ describe('Transaction', function () {
         assert.strictEqual(tx.hashForWitnessV0(f.inIndex, script, f.value, f.type).toString('hex'), f.hash)
       })
     })
+  })
+
+  describe('signature hashing', function () {
+    function unsignedTransactionFromRaw (raw) {
+      var unsigned = new Transaction()
+      unsigned.version = raw.version
+      unsigned.ins = raw.ins.map(function (input) {
+        return {
+          hash: bufferReverse(new Buffer(input.hash, 'hex')),
+          index: input.index,
+          script: new Buffer(0), // Empty for now
+          witness: [],           // Empty for now
+          sequence: 4294967295
+        }
+      })
+      unsigned.outs = raw.outs.map(function (output) {
+        return {
+          value: output.value,
+          script: new Buffer(output.scriptHex, 'hex')
+        }
+      })
+      unsigned.locktime = 0
+      return unsigned
+    }
+
+    function checkInputsMatchSigHash (f) {
+      var unsigned = unsignedTransactionFromRaw(f.raw)
+
+      f.raw.ins.forEach(function (input) {
+        it('determines the correct sighash for all inputs', function () {
+          var prevOutScript = new Buffer(input.scriptPubKey, 'hex')
+          var valueOut = input.value ? input.value : 0
+          var redeemScript = input.redeemScript ? new Buffer(input.redeemScript, 'hex') : undefined
+          var witnessScript = input.witnessScript ? new Buffer(input.witnessScript, 'hex') : undefined
+          var expectedSigHash = new Buffer(input.sigHash, 'hex')
+          var tx = unsigned
+
+          // This is example usage of solveOutput
+
+          var sigVersion = 0
+          var solution = bscript.solveOutput(prevOutScript)
+          if (solution.type === bscript.types.P2SH) {
+            // This line is useless given the example, but illustrates usage
+            if (solution.solvedBy.equals(bcrypto.hash160(redeemScript))) {
+              solution = bscript.solveOutput(redeemScript)
+            }
+          }
+
+          // We again use solvedBy (result of the script.*.output.decode() function)
+          // But notice, here we don't know if it's witness due to (i) scriptPubKey or (ii) redeemScript
+          // so it's nice solveOutput also returns solvedBy
+          if (solution.type === bscript.types.P2WPKH) {
+            sigVersion = 1
+            solution = bscript.solveOutput(bscript.pubKeyHash.output.encode(solution.solvedBy))
+          } else if (solution.type === bscript.types.P2WSH) {
+            sigVersion = 1
+            solution = bscript.solveOutput(witnessScript)
+          }
+
+          assert([bscript.types.P2PKH, bscript.types.P2PK, bscript.types.MULTISIG].indexOf(solution.type) !== -1, 'should have found a signable type')
+
+          var hash = sigVersion === 1
+            ? tx.hashForWitnessV0(0, solution.script, valueOut, Transaction.SIGHASH_ALL)
+            : tx.hashForSignature(0, solution.script, Transaction.SIGHASH_ALL)
+
+          assert.equal(hash.toString('hex'), expectedSigHash.toString('hex'))
+        })
+      })
+    }
+
+    fixtures.witness.forEach(checkInputsMatchSigHash)
   })
 })
