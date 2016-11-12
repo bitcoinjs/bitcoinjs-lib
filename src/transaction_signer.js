@@ -37,13 +37,14 @@ function sortMultisigs (tx, nIn, txOutValue, ecsigs, publicKeys, scriptCode, sig
   var success = true
   var sigsCount = ecsigs.length
   var keysCount = publicKeys.length
-  while (success && ecsigs.length > 0) {
+
+  while (success && ecsigs.length > isig) {
     sig = ECSignature.parseScriptSignature(ecsigs[isig])
     key = ECPair.fromPublicKeyBuffer(publicKeys[ikey])
     hash = calculateSigHash(tx, nIn, scriptCode, sig.hashType, sigVersion, txOutValue)
     if (key.verify(hash, sig.signature)) {
       isig++
-      results[key.getPublicKeyBuffer().toString('binary')] = ecsigs[isig]
+      results[key.getPublicKeyBuffer().toString('binary')] = sig
     }
     ikey++
     if (sigsCount > keysCount) {
@@ -233,14 +234,14 @@ InSigner.prototype.extractSignableChunks = function (solution, chunks, sigVersio
       publicKeys[0] = decoded.pubKey
     }
   } else if (solution.type === bscript.types.MULTISIG) {
-    if (bscript.multisig.input.check(chunks)) {
-      publicKeys = solution.solvedBy.publicKeys
-      signatures = bscript.multisig.input.decode(chunks, true)
+    if (bscript.multisig.input.check(pushAll(chunks))) {
+      publicKeys = solution.solvedBy.pubKeys
+      signatures = bscript.multisig.input.decode(pushAll(chunks), true)
 
       // We need to map signature to the pubkey index in order to re-serialize
-      var sigs = sortMultisigs(this.tx, this.nIn, this.txOut.value, signatures, publicKeys, solution.script, sigVersion)
+      var sigs = sortMultisigs(this.tx, this.nIn, this.value, signatures, publicKeys, solution.script, sigVersion)
       for (var i = 0, l = publicKeys.length; i < l; i++) {
-        var str = publicKeys[ i ].getPublicKeyBuffer().toString('binary')
+        var str = publicKeys[ i ].toString('binary')
         if (sigs[ str ] !== undefined && bscript.isCanonicalSignature(sigs[str])) {
           signatures[ i ] = sigs[ str ]
         }
@@ -263,7 +264,8 @@ InSigner.prototype.extractSig = function () {
   }
 
   if (solution.type === bscript.types.P2SH) {
-    if (bscript.scriptHash.input.check(input.script)) {
+    extractChunks = bscript.decompile(input.script)
+    if (extractChunks.length > 0) {
       // If we go to extract a P2SH scriptSig, verify the provided redeemScript
       var p2sh = bscript.scriptHash.input.decode(input.script)
       if (!p2sh.redeemScript.equals(this.redeemScript.script)) {
@@ -283,21 +285,18 @@ InSigner.prototype.extractSig = function () {
       if (!witnessKeyHash.equals(bcrypto.hash160(input.witness[1]))) {
         throw new Error('Public key does not match key-hash')
       }
-
       extractChunks = input.witness
     }
   } else if (solution.type === bscript.types.P2WSH) {
     if (input.witness.length > 0) {
-      if (!this.witnessScript.equals(input.witness[ input.witness.length - 1 ])) {
+      if (!this.witnessScript.script.equals(input.witness[ input.witness.length - 1 ])) {
         throw new Error('Witness script does not match')
       }
-      solution = input.witnessScript
       extractChunks = input.witness.slice(0, -1)
     }
   }
-
   if (extractChunks.length > 0) {
-    [this.signatures, this.publicKeys] = this.extractSignableChunks(solution, extractChunks, this.sigVersion)
+    [this.signatures, this.publicKeys] = this.extractSignableChunks(this.signScript, extractChunks, this.sigVersion)
   }
 }
 
