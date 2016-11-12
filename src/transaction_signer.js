@@ -167,16 +167,91 @@ function InSigner (tx, nIn, opts) {
   this.nIn = nIn
   this.publicKeys = []
   this.signatures = []
-  this.requiredSigs = null
+  this.requiredSigs = 0
   this.solve(opts)
   this.extractSig()
 }
 
-InSigner.prototype.isFullySigned = function () {
-  return this.requiredSigs !== null && this.requiredSigs === this.signatures.length
+InSigner.prototype.solve = function (opts) {
+  // Determine scriptPubKey is solvable
+  var scriptPubKey = solveScript(opts.scriptPubKey)
+  if (scriptPubKey.type !== bscript.types.P2SH && ALLOWED_P2SH_SCRIPTS.indexOf(scriptPubKey.type) === -1) {
+    throw new Error('txOut script is non-standard')
+  }
+
+  var solution = scriptPubKey
+  var redeemScript
+  var witnessScript
+  var sigVersion = Transaction.SIG_V0
+  var value = 0
+
+  if (solution.type === bscript.types.P2SH) {
+    var scriptHash = solution.solvedBy
+    // Redeem script must be provided by opts
+    if (!(opts.redeemScript instanceof Buffer)) {
+      throw new Error('Redeem script required to solve utxo')
+    }
+    // Check redeemScript against script-hash
+    if (!scriptHash.equals(bcrypto.hash160(opts.redeemScript))) {
+      throw new Error('Redeem script does not match txOut script hash')
+    }
+    // Prevent non-standard P2SH scripts
+    solution = solveScript(opts.redeemScript)
+    if (!ALLOWED_P2SH_SCRIPTS.indexOf(solution.type)) {
+      throw new Error('Unsupported P2SH script')
+    }
+    redeemScript = solution
+  }
+
+  if (solution.type === bscript.types.P2WPKH) {
+    // txOutValue is required here
+    if (!types.Satoshi(opts.value)) {
+      throw new Error('Value is required for witness-key-hash')
+    }
+    // We set solution to this to avoid work later, since P2WPKH is a special case of P2PKH
+    solution = solveScript(bscript.pubKeyHash.output.encode(solution.solvedBy))
+    sigVersion = Transaction.SIG_V1
+    value = opts.value
+  } else if (solution.type === bscript.types.P2WSH) {
+    var witnessScriptHash = solution.solvedBy
+    // Witness script must be provided by opts
+    if (!(opts.witnessScript instanceof Buffer)) {
+      throw new Error('P2WSH script required to solve utxo')
+    }
+    // txOutValue is required here
+    if (!types.Satoshi(opts.value)) {
+      throw new Error('Value is required for witness-script-hash')
+    }
+    // Check witnessScript against script hash
+    if (!bcrypto.sha256(opts.witnessScript).equals(witnessScriptHash)) {
+      throw new Error('Witness script does not match txOut script hash')
+    }
+    // Prevent non-standard P2WSH scripts
+    solution = solveScript(opts.witnessScript)
+    if (SIGNABLE_SCRIPTS.indexOf(solution.type) === -1) {
+      throw new Error('Witness script is not supported')
+    }
+    witnessScript = solution
+    sigVersion = Transaction.SIG_V1
+    value = opts.value
+  }
+
+  this.requiredSigs = solution.requiredSigs
+  this.scriptPubKey = scriptPubKey
+  this.redeemScript = redeemScript
+  this.witnessScript = witnessScript
+  this.value = value
+  // signScript & sigVersion were added last, they make sign branch free
+  this.sigVersion = sigVersion
+  this.signScript = solution
 }
 
-InSigner.prototype.extractStandard = function (solution, chunks, sigVersion) {
+InSigner.prototype.isFullySigned = function () {
+  return this.requiredSigs !== null && this.signatures.length === this.requiredSigs
+}
+
+InSigner.prototype.extractSignableChunks = function (solution, chunks, sigVersion) {
+  // Only SIGNABLE_SCRIPTS can be extracted here
   var signatures = []
   var publicKeys = []
   var decoded
@@ -222,84 +297,12 @@ InSigner.prototype.extractStandard = function (solution, chunks, sigVersion) {
   return [signatures, publicKeys]
 }
 
-InSigner.prototype.solve = function (opts) {
-  // Determine scriptPubKey is solvable
-  var scriptPubKey = solveScript(opts.scriptPubKey)
-  if (scriptPubKey.type !== bscript.types.P2SH && ALLOWED_P2SH_SCRIPTS.indexOf(scriptPubKey.type) === -1) {
-    throw new Error('txOut script is non-standard')
-  }
-
-  var solution = scriptPubKey
-  var redeemScript
-  var witnessScript
-  var sigVersion = Transaction.SIG_V0
-  var value = 0
-
-  if (solution.type === bscript.types.P2SH) {
-    var scriptHash = solution.solvedBy
-    // Redeem script must be provided by opts
-    if (!(opts.redeemScript instanceof Buffer)) {
-      throw new Error('Redeem script required to solve utxo')
-    }
-    // Check redeemScript against script-hash
-    if (!scriptHash.equals(bcrypto.hash160(opts.redeemScript))) {
-      throw new Error('Redeem script does not match txOut script hash')
-    }
-    // Determine redeemScript is solvable
-    solution = solveScript(opts.redeemScript)
-    if (!ALLOWED_P2SH_SCRIPTS.indexOf(solution.type)) {
-      throw new Error('Unsupported P2SH script')
-    }
-    redeemScript = solution
-  }
-
-  if (solution.type === bscript.types.P2WPKH) {
-    // txOutValue is required here
-    if (!types.Satoshi(opts.value)) {
-      throw new Error('Value is required for witness-key-hash')
-    }
-    // We set solution to this to avoid work later, since P2WPKH is a special case of P2PKH
-    solution = solveScript(bscript.pubKeyHash.output.encode(solution.solvedBy))
-    sigVersion = Transaction.SIG_V1
-    value = opts.value
-  } else if (solution.type === bscript.types.P2WSH) {
-    var witnessScriptHash = solution.solvedBy
-    // Witness script must be provided by opts
-    if (!(opts.witnessScript instanceof Buffer)) {
-      throw new Error('P2WSH script required to solve utxo')
-    }
-    // txOutValue is required here
-    if (!types.Satoshi(opts.value)) {
-      throw new Error('Value is required for witness-script-hash')
-    }
-    // Check witnessScript against script hash
-    if (!bcrypto.sha256(opts.witnessScript).equals(witnessScriptHash)) {
-      throw new Error('Witness script does not match txOut script hash')
-    }
-    solution = solveScript(opts.witnessScript)
-    // Determine if witnessScript is solvable
-    if (SIGNABLE_SCRIPTS.indexOf(solution.type) === -1) {
-      throw new Error('witness script is not supported')
-    }
-    witnessScript = solution
-    sigVersion = Transaction.SIG_V1
-    value = opts.value
-  }
-
-  this.signScript = solution
-  this.scriptPubKey = scriptPubKey
-  this.redeemScript = redeemScript
-  this.witnessScript = witnessScript
-  this.sigVersion = sigVersion
-  this.value = value
-}
-
 InSigner.prototype.extractSig = function () {
   // Attempt decoding of the input scriptSig and witness
   var input = this.tx.ins[this.nIn]
   var solution = this.scriptPubKey
   var extractChunks = []
-  if (solution.canSign) {
+  if (SIGNABLE_SCRIPTS.indexOf(solution.type) !== -1) {
     extractChunks = evalPushOnly(input.script)
   }
 
@@ -311,8 +314,8 @@ InSigner.prototype.extractSig = function () {
         throw new Error('Redeem script from scriptSig does not match')
       }
       solution = this.redeemScript
-      if (solution.canSign) {
-        // We only bother if canSign, otherwise we waste time
+      if (SIGNABLE_SCRIPTS.indexOf(solution.canSign) !== -1) {
+        // only do this if we can sign, otherwise we waste CPU
         extractChunks = evalPushOnly(p2sh.redeemScriptSig)
       }
     }
@@ -338,40 +341,42 @@ InSigner.prototype.extractSig = function () {
   }
 
   if (extractChunks.length > 0) {
-    [this.signatures, this.publicKeys] = this.extractStandard(solution, extractChunks, this.sigVersion)
+    [this.signatures, this.publicKeys] = this.extractSignableChunks(solution, extractChunks, this.sigVersion)
   }
 }
 
-function signStandard (tx, nIn, txOutValue, signatures, publicKeys, key, solution, sigHashType, sigVersion) {
+function signSignable (tx, nIn, txOutValue, signatures, publicKeys, key, solution, sigHashType, sigVersion) {
+  // Todo, skip if already signed
   // Only SIGNABLE_SCRIPTS can be signed here
-  var didSign = false
   var keyBuffer = key.getPublicKeyBuffer()
   if (solution.type === bscript.types.P2PK) {
     if (bufferEquals(keyBuffer, solution.solvedBy)) {
       signatures = [calculateSignature(tx, nIn, key, solution.script, sigHashType, sigVersion, txOutValue)]
       publicKeys = [keyBuffer]
-      didSign = true
+    } else {
+      throw new Error('Signing input with wrong private key')
     }
   } else if (solution.type === bscript.types.P2PKH) {
     if (bufferEquals(bcrypto.hash160(keyBuffer), solution.solvedBy)) {
       signatures = [calculateSignature(tx, nIn, key, solution.script, sigHashType, sigVersion, txOutValue)]
       publicKeys = [keyBuffer]
-      didSign = true
+    } else {
+      throw new Error('Signing input with wrong private key')
     }
   } else if (solution.type === bscript.types.MULTISIG) {
+    var match = false
     for (var i = 0, keyLen = solution.solvedBy.pubKeys.length; i < keyLen; i++) {
       publicKeys[i] = solution.solvedBy.pubKeys[i]
       if (bufferEquals(keyBuffer, publicKeys[i])) {
-        didSign = true
+        match = true
         signatures[i] = calculateSignature(tx, nIn, key, solution.script, sigHashType, sigVersion, txOutValue)
       }
     }
+    if (!match) {
+      throw new Error('Signing input with wrong private key')
+    }
   } else {
     throw new Error('signStandard can only sign SIGNABLE_SCRIPTS')
-  }
-
-  if (!didSign) {
-    throw new Error('Signing input with wrong private key')
   }
 
   return [signatures, publicKeys]
@@ -384,14 +389,11 @@ function signStandard (tx, nIn, txOutValue, signatures, publicKeys, key, solutio
  * @returns {{type, script, canSign, solvedBy, requiredSigs}|*}
  */
 InSigner.prototype.sign = function (key, sigHashType) {
-  sigHashType = sigHashType || Transaction.SIGHASH_ALL
-  var solution = this.signScript;
-  // Attempt to solve the txOut script
-
-  [this.signatures, this.publicKeys] = signStandard(this.tx, this.nIn, this.value, this.signatures, this.publicKeys, key, solution, sigHashType, this.sigVersion)
+  sigHashType = sigHashType || Transaction.SIGHASH_ALL;
+  [this.signatures, this.publicKeys] = signSignable(this.tx, this.nIn, this.value, this.signatures, this.publicKeys, key, this.signScript, sigHashType, this.sigVersion)
   this.requiredSigs = this.publicKeys.length
 
-  return solution
+  return true
 }
 
 /**
@@ -403,8 +405,8 @@ InSigner.prototype.sign = function (key, sigHashType) {
  * @param publicKeys
  * @returns {Array}
  */
-function serializeStandard (outputType, signatures, publicKeys) {
-  // When adding a new script type, edit here
+function serializeSignableChunks (outputType, signatures, publicKeys) {
+  // Only SIGNABLE_SCRIPTS can be serialized here
   var chunks = []
   switch (outputType) {
     case bscript.types.P2PK:
@@ -438,7 +440,7 @@ InSigner.prototype.serializeSigData = function () {
   var witnessChunks = []
   var type = this.scriptPubKey.type
   if (this.scriptPubKey.canSign) {
-    scriptChunks = serializeStandard(type, this.signatures, this.publicKeys)
+    scriptChunks = serializeSignableChunks(type, this.signatures, this.publicKeys)
   }
 
   var p2sh = false
@@ -446,17 +448,17 @@ InSigner.prototype.serializeSigData = function () {
     p2sh = true
     type = this.redeemScript.type
     if (this.redeemScript.canSign) {
-      scriptChunks = serializeStandard(type, this.signatures, this.publicKeys)
+      scriptChunks = serializeSignableChunks(type, this.signatures, this.publicKeys)
     }
   }
 
   if (type === bscript.types.P2WPKH) {
-    witnessChunks = serializeStandard(bscript.types.P2PKH, this.signatures, this.publicKeys)
+    witnessChunks = serializeSignableChunks(bscript.types.P2PKH, this.signatures, this.publicKeys)
   } else if (type === bscript.types.P2WSH) {
     type = this.witnessScript.type
     if (this.witnessScript.canSign) {
       scriptChunks = []
-      witnessChunks = serializeStandard(type, this.signatures, this.publicKeys)
+      witnessChunks = serializeSignableChunks(type, this.signatures, this.publicKeys)
       witnessChunks.push(this.witnessScript.script);
     }
   }
