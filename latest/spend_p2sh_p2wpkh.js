@@ -43,4 +43,4 @@ signer.sign(0, root.keyPair, {
   value: txOut.value
 })
 var txd = signer.done()
-console.log(txd.toBufferWithWitness().toString('hex'))
+console.log(txd.toBuffer().toString('hex'))

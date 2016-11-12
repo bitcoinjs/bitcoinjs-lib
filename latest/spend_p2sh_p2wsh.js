@@ -29,7 +29,7 @@ builder.addOutput('2N6stcWuMpLgt4nkiaEFXP6p9J9VKRHCwDJ', 10000)
 var unsigned = builder.buildIncomplete()
 var signer = new TxSigner(unsigned)
 signer.sign(0, root.keyPair, {
-  scriptPubKey: txOut.scriptPubKey,
+  scriptPubKey: txOut.script,
   redeemScript: p2shScript,
   witnessScript: witnessScript,
   value: txOut.value

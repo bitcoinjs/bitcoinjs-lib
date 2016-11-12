@@ -355,7 +355,7 @@ InSigner.prototype.sign = function (key, sigHashType) {
   if (solution.type === bscript.types.P2SH) {
     // solution updated, type is the type of the redeemScript
     solution = this.redeemScript
-    if (bscript.P2SH_SCRIPTS.indexOf(solution.type)) {
+    if (ALLOWED_P2SH_SCRIPTS.indexOf(solution.type) !== -1) {
       if (solution.canSign) {
         [this.signatures, this.publicKeys] = signStandard(this.tx, this.nIn, undefined, this.signatures, this.publicKeys, key, solution, sigHashType, Transaction.SIG_V0)
       }
@@ -484,7 +484,6 @@ TxSigner.prototype.sign = function (nIn, key, opts, sigHashType) {
   }
   // You can probably make this work with the current library, if you can work out the witnessScript above!
   // generate opts for the internal signer based off older way of positional arguments to TxSigner.sign
-
   if (this.states[nIn] === undefined) {
     this.states[nIn] = new InSigner(this.tx, nIn, opts)
   }
