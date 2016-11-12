@@ -5,7 +5,7 @@ module.exports = {
   HDNode: require('./hdnode'),
   Transaction: require('./transaction'),
   TransactionBuilder: require('./transaction_builder'),
-
+  TxSigner: require('./transaction_signer'),
   address: require('./address'),
   bufferutils: require('./bufferutils'),
   crypto: require('./crypto'),
