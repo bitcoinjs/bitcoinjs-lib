@@ -384,9 +384,6 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   if (!allowIncomplete) {
     if (!this.tx.ins.length) throw new Error('Transaction has no inputs')
     if (!this.tx.outs.length) throw new Error('Transaction has no outputs')
-
-    // do not rely on this, its merely a last resort
-    if (this.__hasAbsurdFee()) throw new Error('Transaction has absurd fees')
   }
 
   var tx = this.tx.clone()
@@ -407,6 +404,13 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 
     tx.setInputScript(i, scriptSig)
   })
+
+  if (!allowIncomplete) {
+    // do not rely on this, its merely a last resort
+    if (this.__hasAbsurdFeeRate(tx.byteLength())) {
+      throw new Error('Transaction has absurd fees')
+    }
+  }
 
   return tx
 }
@@ -499,7 +503,7 @@ TransactionBuilder.prototype.__canModifyOutputs = function () {
   })
 }
 
-TransactionBuilder.prototype.__hasAbsurdFee = function () {
+TransactionBuilder.prototype.__hasAbsurdFeeRate = function (bytes) {
   // not all inputs will have .value defined
   var incoming = this.inputs.reduce(function (a, x) { return a + (x.value >>> 0) }, 0)
 
@@ -507,10 +511,9 @@ TransactionBuilder.prototype.__hasAbsurdFee = function () {
   // we can immediately determine if the outputs are too small
   var outgoing = this.tx.outs.reduce(function (a, x) { return a + x.value }, 0)
   var fee = incoming - outgoing
+  var feeRate = fee / bytes
 
-  // its not fool-proof, but, it might help somebody
-  // fee > 0.2BTC
-  return fee > (0.2 * 1e8)
+  return feeRate > 1000
 }
 
 module.exports = TransactionBuilder

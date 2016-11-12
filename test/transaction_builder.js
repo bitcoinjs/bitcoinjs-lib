@@ -21,17 +21,31 @@ function construct (f, sign) {
   if (f.locktime !== undefined) txb.setLockTime(f.locktime)
 
   f.inputs.forEach(function (input) {
-    var prevTxScript
+    var prevTx
+    if (input.txRaw) {
+      var constructed = construct(input.txRaw)
+      if (input.txRaw.incomplete) prevTx = constructed.buildIncomplete()
+      else prevTx = constructed.build()
+    } else if (input.txHex) {
+      prevTx = Transaction.fromHex(input.txHex)
+    } else {
+      prevTx = input.txId
+    }
 
-    if (!input.txHex && input.prevTxScript) {
+    var prevTxScript
+    if (input.prevTxScript) {
       prevTxScript = bscript.fromASM(input.prevTxScript)
     }
 
-    txb.addInput(input.txId || Transaction.fromHex(input.txHex), input.vout, input.sequence, prevTxScript)
+    txb.addInput(prevTx, input.vout, input.sequence, prevTxScript)
   })
 
   f.outputs.forEach(function (output) {
-    txb.addOutput(bscript.fromASM(output.script), output.value)
+    if (output.address) {
+      txb.addOutput(output.address, output.value)
+    } else {
+      txb.addOutput(bscript.fromASM(output.script), output.value)
+    }
   })
 
   if (sign === false) return txb
