@@ -216,12 +216,16 @@ InSigner.prototype.extractStandard = function (solution, chunks, sigVersion) {
 }
 
 InSigner.prototype.solve = function (opts) {
-  var solution = solveScript(opts.scriptPubKey)
-  if (solution.type === bscript.types.NONSTANDARD) {
+  var scriptPubKey = solveScript(opts.scriptPubKey)
+  if (scriptPubKey.type !== bscript.types.P2SH && ALLOWED_P2SH_SCRIPTS.indexOf(scriptPubKey.type) === -1) {
     throw new Error('txOut script is non-standard')
   }
 
-  this.scriptPubKey = solution
+  var redeemScript
+  var witnessScript
+  var value = 0
+  var sigVersion = Transaction.SIG_V0
+  var solution = scriptPubKey
   if (solution.type === bscript.types.P2SH) {
     var scriptHash = solution.solvedBy
     if (!(opts.redeemScript instanceof Buffer)) {
@@ -234,7 +238,7 @@ InSigner.prototype.solve = function (opts) {
 
     solution = solveScript(opts.redeemScript)
     if (ALLOWED_P2SH_SCRIPTS.indexOf(solution.type)) {
-      this.redeemScript = solution
+      redeemScript = solution
     } else {
       throw new Error('Unsupported P2SH script')
     }
@@ -244,7 +248,10 @@ InSigner.prototype.solve = function (opts) {
     if (!types.Satoshi(opts.value)) {
       throw new Error('Value is required for witness-key-hash')
     }
-    this.value = opts.value
+
+    solution = solveScript(bscript.pubKeyHash.output.encode(solution.solvedBy))
+    value = opts.value
+    sigVersion = Transaction.SIG_V1
   } else if (solution.type === bscript.types.P2WSH) {
     var witnessScriptHash = solution.solvedBy
     if (!(opts.witnessScript instanceof Buffer)) {
@@ -256,12 +263,20 @@ InSigner.prototype.solve = function (opts) {
     if (!bufferEquals(bcrypto.sha256(opts.witnessScript), witnessScriptHash)) {
       throw new Error('Witness script does not match txOut script hash')
     }
-    this.witnessScript = solveScript(opts.witnessScript)
-    this.value = opts.value
-    if (SIGNABLE_SCRIPTS.indexOf(this.witnessScript.type) === -1) {
+    solution = witnessScript = solveScript(opts.witnessScript)
+    value = opts.value
+    sigVersion = Transaction.SIG_V1
+    if (SIGNABLE_SCRIPTS.indexOf(witnessScript.type) === -1) {
       throw new Error('witness script is not supported')
     }
   }
+
+  this.signScript = solution
+  this.scriptPubKey = scriptPubKey
+  this.value = value
+  this.sigVersion = sigVersion
+  this.redeemScript = redeemScript
+  this.witnessScript = witnessScript
 }
 
 InSigner.prototype.extractSig = function () {
@@ -357,29 +372,10 @@ function signStandard (tx, nIn, txOutValue, signatures, publicKeys, key, solutio
  */
 InSigner.prototype.sign = function (key, sigHashType) {
   sigHashType = sigHashType || Transaction.SIGHASH_ALL
-
+  var solution = this.signScript;
   // Attempt to solve the txOut script
-  var solution = this.scriptPubKey
-  var sigVersion = Transaction.SIG_V0
-  var txOutValue = 0
 
-  // If the spkPubKeyHash was solvable, and the type is P2SH, we try again with the redeemScript
-  if (solution.type === bscript.types.P2SH) {
-    // solution updated, type is the type of the redeemScript
-    solution = this.redeemScript
-  }
-
-  if (solution.type === bscript.types.P2WPKH) {
-    solution = solveScript(bscript.pubKeyHash.output.encode(solution.solvedBy));
-    sigVersion = Transaction.SIG_V1
-    txOutValue = this.value
-  } else if (solution.type === bscript.types.P2WSH) {
-    solution = this.witnessScript
-    sigVersion = Transaction.SIG_V1
-    txOutValue = this.value
-  }
-
-  [this.signatures, this.publicKeys] = signStandard(this.tx, this.nIn, txOutValue, this.signatures, this.publicKeys, key, solution, sigHashType, sigVersion)
+  [this.signatures, this.publicKeys] = signStandard(this.tx, this.nIn, this.value, this.signatures, this.publicKeys, key, solution, sigHashType, this.sigVersion)
   this.requiredSigs = this.publicKeys.length
 
   return solution
@@ -387,6 +383,7 @@ InSigner.prototype.sign = function (key, sigHashType) {
 
 /**
  * Creates an array of chunks for the scriptSig or witness
+ * Future signable types go here (CSV, HTLC)
  *
  * @param outputType
  * @param signatures
@@ -421,10 +418,6 @@ function serializeStandard (outputType, signatures, publicKeys) {
   }
 
   return chunks
-}
-
-function serializeSigData (signatures, publicKeys, scriptPubKey, redeemScript, witnessScript) {
-
 }
 
 InSigner.prototype.serializeSigData = function () {
