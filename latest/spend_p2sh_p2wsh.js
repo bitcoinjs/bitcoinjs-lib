@@ -28,12 +28,17 @@ builder.addOutput('2N6stcWuMpLgt4nkiaEFXP6p9J9VKRHCwDJ', 10000)
 
 var unsigned = builder.buildIncomplete()
 var signer = new TxSigner(unsigned)
-signer.sign(0, root.keyPair, {
+var opts = {
   scriptPubKey: txOut.script,
   redeemScript: p2shScript,
   witnessScript: witnessScript,
   value: txOut.value
-})
+}
+signer.sign(0, root.keyPair, opts)
 
 var txd = signer.done()
 console.log(txd.toBuffer().toString('hex'))
+var testSigner = new TxSigner(txd)
+
+console.log(testSigner.signer(0, opts).isFullySigned());
+console.log(testSigner.done().toBuffer().equals(txd.toBuffer()))
