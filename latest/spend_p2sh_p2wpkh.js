@@ -37,6 +37,7 @@ txb.addOutput(myaddress, txOut.value - 5000)
 
 var unsigned = txb.buildIncomplete()
 var signer = new TxSigner(unsigned)
+
 signer.sign(0, root.keyPair, {
   scriptPubKey: txOut.script,
   redeemScript: toSegwitPubkey,

@@ -110,6 +110,9 @@ function InSigner (tx, nIn, opts) {
   if ((tx instanceof Transaction) === false) {
     throw new Error('A transaction is required for InSigner')
   }
+  if (tx.ins[nIn] === undefined) {
+    throw new Error('No transaction input at this index')
+  }
   if (opts.scriptPubKey === undefined) {
     throw new Error('A value for scriptPubKey is required')
   }
@@ -440,6 +443,12 @@ function TxSigner (tx) {
   this.states = []
 }
 
+TxSigner.prototype.signer = function (nIn, opts) {
+  if (this.states[nIn] === undefined) {
+    this.states[nIn] = new InSigner(this.tx, nIn, opts)
+  }
+  return this.states[nIn]
+}
 /**
  * Sign a transaction.
  *
@@ -456,11 +465,8 @@ TxSigner.prototype.sign = function (nIn, key, opts, sigHashType) {
   }
   // You can probably make this work with the current library, if you can work out the witnessScript above!
   // generate opts for the internal signer based off older way of positional arguments to TxSigner.sign
-  if (this.states[nIn] === undefined) {
-    this.states[nIn] = new InSigner(this.tx, nIn, opts)
-  }
 
-  if (!this.states[nIn].sign(key, sigHashType)) {
+  if (!this.signer(nIn, opts).sign(key, sigHashType)) {
     throw new Error('Unsignable input: ', nIn)
   }
 
