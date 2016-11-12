@@ -228,15 +228,16 @@ function buildInput (input, allowIncomplete) {
   return scriptSig
 }
 
-function TransactionBuilder (network) {
+function TransactionBuilder (network, maximumFeeRate) {
   this.prevTxMap = {}
   this.network = network || networks.bitcoin
+
+  // WARNING: This is __NOT__ to be relied on, its just another potential safety mechanism (safety in-depth)
+  this.maximumFeeRate = maximumFeeRate || 1000
 
   this.inputs = []
   this.tx = new Transaction()
 }
-
-TransactionBuilder.ABSURD_FEERATE = 1000
 
 TransactionBuilder.prototype.setLockTime = function (locktime) {
   typeforce(types.UInt32, locktime)
@@ -409,7 +410,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 
   if (!allowIncomplete) {
     // do not rely on this, its merely a last resort
-    if (this.__hasAbsurdFeeRate(tx.byteLength())) {
+    if (this.__overMaximumFees(tx.byteLength())) {
       throw new Error('Transaction has absurd fees')
     }
   }
@@ -505,7 +506,7 @@ TransactionBuilder.prototype.__canModifyOutputs = function () {
   })
 }
 
-TransactionBuilder.prototype.__hasAbsurdFeeRate = function (bytes) {
+TransactionBuilder.prototype.__overMaximumFees = function (bytes) {
   // not all inputs will have .value defined
   var incoming = this.inputs.reduce(function (a, x) { return a + (x.value >>> 0) }, 0)
 
@@ -515,7 +516,7 @@ TransactionBuilder.prototype.__hasAbsurdFeeRate = function (bytes) {
   var fee = incoming - outgoing
   var feeRate = fee / bytes
 
-  return feeRate > TransactionBuilder.ABSURD_FEERATE
+  return feeRate > this.maximumFeeRate
 }
 
 module.exports = TransactionBuilder
