@@ -666,14 +666,28 @@
         "exception": "Transaction has absurd fees",
         "inputs": [
           {
-            "txHex": "01000000000100e1f505000000000000000000",
-            "vout": 0
+            "txRaw": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "address": "1C5XhB1UkFuyCV1CG9dmXaXGu3xDL4nAjv",
+                  "value": 1000000000
+                }
+              ],
+              "incomplete": true
+            },
+            "vout": 0,
+            "signs": [
+              {
+                "keyPair": "KzBQVXYUGDAvqG7VeU3C7ZMRYiwtsxSVVFcYGzKU9E4aUVDUquZU"
+              }
+            ]
           }
         ],
         "outputs": [
           {
             "script": "OP_DUP OP_HASH160 ff99e06c1a4ac394b4e1cb3d3a4b2b47749e339a OP_EQUALVERIFY OP_CHECKSIG",
-            "value": 100000
+            "value": 200000
           }
         ]
       },
