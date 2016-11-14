@@ -13,7 +13,7 @@ describe('Transaction', function () {
     tx.version = raw.version
     tx.locktime = raw.locktime
 
-    raw.ins.forEach(function (txIn) {
+    raw.ins.forEach(function (txIn, i) {
       var txHash = new Buffer(txIn.hash, 'hex')
       var scriptSig
 
@@ -24,6 +24,14 @@ describe('Transaction', function () {
       }
 
       tx.addInput(txHash, txIn.index, txIn.sequence, scriptSig)
+
+      if (txIn.witness) {
+        var witness = txIn.witness.map(function (x) {
+          return new Buffer(x, 'hex')
+        })
+
+        tx.setWitness(i, witness)
+      }
     })
 
     raw.outs.forEach(function (txOut) {
