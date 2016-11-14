@@ -21,8 +21,12 @@ function isOPInt (value) {
     (value === OPS.OP_1NEGATE)
 }
 
-function pushOnlyChunk (value) {
-  return types.oneOf(Buffer, isOPInt)
+function isPushOnlyChunk (value) {
+  return types.Buffer(value) || isOPInt(value)
+}
+
+function isPushOnly (value) {
+  return types.Array(value) && value.every(isPushOnlyChunk)
 }
 
 function compile (chunks) {
@@ -143,7 +147,7 @@ function fromASM (asm) {
 
 function decompilePushOnly (script) {
   var chunks = decompile(script)
-  typeforce([pushOnlyChunk], chunks)
+  typeforce(isPushOnly, chunks)
 
   return chunks.map(function (op) {
     if (Buffer.isBuffer(op)) return op
@@ -154,7 +158,7 @@ function decompilePushOnly (script) {
 }
 
 function compilePushOnly (chunks) {
-  typeforce([pushOnlyChunk], chunks)
+  typeforce(isPushOnly, chunks)
   return compile(chunks)
 }
 
