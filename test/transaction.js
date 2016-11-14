@@ -54,23 +54,22 @@ describe('Transaction', function () {
       var id = f.id || f.hash
       var txHex = f.hex || f.txHex
 
-      if (f.hasWitness) {
-        it('imports ' + f.description + ' (' + id + ') as witness', function () {
-          var actual = Transaction.fromHex(f.witnessHex)
-
-          assert.strictEqual(actual.toHex(), f.witnessHex, actual.toHex())
-        })
-      }
-
       it('imports ' + f.description + ' (' + id + ')', function () {
         var actual = Transaction.fromHex(txHex)
 
-        assert.strictEqual(actual.toHex(), txHex, actual.toHex())
+        assert.strictEqual(actual.toHex(), txHex)
       })
+
+      if (f.whex) {
+        it('imports ' + f.description + ' (' + id + ') as witness', function () {
+          var actual = Transaction.fromHex(f.whex)
+
+          assert.strictEqual(actual.toHex(), f.whex)
+        })
+      }
     }
 
     fixtures.valid.forEach(importExport)
-    fixtures.witness.forEach(importExport)
     fixtures.hashForSignature.forEach(importExport)
     fixtures.hashForWitnessV0.forEach(importExport)
 
@@ -95,7 +94,7 @@ describe('Transaction', function () {
       it('exports ' + f.description + ' (' + f.id + ')', function () {
         var actual = fromRaw(f.raw)
 
-        assert.strictEqual(actual.toHex(), f.hex, actual.toHex())
+        assert.strictEqual(actual.toHex(), f.whex || f.hex, actual.toHex())
       })
     })
 
@@ -189,7 +188,6 @@ describe('Transaction', function () {
     }
 
     fixtures.valid.forEach(verify)
-    fixtures.witness.forEach(verify)
   })
 
   describe('isCoinbase', function () {
@@ -202,7 +200,6 @@ describe('Transaction', function () {
     }
 
     fixtures.valid.forEach(verify)
-    fixtures.witness.forEach(verify)
   })
 
   describe('hashForSignature', function () {
