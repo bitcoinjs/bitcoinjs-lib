@@ -14,6 +14,21 @@ var REVERSE_OPS = (function () {
 })()
 var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
+function isOPInt (value) {
+  return types.Number(value) &&
+    (value === OPS.OP_0) ||
+    (value >= OPS.OP_1 && value <= OPS.OP_16) ||
+    (value === OPS.OP_1NEGATE)
+}
+
+function isPushOnlyChunk (value) {
+  return types.Buffer(value) || isOPInt(value)
+}
+
+function isPushOnly (value) {
+  return types.Array(value) && value.every(isPushOnlyChunk)
+}
+
 function compile (chunks) {
   // TODO: remove me
   if (Buffer.isBuffer(chunks)) return chunks
@@ -131,37 +146,20 @@ function fromASM (asm) {
 }
 
 function decompilePushOnly (script) {
-  return decompile(script).map(function (op) {
-    if (op instanceof Buffer) {
-      return op
-    }
+  var chunks = decompile(script)
+  typeforce(isPushOnly, chunks)
 
-    if (op === OPS.OP_0) {
-      return new Buffer(0)
-    } else if (op === OPS.OP_1NEGATE || op >= OPS.OP_1 && op <= OPS.OP_16) {
-      return scriptNumber.encode(op - OP_INT_BASE)
-    } else {
-      throw new Error('Can only evaluate push-only opcodes')
-    }
+  return chunks.map(function (op) {
+    if (Buffer.isBuffer(op)) return op
+    if (op === OPS.OP_0) return new Buffer(0)
+
+    return scriptNumber.encode(op - OP_INT_BASE)
   })
 }
 
-function compilePushOnly (set) {
-  return compile(set.map(function (op) {
-    if (op.length === 0) {
-      return OPS.OP_0
-    }
-
-    if (op.length === 1) {
-      if (op[0] === 0x81) {
-        return OPS.OP_1NEGATE
-      } else if (op[0] >= 1 && op[0] <= OPS.OP_16) {
-        return op[0] + OP_INT_BASE
-      }
-    }
-
-    return op
-  }))
+function compilePushOnly (chunks) {
+  typeforce(isPushOnly, chunks)
+  return compile(chunks)
 }
 
 function isCanonicalPubKey (buffer) {

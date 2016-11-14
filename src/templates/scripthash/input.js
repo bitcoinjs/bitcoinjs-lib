@@ -23,7 +23,7 @@ function check (script, allowIncomplete) {
 check.toJSON = function () { return 'scriptHash input' }
 
 function encode (redeemScriptSig, redeemScript) {
-  var scriptSigChunks = bscript.decompile(redeemScriptSig)
+  var scriptSigChunks = bscript.decompilePushOnly(redeemScriptSig)
   var serializedScriptPubKey = bscript.compile(redeemScript)
 
   return bscript.compile([].concat(
@@ -37,7 +37,7 @@ function decode (buffer) {
   typeforce(check, chunks)
 
   return {
-    redeemScriptSig: bscript.compile(chunks.slice(0, -1)),
+    redeemScriptSig: bscript.compilePushOnly(chunks.slice(0, -1)),
     redeemScript: chunks[chunks.length - 1]
   }
 }
