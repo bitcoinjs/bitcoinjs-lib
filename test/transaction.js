@@ -225,4 +225,12 @@ describe('Transaction', function () {
       })
     })
   })
+
+  describe('setWitness', function () {
+    it('only accepts a a witness stack (Array of Buffers)', function () {
+      assert.throws(function () {
+        (new Transaction()).setWitness(0, 'foobar')
+      }, /Expected property "1" of type \[Buffer\], got String "foobar"/)
+    })
+  })
 })
