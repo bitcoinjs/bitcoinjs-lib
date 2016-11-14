@@ -2,10 +2,8 @@
 
 var assert = require('assert')
 var bscript = require('../src/script')
-
-var Transaction = require('../src/transaction')
-
 var fixtures = require('./fixtures/transaction')
+var Transaction = require('../src/transaction')
 
 describe('Transaction', function () {
   function fromRaw (raw) {
@@ -180,7 +178,7 @@ describe('Transaction', function () {
   describe('getHash/getId', function () {
     function verify (f) {
       it('should return the id for ' + f.id, function () {
-        var tx = Transaction.fromHex(f.hex)
+        var tx = Transaction.fromHex(f.whex || f.hex)
 
         assert.strictEqual(tx.getHash().toString('hex'), f.hash)
         assert.strictEqual(tx.getId(), f.id)
