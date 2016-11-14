@@ -19,7 +19,7 @@ function check (script, allowIncomplete) {
 
   return chunks.slice(1).every(bscript.isCanonicalSignature)
 }
-check.toJSON = function () { return 'multi-sig input' }
+check.toJSON = function () { return 'multisig input' }
 
 function encode (signatures, scriptPubKey) {
   typeforce([partialSignature], signatures)
