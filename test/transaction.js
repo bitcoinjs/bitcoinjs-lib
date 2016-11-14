@@ -193,13 +193,16 @@ describe('Transaction', function () {
   })
 
   describe('isCoinbase', function () {
-    fixtures.valid.forEach(function (f) {
+    function verify (f) {
       it('should return ' + f.coinbase + ' for ' + f.id, function () {
         var tx = Transaction.fromHex(f.hex)
 
         assert.strictEqual(tx.isCoinbase(), f.coinbase)
       })
-    })
+    }
+
+    fixtures.valid.forEach(verify)
+    fixtures.witness.forEach(verify)
   })
 
   describe('hashForSignature', function () {

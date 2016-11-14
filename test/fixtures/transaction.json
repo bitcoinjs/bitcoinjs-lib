@@ -401,7 +401,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2SH P2PK",
@@ -435,7 +436,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2WSH P2PK",
@@ -472,7 +474,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2SH P2WSH P2PK",
@@ -509,7 +512,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2PKH",
@@ -543,7 +547,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2SH P2PKH",
@@ -577,7 +582,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2WSH P2PKH",
@@ -615,7 +621,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2SH P2WSH P2PKH",
@@ -653,7 +660,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "Multisig",
@@ -687,7 +695,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2SH Multisig",
@@ -721,7 +730,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2WSH Multisig",
@@ -759,7 +769,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2SH P2WSH Multisig",
@@ -797,7 +808,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2WKH",
@@ -834,7 +846,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     },
     {
       "description": "P2SH P2WKH",
@@ -871,7 +884,8 @@
           }
         ],
         "locktime": 0
-      }
+      },
+      "coinbase": false
     }
   ]
 }
