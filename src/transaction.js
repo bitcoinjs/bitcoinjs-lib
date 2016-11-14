@@ -125,7 +125,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
     }
 
     // was this pointless?
-    if (!tx._hasWitnesses()) throw new Error('Transaction has superfluous witness data')
+    if (!tx.__hasWitnesses()) throw new Error('Transaction has superfluous witness data')
   }
 
   tx.locktime = readUInt32()
@@ -184,14 +184,18 @@ Transaction.prototype.addOutput = function (scriptPubKey, value) {
   }) - 1)
 }
 
-Transaction.prototype._hasWitnesses = function () {
+Transaction.prototype.__hasWitnesses = function () {
   return this.ins.some(function (x) {
     return x.witness.length !== 0
   })
 }
 
 Transaction.prototype.byteLength = function () {
-  var hasWitnesses = this._hasWitnesses()
+  return this.__byteLength(true)
+}
+
+Transaction.prototype.__byteLength = function (__allowWitness) {
+  var hasWitnesses = __allowWitness && this.__hasWitnesses()
 
   return (
     (hasWitnesses ? 10 : 8) +
@@ -294,9 +298,9 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   }
 
   // serialize and hash
-  var buffer = new Buffer(txTmp.byteLength() + 4)
+  var buffer = new Buffer(txTmp.__byteLength(false) + 4)
   buffer.writeInt32LE(hashType, buffer.length - 4)
-  txTmp.toBuffer(buffer, 0)
+  txTmp.__toBuffer(buffer, 0, false)
 
   return bcrypto.hash256(buffer)
 }
@@ -386,7 +390,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
 }
 
 Transaction.prototype.getHash = function () {
-  return bcrypto.hash256(this.toBuffer())
+  return bcrypto.hash256(this.__toBuffer(undefined, undefined, false))
 }
 
 Transaction.prototype.getId = function () {
@@ -395,7 +399,11 @@ Transaction.prototype.getId = function () {
 }
 
 Transaction.prototype.toBuffer = function (buffer, initialOffset) {
-  if (!buffer) buffer = new Buffer(this.byteLength())
+  return this.__toBuffer(buffer, initialOffset, true)
+}
+
+Transaction.prototype.__toBuffer = function (buffer, initialOffset, __allowWitness) {
+  if (!buffer) buffer = new Buffer(this.__byteLength(__allowWitness))
 
   var offset = initialOffset || 0
   function writeSlice (slice) { offset += slice.copy(buffer, offset) }
@@ -409,7 +417,7 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
 
   writeInt32(this.version)
 
-  var hasWitnesses = this._hasWitnesses()
+  var hasWitnesses = __allowWitness && this.__hasWitnesses()
 
   if (hasWitnesses) {
     writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER)
