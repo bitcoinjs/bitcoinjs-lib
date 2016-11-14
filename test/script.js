@@ -40,6 +40,19 @@ describe('script', function () {
     })
   })
 
+  describe('decompilePushOnly/compilePushOnly', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.scriptSig) {
+        it('encodes/decodes scriptSigs as script stack: ' + f.scriptSig, function () {
+          var script = bscript.fromASM(f.scriptSig)
+          var sigStack = bscript.decompilePushOnly(script)
+          var rebuildScript = bscript.compilePushOnly(sigStack)
+          assert.strictEqual(bscript.toASM(rebuildScript), f.scriptSig)
+        })
+      }
+    })
+  })
+
   describe('compile (via fromASM)', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSig) {

@@ -2,6 +2,7 @@ var bip66 = require('bip66')
 var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
+var scriptNumber = require('./script_number')
 var OPS = require('./opcodes.json')
 var REVERSE_OPS = (function () {
   var result = {}
@@ -129,6 +130,40 @@ function fromASM (asm) {
   }))
 }
 
+function decompilePushOnly (script) {
+  return decompile(script).map(function (op) {
+    if (op instanceof Buffer) {
+      return op
+    }
+
+    if (op === OPS.OP_0) {
+      return new Buffer(0)
+    } else if (op === OPS.OP_1NEGATE || op >= OPS.OP_1 && op <= OPS.OP_16) {
+      return scriptNumber.encode(op - OP_INT_BASE)
+    } else {
+      throw new Error('Can only evaluate push-only opcodes')
+    }
+  })
+}
+
+function compilePushOnly (set) {
+  return compile(set.map(function (op) {
+    if (op.length === 0) {
+      return OPS.OP_0
+    }
+
+    if (op.length === 1) {
+      if (op[0] === 0x81) {
+        return OPS.OP_1NEGATE
+      } else if (op[0] >= 1 && op[0] <= OPS.OP_16) {
+        return op[0] + OP_INT_BASE
+      }
+    }
+
+    return op
+  }))
+}
+
 function isCanonicalPubKey (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
   if (buffer.length < 33) return false
@@ -163,6 +198,8 @@ module.exports = {
   decompile: decompile,
   fromASM: fromASM,
   toASM: toASM,
+  compilePushOnly: compilePushOnly,
+  decompilePushOnly: decompilePushOnly,
   number: require('./script_number'),
 
   isCanonicalPubKey: isCanonicalPubKey,
