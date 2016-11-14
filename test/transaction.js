@@ -6,7 +6,7 @@ var fixtures = require('./fixtures/transaction')
 var Transaction = require('../src/transaction')
 
 describe('Transaction', function () {
-  function fromRaw (raw) {
+  function fromRaw (raw, noWitness) {
     var tx = new Transaction()
     tx.version = raw.version
     tx.locktime = raw.locktime
@@ -23,7 +23,7 @@ describe('Transaction', function () {
 
       tx.addInput(txHash, txIn.index, txIn.sequence, scriptSig)
 
-      if (txIn.witness) {
+      if (!noWitness && txIn.witness) {
         var witness = txIn.witness.map(function (x) {
           return new Buffer(x, 'hex')
         })
@@ -90,9 +90,13 @@ describe('Transaction', function () {
   describe('toBuffer/toHex', function () {
     fixtures.valid.forEach(function (f) {
       it('exports ' + f.description + ' (' + f.id + ')', function () {
-        var actual = fromRaw(f.raw)
+        if (f.whex) {
+          var wactual = fromRaw(f.raw)
+          assert.strictEqual(wactual.toHex(), f.whex)
+        }
 
-        assert.strictEqual(actual.toHex(), f.whex || f.hex, actual.toHex())
+        var actual = fromRaw(f.raw, true)
+        assert.strictEqual(actual.toHex(), f.hex)
       })
     })
 
