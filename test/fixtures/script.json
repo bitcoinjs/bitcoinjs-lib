@@ -144,6 +144,11 @@
       "scriptPubKeyHex": "000000ae"
     },
     {
+      "type": "nonstandard",
+      "scriptPubKey": "OP_0",
+      "scriptPubKeyHex": "00"
+    },
+    {
       "type": "scripthash",
       "redeemScript": "OP_0",
       "redeemScriptSig": "OP_0",
