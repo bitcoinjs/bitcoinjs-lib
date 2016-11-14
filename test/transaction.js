@@ -73,6 +73,13 @@ describe('Transaction', function () {
         }, new RegExp(f.exception))
       })
     })
+
+    it('.version should be interpreted as an int32le', function () {
+      var txHex = 'ffffffff0000ffffffff'
+      var tx = Transaction.fromHex(txHex)
+      assert.equal(-1, tx.version)
+      assert.equal(0xffffffff, tx.locktime)
+    })
   })
 
   describe('toBuffer/toHex', function () {
@@ -100,15 +107,6 @@ describe('Transaction', function () {
       assert.deepEqual(a, b)
       assert.deepEqual(a, target.slice(0, byteLength))
       assert.deepEqual(b, target.slice(byteLength))
-    })
-  })
-
-  describe('transactionVersion', function () {
-    it('should be interpreted as an int32le', function () {
-      var txHex = 'ffffffff0000ffffffff'
-      var tx = Transaction.fromHex(txHex)
-      assert.equal(-1, tx.version)
-      assert.equal(0xffffffff, tx.locktime)
     })
   })
 
