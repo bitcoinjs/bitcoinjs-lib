@@ -34,6 +34,14 @@ function stealthReceive (d, eG) {
   return v
 }
 
+function stealthRecoverLeaked (d, e, Q) {
+  var eQ = Q.multiply(e) // shared secret
+  var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
+  var v = new bitcoin.ECPair(d.subtract(c).mod(n))
+
+  return v
+}
+
 describe('bitcoinjs-lib (crypto)', function () {
   it('can generate a single-key stealth address', function () {
     // XXX: should be randomly generated, see next test for example
@@ -68,6 +76,23 @@ describe('bitcoinjs-lib (crypto)', function () {
 
     // sender and recipient, both derived same address
     assert.equal(forSender.getAddress(), forRecipient.getAddress())
+  })
+
+  it('can recover parent recipient.d, if a derived private key is leaked [and nonce was revealed]', function () {
+    var recipient = bitcoin.ECPair.makeRandom() // private to recipient
+    var nonce = bitcoin.ECPair.makeRandom() // private to sender
+
+    // ... recipient reveals public key (recipient.Q) to sender
+    var forSender = stealthSend(nonce.d, recipient.Q)
+    assert.throws(function () { forSender.toWIF() }, /Error: Missing private key/)
+
+    // ... sender reveals nonce public key (nonce.Q) to recipient
+    var forRecipient = stealthReceive(recipient.d, nonce.Q)
+    assert.doesNotThrow(function () { forRecipient.toWIF() })
+
+    // ... recipient accidentally leaks forRecipient.d on the blockchain
+    var leaked = stealthRecoverLeaked(forRecipient.d, nonce.d, recipient.Q)
+    assert.equal(leaked.toWIF(), recipient.toWIF())
   })
 
   // TODO
