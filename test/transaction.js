@@ -63,6 +63,13 @@ describe('Transaction', function () {
           var actual = Transaction.fromHex(f.whex)
 
           assert.strictEqual(actual.toHex(), f.whex)
+          // txid is always whatever's in the file
+          if (f.id) {
+            assert.strictEqual(actual.getId(), f.id)
+          }
+          if (f.wtxid) {
+            assert.strictEqual(actual.getWitnessId(), f.wtxid)
+          }
         })
       }
     }

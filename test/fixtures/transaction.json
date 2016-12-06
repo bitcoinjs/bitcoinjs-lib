@@ -326,7 +326,8 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "wtxid": "5a953ca03a5d40c03f548b237207d7dbe3e43e5e722f4cc34bcaebc80d2b7e50"
     },
     {
       "description": "P2SH P2WSH P2PK",
@@ -363,7 +364,8 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "wtxid": "4dd3eb5a953b280a7e3c51385c19d30d7b48b88363d2e323ab66f16f82b84cb6"
     },
     {
       "description": "P2PKH",
@@ -469,7 +471,8 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "wtxid": "3b995e2ed1960f64ecb9f9acc3332e12a3fe7225b887312d22106fa61995a134"
     },
     {
       "description": "P2SH P2WSH P2PKH",
@@ -507,7 +510,8 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "wtxid": "b3992ea9a1b2c862dcf0bf0c57a94db8c05d1a2393d5a9e164f63153a3c5c398"
     },
     {
       "description": "Multisig",
@@ -613,7 +617,8 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "wtxid": "deb4b84d39baa79a0d3c34fcba40ff7b21917df0bdb636c2be3773cfcdee5779"
     },
     {
       "description": "P2SH P2WSH Multisig",
@@ -651,7 +656,8 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "wtxid": "7c8a568a83ba0925bb3ea629251bff93c4fb1abcef74b6121178bd749fae5d7f"
     },
     {
       "description": "P2WKH",
@@ -688,7 +694,8 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "wtxid": "911c97abc525c0424c7db48126ed14a65308f467e1a38449128c3878bc586f2d"
     },
     {
       "description": "P2SH P2WKH",
@@ -725,7 +732,8 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "wtxid": "77011afe8787f3ba5bf882fd78265c6f3491757f4d2e1ed74ca195f3fd989dcc"
     }
   ],
   "hashForSignature": [
