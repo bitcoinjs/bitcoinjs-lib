@@ -56,6 +56,10 @@ describe('Transaction', function () {
         var actual = Transaction.fromHex(txHex)
 
         assert.strictEqual(actual.toHex(), txHex)
+        if (!f.whex) {
+          // fromHex tolerates either format, so only test this if witness is not set
+          assert.strictEqual(actual.toLegacyBuffer().toString('hex'), txHex)
+        }
       })
 
       if (f.whex) {
@@ -63,6 +67,10 @@ describe('Transaction', function () {
           var actual = Transaction.fromHex(f.whex)
 
           assert.strictEqual(actual.toHex(), f.whex)
+          // if we have the non-witness format, check legacy export matches
+          if (f.hex) {
+            assert.strictEqual(actual.toLegacyBuffer().toString('hex'), f.hex)
+          }
         })
       }
     }

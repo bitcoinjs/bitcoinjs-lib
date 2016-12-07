@@ -398,6 +398,10 @@ Transaction.prototype.getId = function () {
   return bufferReverse(this.getHash()).toString('hex')
 }
 
+Transaction.prototype.toLegacyBuffer = function (buffer, initialOffset) {
+  return this.__toBuffer(buffer, initialOffset, false)
+}
+
 Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   return this.__toBuffer(buffer, initialOffset, true)
 }
