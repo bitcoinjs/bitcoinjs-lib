@@ -119,6 +119,14 @@ describe('Transaction', function () {
     })
   })
 
+  describe('hasWitnesses', function () {
+    fixtures.valid.forEach(function (f) {
+      it('detects if the transaction has witnesses: ' + (f.whex ? 'true' : 'false'), function () {
+        assert.strictEqual(Transaction.fromHex(f.whex ? f.whex : f.hex).hasWitnesses(), !!f.whex)
+      })
+    })
+  })
+
   describe('addInput', function () {
     var prevTxHash
     beforeEach(function () {
