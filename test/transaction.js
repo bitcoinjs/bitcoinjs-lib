@@ -213,6 +213,29 @@ describe('Transaction', function () {
   })
 
   describe('hashForSignature', function () {
+    it('only uses V0 serialization', function () {
+      var randScript = new Buffer('6a', 'hex')
+
+      var tmp = new Transaction()
+      tmp.addInput(new Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'), 0)
+      tmp.addOutput(randScript, 5000000000)
+      tmp.___toBuffer = tmp.__toBuffer
+      tmp.__toBuffer = function (a, b, c) {
+        if (c !== false) {
+          throw new Error('Not meant to pass true to __toBuffer in hashForSignature')
+        }
+        return this.___toBuffer(a, b, c)
+      }
+
+      assert.throws(function () {
+        tmp.__toBuffer(undefined, undefined, true)
+      }, 'Verify our replacement of __toBuffer can lead to an error if using witness')
+
+      assert.doesNotThrow(function () {
+        tmp.hashForSignature(0, randScript, 1)
+      }, "check that this situation doesn't occur normally")
+    })
+
     fixtures.hashForSignature.forEach(function (f) {
       it('should return ' + f.hash + ' for ' + (f.description ? ('case "' + f.description + '"') : f.script), function () {
         var tx = Transaction.fromHex(f.txHex)
