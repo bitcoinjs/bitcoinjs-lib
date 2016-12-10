@@ -118,11 +118,33 @@ describe('bitcoinjs-lib (crypto)', function () {
     assert.equal(leaked.toWIF(), recipient.toWIF())
   })
 
-  it('can generate a dual-key stealth address (randomly)', function () {
+  it('can generate a dual-key stealth address', function () {
     // XXX: should be randomly generated, see next test for example
     var recipient = bitcoin.ECPair.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss') // private to recipient
     var scan = bitcoin.ECPair.fromWIF('L5DkCk3xLLoGKncqKsWQTdaPSR4V8gzc14WVghysQGkdryRudjBM') // private to scanner/recipient
     var nonce = bitcoin.ECPair.fromWIF('KxVqB96pxbw1pokzQrZkQbLfVBjjHFfp2mFfEp8wuEyGenLFJhM9') // private to sender
+
+    // ... recipient reveals public key(s) (recipient.Q, scan.Q) to sender
+    var forSender = stealthDualSend(nonce.d, recipient.Q, scan.Q)
+    assert.throws(function () { forSender.toWIF() }, /Error: Missing private key/)
+
+    // ... sender reveals nonce public key (nonce.Q) to scanner
+    var forScanner = stealthDualScan(scan.d, recipient.Q, nonce.Q)
+    assert.throws(function () { forScanner.toWIF() }, /Error: Missing private key/)
+
+    // ... scanner reveals relevant transaction + nonce public key (nonce.Q) to recipient
+    var forRecipient = stealthDualReceive(scan.d, recipient.d, nonce.Q)
+    assert.doesNotThrow(function () { forRecipient.toWIF() })
+
+    // scanner, sender and recipient, all derived same address
+    assert.equal(forSender.getAddress(), forScanner.getAddress())
+    assert.equal(forSender.getAddress(), forRecipient.getAddress())
+  })
+
+  it('can generate a dual-key stealth address (randomly)', function () {
+    var recipient = bitcoin.ECPair.makeRandom() // private to recipient
+    var scan = bitcoin.ECPair.makeRandom() // private to scanner/recipient
+    var nonce = bitcoin.ECPair.makeRandom() // private to sender
 
     // ... recipient reveals public key(s) (recipient.Q, scan.Q) to sender
     var forSender = stealthDualSend(nonce.d, recipient.Q, scan.Q)
