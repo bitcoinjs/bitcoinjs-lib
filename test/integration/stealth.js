@@ -37,30 +37,30 @@ function stealthRecoverLeaked (v, e, Q) {
   return d
 }
 
-// vG = (rG * (dG * sha256(e * dG)G))
+// vG = (rG * sha256(e * dG)G)
 function stealthDualSend (e, R, Q) {
   var eQ = Q.multiply(e) // shared secret
   var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
   var cG = G.multiply(c)
-  var vG = new bitcoin.ECPair(null, R.add(Q.add(cG)))
+  var vG = new bitcoin.ECPair(null, R.add(cG))
 
   return vG
 }
 
-// vG = (rG * (d + sha256(eG * d))G)
+// vG = (rG * sha256(eG * d)G)
 function stealthDualScan (d, R, eG) {
   var eQ = eG.multiply(d) // shared secret
   var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
-  var vG = new bitcoin.ECPair(null, R.add(G.multiply(d.add(c).mod(n))))
+  var vG = new bitcoin.ECPair(null, R.add(G.multiply(c)))
 
   return vG
 }
 
-// v = (r + d + sha256(eG * d))
+// v = (r + sha256(eG * d))
 function stealthDualReceive (d, r, eG) {
   var eQ = eG.multiply(d) // shared secret
   var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
-  var v = new bitcoin.ECPair(r.add(d).add(c).mod(n))
+  var v = new bitcoin.ECPair(r.add(c).mod(n))
 
   return v
 }
