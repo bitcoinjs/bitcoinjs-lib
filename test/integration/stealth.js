@@ -9,8 +9,7 @@ var secp256k1 = ecurve.getCurveByName('secp256k1')
 var G = secp256k1.G
 var n = secp256k1.n
 
-// c = sha256: e * (d * G)
-// vG = (d * G) + (c * G)
+// vG = (dG * sha256(e * dG)G)
 function stealthSend (e, Q) {
   var eQ = Q.multiply(e) // shared secret
 
@@ -22,9 +21,7 @@ function stealthSend (e, Q) {
   return vG
 }
 
-// c = sha256: d * (e * G)
-// v = (d + c)
-// vG = (d + c) * G
+// v = (d + sha256(eG * d))
 function stealthReceive (d, eG) {
   var eQ = eG.multiply(d) // shared secret
 
@@ -34,12 +31,13 @@ function stealthReceive (d, eG) {
   return v
 }
 
-function stealthRecoverLeaked (d, e, Q) {
+// d = (v - sha256(e * dG))
+function stealthRecoverLeaked (v, e, Q) {
   var eQ = Q.multiply(e) // shared secret
   var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
-  var v = new bitcoin.ECPair(d.subtract(c).mod(n))
+  var d = new bitcoin.ECPair(v.subtract(c).mod(n))
 
-  return v
+  return d
 }
 
 describe('bitcoinjs-lib (crypto)', function () {
