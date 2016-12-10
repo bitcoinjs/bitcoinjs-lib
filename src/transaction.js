@@ -278,8 +278,8 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
     }
 
     // ignore sequence numbers (except at inIndex)
-    txTmp.ins.forEach(function (input, i) {
-      if (i === inIndex) return
+    txTmp.ins.forEach(function (input, y) {
+      if (y === inIndex) return
 
       input.sequence = 0
     })
