@@ -125,7 +125,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
     }
 
     // was this pointless?
-    if (!tx.__hasWitnesses()) throw new Error('Transaction has superfluous witness data')
+    if (!tx.hasWitnesses()) throw new Error('Transaction has superfluous witness data')
   }
 
   tx.locktime = readUInt32()
@@ -184,7 +184,7 @@ Transaction.prototype.addOutput = function (scriptPubKey, value) {
   }) - 1)
 }
 
-Transaction.prototype.__hasWitnesses = function () {
+Transaction.prototype.hasWitnesses = function () {
   return this.ins.some(function (x) {
     return x.witness.length !== 0
   })
@@ -195,7 +195,7 @@ Transaction.prototype.byteLength = function () {
 }
 
 Transaction.prototype.__byteLength = function (__allowWitness) {
-  var hasWitnesses = __allowWitness && this.__hasWitnesses()
+  var hasWitnesses = __allowWitness && this.hasWitnesses()
 
   return (
     (hasWitnesses ? 10 : 8) +
@@ -421,7 +421,7 @@ Transaction.prototype.__toBuffer = function (buffer, initialOffset, __allowWitne
 
   writeInt32(this.version)
 
-  var hasWitnesses = __allowWitness && this.__hasWitnesses()
+  var hasWitnesses = __allowWitness && this.hasWitnesses()
 
   if (hasWitnesses) {
     writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER)
