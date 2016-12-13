@@ -494,6 +494,27 @@
           "hash": "ffffff"
         }
       ]
+    },
+    "witnessCommitment": {
+      "inputs": [],
+      "outputs": [
+        {
+          "exception": "",
+          "commitment": "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd"
+        },
+        {
+          "description": "wrong OPCODE at the start",
+          "scriptPubKeyHex": "6024aa21a9ed4db4fb830efe3e804337413ffe8ad7393af301e0ec8e71b6e6f2b860a56f4dcd"
+        },
+        {
+          "description": "wrong length marker",
+          "scriptPubKeyHex": "6a23aa21a9ed4db4fb830efe3e804337413ffe8ad7393af301e0ec8e71b6e6f2b860a56f4dcd"
+        },
+        {
+          "description": "commitment of wrong length",
+          "scriptPubKeyHex": "6a23aa21a9ed4db4fb830efe3e804337413ffe8ad7393af301e0ec8e71b6e6f2b860a56f4d"
+        }
+      ]
     }
   }
 }
