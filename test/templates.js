@@ -53,7 +53,8 @@ describe('script-templates', function () {
     'witnessPubKeyHash',
     'witnessScriptHash',
     'multisig',
-    'nullData'
+    'nullData',
+    'witnessCommitment'
   ].forEach(function (name) {
     var inputType = bscript[name].input
     var outputType = bscript[name].output
@@ -106,6 +107,12 @@ describe('script-templates', function () {
           it('returns ' + expected + ' for ' + f.output, function () {
             var output = bscript.fromASM(f.output)
 
+            if (name.toLowerCase() === 'nulldata' && f.type === bscript.types.WITNESS_COMMITMENT) {
+              return
+            }
+            if (name.toLowerCase() === 'witnesscommitment' && f.type === bscript.types.NULLDATA) {
+              return
+            }
             assert.strictEqual(outputType.check(output), expected)
           })
         }
@@ -398,6 +405,43 @@ describe('script-templates', function () {
           bscript.witnessScriptHash.output.encode(hash)
         }, new RegExp(f.exception))
       })
+    })
+  })
+
+  describe('witnessCommitment.output', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.type !== 'witnesscommitment') return
+      if (!f.scriptPubKey) return
+
+      var commitment = new Buffer(f.witnessCommitment, 'hex')
+      var scriptPubKey = bscript.witnessCommitment.output.encode(commitment)
+
+      it('encodes to ' + f.scriptPubKey, function () {
+        assert.strictEqual(bscript.toASM(scriptPubKey), f.scriptPubKey)
+      })
+
+      it('decodes to ' + commitment.toString('hex'), function () {
+        assert.deepEqual(bscript.witnessCommitment.output.decode(scriptPubKey), commitment)
+      })
+    })
+
+    fixtures.invalid.witnessCommitment.outputs.forEach(function (f) {
+      if (f.commitment) {
+        var hash = new Buffer(f.commitment, 'hex')
+        it('throws on bad encode data', function () {
+          assert.throws(function () {
+            bscript.witnessCommitment.output.encode(hash)
+          }, new RegExp(f.exception))
+        })
+      }
+
+      if (f.scriptPubKeyHex) {
+        it('.decode throws on ' + f.description, function () {
+          assert.throws(function () {
+            bscript.witnessCommitment.output.decode(new Buffer(f.scriptPubKeyHex, 'hex'))
+          }, new RegExp(f.exception))
+        })
+      }
     })
   })
 
