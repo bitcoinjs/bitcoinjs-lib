@@ -22,28 +22,39 @@ function check (script, allowIncomplete) {
 }
 check.toJSON = function () { return 'scriptHash input' }
 
-function encode (redeemScriptSig, redeemScript) {
-  var scriptSigChunks = bscript.decompilePushOnly(redeemScriptSig)
+function encodeStack (redeemScriptStack, redeemScript) {
   var serializedScriptPubKey = bscript.compile(redeemScript)
 
-  return bscript.compile([].concat(
-    scriptSigChunks,
-    serializedScriptPubKey
-  ))
+  return [].concat(redeemScriptStack, serializedScriptPubKey)
+}
+
+function encode (redeemScriptSig, redeemScript) {
+  var redeemScriptStack = bscript.decompilePushOnly(redeemScriptSig)
+
+  return bscript.compilePushOnly(encodeStack(redeemScriptStack, redeemScript))
+}
+
+function decodeStack (stack) {
+  typeforce(check, stack)
+
+  return {
+    redeemScriptStack: stack.slice(0, -1),
+    redeemScript: stack[stack.length - 1]
+  }
 }
 
 function decode (buffer) {
-  var chunks = bscript.decompile(buffer)
-  typeforce(check, chunks)
-
-  return {
-    redeemScriptSig: bscript.compilePushOnly(chunks.slice(0, -1)),
-    redeemScript: chunks[chunks.length - 1]
-  }
+  var stack = bscript.decompilePushOnly(buffer)
+  var result = decodeStack(stack)
+  result.redeemScriptSig = bscript.compilePushOnly(result.redeemScriptStack)
+  delete result.redeemScriptStack
+  return result
 }
 
 module.exports = {
   check: check,
   decode: decode,
-  encode: encode
+  decodeStack: decodeStack,
+  encode: encode,
+  encodeStack: encodeStack
 }
