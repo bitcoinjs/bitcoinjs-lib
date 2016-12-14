@@ -13,7 +13,7 @@ var NETWORKS = require('../src/networks')
 
 var fixtures = require('./fixtures/transaction_builder')
 
-function construct (f, sign) {
+function construct (f, dontSign) {
   var network = NETWORKS[f.network]
   var txb = new TransactionBuilder(network)
 
@@ -48,7 +48,7 @@ function construct (f, sign) {
     }
   })
 
-  if (sign === false) return txb
+  if (dontSign) return txb
 
   f.inputs.forEach(function (input, index) {
     if (!input.signs) return
@@ -270,7 +270,7 @@ describe('TransactionBuilder', function () {
   describe('sign', function () {
     fixtures.invalid.sign.forEach(function (f) {
       it('throws on ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
-        var txb = construct(f, false)
+        var txb = construct(f, true)
 
         f.inputs.forEach(function (input, index) {
           input.signs.forEach(function (sign) {
@@ -354,7 +354,7 @@ describe('TransactionBuilder', function () {
   describe('multisig', function () {
     fixtures.valid.multisig.forEach(function (f) {
       it(f.description, function () {
-        var txb = construct(f, false)
+        var txb = construct(f, true)
         var tx
         var network = NETWORKS[f.network]
 
