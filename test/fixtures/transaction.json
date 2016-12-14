@@ -164,8 +164,7 @@
           {
             "hash": "0000000000000000000000000000000000000000000000000000000000000000",
             "index": 4294967295,
-            "data": "032832051c4d696e656420627920416e74506f6f6c20626a343a45ef0454c5de8d5e5300004e2c0000",
-            "sequence": 4294967295
+            "data": "032832051c4d696e656420627920416e74506f6f6c20626a343a45ef0454c5de8d5e5300004e2c0000"
           }
         ],
         "outs": [
@@ -242,22 +241,14 @@
           {
             "hash": "93aef40ae141694895e99e18e49d0181b086dd7c011c0241175c6eaf32009997",
             "index": 0,
-            "sigHash": "8d590cd3c3622f1cc22b17967abfeac8aa72e5b64f80d9ca7a61c59f07a47a8f",
             "script": "3045022100e57eba5380dcc8a7bdb5370b423dadd43070e1ca268f94bc97b2ded55ca45e9502206a43151c8af03a00f0ac86526d07981e303fc0daea8c6ed435abe8961533046d01",
-            "scriptHex": "483045022100e57eba5380dcc8a7bdb5370b423dadd43070e1ca268f94bc97b2ded55ca45e9502206a43151c8af03a00f0ac86526d07981e303fc0daea8c6ed435abe8961533046d01",
-            "sequence": 4294967295,
-            "witness": [],
-            "value": 80000,
-            "scriptPubKey": "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac",
-            "redeemScript": "",
-            "witnessScript": ""
+            "value": 80000
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
@@ -276,15 +267,8 @@
           {
             "hash": "a30e865fa60f6c25a8b218bb5a6b9acc7cf3f1db2f2e3a7114b51af5d6ae811f",
             "index": 0,
-            "sigHash": "e5a339f87c44b443de94b28c1c2a5fe5acedd9ffd2d25ca194cd1d89284b08ed",
             "script": "3044022026d2b56b6cb0269bf4e80dd655b9e917019e2ccef57f4b858d03bb45a2da59d9022010519a7f327f03e7c9613e0694f929544af29d3682e7ec8f19147e7a86651ecd01 21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac",
-            "scriptHex": "473044022026d2b56b6cb0269bf4e80dd655b9e917019e2ccef57f4b858d03bb45a2da59d9022010519a7f327f03e7c9613e0694f929544af29d3682e7ec8f19147e7a86651ecd012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac",
-            "sequence": 4294967295,
-            "witness": [],
-            "value": 80000,
-            "scriptPubKey": "a914c99d9ebb5a4828e4e1b606dd6a51a2babebbdc0987",
-            "redeemScript": "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac",
-            "witnessScript": ""
+            "value": 80000
           }
         ],
         "outs": [
@@ -310,7 +294,6 @@
           {
             "hash": "4533a3bc1e039bd787656068e135aaee10aee95a64776bfc047ee6a7c1ebdd2f",
             "index": 0,
-            "sequence": 4294967295,
             "witness": [
               "3044022039725bb7291a14dd182dafdeaf3ea0d5c05c34f4617ccbaa46522ca913995c4e02203b170d072ed2e489e7424ad96d8fa888deb530be2d4c5d9aaddf111a7efdb2d301",
               "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac"
@@ -340,25 +323,17 @@
           {
             "hash": "e0779d448aaa203a96b3de14d0482e26dd75a4278ae5bb6d7cc18e6874f38660",
             "index": 0,
-            "sigHash": "b3caa13417b83a07e4684c5f1b5f4563936cd66791ca106b1770aeeaae682794",
             "script": "00200f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
-            "scriptHex": "2200200f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
-            "sequence": 4294967295,
             "witness": [
               "30440220014207a5f0601ed7b3c3f9d82309b32e8f76dd6776a55cb5f8684b9ff029e0850220693afd7b69471b51d9354cc1a956b68b8d48e32f6b0ad7a19bb5dd3e4499179a01",
               "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac"
-            ],
-            "value": 80000,
-            "scriptPubKey": "a9146d185c7042d01ea8276dc6be6603101dc441d8a487",
-            "redeemScript": "00200f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
-            "witnessScript": "21038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac"
+            ]
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
@@ -377,22 +352,13 @@
           {
             "hash": "76d7b05b96e69d9760bacf14e496ea01085eff32be8f4e08b299eb92057826e5",
             "index": 0,
-            "sigHash": "b01334b1f522b3d824960b2ce215031b392b084eca649a6bd1efdf4caa841e7b",
-            "script": "30450221009bd6ff2561437155913c289923175d3f114cca1c0e2bc5989315d5261502c2c902201b71ad90dce076a5eb872330ed729e7c2c4bc2d0513efff099dbefb3b62eab4f01 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b",
-            "scriptHex": "4830450221009bd6ff2561437155913c289923175d3f114cca1c0e2bc5989315d5261502c2c902201b71ad90dce076a5eb872330ed729e7c2c4bc2d0513efff099dbefb3b62eab4f0121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b",
-            "sequence": 4294967295,
-            "witness": [],
-            "value": 80000,
-            "scriptPubKey": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac",
-            "redeemScript": "",
-            "witnessScript": ""
+            "script": "30450221009bd6ff2561437155913c289923175d3f114cca1c0e2bc5989315d5261502c2c902201b71ad90dce076a5eb872330ed729e7c2c4bc2d0513efff099dbefb3b62eab4f01 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b"
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
@@ -411,22 +377,13 @@
           {
             "hash": "4b9ffc17c3cce03ee66980bf32d36aaa13462980c3af9d9d29ec6b97ab1c9165",
             "index": 0,
-            "sigHash": "40c2576db2ad631c5799d344dcb5efd05eef3c52aacb51585af327f8efb3bcde",
-            "script": "3044022003d738d855d0c54a419ac62ebe1a1c0bf2dc6993c9585adb9a8666736658107002204d57ff62ee7efae6df73430bba62494faeba8c125a4abcf2488757a4f8877dd501 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b 76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac",
-            "scriptHex": "473044022003d738d855d0c54a419ac62ebe1a1c0bf2dc6993c9585adb9a8666736658107002204d57ff62ee7efae6df73430bba62494faeba8c125a4abcf2488757a4f8877dd50121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b1976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac",
-            "sequence": 4294967295,
-            "witness": [],
-            "value": 80000,
-            "scriptPubKey": "a9142162ff7c23d47a0c331f95c67d7c3e22abb12a0287",
-            "redeemScript": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac",
-            "witnessScript": ""
+            "script": "3044022003d738d855d0c54a419ac62ebe1a1c0bf2dc6993c9585adb9a8666736658107002204d57ff62ee7efae6df73430bba62494faeba8c125a4abcf2488757a4f8877dd501 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b 76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
@@ -445,19 +402,12 @@
           {
             "hash": "23539877e39a273819006de1c433e09f9e9af201fc178dd0f2cf2eaa5ad53b48",
             "index": 0,
-            "sigHash": "b0197f4cd027b33ebb2ef54e02a7008dc29ec807ec2de58843fffbdf07ceb2c3",
             "script": "",
-            "scriptHex": "",
-            "sequence": 4294967295,
             "witness": [
               "3045022100f02a82b0a94a5d5dc4d2127ac34be62cb066713d71d56bdf5ef7810ab57a157302205f24abdde1dab554a02edcf378e98828024e57272e5e474a5b04accdca080a0301",
               "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b",
               "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
-            ],
-            "value": 80000,
-            "scriptPubKey": "0020578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0",
-            "redeemScript": "",
-            "witnessScript": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            ]
           }
         ],
         "outs": [
@@ -483,26 +433,18 @@
           {
             "hash": "363dfbfe2566db77e3b1195bedf1d0daeb9ce526cd7611ba81759b2654ce415c",
             "index": 0,
-            "sigHash": "9580096496f72ae9fed63e6701b2a9df3c8d212d8accd4b1966d3239c33a859f",
             "script": "0020578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0",
-            "scriptHex": "220020578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0",
-            "sequence": 4294967295,
             "witness": [
               "3045022100c8bd5ebb26ba6719158650c3e7c5e80be4c886ba025c44cc41f5149b3114705a02203ac6e1f38f6c081d506f28f1b5e38ebec9e0f0fa911d0e3f68d48d8b0e77b34b01",
               "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b",
               "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
-            ],
-            "value": 80000,
-            "scriptPubKey": "a91444a641c4e06eb6118c99e5ed29954b705b50fb6a87",
-            "redeemScript": "0020578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0",
-            "witnessScript": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            ]
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
@@ -521,22 +463,13 @@
           {
             "hash": "79310ec46e734b3490ee839c5ae4a09d28561ee9fff2d051f733d201f958d6d2",
             "index": 0,
-            "sigHash": "1c68226955e39aed91eb7f35fa106240951208138b584caeb05b44f367078b09",
-            "script": "OP_0 3045022100d269531f120f377ed2f94f42bef893ff2fe6544ac97fb477fa291bc6cfb7647e02200983f6a5bbd4ce6cf97f571995634805a7324cc5d8353ed954fa62477b0fcd0901",
-            "scriptHex": "00483045022100d269531f120f377ed2f94f42bef893ff2fe6544ac97fb477fa291bc6cfb7647e02200983f6a5bbd4ce6cf97f571995634805a7324cc5d8353ed954fa62477b0fcd0901",
-            "sequence": 4294967295,
-            "witness": [],
-            "value": 80000,
-            "scriptPubKey": "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae",
-            "redeemScript": "",
-            "witnessScript": ""
+            "script": "OP_0 3045022100d269531f120f377ed2f94f42bef893ff2fe6544ac97fb477fa291bc6cfb7647e02200983f6a5bbd4ce6cf97f571995634805a7324cc5d8353ed954fa62477b0fcd0901"
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
@@ -555,15 +488,7 @@
           {
             "hash": "52882c661c49dd2f53bd9ced7e9f44b184888ad2fe7d86737f0efaa7aecdced1",
             "index": 0,
-            "sigHash": "a1b982ea4d57c3255268a801885ea8ee8b785d52bf7dd024997a5111c9295f5a",
-            "script": "OP_0 3044022025f2e161f0a97888df948f4dcc7c04fe502510b8d8260ca9920f38d55e4d17720220271b6843224b3a34542a4df31781d048da56ee46b8c5fb99043e30abd527b2d801 5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae",
-            "scriptHex": "00473044022025f2e161f0a97888df948f4dcc7c04fe502510b8d8260ca9920f38d55e4d17720220271b6843224b3a34542a4df31781d048da56ee46b8c5fb99043e30abd527b2d801255121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae",
-            "sequence": 4294967295,
-            "witness": [],
-            "value": 80000,
-            "scriptPubKey": "a91438c064c6387d1071eeb5c3d90350054aea0b3fc187",
-            "redeemScript": "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae",
-            "witnessScript": ""
+            "script": "OP_0 3044022025f2e161f0a97888df948f4dcc7c04fe502510b8d8260ca9920f38d55e4d17720220271b6843224b3a34542a4df31781d048da56ee46b8c5fb99043e30abd527b2d801 5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
           }
         ],
         "outs": [
@@ -589,26 +514,18 @@
           {
             "hash": "c1eced6216de0889d4629ff64a8af8e8ec6d0b414de0c57b46c02cc303d321fe",
             "index": 0,
-            "sigHash": "c57f8489d77552631b10fc703de3d2a72e473590b8b8283f4a1134855c6e4368",
             "script": "",
-            "scriptHex": "",
-            "sequence": 4294967295,
             "witness": [
               "",
               "3045022100d4c0cbdb45915b8a3162362fa5f74556de919aeda5337fc44a7fb000e833460d022017742c37d7a061e2ae3a086c7c585c9c85e5d31af468d3e00045c0f35b8f8eb601",
               "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
-            ],
-            "value": 80000,
-            "scriptPubKey": "00201b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99",
-            "redeemScript": "",
-            "witnessScript": "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
+            ]
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
@@ -627,19 +544,12 @@
           {
             "hash": "3a5a2ab0223d3b504b52af76d650329750666fbf1be13d4cb08d0d9fc550a47d",
             "index": 0,
-            "sigHash": "90ced36a2a53e986837407ec5b34fca11c68b477fa51806715186595372c0b37",
             "script": "00201b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99",
-            "scriptHex": "2200201b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99",
-            "sequence": 4294967295,
             "witness": [
               "",
               "3045022100c97a5e205ce0023d3d44f846abf1f0e21b6f2646bd2496bbe92e4333fe4401be02201247e047d669f713582713e35d2eba430abc3d75a924bb500362bf47d6234ed501",
               "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
-            ],
-            "value": 80000,
-            "scriptPubKey": "a914cc6ea17c33de7996471e40892acdd6e5f61b9b6f87",
-            "redeemScript": "00201b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99",
-            "witnessScript": "5121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae"
+            ]
           }
         ],
         "outs": [
@@ -665,25 +575,17 @@
           {
             "hash": "33defbe3e28860007ff3e21222774c220cb35d554fa3e3796d25bf8ee983e108",
             "index": 0,
-            "sigHash": "8ef2f4892fdbb44a7859ac059cdacf20903566a1472fae38ba37443c44b66202",
             "script": "",
-            "scriptHex": "",
-            "sequence": 4294967295,
             "witness": [
               "304502210097c3006f0b390982eb47f762b2853773c6cedf83668a22d710f4c13c4fd6b15502205e26ef16a81fc818a37f3a34fc6d0700e61100ea6c6773907c9c046042c4403401",
               "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b"
-            ],
-            "value": 80000,
-            "scriptPubKey": "0014851a33a5ef0d4279bd5854949174e2c65b1d4500",
-            "redeemScript": "",
-            "witnessScript": ""
+            ]
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
@@ -702,25 +604,17 @@
           {
             "hash": "5df9a0b9ade2d835881704e0f53b51a4b19ecfc794ea1f3555783dd7f68659ce",
             "index": 0,
-            "sigHash": "b9d9a395dbd84365e93016a3ba1ffe2c373b85e245598597b2f8cd6eb0706252",
             "script": "0014851a33a5ef0d4279bd5854949174e2c65b1d4500",
-            "scriptHex": "160014851a33a5ef0d4279bd5854949174e2c65b1d4500",
-            "sequence": 4294967295,
             "witness": [
               "3045022100cb3929c128fec5108071b662e5af58e39ac8708882753a421455ca80462956f6022030c0f4738dd1a13fc7a34393002d25c6e8a6399f29c7db4b98f53a9475d94ca201",
               "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b"
-            ],
-            "value": 80000,
-            "scriptPubKey": "a9140d061ae2c8ad224a81142a2e02181f5173b576b387",
-            "redeemScript": "0014851a33a5ef0d4279bd5854949174e2c65b1d4500",
-            "witnessScript": ""
+            ]
           }
         ],
         "outs": [
           {
             "value": 60000,
-            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-            "scriptHex": "76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
         "locktime": 0
