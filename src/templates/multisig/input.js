@@ -21,7 +21,7 @@ function check (script, allowIncomplete) {
 }
 check.toJSON = function () { return 'multisig input' }
 
-function encode (signatures, scriptPubKey) {
+function encodeStack (signatures, scriptPubKey) {
   typeforce([partialSignature], signatures)
 
   if (scriptPubKey) {
@@ -36,18 +36,27 @@ function encode (signatures, scriptPubKey) {
     }
   }
 
-  return bscript.compile([].concat(OPS.OP_0, signatures))
+  return [].concat(OPS.OP_0, signatures)
+}
+
+function encode (signatures, scriptPubKey) {
+  return bscript.compile(encodeStack(signatures, scriptPubKey))
+}
+
+function decodeStack (stack, allowIncomplete) {
+  typeforce(check, stack, allowIncomplete)
+  return stack.slice(1)
 }
 
 function decode (buffer, allowIncomplete) {
-  var chunks = bscript.decompile(buffer)
-  typeforce(check, chunks, allowIncomplete)
-
-  return chunks.slice(1)
+  var stack = bscript.decompile(buffer)
+  return decodeStack(stack, allowIncomplete)
 }
 
 module.exports = {
   check: check,
   decode: decode,
-  encode: encode
+  decodeStack: decodeStack,
+  encode: encode,
+  encodeStack: encodeStack
 }
