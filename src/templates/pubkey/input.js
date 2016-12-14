@@ -12,21 +12,29 @@ function check (script) {
 }
 check.toJSON = function () { return 'pubKey input' }
 
-function encode (signature) {
+function encodeStack (signature) {
   typeforce(types.Buffer, signature)
+  return [signature]
+}
 
-  return bscript.compile([signature])
+function encode (signature) {
+  return bscript.compile(encodeStack(signature))
+}
+
+function decodeStack (stack) {
+  typeforce(check, stack)
+  return stack[0]
 }
 
 function decode (buffer) {
-  var chunks = bscript.decompile(buffer)
-  typeforce(check, chunks)
-
-  return chunks[0]
+  var stack = bscript.decompile(buffer)
+  return decodeStack(stack)
 }
 
 module.exports = {
   check: check,
   decode: decode,
-  encode: encode
+  decodeStack: decodeStack,
+  encode: encode,
+  encodeStack: encodeStack
 }
