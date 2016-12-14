@@ -145,21 +145,16 @@ function fromASM (asm) {
   }))
 }
 
-function decompilePushOnly (script) {
-  var chunks = decompile(script)
+function toStack (chunks) {
+  chunks = decompile(chunks)
   typeforce(isPushOnly, chunks)
 
   return chunks.map(function (op) {
     if (Buffer.isBuffer(op)) return op
-    if (op === OPS.OP_0) return op
+    if (op === OPS.OP_0) return new Buffer(0)
 
-    return op
+    return scriptNumber.encode(op - OP_INT_BASE)
   })
-}
-
-function compilePushOnly (chunks) {
-  typeforce(isPushOnly, chunks)
-  return compile(chunks)
 }
 
 function isCanonicalPubKey (buffer) {
@@ -196,12 +191,13 @@ module.exports = {
   decompile: decompile,
   fromASM: fromASM,
   toASM: toASM,
-  compilePushOnly: compilePushOnly,
-  decompilePushOnly: decompilePushOnly,
+  toStack: toStack,
+
   number: require('./script_number'),
 
   isCanonicalPubKey: isCanonicalPubKey,
   isCanonicalSignature: isCanonicalSignature,
+  isPushOnly: isPushOnly,
   isDefinedHashType: isDefinedHashType
 }
 
