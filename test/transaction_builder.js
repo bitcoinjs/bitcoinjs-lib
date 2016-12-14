@@ -283,10 +283,10 @@ describe('TransactionBuilder', function () {
             }
 
             if (!sign.throws) {
-              txb.sign(index, keyPair, redeemScript, sign.hashType)
+              txb.sign(index, keyPair, redeemScript, sign.hashType, sign.value)
             } else {
               assert.throws(function () {
-                txb.sign(index, keyPair, redeemScript, sign.hashType)
+                txb.sign(index, keyPair, redeemScript, sign.hashType, sign.value)
               }, new RegExp(f.exception))
             }
           })

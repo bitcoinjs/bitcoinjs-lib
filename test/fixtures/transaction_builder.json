@@ -377,6 +377,29 @@
             "value": 10000
           }
         ]
+      },
+      {
+        "description": "Transaction w/ P2WPKH -> P2WPKH",
+        "txHex": "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5024730440220092de398bfbd808f6a2315c184cebf2f872692853482781eaeb72057706ac31202200a666c0eba2da011d04499b071143124559cad32a063785d713f2e0d4a15945101210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179800000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6",
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "value": 10000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
       }
     ],
     "fromTransaction": [
@@ -852,7 +875,7 @@
         ]
       },
       {
-        "exception": "PrevOutScript is P2SH, missing redeemScript",
+        "exception": "PrevOutScript is scripthash, requires redeemScript",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
