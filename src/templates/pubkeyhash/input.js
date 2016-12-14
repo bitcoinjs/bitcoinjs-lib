@@ -13,28 +13,38 @@ function check (script) {
 }
 check.toJSON = function () { return 'pubKeyHash input' }
 
-function encode (signature, pubKey) {
+function encodeStack (signature, pubKey) {
   typeforce({
     signature: types.Buffer, pubKey: types.Buffer
   }, {
     signature: signature, pubKey: pubKey
   })
 
-  return bscript.compile([signature, pubKey])
+  return [signature, pubKey]
+}
+
+function encode (signature, pubKey) {
+  return bscript.compile(encodeStack(signature, pubKey))
+}
+
+function decodeStack (stack) {
+  typeforce(check, stack)
+
+  return {
+    signature: stack[0],
+    pubKey: stack[1]
+  }
 }
 
 function decode (buffer) {
-  var chunks = bscript.decompile(buffer)
-  typeforce(check, chunks)
-
-  return {
-    signature: chunks[0],
-    pubKey: chunks[1]
-  }
+  var stack = bscript.decompile(buffer)
+  return decodeStack(stack)
 }
 
 module.exports = {
   check: check,
   decode: decode,
-  encode: encode
+  decodeStack: decodeStack,
+  encode: encode,
+  encodeStack: encodeStack
 }

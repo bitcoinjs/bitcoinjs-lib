@@ -52,8 +52,8 @@ function classifyWitness (script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
   var chunks = decompile(script)
 
-  if (pubKeyHash.input.check(chunks)) return types.P2WPKH
-  if (scriptHash.input.check(chunks)) return types.P2WSH
+  if (witnessPubKeyHash.input.check(chunks)) return types.P2WPKH
+  if (witnessScriptHash.input.check(chunks)) return types.P2WSH
 
   return types.NONSTANDARD
 }
