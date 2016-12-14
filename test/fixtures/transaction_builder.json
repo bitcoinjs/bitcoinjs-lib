@@ -335,6 +335,48 @@
             "value": 6000000
           }
         ]
+      },
+      {
+        "description": "Transaction w/ pubKeyHash -> P2WPKH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006b4830450221009a524a3257b8bd0c77ba4cba65fc00954f2030243f2eb16571838a3b951c8c07022008f5af9de672b365fd257377db1cf6da4da1b49b9637ceb651ac0eb4181dc3ca01210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c500000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ pubKeyHash -> P2WSH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006a473044022056c99ba23eb15b3e666b188f87b04d5ef23eeda5298939cdaec35a3bddf3835602205887a5a460f299819b0c93948fafab8b2d64d8c051934431e3bb9acebef5d1b001210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01102700000000000022002032447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b8000000000",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 32447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b80",
+            "value": 10000
+          }
+        ]
       }
     ],
     "fromTransaction": [
