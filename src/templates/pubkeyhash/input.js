@@ -1,4 +1,4 @@
-// {pubKey} OP_CHECKSIG
+// {signature} {pubKey}
 
 var bscript = require('../../script')
 var types = require('../../types')
