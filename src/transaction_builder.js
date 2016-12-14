@@ -323,7 +323,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
   }
 
   var prevTxOut = txHash.toString('hex') + ':' + vout
-  if (this.prevTxMap[prevTxOut]) throw new Error('Duplicate TxOut: ' + prevTxOut)
+  if (this.prevTxMap[prevTxOut] !== undefined) throw new Error('Duplicate TxOut: ' + prevTxOut)
 
   var input = {}
 
@@ -358,7 +358,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
 
   var vin = this.tx.addInput(txHash, vout, options.sequence, options.scriptSig)
   this.inputs[vin] = input
-  this.prevTxMap[prevTxOut] = true
+  this.prevTxMap[prevTxOut] = vin
 
   return vin
 }
