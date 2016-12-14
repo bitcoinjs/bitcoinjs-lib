@@ -40,14 +40,23 @@ describe('script', function () {
     })
   })
 
-  describe('decompilePushOnly/compilePushOnly', function () {
+  describe('isPushOnly', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSig) {
-        it('encodes/decodes scriptSigs as script stack: ' + f.scriptSig, function () {
+        it('returns ' + f.pushOnlySig + ' for ' + f.scriptSig, function () {
           var script = bscript.fromASM(f.scriptSig)
-          var sigStack = bscript.decompilePushOnly(script)
-          var rebuildScript = bscript.compilePushOnly(sigStack)
-          assert.strictEqual(bscript.toASM(rebuildScript), f.scriptSig)
+          var chunks = bscript.decompile(script)
+
+          assert.strictEqual(bscript.isPushOnly(chunks), f.pushOnlySig)
+        })
+      }
+
+      if (f.scriptPubKey) {
+        it('returns ' + f.pushOnly + ' for ' + f.scriptPubKey, function () {
+          var script = bscript.fromASM(f.scriptPubKey)
+          var chunks = bscript.decompile(script)
+
+          assert.strictEqual(bscript.isPushOnly(chunks), f.pushOnly)
         })
       }
     })
