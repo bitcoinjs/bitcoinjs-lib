@@ -62,6 +62,20 @@ describe('script', function () {
     })
   })
 
+  describe('toStack', function () {
+    fixtures.valid.forEach(function (f) {
+      if (!f.scriptSig) return
+
+      it('returns ' + f.pushOnlySig + ' for ' + f.scriptSig, function () {
+        var script = bscript.fromASM(f.scriptSig)
+        var chunks = bscript.decompile(script)
+        var stack = bscript.toStack(chunks).map(x => x.toString('hex'))
+
+        assert.deepEqual(stack, f.scriptSigStack)
+      })
+    })
+  })
+
   describe('compile (via fromASM)', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSig) {
