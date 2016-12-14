@@ -9,7 +9,7 @@ function partialSignature (value) {
 }
 
 function check (script, allowIncomplete) {
-  var chunks = bscript.decompile(script)
+  var chunks = bscript.decompilePushOnly(script)
   if (chunks.length < 2) return false
   if (chunks[0] !== OPS.OP_0) return false
 
@@ -40,7 +40,7 @@ function encodeStack (signatures, scriptPubKey) {
 }
 
 function encode (signatures, scriptPubKey) {
-  return bscript.compile(encodeStack(signatures, scriptPubKey))
+  return bscript.compilePushOnly(encodeStack(signatures, scriptPubKey))
 }
 
 function decodeStack (stack, allowIncomplete) {
@@ -49,7 +49,7 @@ function decodeStack (stack, allowIncomplete) {
 }
 
 function decode (buffer, allowIncomplete) {
-  var stack = bscript.decompile(buffer)
+  var stack = bscript.decompilePushOnly(buffer)
   return decodeStack(stack, allowIncomplete)
 }
 

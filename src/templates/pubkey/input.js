@@ -18,7 +18,7 @@ function encodeStack (signature) {
 }
 
 function encode (signature) {
-  return bscript.compile(encodeStack(signature))
+  return bscript.compilePushOnly(encodeStack(signature))
 }
 
 function decodeStack (stack) {
@@ -27,7 +27,7 @@ function decodeStack (stack) {
 }
 
 function decode (buffer) {
-  var stack = bscript.decompile(buffer)
+  var stack = bscript.decompilePushOnly(buffer)
   return decodeStack(stack)
 }
 
