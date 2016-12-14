@@ -158,9 +158,9 @@ function toStack (chunks) {
 
   return chunks.map(function (op) {
     if (Buffer.isBuffer(op)) return op
-    if (op === OPS.OP_0) return new Buffer(0)
+    if (op === OPS.OP_0) return op
 
-    return scriptNumber.encode(op - OP_INT_BASE)
+    return op
   })
 }
 
