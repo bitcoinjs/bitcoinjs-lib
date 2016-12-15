@@ -45,13 +45,15 @@ describe('script', function () {
     fixtures.valid.forEach(function (f) {
       it('returns ' + !!f.stack + ' for ' + f.asm, function () {
         var script = bscript.fromASM(f.asm)
-        var chunks = bscript.decompile(script)
 
-        try {
-          var stack = bscript.toStack(chunks).map(function (x) { return x.toString('hex') })
-          assert.deepEqual(stack, f.stack)
-        } catch (e) {
-          assert.strictEqual(f.stack, undefined)
+        if (f.stack && f.asm) {
+          try {
+            var stack = bscript.toStack(script)
+            assert.deepEqual(stack.map(function (x) { return x.toString('hex') }), f.stack)
+            assert.equal(bscript.toASM(bscript.compile(stack)), f.asm, 'should rebuild same script from stack')
+          } catch (e) {
+            assert.strictEqual(f.stack, undefined)
+          }
         }
       })
     })
