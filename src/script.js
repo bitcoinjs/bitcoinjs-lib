@@ -39,7 +39,7 @@ function compile (chunks) {
     // data chunk
     if (Buffer.isBuffer(chunk)) {
       // adhere to BIP62.3, minimal push policy
-      if (chunk.length === 1 && chunk[0] >= 1 && chunk[0] <= 16) {
+      if (chunk.length === 1 && (chunk[0] === 0x81 || chunk[0] >= 1 && chunk[0] <= 16)) {
         return accum + 1
       }
 
@@ -60,6 +60,12 @@ function compile (chunks) {
       if (chunk.length === 1 && chunk[0] >= 1 && chunk[0] <= 16) {
         var opcode = OP_INT_BASE + chunk[0]
         buffer.writeUInt8(opcode, offset)
+        offset += 1
+        return
+      }
+
+      if (chunk.length === 1 && chunk[0] === 0x81) {
+        buffer.writeUInt8(OPS.OP_1NEGATE, offset)
         offset += 1
         return
       }
