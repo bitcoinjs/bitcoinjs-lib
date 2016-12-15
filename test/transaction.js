@@ -221,27 +221,28 @@ describe('Transaction', function () {
   })
 
   describe('hashForSignature', function () {
-    it('only uses V0 serialization', function () {
+    it('only uses legacy serialization', function () {
       var randScript = new Buffer('6a', 'hex')
 
-      var tmp = new Transaction()
-      tmp.addInput(new Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'), 0)
-      tmp.addOutput(randScript, 5000000000)
-      tmp.___toBuffer = tmp.__toBuffer
-      tmp.__toBuffer = function (a, b, c) {
-        if (c !== false) {
-          throw new Error('Not meant to pass true to __toBuffer in hashForSignature')
-        }
-        return this.___toBuffer(a, b, c)
+      var tx = new Transaction()
+      tx.addInput(new Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'), 0)
+      tx.addOutput(randScript, 5000000000)
+
+      var original = tx.__toBuffer
+      tx.__toBuffer = function (a, b, c) {
+        if (c !== false) throw new Error('hashForSignature MUST pass false')
+
+        return original.call(this, a, b, c)
       }
 
       assert.throws(function () {
-        tmp.__toBuffer(undefined, undefined, true)
-      }, 'Verify our replacement of __toBuffer can lead to an error if using witness')
+        tx.__toBuffer(undefined, undefined, true)
+      }, /hashForSignature MUST pass false/)
 
+      // assert hashForSignature does not pass false
       assert.doesNotThrow(function () {
-        tmp.hashForSignature(0, randScript, 1)
-      }, "check that this situation doesn't occur normally")
+        tx.hashForSignature(0, randScript, 1)
+      })
     })
 
     fixtures.hashForSignature.forEach(function (f) {
