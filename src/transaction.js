@@ -398,6 +398,10 @@ Transaction.prototype.getId = function () {
   return bufferReverse(this.getHash()).toString('hex')
 }
 
+Transaction.prototype.getWitnessId = function () {
+  return bufferReverse(bcrypto.hash256(this.__toBuffer(undefined, undefined, true))).toString('hex')
+}
+
 Transaction.prototype.toBuffer = function (buffer, initialOffset) {
   return this.__toBuffer(buffer, initialOffset, true)
 }
