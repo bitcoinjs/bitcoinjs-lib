@@ -118,6 +118,42 @@ describe('script', function () {
     })
   })
 
+  describe('toWitness', function () {
+    fixtures.toWitness.forEach(function (f) {
+      it('produces the correct witness: ' + f.description, function () {
+        var scriptSig = new Buffer(f.scriptHex, 'hex')
+        var wit = bscript.toWitness(scriptSig)
+        assert.deepEqual(wit, f.witness.map(function (str) {
+          return new Buffer(str, 'hex')
+        }), 'witness matches expected')
+      })
+    })
+
+    fixtures.valid.forEach(function (f) {
+      if (f.scriptSig && f.scriptSigToWitness) {
+        it('converts a scriptSig into the corresponding witness', function () {
+          var scriptSig = bscript.fromASM(f.scriptSig)
+          var wit = bscript.toWitness(scriptSig)
+          assert.deepEqual(wit, f.scriptSigToWitness.map(function (str) {
+            return new Buffer(str, 'hex')
+          }), 'witness matches expected')
+        })
+      }
+    })
+
+    fixtures.invalid.toWitness.forEach(function (f) {
+      it('rejects opcodes which are not a data-push', function () {
+        var script = new Buffer(f.hex, 'hex')
+        assert.doesNotThrow(function () {
+          bscript.decompile(script)
+        })
+        assert.throws(function () {
+          bscript.toWitness(script)
+        }, 'Script had a non pushdata opcode')
+      })
+    })
+  })
+
   describe('SCRIPT_VERIFY_MINIMALDATA policy', function () {
     fixtures.valid.forEach(function (f) {
       if (f.scriptSigHex) {
