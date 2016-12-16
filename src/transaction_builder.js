@@ -7,7 +7,9 @@ var ops = require('./opcodes.json')
 var typeforce = require('typeforce')
 var types = require('./types')
 var scriptTypes = bscript.types
-
+var SIGNABLE = [bscript.types.P2PKH, bscript.types.P2PK, bscript.types.MULTISIG]
+var P2SH = SIGNABLE.concat([bscript.types.P2WPKH, bscript.types.P2WSH])
+var EMPTY_SCRIPT = new Buffer(0)
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var Transaction = require('./transaction')
@@ -224,72 +226,75 @@ function prepareInput (input, kpPubKey, redeemScript) {
   }
 }
 
-var EMPTY_SCRIPT = new Buffer(0)
+function buildScript (type, signatures, pubKeys, allowIncomplete) {
+  if (type === scriptTypes.P2PKH) {
+    if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
+    return bscript.pubKeyHash.input.encodeStack(signatures[0], pubKeys[0])
+  } else if (type === scriptTypes.P2PK) {
+    if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
+    return bscript.pubKey.input.encodeStack(signatures[0])
+  } else {
+    signatures = signatures.map(function (signature) {
+      return signature || ops.OP_0
+    })
+
+    if (!allowIncomplete) {
+      // remove blank signatures
+      signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
+    }
+
+    return bscript.multisig.input.encodeStack(signatures /* see if it's necessary first */)
+  }
+}
 
 function buildInput (input, allowIncomplete) {
-  var signatures = input.signatures
-  var scriptType = input.redeemScriptType || input.prevOutType
-  var stack
-
-  switch (scriptType) {
-    case scriptTypes.P2WPKH:
-      if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
-      stack = bscript.witnessPubKeyHash.input.encodeStack(signatures[0], input.pubKeys[0])
-      break
-
-    case scriptTypes.P2PKH:
-      if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
-      stack = bscript.pubKeyHash.input.encodeStack(signatures[0], input.pubKeys[0])
-      break
-
-    case scriptTypes.P2PK:
-      if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
-      stack = bscript.pubKey.input.encodeStack(signatures[0])
-      break
-
-    // ref https://github.com/bitcoin/bitcoin/blob/d612837814020ae832499d18e6ee5eb919a87907/src/script/sign.cpp#L232
-    case scriptTypes.MULTISIG:
-      signatures = signatures.map(function (signature) {
-        return signature || ops.OP_0
-      })
-
-      if (!allowIncomplete) {
-        // remove blank signatures
-        signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
-      }
-
-      stack = bscript.multisig.input.encodeStack(signatures, allowIncomplete ? undefined : input.redeemScript)
-      break
-
-    default: return
+  var scriptType = input.prevOutType
+  var sig = []
+  var witness = []
+  if (SIGNABLE.indexOf(scriptType) !== -1) {
+    sig = buildScript(scriptType, input.signatures, input.pubKeys, input.script, allowIncomplete)
   }
 
-  var script, witness
-
-  // encode witness for P2WPKH if necessary
-  if (input.prevOutType === scriptTypes.P2WPKH ||
-      input.redeemScriptType === scriptTypes.P2WPKH) {
-    witness = stack
-    script = EMPTY_SCRIPT
+  var p2sh = false
+  if (scriptType === bscript.types.P2SH) {
+    // We can remove this error later when we have a guarantee prepareInput
+    // rejects unsignabale scripts - it MUST be signable at this point.
+    if (P2SH.indexOf(input.redeemScriptType) === -1) {
+      throw new Error('Impossible to sign this type')
+    }
+    p2sh = true
+    if (SIGNABLE.indexOf(input.redeemScriptType) !== -1) {
+      sig = buildScript(input.redeemScriptType, input.signatures, input.pubKeys, allowIncomplete)
+    }
+    // If it wasn't SIGNABLE, it's witness, defer to that
+    scriptType = input.redeemScriptType
   }
 
-  // no witness? plain old script!
-  if (witness === undefined) {
-    script = bscript.compilePushOnly(stack)
+  if (scriptType === bscript.types.P2WPKH) {
+    // P2WPKH is a special case of P2PKH
+    witness = buildScript(bscript.types.P2PKH, input.signatures, input.pubKeys, allowIncomplete)
+  } else if (scriptType === bscript.types.P2WSH) {
+    // We can remove this check later
+    if (SIGNABLE.indexOf(input.witnessScriptType) !== -1) {
+      witness = buildScript(input.witnessScriptType, input.signatures, input.pubKeys, allowIncomplete)
+      witness.push(input.witnessScript)
+    } else {
+      // We can remove this error later when we have a guarantee prepareInput
+      // rejects unsignble scripts - it MUST be signable at this point.
+      throw new Error()
+    }
+
+    scriptType = input.witnessScriptType
   }
 
-  // wrap as scriptHash if necessary
-  if (input.prevOutType === scriptTypes.P2SH) {
-    script = bscript.scriptHash.input.encode(script, input.redeemScript)
-  }
-
-  // falsy is easier
-  if (script === EMPTY_SCRIPT) {
-    script = undefined
+  // append redeemScript if necessary
+  if (p2sh) {
+    sig.push(input.redeemScript)
   }
 
   return {
-    script: script,
+    type: scriptType,
+    script: bscript.compile(sig),
     witness: witness
   }
 }
@@ -462,15 +467,17 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   this.inputs.forEach(function (input, i) {
     var scriptType = input.redeemScriptType || input.prevOutType
     if (!scriptType && !allowIncomplete) throw new Error('Transaction is not complete')
-
     var result = buildInput(input, allowIncomplete)
 
     // skip if no result
-    if (!result && allowIncomplete) return
-    if (result && result.script) return tx.setInputScript(i, result.script)
-    if (result && result.witness) return tx.setWitness(i, result.witness)
+    if (!allowIncomplete) {
+      if (SIGNABLE.indexOf(result.type) === -1 && result.type !== bscript.types.P2WPKH) {
+        throw new Error(result.type + ' not supported')
+      }
+    }
 
-    throw new Error(scriptType + ' not supported')
+    tx.setInputScript(i, result.script)
+    tx.setWitness(i, result.witness)
   })
 
   if (!allowIncomplete) {
