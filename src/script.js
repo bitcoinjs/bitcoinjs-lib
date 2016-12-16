@@ -2,7 +2,6 @@ var bip66 = require('bip66')
 var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
-var scriptNumber = require('./script_number')
 var OPS = require('./opcodes.json')
 var REVERSE_OPS = (function () {
   var result = {}
