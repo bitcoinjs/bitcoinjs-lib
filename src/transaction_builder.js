@@ -81,7 +81,7 @@ function expandInput (scriptSig, redeemScript, witnessStack) {
       break
 
     case scriptTypes.NONSTANDARD:
-      return { prevOutType: scriptTypes, prevOutScript: EMPTY_SCRIPT }
+      return { prevOutType: prevOutType, prevOutScript: EMPTY_SCRIPT }
 
     default: return {}
   }
