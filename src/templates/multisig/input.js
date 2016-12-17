@@ -2,7 +2,7 @@
 
 var bscript = require('../../script')
 var typeforce = require('typeforce')
-var OPS = require('../../opcodes.json')
+var OPS = require('bitcoin-ops')
 
 function partialSignature (value) {
   return value === OPS.OP_0 || bscript.isCanonicalSignature(value)

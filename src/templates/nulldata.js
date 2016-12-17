@@ -3,7 +3,7 @@
 var bscript = require('../script')
 var types = require('../types')
 var typeforce = require('typeforce')
-var OPS = require('../opcodes.json')
+var OPS = require('bitcoin-ops')
 
 function check (script) {
   var buffer = bscript.compile(script)

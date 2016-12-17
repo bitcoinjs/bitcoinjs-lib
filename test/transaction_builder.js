@@ -3,7 +3,7 @@
 var assert = require('assert')
 var baddress = require('../src/address')
 var bscript = require('../src/script')
-var ops = require('../src/opcodes')
+var ops = require('bitcoin-ops')
 
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
