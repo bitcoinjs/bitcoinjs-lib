@@ -10,6 +10,6 @@ module.exports = {
   bufferutils: require('./bufferutils'),
   crypto: require('./crypto'),
   networks: require('./networks'),
-  opcodes: require('./opcodes.json'),
+  opcodes: require('bitcoin-ops'),
   script: require('./script')
 }

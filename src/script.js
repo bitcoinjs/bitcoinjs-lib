@@ -1,17 +1,11 @@
 var bip66 = require('bip66')
-var bufferutils = require('./bufferutils')
+var pushdata = require('pushdata-bitcoin')
 var typeforce = require('typeforce')
 var types = require('./types')
 var scriptNumber = require('./script_number')
-var OPS = require('./opcodes.json')
-var REVERSE_OPS = (function () {
-  var result = {}
-  for (var op in OPS) {
-    var code = OPS[op]
-    result[code] = op
-  }
-  return result
-})()
+
+var OPS = require('bitcoin-ops')
+var REVERSE_OPS = require('bitcoin-ops/map')
 var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function isOPInt (value) {
@@ -43,7 +37,7 @@ function compile (chunks) {
         return accum + 1
       }
 
-      return accum + bufferutils.pushDataSize(chunk.length) + chunk.length
+      return accum + pushdata.encodingLength(chunk.length) + chunk.length
     }
 
     // opcode
@@ -70,7 +64,7 @@ function compile (chunks) {
         return
       }
 
-      offset += bufferutils.writePushDataInt(buffer, chunk.length, offset)
+      offset += pushdata.encode(buffer, chunk.length, offset)
 
       chunk.copy(buffer, offset)
       offset += chunk.length
@@ -100,7 +94,7 @@ function decompile (buffer) {
 
     // data chunk
     if ((opcode > OPS.OP_0) && (opcode <= OPS.OP_PUSHDATA4)) {
-      var d = bufferutils.readPushDataInt(buffer, i)
+      var d = pushdata.decode(buffer, i)
 
       // did reading a pushDataInt fail? empty script
       if (d === null) return []

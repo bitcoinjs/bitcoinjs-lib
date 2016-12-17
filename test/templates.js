@@ -3,7 +3,7 @@
 var assert = require('assert')
 var bcrypto = require('../src/crypto')
 var bscript = require('../src/script')
-var ops = require('../src/opcodes')
+var ops = require('bitcoin-ops')
 
 var fixtures = require('./fixtures/templates.json')
 

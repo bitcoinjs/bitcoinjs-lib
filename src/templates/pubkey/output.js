@@ -2,7 +2,7 @@
 
 var bscript = require('../../script')
 var typeforce = require('typeforce')
-var OPS = require('../../opcodes.json')
+var OPS = require('bitcoin-ops')
 
 function check (script) {
   var chunks = bscript.decompile(script)
