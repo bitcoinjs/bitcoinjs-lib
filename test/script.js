@@ -38,6 +38,14 @@ describe('script', function () {
         })
       }
     })
+
+    fixtures.invalid.fromASM.forEach(function (f) {
+      it('throws ' + f.description, function () {
+        assert.throws(function () {
+          bscript.fromASM(f.script)
+        }, new RegExp(f.description))
+      })
+    })
   })
 
   describe('decompilePushOnly/compilePushOnly', function () {

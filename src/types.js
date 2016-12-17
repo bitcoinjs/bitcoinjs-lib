@@ -6,13 +6,17 @@ function UInt31 (value) {
 }
 
 function BIP32Path (value) {
-  return typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
+  return typeforce.String(value) && /^(m\/)?(\d+'?\/)*\d+'?$/.test(value)
 }
 BIP32Path.toJSON = function () { return 'BIP32 derivation path' }
 
 var SATOSHI_MAX = 21 * 1e14
 function Satoshi (value) {
   return typeforce.UInt53(value) && value <= SATOSHI_MAX
+}
+
+function ASM (value) {
+  return typeforce.String(value) && /^((OP_[A-Z0-9]+)|([a-f0-9]+)| )+$/g.test(value)
 }
 
 // external dependent types
@@ -34,6 +38,7 @@ var Network = typeforce.compile({
 
 // extend typeforce types with ours
 var types = {
+  ASM: ASM,
   BigInt: BigInt,
   BIP32Path: BIP32Path,
   Buffer256bit: typeforce.BufferN(32),
