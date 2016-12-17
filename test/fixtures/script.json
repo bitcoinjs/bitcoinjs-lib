@@ -189,6 +189,12 @@
         "description": "Not enough data: OP_PUSHDATA4 0xffffffff",
         "script": "4effffffff01"
       }
+    ],
+    "fromASM": [
+      {
+        "description": "Expected Hex, got String \"0xff\"",
+        "script": "0xff OP_CHECKSIG"
+      }
     ]
   }
 }

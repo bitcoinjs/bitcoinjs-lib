@@ -28,6 +28,14 @@ describe('script', function () {
         assert.strictEqual(bscript.toASM(scriptSig), f.asm)
       })
     })
+
+    fixtures.invalid.fromASM.forEach(function (f) {
+      it('throws ' + f.description, function () {
+        assert.throws(function () {
+          bscript.fromASM(f.script)
+        }, new RegExp(f.description))
+      })
+    })
   })
 
   describe('isPushOnly', function () {
