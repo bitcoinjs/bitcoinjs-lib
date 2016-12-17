@@ -221,7 +221,7 @@ describe('Transaction', function () {
   })
 
   describe('hashForSignature', function () {
-    it('only uses legacy serialization', function () {
+    it('does not use Witness serialization', function () {
       var randScript = new Buffer('6a', 'hex')
 
       var tx = new Transaction()
