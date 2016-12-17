@@ -226,7 +226,7 @@ function prepareInput (input, kpPubKey, redeemScript) {
   }
 }
 
-function buildScript (type, signatures, pubKeys, allowIncomplete) {
+function buildStack (type, signatures, pubKeys, allowIncomplete) {
   if (type === scriptTypes.P2PKH) {
     if (signatures.length < 1 || !signatures[0]) throw new Error('Not enough signatures provided')
     return bscript.pubKeyHash.input.encodeStack(signatures[0], pubKeys[0])
@@ -252,7 +252,7 @@ function buildInput (input, allowIncomplete) {
   var sig = []
   var witness = []
   if (SIGNABLE.indexOf(scriptType) !== -1) {
-    sig = buildScript(scriptType, input.signatures, input.pubKeys, input.script, allowIncomplete)
+    sig = buildStack(scriptType, input.signatures, input.pubKeys, input.script, allowIncomplete)
   }
 
   var p2sh = false
@@ -264,7 +264,7 @@ function buildInput (input, allowIncomplete) {
     }
     p2sh = true
     if (SIGNABLE.indexOf(input.redeemScriptType) !== -1) {
-      sig = buildScript(input.redeemScriptType, input.signatures, input.pubKeys, allowIncomplete)
+      sig = buildStack(input.redeemScriptType, input.signatures, input.pubKeys, allowIncomplete)
     }
     // If it wasn't SIGNABLE, it's witness, defer to that
     scriptType = input.redeemScriptType
@@ -272,11 +272,11 @@ function buildInput (input, allowIncomplete) {
 
   if (scriptType === bscript.types.P2WPKH) {
     // P2WPKH is a special case of P2PKH
-    witness = buildScript(bscript.types.P2PKH, input.signatures, input.pubKeys, allowIncomplete)
+    witness = buildStack(bscript.types.P2PKH, input.signatures, input.pubKeys, allowIncomplete)
   } else if (scriptType === bscript.types.P2WSH) {
     // We can remove this check later
     if (SIGNABLE.indexOf(input.witnessScriptType) !== -1) {
-      witness = buildScript(input.witnessScriptType, input.signatures, input.pubKeys, allowIncomplete)
+      witness = buildStack(input.witnessScriptType, input.signatures, input.pubKeys, allowIncomplete)
       witness.push(input.witnessScript)
     } else {
       // We can remove this error later when we have a guarantee prepareInput
