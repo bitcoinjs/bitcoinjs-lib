@@ -1,6 +1,5 @@
 var bufferutils = require('./bufferutils')
 var bcrypto = require('./crypto')
-var bufferReverse = require('buffer-reverse')
 var fastMerkleRoot = require('merkle-lib/fastRoot')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -80,7 +79,7 @@ Block.prototype.getHash = function () {
 }
 
 Block.prototype.getId = function () {
-  return bufferReverse(this.getHash()).toString('hex')
+  return this.getHash().reverse().toString('hex')
 }
 
 Block.prototype.getUTCDate = function () {
@@ -164,7 +163,7 @@ Block.prototype.checkMerkleRoot = function () {
 }
 
 Block.prototype.checkProofOfWork = function () {
-  var hash = bufferReverse(this.getHash())
+  var hash = this.getHash().reverse()
   var target = Block.calculateTarget(this.bits)
 
   return hash.compare(target) <= 0

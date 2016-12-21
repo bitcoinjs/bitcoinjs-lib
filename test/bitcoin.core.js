@@ -22,7 +22,7 @@ describe('Bitcoin-core', function () {
 
       it('can decode ' + fb58, function () {
         var buffer = base58.decode(fb58)
-        var actual = new Buffer(buffer).toString('hex')
+        var actual = buffer.toString('hex')
 
         assert.strictEqual(actual, fhex)
       })
@@ -150,7 +150,7 @@ describe('Bitcoin-core', function () {
           var input = inputs[i]
 
           // reverse because test data is reversed
-          var prevOutHash = [].reverse.call(new Buffer(input[0], 'hex'))
+          var prevOutHash = new Buffer(input[0], 'hex').reverse()
           var prevOutIndex = input[1]
 
           assert.deepEqual(txIn.hash, prevOutHash)
@@ -193,7 +193,7 @@ describe('Bitcoin-core', function () {
         var hash = transaction.hashForSignature(inIndex, script, hashType)
 
         // reverse because test data is reversed
-        assert.equal([].reverse.call(hash).toString('hex'), expectedHash)
+        assert.equal(hash.reverse().toString('hex'), expectedHash)
       })
     })
   })

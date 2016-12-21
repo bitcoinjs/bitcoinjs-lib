@@ -1,7 +1,6 @@
 var baddress = require('./address')
 var bcrypto = require('./crypto')
 var bscript = require('./script')
-var bufferReverse = require('buffer-reverse')
 var networks = require('./networks')
 var ops = require('bitcoin-ops')
 var typeforce = require('typeforce')
@@ -299,7 +298,7 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
   // is it a hex string?
   if (typeof txHash === 'string') {
     // transaction hashs's are displayed in reverse order, un-reverse it
-    txHash = bufferReverse(new Buffer(txHash, 'hex'))
+    txHash = new Buffer(txHash, 'hex').reverse()
 
   // is it a Transaction object?
   } else if (txHash instanceof Transaction) {

@@ -1,7 +1,6 @@
 var bcrypto = require('./crypto')
 var bscript = require('./script')
 var bufferutils = require('./bufferutils')
-var bufferReverse = require('buffer-reverse')
 var opcodes = require('bitcoin-ops')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -395,7 +394,7 @@ Transaction.prototype.getHash = function () {
 
 Transaction.prototype.getId = function () {
   // transaction hash's are displayed in reverse order
-  return bufferReverse(this.getHash()).toString('hex')
+  return this.getHash().reverse().toString('hex')
 }
 
 Transaction.prototype.toBuffer = function (buffer, initialOffset) {

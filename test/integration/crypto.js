@@ -45,7 +45,7 @@ describe('bitcoinjs-lib (crypto)', function () {
 
         assert(bitcoin.script.pubKeyHash.input.check(scriptChunks), 'Expected pubKeyHash script')
 
-        var prevOutTxId = [].reverse.call(new Buffer(transaction.ins[input.vout].hash)).toString('hex')
+        var prevOutTxId = new Buffer(transaction.ins[input.vout].hash).reverse().toString('hex')
         var prevVout = transaction.ins[input.vout].index
 
         tasks.push(function (callback) {
