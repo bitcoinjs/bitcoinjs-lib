@@ -95,7 +95,7 @@ describe('TransactionBuilder', function () {
         var tx = new Transaction()
 
         f.inputs.forEach(function (input) {
-          var txHash = [].reverse.call(new Buffer(input.txId, 'hex'))
+          var txHash = new Buffer(input.txId, 'hex').reverse()
 
           tx.addInput(txHash, input.vout, undefined, bscript.fromASM(input.scriptSig))
         })
