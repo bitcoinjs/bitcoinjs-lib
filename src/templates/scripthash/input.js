@@ -32,9 +32,9 @@ function encodeStack (redeemScriptStack, redeemScript) {
 }
 
 function encode (redeemScriptSig, redeemScript) {
-  var redeemScriptStack = bscript.decompile(redeemScriptSig)
+  var redeemScriptStack = bscript.decompilePushOnly(redeemScriptSig)
 
-  return bscript.compile(encodeStack(redeemScriptStack, redeemScript))
+  return bscript.compilePushOnly(encodeStack(redeemScriptStack, redeemScript))
 }
 
 function decodeStack (stack) {
@@ -47,9 +47,9 @@ function decodeStack (stack) {
 }
 
 function decode (buffer) {
-  var stack = bscript.decompile(buffer)
+  var stack = bscript.decompilePushOnly(buffer)
   var result = decodeStack(stack)
-  result.redeemScriptSig = bscript.compile(result.redeemScriptStack)
+  result.redeemScriptSig = bscript.compilePushOnly(result.redeemScriptStack)
   delete result.redeemScriptStack
   return result
 }

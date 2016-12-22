@@ -2,7 +2,6 @@ var bip66 = require('bip66')
 var bufferutils = require('./bufferutils')
 var typeforce = require('typeforce')
 var types = require('./types')
-var scriptNumber = require('./script_number')
 var OPS = require('./opcodes.json')
 var REVERSE_OPS = (function () {
   var result = {}
@@ -158,9 +157,9 @@ function toStack (chunks) {
 
   return chunks.map(function (op) {
     if (Buffer.isBuffer(op)) return op
-    if (op === OPS.OP_0) return new Buffer(0)
+    if (op === OPS.OP_0) return op
 
-    return scriptNumber.encode(op - OP_INT_BASE)
+    return op
   })
 }
 
