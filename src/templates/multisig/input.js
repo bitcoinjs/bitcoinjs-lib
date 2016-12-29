@@ -36,7 +36,7 @@ function encodeStack (signatures, scriptPubKey) {
     }
   }
 
-  return [].concat(OPS.OP_0, signatures)
+  return [].concat(new Buffer(0), signatures)
 }
 
 function encode (signatures, scriptPubKey) {
