@@ -176,54 +176,108 @@ function expandOutput (script, scriptType, ourPubKey) {
   }
 }
 
-function prepareInput (input, kpPubKey, redeemScript) {
-  if (redeemScript) {
-    var redeemScriptHash = bcrypto.hash160(redeemScript)
+function checkP2shInput (input, redeemScriptHash) {
+  if (input.prevOutType) {
+    if (input.prevOutType !== scriptTypes.P2SH) throw new Error('PrevOutScript must be P2SH')
 
-    // if redeemScript exists, it is pay-to-scriptHash
-    // if we have a prevOutScript, enforce hash160(redeemScriptequality)  to the redeemScript
-    if (input.prevOutType) {
-      if (input.prevOutType !== scriptTypes.P2SH) throw new Error('PrevOutScript must be P2SH')
+    var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
+    if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
+  }
+}
 
-      var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
-      if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
-    }
+function checkP2WSHInput (input, witnessScriptHash) {
+  if (input.prevOutType) {
+    if (input.prevOutType !== scriptTypes.P2WSH) throw new Error('PrevOutScript must be P2WSH')
 
-    var expanded = expandOutput(redeemScript, undefined, kpPubKey)
+    var scriptHash = bscript.decompile(input.prevOutScript)[1]
+    if (!scriptHash.equals(witnessScriptHash)) throw new Error('Inconsistent hash160(WitnessScript)')
+  }
+}
+
+function prepareInput (input, kpPubKey, redeemScript, witnessScript) {
+  var expanded
+  var prevOutType
+  var prevOutScript
+
+  var p2sh = false
+  var p2shType
+  var redeemScriptHash
+
+  var witness = false
+  var witnessType
+  var witnessScriptHash
+
+  if (redeemScript && witnessScript) {
+    redeemScriptHash = bcrypto.hash160(redeemScript)
+    witnessScriptHash = bcrypto.hash256(witnessScript)
+    checkP2shInput(input, redeemScriptHash)
+    if (!redeemScript.equals(bscript.witnessScriptHash.output.encode(witnessScriptHash))) throw new Error('Witness script inconsistent with redeem script')
+
+    expanded = expandOutput(witnessScript, undefined, kpPubKey)
+    if (!expanded.pubKeys) throw new Error('WitnessScript not supported "' + bscript.toASM(redeemScript) + '"')
+
+    prevOutType = bscript.types.P2SH
+    prevOutScript = bscript.scriptHash.output.encode(redeemScriptHash)
+    p2sh = witness = true
+    p2shType = bscript.types.P2WSH
+    witnessType = expanded.scriptType
+  } else if (redeemScript) {
+    redeemScriptHash = bcrypto.hash160(redeemScript)
+    checkP2shInput(input, redeemScriptHash)
+
+    expanded = expandOutput(redeemScript, undefined, kpPubKey)
     if (!expanded.pubKeys) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
 
-    input.pubKeys = expanded.pubKeys
-    input.signatures = expanded.signatures
-    input.redeemScript = redeemScript
-    input.redeemScriptType = expanded.scriptType
-    input.prevOutScript = input.prevOutScript || bscript.scriptHash.output.encode(redeemScriptHash)
-    input.prevOutType = scriptTypes.P2SH
-    input.witness = false
+    prevOutType = bscript.types.P2SH
+    prevOutScript = bscript.scriptHash.output.encode(redeemScriptHash)
+    p2sh = true
+    p2shType = expanded.scriptType
+  } else if (witnessScript) {
+    witnessScriptHash = bcrypto.hash256(witnessScript)
+    checkP2WSHInput(input, witnessScriptHash)
 
-  // maybe we have some prevOut knowledge
+    expanded = expandOutput(witnessScript, undefined, kpPubKey)
+    if (!expanded.pubKeys) throw new Error('WitnessScript not supported "' + bscript.toASM(redeemScript) + '"')
+
+    prevOutType = bscript.types.P2WSH
+    prevOutScript = bscript.witnessScriptHash.output.encode(witnessScriptHash)
+    witness = true
+    witnessType = expanded.scriptType
   } else if (input.prevOutType) {
     // embedded scripts are not possible without a redeemScript
     if (input.prevOutType === scriptTypes.P2SH ||
-        input.prevOutType === scriptTypes.P2WSH) {
+      input.prevOutType === scriptTypes.P2WSH) {
       throw new Error('PrevOutScript is ' + input.prevOutType + ', requires redeemScript')
     }
 
-    // try to derive missing information using our kpPubKey
+    prevOutType = input.prevOutType
+    prevOutScript = input.prevOutScript
     expanded = expandOutput(input.prevOutScript, input.prevOutType, kpPubKey)
     if (!expanded.pubKeys) return
 
-    input.pubKeys = expanded.pubKeys
-    input.signatures = expanded.signatures
-    input.witness = (input.prevOutScript === scriptTypes.P2WPKH)
-
-  // no prior knowledge, assume pubKeyHash
+    witness = (input.prevOutScript === scriptTypes.P2WPKH)
   } else {
-    input.prevOutScript = bscript.pubKeyHash.output.encode(bcrypto.hash160(kpPubKey))
-    input.prevOutType = scriptTypes.P2PKH
-    input.pubKeys = [kpPubKey]
-    input.signatures = [undefined]
-    input.witness = false
+    prevOutScript = bscript.pubKeyHash.output.encode(bcrypto.hash160(kpPubKey))
+    expanded = expandOutput(prevOutScript, scriptTypes.P2PKH, kpPubKey)
+    prevOutType = scriptTypes.P2PKH
+    witness = false
   }
+
+  if (p2sh) {
+    input.redeemScript = redeemScript
+    input.redeemScriptType = p2shType
+  }
+
+  if (witness && witnessType === bscript.types.P2WSH) {
+    input.witnessScript = witnessScript
+    input.witnessScriptType = witnessType
+  }
+
+  input.pubKeys = expanded.pubKeys
+  input.signatures = expanded.signatures
+  input.prevOutScript = prevOutScript
+  input.prevOutType = prevOutType
+  input.witness = witness
 }
 
 function buildStack (type, signatures, pubKeys, allowIncomplete) {
