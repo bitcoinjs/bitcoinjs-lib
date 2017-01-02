@@ -55,12 +55,19 @@ function construct (f, dontSign) {
     input.signs.forEach(function (sign) {
       var keyPair = ECPair.fromWIF(sign.keyPair, network)
       var redeemScript
-
+      var witnessScript
+      var value
       if (sign.redeemScript) {
         redeemScript = bscript.fromASM(sign.redeemScript)
       }
+      if (sign.value) {
+        value = sign.value
+      }
+      if (sign.witnessScript) {
+        witnessScript = bscript.fromASM(sign.witnessScript)
+      }
 
-      txb.sign(index, keyPair, redeemScript, sign.hashType)
+      txb.sign(index, keyPair, redeemScript, sign.hashType, value, witnessScript)
     })
   })
 
@@ -82,6 +89,7 @@ describe('TransactionBuilder', function () {
     fixtures.valid.build.forEach(function (f) {
       it('returns TransactionBuilder, with ' + f.description, function () {
         var network = NETWORKS[f.network || 'bitcoin']
+
         var tx = Transaction.fromHex(f.txHex)
         var txb = TransactionBuilder.fromTransaction(tx, network)
 

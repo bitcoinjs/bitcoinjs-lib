@@ -14,9 +14,139 @@ var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var Transaction = require('./transaction')
 
+function extractChunks (type, chunks) {
+  var pubKeys = []
+  var signatures = []
+  switch (type) {
+    case scriptTypes.P2PKH:
+      // if (redeemScript) throw new Error('Nonstandard... P2SH(P2PKH)')
+      pubKeys = chunks.slice(1)
+      signatures = chunks.slice(0, 1)
+      break
+
+    case scriptTypes.P2PK:
+      pubKeys[0] = null
+      signatures = chunks.slice(0, 1)
+      break
+
+    case scriptTypes.MULTISIG:
+      signatures = chunks.slice(1).map(function (chunk) {
+        return chunk === ops.OP_0 ? undefined : chunk
+      })
+      break
+  }
+  return {
+    pubKeys: pubKeys,
+    signatures: signatures
+  }
+}
+
+function expandInput (scriptSig, redeemScript, witnessStack) {
+  var prevOutScript
+  var prevOutType
+  var witnessScript
+  var witnessScriptType
+  var witness = false
+  var p2wsh = false
+  var p2sh = false
+  var witnessProgram
+
+  var classifyWitness = bscript.classifyWitness(witnessStack);
+  if (classifyWitness === scriptTypes.P2WSH) {
+    witnessScript = witnessStack[witnessStack.length - 1]
+    witnessScriptType = bscript.classifyOutput(witnessScript)
+    p2wsh = true
+    if (scriptSig.length === 0) {
+      prevOutScript = bscript.witnessScriptHash.output.encode(bcrypto.sha256(witnessScript))
+      // bare witness
+    } else {
+      if (!redeemScript) {
+        throw new Error('No redeemScript provided for P2WSH, but scriptSig wasn\'t empty')
+      }
+      witnessProgram = bscript.witnessScriptHash.output.encode(bcrypto.sha256(witnessScript))
+      if (!redeemScript.equals(witnessProgram)) {
+        throw new Error('Redeem script didn\'t match witnessScript')
+      }
+      prevOutScript = bscript.scriptHash.output.encode(bscript.hash160(witnessProgram))
+    }
+
+    console.log(bscript.classifyOutput(witnessScript))
+    console.log(SIGNABLE.indexOf(bscript.classifyOutput(witnessScript)))
+    if (SIGNABLE.indexOf(bscript.classifyOutput(witnessScript)) === -1) {
+      throw new Error('unsupported witness script')
+    }
+  } else if (classifyWitness === scriptTypes.P2WPKH) {
+    var keyHash = witnessStack[witnessStack.length - 1]
+    if (scriptSig.length === 0) {
+      prevOutScript = bscript.witnessPubKeyHash.output.encode(keyHash)
+      // bare witness
+    } else {
+      if (!redeemScript) {
+        throw new Error('No redeemScript provided for P2WPKH, but scriptSig wasn\'t empty');
+      }
+      witnessProgram = bscript.witnessPubKeyHash.output.encode(keyHash)
+      if (!redeemScript.equals(witnessProgram)) {
+        throw new Error('Redeem script did not have the right witness program')
+      }
+      prevOutScript = bscript.scriptHash.output.encode(bcrypto.hash160(witnessProgram));
+    }
+  }
+
+  if (typeof prevOutScript === 'undefined' && redeemScript) {
+    prevOutScript = bscript.scriptHash.output.encode(bcrypto.hash160(redeemScript))
+  }
+
+  if (typeof prevOutScript === 'undefined' && scriptSig) {
+    prevOutType = bscript.classifyInput(scriptSig)
+    if (!(scriptTypes.P2SH === prevOutType || P2SH.indexOf(prevOutType) !== -1)) {
+      throw new Error('Unsupported scriptSig')
+    }
+  }
+
+  var scriptType = bscript.classifyOutput(prevOutScript)
+  var redeemScriptType
+  var chunks = bscript.toStack(scriptSig)
+  if (scriptType === scriptTypes.P2SH) {
+    p2sh = true
+    scriptType = redeemScriptType = bscript.classifyOutput(redeemScript)
+    if (P2SH.indexOf(scriptType) === -1) {
+      throw new Error('P2SH script not supported ' + scriptType)
+    }
+    chunks = chunks.slice(0, -1)
+  }
+
+  if (scriptType === scriptTypes.P2WSH) {
+    chunks = witnessStack.slice(0, -1)
+    scriptType = bscript.classifyOutput(witnessScript)
+  } else if (scriptType === scriptTypes.P2WPKH) {
+    chunks = witnessStack
+  }
+
+  var expanded = extractChunks(scriptType, chunks)
+
+  var result = {
+    pubKeys: expanded.pubKeys,
+    signatures: expanded.signatures,
+    prevOutScript: prevOutScript,
+    prevOutType: prevOutType
+  }
+
+  if (p2sh) {
+    result.redeemScript = redeemScript
+    result.redeemScriptType = redeemScriptType
+  }
+
+  if (p2wsh) {
+    result.witnessScript = witnessScript
+    result.witnessScriptType = witnessScriptType
+  }
+
+  return result
+}
+
 // inspects a scriptSig w/ optional redeemScript and
 // derives any input information required
-function expandInput (scriptSig, redeemScript, witnessStack) {
+function expandInput2 (scriptSig, redeemScript, witnessStack) {
   var witnessType
   if (witnessStack) {
     witnessType = bscript.classifyWitness(witnessStack)
@@ -51,33 +181,6 @@ function expandInput (scriptSig, redeemScript, witnessStack) {
     case scriptTypes.P2WPKH:
       pubKeys = witnessStack.slice(1)
       signatures = witnessStack.slice(0, 1)
-      break
-
-    case scriptTypes.P2PKH:
-      // if (redeemScript) throw new Error('Nonstandard... P2SH(P2PKH)')
-      pubKeys = scriptSigChunks.slice(1)
-      signatures = scriptSigChunks.slice(0, 1)
-
-      if (redeemScript) break
-      prevOutScript = bscript.pubKeyHash.output.encode(bcrypto.hash160(pubKeys[0]))
-      break
-
-    case scriptTypes.P2PK:
-      if (redeemScript) {
-        pubKeys = bscript.decompile(redeemScript).slice(0, 1)
-      }
-
-      signatures = scriptSigChunks.slice(0, 1)
-      break
-
-    case scriptTypes.MULTISIG:
-      if (redeemScript) {
-        pubKeys = bscript.decompile(redeemScript).slice(1, -2)
-      }
-
-      signatures = scriptSigChunks.slice(1).map(function (chunk) {
-        return chunk === ops.OP_0 ? undefined : chunk
-      })
       break
 
     case scriptTypes.NONSTANDARD:
@@ -190,7 +293,7 @@ function checkP2WSHInput (input, witnessScriptHash) {
     if (input.prevOutType !== scriptTypes.P2WSH) throw new Error('PrevOutScript must be P2WSH')
 
     var scriptHash = bscript.decompile(input.prevOutScript)[1]
-    if (!scriptHash.equals(witnessScriptHash)) throw new Error('Inconsistent hash160(WitnessScript)')
+    if (!scriptHash.equals(witnessScriptHash)) throw new Error('Inconsistent sha25(WitnessScript)')
   }
 }
 
@@ -235,7 +338,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     p2sh = true
     p2shType = expanded.scriptType
   } else if (witnessScript) {
-    witnessScriptHash = bcrypto.hash256(witnessScript)
+    witnessScriptHash = bcrypto.sha256(witnessScript)
     checkP2WSHInput(input, witnessScriptHash)
 
     expanded = expandOutput(witnessScript, undefined, kpPubKey)
@@ -259,7 +362,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
 
     witness = (input.prevOutScript === scriptTypes.P2WPKH)
   } else {
-    prevOutScript = bscript.pubKeyHash.output.encode(bcrypto.hash160(kpPubKey))
+    prevOutScript = bscript.witnessPubKeyHash.output.encode(bcrypto.hash160(kpPubKey))
     expanded = expandOutput(prevOutScript, scriptTypes.P2PKH, kpPubKey)
     prevOutType = scriptTypes.P2PKH
     witness = false
@@ -402,11 +505,13 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
 
   // Copy inputs
   transaction.ins.forEach(function (txIn) {
+    console.log('add input')
     txb.__addInputUnsafe(txIn.hash, txIn.index, {
       sequence: txIn.sequence,
       script: txIn.script,
       witness: txIn.witness
     })
+    console.log('done input')
   })
 
   // fix some things not possible through the public API
@@ -457,6 +562,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
 
   // derive what we can from the scriptSig
   if (options.script !== undefined) {
+    console.log('options.script provided, so peek')
     input = expandInput(options.script, null, options.witness)
   }
 
@@ -485,6 +591,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
   }
 
   var vin = this.tx.addInput(txHash, vout, options.sequence, options.scriptSig)
+  console.log(this.tx)
   this.inputs[vin] = input
   this.prevTxMap[prevTxOut] = vin
 
@@ -520,7 +627,9 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
   var tx = this.tx.clone()
   // Create script signatures from inputs
   this.inputs.forEach(function (input, i) {
-    var scriptType = input.redeemScriptType || input.prevOutType
+    console.log(input)
+    var scriptType = input.witnessScriptType || input.redeemScriptType || input.prevOutType
+    console.log(scriptType)
     if (!scriptType && !allowIncomplete) throw new Error('Transaction is not complete')
     var result = buildInput(input, allowIncomplete)
 
@@ -576,11 +685,12 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   }
 
   // ready to sign
-  var hashScript = input.redeemScript || input.prevOutScript
+  var hashScript = input.witnessScript || input.redeemScript || input.prevOutScript
 
   var signatureHash
   if (input.witness) {
     signatureHash = this.tx.hashForWitnessV0(vin, hashScript, witnessValue, hashType)
+    console.log(hashScript);
   } else {
     signatureHash = this.tx.hashForSignature(vin, hashScript, hashType)
   }
