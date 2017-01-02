@@ -400,7 +400,33 @@
             "value": 10000
           }
         ]
+      },
+
+      {
+        "description": "Transaction w/ P2WSH P2PK -> P2PKH",
+        "txHex": "010000000001014533a3bc1e039bd787656068e135aaee10aee95a64776bfc047ee6a7c1ebdd2f0000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac02473044022039725bb7291a14dd182dafdeaf3ea0d5c05c34f4617ccbaa46522ca913995c4e02203b170d072ed2e489e7424ad96d8fa888deb530be2d4c5d9aaddf111a7efdb2d3012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac00000000",
+        "inputs": [
+          {
+            "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
+            "vout": 0,
+            "prevTxScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
+            "signs": [
+              {
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
+                "value": 80000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 60000
+          }
+        ]
       }
+
     ],
     "fromTransaction": [
       {
