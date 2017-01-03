@@ -198,7 +198,6 @@ function fixMultisigOrder (input, transaction, vin) {
 }
 
 function expandOutput (script, scriptType, ourPubKey) {
-  console.log('expandOutput: ', script.toString('hex'), scriptType, ourPubKey)
   typeforce(types.Buffer, script)
 
   var scriptChunks = bscript.decompile(script)
@@ -208,11 +207,9 @@ function expandOutput (script, scriptType, ourPubKey) {
 
   var pubKeys = []
 
-  console.log(scriptType)
   switch (scriptType) {
     // does our hash160(pubKey) match the output scripts?
     case scriptTypes.P2PKH:
-      console.log(scriptChunks)
       if (!ourPubKey) break
 
       var pkh1 = scriptChunks[2]
@@ -331,7 +328,6 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     witness = (input.prevOutScript === scriptTypes.P2WPKH)
   } else {
     prevOutScript = bscript.pubKeyHash.output.encode(bcrypto.hash160(kpPubKey))
-    console.log(prevOutScript)
     expanded = expandOutput(prevOutScript, scriptTypes.P2PKH, kpPubKey)
     prevOutType = scriptTypes.P2PKH
     witness = false
