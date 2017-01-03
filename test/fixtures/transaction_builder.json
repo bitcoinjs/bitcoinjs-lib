@@ -403,7 +403,7 @@
       },
 
       {
-        "description": "Transaction w/ P2WSH P2PK -> P2PKH",
+        "description": "Transaction w/ P2WSH|P2PK -> P2PKH",
         "txHex": "010000000001014533a3bc1e039bd787656068e135aaee10aee95a64776bfc047ee6a7c1ebdd2f0000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac02473044022039725bb7291a14dd182dafdeaf3ea0d5c05c34f4617ccbaa46522ca913995c4e02203b170d072ed2e489e7424ad96d8fa888deb530be2d4c5d9aaddf111a7efdb2d3012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac00000000",
         "inputs": [
           {
@@ -413,6 +413,31 @@
             "signs": [
               {
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
+                "value": 80000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 60000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH|P2WSH|P2PK -> P2PKH",
+        "txHex": "01000000000101e0779d448aaa203a96b3de14d0482e26dd75a4278ae5bb6d7cc18e6874f3866000000000232200200f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac024730440220014207a5f0601ed7b3c3f9d82309b32e8f76dd6776a55cb5f8684b9ff029e0850220693afd7b69471b51d9354cc1a956b68b8d48e32f6b0ad7a19bb5dd3e4499179a012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac00000000",
+        "inputs": [
+          {
+            "txId": "6086f374688ec17c6dbbe58a27a475dd262e48d014deb3963a20aa8a449d77e0",
+            "vout": 0,
+            "prevTxScript": "OP_HASH160 6d185c7042d01ea8276dc6be6603101dc441d8a4 OP_EQUAL",
+            "signs": [
+              {
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "redeemScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
                 "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
                 "value": 80000
               }
