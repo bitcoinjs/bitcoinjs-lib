@@ -92,7 +92,6 @@ describe('TransactionBuilder', function () {
 
         var tx = Transaction.fromHex(f.txHex)
         var txb = TransactionBuilder.fromTransaction(tx, network)
-
         assert.strictEqual(txb.build().toHex(), f.txHex)
         assert.strictEqual(txb.network, network)
       })
@@ -347,6 +346,7 @@ describe('TransactionBuilder', function () {
           it('does not throw if buildIncomplete', function () {
             var txb
             if (f.txHex) {
+              console.log(f.txHex)
               txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
             } else {
               txb = construct(f)
