@@ -21,8 +21,8 @@ function check (script, allowIncomplete) {
 
   var inputType = bscript.classifyInput(scriptSigChunks, allowIncomplete)
   var outputType = bscript.classifyOutput(redeemScriptChunks)
-  if (chunks.length === 1 && (outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH)) {
-    return true
+  if (chunks.length === 1) {
+    return outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH
   }
 
   return inputType === outputType
