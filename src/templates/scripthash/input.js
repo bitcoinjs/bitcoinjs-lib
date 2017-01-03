@@ -5,7 +5,7 @@ var typeforce = require('typeforce')
 
 function check (script, allowIncomplete) {
   var chunks = bscript.decompile(script)
-  if (chunks.length < 2) return false
+  if (chunks.length < 1) return false
 
   var lastChunk = chunks[chunks.length - 1]
   if (!Buffer.isBuffer(lastChunk)) return false
@@ -13,7 +13,7 @@ function check (script, allowIncomplete) {
   var scriptSigChunks = chunks.slice(0, -1)
   var redeemScriptChunks = bscript.decompile(lastChunk)
 
-  // is redeemScript a valid script?
+  // is redeemScript a valid script?git
   if (redeemScriptChunks.length === 0) return false
 
   // is redeemScriptSig push only?
@@ -21,6 +21,10 @@ function check (script, allowIncomplete) {
 
   var inputType = bscript.classifyInput(scriptSigChunks, allowIncomplete)
   var outputType = bscript.classifyOutput(redeemScriptChunks)
+  if (chunks.length === 1 && (outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH)) {
+    return true
+  }
+
   return inputType === outputType
 }
 check.toJSON = function () { return 'scriptHash input' }
