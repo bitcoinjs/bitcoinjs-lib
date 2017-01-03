@@ -90,8 +90,6 @@ function expandInput (scriptSig, witnessStack) {
       if (!redeemScript.equals(witnessProgram)) {
         throw new Error('Redeem script didn\'t match witnessScript')
       }
-      prevOutScript = bscript.scriptHash.output.encode(bcrypto.hash160(witnessProgram))
-      prevOutType = scriptTypes.P2SH
     }
 
     if (SIGNABLE.indexOf(bscript.classifyOutput(witnessScript)) === -1) {
@@ -117,26 +115,20 @@ function expandInput (scriptSig, witnessStack) {
       if (!redeemScript.equals(witnessProgram)) {
         throw new Error('Redeem script did not have the right witness program')
       }
-      prevOutScript = bscript.scriptHash.output.encode(bcrypto.hash160(witnessProgram))
-      prevOutType = scriptTypes.P2SH
     }
 
     scriptType = scriptTypes.P2PKH
     chunks = witnessStack
   } else if (redeemScript) {
-    redeemScriptType = bscript.classifyOutput(redeemScript)
     if (P2SH.indexOf(redeemScriptType) === -1) {
       throw new Error('Bad redeemscript!')
     }
 
     script = redeemScript
     scriptType = redeemScriptType
-    prevOutType = scriptTypes.P2SH
-    prevOutScript = bscript.scriptHash.output.encode(bcrypto.hash160(redeemScript))
     chunks = scriptSigChunks.slice(0, -1)
   } else {
-    var bareType = bscript.classifyInput(scriptSig)
-    prevOutType = scriptType = bareType
+    prevOutType = scriptType = bscript.classifyInput(scriptSig)
     chunks = scriptSigChunks
   }
 
