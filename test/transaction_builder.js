@@ -346,7 +346,6 @@ describe('TransactionBuilder', function () {
           it('does not throw if buildIncomplete', function () {
             var txb
             if (f.txHex) {
-              console.log(f.txHex)
               txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
             } else {
               txb = construct(f)
