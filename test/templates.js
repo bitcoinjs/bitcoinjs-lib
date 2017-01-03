@@ -47,24 +47,21 @@ describe('script-templates', function () {
   })
 
   ;[
+    'multisig',
+    'nullData',
     'pubKey',
     'pubKeyHash',
     'scriptHash',
+    'witnessCommitment',
     'witnessPubKeyHash',
-    'witnessScriptHash',
-    'multisig',
-    'nullData',
-    'witnessCommitment'
+    'witnessScriptHash'
   ].forEach(function (name) {
     var inputType = bscript[name].input
     var outputType = bscript[name].output
 
     describe(name + '.input.check', function () {
       fixtures.valid.forEach(function (f) {
-        // Temporary - while we don't have witnessKeyHash.input, etc.
-        if (name.toLowerCase() === bscript.types.P2WPKH) return
-        if (name.toLowerCase() === bscript.types.P2WSH) return
-        var expected = name.toLowerCase() === f.type.toLowerCase()
+        var expected = name.toLowerCase() === f.type
 
         if (inputType && f.input) {
           var input = bscript.fromASM(f.input)
