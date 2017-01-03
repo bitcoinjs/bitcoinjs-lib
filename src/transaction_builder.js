@@ -38,8 +38,6 @@ function extractChunks (type, chunks, script) {
         return chunk.length === 0 ? undefined : chunk
       })
       break
-    default:
-      throw new Error('Only bare scripts can be handled here: not ', type)
   }
   return {
     pubKeys: pubKeys,
@@ -140,10 +138,6 @@ function expandInput (scriptSig, witnessStack) {
     var bareType = bscript.classifyInput(scriptSig)
     prevOutType = scriptType = bareType
     chunks = scriptSigChunks
-  }
-
-  if (SIGNABLE.indexOf(scriptType) === -1) {
-    throw new Error(scriptType + ' not supported')
   }
 
   var expanded = extractChunks(scriptType, chunks, script)
