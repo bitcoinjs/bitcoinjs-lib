@@ -47,14 +47,14 @@ describe('script-templates', function () {
   })
 
   ;[
+    'multisig',
+    'nullData',
     'pubKey',
     'pubKeyHash',
     'scriptHash',
+    'witnessCommitment',
     'witnessPubKeyHash',
-    'witnessScriptHash',
-    'multisig',
-    'nullData',
-    'witnessCommitment'
+    'witnessScriptHash'
   ].forEach(function (name) {
     var inputType = bscript[name].input
     var outputType = bscript[name].output
