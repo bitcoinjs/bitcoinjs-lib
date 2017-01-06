@@ -61,15 +61,15 @@ ECPair.fromWIF = function (string, network) {
   var decoded = wif.decode(string)
   var version = decoded.version
 
-  // [network, ...]
+  // list of networks?
   if (types.Array(network)) {
-    network = network.filter(function (network) {
-      return version === network.wif
+    network = network.filter(function (x) {
+      return version === x.wif
     }).pop()
 
     if (!network) throw new Error('Unknown network version')
 
-  // network
+  // otherwise, assume a network object (or default to bitcoin)
   } else {
     network = network || NETWORKS.bitcoin
 

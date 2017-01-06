@@ -61,9 +61,9 @@ HDNode.fromBase58 = function (string, networks) {
 
   // list of networks?
   if (Array.isArray(networks)) {
-    network = networks.filter(function (network) {
-      return version === network.bip32.private ||
-             version === network.bip32.public
+    network = networks.filter(function (x) {
+      return version === x.bip32.private ||
+             version === x.bip32.public
     }).pop()
 
     if (!network) throw new Error('Unknown network version')
