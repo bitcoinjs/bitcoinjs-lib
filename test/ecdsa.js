@@ -50,14 +50,14 @@ describe('ecdsa', function () {
         .onCall(2).returns(new BigInteger('42')) // valid, but 'bad' signature
         .onCall(3).returns(new BigInteger('53')) // valid, good signature
 
-      var checkSig = this.mock()
-      checkSig.exactly(2)
-      checkSig.onCall(0).returns(false) // bad signature
-      checkSig.onCall(1).returns(true) // good signature
+      var mockCheckSig = this.mock()
+      mockCheckSig.exactly(2)
+      mockCheckSig.onCall(0).returns(false) // bad signature
+      mockCheckSig.onCall(1).returns(true) // good signature
 
       var x = new BigInteger('1').toBuffer(32)
       var h1 = new Buffer(32)
-      var k = ecdsa.deterministicGenerateK(h1, x, checkSig)
+      var k = ecdsa.deterministicGenerateK(h1, x, mockCheckSig)
 
       assert.strictEqual(k.toString(), '53')
     }))

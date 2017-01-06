@@ -62,8 +62,8 @@ describe('bitcoinjs-lib (multisig)', function () {
             // check that the above transaction included the intended address
             blockchain.t.addresses.unspents(blockchain.t.RETURN, function (err, unspents) {
               if (err) return callback(err)
-              if (!unspents.some(function (unspent) {
-                return unspent.txId === txId && unspent.value === 1e4
+              if (!unspents.some(function (x) {
+                return x.txId === txId && x.value === 1e4
               })) return callback(new Error('Could not find unspent after broadcast'))
 
               callback()
