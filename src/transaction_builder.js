@@ -165,7 +165,7 @@ function fixMultisigOrder (input, transaction, vin) {
 
   var unmatched = input.signatures.concat()
 
-  input.signatures = input.pubKeys.map(function (pubKey, y) {
+  input.signatures = input.pubKeys.map(function (pubKey) {
     var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
     var match
 
