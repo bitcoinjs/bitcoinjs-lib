@@ -298,7 +298,7 @@ describe('HDNode', function () {
       })
 
       // FIXME: test data is only testing Private -> private for now
-      f.children.forEach(function (c, i) {
+      f.children.forEach(function (c) {
         if (c.m === undefined) return
 
         it(c.path + ' from ' + f.master.fingerprint, function () {

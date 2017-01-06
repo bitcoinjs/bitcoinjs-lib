@@ -25,7 +25,7 @@ function fundAddress (unspents, outputs, callback) {
     txb.addOutput(x.address || kpAddress, x.value)
   })
 
-  result.inputs.forEach(function (x, i) {
+  result.inputs.forEach(function (_, i) {
     txb.sign(i, keyPair)
   })
 
@@ -37,7 +37,7 @@ function fundAddress (unspents, outputs, callback) {
 
     // FIXME: @blocktrail can be very slow, give it time
     setTimeout(() => {
-      callback(null, outputs.map(function (x, i) {
+      callback(null, outputs.map(function (_, i) {
         return { txId: txId, vout: i }
       }))
     }, 3000)
