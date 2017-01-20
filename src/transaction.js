@@ -136,7 +136,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
 }
 
 Transaction.fromHex = function (hex) {
-  return Transaction.fromBuffer(new Buffer(hex, 'hex'))
+  return Transaction.fromBuffer(Buffer.from(hex, 'hex'))
 }
 
 Transaction.isCoinbaseHash = function (buffer) {
