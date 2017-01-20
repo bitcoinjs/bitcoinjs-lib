@@ -66,7 +66,6 @@ function construct (f, dontSign) {
       if (sign.witnessScript) {
         witnessScript = bscript.fromASM(sign.witnessScript)
       }
-
       txb.sign(index, keyPair, redeemScript, sign.hashType, value, witnessScript)
     })
   })
@@ -384,7 +383,6 @@ describe('TransactionBuilder', function () {
 
                 tx.ins[i].script = replacement
               }
-
               // now import it
               txb = TransactionBuilder.fromTransaction(tx, network)
             }
@@ -394,7 +392,6 @@ describe('TransactionBuilder', function () {
 
             // update the tx
             tx = txb.buildIncomplete()
-
             // now verify the serialized scriptSig is as expected
             assert.strictEqual(bscript.toASM(tx.ins[i].script), sign.scriptSig)
           })

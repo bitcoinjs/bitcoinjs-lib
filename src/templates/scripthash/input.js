@@ -10,10 +10,10 @@ function check (script, allowIncomplete) {
   var lastChunk = chunks[chunks.length - 1]
   if (!Buffer.isBuffer(lastChunk)) return false
 
-  var scriptSigChunks = chunks.slice(0, -1)
+  var scriptSigChunks = bscript.decompile(bscript.compile(chunks.slice(0, -1)))
   var redeemScriptChunks = bscript.decompile(lastChunk)
 
-  // is redeemScript a valid script?git
+  // is redeemScript a valid script?
   if (redeemScriptChunks.length === 0) return false
 
   // is redeemScriptSig push only?
@@ -22,7 +22,9 @@ function check (script, allowIncomplete) {
   var inputType = bscript.classifyInput(scriptSigChunks, allowIncomplete)
   var outputType = bscript.classifyOutput(redeemScriptChunks)
   if (chunks.length === 1) {
-    return outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH
+    if (outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH) {
+      return true
+    }
   }
 
   return inputType === outputType

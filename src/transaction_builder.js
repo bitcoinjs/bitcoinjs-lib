@@ -39,6 +39,7 @@ function extractChunks (type, chunks, script) {
       })
       break
   }
+
   return {
     pubKeys: pubKeys,
     signatures: signatures
@@ -139,6 +140,8 @@ function expandInput (scriptSig, witnessStack) {
     signatures: expanded.signatures,
     prevOutScript: prevOutScript,
     prevOutType: prevOutType,
+    signType: scriptType,
+    signScript: script,
     witness: Boolean(witness)
   }
 
@@ -268,6 +271,9 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
   var witnessType
   var witnessScriptHash
 
+  var signType
+  var signScript
+
   if (redeemScript && witnessScript) {
     redeemScriptHash = bcrypto.hash160(redeemScript)
     witnessScriptHash = bcrypto.sha256(witnessScript)
@@ -282,7 +288,8 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     prevOutScript = bscript.scriptHash.output.encode(redeemScriptHash)
     p2sh = witness = p2wsh = true
     p2shType = bscript.types.P2WSH
-    witnessType = expanded.scriptType
+    signType = witnessType = expanded.scriptType
+    signScript = witnessScript
   } else if (redeemScript) {
     redeemScriptHash = bcrypto.hash160(redeemScript)
     checkP2shInput(input, redeemScriptHash)
@@ -293,7 +300,9 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     prevOutType = bscript.types.P2SH
     prevOutScript = bscript.scriptHash.output.encode(redeemScriptHash)
     p2sh = true
-    p2shType = expanded.scriptType
+    signType = p2shType = expanded.scriptType
+    signScript = redeemScript
+
   } else if (witnessScript) {
     witnessScriptHash = bcrypto.sha256(witnessScript)
     checkP2WSHInput(input, witnessScriptHash)
@@ -304,7 +313,9 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     prevOutType = bscript.types.P2WSH
     prevOutScript = bscript.witnessScriptHash.output.encode(witnessScriptHash)
     witness = p2wsh = true
-    witnessType = expanded.scriptType
+    signType = witnessType = expanded.scriptType
+    signScript = witnessScript
+
   } else if (input.prevOutType) {
     // embedded scripts are not possible without a redeemScript
     if (input.prevOutType === scriptTypes.P2SH ||
@@ -317,12 +328,20 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     expanded = expandOutput(input.prevOutScript, input.prevOutType, kpPubKey)
     if (!expanded.pubKeys) return
 
-    witness = (input.prevOutScript === scriptTypes.P2WPKH)
+    witness = (input.prevOutType === scriptTypes.P2WPKH)
+    signType = prevOutType
+    signScript = prevOutScript
   } else {
     prevOutScript = bscript.pubKeyHash.output.encode(bcrypto.hash160(kpPubKey))
     expanded = expandOutput(prevOutScript, scriptTypes.P2PKH, kpPubKey)
     prevOutType = scriptTypes.P2PKH
     witness = false
+    signType = prevOutType
+    signScript = prevOutScript
+  }
+
+  if (signType === scriptTypes.P2WPKH) {
+    signScript = bscript.pubKeyHash.output.encode(bscript.witnessPubKeyHash.output.decode(signScript))
   }
 
   if (p2sh) {
@@ -337,6 +356,8 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
 
   input.pubKeys = expanded.pubKeys
   input.signatures = expanded.signatures
+  input.signScript = signScript
+  input.signType = signType
   input.prevOutScript = prevOutScript
   input.prevOutType = prevOutType
   input.witness = witness
@@ -607,6 +628,7 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
 
 function canSign (input) {
   return input.prevOutScript !== undefined &&
+    input.signScript !== undefined &&
     input.pubKeys !== undefined &&
     input.signatures !== undefined &&
     input.signatures.length === input.pubKeys.length &&
@@ -631,18 +653,16 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   var kpPubKey = keyPair.getPublicKeyBuffer()
   if (!canSign(input)) {
     prepareInput(input, kpPubKey, redeemScript, witnessValue, witnessScript)
-
     if (!canSign(input)) throw Error(input.prevOutType + ' not supported')
   }
 
   // ready to sign
-  var hashScript = input.witnessScript || input.redeemScript || input.prevOutScript
 
   var signatureHash
   if (input.witness) {
-    signatureHash = this.tx.hashForWitnessV0(vin, hashScript, witnessValue, hashType)
+    signatureHash = this.tx.hashForWitnessV0(vin, input.signScript, witnessValue, hashType)
   } else {
-    signatureHash = this.tx.hashForSignature(vin, hashScript, hashType)
+    signatureHash = this.tx.hashForSignature(vin, input.signScript, hashType)
   }
 
   // enforce in order signing of public keys
