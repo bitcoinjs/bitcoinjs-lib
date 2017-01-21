@@ -634,61 +634,6 @@
         ]
       },
       {
-        "description": "Sighash: SINGLE where inputToSign >= count(outputs)",
-        "txHex": "01000000037db7f0b2a345ded6ddf28da3211a7d7a95a2943e9a879493d6481b7d69613f04010000006b483045022100e822f152bb15a1d623b91913cd0fb915e9f85a8dc6c26d51948208bbc0218e800220255f78549d9614c88eac9551429bc00224f22cdcb41a3af70d52138f7e98d333032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff652c491e5a781a6a3c547fa8d980741acbe4623ae52907278f10e1f064f67e05000000006a47304402206f37f79adeb86e0e2da679f79ff5c3ba206c6d35cd9a21433f0de34ee83ddbc00220118cabbac5d83b3aa4c2dc01b061e4b2fe83750d85a72ae6a1752300ee5d9aff032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffffb9fa270fa3e4dd8c79f9cbfe5f1953cba071ed081f7c277a49c33466c695db35000000006a473044022019a2a3322dcdb0e0c25df9f03f264f2c88f43b3b648fec7a28cb85620393a9750220135ff3a6668c6d6c05f32069e47a1feda10979935af2470c97fcb388f96f9738032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff02204e0000000000001976a9149ed1f577c60e4be1dbf35318ec12f51d25e8577388ac30750000000000001976a914fb407e88c48921d5547d899e18a7c0a36919f54d88ac00000000",
-        "inputs": [
-          {
-            "txId": "043f61697d1b48d69394879a3e94a2957a7d1a21a38df2ddd6de45a3b2f0b77d",
-            "vout": 1,
-            "signs": [
-              {
-                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 3,
-                "value": 40000
-              }
-            ],
-            "sequence": 4294967295,
-            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
-          },
-          {
-            "txId": "057ef664f0e1108f270729e53a62e4cb1a7480d9a87f543c6a1a785a1e492c65",
-            "vout": 0,
-            "signs": [
-              {
-                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 3,
-                "value": 40000
-              }
-            ],
-            "sequence": 4294967295,
-            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
-          },
-          {
-            "txId": "35db95c66634c3497a277c1f08ed71a0cb53195ffecbf9798cdde4a30f27fab9",
-            "vout": 0,
-            "signs": [
-              {
-                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 3,
-                "value": 40000
-              }
-            ],
-            "sequence": 4294967295,
-            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
-          }
-        ],
-        "outputs": [
-          {
-            "value": 20000,
-            "script": "OP_DUP OP_HASH160 9ed1f577c60e4be1dbf35318ec12f51d25e85773 OP_EQUALVERIFY OP_CHECKSIG"
-          },
-          {
-            "value": 30000,
-            "script": "OP_DUP OP_HASH160 fb407e88c48921d5547d899e18a7c0a36919f54d OP_EQUALVERIFY OP_CHECKSIG"
-          }
-        ]
-      },
-      {
         "description": "Sighash: SINGLE|ANYONECANPAY",
         "txHex": "01000000037db7f0b2a345ded6ddf28da3211a7d7a95a2943e9a879493d6481b7d69613f04010000006b483045022100d05a3b6cf2f0301000b0e45c09054f2c61570ce8798ebf571eef72da3b1c94a1022016d7ef3c133fa703bae2c75158ea08d335ac698506f99b3c369c37a9e8fc4beb832102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff652c491e5a781a6a3c547fa8d980741acbe4623ae52907278f10e1f064f67e05000000006b483045022100ee6bf07b051001dcbfa062692a40adddd070303286b714825b3fb4693dd8fcdb022056610885e5053e5d47f2be3433051305abe7978ead8f7cf2d0368947aff6b307832102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffffb9fa270fa3e4dd8c79f9cbfe5f1953cba071ed081f7c277a49c33466c695db35000000006b483045022100cfc930d5b5272d0220d9da98fabec97b9e66306f735efa837f43f6adc675cad902202f9dff76b8b9ec8f613d46094f17f64d875804292d8804aa59fd295b6fc1416b832102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff03204e0000000000001976a9149ed1f577c60e4be1dbf35318ec12f51d25e8577388ac30750000000000001976a914fb407e88c48921d5547d899e18a7c0a36919f54d88ac50c30000000000001976a91404ccb4eed8cfa9f6e394e945178960f5ccddb38788ac00000000",
         "inputs": [

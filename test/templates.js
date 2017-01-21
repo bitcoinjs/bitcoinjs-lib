@@ -61,7 +61,6 @@ describe('script-templates', function () {
 
     describe(name + '.input.check', function () {
       fixtures.valid.forEach(function (f) {
-        // Temporary - while we don't have witnessKeyHash.input, etc.
         if (name.toLowerCase() === bscript.types.P2WPKH) return
         if (name.toLowerCase() === bscript.types.P2WSH) return
         var expected = name.toLowerCase() === f.type.toLowerCase()

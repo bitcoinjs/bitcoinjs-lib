@@ -384,7 +384,6 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
   writeSlice(hashOutputs)
   writeUInt32(this.locktime)
   writeUInt32(hashType)
-
   return bcrypto.hash256(tbuffer)
 }
 

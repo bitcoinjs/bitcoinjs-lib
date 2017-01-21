@@ -22,11 +22,8 @@ function check (script, allowIncomplete) {
   var inputType = bscript.classifyInput(scriptSigChunks, allowIncomplete)
   var outputType = bscript.classifyOutput(redeemScriptChunks)
   if (chunks.length === 1) {
-    if (outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH) {
-      return true
-    }
+    return outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH
   }
-
   return inputType === outputType
 }
 check.toJSON = function () { return 'scriptHash input' }

@@ -306,7 +306,6 @@ describe('TransactionBuilder', function () {
       it('builds "' + f.description + '"', function () {
         var txb = construct(f)
         var tx = txb.build()
-
         assert.strictEqual(tx.toHex(), f.txHex)
       })
     })
