@@ -302,7 +302,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     p2sh = true
     signType = p2shType = expanded.scriptType
     signScript = redeemScript
-
+    witness = signType === bscript.types.P2WPKH
   } else if (witnessScript) {
     witnessScriptHash = bcrypto.sha256(witnessScript)
     checkP2WSHInput(input, witnessScriptHash)
@@ -315,7 +315,6 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     witness = p2wsh = true
     signType = witnessType = expanded.scriptType
     signScript = witnessScript
-
   } else if (input.prevOutType) {
     // embedded scripts are not possible without a redeemScript
     if (input.prevOutType === scriptTypes.P2SH ||
@@ -657,14 +656,12 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   }
 
   // ready to sign
-
   var signatureHash
   if (input.witness) {
     signatureHash = this.tx.hashForWitnessV0(vin, input.signScript, witnessValue, hashType)
   } else {
     signatureHash = this.tx.hashForSignature(vin, input.signScript, hashType)
   }
-
   // enforce in order signing of public keys
   var signed = input.pubKeys.some(function (pubKey, i) {
     if (!kpPubKey.equals(pubKey)) return false
