@@ -283,7 +283,6 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
 
     expanded = expandOutput(witnessScript, undefined, kpPubKey)
     if (!expanded.pubKeys) throw new Error('WitnessScript not supported "' + bscript.toASM(redeemScript) + '"')
-
     prevOutType = bscript.types.P2SH
     prevOutScript = bscript.scriptHash.output.encode(redeemScriptHash)
     p2sh = witness = p2wsh = true
@@ -339,6 +338,10 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     signScript = prevOutScript
   }
 
+  if (witness && !types.Satoshi(witnessValue)) {
+    throw new Error('Input was witness but not given witness value')
+  }
+
   if (signType === scriptTypes.P2WPKH) {
     signScript = bscript.pubKeyHash.output.encode(bscript.witnessPubKeyHash.output.decode(signScript))
   }
@@ -364,23 +367,28 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
 
 function buildStack (type, signatures, pubKeys, allowIncomplete) {
   if (type === scriptTypes.P2PKH) {
-    if (!allowIncomplete && (signatures.length < 1 || !signatures[0])) throw new Error('Not enough signatures provided')
-    return bscript.pubKeyHash.input.encodeStack(signatures[0], pubKeys[0])
+    if (signatures.length === 1 && signatures[0] instanceof Buffer && pubKeys.length === 1) return bscript.pubKeyHash.input.encodeStack(signatures[0], pubKeys[0])
   } else if (type === scriptTypes.P2PK) {
-    if (!allowIncomplete && (signatures.length < 1 || !signatures[0])) throw new Error('Not enough signatures provided')
-    return bscript.pubKey.input.encodeStack(signatures[0])
-  } else {
-    signatures = signatures.map(function (signature) {
-      return signature || ops.OP_0
-    })
+    if (signatures.length === 1 && signatures[0] instanceof Buffer) return bscript.pubKey.input.encodeStack(signatures[0])
+  } else if (type === scriptTypes.MULTISIG) {
+    if (signatures.length > 0) {
+      signatures = signatures.map(function (signature) {
+        return signature || ops.OP_0
+      })
+      if (!allowIncomplete) {
+        // remove blank signatures
+        signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
+      }
 
-    if (!allowIncomplete) {
-      // remove blank signatures
-      signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
+      return bscript.multisig.input.encodeStack(signatures /* see if it's necessary first */)
     }
-
-    return bscript.multisig.input.encodeStack(signatures /* see if it's necessary first */)
+  } else {
+    throw new Error('Not yet supported')
   }
+
+  if (!allowIncomplete) throw new Error('Not enough signatures provided')
+
+  return []
 }
 
 function buildInput (input, allowIncomplete) {
