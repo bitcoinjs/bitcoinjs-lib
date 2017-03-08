@@ -90,14 +90,16 @@ describe('Transaction', function () {
   describe('toBuffer/toHex', function () {
     fixtures.valid.forEach(function (f) {
       it('exports ' + f.description + ' (' + f.id + ')', function () {
-        if (f.whex) {
-          var wactual = fromRaw(f.raw)
-          assert.strictEqual(wactual.toHex(), f.whex)
-        }
-
         var actual = fromRaw(f.raw, true)
         assert.strictEqual(actual.toHex(), f.hex)
       })
+
+      if (f.whex) {
+        it('exports ' + f.description + ' (' + f.id + ') as witness', function () {
+          var wactual = fromRaw(f.raw)
+          assert.strictEqual(wactual.toHex(), f.whex)
+        })
+      }
     })
 
     it('accepts target Buffer and offset parameters', function () {
@@ -189,7 +191,7 @@ describe('Transaction', function () {
 
   describe('getHash/getId', function () {
     function verify (f) {
-      it('should return the id for ' + f.id, function () {
+      it('should return the id for ' + f.id + '(' + f.description + ')', function () {
         var tx = Transaction.fromHex(f.whex || f.hex)
 
         assert.strictEqual(tx.getHash().toString('hex'), f.hash)
