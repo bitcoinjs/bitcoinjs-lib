@@ -204,7 +204,7 @@ describe('Transaction', function () {
 
   describe('isCoinbase', function () {
     function verify (f) {
-      it('should return ' + f.coinbase + ' for ' + f.id, function () {
+      it('should return ' + f.coinbase + ' for ' + f.id + '(' + f.description + ')', function () {
         var tx = Transaction.fromHex(f.hex)
 
         assert.strictEqual(tx.isCoinbase(), f.coinbase)
