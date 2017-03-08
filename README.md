@@ -63,7 +63,7 @@ module.exports = {
 
 Install each of the above packages locally
 ``` bash
-npm install bs58 bitcoinjs-lib ecurve bigi buffer
+npm install bs58 bitcoinjs-lib ecurve bigi
 ```
 
 After installation, use browserify to compile `index.js` for use in the browser:
@@ -75,11 +75,11 @@ You will now be able to use `<script src="app.js" />` in your browser, with each
 
 **NOTE**: See our package.json for the currently supported version of browserify used by this repository.
 
-**NOTE**: When uglifying the javascript, you must exclude the following variable names from being mangled: `Array`, `BigInteger`, `Boolean`, `Buffer`, `ECPair`, `Function`, `Number`, `Point` and `Script`.
+**NOTE**: When uglifying the javascript, you must exclude the following variable names from being mangled: `Array`, `BigInteger`, `Boolean`, `ECPair`, `Function`, `Number`, `Point` and `Script`.
 This is because of the function-name-duck-typing used in [typeforce](https://github.com/dcousens/typeforce).
 Example:
 ``` bash
-uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,Buffer,ECPair,Function,Number,Point'
+uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,ECPair,Function,Number,Point'
 ```
 
 ### Flow
