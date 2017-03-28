@@ -82,6 +82,8 @@ Example:
 uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,ECPair,Function,Number,Point'
 ```
 
+**NOTE**: If you expect this library to run on an iOS 10 device, ensure that you are using [buffer@5.0.5](https://www.npmjs.com/package/buffer) or greater. 
+
 ### Flow
 
 Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-typed repository.
