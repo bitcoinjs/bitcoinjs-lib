@@ -131,11 +131,9 @@ Block.prototype.toHex = function (headersOnly) {
 Block.calculateTarget = function (bits) {
   var exponent = ((bits & 0xff000000) >> 24) - 3
   var mantissa = bits & 0x007fffff
-  var i = 28 - exponent
-
   var target = new Buffer(32)
   target.fill(0)
-  target.writeUInt32BE(mantissa, i)
+  target.writeUInt32BE(mantissa, 28 - exponent)
   return target
 }
 
