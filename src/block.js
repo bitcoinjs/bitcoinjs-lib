@@ -135,12 +135,7 @@ Block.calculateTarget = function (bits) {
 
   var target = new Buffer(32)
   target.fill(0)
-
-  target[i] = mantissa & 0xff
-  target[i - 1] = mantissa >> 8
-  target[i - 2] = mantissa >> 16
-  target[i - 3] = mantissa >> 24
-
+  target.writeUInt32BE(mantissa, i - 3)
   return target
 }
 

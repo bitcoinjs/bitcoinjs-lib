@@ -51,7 +51,8 @@ function stealthDualSend (e, R, Q) {
 function stealthDualScan (d, R, eG) {
   var eQ = eG.multiply(d) // shared secret
   var c = bigi.fromBuffer(bitcoin.crypto.sha256(eQ.getEncoded()))
-  var vG = new bitcoin.ECPair(null, R.add(G.multiply(c)))
+  var cG = G.multiply(c)
+  var vG = new bitcoin.ECPair(null, R.add(cG))
 
   return vG
 }
