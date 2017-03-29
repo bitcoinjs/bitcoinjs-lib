@@ -10,9 +10,9 @@ var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function isOPInt (value) {
   return types.Number(value) &&
-    (value === OPS.OP_0) ||
+    ((value === OPS.OP_0) ||
     (value >= OPS.OP_1 && value <= OPS.OP_16) ||
-    (value === OPS.OP_1NEGATE)
+    (value === OPS.OP_1NEGATE))
 }
 
 function isPushOnlyChunk (value) {
@@ -33,7 +33,7 @@ function compile (chunks) {
     // data chunk
     if (Buffer.isBuffer(chunk)) {
       // adhere to BIP62.3, minimal push policy
-      if (chunk.length === 1 && (chunk[0] === 0x81 || chunk[0] >= 1 && chunk[0] <= 16)) {
+      if (chunk.length === 1 && (chunk[0] === 0x81 || (chunk[0] >= 1 && chunk[0] <= 16))) {
         return accum + 1
       }
 
