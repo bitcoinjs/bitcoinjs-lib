@@ -9,6 +9,13 @@ var ecurve = require('ecurve')
 var secp256k1 = ecurve.getCurveByName('secp256k1')
 
 describe('bitcoinjs-lib (BIP32)', function () {
+  it('can import a BIP32 testnet xpriv and export to WIF', function () {
+    var xpriv = 'tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK'
+    var node = bitcoin.HDNode.fromBase58(xpriv, bitcoin.networks.testnet)
+
+    assert.equal(node.keyPair.toWIF(), 'cQfoY67cetFNunmBUX5wJiw3VNoYx3gG9U9CAofKE6BfiV1fSRw7')
+  })
+
   it('can create a BIP32 wallet external address', function () {
     var path = "m/0'/0/0"
     var root = bitcoin.HDNode.fromSeedHex('dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
