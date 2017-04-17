@@ -129,13 +129,13 @@ function verify (hash, signature, Q) {
   // 1.4.3 e = H
   var e = BigInteger.fromBuffer(hash)
 
-  // Compute s^-1
+  // Compute s^-1 mod n
   var sInv = s.modInverse(n)
 
   // 1.4.4 Compute u1 = es^−1 mod n
   //               u2 = rs^−1 mod n
-  var u1 = e.multiply(sInv).mod(n)
-  var u2 = r.multiply(sInv).mod(n)
+  var u1 = e.multiply(sInv)
+  var u2 = r.multiply(sInv)
 
   // 1.4.5 Compute R = (xR, yR)
   //               R = u1G + u2Q
