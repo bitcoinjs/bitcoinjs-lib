@@ -58,6 +58,7 @@ describe('Block', function () {
       })
 
       it('exports ' + f.description, function () {
+        assert.strictEqual(block.toHex(true), f.hex.slice(0, 160))
         assert.strictEqual(block.toHex(), f.hex)
       })
     })

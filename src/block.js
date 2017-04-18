@@ -1,8 +1,9 @@
-var bufferutils = require('./bufferutils')
 var bcrypto = require('./crypto')
+var bufferutils = require('./bufferutils')
 var fastMerkleRoot = require('merkle-lib/fastRoot')
 var typeforce = require('typeforce')
 var types = require('./types')
+var varuint = require('varuint-bitcoin')
 
 var Transaction = require('./transaction')
 
@@ -54,7 +55,6 @@ Block.fromBuffer = function (buffer) {
 
   function readTransaction () {
     var tx = Transaction.fromBuffer(buffer.slice(offset), true)
-
     offset += tx.byteLength()
     return tx
   }
@@ -68,6 +68,14 @@ Block.fromBuffer = function (buffer) {
   }
 
   return block
+}
+
+Block.prototype.byteLength = function (headersOnly) {
+  if (headersOnly || !this.transactions) return 80
+
+  return 80 + varuint.encodingLength(this.transactions.length) + this.transactions.reduce(function (a, x) {
+    return a + x.byteLength()
+  }, 0)
 }
 
 Block.fromHex = function (hex) {
@@ -89,8 +97,9 @@ Block.prototype.getUTCDate = function () {
   return date
 }
 
+// TODO: buffer, offset compatibility
 Block.prototype.toBuffer = function (headersOnly) {
-  var buffer = new Buffer(80)
+  var buffer = new Buffer(this.byteLength(headersOnly))
 
   var offset = 0
   function writeSlice (slice) {
@@ -116,12 +125,16 @@ Block.prototype.toBuffer = function (headersOnly) {
 
   if (headersOnly || !this.transactions) return buffer
 
-  var txLenBuffer = bufferutils.varIntBuffer(this.transactions.length)
-  var txBuffers = this.transactions.map(function (tx) {
-    return tx.toBuffer()
+  varuint.encode(this.transactions.length, buffer, offset)
+  offset += varuint.encode.bytes
+
+  this.transactions.forEach(function (tx) {
+    var txSize = tx.byteLength() // TODO: extract from toBuffer?
+    tx.toBuffer(buffer, offset)
+    offset += txSize
   })
 
-  return Buffer.concat([buffer, txLenBuffer].concat(txBuffers))
+  return buffer
 }
 
 Block.prototype.toHex = function (headersOnly) {
