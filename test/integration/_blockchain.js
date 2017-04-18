@@ -13,6 +13,11 @@ var keyPair = bitcoin.ECPair.fromWIF('cQqjeq2rxqwnqwMewJhkNtJDixtX8ctA4bYoWHdxY4
 var kpAddress = keyPair.getAddress()
 
 function fundAddress (unspents, outputs, callback) {
+  // avoid too-long-mempool-chain
+  unspents = unspents.filter(function (x) {
+    return x.confirmations > 0
+  })
+
   var result = coinSelect(unspents, outputs, 10)
   if (!result.inputs) return callback(new Error('Faucet empty'))
 
