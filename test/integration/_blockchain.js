@@ -33,9 +33,14 @@ function fundAddress (unspents, outputs, callback) {
   var txId = tx.getId()
 
   testnet.transactions.propagate(tx.toHex(), function (err) {
-    callback(err, outputs.map(function (x, i) {
-      return { txId: txId, vout: i }
-    }))
+    if (err) return callback(err)
+
+    // FIXME: @blocktrail can be very slow, give it time
+    setTimeout(() => {
+      callback(null, outputs.map(function (x, i) {
+        return { txId: txId, vout: i }
+      }))
+    }, 3000)
   })
 }
 
