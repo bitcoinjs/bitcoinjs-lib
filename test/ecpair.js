@@ -58,7 +58,7 @@ describe('ECPair', function () {
     fixtures.invalid.constructor.forEach(function (f) {
       it('throws ' + f.exception, function () {
         var d = f.d && new BigInteger(f.d)
-        var Q = f.Q && ecurve.Point.decodeFrom(curve, new Buffer(f.Q, 'hex'))
+        var Q = f.Q && ecurve.Point.decodeFrom(curve, Buffer.from(f.Q, 'hex'))
 
         assert.throws(function () {
           new ECPair(d, Q, f.options)
@@ -127,7 +127,7 @@ describe('ECPair', function () {
   })
 
   describe('makeRandom', function () {
-    var d = new Buffer('0404040404040404040404040404040404040404040404040404040404040404', 'hex')
+    var d = Buffer.from('0404040404040404040404040404040404040404040404040404040404040404', 'hex')
     var exWIF = 'KwMWvwRJeFqxYyhZgNwYuYjbQENDAPAudQx5VEmKJrUZcq6aL2pv'
 
     describe('uses randombytes RNG', function () {
@@ -211,7 +211,7 @@ describe('ECPair', function () {
 
     beforeEach(function () {
       keyPair = ECPair.makeRandom()
-      hash = new Buffer(32)
+      hash = Buffer.alloc(32)
     })
 
     describe('signing', function () {

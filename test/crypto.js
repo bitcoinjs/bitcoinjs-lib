@@ -13,7 +13,7 @@ describe('crypto', function () {
         var expected = f[algorithm]
 
         it('returns ' + expected + ' for ' + f.hex, function () {
-          var data = new Buffer(f.hex, 'hex')
+          var data = Buffer.from(f.hex, 'hex')
           var actual = fn(data).toString('hex')
 
           assert.strictEqual(actual, expected)

@@ -82,7 +82,7 @@ describe('TransactionBuilder', function () {
   ].map(function (x) {
     return baddress.toOutputScript(x)
   })
-  var txHash = new Buffer('0e7cea811c0be9f73c0aca591034396e7264473fc25c1ca45195d7417b36cbe2', 'hex')
+  var txHash = Buffer.from('0e7cea811c0be9f73c0aca591034396e7264473fc25c1ca45195d7417b36cbe2', 'hex')
 
   describe('fromTransaction', function () {
     fixtures.valid.build.forEach(function (f) {
@@ -101,7 +101,7 @@ describe('TransactionBuilder', function () {
         var tx = new Transaction()
 
         f.inputs.forEach(function (input) {
-          var txHash2 = new Buffer(input.txId, 'hex').reverse()
+          var txHash2 = Buffer.from(input.txId, 'hex').reverse()
 
           tx.addInput(txHash2, input.vout, undefined, bscript.fromASM(input.scriptSig))
         })
@@ -411,8 +411,8 @@ describe('TransactionBuilder', function () {
       var redeemScript = bscript.fromASM('OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG')
 
       var tx = new Transaction()
-      tx.addInput(new Buffer('cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f07149', 'hex'), 0, undefined, redeemScripSig)
-      tx.addOutput(new Buffer('76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac', 'hex'), 1000)
+      tx.addInput(Buffer.from('cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f07149', 'hex'), 0, undefined, redeemScripSig)
+      tx.addOutput(Buffer.from('76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac', 'hex'), 1000)
 
       // now import the Transaction
       var txb = TransactionBuilder.fromTransaction(tx, NETWORKS.testnet)

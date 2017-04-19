@@ -50,7 +50,7 @@ describe('address', function () {
   describe('toBase58Check', function () {
     fixtures.valid.forEach(function (f) {
       it('formats ' + f.hash + ' (' + f.network + ')', function () {
-        var address = baddress.toBase58Check(new Buffer(f.hash, 'hex'), f.version)
+        var address = baddress.toBase58Check(Buffer.from(f.hash, 'hex'), f.version)
 
         assert.strictEqual(address, f.base58check)
       })

@@ -60,7 +60,7 @@ describe('bitcoinjs-lib (BIP32)', function () {
 
       var d1 = child.keyPair.d
       var d2
-      var data = new Buffer(37)
+      var data = Buffer.alloc(37)
       serQP.copy(data, 0)
 
       // search index space until we find it

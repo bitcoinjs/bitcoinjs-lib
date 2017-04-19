@@ -14,7 +14,7 @@ describe('script', function () {
     })
     it('rejects smaller than 33', function () {
       for (var i = 0; i < 33; i++) {
-        assert.strictEqual(false, bscript.isCanonicalPubKey(new Buffer('', i)))
+        assert.strictEqual(false, bscript.isCanonicalPubKey(Buffer.from('', i)))
       }
     })
   })
@@ -86,13 +86,13 @@ describe('script', function () {
   describe('decompile', function () {
     fixtures.valid.forEach(function (f) {
       it('decompiles ' + f.asm, function () {
-        var chunks = bscript.decompile(new Buffer(f.script, 'hex'))
+        var chunks = bscript.decompile(Buffer.from(f.script, 'hex'))
 
         assert.strictEqual(bscript.compile(chunks).toString('hex'), f.script)
         assert.strictEqual(bscript.toASM(chunks), f.asm)
 
         if (f.nonstandard) {
-          var chunksNS = bscript.decompile(new Buffer(f.nonstandard.scriptSigHex, 'hex'))
+          var chunksNS = bscript.decompile(Buffer.from(f.nonstandard.scriptSigHex, 'hex'))
 
           assert.strictEqual(bscript.compile(chunksNS).toString('hex'), f.script)
 
@@ -104,7 +104,7 @@ describe('script', function () {
 
     fixtures.invalid.decompile.forEach(function (f) {
       it('decompiles ' + f.script + ' to [] because of "' + f.description + '"', function () {
-        var chunks = bscript.decompile(new Buffer(f.script, 'hex'))
+        var chunks = bscript.decompile(Buffer.from(f.script, 'hex'))
 
         assert.strictEqual(chunks.length, 0)
       })
@@ -114,7 +114,7 @@ describe('script', function () {
   describe('SCRIPT_VERIFY_MINIMALDATA policy', function () {
     fixtures.valid.forEach(function (f) {
       it('compliant for ' + f.type + ' scriptSig ' + f.asm, function () {
-        var script = new Buffer(f.script, 'hex')
+        var script = Buffer.from(f.script, 'hex')
 
         assert(minimalData(script))
       })
@@ -122,7 +122,7 @@ describe('script', function () {
 
     function testEncodingForSize (i) {
       it('compliant for data PUSH of length ' + i, function () {
-        var buffer = new Buffer(i)
+        var buffer = Buffer.alloc(i)
         var script = bscript.compile([buffer])
 
         assert(minimalData(script), 'Failed for ' + i + ' length script: ' + script.toString('hex'))

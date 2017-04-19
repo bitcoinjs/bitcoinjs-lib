@@ -93,7 +93,7 @@ describe('script-templates', function () {
           if (f.input) {
             input = bscript.fromASM(f.input)
           } else {
-            input = new Buffer(f.inputHex, 'hex')
+            input = Buffer.from(f.inputHex, 'hex')
           }
 
           assert.strictEqual(inputType.check(input), false)
@@ -131,7 +131,7 @@ describe('script-templates', function () {
           if (f.output) {
             output = bscript.fromASM(f.output)
           } else {
-            output = new Buffer(f.outputHex, 'hex')
+            output = Buffer.from(f.outputHex, 'hex')
           }
 
           assert.strictEqual(outputType.check(output), false)
@@ -144,7 +144,7 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'pubkey') return
 
-      var signature = new Buffer(f.signature, 'hex')
+      var signature = Buffer.from(f.signature, 'hex')
       var input = bscript.pubKey.input.encode(signature)
 
       it('encodes to ' + f.input, function () {
@@ -161,7 +161,7 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'pubkey') return
 
-      var pubKey = new Buffer(f.pubKey, 'hex')
+      var pubKey = Buffer.from(f.pubKey, 'hex')
       var output = bscript.pubKey.output.encode(pubKey)
 
       it('encodes to ' + f.output, function () {
@@ -178,8 +178,8 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'pubkeyhash') return
 
-      var pubKey = new Buffer(f.pubKey, 'hex')
-      var signature = new Buffer(f.signature, 'hex')
+      var pubKey = Buffer.from(f.pubKey, 'hex')
+      var signature = Buffer.from(f.signature, 'hex')
       var input = bscript.pubKeyHash.input.encode(signature, pubKey)
 
       it('encodes to ' + f.input, function () {
@@ -199,7 +199,7 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'pubkeyhash') return
 
-      var pubKey = new Buffer(f.pubKey, 'hex')
+      var pubKey = Buffer.from(f.pubKey, 'hex')
       var pubKeyHash = bcrypto.hash160(pubKey)
       var output = bscript.pubKeyHash.output.encode(pubKeyHash)
 
@@ -214,7 +214,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.pubKeyHash.outputs.forEach(function (f) {
       if (!f.hash) return
-      var hash = new Buffer(f.hash, 'hex')
+      var hash = Buffer.from(f.hash, 'hex')
 
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -230,7 +230,7 @@ describe('script-templates', function () {
       var allowIncomplete = f.typeIncomplete !== undefined
 
       var signatures = f.signatures.map(function (signature) {
-        return signature ? new Buffer(signature, 'hex') : ops.OP_0
+        return signature ? Buffer.from(signature, 'hex') : ops.OP_0
       })
 
       var input = bscript.multisig.input.encode(signatures)
@@ -250,7 +250,7 @@ describe('script-templates', function () {
 
       it('throws on ' + f.exception, function () {
         var signatures = f.signatures.map(function (signature) {
-          return signature ? new Buffer(signature, 'hex') : ops.OP_0
+          return signature ? Buffer.from(signature, 'hex') : ops.OP_0
         })
 
         assert.throws(function () {
@@ -264,7 +264,7 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'multisig') return
 
-      var pubKeys = f.pubKeys.map(function (p) { return new Buffer(p, 'hex') })
+      var pubKeys = f.pubKeys.map(function (p) { return Buffer.from(p, 'hex') })
       var m = pubKeys.length
 
       var output = bscript.multisig.output.encode(m, pubKeys)
@@ -284,7 +284,7 @@ describe('script-templates', function () {
     fixtures.invalid.multisig.outputs.forEach(function (f) {
       if (!f.pubKeys) return
       var pubKeys = f.pubKeys.map(function (p) {
-        return new Buffer(p, 'hex')
+        return Buffer.from(p, 'hex')
       })
 
       it('throws on ' + f.exception, function () {
@@ -340,7 +340,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.scriptHash.outputs.forEach(function (f) {
       if (!f.hash) return
-      var hash = new Buffer(f.hash, 'hex')
+      var hash = Buffer.from(f.hash, 'hex')
 
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -355,7 +355,7 @@ describe('script-templates', function () {
       if (f.type !== 'witnesspubkeyhash') return
       if (!f.output) return
 
-      var pubKey = new Buffer(f.pubKey, 'hex')
+      var pubKey = Buffer.from(f.pubKey, 'hex')
       var pubKeyHash = bcrypto.hash160(pubKey)
       var output = bscript.witnessPubKeyHash.output.encode(pubKeyHash)
 
@@ -370,7 +370,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.witnessPubKeyHash.outputs.forEach(function (f) {
       if (!f.hash) return
-      var hash = new Buffer(f.hash, 'hex')
+      var hash = Buffer.from(f.hash, 'hex')
 
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -400,7 +400,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.witnessScriptHash.outputs.forEach(function (f) {
       if (!f.hash) return
-      var hash = new Buffer(f.hash, 'hex')
+      var hash = Buffer.from(f.hash, 'hex')
 
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -415,7 +415,7 @@ describe('script-templates', function () {
       if (f.type !== 'witnesscommitment') return
       if (!f.scriptPubKey) return
 
-      var commitment = new Buffer(f.witnessCommitment, 'hex')
+      var commitment = Buffer.from(f.witnessCommitment, 'hex')
       var scriptPubKey = bscript.witnessCommitment.output.encode(commitment)
 
       it('encodes to ' + f.scriptPubKey, function () {
@@ -429,7 +429,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.witnessCommitment.outputs.forEach(function (f) {
       if (f.commitment) {
-        var hash = new Buffer(f.commitment, 'hex')
+        var hash = Buffer.from(f.commitment, 'hex')
         it('throws on bad encode data', function () {
           assert.throws(function () {
             bscript.witnessCommitment.output.encode(hash)
@@ -440,7 +440,7 @@ describe('script-templates', function () {
       if (f.scriptPubKeyHex) {
         it('.decode throws on ' + f.description, function () {
           assert.throws(function () {
-            bscript.witnessCommitment.output.decode(new Buffer(f.scriptPubKeyHex, 'hex'))
+            bscript.witnessCommitment.output.decode(Buffer.from(f.scriptPubKeyHex, 'hex'))
           }, new RegExp(f.exception))
         })
       }
@@ -451,7 +451,7 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'nulldata') return
 
-      var data = new Buffer(f.data, 'hex')
+      var data = Buffer.from(f.data, 'hex')
       var output = bscript.nullData.output.encode(data)
 
       it('encodes to ' + f.output, function () {
