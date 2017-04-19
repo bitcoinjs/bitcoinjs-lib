@@ -78,7 +78,7 @@ Block.prototype.byteLength = function (headersOnly) {
 }
 
 Block.fromHex = function (hex) {
-  return Block.fromBuffer(new Buffer(hex, 'hex'))
+  return Block.fromBuffer(Buffer.from(hex, 'hex'))
 }
 
 Block.prototype.getHash = function () {
@@ -98,7 +98,7 @@ Block.prototype.getUTCDate = function () {
 
 // TODO: buffer, offset compatibility
 Block.prototype.toBuffer = function (headersOnly) {
-  var buffer = new Buffer(this.byteLength(headersOnly))
+  var buffer = Buffer.allocUnsafe(this.byteLength(headersOnly))
 
   var offset = 0
   function writeSlice (slice) {
@@ -143,8 +143,7 @@ Block.prototype.toHex = function (headersOnly) {
 Block.calculateTarget = function (bits) {
   var exponent = ((bits & 0xff000000) >> 24) - 3
   var mantissa = bits & 0x007fffff
-  var target = new Buffer(32)
-  target.fill(0)
+  var target = Buffer.alloc(32, 0)
   target.writeUInt32BE(mantissa, 28 - exponent)
   return target
 }

@@ -5,8 +5,8 @@ var types = require('./types')
 var BigInteger = require('bigi')
 var ECSignature = require('./ecsignature')
 
-var ZERO = new Buffer([0])
-var ONE = new Buffer([1])
+var ZERO = Buffer.alloc(1, 0)
+var ONE = Buffer.alloc(1, 1)
 
 var ecurve = require('ecurve')
 var secp256k1 = ecurve.getCurveByName('secp256k1')
@@ -19,15 +19,11 @@ function deterministicGenerateK (hash, x, checkSig) {
     types.Function
   ), arguments)
 
-  var k = new Buffer(32)
-  var v = new Buffer(32)
-
   // Step A, ignored as hash already provided
   // Step B
-  v.fill(1)
-
   // Step C
-  k.fill(0)
+  var k = Buffer.alloc(32, 0)
+  var v = Buffer.alloc(32, 1)
 
   // Step D
   k = createHmac('sha256', k)

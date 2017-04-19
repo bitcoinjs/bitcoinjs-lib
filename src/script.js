@@ -44,7 +44,7 @@ function compile (chunks) {
     return accum + 1
   }, 0.0)
 
-  var buffer = new Buffer(bufferSize)
+  var buffer = Buffer.allocUnsafe(bufferSize)
   var offset = 0
 
   chunks.forEach(function (chunk) {
@@ -142,7 +142,7 @@ function fromASM (asm) {
     typeforce(types.Hex, chunkStr)
 
     // data!
-    return new Buffer(chunkStr, 'hex')
+    return Buffer.from(chunkStr, 'hex')
   }))
 }
 
@@ -152,7 +152,7 @@ function toStack (chunks) {
 
   return chunks.map(function (op) {
     if (Buffer.isBuffer(op)) return op
-    if (op === OPS.OP_0) return new Buffer(0)
+    if (op === OPS.OP_0) return Buffer.allocUnsafe(0)
 
     return scriptNumber.encode(op - OP_INT_BASE)
   })

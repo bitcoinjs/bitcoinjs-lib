@@ -25,7 +25,7 @@ function HDNode (keyPair, chainCode) {
 
 HDNode.HIGHEST_BIT = 0x80000000
 HDNode.LENGTH = 78
-HDNode.MASTER_SECRET = new Buffer('Bitcoin seed')
+HDNode.MASTER_SECRET = Buffer.from('Bitcoin seed', 'utf8')
 
 HDNode.fromSeedBuffer = function (seed, network) {
   typeforce(types.tuple(types.Buffer, types.maybe(types.Network)), arguments)
@@ -48,7 +48,7 @@ HDNode.fromSeedBuffer = function (seed, network) {
 }
 
 HDNode.fromSeedHex = function (hex, network) {
-  return HDNode.fromSeedBuffer(new Buffer(hex, 'hex'), network)
+  return HDNode.fromSeedBuffer(Buffer.from(hex, 'hex'), network)
 }
 
 HDNode.fromBase58 = function (string, networks) {
@@ -168,7 +168,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
   // Version
   var network = this.keyPair.network
   var version = (!this.isNeutered()) ? network.bip32.private : network.bip32.public
-  var buffer = new Buffer(78)
+  var buffer = Buffer.allocUnsafe(78)
 
   // 4 bytes: version bytes
   buffer.writeUInt32BE(version, 0)
@@ -206,7 +206,7 @@ HDNode.prototype.derive = function (index) {
   typeforce(types.UInt32, index)
 
   var isHardened = index >= HDNode.HIGHEST_BIT
-  var data = new Buffer(37)
+  var data = Buffer.allocUnsafe(37)
 
   // Hardened child
   if (isHardened) {

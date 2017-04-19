@@ -21,6 +21,8 @@ function check (script, allowIncomplete) {
 }
 check.toJSON = function () { return 'multisig input' }
 
+var EMPTY_BUFFER = Buffer.allocUnsafe(0)
+
 function encodeStack (signatures, scriptPubKey) {
   typeforce([partialSignature], signatures)
 
@@ -36,7 +38,7 @@ function encodeStack (signatures, scriptPubKey) {
     }
   }
 
-  return [].concat(new Buffer(0), signatures)
+  return [].concat(EMPTY_BUFFER, signatures)
 }
 
 function encode (signatures, scriptPubKey) {

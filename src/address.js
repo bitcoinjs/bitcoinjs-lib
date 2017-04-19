@@ -9,7 +9,7 @@ function fromBase58Check (address) {
   if (payload.length < 21) throw new TypeError(address + ' is too short')
   if (payload.length > 21) throw new TypeError(address + ' is too long')
 
-  var version = payload[0]
+  var version = payload.readUInt8(0)
   var hash = payload.slice(1)
 
   return { hash: hash, version: version }
@@ -18,7 +18,7 @@ function fromBase58Check (address) {
 function toBase58Check (hash, version) {
   typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
 
-  var payload = new Buffer(21)
+  var payload = Buffer.allocUnsafe(21)
   payload.writeUInt8(version, 0)
   hash.copy(payload, 1)
 

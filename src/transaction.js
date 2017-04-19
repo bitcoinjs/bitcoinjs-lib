@@ -35,11 +35,11 @@ Transaction.SIGHASH_ANYONECANPAY = 0x80
 Transaction.ADVANCED_TRANSACTION_MARKER = 0x00
 Transaction.ADVANCED_TRANSACTION_FLAG = 0x01
 
-var EMPTY_SCRIPT = new Buffer(0)
+var EMPTY_SCRIPT = Buffer.allocUnsafe(0)
 var EMPTY_WITNESS = []
-var ZERO = new Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
-var ONE = new Buffer('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
-var VALUE_UINT64_MAX = new Buffer('ffffffffffffffff', 'hex')
+var ZERO = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+var ONE = Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+var VALUE_UINT64_MAX = Buffer.from('ffffffffffffffff', 'hex')
 var BLANK_OUTPUT = {
   script: EMPTY_SCRIPT,
   valueBuffer: VALUE_UINT64_MAX
@@ -298,7 +298,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   }
 
   // serialize and hash
-  var buffer = new Buffer(txTmp.__byteLength(false) + 4)
+  var buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4)
   buffer.writeInt32LE(hashType, buffer.length - 4)
   txTmp.__toBuffer(buffer, 0, false)
 
@@ -323,7 +323,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
   var hashSequence = ZERO
 
   if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
-    tbuffer = new Buffer(36 * this.ins.length)
+    tbuffer = Buffer.allocUnsafe(36 * this.ins.length)
     toffset = 0
 
     this.ins.forEach(function (txIn) {
@@ -337,7 +337,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
   if (!(hashType & Transaction.SIGHASH_ANYONECANPAY) &&
        (hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
        (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
-    tbuffer = new Buffer(4 * this.ins.length)
+    tbuffer = Buffer.allocUnsafe(4 * this.ins.length)
     toffset = 0
 
     this.ins.forEach(function (txIn) {
@@ -353,7 +353,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
       return sum + 8 + varSliceSize(output.script)
     }, 0)
 
-    tbuffer = new Buffer(txOutsSize)
+    tbuffer = Buffer.allocUnsafe(txOutsSize)
     toffset = 0
 
     this.outs.forEach(function (out) {
@@ -365,7 +365,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
   } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE && inIndex < this.outs.length) {
     var output = this.outs[inIndex]
 
-    tbuffer = new Buffer(8 + varSliceSize(output.script))
+    tbuffer = Buffer.allocUnsafe(8 + varSliceSize(output.script))
     toffset = 0
     writeUInt64(output.value)
     writeVarSlice(output.script)
@@ -373,7 +373,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
     hashOutputs = bcrypto.hash256(tbuffer)
   }
 
-  tbuffer = new Buffer(156 + varSliceSize(prevOutScript))
+  tbuffer = Buffer.allocUnsafe(156 + varSliceSize(prevOutScript))
   toffset = 0
 
   var input = this.ins[inIndex]
@@ -405,7 +405,7 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
 }
 
 Transaction.prototype.__toBuffer = function (buffer, initialOffset, __allowWitness) {
-  if (!buffer) buffer = new Buffer(this.__byteLength(__allowWitness))
+  if (!buffer) buffer = Buffer.allocUnsafe(this.__byteLength(__allowWitness))
 
   var offset = initialOffset || 0
   function writeSlice (slice) { offset += slice.copy(buffer, offset) }
