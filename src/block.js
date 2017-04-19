@@ -1,5 +1,4 @@
 var bcrypto = require('./crypto')
-var bufferutils = require('./bufferutils')
 var fastMerkleRoot = require('merkle-lib/fastRoot')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -48,9 +47,9 @@ Block.fromBuffer = function (buffer) {
   if (buffer.length === 80) return block
 
   function readVarInt () {
-    var vi = bufferutils.readVarInt(buffer, offset)
-    offset += vi.size
-    return vi.number
+    var vi = varuint.decode(buffer, offset)
+    offset += varuint.decode.bytes
+    return vi
   }
 
   function readTransaction () {
