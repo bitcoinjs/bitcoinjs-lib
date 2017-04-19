@@ -515,7 +515,7 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
   // is it a hex string?
   if (typeof txHash === 'string') {
     // transaction hashs's are displayed in reverse order, un-reverse it
-    txHash = new Buffer(txHash, 'hex').reverse()
+    txHash = Buffer.from(txHash, 'hex').reverse()
 
   // is it a Transaction object?
   } else if (txHash instanceof Transaction) {

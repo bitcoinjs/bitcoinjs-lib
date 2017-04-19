@@ -16,8 +16,8 @@ function decode (buffer, maxLength, minimal) {
     var a = buffer.readUInt32LE(0)
     var b = buffer.readUInt8(4)
 
-    if (b & 0x80) return -((b & ~0x80) * 0x100000000 + a)
-    return b * 0x100000000 + a
+    if (b & 0x80) return -(((b & ~0x80) * 0x100000000) + a)
+    return (b * 0x100000000) + a
   }
 
   var result = 0
@@ -43,7 +43,7 @@ function scriptNumSize (i) {
 function encode (number) {
   var value = Math.abs(number)
   var size = scriptNumSize(value)
-  var buffer = new Buffer(size)
+  var buffer = Buffer.allocUnsafe(size)
   var negative = number < 0
 
   for (var i = 0; i < size; ++i) {
