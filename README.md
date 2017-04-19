@@ -116,7 +116,7 @@ The below examples are implemented as integration tests, they should be very eas
 - [Create a CLTV locked transaction where the expiry is past](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/cltv.js#L36)
 - [Create a CLTV locked transaction where the parties bypass the expiry](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/cltv.js#L70)
 - [Create a CLTV locked transaction which fails due to expiry in the future](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/cltv.js#L102)
-- [Use BIP39 to generate a BIP32 wallet address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/14f983b/test/integration/bip32.js)
+- [Use BIP39 to generate a BIP32 wallet address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/dd3e501/test/integration/bip32.js)
 
 If you have a use case that you feel could be listed here, please [ask for it](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new)!
 
