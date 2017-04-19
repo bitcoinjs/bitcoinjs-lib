@@ -2,6 +2,7 @@
 
 var assert = require('assert')
 var bigi = require('bigi')
+var bip39 = require('bip39')
 var bitcoin = require('../../')
 var crypto = require('crypto')
 
@@ -93,5 +94,20 @@ describe('bitcoinjs-lib (BIP32)', function () {
     var neuteredMaster = master.neutered()
     var recovered = recoverParent(neuteredMaster, child)
     assert.strictEqual(recovered.toBase58(), master.toBase58())
+  })
+
+  it('can use BIP39 to generate BIP32 wallet address', function () {
+//     var mnemonic = bip39.generateMnemonic()
+    var mnemonic = 'praise you muffin lion enable neck grocery crumble super myself license ghost'
+    assert(bip39.validateMnemonic(mnemonic))
+
+    var seed = bip39.mnemonicToSeed(mnemonic)
+    var root = bitcoin.HDNode.fromSeedBuffer(seed)
+
+    // 1st receive address
+    assert.strictEqual(root.derivePath("m/0'/0/0").getAddress(), '1AVQHbGuES57wD68AJi7Gcobc3RZrfYWTC')
+
+    // 1st change address
+    assert.strictEqual(root.derivePath("m/0'/1/0").getAddress(), '1349KVc5NgedaK7DvuD4xDFxL86QN1Hvdn')
   })
 })
