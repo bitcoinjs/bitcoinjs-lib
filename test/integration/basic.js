@@ -8,7 +8,7 @@ var blockchain = require('./_blockchain')
 describe('bitcoinjs-lib (basic)', function () {
   it('can generate a random bitcoin address', function () {
     // for testing only
-    function rng () { return new Buffer('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
+    function rng () { return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
 
     // generate random keyPair
     var keyPair = bitcoin.ECPair.makeRandom({ rng: rng })
@@ -29,7 +29,7 @@ describe('bitcoinjs-lib (basic)', function () {
 
   it('can generate a random keypair for alternative networks', function () {
     // for testing only
-    function rng () { return new Buffer('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
+    function rng () { return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
 
     var litecoin = bitcoin.networks.litecoin
 

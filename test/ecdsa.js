@@ -36,7 +36,7 @@ describe('ecdsa', function () {
         .onCall(2).returns(new BigInteger('42')) // valid
 
       var x = new BigInteger('1').toBuffer(32)
-      var h1 = new Buffer(32)
+      var h1 = Buffer.alloc(32)
       var k = ecdsa.deterministicGenerateK(h1, x, checkSig)
 
       assert.strictEqual(k.toString(), '42')
@@ -56,7 +56,7 @@ describe('ecdsa', function () {
       mockCheckSig.onCall(1).returns(true) // good signature
 
       var x = new BigInteger('1').toBuffer(32)
-      var h1 = new Buffer(32)
+      var h1 = Buffer.alloc(32)
       var k = ecdsa.deterministicGenerateK(h1, x, mockCheckSig)
 
       assert.strictEqual(k.toString(), '53')
@@ -107,7 +107,7 @@ describe('ecdsa', function () {
       it('verifies a valid signature for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
         var H = bcrypto.sha256(f.message)
-        var signature = ECSignature.fromDER(new Buffer(f.signature, 'hex'))
+        var signature = ECSignature.fromDER(Buffer.from(f.signature, 'hex'))
         var Q = curve.G.multiply(d)
 
         assert(ecdsa.verify(H, signature, Q))
@@ -121,7 +121,7 @@ describe('ecdsa', function () {
 
         var signature
         if (f.signature) {
-          signature = ECSignature.fromDER(new Buffer(f.signature, 'hex'))
+          signature = ECSignature.fromDER(Buffer.from(f.signature, 'hex'))
         } else if (f.signatureRaw) {
           signature = new ECSignature(new BigInteger(f.signatureRaw.r, 16), new BigInteger(f.signatureRaw.s, 16))
         }

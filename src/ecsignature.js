@@ -58,7 +58,7 @@ ECSignature.prototype.toCompact = function (i, compressed) {
 
   i += 27
 
-  var buffer = Buffer.allocUnsafe(65)
+  var buffer = Buffer.alloc(65)
   buffer.writeUInt8(i, 0)
   this.r.toBuffer(32).copy(buffer, 1)
   this.s.toBuffer(32).copy(buffer, 33)
@@ -77,7 +77,7 @@ ECSignature.prototype.toScriptSignature = function (hashType) {
   var hashTypeMod = hashType & ~0x80
   if (hashTypeMod <= 0 || hashTypeMod >= 4) throw new Error('Invalid hashType ' + hashType)
 
-  var hashTypeBuffer = Buffer.allocUnsafe(1)
+  var hashTypeBuffer = Buffer.alloc(1)
   hashTypeBuffer.writeUInt8(hashType, 0)
 
   return Buffer.concat([this.toDER(), hashTypeBuffer])

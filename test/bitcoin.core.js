@@ -28,7 +28,7 @@ describe('Bitcoin-core', function () {
       })
 
       it('can encode ' + fhex, function () {
-        var buffer = new Buffer(fhex, 'hex')
+        var buffer = Buffer.from(fhex, 'hex')
         var actual = base58.encode(buffer)
 
         assert.strictEqual(actual, fb58)
@@ -45,7 +45,7 @@ describe('Bitcoin-core', function () {
 
     base58KeysValid.forEach(function (f) {
       var expected = f[0]
-      var hash = new Buffer(f[1], 'hex')
+      var hash = Buffer.from(f[1], 'hex')
       var params = f[2]
 
       if (params.isPrivkey) return
@@ -150,7 +150,7 @@ describe('Bitcoin-core', function () {
           var input = inputs[i]
 
           // reverse because test data is reversed
-          var prevOutHash = new Buffer(input[0], 'hex').reverse()
+          var prevOutHash = Buffer.from(input[0], 'hex').reverse()
           var prevOutIndex = input[1]
 
           assert.deepEqual(txIn.hash, prevOutHash)
@@ -186,7 +186,7 @@ describe('Bitcoin-core', function () {
         var transaction = bitcoin.Transaction.fromHex(txHex)
         assert.strictEqual(transaction.toHex(), txHex)
 
-        var script = new Buffer(scriptHex, 'hex')
+        var script = Buffer.from(scriptHex, 'hex')
         var scriptChunks = bitcoin.script.decompile(script)
         assert.strictEqual(bitcoin.script.compile(scriptChunks).toString('hex'), scriptHex)
 
@@ -200,7 +200,7 @@ describe('Bitcoin-core', function () {
 
   describe('ECSignature.parseScriptSignature', function () {
     sigCanonical.forEach(function (hex) {
-      var buffer = new Buffer(hex, 'hex')
+      var buffer = Buffer.from(hex, 'hex')
 
       it('can parse ' + hex, function () {
         var parsed = bitcoin.ECSignature.parseScriptSignature(buffer)
@@ -214,7 +214,7 @@ describe('Bitcoin-core', function () {
       if (i % 2 !== 0) return
 
       var description = sigNoncanonical[i - 1].slice(0, -1)
-      var buffer = new Buffer(hex, 'hex')
+      var buffer = Buffer.from(hex, 'hex')
 
       it('throws on ' + description, function () {
         assert.throws(function () {

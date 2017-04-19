@@ -12,11 +12,11 @@ describe('Transaction', function () {
     tx.locktime = raw.locktime
 
     raw.ins.forEach(function (txIn, i) {
-      var txHash = new Buffer(txIn.hash, 'hex')
+      var txHash = Buffer.from(txIn.hash, 'hex')
       var scriptSig
 
       if (txIn.data) {
-        scriptSig = new Buffer(txIn.data, 'hex')
+        scriptSig = Buffer.from(txIn.data, 'hex')
       } else if (txIn.script) {
         scriptSig = bscript.fromASM(txIn.script)
       }
@@ -25,7 +25,7 @@ describe('Transaction', function () {
 
       if (!noWitness && txIn.witness) {
         var witness = txIn.witness.map(function (x) {
-          return new Buffer(x, 'hex')
+          return Buffer.from(x, 'hex')
         })
 
         tx.setWitness(i, witness)
@@ -36,7 +36,7 @@ describe('Transaction', function () {
       var script
 
       if (txOut.data) {
-        script = new Buffer(txOut.data, 'hex')
+        script = Buffer.from(txOut.data, 'hex')
       } else if (txOut.script) {
         script = bscript.fromASM(txOut.script)
       }
@@ -107,7 +107,7 @@ describe('Transaction', function () {
       var actual = fromRaw(f.raw)
       var byteLength = actual.byteLength()
 
-      var target = new Buffer(byteLength * 2)
+      var target = Buffer.alloc(byteLength * 2)
       var a = actual.toBuffer(target, 0)
       var b = actual.toBuffer(target, byteLength)
 
@@ -132,7 +132,7 @@ describe('Transaction', function () {
   describe('addInput', function () {
     var prevTxHash
     beforeEach(function () {
-      prevTxHash = new Buffer('ffffffff00ffff000000000000000000000000000000000000000000101010ff', 'hex')
+      prevTxHash = Buffer.from('ffffffff00ffff000000000000000000000000000000000000000000101010ff', 'hex')
     })
 
     it('returns an index', function () {
@@ -153,7 +153,7 @@ describe('Transaction', function () {
     fixtures.invalid.addInput.forEach(function (f) {
       it('throws on ' + f.exception, function () {
         var tx = new Transaction()
-        var hash = new Buffer(f.hash, 'hex')
+        var hash = Buffer.from(f.hash, 'hex')
 
         assert.throws(function () {
           tx.addInput(hash, f.index)
@@ -165,8 +165,8 @@ describe('Transaction', function () {
   describe('addOutput', function () {
     it('returns an index', function () {
       var tx = new Transaction()
-      assert.strictEqual(tx.addOutput(new Buffer(0), 0), 0)
-      assert.strictEqual(tx.addOutput(new Buffer(0), 0), 1)
+      assert.strictEqual(tx.addOutput(Buffer.alloc(0), 0), 0)
+      assert.strictEqual(tx.addOutput(Buffer.alloc(0), 0), 1)
     })
   })
 
@@ -216,10 +216,10 @@ describe('Transaction', function () {
 
   describe('hashForSignature', function () {
     it('does not use Witness serialization', function () {
-      var randScript = new Buffer('6a', 'hex')
+      var randScript = Buffer.from('6a', 'hex')
 
       var tx = new Transaction()
-      tx.addInput(new Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'), 0)
+      tx.addInput(Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'), 0)
       tx.addOutput(randScript, 5000000000)
 
       var original = tx.__toBuffer

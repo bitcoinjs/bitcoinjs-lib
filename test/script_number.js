@@ -8,7 +8,7 @@ describe('script-number', function () {
   describe('decode', function () {
     fixtures.forEach(function (f) {
       it(f.hex + ' returns ' + f.number, function () {
-        var actual = scriptNumber.decode(new Buffer(f.hex, 'hex'), f.bytes)
+        var actual = scriptNumber.decode(Buffer.from(f.hex, 'hex'), f.bytes)
 
         assert.strictEqual(actual, f.number)
       })
