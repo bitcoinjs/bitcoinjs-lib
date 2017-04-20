@@ -10,6 +10,8 @@ __added__
 - Added `Transaction.prototype.toBuffer` Segregated Witness serialization support (#684, #701)
 - Added `Transaction.prototype.hasWitnesses` (#718)
 - Added `script.witnessCommitment.*` template
+- Added `TransactionBuilder.prototype.sign` now has two additional parameters, `witnessValue`, and `witnessScript`
+- Added `Transaction.hashForWitnessV0` and `Transaction.setWitness` (5c2fdb60436714f18440dc709f0be065928c1e49)
 
 __fixed__
 - Fixed `script` must compile minimally (#638)
@@ -20,6 +22,7 @@ __removed__
 - Removed `buffer-equals`/`buffer-compare` dependencies (#650)
 - Removed `HDNode.prototype.toString` (#665)
 - Removed `dogecoin` network (#675)
+- Removed `message` export, moved to [`bitcoinjs-message`](https://github.com/bitcoinjs/bitcoinjs-message) (#456)
 
 __renamed__
 - Removed `script.*` functions in favour of `bitcoin.script.*.(input/output).(encode/decode/check)` style (#682)
