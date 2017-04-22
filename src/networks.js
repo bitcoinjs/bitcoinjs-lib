@@ -29,7 +29,7 @@ module.exports = {
       private: 0x019d9cfe
     },
     pubKeyHash: 0x30,
-    scriptHash: 0x05,
+    scriptHash: 0x50,
     wif: 0xb0
   }
 }
