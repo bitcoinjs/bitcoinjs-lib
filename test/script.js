@@ -120,9 +120,14 @@ describe('script', function () {
       })
     })
 
+    // TODO: add tests for OP_1 through OP_16
     function testEncodingForSize (i) {
       it('compliant for data PUSH of length ' + i, function () {
         var buffer = new Buffer(i)
+
+        // avoid any buffer data equivalent to OP_1 to OP_16 (which would be a non-minimal push)
+        buffer.fill(0xff)
+
         var script = bscript.compile([buffer])
 
         assert(minimalData(script), 'Failed for ' + i + ' length script: ' + script.toString('hex'))
