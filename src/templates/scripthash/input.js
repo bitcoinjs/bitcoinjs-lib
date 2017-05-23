@@ -1,5 +1,6 @@
 // <scriptSig> {serialized scriptPubKey script}
 
+var Buffer = require('safe-buffer').Buffer
 var bscript = require('../../script')
 var typeforce = require('typeforce')
 

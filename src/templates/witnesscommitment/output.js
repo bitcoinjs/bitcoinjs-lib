@@ -1,5 +1,6 @@
 // OP_RETURN {aa21a9ed} {commitment}
 
+var Buffer = require('safe-buffer').Buffer
 var bscript = require('../../script')
 var types = require('../../types')
 var typeforce = require('typeforce')

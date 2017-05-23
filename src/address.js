@@ -1,3 +1,4 @@
+var Buffer = require('safe-buffer').Buffer
 var bs58check = require('bs58check')
 var bscript = require('./script')
 var networks = require('./networks')

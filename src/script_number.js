@@ -1,3 +1,5 @@
+var Buffer = require('safe-buffer').Buffer
+
 function decode (buffer, maxLength, minimal) {
   maxLength = maxLength || 4
   minimal = minimal === undefined ? true : minimal

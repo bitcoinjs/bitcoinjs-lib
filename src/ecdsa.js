@@ -1,3 +1,4 @@
+var Buffer = require('safe-buffer').Buffer
 var createHmac = require('create-hmac')
 var typeforce = require('typeforce')
 var types = require('./types')
