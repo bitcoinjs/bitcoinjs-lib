@@ -1,5 +1,6 @@
 // OP_0 [signatures ...]
 
+var Buffer = require('safe-buffer').Buffer
 var bscript = require('../../script')
 var typeforce = require('typeforce')
 var OPS = require('bitcoin-ops')
