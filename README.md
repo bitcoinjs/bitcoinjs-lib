@@ -1,5 +1,7 @@
 # BitcoinJS (bitcoinjs-lib)
 
+[![Join the chat at https://gitter.im/bitcoinjs/bitcoinjs-lib](https://badges.gitter.im/bitcoinjs/bitcoinjs-lib.svg)](https://gitter.im/bitcoinjs/bitcoinjs-lib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
 [![NPM](https://img.shields.io/npm/v/bitcoinjs-lib.svg)](https://www.npmjs.org/package/bitcoinjs-lib)
 [![tip for next commit](https://tip4commit.com/projects/735.svg)](http://tip4commit.com/projects/735)
