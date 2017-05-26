@@ -88,7 +88,7 @@ uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,ECPair,Function,Numbe
 
 Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-typed repository.
 
-[You can either download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_%3E%3Dv0.17.x/bitcoinjs-lib_v2.x.x.js) from the repo, or with the flow-typed CLI
+[You can either download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_v0.17.x-/bitcoinjs-lib_v2.x.x.js) from the repo, or with the flow-typed CLI
 
     # npm install -g flow-typed
     $ flow-typed install -f 0.27 bitcoinjs-lib@2.2.0 # 0.27 for flow version, 2.2.0 for bitcoinjs-lib version
