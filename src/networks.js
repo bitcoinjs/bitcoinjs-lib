@@ -31,5 +31,15 @@ module.exports = {
     pubKeyHash: 0x30,
     scriptHash: 0x32,
     wif: 0xb0
-  }
+  },
+  decred: {
+     messagePrefix: '\x19Decred Signed Message:\n',
+     bip32: {
+       public: 0x02fda926,
+       private: 0x02fda4e8
+     },
+     pubKeyHash: 0x73f,
+     scriptHash: 0x71a,
+     wif: 0x22de
+   }
 }
