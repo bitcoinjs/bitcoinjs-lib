@@ -62,9 +62,9 @@ describe('bitcoinjs-lib (basic)', function () {
   it('can create a [complex] Transaction', function (done) {
     this.timeout(30000)
 
-    var network = bitcoin.networks.testnet
-    var alice = bitcoin.ECPair.makeRandom({ network: network })
-    var bob = bitcoin.ECPair.makeRandom({ network: network })
+    var testnet = bitcoin.networks.testnet
+    var alice = bitcoin.ECPair.makeRandom({ network: testnet })
+    var bob = bitcoin.ECPair.makeRandom({ network: testnet })
     var alicesAddress = alice.getAddress()
     var bobsAddress = bob.getAddress()
 
@@ -80,7 +80,7 @@ describe('bitcoinjs-lib (basic)', function () {
     ], function (err, unspents) {
       if (err) return done(err)
 
-      var tx = new bitcoin.TransactionBuilder(network)
+      var tx = new bitcoin.TransactionBuilder(testnet)
       tx.addInput(unspents[0].txId, unspents[0].vout)
       tx.addInput(unspents[1].txId, unspents[1].vout)
       tx.addOutput(blockchain.t.RETURN, 3e4)
