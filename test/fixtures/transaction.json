@@ -22,7 +22,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 192,
+      "weight": 768
     },
     {
       "description": "Standard transaction (2:2)",
@@ -57,7 +59,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 396,
+      "weight": 1584
     },
     {
       "description": "Standard transaction (14:2)",
@@ -151,7 +155,9 @@
           }
         ]
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 2596,
+      "weight": 10384
     },
     {
       "description": "Coinbase transaction",
@@ -175,7 +181,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": true
+      "coinbase": true,
+      "virtualSize": 126,
+      "weight": 504
     },
     {
       "description": "Transaction that ignores script chunking rules - Bug #367",
@@ -227,7 +235,9 @@
           }
         ]
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 249,
+      "weight": 996
     },
     {
       "description": "P2PK",
@@ -253,7 +263,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 158,
+      "weight": 632
     },
     {
       "description": "P2SH P2PK",
@@ -280,7 +292,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 193,
+      "weight": 772
     },
     {
       "description": "P2WSH P2PK",
@@ -309,7 +323,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 113,
+      "weight": 451
     },
     {
       "description": "P2SH P2WSH P2PK",
@@ -338,7 +354,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 148,
+      "weight": 591
     },
     {
       "description": "P2PKH",
@@ -363,7 +381,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 192,
+      "weight": 768
     },
     {
       "description": "P2SH P2PKH",
@@ -388,7 +408,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 217,
+      "weight": 868
     },
     {
       "description": "P2WSH P2PKH",
@@ -419,7 +441,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 119,
+      "weight": 476
     },
     {
       "description": "P2SH P2WSH P2PKH",
@@ -449,7 +473,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 154,
+      "weight": 616
     },
     {
       "description": "Multisig",
@@ -474,7 +500,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 159,
+      "weight": 636
     },
     {
       "description": "P2SH Multisig",
@@ -500,7 +528,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 196,
+      "weight": 784
     },
     {
       "description": "P2WSH Multisig",
@@ -530,7 +560,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 114,
+      "weight": 455
     },
     {
       "description": "P2SH P2WSH Multisig",
@@ -561,7 +593,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 149,
+      "weight": 595
     },
     {
       "description": "P2WKH",
@@ -590,7 +624,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 113,
+      "weight": 450
     },
     {
       "description": "P2SH P2WKH",
@@ -619,7 +655,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": false
+      "coinbase": false,
+      "virtualSize": 136,
+      "weight": 542
     },
     {
       "description": "Coinbase transaction w/ witness",
@@ -652,7 +690,9 @@
         ],
         "locktime": 0
       },
-      "coinbase": true
+      "coinbase": true,
+      "virtualSize": 156,
+      "weight": 624
     }
   ],
   "hashForSignature": [
