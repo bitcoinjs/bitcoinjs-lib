@@ -129,6 +129,24 @@ describe('Transaction', function () {
     })
   })
 
+  describe('weight/virtualSize', function () {
+    it('computes virtual size', function () {
+      fixtures.valid.forEach(function (f) {
+        var transaction = Transaction.fromHex(f.whex ? f.whex : f.hex)
+
+        assert.strictEqual(transaction.virtualSize(), f.virtualSize)
+      })
+    })
+
+    it('computes weight', function () {
+      fixtures.valid.forEach(function (f) {
+        var transaction = Transaction.fromHex(f.whex ? f.whex : f.hex)
+
+        assert.strictEqual(transaction.weight(), f.weight)
+      })
+    })
+  })
+
   describe('addInput', function () {
     var prevTxHash
     beforeEach(function () {
