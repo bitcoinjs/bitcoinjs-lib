@@ -191,6 +191,16 @@ Transaction.prototype.hasWitnesses = function () {
   })
 }
 
+Transaction.prototype.weight = function () {
+  var base = this.__byteLength(false)
+  var total = this.__byteLength(true)
+  return base * 3 + total
+}
+
+Transaction.prototype.virtualSize = function () {
+  return Math.ceil(this.weight() / 4)
+}
+
 Transaction.prototype.byteLength = function () {
   return this.__byteLength(true)
 }
