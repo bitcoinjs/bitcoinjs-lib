@@ -218,6 +218,29 @@ Transaction.prototype.__byteLength = function (__allowWitness) {
   )
 }
 
+Transaction.prototype.canReplaceByFee = function () {
+  return this.ins.some(function (x) {
+    return x.sequence < Transaction.DEFAULT_SEQUENCE - 1
+  })
+}
+
+Transaction.prototype.setReplaceByFee = function (rbf) {
+  if (this.ins.length === 0) {
+    throw new Error('Cannot set replace-by-fee on transaction without inputs.')
+  }
+  this.ins.forEach(function (x) {
+    if (rbf) {
+      if (x.sequence >= Transaction.DEFAULT_SEQUENCE - 1) {
+        x.sequence = 0
+      }
+    } else {
+      if (x.sequence < Transaction.DEFAULT_SEQUENCE - 1) {
+        x.sequence = Transaction.DEFAULT_SEQUENCE
+      }
+    }
+  })
+}
+
 Transaction.prototype.clone = function () {
   var newTx = new Transaction()
   newTx.version = this.version
