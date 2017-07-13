@@ -47,6 +47,8 @@ function extractChunks (type, chunks, script) {
   }
 }
 function expandInput (scriptSig, witnessStack) {
+  if (scriptSig.length === 0 && witnessStack.length === 0) return {}
+
   var prevOutScript
   var prevOutType
   var scriptType
@@ -546,7 +548,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
 
   // derive what we can from the scriptSig
   if (options.script !== undefined) {
-    input = expandInput(options.script, options.witness)
+    input = expandInput(options.script, options.witness || [])
   }
 
   // if an input value was given, retain it
