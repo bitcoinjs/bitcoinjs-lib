@@ -402,7 +402,7 @@ describe('TransactionBuilder', function () {
     })
   })
 
-  describe('multisig edge case', function () {
+  describe('various edge case', function () {
     var network = NETWORKS.testnet
 
     it('should handle badly pre-filled OP_0s', function () {
@@ -423,6 +423,27 @@ describe('TransactionBuilder', function () {
       var tx2 = txb.build()
       assert.equal(tx2.getId(), 'eab59618a564e361adef6d918bd792903c3d41bcf1220137364fb847880467f9')
       assert.equal(bscript.toASM(tx2.ins[0].script), 'OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae')
+    })
+
+    it('should not classify blank scripts as nonstandard', function () {
+      var tx = new TransactionBuilder()
+      tx.addInput('aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31', 0)
+
+      var incomplete = tx.buildIncomplete().toHex()
+      var keyPair = ECPair.fromWIF('L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy')
+
+      // sign, as expected
+      tx.addOutput('1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK', 15000)
+      tx.sign(0, keyPair)
+      var txId = tx.build().getId()
+      assert.equal(txId, '54f097315acbaedb92a95455da3368eb45981cdae5ffbc387a9afc872c0f29b3')
+
+      // and, repeat
+      tx = TransactionBuilder.fromTransaction(Transaction.fromHex(incomplete))
+      tx.addOutput('1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK', 15000)
+      tx.sign(0, keyPair)
+      var txId2 = tx.build().getId()
+      assert.equal(txId, txId2)
     })
   })
 })
