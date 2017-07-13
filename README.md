@@ -132,6 +132,7 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 - [EI8HT Wallet](http://ei8.ht/)
 - [GreenAddress](https://greenaddress.it)
 - [Helperbit](https://helperbit.com)
+- [Melis Wallet](https://melis.io)
 - [Robocoin](https://wallet.robocoin.com)
 - [Skyhook ATM](http://projectskyhook.com)
 
