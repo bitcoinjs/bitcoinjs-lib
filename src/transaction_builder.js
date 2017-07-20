@@ -399,7 +399,7 @@ function buildInput (input, allowIncomplete) {
   var sig = []
   var witness = []
   if (SIGNABLE.indexOf(scriptType) !== -1) {
-    sig = buildStack(scriptType, input.signatures, input.pubKeys, input.script, allowIncomplete)
+    sig = buildStack(scriptType, input.signatures, input.pubKeys, allowIncomplete)
   }
 
   var p2sh = false

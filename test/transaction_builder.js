@@ -354,6 +354,18 @@ describe('TransactionBuilder', function () {
         }
       })
     })
+
+    it('for incomplete with 0 signatures', function () {
+      var randomTxData = '0100000000010100010000000000000000000000000000000000000000000000000000000000000000000000ffffffff01e8030000000000001976a9144c9c3dfac4207d5d8cb89df5722cb3d712385e3f88ac02483045022100aa5d8aa40a90f23ce2c3d11bc845ca4a12acd99cbea37de6b9f6d86edebba8cb022022dedc2aa0a255f74d04c0b76ece2d7c691f9dd11a64a8ac49f62a99c3a05f9d01232103596d3451025c19dbbdeb932d6bf8bfb4ad499b95b6f88db8899efac102e5fc71ac00000000'
+      var randomAddress = '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH'
+
+      var randomTx = Transaction.fromHex(randomTxData)
+      var tx = new TransactionBuilder()
+      tx.addInput(randomTx, 0)
+      tx.addOutput(baddress.toOutputScript(randomAddress), 1000)
+      tx = tx.buildIncomplete()
+      assert(tx)
+    })
   })
 
   describe('multisig', function () {
