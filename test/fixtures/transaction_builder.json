@@ -1703,6 +1703,32 @@
         ]
       },
       {
+        "description": "Incpmplete transactions, known prevTxScript type, therefore throws for missing signatures",
+        "exception": "Not enough signatures provided",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          },
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
         "description": "Duplicate transaction outs",
         "exception": "Duplicate TxOut: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff:0",
         "incomplete": true,
