@@ -1703,7 +1703,7 @@
         ]
       },
       {
-        "description": "Incpmplete transactions, known prevTxScript type, therefore throws for missing signatures",
+        "description": "Incomplete transaction, known prevTxScript, thereby throws for missing signatures",
         "exception": "Not enough signatures provided",
         "inputs": [
           {
