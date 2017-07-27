@@ -315,6 +315,10 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
       throw new Error('Bitcoin Cash sighash requires value of input to be signed.')
     }
 
+    // this abstraction only holds for Bitcoin Cash,
+    // which uses a fork id of 0. 0 | anything = anything,
+    // so bitcoin cash's replay protection is simply unaltered
+    // segwit instead of legacy signature-hashing.
     return this.hashForWitnessV0(inIndex, prevOutScript, hashType, inAmount)
   } else { // if not BitcoinCash BIP143
     // serialize and hash
