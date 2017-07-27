@@ -32,6 +32,7 @@ Transaction.DEFAULT_SEQUENCE = 0xffffffff
 Transaction.SIGHASH_ALL = 0x01
 Transaction.SIGHASH_NONE = 0x02
 Transaction.SIGHASH_SINGLE = 0x03
+Transaction.SIGHASH_BITCOINCASHBIP143 = 0x40
 Transaction.SIGHASH_ANYONECANPAY = 0x80
 Transaction.ADVANCED_TRANSACTION_MARKER = 0x00
 Transaction.ADVANCED_TRANSACTION_FLAG = 0x01
@@ -251,8 +252,8 @@ Transaction.prototype.clone = function () {
  * hashType, and then hashes the result.
  * This hash can then be used to sign the provided transaction input.
  */
-Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashType) {
-  typeforce(types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number), arguments)
+Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashType, inAmount) {
+  typeforce(types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number, types.maybe(types.UInt53)), arguments)
 
   // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L29
   if (inIndex >= this.ins.length) return ONE
@@ -308,10 +309,96 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
     txTmp.ins[inIndex].script = ourScript
   }
 
-  // serialize and hash
-  var buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4)
-  buffer.writeInt32LE(hashType, buffer.length - 4)
-  txTmp.__toBuffer(buffer, 0, false)
+  // BIP143 sighash activated in BitcoinCash via 0x40 bit
+  if (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) {
+    
+    if (types.Null(inAmount)) {
+      throw new Error('Bitcoin Cash sighash requires value of input to be signed.')
+    }
+
+    // gather PrevOuts and Sequences for hashing
+    var prevOutsBuf = Buffer.allocUnsafe(txTmp.ins.length * 36)
+    var prevOutsBufOffset = 0
+    var inputSequencesBuf = Buffer.allocUnsafe(txTmp.ins.length * 4)
+    var inputSequencesBufOffset = 0
+    var currentPrevOut = Buffer.allocUnsafe(36)
+    txTmp.ins.forEach(function(input, i) {
+      // gather PrevOut as buffer
+      var prevOutBuf = Buffer.allocUnsafe(input.hash.length + 4)
+
+      input.hash.copy(prevOutBuf, 0)
+      prevOutBuf.writeUInt32LE(input.index, prevOutBuf.length - 4)
+
+      if (i === inIndex) prevOutBuf.copy(currentPrevOut, 0)
+
+      prevOutBuf.copy(prevOutsBuf, prevOutsBufOffset)
+      prevOutsBufOffset += 36
+
+      // gather Sequence as buffer
+      var sequenceBuf = Buffer.allocUnsafe(4)
+
+      sequenceBuf.writeUInt32LE(input.sequence, 0)
+
+      sequenceBuf.copy(inputSequencesBuf, inputSequencesBufOffset)
+      inputSequencesBufOffset += 4
+    })
+
+    // gather outputs for hashing
+    var outputsBufferArray = []
+    var outputsBuffersLength = 0
+    txTmp.outs.forEach(function(output) {
+      var outputBuffer = Buffer.allocUnsafe(output.script.length + 8)
+      bufferutils.writeUInt64LE(outputBuffer, output.value, 0)
+      output.script.copy(outputBuffer, 8)
+      outputsBufferArray.push(outputBuffer)
+      outputsBuffersLength += outputBuffer.length
+    })
+    var outputsBuf = Buffer.allocUnsafe(outputsBuffersLength)
+    var outputsBufOffset = 0
+    outputsBufferArray.forEach(function(outputBuffer) {
+      outputBuffer.copy(outputsBuf, outputsBufOffset)
+      outputsBufOffset += outputBuffer.length
+    })
+
+    // HASH256 to get the hashPrevouts, hashSequence, and hashOutputs
+    var hashPrevouts = bcrypto.hash256(prevOutsBuf)
+    var hashSequence = bcrypto.hash256(inputSequencesBuf)
+    var hashOutputs = bcrypto.hash256(outputsBuf)
+
+    // get the scriptCode (only part which still has unknown length)
+    var thisInputScriptLength = txTmp.ins[inIndex].script.length
+    var scriptCode = Buffer.allocUnsafe(bufferutils.varIntSize(thisInputScriptLength)
+                              + thisInputScriptLength)
+    bufferutils.varIntBuffer(thisInputScriptLength, scriptCode, 0)
+    txTmp.ins[inIndex].script.copy(scriptCode, bufferutils.varIntSize(thisInputScriptLength))
+
+    var buffer = Buffer.allocUnsafe(4 + 32 + 32 + 36 + scriptCode.length + 8 + 4 + 32 + 4 + 4)
+    var bufOffset = 0
+    buffer.writeUInt32LE(txTmp.version, bufOffset)
+    bufOffset += 4
+    hashPrevouts.copy(buffer, bufOffset)
+    bufOffset += 32
+    hashSequence.copy(buffer, bufOffset)
+    bufOffset += 32
+    currentPrevOut.copy(buffer, bufOffset)
+    bufOffset += 36
+    scriptCode.copy(buffer, bufOffset)
+    bufOffset += scriptCode.length
+    bufferutils.writeUInt64LE(buffer, inAmount, bufOffset)
+    bufOffset += 8
+    buffer.writeUInt32LE(txTmp.ins[inIndex].sequence, bufOffset)
+    bufOffset += 4
+    hashOutputs.copy(buffer, bufOffset)
+    bufOffset += 32
+    buffer.writeUInt32LE(txTmp.locktime, bufOffset)
+    bufOffset += 4
+    buffer.writeUInt32LE(hashType, bufOffset)
+  } else { // if not BitcoinCash BIP143
+    // serialize and hash
+    var buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4)
+    buffer.writeInt32LE(hashType, buffer.length - 4)
+    txTmp.__toBuffer(buffer, 0, false)
+  }
 
   return bcrypto.hash256(buffer)
 }
