@@ -319,7 +319,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
     // which uses a fork id of 0. 0 | anything = anything,
     // so bitcoin cash's replay protection is simply unaltered
     // segwit instead of legacy signature-hashing.
-    return this.hashForWitnessV0(inIndex, prevOutScript, hashType, inAmount)
+    return this.hashForWitnessV0(inIndex, prevOutScript, inAmount, hashType)
   } else { // if not BitcoinCash BIP143
     // serialize and hash
     var buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4)
