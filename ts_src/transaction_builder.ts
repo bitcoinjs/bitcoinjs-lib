@@ -130,6 +130,7 @@ export class TransactionBuilder {
     return txb;
   }
 
+  bitcoinCash: boolean;
   private __PREV_TX_SET: { [index: string]: boolean };
   private __INPUTS: TxbInput[];
   private __TX: Transaction;
@@ -146,6 +147,7 @@ export class TransactionBuilder {
     this.__TX = new Transaction();
     this.__TX.version = 2;
     this.__USE_LOW_R = false;
+    this.bitcoinCash = false;
     console.warn(
       'Deprecation Warning: TransactionBuilder will be removed in the future. ' +
         '(v6.x.x or later) Please use the Psbt class instead. Examples of usage ' +
@@ -153,6 +155,13 @@ export class TransactionBuilder {
         'Github. A high level explanation is available in the psbt.ts and psbt.js ' +
         'files as well.',
     );
+  }
+
+  enableBitcoinCash(enable?: boolean): void {
+    if (typeof enable === 'undefined') {
+      enable = true;
+    }
+    this.bitcoinCash = enable;
   }
 
   setLowR(setting?: boolean): boolean {
@@ -263,6 +272,7 @@ export class TransactionBuilder {
         witnessValue,
         witnessScript,
         this.__USE_LOW_R,
+        this.bitcoinCash,
       ),
     );
   }
@@ -1220,6 +1230,7 @@ function getSigningData(
   witnessValue?: number,
   witnessScript?: Buffer,
   useLowR?: boolean,
+  bitcoinCash?: boolean,
 ): SigningData {
   let vin: number;
   if (typeof signParams === 'number') {
@@ -1292,7 +1303,14 @@ function getSigningData(
 
   // ready to sign
   let signatureHash: Buffer;
-  if (input.hasWitness) {
+  if (bitcoinCash) {
+    signatureHash = tx.hashForCashSignature(
+      vin,
+      input.signScript as Buffer,
+      witnessValue!,
+      hashType,
+    );
+  } else if (input.hasWitness) {
     signatureHash = tx.hashForWitnessV0(
       vin,
       input.signScript as Buffer,

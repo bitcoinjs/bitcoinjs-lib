@@ -57,6 +57,7 @@ class TransactionBuilder {
     this.__TX = new transaction_1.Transaction();
     this.__TX.version = 2;
     this.__USE_LOW_R = false;
+    this.bitcoinCash = false;
     console.warn(
       'Deprecation Warning: TransactionBuilder will be removed in the future. ' +
         '(v6.x.x or later) Please use the Psbt class instead. Examples of usage ' +
@@ -87,6 +88,12 @@ class TransactionBuilder {
       fixMultisigOrder(input, transaction, i);
     });
     return txb;
+  }
+  enableBitcoinCash(enable) {
+    if (typeof enable === 'undefined') {
+      enable = true;
+    }
+    this.bitcoinCash = enable;
   }
   setLowR(setting) {
     typeforce(typeforce.maybe(typeforce.Boolean), setting);
@@ -173,6 +180,7 @@ class TransactionBuilder {
         witnessValue,
         witnessScript,
         this.__USE_LOW_R,
+        this.bitcoinCash,
       ),
     );
   }
@@ -980,6 +988,7 @@ function getSigningData(
   witnessValue,
   witnessScript,
   useLowR,
+  bitcoinCash,
 ) {
   let vin;
   if (typeof signParams === 'number') {
@@ -1044,7 +1053,14 @@ function getSigningData(
   }
   // ready to sign
   let signatureHash;
-  if (input.hasWitness) {
+  if (bitcoinCash) {
+    signatureHash = tx.hashForCashSignature(
+      vin,
+      input.signScript,
+      witnessValue,
+      hashType,
+    );
+  } else if (input.hasWitness) {
     signatureHash = tx.hashForWitnessV0(
       vin,
       input.signScript,
