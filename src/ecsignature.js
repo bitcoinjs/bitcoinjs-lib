@@ -41,7 +41,7 @@ ECSignature.fromDER = function (buffer) {
 // BIP62: 1 byte hashType flag (only 0x01, 0x02, 0x03, 0x81, 0x82 and 0x83 are allowed)
 ECSignature.parseScriptSignature = function (buffer) {
   var hashType = buffer.readUInt8(buffer.length - 1)
-  var hashTypeMod = hashType & ~0x80
+  var hashTypeMod = hashType & ~0xc0
 
   if (hashTypeMod <= 0x00 || hashTypeMod >= 0x04) throw new Error('Invalid hashType ' + hashType)
 
@@ -74,7 +74,7 @@ ECSignature.prototype.toDER = function () {
 }
 
 ECSignature.prototype.toScriptSignature = function (hashType) {
-  var hashTypeMod = hashType & ~0x80
+  var hashTypeMod = hashType & ~0xc0
   if (hashTypeMod <= 0 || hashTypeMod >= 4) throw new Error('Invalid hashType ' + hashType)
 
   var hashTypeBuffer = Buffer.alloc(1)
