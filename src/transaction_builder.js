@@ -472,7 +472,16 @@ function TransactionBuilder (network, maximumFeeRate) {
   this.maximumFeeRate = maximumFeeRate || 1000
 
   this.inputs = []
+  this.bitcoinCash = false
   this.tx = new Transaction()
+}
+
+TransactionBuilder.prototype.enableBitcoinCash = function (enable) {
+  if (typeof enable === 'undefined') {
+    enable = true
+  }
+
+  this.bitcoinCash = enable
 }
 
 TransactionBuilder.prototype.setLockTime = function (locktime) {
@@ -695,10 +704,14 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
 
   // ready to sign
   var signatureHash
-  if (input.witness) {
-    signatureHash = this.tx.hashForWitnessV0(vin, input.signScript, input.value, hashType)
+  if (this.bitcoinCash) {
+    signatureHash = this.tx.hashForCashSignature(vin, input.signScript, witnessValue, hashType)
   } else {
-    signatureHash = this.tx.hashForSignature(vin, input.signScript, hashType)
+    if (input.witness) {
+      signatureHash = this.tx.hashForWitnessV0(vin, input.signScript, witnessValue, hashType)
+    } else {
+      signatureHash = this.tx.hashForSignature(vin, input.signScript, hashType)
+    }
   }
 
   // enforce in order signing of public keys
