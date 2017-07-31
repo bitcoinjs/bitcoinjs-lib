@@ -33,6 +33,7 @@ Transaction.SIGHASH_ALL = 0x01
 Transaction.SIGHASH_NONE = 0x02
 Transaction.SIGHASH_SINGLE = 0x03
 Transaction.SIGHASH_ANYONECANPAY = 0x80
+Transaction.SIGHASH_BITCOINCASHBIP143 = 0x40
 Transaction.ADVANCED_TRANSACTION_MARKER = 0x00
 Transaction.ADVANCED_TRANSACTION_FLAG = 0x01
 
@@ -400,6 +401,31 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
   writeUInt32(this.locktime)
   writeUInt32(hashType)
   return bcrypto.hash256(tbuffer)
+}
+
+/**
+ * Hash transaction for signing a specific input for Bitcoin Cash.
+ */
+Transaction.prototype.hashForCashSignature = function (inIndex, prevOutScript, inAmount, hashType) {
+  typeforce(types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number, types.maybe(types.UInt53)), arguments)
+
+  // This function works the way it does because Bitcoin Cash
+  // uses BIP143 as their replay protection, AND their algo
+  // includes `forkId | hashType`, AND since their forkId=0,
+  // this is a NOP, and has no difference to segwit. To support
+  // other forks, another parameter is required, and a new parameter
+  // would be required in the hashForWitnessV0 function, or
+  // it could be broken into two..
+
+  // BIP143 sighash activated in BitcoinCash via 0x40 bit
+  if (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) {
+    if (types.Null(inAmount)) {
+      throw new Error('Bitcoin Cash sighash requires value of input to be signed.')
+    }
+    return this.hashForWitnessV0(inIndex, prevOutScript, inAmount, hashType)
+  } else {
+    return this.hashForSignature(inIndex, prevOutScript, hashType)
+  }
 }
 
 Transaction.prototype.getHash = function () {
