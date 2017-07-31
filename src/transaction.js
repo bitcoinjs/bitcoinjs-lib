@@ -32,6 +32,7 @@ Transaction.DEFAULT_SEQUENCE = 0xffffffff
 Transaction.SIGHASH_ALL = 0x01
 Transaction.SIGHASH_NONE = 0x02
 Transaction.SIGHASH_SINGLE = 0x03
+Transaction.SIGHASH_BITCOINCASHBIP143 = 0x40
 Transaction.SIGHASH_ANYONECANPAY = 0x80
 Transaction.ADVANCED_TRANSACTION_MARKER = 0x00
 Transaction.ADVANCED_TRANSACTION_FLAG = 0x01
@@ -251,8 +252,8 @@ Transaction.prototype.clone = function () {
  * hashType, and then hashes the result.
  * This hash can then be used to sign the provided transaction input.
  */
-Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashType) {
-  typeforce(types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number), arguments)
+Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashType, inAmount) {
+  typeforce(types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number, types.maybe(types.UInt53)), arguments)
 
   // https://github.com/bitcoin/bitcoin/blob/master/src/test/sighash_tests.cpp#L29
   if (inIndex >= this.ins.length) return ONE
@@ -308,98 +309,127 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
     txTmp.ins[inIndex].script = ourScript
   }
 
-  // serialize and hash
-  var buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4)
-  buffer.writeInt32LE(hashType, buffer.length - 4)
-  txTmp.__toBuffer(buffer, 0, false)
+  // BIP143 sighash activated in BitcoinCash via 0x40 bit
+  if (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) {
+    if (types.Null(inAmount)) {
+      throw new Error('Bitcoin Cash sighash requires value of input to be signed.')
+    }
+
+    // this abstraction only holds for Bitcoin Cash,
+    // which uses a fork id of 0. 0 | anything = anything,
+    // so bitcoin cash's replay protection is simply unaltered
+    // segwit instead of legacy signature-hashing.
+    return this.hashForWitnessV0(inIndex, prevOutScript, inAmount, hashType)
+  } else { // if not BitcoinCash BIP143
+    // serialize and hash
+    var buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4)
+    buffer.writeInt32LE(hashType, buffer.length - 4)
+    txTmp.__toBuffer(buffer, 0, false)
+  }
 
   return bcrypto.hash256(buffer)
+}
+
+function Writer (size) {
+  this.tbuffer = Buffer.allocUnsafe(size)
+  this.toffset = 0
+}
+
+Writer.prototype.writeSlice = function (slice) { this.toffset += slice.copy(this.tbuffer, this.toffset) }
+Writer.prototype.writeUInt32 = function (i) { this.toffset = this.tbuffer.writeUInt32LE(i, this.toffset) }
+Writer.prototype.writeUInt64 = function (i) { this.toffset = bufferutils.writeUInt64LE(this.tbuffer, i, this.toffset) }
+Writer.prototype.writeVarInt = function (i) {
+  varuint.encode(i, this.tbuffer, this.toffset)
+  this.toffset += varuint.encode.bytes
+}
+Writer.prototype.writeVarSlice = function (slice) { this.writeVarInt(slice.length); this.writeSlice(slice) }
+
+function GetPrevoutHash (tx, hashType) {
+  var hashPrevouts = ZERO
+  if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
+    var twriter = new Writer(36 * tx.ins.length)
+
+    tx.ins.forEach(function (txIn) {
+      twriter.writeSlice(txIn.hash)
+      twriter.writeUInt32(txIn.index)
+    })
+
+    hashPrevouts = bcrypto.hash256(twriter.tbuffer)
+  }
+
+  return hashPrevouts
+}
+
+function GetSequenceHash (tx, hashType) {
+  var hashSequence = ZERO
+
+  if (!(hashType & Transaction.SIGHASH_ANYONECANPAY) &&
+    (hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
+    (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
+    var twriter = new Writer(4 * tx.ins.length)
+
+    tx.ins.forEach(function (txIn) {
+      twriter.writeUInt32(txIn.sequence)
+    })
+
+    hashSequence = bcrypto.hash256(twriter.tbuffer)
+  }
+
+  return hashSequence
+}
+
+function GetOutputsHash (tx, inIndex, hashType) {
+  var twriter
+  if ((hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
+    (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
+    var txOutsSize = tx.outs.reduce(function (sum, output) {
+      return sum + 8 + varSliceSize(output.script)
+    }, 0)
+
+    twriter = new Writer(txOutsSize)
+
+    tx.outs.forEach(function (out) {
+      twriter.writeUInt64(out.value)
+      twriter.writeVarSlice(out.script)
+    })
+
+    return bcrypto.hash256(twriter.tbuffer)
+  } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE && inIndex < tx.outs.length) {
+    var output = tx.outs[inIndex]
+
+    twriter = new Writer(8 + varSliceSize(output.script))
+    twriter.writeUInt64(output.value)
+    twriter.writeVarSlice(output.script)
+
+    return bcrypto.hash256(twriter.tbuffer)
+  }
 }
 
 Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value, hashType) {
   typeforce(types.tuple(types.UInt32, types.Buffer, types.Satoshi, types.UInt32), arguments)
 
-  var tbuffer, toffset
-  function writeSlice (slice) { toffset += slice.copy(tbuffer, toffset) }
-  function writeUInt32 (i) { toffset = tbuffer.writeUInt32LE(i, toffset) }
-  function writeUInt64 (i) { toffset = bufferutils.writeUInt64LE(tbuffer, i, toffset) }
-  function writeVarInt (i) {
-    varuint.encode(i, tbuffer, toffset)
-    toffset += varuint.encode.bytes
-  }
-  function writeVarSlice (slice) { writeVarInt(slice.length); writeSlice(slice) }
+  var twriter
 
-  var hashOutputs = ZERO
-  var hashPrevouts = ZERO
-  var hashSequence = ZERO
+  var hashOutputs = GetOutputsHash(this, hashType)
+  var hashPrevouts = GetPrevoutHash(this, hashType)
+  var hashSequence = GetSequenceHash(this, inIndex, hashType)
 
-  if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
-    tbuffer = Buffer.allocUnsafe(36 * this.ins.length)
-    toffset = 0
-
-    this.ins.forEach(function (txIn) {
-      writeSlice(txIn.hash)
-      writeUInt32(txIn.index)
-    })
-
-    hashPrevouts = bcrypto.hash256(tbuffer)
-  }
-
-  if (!(hashType & Transaction.SIGHASH_ANYONECANPAY) &&
-       (hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
-       (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
-    tbuffer = Buffer.allocUnsafe(4 * this.ins.length)
-    toffset = 0
-
-    this.ins.forEach(function (txIn) {
-      writeUInt32(txIn.sequence)
-    })
-
-    hashSequence = bcrypto.hash256(tbuffer)
-  }
-
-  if ((hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
-      (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
-    var txOutsSize = this.outs.reduce(function (sum, output) {
-      return sum + 8 + varSliceSize(output.script)
-    }, 0)
-
-    tbuffer = Buffer.allocUnsafe(txOutsSize)
-    toffset = 0
-
-    this.outs.forEach(function (out) {
-      writeUInt64(out.value)
-      writeVarSlice(out.script)
-    })
-
-    hashOutputs = bcrypto.hash256(tbuffer)
-  } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE && inIndex < this.outs.length) {
-    var output = this.outs[inIndex]
-
-    tbuffer = Buffer.allocUnsafe(8 + varSliceSize(output.script))
-    toffset = 0
-    writeUInt64(output.value)
-    writeVarSlice(output.script)
-
-    hashOutputs = bcrypto.hash256(tbuffer)
-  }
-
-  tbuffer = Buffer.allocUnsafe(156 + varSliceSize(prevOutScript))
-  toffset = 0
+  twriter = new Writer(156 + varSliceSize(prevOutScript))
 
   var input = this.ins[inIndex]
-  writeUInt32(this.version)
-  writeSlice(hashPrevouts)
-  writeSlice(hashSequence)
-  writeSlice(input.hash)
-  writeUInt32(input.index)
-  writeVarSlice(prevOutScript)
-  writeUInt64(value)
-  writeUInt32(input.sequence)
-  writeSlice(hashOutputs)
-  writeUInt32(this.locktime)
-  writeUInt32(hashType)
-  return bcrypto.hash256(tbuffer)
+  twriter.writeUInt32(this.version)
+  twriter.writeSlice(hashPrevouts)
+  twriter.writeSlice(hashSequence)
+  twriter.writeSlice(input.hash)
+  twriter.writeUInt32(input.index)
+  twriter.writeVarSlice(prevOutScript)
+  twriter.writeUInt64(value)
+  twriter.writeUInt32(input.sequence)
+  twriter.writeSlice(hashOutputs)
+  twriter.writeUInt32(this.locktime)
+  twriter.writeUInt32(hashType)
+
+  return bcrypto.hash256(twriter.tbuffer)
 }
 
 Transaction.prototype.getHash = function () {
