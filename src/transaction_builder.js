@@ -406,7 +406,7 @@ function buildInput (input, allowIncomplete) {
   if (scriptType === bscript.types.P2SH) {
     // We can remove this error later when we have a guarantee prepareInput
     // rejects unsignable scripts - it MUST be signable at this point.
-    if (P2SH.indexOf(input.redeemScriptType) === -1) {
+    if (P2SH.indexOf(input.redeemScriptType) === -1 && !allowIncomplete) {
       throw new Error('Impossible to sign this type')
     }
     p2sh = true
@@ -414,7 +414,9 @@ function buildInput (input, allowIncomplete) {
       sig = buildStack(input.redeemScriptType, input.signatures, input.pubKeys, allowIncomplete)
     }
     // If it wasn't SIGNABLE, it's witness, defer to that
-    scriptType = input.redeemScriptType
+    if (input.redeemScriptType !== undefined) {
+      scriptType = input.redeemScriptType
+    }
   }
 
   if (scriptType === bscript.types.P2WPKH) {
@@ -422,20 +424,17 @@ function buildInput (input, allowIncomplete) {
     witness = buildStack(bscript.types.P2PKH, input.signatures, input.pubKeys, allowIncomplete)
   } else if (scriptType === bscript.types.P2WSH) {
     // We can remove this check later
-    if (SIGNABLE.indexOf(input.witnessScriptType) !== -1) {
+    if (SIGNABLE.indexOf(input.witnessScriptType) === -1 && !allowIncomplete) {
+      throw new Error('Impossible to sign this type')
+    } else if (SIGNABLE.indexOf(input.witnessScriptType) !== -1) {
       witness = buildStack(input.witnessScriptType, input.signatures, input.pubKeys, allowIncomplete)
       witness.push(input.witnessScript)
-    } else {
-      // We can remove this error later when we have a guarantee prepareInput
-      // rejects unsignble scripts - it MUST be signable at this point.
-      throw new Error()
+      scriptType = input.witnessScriptType
     }
-
-    scriptType = input.witnessScriptType
   }
 
   // append redeemScript if necessary
-  if (p2sh) {
+  if (p2sh && input.redeemScript) {
     sig.push(input.redeemScript)
   }
 
@@ -578,7 +577,6 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
   var vin = this.tx.addInput(txHash, vout, options.sequence, options.scriptSig)
   this.inputs[vin] = input
   this.prevTxMap[prevTxOut] = vin
-
   return vin
 }
 

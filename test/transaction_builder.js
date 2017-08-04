@@ -366,6 +366,38 @@ describe('TransactionBuilder', function () {
       tx = tx.buildIncomplete()
       assert(tx)
     })
+
+    it('for incomplete P2SH with 0 signatures', function () {
+      var inp = Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a80400000017a91471a8ec07ff69c6c4fee489184c462a9b1b9237488700000000', 'hex') // arbitrary P2SH input
+      var inpTx = Transaction.fromBuffer(inp)
+
+      var txb = new TransactionBuilder(NETWORKS.testnet)
+      txb.addInput(inpTx, 0)
+      txb.addOutput(baddress.toOutputScript('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', NETWORKS.testnet), 1e8) // arbitrary output
+
+      txb.buildIncomplete()
+    })
+
+    it('for incomplete P2WPKH with 0 signatures', function () {
+      var inp = Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a8040000001600141a15805e1f4040c9f68ccc887fca2e63547d794b00000000', 'hex')
+      var inpTx = Transaction.fromBuffer(inp)
+
+      var txb = new TransactionBuilder(NETWORKS.testnet)
+      txb.addInput(inpTx, 0)
+      txb.addOutput(baddress.toOutputScript('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', NETWORKS.testnet), 1e8) // arbitrary output
+
+      txb.buildIncomplete()
+    })
+
+    it('for incomplete P2WSH with 0 signatures', function () {
+      var inpTx = Transaction.fromBuffer(Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a80400000022002072df76fcc0b231b94bdf7d8c25d7eef4716597818d211e19ade7813bff7a250200000000', 'hex'))
+
+      var txb = new TransactionBuilder(NETWORKS.testnet)
+      txb.addInput(inpTx, 0)
+      txb.addOutput(baddress.toOutputScript('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', NETWORKS.testnet), 1e8) // arbitrary output
+
+      txb.buildIncomplete()
+    })
   })
 
   describe('multisig', function () {
