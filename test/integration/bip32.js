@@ -49,6 +49,23 @@ describe('bitcoinjs-lib (BIP32)', function () {
     assert.equal(child2.getAddress(), '12Tyvr1U8A3ped6zwMEU5M8cx3G38sP5Au')
   })
 
+  it('can create a BIP49, bitcoin testnet, account 0, external address', function () {
+    var mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
+    var seed = bip39.mnemonicToSeed(mnemonic)
+    var root = bitcoin.HDNode.fromSeedBuffer(seed)
+
+    var path = "m/49'/1'/0'/0/0"
+    var child = root.derivePath(path)
+
+    var keyhash = bitcoin.crypto.hash160(child.getPublicKeyBuffer())
+    var scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash)
+    var addressBytes = bitcoin.crypto.hash160(scriptSig)
+    var outputScript = bitcoin.script.scriptHash.output.encode(addressBytes)
+    var address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.testnet)
+
+    assert.equal(address, '2Mww8dCYPUpKHofjgcXcBCEGmniw9CoaiD2')
+  })
+
   it('can recover a BIP32 parent private key from the parent public key, and a derived, non-hardened child private key', function () {
     function recoverParent (master, child) {
       assert(!master.keyPair.d, 'You already have the parent private key')
