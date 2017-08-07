@@ -409,12 +409,15 @@ function buildInput (input, allowIncomplete) {
     if (P2SH.indexOf(input.redeemScriptType) === -1 && !allowIncomplete) {
       throw new Error('Impossible to sign this type')
     }
-    p2sh = true
+
     if (SIGNABLE.indexOf(input.redeemScriptType) !== -1) {
       sig = buildStack(input.redeemScriptType, input.signatures, input.pubKeys, allowIncomplete)
     }
     // If it wasn't SIGNABLE, it's witness, defer to that
-    scriptType = input.redeemScriptType
+    if (input.redeemScriptType) {
+      p2sh = true
+      scriptType = input.redeemScriptType
+    }
   }
 
   if (scriptType === bscript.types.P2WPKH) {
