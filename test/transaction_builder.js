@@ -362,7 +362,7 @@ describe('TransactionBuilder', function () {
       var randomTx = Transaction.fromHex(randomTxData)
       var tx = new TransactionBuilder()
       tx.addInput(randomTx, 0)
-      tx.addOutput(baddress.toOutputScript(randomAddress), 1000)
+      tx.addOutput(randomAddress, 1000)
       tx = tx.buildIncomplete()
       assert(tx)
     })
@@ -373,7 +373,7 @@ describe('TransactionBuilder', function () {
 
       var txb = new TransactionBuilder(NETWORKS.testnet)
       txb.addInput(inpTx, 0)
-      txb.addOutput(baddress.toOutputScript('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', NETWORKS.testnet), 1e8) // arbitrary output
+      txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
 
       txb.buildIncomplete()
     })
@@ -384,7 +384,7 @@ describe('TransactionBuilder', function () {
 
       var txb = new TransactionBuilder(NETWORKS.testnet)
       txb.addInput(inpTx, 0)
-      txb.addOutput(baddress.toOutputScript('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', NETWORKS.testnet), 1e8) // arbitrary output
+      txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
 
       txb.buildIncomplete()
     })
@@ -394,7 +394,7 @@ describe('TransactionBuilder', function () {
 
       var txb = new TransactionBuilder(NETWORKS.testnet)
       txb.addInput(inpTx, 0)
-      txb.addOutput(baddress.toOutputScript('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', NETWORKS.testnet), 1e8) // arbitrary output
+      txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
 
       txb.buildIncomplete()
     })
