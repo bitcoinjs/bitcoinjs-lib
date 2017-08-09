@@ -1,5 +1,4 @@
 # BitcoinJS (bitcoinjs-lib)
-
 [![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
 [![NPM](https://img.shields.io/npm/v/bitcoinjs-lib.svg)](https://www.npmjs.org/package/bitcoinjs-lib)
 [![tip for next commit](https://tip4commit.com/projects/735.svg)](http://tip4commit.com/projects/735)
@@ -12,7 +11,6 @@ Used by over a million wallet users and the backbone for almost all Bitcoin web 
 
 
 ## Features
-
 - Clean: Pure JavaScript, concise code, easy to read.
 - Tested: Coverage > 90%, third-party integration tests.
 - Careful: Two person approval process for small, focused pull requests.
@@ -27,25 +25,22 @@ Used by over a million wallet users and the backbone for almost all Bitcoin web 
 
 
 ## Should I use this in production?
-
 If you are thinking of using the master branch of this library in production, **stop**.
 Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/bitcoinjs/bitcoinjs-lib/tags).
 
 
 ## Installation
-
-`npm install bitcoinjs-lib`
-
+``` bash
+npm install bitcoinjs-lib
+```
 
 ## Setup
-
 ### Node.js
-
-    var bitcoin = require('bitcoinjs-lib')
-
+``` javascript
+var bitcoin = require('bitcoinjs-lib')
+```
 
 ### Browser
-
 If you're familiar with how to use browserify, ignore this and proceed normally.
 These steps are advisory only,  and may not be necessary for your application.
 
@@ -85,7 +80,6 @@ uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,ECPair,Function,Numbe
 **NOTE**: If you expect this library to run on an iOS 10 device, ensure that you are using [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater.
 
 ### Flow
-
 Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-typed repository.
 
 [You can either download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_v0.17.x-/bitcoinjs-lib_v2.x.x.js) from the repo, or with the flow-typed CLI
@@ -96,33 +90,44 @@ Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-
 The definitions are complete and up to date with version 2.2.0. The definitions are maintained by [@runn1ng](https://github.com/runn1ng).
 
 ## Examples
+The below examples are implemented as integration tests, they should be very easy to understand.
+Otherwise, pull requests are appreciated.
+Some examples interact (via HTTPS) with a 3rd Party Blockchain Provider (3PBP).
 
-The below examples are implemented as integration tests, they should be very easy to understand.  Otherwise, pull requests are appreciated.
-
-- [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L9)
-- [Generate an address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L20)
-- [Generate an address and WIF for Litecoin](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L30)
-- [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L43)
-- [Create a Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L50)
-- [Create an OP RETURN transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/advanced.js#L24)
-- [Create a 2-of-3 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/multisig.js#L9)
-- [Spend from a 2-of-4 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/multisig.js#L25)
-- [Generate a single-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/stealth.js)
-- [Generate a dual-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/stealth.js)
-- [Create a BIP32 wallet external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/8e1c69183f74acce06d6e35b614e504b18bb04e1/test/integration/bip32.js)
-- [Create a BIP44, bitcoin, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/8e1c69183f74acce06d6e35b614e504b18bb04e1/test/integration/bip32.js)
-- [Recover a BIP32 parent private key from the parent public key and a derived non-hardened child private key](https://github.com/bitcoinjs/bitcoinjs-lib/blob/8e1c69183f74acce06d6e35b614e504b18bb04e1/test/integration/bip32.js)
-- [Recover a Private key from duplicate R values in a signature](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/crypto.js)
-- [Create a CLTV locked transaction where the expiry is past](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/cltv.js#L36)
-- [Create a CLTV locked transaction where the parties bypass the expiry](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/cltv.js#L70)
-- [Create a CLTV locked transaction which fails due to expiry in the future](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/cltv.js#L102)
-- [Use BIP39 to generate a BIP32 wallet address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/dd3e501/test/integration/bip32.js)
+- [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/addresses.js#L12)
+- [Generate an address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/addresses.js#L19)
+- [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/addresses.js#L29)
+- [Generate a 2-of-3 multisig P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/addresses.js#L36)
+- [Support the retrieval of transactions for an address (3rd party blockchain)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/addresses.js#L52)
+- [Generate a Testnet address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/addresses.js#L73)
+- [Generate a Litecoin address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/addresses.js#L83)
+- [Create a 1-to-1 Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/transactions.js#L14)
+- [Create a 2-to-2 Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/transactions.js#L28)
+- [Create (and broadcast via 3PBP) a typical Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/transactions.js#L46)
+- [Create (and broadcast via 3PBP) a Transaction with an OP\_RETURN output](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/transactions.js#L88)
+- [Create (and broadcast via 3PBP) a Transaction with a 2-of-4 multisig P2SH input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/transactions.js#L115)
+- [Import a BIP32 testnet xpriv and export to WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/bip32.js#L8)
+- [Export a BIP32 xpriv, then import it](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/bip32.js#L15)
+- [Export a BIP32 xpub](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/bip32.js#L26)
+- [Create a BIP32, bitcoin, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/bip32.js#L35)
+- [Create a BIP44, bitcoin, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/bip32.js#L50)
+- [Create a BIP49, bitcoin testnet, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/bip32.js#L66)
+- [Use BIP39 to generate BIP32 addresses](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/bip32.js#L83)
+- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/cltv.js#L37)
+- [Create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/cltv.js#L71)
+- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/cltv.js#L104)
+- [Recover a private key from duplicate R values](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/crypto.js#L14)
+- [Recover a BIP32 parent private key from the parent public key, and a derived, non-hardened child private key](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/crypto.js#L115)
+- [Generate a single-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/stealth.js#L70:)
+- [Generate a single-key stealth address (randomly)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/stealth.js#L89:)
+- [Recover parent recipient.d, if a derived private key is leaked (and nonce was revealed)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/stealth.js#L105)
+- [Generate a dual-key stealth address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/stealth.js#L122)
+- [Generate a dual-key stealth address (randomly)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/ae8422d/test/integration/stealth.js#L145)
 
 If you have a use case that you feel could be listed here, please [ask for it](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new)!
 
 
 ## Projects utilizing BitcoinJS
-
 - [BitAddress](https://www.bitaddress.org)
 - [Blockchain.info](https://blockchain.info/wallet)
 - [Blocktrail](https://www.blocktrail.com/)
@@ -137,7 +142,6 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 
 
 ## Contributors
-
 Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
 Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of the library from 0.1.3 to 1.0.0.
 
@@ -145,7 +149,6 @@ Since then, many people have contributed. [Click here](https://github.com/bitcoi
 
 
 ## Contributing
-
 We are always accepting of pull requests, but we do adhere to specific standards in regards to coding style, test driven development and commit messages.
 
 Please make your best effort to adhere to these when contributing to save on trivial corrections.
@@ -153,12 +156,12 @@ Please make your best effort to adhere to these when contributing to save on tri
 
 ### Running the test suite
 
-    $ npm test
-    $ npm run-script coverage
-
+``` bash
+npm test
+npm run-script coverage
+```
 
 ## Complementing Libraries
-
 - [BIP21](https://github.com/bitcoinjs/bip21) - A BIP21 compatible URL encoding utility library
 - [BIP38](https://github.com/bitcoinjs/bip38) - Passphrase-protected private keys
 - [BIP39](https://github.com/bitcoinjs/bip39) - Mnemonic generation for deterministic keys
@@ -175,16 +178,8 @@ Please make your best effort to adhere to these when contributing to save on tri
 
 
 ## Alternatives
-
 - [Bitcore](https://github.com/bitpay/bitcore)
 - [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
 
 
 ## LICENSE [MIT](LICENSE)
-
-
-## Copyright
-
-BitcoinJS (c) 2011-2016 bitcoinjs-lib contributors
-
-Released under MIT license
