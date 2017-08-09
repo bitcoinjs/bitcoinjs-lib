@@ -100,8 +100,8 @@ The definitions are complete and up to date with version 2.2.0. The definitions 
 The below examples are implemented as integration tests, they should be very easy to understand.  Otherwise, pull requests are appreciated.
 
 - [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L9)
-- [Generate a address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L20)
-- [Generate a address and WIF for Litecoin](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L30)
+- [Generate an address from a SHA256 hash](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L20)
+- [Generate an address and WIF for Litecoin](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L30)
 - [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L43)
 - [Create a Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/basic.js#L50)
 - [Create an OP RETURN transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/d853806/test/integration/advanced.js#L24)

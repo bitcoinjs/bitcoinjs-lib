@@ -1,13 +1,12 @@
+var async = require('async')
 var bitcoin = require('../../')
 var Blockchain = require('cb-http-client')
-var BLOCKTRAIL_API_KEY = process.env.BLOCKTRAIL_API_KEY || 'c0bd8155c66e3fb148bb1664adc1e4dacd872548'
 var coinSelect = require('coinselect')
 var typeforce = require('typeforce')
 var types = require('../../src/types')
 
-var mainnet = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/BTC', { api_key: BLOCKTRAIL_API_KEY })
-var testnet = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/tBTC', { api_key: BLOCKTRAIL_API_KEY })
-
+var BLOCKTRAIL_API_KEY = process.env.BLOCKTRAIL_API_KEY || 'c0bd8155c66e3fb148bb1664adc1e4dacd872548'
+var blockchain = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/tBTC', { api_key: BLOCKTRAIL_API_KEY })
 var kpNetwork = bitcoin.networks.testnet
 var keyPair = bitcoin.ECPair.fromWIF('cQqjeq2rxqwnqwMewJhkNtJDixtX8ctA4bYoWHdxY4xRPVvAEjmk', kpNetwork)
 var kpAddress = keyPair.getAddress()
@@ -37,11 +36,11 @@ function fundAddress (unspents, outputs, callback) {
   var tx = txb.build()
   var txId = tx.getId()
 
-  testnet.transactions.propagate(tx.toHex(), function (err) {
+  blockchain.transactions.propagate(tx.toHex(), function (err) {
     if (err) return callback(err)
 
     // FIXME: @blocktrail can be very slow, give it time
-    setTimeout(() => {
+    setTimeout(function () {
       callback(null, outputs.map(function (_, i) {
         return { txId: txId, vout: i }
       }))
@@ -49,8 +48,8 @@ function fundAddress (unspents, outputs, callback) {
   })
 }
 
-testnet.faucetMany = function faucetMany (outputs, callback) {
-  testnet.addresses.unspents(kpAddress, function (err, unspents) {
+blockchain.faucetMany = function faucetMany (outputs, callback) {
+  blockchain.addresses.unspents(kpAddress, function (err, unspents) {
     if (err) return callback(err)
 
     typeforce([{
@@ -63,15 +62,28 @@ testnet.faucetMany = function faucetMany (outputs, callback) {
   })
 }
 
-testnet.faucet = function faucet (address, value, callback) {
-  testnet.faucetMany([{ address: address, value: value }], function (err, unspents) {
+blockchain.faucet = function faucet (address, value, callback) {
+  blockchain.faucetMany([{ address: address, value: value }], function (err, unspents) {
     callback(err, unspents && unspents[0])
   })
 }
 
-testnet.RETURN = kpAddress
+// verify TX was accepted
+blockchain.verify = function (address, txId, value, done) {
+  async.retry(5, function (callback) {
+    setTimeout(function () {
+      // check that the above transaction included the intended address
+      blockchain.addresses.unspents(blockchain.RETURN_ADDRESS, function (err, unspents) {
+        if (err) return callback(err)
+        if (!unspents.some(function (x) {
+          return x.txId === txId && x.value === value
+        })) return callback(new Error('Could not find unspent'))
 
-module.exports = {
-  m: mainnet,
-  t: testnet
+        callback()
+      })
+    }, 600)
+  }, done)
 }
+
+blockchain.RETURN_ADDRESS = kpAddress
+module.exports = blockchain

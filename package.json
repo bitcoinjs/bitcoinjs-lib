@@ -62,7 +62,7 @@
     "pushdata-bitcoin": "^1.0.1",
     "randombytes": "^2.0.1",
     "safe-buffer": "^5.0.1",
-    "typeforce": "^1.8.7",
+    "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.0.4",
     "wif": "^2.0.1"
   },
@@ -72,6 +72,7 @@
     "bs58": "^4.0.0",
     "cb-http-client": "^0.2.0",
     "coinselect": "^3.1.1",
+    "dhttp": "^2.3.5",
     "minimaldata": "^1.0.2",
     "mocha": "^3.1.0",
     "nyc": "^10.2.0",

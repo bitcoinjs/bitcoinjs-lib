@@ -1,13 +1,8 @@
 /* global describe, it */
 
 var assert = require('assert')
-var bigi = require('bigi')
 var bip39 = require('bip39')
 var bitcoin = require('../../')
-var crypto = require('crypto')
-
-var ecurve = require('ecurve')
-var secp256k1 = ecurve.getCurveByName('secp256k1')
 
 describe('bitcoinjs-lib (BIP32)', function () {
   it('can import a BIP32 testnet xpriv and export to WIF', function () {
@@ -64,53 +59,6 @@ describe('bitcoinjs-lib (BIP32)', function () {
     var address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.testnet)
 
     assert.equal(address, '2Mww8dCYPUpKHofjgcXcBCEGmniw9CoaiD2')
-  })
-
-  it('can recover a BIP32 parent private key from the parent public key, and a derived, non-hardened child private key', function () {
-    function recoverParent (master, child) {
-      assert(!master.keyPair.d, 'You already have the parent private key')
-      assert(child.keyPair.d, 'Missing child private key')
-
-      var curve = secp256k1
-      var QP = master.keyPair.Q
-      var serQP = master.keyPair.getPublicKeyBuffer()
-
-      var d1 = child.keyPair.d
-      var d2
-      var data = Buffer.alloc(37)
-      serQP.copy(data, 0)
-
-      // search index space until we find it
-      for (var i = 0; i < bitcoin.HDNode.HIGHEST_BIT; ++i) {
-        data.writeUInt32BE(i, 33)
-
-        // calculate I
-        var I = crypto.createHmac('sha512', master.chainCode).update(data).digest()
-        var IL = I.slice(0, 32)
-        var pIL = bigi.fromBuffer(IL)
-
-        // See hdnode.js:273 to understand
-        d2 = d1.subtract(pIL).mod(curve.n)
-
-        var Qp = new bitcoin.ECPair(d2).Q
-        if (Qp.equals(QP)) break
-      }
-
-      var node = new bitcoin.HDNode(new bitcoin.ECPair(d2), master.chainCode, master.network)
-      node.depth = master.depth
-      node.index = master.index
-      node.masterFingerprint = master.masterFingerprint
-      return node
-    }
-
-    var seed = crypto.randomBytes(32)
-    var master = bitcoin.HDNode.fromSeedBuffer(seed)
-    var child = master.derive(6) // m/6
-
-    // now for the recovery
-    var neuteredMaster = master.neutered()
-    var recovered = recoverParent(neuteredMaster, child)
-    assert.strictEqual(recovered.toBase58(), master.toBase58())
   })
 
   it('can use BIP39 to generate BIP32 wallet address', function () {
