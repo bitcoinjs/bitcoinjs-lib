@@ -141,13 +141,6 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 - [Skyhook ATM](http://projectskyhook.com)
 
 
-## Contributors
-Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
-Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of the library from 0.1.3 to 1.0.0.
-
-Since then, many people have contributed. [Click here](https://github.com/bitcoinjs/bitcoinjs-lib/graphs/contributors) to see the comprehensive list.
-
-
 ## Contributing
 We are always accepting of pull requests, but we do adhere to specific standards in regards to coding style, test driven development and commit messages.
 
