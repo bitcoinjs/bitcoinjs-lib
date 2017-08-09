@@ -165,7 +165,6 @@ npm run-script coverage
 - [Base58 Check](https://github.com/bitcoinjs/bs58check) - Base58 check encoding/decoding
 - [Bech32](https://github.com/bitcoinjs/bech32) - A BIP173 compliant Bech32 encoding library
 - [coinselect](https://github.com/bitcoinjs/coinselect) - A fee-optimizing, transaction input selection module for bitcoinjs-lib.
-- [insight](https://github.com/bitpay/insight) - A bitcoin blockchain API for web wallets.
 - [merkle-lib](https://github.com/bitcoinjs/merkle-lib) - A performance conscious library for merkle root and tree calculations.
 - [minimaldata](https://github.com/bitcoinjs/minimaldata) - A module to check bitcoin policy: SCRIPT_VERIFY_MINIMALDATA
 
