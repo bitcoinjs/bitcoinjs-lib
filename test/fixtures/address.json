@@ -1,5 +1,5 @@
 {
-  "valid": [
+  "standard": [
     {
       "network": "bitcoin",
       "version": 0,
@@ -43,7 +43,96 @@
       "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
     }
   ],
+  "bech32": [
+    {
+      "address": "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",
+      "prefix": "bc",
+      "program": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "version": 0
+    },
+    {
+      "address": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7",
+      "prefix": "tb",
+      "program": "1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262",
+      "version": 0
+    },
+    {
+      "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx",
+      "prefix": "bc",
+      "program": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6",
+      "version": 1
+    },
+    {
+      "address": "BC1SW50QA3JX3S",
+      "prefix": "bc",
+      "program": "751e",
+      "version": 16
+    },
+    {
+      "address": "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj",
+      "prefix": "bc",
+      "program": "751e76e8199196d454941c45d1b3a323",
+      "version": 2
+    },
+    {
+      "address": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
+      "prefix": "tb",
+      "program": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433",
+      "version": 0
+    }
+  ],
   "invalid": {
+    "bech32": [
+      {
+        "address": "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5",
+        "exception": "Invalid checksum"
+      },
+      {
+        "address": "BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2",
+        "prefix": "bc",
+        "version": 17,
+        "program": "751e76e8199196d454941c45d1b3a323f1433bd6",
+        "exception": "Invalid version \\(17\\)"
+      },
+      {
+        "address": "BC1SW50QA3JX3S",
+        "prefix": "foo",
+        "exception": "Expected foo, got bc"
+      },
+      {
+        "address": "bc1rw5uspcuh",
+        "prefix": "bc",
+        "version": 1,
+        "program": "75",
+        "exception": "Program too short"
+      },
+      {
+        "address": "bc10w508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw5rljs90",
+        "prefix": "bc",
+        "version": 1,
+        "program": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd675",
+        "exception": "Program too long"
+      },
+      {
+        "address": "BC1QR508D6QEJXTDG4Y5R3ZARVARYV98GJ9P",
+        "prefix": "bc",
+        "version": 0,
+        "program": "1d1e76e8199196d454941c45d1b3a323",
+        "exception": "Unknown program"
+      },
+      {
+        "address": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sL5k7",
+        "exception": "Mixed-case string"
+      },
+      {
+        "address": "tb1pw508d6qejxtdg4y5r3zarqfsj6c3",
+        "exception": "Excess padding"
+      },
+      {
+        "address": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv",
+        "exception": "Non-zero padding"
+      }
+    ],
     "fromBase58Check": [
       {
         "address": "7SeEnXWPaCCALbVrTnszCVGfRU8cGfx",
