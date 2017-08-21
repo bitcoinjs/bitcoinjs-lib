@@ -11,7 +11,7 @@ function rng () { return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
 describe('bitcoinjs-lib (addresses)', function () {
   it('can generate a random address', function () {
     var keyPair = bitcoin.ECPair.makeRandom({ rng: rng })
-    var address = keyPair.getAddress()
+    var address = bitcoin.address.pubKeyHash.fromKeyPair(keyPair)
 
     assert.strictEqual(address, '1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64')
   })
@@ -21,14 +21,14 @@ describe('bitcoinjs-lib (addresses)', function () {
     var d = bigi.fromBuffer(hash)
 
     var keyPair = new bitcoin.ECPair(d)
-    var address = keyPair.getAddress()
+    var address = bitcoin.address.pubKeyHash.fromKeyPair(keyPair)
 
     assert.strictEqual(address, '1C7zdTfnkzmr13HfA2vNm5SJYRK6nEKyq8')
   })
 
   it('can import an address via WIF', function () {
     var keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
-    var address = keyPair.getAddress()
+    var address = bitcoin.address.pubKeyHash.fromKeyPair(keyPair)
 
     assert.strictEqual(address, '19AAjaTUbRjQCMuVczepkoPswiZRhjtg31')
   })
@@ -41,18 +41,14 @@ describe('bitcoinjs-lib (addresses)', function () {
     ].map(function (hex) { return Buffer.from(hex, 'hex') })
 
     var redeemScript = bitcoin.script.multisig.output.encode(2, pubKeys) // 2 of 3
-    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey)
+    var address = bitcoin.address.scriptHash.fromRedeemScript(redeemScript)
 
     assert.strictEqual(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7')
   })
 
   it('can generate a SegWit address', function () {
     var keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
-    var pubKey = keyPair.getPublicKeyBuffer()
-
-    var scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey)
+    var address = bitcoin.address.witnessPubKeyHash.fromKeyPair(keyPair)
 
     assert.strictEqual(address, 'bc1qt97wqg464zrhnx23upykca5annqvwkwujjglky')
   })
@@ -60,10 +56,8 @@ describe('bitcoinjs-lib (addresses)', function () {
   it('can generate a SegWit address (via P2SH)', function () {
     var keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
     var pubKey = keyPair.getPublicKeyBuffer()
-
-    var witnessScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey))
-    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(witnessScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey)
+    var redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey))
+    var address = bitcoin.address.scriptHash.fromRedeemScript(redeemScript)
 
     assert.strictEqual(address, '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53')
   })
@@ -77,8 +71,7 @@ describe('bitcoinjs-lib (addresses)', function () {
     ].map(function (hex) { return Buffer.from(hex, 'hex') })
 
     var witnessScript = bitcoin.script.multisig.output.encode(3, pubKeys) // 3 of 4
-    var scriptPubKey = bitcoin.script.witnessScriptHash.output.encode(bitcoin.crypto.sha256(witnessScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey)
+    var address = bitcoin.address.witnessScriptHash.fromWitnessScript(witnessScript)
 
     assert.strictEqual(address, 'bc1q75f6dv4q8ug7zhujrsp5t0hzf33lllnr3fe7e2pra3v24mzl8rrqtp3qul')
   })
@@ -91,15 +84,14 @@ describe('bitcoinjs-lib (addresses)', function () {
 
     var witnessScript = bitcoin.script.multisig.output.encode(2, pubKeys) // 2 of 2
     var redeemScript = bitcoin.script.witnessScriptHash.output.encode(bitcoin.crypto.sha256(witnessScript))
-    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey)
+    var address = bitcoin.address.scriptHash.fromRedeemScript(redeemScript)
 
     assert.strictEqual(address, '3P4mrxQfmExfhxqjLnR2Ah4WES5EB1KBrN')
   })
 
   it('can support the retrieval of transactions for an address (3rd party blockchain)', function (done) {
     var keyPair = bitcoin.ECPair.makeRandom()
-    var address = keyPair.getAddress()
+    var address = bitcoin.address.pubKeyHash.fromKeyPair(keyPair)
 
     dhttp({
       method: 'POST',
@@ -122,7 +114,7 @@ describe('bitcoinjs-lib (addresses)', function () {
     var testnet = bitcoin.networks.testnet
     var keyPair = bitcoin.ECPair.makeRandom({ network: testnet, rng: rng })
     var wif = keyPair.toWIF()
-    var address = keyPair.getAddress()
+    var address = bitcoin.address.pubKeyHash.fromKeyPair(keyPair)
 
     assert.strictEqual(address, 'mubSzQNtZfDj1YdNP6pNDuZy6zs6GDn61L')
     assert.strictEqual(wif, 'cRgnQe9MUu1JznntrLaoQpB476M8PURvXVQB5R2eqms5tXnzNsrr')
@@ -132,7 +124,7 @@ describe('bitcoinjs-lib (addresses)', function () {
     var litecoin = bitcoin.networks.litecoin
     var keyPair = bitcoin.ECPair.makeRandom({ network: litecoin, rng: rng })
     var wif = keyPair.toWIF()
-    var address = keyPair.getAddress()
+    var address = bitcoin.address.pubKeyHash.fromKeyPair(keyPair)
 
     assert.strictEqual(address, 'LZJSxZbjqJ2XVEquqfqHg1RQTDdfST5PTn')
     assert.strictEqual(wif, 'T7A4PUSgTDHecBxW1ZiYFrDNRih2o7M8Gf9xpoCgudPF9gDiNvuS')
