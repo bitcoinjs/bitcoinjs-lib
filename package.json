@@ -53,6 +53,7 @@
   "dependencies": {
     "bech32": "0.0.3",
     "bigi": "^1.4.0",
+    "bech32": "git@github.com:bitcoinjs/bech32.git#81bc22761b3c8d286d6d8dc7bc10bda855adeb78",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.3.0",
     "bs58check": "^2.0.0",

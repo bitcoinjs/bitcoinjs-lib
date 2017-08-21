@@ -1,0 +1,65 @@
+{
+  "addresses": {
+    "valid": [
+      {
+        "string": "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",
+        "prefix": "bc",
+        "hex": "751e76e8199196d454941c45d1b3a323f1433bd6",
+        "version": 0
+      },
+      {
+        "string": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7",
+        "prefix": "tb",
+        "hex": "1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262",
+        "version": 0
+      },
+      {
+        "string": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx",
+        "prefix": "bc",
+        "hex": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6",
+        "version": 1
+      },
+      {
+        "string": "BC1SW50QA3JX3S",
+        "prefix": "bc",
+        "hex": "751e",
+        "version": 16
+      },
+      {
+        "string": "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj",
+        "prefix": "bc",
+        "hex": "751e76e8199196d454941c45d1b3a323",
+        "version": 2
+      },
+      {
+        "string": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
+        "prefix": "tb",
+        "hex": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433",
+        "version": 0
+      }
+    ],
+    "invalid": [
+      "tc1qw508d6qejxtdg4y5r3zarvary0c5xw7kg3g4ty",
+      "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5",
+      "BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2",
+      "bc1rw5uspcuh",
+      "bc10w508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw5rljs90",
+      "BC1QR508D6QEJXTDG4Y5R3ZARVARYV98GJ9P",
+      "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sL5k7",
+      "tb1pw508d6qejxtdg4y5r3zarqfsj6c3",
+      "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv"
+    ]
+  },
+  "program": {
+    "invalid": [
+      {
+        "version": 0,
+        "program": "000102030405060708090001020304050607080900"
+      },
+      {
+        "version": 1,
+        "program": "0001020304050607080900010203040506070809000102030405060708090001020304050607080900010203040506070809000102030405060708090001020304050607080900010203040506070809"
+      }
+    ]
+  }
+}
