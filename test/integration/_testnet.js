@@ -11,11 +11,12 @@ var blockchain = new Blockchain('https://api.blocktrail.com/cb/v0.2.1/tBTC', { a
 var kpNetwork = bitcoin.networks.testnet
 var keyPair = bitcoin.ECPair.fromWIF('cQqjeq2rxqwnqwMewJhkNtJDixtX8ctA4bYoWHdxY4xRPVvAEjmk', kpNetwork)
 var kpAddress = keyPair.getAddress()
+var conflicts = {}
 
 function fundAddress (unspents, outputs, callback) {
   // avoid too-long-mempool-chain
   unspents = unspents.filter(function (x) {
-    return x.confirmations > 0
+    return x.confirmations > 0 && !conflicts[x.txId + x.vout]
   })
 
   var result = coinSelect(unspents, outputs, 10)
@@ -23,6 +24,7 @@ function fundAddress (unspents, outputs, callback) {
 
   var txb = new bitcoin.TransactionBuilder(kpNetwork)
   result.inputs.forEach(function (x) {
+    conflicts[x.txId + x.vout] = true
     txb.addInput(x.txId, x.vout)
   })
 
@@ -68,7 +70,7 @@ blockchain.faucet = function faucet (address, value, callback) {
 }
 
 // verify TX was accepted
-blockchain.verify = function (address, txId, value, done) {
+blockchain.verify = function verify (address, txId, value, done) {
   async.retry(5, function (callback) {
     setTimeout(function () {
       // check that the above transaction included the intended address
@@ -85,7 +87,7 @@ blockchain.verify = function (address, txId, value, done) {
   }, done)
 }
 
-blockchain.transactions.propagate = function (txHex, callback) {
+blockchain.transactions.propagate = function broadcast (txHex, callback) {
   dhttp({
     method: 'POST',
     url: 'https://api.ei8ht.com.au:9443/3/pushtx',
