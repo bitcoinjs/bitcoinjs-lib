@@ -2,6 +2,7 @@ var async = require('async')
 var bitcoin = require('../../')
 var Blockchain = require('cb-http-client')
 var coinSelect = require('coinselect')
+var dhttp = require('dhttp/200')
 var typeforce = require('typeforce')
 var types = require('../../src/types')
 
@@ -26,6 +27,7 @@ function fundAddress (unspents, outputs, callback) {
   })
 
   result.outputs.forEach(function (x) {
+    if (x.address) console.warn('funding ' + x.address + ' w/ ' + x.value)
     txb.addOutput(x.address || kpAddress, x.value)
   })
 
@@ -34,17 +36,14 @@ function fundAddress (unspents, outputs, callback) {
   })
 
   var tx = txb.build()
-  var txId = tx.getId()
 
   blockchain.transactions.propagate(tx.toHex(), function (err) {
     if (err) return callback(err)
 
-    // FIXME: @blocktrail can be very slow, give it time
-    setTimeout(function () {
-      callback(null, outputs.map(function (_, i) {
-        return { txId: txId, vout: i }
-      }))
-    }, 3000)
+    var txId = tx.getId()
+    callback(null, outputs.map(function (x, i) {
+      return { txId: txId, vout: i, value: x.value }
+    }))
   })
 }
 
@@ -73,16 +72,25 @@ blockchain.verify = function (address, txId, value, done) {
   async.retry(5, function (callback) {
     setTimeout(function () {
       // check that the above transaction included the intended address
-      blockchain.addresses.unspents(blockchain.RETURN_ADDRESS, function (err, unspents) {
+      dhttp({
+        method: 'POST',
+        url: 'https://api.ei8ht.com.au:9443/3/txs',
+        body: [txId]
+      }, function (err, result) {
         if (err) return callback(err)
-        if (!unspents.some(function (x) {
-          return x.txId === txId && x.value === value
-        })) return callback(new Error('Could not find unspent'))
-
+        if (!result[txId]) return callback(new Error('Could not find ' + txId))
         callback()
       })
-    }, 600)
+    }, 400)
   }, done)
+}
+
+blockchain.transactions.propagate = function (txHex, callback) {
+  dhttp({
+    method: 'POST',
+    url: 'https://api.ei8ht.com.au:9443/3/pushtx',
+    body: txHex
+  }, callback)
 }
 
 blockchain.RETURN_ADDRESS = kpAddress
