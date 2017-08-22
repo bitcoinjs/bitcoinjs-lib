@@ -183,4 +183,5 @@ npm run-script coverage
 - [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
 
 
-## LICENSE [MIT](LICENSE)
+## License 
+[MIT](LICENSE)
