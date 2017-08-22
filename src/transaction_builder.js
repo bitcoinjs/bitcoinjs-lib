@@ -676,6 +676,8 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   var signed = input.pubKeys.some(function (pubKey, i) {
     if (!kpPubKey.equals(pubKey)) return false
     if (input.signatures[i]) throw new Error('Signature already exists')
+    if (!keyPair.compressed &&
+      input.signType === scriptTypes.P2WPKH) throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
 
     input.signatures[i] = keyPair.sign(signatureHash).toScriptSignature(hashType)
     return true
