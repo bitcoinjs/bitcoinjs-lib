@@ -401,7 +401,6 @@
           }
         ]
       },
-
       {
         "description": "Transaction w/ P2WSH|P2PK -> P2PKH",
         "txHex": "010000000001014533a3bc1e039bd787656068e135aaee10aee95a64776bfc047ee6a7c1ebdd2f0000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac02473044022039725bb7291a14dd182dafdeaf3ea0d5c05c34f4617ccbaa46522ca913995c4e02203b170d072ed2e489e7424ad96d8fa888deb530be2d4c5d9aaddf111a7efdb2d3012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac00000000",
@@ -1835,6 +1834,29 @@
           {
             "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "BIP143 rejects uncompressed public keys in P2WPKH or P2WSH",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_0 15a71ffa7b5bb70cddefcf364494071022efe390",
+            "signs": [
+              {
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "value": 10000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
           }
         ]
       },
