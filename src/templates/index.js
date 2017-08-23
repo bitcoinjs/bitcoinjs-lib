@@ -1,4 +1,3 @@
-var decompile = require('../script').decompile
 var multisig = require('./multisig')
 var nullData = require('./nulldata')
 var pubKey = require('./pubkey')
@@ -25,35 +24,26 @@ function classifyOutput (script) {
   if (witnessScriptHash.output.check(script)) return types.P2WSH
   if (pubKeyHash.output.check(script)) return types.P2PKH
   if (scriptHash.output.check(script)) return types.P2SH
-
-  // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
-  if (multisig.output.check(chunks)) return types.MULTISIG
-  if (pubKey.output.check(chunks)) return types.P2PK
-  if (witnessCommitment.output.check(chunks)) return types.WITNESS_COMMITMENT
-  if (nullData.output.check(chunks)) return types.NULLDATA
+  if (multisig.output.check(script)) return types.MULTISIG
+  if (pubKey.output.check(script)) return types.P2PK
+  if (witnessCommitment.output.check(script)) return types.WITNESS_COMMITMENT
+  if (nullData.output.check(script)) return types.NULLDATA
 
   return types.NONSTANDARD
 }
 
 function classifyInput (script, allowIncomplete) {
-  // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
-
-  if (pubKeyHash.input.check(chunks)) return types.P2PKH
-  if (scriptHash.input.check(chunks, allowIncomplete)) return types.P2SH
-  if (multisig.input.check(chunks, allowIncomplete)) return types.MULTISIG
-  if (pubKey.input.check(chunks)) return types.P2PK
+  if (pubKeyHash.input.check(script)) return types.P2PKH
+  if (scriptHash.input.check(script, allowIncomplete)) return types.P2SH
+  if (multisig.input.check(script, allowIncomplete)) return types.MULTISIG
+  if (pubKey.input.check(script)) return types.P2PK
 
   return types.NONSTANDARD
 }
 
-function classifyWitness (script, allowIncomplete) {
-  // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
-
-  if (witnessPubKeyHash.input.check(chunks)) return types.P2WPKH
-  if (witnessScriptHash.input.check(chunks, allowIncomplete)) return types.P2WSH
+function classifyWitness (witness, allowIncomplete) {
+  if (witnessPubKeyHash.input.checkWitness(witness)) return types.P2WPKH
+  if (witnessScriptHash.input.checkWitness(witness, allowIncomplete)) return types.P2WSH
 
   return types.NONSTANDARD
 }

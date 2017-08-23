@@ -1,7 +1,7 @@
 // OP_0 [signatures ...]
 
-var Buffer = require('safe-buffer').Buffer
 var bscript = require('../../script')
+var types = require('../../types')
 var typeforce = require('typeforce')
 var OPS = require('bitcoin-ops')
 
@@ -9,8 +9,9 @@ function partialSignature (value) {
   return value === OPS.OP_0 || bscript.isCanonicalSignature(value)
 }
 
-function check (script, allowIncomplete) {
-  var chunks = bscript.decompile(script)
+// check
+function checkRaw (chunks, allowIncomplete) {
+  typeforce(types.Array, chunks)
   if (chunks.length < 2) return false
   if (chunks[0] !== OPS.OP_0) return false
 
@@ -20,11 +21,9 @@ function check (script, allowIncomplete) {
 
   return chunks.slice(1).every(bscript.isCanonicalSignature)
 }
-check.toJSON = function () { return 'multisig input' }
+checkRaw.toJSON = function () { return 'multisig input' }
 
-var EMPTY_BUFFER = Buffer.allocUnsafe(0)
-
-function encodeStack (signatures, scriptPubKey) {
+function encodeRaw (signatures, scriptPubKey) {
   typeforce([partialSignature], signatures)
 
   if (scriptPubKey) {
@@ -39,27 +38,16 @@ function encodeStack (signatures, scriptPubKey) {
     }
   }
 
-  return [].concat(EMPTY_BUFFER, signatures)
+  return [].concat(OPS.OP_0, signatures)
 }
 
-function encode (signatures, scriptPubKey) {
-  return bscript.compile(encodeStack(signatures, scriptPubKey))
-}
-
-function decodeStack (stack, allowIncomplete) {
-  typeforce(check, stack, allowIncomplete)
-  return stack.slice(1)
-}
-
-function decode (buffer, allowIncomplete) {
-  var stack = bscript.decompile(buffer)
-  return decodeStack(stack, allowIncomplete)
+function decodeRaw (chunks, allowIncomplete) {
+  typeforce(checkRaw, chunks, allowIncomplete)
+  return chunks.slice(1)
 }
 
 module.exports = {
-  check: check,
-  decode: decode,
-  decodeStack: decodeStack,
-  encode: encode,
-  encodeStack: encodeStack
+  checkRaw: checkRaw,
+  decodeRaw: decodeRaw,
+  encodeRaw: encodeRaw
 }

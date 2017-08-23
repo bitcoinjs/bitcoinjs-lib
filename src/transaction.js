@@ -484,7 +484,7 @@ Transaction.prototype.setInputScript = function (index, scriptSig) {
 }
 
 Transaction.prototype.setWitness = function (index, witness) {
-  typeforce(types.tuple(types.Number, [types.Buffer]), arguments)
+  typeforce(types.tuple(types.Number, types.Stack), arguments)
 
   this.ins[index].witness = witness
 }
