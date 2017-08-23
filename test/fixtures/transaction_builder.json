@@ -1327,11 +1327,68 @@
           }
         ],
         "locktime": 0
+      },
+      {
+        "description": "P2SH(P2WSH(multisig 2-of-2)), incomplete",
+        "network": "testnet",
+        "txHex": "010000000001012915794541ffa77ca795ec7c23ee989a63ccd1a71fab73e1c27ed20c4b6c69a4010000002322002024376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5afffffffff01b8820100000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac040047304402203b334650f1f13574a1c2edc76421867f7252950968bf0293c8b3ed086ab89e3d0220565cafab0a5044617e94756b948241525b2483a52504e1064d29f641fb18129e010047522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea1952ae00000000",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529",
+            "vout": 1,
+            "signs": [
+              {
+                "keyPair": "cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS",
+                "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
+                "value": 100000
+              }
+            ],
+            "prevTxScript": "OP_HASH160 b64f1a3eacc1c8515592a6f10457e8ff90e4db6a OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 99000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2WSH(multisig 2-of-2))",
+        "network": "testnet",
+        "txHex": "010000000001012915794541ffa77ca795ec7c23ee989a63ccd1a71fab73e1c27ed20c4b6c69a4010000002322002024376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5afffffffff01b8820100000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac040047304402203b334650f1f13574a1c2edc76421867f7252950968bf0293c8b3ed086ab89e3d0220565cafab0a5044617e94756b948241525b2483a52504e1064d29f641fb18129e0148304502210096e859827fb629b6547658c613f7c8298de151513d74b224560aa8608d521d600220736fb5564322237716ec940de44c67c428198adf5dedfda183c17aa77cd28d640147522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea1952ae00000000",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529",
+            "vout": 1,
+            "signs": [
+              {
+                "keyPair": "cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS",
+                "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
+                "value": 100000
+              },
+              {
+                "keyPair": "cTUFsNeVd8TKU4yREN8nMdViNnHyNvCCYVRmRUmkMLgomiMWTiii",
+                "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
+                "value": 100000
+              }
+            ],
+            "prevTxScript": "OP_HASH160 b64f1a3eacc1c8515592a6f10457e8ff90e4db6a OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 99000
+          }
+        ]
       }
-
-
-    ]
-    ,
+    ],
     "fromTransaction": [
       {
         "description": "Transaction w/ scriptHash(multisig 2-of-2) -> OP_RETURN | 1 OP_0, no signatures",
