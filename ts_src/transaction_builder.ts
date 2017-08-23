@@ -101,6 +101,7 @@ export class TransactionBuilder {
   static fromTransaction(
     transaction: Transaction,
     network?: Network,
+    bitcoincash?: boolean,
   ): TransactionBuilder {
     const txb = new TransactionBuilder(network);
 
@@ -124,7 +125,7 @@ export class TransactionBuilder {
 
     // fix some things not possible through the public API
     txb.__INPUTS.forEach((input, i) => {
-      fixMultisigOrder(input, transaction, i);
+      fixMultisigOrder(input, transaction, i, input.value, bitcoincash);
     });
 
     return txb;
@@ -583,6 +584,8 @@ function fixMultisigOrder(
   input: TxbInput,
   transaction: Transaction,
   vin: number,
+  value?: number,
+  bitcoincash?: boolean,
 ): void {
   if (input.redeemScriptType !== SCRIPT_TYPES.P2MS || !input.redeemScript)
     return;
@@ -601,11 +604,30 @@ function fixMultisigOrder(
 
       // TODO: avoid O(n) hashForSignature
       const parsed = bscript.signature.decode(signature);
-      const hash = transaction.hashForSignature(
-        vin,
-        input.redeemScript!,
-        parsed.hashType,
-      );
+      let hash: Buffer;
+      if (bitcoincash) {
+        hash = transaction.hashForCashSignature(
+          vin,
+          input.redeemScript!,
+          value!,
+          parsed.hashType,
+        );
+      } else {
+        if (input.witness) {
+          hash = transaction.hashForWitnessV0(
+            vin,
+            input.redeemScript!,
+            value!,
+            parsed.hashType,
+          );
+        } else {
+          hash = transaction.hashForSignature(
+            vin,
+            input.redeemScript!,
+            parsed.hashType,
+          );
+        }
+      }
 
       // skip if signature does not match pubKey
       if (!keyPair.verify(hash, parsed.signature)) return false;

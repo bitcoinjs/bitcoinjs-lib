@@ -66,7 +66,7 @@ class TransactionBuilder {
         'files as well.',
     );
   }
-  static fromTransaction(transaction, network) {
+  static fromTransaction(transaction, network, bitcoincash) {
     const txb = new TransactionBuilder(network);
     // Copy transaction fields
     txb.setVersion(transaction.version);
@@ -85,7 +85,7 @@ class TransactionBuilder {
     });
     // fix some things not possible through the public API
     txb.__INPUTS.forEach((input, i) => {
-      fixMultisigOrder(input, transaction, i);
+      fixMultisigOrder(input, transaction, i, input.value, bitcoincash);
     });
     return txb;
   }
@@ -430,7 +430,7 @@ function expandInput(scriptSig, witnessStack, type, scriptPubKey) {
   };
 }
 // could be done in expandInput, but requires the original Transaction for hashForSignature
-function fixMultisigOrder(input, transaction, vin) {
+function fixMultisigOrder(input, transaction, vin, value, bitcoincash) {
   if (input.redeemScriptType !== SCRIPT_TYPES.P2MS || !input.redeemScript)
     return;
   if (input.pubkeys.length === input.signatures.length) return;
@@ -444,11 +444,30 @@ function fixMultisigOrder(input, transaction, vin) {
       if (!signature) return false;
       // TODO: avoid O(n) hashForSignature
       const parsed = bscript.signature.decode(signature);
-      const hash = transaction.hashForSignature(
-        vin,
-        input.redeemScript,
-        parsed.hashType,
-      );
+      let hash;
+      if (bitcoincash) {
+        hash = transaction.hashForCashSignature(
+          vin,
+          input.redeemScript,
+          value,
+          parsed.hashType,
+        );
+      } else {
+        if (input.witness) {
+          hash = transaction.hashForWitnessV0(
+            vin,
+            input.redeemScript,
+            value,
+            parsed.hashType,
+          );
+        } else {
+          hash = transaction.hashForSignature(
+            vin,
+            input.redeemScript,
+            parsed.hashType,
+          );
+        }
+      }
       // skip if signature does not match pubKey
       if (!keyPair.verify(hash, parsed.signature)) return false;
       // remove matched signature from unmatched
