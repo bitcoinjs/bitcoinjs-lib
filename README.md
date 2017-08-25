@@ -79,6 +79,25 @@ uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,ECPair,Function,Numbe
 
 **NOTE**: If you expect this library to run on an iOS 10 device, ensure that you are using [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater.
 
+
+### Typescript or VSCode users
+Type declarations for Typescript are available for version 3.0 of the library. To install, run:
+
+``` bash
+npm install @types/bitcoinjs-lib
+```
+
+You should now be able to use bitcoinjs-lib as if it was a typescript library. 
+
+e.g., 
+``` javascript
+import { HDNode, Transaction } from 'bitcoinjs-lib'
+```
+
+VSCode (and possibly other editors) users writing plain javascript are also advised to install the type declarations, as the intelisense uses that information to help you code (autocompletion, static analysis).
+
+Report bugs on the type declaration file at [@dlebrecht DefinitelyTyped fork](https://github.com/dlebrecht/DefinitelyTyped) or do a PR straight at [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)
+
 ### Flow
 Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-typed repository.
 
