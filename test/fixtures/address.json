@@ -100,6 +100,10 @@
         "exception": "Excess padding"
       },
       {
+        "address": "bc1zw508d6qejxtdg4y5r3zarvaryvqyzf3du",
+        "exception": "Excess padding"
+      },
+      {
         "address": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv",
         "exception": "Non-zero padding"
       }
