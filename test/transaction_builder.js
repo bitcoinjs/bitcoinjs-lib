@@ -452,6 +452,25 @@ describe('TransactionBuilder', function () {
   describe('various edge case', function () {
     var network = NETWORKS.testnet
 
+    it('should classify witness inputs with witness = true during multisigning', function () {
+      var keyPair = ECPair.fromWIF('cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS', network)
+      var witnessScript = Buffer.from('522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea1952ae', 'hex')
+      var redeemScript = Buffer.from('002024376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af', 'hex')
+      var scriptPubKey = Buffer.from('a914b64f1a3eacc1c8515592a6f10457e8ff90e4db6a87', 'hex')
+      var txb = new TransactionBuilder(network)
+      txb.addInput('a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529', 1, 0xffffffff, scriptPubKey)
+      txb.addOutput(scriptPubKey, 99000)
+      txb.sign(0, keyPair, redeemScript, null, 100000, witnessScript)
+      // 2-of-2 signed only once
+      var tx = txb.buildIncomplete()
+      // Only input is segwit, so txid should be accurate with the final tx
+      assert.equal(tx.getId(), 'f15d0a65b21b4471405b21a099f8b18e1ae4d46d55efbd0f4766cf11ad6cb821')
+      var txHex = tx.toHex()
+      var newTxb = TransactionBuilder.fromTransaction(Transaction.fromHex(txHex))
+      // input should have the key 'witness' set to true
+      assert.equal(newTxb.inputs[0].witness, true)
+    })
+
     it('should handle badly pre-filled OP_0s', function () {
       // OP_0 is used where a signature is missing
       var redeemScripSig = bscript.fromASM('OP_0 OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae')
