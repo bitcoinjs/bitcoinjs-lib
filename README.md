@@ -5,7 +5,6 @@
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
-
 The pure JavaScript Bitcoin library for node.js and browsers.
 Used by over a million wallet users and the backbone for almost all Bitcoin web wallets in production today.
 
@@ -81,22 +80,20 @@ uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,ECPair,Function,Numbe
 
 
 ### Typescript or VSCode users
-Type declarations for Typescript are available for version 3.0 of the library. To install, run:
-
+Type declarations for Typescript are available for version `^3.0.0` of the library.
 ``` bash
 npm install @types/bitcoinjs-lib
 ```
 
-You should now be able to use bitcoinjs-lib as if it was a typescript library. 
-
-e.g., 
+You can now use `bitcoinjs-lib` as a typescript compliant library. 
 ``` javascript
 import { HDNode, Transaction } from 'bitcoinjs-lib'
 ```
 
-VSCode (and possibly other editors) users writing plain javascript are also advised to install the type declarations, as the intelisense uses that information to help you code (autocompletion, static analysis).
+For VSCode (and other editors), users are advised to install the type declarations, as Intellisense uses that information to help you code (autocompletion, static analysis).
 
-Report bugs on the type declaration file at [@dlebrecht DefinitelyTyped fork](https://github.com/dlebrecht/DefinitelyTyped) or do a PR straight at [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)
+Report any typescript related bugs at [@dlebrecht DefinitelyTyped fork](https://github.com/dlebrecht/DefinitelyTyped),  submit PRs to [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)
+
 
 ### Flow
 Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-typed repository.
