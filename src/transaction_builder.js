@@ -396,7 +396,7 @@ function buildStack (type, signatures, pubKeys, allowIncomplete) {
         signatures = signatures.filter(function (x) { return x.length !== 0 })
       }
 
-      return [].concat(Buffer.from('', 'hex'), signatures)
+      return bscript.multisig.input.encodeStack(signatures)
     }
   } else {
     throw new Error('Not yet supported')
