@@ -13,6 +13,7 @@ var P2SH = SIGNABLE.concat([bscript.types.P2WPKH, bscript.types.P2WSH])
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var Transaction = require('./transaction')
+var EMPTY_BUFFER = Buffer.allocUnsafe(0)
 
 function supportedType (type) {
   return SIGNABLE.indexOf(type) !== -1
@@ -389,14 +390,14 @@ function buildStack (type, signatures, pubKeys, allowIncomplete) {
   } else if (type === scriptTypes.MULTISIG) {
     if (signatures.length > 0) {
       signatures = signatures.map(function (signature) {
-        return signature || ops.OP_0
+        return signature || EMPTY_BUFFER
       })
       if (!allowIncomplete) {
         // remove blank signatures
-        signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
+        signatures = signatures.filter(function (x) { return x.length !== 0 })
       }
 
-      return bscript.multisig.input.encodeStack(signatures /* see if it's necessary first */)
+      return bscript.multisig.input.encodeStack(signatures)
     }
   } else {
     throw new Error('Not yet supported')
@@ -463,7 +464,7 @@ function buildInput (input, allowIncomplete) {
   return {
     type: scriptType,
     script: bscript.compile(sig),
-    witness: bscript.toStack(witness)
+    witness: witness
   }
 }
 
