@@ -428,7 +428,7 @@
 
       {
         "description": "Sighash: SINGLE (random)",
-        "txHex": "01000000012ffb29d53528ad30c37c267fbbeda3c6fce08f5f6f5d3b1eab22193599a3612a010000006b483045022100dad4bd28448e626ecb1ade42a09c43559d50b61b57a06fac992a5ecdd73deb740220524082f83560e2df9afaa283c699dec4c5b01687484d73e7b280e5a506caf1c4032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff02c0e1e400000000001976a9140de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b888ac80969800000000001976a91454d0e925d5ee0ee26768a237067dee793d01a70688ac00000000",
+        "txHex": "01000000012ffb29d53528ad30c37c267fbbeda3c6fce08f5f6f5d3b1eab22193599a3612a010000006b483045022100f963f1d9564075a934d7c3cfa333bd1378859b84cba947e149926fc9ec89b5ae02202b5b912e507bae65002aff972f9752e2aeb2e22c5fdbaaad672090378184df37032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff0260a62f01000000001976a9140de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b888ac80969800000000001976a91454d0e925d5ee0ee26768a237067dee793d01a70688ac00000000",
         "inputs": [
           {
             "txId": "2a61a399351922ab1e3b5d6f5f8fe0fcc6a3edbb7f267cc330ad2835d529fb2f",
@@ -446,7 +446,7 @@
         ],
         "outputs": [
           {
-            "value": 15000000,
+            "value": 19900000,
             "script": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
           },
           {
@@ -811,7 +811,7 @@
       },
       {
         "description": "Sighash V1: ALL",
-        "txHex": "01000000000102fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f00000000494830450221008b9d1dc26ba6a9cb62127b02742fa9d754cd3bebf337f7a55d114c8e5cdd30be022040529b194ba3f9281a99f2b1c0a19c0489bc22ede944ccf4ecbab4cc618ef3ed01eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac000247304402203609e17b84f6a7d30c80bfa610b5b4542f32a8a0d5447a12fb1366d7f01cc44a0220573a954c4518331561406f90300e8f3358f51928d43c212a8caed02de67eebee0121025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee635711000000",
+        "txHex": "01000000000102fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f00000000484730440220691a19d365c8d75f921346c70271506bde136f13a4b566dd796902c262e2ec6d02202b00c4aa030eedf294552bdfc163936d2f4e91c59e7798c4471250cf07cb859501eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff0230f45e13000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac00e9a435000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac0002483045022100fddd014889f18d489b5400bfa8cb0a32301a768d934b1a0e2b55398119f26cab02207676c64c16ffa7ffaaf8e16b3b74e916687eebdfdb36b9b7997e838384d464640121025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee635711000000",
         "inputs": [
           {
             "txId": "9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff",
@@ -842,11 +842,11 @@
         ],
         "outputs": [
           {
-            "value": 112340000,
+            "value": 324990000,
             "script": "OP_DUP OP_HASH160 8280b37df378db99f66f85c95a783a76ac7a6d59 OP_EQUALVERIFY OP_CHECKSIG"
           },
           {
-            "value": 223450000,
+            "value": 900000000,
             "script": "OP_DUP OP_HASH160 3bde42dbee7e4dbe6a21b2d50ce2f0167faa8159 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ],
@@ -1812,6 +1812,30 @@
       }
     ],
     "sign": [
+      {
+        "description": "Transaction w/ witness value mismatch",
+        "exception": "Input didn\\'t match witnessValue",
+        "network": "testnet",
+        "inputs": [
+          {
+            "txHex": "0100000001f7e6430096cd2790bac115aaab22c0a50fb0a1794305302e1a399e81d8d354f4020000006a47304402205793a862d193264afc32713e2e14541e1ff9ebb647dd7e7e6a0051d0faa87de302205216653741ecbbed573ea2fc053209dd6980616701c27be5b958a159fc97f45a012103e877e7deb32d19250dcfe534ea82c99ad739800295cd5429a7f69e2896c36fcdfeffffff0340420f00000000001976a9145c7b8d623fba952d2387703d051d8e931a6aa0a188ac8bda2702000000001976a9145a0ef60784137d03e7868d063b05424f2f43799f88ac40420f00000000001976a9145c7b8d623fba952d2387703d051d8e931a6aa0a188ac2fcc0e00",
+            "vout": 0,
+            "signs": [
+              {
+                "keyPair": "cQ6483mDWwoG8o4tn6nU9Jg52RKMjPUWXSY1vycAyPRXQJ1Pn2Rq",
+                "throws": true,
+                "value": 22500000000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 ff99e06c1a4ac394b4e1cb3d3a4b2b47749e339a OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 6000000
+          }
+        ]
+      },
       {
         "description": "Too many signatures - pubKeyHash",
         "exception": "Signature already exists",

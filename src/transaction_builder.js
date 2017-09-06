@@ -352,8 +352,10 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     signScript = prevOutScript
   }
 
-  if (witness && !types.Satoshi(witnessValue)) {
-    throw new Error('Input was witness but not given witness value')
+  if (witnessValue !== undefined || witness) {
+    typeforce(types.Satoshi, witnessValue)
+    if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
+    input.value = witnessValue
   }
 
   if (signType === scriptTypes.P2WPKH) {
@@ -687,7 +689,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   // ready to sign
   var signatureHash
   if (input.witness) {
-    signatureHash = this.tx.hashForWitnessV0(vin, input.signScript, witnessValue, hashType)
+    signatureHash = this.tx.hashForWitnessV0(vin, input.signScript, input.value, hashType)
   } else {
     signatureHash = this.tx.hashForSignature(vin, input.signScript, hashType)
   }
