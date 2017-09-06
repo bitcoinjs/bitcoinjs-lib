@@ -389,14 +389,14 @@ function buildStack (type, signatures, pubKeys, allowIncomplete) {
   } else if (type === scriptTypes.MULTISIG) {
     if (signatures.length > 0) {
       signatures = signatures.map(function (signature) {
-        return signature || ops.OP_0
+        return signature || Buffer.from('', 'hex')
       })
       if (!allowIncomplete) {
         // remove blank signatures
-        signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
+        signatures = signatures.filter(function (x) { return x.length !== 0 })
       }
 
-      return bscript.multisig.input.encodeStack(signatures /* see if it's necessary first */)
+      return [].concat(Buffer.from('', 'hex'), signatures)
     }
   } else {
     throw new Error('Not yet supported')
@@ -463,7 +463,7 @@ function buildInput (input, allowIncomplete) {
   return {
     type: scriptType,
     script: bscript.compile(sig),
-    witness: bscript.toStack(witness)
+    witness: witness
   }
 }
 
