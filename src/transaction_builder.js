@@ -13,6 +13,7 @@ var P2SH = SIGNABLE.concat([bscript.types.P2WPKH, bscript.types.P2WSH])
 var ECPair = require('./ecpair')
 var ECSignature = require('./ecsignature')
 var Transaction = require('./transaction')
+var EMPTY_BUFFER = Buffer.allocUnsafe(0)
 
 function supportedType (type) {
   return SIGNABLE.indexOf(type) !== -1
@@ -389,7 +390,7 @@ function buildStack (type, signatures, pubKeys, allowIncomplete) {
   } else if (type === scriptTypes.MULTISIG) {
     if (signatures.length > 0) {
       signatures = signatures.map(function (signature) {
-        return signature || Buffer.from('', 'hex')
+        return signature || EMPTY_BUFFER
       })
       if (!allowIncomplete) {
         // remove blank signatures
