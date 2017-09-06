@@ -331,7 +331,7 @@ describe('TransactionBuilder', function () {
 
         // if throws on incomplete too, enforce that
         if (f.incomplete) {
-          it('throws ' + f.exception, function () {
+          it('throws if ' + f.exception, function () {
             assert.throws(function () {
               var txb
               if (f.txHex) {
