@@ -389,14 +389,14 @@ function buildStack (type, signatures, pubKeys, allowIncomplete) {
   } else if (type === scriptTypes.MULTISIG) {
     if (signatures.length > 0) {
       signatures = signatures.map(function (signature) {
-        return signature || Buffer.from('', 'hex')
+        return signature || ops.OP_0
       })
       if (!allowIncomplete) {
         // remove blank signatures
-        signatures = signatures.filter(function (x) { return x.length !== 0 })
+        signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
       }
 
-      return [].concat(Buffer.from('', 'hex'), signatures)
+      return bscript.multisig.input.encodeStack(signatures)
     }
   } else {
     throw new Error('Not yet supported')
