@@ -35,5 +35,6 @@ function decodeRaw (chunks, allowIncomplete) {
 module.exports = {
   checkRaw: checkRaw,
   decodeRaw: decodeRaw,
-  encodeRaw: encodeRaw
+  encodeRaw: encodeRaw,
+  rawWitness: true
 }

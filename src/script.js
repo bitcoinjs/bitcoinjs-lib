@@ -246,6 +246,7 @@ for (var key in templates) {
 
     if (!input.encodeWitness) {
       input.encodeWitness = function encodeWitness () {
+        if (input.rawWitness) return input.encodeRaw.apply(null, arguments)
         return toWitness(input.encodeRaw.apply(null, arguments))
       }
     }
