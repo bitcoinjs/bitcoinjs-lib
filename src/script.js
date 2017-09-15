@@ -157,8 +157,7 @@ function fromASM (asm) {
   }))
 }
 
-function toStack (chunks) {
-  chunks = decompile(chunks)
+function toWitness (chunks) {
   typeforce(isPushOnly, chunks)
 
   return chunks.map(function (op) {
@@ -169,15 +168,23 @@ function toStack (chunks) {
   })
 }
 
-function isCanonicalPubKey (buffer) {
+function toStack (chunks) {
+  console.warn('toStack is deprecated, use toWitness')
+  chunks = decompile(chunks)
+  return toWitness(chunks)
+}
+
+function isCanonicalPubKey (buffer, compressed) {
   if (!Buffer.isBuffer(buffer)) return false
   if (buffer.length < 33) return false
 
   switch (buffer[0]) {
     case 0x02:
     case 0x03:
+      if (compressed !== undefined && !compressed) return false
       return buffer.length === 33
     case 0x04:
+      if (compressed !== undefined && compressed) return false
       return buffer.length === 65
   }
 
@@ -203,17 +210,76 @@ module.exports = {
   decompile: decompile,
   fromASM: fromASM,
   toASM: toASM,
-  toStack: toStack,
+  toWitness: toWitness,
 
   number: require('./script_number'),
 
   isCanonicalPubKey: isCanonicalPubKey,
   isCanonicalSignature: isCanonicalSignature,
+  isDefinedHashType: isDefinedHashType,
   isPushOnly: isPushOnly,
-  isDefinedHashType: isDefinedHashType
+
+  // TODO: remove in 4.0.0
+  toStack: toStack
+}
+
+// TODO: remove the wrappers in 4.0.0???
+function augment (input) {
+  if (!input.checkWitness) {
+    input.checkWitness = function checkWitness (witness, allowIncomplete) {
+      typeforce(types.Witness, witness)
+      return input.checkRaw(witness, allowIncomplete)
+    }
+    input.checkWitness.toJSON = input.checkRaw.toJSON
+  }
+  if (!input.check) {
+    input.check = function check (script, allowIncomplete) {
+      typeforce(types.Buffer, script)
+      return input.checkRaw(decompile(script), allowIncomplete)
+    }
+    input.check.toJSON = input.checkRaw.toJSON
+  }
+
+  if (!input.encodeWitness) {
+    input.encodeWitness = function encodeWitness () {
+      if (input.rawWitness) return input.encodeRaw.apply(null, arguments)
+      return toWitness(input.encodeRaw.apply(null, arguments))
+    }
+  }
+  if (!input.noScript && !input.encode) {
+    input.encode = function encode () {
+      return compile(input.encodeRaw.apply(null, arguments))
+    }
+  }
+
+  if (!input.decodeWitness) {
+    input.decode = function decodeWitness (witness, allowIncomplete) {
+      typeforce(types.Witness, witness)
+      return input.decodeRaw(decompile(witness), allowIncomplete)
+    }
+  }
+  if (!input.noScript && !input.decode) {
+    input.decode = function decode (script, allowIncomplete) {
+      typeforce(types.Buffer, script)
+      return input.decodeRaw(decompile(script), allowIncomplete)
+    }
+  }
+
+  // TODO: deprecated, remove in 4.0.0
+  input.decodeStack = function decodeStack () {
+    console.warn('decodeStack/encodeStack is deprecated, see #863')
+    return input.decodeRaw.apply(null, arguments)
+  }
+  input.encodeStack = function encodeStack () {
+    console.warn('decodeStack/encodeStack is deprecated, see #863')
+    return input.encodeRaw.apply(null, arguments)
+  }
 }
 
 var templates = require('./templates')
 for (var key in templates) {
-  module.exports[key] = templates[key]
+  var template = templates[key]
+  if (template.input) augment(template.input)
+
+  module.exports[key] = template
 }

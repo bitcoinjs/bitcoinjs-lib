@@ -1,44 +1,22 @@
 // {signature} {pubKey}
 
 var bscript = require('../../script')
+var pkh = require('../pubkeyhash')
 var typeforce = require('typeforce')
 
-function isCompressedCanonicalPubKey (pubKey) {
-  return bscript.isCanonicalPubKey(pubKey) && pubKey.length === 33
+function checkRaw (chunks) {
+  return pkh.checkRaw(chunks, true)
 }
+checkRaw.toJSON = function () { return 'witness pubKeyHash input' }
 
-function check (script) {
-  var chunks = bscript.decompile(script)
-
-  return chunks.length === 2 &&
-    bscript.isCanonicalSignature(chunks[0]) &&
-    isCompressedCanonicalPubKey(chunks[1])
-}
-check.toJSON = function () { return 'witnessPubKeyHash input' }
-
-function encodeStack (signature, pubKey) {
-  typeforce({
-    signature: bscript.isCanonicalSignature,
-    pubKey: isCompressedCanonicalPubKey
-  }, {
-    signature: signature,
-    pubKey: pubKey
-  })
-
-  return [signature, pubKey]
-}
-
-function decodeStack (stack) {
-  typeforce(check, stack)
-
-  return {
-    signature: stack[0],
-    pubKey: stack[1]
-  }
+function encodeRaw (signature) {
+  typeforce(bscript.isCanonicalSignature, signature, true)
+  return pkh.encodeWitness(signature)
 }
 
 module.exports = {
-  check: check,
-  decodeStack: decodeStack,
-  encodeStack: encodeStack
+  checkRaw: checkRaw,
+  decodeRaw: pkh.decodeRaw,
+  encodeRaw: encodeRaw,
+  noScript: true
 }

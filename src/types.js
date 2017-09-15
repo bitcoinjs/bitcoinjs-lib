@@ -43,7 +43,8 @@ var types = {
   Hash256bit: typeforce.BufferN(32),
   Network: Network,
   Satoshi: Satoshi,
-  UInt31: UInt31
+  UInt31: UInt31,
+  Witness: typeforce.arrayOf(typeforce.Buffer)
 }
 
 for (var typeName in typeforce) {
