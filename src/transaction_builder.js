@@ -396,7 +396,7 @@ function buildStack (type, signatures, pubKeys, allowIncomplete) {
         signatures = signatures.filter(function (x) { return x !== ops.OP_0 })
       }
 
-      return bscript.multisig.input.encodeStack(signatures /* see if it's necessary first */)
+      return bscript.multisig.input.encodeStack(signatures)
     }
   } else {
     throw new Error('Not yet supported')
@@ -463,7 +463,7 @@ function buildInput (input, allowIncomplete) {
   return {
     type: scriptType,
     script: bscript.compile(sig),
-    witness: bscript.toStack(witness)
+    witness: witness
   }
 }
 

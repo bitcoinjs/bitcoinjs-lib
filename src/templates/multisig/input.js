@@ -39,7 +39,12 @@ function encodeStack (signatures, scriptPubKey) {
     }
   }
 
-  return [].concat(EMPTY_BUFFER, signatures)
+  return [].concat(EMPTY_BUFFER, signatures.map(function (sig) {
+    if (sig === OPS.OP_0) {
+      return EMPTY_BUFFER
+    }
+    return sig
+  }))
 }
 
 function encode (signatures, scriptPubKey) {
