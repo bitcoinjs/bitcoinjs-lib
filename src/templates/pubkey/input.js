@@ -11,7 +11,6 @@ function checkRaw (chunks) {
 }
 checkRaw.toJSON = function () { return 'pubKey input' }
 
-// encode
 function encodeRaw (signature) {
   typeforce(bscript.isCanonicalSignature, signature)
   return [signature]
