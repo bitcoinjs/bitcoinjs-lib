@@ -22,8 +22,9 @@ function check (script, allowIncomplete) {
   if (n !== chunks.length - 3) return false
   if (allowIncomplete) return true
 
-  var keys = chunks.slice(1, -2)
-  return keys.every(bscript.isCanonicalPubKey)
+  return chunks.slice(1, -2).every(function (x) {
+    return bscript.isCanonicalPubKey(x)
+  })
 }
 check.toJSON = function () { return 'multi-sig output' }
 
