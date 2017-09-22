@@ -125,10 +125,10 @@ describe('TransactionBuilder', function () {
       })
     })
 
-    it('correctly classifies transaction inputs', function() {
+    it('correctly classifies transaction inputs', function () {
       var tx = Transaction.fromHex(fixtures.valid.classification.hex)
       var txb = TransactionBuilder.fromTransaction(tx)
-      txb.inputs.forEach(function(i) {
+      txb.inputs.forEach(function (i) {
         assert.strictEqual(i.prevOutType, 'scripthash')
         assert.strictEqual(i.redeemScriptType, 'multisig')
         assert.strictEqual(i.signType, 'multisig')
