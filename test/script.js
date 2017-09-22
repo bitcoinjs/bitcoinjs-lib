@@ -5,6 +5,7 @@ var bscript = require('../src/script')
 var minimalData = require('minimaldata')
 
 var fixtures = require('./fixtures/script.json')
+var fixtures2 = require('./fixtures/templates.json')
 
 describe('script', function () {
   // TODO
@@ -23,8 +24,8 @@ describe('script', function () {
   describe('fromASM/toASM', function () {
     fixtures.valid.forEach(function (f) {
       it('encodes/decodes ' + f.asm, function () {
-        var scriptSig = bscript.fromASM(f.asm)
-        assert.strictEqual(bscript.toASM(scriptSig), f.asm)
+        var script = bscript.fromASM(f.asm)
+        assert.strictEqual(bscript.toASM(script), f.asm)
       })
     })
 
@@ -34,6 +35,28 @@ describe('script', function () {
           bscript.fromASM(f.script)
         }, new RegExp(f.description))
       })
+    })
+  })
+
+  describe('fromASM/toASM (templates)', function () {
+    fixtures2.valid.forEach(function (f) {
+      if (f.inputHex) {
+        var ih = bscript.toASM(Buffer.from(f.inputHex, 'hex'))
+
+        it('encodes/decodes ' + ih, function () {
+          var script = bscript.fromASM(f.input)
+          assert.strictEqual(script.toString('hex'), f.inputHex)
+          assert.strictEqual(bscript.toASM(script), f.input)
+        })
+      }
+
+      if (f.outputHex) {
+        it('encodes/decodes ' + f.output, function () {
+          var script = bscript.fromASM(f.output)
+          assert.strictEqual(script.toString('hex'), f.outputHex)
+          assert.strictEqual(bscript.toASM(script), f.output)
+        })
+      }
     })
   })
 
