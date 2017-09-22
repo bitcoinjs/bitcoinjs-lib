@@ -20,12 +20,23 @@ function check (script, allowIncomplete) {
   // is redeemScriptSig push only?
   if (!bscript.isPushOnly(scriptSigChunks)) return false
 
-  var inputType = bscript.classifyInput(scriptSigChunks, allowIncomplete)
-  var outputType = bscript.classifyOutput(redeemScriptChunks)
+  // is witness?
   if (chunks.length === 1) {
-    return outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH
+    return bscript.witnessScriptHash.output.check(redeemScriptChunks) ||
+      bscript.witnessPubKeyHash.output.check(redeemScriptChunks)
   }
-  return inputType === outputType
+
+  // match types
+  if (bscript.pubKeyHash.input.check(scriptSigChunks) &&
+    bscript.pubKeyHash.output.check(redeemScriptChunks)) return true
+
+  if (bscript.multisig.input.check(scriptSigChunks, allowIncomplete) &&
+    bscript.multisig.output.check(redeemScriptChunks)) return true
+
+  if (bscript.pubKey.input.check(scriptSigChunks) &&
+    bscript.pubKey.output.check(redeemScriptChunks)) return true
+
+  return false
 }
 check.toJSON = function () { return 'scriptHash input' }
 
