@@ -6,7 +6,7 @@
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 The pure JavaScript Bitcoin library for node.js and browsers.
-Used by over a million wallet users and the backbone for almost all Bitcoin web wallets in production today.
+Estimated to be in use by over 15 million wallet users and is the backbone for almost all Bitcoin web wallets in production today.
 
 
 ## Features
