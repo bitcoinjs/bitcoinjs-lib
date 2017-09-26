@@ -4,6 +4,12 @@ var Buffer = require('safe-buffer').Buffer
 var bscript = require('../../script')
 var typeforce = require('typeforce')
 
+var p2ms = require('../multisig/')
+var p2pk = require('../pubkey/')
+var p2pkh = require('../pubkeyhash/')
+var p2wpkho = require('../witnesspubkeyhash/output')
+var p2wsho = require('../witnessscripthash/output')
+
 function check (script, allowIncomplete) {
   var chunks = bscript.decompile(script)
   if (chunks.length < 1) return false
@@ -22,19 +28,19 @@ function check (script, allowIncomplete) {
 
   // is witness?
   if (chunks.length === 1) {
-    return bscript.witnessScriptHash.output.check(redeemScriptChunks) ||
-      bscript.witnessPubKeyHash.output.check(redeemScriptChunks)
+    return p2wsho.check(redeemScriptChunks) ||
+      p2wpkho.check(redeemScriptChunks)
   }
 
   // match types
-  if (bscript.pubKeyHash.input.check(scriptSigChunks) &&
-    bscript.pubKeyHash.output.check(redeemScriptChunks)) return true
+  if (p2pkh.input.check(scriptSigChunks) &&
+    p2pkh.output.check(redeemScriptChunks)) return true
 
-  if (bscript.multisig.input.check(scriptSigChunks, allowIncomplete) &&
-    bscript.multisig.output.check(redeemScriptChunks)) return true
+  if (p2ms.input.check(scriptSigChunks, allowIncomplete) &&
+    p2ms.output.check(redeemScriptChunks)) return true
 
-  if (bscript.pubKey.input.check(scriptSigChunks) &&
-    bscript.pubKey.output.check(redeemScriptChunks)) return true
+  if (p2pk.input.check(scriptSigChunks) &&
+    p2pk.output.check(redeemScriptChunks)) return true
 
   return false
 }
