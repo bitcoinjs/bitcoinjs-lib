@@ -1,10 +1,48 @@
 var Buffer = require('safe-buffer').Buffer
 var bech32 = require('bech32')
 var bs58check = require('bs58check')
+var bcrypto = require('./crypto')
 var bscript = require('./script')
 var networks = require('./networks')
 var typeforce = require('typeforce')
 var types = require('./types')
+
+// TODO: refactor
+function p2pkhFromHash (hash, network) {
+  network = network || networks.bitcoin
+  return toBase58Check(hash, network.pubKeyHash)
+}
+
+function p2pkhFromKeyPair (keyPair) {
+  return p2pkhFromHash(bcrypto.hash160(keyPair.getPublicKeyBuffer()), keyPair.network)
+}
+
+function p2shFromHash (hash, network) {
+  network = network || networks.bitcoin
+  return toBase58Check(hash, network.scriptHash)
+}
+
+function p2shFromRedeemScript (script, network) {
+  return p2shFromHash(bcrypto.hash160(script), network)
+}
+
+function p2wpkhFromHash (hash, network) {
+  network = network || networks.bitcoin
+  return toBech32(hash, 0x00, network.bech32)
+}
+
+function p2wpkhFromKeyPair (keyPair) {
+  return p2wpkhFromHash(bcrypto.hash160(keyPair.getPublicKeyBuffer()), keyPair.network)
+}
+
+function p2wshFromHash (hash, network) {
+  network = network || networks.bitcoin
+  return toBech32(hash, 0x00, network.bech32)
+}
+
+function p2wshFromWitnessScript (script, network) {
+  return p2wshFromHash(bcrypto.sha256(script), network)
+}
 
 function fromBase58Check (address) {
   var payload = bs58check.decode(address)
@@ -50,10 +88,10 @@ function toBech32 (data, version, prefix) {
 function fromOutputScript (outputScript, network) {
   network = network || networks.bitcoin
 
-  if (bscript.pubKeyHash.output.check(outputScript)) return toBase58Check(bscript.compile(outputScript).slice(3, 23), network.pubKeyHash)
-  if (bscript.scriptHash.output.check(outputScript)) return toBase58Check(bscript.compile(outputScript).slice(2, 22), network.scriptHash)
-  if (bscript.witnessPubKeyHash.output.check(outputScript)) return toBech32(bscript.compile(outputScript).slice(2, 22), 0, network.bech32)
-  if (bscript.witnessScriptHash.output.check(outputScript)) return toBech32(bscript.compile(outputScript).slice(2, 34), 0, network.bech32)
+  if (bscript.pubKeyHash.output.check(outputScript)) return p2pkhFromHash(bscript.compile(outputScript).slice(3, 23), network)
+  if (bscript.scriptHash.output.check(outputScript)) return p2shFromHash(bscript.compile(outputScript).slice(2, 22), network)
+  if (bscript.witnessPubKeyHash.output.check(outputScript)) return p2wpkhFromHash(bscript.compile(outputScript).slice(2, 22), network)
+  if (bscript.witnessScriptHash.output.check(outputScript)) return p2wshFromHash(bscript.compile(outputScript).slice(2, 34), network)
 
   throw new Error(bscript.toASM(outputScript) + ' has no matching Address')
 }
@@ -92,5 +130,22 @@ module.exports = {
   fromOutputScript: fromOutputScript,
   toBase58Check: toBase58Check,
   toBech32: toBech32,
-  toOutputScript: toOutputScript
+  toOutputScript: toOutputScript,
+
+  pubKeyHash: {
+    fromHash: p2pkhFromHash,
+    fromKeyPair: p2pkhFromKeyPair
+  },
+  scriptHash: {
+    fromHash: p2shFromHash,
+    fromRedeemScript: p2shFromRedeemScript
+  },
+  witnessPubKeyHash: {
+    fromHash: p2wpkhFromHash,
+    fromKeyPair: p2wpkhFromKeyPair
+  },
+  witnessScriptHash: {
+    fromHash: p2wshFromHash,
+    fromWitnessScript: p2wshFromWitnessScript
+  }
 }
