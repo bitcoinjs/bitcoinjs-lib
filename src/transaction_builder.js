@@ -663,7 +663,10 @@ function canSign (input) {
     input.signatures !== undefined &&
     input.signatures.length === input.pubKeys.length &&
     input.pubKeys.length > 0 &&
-    input.witness !== undefined
+    (
+      input.witness === false ||
+      (input.witness === true && input.value !== undefined)
+    )
 }
 
 TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashType, witnessValue, witnessScript) {
