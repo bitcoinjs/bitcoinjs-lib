@@ -3,6 +3,7 @@
 var assert = require('assert')
 var baddress = require('../src/address')
 var bscript = require('../src/script')
+var btemplates = require('../src/templates')
 var ops = require('bitcoin-ops')
 
 var BigInteger = require('bigi')
@@ -434,7 +435,7 @@ describe('TransactionBuilder', function () {
                 var signatures = bscript.decompile(scriptSig).slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
 
                 // rebuild/replace the scriptSig without them
-                var replacement = bscript.scriptHash.input.encode(bscript.multisig.input.encode(signatures), redeemScript)
+                var replacement = btemplates.scriptHash.input.encode(btemplates.multisig.input.encode(signatures), redeemScript)
                 assert.strictEqual(bscript.toASM(replacement), sign.scriptSigFiltered)
 
                 tx.ins[i].script = replacement

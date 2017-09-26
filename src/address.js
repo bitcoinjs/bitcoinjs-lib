@@ -2,6 +2,7 @@ var Buffer = require('safe-buffer').Buffer
 var bech32 = require('bech32')
 var bs58check = require('bs58check')
 var bscript = require('./script')
+var btemplates = require('./templates')
 var networks = require('./networks')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -50,10 +51,10 @@ function toBech32 (data, version, prefix) {
 function fromOutputScript (outputScript, network) {
   network = network || networks.bitcoin
 
-  if (bscript.pubKeyHash.output.check(outputScript)) return toBase58Check(bscript.compile(outputScript).slice(3, 23), network.pubKeyHash)
-  if (bscript.scriptHash.output.check(outputScript)) return toBase58Check(bscript.compile(outputScript).slice(2, 22), network.scriptHash)
-  if (bscript.witnessPubKeyHash.output.check(outputScript)) return toBech32(bscript.compile(outputScript).slice(2, 22), 0, network.bech32)
-  if (bscript.witnessScriptHash.output.check(outputScript)) return toBech32(bscript.compile(outputScript).slice(2, 34), 0, network.bech32)
+  if (btemplates.pubKeyHash.output.check(outputScript)) return toBase58Check(bscript.compile(outputScript).slice(3, 23), network.pubKeyHash)
+  if (btemplates.scriptHash.output.check(outputScript)) return toBase58Check(bscript.compile(outputScript).slice(2, 22), network.scriptHash)
+  if (btemplates.witnessPubKeyHash.output.check(outputScript)) return toBech32(bscript.compile(outputScript).slice(2, 22), 0, network.bech32)
+  if (btemplates.witnessScriptHash.output.check(outputScript)) return toBech32(bscript.compile(outputScript).slice(2, 34), 0, network.bech32)
 
   throw new Error(bscript.toASM(outputScript) + ' has no matching Address')
 }
@@ -67,8 +68,8 @@ function toOutputScript (address, network) {
   } catch (e) {}
 
   if (decode) {
-    if (decode.version === network.pubKeyHash) return bscript.pubKeyHash.output.encode(decode.hash)
-    if (decode.version === network.scriptHash) return bscript.scriptHash.output.encode(decode.hash)
+    if (decode.version === network.pubKeyHash) return btemplates.pubKeyHash.output.encode(decode.hash)
+    if (decode.version === network.scriptHash) return btemplates.scriptHash.output.encode(decode.hash)
   } else {
     try {
       decode = fromBech32(address)
@@ -77,8 +78,8 @@ function toOutputScript (address, network) {
     if (decode) {
       if (decode.prefix !== network.bech32) throw new Error(address + ' has an invalid prefix')
       if (decode.version === 0) {
-        if (decode.data.length === 20) return bscript.witnessPubKeyHash.output.encode(decode.data)
-        if (decode.data.length === 32) return bscript.witnessScriptHash.output.encode(decode.data)
+        if (decode.data.length === 20) return btemplates.witnessPubKeyHash.output.encode(decode.data)
+        if (decode.data.length === 32) return btemplates.witnessScriptHash.output.encode(decode.data)
       }
     }
   }
