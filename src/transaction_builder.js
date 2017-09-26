@@ -298,6 +298,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
 
     expanded = expandOutput(witnessScript, undefined, kpPubKey)
     if (!expanded.pubKeys) throw new Error('WitnessScript not supported "' + bscript.toASM(redeemScript) + '"')
+
     prevOutType = btemplates.types.P2SH
     prevOutScript = btemplates.scriptHash.output.encode(redeemScriptHash)
     p2sh = witness = p2wsh = true
@@ -347,16 +348,11 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
   } else {
     prevOutScript = btemplates.pubKeyHash.output.encode(bcrypto.hash160(kpPubKey))
     expanded = expandOutput(prevOutScript, scriptTypes.P2PKH, kpPubKey)
+
     prevOutType = scriptTypes.P2PKH
     witness = false
     signType = prevOutType
     signScript = prevOutScript
-  }
-
-  if (witnessValue !== undefined || witness) {
-    typeforce(types.Satoshi, witnessValue)
-    if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
-    input.value = witnessValue
   }
 
   if (signType === scriptTypes.P2WPKH) {
@@ -686,7 +682,13 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
 
   var kpPubKey = keyPair.getPublicKeyBuffer()
   if (!canSign(input)) {
-    prepareInput(input, kpPubKey, redeemScript, witnessValue, witnessScript)
+    if (witnessValue !== undefined) {
+      if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
+      typeforce(types.Satoshi, witnessValue)
+      input.value = witnessValue
+    }
+
+    if (!canSign(input)) prepareInput(input, kpPubKey, redeemScript, witnessValue, witnessScript)
     if (!canSign(input)) throw Error(input.prevOutType + ' not supported')
   }
 
