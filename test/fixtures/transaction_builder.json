@@ -1386,6 +1386,41 @@
             "value": 99000
           }
         ]
+      },
+      {
+        "description": "P2WSH(multisig 2-of-3) -> P2PKH",
+        "network": "testnet",
+        "txHex": "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000232200201b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701ffffffff01f07e0e00000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac0400473044022036c9ecb03cb04c09be1f52766725dcfe9a815973bd2f34ce19a345f2d925a45502207b90737852d2508db104ad17612de473687e67928c045555a1ed8d495c0570d901483045022100aec0e58e4e597b35ca5a727702a0da3d4f2ef4759914da7fc80aecb3c479a6d902201ec27ea8dcca4b73ee81e4b627f52f9e627c3497f61e4beeb98f86e02979640a0169522103c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc5787721020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b02102d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc914953ae00000000",
+        "stages":  [
+          "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000232200201b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701ffffffff01f07e0e00000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac0500473044022036c9ecb03cb04c09be1f52766725dcfe9a815973bd2f34ce19a345f2d925a45502207b90737852d2508db104ad17612de473687e67928c045555a1ed8d495c0570d901000069522103c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc5787721020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b02102d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc914953ae00000000"
+        ],
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "keyPair": "cUxccFVBdJRq6HnyxiFMd8Z15GLThXaNLcnPBgoXLEv9iX6wuV2b",
+                "witnessScript": "OP_2 03c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc57877 020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b0 02d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc9149 OP_3 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 1b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701",
+                "value": 1000000,
+                "stage": true
+              },
+              {
+                "keyPair": "cVSNe9ZdZRsRvEBL8YRR7YiZmH4cLsf5FthgERWkZezJVrGseaXy",
+                "witnessScript": "OP_2 03c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc57877 020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b0 02d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc9149 OP_3 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 1b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701",
+                "value": 1000000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 950000
+          }
+        ]
       }
     ],
     "fromTransaction": [

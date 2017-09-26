@@ -51,6 +51,7 @@ function construct (f, dontSign) {
 
   if (dontSign) return txb
 
+  var stages = f.stages && f.stages.concat()
   f.inputs.forEach(function (input, index) {
     if (!input.signs) return
     input.signs.forEach(function (sign) {
@@ -68,6 +69,12 @@ function construct (f, dontSign) {
         witnessScript = bscript.fromASM(sign.witnessScript)
       }
       txb.sign(index, keyPair, redeemScript, sign.hashType, value, witnessScript)
+
+      if (sign.stage) {
+        var tx = txb.buildIncomplete()
+        assert.strictEqual(tx.toHex(), stages.shift())
+        txb = TransactionBuilder.fromTransaction(tx, network)
+      }
     })
   })
 
