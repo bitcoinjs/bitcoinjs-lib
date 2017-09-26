@@ -8,6 +8,9 @@ var ops = require('bitcoin-ops')
 
 var fixtures = require('./fixtures/templates.json')
 
+function fromHex (x) { return Buffer.from(x, 'hex') }
+function toHex (x) { return x.toString('hex') }
+
 describe('script-templates', function () {
   describe('classifyInput', function () {
     fixtures.valid.forEach(function (f) {
@@ -296,8 +299,8 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'scripthash') return
 
-      var redeemScript = bscript.fromASM(f.redeemScript)
       var redeemScriptSig = bscript.fromASM(f.redeemScriptSig)
+      var redeemScript = bscript.fromASM(f.redeemScript)
       var input = btemplates.scriptHash.input.encode(redeemScriptSig, redeemScript)
 
       it('encodes to ' + f.output, function () {
@@ -347,6 +350,31 @@ describe('script-templates', function () {
     })
   })
 
+  describe('witnessPubKeyHash.input', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.type !== 'pubkeyhash' && f.type !== 'witnesspubkeyhash') return
+      if (!f.inputStack) return
+
+      var pubKey = Buffer.from(f.pubKey, 'hex')
+      var signature = Buffer.from(f.signature, 'hex')
+
+      it('encodes to ' + f.input, function () {
+        var inputStack = btemplates.witnessPubKeyHash.input.encodeStack(signature, pubKey)
+
+        assert.deepEqual(inputStack.map(toHex), f.inputStack)
+      })
+
+      it('decodes to original arguments', function () {
+        var fInputStack = f.inputStack.map(fromHex)
+
+        assert.deepEqual(btemplates.witnessPubKeyHash.input.decodeStack(fInputStack), {
+          signature: signature,
+          pubKey: pubKey
+        })
+      })
+    })
+  })
+
   describe('witnessPubKeyHash.output', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'witnesspubkeyhash') return
@@ -377,12 +405,35 @@ describe('script-templates', function () {
     })
   })
 
+  describe('witnessScriptHash.input', function () {
+    fixtures.valid.forEach(function (f) {
+      if (f.type !== 'witnessscripthash') return
+      if (!f.inputStack || !f.witnessData) return
+
+      var witnessData = f.witnessData.map(fromHex)
+      var witnessScript = bscript.fromASM(f.witnessScript || f.redeemScript)
+
+      it('encodes to ' + f.input, function () {
+        var inputStack = btemplates.witnessScriptHash.input.encodeStack(witnessData, witnessScript)
+
+        assert.deepEqual(inputStack.map(toHex), f.inputStack)
+      })
+
+      it('decodes to original arguments', function () {
+        var result = btemplates.witnessScriptHash.input.decodeStack(f.inputStack.map(fromHex))
+
+        assert.deepEqual(result.witnessData.map(toHex), f.witnessData)
+        assert.strictEqual(bscript.toASM(result.witnessScript), f.witnessScript)
+      })
+    })
+  })
+
   describe('witnessScriptHash.output', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'witnessscripthash') return
       if (!f.output) return
 
-      var witnessScriptPubKey = bscript.fromASM(f.witnessScriptPubKey)
+      var witnessScriptPubKey = bscript.fromASM(f.witnessScript)
       var scriptHash = bcrypto.hash256(witnessScriptPubKey)
       var output = btemplates.witnessScriptHash.output.encode(scriptHash)
 
