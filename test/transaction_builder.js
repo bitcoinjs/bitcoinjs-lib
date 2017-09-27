@@ -3,6 +3,7 @@
 var assert = require('assert')
 var baddress = require('../src/address')
 var bscript = require('../src/script')
+var btemplates = require('../src/templates')
 var ops = require('bitcoin-ops')
 
 var BigInteger = require('bigi')
@@ -50,6 +51,7 @@ function construct (f, dontSign) {
 
   if (dontSign) return txb
 
+  var stages = f.stages && f.stages.concat()
   f.inputs.forEach(function (input, index) {
     if (!input.signs) return
     input.signs.forEach(function (sign) {
@@ -67,6 +69,12 @@ function construct (f, dontSign) {
         witnessScript = bscript.fromASM(sign.witnessScript)
       }
       txb.sign(index, keyPair, redeemScript, sign.hashType, value, witnessScript)
+
+      if (sign.stage) {
+        var tx = txb.buildIncomplete()
+        assert.strictEqual(tx.toHex(), stages.shift())
+        txb = TransactionBuilder.fromTransaction(tx, network)
+      }
     })
   })
 
@@ -434,7 +442,7 @@ describe('TransactionBuilder', function () {
                 var signatures = bscript.decompile(scriptSig).slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
 
                 // rebuild/replace the scriptSig without them
-                var replacement = bscript.scriptHash.input.encode(bscript.multisig.input.encode(signatures), redeemScript)
+                var replacement = btemplates.scriptHash.input.encode(btemplates.multisig.input.encode(signatures), redeemScript)
                 assert.strictEqual(bscript.toASM(replacement), sign.scriptSigFiltered)
 
                 tx.ins[i].script = replacement
