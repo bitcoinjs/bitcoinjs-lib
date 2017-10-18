@@ -254,7 +254,7 @@ function expandOutput (script, scriptType, ourPubKey) {
   }
 }
 
-function checkP2shInput (input, redeemScriptHash) {
+function checkP2SHInput (input, redeemScriptHash) {
   if (input.prevOutType) {
     if (input.prevOutType !== scriptTypes.P2SH) throw new Error('PrevOutScript must be P2SH')
 
@@ -292,7 +292,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
   if (redeemScript && witnessScript) {
     redeemScriptHash = bcrypto.hash160(redeemScript)
     witnessScriptHash = bcrypto.sha256(witnessScript)
-    checkP2shInput(input, redeemScriptHash)
+    checkP2SHInput(input, redeemScriptHash)
 
     if (!redeemScript.equals(btemplates.witnessScriptHash.output.encode(witnessScriptHash))) throw new Error('Witness script inconsistent with redeem script')
 
@@ -307,7 +307,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     signScript = witnessScript
   } else if (redeemScript) {
     redeemScriptHash = bcrypto.hash160(redeemScript)
-    checkP2shInput(input, redeemScriptHash)
+    checkP2SHInput(input, redeemScriptHash)
 
     expanded = expandOutput(redeemScript, undefined, kpPubKey)
     if (!expanded.pubKeys) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
