@@ -6,10 +6,8 @@ var typeforce = require('typeforce')
 var OPS = require('bitcoin-ops')
 
 function check (script) {
-  var buffer = bscript.compile(script)
-
-  return buffer.length > 1 &&
-    buffer[0] === OPS.OP_RETURN
+  return script.length === 2 &&
+    script[0] === OPS.OP_RETURN
 }
 check.toJSON = function () { return 'null data output' }
 
@@ -20,9 +18,11 @@ function encode (data) {
 }
 
 function decode (buffer) {
-  typeforce(check, buffer)
+  var script = bscript.decompile(buffer)
 
-  return buffer.slice(2)
+  typeforce(check, script)
+
+  return script[1]
 }
 
 module.exports = {
