@@ -88,7 +88,9 @@ HDNode.fromBase58 = function (string, networks) {
 
   // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
   // This is encoded in MSB order. (0x00000000 if master key)
-  var index = buffer.readUInt32BE(9)
+  var index = buffer.readUInt32BE(9);
+  // index of 2147483648 indicates hardened account master key in bip44 wallets
+  if(index > 2147483647) index -= 2147483648;
   if (depth === 0 && index !== 0) throw new Error('Invalid index')
 
   // 32 bytes: the chain code
