@@ -41,8 +41,8 @@ function classifyInput (script, allowIncomplete) {
   var chunks = decompile(script)
 
   if (pubKeyHash.input.check(chunks)) return types.P2PKH
-  if (multisig.input.check(chunks, allowIncomplete)) return types.MULTISIG
   if (scriptHash.input.check(chunks, allowIncomplete)) return types.P2SH
+  if (multisig.input.check(chunks, allowIncomplete)) return types.MULTISIG
   if (pubKey.input.check(chunks)) return types.P2PK
 
   return types.NONSTANDARD
