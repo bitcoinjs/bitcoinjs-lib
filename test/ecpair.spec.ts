@@ -6,7 +6,9 @@ import * as fixtures from './fixtures/ecpair.json';
 const hoodwink = require('hoodwink');
 const tinysecp = require('tiny-secp256k1');
 
-const NETWORKS_LIST = Object.values(NETWORKS);
+const NETWORKS_LIST = Object.values(NETWORKS).filter(
+  net => net.bech32 !== 'btg',
+);
 const ZERO = Buffer.alloc(32, 0);
 const ONE = Buffer.from(
   '0000000000000000000000000000000000000000000000000000000000000001',

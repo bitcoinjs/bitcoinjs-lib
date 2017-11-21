@@ -13,14 +13,16 @@ interface TxbSignArg {
 export declare class TransactionBuilder {
     network: Network;
     maximumFeeRate: number;
-    static fromTransaction(transaction: Transaction, network?: Network, bitcoincash?: boolean): TransactionBuilder;
+    static fromTransaction(transaction: Transaction, network?: Network, forkId?: number, inValues?: number[]): TransactionBuilder;
     bitcoinCash: boolean;
+    bitcoinGold: boolean;
     private __PREV_TX_SET;
     private __INPUTS;
     private __TX;
     private __USE_LOW_R;
     constructor(network?: Network, maximumFeeRate?: number);
     enableBitcoinCash(enable?: boolean): void;
+    enableBitcoinGold(enable?: boolean): void;
     setLowR(setting?: boolean): boolean;
     setLockTime(locktime: number): void;
     setVersion(version: number): void;

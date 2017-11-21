@@ -18,6 +18,8 @@ export declare class Transaction {
     static readonly SIGHASH_BITCOINCASHBIP143 = 64;
     static readonly ADVANCED_TRANSACTION_MARKER = 0;
     static readonly ADVANCED_TRANSACTION_FLAG = 1;
+    static readonly FORKID_BTG = 79;
+    static readonly FORKID_BCH = 0;
     static fromBuffer(buffer: Buffer, _NO_STRICT?: boolean): Transaction;
     static fromHex(hex: string): Transaction;
     static isCoinbaseHash(buffer: Buffer): boolean;
@@ -47,6 +49,10 @@ export declare class Transaction {
      * Hash transaction for signing a specific input for Bitcoin Cash.
      */
     hashForCashSignature(inIndex: number, prevOutScript: Buffer, inAmount: number, hashType: number): Buffer;
+    /**
+     * Hash transaction for signing a specific input for Bitcoin Gold.
+     */
+    hashForGoldSignature(inIndex: number, prevOutScript: Buffer, inAmount: number, hashType: number, isWitness?: boolean): Buffer;
     getHash(forWitness?: boolean): Buffer;
     getId(): string;
     toBuffer(buffer?: Buffer, initialOffset?: number): Buffer;

@@ -66,6 +66,8 @@ export class Transaction {
   static readonly SIGHASH_BITCOINCASHBIP143 = 0x40;
   static readonly ADVANCED_TRANSACTION_MARKER = 0x00;
   static readonly ADVANCED_TRANSACTION_FLAG = 0x01;
+  static readonly FORKID_BTG = 0x4f; // 79
+  static readonly FORKID_BCH = 0x00;
 
   static fromBuffer(buffer: Buffer, _NO_STRICT?: boolean): Transaction {
     const bufferReader = new BufferReader(buffer);
@@ -463,6 +465,49 @@ export class Transaction {
       return this.hashForWitnessV0(inIndex, prevOutScript, inAmount, hashType);
     } else {
       return this.hashForSignature(inIndex, prevOutScript, hashType);
+    }
+  }
+
+  /**
+   * Hash transaction for signing a specific input for Bitcoin Gold.
+   */
+  hashForGoldSignature(
+    inIndex: number,
+    prevOutScript: Buffer,
+    inAmount: number,
+    hashType: number,
+    isWitness?: boolean,
+  ): Buffer {
+    typeforce(
+      types.tuple(types.UInt32, types.Buffer, types.Satoshi, types.UInt32),
+      arguments,
+    );
+
+    // Bitcoin Gold also implements segregated witness
+    // therefore we can pull out the setting of nForkHashType
+    // and pass it into the functions.
+
+    let nForkHashType = hashType;
+    const fUseForkId = (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) > 0;
+    if (fUseForkId) {
+      nForkHashType |= Transaction.FORKID_BTG << 8;
+    }
+
+    // BIP143 sighash activated in BitcoinCash via 0x40 bit
+    if (isWitness || fUseForkId) {
+      if (types.Null(inAmount)) {
+        throw new Error(
+          'Bitcoin Cash sighash requires value of input to be signed.',
+        );
+      }
+      return this.hashForWitnessV0(
+        inIndex,
+        prevOutScript,
+        inAmount,
+        nForkHashType,
+      );
+    } else {
+      return this.hashForSignature(inIndex, prevOutScript, nForkHashType);
     }
   }
 

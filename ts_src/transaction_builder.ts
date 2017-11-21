@@ -101,9 +101,18 @@ export class TransactionBuilder {
   static fromTransaction(
     transaction: Transaction,
     network?: Network,
-    bitcoincash?: boolean,
+    forkId?: number,
+    inValues?: number[],
   ): TransactionBuilder {
     const txb = new TransactionBuilder(network);
+
+    if (forkId !== undefined) {
+      if (forkId === Transaction.FORKID_BTG) {
+        txb.enableBitcoinGold(true);
+      } else if (forkId === Transaction.FORKID_BCH) {
+        txb.enableBitcoinCash(true);
+      }
+    }
 
     // Copy transaction fields
     txb.setVersion(transaction.version);
@@ -115,23 +124,25 @@ export class TransactionBuilder {
     });
 
     // Copy inputs
-    transaction.ins.forEach(txIn => {
+    transaction.ins.forEach((txIn, i) => {
       txb.__addInputUnsafe(txIn.hash, txIn.index, {
         sequence: txIn.sequence,
         script: txIn.script,
         witness: txIn.witness,
+        value: inValues ? inValues[i] : undefined,
       });
     });
 
     // fix some things not possible through the public API
     txb.__INPUTS.forEach((input, i) => {
-      fixMultisigOrder(input, transaction, i, input.value, bitcoincash);
+      fixMultisigOrder(input, transaction, i, input.value, forkId);
     });
 
     return txb;
   }
 
   bitcoinCash: boolean;
+  bitcoinGold: boolean;
   private __PREV_TX_SET: { [index: string]: boolean };
   private __INPUTS: TxbInput[];
   private __TX: Transaction;
@@ -149,6 +160,7 @@ export class TransactionBuilder {
     this.__TX.version = 2;
     this.__USE_LOW_R = false;
     this.bitcoinCash = false;
+    this.bitcoinGold = false;
     console.warn(
       'Deprecation Warning: TransactionBuilder will be removed in the future. ' +
         '(v6.x.x or later) Please use the Psbt class instead. Examples of usage ' +
@@ -163,6 +175,19 @@ export class TransactionBuilder {
       enable = true;
     }
     this.bitcoinCash = enable;
+    if (enable) {
+      this.bitcoinGold = false;
+    }
+  }
+
+  enableBitcoinGold(enable?: boolean): void {
+    if (typeof enable === 'undefined') {
+      enable = true;
+    }
+    this.bitcoinGold = enable;
+    if (enable) {
+      this.bitcoinCash = false;
+    }
   }
 
   setLowR(setting?: boolean): boolean {
@@ -260,6 +285,11 @@ export class TransactionBuilder {
     witnessValue?: number,
     witnessScript?: Buffer,
   ): void {
+    const bitcoinFork = this.bitcoinCash
+      ? 'bch'
+      : this.bitcoinGold
+      ? 'btg'
+      : undefined;
     trySign(
       getSigningData(
         this.network,
@@ -273,7 +303,7 @@ export class TransactionBuilder {
         witnessValue,
         witnessScript,
         this.__USE_LOW_R,
-        this.bitcoinCash,
+        bitcoinFork,
       ),
     );
   }
@@ -585,7 +615,7 @@ function fixMultisigOrder(
   transaction: Transaction,
   vin: number,
   value?: number,
-  bitcoincash?: boolean,
+  forkId?: number,
 ): void {
   if (input.redeemScriptType !== SCRIPT_TYPES.P2MS || !input.redeemScript)
     return;
@@ -605,28 +635,38 @@ function fixMultisigOrder(
       // TODO: avoid O(n) hashForSignature
       const parsed = bscript.signature.decode(signature);
       let hash: Buffer;
-      if (bitcoincash) {
-        hash = transaction.hashForCashSignature(
-          vin,
-          input.redeemScript!,
-          value!,
-          parsed.hashType,
-        );
-      } else {
-        if (input.witness) {
-          hash = transaction.hashForWitnessV0(
+      switch (forkId) {
+        case Transaction.FORKID_BCH:
+          hash = transaction.hashForCashSignature(
             vin,
             input.redeemScript!,
             value!,
             parsed.hashType,
           );
-        } else {
-          hash = transaction.hashForSignature(
+          break;
+        case Transaction.FORKID_BTG:
+          hash = transaction.hashForGoldSignature(
             vin,
             input.redeemScript!,
+            value!,
             parsed.hashType,
           );
-        }
+          break;
+        default:
+          if (input.witness) {
+            hash = transaction.hashForWitnessV0(
+              vin,
+              input.redeemScript!,
+              value!,
+              parsed.hashType,
+            );
+          } else {
+            hash = transaction.hashForSignature(
+              vin,
+              input.redeemScript!,
+              parsed.hashType,
+            );
+          }
       }
 
       // skip if signature does not match pubKey
@@ -1252,7 +1292,7 @@ function getSigningData(
   witnessValue?: number,
   witnessScript?: Buffer,
   useLowR?: boolean,
-  bitcoinCash?: boolean,
+  bitcoinFork?: 'btg' | 'bch',
 ): SigningData {
   let vin: number;
   if (typeof signParams === 'number') {
@@ -1325,7 +1365,14 @@ function getSigningData(
 
   // ready to sign
   let signatureHash: Buffer;
-  if (bitcoinCash) {
+  if (bitcoinFork === 'btg') {
+    signatureHash = tx.hashForGoldSignature(
+      vin,
+      input.signScript as Buffer,
+      witnessValue!,
+      hashType,
+    );
+  } else if (bitcoinFork === 'bch') {
     signatureHash = tx.hashForCashSignature(
       vin,
       input.signScript as Buffer,

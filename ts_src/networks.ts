@@ -47,3 +47,14 @@ export const testnet: Network = {
   scriptHash: 0xc4,
   wif: 0xef,
 };
+export const bitcoingold: Network = {
+  messagePrefix: '\x18Bitcoin Gold Signed Message:\n',
+  bech32: 'btg',
+  bip32: {
+    public: 0x0488b21e,
+    private: 0x0488ade4,
+  },
+  pubKeyHash: 0x26,
+  scriptHash: 0x17,
+  wif: 0x80,
+};
