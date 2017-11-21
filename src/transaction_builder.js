@@ -174,7 +174,7 @@ function expandInput (scriptSig, witnessStack) {
 }
 
 // could be done in expandInput, but requires the original Transaction for hashForSignature
-function fixMultisigOrder (input, transaction, vin, value, bitcoinCash) {
+function fixMultisigOrder (input, transaction, vin, value, forkId) {
   if (input.redeemScriptType !== scriptTypes.MULTISIG || !input.redeemScript) return
   if (input.pubKeys.length === input.signatures.length) return
 
@@ -192,14 +192,20 @@ function fixMultisigOrder (input, transaction, vin, value, bitcoinCash) {
       // TODO: avoid O(n) hashForSignature
       var parsed = ECSignature.parseScriptSignature(signature)
       var hash
-      if (bitcoinCash) {
-        hash = transaction.hashForCashSignature(vin, input.signScript, value, parsed.hashType)
-      } else {
-        if (input.witness) {
-          hash = transaction.hashForWitnessV0(vin, input.signScript, value, parsed.hashType)
-        } else {
-          hash = transaction.hashForSignature(vin, input.signScript, parsed.hashType)
-        }
+      switch (forkId) {
+        case Transaction.FORKID_BCH:
+          hash = transaction.hashForCashSignature(vin, input.signScript, value, parsed.hashType)
+          break
+        case Transaction.FORKID_BTG:
+          hash = transaction.hashForGoldSignature(vin, input.signScript, value, parsed.hashType)
+          break
+        default:
+          if (input.witness) {
+            hash = transaction.hashForWitnessV0(vin, input.signScript, value, parsed.hashType)
+          } else {
+            hash = transaction.hashForSignature(vin, input.signScript, parsed.hashType)
+          }
+          break
       }
 
       // skip if signature does not match pubKey
@@ -482,6 +488,7 @@ function TransactionBuilder (network, maximumFeeRate) {
 
   this.inputs = []
   this.bitcoinCash = false
+  this.bitcoinGold = false
   this.tx = new Transaction()
 }
 
@@ -491,6 +498,14 @@ TransactionBuilder.prototype.enableBitcoinCash = function (enable) {
   }
 
   this.bitcoinCash = enable
+}
+
+TransactionBuilder.prototype.enableBitcoinGold = function (enable) {
+  if (typeof enable === 'undefined') {
+    enable = true
+  }
+
+  this.bitcoinGold = enable
 }
 
 TransactionBuilder.prototype.setLockTime = function (locktime) {
@@ -515,9 +530,16 @@ TransactionBuilder.prototype.setVersion = function (version) {
   this.tx.version = version
 }
 
-TransactionBuilder.fromTransaction = function (transaction, network, bitcoinCashTx) {
+TransactionBuilder.fromTransaction = function (transaction, network, forkId) {
   var txb = new TransactionBuilder(network)
-  txb.enableBitcoinCash(Boolean(bitcoinCashTx))
+
+  if (typeof forkId === 'number') {
+    if (forkId === Transaction.FORKID_BTG) {
+      txb.enableBitcoinGold(true)
+    } else if (forkId === Transaction.FORKID_BCH) {
+      txb.enableBitcoinCash(true)
+    }
+  }
 
   // Copy transaction fields
   txb.setVersion(transaction.version)
@@ -540,7 +562,7 @@ TransactionBuilder.fromTransaction = function (transaction, network, bitcoinCash
 
   // fix some things not possible through the public API
   txb.inputs.forEach(function (input, i) {
-    fixMultisigOrder(input, transaction, i, input.value, bitcoinCashTx)
+    fixMultisigOrder(input, transaction, i, input.value, forkId)
   })
 
   return txb
@@ -715,7 +737,9 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
 
   // ready to sign
   var signatureHash
-  if (this.bitcoinCash) {
+  if (this.bitcoinGold) {
+    signatureHash = this.tx.hashForGoldSignature(vin, input.signScript, witnessValue, hashType, input.witness)
+  } else if (this.bitcoinCash) {
     signatureHash = this.tx.hashForCashSignature(vin, input.signScript, witnessValue, hashType)
   } else {
     if (input.witness) {
