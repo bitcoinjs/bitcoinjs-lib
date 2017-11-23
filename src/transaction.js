@@ -441,7 +441,7 @@ Transaction.prototype.hashForGoldSignature = function (inIndex, prevOutScript, i
   // and pass it into the functions.
 
   var nForkHashType = hashType
-  var fUseForkId = (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) > 0;
+  var fUseForkId = (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) > 0
   if (fUseForkId) {
     nForkHashType |= Transaction.FORKID_BTG << 8
   }

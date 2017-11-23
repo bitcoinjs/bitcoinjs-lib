@@ -176,8 +176,10 @@ function expandInput (scriptSig, witnessStack) {
 
 // could be done in expandInput, but requires the original Transaction for hashForSignature
 function fixMultisigOrder (input, transaction, vin, value, forkId) {
-  if (input.signType !== scriptTypes.MULTISIG || !input.signScript) return
+  if (input.redeemScriptType !== scriptTypes.MULTISIG || !input.redeemScript) return
   if (input.pubKeys.length === input.signatures.length) return
+  // left in here just in case
+  if (input.signType !== scriptTypes.MULTISIG || !input.signScript) return
 
   var unmatched = input.signatures.concat()
 
@@ -194,7 +196,7 @@ function fixMultisigOrder (input, transaction, vin, value, forkId) {
       var parsed = ECSignature.parseScriptSignature(signature)
       var hash
       switch (forkId) {
-          case Transaction.FORKID_BCH:
+        case Transaction.FORKID_BCH:
           hash = transaction.hashForCashSignature(vin, input.signScript, value, parsed.hashType)
           break
         case Transaction.FORKID_BTG:
@@ -370,7 +372,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     signType = prevOutType
     signScript = prevOutScript
   }
-
+  //
   // if (witnessValue !== undefined || witness) {
   //   typeforce(types.Satoshi, witnessValue)
   //   if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
@@ -508,11 +510,11 @@ TransactionBuilder.prototype.enableBitcoinCash = function (enable) {
 }
 
 TransactionBuilder.prototype.enableBitcoinGold = function (enable) {
-    if (typeof enable === 'undefined') {
-        enable = true
-    }
+  if (typeof enable === 'undefined') {
+    enable = true
+  }
 
-    this.bitcoinGold = enable
+  this.bitcoinGold = enable
 }
 
 TransactionBuilder.prototype.setLockTime = function (locktime) {
@@ -540,7 +542,7 @@ TransactionBuilder.prototype.setVersion = function (version) {
 TransactionBuilder.fromTransaction = function (transaction, network, forkId) {
   var txb = new TransactionBuilder(network)
 
-  if (typeof forkId === "number") {
+  if (typeof forkId === 'number') {
     if (forkId === Transaction.FORKID_BTG) {
       txb.enableBitcoinGold(true)
     } else if (forkId === Transaction.FORKID_BCH) {
