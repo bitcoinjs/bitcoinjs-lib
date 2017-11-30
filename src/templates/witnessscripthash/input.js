@@ -48,11 +48,12 @@ function encodeStack (witnessData, witnessScript) {
   return [].concat(witnessData, witnessScript)
 }
 
-function decodeStack (chunks) {
-  typeforce(check, chunks)
+function decodeStack (stack) {
+  typeforce(typeforce.Array, stack)
+  typeforce(check, stack)
   return {
-    witnessData: chunks.slice(0, -1),
-    witnessScript: chunks[chunks.length - 1]
+    witnessData: stack.slice(0, -1),
+    witnessScript: stack[stack.length - 1]
   }
 }
 

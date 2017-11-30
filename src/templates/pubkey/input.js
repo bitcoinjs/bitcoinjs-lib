@@ -21,6 +21,7 @@ function encode (signature) {
 }
 
 function decodeStack (stack) {
+  typeforce(typeforce.Array, stack)
   typeforce(check, stack)
   return stack[0]
 }
