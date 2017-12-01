@@ -3,6 +3,7 @@
 var assert = require('assert')
 var baddress = require('../src/address')
 var bscript = require('../src/script')
+var btemplates = require('../src/templates')
 var ops = require('bitcoin-ops')
 
 var BigInteger = require('bigi')
@@ -50,6 +51,7 @@ function construct (f, dontSign) {
 
   if (dontSign) return txb
 
+  var stages = f.stages && f.stages.concat()
   f.inputs.forEach(function (input, index) {
     if (!input.signs) return
     input.signs.forEach(function (sign) {
@@ -67,6 +69,12 @@ function construct (f, dontSign) {
         witnessScript = bscript.fromASM(sign.witnessScript)
       }
       txb.sign(index, keyPair, redeemScript, sign.hashType, value, witnessScript)
+
+      if (sign.stage) {
+        var tx = txb.buildIncomplete()
+        assert.strictEqual(tx.toHex(), stages.shift())
+        txb = TransactionBuilder.fromTransaction(tx, network)
+      }
     })
   })
 
@@ -91,7 +99,9 @@ describe('TransactionBuilder', function () {
 
         var tx = Transaction.fromHex(f.txHex)
         var txb = TransactionBuilder.fromTransaction(tx, network)
-        assert.strictEqual(txb.build().toHex(), f.txHex)
+        var txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
+
+        assert.strictEqual(txAfter.toHex(), f.txHex)
         assert.strictEqual(txb.network, network)
       })
     })
@@ -120,6 +130,16 @@ describe('TransactionBuilder', function () {
         txAfter.outs.forEach(function (output, i) {
           assert.equal(bscript.toASM(output.script), f.outputs[i].script)
         })
+      })
+    })
+
+    it('correctly classifies transaction inputs', function () {
+      var tx = Transaction.fromHex(fixtures.valid.classification.hex)
+      var txb = TransactionBuilder.fromTransaction(tx)
+      txb.inputs.forEach(function (i) {
+        assert.strictEqual(i.prevOutType, 'scripthash')
+        assert.strictEqual(i.redeemScriptType, 'multisig')
+        assert.strictEqual(i.signType, 'multisig')
       })
     })
 
@@ -274,6 +294,19 @@ describe('TransactionBuilder', function () {
   })
 
   describe('sign', function () {
+    it('supports the alternative abstract interface { publicKey, sign }', function () {
+      var keyPair = {
+        publicKey: Buffer.alloc(33, 0x03),
+        sign: function (hash) { return Buffer.alloc(64) }
+      }
+
+      var txb = new TransactionBuilder()
+      txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
+      txb.addOutput('1111111111111111111114oLvT2', 100000)
+      txb.sign(0, keyPair)
+      assert.equal(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000002c0930060201000201000121030303030303030303030303030303030303030303030303030303030303030303ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
+    })
+
     fixtures.invalid.sign.forEach(function (f) {
       it('throws on ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
         var txb = construct(f, true)
@@ -305,7 +338,8 @@ describe('TransactionBuilder', function () {
     fixtures.valid.build.forEach(function (f) {
       it('builds "' + f.description + '"', function () {
         var txb = construct(f)
-        var tx = txb.build()
+        var tx = f.incomplete ? txb.buildIncomplete() : txb.build()
+
         assert.strictEqual(tx.toHex(), f.txHex)
       })
     })
@@ -328,7 +362,7 @@ describe('TransactionBuilder', function () {
 
         // if throws on incomplete too, enforce that
         if (f.incomplete) {
-          it('throws ' + f.exception, function () {
+          it('throws if ' + f.exception, function () {
             assert.throws(function () {
               var txb
               if (f.txHex) {
@@ -362,9 +396,41 @@ describe('TransactionBuilder', function () {
       var randomTx = Transaction.fromHex(randomTxData)
       var tx = new TransactionBuilder()
       tx.addInput(randomTx, 0)
-      tx.addOutput(baddress.toOutputScript(randomAddress), 1000)
+      tx.addOutput(randomAddress, 1000)
       tx = tx.buildIncomplete()
       assert(tx)
+    })
+
+    it('for incomplete P2SH with 0 signatures', function () {
+      var inp = Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a80400000017a91471a8ec07ff69c6c4fee489184c462a9b1b9237488700000000', 'hex') // arbitrary P2SH input
+      var inpTx = Transaction.fromBuffer(inp)
+
+      var txb = new TransactionBuilder(NETWORKS.testnet)
+      txb.addInput(inpTx, 0)
+      txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
+
+      txb.buildIncomplete()
+    })
+
+    it('for incomplete P2WPKH with 0 signatures', function () {
+      var inp = Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a8040000001600141a15805e1f4040c9f68ccc887fca2e63547d794b00000000', 'hex')
+      var inpTx = Transaction.fromBuffer(inp)
+
+      var txb = new TransactionBuilder(NETWORKS.testnet)
+      txb.addInput(inpTx, 0)
+      txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
+
+      txb.buildIncomplete()
+    })
+
+    it('for incomplete P2WSH with 0 signatures', function () {
+      var inpTx = Transaction.fromBuffer(Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a80400000022002072df76fcc0b231b94bdf7d8c25d7eef4716597818d211e19ade7813bff7a250200000000', 'hex'))
+
+      var txb = new TransactionBuilder(NETWORKS.testnet)
+      txb.addInput(inpTx, 0)
+      txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
+
+      txb.buildIncomplete()
     })
   })
 
@@ -389,7 +455,7 @@ describe('TransactionBuilder', function () {
                 var signatures = bscript.decompile(scriptSig).slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
 
                 // rebuild/replace the scriptSig without them
-                var replacement = bscript.scriptHash.input.encode(bscript.multisig.input.encode(signatures), redeemScript)
+                var replacement = btemplates.scriptHash.input.encode(btemplates.multisig.input.encode(signatures), redeemScript)
                 assert.strictEqual(bscript.toASM(replacement), sign.scriptSigFiltered)
 
                 tx.ins[i].script = replacement
@@ -416,6 +482,52 @@ describe('TransactionBuilder', function () {
 
   describe('various edge case', function () {
     var network = NETWORKS.testnet
+
+    it('should warn of high fee for segwit transaction based on VSize, not Size', function () {
+      var rawtx = '01000000000104fdaac89627208b4733484ca56bc291f4cf4fa8d7c5f29893c52b46788a0a' +
+      '1df90000000000fffffffffdaac89627208b4733484ca56bc291f4cf4fa8d7c5f29893c52b46788a0a1df9' +
+      '0100000000ffffffffa2ef7aaab316a3e5b5b0a78d1d35c774b95a079f9f0c762277a49caf1f26bca40000' +
+      '000000ffffffffa2ef7aaab316a3e5b5b0a78d1d35c774b95a079f9f0c762277a49caf1f26bca401000000' +
+      '00ffffffff0100040000000000001976a914cf307285359ab7ef6a2daa0522c7908ddf5fe7a988ac024730' +
+      '440220113324438816338406841775e079b04c50d04f241da652a4035b1017ea1ecf5502205802191eb49c' +
+      '54bf2a5667aea72e51c3ca92085efc60f12d1ebda3a64aff343201210283409659355b6d1cc3c32decd5d5' +
+      '61abaac86c37a353b52895a5e6c196d6f44802483045022100dc2892874e6d8708e3f5a058c5c9263cdf03' +
+      '969492270f89ee4933caf6daf8bb0220391dfe61a002709b63b9d64422d3db09b727839d1287e10a128a5d' +
+      'b52a82309301210283409659355b6d1cc3c32decd5d561abaac86c37a353b52895a5e6c196d6f448024830' +
+      '450221009e3ed3a6ae93a018f443257b43e47b55cf7f7f3547d8807178072234686b22160220576121cfe6' +
+      '77c7eddf5575ea0a7c926247df6eca723c4f85df306e8bc08ea2df01210283409659355b6d1cc3c32decd5' +
+      'd561abaac86c37a353b52895a5e6c196d6f44802473044022007be81ffd4297441ab10e740fc9bab9545a2' +
+      '194a565cd6aa4cc38b8eaffa343402201c5b4b61d73fa38e49c1ee68cc0e6dfd2f5dae453dd86eb142e87a' +
+      '0bafb1bc8401210283409659355b6d1cc3c32decd5d561abaac86c37a353b52895a5e6c196d6f44800000000'
+      var txb = TransactionBuilder.fromTransaction(Transaction.fromHex(rawtx))
+      txb.inputs[0].value = 241530
+      txb.inputs[1].value = 241530
+      txb.inputs[2].value = 241530
+      txb.inputs[3].value = 241530
+
+      assert.throws(function () {
+        txb.build()
+      }, new RegExp('Transaction has absurd fees'))
+    })
+
+    it('should classify witness inputs with witness = true during multisigning', function () {
+      var keyPair = ECPair.fromWIF('cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS', network)
+      var witnessScript = Buffer.from('522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea1952ae', 'hex')
+      var redeemScript = Buffer.from('002024376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af', 'hex')
+      var scriptPubKey = Buffer.from('a914b64f1a3eacc1c8515592a6f10457e8ff90e4db6a87', 'hex')
+      var txb = new TransactionBuilder(network)
+      txb.addInput('a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529', 1, 0xffffffff, scriptPubKey)
+      txb.addOutput(scriptPubKey, 99000)
+      txb.sign(0, keyPair, redeemScript, null, 100000, witnessScript)
+      // 2-of-2 signed only once
+      var tx = txb.buildIncomplete()
+      // Only input is segwit, so txid should be accurate with the final tx
+      assert.equal(tx.getId(), 'f15d0a65b21b4471405b21a099f8b18e1ae4d46d55efbd0f4766cf11ad6cb821')
+      var txHex = tx.toHex()
+      var newTxb = TransactionBuilder.fromTransaction(Transaction.fromHex(txHex))
+      // input should have the key 'witness' set to true
+      assert.equal(newTxb.inputs[0].witness, true)
+    })
 
     it('should handle badly pre-filled OP_0s', function () {
       // OP_0 is used where a signature is missing

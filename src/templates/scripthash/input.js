@@ -4,6 +4,12 @@ var Buffer = require('safe-buffer').Buffer
 var bscript = require('../../script')
 var typeforce = require('typeforce')
 
+var p2ms = require('../multisig/')
+var p2pk = require('../pubkey/')
+var p2pkh = require('../pubkeyhash/')
+var p2wpkho = require('../witnesspubkeyhash/output')
+var p2wsho = require('../witnessscripthash/output')
+
 function check (script, allowIncomplete) {
   var chunks = bscript.decompile(script)
   if (chunks.length < 1) return false
@@ -20,12 +26,23 @@ function check (script, allowIncomplete) {
   // is redeemScriptSig push only?
   if (!bscript.isPushOnly(scriptSigChunks)) return false
 
-  var inputType = bscript.classifyInput(scriptSigChunks, allowIncomplete)
-  var outputType = bscript.classifyOutput(redeemScriptChunks)
+  // is witness?
   if (chunks.length === 1) {
-    return outputType === bscript.types.P2WSH || outputType === bscript.types.P2WPKH
+    return p2wsho.check(redeemScriptChunks) ||
+      p2wpkho.check(redeemScriptChunks)
   }
-  return inputType === outputType
+
+  // match types
+  if (p2pkh.input.check(scriptSigChunks) &&
+    p2pkh.output.check(redeemScriptChunks)) return true
+
+  if (p2ms.input.check(scriptSigChunks, allowIncomplete) &&
+    p2ms.output.check(redeemScriptChunks)) return true
+
+  if (p2pk.input.check(scriptSigChunks) &&
+    p2pk.output.check(redeemScriptChunks)) return true
+
+  return false
 }
 check.toJSON = function () { return 'scriptHash input' }
 

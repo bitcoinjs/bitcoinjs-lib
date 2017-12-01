@@ -1,3 +1,12 @@
+# 3.2.0
+__added__
+- Added `address.fromBech32/toBech32` (#846)
+
+# 3.1.0
+__added__
+- Added `Transaction.prototype.virtualSize` (#811)
+- Added `Transaction.prototype.weight` (#811)
+
 # 3.0.0
 From this release users can expect out-of-the-box Segregated Witness support.
 The majority of breaking changes have been in how `script` encoding/decoding occurs,  with the introduction of witness stacks.
