@@ -500,10 +500,10 @@ describe('TransactionBuilder', function () {
       '194a565cd6aa4cc38b8eaffa343402201c5b4b61d73fa38e49c1ee68cc0e6dfd2f5dae453dd86eb142e87a' +
       '0bafb1bc8401210283409659355b6d1cc3c32decd5d561abaac86c37a353b52895a5e6c196d6f44800000000'
       var txb = TransactionBuilder.fromTransaction(Transaction.fromHex(rawtx))
-      txb.inputs[0].value = 81530
-      txb.inputs[1].value = 81530
-      txb.inputs[2].value = 88920
-      txb.inputs[3].value = 88920
+      txb.inputs[0].value = 241530
+      txb.inputs[1].value = 241530
+      txb.inputs[2].value = 248920
+      txb.inputs[3].value = 248920
 
       assert.throws(function () {
         txb.build()

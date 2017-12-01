@@ -53,6 +53,7 @@ function encode (signatures, scriptPubKey) {
 }
 
 function decodeStack (stack, allowIncomplete) {
+  typeforce(typeforce.Array, stack)
   typeforce(check, stack, allowIncomplete)
   return stack.slice(1)
 }

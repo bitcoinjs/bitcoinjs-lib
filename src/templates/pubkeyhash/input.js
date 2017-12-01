@@ -29,6 +29,7 @@ function encode (signature, pubKey) {
 }
 
 function decodeStack (stack) {
+  typeforce(typeforce.Array, stack)
   typeforce(check, stack)
 
   return {
