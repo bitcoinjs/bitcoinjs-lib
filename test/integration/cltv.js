@@ -81,8 +81,8 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
-      // 50 blocks from now
-      var lockTime = bip65.encode({ blocks: height + 50 })
+      // 5 blocks from now
+      var lockTime = bip65.encode({ blocks: height + 5 })
       var redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
       var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
       var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
@@ -106,14 +106,9 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
         tx.setInputScript(0, redeemScriptSig)
 
         // TODO: test that it failures _prior_ to expiry, unfortunately, race conditions when run concurrently
-//          regtestUtils.broadcast(tx.toHex(), function (err) {
-//            // fails before the expiry
-//            assert.throws(function () {
-//              if (err) throw err
-//            }, /Error: 64: non-final/)
-
+        // ...
         // into the future!
-        regtestUtils.mine(51, function (err) {
+        regtestUtils.mine(5, function (err) {
           if (err) return done(err)
 
           regtestUtils.broadcast(tx.toHex(), function (err) {
@@ -127,7 +122,6 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
             }, done)
           })
         })
-//          })
       })
     })
   })
