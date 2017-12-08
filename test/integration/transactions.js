@@ -234,7 +234,7 @@ describe('bitcoinjs-lib (transactions)', function () {
       var ss = bitcoin.ECSignature.parseScriptSignature(scriptSig.signature)
       var hash = tx.hashForSignature(i, prevOutScript, ss.hashType)
 
-      assert.strictEqual(keyPair.getPublicKeyBuffer().toString('hex'), scriptSig.pubKey.toString('hex'))
+      assert.strictEqual(scriptSig.pubKey.toString('hex'), keyPair.getPublicKeyBuffer().toString('hex'))
       assert.strictEqual(keyPair.verify(hash, ss.signature), true)
     })
   })
