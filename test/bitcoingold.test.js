@@ -3,6 +3,7 @@
 var assert = require('assert')
 var bscript = require('../src/script')
 var bcrypto = require('../src/crypto')
+var btemplates = require('../src/templates')
 var ECPair = require('../src/ecpair')
 var NETWORKS = require('../src/networks')
 var TransactionBuilder = require('../src/transaction_builder')
@@ -19,7 +20,7 @@ describe('TransactionBuilder', function () {
     var keyPair = ECPair.fromWIF(wif, network)
 
     var pk = bcrypto.hash160(keyPair.getPublicKeyBuffer())
-    var spk = bscript.pubKeyHash.output.encode(pk)
+    var spk = btemplates.pubKeyHash.output.encode(pk)
 
     var txb = new TransactionBuilder(network)
     txb.addInput(txid, vout, Transaction.DEFAULT_SEQUENCE, spk)
