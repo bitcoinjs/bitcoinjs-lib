@@ -17,7 +17,7 @@ describe('bitcoinjs-lib (addresses)', function () {
   })
 
   it('can generate an address from a SHA256 hash', function () {
-    var hash = bitcoin.crypto.sha256('correct horse battery staple')
+    var hash = bitcoin.crypto.sha256(Buffer.from('correct horse battery staple'))
     var d = bigi.fromBuffer(hash)
 
     var keyPair = new bitcoin.ECPair(d)
