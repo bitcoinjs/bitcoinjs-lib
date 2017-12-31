@@ -71,7 +71,7 @@ This is because of the function-name-duck-typing used in [typeforce](https://git
 
 Example:
 ``` bash
-uglifyjs ... --mangle --reserved 'BigInteger,ECPair,Point'
+uglifyjs ... --mangle reserved=['BigInteger','ECPair','Point']
 ```
 
 **NOTE**: This library tracks Node LTS features,  if you need strict ES5,  use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](http://babeljs.io/docs/plugins/preset-es2015/) preset).
@@ -178,11 +178,12 @@ npm run-script coverage
 ```
 
 ## Complementing Libraries
-- [BIP21](https://github.com/bitcoinjs/bip21) - A BIP21 compatible URL encoding utility library
+- [BIP21](https://github.com/bitcoinjs/bip21) - A BIP21 compatible URL encoding library
 - [BIP38](https://github.com/bitcoinjs/bip38) - Passphrase-protected private keys
 - [BIP39](https://github.com/bitcoinjs/bip39) - Mnemonic generation for deterministic keys
 - [BIP32-Utils](https://github.com/bitcoinjs/bip32-utils) - A set of utilities for working with BIP32
 - [BIP66](https://github.com/bitcoinjs/bip66) - Strict DER signature decoding
+- [BIP68](https://github.com/bitcoinjs/bip68) - Relative lock-time encoding library
 - [BIP69](https://github.com/bitcoinjs/bip69) - Lexicographical Indexing of Transaction Inputs and Outputs
 - [Base58](https://github.com/cryptocoinjs/bs58) - Base58 encoding/decoding
 - [Base58 Check](https://github.com/bitcoinjs/bs58check) - Base58 check encoding/decoding

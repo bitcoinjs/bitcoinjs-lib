@@ -61,8 +61,8 @@ describe('bitcoinjs-lib (addresses)', function () {
     var keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
     var pubKey = keyPair.getPublicKeyBuffer()
 
-    var witnessScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey))
-    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(witnessScript))
+    var redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey))
+    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.address.fromOutputScript(scriptPubKey)
 
     assert.strictEqual(address, '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53')
