@@ -604,7 +604,7 @@ TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
     throw new Error('No, this would invalidate signatures')
   }
 
-  // Attempt to get a script if it's a base58 address string
+  // Attempt to get a script if it's a base58 or bech32 address string
   if (typeof scriptPubKey === 'string') {
     scriptPubKey = baddress.toOutputScript(scriptPubKey, this.network)
   }
