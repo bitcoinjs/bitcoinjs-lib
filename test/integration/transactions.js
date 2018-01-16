@@ -77,9 +77,9 @@ describe('bitcoinjs-lib (transactions)', function () {
       // build and broadcast to the Bitcoin Testnet network
       dhttp({
         method: 'POST',
-        url: 'https://api.ei8ht.com.au:9443/3/pushtx',
+        url: 'https://testnet-api.smartbit.com.au/v1/blockchain/pushtx',
 //          url: 'http://tbtc.blockr.io/api/v1/tx/push',
-        body: txb.build().toHex()
+        body: JSON.stringify({hex: txb.build().toHex()})
       }, done)
       // to build and broadcast to the actual Bitcoin network, see https://github.com/bitcoinjs/bitcoinjs-lib/issues/839
     })
@@ -106,8 +106,8 @@ describe('bitcoinjs-lib (transactions)', function () {
       // build and broadcast to the Bitcoin Testnet network
       dhttp({
         method: 'POST',
-        url: 'https://api.ei8ht.com.au:9443/3/pushtx',
-        body: txb.build().toHex()
+        url: 'https://testnet-api.smartbit.com.au/v1/blockchain/pushtx',
+        body: JSON.stringify({hex: txb.build().toHex()})
       }, done)
     })
   })
