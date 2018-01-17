@@ -308,24 +308,28 @@ describe('TransactionBuilder', function () {
     })
 
     fixtures.invalid.sign.forEach(function (f) {
-      it('throws on ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
+      it('throws ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
         var txb = construct(f, true)
 
         f.inputs.forEach(function (input, index) {
           input.signs.forEach(function (sign) {
             var keyPairNetwork = NETWORKS[sign.network || f.network]
             var keyPair2 = ECPair.fromWIF(sign.keyPair, keyPairNetwork)
-            var redeemScript
+            var redeemScript, witnessScript
 
             if (sign.redeemScript) {
               redeemScript = bscript.fromASM(sign.redeemScript)
             }
 
+            if (sign.witnessScript) {
+              witnessScript = bscript.fromASM(sign.witnessScript)
+            }
+
             if (!sign.throws) {
-              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value)
+              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
             } else {
               assert.throws(function () {
-                txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value)
+                txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
               }, new RegExp(f.exception))
             }
           })
@@ -362,7 +366,7 @@ describe('TransactionBuilder', function () {
 
         // if throws on incomplete too, enforce that
         if (f.incomplete) {
-          it('throws if ' + f.exception, function () {
+          it('throws ' + f.exception, function () {
             assert.throws(function () {
               var txb
               if (f.txHex) {

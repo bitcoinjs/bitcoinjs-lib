@@ -259,7 +259,7 @@ function checkP2SHInput (input, redeemScriptHash) {
     if (input.prevOutType !== scriptTypes.P2SH) throw new Error('PrevOutScript must be P2SH')
 
     var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
-    if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
+    if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(redeemScript)')
   }
 }
 
@@ -268,7 +268,7 @@ function checkP2WSHInput (input, witnessScriptHash) {
     if (input.prevOutType !== scriptTypes.P2WSH) throw new Error('PrevOutScript must be P2WSH')
 
     var scriptHash = bscript.decompile(input.prevOutScript)[1]
-    if (!scriptHash.equals(witnessScriptHash)) throw new Error('Inconsistent sha25(WitnessScript)')
+    if (!scriptHash.equals(witnessScriptHash)) throw new Error('Inconsistent sha256(witnessScript)')
   }
 }
 
@@ -297,7 +297,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     if (!redeemScript.equals(btemplates.witnessScriptHash.output.encode(witnessScriptHash))) throw new Error('Witness script inconsistent with redeem script')
 
     expanded = expandOutput(witnessScript, undefined, kpPubKey)
-    if (!expanded.pubKeys) throw new Error('WitnessScript not supported "' + bscript.toASM(redeemScript) + '"')
+    if (!expanded.pubKeys) throw new Error(expanded.scriptType + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')')
 
     prevOutType = btemplates.types.P2SH
     prevOutScript = btemplates.scriptHash.output.encode(redeemScriptHash)
@@ -310,7 +310,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     checkP2SHInput(input, redeemScriptHash)
 
     expanded = expandOutput(redeemScript, undefined, kpPubKey)
-    if (!expanded.pubKeys) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
+    if (!expanded.pubKeys) throw new Error(expanded.scriptType + ' not supported as redeemScript (' + bscript.toASM(redeemScript) + ')')
 
     prevOutType = btemplates.types.P2SH
     prevOutScript = btemplates.scriptHash.output.encode(redeemScriptHash)
@@ -323,7 +323,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     checkP2WSHInput(input, witnessScriptHash)
 
     expanded = expandOutput(witnessScript, undefined, kpPubKey)
-    if (!expanded.pubKeys) throw new Error('WitnessScript not supported "' + bscript.toASM(redeemScript) + '"')
+    if (!expanded.pubKeys) throw new Error(expanded.scriptType + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')')
 
     prevOutType = btemplates.types.P2WSH
     prevOutScript = btemplates.witnessScriptHash.output.encode(witnessScriptHash)
@@ -332,9 +332,12 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     signScript = witnessScript
   } else if (input.prevOutType) {
     // embedded scripts are not possible without a redeemScript
-    if (input.prevOutType === scriptTypes.P2SH ||
-      input.prevOutType === scriptTypes.P2WSH) {
+    if (input.prevOutType === scriptTypes.P2SH) {
       throw new Error('PrevOutScript is ' + input.prevOutType + ', requires redeemScript')
+    }
+
+    if (input.prevOutType === scriptTypes.P2WSH) {
+      throw new Error('PrevOutScript is ' + input.prevOutType + ', requires witnessScript')
     }
 
     prevOutType = input.prevOutType
@@ -705,8 +708,12 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   var signed = input.pubKeys.some(function (pubKey, i) {
     if (!kpPubKey.equals(pubKey)) return false
     if (input.signatures[i]) throw new Error('Signature already exists')
-    if (kpPubKey.length !== 33 &&
-      input.signType === scriptTypes.P2WPKH) throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
+
+    if (kpPubKey.length !== 33 && (
+      input.signType === scriptTypes.P2WPKH ||
+      input.redeemScriptType === scriptTypes.P2WSH ||
+      input.prevOutType === scriptTypes.P2WSH
+    )) throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
 
     var signature = keyPair.sign(signatureHash)
     if (Buffer.isBuffer(signature)) signature = ECSignature.fromRSBuffer(signature)
