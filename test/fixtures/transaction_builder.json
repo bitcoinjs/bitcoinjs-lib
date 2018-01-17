@@ -1967,6 +1967,28 @@
         ]
       },
       {
+        "exception": "PrevOutScript is witnessscripthash, requires witnessScript",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "prevTxScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
         "exception": "Inconsistent redeemScript",
         "network": "testnet",
         "inputs": [

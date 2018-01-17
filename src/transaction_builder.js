@@ -332,9 +332,12 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     signScript = witnessScript
   } else if (input.prevOutType) {
     // embedded scripts are not possible without a redeemScript
-    if (input.prevOutType === scriptTypes.P2SH ||
-      input.prevOutType === scriptTypes.P2WSH) {
+    if (input.prevOutType === scriptTypes.P2SH) {
       throw new Error('PrevOutScript is ' + input.prevOutType + ', requires redeemScript')
+    }
+
+    if (input.prevOutType === scriptTypes.P2WSH) {
+      throw new Error('PrevOutScript is ' + input.prevOutType + ', requires witnessScript')
     }
 
     prevOutType = input.prevOutType
