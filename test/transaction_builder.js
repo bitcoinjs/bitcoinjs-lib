@@ -308,7 +308,7 @@ describe('TransactionBuilder', function () {
     })
 
     fixtures.invalid.sign.forEach(function (f) {
-      it('throws on ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
+      it('throws ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
         var txb = construct(f, true)
 
         f.inputs.forEach(function (input, index) {
@@ -362,7 +362,7 @@ describe('TransactionBuilder', function () {
 
         // if throws on incomplete too, enforce that
         if (f.incomplete) {
-          it('throws if ' + f.exception, function () {
+          it('throws ' + f.exception, function () {
             assert.throws(function () {
               var txb
               if (f.txHex) {
