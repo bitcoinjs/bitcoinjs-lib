@@ -1040,8 +1040,8 @@
               {
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
-                "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
                 "redeemScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
+                "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
                 "value": 80000
               }
             ],
@@ -1919,6 +1919,57 @@
           {
             "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
             "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2WSH(P2PK), signing with uncompressed public key",
+        "exception": "BIP143 rejects uncompressed public keys in P2WPKH or P2WSH",
+        "inputs": [
+          {
+            "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
+            "vout": 0,
+            "prevTxScript": "OP_0 5339df4de3854c4208376443ed075014ad996aa349ad6b5abf6c4d20f604d348",
+            "signs": [
+              {
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "witnessScript": "04f56d09b32cefc818735150bf8560eefdaf30d2edb3fe557bf27682aedaed81bf9aaff7eeb496e088058ec548826c12b521dbb566a862d9b67677910c2b421e06 OP_CHECKSIG",
+                "value": 80000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 60000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2WSH(P2PK)), signing with uncompressed public key",
+        "exception": "BIP143 rejects uncompressed public keys in P2WPKH or P2WSH",
+        "inputs": [
+          {
+            "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
+            "vout": 0,
+            "prevTxScript": "OP_HASH160 5afe12b2827e3eac05fe3f17c59406ef262aa177 OP_EQUAL",
+            "signs": [
+              {
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "redeemScript": "OP_0 5339df4de3854c4208376443ed075014ad996aa349ad6b5abf6c4d20f604d348",
+                "witnessScript": "04f56d09b32cefc818735150bf8560eefdaf30d2edb3fe557bf27682aedaed81bf9aaff7eeb496e088058ec548826c12b521dbb566a862d9b67677910c2b421e06 OP_CHECKSIG",
+                "value": 80000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 60000
           }
         ]
       },

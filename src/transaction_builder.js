@@ -259,7 +259,7 @@ function checkP2SHInput (input, redeemScriptHash) {
     if (input.prevOutType !== scriptTypes.P2SH) throw new Error('PrevOutScript must be P2SH')
 
     var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
-    if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(RedeemScript)')
+    if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(redeemScript)')
   }
 }
 
@@ -268,7 +268,7 @@ function checkP2WSHInput (input, witnessScriptHash) {
     if (input.prevOutType !== scriptTypes.P2WSH) throw new Error('PrevOutScript must be P2WSH')
 
     var scriptHash = bscript.decompile(input.prevOutScript)[1]
-    if (!scriptHash.equals(witnessScriptHash)) throw new Error('Inconsistent sha25(WitnessScript)')
+    if (!scriptHash.equals(witnessScriptHash)) throw new Error('Inconsistent sha256(witnessScript)')
   }
 }
 
@@ -310,7 +310,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     checkP2SHInput(input, redeemScriptHash)
 
     expanded = expandOutput(redeemScript, undefined, kpPubKey)
-    if (!expanded.pubKeys) throw new Error('RedeemScript not supported "' + bscript.toASM(redeemScript) + '"')
+    if (!expanded.pubKeys) throw new Error(expanded.scriptType + ' not supported as redeemScript (' + bscript.toASM(witnessScript) + ')')
 
     prevOutType = btemplates.types.P2SH
     prevOutScript = btemplates.scriptHash.output.encode(redeemScriptHash)
@@ -323,7 +323,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     checkP2WSHInput(input, witnessScriptHash)
 
     expanded = expandOutput(witnessScript, undefined, kpPubKey)
-    if (!expanded.pubKeys) throw new Error('WitnessScript not supported "' + bscript.toASM(redeemScript) + '"')
+    if (!expanded.pubKeys) throw new Error(expanded.scriptType + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')')
 
     prevOutType = btemplates.types.P2WSH
     prevOutScript = btemplates.witnessScriptHash.output.encode(witnessScriptHash)

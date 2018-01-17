@@ -315,17 +315,21 @@ describe('TransactionBuilder', function () {
           input.signs.forEach(function (sign) {
             var keyPairNetwork = NETWORKS[sign.network || f.network]
             var keyPair2 = ECPair.fromWIF(sign.keyPair, keyPairNetwork)
-            var redeemScript
+            var redeemScript, witnessScript
 
             if (sign.redeemScript) {
               redeemScript = bscript.fromASM(sign.redeemScript)
             }
 
+            if (sign.witnessScript) {
+              witnessScript = bscript.fromASM(sign.witnessScript)
+            }
+
             if (!sign.throws) {
-              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value)
+              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
             } else {
               assert.throws(function () {
-                txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value)
+                txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
               }, new RegExp(f.exception))
             }
           })
