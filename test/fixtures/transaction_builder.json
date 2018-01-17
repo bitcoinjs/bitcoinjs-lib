@@ -2016,6 +2016,56 @@
         ]
       },
       {
+        "description": "Inconsistent RedeemScript hash",
+        "exception": "Inconsistent hash160",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_HASH160 ffffffffffffffffffffffffffffffffffffffff OP_EQUAL",
+            "signs": [
+              {
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "redeemScript": "OP_1",
+                "value": 10000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Inconsistent WitnessScript hash",
+        "exception": "Inconsistent sha256",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_0 ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "signs": [
+              {
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "witnessScript": "OP_1",
+                "value": 10000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
         "exception": "RedeemScript not supported \"OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL\"",
         "inputs": [
           {
