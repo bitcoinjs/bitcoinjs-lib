@@ -1974,7 +1974,7 @@
         ]
       },
       {
-        "exception": "RedeemScript not supported \"OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474\"",
+        "exception": "nulldata not supported as redeemScript \\(OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474\\)",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -2117,7 +2117,7 @@
         ]
       },
       {
-        "exception": "RedeemScript not supported \"OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL\"",
+        "exception": "scripthash not supported as redeemScript \\(OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL\\)",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",

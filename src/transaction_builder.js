@@ -297,7 +297,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     if (!redeemScript.equals(btemplates.witnessScriptHash.output.encode(witnessScriptHash))) throw new Error('Witness script inconsistent with redeem script')
 
     expanded = expandOutput(witnessScript, undefined, kpPubKey)
-    if (!expanded.pubKeys) throw new Error('WitnessScript not supported "' + bscript.toASM(redeemScript) + '"')
+    if (!expanded.pubKeys) throw new Error(expanded.scriptType + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')')
 
     prevOutType = btemplates.types.P2SH
     prevOutScript = btemplates.scriptHash.output.encode(redeemScriptHash)
@@ -310,7 +310,7 @@ function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScrip
     checkP2SHInput(input, redeemScriptHash)
 
     expanded = expandOutput(redeemScript, undefined, kpPubKey)
-    if (!expanded.pubKeys) throw new Error(expanded.scriptType + ' not supported as redeemScript (' + bscript.toASM(witnessScript) + ')')
+    if (!expanded.pubKeys) throw new Error(expanded.scriptType + ' not supported as redeemScript (' + bscript.toASM(redeemScript) + ')')
 
     prevOutType = btemplates.types.P2SH
     prevOutScript = btemplates.scriptHash.output.encode(redeemScriptHash)
