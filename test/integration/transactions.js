@@ -34,7 +34,7 @@ describe('bitcoinjs-lib (transactions)', function () {
     txb.addInput('7d865e959b2466918c9863afca942d0fb89d7c9ac0c99bafc3749504ded97730', 0) // Bob's previous transaction output, has 300000 satoshis
     txb.addOutput('1CUNEBjYrCn2y1SdiUMohaKUi4wpP326Lb', 180000)
     txb.addOutput('1JtK9CQw1syfWj1WtFMWomrYdV3W2tWBF9', 170000)
-    // (in)(200000 + 300000) - (out)(180000 + 150000) = (fee)170000, this is the miner fee
+    // (in)(200000 + 300000) - (out)(180000 + 170000) = (fee)150000, this is the miner fee
 
     txb.sign(1, bob) // Bob signs his input, which was the second input (1th)
     txb.sign(0, alice) // Alice signs her input, which was the first input (0th)
