@@ -102,17 +102,13 @@ describe('bitcoinjs-lib (addresses)', function () {
     var address = keyPair.getAddress()
 
     dhttp({
-      method: 'POST',
-      url: 'https://api.ei8ht.com.au/3/addrtxs',
-      body: {
-        addrs: [address],
-        height: 0
-      }
-    }, function (err, transactions) {
+      method: 'GET',
+      url: 'https://api.smartbit.com.au/v1/blockchain/address/' + address
+    }, function (err, addrInfo) {
       if (err) return done(err)
 
       // random private keys [probably] have no transactions
-      assert.strictEqual(Object.keys(transactions).length, 0)
+      assert.strictEqual(addrInfo.address.total.transaction_count, 0)
       done()
     })
   })

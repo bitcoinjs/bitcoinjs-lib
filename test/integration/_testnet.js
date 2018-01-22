@@ -2,7 +2,7 @@ var async = require('async')
 var bitcoin = require('../../')
 var Blockchain = require('cb-http-client')
 var coinSelect = require('coinselect')
-var dhttp = require('dhttp/200')
+var dhttp = require('dhttp')
 var typeforce = require('typeforce')
 var types = require('../../src/types')
 
@@ -75,12 +75,11 @@ blockchain.verify = function verify (address, txId, value, done) {
     setTimeout(function () {
       // check that the above transaction included the intended address
       dhttp({
-        method: 'POST',
-        url: 'https://api.ei8ht.com.au:9443/3/txs',
-        body: [txId]
+        method: 'GET',
+        url: 'https://testnet-api.smartbit.com.au/v1/blockchain/tx/' + txId
       }, function (err, result) {
-        if (err) return callback(err)
-        if (!result[txId]) return callback(new Error('Could not find ' + txId))
+        if (result.body.success === false) return callback(new Error(result.body.error.message))
+        if (result.body.transaction.txid !== txId) return callback(new Error('Could not find ' + txId))
         callback()
       })
     }, 400)
@@ -90,9 +89,12 @@ blockchain.verify = function verify (address, txId, value, done) {
 blockchain.transactions.propagate = function broadcast (txHex, callback) {
   dhttp({
     method: 'POST',
-    url: 'https://api.ei8ht.com.au:9443/3/pushtx',
-    body: txHex
-  }, callback)
+    url: 'https://testnet-api.smartbit.com.au/v1/blockchain/pushtx',
+    body: JSON.stringify({hex: txHex})
+  }, function (err, response) {
+    if (response.body.success === false) err = new Error(response.body.error.message)
+    callback(err, response)
+  })
 }
 
 blockchain.RETURN_ADDRESS = kpAddress
