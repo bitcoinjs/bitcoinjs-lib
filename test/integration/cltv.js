@@ -2,20 +2,21 @@
 
 var assert = require('assert')
 var bitcoin = require('../../')
-var testnetUtils = require('./_testnet')
+var regtestUtils = require('./_regtest')
+var regtest = regtestUtils.network
+var bip65 = require('bip65')
 
-var testnet = bitcoin.networks.testnet
-var alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', testnet)
-var bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', testnet)
+var alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', regtest)
+var bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
 
 describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   var hashType = bitcoin.Transaction.SIGHASH_ALL
 
-  // IF MTP > utcSeconds, aQ can redeem, ELSE bQ, aQ joint redeem
-  function cltvCheckSigOutput (aQ, bQ, utcSeconds) {
+  // waitUntil is of the form { blocks: ... } or { utc: ... }
+  function cltvCheckSigOutput (aQ, bQ, waitUntil) {
     return bitcoin.script.compile([
       bitcoin.opcodes.OP_IF,
-      bitcoin.script.number.encode(utcSeconds),
+      bitcoin.script.number.encode(bip65.encode(waitUntil)),
       bitcoin.opcodes.OP_CHECKLOCKTIMEVERIFY,
       bitcoin.opcodes.OP_DROP,
 
@@ -34,36 +35,92 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   }
 
   // expiry past, {Alice's signature} OP_TRUE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)', function (done) {
     this.timeout(30000)
 
-    // three hours ago
+    // 3 hours ago
     var timeUtc = utcNow() - (3600 * 3)
-    var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
+    var redeemScript = cltvCheckSigOutput(alice, bob, { utc: timeUtc })
     var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey, testnet)
+    var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
     // fund the P2SH(CLTV) address
-    testnetUtils.faucet(address, 2e4, function (err, unspent) {
+    regtestUtils.faucet(address, 1e5, function (err, unspent) {
       if (err) return done(err)
 
-      var tx = new bitcoin.TransactionBuilder(testnet)
-      tx.setLockTime(timeUtc)
-      tx.addInput(unspent.txId, 0, 0xfffffffe)
-      tx.addOutput(testnetUtils.RETURN_ADDRESS, 1e4)
-
-      var txRaw = tx.buildIncomplete()
-      var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)
+      var txb = new bitcoin.TransactionBuilder(regtest)
+      txb.setLockTime(timeUtc)
+      txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
+      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
 
       // {Alice's signature} OP_TRUE
+      var tx = txb.buildIncomplete()
+      var signatureHash = tx.hashForSignature(0, redeemScript, hashType)
       var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
         alice.sign(signatureHash).toScriptSignature(hashType),
         bitcoin.opcodes.OP_TRUE
       ], redeemScript)
+      tx.setInputScript(0, redeemScriptSig)
 
-      txRaw.setInputScript(0, redeemScriptSig)
+      regtestUtils.broadcast(tx.toHex(), function (err) {
+        if (err) return done(err)
 
-      testnetUtils.transactions.propagate(txRaw.toHex(), done)
+        regtestUtils.verify({
+          txId: tx.getId(),
+          address: regtestUtils.RANDOM_ADDRESS,
+          vout: 0,
+          value: 7e4
+        }, done)
+      })
+    })
+  })
+
+  // expiry will pass, {Alice's signature} OP_TRUE
+  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', function (done) {
+    this.timeout(30000)
+
+    // 50 blocks from now
+    var time
+    var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
+    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
+    var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+
+    // fund the P2SH(CLTV) address
+    regtestUtils.faucet(address, 1e5, function (err, unspent) {
+      if (err) return done(err)
+
+      var txb = new bitcoin.TransactionBuilder(regtest)
+      txb.setLockTime(timeUtc)
+      txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
+      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
+
+      // {Alice's signature} OP_TRUE
+      var tx = txb.buildIncomplete()
+      var signatureHash = tx.hashForSignature(0, redeemScript, hashType)
+      var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
+        alice.sign(signatureHash).toScriptSignature(hashType),
+        bitcoin.opcodes.OP_TRUE
+      ], redeemScript)
+      tx.setInputScript(0, redeemScriptSig)
+
+      regtestUtils.broadcast(tx.toHex(), function (err) {
+        if (err) return done(err)
+
+        // fails before the expiry
+        assert.throws(function () {
+          if (err) throw err
+        }, /Error: 64: non-final/)
+
+        // into the future!
+        regtestUtils.mine(
+
+        regtestUtils.verify({
+          txId: tx.getId(),
+          address: regtestUtils.RANDOM_ADDRESS,
+          vout: 0,
+          value: 7e4
+        }, done)
+      })
     })
   })
 
@@ -75,28 +132,37 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
     var timeUtc = utcNow() - (3600 * 2)
     var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
     var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey, testnet)
+    var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
     // fund the P2SH(CLTV) address
-    testnetUtils.faucet(address, 2e4, function (err, unspent) {
+    regtestUtils.faucet(address, 2e5, function (err, unspent) {
       if (err) return done(err)
 
-      var tx = new bitcoin.TransactionBuilder(testnet)
-      tx.setLockTime(timeUtc)
-      tx.addInput(unspent.txId, 0, 0xfffffffe)
-      tx.addOutput(testnetUtils.RETURN_ADDRESS, 1e4)
+      var txb = new bitcoin.TransactionBuilder(regtest)
+      txb.setLockTime(timeUtc)
+      txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
+      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 8e4)
 
-      var txRaw = tx.buildIncomplete()
-      var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)
+      // {Alice's signature} {Bob's signature} OP_FALSE
+      var tx = txb.buildIncomplete()
+      var signatureHash = tx.hashForSignature(0, redeemScript, hashType)
       var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
         alice.sign(signatureHash).toScriptSignature(hashType),
         bob.sign(signatureHash).toScriptSignature(hashType),
         bitcoin.opcodes.OP_FALSE
       ], redeemScript)
+      tx.setInputScript(0, redeemScriptSig)
 
-      txRaw.setInputScript(0, redeemScriptSig)
+      regtestUtils.broadcast(tx.toHex(), function (err) {
+        if (err) return done(err)
 
-      testnetUtils.transactions.propagate(txRaw.toHex(), done)
+        regtestUtils.verify({
+          txId: tx.getId(),
+          address: regtestUtils.RANDOM_ADDRESS,
+          vout: 0,
+          value: 8e4
+        }, done)
+      })
     })
   })
 
@@ -108,29 +174,27 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
     var timeUtc = utcNow() + (3600 * 2)
     var redeemScript = cltvCheckSigOutput(alice, bob, timeUtc)
     var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey, testnet)
+    var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
     // fund the P2SH(CLTV) address
-    testnetUtils.faucet(address, 2e4, function (err, unspent) {
+    regtestUtils.faucet(address, 2e4, function (err, unspent) {
       if (err) return done(err)
 
-      var tx = new bitcoin.TransactionBuilder(testnet)
-      tx.setLockTime(timeUtc)
-      tx.addInput(unspent.txId, 0, 0xfffffffe)
-      tx.addOutput(testnetUtils.RETURN_ADDRESS, 1e4)
-
-      var txRaw = tx.buildIncomplete()
-      var signatureHash = txRaw.hashForSignature(0, redeemScript, hashType)
+      var txb = new bitcoin.TransactionBuilder(regtest)
+      txb.setLockTime(timeUtc)
+      txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
+      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e4)
 
       // {Alice's signature} OP_TRUE
+      var tx = txb.buildIncomplete()
+      var signatureHash = tx.hashForSignature(0, redeemScript, hashType)
       var redeemScriptSig = bitcoin.script.scriptHash.input.encode([
         alice.sign(signatureHash).toScriptSignature(hashType),
         bitcoin.opcodes.OP_TRUE
       ], redeemScript)
+      tx.setInputScript(0, redeemScriptSig)
 
-      txRaw.setInputScript(0, redeemScriptSig)
-
-      testnetUtils.transactions.propagate(txRaw.toHex(), function (err) {
+      regtestUtils.broadcast(tx.toHex(), function (err) {
         assert.throws(function () {
           if (err) throw err
         }, /Error: 64: non-final/)
