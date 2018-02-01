@@ -19,6 +19,13 @@ function mine (count, callback) {
   }, callback)
 }
 
+function height (callback) {
+  dhttp({
+    method: 'GET',
+    url: APIURL + '/b/best/height'
+  }, callback)
+}
+
 function faucet (address, value, callback) {
   dhttp({
     method: 'POST',
@@ -69,6 +76,7 @@ module.exports = {
   broadcast: broadcast,
   faucet: faucet,
   fetch: fetch,
+  height: height,
   mine: mine,
   network: bitcoin.networks.testnet,
   unspents: unspents,

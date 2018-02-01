@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "bip39": "^2.3.0",
+    "bip65": "^1.0.1",
     "bs58": "^4.0.0",
     "dhttp": "^2.4.2",
     "minimaldata": "^1.0.2",
