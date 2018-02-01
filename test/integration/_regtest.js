@@ -1,3 +1,4 @@
+var assert = require('assert')
 var bitcoin = require('../../')
 var dhttp = require('dhttp/200')
 
@@ -44,7 +45,7 @@ function faucet (address, value, callback) {
 function fetch (txId, callback) {
   dhttp({
     method: 'GET',
-    url: APIURL + '/t/' + txId
+    url: APIURL + '/t/' + txId + '/json'
   }, callback)
 }
 
@@ -56,12 +57,12 @@ function unspents (address, callback) {
 }
 
 function verify (txo, callback) {
-  let { txId } = txo
-
-  fetch(txId, function (err, txHex) {
+  fetch(txo.txId, function (err, tx) {
     if (err) return callback(err)
 
-    // TODO: verify address and value
+    var txoActual = tx.outs[txo.vout]
+    if (txo.address) assert.strictEqual(txoActual.address, txo.address)
+    if (txo.value) assert.strictEqual(txoActual.value, txo.value)
     callback()
   })
 }
