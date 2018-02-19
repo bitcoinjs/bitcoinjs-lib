@@ -66,7 +66,7 @@ describe('address', function () {
 
         assert.throws(function () {
           baddress.fromOutputScript(script)
-        }, new RegExp(f.script + ' ' + f.exception))
+        }, new RegExp(f.exception))
       })
     })
   })
