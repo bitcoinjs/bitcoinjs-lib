@@ -6,6 +6,8 @@ var ecdsa = require('../src/ecdsa')
 var ecurve = require('ecurve')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
+var sinonTest = require('sinon-test')
+var setupTest = sinonTest(sinon)
 
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
@@ -74,7 +76,7 @@ describe('ECPair', function () {
       keyPair = new ECPair(BigInteger.ONE)
     })
 
-    it('wraps Q.getEncoded', sinon.test(function () {
+    it('wraps Q.getEncoded', setupTest(function () {
       this.mock(keyPair.Q).expects('getEncoded')
         .once().withArgs(keyPair.compressed)
 
@@ -165,7 +167,7 @@ describe('ECPair', function () {
       assert.strictEqual(keyPair.network, NETWORKS.testnet)
     })
 
-    it('loops until d is within interval [1, n - 1] : 1', sinon.test(function () {
+    it('loops until d is within interval [1, n - 1] : 1', setupTest(function () {
       var rng = this.mock()
       rng.exactly(2)
       rng.onCall(0).returns(BigInteger.ZERO.toBuffer(32)) // invalid length
@@ -174,7 +176,7 @@ describe('ECPair', function () {
       ECPair.makeRandom({ rng: rng })
     }))
 
-    it('loops until d is within interval [1, n - 1] : n - 1', sinon.test(function () {
+    it('loops until d is within interval [1, n - 1] : n - 1', setupTest(function () {
       var rng = this.mock()
       rng.exactly(3)
       rng.onCall(0).returns(BigInteger.ZERO.toBuffer(32)) // < 1
@@ -215,7 +217,7 @@ describe('ECPair', function () {
     })
 
     describe('signing', function () {
-      it('wraps ecdsa.sign', sinon.test(function () {
+      it('wraps ecdsa.sign', setupTest(function () {
         this.mock(ecdsa).expects('sign')
           .once().withArgs(hash, keyPair.d)
 
@@ -238,7 +240,7 @@ describe('ECPair', function () {
         signature = keyPair.sign(hash)
       })
 
-      it('wraps ecdsa.verify', sinon.test(function () {
+      it('wraps ecdsa.verify', setupTest(function () {
         this.mock(ecdsa).expects('verify')
           .once().withArgs(hash, signature, keyPair.Q)
 

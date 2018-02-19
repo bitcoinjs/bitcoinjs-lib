@@ -52,10 +52,11 @@
     "bs58": "^4.0.0",
     "dhttp": "^2.4.2",
     "minimaldata": "^1.0.2",
-    "mocha": "^3.1.0",
-    "nyc": "^10.2.0",
+    "mocha": "^5.0.1",
+    "nyc": "^11.4.1",
     "proxyquire": "^1.4.0",
-    "sinon": "^1.12.2",
+    "sinon": "^4.3.0",
+    "sinon-test": "^2.1.3",
     "standard": "^9.0.2"
   },
   "license": "MIT"
