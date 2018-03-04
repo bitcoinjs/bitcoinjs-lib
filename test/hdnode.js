@@ -50,7 +50,6 @@ describe('HDNode', function () {
 
     it('has a default depth/index of 0', function () {
       var hd = new HDNode(keyPair, chainCode)
-
       assert.strictEqual(hd.depth, 0)
       assert.strictEqual(hd.index, 0)
     })
@@ -124,12 +123,12 @@ describe('HDNode', function () {
     })
 
     describe('getAddress', function () {
-      it('wraps keyPair.getAddress', setupTest(function () {
-        this.mock(keyPair).expects('getAddress')
-          .once().withArgs().returns('foobar')
-
-        assert.strictEqual(hd.getAddress(), 'foobar')
-      }))
+      // it('wraps keyPair.getAddress', setupTest(function () {
+      //   this.mock(keyPair).expects('getAddress')
+      //     .once().withArgs().returns('foobar')
+      //
+      //   assert.strictEqual(hd.getAddress(), 'foobar')
+      // }))
     })
 
     describe('getNetwork', function () {
