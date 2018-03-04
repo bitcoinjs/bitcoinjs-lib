@@ -1,5 +1,9 @@
+var KeyToScript = require('./keytoscript')
 // https://en.bitcoin.it/wiki/List_of_address_prefixes
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
+
+var p2pkh = new KeyToScript.P2pkhFactory()
+var p2wpkh = new KeyToScript.P2wpkhFactory()
 
 module.exports = {
   bitcoin: {
@@ -7,7 +11,18 @@ module.exports = {
     bech32: 'bc',
     bip32: {
       public: 0x0488b21e,
-      private: 0x0488ade4
+      private: 0x0488ade4,
+      scriptFactory: p2pkh
+    },
+    bip49: {
+      private: 0x049d7878,
+      public: 0x049d7cb2,
+      scriptFactory: new KeyToScript.P2shFactory(p2wpkh)
+    },
+    bip84: {
+      private: 0x04b2430c,
+      public: 0x04b24746,
+      scriptFactory: p2wpkh
     },
     pubKeyHash: 0x00,
     scriptHash: 0x05,
@@ -18,7 +33,8 @@ module.exports = {
     bech32: 'tb',
     bip32: {
       public: 0x043587cf,
-      private: 0x04358394
+      private: 0x04358394,
+      scriptFactory: p2pkh
     },
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
@@ -28,7 +44,8 @@ module.exports = {
     messagePrefix: '\x19Litecoin Signed Message:\n',
     bip32: {
       public: 0x019da462,
-      private: 0x019d9cfe
+      private: 0x019d9cfe,
+      scriptFactory: p2pkh
     },
     pubKeyHash: 0x30,
     scriptHash: 0x32,

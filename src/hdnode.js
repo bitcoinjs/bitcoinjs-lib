@@ -1,6 +1,7 @@
 var Buffer = require('safe-buffer').Buffer
 var base58check = require('bs58check')
 var bcrypto = require('./crypto')
+var baddress = require('./address')
 var createHmac = require('create-hmac')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -9,12 +10,15 @@ var NETWORKS = require('./networks')
 var BigInteger = require('bigi')
 var ECPair = require('./ecpair')
 
+// var KeyToScript = require('./keytoscript')
 var ecurve = require('ecurve')
 var curve = ecurve.getCurveByName('secp256k1')
 
-function HDNode (keyPair, chainCode) {
+function HDNode (keyPair, chainCode, prefix) {
   typeforce(types.tuple('ECPair', types.Buffer256bit), arguments)
-
+  if (!prefix) {
+    prefix = keyPair.network.bip32
+  }
   if (!keyPair.compressed) throw new TypeError('BIP32 only allows compressed keyPairs')
 
   this.keyPair = keyPair
@@ -22,13 +26,14 @@ function HDNode (keyPair, chainCode) {
   this.depth = 0
   this.index = 0
   this.parentFingerprint = 0x00000000
+  this.prefix = prefix
 }
 
 HDNode.HIGHEST_BIT = 0x80000000
 HDNode.LENGTH = 78
 HDNode.MASTER_SECRET = Buffer.from('Bitcoin seed', 'utf8')
 
-HDNode.fromSeedBuffer = function (seed, network) {
+HDNode.fromSeedBuffer = function (seed, network, prefix) {
   typeforce(types.tuple(types.Buffer, types.maybe(types.Network)), arguments)
 
   if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
@@ -45,14 +50,21 @@ HDNode.fromSeedBuffer = function (seed, network) {
     network: network
   })
 
-  return new HDNode(keyPair, IR)
+  return new HDNode(keyPair, IR, prefix)
 }
 
-HDNode.fromSeedHex = function (hex, network) {
-  return HDNode.fromSeedBuffer(Buffer.from(hex, 'hex'), network)
+HDNode.fromSeedHex = function (hex, network, prefix) {
+  return HDNode.fromSeedBuffer(Buffer.from(hex, 'hex'), network, prefix)
 }
 
-HDNode.fromBase58 = function (string, networks) {
+/**
+ *
+ * @param {string} string
+ * @param {Array<network>|network} networks
+ * @param {Array<prefix>} prefixes - only used if networks is object/undefined(so bitcoin).
+ * @returns {HDNode}
+ */
+HDNode.fromBase58 = function (string, networks, prefixes) {
   var buffer = base58check.decode(string)
   if (buffer.length !== 78) throw new Error('Invalid buffer length')
 
@@ -61,6 +73,7 @@ HDNode.fromBase58 = function (string, networks) {
   var network
 
   // list of networks?
+  var prefix
   if (Array.isArray(networks)) {
     network = networks.filter(function (x) {
       return version === x.bip32.private ||
@@ -69,13 +82,26 @@ HDNode.fromBase58 = function (string, networks) {
 
     if (!network) throw new Error('Unknown network version')
 
+    // we found a network by it's bip32 prefixes, use that
+    prefix = network.bip32
+
   // otherwise, assume a network object (or default to bitcoin)
   } else {
     network = networks || NETWORKS.bitcoin
+    if (prefixes) {
+      prefix = prefixes.filter(function (x) {
+        return version === x.private ||
+               version === x.public
+      }).pop()
+    } else {
+      // no special prefixes to consider, use networks bip32 prefix
+      prefix = network.bip32
+    }
   }
 
-  if (version !== network.bip32.private &&
-    version !== network.bip32.public) throw new Error('Invalid network version')
+  // sanity check the version against the prefix
+  if (version !== prefix.private &&
+    version !== prefix.public) throw new Error('Invalid network version')
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer[4]
@@ -114,7 +140,7 @@ HDNode.fromBase58 = function (string, networks) {
     keyPair = new ECPair(null, Q, { network: network })
   }
 
-  var hd = new HDNode(keyPair, chainCode)
+  var hd = new HDNode(keyPair, chainCode, prefix)
   hd.depth = depth
   hd.index = index
   hd.parentFingerprint = parentFingerprint
@@ -123,7 +149,8 @@ HDNode.fromBase58 = function (string, networks) {
 }
 
 HDNode.prototype.getAddress = function () {
-  return this.keyPair.getAddress()
+  var data = this.prefix.scriptFactory.convert(this.keyPair)
+  return baddress.fromOutputScript(data.scriptPubKey, this.keyPair.network)
 }
 
 HDNode.prototype.getIdentifier = function () {
@@ -147,7 +174,7 @@ HDNode.prototype.neutered = function () {
     network: this.keyPair.network
   })
 
-  var neutered = new HDNode(neuteredKeyPair, this.chainCode)
+  var neutered = new HDNode(neuteredKeyPair, this.chainCode, this.prefix)
   neutered.depth = this.depth
   neutered.index = this.index
   neutered.parentFingerprint = this.parentFingerprint
@@ -167,8 +194,7 @@ HDNode.prototype.toBase58 = function (__isPrivate) {
   if (__isPrivate !== undefined) throw new TypeError('Unsupported argument in 2.0.0')
 
   // Version
-  var network = this.keyPair.network
-  var version = (!this.isNeutered()) ? network.bip32.private : network.bip32.public
+  var version = (!this.isNeutered()) ? this.prefix.private : this.prefix.public
   var buffer = Buffer.allocUnsafe(78)
 
   // 4 bytes: version bytes
@@ -268,7 +294,7 @@ HDNode.prototype.derive = function (index) {
     })
   }
 
-  var hd = new HDNode(derivedKeyPair, IR)
+  var hd = new HDNode(derivedKeyPair, IR, this.prefix)
   hd.depth = this.depth + 1
   hd.index = index
   hd.parentFingerprint = this.getFingerprint().readUInt32BE(0)
