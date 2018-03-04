@@ -148,9 +148,13 @@ HDNode.fromBase58 = function (string, networks, prefixes) {
   return hd
 }
 
+HDNode.prototype.getScriptData = function () {
+  return this.prefix.scriptFactory.convert(this.keyPair)
+}
+
 HDNode.prototype.getAddress = function () {
-  var data = this.prefix.scriptFactory.convert(this.keyPair)
-  return baddress.fromOutputScript(data.scriptPubKey, this.keyPair.network)
+  var scriptData = this.getScriptData()
+  return baddress.fromOutputScript(scriptData.scriptPubKey, this.keyPair.network)
 }
 
 HDNode.prototype.getIdentifier = function () {
