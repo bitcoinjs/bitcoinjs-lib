@@ -45,7 +45,6 @@
     {
       "network": "bitcoin",
       "version": 0,
-      "bech32": "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",
       "data": "751e76e8199196d454941c45d1b3a323f1433bd6",
       "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6"
 
@@ -63,6 +62,20 @@
       "bech32": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
       "data": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433",
       "script": "OP_0 000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"
+    },
+    {
+      "network": "zcash",
+      "version": 7352,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "base58check": "t1UYsZVJkLPeMjxEtACvSxfWuNmddpWfxzs",
+      "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
+    },
+    {
+      "network": "zcashTest",
+      "version": 7461,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "base58check": "tmLPctKo9j49rtCSKpwEBpLBeykiTGomGQs",
+      "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
     }
   ],
   "bech32": [

@@ -2,46 +2,68 @@
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
 
 module.exports = {
-  bitcoingold: {
-    messagePrefix: '\x18Bitcoin Gold Signed Message:\n',
-    bip32: {
-      public: 0x0488b21e,
-      private: 0x0488ade4
+    bitcoingold: {
+        messagePrefix: '\x18Bitcoin Gold Signed Message:\n',
+        bip32: {
+            public: 0x0488b21e,
+            private: 0x0488ade4
+        },
+        pubKeyHash: 0x26,
+        scriptHash: 0x17,
+        wif: 0x80
     },
-    pubKeyHash: 0x26,
-    scriptHash: 0x17,
-    wif: 0x80
-  },
-  bitcoin: {
-    messagePrefix: '\x18Bitcoin Signed Message:\n',
-    bech32: 'bc',
-    bip32: {
-      public: 0x0488b21e,
-      private: 0x0488ade4
+    bitcoin: {
+        messagePrefix: '\x18Bitcoin Signed Message:\n',
+        bech32: 'bc',
+        bip32: {
+            public: 0x0488b21e,
+            private: 0x0488ade4
+        },
+        pubKeyHash: 0x00,
+        scriptHash: 0x05,
+        wif: 0x80
     },
-    pubKeyHash: 0x00,
-    scriptHash: 0x05,
-    wif: 0x80
-  },
-  testnet: {
-    messagePrefix: '\x18Bitcoin Signed Message:\n',
-    bech32: 'tb',
-    bip32: {
-      public: 0x043587cf,
-      private: 0x04358394
+    testnet: {
+        messagePrefix: '\x18Bitcoin Signed Message:\n',
+        bech32: 'tb',
+        bip32: {
+            public: 0x043587cf,
+            private: 0x04358394
+        },
+        pubKeyHash: 0x6f,
+        scriptHash: 0xc4,
+        wif: 0xef
     },
-    pubKeyHash: 0x6f,
-    scriptHash: 0xc4,
-    wif: 0xef
-  },
-  litecoin: {
-    messagePrefix: '\x19Litecoin Signed Message:\n',
-    bip32: {
-      public: 0x019da462,
-      private: 0x019d9cfe
+    litecoin: {
+        messagePrefix: '\x19Litecoin Signed Message:\n',
+        bip32: {
+            public: 0x019da462,
+            private: 0x019d9cfe
+        },
+        pubKeyHash: 0x30,
+        scriptHash: 0x32,
+        wif: 0xb0
     },
-    pubKeyHash: 0x30,
-    scriptHash: 0x32,
-    wif: 0xb0
-  }
+    zcash: {
+        messagePrefix: '\x18ZCash Signed Message:\n',
+        bech32: 'bc',
+        bip32: {
+            public: 0x0488b21e,
+            private: 0x0488ade4
+        },
+        pubKeyHash: 0x1cb8,
+        scriptHash: 0x1cbd,
+        wif: 0x80
+    },
+    zcashTest: {
+        messagePrefix: '\x18ZCash Signed Message:\n',
+        bech32: 'tb',
+        bip32: {
+            public: 0x043587cf,
+            private: 0x04358394
+        },
+        pubKeyHash: 0x1d25,
+        scriptHash: 0x1cba,
+        wif: 0xef
+    }
 }
