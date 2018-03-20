@@ -3,7 +3,7 @@
 var assert = require('assert')
 var bcrypto = require('../src/crypto')
 var ecdsa = require('../src/ecdsa')
-var mockme = require('./mockme')
+var hoodwink = require('hoodwink')
 
 var BigInteger = require('bigi')
 var ECSignature = require('../src/ecsignature')
@@ -28,7 +28,7 @@ describe('ecdsa', function () {
       })
     })
 
-    it('loops until an appropriate k value is found', mockme(function () {
+    it('loops until an appropriate k value is found', hoodwink(function () {
       this.mock(BigInteger, 'fromBuffer', function f (b) {
         assert.strictEqual(b.length, 32)
         if (f.calls === 0) return BigInteger.ZERO // < 1
@@ -43,7 +43,7 @@ describe('ecdsa', function () {
       assert.strictEqual(k.toString(), '42')
     }))
 
-    it('loops until a suitable signature is found', mockme(function () {
+    it('loops until a suitable signature is found', hoodwink(function () {
       var checkSigStub = this.stub(function f () {
         if (f.calls === 0) return false // bad signature
         if (f.calls === 1) return true // good signature

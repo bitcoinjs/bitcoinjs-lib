@@ -3,7 +3,7 @@
 
 var assert = require('assert')
 var ecdsa = require('../src/ecdsa')
-var mockme = require('./mockme')
+var hoodwink = require('hoodwink')
 
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
@@ -79,7 +79,7 @@ describe('HDNode', function () {
       })
     })
 
-    it('throws if IL is not within interval [1, n - 1] | IL === 0', mockme(function () {
+    it('throws if IL is not within interval [1, n - 1] | IL === 0', hoodwink(function () {
       this.mock(BigInteger, 'fromBuffer', function () {
         return BigInteger.ZERO
       }, 1)
@@ -89,7 +89,7 @@ describe('HDNode', function () {
       }, /Private key must be greater than 0/)
     }))
 
-    it('throws if IL is not within interval [1, n - 1] | IL === n', mockme(function () {
+    it('throws if IL is not within interval [1, n - 1] | IL === n', hoodwink(function () {
       this.mock(BigInteger, 'fromBuffer', function () {
         return curve.n
       }, 1)
@@ -124,7 +124,7 @@ describe('HDNode', function () {
     })
 
     describe('getAddress', function () {
-      it('wraps keyPair.getAddress', mockme(function () {
+      it('wraps keyPair.getAddress', hoodwink(function () {
         this.mock(hd.keyPair, 'getAddress', function () {
           return 'foo'
         }, 1)
@@ -134,7 +134,7 @@ describe('HDNode', function () {
     })
 
     describe('getNetwork', function () {
-      it('wraps keyPair.getNetwork', mockme(function () {
+      it('wraps keyPair.getNetwork', hoodwink(function () {
         this.mock(hd.keyPair, 'getNetwork', function () {
           return 'foo'
         }, 1)
@@ -144,7 +144,7 @@ describe('HDNode', function () {
     })
 
     describe('getPublicKeyBuffer', function () {
-      it('wraps keyPair.getPublicKeyBuffer', mockme(function () {
+      it('wraps keyPair.getPublicKeyBuffer', hoodwink(function () {
         this.mock(hd.keyPair, 'getPublicKeyBuffer', function () {
           return 'foo'
         }, 1)
@@ -154,7 +154,7 @@ describe('HDNode', function () {
     })
 
     describe('sign', function () {
-      it('wraps keyPair.sign', mockme(function () {
+      it('wraps keyPair.sign', hoodwink(function () {
         this.mock(hd.keyPair, 'sign', function (h) {
           assert.strictEqual(hash, h)
           return 'foo'
@@ -171,7 +171,7 @@ describe('HDNode', function () {
         signature = hd.sign(hash)
       })
 
-      it('wraps keyPair.verify', mockme(function () {
+      it('wraps keyPair.verify', hoodwink(function () {
         this.mock(hd.keyPair, 'verify', function (h, s) {
           assert.strictEqual(hash, h)
           assert.strictEqual(signature, s)

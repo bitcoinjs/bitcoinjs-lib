@@ -5,7 +5,7 @@ var assert = require('assert')
 var ecdsa = require('../src/ecdsa')
 var ecurve = require('ecurve')
 var proxyquire = require('proxyquire')
-var mockme = require('./mockme')
+var hoodwink = require('hoodwink')
 
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
@@ -74,7 +74,7 @@ describe('ECPair', function () {
       keyPair = new ECPair(BigInteger.ONE)
     })
 
-    it('wraps Q.getEncoded', mockme(function () {
+    it('wraps Q.getEncoded', hoodwink(function () {
       this.mock(keyPair.Q, 'getEncoded', function (compressed) {
         assert.strictEqual(compressed, keyPair.compressed)
       }, 1)
@@ -176,7 +176,7 @@ describe('ECPair', function () {
       }, /Expected Buffer\(Length: 32\), got Buffer\(Length: 28\)/)
     })
 
-    it('loops until d is within interval [1, n - 1] : 1', mockme(function () {
+    it('loops until d is within interval [1, n - 1] : 1', hoodwink(function () {
       var rng = this.stub(function f () {
         if (f.calls === 0) return BigInteger.ZERO.toBuffer(32) // 0
         return BigInteger.ONE.toBuffer(32) // >0
@@ -185,7 +185,7 @@ describe('ECPair', function () {
       ECPair.makeRandom({ rng: rng })
     }))
 
-    it('loops until d is within interval [1, n - 1] : n - 1', mockme(function () {
+    it('loops until d is within interval [1, n - 1] : n - 1', hoodwink(function () {
       var rng = this.stub(function f () {
         if (f.calls === 0) return BigInteger.ZERO.toBuffer(32) // <1
         if (f.calls === 1) return curve.n.toBuffer(32) // >n-1
@@ -226,7 +226,7 @@ describe('ECPair', function () {
     })
 
     describe('signing', function () {
-      it('wraps ecdsa.sign', mockme(function () {
+      it('wraps ecdsa.sign', hoodwink(function () {
         this.mock(ecdsa, 'sign', function (h, d) {
           assert.strictEqual(h, hash)
           assert.strictEqual(d, keyPair.d)
@@ -251,7 +251,7 @@ describe('ECPair', function () {
         signature = keyPair.sign(hash)
       })
 
-      it('wraps ecdsa.verify', mockme(function () {
+      it('wraps ecdsa.verify', hoodwink(function () {
         this.mock(ecdsa, 'verify', function (h, s, q) {
           assert.strictEqual(h, hash)
           assert.strictEqual(s, signature)
