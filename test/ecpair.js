@@ -5,9 +5,7 @@ var assert = require('assert')
 var ecdsa = require('../src/ecdsa')
 var ecurve = require('ecurve')
 var proxyquire = require('proxyquire')
-var sinon = require('sinon')
-var sinonTest = require('sinon-test')
-var setupTest = sinonTest(sinon)
+var hoodwink = require('hoodwink')
 
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
@@ -76,9 +74,10 @@ describe('ECPair', function () {
       keyPair = new ECPair(BigInteger.ONE)
     })
 
-    it('wraps Q.getEncoded', setupTest(function () {
-      this.mock(keyPair.Q).expects('getEncoded')
-        .once().withArgs(keyPair.compressed)
+    it('wraps Q.getEncoded', hoodwink(function () {
+      this.mock(keyPair.Q, 'getEncoded', function (compressed) {
+        assert.strictEqual(compressed, keyPair.compressed)
+      }, 1)
 
       keyPair.getPublicKeyBuffer()
     }))
@@ -167,21 +166,31 @@ describe('ECPair', function () {
       assert.strictEqual(keyPair.network, NETWORKS.testnet)
     })
 
-    it('loops until d is within interval [1, n - 1] : 1', setupTest(function () {
-      var rng = this.mock()
-      rng.exactly(2)
-      rng.onCall(0).returns(BigInteger.ZERO.toBuffer(32)) // invalid length
-      rng.onCall(1).returns(BigInteger.ONE.toBuffer(32)) // === 1
+    it('throws if d is bad length', function () {
+      function rng () {
+        return BigInteger.ZERO.toBuffer(28)
+      }
+
+      assert.throws(function () {
+        ECPair.makeRandom({ rng: rng })
+      }, /Expected Buffer\(Length: 32\), got Buffer\(Length: 28\)/)
+    })
+
+    it('loops until d is within interval [1, n - 1] : 1', hoodwink(function () {
+      var rng = this.stub(function f () {
+        if (f.calls === 0) return BigInteger.ZERO.toBuffer(32) // 0
+        return BigInteger.ONE.toBuffer(32) // >0
+      }, 2)
 
       ECPair.makeRandom({ rng: rng })
     }))
 
-    it('loops until d is within interval [1, n - 1] : n - 1', setupTest(function () {
-      var rng = this.mock()
-      rng.exactly(3)
-      rng.onCall(0).returns(BigInteger.ZERO.toBuffer(32)) // < 1
-      rng.onCall(1).returns(curve.n.toBuffer(32)) // > n-1
-      rng.onCall(2).returns(curve.n.subtract(BigInteger.ONE).toBuffer(32)) // === n-1
+    it('loops until d is within interval [1, n - 1] : n - 1', hoodwink(function () {
+      var rng = this.stub(function f () {
+        if (f.calls === 0) return BigInteger.ZERO.toBuffer(32) // <1
+        if (f.calls === 1) return curve.n.toBuffer(32) // >n-1
+        return curve.n.subtract(BigInteger.ONE).toBuffer(32) // n-1
+      }, 3)
 
       ECPair.makeRandom({ rng: rng })
     }))
@@ -217,9 +226,11 @@ describe('ECPair', function () {
     })
 
     describe('signing', function () {
-      it('wraps ecdsa.sign', setupTest(function () {
-        this.mock(ecdsa).expects('sign')
-          .once().withArgs(hash, keyPair.d)
+      it('wraps ecdsa.sign', hoodwink(function () {
+        this.mock(ecdsa, 'sign', function (h, d) {
+          assert.strictEqual(h, hash)
+          assert.strictEqual(d, keyPair.d)
+        }, 1)
 
         keyPair.sign(hash)
       }))
@@ -240,9 +251,12 @@ describe('ECPair', function () {
         signature = keyPair.sign(hash)
       })
 
-      it('wraps ecdsa.verify', setupTest(function () {
-        this.mock(ecdsa).expects('verify')
-          .once().withArgs(hash, signature, keyPair.Q)
+      it('wraps ecdsa.verify', hoodwink(function () {
+        this.mock(ecdsa, 'verify', function (h, s, q) {
+          assert.strictEqual(h, hash)
+          assert.strictEqual(s, signature)
+          assert.strictEqual(q, keyPair.Q)
+        }, 1)
 
         keyPair.verify(hash, signature)
       }))

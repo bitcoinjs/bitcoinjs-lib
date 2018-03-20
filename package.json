@@ -51,12 +51,11 @@
     "bip65": "^1.0.1",
     "bs58": "^4.0.0",
     "dhttp": "^2.4.2",
+    "hoodwink": "^1.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^5.0.1",
     "nyc": "^11.4.1",
     "proxyquire": "^1.4.0",
-    "sinon": "^4.3.0",
-    "sinon-test": "^2.1.3",
     "standard": "^9.0.2"
   },
   "license": "MIT"
