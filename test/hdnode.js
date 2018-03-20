@@ -3,9 +3,7 @@
 
 var assert = require('assert')
 var ecdsa = require('../src/ecdsa')
-var sinon = require('sinon')
-var sinonTest = require('sinon-test')
-var setupTest = sinonTest(sinon)
+var mockme = require('./mockme')
 
 var BigInteger = require('bigi')
 var ECPair = require('../src/ecpair')
@@ -81,18 +79,20 @@ describe('HDNode', function () {
       })
     })
 
-    it('throws if IL is not within interval [1, n - 1] | IL === 0', setupTest(function () {
-      this.mock(BigInteger).expects('fromBuffer')
-        .once().returns(BigInteger.ZERO)
+    it('throws if IL is not within interval [1, n - 1] | IL === 0', mockme(function () {
+      this.mock(BigInteger, 'fromBuffer', function () {
+        return BigInteger.ZERO
+      }, 1)
 
       assert.throws(function () {
         HDNode.fromSeedHex('ffffffffffffffffffffffffffffffff')
       }, /Private key must be greater than 0/)
     }))
 
-    it('throws if IL is not within interval [1, n - 1] | IL === n', setupTest(function () {
-      this.mock(BigInteger).expects('fromBuffer')
-        .once().returns(curve.n)
+    it('throws if IL is not within interval [1, n - 1] | IL === n', mockme(function () {
+      this.mock(BigInteger, 'fromBuffer', function () {
+        return curve.n
+      }, 1)
 
       assert.throws(function () {
         HDNode.fromSeedHex('ffffffffffffffffffffffffffffffff')
@@ -124,38 +124,43 @@ describe('HDNode', function () {
     })
 
     describe('getAddress', function () {
-      it('wraps keyPair.getAddress', setupTest(function () {
-        this.mock(keyPair).expects('getAddress')
-          .once().withArgs().returns('foobar')
+      it('wraps keyPair.getAddress', mockme(function () {
+        this.mock(hd.keyPair, 'getAddress', function () {
+          return 'foo'
+        }, 1)
 
-        assert.strictEqual(hd.getAddress(), 'foobar')
+        assert.strictEqual(hd.getAddress(), 'foo')
       }))
     })
 
     describe('getNetwork', function () {
-      it('wraps keyPair.getNetwork', setupTest(function () {
-        this.mock(keyPair).expects('getNetwork')
-          .once().withArgs().returns('network')
+      it('wraps keyPair.getNetwork', mockme(function () {
+        this.mock(hd.keyPair, 'getNetwork', function () {
+          return 'foo'
+        }, 1)
 
-        assert.strictEqual(hd.getNetwork(), 'network')
+        assert.strictEqual(hd.getNetwork(), 'foo')
       }))
     })
 
     describe('getPublicKeyBuffer', function () {
-      it('wraps keyPair.getPublicKeyBuffer', setupTest(function () {
-        this.mock(keyPair).expects('getPublicKeyBuffer')
-          .once().withArgs().returns('pubKeyBuffer')
+      it('wraps keyPair.getPublicKeyBuffer', mockme(function () {
+        this.mock(hd.keyPair, 'getPublicKeyBuffer', function () {
+          return 'foo'
+        }, 1)
 
-        assert.strictEqual(hd.getPublicKeyBuffer(), 'pubKeyBuffer')
+        assert.strictEqual(hd.getPublicKeyBuffer(), 'foo')
       }))
     })
 
     describe('sign', function () {
-      it('wraps keyPair.sign', setupTest(function () {
-        this.mock(keyPair).expects('sign')
-          .once().withArgs(hash).returns('signed')
+      it('wraps keyPair.sign', mockme(function () {
+        this.mock(hd.keyPair, 'sign', function (h) {
+          assert.strictEqual(hash, h)
+          return 'foo'
+        }, 1)
 
-        assert.strictEqual(hd.sign(hash), 'signed')
+        assert.strictEqual(hd.sign(hash), 'foo')
       }))
     })
 
@@ -166,11 +171,14 @@ describe('HDNode', function () {
         signature = hd.sign(hash)
       })
 
-      it('wraps keyPair.verify', setupTest(function () {
-        this.mock(keyPair).expects('verify')
-          .once().withArgs(hash, signature).returns('verified')
+      it('wraps keyPair.verify', mockme(function () {
+        this.mock(hd.keyPair, 'verify', function (h, s) {
+          assert.strictEqual(hash, h)
+          assert.strictEqual(signature, s)
+          return 'foo'
+        }, 1)
 
-        assert.strictEqual(hd.verify(hash, signature), 'verified')
+        assert.strictEqual(hd.verify(hash, signature), 'foo')
       }))
     })
   })

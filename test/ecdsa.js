@@ -3,9 +3,7 @@
 var assert = require('assert')
 var bcrypto = require('../src/crypto')
 var ecdsa = require('../src/ecdsa')
-var sinon = require('sinon')
-var sinonTest = require('sinon-test')
-var setupTest = sinonTest(sinon)
+var mockme = require('./mockme')
 
 var BigInteger = require('bigi')
 var ECSignature = require('../src/ecsignature')
@@ -30,12 +28,13 @@ describe('ecdsa', function () {
       })
     })
 
-    it('loops until an appropriate k value is found', setupTest(function () {
-      this.mock(BigInteger).expects('fromBuffer')
-        .exactly(3)
-        .onCall(0).returns(new BigInteger('0')) // < 1
-        .onCall(1).returns(curve.n) // > n-1
-        .onCall(2).returns(new BigInteger('42')) // valid
+    it('loops until an appropriate k value is found', mockme(function () {
+      this.mock(BigInteger, 'fromBuffer', function f (b) {
+        assert.strictEqual(b.length, 32)
+        if (f.calls === 0) return BigInteger.ZERO // < 1
+        if (f.calls === 1) return curve.n // > n - 1
+        if (f.calls === 2) return new BigInteger('42') // valid
+      }, 3)
 
       var x = new BigInteger('1').toBuffer(32)
       var h1 = Buffer.alloc(32)
@@ -44,24 +43,17 @@ describe('ecdsa', function () {
       assert.strictEqual(k.toString(), '42')
     }))
 
-    it('loops until a suitable signature is found', setupTest(function () {
-      this.mock(BigInteger).expects('fromBuffer')
-        .exactly(4)
-        .onCall(0).returns(new BigInteger('0')) // < 1
-        .onCall(1).returns(curve.n) // > n-1
-        .onCall(2).returns(new BigInteger('42')) // valid, but 'bad' signature
-        .onCall(3).returns(new BigInteger('53')) // valid, good signature
+    it('loops until a suitable signature is found', mockme(function () {
+      var checkSigStub = this.stub(function f () {
+        if (f.calls === 0) return false // bad signature
+        if (f.calls === 1) return true // good signature
+      }, 2)
 
-      var mockCheckSig = this.mock()
-      mockCheckSig.exactly(2)
-      mockCheckSig.onCall(0).returns(false) // bad signature
-      mockCheckSig.onCall(1).returns(true) // good signature
-
-      var x = new BigInteger('1').toBuffer(32)
+      var x = BigInteger.ONE.toBuffer(32)
       var h1 = Buffer.alloc(32)
-      var k = ecdsa.deterministicGenerateK(h1, x, mockCheckSig)
+      var k = ecdsa.deterministicGenerateK(h1, x, checkSigStub)
 
-      assert.strictEqual(k.toString(), '53')
+      assert.strictEqual(k.toHex(), 'a9b1a1a84a4c2f96b6158ed7a81404c50cb74373c22e8d9e02d0411d719acae2')
     }))
 
     fixtures.valid.rfc6979.forEach(function (f) {
