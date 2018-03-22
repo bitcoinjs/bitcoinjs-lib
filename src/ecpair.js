@@ -104,6 +104,10 @@ ECPair.prototype.getAddress = function () {
   return baddress.toBase58Check(bcrypto.hash160(this.getPublicKeyBuffer()), this.getNetwork().pubKeyHash)
 }
 
+ECPair.prototype.getCompressed = function () {
+  return this.compressed
+}
+
 ECPair.prototype.getNetwork = function () {
   return this.network
 }
