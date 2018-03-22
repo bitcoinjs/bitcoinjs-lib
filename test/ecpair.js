@@ -217,6 +217,17 @@ describe('ECPair', function () {
     })
   })
 
+  describe('getCompressed', function () {
+    fixtures.valid.forEach(function (f) {
+      it('returns ' + f.compressed + ' for ' + f.WIF, function () {
+        var compressed = f.compressed
+        var keyPair = ECPair.fromWIF(f.WIF, NETWORKS_LIST)
+
+        assert.strictEqual(keyPair.getCompressed(), compressed)
+      })
+    })
+  })
+
   describe('ecdsa wrappers', function () {
     var keyPair, hash
 
