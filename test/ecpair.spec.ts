@@ -7,7 +7,7 @@ const hoodwink = require('hoodwink');
 const tinysecp = require('tiny-secp256k1');
 
 const NETWORKS_LIST = Object.values(NETWORKS).filter(
-  net => net.bech32 !== 'btg',
+  net => !net.bech32.endsWith('btg'),
 );
 const ZERO = Buffer.alloc(32, 0);
 const ONE = Buffer.from(
