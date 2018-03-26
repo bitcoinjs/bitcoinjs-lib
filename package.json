@@ -1,5 +1,5 @@
 {
-  "name": "bitcoinjs-lib",
+  "name": "bitcoinforksjs-lib",
   "version": "3.3.2",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",

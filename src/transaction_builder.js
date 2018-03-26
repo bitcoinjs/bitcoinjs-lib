@@ -174,7 +174,7 @@ function expandInput (scriptSig, witnessStack) {
 }
 
 // could be done in expandInput, but requires the original Transaction for hashForSignature
-function fixMultisigOrder (input, transaction, vin) {
+function fixMultisigOrder (input, transaction, vin, value, forkId) {
   if (input.redeemScriptType !== scriptTypes.MULTISIG || !input.redeemScript) return
   if (input.pubKeys.length === input.signatures.length) return
 
@@ -191,7 +191,22 @@ function fixMultisigOrder (input, transaction, vin) {
 
       // TODO: avoid O(n) hashForSignature
       var parsed = ECSignature.parseScriptSignature(signature)
-      var hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
+      var hash
+      switch (forkId) {
+        case Transaction.FORKID_BCH:
+          hash = transaction.hashForCashSignature(vin, input.signScript, value, parsed.hashType)
+          break
+        case Transaction.FORKID_BTG:
+          hash = transaction.hashForGoldSignature(vin, input.signScript, value, parsed.hashType)
+          break
+        default:
+          if (input.witness) {
+            hash = transaction.hashForWitnessV0(vin, input.signScript, value, parsed.hashType)
+          } else {
+            hash = transaction.hashForSignature(vin, input.signScript, parsed.hashType)
+          }
+          break
+      }
 
       // skip if signature does not match pubKey
       if (!keyPair.verify(hash, parsed.signature)) return false
@@ -475,7 +490,25 @@ function TransactionBuilder (network, maximumFeeRate) {
   this.maximumFeeRate = maximumFeeRate || 2500
 
   this.inputs = []
+  this.bitcoinCash = false
+  this.bitcoinGold = false
   this.tx = new Transaction()
+}
+
+TransactionBuilder.prototype.enableBitcoinCash = function (enable) {
+  if (typeof enable === 'undefined') {
+    enable = true
+  }
+
+  this.bitcoinCash = enable
+}
+
+TransactionBuilder.prototype.enableBitcoinGold = function (enable) {
+  if (typeof enable === 'undefined') {
+    enable = true
+  }
+
+  this.bitcoinGold = enable
 }
 
 TransactionBuilder.prototype.setLockTime = function (locktime) {
@@ -500,8 +533,16 @@ TransactionBuilder.prototype.setVersion = function (version) {
   this.tx.version = version
 }
 
-TransactionBuilder.fromTransaction = function (transaction, network) {
+TransactionBuilder.fromTransaction = function (transaction, network, forkId) {
   var txb = new TransactionBuilder(network)
+
+  if (typeof forkId === 'number') {
+    if (forkId === Transaction.FORKID_BTG) {
+      txb.enableBitcoinGold(true)
+    } else if (forkId === Transaction.FORKID_BCH) {
+      txb.enableBitcoinCash(true)
+    }
+  }
 
   // Copy transaction fields
   txb.setVersion(transaction.version)
@@ -517,13 +558,14 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
     txb.__addInputUnsafe(txIn.hash, txIn.index, {
       sequence: txIn.sequence,
       script: txIn.script,
-      witness: txIn.witness
+      witness: txIn.witness,
+      value: txIn.value
     })
   })
 
   // fix some things not possible through the public API
   txb.inputs.forEach(function (input, i) {
-    fixMultisigOrder(input, transaction, i)
+    fixMultisigOrder(input, transaction, i, input.value, forkId)
   })
 
   return txb
@@ -698,10 +740,16 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
 
   // ready to sign
   var signatureHash
-  if (input.witness) {
-    signatureHash = this.tx.hashForWitnessV0(vin, input.signScript, input.value, hashType)
+  if (this.bitcoinGold) {
+    signatureHash = this.tx.hashForGoldSignature(vin, input.signScript, witnessValue, hashType, input.witness)
+  } else if (this.bitcoinCash) {
+    signatureHash = this.tx.hashForCashSignature(vin, input.signScript, witnessValue, hashType)
   } else {
-    signatureHash = this.tx.hashForSignature(vin, input.signScript, hashType)
+    if (input.witness) {
+      signatureHash = this.tx.hashForWitnessV0(vin, input.signScript, witnessValue, hashType)
+    } else {
+      signatureHash = this.tx.hashForSignature(vin, input.signScript, hashType)
+    }
   }
 
   // enforce in order signing of public keys
