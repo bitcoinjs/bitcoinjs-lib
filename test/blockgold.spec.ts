@@ -24,10 +24,10 @@ describe('Block', () => {
         assert.strictEqual(block.bits, f.bits);
         assert.strictEqual(block.nonce!.toString('hex'), f.nonce);
         assert.strictEqual(block.solution!.toString('hex'), f.solution);
-        // assert.strictEqual(
-        //   block.transactions?.length || 0,
-        //   f.tx !== undefined ? f.tx.length : 0,
-        // );
+        assert.strictEqual(
+          block.transactions ? block.transactions.length : 0,
+          f.tx ? f.tx.length : 0,
+        );
         // if (f.size && f.strippedSize && f.weight) {
         //   assert.strictEqual(block.byteLength(false, true), f.size);
         //   assert.strictEqual(block.byteLength(false, false), f.strippedSize);
