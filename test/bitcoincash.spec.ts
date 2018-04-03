@@ -32,8 +32,7 @@ describe('TransactionBuilder', function() {
     txb.enableBitcoinCash(true);
     txb.setVersion(2);
 
-    const hashType =
-      Transaction.SIGHASH_ALL | Transaction.SIGHASH_BITCOINCASHBIP143;
+    const hashType = Transaction.SIGHASH_ALL | Transaction.SIGHASH_FORKID;
 
     txb.sign(0, keyPair, undefined, hashType, value);
 

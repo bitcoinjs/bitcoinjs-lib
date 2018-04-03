@@ -34,7 +34,7 @@ exports.testnet = {
   wif: 0xef,
 };
 exports.bitcoingold = {
-  messagePrefix: '\x18Bitcoin Gold Signed Message:\n',
+  messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
   bech32: 'btg',
   bip32: {
     public: 0x0488b21e,
@@ -45,7 +45,7 @@ exports.bitcoingold = {
   wif: 0x80,
 };
 exports.bitcoingoldtestnet = {
-  messagePrefix: '\x18Bitcoin Gold Signed Message:\n',
+  messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
   bech32: 'tbtg',
   bip32: {
     public: 0x043587cf,

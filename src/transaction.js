@@ -345,7 +345,7 @@ class Transaction {
     // would be required in the hashForWitnessV0 function, or
     // it could be broken into two..
     // BIP143 sighash activated in BitcoinCash via 0x40 bit
-    if (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) {
+    if (hashType & Transaction.SIGHASH_FORKID) {
       if (types.Null(inAmount)) {
         throw new Error(
           'Bitcoin Cash sighash requires value of input to be signed.',
@@ -368,7 +368,7 @@ class Transaction {
     // therefore we can pull out the setting of nForkHashType
     // and pass it into the functions.
     let nForkHashType = hashType;
-    const fUseForkId = (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) > 0;
+    const fUseForkId = (hashType & Transaction.SIGHASH_FORKID) > 0;
     if (fUseForkId) {
       nForkHashType |= Transaction.FORKID_BTG << 8;
     }
@@ -457,7 +457,7 @@ Transaction.SIGHASH_ALL = 0x01;
 Transaction.SIGHASH_NONE = 0x02;
 Transaction.SIGHASH_SINGLE = 0x03;
 Transaction.SIGHASH_ANYONECANPAY = 0x80;
-Transaction.SIGHASH_BITCOINCASHBIP143 = 0x40;
+Transaction.SIGHASH_FORKID = 0x40;
 Transaction.ADVANCED_TRANSACTION_MARKER = 0x00;
 Transaction.ADVANCED_TRANSACTION_FLAG = 0x01;
 Transaction.FORKID_BTG = 0x4f; // 79

@@ -15,7 +15,7 @@ export declare class Transaction {
     static readonly SIGHASH_NONE = 2;
     static readonly SIGHASH_SINGLE = 3;
     static readonly SIGHASH_ANYONECANPAY = 128;
-    static readonly SIGHASH_BITCOINCASHBIP143 = 64;
+    static readonly SIGHASH_FORKID = 64;
     static readonly ADVANCED_TRANSACTION_MARKER = 0;
     static readonly ADVANCED_TRANSACTION_FLAG = 1;
     static readonly FORKID_BTG = 79;

@@ -48,7 +48,7 @@ export const testnet: Network = {
   wif: 0xef,
 };
 export const bitcoingold: Network = {
-  messagePrefix: '\x18Bitcoin Gold Signed Message:\n',
+  messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
   bech32: 'btg',
   bip32: {
     public: 0x0488b21e,
@@ -59,7 +59,7 @@ export const bitcoingold: Network = {
   wif: 0x80,
 };
 export const bitcoingoldtestnet: Network = {
-  messagePrefix: '\x18Bitcoin Gold Signed Message:\n',
+  messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
   bech32: 'tbtg',
   bip32: {
     public: 0x043587cf,

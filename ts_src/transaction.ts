@@ -63,7 +63,7 @@ export class Transaction {
   static readonly SIGHASH_NONE = 0x02;
   static readonly SIGHASH_SINGLE = 0x03;
   static readonly SIGHASH_ANYONECANPAY = 0x80;
-  static readonly SIGHASH_BITCOINCASHBIP143 = 0x40;
+  static readonly SIGHASH_FORKID = 0x40;
   static readonly ADVANCED_TRANSACTION_MARKER = 0x00;
   static readonly ADVANCED_TRANSACTION_FLAG = 0x01;
   static readonly FORKID_BTG = 0x4f; // 79
@@ -456,7 +456,7 @@ export class Transaction {
     // it could be broken into two..
 
     // BIP143 sighash activated in BitcoinCash via 0x40 bit
-    if (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) {
+    if (hashType & Transaction.SIGHASH_FORKID) {
       if (types.Null(inAmount)) {
         throw new Error(
           'Bitcoin Cash sighash requires value of input to be signed.',
@@ -488,7 +488,7 @@ export class Transaction {
     // and pass it into the functions.
 
     let nForkHashType = hashType;
-    const fUseForkId = (hashType & Transaction.SIGHASH_BITCOINCASHBIP143) > 0;
+    const fUseForkId = (hashType & Transaction.SIGHASH_FORKID) > 0;
     if (fUseForkId) {
       nForkHashType |= Transaction.FORKID_BTG << 8;
     }
