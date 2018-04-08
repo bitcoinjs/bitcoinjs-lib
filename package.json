@@ -57,6 +57,7 @@
     "bs58check": "^2.0.0",
     "create-hash": "^1.1.0",
     "create-hmac": "^1.1.3",
+    "equihashjs-verify": "BTCGPU/equihashjs-verify#master",
     "merkle-lib": "^2.0.10",
     "pushdata-bitcoin": "^1.0.1",
     "randombytes": "^2.0.1",

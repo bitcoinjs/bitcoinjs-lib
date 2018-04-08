@@ -1,10 +1,11 @@
 import * as assert from 'assert';
+import { networks } from 'equihashjs-verify';
 import { beforeEach, describe, it } from 'mocha';
 import { BlockGold as Block } from '..';
 
 import * as fixtures from './fixtures/block_gold.json';
 
-describe('Block', () => {
+describe('BlockGold', () => {
   describe('fromBuffer/fromHex', () => {
     fixtures.valid.forEach(f => {
       it('imports ' + f.description, () => {
@@ -145,16 +146,21 @@ describe('Block', () => {
   });
 
   describe('checkProofOfWork', () => {
-    fixtures.valid.forEach(f => {
-      let block: Block;
+    fixtures.valid
+      .filter(v => v.checkPoW)
+      .forEach(f => {
+        let block: Block;
 
-      beforeEach(() => {
-        block = Block.fromHex(f.hex);
-      });
+        beforeEach(() => {
+          block = Block.fromHex(f.hex);
+        });
 
-      it('returns ' + f.valid + ' for ' + f.id, () => {
-        assert.strictEqual(block.checkProofOfWork(), f.valid);
+        it('returns ' + f.valid + ' for ' + f.id, () => {
+          assert.strictEqual(
+            block.checkProofOfWork(networks.bitcoingoldPreEquihashFork),
+            f.valid,
+          );
+        });
       });
-    });
   });
 });

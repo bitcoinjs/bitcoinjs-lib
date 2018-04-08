@@ -1,4 +1,5 @@
 import { Transaction } from './transaction';
+import * as eq from 'equihashjs-verify';
 export declare class Block {
     static fromBuffer(buffer: Buffer): Block;
     static fromHex(hex: string): Block;
@@ -27,7 +28,7 @@ export declare class Block {
     toBuffer(headersOnly?: boolean): Buffer;
     toHex(headersOnly?: boolean): string;
     checkTxRoots(): boolean;
-    checkProofOfWork(): boolean;
+    checkProofOfWork(network?: eq.Network): boolean;
     private __checkMerkleRoot;
     private __checkWitnessCommit;
 }

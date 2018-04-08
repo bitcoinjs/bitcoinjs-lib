@@ -4,6 +4,7 @@ const bufferutils_1 = require('./bufferutils');
 const bcrypto = require('./crypto');
 const transaction_1 = require('./transaction');
 const types = require('./types');
+const eq = require('equihashjs-verify');
 const fastMerkleRoot = require('merkle-lib/fastRoot');
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
@@ -180,10 +181,16 @@ class Block {
       (hasWitnessCommit ? this.__checkWitnessCommit() : true)
     );
   }
-  checkProofOfWork() {
+  checkProofOfWork(network) {
     const hash = bufferutils_1.reverseBuffer(this.getHash());
     const target = Block.calculateTarget(this.bits);
-    return hash.compare(target) <= 0;
+    const equihash = new eq.Equihash(network || eq.networks.bitcoingold);
+    const header = this.toHex(true);
+    console.log({ header, sol: this.solution.toString('hex') });
+    return (
+      hash.compare(target) <= 0 &&
+      equihash.verify(Buffer.from(header, 'hex'), this.solution)
+    );
   }
   __checkMerkleRoot() {
     if (!this.transactions) throw errorMerkleNoTxes;

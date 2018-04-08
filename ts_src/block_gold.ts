@@ -3,6 +3,8 @@ import * as bcrypto from './crypto';
 import { Transaction } from './transaction';
 import * as types from './types';
 
+import * as eq from 'equihashjs-verify';
+
 const fastMerkleRoot = require('merkle-lib/fastRoot');
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
@@ -217,11 +219,18 @@ export class Block {
     );
   }
 
-  checkProofOfWork(): boolean {
+  checkProofOfWork(network?: eq.Network): boolean {
     const hash: Buffer = reverseBuffer(this.getHash());
     const target = Block.calculateTarget(this.bits);
 
-    return hash.compare(target) <= 0;
+    const equihash = new eq.Equihash(network || eq.networks.bitcoingold);
+    const header = this.toHex(true);
+    console.log({ header, sol: this.solution!.toString('hex') });
+
+    return (
+      hash.compare(target) <= 0 &&
+      equihash.verify(Buffer.from(header, 'hex'), this.solution!)
+    );
   }
 
   private __checkMerkleRoot(): boolean {
