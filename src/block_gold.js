@@ -181,16 +181,16 @@ class Block {
       (hasWitnessCommit ? this.__checkWitnessCommit() : true)
     );
   }
-  checkProofOfWork(network) {
+  checkProofOfWork(validateSolution, network) {
     const hash = bufferutils_1.reverseBuffer(this.getHash());
     const target = Block.calculateTarget(this.bits);
+    const validTarget = hash.compare(target) <= 0;
+    if (!validateSolution || !validTarget) {
+      return validTarget;
+    }
     const equihash = new eq.Equihash(network || eq.networks.bitcoingold);
     const header = this.toHex(true);
-    console.log({ header, sol: this.solution.toString('hex') });
-    return (
-      hash.compare(target) <= 0 &&
-      equihash.verify(Buffer.from(header, 'hex'), this.solution)
-    );
+    return equihash.verify(Buffer.from(header, 'hex'), this.solution);
   }
   __checkMerkleRoot() {
     if (!this.transactions) throw errorMerkleNoTxes;

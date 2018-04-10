@@ -219,18 +219,18 @@ export class Block {
     );
   }
 
-  checkProofOfWork(network?: eq.Network): boolean {
+  checkProofOfWork(validateSolution: boolean, network?: eq.Network): boolean {
     const hash: Buffer = reverseBuffer(this.getHash());
     const target = Block.calculateTarget(this.bits);
+    const validTarget = hash.compare(target) <= 0;
+
+    if (!validateSolution || !validTarget) {
+      return validTarget;
+    }
 
     const equihash = new eq.Equihash(network || eq.networks.bitcoingold);
     const header = this.toHex(true);
-    console.log({ header, sol: this.solution!.toString('hex') });
-
-    return (
-      hash.compare(target) <= 0 &&
-      equihash.verify(Buffer.from(header, 'hex'), this.solution!)
-    );
+    return equihash.verify(Buffer.from(header, 'hex'), this.solution!);
   }
 
   private __checkMerkleRoot(): boolean {

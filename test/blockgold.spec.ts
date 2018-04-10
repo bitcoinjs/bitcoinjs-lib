@@ -146,21 +146,22 @@ describe('BlockGold', () => {
   });
 
   describe('checkProofOfWork', () => {
-    fixtures.valid
-      .filter(v => v.checkPoW)
-      .forEach(f => {
-        let block: Block;
+    fixtures.valid.forEach(f => {
+      let block: Block;
 
-        beforeEach(() => {
-          block = Block.fromHex(f.hex);
-        });
-
-        it('returns ' + f.valid + ' for ' + f.id, () => {
-          assert.strictEqual(
-            block.checkProofOfWork(networks.bitcoingoldPreEquihashFork),
-            f.valid,
-          );
-        });
+      beforeEach(() => {
+        block = Block.fromHex(f.hex);
       });
+
+      it('returns ' + f.valid + ' for ' + f.id, () => {
+        assert.strictEqual(
+          block.checkProofOfWork(
+            f.checkEquihash,
+            networks.bitcoingoldPreEquihashFork,
+          ),
+          f.valid,
+        );
+      });
+    });
   });
 });

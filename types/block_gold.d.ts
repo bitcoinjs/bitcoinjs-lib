@@ -28,7 +28,7 @@ export declare class Block {
     toBuffer(headersOnly?: boolean): Buffer;
     toHex(headersOnly?: boolean): string;
     checkTxRoots(): boolean;
-    checkProofOfWork(network?: eq.Network): boolean;
+    checkProofOfWork(validateSolution: boolean, network?: eq.Network): boolean;
     private __checkMerkleRoot;
     private __checkWitnessCommit;
 }
