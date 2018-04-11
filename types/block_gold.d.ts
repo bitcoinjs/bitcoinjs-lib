@@ -17,6 +17,7 @@ export declare class Block {
     solutionLength: number;
     solution?: Buffer;
     transactions?: Transaction[];
+    btgForkHeight: number;
     getWitnessCommit(): Buffer | null;
     hasWitnessCommit(): boolean;
     hasWitness(): boolean;

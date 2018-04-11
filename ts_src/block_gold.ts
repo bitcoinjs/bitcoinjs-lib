@@ -106,6 +106,7 @@ export class Block {
   solutionLength = 0;
   solution?: Buffer = undefined;
   transactions?: Transaction[] = undefined;
+  btgForkHeight = 491407;
 
   getWitnessCommit(): Buffer | null {
     if (!txesHaveWitnessCommit(this.transactions!)) return null;
@@ -224,7 +225,7 @@ export class Block {
     const target = Block.calculateTarget(this.bits);
     const validTarget = hash.compare(target) <= 0;
 
-    if (!validateSolution || !validTarget) {
+    if (this.height < this.btgForkHeight || !validateSolution || !validTarget) {
       return validTarget;
     }
 
