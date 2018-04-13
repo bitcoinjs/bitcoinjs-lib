@@ -162,6 +162,7 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 - [Melis Wallet](https://melis.io)
 - [Robocoin](https://wallet.robocoin.com)
 - [Skyhook ATM](http://projectskyhook.com)
+- [Coinbase Multisig tool](https://github.com/coinbase/multisig-tool)
 
 
 ## Contributing
