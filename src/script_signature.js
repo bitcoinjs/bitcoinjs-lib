@@ -20,6 +20,13 @@ function decode (buffer) {
   }
 }
 
+function toRSBuffer (signature, buffer, offset) {
+  buffer = buffer || Buffer.alloc(64)
+  signature.r.toBuffer(32).copy(buffer, offset)
+  signature.s.toBuffer(32).copy(buffer, offset + 32)
+  return buffer
+}
+
 function fromRSBuffer (buffer) {
   typeforce(types.BufferN(64), buffer)
 
@@ -45,7 +52,8 @@ function encode (signature, hashType) {
 }
 
 module.exports = {
-  fromRSBuffer,
+  fromRSBuffer: fromRSBuffer,
+  toRSBuffer: toRSBuffer,
   decode: decode,
   encode: encode
 }
