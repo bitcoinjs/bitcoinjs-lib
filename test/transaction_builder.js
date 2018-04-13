@@ -133,10 +133,11 @@ describe('TransactionBuilder', function () {
       })
     })
 
-    it('correctly classifies transaction inputs', function () {
+    it('classifies transaction inputs', function () {
       var tx = Transaction.fromHex(fixtures.valid.classification.hex)
       var txb = TransactionBuilder.fromTransaction(tx)
-      txb.inputs.forEach(function (i) {
+
+      txb.__inputs.forEach(function (i) {
         assert.strictEqual(i.prevOutType, 'scripthash')
         assert.strictEqual(i.redeemScriptType, 'multisig')
         assert.strictEqual(i.signType, 'multisig')
@@ -164,22 +165,22 @@ describe('TransactionBuilder', function () {
       var vin = txb.addInput(txHash, 1, 54)
       assert.strictEqual(vin, 0)
 
-      var txIn = txb.tx.ins[0]
+      var txIn = txb.__tx.ins[0]
       assert.strictEqual(txIn.hash, txHash)
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
-      assert.strictEqual(txb.inputs[0].prevOutScript, undefined)
+      assert.strictEqual(txb.__inputs[0].prevOutScript, undefined)
     })
 
     it('accepts a txHash, index [, sequence number and scriptPubKey]', function () {
       var vin = txb.addInput(txHash, 1, 54, scripts[1])
       assert.strictEqual(vin, 0)
 
-      var txIn = txb.tx.ins[0]
+      var txIn = txb.__tx.ins[0]
       assert.strictEqual(txIn.hash, txHash)
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
-      assert.strictEqual(txb.inputs[0].prevOutScript, scripts[1])
+      assert.strictEqual(txb.__inputs[0].prevOutScript, scripts[1])
     })
 
     it('accepts a prevTx, index [and sequence number]', function () {
@@ -190,11 +191,11 @@ describe('TransactionBuilder', function () {
       var vin = txb.addInput(prevTx, 1, 54)
       assert.strictEqual(vin, 0)
 
-      var txIn = txb.tx.ins[0]
+      var txIn = txb.__tx.ins[0]
       assert.deepEqual(txIn.hash, prevTx.getHash())
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
-      assert.strictEqual(txb.inputs[0].prevOutScript, scripts[1])
+      assert.strictEqual(txb.__inputs[0].prevOutScript, scripts[1])
     })
 
     it('returns the input index', function () {
@@ -222,7 +223,7 @@ describe('TransactionBuilder', function () {
       var vout = txb.addOutput(keyPair.getAddress(), 1000)
       assert.strictEqual(vout, 0)
 
-      var txout = txb.tx.outs[0]
+      var txout = txb.__tx.outs[0]
       assert.deepEqual(txout.script, scripts[0])
       assert.strictEqual(txout.value, 1000)
     })
@@ -231,7 +232,7 @@ describe('TransactionBuilder', function () {
       var vout = txb.addOutput(scripts[0], 1000)
       assert.strictEqual(vout, 0)
 
-      var txout = txb.tx.outs[0]
+      var txout = txb.__tx.outs[0]
       assert.deepEqual(txout.script, scripts[0])
       assert.strictEqual(txout.value, 1000)
     })
@@ -504,10 +505,10 @@ describe('TransactionBuilder', function () {
       '194a565cd6aa4cc38b8eaffa343402201c5b4b61d73fa38e49c1ee68cc0e6dfd2f5dae453dd86eb142e87a' +
       '0bafb1bc8401210283409659355b6d1cc3c32decd5d561abaac86c37a353b52895a5e6c196d6f44800000000'
       var txb = TransactionBuilder.fromTransaction(Transaction.fromHex(rawtx))
-      txb.inputs[0].value = 241530
-      txb.inputs[1].value = 241530
-      txb.inputs[2].value = 248920
-      txb.inputs[3].value = 248920
+      txb.__inputs[0].value = 241530
+      txb.__inputs[1].value = 241530
+      txb.__inputs[2].value = 248920
+      txb.__inputs[3].value = 248920
 
       assert.throws(function () {
         txb.build()
@@ -530,7 +531,7 @@ describe('TransactionBuilder', function () {
       var txHex = tx.toHex()
       var newTxb = TransactionBuilder.fromTransaction(Transaction.fromHex(txHex))
       // input should have the key 'witness' set to true
-      assert.equal(newTxb.inputs[0].witness, true)
+      assert.equal(newTxb.__inputs[0].witness, true)
     })
 
     it('should handle badly pre-filled OP_0s', function () {
