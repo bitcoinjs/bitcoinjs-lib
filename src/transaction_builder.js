@@ -71,7 +71,7 @@ function expandInput (scriptSig, witnessStack) {
   var witnessProgram
   var chunks
 
-  var scriptSigChunks = bscript.decompile(scriptSig)
+  var scriptSigChunks = bscript.decompile(scriptSig) || []
   var sigType = btemplates.classifyInput(scriptSigChunks, true)
   if (sigType === scriptTypes.P2SH) {
     p2sh = true
@@ -209,7 +209,7 @@ function fixMultisigOrder (input, transaction, vin) {
 function expandOutput (script, scriptType, ourPubKey) {
   typeforce(types.Buffer, script)
 
-  var scriptChunks = bscript.decompile(script)
+  var scriptChunks = bscript.decompile(script) || []
   if (!scriptType) {
     scriptType = btemplates.classifyOutput(script)
   }
@@ -257,8 +257,9 @@ function checkP2SHInput (input, redeemScriptHash) {
   if (input.prevOutType) {
     if (input.prevOutType !== scriptTypes.P2SH) throw new Error('PrevOutScript must be P2SH')
 
-    var prevOutScriptScriptHash = bscript.decompile(input.prevOutScript)[1]
-    if (!prevOutScriptScriptHash.equals(redeemScriptHash)) throw new Error('Inconsistent hash160(redeemScript)')
+    var chunks = bscript.decompile(input.prevOutScript)
+    if (!chunks) throw new Error('Invalid prevOutScript')
+    if (!chunks[1].equals(redeemScriptHash)) throw new Error('Inconsistent hash160(redeemScript)')
   }
 }
 
@@ -266,8 +267,9 @@ function checkP2WSHInput (input, witnessScriptHash) {
   if (input.prevOutType) {
     if (input.prevOutType !== scriptTypes.P2WSH) throw new Error('PrevOutScript must be P2WSH')
 
-    var scriptHash = bscript.decompile(input.prevOutScript)[1]
-    if (!scriptHash.equals(witnessScriptHash)) throw new Error('Inconsistent sha256(witnessScript)')
+    var chunks = bscript.decompile(input.prevOutScript)
+    if (!chunks) throw new Error('Invalid witnessScript')
+    if (!chunks[1].equals(witnessScriptHash)) throw new Error('Inconsistent sha256(witnessScript)')
   }
 }
 

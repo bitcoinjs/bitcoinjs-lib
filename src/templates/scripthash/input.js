@@ -21,7 +21,7 @@ function check (script, allowIncomplete) {
   var redeemScriptChunks = bscript.decompile(lastChunk)
 
   // is redeemScript a valid script?
-  if (redeemScriptChunks.length === 0) return false
+  if (!redeemScriptChunks) return false
 
   // is redeemScriptSig push only?
   if (!bscript.isPushOnly(scriptSigChunks)) return false

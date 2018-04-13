@@ -124,10 +124,10 @@ describe('script', function () {
     })
 
     fixtures.invalid.decompile.forEach(function (f) {
-      it('decompiles ' + f.script + ' to [] because of "' + f.description + '"', function () {
+      it('fails to decompile ' + f.script + ',  because "' + f.description + '"', function () {
         var chunks = bscript.decompile(Buffer.from(f.script, 'hex'))
 
-        assert.strictEqual(chunks.length, 0)
+        assert.strictEqual(chunks, null)
       })
     })
   })
