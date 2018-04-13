@@ -3,6 +3,7 @@
 var assert = require('assert')
 var bscriptSig = require('../src/script').signature
 var BigInteger = require('bigi')
+var Buffer = require('safe-buffer').Buffer
 var fixtures = require('./fixtures/signature.json')
 
 describe('Script Signatures', function () {
@@ -45,7 +46,7 @@ describe('Script Signatures', function () {
   describe('decode', function () {
     fixtures.valid.forEach(function (f) {
       it('decodes ' + f.hex, function () {
-        var decode = bscriptSig.decode(new Buffer(f.hex, 'hex'))
+        var decode = bscriptSig.decode(Buffer.from(f.hex, 'hex'))
 
         assert.deepEqual(toRaw(decode.signature), f.raw)
         assert.strictEqual(decode.hashType, f.hashType)
@@ -54,7 +55,7 @@ describe('Script Signatures', function () {
 
     fixtures.invalid.forEach(function (f) {
       it('throws on ' + f.hex, function () {
-        var buffer = new Buffer(f.hex, 'hex')
+        var buffer = Buffer.from(f.hex, 'hex')
 
         assert.throws(function () {
           bscriptSig.decode(buffer)

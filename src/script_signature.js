@@ -1,5 +1,6 @@
 var bip66 = require('bip66')
 var BigInteger = require('bigi')
+var Buffer = require('safe-buffer').Buffer
 var typeforce = require('typeforce')
 var types = require('./types')
 
@@ -39,11 +40,11 @@ function encode (signature, hashType) {
   var hashTypeMod = hashType & ~0x80
   if (hashTypeMod <= 0 || hashTypeMod >= 4) throw new Error('Invalid hashType ' + hashType)
 
-  var hashTypeBuffer = new Buffer(1)
+  var hashTypeBuffer = Buffer.allocUnsafe(1)
   hashTypeBuffer.writeUInt8(hashType, 0)
 
-  var r = new Buffer(signature.r.toDERInteger())
-  var s = new Buffer(signature.s.toDERInteger())
+  var r = Buffer.from(signature.r.toDERInteger())
+  var s = Buffer.from(signature.s.toDERInteger())
 
   return Buffer.concat([
     bip66.encode(r, s),
