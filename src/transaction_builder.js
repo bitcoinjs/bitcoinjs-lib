@@ -175,7 +175,7 @@ function expandInput (scriptSig, witnessStack) {
 
 // could be done in expandInput, but requires the original Transaction for hashForSignature
 function fixMultisigOrder (input, transaction, vin) {
-  if (input.signType !== scriptTypes.MULTISIG || !input.signScript) return
+  if (input.redeemScriptType !== scriptTypes.MULTISIG || !input.redeemScript) return
   if (input.pubKeys.length === input.signatures.length) return
 
   var unmatched = input.signatures.concat()
@@ -192,10 +192,10 @@ function fixMultisigOrder (input, transaction, vin) {
       // TODO: avoid O(n) hashForSignature
       var parsed = ECSignature.parseScriptSignature(signature)
       var hash
-      if (input.witness) {
-        hash = transaction.hashForWitnessV0(vin, input.signScript, input.value, parsed.hashType)
+      if (input.witness && input.value !== undefined) {
+        hash = transaction.hashForWitnessV0(vin, input.redeemScript, input.value, parsed.hashType)
       } else {
-        hash = transaction.hashForSignature(vin, input.signScript, parsed.hashType)
+        hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
       }
 
       // skip if signature does not match pubKey
