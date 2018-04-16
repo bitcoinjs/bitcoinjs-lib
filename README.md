@@ -163,9 +163,7 @@ If you have a use case that you feel could be listed here, please [ask for it](h
 
 
 ## Contributing
-We are always accepting of pull requests, but we do adhere to specific standards in regards to coding style, test driven development and commit messages.
-
-Please make your best effort to adhere to these when contributing to save on trivial corrections.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 
 ### Running the test suite
