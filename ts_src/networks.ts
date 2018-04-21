@@ -1,4 +1,7 @@
 // https://en.bitcoin.it/wiki/List_of_address_prefixes
+
+import * as eq from 'equihashjs-verify';
+
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
 export interface Network {
   messagePrefix: string;
@@ -7,6 +10,8 @@ export interface Network {
   pubKeyHash: number;
   scriptHash: number;
   wif: number;
+  forkHeight?: number;
+  equihash?: eq.Network;
 }
 
 interface Bip32 {
@@ -57,6 +62,8 @@ export const bitcoingold: Network = {
   pubKeyHash: 0x26,
   scriptHash: 0x17,
   wif: 0x80,
+  forkHeight: 491407,
+  equihash: eq.networks.bitcoingold,
 };
 export const bitcoingoldtestnet: Network = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
@@ -68,4 +75,19 @@ export const bitcoingoldtestnet: Network = {
   pubKeyHash: 0x6f,
   scriptHash: 0xc4,
   wif: 0xef,
+  forkHeight: 1,
+  equihash: eq.networks.bitcoingoldTestnet,
+};
+export const bitcoingoldregtest: Network = {
+  messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
+  bech32: 'tbtg',
+  bip32: {
+    public: 0x043587cf,
+    private: 0x04358394,
+  },
+  pubKeyHash: 0x6f,
+  scriptHash: 0xc4,
+  wif: 0xef,
+  forkHeight: 2000,
+  equihash: eq.networks.bitcoingoldRegtest,
 };

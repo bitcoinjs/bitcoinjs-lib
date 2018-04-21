@@ -2,6 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const bufferutils_1 = require('./bufferutils');
 const bcrypto = require('./crypto');
+const networks = require('./networks');
 const transaction_1 = require('./transaction');
 const types = require('./types');
 const eq = require('equihashjs-verify');
@@ -28,7 +29,6 @@ class Block {
     this.solutionLength = 0;
     this.solution = undefined;
     this.transactions = undefined;
-    this.btgForkHeight = 491407;
   }
   static fromBuffer(buffer) {
     if (buffer.length < 140) throw new Error('Buffer too small (< 140 bytes)');
@@ -123,10 +123,17 @@ class Block {
     const total = this.byteLength(false, true);
     return base * 3 + total;
   }
-  byteLength(headersOnly, allowWitness = true) {
+  byteLength(headersOnly, allowWitness = true, useLegacyFormat = false) {
     // Solution can have different size, for regtest/testnet is arround 140-170, for mainnet 1400-1500
-    const headerSize =
-      140 + varuint.encodingLength(this.solutionLength) + this.solution.length;
+    let headerSize;
+    if (useLegacyFormat) {
+      headerSize = 80;
+    } else {
+      headerSize =
+        140 +
+        varuint.encodingLength(this.solutionLength) +
+        this.solution.length;
+    }
     if (headersOnly || !this.transactions) return headerSize;
     return (
       headerSize +
@@ -134,11 +141,13 @@ class Block {
       this.transactions.reduce((a, x) => a + x.byteLength(allowWitness), 0)
     );
   }
-  getHash() {
-    return bcrypto.hash256(this.toBuffer(true));
+  getHash(network = networks.bitcoingold) {
+    const useLegacyFormat = this.height < network.forkHeight;
+    console.warn({ useLegacyFormat });
+    return bcrypto.hash256(this.toBuffer(true, useLegacyFormat));
   }
-  getId() {
-    return bufferutils_1.reverseBuffer(this.getHash()).toString('hex');
+  getId(network = networks.bitcoingold) {
+    return bufferutils_1.reverseBuffer(this.getHash(network)).toString('hex');
   }
   getUTCDate() {
     const date = new Date(0); // epoch
@@ -146,19 +155,27 @@ class Block {
     return date;
   }
   // TODO: buffer, offset compatibility
-  toBuffer(headersOnly) {
-    const buffer = Buffer.allocUnsafe(this.byteLength(headersOnly));
+  toBuffer(headersOnly, useLegacyFormat = false) {
+    const buffer = Buffer.allocUnsafe(
+      this.byteLength(headersOnly, undefined, useLegacyFormat),
+    );
     const bufferWriter = new bufferutils_1.BufferWriter(buffer);
     bufferWriter.writeInt32(this.version);
     bufferWriter.writeSlice(this.prevHash);
     bufferWriter.writeSlice(this.merkleRoot);
-    bufferWriter.writeInt32(this.height);
-    bufferWriter.writeSlice(this.reserved);
-    bufferWriter.writeUInt32(this.timestamp);
-    bufferWriter.writeUInt32(this.bits);
-    bufferWriter.writeSlice(this.nonce);
-    bufferWriter.writeVarInt(this.solutionLength);
-    bufferWriter.writeSlice(this.solution);
+    if (useLegacyFormat) {
+      bufferWriter.writeUInt32(this.timestamp);
+      bufferWriter.writeUInt32(this.bits);
+      bufferWriter.writeSlice(this.nonce.slice(0, 4));
+    } else {
+      bufferWriter.writeInt32(this.height);
+      bufferWriter.writeSlice(this.reserved);
+      bufferWriter.writeUInt32(this.timestamp);
+      bufferWriter.writeUInt32(this.bits);
+      bufferWriter.writeSlice(this.nonce);
+      bufferWriter.writeVarInt(this.solutionLength);
+      bufferWriter.writeSlice(this.solution);
+    }
     if (headersOnly || !this.transactions) return buffer;
     varuint.encode(this.transactions.length, buffer, bufferWriter.offset);
     bufferWriter.offset += varuint.encode.bytes;
@@ -169,8 +186,8 @@ class Block {
     });
     return buffer;
   }
-  toHex(headersOnly) {
-    return this.toBuffer(headersOnly).toString('hex');
+  toHex(headersOnly, useLegacyFormat = false) {
+    return this.toBuffer(headersOnly, useLegacyFormat).toString('hex');
   }
   checkTxRoots() {
     // If the Block has segwit transactions but no witness commit,
@@ -186,10 +203,16 @@ class Block {
     const hash = bufferutils_1.reverseBuffer(this.getHash());
     const target = Block.calculateTarget(this.bits);
     const validTarget = hash.compare(target) <= 0;
-    if (this.height < this.btgForkHeight || !validateSolution || !validTarget) {
+    if (this.height < network.forkHeight || !validateSolution || !validTarget) {
+      console.log(
+        '### checkProofOfWork prefork or not required to validate solutions',
+        { height: this.height, validateSolution, validTarget },
+      );
       return validTarget;
     }
-    const equihash = new eq.Equihash(network || eq.networks.bitcoingold);
+    const equihash = new eq.Equihash(
+      network.equihash || eq.networks.bitcoingold,
+    );
     const header = this.toHex(true);
     return equihash.verify(Buffer.from(header, 'hex'), this.solution);
   }

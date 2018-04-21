@@ -1,3 +1,4 @@
+import * as eq from 'equihashjs-verify';
 export interface Network {
     messagePrefix: string;
     bech32: string;
@@ -5,6 +6,8 @@ export interface Network {
     pubKeyHash: number;
     scriptHash: number;
     wif: number;
+    forkHeight?: number;
+    equihash?: eq.Network;
 }
 interface Bip32 {
     public: number;
@@ -15,4 +18,5 @@ export declare const regtest: Network;
 export declare const testnet: Network;
 export declare const bitcoingold: Network;
 export declare const bitcoingoldtestnet: Network;
+export declare const bitcoingoldregtest: Network;
 export {};

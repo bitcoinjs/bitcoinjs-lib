@@ -1,5 +1,5 @@
+import * as networks from './networks';
 import { Transaction } from './transaction';
-import * as eq from 'equihashjs-verify';
 export declare class Block {
     static fromBuffer(buffer: Buffer): Block;
     static fromHex(hex: string): Block;
@@ -17,19 +17,18 @@ export declare class Block {
     solutionLength: number;
     solution?: Buffer;
     transactions?: Transaction[];
-    btgForkHeight: number;
     getWitnessCommit(): Buffer | null;
     hasWitnessCommit(): boolean;
     hasWitness(): boolean;
     weight(): number;
-    byteLength(headersOnly?: boolean, allowWitness?: boolean): number;
-    getHash(): Buffer;
-    getId(): string;
+    byteLength(headersOnly?: boolean, allowWitness?: boolean, useLegacyFormat?: boolean): number;
+    getHash(network?: networks.Network): Buffer;
+    getId(network?: networks.Network): string;
     getUTCDate(): Date;
-    toBuffer(headersOnly?: boolean): Buffer;
-    toHex(headersOnly?: boolean): string;
+    toBuffer(headersOnly?: boolean, useLegacyFormat?: boolean): Buffer;
+    toHex(headersOnly?: boolean, useLegacyFormat?: boolean): string;
     checkTxRoots(): boolean;
-    checkProofOfWork(validateSolution: boolean, network?: eq.Network): boolean;
+    checkProofOfWork(validateSolution: boolean, network: networks.Network): boolean;
     private __checkMerkleRoot;
     private __checkWitnessCommit;
 }

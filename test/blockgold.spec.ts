@@ -1,9 +1,13 @@
 import * as assert from 'assert';
-import { networks } from 'equihashjs-verify';
 import { beforeEach, describe, it } from 'mocha';
-import { BlockGold as Block } from '..';
+import { BlockGold as Block, networks } from '..';
 
 import * as fixtures from './fixtures/block_gold.json';
+
+const networkMap: { [net: string]: networks.Network } = {
+  bitcoingold: networks.bitcoingold,
+  bitcoingoldregtest: networks.bitcoingoldregtest,
+};
 
 describe('BlockGold', () => {
   describe('fromBuffer/fromHex', () => {
@@ -71,8 +75,9 @@ describe('BlockGold', () => {
       });
 
       it('returns ' + f.id + ' for ' + f.description, () => {
-        assert.strictEqual(block.getHash().toString('hex'), f.hash);
-        assert.strictEqual(block.getId(), f.id);
+        const network = networkMap[f.network];
+        assert.strictEqual(block.getHash(network).toString('hex'), f.hash);
+        assert.strictEqual(block.getId(network), f.id);
       });
     });
   });
@@ -101,7 +106,7 @@ describe('BlockGold', () => {
     });
 
     fixtures.valid.forEach(f => {
-      if (f.hex.length === 284) return;
+      if (!f.tx) return;
 
       let block: Block;
 
@@ -131,7 +136,7 @@ describe('BlockGold', () => {
 
   describe('checkTxRoots', () => {
     fixtures.valid.forEach(f => {
-      if (f.hex.length === 284) return;
+      if (!f.tx) return;
 
       let block: Block;
 
@@ -146,22 +151,21 @@ describe('BlockGold', () => {
   });
 
   describe('checkProofOfWork', () => {
-    fixtures.valid.forEach(f => {
-      let block: Block;
+    fixtures.valid
+      .filter(f => f.network === 'bitcoingold')
+      .forEach(f => {
+        let block: Block;
 
-      beforeEach(() => {
-        block = Block.fromHex(f.hex);
-      });
+        beforeEach(() => {
+          block = Block.fromHex(f.hex);
+        });
 
-      it('returns ' + f.valid + ' for ' + f.id, () => {
-        assert.strictEqual(
-          block.checkProofOfWork(
-            f.checkEquihash,
-            networks.bitcoingoldPreEquihashFork,
-          ),
-          f.valid,
-        );
+        it('returns ' + f.valid + ' for ' + f.id, () => {
+          assert.strictEqual(
+            block.checkProofOfWork(true, networkMap[f.network]),
+            f.valid,
+          );
+        });
       });
-    });
   });
 });
