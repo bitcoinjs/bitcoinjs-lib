@@ -1,12 +1,12 @@
 {
-  "name": "bitcoinjs-lib",
+  "name": "bgoldjs-lib",
   "version": "5.2.0",
-  "description": "Client-side Bitcoin JavaScript library",
+  "description": "Client-side Bitcoin Gold JavaScript library",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
   "engines": {
     "node": ">=8.0.0"
-  }, 
+  },
   "keywords": [
     "bitcoinjs",
     "bitcoin",
