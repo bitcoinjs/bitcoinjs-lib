@@ -13,7 +13,8 @@
     "browserify",
     "javascript",
     "bitcoinjs",
-    "bitcoingoldjs"
+    "bitcoingoldjs",
+    "bgoldjs-lib"
   ],
   "scripts": {
     "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",

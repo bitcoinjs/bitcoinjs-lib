@@ -86,13 +86,13 @@ Type declarations for Typescript are included in this library. Normal installati
 Example:
 ``` javascript
 let options = {
-        network: bitcoin.networks.bitcoingold
-    }
+    network: bitcoin.networks.bitcoingold
+}
 let keyPair = bitcoin.ECPair.makeRandom(options)
 let address = keyPair.getAddress()
 ```
 
-**NOTE**: For Bitcoin Gold blocks you should use [BitcoinBlock](https://github.com/BTCGPU/bitcoinjs-lib/blob/master/src/block_gold.js#L13)
+**NOTE**: For Bitcoin Gold blocks you should use [BlockGold](https://github.com/BTCGPU/bitcoinjs-lib/blob/master/src/block_gold.js#L13)
 
 The below examples are implemented as integration tests, they should be very easy to understand.
 Otherwise, pull requests are appreciated.
@@ -164,7 +164,6 @@ npm run-script coverage
 - [coinselect](https://github.com/bitcoinjs/coinselect) - A fee-optimizing, transaction input selection module for bitcoinjs-lib.
 - [merkle-lib](https://github.com/bitcoinjs/merkle-lib) - A performance conscious library for merkle root and tree calculations.
 - [minimaldata](https://github.com/bitcoinjs/minimaldata) - A module to check bitcoin policy: SCRIPT_VERIFY_MINIMALDATA
-- [equihashjs-verify](https://github.com/BTCGPU/equihashjs-verify) - JavaScript check for valid Equihash solutions. Ported from ZCASH on Python
 
 ## Alternatives
 - [BCoin](https://github.com/indutny/bcoin)
