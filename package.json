@@ -6,13 +6,14 @@
   "types": "./types/index.d.ts",
   "engines": {
     "node": ">=8.0.0"
-  },
+  }, 
   "keywords": [
     "bitcoinjs",
     "bitcoin",
     "browserify",
     "javascript",
-    "bitcoinjs"
+    "bitcoinjs",
+    "bitcoingoldjs"
   ],
   "scripts": {
     "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
@@ -42,7 +43,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
+    "url": "https://github.com/BTCGPU/bitcoinjs-lib.git"
   },
   "files": [
     "src",
