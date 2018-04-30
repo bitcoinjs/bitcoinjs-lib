@@ -84,7 +84,7 @@ describe('bitcoinjs-lib (transactions)', function () {
 
       var txb = new bitcoin.TransactionBuilder(regtest)
       var data = Buffer.from('bitcoinjs-lib', 'utf8')
-      var dataScript = bitcoin.script.nullData.output.encode(data)
+      var dataScript = bitcoin.script.nullData.output.encode([data])
 
       txb.addInput(unspent.txId, unspent.vout)
       txb.addOutput(dataScript, 1000)
