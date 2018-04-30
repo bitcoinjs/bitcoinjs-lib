@@ -476,6 +476,7 @@ function TransactionBuilder (network, maximumFeeRate) {
 
   this.inputs = []
   this.tx = new Transaction()
+  this.tx.version = 2
 }
 
 TransactionBuilder.prototype.setLockTime = function (locktime) {
