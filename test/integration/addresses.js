@@ -22,7 +22,8 @@ describe('bitcoinjs-lib (addresses)', function () {
 
     var keyPair = new bitcoin.ECPair(d)
     var address = keyPair.getAddress()
-
+    // Generating addresses from SHA256 hashes is not secure if the input to the hash function is predictable
+    // Do not use with predictable inputs
     assert.strictEqual(address, '1C7zdTfnkzmr13HfA2vNm5SJYRK6nEKyq8')
   })
 
