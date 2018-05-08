@@ -122,6 +122,14 @@ HDNode.fromBase58 = function (string, networks) {
   return hd
 }
 
+HDNode.prototype.getDepth = function () {
+  return this.depth
+}
+
+HDNode.prototype.getIndex = function () {
+  return this.index
+}
+
 HDNode.prototype.getAddress = function () {
   return this.keyPair.getAddress()
 }
