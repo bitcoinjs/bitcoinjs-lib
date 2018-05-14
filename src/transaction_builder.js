@@ -191,7 +191,12 @@ function fixMultisigOrder (input, transaction, vin) {
 
       // TODO: avoid O(n) hashForSignature
       var parsed = ECSignature.parseScriptSignature(signature)
-      var hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
+      var hash
+      if (input.witness && input.value !== undefined) {
+        hash = transaction.hashForWitnessV0(vin, input.redeemScript, input.value, parsed.hashType)
+      } else {
+        hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
+      }
 
       // skip if signature does not match pubKey
       if (!keyPair.verify(hash, parsed.signature)) return false
@@ -518,6 +523,7 @@ TransactionBuilder.fromTransaction = function (transaction, network) {
     txb.__addInputUnsafe(txIn.hash, txIn.index, {
       sequence: txIn.sequence,
       script: txIn.script,
+      value: txIn.value,
       witness: txIn.witness
     })
   })
