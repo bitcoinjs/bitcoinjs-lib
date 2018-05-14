@@ -499,7 +499,7 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'nulldata') return
 
-      var data = Buffer.from(f.data, 'hex')
+      var data = f.data.map(function (x) { return Buffer.from(x, 'hex') })
       var output = btemplates.nullData.output.encode(data)
 
       it('encodes to ' + f.output, function () {
