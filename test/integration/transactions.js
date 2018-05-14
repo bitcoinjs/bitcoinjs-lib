@@ -230,7 +230,7 @@ describe('bitcoinjs-lib (transactions)', function () {
       var keyPair = keyPairs[i]
       var prevOutScript = bitcoin.address.toOutputScript(keyPair.getAddress())
       var scriptSig = bitcoin.script.pubKeyHash.input.decode(input.script)
-      var ss = bitcoin.ECSignature.parseScriptSignature(scriptSig.signature)
+      var ss = bitcoin.script.signature.decode(scriptSig.signature)
       var hash = tx.hashForSignature(i, prevOutScript, ss.hashType)
 
       assert.strictEqual(scriptSig.pubKey.toString('hex'), keyPair.getPublicKeyBuffer().toString('hex'))

@@ -4,7 +4,6 @@ var typeforce = require('typeforce')
 var types = require('./types')
 
 var BigInteger = require('bigi')
-var ECSignature = require('./ecsignature')
 
 var ZERO = Buffer.alloc(1, 0)
 var ONE = Buffer.alloc(1, 1)
@@ -102,7 +101,10 @@ function sign (hash, d) {
     s = n.subtract(s)
   }
 
-  return new ECSignature(r, s)
+  return {
+    r: r,
+    s: s
+  }
 }
 
 function verify (hash, signature, Q) {

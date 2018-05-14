@@ -8,7 +8,6 @@ for (var key in templates) {
 module.exports = {
   Block: require('./block'),
   ECPair: require('./ecpair'),
-  ECSignature: require('./ecsignature'),
   HDNode: require('./hdnode'),
   Transaction: require('./transaction'),
   TransactionBuilder: require('./transaction_builder'),

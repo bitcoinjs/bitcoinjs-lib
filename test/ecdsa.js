@@ -2,17 +2,31 @@
 
 var assert = require('assert')
 var bcrypto = require('../src/crypto')
+var bscript = require('../src/script')
 var ecdsa = require('../src/ecdsa')
 var hoodwink = require('hoodwink')
 
 var BigInteger = require('bigi')
-var ECSignature = require('../src/ecsignature')
 
 var curve = ecdsa.__curve
 
 var fixtures = require('./fixtures/ecdsa.json')
 
 describe('ecdsa', function () {
+  function fromRaw (signature) {
+    return {
+      r: new BigInteger(signature.r, 16),
+      s: new BigInteger(signature.s, 16)
+    }
+  }
+
+  function toRaw (signature) {
+    return {
+      r: signature.r.toHex(),
+      s: signature.s.toHex()
+    }
+  }
+
   describe('deterministicGenerateK', function () {
     function checkSig () {
       return true
@@ -80,9 +94,9 @@ describe('ecdsa', function () {
       it('produces a deterministic signature for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
         var hash = bcrypto.sha256(f.message)
-        var signature = ecdsa.sign(hash, d).toDER()
+        var signature = ecdsa.sign(hash, d)
 
-        assert.strictEqual(signature.toString('hex'), f.signature)
+        assert.deepEqual(toRaw(signature), f.signature)
       })
     })
 
@@ -101,7 +115,7 @@ describe('ecdsa', function () {
       it('verifies a valid signature for "' + f.message + '"', function () {
         var d = BigInteger.fromHex(f.d)
         var H = bcrypto.sha256(f.message)
-        var signature = ECSignature.fromDER(Buffer.from(f.signature, 'hex'))
+        var signature = fromRaw(f.signature)
         var Q = curve.G.multiply(d)
 
         assert(ecdsa.verify(H, signature, Q))
@@ -112,14 +126,7 @@ describe('ecdsa', function () {
       it('fails to verify with ' + f.description, function () {
         var H = bcrypto.sha256(f.message)
         var d = BigInteger.fromHex(f.d)
-
-        var signature
-        if (f.signature) {
-          signature = ECSignature.fromDER(Buffer.from(f.signature, 'hex'))
-        } else if (f.signatureRaw) {
-          signature = new ECSignature(new BigInteger(f.signatureRaw.r, 16), new BigInteger(f.signatureRaw.s, 16))
-        }
-
+        var signature = fromRaw(f.signature)
         var Q = curve.G.multiply(d)
 
         assert.strictEqual(ecdsa.verify(H, signature, Q), false)
