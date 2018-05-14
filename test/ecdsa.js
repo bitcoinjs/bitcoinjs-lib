@@ -2,7 +2,6 @@
 
 var assert = require('assert')
 var bcrypto = require('../src/crypto')
-var bscript = require('../src/script')
 var ecdsa = require('../src/ecdsa')
 var hoodwink = require('hoodwink')
 
