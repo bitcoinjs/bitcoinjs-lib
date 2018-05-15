@@ -715,9 +715,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
       input.prevOutType === scriptTypes.P2WSH
     )) throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
 
-    var signature = keyPair.sign(signatureHash)
-    if (Buffer.isBuffer(signature)) signature = bscript.signature.fromRSBuffer(signature)
-
+    let signature = keyPair.sign(signatureHash)
     input.signatures[i] = bscript.signature.encode(signature, hashType)
     return true
   })
