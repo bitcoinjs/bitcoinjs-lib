@@ -1,18 +1,17 @@
-var script = require('./script')
-
-var templates = require('./templates')
-for (var key in templates) {
+let script = require('./script')
+let templates = require('./templates')
+for (let key in templates) {
   script[key] = templates[key]
 }
 
 module.exports = {
   Block: require('./block'),
   ECPair: require('./ecpair'),
-  HDNode: require('./hdnode'),
   Transaction: require('./transaction'),
   TransactionBuilder: require('./transaction_builder'),
 
   address: require('./address'),
+  bip32: require('bip32'),
   crypto: require('./crypto'),
   networks: require('./networks'),
   opcodes: require('bitcoin-ops'),

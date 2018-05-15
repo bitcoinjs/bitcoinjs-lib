@@ -86,9 +86,6 @@ npm install @types/bitcoinjs-lib
 ```
 
 You can now use `bitcoinjs-lib` as a typescript compliant library.
-``` javascript
-import { HDNode, Transaction } from 'bitcoinjs-lib'
-```
 
 For VSCode (and other editors), users are advised to install the type declarations, as Intellisense uses that information to help you code (autocompletion, static analysis).
 
