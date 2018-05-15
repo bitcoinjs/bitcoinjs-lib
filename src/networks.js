@@ -9,6 +9,10 @@ module.exports = {
       public: 0x0488b21e,
       private: 0x0488ade4
     },
+    bip49: {
+      public: 0x049D7CB2,
+      private: 0x049D7878
+    },
     pubKeyHash: 0x00,
     scriptHash: 0x05,
     wif: 0x80
@@ -19,6 +23,10 @@ module.exports = {
     bip32: {
       public: 0x043587cf,
       private: 0x04358394
+    },
+    bip49: {
+      public: 0x044A5262,
+      private: 0x044A4E28
     },
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,

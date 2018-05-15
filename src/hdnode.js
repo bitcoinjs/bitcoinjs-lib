@@ -64,7 +64,9 @@ HDNode.fromBase58 = function (string, networks) {
   if (Array.isArray(networks)) {
     network = networks.filter(function (x) {
       return version === x.bip32.private ||
-             version === x.bip32.public
+             version === x.bip32.public ||
+             version === x.bip49.private ||
+             version === x.bip49.public
     }).pop()
 
     if (!network) throw new Error('Unknown network version')
@@ -75,7 +77,9 @@ HDNode.fromBase58 = function (string, networks) {
   }
 
   if (version !== network.bip32.private &&
-    version !== network.bip32.public) throw new Error('Invalid network version')
+    version !== network.bip32.public &&
+    version !== network.bip49.private &&
+    version !== network.bip49.public) throw new Error('Invalid network version')
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   var depth = buffer[4]
