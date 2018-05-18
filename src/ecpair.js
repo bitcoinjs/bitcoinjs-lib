@@ -90,9 +90,9 @@ ECPair.fromUncheckedHex = function (hex, network, compressed) {
 	network = network || NETWORKS.bitcoin
 	
 	return new ECPair(BigInteger.fromHex(hex), null, {
-		compressed: compressed,
-		network: network
-	})
+    compressed: compressed,
+    network: network
+  })
 }
 
 ECPair.makeRandom = function (options) {
