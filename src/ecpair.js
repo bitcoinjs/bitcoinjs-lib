@@ -88,7 +88,7 @@ ECPair.fromUncheckedHex = function (hex, network, compressed) {
 	
 	// assume a network object (or default to bitcoin)
 	network = network || NETWORKS.bitcoin
-	
+
 	return new ECPair(BigInteger.fromHex(hex), null, {
     compressed: compressed,
     network: network
