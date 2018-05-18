@@ -84,6 +84,17 @@ ECPair.fromWIF = function (string, network) {
   })
 }
 
+ECPair.fromUncheckedHex = function (hex, network, compressed) {
+	
+	// assume a network object (or default to bitcoin)
+	network = network || NETWORKS.bitcoin
+	
+	return new ECPair(BigInteger.fromHex(hex), null, {
+    compressed: compressed,
+    network: network
+  })
+}
+
 ECPair.makeRandom = function (options) {
   options = options || {}
 
@@ -122,6 +133,12 @@ ECPair.prototype.toWIF = function () {
   if (!this.d) throw new Error('Missing private key')
 
   return wif.encode(this.network.wif, this.d.toBuffer(32), this.compressed)
+}
+
+ECPair.prototype.toUncheckedHex = function () {
+  if (!this.d) throw new Error('Missing private key')
+  
+  return this.d.toHex().toUpperCase();
 }
 
 ECPair.prototype.verify = function (hash, signature) {
