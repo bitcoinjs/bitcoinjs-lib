@@ -115,7 +115,8 @@ ECPair.prototype.getPublicKeyBuffer = function () {
 ECPair.prototype.sign = function (hash) {
   if (!this.d) throw new Error('Missing private key')
 
-  return ecdsa.sign(hash, this.d)
+  let signature = ecdsa.sign(hash, this.d)
+  return Buffer.concat([signature.r.toBuffer(32), signature.s.toBuffer(32)], 64)
 }
 
 ECPair.prototype.toWIF = function () {
@@ -125,6 +126,11 @@ ECPair.prototype.toWIF = function () {
 }
 
 ECPair.prototype.verify = function (hash, signature) {
+  signature = {
+    r: BigInteger.fromBuffer(signature.slice(0, 32)),
+    s: BigInteger.fromBuffer(signature.slice(32, 64))
+  }
+
   return ecdsa.verify(hash, signature, this.Q)
 }
 

@@ -2,22 +2,21 @@
 
 var assert = require('assert')
 var bscriptSig = require('../src/script').signature
-var BigInteger = require('bigi')
 var Buffer = require('safe-buffer').Buffer
 var fixtures = require('./fixtures/signature.json')
 
 describe('Script Signatures', function () {
   function fromRaw (signature) {
-    return {
-      r: new BigInteger(signature.r),
-      s: new BigInteger(signature.s)
-    }
+    return Buffer.concat([
+      Buffer.from(signature.r, 'hex'),
+      Buffer.from(signature.s, 'hex')
+    ], 64)
   }
 
   function toRaw (signature) {
     return {
-      r: signature.r.toString(),
-      s: signature.s.toString()
+      r: signature.slice(0, 32).toString('hex'),
+      s: signature.slice(32, 64).toString('hex')
     }
   }
 

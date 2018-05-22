@@ -230,6 +230,7 @@ describe('ECPair', function () {
         this.mock(ecdsa, 'sign', function (h, d) {
           assert.strictEqual(h, hash)
           assert.strictEqual(d, keyPair.d)
+          return { r: BigInteger.ONE, s: BigInteger.ONE }
         }, 1)
 
         keyPair.sign(hash)
@@ -254,7 +255,11 @@ describe('ECPair', function () {
       it('wraps ecdsa.verify', hoodwink(function () {
         this.mock(ecdsa, 'verify', function (h, s, q) {
           assert.strictEqual(h, hash)
-          assert.strictEqual(s, signature)
+//            assert.strictEqual(s, signature)
+          assert.deepEqual(s, {
+            r: BigInteger.fromBuffer(signature.slice(0, 32)),
+            s: BigInteger.fromBuffer(signature.slice(32, 64))
+          })
           assert.strictEqual(q, keyPair.Q)
         }, 1)
 

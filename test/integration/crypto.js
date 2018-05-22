@@ -43,12 +43,14 @@ describe('bitcoinjs-lib (crypto)', function () {
         var inputB = tx.ins[j]
 
         // enforce matching r values
-        assert.strictEqual(inputA.signature.r.toString(), inputB.signature.r.toString())
-        var r = inputA.signature.r
-        var rInv = r.modInverse(n)
+        let r = inputA.signature.slice(0, 32)
+        let rB = inputB.signature.slice(0, 32)
+        assert.strictEqual(r.toString('hex'), rB.toString('hex'))
 
-        var s1 = inputA.signature.s
-        var s2 = inputB.signature.s
+        var rInv = bigi.fromBuffer(r).modInverse(n)
+
+        var s1 = bigi.fromBuffer(inputA.signature.slice(32, 64))
+        var s2 = bigi.fromBuffer(inputB.signature.slice(32, 64))
         var z1 = inputA.z
         var z2 = inputB.z
 
