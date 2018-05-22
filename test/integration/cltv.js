@@ -43,10 +43,10 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
     this.timeout(30000)
 
     // 3 hours ago
-    var lockTime = bip65.encode({ utc: utcNow() - (3600 * 3) })
-    var redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
-    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+    let lockTime = bip65.encode({ utc: utcNow() - (3600 * 3) })
+    let redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
+    let scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
+    let address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
     // fund the P2SH(CLTV) address
     regtestUtils.faucet(address, 1e5, function (err, unspent) {

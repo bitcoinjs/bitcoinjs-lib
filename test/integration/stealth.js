@@ -1,13 +1,20 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bigi = require('bigi')
-var bitcoin = require('../../')
+let assert = require('assert')
+let bigi = require('bigi')
+let bitcoin = require('../../')
 
-var ecurve = require('ecurve')
-var secp256k1 = ecurve.getCurveByName('secp256k1')
-var G = secp256k1.G
-var n = secp256k1.n
+let ecurve = require('ecurve')
+let secp256k1 = ecurve.getCurveByName('secp256k1')
+let G = secp256k1.G
+let n = secp256k1.n
+
+// TODO: remove
+let baddress = bitcoin.address
+let bcrypto = bitcoin.crypto
+function getAddress (node) {
+  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKeyBuffer()), bitcoin.networks.bitcoin.pubKeyHash)
+}
 
 // vG = (dG \+ sha256(e * dG)G)
 function stealthSend (e, Q) {
@@ -74,16 +81,16 @@ describe('bitcoinjs-lib (crypto)', function () {
 
     // ... recipient reveals public key (recipient.Q) to sender
     var forSender = stealthSend(nonce.d, recipient.Q)
-    assert.equal(forSender.getAddress(), '1CcZWwCpACJL3AxqoDbwEt4JgDFuTHUspE')
+    assert.equal(getAddress(forSender), '1CcZWwCpACJL3AxqoDbwEt4JgDFuTHUspE')
     assert.throws(function () { forSender.toWIF() }, /Error: Missing private key/)
 
     // ... sender reveals nonce public key (nonce.Q) to recipient
     var forRecipient = stealthReceive(recipient.d, nonce.Q)
-    assert.equal(forRecipient.getAddress(), '1CcZWwCpACJL3AxqoDbwEt4JgDFuTHUspE')
+    assert.equal(getAddress(forRecipient), '1CcZWwCpACJL3AxqoDbwEt4JgDFuTHUspE')
     assert.equal(forRecipient.toWIF(), 'L1yjUN3oYyCXV3LcsBrmxCNTa62bZKWCybxVJMvqjMmmfDE8yk7n')
 
     // sender and recipient, both derived same address
-    assert.equal(forSender.getAddress(), forRecipient.getAddress())
+    assert.equal(getAddress(forSender), getAddress(forRecipient))
   })
 
   it('can generate a single-key stealth address (randomly)', function () {
@@ -99,7 +106,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     assert.doesNotThrow(function () { forRecipient.toWIF() })
 
     // sender and recipient, both derived same address
-    assert.equal(forSender.getAddress(), forRecipient.getAddress())
+    assert.equal(getAddress(forSender), getAddress(forRecipient))
   })
 
   it('can recover parent recipient.d, if a derived private key is leaked [and nonce was revealed]', function () {
@@ -138,8 +145,8 @@ describe('bitcoinjs-lib (crypto)', function () {
     assert.doesNotThrow(function () { forRecipient.toWIF() })
 
     // scanner, sender and recipient, all derived same address
-    assert.equal(forSender.getAddress(), forScanner.getAddress())
-    assert.equal(forSender.getAddress(), forRecipient.getAddress())
+    assert.equal(getAddress(forSender), getAddress(forScanner))
+    assert.equal(getAddress(forSender), getAddress(forRecipient))
   })
 
   it('can generate a dual-key stealth address (randomly)', function () {
@@ -160,7 +167,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     assert.doesNotThrow(function () { forRecipient.toWIF() })
 
     // scanner, sender and recipient, all derived same address
-    assert.equal(forSender.getAddress(), forScanner.getAddress())
-    assert.equal(forSender.getAddress(), forRecipient.getAddress())
+    assert.equal(getAddress(forSender), getAddress(forScanner))
+    assert.equal(getAddress(forSender), getAddress(forRecipient))
   })
 })

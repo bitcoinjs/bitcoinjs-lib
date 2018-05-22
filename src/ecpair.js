@@ -1,16 +1,14 @@
-var baddress = require('./address')
-var bcrypto = require('./crypto')
-var ecdsa = require('./ecdsa')
-var randomBytes = require('randombytes')
-var typeforce = require('typeforce')
-var types = require('./types')
-var wif = require('wif')
+let ecdsa = require('./ecdsa')
+let randomBytes = require('randombytes')
+let typeforce = require('typeforce')
+let types = require('./types')
+let wif = require('wif')
 
-var NETWORKS = require('./networks')
-var BigInteger = require('bigi')
+let NETWORKS = require('./networks')
+let BigInteger = require('bigi')
 
-var ecurve = require('ecurve')
-var secp256k1 = ecdsa.__curve
+let ecurve = require('ecurve')
+let secp256k1 = ecdsa.__curve
 
 function ECPair (d, Q, options) {
   if (options) {
@@ -98,10 +96,6 @@ ECPair.makeRandom = function (options) {
   } while (d.signum() <= 0 || d.compareTo(secp256k1.n) >= 0)
 
   return new ECPair(d, null, options)
-}
-
-ECPair.prototype.getAddress = function () {
-  return baddress.toBase58Check(bcrypto.hash160(this.getPublicKeyBuffer()), this.getNetwork().pubKeyHash)
 }
 
 ECPair.prototype.getNetwork = function () {
