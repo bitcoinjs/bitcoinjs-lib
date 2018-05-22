@@ -28,6 +28,8 @@ function classifyOutput (script) {
 
   // XXX: optimization, below functions .decompile before use
   var chunks = decompile(script)
+  if (!chunks) throw new TypeError('Invalid script')
+
   if (multisig.output.check(chunks)) return types.MULTISIG
   if (pubKey.output.check(chunks)) return types.P2PK
   if (witnessCommitment.output.check(chunks)) return types.WITNESS_COMMITMENT
@@ -39,6 +41,7 @@ function classifyOutput (script) {
 function classifyInput (script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
   var chunks = decompile(script)
+  if (!chunks) throw new TypeError('Invalid script')
 
   if (pubKeyHash.input.check(chunks)) return types.P2PKH
   if (scriptHash.input.check(chunks, allowIncomplete)) return types.P2SH
@@ -51,6 +54,7 @@ function classifyInput (script, allowIncomplete) {
 function classifyWitness (script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
   var chunks = decompile(script)
+  if (!chunks) throw new TypeError('Invalid script')
 
   if (witnessPubKeyHash.input.check(chunks)) return types.P2WPKH
   if (witnessScriptHash.input.check(chunks, allowIncomplete)) return types.P2WSH

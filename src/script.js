@@ -98,11 +98,11 @@ function decompile (buffer) {
       var d = pushdata.decode(buffer, i)
 
       // did reading a pushDataInt fail? empty script
-      if (d === null) return []
+      if (d === null) return null
       i += d.size
 
       // attempt to read too much data? empty script
-      if (i + d.number > buffer.length) return []
+      if (i + d.number > buffer.length) return null
 
       var data = buffer.slice(i, i + d.number)
       i += d.number
