@@ -180,7 +180,7 @@ function fixMultisigOrder (input, transaction, vin) {
   var unmatched = input.signatures.concat()
 
   input.signatures = input.pubKeys.map(function (pubKey) {
-    var keyPair = ECPair.fromPublicKeyBuffer(pubKey)
+    var keyPair = ECPair.fromPublicKey(pubKey)
     var match
 
     // check for a signature
@@ -686,7 +686,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     throw new Error('Inconsistent redeemScript')
   }
 
-  var kpPubKey = keyPair.publicKey || keyPair.getPublicKeyBuffer()
+  var kpPubKey = keyPair.publicKey || keyPair.getPublicKey()
   if (!canSign(input)) {
     if (witnessValue !== undefined) {
       if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')

@@ -26,11 +26,11 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
       bitcoin.opcodes.OP_DROP,
 
       bitcoin.opcodes.OP_ELSE,
-      bQ.getPublicKeyBuffer(),
+      bQ.getPublicKey(),
       bitcoin.opcodes.OP_CHECKSIGVERIFY,
       bitcoin.opcodes.OP_ENDIF,
 
-      aQ.getPublicKeyBuffer(),
+      aQ.getPublicKey(),
       bitcoin.opcodes.OP_CHECKSIG
     ])
   }

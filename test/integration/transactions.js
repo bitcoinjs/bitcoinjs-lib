@@ -10,7 +10,7 @@ let baddress = bitcoin.address
 let bcrypto = bitcoin.crypto
 function getAddress (node, network) {
   network = network || bitcoin.networks.bitcoin
-  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKeyBuffer()), network.pubKeyHash)
+  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKey()), network.pubKeyHash)
 }
 
 function rng () {
@@ -115,7 +115,7 @@ describe('bitcoinjs-lib (transactions)', function () {
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe',
       '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx9rcrL7'
     ].map(function (wif) { return bitcoin.ECPair.fromWIF(wif, regtest) })
-    var pubKeys = keyPairs.map(function (x) { return x.getPublicKeyBuffer() })
+    var pubKeys = keyPairs.map(function (x) { return x.getPublicKey() })
 
     var redeemScript = bitcoin.script.multisig.output.encode(2, pubKeys)
     var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
@@ -150,7 +150,7 @@ describe('bitcoinjs-lib (transactions)', function () {
     this.timeout(30000)
 
     var keyPair = bitcoin.ECPair.fromWIF('cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87JcbXMTcA', regtest)
-    var pubKey = keyPair.getPublicKeyBuffer()
+    var pubKey = keyPair.getPublicKey()
     var pubKeyHash = bitcoin.crypto.hash160(pubKey)
 
     var redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash)
@@ -191,7 +191,7 @@ describe('bitcoinjs-lib (transactions)', function () {
       'cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87KcLPVfXz',
       'cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87L7FgDCKE'
     ].map(function (wif) { return bitcoin.ECPair.fromWIF(wif, regtest) })
-    var pubKeys = keyPairs.map(function (x) { return x.getPublicKeyBuffer() })
+    var pubKeys = keyPairs.map(function (x) { return x.getPublicKey() })
 
     var witnessScript = bitcoin.script.multisig.output.encode(3, pubKeys)
     var redeemScript = bitcoin.script.witnessScriptHash.output.encode(bitcoin.crypto.sha256(witnessScript))
@@ -241,7 +241,7 @@ describe('bitcoinjs-lib (transactions)', function () {
       var ss = bitcoin.script.signature.decode(scriptSig.signature)
       var hash = tx.hashForSignature(i, prevOutScript, ss.hashType)
 
-      assert.strictEqual(scriptSig.pubKey.toString('hex'), keyPair.getPublicKeyBuffer().toString('hex'))
+      assert.strictEqual(scriptSig.pubKey.toString('hex'), keyPair.getPublicKey().toString('hex'))
       assert.strictEqual(keyPair.verify(hash, ss.signature), true)
     })
   })

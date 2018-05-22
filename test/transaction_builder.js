@@ -7,7 +7,6 @@ let bscript = require('../src/script')
 let btemplates = require('../src/templates')
 let ops = require('bitcoin-ops')
 
-let BigInteger = require('bigi')
 let ECPair = require('../src/ecpair')
 let Transaction = require('../src/transaction')
 let TransactionBuilder = require('../src/transaction_builder')
@@ -17,7 +16,7 @@ let fixtures = require('./fixtures/transaction_builder')
 
 // TODO: remove
 function getAddress (node) {
-  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKeyBuffer()), NETWORKS.bitcoin.pubKeyHash)
+  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKey()), NETWORKS.bitcoin.pubKeyHash)
 }
 
 function construct (f, dontSign) {
@@ -89,7 +88,7 @@ function construct (f, dontSign) {
 
 describe('TransactionBuilder', function () {
   // constants
-  var keyPair = new ECPair(BigInteger.ONE)
+  var keyPair = ECPair.fromPrivateKey(Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex'))
   var scripts = [
     '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
     '1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'
