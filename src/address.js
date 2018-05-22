@@ -7,13 +7,15 @@ var networks = require('./networks')
 var typeforce = require('typeforce')
 var types = require('./types')
 
-function fromBase58Check (address) {
-  var payload = bs58check.decode(address)
-
+function fromBase58Check (address, network) {
+  network = network || networks.bitcoin;
+  var payload = bs58check.decode(address, network.pubKeyHash)
+  
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short')
-  if (payload.length > 22) throw new TypeError(address + ' is too long')
-
+  var maxLength = network.pubKeyHash < 256 ? 21 : 22;
+  if (payload.length > maxLength) throw new TypeError(address + ' is too long')
+  
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
 
@@ -75,7 +77,7 @@ function toOutputScript (address, network) {
 
   var decode
   try {
-    decode = fromBase58Check(address)
+    decode = fromBase58Check(address, network)
   } catch (e) {}
 
   if (decode) {
