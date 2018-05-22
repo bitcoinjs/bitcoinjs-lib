@@ -3,7 +3,9 @@
 var assert = require('assert')
 var bigi = require('bigi')
 var bitcoin = require('../../')
+var bip32 = require('bip32')
 var crypto = require('crypto')
+var tinysecp = require('tiny-secp256k1')
 
 var ecurve = require('ecurve')
 var secp256k1 = ecurve.getCurveByName('secp256k1')
@@ -68,35 +70,31 @@ describe('bitcoinjs-lib (crypto)', function () {
 
   it('can recover a BIP32 parent private key from the parent public key, and a derived, non-hardened child private key', function () {
     function recoverParent (master, child) {
-      assert(!master.keyPair.d, 'You already have the parent private key')
-      assert(child.keyPair.d, 'Missing child private key')
+      assert(master.isNeutered(), 'You already have the parent private key')
+      assert(!child.isNeutered(), 'Missing child private key')
 
-      var curve = secp256k1
-      var QP = master.keyPair.Q
-      var serQP = master.keyPair.getPublicKeyBuffer()
-
-      var d1 = child.keyPair.d
+      var serQP = master.publicKey
+      var d1 = child.privateKey
       var d2
       var data = Buffer.alloc(37)
       serQP.copy(data, 0)
 
       // search index space until we find it
-      for (var i = 0; i < bitcoin.HDNode.HIGHEST_BIT; ++i) {
+      for (var i = 0; i < 0x80000000; ++i) {
         data.writeUInt32BE(i, 33)
 
         // calculate I
         var I = crypto.createHmac('sha512', master.chainCode).update(data).digest()
         var IL = I.slice(0, 32)
-        var pIL = bigi.fromBuffer(IL)
 
-        // See hdnode.js:273 to understand
-        d2 = d1.subtract(pIL).mod(curve.n)
+        // See bip32.js:273 to understand
+        d2 = tinysecp.privateSub(d1, IL)
 
-        var Qp = new bitcoin.ECPair(d2).Q
-        if (Qp.equals(QP)) break
+        var Qp = bip32.fromPrivateKey(d2, Buffer.alloc(32, 0)).publicKey
+        if (Qp.equals(serQP)) break
       }
 
-      var node = new bitcoin.HDNode(new bitcoin.ECPair(d2), master.chainCode, master.network)
+      var node = bip32.fromPrivateKey(d2, master.chainCode, master.network)
       node.depth = master.depth
       node.index = master.index
       node.masterFingerprint = master.masterFingerprint
@@ -104,7 +102,7 @@ describe('bitcoinjs-lib (crypto)', function () {
     }
 
     var seed = crypto.randomBytes(32)
-    var master = bitcoin.HDNode.fromSeedBuffer(seed)
+    var master = bip32.fromSeed(seed)
     var child = master.derive(6) // m/6
 
     // now for the recovery

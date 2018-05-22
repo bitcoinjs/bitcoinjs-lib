@@ -32,6 +32,7 @@
   "dependencies": {
     "bech32": "^1.1.2",
     "bigi": "^1.4.0",
+    "bip32": "0.0.3",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.3.0",
     "bs58check": "^2.0.0",
@@ -42,11 +43,13 @@
     "pushdata-bitcoin": "^1.0.1",
     "randombytes": "^2.0.1",
     "safe-buffer": "^5.1.1",
+    "tiny-secp256k1": "0.0.5",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.0.4",
     "wif": "^2.0.1"
   },
   "devDependencies": {
+    "bigi": "^1.4.2",
     "bip39": "^2.3.0",
     "bip65": "^1.0.1",
     "bs58": "^4.0.0",
