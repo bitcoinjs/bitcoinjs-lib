@@ -13,7 +13,7 @@ function fromBase58Check (address, network) {
   
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short')
-  var maxLength = network.pubKeyHash < 256 ? 21 : 22;
+  let maxLength = types.UInt8(network.pubKeyHash) ? 21 : 22;
   if (payload.length > maxLength) throw new TypeError(address + ' is too long')
   
   var version = payload.readUInt8(0)
