@@ -7,7 +7,9 @@ export interface Network {
     scriptHash: number;
     wif: number;
     forkHeight?: number;
+    equihashForkHeight?: number;
     equihash?: eq.Network;
+    equihashLegacy?: eq.Network;
 }
 interface Bip32 {
     public: number;

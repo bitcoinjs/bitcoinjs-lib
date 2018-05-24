@@ -263,9 +263,17 @@ export class Block {
       return validTarget;
     }
 
-    const equihash = new eq.Equihash(
-      network.equihash || eq.networks.bitcoingold,
-    );
+    let equihashNetwork: eq.Network;
+    if (
+      network.equihashForkHeight &&
+      this.height < network.equihashForkHeight
+    ) {
+      equihashNetwork = network.equihashLegacy!;
+    } else {
+      equihashNetwork = network.equihash || eq.networks.bitcoingold;
+    }
+
+    const equihash = new eq.Equihash(equihashNetwork);
     const header = this.toHex(true);
     return equihash.verify(Buffer.from(header, 'hex'), this.solution!);
   }

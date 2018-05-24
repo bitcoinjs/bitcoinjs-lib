@@ -46,7 +46,9 @@ exports.bitcoingold = {
   scriptHash: 0x17,
   wif: 0x80,
   forkHeight: 491407,
+  equihashForkHeight: 536200,
   equihash: eq.networks.bitcoingold,
+  equihashLegacy: eq.networks.bitcoingold,
 };
 exports.bitcoingoldtestnet = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',

@@ -11,7 +11,9 @@ export interface Network {
   scriptHash: number;
   wif: number;
   forkHeight?: number;
+  equihashForkHeight?: number;
   equihash?: eq.Network;
+  equihashLegacy?: eq.Network;
 }
 
 interface Bip32 {
@@ -63,7 +65,9 @@ export const bitcoingold: Network = {
   scriptHash: 0x17,
   wif: 0x80,
   forkHeight: 491407,
+  equihashForkHeight: 536200,
   equihash: eq.networks.bitcoingold,
+  equihashLegacy: eq.networks.bitcoingold,
 };
 export const bitcoingoldtestnet: Network = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
