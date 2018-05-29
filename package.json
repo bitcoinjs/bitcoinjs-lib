@@ -32,7 +32,7 @@
   "dependencies": {
     "bech32": "^1.1.2",
     "bigi": "^1.4.0",
-    "bip32": "0.0.3",
+    "bip32": "^0.1.0",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "bs58check": "^2.0.0",
@@ -43,7 +43,7 @@
     "pushdata-bitcoin": "^1.0.1",
     "randombytes": "^2.0.1",
     "safe-buffer": "^5.1.1",
-    "tiny-secp256k1": "0.0.5",
+    "tiny-secp256k1": "^0.1.0",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.0.4",
     "wif": "^2.0.1"
@@ -54,13 +54,13 @@
     "bip65": "^1.0.1",
     "bip68": "^1.0.3",
     "bs58": "^4.0.0",
-    "dhttp": "^2.4.2",
+    "dhttp": "^2.5.0",
     "hoodwink": "^1.0.0",
     "minimaldata": "^1.0.2",
-    "mocha": "^5.0.1",
-    "nyc": "^11.4.1",
-    "proxyquire": "^1.4.0",
-    "standard": "^9.0.2"
+    "mocha": "^5.2.0",
+    "nyc": "^11.8.0",
+    "proxyquire": "^2.0.1",
+    "standard": "^11.0.1"
   },
   "license": "MIT"
 }
