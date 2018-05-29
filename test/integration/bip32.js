@@ -88,7 +88,7 @@ describe('bitcoinjs-lib (BIP32)', function () {
   })
 
   it('can use BIP39 to generate BIP32 addresses', function () {
-//     var mnemonic = bip39.generateMnemonic()
+    // var mnemonic = bip39.generateMnemonic()
     var mnemonic = 'praise you muffin lion enable neck grocery crumble super myself license ghost'
     assert(bip39.validateMnemonic(mnemonic))
 
