@@ -12,7 +12,7 @@ describe('bitcoinjs-lib (blocks)', function () {
 
     assert.strictEqual(tx.ins.length, 1)
     let script = tx.ins[0].script
-//  bitcoin.script.decompile(script) // returns [] :(
+    // bitcoin.script.decompile(script) // returns [] :(
 
     assert.strictEqual(script[0], 0x03)
     let heightBuffer = script.slice(1, 4)

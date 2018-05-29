@@ -187,7 +187,7 @@ function isCanonicalPubKey (buffer) {
 function isDefinedHashType (hashType) {
   var hashTypeMod = hashType & ~0x80
 
-// return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
+  // return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
   return hashTypeMod > 0x00 && hashTypeMod < 0x04
 }
 
