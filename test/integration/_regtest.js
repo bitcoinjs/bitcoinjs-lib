@@ -72,7 +72,7 @@ let baddress = bitcoin.address
 let bcrypto = bitcoin.crypto
 function getAddress (node, network) {
   network = network || bitcoin.networks.bitcoin
-  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKey()), network.pubKeyHash)
+  return baddress.toBase58Check(bcrypto.hash160(node.publicKey), network.pubKeyHash)
 }
 
 function randomAddress () {

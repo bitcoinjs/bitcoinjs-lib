@@ -8,7 +8,7 @@ let ecc = require('tiny-secp256k1')
 let baddress = bitcoin.address
 let bcrypto = bitcoin.crypto
 function getAddress (node) {
-  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKey()), bitcoin.networks.bitcoin.pubKeyHash)
+  return baddress.toBase58Check(bcrypto.hash160(node.publicKey), bitcoin.networks.bitcoin.pubKeyHash)
 }
 
 // vG = (dG \+ sha256(e * dG)G)
@@ -78,12 +78,12 @@ describe('bitcoinjs-lib (crypto)', function () {
     var nonce = bitcoin.ECPair.fromWIF('KxVqB96pxbw1pokzQrZkQbLfVBjjHFfp2mFfEp8wuEyGenLFJhM9') // private to sender
 
     // ... recipient reveals public key (recipient.Q) to sender
-    var forSender = stealthSend(nonce.getPrivateKey(), recipient.getPublicKey())
+    var forSender = stealthSend(nonce.privateKey, recipient.publicKey)
     assert.equal(getAddress(forSender), '1CcZWwCpACJL3AxqoDbwEt4JgDFuTHUspE')
     assert.throws(function () { forSender.toWIF() }, /Error: Missing private key/)
 
     // ... sender reveals nonce public key (nonce.Q) to recipient
-    var forRecipient = stealthReceive(recipient.getPrivateKey(), nonce.getPublicKey())
+    var forRecipient = stealthReceive(recipient.privateKey, nonce.publicKey)
     assert.equal(getAddress(forRecipient), '1CcZWwCpACJL3AxqoDbwEt4JgDFuTHUspE')
     assert.equal(forRecipient.toWIF(), 'L1yjUN3oYyCXV3LcsBrmxCNTa62bZKWCybxVJMvqjMmmfDE8yk7n')
 
@@ -96,11 +96,11 @@ describe('bitcoinjs-lib (crypto)', function () {
     var nonce = bitcoin.ECPair.makeRandom() // private to sender
 
     // ... recipient reveals public key (recipient.Q) to sender
-    var forSender = stealthSend(nonce.getPrivateKey(), recipient.getPublicKey())
+    var forSender = stealthSend(nonce.privateKey, recipient.publicKey)
     assert.throws(function () { forSender.toWIF() }, /Error: Missing private key/)
 
     // ... sender reveals nonce public key (nonce.Q) to recipient
-    var forRecipient = stealthReceive(recipient.getPrivateKey(), nonce.getPublicKey())
+    var forRecipient = stealthReceive(recipient.privateKey, nonce.publicKey)
     assert.doesNotThrow(function () { forRecipient.toWIF() })
 
     // sender and recipient, both derived same address
@@ -112,15 +112,15 @@ describe('bitcoinjs-lib (crypto)', function () {
     var nonce = bitcoin.ECPair.makeRandom() // private to sender
 
     // ... recipient reveals public key (recipient.Q) to sender
-    var forSender = stealthSend(nonce.getPrivateKey(), recipient.getPublicKey())
+    var forSender = stealthSend(nonce.privateKey, recipient.publicKey)
     assert.throws(function () { forSender.toWIF() }, /Error: Missing private key/)
 
     // ... sender reveals nonce public key (nonce.Q) to recipient
-    var forRecipient = stealthReceive(recipient.getPrivateKey(), nonce.getPublicKey())
+    var forRecipient = stealthReceive(recipient.privateKey, nonce.publicKey)
     assert.doesNotThrow(function () { forRecipient.toWIF() })
 
     // ... recipient accidentally leaks forRecipient.d on the blockchain
-    var leaked = stealthRecoverLeaked(forRecipient.getPrivateKey(), nonce.getPrivateKey(), recipient.getPublicKey())
+    var leaked = stealthRecoverLeaked(forRecipient.privateKey, nonce.privateKey, recipient.publicKey)
     assert.equal(leaked.toWIF(), recipient.toWIF())
   })
 
@@ -131,15 +131,15 @@ describe('bitcoinjs-lib (crypto)', function () {
     var nonce = bitcoin.ECPair.fromWIF('KxVqB96pxbw1pokzQrZkQbLfVBjjHFfp2mFfEp8wuEyGenLFJhM9') // private to sender
 
     // ... recipient reveals public key(s) (recipient.Q, scan.Q) to sender
-    var forSender = stealthDualSend(nonce.getPrivateKey(), recipient.getPublicKey(), scan.getPublicKey())
+    var forSender = stealthDualSend(nonce.privateKey, recipient.publicKey, scan.publicKey)
     assert.throws(function () { forSender.toWIF() }, /Error: Missing private key/)
 
     // ... sender reveals nonce public key (nonce.Q) to scanner
-    var forScanner = stealthDualScan(scan.getPrivateKey(), recipient.getPublicKey(), nonce.getPublicKey())
+    var forScanner = stealthDualScan(scan.privateKey, recipient.publicKey, nonce.publicKey)
     assert.throws(function () { forScanner.toWIF() }, /Error: Missing private key/)
 
     // ... scanner reveals relevant transaction + nonce public key (nonce.Q) to recipient
-    var forRecipient = stealthDualReceive(scan.getPrivateKey(), recipient.getPrivateKey(), nonce.getPublicKey())
+    var forRecipient = stealthDualReceive(scan.privateKey, recipient.privateKey, nonce.publicKey)
     assert.doesNotThrow(function () { forRecipient.toWIF() })
 
     // scanner, sender and recipient, all derived same address
@@ -153,15 +153,15 @@ describe('bitcoinjs-lib (crypto)', function () {
     var nonce = bitcoin.ECPair.makeRandom() // private to sender
 
     // ... recipient reveals public key(s) (recipient.Q, scan.Q) to sender
-    var forSender = stealthDualSend(nonce.getPrivateKey(), recipient.getPublicKey(), scan.getPublicKey())
+    var forSender = stealthDualSend(nonce.privateKey, recipient.publicKey, scan.publicKey)
     assert.throws(function () { forSender.toWIF() }, /Error: Missing private key/)
 
     // ... sender reveals nonce public key (nonce.Q) to scanner
-    var forScanner = stealthDualScan(scan.getPrivateKey(), recipient.getPublicKey(), nonce.getPublicKey())
+    var forScanner = stealthDualScan(scan.privateKey, recipient.publicKey, nonce.publicKey)
     assert.throws(function () { forScanner.toWIF() }, /Error: Missing private key/)
 
     // ... scanner reveals relevant transaction + nonce public key (nonce.Q) to recipient
-    var forRecipient = stealthDualReceive(scan.getPrivateKey(), recipient.getPrivateKey(), nonce.getPublicKey())
+    var forRecipient = stealthDualReceive(scan.privateKey, recipient.privateKey, nonce.publicKey)
     assert.doesNotThrow(function () { forRecipient.toWIF() })
 
     // scanner, sender and recipient, all derived same address

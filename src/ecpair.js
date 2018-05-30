@@ -24,18 +24,15 @@ function ECPair (d, Q, options) {
   if (Q) this.__Q = ecc.pointCompress(Q, this.compressed)
 }
 
-ECPair.prototype.getNetwork = function () {
-  return this.network
-}
+Object.defineProperty(ECPair.prototype, 'privateKey', {
+  enumerable: false,
+  get: function () { return this.__d }
+})
 
-ECPair.prototype.getPrivateKey = function () {
-  return this.__d
-}
-
-ECPair.prototype.getPublicKey = function () {
+Object.defineProperty(ECPair.prototype, 'publicKey', { get: function () {
   if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__d, this.compressed)
   return this.__Q
-}
+}})
 
 ECPair.prototype.toWIF = function () {
   if (!this.__d) throw new Error('Missing private key')
@@ -48,7 +45,7 @@ ECPair.prototype.sign = function (hash) {
 }
 
 ECPair.prototype.verify = function (hash, signature) {
-  return ecc.verify(hash, this.getPublicKey(), signature)
+  return ecc.verify(hash, this.publicKey, signature)
 }
 
 function fromPrivateKey (buffer, options) {

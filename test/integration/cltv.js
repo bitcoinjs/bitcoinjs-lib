@@ -25,11 +25,11 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
       bitcoin.opcodes.OP_DROP,
 
       bitcoin.opcodes.OP_ELSE,
-      bQ.getPublicKey(),
+      bQ.publicKey,
       bitcoin.opcodes.OP_CHECKSIGVERIFY,
       bitcoin.opcodes.OP_ENDIF,
 
-      aQ.getPublicKey(),
+      aQ.publicKey,
       bitcoin.opcodes.OP_CHECKSIG
     ])
   }

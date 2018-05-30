@@ -55,7 +55,7 @@ describe('ECPair', function () {
           compressed: f.compressed
         })
 
-        assert.strictEqual(keyPair.getPublicKey().toString('hex'), f.Q)
+        assert.strictEqual(keyPair.publicKey.toString('hex'), f.Q)
       })
     })
 
@@ -85,7 +85,9 @@ describe('ECPair', function () {
 
     it('calls pointFromScalar lazily', hoodwink(function () {
       assert.strictEqual(keyPair.__Q, null)
-      keyPair.getPublicKey()
+
+      // .publicKey forces the memoization
+      assert.strictEqual(keyPair.publicKey.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
       assert.strictEqual(keyPair.__Q.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
     }))
   })
@@ -96,7 +98,7 @@ describe('ECPair', function () {
         let network = NETWORKS[f.network]
         let keyPair = ECPair.fromWIF(f.WIF, network)
 
-        assert.strictEqual(keyPair.getPrivateKey().toString('hex'), f.d)
+        assert.strictEqual(keyPair.privateKey.toString('hex'), f.d)
         assert.strictEqual(keyPair.compressed, f.compressed)
         assert.strictEqual(keyPair.network, network)
       })
@@ -106,7 +108,7 @@ describe('ECPair', function () {
       it('imports ' + f.WIF + ' (via list of networks)', function () {
         let keyPair = ECPair.fromWIF(f.WIF, NETWORKS_LIST)
 
-        assert.strictEqual(keyPair.getPrivateKey().toString('hex'), f.d)
+        assert.strictEqual(keyPair.privateKey.toString('hex'), f.d)
         assert.strictEqual(keyPair.compressed, f.compressed)
         assert.strictEqual(keyPair.network, NETWORKS[f.network])
       })
@@ -202,13 +204,13 @@ describe('ECPair', function () {
     }))
   })
 
-  describe('getNetwork', function () {
+  describe('.network', function () {
     fixtures.valid.forEach(function (f) {
       it('returns ' + f.network + ' for ' + f.WIF, function () {
         let network = NETWORKS[f.network]
         let keyPair = ECPair.fromWIF(f.WIF, NETWORKS_LIST)
 
-        assert.strictEqual(keyPair.getNetwork(), network)
+        assert.strictEqual(keyPair.network, network)
       })
     })
   })
@@ -226,7 +228,7 @@ describe('ECPair', function () {
       it('wraps tinysecp.sign', hoodwink(function () {
         this.mock(tinysecp, 'sign', function (h, d) {
           assert.strictEqual(h, hash)
-          assert.strictEqual(d, keyPair.getPrivateKey())
+          assert.strictEqual(d, keyPair.privateKey)
           return signature
         }, 1)
 
@@ -246,7 +248,7 @@ describe('ECPair', function () {
       it('wraps tinysecp.verify', hoodwink(function () {
         this.mock(tinysecp, 'verify', function (h, q, s) {
           assert.strictEqual(h, hash)
-          assert.strictEqual(q, keyPair.getPublicKey())
+          assert.strictEqual(q, keyPair.publicKey)
           assert.strictEqual(s, signature)
           return true
         }, 1)

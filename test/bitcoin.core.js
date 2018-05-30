@@ -94,7 +94,7 @@ describe('Bitcoin-core', function () {
       var keyPair = bitcoin.ECPair.fromWIF(string, network)
 
       it('fromWIF imports ' + string, function () {
-        assert.strictEqual(keyPair.getPrivateKey().toString('hex'), hex)
+        assert.strictEqual(keyPair.privateKey.toString('hex'), hex)
         assert.strictEqual(keyPair.compressed, params.isCompressed)
       })
 
