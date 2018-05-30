@@ -24,7 +24,7 @@ describe('bitcoinjs-lib (crypto)', function () {
       assert(bitcoin.script.pubKeyHash.input.check(scriptChunks), 'Expected pubKeyHash script')
       var prevOutScript = bitcoin.address.toOutputScript('1ArJ9vRaQcoQ29mTWZH768AmRwzb6Zif1z')
       var scriptSignature = bitcoin.script.signature.decode(scriptChunks[0])
-      var publicKey = bitcoin.ECPair.fromPublicKeyBuffer(scriptChunks[1])
+      var publicKey = bitcoin.ECPair.fromPublicKey(scriptChunks[1])
 
       var m = tx.hashForSignature(vin, prevOutScript, scriptSignature.hashType)
       assert(publicKey.verify(m, scriptSignature.signature), 'Invalid m')

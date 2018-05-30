@@ -16,11 +16,9 @@ function Satoshi (value) {
 }
 
 // external dependent types
-var BigInt = typeforce.quacksLike('BigInteger')
 var ECPoint = typeforce.quacksLike('Point')
 
 // exposed, external API
-var ECSignature = typeforce.compile({ r: BigInt, s: BigInt })
 var Network = typeforce.compile({
   messagePrefix: typeforce.oneOf(typeforce.Buffer, typeforce.String),
   bip32: {
@@ -34,11 +32,9 @@ var Network = typeforce.compile({
 
 // extend typeforce types with ours
 var types = {
-  BigInt: BigInt,
   BIP32Path: BIP32Path,
   Buffer256bit: typeforce.BufferN(32),
   ECPoint: ECPoint,
-  ECSignature: ECSignature,
   Hash160bit: typeforce.BufferN(20),
   Hash256bit: typeforce.BufferN(32),
   Network: Network,

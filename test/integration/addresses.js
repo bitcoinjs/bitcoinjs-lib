@@ -12,7 +12,7 @@ let baddress = bitcoin.address
 let bcrypto = bitcoin.crypto
 function getAddress (node, network) {
   network = network || bitcoin.networks.bitcoin
-  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKeyBuffer()), network.pubKeyHash)
+  return baddress.toBase58Check(bcrypto.hash160(node.publicKey), network.pubKeyHash)
 }
 
 describe('bitcoinjs-lib (addresses)', function () {
@@ -26,7 +26,7 @@ describe('bitcoinjs-lib (addresses)', function () {
   it('can generate an address from a SHA256 hash', function () {
     var hash = bitcoin.crypto.sha256(Buffer.from('correct horse battery staple'))
 
-    var keyPair = bitcoin.ECPair.makeRandom({ rng: () => hash })
+    var keyPair = bitcoin.ECPair.fromPrivateKey(hash)
     var address = getAddress(keyPair)
 
     // Generating addresses from SHA256 hashes is not secure if the input to the hash function is predictable
@@ -57,9 +57,8 @@ describe('bitcoinjs-lib (addresses)', function () {
 
   it('can generate a SegWit address', function () {
     var keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
-    var pubKey = keyPair.getPublicKeyBuffer()
 
-    var scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey))
+    var scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(keyPair.publicKey))
     var address = bitcoin.address.fromOutputScript(scriptPubKey)
 
     assert.strictEqual(address, 'bc1qt97wqg464zrhnx23upykca5annqvwkwujjglky')
@@ -67,9 +66,8 @@ describe('bitcoinjs-lib (addresses)', function () {
 
   it('can generate a SegWit address (via P2SH)', function () {
     var keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
-    var pubKey = keyPair.getPublicKeyBuffer()
 
-    var redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey))
+    var redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(keyPair.publicKey))
     var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
     var address = bitcoin.address.fromOutputScript(scriptPubKey)
 
