@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, before */
 
 var assert = require('assert')
 var bitcoin = require('../../')
@@ -10,7 +10,12 @@ var alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxp
 var bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
 
 describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
-  var hashType = bitcoin.Transaction.SIGHASH_ALL
+  // force update MTP
+  before(function (done) {
+    regtestUtils.mine(11, done)
+  })
+
+  let hashType = bitcoin.Transaction.SIGHASH_ALL
 
   function cltvCheckSigOutput (aQ, bQ, lockTime) {
     return bitcoin.script.compile([
