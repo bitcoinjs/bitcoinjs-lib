@@ -1,18 +1,24 @@
 /* global describe, it, beforeEach */
 
-var assert = require('assert')
-var baddress = require('../src/address')
-var bscript = require('../src/script')
-var btemplates = require('../src/templates')
-var ops = require('bitcoin-ops')
+let assert = require('assert')
+let baddress = require('../src/address')
+let bcrypto = require('../src/crypto')
+let bscript = require('../src/script')
+let btemplates = require('../src/templates')
+let ops = require('bitcoin-ops')
 
-var BigInteger = require('bigi')
-var ECPair = require('../src/ecpair')
-var Transaction = require('../src/transaction')
-var TransactionBuilder = require('../src/transaction_builder')
-var NETWORKS = require('../src/networks')
+let BigInteger = require('bigi')
+let ECPair = require('../src/ecpair')
+let Transaction = require('../src/transaction')
+let TransactionBuilder = require('../src/transaction_builder')
+let NETWORKS = require('../src/networks')
 
-var fixtures = require('./fixtures/transaction_builder')
+let fixtures = require('./fixtures/transaction_builder')
+
+// TODO: remove
+function getAddress (node) {
+  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKeyBuffer()), NETWORKS.bitcoin.pubKeyHash)
+}
 
 function construct (f, dontSign) {
   var network = NETWORKS[f.network]
@@ -220,7 +226,8 @@ describe('TransactionBuilder', function () {
     })
 
     it('accepts an address string and value', function () {
-      var vout = txb.addOutput(keyPair.getAddress(), 1000)
+      let address = getAddress(keyPair)
+      var vout = txb.addOutput(address, 1000)
       assert.strictEqual(vout, 0)
 
       var txout = txb.__tx.outs[0]

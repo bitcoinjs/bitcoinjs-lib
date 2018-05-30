@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, before */
 
 let assert = require('assert')
 let bitcoin = require('../../')
@@ -10,6 +10,11 @@ let alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxp
 let bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
 
 describe('bitcoinjs-lib (transactions w/ CSV)', function () {
+  // force update MTP
+  before(function (done) {
+    regtestUtils.mine(11, done)
+  })
+
   let hashType = bitcoin.Transaction.SIGHASH_ALL
 
   // IF MTP (from when confirmed) > seconds, aQ can redeem
