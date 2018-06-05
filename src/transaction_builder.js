@@ -15,11 +15,18 @@ const ECPair = require('./ecpair')
 const Transaction = require('./transaction')
 
 function supportedType (type) {
-  return SIGNABLE.indexOf(type) !== -1
+  return [
+    btemplates.types.P2PKH,
+    btemplates.types.P2PK,
+    btemplates.types.MULTISIG
+  ].indexOf(type) !== -1
 }
 
 function supportedP2SHType (type) {
-  return P2SH.indexOf(type) !== -1
+  return supportedType(type) || [
+    btemplates.types.P2WPKH,
+    btemplates.types.P2WSH
+  ].indexOf(type) !== -1
 }
 
 function extractChunks (type, chunks, script) {
