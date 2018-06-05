@@ -1,5 +1,6 @@
 var Buffer = require('safe-buffer').Buffer
 var bip66 = require('bip66')
+let ecc = require('tiny-secp256k1')
 var pushdata = require('pushdata-bitcoin')
 var typeforce = require('typeforce')
 var types = require('./types')
@@ -170,18 +171,7 @@ function toStack (chunks) {
 }
 
 function isCanonicalPubKey (buffer) {
-  if (!Buffer.isBuffer(buffer)) return false
-  if (buffer.length < 33) return false
-
-  switch (buffer[0]) {
-    case 0x02:
-    case 0x03:
-      return buffer.length === 33
-    case 0x04:
-      return buffer.length === 65
-  }
-
-  return false
+  return ecc.isPoint(buffer)
 }
 
 function isDefinedHashType (hashType) {
