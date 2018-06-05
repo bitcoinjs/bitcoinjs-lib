@@ -303,7 +303,7 @@ describe('TransactionBuilder', function () {
   describe('sign', function () {
     it('supports the alternative abstract interface { publicKey, sign }', function () {
       var keyPair = {
-        publicKey: Buffer.alloc(33, 0x03),
+        publicKey: ECPair.makeRandom({ rng: function () { return Buffer.alloc(32, 1) } }).publicKey,
         sign: function (hash) { return Buffer.alloc(64, 0x5f) }
       }
 
@@ -312,7 +312,7 @@ describe('TransactionBuilder', function () {
       txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
       txb.addOutput('1111111111111111111114oLvT2', 100000)
       txb.sign(0, keyPair)
-      assert.equal(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f02205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f0121030303030303030303030303030303030303030303030303030303030303030303ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
+      assert.equal(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f02205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f0121031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078fffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
     })
 
     fixtures.invalid.sign.forEach(function (f) {
