@@ -4,6 +4,17 @@ let assert = require('assert')
 let bitcoin = require('../../')
 let dhttp = require('dhttp/200')
 
+let LITECOIN = {
+  messagePrefix: '\x19Litecoin Signed Message:\n',
+  bip32: {
+    public: 0x019da462,
+    private: 0x019d9cfe
+  },
+  pubKeyHash: 0x30,
+  scriptHash: 0x32,
+  wif: 0xb0
+}
+
 // deterministic RNG for testing only
 function rng () { return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
 
@@ -135,10 +146,9 @@ describe('bitcoinjs-lib (addresses)', function () {
   })
 
   it('can generate a Litecoin address', function () {
-    let litecoin = bitcoin.networks.litecoin
-    let keyPair = bitcoin.ECPair.makeRandom({ network: litecoin, rng: rng })
+    let keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN, rng: rng })
     let wif = keyPair.toWIF()
-    let address = getAddress(keyPair, litecoin)
+    let address = getAddress(keyPair, LITECOIN)
 
     assert.strictEqual(address, 'LZJSxZbjqJ2XVEquqfqHg1RQTDdfST5PTn')
     assert.strictEqual(wif, 'T7A4PUSgTDHecBxW1ZiYFrDNRih2o7M8Gf9xpoCgudPF9gDiNvuS')

@@ -1,10 +1,21 @@
 /* global describe, it */
 
-var assert = require('assert')
-var baddress = require('../src/address')
-var networks = require('../src/networks')
-var bscript = require('../src/script')
-var fixtures = require('./fixtures/address.json')
+let assert = require('assert')
+let baddress = require('../src/address')
+let bscript = require('../src/script')
+let fixtures = require('./fixtures/address.json')
+let NETWORKS = Object.assign({
+  litecoin: {
+    messagePrefix: '\x19Litecoin Signed Message:\n',
+    bip32: {
+      public: 0x019da462,
+      private: 0x019d9cfe
+    },
+    pubKeyHash: 0x30,
+    scriptHash: 0x32,
+    wif: 0xb0
+  }
+}, require('../src/networks'))
 
 describe('address', function () {
   describe('fromBase58Check', function () {
@@ -36,7 +47,7 @@ describe('address', function () {
         var actual = baddress.fromBech32(f.bech32)
 
         assert.strictEqual(actual.version, f.version)
-        assert.strictEqual(actual.prefix, networks[f.network].bech32)
+        assert.strictEqual(actual.prefix, NETWORKS[f.network].bech32)
         assert.strictEqual(actual.data.toString('hex'), f.data)
       })
     })
@@ -54,7 +65,7 @@ describe('address', function () {
     fixtures.standard.forEach(function (f) {
       it('encodes ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
         var script = bscript.fromASM(f.script)
-        var address = baddress.fromOutputScript(script, networks[f.network])
+        var address = baddress.fromOutputScript(script, NETWORKS[f.network])
 
         assert.strictEqual(address, f.base58check || f.bech32.toLowerCase())
       })
@@ -107,7 +118,7 @@ describe('address', function () {
   describe('toOutputScript', function () {
     fixtures.standard.forEach(function (f) {
       it('decodes ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
-        var script = baddress.toOutputScript(f.base58check || f.bech32, networks[f.network])
+        var script = baddress.toOutputScript(f.base58check || f.bech32, NETWORKS[f.network])
 
         assert.strictEqual(bscript.toASM(script), f.script)
       })
