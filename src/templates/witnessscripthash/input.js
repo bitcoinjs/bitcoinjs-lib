@@ -18,7 +18,7 @@ function check (chunks, allowIncomplete) {
   const witnessScriptChunks = bscript.decompile(witnessScript)
 
   // is witnessScript a valid script?
-  if (witnessScriptChunks.length === 0) return false
+  if (!witnessScriptChunks || witnessScriptChunks.length === 0) return false
 
   const witnessRawScriptSig = bscript.compile(chunks.slice(0, -1))
 
