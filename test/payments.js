@@ -26,7 +26,7 @@ const u = require('./payments.utils')
     })
 
     fixtures.invalid.forEach(function (f) {
-      it('throws ' + (f.description || f.exception), function () {
+      it('throws ' + f.exception + (f.description ? ('for ' + f.description) : ''), function () {
         const args = u.preform(f.arguments)
 
         assert.throws(function () {

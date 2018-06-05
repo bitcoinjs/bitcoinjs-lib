@@ -67,18 +67,6 @@
       "arguments": {}
     },
     {
-      "exception": "Not enough data",
-      "arguments": {
-        "input": "300602010002010001"
-      }
-    },
-    {
-      "exception": "Not enough data",
-      "arguments": {
-        "signature": "300602010002010001"
-      }
-    },
-    {
       "description": "Non-canonical signature",
       "exception": "Expected property \"signature\" of type \\?isCanonicalScriptSignature, got Buffer",
       "arguments": {
