@@ -98,11 +98,11 @@ function decompile (buffer) {
     if ((opcode > OPS.OP_0) && (opcode <= OPS.OP_PUSHDATA4)) {
       const d = pushdata.decode(buffer, i)
 
-      // did reading a pushDataInt fail? empty script
+      // did reading a pushDataInt fail?
       if (d === null) return null
       i += d.size
 
-      // attempt to read too much data? empty script
+      // attempt to read too much data?
       if (i + d.number > buffer.length) return null
 
       const data = buffer.slice(i, i + d.number)
