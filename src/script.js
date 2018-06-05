@@ -181,7 +181,7 @@ function isDefinedHashType (hashType) {
   return hashTypeMod > 0x00 && hashTypeMod < 0x04
 }
 
-function isCanonicalSignature (buffer) {
+function isCanonicalScriptSignature (buffer) {
   if (!Buffer.isBuffer(buffer)) return false
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false
 
@@ -199,7 +199,7 @@ module.exports = {
   signature: require('./script_signature'),
 
   isCanonicalPubKey: isCanonicalPubKey,
-  isCanonicalSignature: isCanonicalSignature,
+  isCanonicalScriptSignature: isCanonicalScriptSignature,
   isPushOnly: isPushOnly,
   isDefinedHashType: isDefinedHashType
 }

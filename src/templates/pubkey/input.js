@@ -7,12 +7,12 @@ function check (script) {
   var chunks = bscript.decompile(script)
 
   return chunks.length === 1 &&
-    bscript.isCanonicalSignature(chunks[0])
+    bscript.isCanonicalScriptSignature(chunks[0])
 }
 check.toJSON = function () { return 'pubKey input' }
 
 function encodeStack (signature) {
-  typeforce(bscript.isCanonicalSignature, signature)
+  typeforce(bscript.isCanonicalScriptSignature, signature)
   return [signature]
 }
 

@@ -7,7 +7,7 @@ var typeforce = require('typeforce')
 var OPS = require('bitcoin-ops')
 
 function partialSignature (value) {
-  return value === OPS.OP_0 || bscript.isCanonicalSignature(value)
+  return value === OPS.OP_0 || bscript.isCanonicalScriptSignature(value)
 }
 
 function check (script, allowIncomplete) {
@@ -19,7 +19,7 @@ function check (script, allowIncomplete) {
     return chunks.slice(1).every(partialSignature)
   }
 
-  return chunks.slice(1).every(bscript.isCanonicalSignature)
+  return chunks.slice(1).every(bscript.isCanonicalScriptSignature)
 }
 check.toJSON = function () { return 'multisig input' }
 
