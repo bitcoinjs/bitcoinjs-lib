@@ -1,31 +1,30 @@
 # BitcoinJS (bitcoinjs-lib)
 [![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
 [![NPM](https://img.shields.io/npm/v/bitcoinjs-lib.svg)](https://www.npmjs.org/package/bitcoinjs-lib)
-[![tip for next commit](https://tip4commit.com/projects/735.svg)](http://tip4commit.com/projects/735)
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
-The pure JavaScript Bitcoin library for node.js and browsers.
-Estimated to be in use by over 15 million wallet users and is the backbone for almost all Bitcoin web wallets in production today.
+A javascript Bitcoin library for node.js and browsers.
 
-
-## Features
-- Clean: Pure JavaScript, concise code, easy to read.
-- Tested: Coverage > 90%, third-party integration tests.
-- Careful: Two person approval process for small, focused pull requests.
-- Compatible: Works on Node.js and all modern browsers.
-- Powerful: Support for advanced features, such as multi-sig, HD Wallets.
-- Secure: Strong random number generation, PGP signed releases, trusted developers.
-- Principled: No support for browsers with crap RNG (IE < 11)
-- Standardized: Node community coding style, Browserify, Node's stdlib and Buffers.
-- Fast: Optimized code, uses typed arrays instead of byte arrays for performance.
-- Experiment-friendly: Bitcoin Mainnet and Testnet support.
-- Altcoin-ready: Capable of working with bitcoin-derived cryptocurrencies (such as Dogecoin).
-
+Released under the terms of the [MIT LICENSE](LICENSE).
 
 ## Should I use this in production?
-If you are thinking of using the master branch of this library in production, **stop**.
+If you are thinking of using the *master* branch of this library in production, **stop**.
 Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/bitcoinjs/bitcoinjs-lib/tags).
+
+
+## Can I trust this code?
+> Don't trust. Verify.
+
+We recommend every user of this library and the [bitcoinjs](https://github.com/bitcoinjs) ecosystem audit and verify any underlying code for its validity and suitability.
+
+Mistakes and bugs happen, but with your help in resolving and reporting [issues](https://github.com/bitcoinjs/bitcoinjs-lib/issues), together we can produce open source software that is:
+
+- Easy to audit and verify,
+- Tested, with test coverage >95%,
+- Advanced and feature rich,
+- Standardized, using [standard](http://github.com/standard/standard) and Node `Buffer`'s throughout, and
+- Friendly, with a strong and helpful community, ready to answer questions.
 
 
 ## Installation
@@ -33,74 +32,47 @@ Master is not stable; it is our development branch, and [only tagged releases ma
 npm install bitcoinjs-lib
 ```
 
-## Setup
-### Node.js
-``` javascript
-var bitcoin = require('bitcoinjs-lib')
-```
+Typically we support the [Node Maintenance LTS version](https://github.com/nodejs/Release).
+If in doubt, see the [.travis.yml](.travis.yml) for what versions are used by our continuous integration tests.
+
+**WARNING**: We presently don't provide any tooling to verify that the release on `npm` matches GitHub.  As such, you should verify anything downloaded by `npm` against your own verified copy.
+
+
+## Usage
 
 ### Browser
-If you're familiar with how to use browserify, ignore this and proceed normally.
-These steps are advisory only,  and may not be suitable for your application.
+The recommended method of using `bitcoinjs-lib` in your browser is through [Browserify](https://github.com/substack/node-browserify).
+If you're familiar with how to use browserify, ignore this and carry on, otherwise, it is recommended to read the tutorial at http://browserify.org/.
 
-[Browserify](https://github.com/substack/node-browserify) is assumed to be installed for these steps.
-
-For your project, create an `index.js` file
-``` javascript
-let bitcoin = require('bitcoinjs-lib')
-
-// your code here
-function myFunction () {
-	return bitcoin.ECPair.makeRandom().toWIF()
-}
-
-module.exports = {
-	myFunction
-}
-```
-
-Now, to compile for the browser:
-``` bash
-browserify index.js --standalone foo > app.js
-```
-
-You can now put `<script src="app.js" />` in your web page,  using `foo.myFunction` to create a new Bitcoin private key.
-
-**NOTE**: If you uglify the javascript, you must exclude the following variable names from being mangled: `BigInteger`, `ECPair`, `Point`.
-This is because of the function-name-duck-typing used in [typeforce](https://github.com/dcousens/typeforce).
-
-Example:
-``` bash
-uglifyjs ... --mangle reserved=['BigInteger','ECPair','Point']
-```
-
-**NOTE**: This library tracks Node LTS features,  if you need strict ES5,  use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](http://babeljs.io/docs/plugins/preset-es2015/) preset).
+**NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](http://babeljs.io/docs/plugins/preset-es2015/) preset).
 
 **NOTE**: If you expect this library to run on an iOS 10 device, ensure that you are using [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater.
 
-
 ### Typescript or VSCode users
-Type declarations for Typescript are available for version `^3.0.0` of the library.
+Type declarations for Typescript [are available](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/0897921174860ec3d5318992d2323b3ae8100a68/types/bitcoinjs-lib) for version `^3.0.0` of the library.
+
 ``` bash
 npm install @types/bitcoinjs-lib
 ```
 
-You can now use `bitcoinjs-lib` as a typescript compliant library.
+For VSCode (and other editors), it is advised to install the type declarations, as Intellisense uses that information to help you code (autocompletion, static analysis).
 
-For VSCode (and other editors), users are advised to install the type declarations, as Intellisense uses that information to help you code (autocompletion, static analysis).
-
-Report any typescript related bugs at [@dlebrecht DefinitelyTyped fork](https://github.com/dlebrecht/DefinitelyTyped),  submit PRs to [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)
+**WARNING**: These Typescript definitions are not maintained by the maintainers of this repository, and are instead maintained at [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped).
+Please report any issues or problems there.
 
 
 ### Flow
-Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-typed repository.
+[Flow-type](https://flowtype.org/) definitions for are available in the [flow-*typed* repository](https://github.com/flowtype/flow-typed/tree/master/definitions/npm/bitcoinjs-lib_v2.x.x) for version `^2.0.0` of the library.
 
-[You can either download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_v0.17.x-/bitcoinjs-lib_v2.x.x.js) from the repo, or with the flow-typed CLI
+You can [download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_v0.17.x-/bitcoinjs-lib_v2.x.x.js), or using the flow-typed CLI:
 
-    # npm install -g flow-typed
-    $ flow-typed install -f 0.27 bitcoinjs-lib@2.2.0 # 0.27 for flow version, 2.2.0 for bitcoinjs-lib version
+``` bash
+npm install -g flow-typed
+flow-typed install -f 0.27 bitcoinjs-lib@2.2.0
+```
 
-The definitions are complete and up to date with version 2.2.0. The definitions are maintained by [@runn1ng](https://github.com/runn1ng).
+These definitions are maintained by [@runn1ng](https://github.com/runn1ng).
+
 
 ## Examples
 The below examples are implemented as integration tests, they should be very easy to understand.
@@ -146,26 +118,8 @@ Some examples interact (via HTTPS) with a 3rd Party Blockchain Provider (3PBP).
 If you have a use case that you feel could be listed here, please [ask for it](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new)!
 
 
-## Projects utilizing BitcoinJS
-- [BitAddress](https://www.bitaddress.org)
-- [Blockchain.info](https://blockchain.info/wallet)
-- [Blocktrail](https://www.blocktrail.com/)
-- [Dark Wallet](https://www.darkwallet.is/)
-- [DecentralBank](http://decentralbank.com/)
-- [Dogechain Wallet](https://dogechain.info)
-- [EI8HT Wallet](http://ei8.ht/)
-- [GreenAddress](https://greenaddress.it)
-- [Helperbit](https://helperbit.com)
-- [Melis Wallet](https://melis.io)
-- [Robocoin](https://wallet.robocoin.com)
-- [Skyhook ATM](http://projectskyhook.com)
-- [Coinbase Multisig tool](https://github.com/coinbase/multisig-tool)
-
-
 ## Contributing
-We are always accepting of pull requests, but we do adhere to specific standards in regards to coding style, test driven development and commit messages.
-
-Please make your best effort to adhere to these when contributing to save on trivial corrections.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 
 ### Running the test suite
