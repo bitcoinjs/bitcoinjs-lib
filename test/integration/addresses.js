@@ -115,21 +115,19 @@ describe('bitcoinjs-lib (addresses)', function () {
   })
 
   it('can support the retrieval of transactions for an address (via 3PBP)', function (done) {
-    var keyPair = bitcoin.ECPair.makeRandom()
-    var address = getAddress(keyPair)
+    const keyPair = bitcoin.ECPair.makeRandom()
+    const address = getAddress(keyPair)
 
     dhttp({
-      method: 'POST',
-      url: 'https://api.ei8ht.com.au/3/addrtxs',
-      body: {
-        addrs: [address],
-        height: 0
-      }
-    }, function (err, transactions) {
+      method: 'GET',
+      url: 'https://blockchain.info/rawaddr/' + address
+    }, function (err, result) {
       if (err) return done(err)
 
-      // random private keys [probably] have no transactions
-      assert.strictEqual(Object.keys(transactions).length, 0)
+      // random private keys [probably!] have no transactions
+      assert.strictEqual(result.n_tx, 0)
+      assert.strictEqual(result.total_received, 0)
+      assert.strictEqual(result.total_sent, 0)
       done()
     })
   })
