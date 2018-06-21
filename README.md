@@ -1,31 +1,30 @@
 # BitcoinJS (bitcoinjs-lib)
 [![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
 [![NPM](https://img.shields.io/npm/v/bitcoinjs-lib.svg)](https://www.npmjs.org/package/bitcoinjs-lib)
-[![tip for next commit](https://tip4commit.com/projects/735.svg)](http://tip4commit.com/projects/735)
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
-The pure JavaScript Bitcoin library for node.js and browsers.
-Estimated to be in use by over 15 million wallet users and is the backbone for almost all Bitcoin web wallets in production today.
+A javascript Bitcoin library for node.js and browsers.
 
-
-## Features
-- Clean: Pure JavaScript, concise code, easy to read.
-- Tested: Coverage > 90%, third-party integration tests.
-- Careful: Two person approval process for small, focused pull requests.
-- Compatible: Works on Node.js and all modern browsers.
-- Powerful: Support for advanced features, such as multi-sig, HD Wallets.
-- Secure: Strong random number generation, PGP signed releases, trusted developers.
-- Principled: No support for browsers with crap RNG (IE < 11)
-- Standardized: Node community coding style, Browserify, Node's stdlib and Buffers.
-- Fast: Optimized code, uses typed arrays instead of byte arrays for performance.
-- Experiment-friendly: Bitcoin Mainnet and Testnet support.
-- Altcoin-ready: Capable of working with bitcoin-derived cryptocurrencies (such as Dogecoin).
-
+Released under the terms of the [MIT LICENSE](LICENSE).
 
 ## Should I use this in production?
-If you are thinking of using the master branch of this library in production, **stop**.
+If you are thinking of using the *master* branch of this library in production, **stop**.
 Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/bitcoinjs/bitcoinjs-lib/tags).
+
+
+## Can I trust this code?
+> Don't trust. Verify.
+
+We recommend every user of this library and the [bitcoinjs](https://github.com/bitcoinjs) ecosystem to audit and verify any underlying code for its validity and suitability.
+
+Mistakes and bugs happen,  but with your help in resolving and reporting [issues](https://github.com/bitcoinjs/bitcoinjs-lib/issues),  together we can produce open source software library that is:
+
+- Easy to audit and verify,
+- Tested, with test coverage >90%,
+- Advanced and feature rich,
+- Standardized, using [standard](http://github.com/standard/standard) and Node `Buffer`'s throughout, and
+- Friendly, with a strong and helpful community, ready to answer questions.
 
 
 ## Installation
