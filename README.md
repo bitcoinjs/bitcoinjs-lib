@@ -61,14 +61,17 @@ Please report any issues or problems there.
 
 
 ### Flow
-Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-typed repository.
+[Flow-type](https://flowtype.org/) definitions for are available in the [flow-*typed* repository](https://github.com/flowtype/flow-typed/tree/master/definitions/npm/bitcoinjs-lib_v2.x.x) for version `^2.0.0` of the library.
 
-[You can either download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_v0.17.x-/bitcoinjs-lib_v2.x.x.js) from the repo, or with the flow-typed CLI
+You can [download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_v0.17.x-/bitcoinjs-lib_v2.x.x.js), or using the flow-typed CLI:
 
-    # npm install -g flow-typed
-    $ flow-typed install -f 0.27 bitcoinjs-lib@2.2.0 # 0.27 for flow version, 2.2.0 for bitcoinjs-lib version
+``` bash
+npm install -g flow-typed
+flow-typed install -f 0.27 bitcoinjs-lib@2.2.0
+```
 
-The definitions are complete and up to date with version 2.2.0. The definitions are maintained by [@runn1ng](https://github.com/runn1ng).
+These definitions are maintained by [@runn1ng](https://github.com/runn1ng).
+
 
 ## Examples
 The below examples are implemented as integration tests, they should be very easy to understand.
