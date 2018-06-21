@@ -7,13 +7,15 @@ var networks = require('./networks')
 var typeforce = require('typeforce')
 var types = require('./types')
 
-function fromBase58Check (address) {
-  var payload = bs58check.decode(address)
-
+function fromBase58Check (address, network) {
+  network = network || networks.bitcoin;
+  var payload = bs58check.decode(address, network.pubKeyHash)
+  
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short')
-  if (payload.length > 21) throw new TypeError(address + ' is too long')
-
+  let maxLength = types.UInt8(network.pubKeyHash) ? 21 : 22;
+  if (payload.length > maxLength) throw new TypeError(address + ' is too long')
+  
   var version = payload.readUInt8(0)
   var hash = payload.slice(1)
 
@@ -32,13 +34,24 @@ function fromBech32 (address) {
 }
 
 function toBase58Check (hash, version) {
-  typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
+	if (version < 256){
+    typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
 
-  var payload = Buffer.allocUnsafe(21)
-  payload.writeUInt8(version, 0)
-  hash.copy(payload, 1)
+    var payload = Buffer.allocUnsafe(21)
+    payload.writeUInt8(version, 0)
+    hash.copy(payload, 1)
 
-  return bs58check.encode(payload)
+    return bs58check.encode(payload)
+  }
+  else{
+    typeforce(types.tuple(types.Hash160bit, types.UInt16), arguments)
+
+    var payload = Buffer.allocUnsafe(22)
+    payload.writeUInt16BE(version, 0)
+    hash.copy(payload, 2)
+
+    return bs58check.encode(payload)
+  }
 }
 
 function toBech32 (data, version, prefix) {
@@ -64,7 +77,7 @@ function toOutputScript (address, network) {
 
   var decode
   try {
-    decode = fromBase58Check(address)
+    decode = fromBase58Check(address, network)
   } catch (e) {}
 
   if (decode) {
