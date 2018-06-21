@@ -18,7 +18,7 @@ Master is not stable; it is our development branch, and [only tagged releases ma
 
 We recommend every user of this library and the [bitcoinjs](https://github.com/bitcoinjs) ecosystem to audit and verify any underlying code for its validity and suitability.
 
-Mistakes and bugs happen,  but with your help in resolving and reporting [issues](https://github.com/bitcoinjs/bitcoinjs-lib/issues),  together we can produce open source software that is:
+Mistakes and bugs happen, but with your help in resolving and reporting [issues](https://github.com/bitcoinjs/bitcoinjs-lib/issues), together we can produce open source software that is:
 
 - Easy to audit and verify,
 - Tested, with test coverage >95%,
@@ -32,68 +32,32 @@ npm install bitcoinjs-lib
 ```
 
 Typically we support the [Node Maintenance LTS version](https://github.com/nodejs/Release).
-If in doubt,  see the [.travis.yml](.travis.yml) for what versions are used by our continuous integration tests.
+If in doubt, see the [.travis.yml](.travis.yml) for what versions are used by our continuous integration tests.
 
 **WARNING**: We presently don't provide any tooling to verify that the release on `npm` matches GitHub.  As such, you should verify anything downloaded by `npm` against your own verified copy.
 
 
-## Setup
-### Node.js
-``` javascript
-const bitcoin = require('bitcoinjs-lib')
-```
+## Usage
 
 ### Browser
-If you're familiar with how to use browserify, ignore this and proceed normally.
-These steps are advisory only,  and may not be suitable for your application.
+The recommended method of using `bitcoinjs-lib` in your browser is through [Browserify](https://github.com/substack/node-browserify).
+If you're familiar with how to use browserify, ignore this and carry on, otherwise, it is recommended to read the tutorial at http://browserify.org/.
 
-[Browserify](https://github.com/substack/node-browserify) is assumed to be installed for these steps.
-
-For your project, create an `index.js` file
-``` javascript
-let bitcoin = require('bitcoinjs-lib')
-
-// your code here
-function myFunction () {
-	return bitcoin.ECPair.makeRandom().toWIF()
-}
-
-module.exports = {
-	myFunction
-}
-```
-
-Now, to compile for the browser:
-``` bash
-browserify index.js --standalone foo > app.js
-```
-
-You can now put `<script src="app.js" />` in your web page,  using `foo.myFunction` to create a new Bitcoin private key.
-
-**NOTE**: If you uglify the javascript, you must exclude the following variable names from being mangled: `BigInteger`, `ECPair`, `Point`.
-This is because of the function-name-duck-typing used in [typeforce](https://github.com/dcousens/typeforce).
-
-Example:
-``` bash
-uglifyjs ... --mangle reserved=['BigInteger','ECPair','Point']
-```
-
-**NOTE**: This library tracks Node LTS features,  if you need strict ES5,  use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](http://babeljs.io/docs/plugins/preset-es2015/) preset).
+**NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](http://babeljs.io/docs/plugins/preset-es2015/) preset).
 
 **NOTE**: If you expect this library to run on an iOS 10 device, ensure that you are using [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater.
 
-
 ### Typescript or VSCode users
-Type declarations for Typescript are available for version `^3.0.0` of the library.
+Type declarations for Typescript [are available](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/0897921174860ec3d5318992d2323b3ae8100a68/types/bitcoinjs-lib) for version `^3.0.0` of the library.
+
 ``` bash
 npm install @types/bitcoinjs-lib
 ```
 
-You can now use `bitcoinjs-lib` as a typescript compliant library.
+For VSCode (and other editors), it is advised to install the type declarations, as Intellisense uses that information to help you code (autocompletion, static analysis).
 
-For VSCode (and other editors), users are advised to install the type declarations, as Intellisense uses that information to help you code (autocompletion, static analysis).
-
-Report any typescript related bugs at [@dlebrecht DefinitelyTyped fork](https://github.com/dlebrecht/DefinitelyTyped),  submit PRs to [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)
+**WARNING**: These Typescript definitions are not maintained by the maintainers of this repository, and are instead maintained at [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped).
+Please report any issues or problems there.
 
 
 ### Flow
