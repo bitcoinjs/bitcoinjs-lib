@@ -109,13 +109,13 @@ describe('bitcoinjs-lib (transactions)', function () {
   it('can create (and broadcast via 3PBP) a Transaction with a 2-of-4 P2SH(multisig) input', function (done) {
     this.timeout(30000)
 
-    var keyPairs = [
-      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx',
-      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT',
-      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe',
-      '91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx9rcrL7'
-    ].map(function (wif) { return bitcoin.ECPair.fromWIF(wif, regtest) })
-    var pubKeys = keyPairs.map(function (x) { return x.publicKey })
+    const keyPairs = [
+      bitcoin.ECPair.makeRandom({ network: regtest }),
+      bitcoin.ECPair.makeRandom({ network: regtest }),
+      bitcoin.ECPair.makeRandom({ network: regtest }),
+      bitcoin.ECPair.makeRandom({ network: regtest })
+    ]
+    const pubKeys = keyPairs.map(function (x) { return x.publicKey })
 
     var redeemScript = bitcoin.script.multisig.output.encode(2, pubKeys)
     var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
@@ -149,8 +149,8 @@ describe('bitcoinjs-lib (transactions)', function () {
   it('can create (and broadcast via 3PBP) a Transaction with a SegWit P2SH(P2WPKH) input', function (done) {
     this.timeout(30000)
 
-    var keyPair = bitcoin.ECPair.fromWIF('cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87JcbXMTcA', regtest)
-    var pubKeyHash = bitcoin.crypto.hash160(keyPair.publicKey)
+    const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
+    const pubKeyHash = bitcoin.crypto.hash160(keyPair.publicKey)
 
     var redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash)
     var redeemScriptHash = bitcoin.crypto.hash160(redeemScript)
@@ -184,13 +184,13 @@ describe('bitcoinjs-lib (transactions)', function () {
   it('can create (and broadcast via 3PBP) a Transaction with a SegWit 3-of-4 P2SH(P2WSH(multisig)) input', function (done) {
     this.timeout(50000)
 
-    var keyPairs = [
-      'cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87JcbXMTcA',
-      'cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87K7XCyj5v',
-      'cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87KcLPVfXz',
-      'cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87L7FgDCKE'
-    ].map(function (wif) { return bitcoin.ECPair.fromWIF(wif, regtest) })
-    var pubKeys = keyPairs.map(function (x) { return x.publicKey })
+    const keyPairs = [
+      bitcoin.ECPair.makeRandom({ network: regtest }),
+      bitcoin.ECPair.makeRandom({ network: regtest }),
+      bitcoin.ECPair.makeRandom({ network: regtest }),
+      bitcoin.ECPair.makeRandom({ network: regtest })
+    ]
+    const pubKeys = keyPairs.map(function (x) { return x.publicKey })
 
     var witnessScript = bitcoin.script.multisig.output.encode(3, pubKeys)
     var redeemScript = bitcoin.script.witnessScriptHash.output.encode(bitcoin.crypto.sha256(witnessScript))
