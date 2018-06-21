@@ -67,7 +67,7 @@ export const bitcoingold: Network = {
   forkHeight: 491407,
   equihashForkHeight: 536200,
   equihash: eq.networks.bitcoingold,
-  equihashLegacy: eq.networks.bitcoingold,
+  equihashLegacy: eq.networks.bitcoingoldPreEquihashFork,
 };
 export const bitcoingoldtestnet: Network = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
@@ -80,7 +80,9 @@ export const bitcoingoldtestnet: Network = {
   scriptHash: 0xc4,
   wif: 0xef,
   forkHeight: 1,
+  equihashForkHeight: 14300,
   equihash: eq.networks.bitcoingoldTestnet,
+  equihashLegacy: eq.networks.bitcoingoldPreEquihashFork,
 };
 export const bitcoingoldregtest: Network = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
