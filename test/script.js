@@ -19,7 +19,8 @@ describe('script', function () {
       }
     })
   })
-  describe.skip('isCanonicalSignature', function () {})
+  describe.skip('isCanonicalScriptSignature', function () {
+  })
 
   describe('fromASM/toASM', function () {
     fixtures.valid.forEach(function (f) {
