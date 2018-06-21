@@ -1,9 +1,11 @@
+
+[//]: # (This is partially derived from https://github.com/bitcoin/bitcoin/blob/6579d80572d2d33aceabbd3db45a6a9f809aa5e3/CONTRIBUTING.md)
+
 # Contributing to bitcoinjs-lib
+Firstly in terms of structure, there is no particular concept of "bitcoinjs developers" in a sense of privileged people.
+Open source revolves around a meritocracy where contributors who help gain trust from the community.
 
-Firstly in terms of structure, there is no particular concept of "bitcoinjs developers" in the sense of privileged people.
-Open source often naturally revolves around meritocracy where longer term contributors gain more trust from the developer community.
-
-However, for practical purpose, there are repository "maintainers" who are responsible for merging pull requests.
+For practical purpose, there are repository "maintainers" who are responsible for merging pull requests.
 
 We are always accepting of pull requests, but we do adhere to specific standards in regards to coding style, test driven development and commit messages.
 
@@ -30,7 +32,7 @@ To contribute a patch, the workflow is as follows:
 
 [Commits should be atomic](https://en.wikipedia.org/wiki/Atomic_commit#Atomic_commit_convention) and diffs easy to read.
 
-If your pull request is accepted for merging, you may be asked by a maintainer to squash and or [rebase](https://git-scm.com/docs/git-rebase) your commits before it will be merged.
+If your pull request is accepted for merging, you may be asked by a maintainer to squash and or [rebase](https://git-scm.com/docs/git-rebase) your commits before it is merged.
 
 Please refrain from creating several pull requests for the same change.
 
@@ -46,26 +48,20 @@ The length of time required for peer review is unpredictable and will vary from 
 
 Refer to the [Git manual](https://git-scm.com/doc) for any information about `git`.
 
+
 ## We adhere to Bitcoin-Core policy
-- `bitcoinjs.template.*` functions should follow the script "templates" typically used in the community (and consequently, the bitcoin blockchain).
+Bitcoin script payment/script templates are based on community consensus,  but typically adhere to bitcoin-core node policy by default.
 
-This is a matter of community consensus,  but is probably going to always be closely related to what bitcoin core does by default.
-They are quite plainly just pattern matching functions, and should be treated as such.
+- `bitcoinjs.script.decompile` is consensus bound only,  it does not reject based on policy.
+- `bitcoinjs.script.compile` will try to adhere to bitcoin-core `IsStandard` policies rules. (eg. minimalpush in https://github.com/bitcoinjs/bitcoinjs-lib/pull/638)
 
-`bitcoinjs.script.decompile` is consensus bound only,  it does not reject based on policy.
-`bitcoinjs.script.compile` will adhere to bitcoin-core `IsStandard` policies rules. (eg. minimalpush in https://github.com/bitcoinjs/bitcoinjs-lib/pull/638)
+Any elliptic curve `sign` operations should adhere to `IsStandard` policies, like `LOW_S`, but `verify` should not reject them [by default].
 
-ECDSA `sign` operations will adhere to `IsStandard` policies such as `LOW_S`, but `verify` will not reject them.
+If you need non-standard rejecting `decoding`, you should use an external module,  not this library.
 
-For rejecting non-standard `decoding`, you should use external modules to this library.
-
-**TLDR:**
+#### TLDR
 Where "standards compliant" refers to the default policies of bitcoin-core,  we adhere to the following:
 - Any "creation" event must create standards-compliant data (standards bound)
 - Any "validation" event must allow for non-standards compliant data (consensus bound)
 
-For stricter validation,  use an external module which we [might have] provided.
-
-
-## Release Policy
-TODO
+For stricter validation,  use an external module which we [may have] provided.
