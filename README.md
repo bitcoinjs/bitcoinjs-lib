@@ -18,24 +18,29 @@ Master is not stable; it is our development branch, and [only tagged releases ma
 
 We recommend every user of this library and the [bitcoinjs](https://github.com/bitcoinjs) ecosystem to audit and verify any underlying code for its validity and suitability.
 
-Mistakes and bugs happen,  but with your help in resolving and reporting [issues](https://github.com/bitcoinjs/bitcoinjs-lib/issues),  together we can produce open source software library that is:
+Mistakes and bugs happen,  but with your help in resolving and reporting [issues](https://github.com/bitcoinjs/bitcoinjs-lib/issues),  together we can produce open source software that is:
 
 - Easy to audit and verify,
-- Tested, with test coverage >90%,
+- Tested, with test coverage >95%,
 - Advanced and feature rich,
 - Standardized, using [standard](http://github.com/standard/standard) and Node `Buffer`'s throughout, and
 - Friendly, with a strong and helpful community, ready to answer questions.
-
 
 ## Installation
 ``` bash
 npm install bitcoinjs-lib
 ```
 
+Typically we support the [Node Maintenance LTS version](https://github.com/nodejs/Release).
+If in doubt,  see the [.travis.yml](.travis.yml) for what versions are used by our continuous integration tests.
+
+**WARNING**: We presently don't provide any tooling to verify that the release on `npm` matches GitHub.  As such, you should verify anything downloaded by `npm` against your own verified copy.
+
+
 ## Setup
 ### Node.js
 ``` javascript
-var bitcoin = require('bitcoinjs-lib')
+const bitcoin = require('bitcoinjs-lib')
 ```
 
 ### Browser
