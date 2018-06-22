@@ -62,10 +62,60 @@ function classifyWitness (script, allowIncomplete) {
   return types.NONSTANDARD
 }
 
+function solveOutput (scriptCode) {
+  if (!(scriptCode instanceof Buffer)) {
+    throw new Error('Argument 0 for solveScript must be a Buffer')
+  }
+
+  var outputType = classifyOutput(scriptCode)
+  var solvedBy = null
+  var requiredSigs = null
+
+  switch (outputType) {
+    // We can only determine the relevant hash from these, not if it's signable
+    case types.P2SH:
+      solvedBy = scriptHash.output.decode(scriptCode)
+      break
+    case types.P2WSH:
+      solvedBy = witnessScriptHash.output.decode(scriptCode)
+      break
+
+    // P2WPKH is separate from other signable types, it's best viewed as a special case for P2PKH
+    // Not included in canSign.
+    case types.P2WPKH:
+      solvedBy = witnessPubKeyHash.output.decode(scriptCode)
+      requiredSigs = 1
+      break
+
+    // We can immediately solve signatures for these
+    // When adding a new script type, edit here
+    case types.P2PK:
+      solvedBy = pubKey.output.decode(scriptCode)
+      requiredSigs = 1
+      break
+    case types.P2PKH:
+      solvedBy = pubKeyHash.output.decode(scriptCode)
+      requiredSigs = 1
+      break
+    case types.MULTISIG:
+      solvedBy = multisig.output.decode(scriptCode)
+      requiredSigs = solvedBy.m
+      break
+  }
+
+  return {
+    type: outputType,
+    script: scriptCode,
+    solvedBy: solvedBy,
+    requiredSigs: requiredSigs
+  }
+}
+
 module.exports = {
   classifyInput: classifyInput,
   classifyOutput: classifyOutput,
   classifyWitness: classifyWitness,
+  solveOutput: solveOutput,
   multisig: multisig,
   nullData: nullData,
   pubKey: pubKey,
