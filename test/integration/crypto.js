@@ -1,6 +1,5 @@
 /* global describe, it */
 
-
 const assert = require('assert')
 const BN = require('bn.js')
 const bitcoin = require('../../')
