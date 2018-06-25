@@ -1,11 +1,11 @@
-var Buffer = require('safe-buffer').Buffer
-var bcrypto = require('./crypto')
-var bscript = require('./script')
-var bufferutils = require('./bufferutils')
-var opcodes = require('bitcoin-ops')
-var typeforce = require('typeforce')
-var types = require('./types')
-var varuint = require('varuint-bitcoin')
+const Buffer = require('safe-buffer').Buffer
+const bcrypto = require('./crypto')
+const bscript = require('./script')
+const bufferutils = require('./bufferutils')
+const opcodes = require('bitcoin-ops')
+const typeforce = require('typeforce')
+const types = require('./types')
+const varuint = require('varuint-bitcoin')
 
 function varSliceSize (someScript) {
   var length = someScript.length
@@ -36,12 +36,12 @@ Transaction.SIGHASH_ANYONECANPAY = 0x80
 Transaction.ADVANCED_TRANSACTION_MARKER = 0x00
 Transaction.ADVANCED_TRANSACTION_FLAG = 0x01
 
-var EMPTY_SCRIPT = Buffer.allocUnsafe(0)
-var EMPTY_WITNESS = []
-var ZERO = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
-var ONE = Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
-var VALUE_UINT64_MAX = Buffer.from('ffffffffffffffff', 'hex')
-var BLANK_OUTPUT = {
+const EMPTY_SCRIPT = Buffer.allocUnsafe(0)
+const EMPTY_WITNESS = []
+const ZERO = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+const ONE = Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+const VALUE_UINT64_MAX = Buffer.from('ffffffffffffffff', 'hex')
+const BLANK_OUTPUT = {
   script: EMPTY_SCRIPT,
   valueBuffer: VALUE_UINT64_MAX
 }

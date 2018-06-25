@@ -1,10 +1,10 @@
 // m [pubKeys ...] n OP_CHECKMULTISIG
 
-var bscript = require('../../script')
-var types = require('../../types')
-var typeforce = require('typeforce')
-var OPS = require('bitcoin-ops')
-var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
+const bscript = require('../../script')
+const types = require('../../types')
+const typeforce = require('typeforce')
+const OPS = require('bitcoin-ops')
+const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function check (script, allowIncomplete) {
   var chunks = bscript.decompile(script)

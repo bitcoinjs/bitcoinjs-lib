@@ -1,9 +1,9 @@
 /* global describe, it, beforeEach */
 
-var assert = require('assert')
-var Block = require('../src/block')
+const assert = require('assert')
+const Block = require('../src/block')
 
-var fixtures = require('./fixtures/block')
+const fixtures = require('./fixtures/block')
 
 describe('Block', function () {
   describe('version', function () {

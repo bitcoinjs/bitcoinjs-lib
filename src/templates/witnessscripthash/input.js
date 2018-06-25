@@ -1,12 +1,12 @@
 // <scriptSig> {serialized scriptPubKey script}
 
-var bscript = require('../../script')
-var types = require('../../types')
-var typeforce = require('typeforce')
+const bscript = require('../../script')
+const types = require('../../types')
+const typeforce = require('typeforce')
 
-var p2ms = require('../multisig/')
-var p2pk = require('../pubkey/')
-var p2pkh = require('../pubkeyhash/')
+const p2ms = require('../multisig/')
+const p2pk = require('../pubkey/')
+const p2pkh = require('../pubkeyhash/')
 
 function check (chunks, allowIncomplete) {
   typeforce(types.Array, chunks)

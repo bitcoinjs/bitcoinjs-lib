@@ -1,11 +1,11 @@
-var Buffer = require('safe-buffer').Buffer
-var bcrypto = require('./crypto')
-var fastMerkleRoot = require('merkle-lib/fastRoot')
-var typeforce = require('typeforce')
-var types = require('./types')
-var varuint = require('varuint-bitcoin')
+const Buffer = require('safe-buffer').Buffer
+const bcrypto = require('./crypto')
+const fastMerkleRoot = require('merkle-lib/fastRoot')
+const typeforce = require('typeforce')
+const types = require('./types')
+const varuint = require('varuint-bitcoin')
 
-var Transaction = require('./transaction')
+const Transaction = require('./transaction')
 
 function Block () {
   this.version = 1

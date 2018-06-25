@@ -1,9 +1,9 @@
 /* global describe, it, beforeEach */
 
-var assert = require('assert')
-var bscript = require('../src/script')
-var fixtures = require('./fixtures/transaction')
-var Transaction = require('../src/transaction')
+const assert = require('assert')
+const bscript = require('../src/script')
+const fixtures = require('./fixtures/transaction')
+const Transaction = require('../src/transaction')
 
 describe('Transaction', function () {
   function fromRaw (raw, noWitness) {

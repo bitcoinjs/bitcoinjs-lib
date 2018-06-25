@@ -1,7 +1,7 @@
 // {signature} {pubKey}
 
-var bscript = require('../../script')
-var typeforce = require('typeforce')
+const bscript = require('../../script')
+const typeforce = require('typeforce')
 
 function isCompressedCanonicalPubKey (pubKey) {
   return bscript.isCanonicalPubKey(pubKey) && pubKey.length === 33

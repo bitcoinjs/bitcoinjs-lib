@@ -1,11 +1,11 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bscript = require('../src/script')
-var minimalData = require('minimaldata')
+const assert = require('assert')
+const bscript = require('../src/script')
+const minimalData = require('minimaldata')
 
-var fixtures = require('./fixtures/script.json')
-var fixtures2 = require('./fixtures/templates.json')
+const fixtures = require('./fixtures/script.json')
+const fixtures2 = require('./fixtures/templates.json')
 
 describe('script', function () {
   // TODO

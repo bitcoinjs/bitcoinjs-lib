@@ -1,9 +1,9 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bcrypto = require('../src/crypto')
+const assert = require('assert')
+const bcrypto = require('../src/crypto')
 
-var fixtures = require('./fixtures/crypto')
+const fixtures = require('./fixtures/crypto')
 
 describe('crypto', function () {
   ['hash160', 'hash256', 'ripemd160', 'sha1', 'sha256'].forEach(function (algorithm) {

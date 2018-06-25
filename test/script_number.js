@@ -1,8 +1,8 @@
 /* global describe, it */
 
-var assert = require('assert')
-var scriptNumber = require('../src/script_number')
-var fixtures = require('./fixtures/script_number.json')
+const assert = require('assert')
+const scriptNumber = require('../src/script_number')
+const fixtures = require('./fixtures/script_number.json')
 
 describe('script-number', function () {
   describe('decode', function () {

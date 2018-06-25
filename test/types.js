@@ -1,8 +1,8 @@
 /* global describe, it */
 
-var assert = require('assert')
-var types = require('../src/types')
-var typeforce = require('typeforce')
+const assert = require('assert')
+const types = require('../src/types')
+const typeforce = require('typeforce')
 
 describe('types', function () {
   describe('Buffer Hash160/Hash256', function () {

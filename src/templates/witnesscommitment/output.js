@@ -1,12 +1,12 @@
 // OP_RETURN {aa21a9ed} {commitment}
 
-var Buffer = require('safe-buffer').Buffer
-var bscript = require('../../script')
-var types = require('../../types')
-var typeforce = require('typeforce')
-var OPS = require('bitcoin-ops')
+const Buffer = require('safe-buffer').Buffer
+const bscript = require('../../script')
+const types = require('../../types')
+const typeforce = require('typeforce')
+const OPS = require('bitcoin-ops')
 
-var HEADER = Buffer.from('aa21a9ed', 'hex')
+const HEADER = Buffer.from('aa21a9ed', 'hex')
 
 function check (script) {
   var buffer = bscript.compile(script)

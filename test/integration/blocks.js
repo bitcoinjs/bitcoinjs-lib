@@ -1,8 +1,8 @@
 /* global describe, it */
 'use strict'
 
-var assert = require('assert')
-var bitcoin = require('../../')
+const assert = require('assert')
+const bitcoin = require('../../')
 
 describe('bitcoinjs-lib (blocks)', function () {
   it('can extract a height from a CoinBase transaction', function () {

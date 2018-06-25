@@ -1,9 +1,9 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bufferutils = require('../src/bufferutils')
+const assert = require('assert')
+const bufferutils = require('../src/bufferutils')
 
-var fixtures = require('./fixtures/bufferutils.json')
+const fixtures = require('./fixtures/bufferutils.json')
 
 describe('bufferutils', function () {
   describe('readUInt64LE', function () {

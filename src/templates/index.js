@@ -1,14 +1,14 @@
-var decompile = require('../script').decompile
-var multisig = require('./multisig')
-var nullData = require('./nulldata')
-var pubKey = require('./pubkey')
-var pubKeyHash = require('./pubkeyhash')
-var scriptHash = require('./scripthash')
-var witnessPubKeyHash = require('./witnesspubkeyhash')
-var witnessScriptHash = require('./witnessscripthash')
-var witnessCommitment = require('./witnesscommitment')
+const decompile = require('../script').decompile
+const multisig = require('./multisig')
+const nullData = require('./nulldata')
+const pubKey = require('./pubkey')
+const pubKeyHash = require('./pubkeyhash')
+const scriptHash = require('./scripthash')
+const witnessPubKeyHash = require('./witnesspubkeyhash')
+const witnessScriptHash = require('./witnessscripthash')
+const witnessCommitment = require('./witnesscommitment')
 
-var types = {
+const types = {
   MULTISIG: 'multisig',
   NONSTANDARD: 'nonstandard',
   NULLDATA: 'nulldata',

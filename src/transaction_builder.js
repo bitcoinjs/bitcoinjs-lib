@@ -1,18 +1,18 @@
-var Buffer = require('safe-buffer').Buffer
-var baddress = require('./address')
-var bcrypto = require('./crypto')
-var bscript = require('./script')
-var btemplates = require('./templates')
-var networks = require('./networks')
-var ops = require('bitcoin-ops')
-var typeforce = require('typeforce')
-var types = require('./types')
-var scriptTypes = btemplates.types
-var SIGNABLE = [btemplates.types.P2PKH, btemplates.types.P2PK, btemplates.types.MULTISIG]
-var P2SH = SIGNABLE.concat([btemplates.types.P2WPKH, btemplates.types.P2WSH])
+const Buffer = require('safe-buffer').Buffer
+const baddress = require('./address')
+const bcrypto = require('./crypto')
+const bscript = require('./script')
+const btemplates = require('./templates')
+const networks = require('./networks')
+const ops = require('bitcoin-ops')
+const typeforce = require('typeforce')
+const types = require('./types')
+const scriptTypes = btemplates.types
+const SIGNABLE = [btemplates.types.P2PKH, btemplates.types.P2PK, btemplates.types.MULTISIG]
+const P2SH = SIGNABLE.concat([btemplates.types.P2WPKH, btemplates.types.P2WSH])
 
-var ECPair = require('./ecpair')
-var Transaction = require('./transaction')
+const ECPair = require('./ecpair')
+const Transaction = require('./transaction')
 
 function supportedType (type) {
   return SIGNABLE.indexOf(type) !== -1

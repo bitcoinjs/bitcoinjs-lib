@@ -1,10 +1,10 @@
 // OP_0 [signatures ...]
 
-var Buffer = require('safe-buffer').Buffer
-var bscript = require('../../script')
-var p2mso = require('./output')
-var typeforce = require('typeforce')
-var OPS = require('bitcoin-ops')
+const Buffer = require('safe-buffer').Buffer
+const bscript = require('../../script')
+const p2mso = require('./output')
+const typeforce = require('typeforce')
+const OPS = require('bitcoin-ops')
 
 function partialSignature (value) {
   return value === OPS.OP_0 || bscript.isCanonicalScriptSignature(value)
@@ -23,7 +23,7 @@ function check (script, allowIncomplete) {
 }
 check.toJSON = function () { return 'multisig input' }
 
-var EMPTY_BUFFER = Buffer.allocUnsafe(0)
+const EMPTY_BUFFER = Buffer.allocUnsafe(0)
 
 function encodeStack (signatures, scriptPubKey) {
   typeforce([partialSignature], signatures)

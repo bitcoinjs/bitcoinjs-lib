@@ -1,14 +1,14 @@
 // <scriptSig> {serialized scriptPubKey script}
 
-var Buffer = require('safe-buffer').Buffer
-var bscript = require('../../script')
-var typeforce = require('typeforce')
+const Buffer = require('safe-buffer').Buffer
+const bscript = require('../../script')
+const typeforce = require('typeforce')
 
-var p2ms = require('../multisig/')
-var p2pk = require('../pubkey/')
-var p2pkh = require('../pubkeyhash/')
-var p2wpkho = require('../witnesspubkeyhash/output')
-var p2wsho = require('../witnessscripthash/output')
+const p2ms = require('../multisig/')
+const p2pk = require('../pubkey/')
+const p2pkh = require('../pubkeyhash/')
+const p2wpkho = require('../witnesspubkeyhash/output')
+const p2wsho = require('../witnessscripthash/output')
 
 function check (script, allowIncomplete) {
   var chunks = bscript.decompile(script)

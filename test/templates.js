@@ -1,12 +1,12 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bcrypto = require('../src/crypto')
-var bscript = require('../src/script')
-var btemplates = require('../src/templates')
-var ops = require('bitcoin-ops')
+const assert = require('assert')
+const bcrypto = require('../src/crypto')
+const bscript = require('../src/script')
+const btemplates = require('../src/templates')
+const ops = require('bitcoin-ops')
 
-var fixtures = require('./fixtures/templates.json')
+const fixtures = require('./fixtures/templates.json')
 
 function fromHex (x) { return Buffer.from(x, 'hex') }
 function toHex (x) { return x.toString('hex') }

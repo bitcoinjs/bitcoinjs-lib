@@ -1,7 +1,7 @@
 // {signature} {pubKey}
 
-var bscript = require('../../script')
-var typeforce = require('typeforce')
+const bscript = require('../../script')
+const typeforce = require('typeforce')
 
 function check (script) {
   var chunks = bscript.decompile(script)

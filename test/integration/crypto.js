@@ -1,14 +1,14 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bigi = require('bigi')
-var bitcoin = require('../../')
-var bip32 = require('bip32')
-var crypto = require('crypto')
-var tinysecp = require('tiny-secp256k1')
+const assert = require('assert')
+const bigi = require('bigi')
+const bitcoin = require('../../')
+const bip32 = require('bip32')
+const crypto = require('crypto')
+const tinysecp = require('tiny-secp256k1')
 
-var ecurve = require('ecurve')
-var secp256k1 = ecurve.getCurveByName('secp256k1')
+const ecurve = require('ecurve')
+const secp256k1 = ecurve.getCurveByName('secp256k1')
 
 describe('bitcoinjs-lib (crypto)', function () {
   it('can recover a private key from duplicate R values', function () {

@@ -1,9 +1,9 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bscriptSig = require('../src/script').signature
-var Buffer = require('safe-buffer').Buffer
-var fixtures = require('./fixtures/signature.json')
+const assert = require('assert')
+const bscriptSig = require('../src/script').signature
+const Buffer = require('safe-buffer').Buffer
+const fixtures = require('./fixtures/signature.json')
 
 describe('Script Signatures', function () {
   function fromRaw (signature) {

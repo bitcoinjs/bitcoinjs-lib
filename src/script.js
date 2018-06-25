@@ -1,14 +1,14 @@
-var Buffer = require('safe-buffer').Buffer
-var bip66 = require('bip66')
+const Buffer = require('safe-buffer').Buffer
+const bip66 = require('bip66')
 const ecc = require('tiny-secp256k1')
-var pushdata = require('pushdata-bitcoin')
-var typeforce = require('typeforce')
-var types = require('./types')
-var scriptNumber = require('./script_number')
+const pushdata = require('pushdata-bitcoin')
+const typeforce = require('typeforce')
+const types = require('./types')
+const scriptNumber = require('./script_number')
 
-var OPS = require('bitcoin-ops')
-var REVERSE_OPS = require('bitcoin-ops/map')
-var OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
+const OPS = require('bitcoin-ops')
+const REVERSE_OPS = require('bitcoin-ops/map')
+const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function isOPInt (value) {
   return types.Number(value) &&

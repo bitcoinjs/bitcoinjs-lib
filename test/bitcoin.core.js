@@ -1,17 +1,17 @@
 /* global describe, it */
 
-var assert = require('assert')
-var base58 = require('bs58')
-var bitcoin = require('../')
+const assert = require('assert')
+const base58 = require('bs58')
+const bitcoin = require('../')
 
-var base58EncodeDecode = require('./fixtures/core/base58_encode_decode.json')
-var base58KeysInvalid = require('./fixtures/core/base58_keys_invalid.json')
-var base58KeysValid = require('./fixtures/core/base58_keys_valid.json')
-var blocksValid = require('./fixtures/core/blocks.json')
-var sigCanonical = require('./fixtures/core/sig_canonical.json')
-var sigHash = require('./fixtures/core/sighash.json')
-var sigNoncanonical = require('./fixtures/core/sig_noncanonical.json')
-var txValid = require('./fixtures/core/tx_valid.json')
+const base58EncodeDecode = require('./fixtures/core/base58_encode_decode.json')
+const base58KeysInvalid = require('./fixtures/core/base58_keys_invalid.json')
+const base58KeysValid = require('./fixtures/core/base58_keys_valid.json')
+const blocksValid = require('./fixtures/core/blocks.json')
+const sigCanonical = require('./fixtures/core/sig_canonical.json')
+const sigHash = require('./fixtures/core/sighash.json')
+const sigNoncanonical = require('./fixtures/core/sig_noncanonical.json')
+const txValid = require('./fixtures/core/tx_valid.json')
 
 describe('Bitcoin-core', function () {
   // base58EncodeDecode
