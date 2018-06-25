@@ -6,6 +6,8 @@ import * as types from './types';
 
 import * as eq from 'equihashjs-verify';
 
+import { calcNextBits } from './lwma';
+
 const fastMerkleRoot = require('merkle-lib/fastRoot');
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
@@ -276,6 +278,16 @@ export class Block {
     const equihash = new eq.Equihash(equihashNetwork);
     const header = this.toHex(true);
     return equihash.verify(Buffer.from(header, 'hex'), this.solution!);
+  }
+
+  checkTargetBits(network: networks.Network, previousBlocks: Block[]): boolean {
+    // Testnet with old lwma params are not supported yet, if needed to validate such blocks
+    // - add new network in Network.js
+    if (!network.lwma || this.height < network.lwma.enableHeight) {
+      return true;
+    }
+    const bits = calcNextBits(this, previousBlocks, network.lwma);
+    return this.bits === bits;
   }
 
   private __checkMerkleRoot(): boolean {

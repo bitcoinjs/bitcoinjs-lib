@@ -1,4 +1,5 @@
 import * as eq from 'equihashjs-verify';
+import { LwmaConfig } from './lwma';
 export interface Network {
     messagePrefix: string;
     bech32: string;
@@ -10,6 +11,7 @@ export interface Network {
     equihashForkHeight?: number;
     equihash?: eq.Network;
     equihashLegacy?: eq.Network;
+    lwma?: LwmaConfig;
 }
 interface Bip32 {
     public: number;

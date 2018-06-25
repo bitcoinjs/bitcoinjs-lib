@@ -6,6 +6,7 @@ const networks = require('./networks');
 const transaction_1 = require('./transaction');
 const types = require('./types');
 const eq = require('equihashjs-verify');
+const lwma_1 = require('./lwma');
 const fastMerkleRoot = require('merkle-lib/fastRoot');
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
@@ -222,6 +223,15 @@ class Block {
     const equihash = new eq.Equihash(equihashNetwork);
     const header = this.toHex(true);
     return equihash.verify(Buffer.from(header, 'hex'), this.solution);
+  }
+  checkTargetBits(network, previousBlocks) {
+    // Testnet with old lwma params are not supported yet, if needed to validate such blocks
+    // - add new network in Network.js
+    if (!network.lwma || this.height < network.lwma.enableHeight) {
+      return true;
+    }
+    const bits = lwma_1.calcNextBits(this, previousBlocks, network.lwma);
+    return this.bits === bits;
   }
   __checkMerkleRoot() {
     if (!this.transactions) throw errorMerkleNoTxes;

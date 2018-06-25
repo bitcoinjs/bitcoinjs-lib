@@ -2,11 +2,12 @@ import * as bip32 from 'bip32';
 import * as address from './address';
 import * as crypto from './crypto';
 import * as ECPair from './ecpair';
+import * as lwma from './lwma';
 import * as networks from './networks';
 import * as payments from './payments';
 import * as script from './script';
 
-export { ECPair, address, bip32, crypto, networks, payments, script };
+export { ECPair, address, bip32, crypto, networks, payments, script, lwma };
 
 export { Block } from './block';
 export { Block as BlockGold } from './block_gold';

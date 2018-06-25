@@ -29,6 +29,7 @@ export declare class Block {
     toHex(headersOnly?: boolean, useLegacyFormat?: boolean): string;
     checkTxRoots(): boolean;
     checkProofOfWork(validateSolution: boolean, network: networks.Network): boolean;
+    checkTargetBits(network: networks.Network, previousBlocks: Block[]): boolean;
     private __checkMerkleRoot;
     private __checkWitnessCommit;
 }
