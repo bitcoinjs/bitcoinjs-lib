@@ -1,13 +1,13 @@
 /* global describe, it */
 
-let assert = require('assert')
-let bitcoin = require('../../')
-let regtestUtils = require('./_regtest')
-let regtest = regtestUtils.network
+const assert = require('assert')
+const bitcoin = require('../../')
+const regtestUtils = require('./_regtest')
+const regtest = regtestUtils.network
 
 // TODO: remove
-let baddress = bitcoin.address
-let bcrypto = bitcoin.crypto
+const baddress = bitcoin.address
+const bcrypto = bitcoin.crypto
 function getAddress (node, network) {
   network = network || bitcoin.networks.bitcoin
   return baddress.toBase58Check(bcrypto.hash160(node.publicKey), network.pubKeyHash)

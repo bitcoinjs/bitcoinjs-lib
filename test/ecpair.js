@@ -1,25 +1,25 @@
 /* global describe, it, beforeEach */
 /* eslint-disable no-new */
 
-let assert = require('assert')
-let proxyquire = require('proxyquire')
-let hoodwink = require('hoodwink')
+const assert = require('assert')
+const proxyquire = require('proxyquire')
+const hoodwink = require('hoodwink')
 
-let ECPair = require('../src/ecpair')
-let tinysecp = require('tiny-secp256k1')
+const ECPair = require('../src/ecpair')
+const tinysecp = require('tiny-secp256k1')
 
-let fixtures = require('./fixtures/ecpair.json')
+const fixtures = require('./fixtures/ecpair.json')
 
-let NETWORKS = require('../src/networks')
-let NETWORKS_LIST = [] // Object.values(NETWORKS)
+const NETWORKS = require('../src/networks')
+const NETWORKS_LIST = [] // Object.values(NETWORKS)
 for (let networkName in NETWORKS) {
   NETWORKS_LIST.push(NETWORKS[networkName])
 }
 
-let ZERO = Buffer.alloc(32, 0)
-let ONE = Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
-let GROUP_ORDER = Buffer.from('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141', 'hex')
-let GROUP_ORDER_LESS_1 = Buffer.from('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140', 'hex')
+const ZERO = Buffer.alloc(32, 0)
+const ONE = Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+const GROUP_ORDER = Buffer.from('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141', 'hex')
+const GROUP_ORDER_LESS_1 = Buffer.from('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140', 'hex')
 
 describe('ECPair', function () {
   describe('constructor', function () {

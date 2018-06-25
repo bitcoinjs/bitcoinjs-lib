@@ -1,10 +1,10 @@
 /* global describe, it */
 
-let assert = require('assert')
-let baddress = require('../src/address')
-let bscript = require('../src/script')
-let fixtures = require('./fixtures/address.json')
-let NETWORKS = Object.assign({
+const assert = require('assert')
+const baddress = require('../src/address')
+const bscript = require('../src/script')
+const fixtures = require('./fixtures/address.json')
+const NETWORKS = Object.assign({
   litecoin: {
     messagePrefix: '\x19Litecoin Signed Message:\n',
     bip32: {

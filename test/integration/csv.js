@@ -1,13 +1,13 @@
 /* global describe, it, before */
 
-let assert = require('assert')
-let bitcoin = require('../../')
-let regtestUtils = require('./_regtest')
-let regtest = regtestUtils.network
-let bip68 = require('bip68')
+const assert = require('assert')
+const bitcoin = require('../../')
+const regtestUtils = require('./_regtest')
+const regtest = regtestUtils.network
+const bip68 = require('bip68')
 
-let alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', regtest)
-let bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
+const alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', regtest)
+const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
 
 describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   // force update MTP

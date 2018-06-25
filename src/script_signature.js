@@ -1,9 +1,9 @@
-let bip66 = require('bip66')
-let Buffer = require('safe-buffer').Buffer
-let typeforce = require('typeforce')
-let types = require('./types')
+const bip66 = require('bip66')
+const Buffer = require('safe-buffer').Buffer
+const typeforce = require('typeforce')
+const types = require('./types')
 
-let ZERO = Buffer.alloc(1, 0)
+const ZERO = Buffer.alloc(1, 0)
 function toDER (x) {
   let i = 0
   while (x[i] === 0) ++i

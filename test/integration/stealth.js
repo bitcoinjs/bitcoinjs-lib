@@ -1,12 +1,12 @@
 /* global describe, it */
 
-let assert = require('assert')
-let bitcoin = require('../../')
-let ecc = require('tiny-secp256k1')
+const assert = require('assert')
+const bitcoin = require('../../')
+const ecc = require('tiny-secp256k1')
 
 // TODO: remove
-let baddress = bitcoin.address
-let bcrypto = bitcoin.crypto
+const baddress = bitcoin.address
+const bcrypto = bitcoin.crypto
 function getAddress (node) {
   return baddress.toBase58Check(bcrypto.hash160(node.publicKey), bitcoin.networks.bitcoin.pubKeyHash)
 }

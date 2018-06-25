@@ -1,5 +1,5 @@
-let script = require('./script')
-let templates = require('./templates')
+const script = require('./script')
+const templates = require('./templates')
 for (let key in templates) {
   script[key] = templates[key]
 }

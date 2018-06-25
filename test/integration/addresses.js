@@ -1,10 +1,10 @@
 /* global describe, it */
 
-let assert = require('assert')
-let bitcoin = require('../../')
-let dhttp = require('dhttp/200')
+const assert = require('assert')
+const bitcoin = require('../../')
+const dhttp = require('dhttp/200')
 
-let LITECOIN = {
+const LITECOIN = {
   messagePrefix: '\x19Litecoin Signed Message:\n',
   bip32: {
     public: 0x019da462,
@@ -19,8 +19,8 @@ let LITECOIN = {
 function rng () { return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
 
 // TODO: remove
-let baddress = bitcoin.address
-let bcrypto = bitcoin.crypto
+const baddress = bitcoin.address
+const bcrypto = bitcoin.crypto
 function getAddress (node, network) {
   network = network || bitcoin.networks.bitcoin
   return baddress.toBase58Check(bcrypto.hash160(node.publicKey), network.pubKeyHash)

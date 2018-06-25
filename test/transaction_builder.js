@@ -1,18 +1,18 @@
 /* global describe, it, beforeEach */
 
-let assert = require('assert')
-let baddress = require('../src/address')
-let bcrypto = require('../src/crypto')
-let bscript = require('../src/script')
-let btemplates = require('../src/templates')
-let ops = require('bitcoin-ops')
+const assert = require('assert')
+const baddress = require('../src/address')
+const bcrypto = require('../src/crypto')
+const bscript = require('../src/script')
+const btemplates = require('../src/templates')
+const ops = require('bitcoin-ops')
 
-let ECPair = require('../src/ecpair')
-let Transaction = require('../src/transaction')
-let TransactionBuilder = require('../src/transaction_builder')
-let NETWORKS = require('../src/networks')
+const ECPair = require('../src/ecpair')
+const Transaction = require('../src/transaction')
+const TransactionBuilder = require('../src/transaction_builder')
+const NETWORKS = require('../src/networks')
 
-let fixtures = require('./fixtures/transaction_builder')
+const fixtures = require('./fixtures/transaction_builder')
 
 // TODO: remove
 function getAddress (node) {
