@@ -1,7 +1,7 @@
 /* global describe, it */
 
 var assert = require('assert')
-var bigi = require('bigi')
+var BN = require('bn.js')
 var bitcoin = require('../../')
 var bip32 = require('bip32')
 var crypto = require('crypto')
@@ -31,11 +31,11 @@ describe('bitcoinjs-lib (crypto)', function () {
 
       // store the required information
       input.signature = scriptSignature.signature
-      input.z = bigi.fromBuffer(m)
+      input.z = new BN(m)
     })
 
-    // finally, run the tasks, then on to the math
-    var n = secp256k1.n
+    // finally, run the tasks, then on to the mathmod
+    var n = new BN(secp256k1.n.toString())
 
     for (var i = 0; i < tx.ins.length; ++i) {
       for (var j = i + 1; j < tx.ins.length; ++j) {
@@ -47,22 +47,22 @@ describe('bitcoinjs-lib (crypto)', function () {
         let rB = inputB.signature.slice(0, 32)
         assert.strictEqual(r.toString('hex'), rB.toString('hex'))
 
-        var rInv = bigi.fromBuffer(r).modInverse(n)
+        var rInv = new BN(r).invm(n)
 
-        var s1 = bigi.fromBuffer(inputA.signature.slice(32, 64))
-        var s2 = bigi.fromBuffer(inputB.signature.slice(32, 64))
+        var s1 = new BN(inputA.signature.slice(32, 64))
+        var s2 = new BN(inputB.signature.slice(32, 64))
         var z1 = inputA.z
         var z2 = inputB.z
 
-        var zz = z1.subtract(z2).mod(n)
-        var ss = s1.subtract(s2).mod(n)
+        var zz = z1.sub(z2).mod(n)
+        var ss = s1.sub(s2).mod(n)
 
         // k = (z1 - z2) / (s1 - s2)
         // d1 = (s1 * k - z1) / r
         // d2 = (s2 * k - z2) / r
-        var k = zz.multiply(ss.modInverse(n)).mod(n)
-        var d1 = ((s1.multiply(k).mod(n)).subtract(z1).mod(n)).multiply(rInv).mod(n)
-        var d2 = ((s2.multiply(k).mod(n)).subtract(z2).mod(n)).multiply(rInv).mod(n)
+        var k = zz.mul(ss.invm(n)).mod(n)
+        var d1 = ((s1.mul(k).mod(n)).sub(z1).mod(n)).mul(rInv).mod(n)
+        var d2 = ((s2.mul(k).mod(n)).sub(z2).mod(n)).mul(rInv).mod(n)
 
         // enforce matching private keys
         assert.strictEqual(d1.toString(), d2.toString())
