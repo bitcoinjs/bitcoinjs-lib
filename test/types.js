@@ -6,8 +6,8 @@ const typeforce = require('typeforce')
 
 describe('types', function () {
   describe('Buffer Hash160/Hash256', function () {
-    var buffer20byte = Buffer.alloc(20)
-    var buffer32byte = Buffer.alloc(32)
+    const buffer20byte = Buffer.alloc(20)
+    const buffer32byte = Buffer.alloc(32)
 
     it('return true for valid size', function () {
       assert(types.Hash160bit(buffer20byte))

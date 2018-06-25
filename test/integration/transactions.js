@@ -19,8 +19,8 @@ function rng () {
 
 describe('bitcoinjs-lib (transactions)', function () {
   it('can create a 1-to-1 Transaction', function () {
-    var alice = bitcoin.ECPair.fromWIF('L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy')
-    var txb = new bitcoin.TransactionBuilder()
+    const alice = bitcoin.ECPair.fromWIF('L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy')
+    const txb = new bitcoin.TransactionBuilder()
 
     txb.setVersion(1)
     txb.addInput('61d520ccb74288c96bc1a2b20ea1c0d5a704776dd0164a396efec3ea7040349d', 0) // Alice's previous transaction output, has 15000 satoshis
@@ -34,10 +34,10 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can create a 2-to-2 Transaction', function () {
-    var alice = bitcoin.ECPair.fromWIF('L1Knwj9W3qK3qMKdTvmg3VfzUs3ij2LETTFhxza9LfD5dngnoLG1')
-    var bob = bitcoin.ECPair.fromWIF('KwcN2pT3wnRAurhy7qMczzbkpY5nXMW2ubh696UBc1bcwctTx26z')
+    const alice = bitcoin.ECPair.fromWIF('L1Knwj9W3qK3qMKdTvmg3VfzUs3ij2LETTFhxza9LfD5dngnoLG1')
+    const bob = bitcoin.ECPair.fromWIF('KwcN2pT3wnRAurhy7qMczzbkpY5nXMW2ubh696UBc1bcwctTx26z')
 
-    var txb = new bitcoin.TransactionBuilder()
+    const txb = new bitcoin.TransactionBuilder()
     txb.setVersion(1)
     txb.addInput('b5bb9d8014a0f9b1d61e21e796d78dccdf1352f23cd32812f4850b878ae4944c', 6) // Alice's previous transaction output, has 200000 satoshis
     txb.addInput('7d865e959b2466918c9863afca942d0fb89d7c9ac0c99bafc3749504ded97730', 0) // Bob's previous transaction output, has 300000 satoshis
@@ -55,9 +55,9 @@ describe('bitcoinjs-lib (transactions)', function () {
   it('can create (and broadcast via 3PBP) a typical Transaction', function (done) {
     this.timeout(30000)
 
-    var alice1 = bitcoin.ECPair.makeRandom({ network: regtest })
-    var alice2 = bitcoin.ECPair.makeRandom({ network: regtest })
-    var aliceChange = bitcoin.ECPair.makeRandom({ network: regtest, rng: rng })
+    const alice1 = bitcoin.ECPair.makeRandom({ network: regtest })
+    const alice2 = bitcoin.ECPair.makeRandom({ network: regtest })
+    const aliceChange = bitcoin.ECPair.makeRandom({ network: regtest, rng: rng })
 
     // give Alice 2 unspent outputs
     regtestUtils.faucet(getAddress(alice1, regtest), 5e4, function (err, unspent0) {
@@ -66,7 +66,7 @@ describe('bitcoinjs-lib (transactions)', function () {
       regtestUtils.faucet(getAddress(alice2, regtest), 7e4, function (err, unspent1) {
         if (err) return done(err)
 
-        var txb = new bitcoin.TransactionBuilder(regtest)
+        const txb = new bitcoin.TransactionBuilder(regtest)
         txb.addInput(unspent0.txId, unspent0.vout) // alice1 unspent
         txb.addInput(unspent1.txId, unspent1.vout) // alice2 unspent
         txb.addOutput('mwCwTceJvYV27KXBc3NJZys6CjsgsoeHmf', 8e4) // the actual "spend"
@@ -87,14 +87,14 @@ describe('bitcoinjs-lib (transactions)', function () {
   it('can create (and broadcast via 3PBP) a Transaction with an OP_RETURN output', function (done) {
     this.timeout(30000)
 
-    var keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
+    const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
 
     regtestUtils.faucet(getAddress(keyPair, regtest), 2e5, function (err, unspent) {
       if (err) return done(err)
 
-      var txb = new bitcoin.TransactionBuilder(regtest)
-      var data = Buffer.from('bitcoinjs-lib', 'utf8')
-      var dataScript = bitcoin.script.nullData.output.encode([data])
+      const txb = new bitcoin.TransactionBuilder(regtest)
+      const data = Buffer.from('bitcoinjs-lib', 'utf8')
+      const dataScript = bitcoin.script.nullData.output.encode([data])
 
       txb.addInput(unspent.txId, unspent.vout)
       txb.addOutput(dataScript, 1000)
@@ -117,20 +117,20 @@ describe('bitcoinjs-lib (transactions)', function () {
     ]
     const pubKeys = keyPairs.map(function (x) { return x.publicKey })
 
-    var redeemScript = bitcoin.script.multisig.output.encode(2, pubKeys)
-    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+    const redeemScript = bitcoin.script.multisig.output.encode(2, pubKeys)
+    const scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
+    const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
     regtestUtils.faucet(address, 2e4, function (err, unspent) {
       if (err) return done(err)
 
-      var txb = new bitcoin.TransactionBuilder(regtest)
+      const txb = new bitcoin.TransactionBuilder(regtest)
       txb.addInput(unspent.txId, unspent.vout)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e4)
 
       txb.sign(0, keyPairs[0], redeemScript)
       txb.sign(0, keyPairs[2], redeemScript)
-      var tx = txb.build()
+      const tx = txb.build()
 
       // build and broadcast to the Bitcoin RegTest network
       regtestUtils.broadcast(tx.toHex(), function (err) {
@@ -152,20 +152,20 @@ describe('bitcoinjs-lib (transactions)', function () {
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
     const pubKeyHash = bitcoin.crypto.hash160(keyPair.publicKey)
 
-    var redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash)
-    var redeemScriptHash = bitcoin.crypto.hash160(redeemScript)
-    var scriptPubKey = bitcoin.script.scriptHash.output.encode(redeemScriptHash)
-    var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+    const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash)
+    const redeemScriptHash = bitcoin.crypto.hash160(redeemScript)
+    const scriptPubKey = bitcoin.script.scriptHash.output.encode(redeemScriptHash)
+    const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
     regtestUtils.faucet(address, 5e4, function (err, unspent) {
       if (err) return done(err)
 
-      var txb = new bitcoin.TransactionBuilder(regtest)
+      const txb = new bitcoin.TransactionBuilder(regtest)
       txb.addInput(unspent.txId, unspent.vout)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
       txb.sign(0, keyPair, redeemScript, null, unspent.value)
 
-      var tx = txb.build()
+      const tx = txb.build()
 
       // build and broadcast to the Bitcoin RegTest network
       regtestUtils.broadcast(tx.toHex(), function (err) {
@@ -192,22 +192,22 @@ describe('bitcoinjs-lib (transactions)', function () {
     ]
     const pubKeys = keyPairs.map(function (x) { return x.publicKey })
 
-    var witnessScript = bitcoin.script.multisig.output.encode(3, pubKeys)
-    var redeemScript = bitcoin.script.witnessScriptHash.output.encode(bitcoin.crypto.sha256(witnessScript))
-    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    var address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+    const witnessScript = bitcoin.script.multisig.output.encode(3, pubKeys)
+    const redeemScript = bitcoin.script.witnessScriptHash.output.encode(bitcoin.crypto.sha256(witnessScript))
+    const scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
+    const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
     regtestUtils.faucet(address, 6e4, function (err, unspent) {
       if (err) return done(err)
 
-      var txb = new bitcoin.TransactionBuilder(regtest)
+      const txb = new bitcoin.TransactionBuilder(regtest)
       txb.addInput(unspent.txId, unspent.vout)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 3e4)
       txb.sign(0, keyPairs[0], redeemScript, null, unspent.value, witnessScript)
       txb.sign(0, keyPairs[2], redeemScript, null, unspent.value, witnessScript)
       txb.sign(0, keyPairs[3], redeemScript, null, unspent.value, witnessScript)
 
-      var tx = txb.build()
+      const tx = txb.build()
 
       // build and broadcast to the Bitcoin RegTest network
       regtestUtils.broadcast(tx.toHex(), function (err) {
@@ -224,21 +224,21 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can verify Transaction signatures', function () {
-    var txHex = '010000000321c5f7e7bc98b3feda84aad36a5c99a02bcb8823a2f3eccbcd5da209698b5c20000000006b48304502210099e021772830207cf7c55b69948d3b16b4dcbf1f55a9cd80ebf8221a169735f9022064d33f11d62cd28240b3862afc0b901adc9f231c7124dd19bdb30367b61964c50121032b4c06c06c3ec0b7fa29519dfa5aae193ee2cc35ca127f29f14ec605d62fb63dffffffff8a75ce85441ddb3f342708ee33cc8ed418b07d9ba9e0e7c4e1cccfe9f52d8a88000000006946304302207916c23dae212c95a920423902fa44e939fb3d542f4478a7b46e9cde53705800021f0d74e9504146e404c1b8f9cba4dff2d4782e3075491c9ed07ce4a7d1c4461a01210216c92abe433106491bdeb4a261226f20f5a4ac86220cc6e37655aac6bf3c1f2affffffffdfef93f69fe32e944fad79fa8f882b3a155d80383252348caba1a77a5abbf7ef000000006b483045022100faa6e9ca289b46c64764a624c59ac30d9abcf1d4a04c4de9089e67cbe0d300a502206930afa683f6807502de5c2431bf9a1fd333c8a2910a76304df0f3d23d83443f0121039e05da8b8ea4f9868ecebb25998c7701542986233f4401799551fbecf316b18fffffffff01ff4b0000000000001976a9146c86476d1d85cd60116cd122a274e6a570a5a35c88acc96d0700'
-    var keyPairs = [
+    const txHex = '010000000321c5f7e7bc98b3feda84aad36a5c99a02bcb8823a2f3eccbcd5da209698b5c20000000006b48304502210099e021772830207cf7c55b69948d3b16b4dcbf1f55a9cd80ebf8221a169735f9022064d33f11d62cd28240b3862afc0b901adc9f231c7124dd19bdb30367b61964c50121032b4c06c06c3ec0b7fa29519dfa5aae193ee2cc35ca127f29f14ec605d62fb63dffffffff8a75ce85441ddb3f342708ee33cc8ed418b07d9ba9e0e7c4e1cccfe9f52d8a88000000006946304302207916c23dae212c95a920423902fa44e939fb3d542f4478a7b46e9cde53705800021f0d74e9504146e404c1b8f9cba4dff2d4782e3075491c9ed07ce4a7d1c4461a01210216c92abe433106491bdeb4a261226f20f5a4ac86220cc6e37655aac6bf3c1f2affffffffdfef93f69fe32e944fad79fa8f882b3a155d80383252348caba1a77a5abbf7ef000000006b483045022100faa6e9ca289b46c64764a624c59ac30d9abcf1d4a04c4de9089e67cbe0d300a502206930afa683f6807502de5c2431bf9a1fd333c8a2910a76304df0f3d23d83443f0121039e05da8b8ea4f9868ecebb25998c7701542986233f4401799551fbecf316b18fffffffff01ff4b0000000000001976a9146c86476d1d85cd60116cd122a274e6a570a5a35c88acc96d0700'
+    const keyPairs = [
       '032b4c06c06c3ec0b7fa29519dfa5aae193ee2cc35ca127f29f14ec605d62fb63d',
       '0216c92abe433106491bdeb4a261226f20f5a4ac86220cc6e37655aac6bf3c1f2a',
       '039e05da8b8ea4f9868ecebb25998c7701542986233f4401799551fbecf316b18f'
     ].map(function (q) { return bitcoin.ECPair.fromPublicKey(Buffer.from(q, 'hex')) })
 
-    var tx = bitcoin.Transaction.fromHex(txHex)
+    const tx = bitcoin.Transaction.fromHex(txHex)
 
     tx.ins.forEach(function (input, i) {
-      var keyPair = keyPairs[i]
-      var prevOutScript = bitcoin.address.toOutputScript(getAddress(keyPair))
-      var scriptSig = bitcoin.script.pubKeyHash.input.decode(input.script)
-      var ss = bitcoin.script.signature.decode(scriptSig.signature)
-      var hash = tx.hashForSignature(i, prevOutScript, ss.hashType)
+      const keyPair = keyPairs[i]
+      const prevOutScript = bitcoin.address.toOutputScript(getAddress(keyPair))
+      const scriptSig = bitcoin.script.pubKeyHash.input.decode(input.script)
+      const ss = bitcoin.script.signature.decode(scriptSig.signature)
+      const hash = tx.hashForSignature(i, prevOutScript, ss.hashType)
 
       assert.strictEqual(scriptSig.pubKey.toString('hex'), keyPair.publicKey.toString('hex'))
       assert.strictEqual(keyPair.verify(hash, ss.signature), true)

@@ -23,8 +23,8 @@ function supportedP2SHType (type) {
 }
 
 function extractChunks (type, chunks, script) {
-  var pubKeys = []
-  var signatures = []
+  let pubKeys = []
+  let signatures = []
   switch (type) {
     case scriptTypes.P2PKH:
       // if (redeemScript) throw new Error('Nonstandard... P2SH(P2PKH)')
@@ -39,7 +39,7 @@ function extractChunks (type, chunks, script) {
 
     case scriptTypes.MULTISIG:
       if (script) {
-        var multisig = btemplates.multisig.output.decode(script)
+        const multisig = btemplates.multisig.output.decode(script)
         pubKeys = multisig.pubKeys
       }
 
@@ -57,22 +57,22 @@ function extractChunks (type, chunks, script) {
 function expandInput (scriptSig, witnessStack) {
   if (scriptSig.length === 0 && witnessStack.length === 0) return {}
 
-  var prevOutScript
-  var prevOutType
-  var scriptType
-  var script
-  var redeemScript
-  var witnessScript
-  var witnessScriptType
-  var redeemScriptType
-  var witness = false
-  var p2wsh = false
-  var p2sh = false
-  var witnessProgram
-  var chunks
+  let prevOutScript
+  let prevOutType
+  let scriptType
+  let script
+  let redeemScript
+  let witnessScript
+  let witnessScriptType
+  let redeemScriptType
+  let witness = false
+  let p2wsh = false
+  let p2sh = false
+  let witnessProgram
+  let chunks
 
-  var scriptSigChunks = bscript.decompile(scriptSig) || []
-  var sigType = btemplates.classifyInput(scriptSigChunks, true)
+  const scriptSigChunks = bscript.decompile(scriptSig) || []
+  const sigType = btemplates.classifyInput(scriptSigChunks, true)
   if (sigType === scriptTypes.P2SH) {
     p2sh = true
     redeemScript = scriptSigChunks[scriptSigChunks.length - 1]
@@ -82,7 +82,7 @@ function expandInput (scriptSig, witnessStack) {
     script = redeemScript
   }
 
-  var classifyWitness = btemplates.classifyWitness(witnessStack, true)
+  const classifyWitness = btemplates.classifyWitness(witnessStack, true)
   if (classifyWitness === scriptTypes.P2WSH) {
     witnessScript = witnessStack[witnessStack.length - 1]
     witnessScriptType = btemplates.classifyOutput(witnessScript)
@@ -114,8 +114,8 @@ function expandInput (scriptSig, witnessStack) {
     chunks = witnessStack.slice(0, -1)
   } else if (classifyWitness === scriptTypes.P2WPKH) {
     witness = true
-    var key = witnessStack[witnessStack.length - 1]
-    var keyHash = bcrypto.hash160(key)
+    const key = witnessStack[witnessStack.length - 1]
+    const keyHash = bcrypto.hash160(key)
     if (scriptSig.length === 0) {
       prevOutScript = btemplates.witnessPubKeyHash.output.encode(keyHash)
       prevOutType = scriptTypes.P2WPKH
@@ -147,9 +147,9 @@ function expandInput (scriptSig, witnessStack) {
     chunks = scriptSigChunks
   }
 
-  var expanded = extractChunks(scriptType, chunks, script)
+  const expanded = extractChunks(scriptType, chunks, script)
 
-  var result = {
+  const result = {
     pubKeys: expanded.pubKeys,
     signatures: expanded.signatures,
     prevOutScript: prevOutScript,
@@ -177,11 +177,11 @@ function fixMultisigOrder (input, transaction, vin) {
   if (input.redeemScriptType !== scriptTypes.MULTISIG || !input.redeemScript) return
   if (input.pubKeys.length === input.signatures.length) return
 
-  var unmatched = input.signatures.concat()
+  const unmatched = input.signatures.concat()
 
   input.signatures = input.pubKeys.map(function (pubKey) {
-    var keyPair = ECPair.fromPublicKey(pubKey)
-    var match
+    const keyPair = ECPair.fromPublicKey(pubKey)
+    let match
 
     // check for a signature
     unmatched.some(function (signature, i) {
@@ -189,8 +189,8 @@ function fixMultisigOrder (input, transaction, vin) {
       if (!signature) return false
 
       // TODO: avoid O(n) hashForSignature
-      var parsed = bscript.signature.decode(signature)
-      var hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
+      const parsed = bscript.signature.decode(signature)
+      const hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
 
       // skip if signature does not match pubKey
       if (!keyPair.verify(hash, parsed.signature)) return false
@@ -209,20 +209,20 @@ function fixMultisigOrder (input, transaction, vin) {
 function expandOutput (script, scriptType, ourPubKey) {
   typeforce(types.Buffer, script)
 
-  var scriptChunks = bscript.decompile(script) || []
+  const scriptChunks = bscript.decompile(script) || []
   if (!scriptType) {
     scriptType = btemplates.classifyOutput(script)
   }
 
-  var pubKeys = []
+  let pubKeys = []
 
   switch (scriptType) {
     // does our hash160(pubKey) match the output scripts?
     case scriptTypes.P2PKH:
       if (!ourPubKey) break
 
-      var pkh1 = scriptChunks[2]
-      var pkh2 = bcrypto.hash160(ourPubKey)
+      const pkh1 = scriptChunks[2]
+      const pkh2 = bcrypto.hash160(ourPubKey)
       if (pkh1.equals(pkh2)) pubKeys = [ourPubKey]
       break
 
@@ -230,8 +230,8 @@ function expandOutput (script, scriptType, ourPubKey) {
     case scriptTypes.P2WPKH:
       if (!ourPubKey) break
 
-      var wpkh1 = scriptChunks[1]
-      var wpkh2 = bcrypto.hash160(ourPubKey)
+      const wpkh1 = scriptChunks[1]
+      const wpkh2 = bcrypto.hash160(ourPubKey)
       if (wpkh1.equals(wpkh2)) pubKeys = [ourPubKey]
       break
 
@@ -257,7 +257,7 @@ function checkP2SHInput (input, redeemScriptHash) {
   if (input.prevOutType) {
     if (input.prevOutType !== scriptTypes.P2SH) throw new Error('PrevOutScript must be P2SH')
 
-    var chunks = bscript.decompile(input.prevOutScript)
+    const chunks = bscript.decompile(input.prevOutScript)
     if (!chunks) throw new Error('Invalid prevOutScript')
     if (!chunks[1].equals(redeemScriptHash)) throw new Error('Inconsistent hash160(redeemScript)')
   }
@@ -267,28 +267,28 @@ function checkP2WSHInput (input, witnessScriptHash) {
   if (input.prevOutType) {
     if (input.prevOutType !== scriptTypes.P2WSH) throw new Error('PrevOutScript must be P2WSH')
 
-    var chunks = bscript.decompile(input.prevOutScript)
+    const chunks = bscript.decompile(input.prevOutScript)
     if (!chunks) throw new Error('Invalid witnessScript')
     if (!chunks[1].equals(witnessScriptHash)) throw new Error('Inconsistent sha256(witnessScript)')
   }
 }
 
 function prepareInput (input, kpPubKey, redeemScript, witnessValue, witnessScript) {
-  var expanded
-  var prevOutType
-  var prevOutScript
+  let expanded
+  let prevOutType
+  let prevOutScript
 
-  var p2sh = false
-  var p2shType
-  var redeemScriptHash
+  let p2sh = false
+  let p2shType
+  let redeemScriptHash
 
-  var witness = false
-  var p2wsh = false
-  var witnessType
-  var witnessScriptHash
+  let witness = false
+  let p2wsh = false
+  let witnessType
+  let witnessScriptHash
 
-  var signType
-  var signScript
+  let signType
+  let signScript
 
   if (redeemScript && witnessScript) {
     redeemScriptHash = bcrypto.hash160(redeemScript)
@@ -408,15 +408,15 @@ function buildStack (type, signatures, pubKeys, allowIncomplete) {
 }
 
 function buildInput (input, allowIncomplete) {
-  var scriptType = input.prevOutType
-  var sig = []
-  var witness = []
+  let scriptType = input.prevOutType
+  let sig = []
+  let witness = []
 
   if (supportedType(scriptType)) {
     sig = buildStack(scriptType, input.signatures, input.pubKeys, allowIncomplete)
   }
 
-  var p2sh = false
+  let p2sh = false
   if (scriptType === btemplates.types.P2SH) {
     // We can remove this error later when we have a guarantee prepareInput
     // rejects unsignable scripts - it MUST be signable at this point.
@@ -503,7 +503,7 @@ TransactionBuilder.prototype.setVersion = function (version) {
 }
 
 TransactionBuilder.fromTransaction = function (transaction, network) {
-  var txb = new TransactionBuilder(network)
+  const txb = new TransactionBuilder(network)
 
   // Copy transaction fields
   txb.setVersion(transaction.version)
@@ -536,7 +536,7 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
     throw new Error('No, this would invalidate signatures')
   }
 
-  var value
+  let value
 
   // is it a hex string?
   if (typeof txHash === 'string') {
@@ -545,7 +545,7 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
 
   // is it a Transaction object?
   } else if (txHash instanceof Transaction) {
-    var txOut = txHash.outs[vout]
+    const txOut = txHash.outs[vout]
     prevOutScript = txOut.script
     value = txOut.value
 
@@ -564,10 +564,10 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
     throw new Error('coinbase inputs not supported')
   }
 
-  var prevTxOut = txHash.toString('hex') + ':' + vout
+  const prevTxOut = txHash.toString('hex') + ':' + vout
   if (this.__prevTxSet[prevTxOut] !== undefined) throw new Error('Duplicate TxOut: ' + prevTxOut)
 
-  var input = {}
+  let input = {}
 
   // derive what we can from the scriptSig
   if (options.script !== undefined) {
@@ -581,10 +581,10 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
 
   // derive what we can from the previous transactions output script
   if (!input.prevOutScript && options.prevOutScript) {
-    var prevOutType
+    let prevOutType
 
     if (!input.pubKeys && !input.signatures) {
-      var expanded = expandOutput(options.prevOutScript)
+      const expanded = expandOutput(options.prevOutScript)
 
       if (expanded.pubKeys) {
         input.pubKeys = expanded.pubKeys
@@ -598,7 +598,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
     input.prevOutType = prevOutType || btemplates.classifyOutput(options.prevOutScript)
   }
 
-  var vin = this.__tx.addInput(txHash, vout, options.sequence, options.scriptSig)
+  const vin = this.__tx.addInput(txHash, vout, options.sequence, options.scriptSig)
   this.__inputs[vin] = input
   this.__prevTxSet[prevTxOut] = true
   return vin
@@ -630,12 +630,12 @@ TransactionBuilder.prototype.__build = function (allowIncomplete) {
     if (!this.__tx.outs.length) throw new Error('Transaction has no outputs')
   }
 
-  var tx = this.__tx.clone()
+  const tx = this.__tx.clone()
   // Create script signatures from inputs
   this.__inputs.forEach(function (input, i) {
-    var scriptType = input.witnessScriptType || input.redeemScriptType || input.prevOutType
+    const scriptType = input.witnessScriptType || input.redeemScriptType || input.prevOutType
     if (!scriptType && !allowIncomplete) throw new Error('Transaction is not complete')
-    var result = buildInput(input, allowIncomplete)
+    const result = buildInput(input, allowIncomplete)
 
     // skip if no result
     if (!allowIncomplete) {
@@ -677,7 +677,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   if (!this.__inputs[vin]) throw new Error('No input at index: ' + vin)
   hashType = hashType || Transaction.SIGHASH_ALL
 
-  var input = this.__inputs[vin]
+  const input = this.__inputs[vin]
 
   // if redeemScript was previously provided, enforce consistency
   if (input.redeemScript !== undefined &&
@@ -686,7 +686,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     throw new Error('Inconsistent redeemScript')
   }
 
-  var kpPubKey = keyPair.publicKey || keyPair.getPublicKey()
+  const kpPubKey = keyPair.publicKey || keyPair.getPublicKey()
   if (!canSign(input)) {
     if (witnessValue !== undefined) {
       if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
@@ -699,7 +699,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   }
 
   // ready to sign
-  var signatureHash
+  let signatureHash
   if (input.witness) {
     signatureHash = this.__tx.hashForWitnessV0(vin, input.signScript, input.value, hashType)
   } else {
@@ -707,7 +707,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   }
 
   // enforce in order signing of public keys
-  var signed = input.pubKeys.some(function (pubKey, i) {
+  const signed = input.pubKeys.some(function (pubKey, i) {
     if (!kpPubKey.equals(pubKey)) return false
     if (input.signatures[i]) throw new Error('Signature already exists')
 
@@ -717,7 +717,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
       input.prevOutType === scriptTypes.P2WSH
     )) throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
 
-    let signature = keyPair.sign(signatureHash)
+    const signature = keyPair.sign(signatureHash)
     input.signatures[i] = bscript.signature.encode(signature, hashType)
     return true
   })
@@ -736,7 +736,7 @@ TransactionBuilder.prototype.__canModifyInputs = function () {
 
     return input.signatures.every(function (signature) {
       if (!signature) return true
-      var hashType = signatureHashType(signature)
+      const hashType = signatureHashType(signature)
 
       // if SIGHASH_ANYONECANPAY is set, signatures would not
       // be invalidated by more inputs
@@ -746,17 +746,17 @@ TransactionBuilder.prototype.__canModifyInputs = function () {
 }
 
 TransactionBuilder.prototype.__canModifyOutputs = function () {
-  var nInputs = this.__tx.ins.length
-  var nOutputs = this.__tx.outs.length
+  const nInputs = this.__tx.ins.length
+  const nOutputs = this.__tx.outs.length
 
   return this.__inputs.every(function (input) {
     if (input.signatures === undefined) return true
 
     return input.signatures.every(function (signature) {
       if (!signature) return true
-      var hashType = signatureHashType(signature)
+      const hashType = signatureHashType(signature)
 
-      var hashTypeMod = hashType & 0x1f
+      const hashTypeMod = hashType & 0x1f
       if (hashTypeMod === Transaction.SIGHASH_NONE) return true
       if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
         // if SIGHASH_SINGLE is set, and nInputs > nOutputs
@@ -770,13 +770,13 @@ TransactionBuilder.prototype.__canModifyOutputs = function () {
 
 TransactionBuilder.prototype.__overMaximumFees = function (bytes) {
   // not all inputs will have .value defined
-  var incoming = this.__inputs.reduce(function (a, x) { return a + (x.value >>> 0) }, 0)
+  const incoming = this.__inputs.reduce(function (a, x) { return a + (x.value >>> 0) }, 0)
 
   // but all outputs do, and if we have any input value
   // we can immediately determine if the outputs are too small
-  var outgoing = this.__tx.outs.reduce(function (a, x) { return a + x.value }, 0)
-  var fee = incoming - outgoing
-  var feeRate = fee / bytes
+  const outgoing = this.__tx.outs.reduce(function (a, x) { return a + x.value }, 0)
+  const fee = incoming - outgoing
+  const feeRate = fee / bytes
 
   return feeRate > this.maximumFeeRate
 }

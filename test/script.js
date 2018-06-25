@@ -25,7 +25,7 @@ describe('script', function () {
   describe('fromASM/toASM', function () {
     fixtures.valid.forEach(function (f) {
       it('encodes/decodes ' + f.asm, function () {
-        var script = bscript.fromASM(f.asm)
+        const script = bscript.fromASM(f.asm)
         assert.strictEqual(bscript.toASM(script), f.asm)
       })
     })
@@ -42,10 +42,10 @@ describe('script', function () {
   describe('fromASM/toASM (templates)', function () {
     fixtures2.valid.forEach(function (f) {
       if (f.inputHex) {
-        var ih = bscript.toASM(Buffer.from(f.inputHex, 'hex'))
+        const ih = bscript.toASM(Buffer.from(f.inputHex, 'hex'))
 
         it('encodes/decodes ' + ih, function () {
-          var script = bscript.fromASM(f.input)
+          const script = bscript.fromASM(f.input)
           assert.strictEqual(script.toString('hex'), f.inputHex)
           assert.strictEqual(bscript.toASM(script), f.input)
         })
@@ -53,7 +53,7 @@ describe('script', function () {
 
       if (f.outputHex) {
         it('encodes/decodes ' + f.output, function () {
-          var script = bscript.fromASM(f.output)
+          const script = bscript.fromASM(f.output)
           assert.strictEqual(script.toString('hex'), f.outputHex)
           assert.strictEqual(bscript.toASM(script), f.output)
         })
@@ -64,8 +64,8 @@ describe('script', function () {
   describe('isPushOnly', function () {
     fixtures.valid.forEach(function (f) {
       it('returns ' + !!f.stack + ' for ' + f.asm, function () {
-        var script = bscript.fromASM(f.asm)
-        var chunks = bscript.decompile(script)
+        const script = bscript.fromASM(f.asm)
+        const chunks = bscript.decompile(script)
 
         assert.strictEqual(bscript.isPushOnly(chunks), !!f.stack)
       })
@@ -77,9 +77,9 @@ describe('script', function () {
       it('returns ' + !!f.stack + ' for ' + f.asm, function () {
         if (!f.stack || !f.asm) return
 
-        var script = bscript.fromASM(f.asm)
+        const script = bscript.fromASM(f.asm)
 
-        var stack = bscript.toStack(script)
+        const stack = bscript.toStack(script)
         assert.deepEqual(stack.map(function (x) {
           return x.toString('hex')
         }), f.stack)
@@ -92,12 +92,12 @@ describe('script', function () {
   describe('compile (via fromASM)', function () {
     fixtures.valid.forEach(function (f) {
       it('(' + f.type + ') compiles ' + f.asm, function () {
-        var scriptSig = bscript.fromASM(f.asm)
+        const scriptSig = bscript.fromASM(f.asm)
 
         assert.strictEqual(scriptSig.toString('hex'), f.script)
 
         if (f.nonstandard) {
-          var scriptSigNS = bscript.fromASM(f.nonstandard.scriptSig)
+          const scriptSigNS = bscript.fromASM(f.nonstandard.scriptSig)
 
           assert.strictEqual(scriptSigNS.toString('hex'), f.script)
         }
@@ -108,13 +108,13 @@ describe('script', function () {
   describe('decompile', function () {
     fixtures.valid.forEach(function (f) {
       it('decompiles ' + f.asm, function () {
-        var chunks = bscript.decompile(Buffer.from(f.script, 'hex'))
+        const chunks = bscript.decompile(Buffer.from(f.script, 'hex'))
 
         assert.strictEqual(bscript.compile(chunks).toString('hex'), f.script)
         assert.strictEqual(bscript.toASM(chunks), f.asm)
 
         if (f.nonstandard) {
-          var chunksNS = bscript.decompile(Buffer.from(f.nonstandard.scriptSigHex, 'hex'))
+          const chunksNS = bscript.decompile(Buffer.from(f.nonstandard.scriptSigHex, 'hex'))
 
           assert.strictEqual(bscript.compile(chunksNS).toString('hex'), f.script)
 
@@ -126,7 +126,7 @@ describe('script', function () {
 
     fixtures.invalid.decompile.forEach(function (f) {
       it('fails to decompile ' + f.script + ',  because "' + f.description + '"', function () {
-        var chunks = bscript.decompile(Buffer.from(f.script, 'hex'))
+        const chunks = bscript.decompile(Buffer.from(f.script, 'hex'))
 
         assert.strictEqual(chunks, null)
       })
@@ -136,7 +136,7 @@ describe('script', function () {
   describe('SCRIPT_VERIFY_MINIMALDATA policy', function () {
     fixtures.valid.forEach(function (f) {
       it('compliant for ' + f.type + ' scriptSig ' + f.asm, function () {
-        var script = Buffer.from(f.script, 'hex')
+        const script = Buffer.from(f.script, 'hex')
 
         assert(minimalData(script))
       })
@@ -144,8 +144,8 @@ describe('script', function () {
 
     function testEncodingForSize (i) {
       it('compliant for data PUSH of length ' + i, function () {
-        var buffer = Buffer.alloc(i)
-        var script = bscript.compile([buffer])
+        const buffer = Buffer.alloc(i)
+        const script = bscript.compile([buffer])
 
         assert(minimalData(script), 'Failed for ' + i + ' length script: ' + script.toString('hex'))
       })

@@ -63,8 +63,8 @@ function fromPublicKey (buffer, options) {
 }
 
 function fromWIF (string, network) {
-  let decoded = wif.decode(string)
-  let version = decoded.version
+  const decoded = wif.decode(string)
+  const version = decoded.version
 
   // list of networks?
   if (types.Array(network)) {
@@ -90,7 +90,7 @@ function fromWIF (string, network) {
 function makeRandom (options) {
   typeforce(isOptions, options)
   options = options || {}
-  let rng = options.rng || randomBytes
+  const rng = options.rng || randomBytes
 
   let d
   do {

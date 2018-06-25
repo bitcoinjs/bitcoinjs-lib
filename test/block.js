@@ -8,8 +8,8 @@ const fixtures = require('./fixtures/block')
 describe('Block', function () {
   describe('version', function () {
     it('should be interpreted as an int32le', function () {
-      var blockHex = 'ffffffff0000000000000000000000000000000000000000000000000000000000000000414141414141414141414141414141414141414141414141414141414141414101000000020000000300000000'
-      var block = Block.fromHex(blockHex)
+      const blockHex = 'ffffffff0000000000000000000000000000000000000000000000000000000000000000414141414141414141414141414141414141414141414141414141414141414101000000020000000300000000'
+      const block = Block.fromHex(blockHex)
       assert.equal(-1, block.version)
       assert.equal(1, block.timestamp)
     })
@@ -18,7 +18,7 @@ describe('Block', function () {
   describe('calculateTarget', function () {
     fixtures.targets.forEach(function (f) {
       it('returns ' + f.expected + ' for 0x' + f.bits, function () {
-        var bits = parseInt(f.bits, 16)
+        const bits = parseInt(f.bits, 16)
 
         assert.equal(Block.calculateTarget(bits).toString('hex'), f.expected)
       })
@@ -28,7 +28,7 @@ describe('Block', function () {
   describe('fromBuffer/fromHex', function () {
     fixtures.valid.forEach(function (f) {
       it('imports ' + f.description, function () {
-        var block = Block.fromHex(f.hex)
+        const block = Block.fromHex(f.hex)
 
         assert.strictEqual(block.version, f.version)
         assert.strictEqual(block.prevHash.toString('hex'), f.prevHash)
@@ -51,7 +51,7 @@ describe('Block', function () {
 
   describe('toBuffer/toHex', function () {
     fixtures.valid.forEach(function (f) {
-      var block
+      let block
 
       beforeEach(function () {
         block = Block.fromHex(f.hex)
@@ -66,7 +66,7 @@ describe('Block', function () {
 
   describe('getHash/getId', function () {
     fixtures.valid.forEach(function (f) {
-      var block
+      let block
 
       beforeEach(function () {
         block = Block.fromHex(f.hex)
@@ -81,14 +81,14 @@ describe('Block', function () {
 
   describe('getUTCDate', function () {
     fixtures.valid.forEach(function (f) {
-      var block
+      let block
 
       beforeEach(function () {
         block = Block.fromHex(f.hex)
       })
 
       it('returns UTC date of ' + f.id, function () {
-        var utcDate = block.getUTCDate().getTime()
+        const utcDate = block.getUTCDate().getTime()
 
         assert.strictEqual(utcDate, f.timestamp * 1e3)
       })
@@ -105,7 +105,7 @@ describe('Block', function () {
     fixtures.valid.forEach(function (f) {
       if (f.hex.length === 160) return
 
-      var block
+      let block
 
       beforeEach(function () {
         block = Block.fromHex(f.hex)
@@ -121,7 +121,7 @@ describe('Block', function () {
     fixtures.valid.forEach(function (f) {
       if (f.hex.length === 160) return
 
-      var block
+      let block
 
       beforeEach(function () {
         block = Block.fromHex(f.hex)
@@ -135,7 +135,7 @@ describe('Block', function () {
 
   describe('checkProofOfWork', function () {
     fixtures.valid.forEach(function (f) {
-      var block
+      let block
 
       beforeEach(function () {
         block = Block.fromHex(f.hex)

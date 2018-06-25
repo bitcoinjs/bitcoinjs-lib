@@ -6,7 +6,7 @@ const typeforce = require('typeforce')
 const OPS = require('bitcoin-ops')
 
 function check (script) {
-  var buffer = bscript.compile(script)
+  const buffer = bscript.compile(script)
 
   return buffer.length === 34 &&
     buffer[0] === OPS.OP_0 &&

@@ -9,7 +9,7 @@ const OPS = require('bitcoin-ops')
 const HEADER = Buffer.from('aa21a9ed', 'hex')
 
 function check (script) {
-  var buffer = bscript.compile(script)
+  const buffer = bscript.compile(script)
 
   return buffer.length > 37 &&
     buffer[0] === OPS.OP_RETURN &&
@@ -22,7 +22,7 @@ check.toJSON = function () { return 'Witness commitment output' }
 function encode (commitment) {
   typeforce(types.Hash256bit, commitment)
 
-  var buffer = Buffer.allocUnsafe(36)
+  const buffer = Buffer.allocUnsafe(36)
   HEADER.copy(buffer, 0)
   commitment.copy(buffer, 4)
 

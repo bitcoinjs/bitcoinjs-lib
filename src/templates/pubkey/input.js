@@ -4,7 +4,7 @@ const bscript = require('../../script')
 const typeforce = require('typeforce')
 
 function check (script) {
-  var chunks = bscript.decompile(script)
+  const chunks = bscript.decompile(script)
 
   return chunks.length === 1 &&
     bscript.isCanonicalScriptSignature(chunks[0])
@@ -27,7 +27,7 @@ function decodeStack (stack) {
 }
 
 function decode (buffer) {
-  var stack = bscript.decompile(buffer)
+  const stack = bscript.decompile(buffer)
   return decodeStack(stack)
 }
 

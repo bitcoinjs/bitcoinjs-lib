@@ -60,7 +60,7 @@ function verify (txo, callback) {
   fetch(txo.txId, function (err, tx) {
     if (err) return callback(err)
 
-    var txoActual = tx.outs[txo.vout]
+    const txoActual = tx.outs[txo.vout]
     if (txo.address) assert.strictEqual(txoActual.address, txo.address)
     if (txo.value) assert.strictEqual(txoActual.value, txo.value)
     callback()

@@ -5,7 +5,7 @@ const typeforce = require('typeforce')
 const OPS = require('bitcoin-ops')
 
 function check (script) {
-  var chunks = bscript.decompile(script)
+  const chunks = bscript.decompile(script)
 
   return chunks.length === 2 &&
     bscript.isCanonicalPubKey(chunks[0]) &&
@@ -20,7 +20,7 @@ function encode (pubKey) {
 }
 
 function decode (buffer) {
-  var chunks = bscript.decompile(buffer)
+  const chunks = bscript.decompile(buffer)
   typeforce(check, chunks)
 
   return chunks[0]

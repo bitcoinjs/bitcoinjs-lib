@@ -11,7 +11,7 @@ function partialSignature (value) {
 }
 
 function check (script, allowIncomplete) {
-  var chunks = bscript.decompile(script)
+  const chunks = bscript.decompile(script)
   if (chunks.length < 2) return false
   if (chunks[0] !== OPS.OP_0) return false
 
@@ -29,7 +29,7 @@ function encodeStack (signatures, scriptPubKey) {
   typeforce([partialSignature], signatures)
 
   if (scriptPubKey) {
-    var scriptData = p2mso.decode(scriptPubKey)
+    const scriptData = p2mso.decode(scriptPubKey)
 
     if (signatures.length < scriptData.m) {
       throw new TypeError('Not enough signatures provided')
@@ -59,7 +59,7 @@ function decodeStack (stack, allowIncomplete) {
 }
 
 function decode (buffer, allowIncomplete) {
-  var stack = bscript.decompile(buffer)
+  const stack = bscript.decompile(buffer)
   return decodeStack(stack, allowIncomplete)
 }
 

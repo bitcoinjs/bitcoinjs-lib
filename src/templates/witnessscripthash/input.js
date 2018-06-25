@@ -12,15 +12,15 @@ function check (chunks, allowIncomplete) {
   typeforce(types.Array, chunks)
   if (chunks.length < 1) return false
 
-  var witnessScript = chunks[chunks.length - 1]
+  const witnessScript = chunks[chunks.length - 1]
   if (!Buffer.isBuffer(witnessScript)) return false
 
-  var witnessScriptChunks = bscript.decompile(witnessScript)
+  const witnessScriptChunks = bscript.decompile(witnessScript)
 
   // is witnessScript a valid script?
   if (witnessScriptChunks.length === 0) return false
 
-  var witnessRawScriptSig = bscript.compile(chunks.slice(0, -1))
+  const witnessRawScriptSig = bscript.compile(chunks.slice(0, -1))
 
   // match types
   if (p2pkh.input.check(witnessRawScriptSig) &&

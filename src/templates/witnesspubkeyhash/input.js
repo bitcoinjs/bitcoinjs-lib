@@ -8,7 +8,7 @@ function isCompressedCanonicalPubKey (pubKey) {
 }
 
 function check (script) {
-  var chunks = bscript.decompile(script)
+  const chunks = bscript.decompile(script)
 
   return chunks.length === 2 &&
     bscript.isCanonicalScriptSignature(chunks[0]) &&

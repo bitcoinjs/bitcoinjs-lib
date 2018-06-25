@@ -15,7 +15,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
     regtestUtils.mine(11, done)
   })
 
-  let hashType = bitcoin.Transaction.SIGHASH_ALL
+  const hashType = bitcoin.Transaction.SIGHASH_ALL
 
   // IF MTP (from when confirmed) > seconds, aQ can redeem
   function csvCheckSigOutput (aQ, bQ, sequence) {
@@ -43,23 +43,23 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
       if (err) return done(err)
 
       // 5 blocks from now
-      let sequence = bip68.encode({ blocks: 5 })
-      let redeemScript = csvCheckSigOutput(alice, bob, sequence)
-      let scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-      let address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+      const sequence = bip68.encode({ blocks: 5 })
+      const redeemScript = csvCheckSigOutput(alice, bob, sequence)
+      const scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
+      const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
       // fund the P2SH(CSV) address
       regtestUtils.faucet(address, 1e5, function (err, unspent) {
         if (err) return done(err)
 
-        let txb = new bitcoin.TransactionBuilder(regtest)
+        const txb = new bitcoin.TransactionBuilder(regtest)
         txb.addInput(unspent.txId, unspent.vout, sequence)
         txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
 
         // {Alice's signature} OP_TRUE
-        let tx = txb.buildIncomplete()
-        let signatureHash = tx.hashForSignature(0, redeemScript, hashType)
-        let redeemScriptSig = bitcoin.script.scriptHash.input.encode([
+        const tx = txb.buildIncomplete()
+        const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
+        const redeemScriptSig = bitcoin.script.scriptHash.input.encode([
           bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
           bitcoin.opcodes.OP_TRUE
         ], redeemScript)
@@ -91,23 +91,23 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
     this.timeout(30000)
 
     // two hours after confirmation
-    let sequence = bip68.encode({ seconds: 7168 })
-    let redeemScript = csvCheckSigOutput(alice, bob, sequence)
-    let scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    let address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+    const sequence = bip68.encode({ seconds: 7168 })
+    const redeemScript = csvCheckSigOutput(alice, bob, sequence)
+    const scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
+    const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
 
     // fund the P2SH(CSV) address
     regtestUtils.faucet(address, 2e4, function (err, unspent) {
       if (err) return done(err)
 
-      let txb = new bitcoin.TransactionBuilder(regtest)
+      const txb = new bitcoin.TransactionBuilder(regtest)
       txb.addInput(unspent.txId, unspent.vout, sequence)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e4)
 
       // {Alice's signature} OP_TRUE
-      let tx = txb.buildIncomplete()
-      let signatureHash = tx.hashForSignature(0, redeemScript, hashType)
-      let redeemScriptSig = bitcoin.script.scriptHash.input.encode([
+      const tx = txb.buildIncomplete()
+      const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
+      const redeemScriptSig = bitcoin.script.scriptHash.input.encode([
         bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
         bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
         bitcoin.opcodes.OP_TRUE
