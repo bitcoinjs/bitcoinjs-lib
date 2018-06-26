@@ -1,14 +1,14 @@
-var decompile = require('../script').decompile
-var multisig = require('./multisig')
-var nullData = require('./nulldata')
-var pubKey = require('./pubkey')
-var pubKeyHash = require('./pubkeyhash')
-var scriptHash = require('./scripthash')
-var witnessPubKeyHash = require('./witnesspubkeyhash')
-var witnessScriptHash = require('./witnessscripthash')
-var witnessCommitment = require('./witnesscommitment')
+const decompile = require('../script').decompile
+const multisig = require('./multisig')
+const nullData = require('./nulldata')
+const pubKey = require('./pubkey')
+const pubKeyHash = require('./pubkeyhash')
+const scriptHash = require('./scripthash')
+const witnessPubKeyHash = require('./witnesspubkeyhash')
+const witnessScriptHash = require('./witnessscripthash')
+const witnessCommitment = require('./witnesscommitment')
 
-var types = {
+const types = {
   MULTISIG: 'multisig',
   NONSTANDARD: 'nonstandard',
   NULLDATA: 'nulldata',
@@ -27,7 +27,7 @@ function classifyOutput (script) {
   if (scriptHash.output.check(script)) return types.P2SH
 
   // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
+  const chunks = decompile(script)
   if (!chunks) throw new TypeError('Invalid script')
 
   if (multisig.output.check(chunks)) return types.MULTISIG
@@ -40,7 +40,7 @@ function classifyOutput (script) {
 
 function classifyInput (script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
+  const chunks = decompile(script)
   if (!chunks) throw new TypeError('Invalid script')
 
   if (pubKeyHash.input.check(chunks)) return types.P2PKH
@@ -53,7 +53,7 @@ function classifyInput (script, allowIncomplete) {
 
 function classifyWitness (script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
-  var chunks = decompile(script)
+  const chunks = decompile(script)
   if (!chunks) throw new TypeError('Invalid script')
 
   if (witnessPubKeyHash.input.check(chunks)) return types.P2WPKH

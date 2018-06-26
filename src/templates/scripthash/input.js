@@ -1,24 +1,24 @@
 // <scriptSig> {serialized scriptPubKey script}
 
-var Buffer = require('safe-buffer').Buffer
-var bscript = require('../../script')
-var typeforce = require('typeforce')
+const Buffer = require('safe-buffer').Buffer
+const bscript = require('../../script')
+const typeforce = require('typeforce')
 
-var p2ms = require('../multisig/')
-var p2pk = require('../pubkey/')
-var p2pkh = require('../pubkeyhash/')
-var p2wpkho = require('../witnesspubkeyhash/output')
-var p2wsho = require('../witnessscripthash/output')
+const p2ms = require('../multisig/')
+const p2pk = require('../pubkey/')
+const p2pkh = require('../pubkeyhash/')
+const p2wpkho = require('../witnesspubkeyhash/output')
+const p2wsho = require('../witnessscripthash/output')
 
 function check (script, allowIncomplete) {
-  var chunks = bscript.decompile(script)
+  const chunks = bscript.decompile(script)
   if (chunks.length < 1) return false
 
-  var lastChunk = chunks[chunks.length - 1]
+  const lastChunk = chunks[chunks.length - 1]
   if (!Buffer.isBuffer(lastChunk)) return false
 
-  var scriptSigChunks = bscript.decompile(bscript.compile(chunks.slice(0, -1)))
-  var redeemScriptChunks = bscript.decompile(lastChunk)
+  const scriptSigChunks = bscript.decompile(bscript.compile(chunks.slice(0, -1)))
+  const redeemScriptChunks = bscript.decompile(lastChunk)
 
   // is redeemScript a valid script?
   if (!redeemScriptChunks) return false
@@ -47,13 +47,13 @@ function check (script, allowIncomplete) {
 check.toJSON = function () { return 'scriptHash input' }
 
 function encodeStack (redeemScriptStack, redeemScript) {
-  var serializedScriptPubKey = bscript.compile(redeemScript)
+  const serializedScriptPubKey = bscript.compile(redeemScript)
 
   return [].concat(redeemScriptStack, serializedScriptPubKey)
 }
 
 function encode (redeemScriptSig, redeemScript) {
-  var redeemScriptStack = bscript.decompile(redeemScriptSig)
+  const redeemScriptStack = bscript.decompile(redeemScriptSig)
 
   return bscript.compile(encodeStack(redeemScriptStack, redeemScript))
 }
@@ -69,8 +69,8 @@ function decodeStack (stack) {
 }
 
 function decode (buffer) {
-  var stack = bscript.decompile(buffer)
-  var result = decodeStack(stack)
+  const stack = bscript.decompile(buffer)
+  const result = decodeStack(stack)
   result.redeemScriptSig = bscript.compile(result.redeemScriptStack)
   delete result.redeemScriptStack
   return result

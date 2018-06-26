@@ -1,17 +1,17 @@
 // OP_0 [signatures ...]
 
-var Buffer = require('safe-buffer').Buffer
-var bscript = require('../../script')
-var p2mso = require('./output')
-var typeforce = require('typeforce')
-var OPS = require('bitcoin-ops')
+const Buffer = require('safe-buffer').Buffer
+const bscript = require('../../script')
+const p2mso = require('./output')
+const typeforce = require('typeforce')
+const OPS = require('bitcoin-ops')
 
 function partialSignature (value) {
   return value === OPS.OP_0 || bscript.isCanonicalScriptSignature(value)
 }
 
 function check (script, allowIncomplete) {
-  var chunks = bscript.decompile(script)
+  const chunks = bscript.decompile(script)
   if (chunks.length < 2) return false
   if (chunks[0] !== OPS.OP_0) return false
 
@@ -23,13 +23,13 @@ function check (script, allowIncomplete) {
 }
 check.toJSON = function () { return 'multisig input' }
 
-var EMPTY_BUFFER = Buffer.allocUnsafe(0)
+const EMPTY_BUFFER = Buffer.allocUnsafe(0)
 
 function encodeStack (signatures, scriptPubKey) {
   typeforce([partialSignature], signatures)
 
   if (scriptPubKey) {
-    var scriptData = p2mso.decode(scriptPubKey)
+    const scriptData = p2mso.decode(scriptPubKey)
 
     if (signatures.length < scriptData.m) {
       throw new TypeError('Not enough signatures provided')
@@ -59,7 +59,7 @@ function decodeStack (stack, allowIncomplete) {
 }
 
 function decode (buffer, allowIncomplete) {
-  var stack = bscript.decompile(buffer)
+  const stack = bscript.decompile(buffer)
   return decodeStack(stack, allowIncomplete)
 }
 

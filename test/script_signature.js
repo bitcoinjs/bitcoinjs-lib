@@ -1,9 +1,9 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bscriptSig = require('../src/script').signature
-var Buffer = require('safe-buffer').Buffer
-var fixtures = require('./fixtures/signature.json')
+const assert = require('assert')
+const bscriptSig = require('../src/script').signature
+const Buffer = require('safe-buffer').Buffer
+const fixtures = require('./fixtures/signature.json')
 
 describe('Script Signatures', function () {
   function fromRaw (signature) {
@@ -23,7 +23,7 @@ describe('Script Signatures', function () {
   describe('encode', function () {
     fixtures.valid.forEach(function (f) {
       it('encodes ' + f.hex, function () {
-        var buffer = bscriptSig.encode(fromRaw(f.raw), f.hashType)
+        const buffer = bscriptSig.encode(fromRaw(f.raw), f.hashType)
 
         assert.strictEqual(buffer.toString('hex'), f.hex)
       })
@@ -33,7 +33,7 @@ describe('Script Signatures', function () {
       if (!f.raw) return
 
       it('throws ' + f.exception, function () {
-        var signature = fromRaw(f.raw)
+        const signature = fromRaw(f.raw)
 
         assert.throws(function () {
           bscriptSig.encode(signature, f.hashType)
@@ -45,7 +45,7 @@ describe('Script Signatures', function () {
   describe('decode', function () {
     fixtures.valid.forEach(function (f) {
       it('decodes ' + f.hex, function () {
-        var decode = bscriptSig.decode(Buffer.from(f.hex, 'hex'))
+        const decode = bscriptSig.decode(Buffer.from(f.hex, 'hex'))
 
         assert.deepEqual(toRaw(decode.signature), f.raw)
         assert.strictEqual(decode.hashType, f.hashType)
@@ -54,7 +54,7 @@ describe('Script Signatures', function () {
 
     fixtures.invalid.forEach(function (f) {
       it('throws on ' + f.hex, function () {
-        var buffer = Buffer.from(f.hex, 'hex')
+        const buffer = Buffer.from(f.hex, 'hex')
 
         assert.throws(function () {
           bscriptSig.decode(buffer)

@@ -1,28 +1,28 @@
-var Buffer = require('safe-buffer').Buffer
-var bech32 = require('bech32')
-var bs58check = require('bs58check')
-var bscript = require('./script')
-var btemplates = require('./templates')
-var networks = require('./networks')
-var typeforce = require('typeforce')
-var types = require('./types')
+const Buffer = require('safe-buffer').Buffer
+const bech32 = require('bech32')
+const bs58check = require('bs58check')
+const bscript = require('./script')
+const btemplates = require('./templates')
+const networks = require('./networks')
+const typeforce = require('typeforce')
+const types = require('./types')
 
 function fromBase58Check (address) {
-  var payload = bs58check.decode(address)
+  const payload = bs58check.decode(address)
 
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short')
   if (payload.length > 21) throw new TypeError(address + ' is too long')
 
-  var version = payload.readUInt8(0)
-  var hash = payload.slice(1)
+  const version = payload.readUInt8(0)
+  const hash = payload.slice(1)
 
   return { version: version, hash: hash }
 }
 
 function fromBech32 (address) {
-  var result = bech32.decode(address)
-  var data = bech32.fromWords(result.words.slice(1))
+  const result = bech32.decode(address)
+  const data = bech32.fromWords(result.words.slice(1))
 
   return {
     version: result.words[0],
@@ -34,7 +34,7 @@ function fromBech32 (address) {
 function toBase58Check (hash, version) {
   typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
 
-  var payload = Buffer.allocUnsafe(21)
+  const payload = Buffer.allocUnsafe(21)
   payload.writeUInt8(version, 0)
   hash.copy(payload, 1)
 
@@ -42,7 +42,7 @@ function toBase58Check (hash, version) {
 }
 
 function toBech32 (data, version, prefix) {
-  var words = bech32.toWords(data)
+  const words = bech32.toWords(data)
   words.unshift(version)
 
   return bech32.encode(prefix, words)
@@ -62,7 +62,7 @@ function fromOutputScript (outputScript, network) {
 function toOutputScript (address, network) {
   network = network || networks.bitcoin
 
-  var decode
+  let decode
   try {
     decode = fromBase58Check(address)
   } catch (e) {}
