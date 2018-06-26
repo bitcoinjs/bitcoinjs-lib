@@ -2,7 +2,7 @@
 
 
 const assert = require('assert')
-const bigi = require('bigi')
+const BN = require('bn.js')
 const bitcoin = require('../../')
 const bip32 = require('bip32')
 const crypto = require('crypto')
