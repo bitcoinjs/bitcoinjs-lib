@@ -1,12 +1,12 @@
 /* global describe, it */
 
-var assert = require('assert')
-var bcrypto = require('../src/crypto')
-var bscript = require('../src/script')
-var btemplates = require('../src/templates')
-var ops = require('bitcoin-ops')
+const assert = require('assert')
+const bcrypto = require('../src/crypto')
+const bscript = require('../src/script')
+const btemplates = require('../src/templates')
+const ops = require('bitcoin-ops')
 
-var fixtures = require('./fixtures/templates.json')
+const fixtures = require('./fixtures/templates.json')
 
 function fromHex (x) { return Buffer.from(x, 'hex') }
 function toHex (x) { return x.toString('hex') }
@@ -17,8 +17,8 @@ describe('script-templates', function () {
       if (!f.input) return
 
       it('classifies ' + f.input + ' as ' + f.type, function () {
-        var input = bscript.fromASM(f.input)
-        var type = btemplates.classifyInput(input)
+        const input = bscript.fromASM(f.input)
+        const type = btemplates.classifyInput(input)
 
         assert.strictEqual(type, f.type)
       })
@@ -29,8 +29,8 @@ describe('script-templates', function () {
       if (!f.typeIncomplete) return
 
       it('classifies incomplete ' + f.input + ' as ' + f.typeIncomplete, function () {
-        var input = bscript.fromASM(f.input)
-        var type = btemplates.classifyInput(input, true)
+        const input = bscript.fromASM(f.input)
+        const type = btemplates.classifyInput(input, true)
 
         assert.strictEqual(type, f.typeIncomplete)
       })
@@ -42,8 +42,8 @@ describe('script-templates', function () {
       if (!f.output) return
 
       it('classifies ' + f.output + ' as ' + f.type, function () {
-        var output = bscript.fromASM(f.output)
-        var type = btemplates.classifyOutput(output)
+        const output = bscript.fromASM(f.output)
+        const type = btemplates.classifyOutput(output)
 
         assert.strictEqual(type, f.type)
       })
@@ -60,24 +60,24 @@ describe('script-templates', function () {
     'nullData',
     'witnessCommitment'
   ].forEach(function (name) {
-    var inputType = btemplates[name].input
-    var outputType = btemplates[name].output
+    const inputType = btemplates[name].input
+    const outputType = btemplates[name].output
 
     describe(name + '.input.check', function () {
       fixtures.valid.forEach(function (f) {
         if (name.toLowerCase() === btemplates.types.P2WPKH) return
         if (name.toLowerCase() === btemplates.types.P2WSH) return
-        var expected = name.toLowerCase() === f.type.toLowerCase()
+        const expected = name.toLowerCase() === f.type.toLowerCase()
 
         if (inputType && f.input) {
-          var input = bscript.fromASM(f.input)
+          const input = bscript.fromASM(f.input)
 
           it('returns ' + expected + ' for ' + f.input, function () {
             assert.strictEqual(inputType.check(input), expected)
           })
 
           if (f.typeIncomplete) {
-            var expectedIncomplete = name.toLowerCase() === f.typeIncomplete
+            const expectedIncomplete = name.toLowerCase() === f.typeIncomplete
 
             it('returns ' + expected + ' for ' + f.input, function () {
               assert.strictEqual(inputType.check(input, true), expectedIncomplete)
@@ -92,7 +92,7 @@ describe('script-templates', function () {
         if (!f.input && !f.inputHex) return
 
         it('returns false for ' + f.description + ' (' + (f.input || f.inputHex) + ')', function () {
-          var input
+          let input
 
           if (f.input) {
             input = bscript.fromASM(f.input)
@@ -107,11 +107,11 @@ describe('script-templates', function () {
 
     describe(name + '.output.check', function () {
       fixtures.valid.forEach(function (f) {
-        var expected = name.toLowerCase() === f.type
+        const expected = name.toLowerCase() === f.type
 
         if (outputType && f.output) {
           it('returns ' + expected + ' for ' + f.output, function () {
-            var output = bscript.fromASM(f.output)
+            const output = bscript.fromASM(f.output)
 
             if (name.toLowerCase() === 'nulldata' && f.type === btemplates.types.WITNESS_COMMITMENT) return
             if (name.toLowerCase() === 'witnesscommitment' && f.type === btemplates.types.NULLDATA) return
@@ -126,7 +126,7 @@ describe('script-templates', function () {
         if (!f.output && !f.outputHex) return
 
         it('returns false for ' + f.description + ' (' + (f.output || f.outputHex) + ')', function () {
-          var output
+          let output
 
           if (f.output) {
             output = bscript.fromASM(f.output)
@@ -144,8 +144,8 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'pubkey') return
 
-      var signature = Buffer.from(f.signature, 'hex')
-      var input = btemplates.pubKey.input.encode(signature)
+      const signature = Buffer.from(f.signature, 'hex')
+      const input = btemplates.pubKey.input.encode(signature)
 
       it('encodes to ' + f.input, function () {
         assert.strictEqual(bscript.toASM(input), f.input)
@@ -161,8 +161,8 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'pubkey') return
 
-      var pubKey = Buffer.from(f.pubKey, 'hex')
-      var output = btemplates.pubKey.output.encode(pubKey)
+      const pubKey = Buffer.from(f.pubKey, 'hex')
+      const output = btemplates.pubKey.output.encode(pubKey)
 
       it('encodes to ' + f.output, function () {
         assert.strictEqual(bscript.toASM(output), f.output)
@@ -178,9 +178,9 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'pubkeyhash') return
 
-      var pubKey = Buffer.from(f.pubKey, 'hex')
-      var signature = Buffer.from(f.signature, 'hex')
-      var input = btemplates.pubKeyHash.input.encode(signature, pubKey)
+      const pubKey = Buffer.from(f.pubKey, 'hex')
+      const signature = Buffer.from(f.signature, 'hex')
+      const input = btemplates.pubKeyHash.input.encode(signature, pubKey)
 
       it('encodes to ' + f.input, function () {
         assert.strictEqual(bscript.toASM(input), f.input)
@@ -199,9 +199,9 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'pubkeyhash') return
 
-      var pubKey = Buffer.from(f.pubKey, 'hex')
-      var pubKeyHash = bcrypto.hash160(pubKey)
-      var output = btemplates.pubKeyHash.output.encode(pubKeyHash)
+      const pubKey = Buffer.from(f.pubKey, 'hex')
+      const pubKeyHash = bcrypto.hash160(pubKey)
+      const output = btemplates.pubKeyHash.output.encode(pubKeyHash)
 
       it('encodes to ' + f.output, function () {
         assert.strictEqual(bscript.toASM(output), f.output)
@@ -214,7 +214,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.pubKeyHash.outputs.forEach(function (f) {
       if (!f.hash) return
-      var hash = Buffer.from(f.hash, 'hex')
+      const hash = Buffer.from(f.hash, 'hex')
 
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -227,13 +227,13 @@ describe('script-templates', function () {
   describe('multisig.input', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'multisig' && f.typeIncomplete !== 'multisig') return
-      var allowIncomplete = f.typeIncomplete !== undefined
+      const allowIncomplete = f.typeIncomplete !== undefined
 
-      var signatures = f.signatures.map(function (signature) {
+      const signatures = f.signatures.map(function (signature) {
         return signature ? Buffer.from(signature, 'hex') : ops.OP_0
       })
 
-      var input = btemplates.multisig.input.encode(signatures)
+      const input = btemplates.multisig.input.encode(signatures)
 
       it('encodes to ' + f.input, function () {
         assert.strictEqual(bscript.toASM(input), f.input)
@@ -246,10 +246,10 @@ describe('script-templates', function () {
 
     fixtures.invalid.multisig.inputs.forEach(function (f) {
       if (!f.output) return
-      var output = bscript.fromASM(f.output)
+      const output = bscript.fromASM(f.output)
 
       it('throws on ' + f.exception, function () {
-        var signatures = f.signatures.map(function (signature) {
+        const signatures = f.signatures.map(function (signature) {
           return signature ? Buffer.from(signature, 'hex') : ops.OP_0
         })
 
@@ -264,10 +264,10 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'multisig') return
 
-      var pubKeys = f.pubKeys.map(function (p) { return Buffer.from(p, 'hex') })
-      var m = pubKeys.length
+      const pubKeys = f.pubKeys.map(function (p) { return Buffer.from(p, 'hex') })
+      const m = pubKeys.length
 
-      var output = btemplates.multisig.output.encode(m, pubKeys)
+      const output = btemplates.multisig.output.encode(m, pubKeys)
 
       it('encodes ' + f.output, function () {
         assert.strictEqual(bscript.toASM(output), f.output)
@@ -283,7 +283,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.multisig.outputs.forEach(function (f) {
       if (!f.pubKeys) return
-      var pubKeys = f.pubKeys.map(function (p) {
+      const pubKeys = f.pubKeys.map(function (p) {
         return Buffer.from(p, 'hex')
       })
 
@@ -299,9 +299,9 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'scripthash') return
 
-      var redeemScriptSig = bscript.fromASM(f.redeemScriptSig)
-      var redeemScript = bscript.fromASM(f.redeemScript)
-      var input = btemplates.scriptHash.input.encode(redeemScriptSig, redeemScript)
+      const redeemScriptSig = bscript.fromASM(f.redeemScriptSig)
+      const redeemScript = bscript.fromASM(f.redeemScript)
+      const input = btemplates.scriptHash.input.encode(redeemScriptSig, redeemScript)
 
       it('encodes to ' + f.output, function () {
         if (f.input) {
@@ -325,9 +325,9 @@ describe('script-templates', function () {
       if (f.type !== 'scripthash') return
       if (!f.output) return
 
-      var redeemScript = bscript.fromASM(f.redeemScript)
-      var scriptHash = bcrypto.hash160(redeemScript)
-      var output = btemplates.scriptHash.output.encode(scriptHash)
+      const redeemScript = bscript.fromASM(f.redeemScript)
+      const scriptHash = bcrypto.hash160(redeemScript)
+      const output = btemplates.scriptHash.output.encode(scriptHash)
 
       it('encodes to ' + f.output, function () {
         assert.strictEqual(bscript.toASM(output), f.output)
@@ -340,7 +340,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.scriptHash.outputs.forEach(function (f) {
       if (!f.hash) return
-      var hash = Buffer.from(f.hash, 'hex')
+      const hash = Buffer.from(f.hash, 'hex')
 
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -355,17 +355,17 @@ describe('script-templates', function () {
       if (f.type !== 'pubkeyhash' && f.type !== 'witnesspubkeyhash') return
       if (!f.inputStack) return
 
-      var pubKey = Buffer.from(f.pubKey, 'hex')
-      var signature = Buffer.from(f.signature, 'hex')
+      const pubKey = Buffer.from(f.pubKey, 'hex')
+      const signature = Buffer.from(f.signature, 'hex')
 
       it('encodes to ' + f.input, function () {
-        var inputStack = btemplates.witnessPubKeyHash.input.encodeStack(signature, pubKey)
+        const inputStack = btemplates.witnessPubKeyHash.input.encodeStack(signature, pubKey)
 
         assert.deepEqual(inputStack.map(toHex), f.inputStack)
       })
 
       it('decodes to original arguments', function () {
-        var fInputStack = f.inputStack.map(fromHex)
+        const fInputStack = f.inputStack.map(fromHex)
 
         assert.deepEqual(btemplates.witnessPubKeyHash.input.decodeStack(fInputStack), {
           signature: signature,
@@ -380,9 +380,9 @@ describe('script-templates', function () {
       if (f.type !== 'witnesspubkeyhash') return
       if (!f.output) return
 
-      var pubKey = Buffer.from(f.pubKey, 'hex')
-      var pubKeyHash = bcrypto.hash160(pubKey)
-      var output = btemplates.witnessPubKeyHash.output.encode(pubKeyHash)
+      const pubKey = Buffer.from(f.pubKey, 'hex')
+      const pubKeyHash = bcrypto.hash160(pubKey)
+      const output = btemplates.witnessPubKeyHash.output.encode(pubKeyHash)
 
       it('encodes to ' + f.output, function () {
         assert.strictEqual(bscript.toASM(output), f.output)
@@ -395,7 +395,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.witnessPubKeyHash.outputs.forEach(function (f) {
       if (!f.hash) return
-      var hash = Buffer.from(f.hash, 'hex')
+      const hash = Buffer.from(f.hash, 'hex')
 
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -410,17 +410,17 @@ describe('script-templates', function () {
       if (f.type !== 'witnessscripthash') return
       if (!f.inputStack || !f.witnessData) return
 
-      var witnessData = f.witnessData.map(fromHex)
-      var witnessScript = bscript.fromASM(f.witnessScript || f.redeemScript)
+      const witnessData = f.witnessData.map(fromHex)
+      const witnessScript = bscript.fromASM(f.witnessScript || f.redeemScript)
 
       it('encodes to ' + f.input, function () {
-        var inputStack = btemplates.witnessScriptHash.input.encodeStack(witnessData, witnessScript)
+        const inputStack = btemplates.witnessScriptHash.input.encodeStack(witnessData, witnessScript)
 
         assert.deepEqual(inputStack.map(toHex), f.inputStack)
       })
 
       it('decodes to original arguments', function () {
-        var result = btemplates.witnessScriptHash.input.decodeStack(f.inputStack.map(fromHex))
+        const result = btemplates.witnessScriptHash.input.decodeStack(f.inputStack.map(fromHex))
 
         assert.deepEqual(result.witnessData.map(toHex), f.witnessData)
         assert.strictEqual(bscript.toASM(result.witnessScript), f.witnessScript)
@@ -433,9 +433,9 @@ describe('script-templates', function () {
       if (f.type !== 'witnessscripthash') return
       if (!f.output) return
 
-      var witnessScriptPubKey = bscript.fromASM(f.witnessScript)
-      var scriptHash = bcrypto.hash256(witnessScriptPubKey)
-      var output = btemplates.witnessScriptHash.output.encode(scriptHash)
+      const witnessScriptPubKey = bscript.fromASM(f.witnessScript)
+      const scriptHash = bcrypto.hash256(witnessScriptPubKey)
+      const output = btemplates.witnessScriptHash.output.encode(scriptHash)
 
       it('encodes to ' + f.output, function () {
         assert.strictEqual(bscript.toASM(output), f.output)
@@ -448,7 +448,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.witnessScriptHash.outputs.forEach(function (f) {
       if (!f.hash) return
-      var hash = Buffer.from(f.hash, 'hex')
+      const hash = Buffer.from(f.hash, 'hex')
 
       it('throws on ' + f.exception, function () {
         assert.throws(function () {
@@ -463,8 +463,8 @@ describe('script-templates', function () {
       if (f.type !== 'witnesscommitment') return
       if (!f.scriptPubKey) return
 
-      var commitment = Buffer.from(f.witnessCommitment, 'hex')
-      var scriptPubKey = btemplates.witnessCommitment.output.encode(commitment)
+      const commitment = Buffer.from(f.witnessCommitment, 'hex')
+      const scriptPubKey = btemplates.witnessCommitment.output.encode(commitment)
 
       it('encodes to ' + f.scriptPubKey, function () {
         assert.strictEqual(bscript.toASM(scriptPubKey), f.scriptPubKey)
@@ -477,7 +477,7 @@ describe('script-templates', function () {
 
     fixtures.invalid.witnessCommitment.outputs.forEach(function (f) {
       if (f.commitment) {
-        var hash = Buffer.from(f.commitment, 'hex')
+        const hash = Buffer.from(f.commitment, 'hex')
         it('throws on bad encode data', function () {
           assert.throws(function () {
             btemplates.witnessCommitment.output.encode(hash)
@@ -499,8 +499,8 @@ describe('script-templates', function () {
     fixtures.valid.forEach(function (f) {
       if (f.type !== 'nulldata') return
 
-      var data = f.data.map(function (x) { return Buffer.from(x, 'hex') })
-      var output = btemplates.nullData.output.encode(data)
+      const data = f.data.map(function (x) { return Buffer.from(x, 'hex') })
+      const output = btemplates.nullData.output.encode(data)
 
       it('encodes to ' + f.output, function () {
         assert.strictEqual(bscript.toASM(output), f.output)

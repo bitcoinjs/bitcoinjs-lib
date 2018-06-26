@@ -7,8 +7,8 @@ function verifuint (value, max) {
 }
 
 function readUInt64LE (buffer, offset) {
-  var a = buffer.readUInt32LE(offset)
-  var b = buffer.readUInt32LE(offset + 4)
+  const a = buffer.readUInt32LE(offset)
+  let b = buffer.readUInt32LE(offset + 4)
   b *= 0x100000000
 
   verifuint(b + a, 0x001fffffffffffff)

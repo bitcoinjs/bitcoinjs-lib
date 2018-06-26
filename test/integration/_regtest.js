@@ -1,9 +1,9 @@
-var assert = require('assert')
-var bitcoin = require('../../')
-var dhttp = require('dhttp/200')
+const assert = require('assert')
+const bitcoin = require('../../')
+const dhttp = require('dhttp/200')
 
-var APIPASS = process.env.APIPASS || 'satoshi'
-var APIURL = 'https://api.dcousens.cloud/1'
+const APIPASS = process.env.APIPASS || 'satoshi'
+const APIURL = 'https://api.dcousens.cloud/1'
 
 function broadcast (txHex, callback) {
   dhttp({
@@ -60,7 +60,7 @@ function verify (txo, callback) {
   fetch(txo.txId, function (err, tx) {
     if (err) return callback(err)
 
-    var txoActual = tx.outs[txo.vout]
+    const txoActual = tx.outs[txo.vout]
     if (txo.address) assert.strictEqual(txoActual.address, txo.address)
     if (txo.value) assert.strictEqual(txoActual.value, txo.value)
     callback()
@@ -68,8 +68,8 @@ function verify (txo, callback) {
 }
 
 // TODO: remove
-let baddress = bitcoin.address
-let bcrypto = bitcoin.crypto
+const baddress = bitcoin.address
+const bcrypto = bitcoin.crypto
 function getAddress (node, network) {
   network = network || bitcoin.networks.bitcoin
   return baddress.toBase58Check(bcrypto.hash160(node.publicKey), network.pubKeyHash)

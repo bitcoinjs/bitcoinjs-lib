@@ -1,12 +1,12 @@
 // OP_RETURN {data}
 
-var bscript = require('../script')
-var types = require('../types')
-var typeforce = require('typeforce')
-var OPS = require('bitcoin-ops')
+const bscript = require('../script')
+const types = require('../types')
+const typeforce = require('typeforce')
+const OPS = require('bitcoin-ops')
 
 function check (script) {
-  var buffer = bscript.compile(script)
+  const buffer = bscript.compile(script)
 
   return buffer.length > 1 &&
     buffer[0] === OPS.OP_RETURN
