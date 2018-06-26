@@ -23,7 +23,7 @@ const baddress = bitcoin.address
 const bcrypto = bitcoin.crypto
 function getAddress (node, network) {
   network = network || bitcoin.networks.bitcoin
-  return baddress.toBase58Check(bcrypto.hash160(node.publicKey), network.pubKeyHash)
+  return baddress.toBase58Check(bcrypto.hash160(node.getPublicKeyBuffer()), network.pubKeyHash)
 }
 
 describe('bitcoinjs-lib (addresses)', function () {
