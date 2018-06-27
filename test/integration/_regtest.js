@@ -67,12 +67,8 @@ function verify (txo, callback) {
   })
 }
 
-// TODO: remove
-const baddress = bitcoin.address
-const bcrypto = bitcoin.crypto
 function getAddress (node, network) {
-  network = network || bitcoin.networks.bitcoin
-  return baddress.toBase58Check(bcrypto.hash160(node.publicKey), network.pubKeyHash)
+  return bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address
 }
 
 function randomAddress () {
