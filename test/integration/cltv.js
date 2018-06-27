@@ -12,6 +12,7 @@ const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZs
 describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   // force update MTP
   before(function (done) {
+    this.timeout(30000)
     regtestUtils.mine(11, done)
   })
 
