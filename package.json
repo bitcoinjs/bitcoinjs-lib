@@ -41,7 +41,7 @@
     "pushdata-bitcoin": "^1.0.1",
     "randombytes": "^2.0.1",
     "safe-buffer": "^5.1.1",
-    "tiny-secp256k1": "^0.1.0",
+    "tiny-secp256k1": "^0.2.2",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.0.4",
     "wif": "^2.0.1"
@@ -50,7 +50,7 @@
     "bip39": "^2.3.0",
     "bip65": "^1.0.1",
     "bip68": "^1.0.3",
-    "bn.js": "4.11.8",
+    "bn.js": "^4.11.8",
     "bs58": "^4.0.0",
     "dhttp": "^2.5.0",
     "hoodwink": "^1.0.0",
