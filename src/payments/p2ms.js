@@ -19,6 +19,7 @@ function stacksEqual (a, b) {
 // output: m [pubKeys ...] n OP_CHECKMULTISIG
 function p2ms (a, opts) {
   if (
+    !a.input &&
     !a.output &&
     !(a.pubkeys && a.m !== undefined) &&
     !a.signatures
