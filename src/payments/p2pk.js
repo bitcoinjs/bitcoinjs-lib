@@ -11,7 +11,9 @@ let BITCOIN_NETWORK = require('../networks').bitcoin
 function p2pk (a, opts) {
   if (
     !a.output &&
-    !a.pubkey
+    !a.pubkey &&
+    !a.input &&
+    !a.signature
   ) throw new TypeError('Not enough data')
   opts = opts || { validate: true }
 
