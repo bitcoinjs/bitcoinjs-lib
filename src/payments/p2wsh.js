@@ -40,7 +40,7 @@ function p2wsh (a, opts) {
     redeem: typef.maybe({
       input: typef.maybe(typef.Buffer),
       network: typef.maybe(typef.Object),
-      output: typef.Buffer,
+      output: typef.maybe(typef.Buffer),
       witness: typef.maybe(typef.arrayOf(typef.Buffer))
     }),
     input: typef.maybe(typef.BufferN(0)),
@@ -83,8 +83,14 @@ function p2wsh (a, opts) {
   })
   lazy.prop(o, 'witness', function () {
     // transform redeem input to witness stack?
-    if (a.redeem && a.redeem.input && a.redeem.input.length > 0) {
-      let stack = bscript.toStack(_rchunks())
+    if (
+      a.redeem &&
+      a.redeem.input &&
+      a.redeem.input.length > 0 &&
+      a.redeem.output &&
+      a.redeem.output.length > 0
+    ) {
+      const stack = bscript.toStack(_rchunks())
 
       // assign, and blank the existing input
       o.redeem = Object.assign({ witness: stack }, a.redeem)
@@ -93,6 +99,7 @@ function p2wsh (a, opts) {
     }
 
     if (!a.redeem) return
+    if (!a.redeem.output) return
     if (!a.redeem.witness) return
     return [].concat(a.redeem.witness, a.redeem.output)
   })
@@ -117,7 +124,7 @@ function p2wsh (a, opts) {
         a.output.length !== 34 ||
         a.output[0] !== OPS.OP_0 ||
         a.output[1] !== 0x20) throw new TypeError('Output is invalid')
-      let hash2 = a.output.slice(2)
+      const hash2 = a.output.slice(2)
       if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
       else hash = hash2
     }
@@ -129,22 +136,26 @@ function p2wsh (a, opts) {
       if (
         a.redeem.input &&
         a.redeem.input.length > 0 &&
-        a.redeem.witness) throw new TypeError('Ambiguous witness source')
+        a.redeem.witness &&
+        a.redeem.witness.length > 0
+      ) throw new TypeError('Ambiguous witness source')
 
       // is the redeem output non-empty?
-      if (bscript.decompile(a.redeem.output).length === 0) throw new TypeError('Redeem.output is invalid')
+      if (a.redeem.output) {
+        if (bscript.decompile(a.redeem.output).length === 0) throw new TypeError('Redeem.output is invalid')
 
-      // match hash against other sources
-      let hash2 = bcrypto.sha256(a.redeem.output)
-      if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
-      else hash = hash2
+        // match hash against other sources
+        let hash2 = bcrypto.sha256(a.redeem.output)
+        if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
+        else hash = hash2
+      }
 
       if (a.redeem.input && !bscript.isPushOnly(_rchunks())) throw new TypeError('Non push-only scriptSig')
       if (a.witness && a.redeem.witness && !stacksEqual(a.witness, a.redeem.witness)) throw new TypeError('Witness and redeem.witness mismatch')
     }
 
     if (a.witness) {
-      if (a.redeem && !a.redeem.output.equals(a.witness[a.witness.length - 1])) throw new TypeError('Witness and redeem.output mismatch')
+      if (a.redeem && a.redeem.output && !a.redeem.output.equals(a.witness[a.witness.length - 1])) throw new TypeError('Witness and redeem.output mismatch')
     }
   }
 

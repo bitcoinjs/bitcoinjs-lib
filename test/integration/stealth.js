@@ -4,11 +4,8 @@ const assert = require('assert')
 const bitcoin = require('../../')
 const ecc = require('tiny-secp256k1')
 
-// TODO: remove
-const baddress = bitcoin.address
-const bcrypto = bitcoin.crypto
-function getAddress (node) {
-  return baddress.toBase58Check(bcrypto.hash160(node.publicKey), bitcoin.networks.bitcoin.pubKeyHash)
+function getAddress (node, network) {
+  return bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address
 }
 
 // vG = (dG \+ sha256(e * dG)G)

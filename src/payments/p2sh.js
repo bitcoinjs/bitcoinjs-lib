@@ -37,7 +37,7 @@ function p2sh (a, opts) {
 
     redeem: typef.maybe({
       network: typef.maybe(typef.Object),
-      output: typef.Buffer,
+      output: typef.maybe(typef.Buffer),
       input: typef.maybe(typef.Buffer),
       witness: typef.maybe(typef.arrayOf(typef.Buffer))
     }),
@@ -86,7 +86,7 @@ function p2sh (a, opts) {
     return _redeem()
   })
   lazy.prop(o, 'input', function () {
-    if (!a.redeem || !a.redeem.input) return
+    if (!a.redeem || !a.redeem.input || !a.redeem.output) return
     return bscript.compile([].concat(
       bscript.decompile(a.redeem.input),
       a.redeem.output
@@ -124,13 +124,15 @@ function p2sh (a, opts) {
     // inlined to prevent 'no-inner-declarations' failing
     const checkRedeem = function (redeem) {
       // is the redeem output empty/invalid?
-      const decompile = bscript.decompile(redeem.output)
-      if (!decompile || decompile.length < 1) throw new TypeError('Redeem.output too short')
+      if (redeem.output) {
+        const decompile = bscript.decompile(redeem.output)
+        if (!decompile || decompile.length < 1) throw new TypeError('Redeem.output too short')
 
-      // match hash against other sources
-      const hash2 = bcrypto.hash160(redeem.output)
-      if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
-      else hash = hash2
+        // match hash against other sources
+        const hash2 = bcrypto.hash160(redeem.output)
+        if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
+        else hash = hash2
+      }
 
       if (redeem.input) {
         const hasInput = redeem.input.length > 0

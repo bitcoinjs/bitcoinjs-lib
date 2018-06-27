@@ -5,14 +5,6 @@ const bitcoin = require('../../')
 const regtestUtils = require('./_regtest')
 const regtest = regtestUtils.network
 
-// TODO: remove
-const baddress = bitcoin.address
-const bcrypto = bitcoin.crypto
-function getAddress (node, network) {
-  network = network || bitcoin.networks.bitcoin
-  return baddress.toBase58Check(bcrypto.hash160(node.publicKey), network.pubKeyHash)
-}
-
 function rng () {
   return Buffer.from('YT8dAtK4d16A3P1z+TpwB2jJ4aFH3g9M1EioIBkLEV4=', 'base64')
 }
@@ -59,18 +51,22 @@ describe('bitcoinjs-lib (transactions)', function () {
     const alice2 = bitcoin.ECPair.makeRandom({ network: regtest })
     const aliceChange = bitcoin.ECPair.makeRandom({ network: regtest, rng: rng })
 
+    const alice1pkh = bitcoin.payments.p2pkh({ pubkey: alice1.publicKey, network: regtest })
+    const alice2pkh = bitcoin.payments.p2pkh({ pubkey: alice2.publicKey, network: regtest })
+    const aliceCpkh = bitcoin.payments.p2pkh({ pubkey: aliceChange.publicKey, network: regtest })
+
     // give Alice 2 unspent outputs
-    regtestUtils.faucet(getAddress(alice1, regtest), 5e4, function (err, unspent0) {
+    regtestUtils.faucet(alice1pkh.address, 5e4, function (err, unspent0) {
       if (err) return done(err)
 
-      regtestUtils.faucet(getAddress(alice2, regtest), 7e4, function (err, unspent1) {
+      regtestUtils.faucet(alice2pkh.address, 7e4, function (err, unspent1) {
         if (err) return done(err)
 
         const txb = new bitcoin.TransactionBuilder(regtest)
         txb.addInput(unspent0.txId, unspent0.vout) // alice1 unspent
         txb.addInput(unspent1.txId, unspent1.vout) // alice2 unspent
         txb.addOutput('mwCwTceJvYV27KXBc3NJZys6CjsgsoeHmf', 8e4) // the actual "spend"
-        txb.addOutput(getAddress(aliceChange, regtest), 1e4) // Alice's change
+        txb.addOutput(aliceCpkh.address, 1e4) // Alice's change
         // (in)(4e4 + 2e4) - (out)(1e4 + 3e4) = (fee)2e4 = 20000, this is the miner fee
 
         // Alice signs each input with the respective private keys
@@ -88,8 +84,9 @@ describe('bitcoinjs-lib (transactions)', function () {
     this.timeout(30000)
 
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
+    const p2pkh = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: regtest })
 
-    regtestUtils.faucet(getAddress(keyPair, regtest), 2e5, function (err, unspent) {
+    regtestUtils.faucet(p2pkh.address, 2e5, function (err, unspent) {
       if (err) return done(err)
 
       const txb = new bitcoin.TransactionBuilder(regtest)
@@ -150,20 +147,16 @@ describe('bitcoinjs-lib (transactions)', function () {
     this.timeout(30000)
 
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
-    const pubKeyHash = bitcoin.crypto.hash160(keyPair.publicKey)
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network: regtest })
+    const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: regtest })
 
-    const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash)
-    const redeemScriptHash = bitcoin.crypto.hash160(redeemScript)
-    const scriptPubKey = bitcoin.script.scriptHash.output.encode(redeemScriptHash)
-    const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
-
-    regtestUtils.faucet(address, 5e4, function (err, unspent) {
+    regtestUtils.faucet(p2sh.address, 5e4, function (err, unspent) {
       if (err) return done(err)
 
       const txb = new bitcoin.TransactionBuilder(regtest)
       txb.addInput(unspent.txId, unspent.vout)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
-      txb.sign(0, keyPair, redeemScript, null, unspent.value)
+      txb.sign(0, keyPair, p2sh.redeem.output, null, unspent.value)
 
       const tx = txb.build()
 
@@ -190,22 +183,21 @@ describe('bitcoinjs-lib (transactions)', function () {
       bitcoin.ECPair.makeRandom({ network: regtest }),
       bitcoin.ECPair.makeRandom({ network: regtest })
     ]
-    const pubKeys = keyPairs.map(function (x) { return x.publicKey })
+    const pubkeys = keyPairs.map(x => x.publicKey)
 
-    const witnessScript = bitcoin.script.multisig.output.encode(3, pubKeys)
-    const redeemScript = bitcoin.script.witnessScriptHash.output.encode(bitcoin.crypto.sha256(witnessScript))
-    const scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+    const p2ms = bitcoin.payments.p2ms({ m: 3, pubkeys, network: regtest })
+    const p2wsh = bitcoin.payments.p2wsh({ redeem: p2ms, network: regtest })
+    const p2sh = bitcoin.payments.p2sh({ redeem: p2wsh, network: regtest })
 
-    regtestUtils.faucet(address, 6e4, function (err, unspent) {
+    regtestUtils.faucet(p2sh.address, 6e4, function (err, unspent) {
       if (err) return done(err)
 
       const txb = new bitcoin.TransactionBuilder(regtest)
-      txb.addInput(unspent.txId, unspent.vout)
+      txb.addInput(unspent.txId, unspent.vout, null, p2sh.output)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 3e4)
-      txb.sign(0, keyPairs[0], redeemScript, null, unspent.value, witnessScript)
-      txb.sign(0, keyPairs[2], redeemScript, null, unspent.value, witnessScript)
-      txb.sign(0, keyPairs[3], redeemScript, null, unspent.value, witnessScript)
+      txb.sign(0, keyPairs[0], p2sh.redeem.output, null, unspent.value, p2wsh.redeem.output)
+      txb.sign(0, keyPairs[2], p2sh.redeem.output, null, unspent.value, p2wsh.redeem.output)
+      txb.sign(0, keyPairs[3], p2sh.redeem.output, null, unspent.value, p2wsh.redeem.output)
 
       const tx = txb.build()
 
@@ -235,12 +227,14 @@ describe('bitcoinjs-lib (transactions)', function () {
 
     tx.ins.forEach(function (input, i) {
       const keyPair = keyPairs[i]
-      const prevOutScript = bitcoin.address.toOutputScript(getAddress(keyPair))
-      const scriptSig = bitcoin.script.pubKeyHash.input.decode(input.script)
-      const ss = bitcoin.script.signature.decode(scriptSig.signature)
-      const hash = tx.hashForSignature(i, prevOutScript, ss.hashType)
+      const p2pkh = bitcoin.payments.p2pkh({
+        pubkey: keyPair.publicKey,
+        input: input.script
+      })
 
-      assert.strictEqual(scriptSig.pubKey.toString('hex'), keyPair.publicKey.toString('hex'))
+      const ss = bitcoin.script.signature.decode(p2pkh.signature)
+      const hash = tx.hashForSignature(i, p2pkh.output, ss.hashType)
+
       assert.strictEqual(keyPair.verify(hash, ss.signature), true)
     })
   })

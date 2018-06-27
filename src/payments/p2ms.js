@@ -20,7 +20,8 @@ function stacksEqual (a, b) {
 function p2ms (a, opts) {
   if (
     !a.output &&
-    !(a.pubkeys && a.m !== undefined)
+    !(a.pubkeys && a.m !== undefined) &&
+    !a.signatures
   ) throw new TypeError('Not enough data')
   opts = opts || { validate: true }
 
