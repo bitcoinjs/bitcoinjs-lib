@@ -2,10 +2,10 @@ const lazy = require('./lazy')
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 
-const baddress = require('../address')
 const bcrypto = require('../crypto')
 const bscript = require('../script')
 const BITCOIN_NETWORK = require('../networks').bitcoin
+const bs58check = require('bs58check')
 
 function stacksEqual (a, b) {
   if (a.length !== b.length) return false
@@ -48,7 +48,12 @@ function p2sh (a, opts) {
   const network = a.network || BITCOIN_NETWORK
   const o = { network }
 
-  const _address = lazy.value(function () { return baddress.fromBase58Check(a.address) })
+  const _address = lazy.value(function () {
+    const payload = bs58check.decode(a.address)
+    const version = payload.readUInt8(0)
+    const hash = payload.slice(1)
+    return { version, hash }
+  })
   const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
   const _redeem = lazy.value(function () {
     const chunks = _chunks()
@@ -63,7 +68,11 @@ function p2sh (a, opts) {
   // output dependents
   lazy.prop(o, 'address', function () {
     if (!o.hash) return
-    return baddress.toBase58Check(o.hash, network.scriptHash)
+
+    const payload = Buffer.allocUnsafe(21)
+    payload.writeUInt8(network.scriptHash, 0)
+    o.hash.copy(payload, 1)
+    return bs58check.encode(payload)
   })
   lazy.prop(o, 'hash', function () {
     // in order of least effort

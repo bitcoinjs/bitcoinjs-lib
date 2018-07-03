@@ -1,13 +1,13 @@
-let lazy = require('./lazy')
-let typef = require('typeforce')
-let OPS = require('bitcoin-ops')
+const lazy = require('./lazy')
+const typef = require('typeforce')
+const OPS = require('bitcoin-ops')
 
-let baddress = require('../address')
-let bcrypto = require('../crypto')
-let bscript = require('../script')
-let BITCOIN_NETWORK = require('../networks').bitcoin
+const bech32 = require('bech32')
+const bcrypto = require('../crypto')
+const bscript = require('../script')
+const BITCOIN_NETWORK = require('../networks').bitcoin
 
-let EMPTY_BUFFER = Buffer.alloc(0)
+const EMPTY_BUFFER = Buffer.alloc(0)
 
 function stacksEqual (a, b) {
   if (a.length !== b.length) return false
@@ -47,19 +47,30 @@ function p2wsh (a, opts) {
     witness: typef.maybe(typef.arrayOf(typef.Buffer))
   }, a)
 
-  let _address = lazy.value(function () { return baddress.fromBech32(a.address) })
-  let _rchunks = lazy.value(function () { return bscript.decompile(a.redeem.input) })
+  const _address = lazy.value(function () {
+    const result = bech32.decode(a.address)
+    const version = result.words.shift()
+    const data = bech32.fromWords(result.words)
+    return {
+      version,
+      prefix: result.prefix,
+      data: Buffer.from(data)
+    }
+  })
+  const _rchunks = lazy.value(function () { return bscript.decompile(a.redeem.input) })
 
-  let network = a.network || BITCOIN_NETWORK
-  let o = { network }
+  const network = a.network || BITCOIN_NETWORK
+  const o = { network }
 
   lazy.prop(o, 'address', function () {
     if (!o.hash) return
-    return baddress.toBech32(o.hash, 0x00, network.bech32)
+    const words = bech32.toWords(o.hash)
+    words.unshift(0x00)
+    return bech32.encode(network.bech32, words)
   })
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(2)
-    if (a.address) return baddress.fromBech32(a.address).data
+    if (a.address) return _address().data
     if (o.redeem && o.redeem.output) return bcrypto.sha256(o.redeem.output)
   })
   lazy.prop(o, 'output', function () {
@@ -145,7 +156,7 @@ function p2wsh (a, opts) {
         if (bscript.decompile(a.redeem.output).length === 0) throw new TypeError('Redeem.output is invalid')
 
         // match hash against other sources
-        let hash2 = bcrypto.sha256(a.redeem.output)
+        const hash2 = bcrypto.sha256(a.redeem.output)
         if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
         else hash = hash2
       }
