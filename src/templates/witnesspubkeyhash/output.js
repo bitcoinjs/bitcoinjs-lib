@@ -1,8 +1,6 @@
 // OP_0 {pubKeyHash}
 
 const bscript = require('../../script')
-const types = require('../../types')
-const typeforce = require('typeforce')
 const OPS = require('bitcoin-ops')
 
 function check (script) {
@@ -14,20 +12,6 @@ function check (script) {
 }
 check.toJSON = function () { return 'Witness pubKeyHash output' }
 
-function encode (pubKeyHash) {
-  typeforce(types.Hash160bit, pubKeyHash)
-
-  return bscript.compile([OPS.OP_0, pubKeyHash])
-}
-
-function decode (buffer) {
-  typeforce(check, buffer)
-
-  return buffer.slice(2)
-}
-
 module.exports = {
-  check: check,
-  decode: decode,
-  encode: encode
+  check
 }

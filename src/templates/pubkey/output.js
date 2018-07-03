@@ -1,7 +1,6 @@
 // {pubKey} OP_CHECKSIG
 
 const bscript = require('../../script')
-const typeforce = require('typeforce')
 const OPS = require('bitcoin-ops')
 
 function check (script) {
@@ -13,21 +12,4 @@ function check (script) {
 }
 check.toJSON = function () { return 'pubKey output' }
 
-function encode (pubKey) {
-  typeforce(bscript.isCanonicalPubKey, pubKey)
-
-  return bscript.compile([pubKey, OPS.OP_CHECKSIG])
-}
-
-function decode (buffer) {
-  const chunks = bscript.decompile(buffer)
-  typeforce(check, chunks)
-
-  return chunks[0]
-}
-
-module.exports = {
-  check: check,
-  decode: decode,
-  encode: encode
-}
+module.exports = { check }
