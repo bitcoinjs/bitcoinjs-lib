@@ -149,7 +149,6 @@ describe('TransactionBuilder', function () {
       txb.__inputs.forEach(function (i) {
         assert.strictEqual(i.prevOutType, 'scripthash')
         assert.strictEqual(i.redeemScriptType, 'multisig')
-        assert.strictEqual(i.signType, 'multisig')
       })
     })
 
@@ -537,14 +536,15 @@ describe('TransactionBuilder', function () {
       txb.addInput('a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529', 1, 0xffffffff, scriptPubKey)
       txb.addOutput(scriptPubKey, 99000)
       txb.sign(0, keyPair, redeemScript, null, 100000, witnessScript)
+
       // 2-of-2 signed only once
       const tx = txb.buildIncomplete()
+
       // Only input is segwit, so txid should be accurate with the final tx
       assert.equal(tx.getId(), 'f15d0a65b21b4471405b21a099f8b18e1ae4d46d55efbd0f4766cf11ad6cb821')
+
       const txHex = tx.toHex()
-      const newTxb = TransactionBuilder.fromTransaction(Transaction.fromHex(txHex))
-      // input should have the key 'witness' set to true
-      assert.equal(newTxb.__inputs[0].witness, true)
+      TransactionBuilder.fromTransaction(Transaction.fromHex(txHex))
     })
 
     it('should handle badly pre-filled OP_0s', function () {

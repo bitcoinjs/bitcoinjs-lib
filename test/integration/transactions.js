@@ -103,7 +103,7 @@ describe('bitcoinjs-lib (transactions)', function () {
     })
   })
 
-  it('can create (and broadcast via 3PBP) a Transaction with a 2-of-4 P2SH(multisig) input', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2SH(P2MS(2 of 4)) (multisig) input', function (done) {
     this.timeout(30000)
 
     const keyPairs = [
@@ -112,21 +112,19 @@ describe('bitcoinjs-lib (transactions)', function () {
       bitcoin.ECPair.makeRandom({ network: regtest }),
       bitcoin.ECPair.makeRandom({ network: regtest })
     ]
-    const pubKeys = keyPairs.map(function (x) { return x.publicKey })
+    const pubkeys = keyPairs.map(x => x.publicKey)
+    const p2ms = bitcoin.payments.p2ms({ m: 2, pubkeys: pubkeys, network: regtest })
+    const p2sh = bitcoin.payments.p2sh({ redeem: p2ms, network: regtest })
 
-    const redeemScript = bitcoin.script.multisig.output.encode(2, pubKeys)
-    const scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
-
-    regtestUtils.faucet(address, 2e4, function (err, unspent) {
+    regtestUtils.faucet(p2sh.address, 2e4, function (err, unspent) {
       if (err) return done(err)
 
       const txb = new bitcoin.TransactionBuilder(regtest)
       txb.addInput(unspent.txId, unspent.vout)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e4)
 
-      txb.sign(0, keyPairs[0], redeemScript)
-      txb.sign(0, keyPairs[2], redeemScript)
+      txb.sign(0, keyPairs[0], p2sh.redeem.output)
+      txb.sign(0, keyPairs[2], p2sh.redeem.output)
       const tx = txb.build()
 
       // build and broadcast to the Bitcoin RegTest network
@@ -143,7 +141,7 @@ describe('bitcoinjs-lib (transactions)', function () {
     })
   })
 
-  it('can create (and broadcast via 3PBP) a Transaction with a SegWit P2SH(P2WPKH) input', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2SH(P2WPKH) input', function (done) {
     this.timeout(30000)
 
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
@@ -174,7 +172,7 @@ describe('bitcoinjs-lib (transactions)', function () {
     })
   })
 
-  it('can create (and broadcast via 3PBP) a Transaction with a SegWit 3-of-4 P2SH(P2WSH(multisig)) input', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2SH(P2WSH(P2MS(3 of 4))) (SegWit multisig) input', function (done) {
     this.timeout(50000)
 
     const keyPairs = [

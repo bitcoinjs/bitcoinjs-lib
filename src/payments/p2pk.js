@@ -10,6 +10,7 @@ let BITCOIN_NETWORK = require('../networks').bitcoin
 // output: {pubKey} OP_CHECKSIG
 function p2pk (a, opts) {
   if (
+    !a.input &&
     !a.output &&
     !a.pubkey &&
     !a.input &&
