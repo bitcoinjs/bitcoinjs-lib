@@ -9,14 +9,15 @@ const u = require('./payments.utils')
     const fixtures = require('./fixtures/' + p)
 
     fixtures.valid.forEach(function (f, i) {
-      const args = u.preform(f.arguments)
-
       it(f.description + ' as expected', function () {
+        const args = u.preform(f.arguments)
         const actual = fn(args, f.options)
+
         u.equate(actual, f.expected, f.arguments)
       })
 
       it(f.description + ' as expected (no validation)', function () {
+        const args = u.preform(f.arguments)
         const actual = fn(args, Object.assign({}, f.options, {
           validate: false
         }))
