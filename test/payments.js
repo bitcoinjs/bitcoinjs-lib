@@ -3,7 +3,7 @@
 const assert = require('assert')
 const u = require('./payments.utils')
 
-;['p2data', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(function (p) {
+;['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(function (p) {
   describe(p, function () {
     const fn = require('../src/payments/' + p)
     const fixtures = require('./fixtures/' + p)

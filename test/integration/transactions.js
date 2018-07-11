@@ -91,9 +91,9 @@ describe('bitcoinjs-lib (transactions)', function () {
 
       const txb = new bitcoin.TransactionBuilder(regtest)
       const data = Buffer.from('bitcoinjs-lib', 'utf8')
-      const p2data = bitcoin.payments.p2data({ data: [data] })
+      const embed = bitcoin.payments.embed({ data: [data] })
       txb.addInput(unspent.txId, unspent.vout)
-      txb.addOutput(p2data.output, 1000)
+      txb.addOutput(embed.output, 1000)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e5)
       txb.sign(0, keyPair)
 
