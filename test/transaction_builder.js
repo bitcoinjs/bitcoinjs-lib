@@ -4,8 +4,8 @@ const assert = require('assert')
 const baddress = require('../src/address')
 const bcrypto = require('../src/crypto')
 const bscript = require('../src/script')
-const btemplates = require('../src/templates')
 const ops = require('bitcoin-ops')
+const payments = require('../src/payments')
 
 const ECPair = require('../src/ecpair')
 const Transaction = require('../src/transaction')
@@ -468,10 +468,17 @@ describe('TransactionBuilder', function () {
                 const scriptSig = tx.ins[i].script
 
                 // ignore OP_0 on the front, ignore redeemScript
-                const signatures = bscript.decompile(scriptSig).slice(1, -1).filter(function (x) { return x !== ops.OP_0 })
+                const signatures = bscript.decompile(scriptSig)
+                  .slice(1, -1)
+                  .filter(x => x !== ops.OP_0)
 
                 // rebuild/replace the scriptSig without them
-                const replacement = btemplates.scriptHash.input.encode(btemplates.multisig.input.encode(signatures), redeemScript)
+                const replacement = payments.p2sh({
+                  redeem: payments.p2ms({
+                    output: redeemScript,
+                    signatures
+                  }, { allowIncomplete: true })
+                }).input
                 assert.strictEqual(bscript.toASM(replacement), sign.scriptSigFiltered)
 
                 tx.ins[i].script = replacement

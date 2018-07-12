@@ -76,12 +76,10 @@ describe('bitcoinjs-lib (BIP32)', function () {
     const path = "m/49'/1'/0'/0/0"
     const child = root.derivePath(path)
 
-    const keyhash = bitcoin.crypto.hash160(child.publicKey)
-    const scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash)
-    const addressBytes = bitcoin.crypto.hash160(scriptSig)
-    const outputScript = bitcoin.script.scriptHash.output.encode(addressBytes)
-    const address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.testnet)
-
+    const { address } = bitcoin.payments.p2sh({
+      redeem: bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: bitcoin.networks.testnet }),
+      network: bitcoin.networks.testnet
+    })
     assert.equal(address, '2Mww8dCYPUpKHofjgcXcBCEGmniw9CoaiD2')
   })
 

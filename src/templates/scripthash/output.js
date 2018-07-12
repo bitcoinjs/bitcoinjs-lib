@@ -1,8 +1,6 @@
 // OP_HASH160 {scriptHash} OP_EQUAL
 
 const bscript = require('../../script')
-const types = require('../../types')
-const typeforce = require('typeforce')
 const OPS = require('bitcoin-ops')
 
 function check (script) {
@@ -15,20 +13,4 @@ function check (script) {
 }
 check.toJSON = function () { return 'scriptHash output' }
 
-function encode (scriptHash) {
-  typeforce(types.Hash160bit, scriptHash)
-
-  return bscript.compile([OPS.OP_HASH160, scriptHash, OPS.OP_EQUAL])
-}
-
-function decode (buffer) {
-  typeforce(check, buffer)
-
-  return buffer.slice(2, 22)
-}
-
-module.exports = {
-  check: check,
-  decode: decode,
-  encode: encode
-}
+module.exports = { check }

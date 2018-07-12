@@ -12,6 +12,7 @@ const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZs
 describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   // force update MTP
   before(function (done) {
+    this.timeout(30000)
     regtestUtils.mine(11, done)
   })
 
@@ -44,12 +45,15 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
 
       // 5 blocks from now
       const sequence = bip68.encode({ blocks: 5 })
-      const redeemScript = csvCheckSigOutput(alice, bob, sequence)
-      const scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-      const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+      const p2sh = bitcoin.payments.p2sh({
+        redeem: {
+          output: csvCheckSigOutput(alice, bob, sequence)
+        },
+        network: regtest
+      })
 
       // fund the P2SH(CSV) address
-      regtestUtils.faucet(address, 1e5, function (err, unspent) {
+      regtestUtils.faucet(p2sh.address, 1e5, function (err, unspent) {
         if (err) return done(err)
 
         const txb = new bitcoin.TransactionBuilder(regtest)
@@ -58,11 +62,18 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
 
         // {Alice's signature} OP_TRUE
         const tx = txb.buildIncomplete()
-        const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
-        const redeemScriptSig = bitcoin.script.scriptHash.input.encode([
-          bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
-          bitcoin.opcodes.OP_TRUE
-        ], redeemScript)
+        const signatureHash = tx.hashForSignature(0, p2sh.redeem.output, hashType)
+        const redeemScriptSig = bitcoin.payments.p2sh({
+          network: regtest,
+          redeem: {
+            network: regtest,
+            output: p2sh.redeem.output,
+            input: bitcoin.script.compile([
+              bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+              bitcoin.opcodes.OP_TRUE
+            ])
+          }
+        }).input
         tx.setInputScript(0, redeemScriptSig)
 
         // TODO: test that it failures _prior_ to expiry, unfortunately, race conditions when run concurrently
@@ -92,12 +103,15 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
 
     // two hours after confirmation
     const sequence = bip68.encode({ seconds: 7168 })
-    const redeemScript = csvCheckSigOutput(alice, bob, sequence)
-    const scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
-    const address = bitcoin.address.fromOutputScript(scriptPubKey, regtest)
+    const p2sh = bitcoin.payments.p2sh({
+      network: regtest,
+      redeem: {
+        output: csvCheckSigOutput(alice, bob, sequence)
+      }
+    })
 
     // fund the P2SH(CSV) address
-    regtestUtils.faucet(address, 2e4, function (err, unspent) {
+    regtestUtils.faucet(p2sh.address, 2e4, function (err, unspent) {
       if (err) return done(err)
 
       const txb = new bitcoin.TransactionBuilder(regtest)
@@ -106,12 +120,19 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
 
       // {Alice's signature} OP_TRUE
       const tx = txb.buildIncomplete()
-      const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
-      const redeemScriptSig = bitcoin.script.scriptHash.input.encode([
-        bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
-        bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
-        bitcoin.opcodes.OP_TRUE
-      ], redeemScript)
+      const signatureHash = tx.hashForSignature(0, p2sh.redeem.output, hashType)
+      const redeemScriptSig = bitcoin.payments.p2sh({
+        network: regtest,
+        redeem: {
+          network: regtest,
+          output: p2sh.redeem.output,
+          input: bitcoin.script.compile([
+            bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+            bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
+            bitcoin.opcodes.OP_TRUE
+          ])
+        }
+      }).input
       tx.setInputScript(0, redeemScriptSig)
 
       regtestUtils.broadcast(tx.toHex(), function (err) {

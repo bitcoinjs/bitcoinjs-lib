@@ -1,12 +1,12 @@
-let lazy = require('./lazy')
-let typef = require('typeforce')
-let OPS = require('bitcoin-ops')
-let ecc = require('tiny-secp256k1')
+const lazy = require('./lazy')
+const typef = require('typeforce')
+const OPS = require('bitcoin-ops')
+const ecc = require('tiny-secp256k1')
 
-let baddress = require('../address')
-let bcrypto = require('../crypto')
-let bscript = require('../script')
-let BITCOIN_NETWORK = require('../networks').bitcoin
+const bcrypto = require('../crypto')
+const bscript = require('../script')
+const BITCOIN_NETWORK = require('../networks').bitcoin
+const bs58check = require('bs58check')
 
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
@@ -31,15 +31,24 @@ function p2pkh (a, opts) {
     input: typef.maybe(typef.Buffer)
   }, a)
 
-  let _address = lazy.value(function () { return baddress.fromBase58Check(a.address) })
-  let _chunks = lazy.value(function () { return bscript.decompile(a.input) })
+  const _address = lazy.value(function () {
+    const payload = bs58check.decode(a.address)
+    const version = payload.readUInt8(0)
+    const hash = payload.slice(1)
+    return { version, hash }
+  })
+  const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
 
-  let network = a.network || BITCOIN_NETWORK
-  let o = { network }
+  const network = a.network || BITCOIN_NETWORK
+  const o = { network }
 
   lazy.prop(o, 'address', function () {
     if (!o.hash) return
-    return baddress.toBase58Check(o.hash, network.pubKeyHash)
+
+    const payload = Buffer.allocUnsafe(21)
+    payload.writeUInt8(network.pubKeyHash, 0)
+    o.hash.copy(payload, 1)
+    return bs58check.encode(payload)
   })
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(3, 23)

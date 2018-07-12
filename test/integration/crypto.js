@@ -18,16 +18,11 @@ describe('bitcoinjs-lib (crypto)', function () {
     const tx = bitcoin.Transaction.fromHex('01000000020b668015b32a6178d8524cfef6dc6fc0a4751915c2e9b2ed2d2eab02424341c8000000006a47304402205e00298dc5265b7a914974c9d0298aa0e69a0ca932cb52a360436d6a622e5cd7022024bf5f506968f5f23f1835574d5afe0e9021b4a5b65cf9742332d5e4acb68f41012103fd089f73735129f3d798a657aaaa4aa62a00fa15c76b61fc7f1b27ed1d0f35b8ffffffffa95fa69f11dc1cbb77ef64f25a95d4b12ebda57d19d843333819d95c9172ff89000000006b48304502205e00298dc5265b7a914974c9d0298aa0e69a0ca932cb52a360436d6a622e5cd7022100832176b59e8f50c56631acbc824bcba936c9476c559c42a4468be98975d07562012103fd089f73735129f3d798a657aaaa4aa62a00fa15c76b61fc7f1b27ed1d0f35b8ffffffff02b000eb04000000001976a91472956eed9a8ecb19ae7e3ebd7b06cae4668696a788ac303db000000000001976a9146c0bd55dd2592287cd9992ce3ba3fc1208fb76da88ac00000000')
 
     tx.ins.forEach(function (input, vin) {
-      const script = input.script
-      const scriptChunks = bitcoin.script.decompile(script)
+      const { output: prevOutput, pubkey, signature } = bitcoin.payments.p2pkh({ input: input.script })
 
-      assert(bitcoin.script.pubKeyHash.input.check(scriptChunks), 'Expected pubKeyHash script')
-      const prevOutScript = bitcoin.address.toOutputScript('1ArJ9vRaQcoQ29mTWZH768AmRwzb6Zif1z')
-      const scriptSignature = bitcoin.script.signature.decode(scriptChunks[0])
-      const publicKey = bitcoin.ECPair.fromPublicKey(scriptChunks[1])
-
-      const m = tx.hashForSignature(vin, prevOutScript, scriptSignature.hashType)
-      assert(publicKey.verify(m, scriptSignature.signature), 'Invalid m')
+      const scriptSignature = bitcoin.script.signature.decode(signature)
+      const m = tx.hashForSignature(vin, prevOutput, scriptSignature.hashType)
+      assert(bitcoin.ECPair.fromPublicKey(pubkey).verify(m, scriptSignature.signature), 'Invalid m')
 
       // store the required information
       input.signature = scriptSignature.signature

@@ -1,12 +1,12 @@
-const decompile = require('../script').decompile
-const multisig = require('./multisig')
-const nullData = require('./nulldata')
-const pubKey = require('./pubkey')
-const pubKeyHash = require('./pubkeyhash')
-const scriptHash = require('./scripthash')
-const witnessPubKeyHash = require('./witnesspubkeyhash')
-const witnessScriptHash = require('./witnessscripthash')
-const witnessCommitment = require('./witnesscommitment')
+const decompile = require('./script').decompile
+const multisig = require('./templates/multisig')
+const nullData = require('./templates/nulldata')
+const pubKey = require('./templates/pubkey')
+const pubKeyHash = require('./templates/pubkeyhash')
+const scriptHash = require('./templates/scripthash')
+const witnessPubKeyHash = require('./templates/witnesspubkeyhash')
+const witnessScriptHash = require('./templates/witnessscripthash')
+const witnessCommitment = require('./templates/witnesscommitment')
 
 const types = {
   MULTISIG: 'multisig',
@@ -63,16 +63,8 @@ function classifyWitness (script, allowIncomplete) {
 }
 
 module.exports = {
-  classifyInput: classifyInput,
-  classifyOutput: classifyOutput,
-  classifyWitness: classifyWitness,
-  multisig: multisig,
-  nullData: nullData,
-  pubKey: pubKey,
-  pubKeyHash: pubKeyHash,
-  scriptHash: scriptHash,
-  witnessPubKeyHash: witnessPubKeyHash,
-  witnessScriptHash: witnessScriptHash,
-  witnessCommitment: witnessCommitment,
+  input: classifyInput,
+  output: classifyOutput,
+  witness: classifyWitness,
   types: types
 }
