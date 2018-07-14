@@ -228,6 +228,24 @@
       }
     },
     {
+      "exception": "Invalid version or Network mismatch",
+      "arguments": {
+        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh"
+      }
+    },
+    {
+      "exception": "Invalid address",
+      "arguments": {
+        "address": "TYPjCiGbKiwP6r12cdkmVjySbQr7mb3r"
+      }
+    },
+    {
+      "exception": "Invalid address",
+      "arguments": {
+        "address": "EDaBpuERpLssFzbCV1kgy8tKJsHrcwmzY7HDMF2"
+      }
+    },
+    {
       "exception": "Input too short",
       "arguments": {
         "input": ""
@@ -278,6 +296,21 @@
       "exception": "Redeem.output too short",
       "arguments": {
         "inputHex": "021000"
+      }
+    },
+    {
+      "exception": "Witness and redeem.witness mismatch",
+      "arguments": {
+        "witness": [
+          "3045ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "030000000000000000000000000000000000000000000000000000000000000001"
+        ],
+        "redeem": {
+          "witness": [
+            "3045dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "030000000000000000000000000000000000000000000000000000000000000001"
+          ]
+        }
       }
     },
     {

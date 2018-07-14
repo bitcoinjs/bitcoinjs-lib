@@ -90,17 +90,11 @@ function p2wpkh (a, opts) {
   if (opts.validate) {
     let hash
     if (a.address) {
-      if (network && network.bech32 !== _address().prefix) throw new TypeError('Network mismatch')
-      if (_address().version !== 0x00) throw new TypeError('Invalid version')
-      if (_address().data.length !== 20) throw new TypeError('Invalid data')
-      if (hash && !hash.equals(_address().data)) throw new TypeError('Hash mismatch')
-      else hash = _address().data
-    }
-
-    if (a.pubkey) {
-      const pkh = bcrypto.hash160(a.pubkey)
-      if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
-      else hash = pkh
+      if (network && network.bech32 !== _address().prefix) throw new TypeError('Invalid prefix or Network mismatch')
+      if (_address().version !== 0x00) throw new TypeError('Invalid address version')
+      if (_address().data.length !== 20) throw new TypeError('Invalid address data')
+      // if (hash && !hash.equals(_address().data)) throw new TypeError('Hash mismatch')
+      hash = _address().data
     }
 
     if (a.hash) {
@@ -115,6 +109,12 @@ function p2wpkh (a, opts) {
         a.output[1] !== 0x14) throw new TypeError('Output is invalid')
       if (hash && !hash.equals(a.output.slice(2))) throw new TypeError('Hash mismatch')
       else hash = a.output.slice(2)
+    }
+
+    if (a.pubkey) {
+      const pkh = bcrypto.hash160(a.pubkey)
+      if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
+      else hash = pkh
     }
 
     if (a.witness) {

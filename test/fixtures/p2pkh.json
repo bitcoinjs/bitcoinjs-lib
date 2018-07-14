@@ -122,6 +122,24 @@
       }
     },
     {
+      "exception": "Invalid version or Network mismatch",
+      "arguments": {
+        "address": "3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr"
+      }
+    },
+    {
+      "exception": "Invalid address",
+      "arguments": {
+        "address": "111111111111111111117K4nzc"
+      }
+    },
+    {
+      "exception": "Invalid address",
+      "arguments": {
+        "address": "111111111111111111111111133izVn"
+      }
+    },
+    {
       "exception": "Pubkey mismatch",
       "arguments": {
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
