@@ -118,9 +118,9 @@ function p2wpkh (a, opts) {
     }
 
     if (a.witness) {
-      if (a.witness.length !== 2) throw new TypeError('Input is invalid')
-      if (!bscript.isCanonicalScriptSignature(a.witness[0])) throw new TypeError('Input has invalid signature')
-      if (!ecc.isPoint(a.witness[1])) throw new TypeError('Input has invalid pubkey')
+      if (a.witness.length !== 2) throw new TypeError('Witness is invalid')
+      if (!bscript.isCanonicalScriptSignature(a.witness[0])) throw new TypeError('Witness has invalid signature')
+      if (!ecc.isPoint(a.witness[1])) throw new TypeError('Witness has invalid pubkey')
 
       if (a.signature && !a.signature.equals(a.witness[0])) throw new TypeError('Signature mismatch')
       if (a.pubkey && !a.pubkey.equals(a.witness[1])) throw new TypeError('Pubkey mismatch')

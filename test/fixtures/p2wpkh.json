@@ -148,7 +148,13 @@
       }
     },
     {
-      "exception": "Input has invalid signature",
+      "exception": "Witness is invalid",
+      "arguments": {
+        "witness": []
+      }
+    },
+    {
+      "exception": "Witness has invalid signature",
       "arguments": {
         "witness": [
           "ffffffffffffffffff",
@@ -157,7 +163,7 @@
       }
     },
     {
-      "exception": "Input has invalid pubkey",
+      "exception": "Witness has invalid pubkey",
       "arguments": {
         "witness": [
           "300602010002010001",
