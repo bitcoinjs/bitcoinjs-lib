@@ -1,3 +1,23 @@
+# 3.3.2
+__fixed__
+- Fixed `decodeStack` arbitrarily supporting non-Array arguments (#942)
+
+# 3.3.1
+__changed__
+- Increased the `TransactionBuilder` `maximumFeeRate` from 1000 to 2500 satoshis/byte. (#931)
+
+# 3.3.0
+__added__
+- Added `ECSignature.prototype.toRSBuffer`/`ECSignature.fromRSBuffer` (#915)
+- Added support to `TransactionBuilder` for 64-byte signatures via `.sign` (#915)
+- Added support to `TransactionBuilder` for the `.publicKey` standard as an alternative to `.getPublicKey()` (#915)
+
+# 3.2.1
+__fixed__
+- Fixed `script.scripthash.input.check` recursion (#898)
+- Fixed `TransactionBuilder` sometimes ignoring witness value (#901)
+- Fixed `script.witnessScriptHash.input` implementation (previously used the P2SH impl.) (#911)
+
 # 3.2.0
 __added__
 - Added `address.fromBech32/toBech32` (#846)
