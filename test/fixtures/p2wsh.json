@@ -268,6 +268,45 @@
           "02ffff"
         ]
       }
+    },
+    {
+      "exception": "Ambiguous witness source",
+      "arguments": {
+        "redeem": {
+          "output": "OP_TRUE",
+          "input": "01",
+          "witness": [
+            "01"
+          ]
+        }
+      }
+    },
+    {
+      "exception": "Network mismatch",
+      "arguments": {
+        "network": "bitcoin",
+        "redeem": {
+          "network": "testnet"
+        }
+      }
+    },
+    {
+      "exception": "Invalid prefix or Network mismatch",
+      "arguments": {
+        "address": "foo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs30dvv"
+      }
+    },
+    {
+      "exception": "Invalid address version",
+      "arguments": {
+        "address": "bc1pqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq5us4ke"
+      }
+    },
+    {
+      "exception": "Invalid address data",
+      "arguments": {
+        "address": "bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8"
+      }
     }
   ],
   "dynamic": {
