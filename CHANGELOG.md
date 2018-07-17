@@ -21,6 +21,7 @@ __removed__
 - Removed `ECPair.prototype.getAddress`, use `payments.p2pkh` instead (#1085)
 - Removed `ECPair.prototype.getPrivateKey`, use `ECPair.prototype.privateKey` property (#1070)
 - Removed `ECPair.prototype.getPublicKey`, use `ECPair.prototype.publicKey` property (#1070)
+- Removed `ECPair.prototype.getNetwork`, use `ECPair.prototype.network` property (#1070)
 - Removed `ECSignature`, use `script.signature.encode/decode` instead (#459)
 - Removed `HDNode`, use `bip32` export instead (#1073)
 - Removed `bufferutils` (#1035)
