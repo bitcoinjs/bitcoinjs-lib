@@ -1,16 +1,14 @@
 sudo: false
 language: node_js
 node_js:
-  - "6"
-  - "7"
   - "8"
   - "9"
   - "10"
 matrix:
   include:
-    - node_js: "6"
+    - node_js: "8"
       env: TEST_SUITE=standard
-    - node_js: "6"
+    - node_js: "8"
       env: TEST_SUITE=coverage
 env:
   - TEST_SUITE=unit
