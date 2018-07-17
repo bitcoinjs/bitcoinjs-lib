@@ -233,10 +233,10 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
     }
 
     return {
-      redeemScript: redeemScript,
+      redeemScript,
       redeemScriptType: SCRIPT_TYPES.P2WSH,
 
-      witnessScript: witnessScript,
+      witnessScript,
       witnessScriptType: expanded.type,
 
       prevOutType: SCRIPT_TYPES.P2SH,
@@ -274,14 +274,14 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
     }
 
     return {
-      redeemScript: redeemScript,
+      redeemScript,
       redeemScriptType: expanded.type,
 
       prevOutType: SCRIPT_TYPES.P2SH,
       prevOutScript: p2sh.output,
 
       hasWitness: expanded.type === SCRIPT_TYPES.P2WPKH,
-      signScript: signScript,
+      signScript,
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
@@ -304,7 +304,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
     }
 
     return {
-      witnessScript: witnessScript,
+      witnessScript,
       witnessScriptType: expanded.type,
 
       prevOutType: SCRIPT_TYPES.P2WSH,
@@ -331,12 +331,17 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       expanded.signatures = input.signatures
     }
 
+    let signScript = input.prevOutScript
+    if (expanded.type === SCRIPT_TYPES.P2WPKH) {
+      signScript = payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output
+    }
+
     return {
       prevOutType: expanded.type,
       prevOutScript: input.prevOutScript,
 
       hasWitness: expanded.type === SCRIPT_TYPES.P2WPKH,
-      signScript: input.prevOutScript,
+      signScript,
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
