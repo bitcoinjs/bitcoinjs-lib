@@ -99,7 +99,7 @@ function preform (x) {
     if (typeof x.redeem.input === 'string') x.redeem.input = asmToBuffer(x.redeem.input)
     if (typeof x.redeem.output === 'string') x.redeem.output = asmToBuffer(x.redeem.output)
     if (Array.isArray(x.redeem.witness)) x.redeem.witness = x.redeem.witness.map(fromHex)
-    x.redeem.network = bnetworks[x.redeem.network] || x.network || bnetworks.bitcoin
+    if (x.redeem.network) x.redeem.network = bnetworks[x.redeem.network]
   }
 
   return x

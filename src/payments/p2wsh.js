@@ -119,9 +119,9 @@ function p2wsh (a, opts) {
   if (opts.validate) {
     let hash
     if (a.address) {
-      if (_address().prefix !== network.bech32) throw new TypeError('Network mismatch')
-      if (_address().version !== 0x00) throw new TypeError('Invalid version')
-      if (_address().data.length !== 32) throw new TypeError('Invalid data')
+      if (_address().prefix !== network.bech32) throw new TypeError('Invalid prefix or Network mismatch')
+      if (_address().version !== 0x00) throw new TypeError('Invalid address version')
+      if (_address().data.length !== 32) throw new TypeError('Invalid address data')
       else hash = _address().data
     }
 
