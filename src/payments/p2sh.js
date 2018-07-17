@@ -109,7 +109,7 @@ function p2sh (a, opts) {
   if (opts.validate) {
     let hash
     if (a.address) {
-      if (_address().version !== network.scriptHash) throw new TypeError('Network mismatch')
+      if (_address().version !== network.scriptHash) throw new TypeError('Invalid version or Network mismatch')
       if (_address().hash.length !== 20) throw new TypeError('Invalid address')
       else hash = _address().hash
     }

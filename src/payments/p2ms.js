@@ -1,11 +1,11 @@
-let lazy = require('./lazy')
-let typef = require('typeforce')
-let OPS = require('bitcoin-ops')
-let ecc = require('tiny-secp256k1')
+const lazy = require('./lazy')
+const typef = require('typeforce')
+const OPS = require('bitcoin-ops')
+const ecc = require('tiny-secp256k1')
 
-let bscript = require('../script')
-let BITCOIN_NETWORK = require('../networks').bitcoin
-let OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
+const bscript = require('../script')
+const BITCOIN_NETWORK = require('../networks').bitcoin
+const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function stacksEqual (a, b) {
   if (a.length !== b.length) return false
@@ -41,8 +41,8 @@ function p2ms (a, opts) {
     input: typef.maybe(typef.Buffer)
   }, a)
 
-  let network = a.network || BITCOIN_NETWORK
-  let o = { network }
+  const network = a.network || BITCOIN_NETWORK
+  const o = { network }
 
   let chunks
   let decoded = false
@@ -50,10 +50,8 @@ function p2ms (a, opts) {
     if (decoded) return
     decoded = true
     chunks = bscript.decompile(output)
-    let om = chunks[0] - OP_INT_BASE
-    let on = chunks[chunks.length - 2] - OP_INT_BASE
-    o.m = om
-    o.n = on
+    o.m = chunks[0] - OP_INT_BASE
+    o.n = chunks[chunks.length - 2] - OP_INT_BASE
     o.pubkeys = chunks.slice(1, -2)
   }
 
