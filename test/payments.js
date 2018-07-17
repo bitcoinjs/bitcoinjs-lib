@@ -3,20 +3,21 @@
 const assert = require('assert')
 const u = require('./payments.utils')
 
-;['p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(function (p) {
+;['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(function (p) {
   describe(p, function () {
     const fn = require('../src/payments/' + p)
     const fixtures = require('./fixtures/' + p)
 
     fixtures.valid.forEach(function (f, i) {
-      const args = u.preform(f.arguments)
-
       it(f.description + ' as expected', function () {
+        const args = u.preform(f.arguments)
         const actual = fn(args, f.options)
+
         u.equate(actual, f.expected, f.arguments)
       })
 
       it(f.description + ' as expected (no validation)', function () {
+        const args = u.preform(f.arguments)
         const actual = fn(args, Object.assign({}, f.options, {
           validate: false
         }))
