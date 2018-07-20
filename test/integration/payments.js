@@ -55,15 +55,11 @@ function buildAndSign (depends, prevOutput, redeemScript, witnessScript, done) {
     })
 
     it('can (as P2WSH(' + k + ')) broadcast as an output, and be spent as an input', (done) => {
-      if (k === 'p2wpkh') return done() // skip P2WSH(P2WPKH)
-
       const p2wsh = bitcoin.payments.p2wsh({ redeem: { output }, network: NETWORK })
       buildAndSign(depends, p2wsh.output, null, p2wsh.redeem.output, done)
     })
 
     it('can (as P2SH(P2WSH(' + k + '))) broadcast as an output, and be spent as an input', (done) => {
-      if (k === 'p2wpkh') return done() // skip P2SH(P2WSH(P2WPKH))
-
       const p2wsh = bitcoin.payments.p2wsh({ redeem: { output }, network: NETWORK })
       const p2sh = bitcoin.payments.p2sh({ redeem: { output: p2wsh.output }, network: NETWORK })
 
