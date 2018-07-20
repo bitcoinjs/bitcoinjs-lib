@@ -38,7 +38,10 @@ function faucet (address, value, callback) {
     unspents(address, function (err, results) {
       if (err) return callback(err)
 
-      callback(null, results.filter(x => x.txId === txId).pop())
+      const unspents = results.filter(x => x.txId === txId)
+      if (unspents.length === 0) return callback(new Error('Missing unspent'))
+
+      callback(null, unspents.pop())
     })
   })
 }
