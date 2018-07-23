@@ -7,9 +7,6 @@ const bip32 = require('bip32')
 const crypto = require('crypto')
 const tinysecp = require('tiny-secp256k1')
 
-const ecurve = require('ecurve')
-const secp256k1 = ecurve.getCurveByName('secp256k1')
-
 describe('bitcoinjs-lib (crypto)', function () {
   it('can recover a private key from duplicate R values', function () {
     this.timeout(30000)
@@ -29,8 +26,7 @@ describe('bitcoinjs-lib (crypto)', function () {
       input.z = new BN(m)
     })
 
-    // finally, run the tasks, then on to the math
-    const n = new BN(secp256k1.n.toString())
+    const n = new BN('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141', 16)
 
     for (var i = 0; i < tx.ins.length; ++i) {
       for (var j = i + 1; j < tx.ins.length; ++j) {

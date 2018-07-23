@@ -1,3 +1,8 @@
+# 4.0.1
+__fixed__
+- Fixed `tiny-secp256k1` dependency version (used `ecurve`) (#1139)
+- Fixed `TransactionBuilder` throwing when trying to sign `P2WSH(P2WPKH)` (#1135)
+
 # 4.0.0
 __added__
 - Added [`bip32`](https://github.com/bitcoinjs/bip32) dependency as a primary export (#1073)
