@@ -232,6 +232,9 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       expanded.signatures = input.signatures
     }
 
+    let signScript = witnessScript
+    if (expanded.type === SCRIPT_TYPES.P2WPKH) throw new Error('P2SH(P2WSH(P2WPKH)) is a consensus failure')
+
     return {
       redeemScript,
       redeemScriptType: SCRIPT_TYPES.P2WSH,
@@ -243,7 +246,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       prevOutScript: p2sh.output,
 
       hasWitness: true,
-      signScript: witnessScript,
+      signScript,
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
@@ -303,6 +306,9 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       expanded.signatures = input.signatures
     }
 
+    let signScript = witnessScript
+    if (expanded.type === SCRIPT_TYPES.P2WPKH) throw new Error('P2WSH(P2WPKH) is a consensus failure')
+
     return {
       witnessScript,
       witnessScriptType: expanded.type,
@@ -311,7 +317,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       prevOutScript: p2wsh.output,
 
       hasWitness: true,
-      signScript: witnessScript,
+      signScript,
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,

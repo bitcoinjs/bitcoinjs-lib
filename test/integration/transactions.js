@@ -171,91 +171,63 @@ describe('bitcoinjs-lib (transactions)', function () {
     })
   })
 
-  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WPKH input (via a P2SH(P2WPKH) transaction)', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WPKH input', function (done) {
     this.timeout(30000)
 
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network: regtest })
 
-    // prepare a P2SH(P2WPKH) faucet transaction, as Bitcoin-core doesn't support bare P2WPKH outputs (...yet)
-    const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: regtest })
-
-    regtestUtils.faucet(p2sh.address, 10e4, function (err, unspent) {
+    regtestUtils.faucetComplex(p2wpkh.address, 5e4, function (err, unspent) {
       if (err) return done(err)
 
-      const txvb = new bitcoin.TransactionBuilder(regtest)
-      txvb.addInput(unspent.txId, unspent.vout)
-      txvb.addOutput(p2wpkh.address, 6e4) // funds a P2WPKH address
-      txvb.sign(0, keyPair, p2sh.redeem.output, null, unspent.value)
-      const txv = txvb.build()
+      // XXX: build the Transaction w/ a P2WPKH input
+      const txb = new bitcoin.TransactionBuilder(regtest)
+      txb.addInput(unspent.txId, unspent.vout, null, p2wpkh.output) // NOTE: provide the prevOutScript!
+      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
+      txb.sign(0, keyPair, null, null, unspent.value) // NOTE: no redeem script
+      const tx = txb.build()
 
-      // build and broadcast (the via transaction) to the Bitcoin RegTest network
-      regtestUtils.broadcast(txv.toHex(), function (err) {
+      // build and broadcast (the P2WPKH transaction) to the Bitcoin RegTest network
+      regtestUtils.broadcast(tx.toHex(), function (err) {
         if (err) return done(err)
 
-        // XXX: build the Transaction w/ a P2WPKH input
-        const txb = new bitcoin.TransactionBuilder(regtest)
-        txb.addInput(txv.getId(), 0, null, p2wpkh.output) // NOTE: provide the prevOutScript!
-        txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
-        txb.sign(0, keyPair, null, null, 6e4) // NOTE: no redeem script
-        const tx = txb.build()
-
-        // build and broadcast (the P2WPKH transaction) to the Bitcoin RegTest network
-        regtestUtils.broadcast(tx.toHex(), function (err) {
-          if (err) return done(err)
-
-          regtestUtils.verify({
-            txId: tx.getId(),
-            address: regtestUtils.RANDOM_ADDRESS,
-            vout: 0,
-            value: 2e4
-          }, done)
-        })
+        regtestUtils.verify({
+          txId: tx.getId(),
+          address: regtestUtils.RANDOM_ADDRESS,
+          vout: 0,
+          value: 2e4
+        }, done)
       })
     })
   })
 
-  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WSH(P2PK) input (via a P2SH(P2PK) transaction)', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WSH(P2PK) input', function (done) {
     this.timeout(30000)
 
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
     const p2pk = bitcoin.payments.p2pk({ pubkey: keyPair.publicKey, network: regtest })
     const p2wsh = bitcoin.payments.p2wsh({ redeem: p2pk, network: regtest })
 
-    // prepare a P2SH(P2PK) faucet transaction, as Bitcoin-core doesn't support bare P2WSH outputs (...yet)
-    const p2sh = bitcoin.payments.p2sh({ redeem: p2pk, network: regtest })
-
-    regtestUtils.faucet(p2sh.address, 10e4, function (err, unspent) {
+    regtestUtils.faucetComplex(p2wsh.address, 5e4, function (err, unspent) {
       if (err) return done(err)
 
-      const txvb = new bitcoin.TransactionBuilder(regtest)
-      txvb.addInput(unspent.txId, unspent.vout)
-      txvb.addOutput(p2wsh.address, 6e4) // funds a P2WPKH address
-      txvb.sign(0, keyPair, p2sh.redeem.output)
-      const txv = txvb.build()
+      // XXX: build the Transaction w/ a P2WSH input
+      const txb = new bitcoin.TransactionBuilder(regtest)
+      txb.addInput(unspent.txId, unspent.vout, null, p2wsh.output) // NOTE: provide the prevOutScript!
+      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
+      txb.sign(0, keyPair, null, null, 5e4, p2wsh.redeem.output) // NOTE: provide a witnessScript!
+      const tx = txb.build()
 
-      // build and broadcast (the via transaction) to the Bitcoin RegTest network
-      regtestUtils.broadcast(txv.toHex(), function (err) {
+      // build and broadcast (the P2WSH transaction) to the Bitcoin RegTest network
+      regtestUtils.broadcast(tx.toHex(), function (err) {
         if (err) return done(err)
 
-        // XXX: build the Transaction w/ a P2WSH input
-        const txb = new bitcoin.TransactionBuilder(regtest)
-        txb.addInput(txv.getId(), 0, null, p2wsh.output) // NOTE: provide the prevOutScript!
-        txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
-        txb.sign(0, keyPair, null, null, 6e4, p2wsh.redeem.output) // NOTE: provide a witnessScript!
-        const tx = txb.build()
-
-        // build and broadcast (the P2WSH transaction) to the Bitcoin RegTest network
-        regtestUtils.broadcast(tx.toHex(), function (err) {
-          if (err) return done(err)
-
-          regtestUtils.verify({
-            txId: tx.getId(),
-            address: regtestUtils.RANDOM_ADDRESS,
-            vout: 0,
-            value: 2e4
-          }, done)
-        })
+        regtestUtils.verify({
+          txId: tx.getId(),
+          address: regtestUtils.RANDOM_ADDRESS,
+          vout: 0,
+          value: 2e4
+        }, done)
       })
     })
   })
