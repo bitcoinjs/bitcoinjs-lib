@@ -54,6 +54,9 @@ function buildAndSign (depends, prevOutput, redeemScript, witnessScript, done) {
       buildAndSign(depends, p2sh.output, p2sh.redeem.output, null, done)
     })
 
+    // NOTE: P2WPKH cannot be wrapped in P2WSH, consensus fail
+    if (k === 'p2wpkh') return
+
     it('can (as P2WSH(' + k + ')) broadcast as an output, and be spent as an input', (done) => {
       const p2wsh = bitcoin.payments.p2wsh({ redeem: { output }, network: NETWORK })
       buildAndSign(depends, p2wsh.output, null, p2wsh.redeem.output, done)
