@@ -233,9 +233,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
     }
 
     let signScript = witnessScript
-    if (expanded.type === SCRIPT_TYPES.P2WPKH) {
-      signScript = payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output
-    }
+    if (expanded.type === SCRIPT_TYPES.P2WPKH) throw new Error('P2SH(P2WSH(P2WPKH)) is a consensus failure')
 
     return {
       redeemScript,
@@ -309,9 +307,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
     }
 
     let signScript = witnessScript
-    if (expanded.type === SCRIPT_TYPES.P2WPKH) {
-      signScript = payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output
-    }
+    if (expanded.type === SCRIPT_TYPES.P2WPKH) throw new Error('P2WSH(P2WPKH) is a consensus failure')
 
     return {
       witnessScript,
