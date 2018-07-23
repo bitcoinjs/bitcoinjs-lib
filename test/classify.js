@@ -1,5 +1,4 @@
-/* global describe, it */
-
+const { describe, it } = require('mocha')
 const assert = require('assert')
 const bscript = require('../src/script')
 const classify = require('../src/classify')

@@ -1,5 +1,4 @@
-/* global describe, it */
-
+const { describe, it } = require('mocha')
 const assert = require('assert')
 const types = require('../src/types')
 const typeforce = require('typeforce')

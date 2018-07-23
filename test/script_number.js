@@ -1,5 +1,4 @@
-/* global describe, it */
-
+const { describe, it } = require('mocha')
 const assert = require('assert')
 const scriptNumber = require('../src/script_number')
 const fixtures = require('./fixtures/script_number.json')

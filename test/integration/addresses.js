@@ -1,5 +1,4 @@
-/* global describe, it */
-
+const { describe, it } = require('mocha')
 const assert = require('assert')
 const bitcoin = require('../../')
 const dhttp = require('dhttp/200')

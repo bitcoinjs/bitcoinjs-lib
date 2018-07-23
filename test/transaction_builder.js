@@ -1,5 +1,4 @@
-/* global describe, it, beforeEach */
-
+const { describe, it, beforeEach } = require('mocha')
 const assert = require('assert')
 const baddress = require('../src/address')
 const bcrypto = require('../src/crypto')

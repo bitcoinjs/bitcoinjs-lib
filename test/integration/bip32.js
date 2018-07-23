@@ -1,5 +1,4 @@
-/* global describe, it */
-
+const { describe, it } = require('mocha')
 const assert = require('assert')
 const bip32 = require('bip32')
 const bip39 = require('bip39')
