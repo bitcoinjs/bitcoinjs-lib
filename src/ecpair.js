@@ -5,9 +5,6 @@ const types = require('./types')
 const wif = require('wif')
 
 const NETWORKS = require('./networks')
-
-// TODO: why is the function name toJSON weird?
-function isPoint (x) { return ecc.isPoint(x) }
 const isOptions = typeforce.maybe(typeforce.compile({
   compressed: types.maybe(types.Boolean),
   network: types.maybe(types.Network)
@@ -57,7 +54,7 @@ function fromPrivateKey (buffer, options) {
 }
 
 function fromPublicKey (buffer, options) {
-  typeforce(isPoint, buffer)
+  typeforce(ecc.isPoint, buffer)
   typeforce(isOptions, options)
   return new ECPair(null, buffer, options)
 }
