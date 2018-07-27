@@ -313,6 +313,7 @@ describe('TransactionBuilder', function () {
     it('throws if if there exist any scriptSigs', function () {
       const txb = new TransactionBuilder()
       txb.addInput(txHash, 0)
+      txb.addOutput(scripts[0], 100)
       txb.sign(0, keyPair)
 
       assert.throws(function () {

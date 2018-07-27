@@ -2357,6 +2357,23 @@
             "value": 1000
           }
         ]
+      },
+      {
+        "description": "Transaction w/ no outputs",
+        "exception": "Transaction needs outputs",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": []
       }
     ],
     "fromTransaction": [
