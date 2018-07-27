@@ -65,7 +65,7 @@ function p2pk (a, opts) {
     }
 
     if (a.signature) {
-      if (a.input && !a.input.equals(o.input)) throw new TypeError('Input mismatch')
+      if (a.input && !a.input.equals(o.input)) throw new TypeError('Signature mismatch')
     }
 
     if (a.input) {
