@@ -7,7 +7,7 @@
       },
       "expected": {
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
-        "signatures": null,
+        "signature": null,
         "input": null,
         "witness": null
       }
@@ -19,7 +19,7 @@
       },
       "expected": {
         "output": "030000000000000000000000000000000000000000000000000000000000000001 OP_CHECKSIG",
-        "signatures": null,
+        "signature": null,
         "input": null,
         "witness": null
       }
