@@ -1,10 +1,10 @@
-let lazy = require('./lazy')
-let typef = require('typeforce')
-let OPS = require('bitcoin-ops')
-let ecc = require('tiny-secp256k1')
+const lazy = require('./lazy')
+const typef = require('typeforce')
+const OPS = require('bitcoin-ops')
+const ecc = require('tiny-secp256k1')
 
-let bscript = require('../script')
-let BITCOIN_NETWORK = require('../networks').bitcoin
+const bscript = require('../script')
+const BITCOIN_NETWORK = require('../networks').bitcoin
 
 // input: {signature}
 // output: {pubKey} OP_CHECKSIG
@@ -27,10 +27,10 @@ function p2pk (a, opts) {
     input: typef.maybe(typef.Buffer)
   }, a)
 
-  let _chunks = lazy.value(function () { return bscript.decompile(a.input) })
+  const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
 
-  let network = a.network || BITCOIN_NETWORK
-  let o = { network }
+  const network = a.network || BITCOIN_NETWORK
+  const o = { network }
 
   lazy.prop(o, 'output', function () {
     if (!a.pubkey) return

@@ -111,7 +111,7 @@ function p2sh (a, opts) {
     if (a.address) {
       if (_address().version !== network.scriptHash) throw new TypeError('Invalid version or Network mismatch')
       if (_address().hash.length !== 20) throw new TypeError('Invalid address')
-      else hash = _address().hash
+      hash = _address().hash
     }
 
     if (a.hash) {
@@ -125,6 +125,7 @@ function p2sh (a, opts) {
         a.output[0] !== OPS.OP_HASH160 ||
         a.output[1] !== 0x14 ||
         a.output[22] !== OPS.OP_EQUAL) throw new TypeError('Output is invalid')
+
       const hash2 = a.output.slice(2, 22)
       if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
       else hash = hash2
