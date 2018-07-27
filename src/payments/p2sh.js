@@ -58,7 +58,7 @@ function p2sh (a, opts) {
   const _redeem = lazy.value(function () {
     const chunks = _chunks()
     return {
-      network: network,
+      network,
       output: chunks[chunks.length - 1],
       input: bscript.compile(chunks.slice(0, -1)),
       witness: a.witness || []
@@ -166,9 +166,10 @@ function p2sh (a, opts) {
 
     if (a.redeem) {
       if (a.redeem.network && a.redeem.network !== network) throw new TypeError('Network mismatch')
-      if (o.redeem) {
-        if (a.redeem.output && !a.redeem.output.equals(o.redeem.output)) throw new TypeError('Redeem.output mismatch')
-        if (a.redeem.input && !a.redeem.input.equals(o.redeem.input)) throw new TypeError('Redeem.input mismatch')
+      if (a.input) {
+        const redeem = _redeem()
+        if (a.redeem.output && !a.redeem.output.equals(redeem.output)) throw new TypeError('Redeem.output mismatch')
+        if (a.redeem.input && !a.redeem.input.equals(redeem.input)) throw new TypeError('Redeem.input mismatch')
       }
 
       checkRedeem(a.redeem)
