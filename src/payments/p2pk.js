@@ -58,13 +58,10 @@ function p2pk (a, opts) {
 
   // extended validation
   if (opts.validate) {
-    if (a.pubkey && a.output) {
-      if (!a.pubkey.equals(o.pubkey)) throw new TypeError('Pubkey mismatch')
-    }
-
     if (a.output) {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG) throw new TypeError('Output is invalid')
       if (!ecc.isPoint(o.pubkey)) throw new TypeError('Output pubkey is invalid')
+      if (a.pubkey && !a.pubkey.equals(o.pubkey)) throw new TypeError('Pubkey mismatch')
     }
 
     if (a.signature) {
@@ -73,7 +70,7 @@ function p2pk (a, opts) {
 
     if (a.input) {
       if (_chunks().length !== 1) throw new TypeError('Input is invalid')
-      if (!bscript.isCanonicalScriptSignature(_chunks()[0])) throw new TypeError('Input has invalid signature')
+      if (!bscript.isCanonicalScriptSignature(o.signature)) throw new TypeError('Input has invalid signature')
     }
   }
 
