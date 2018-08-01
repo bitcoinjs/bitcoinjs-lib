@@ -22,7 +22,23 @@ const GROUP_ORDER = Buffer.from('fffffffffffffffffffffffffffffffebaaedce6af48a03
 const GROUP_ORDER_LESS_1 = Buffer.from('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140', 'hex')
 
 describe('ECPair', function () {
-  describe('constructor', function () {
+  describe('getPublicKey', function () {
+    let keyPair
+
+    beforeEach(function () {
+      keyPair = ECPair.fromPrivateKey(ONE)
+    })
+
+    it('calls pointFromScalar lazily', hoodwink(function () {
+      assert.strictEqual(keyPair.__Q, null)
+
+      // .publicKey forces the memoization
+      assert.strictEqual(keyPair.publicKey.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
+      assert.strictEqual(keyPair.__Q.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
+    }))
+  })
+
+  describe('fromPrivateKey', function () {
     it('defaults to compressed', function () {
       const keyPair = ECPair.fromPrivateKey(ONE)
 
@@ -49,8 +65,6 @@ describe('ECPair', function () {
     fixtures.valid.forEach(function (f) {
       it('derives public key for ' + f.WIF, function () {
         const d = Buffer.from(f.d, 'hex')
-        console.log(d)
-
         const keyPair = ECPair.fromPrivateKey(d, {
           compressed: f.compressed
         })
@@ -59,37 +73,25 @@ describe('ECPair', function () {
       })
     })
 
-    fixtures.invalid.constructor.forEach(function (f) {
+    fixtures.invalid.fromPrivateKey.forEach(function (f) {
       it('throws ' + f.exception, function () {
-        if (f.d) {
-          const d = Buffer.from(f.d, 'hex')
-          assert.throws(function () {
-            ECPair.fromPrivateKey(d, f.options)
-          }, new RegExp(f.exception))
-        } else {
-          const Q = Buffer.from(f.Q, 'hex')
-          assert.throws(function () {
-            ECPair.fromPublicKey(Q, f.options)
-          }, new RegExp(f.exception))
-        }
+        const d = Buffer.from(f.d, 'hex')
+        assert.throws(function () {
+          ECPair.fromPrivateKey(d, f.options)
+        }, new RegExp(f.exception))
       })
     })
   })
 
-  describe('getPublicKey', function () {
-    let keyPair
-
-    beforeEach(function () {
-      keyPair = ECPair.fromPrivateKey(ONE)
+  describe('fromPublicKey', function () {
+    fixtures.invalid.fromPublicKey.forEach(function (f) {
+      it('throws ' + f.exception, function () {
+        const Q = Buffer.from(f.Q, 'hex')
+        assert.throws(function () {
+          ECPair.fromPublicKey(Q, f.options)
+        }, new RegExp(f.exception))
+      })
     })
-
-    it('calls pointFromScalar lazily', hoodwink(function () {
-      assert.strictEqual(keyPair.__Q, null)
-
-      // .publicKey forces the memoization
-      assert.strictEqual(keyPair.publicKey.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
-      assert.strictEqual(keyPair.__Q.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
-    }))
   })
 
   describe('fromWIF', function () {
