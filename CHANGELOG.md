@@ -32,7 +32,7 @@ __removed__
 - Removed `bufferutils` (#1035)
 - Removed `networks.litecoin`, BYO non-Bitcoin networks instead (#1095)
 - Removed `script.isCanonicalSignature`, use `script.isCanonicalScriptSignature` instead (#1094)
-- Removed `script.*.input/output/check` functions (`templates`) (previously added in #681, #682) (#1119)
+- Removed `script.*.input/output/check` functions (`templates`), use `payments.*` instead (`templates` previously added in #681, #682) (#1119)
 - Removed dependency `bigi`, uses `bn.js` internally now (via `tiny-secp256k1`) (#1070, #1112)
 - Removed public access to `ECPair` constructor, use exported functions `ECPair.fromPrivateKey`, `ECPair.fromWIF`, `ECPair.makeRandom`, or `ECPair.fromPublicKey` (#1070)
 
