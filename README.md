@@ -27,7 +27,7 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 - Friendly, with a strong and helpful community, ready to answer questions.
 
 ## Documentation
-Presently,  we do not have any formal documentation other than our [examples](#Examples), please [ask for help](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new) if our examples aren't enough to guide you.
+Presently,  we do not have any formal documentation other than our [examples](#examples), please [ask for help](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new) if our examples aren't enough to guide you.
 
 
 ## Installation
