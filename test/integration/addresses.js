@@ -102,6 +102,8 @@ describe('bitcoinjs-lib (addresses)', function () {
   })
 
   it('can support the retrieval of transactions for an address (via 3PBP)', function (done) {
+    this.timeout(30000)
+
     const keyPair = bitcoin.ECPair.makeRandom()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
 
