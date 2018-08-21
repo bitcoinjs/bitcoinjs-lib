@@ -19,9 +19,46 @@ function getAddress (node) {
   return baddress.toBase58Check(bcrypto.hash160(node.publicKey), NETWORKS.bitcoin.pubKeyHash)
 }
 
+function constructSign (f, txb) {
+  const network = NETWORKS[f.network]
+  const stages = f.stages && f.stages.concat()
+
+  f.inputs.forEach(function (input, index) {
+    if (!input.signs) return
+    input.signs.forEach(function (sign) {
+      const keyPair = ECPair.fromWIF(sign.keyPair, network)
+      let redeemScript
+      let witnessScript
+      let value
+
+      if (sign.redeemScript) {
+        redeemScript = bscript.fromASM(sign.redeemScript)
+      }
+
+      if (sign.value) {
+        value = sign.value
+      }
+
+      if (sign.witnessScript) {
+        witnessScript = bscript.fromASM(sign.witnessScript)
+      }
+
+      txb.sign(index, keyPair, redeemScript, sign.hashType, value, witnessScript)
+
+      if (sign.stage) {
+        const tx = txb.buildIncomplete()
+        assert.strictEqual(tx.toHex(), stages.shift())
+        txb = TransactionBuilder.fromTransaction(tx, network)
+      }
+    })
+  })
+
+  return txb
+}
+
 function construct (f, dontSign) {
   const network = NETWORKS[f.network]
-  let txb = new TransactionBuilder(network)
+  const txb = new TransactionBuilder(network)
 
   if (Number.isFinite(f.version)) txb.setVersion(f.version)
   if (f.locktime !== undefined) txb.setLockTime(f.locktime)
@@ -55,39 +92,7 @@ function construct (f, dontSign) {
   })
 
   if (dontSign) return txb
-
-  const stages = f.stages && f.stages.concat()
-  f.inputs.forEach(function (input, index) {
-    if (!input.signs) return
-    input.signs.forEach(function (sign) {
-      const keyPair = ECPair.fromWIF(sign.keyPair, network)
-      let redeemScript
-      let witnessScript
-      let value
-
-      if (sign.redeemScript) {
-        redeemScript = bscript.fromASM(sign.redeemScript)
-      }
-
-      if (sign.value) {
-        value = sign.value
-      }
-
-      if (sign.witnessScript) {
-        witnessScript = bscript.fromASM(sign.witnessScript)
-      }
-
-      txb.sign(index, keyPair, redeemScript, sign.hashType, value, witnessScript)
-
-      if (sign.stage) {
-        const tx = txb.buildIncomplete()
-        assert.strictEqual(tx.toHex(), stages.shift())
-        txb = TransactionBuilder.fromTransaction(tx, network)
-      }
-    })
-  })
-
-  return txb
+  return constructSign(f, txb)
 }
 
 describe('TransactionBuilder', function () {
@@ -139,6 +144,27 @@ describe('TransactionBuilder', function () {
         txAfter.outs.forEach(function (output, i) {
           assert.equal(bscript.toASM(output.script), f.outputs[i].script)
         })
+      })
+    })
+
+    fixtures.valid.fromTransactionSequential.forEach(function (f) {
+      it('with ' + f.description, function () {
+        const network = NETWORKS[f.network]
+        const tx = Transaction.fromHex(f.txHex)
+        const txb = TransactionBuilder.fromTransaction(tx, network)
+
+        tx.ins.forEach(function (input, i) {
+          assert.equal(bscript.toASM(input.script), f.inputs[i].scriptSig)
+        })
+
+        constructSign(f, txb)
+        const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
+
+        txAfter.ins.forEach(function (input, i) {
+          assert.equal(bscript.toASM(input.script), f.inputs[i].scriptSigAfter)
+        })
+
+        assert.equal(txAfter.toHex(), f.txHexAfter)
       })
     })
 
