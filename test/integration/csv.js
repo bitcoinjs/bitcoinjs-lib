@@ -12,7 +12,6 @@ const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZs
 describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   // force update MTP
   before(function (done) {
-    this.timeout(30000)
     regtestUtils.mine(11, done)
   })
 
@@ -38,8 +37,6 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
 
   // expiry will pass, {Alice's signature} OP_TRUE
   it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', function (done) {
-    this.timeout(30000)
-
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
@@ -99,8 +96,6 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
 
   // expiry in the future, {Alice's signature} OP_TRUE
   it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry', function (done) {
-    this.timeout(30000)
-
     // two hours after confirmation
     const sequence = bip68.encode({ seconds: 7168 })
     const p2sh = bitcoin.payments.p2sh({

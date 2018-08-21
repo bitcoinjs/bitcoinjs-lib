@@ -45,8 +45,6 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can create (and broadcast via 3PBP) a typical Transaction', function (done) {
-    this.timeout(30000)
-
     const alice1 = bitcoin.ECPair.makeRandom({ network: regtest })
     const alice2 = bitcoin.ECPair.makeRandom({ network: regtest })
     const aliceChange = bitcoin.ECPair.makeRandom({ network: regtest, rng: rng })
@@ -81,8 +79,6 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can create (and broadcast via 3PBP) a Transaction with an OP_RETURN output', function (done) {
-    this.timeout(30000)
-
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
     const p2pkh = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: regtest })
 
@@ -103,8 +99,6 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can create (and broadcast via 3PBP) a Transaction, w/ a P2SH(P2MS(2 of 4)) (multisig) input', function (done) {
-    this.timeout(30000)
-
     const keyPairs = [
       bitcoin.ECPair.makeRandom({ network: regtest }),
       bitcoin.ECPair.makeRandom({ network: regtest }),
@@ -141,8 +135,6 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can create (and broadcast via 3PBP) a Transaction, w/ a P2SH(P2WPKH) input', function (done) {
-    this.timeout(30000)
-
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network: regtest })
     const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: regtest })
@@ -172,8 +164,6 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WPKH input', function (done) {
-    this.timeout(30000)
-
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network: regtest })
 
@@ -202,8 +192,6 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WSH(P2PK) input', function (done) {
-    this.timeout(30000)
-
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
     const p2pk = bitcoin.payments.p2pk({ pubkey: keyPair.publicKey, network: regtest })
     const p2wsh = bitcoin.payments.p2wsh({ redeem: p2pk, network: regtest })
@@ -233,8 +221,6 @@ describe('bitcoinjs-lib (transactions)', function () {
   })
 
   it('can create (and broadcast via 3PBP) a Transaction, w/ a P2SH(P2WSH(P2MS(3 of 4))) (SegWit multisig) input', function (done) {
-    this.timeout(50000)
-
     const keyPairs = [
       bitcoin.ECPair.makeRandom({ network: regtest }),
       bitcoin.ECPair.makeRandom({ network: regtest }),
