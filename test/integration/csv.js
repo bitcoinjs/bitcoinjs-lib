@@ -8,6 +8,8 @@ const bip68 = require('bip68')
 
 const alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', regtest)
 const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
+const charles = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMSb4Ubnf', regtest)
+const dave = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMwS4pqnx', regtest)
 
 describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   // force update MTP
@@ -32,6 +34,37 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
 
       aQ.publicKey,
       bitcoin.opcodes.OP_CHECKSIG
+    ])
+  }
+
+  // 2 of 3 multisig of bQ, cQ, dQ, but after sequence1 time,
+  // aQ can allow the multisig to become 1 of 3.
+  // But after sequence2 time, aQ can sign for the output all by themself.
+  function complexCsvOutput (aQ, bQ, cQ, dQ, sequence1, sequence2) {
+    return bitcoin.script.compile([
+       bitcoin.opcodes.OP_IF,
+          bitcoin.opcodes.OP_IF,
+             bitcoin.opcodes.OP_2,
+          bitcoin.opcodes.OP_ELSE,
+             bitcoin.script.number.encode(sequence1),
+             bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
+             bitcoin.opcodes.OP_DROP,
+             aQ.publicKey,
+             bitcoin.opcodes.OP_CHECKSIGVERIFY,
+             bitcoin.opcodes.OP_1,
+          bitcoin.opcodes.OP_ENDIF,
+          bQ.publicKey,
+          cQ.publicKey,
+          dQ.publicKey,
+          bitcoin.opcodes.OP_3,
+          bitcoin.opcodes.OP_CHECKMULTISIG,
+       bitcoin.opcodes.OP_ELSE,
+          bitcoin.script.number.encode(sequence2),
+          bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
+          bitcoin.opcodes.OP_DROP,
+          aQ.publicKey,
+          bitcoin.opcodes.OP_CHECKSIG,
+       bitcoin.opcodes.OP_ENDIF,
     ])
   }
 
@@ -136,6 +169,183 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
         }, /Error: 64: non-BIP68-final/)
 
         done()
+      })
+    })
+  })
+
+  // Check first combination of complex CSV, 2 of 3
+  it('can create (and broadcast via 3PBP) a Transaction where Bob and Charles can send ', function (done) {
+    regtestUtils.height(function (err, height) {
+      if (err) return done(err)
+
+      // 5 blocks from now
+      const sequence1 = bip68.encode({ blocks: 5 })
+      // 10 blocks from now
+      const sequence2 = bip68.encode({ blocks: 20 })
+      const p2sh = bitcoin.payments.p2sh({
+        redeem: {
+          output: complexCsvOutput(alice, bob, charles, dave, sequence1, sequence2)
+        },
+        network: regtest
+      })
+
+      // fund the P2SH(CCSV) address
+      regtestUtils.faucet(p2sh.address, 1e5, function (err, unspent) {
+        if (err) return done(err)
+
+        const txb = new bitcoin.TransactionBuilder(regtest)
+        txb.addInput(unspent.txId, unspent.vout)
+        txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
+
+        // OP_0 {Bob sig} {Charles sig} OP_TRUE OP_TRUE
+        const tx = txb.buildIncomplete()
+        const signatureHash = tx.hashForSignature(0, p2sh.redeem.output, hashType)
+        const redeemScriptSig = bitcoin.payments.p2sh({
+          network: regtest,
+          redeem: {
+            network: regtest,
+            output: p2sh.redeem.output,
+            input: bitcoin.script.compile([
+              bitcoin.opcodes.OP_0,
+              bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
+              bitcoin.script.signature.encode(charles.sign(signatureHash), hashType),
+              bitcoin.opcodes.OP_TRUE,
+              bitcoin.opcodes.OP_TRUE
+            ])
+          }
+        }).input
+        tx.setInputScript(0, redeemScriptSig)
+
+        regtestUtils.broadcast(tx.toHex(), function (err) {
+          if (err) return done(err)
+
+          regtestUtils.verify({
+            txId: tx.getId(),
+            address: regtestUtils.RANDOM_ADDRESS,
+            vout: 0,
+            value: 7e4
+          }, done)
+        })
+      })
+    })
+  })
+
+  // Check first combination of complex CSV, lawyer + 1 of 3 after 5 blocks
+  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) and Bob can send after 5 blocks ', function (done) {
+    regtestUtils.height(function (err, height) {
+      if (err) return done(err)
+
+      // 5 blocks from now
+      const sequence1 = bip68.encode({ blocks: 5 })
+      // 10 blocks from now
+      const sequence2 = bip68.encode({ blocks: 20 })
+      const p2sh = bitcoin.payments.p2sh({
+        redeem: {
+          output: complexCsvOutput(alice, bob, charles, dave, sequence1, sequence2)
+        },
+        network: regtest
+      })
+
+      // fund the P2SH(CCSV) address
+      regtestUtils.faucet(p2sh.address, 1e5, function (err, unspent) {
+        if (err) return done(err)
+
+        const txb = new bitcoin.TransactionBuilder(regtest)
+        txb.addInput(unspent.txId, unspent.vout, sequence1) // Set sequence1 for input
+        txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
+
+        // OP_0 {Bob sig} {Alice lawyer sig} OP_FALSE OP_TRUE
+        const tx = txb.buildIncomplete()
+        const signatureHash = tx.hashForSignature(0, p2sh.redeem.output, hashType)
+        const redeemScriptSig = bitcoin.payments.p2sh({
+          network: regtest,
+          redeem: {
+            network: regtest,
+            output: p2sh.redeem.output,
+            input: bitcoin.script.compile([
+              bitcoin.opcodes.OP_0,
+              bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
+              bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+              bitcoin.opcodes.OP_0,
+              bitcoin.opcodes.OP_TRUE
+            ])
+          }
+        }).input
+        tx.setInputScript(0, redeemScriptSig)
+
+        // 10 > 5 but < 20
+        regtestUtils.mine(10, function (err) {
+          if (err) return done(err)
+
+          regtestUtils.broadcast(tx.toHex(), function (err) {
+            if (err) return done(err)
+
+            regtestUtils.verify({
+              txId: tx.getId(),
+              address: regtestUtils.RANDOM_ADDRESS,
+              vout: 0,
+              value: 7e4
+            }, done)
+          })
+        })
+      })
+    })
+  })
+
+  // Check first combination of complex CSV, lawyer after 20 blocks
+  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) can send after 20 blocks ', function (done) {
+    regtestUtils.height(function (err, height) {
+      if (err) return done(err)
+
+      // 5 blocks from now
+      const sequence1 = bip68.encode({ blocks: 5 })
+      // 10 blocks from now
+      const sequence2 = bip68.encode({ blocks: 20 })
+      const p2sh = bitcoin.payments.p2sh({
+        redeem: {
+          output: complexCsvOutput(alice, bob, charles, dave, sequence1, sequence2)
+        },
+        network: regtest
+      })
+
+      // fund the P2SH(CCSV) address
+      regtestUtils.faucet(p2sh.address, 1e5, function (err, unspent) {
+        if (err) return done(err)
+
+        const txb = new bitcoin.TransactionBuilder(regtest)
+        txb.addInput(unspent.txId, unspent.vout, sequence2) // Set sequence2 for input
+        txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
+
+        // {Alice lawyer sig} OP_FALSE
+        const tx = txb.buildIncomplete()
+        const signatureHash = tx.hashForSignature(0, p2sh.redeem.output, hashType)
+        const redeemScriptSig = bitcoin.payments.p2sh({
+          network: regtest,
+          redeem: {
+            network: regtest,
+            output: p2sh.redeem.output,
+            input: bitcoin.script.compile([
+              bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+              bitcoin.opcodes.OP_0
+            ])
+          }
+        }).input
+        tx.setInputScript(0, redeemScriptSig)
+
+        regtestUtils.mine(30, function (err) { // 30 > 20
+          if (err) return done(err)
+
+          regtestUtils.broadcast(tx.toHex(), function (err) {
+            if (err) return done(err)
+
+            regtestUtils.verify({
+              txId: tx.getId(),
+              address: regtestUtils.RANDOM_ADDRESS,
+              vout: 0,
+              value: 7e4
+            }, done)
+          })
+        })
       })
     })
   })
