@@ -178,10 +178,10 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
+      // 2 blocks from now
+      const sequence1 = bip68.encode({ blocks: 2 })
       // 5 blocks from now
-      const sequence1 = bip68.encode({ blocks: 5 })
-      // 10 blocks from now
-      const sequence2 = bip68.encode({ blocks: 20 })
+      const sequence2 = bip68.encode({ blocks: 5 })
       const p2sh = bitcoin.payments.p2sh({
         redeem: {
           output: complexCsvOutput(alice, bob, charles, dave, sequence1, sequence2)
@@ -230,15 +230,15 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
     })
   })
 
-  // Check first combination of complex CSV, lawyer + 1 of 3 after 5 blocks
-  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) and Bob can send after 5 blocks ', function (done) {
+  // Check first combination of complex CSV, lawyer + 1 of 3 after 2 blocks
+  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) and Bob can send after 2 blocks ', function (done) {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
+      // 2 blocks from now
+      const sequence1 = bip68.encode({ blocks: 2 })
       // 5 blocks from now
-      const sequence1 = bip68.encode({ blocks: 5 })
-      // 10 blocks from now
-      const sequence2 = bip68.encode({ blocks: 20 })
+      const sequence2 = bip68.encode({ blocks: 5 })
       const p2sh = bitcoin.payments.p2sh({
         redeem: {
           output: complexCsvOutput(alice, bob, charles, dave, sequence1, sequence2)
@@ -273,8 +273,8 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
         }).input
         tx.setInputScript(0, redeemScriptSig)
 
-        // 10 > 5 but < 20
-        regtestUtils.mine(10, function (err) {
+        // Wait 2 blocks
+        regtestUtils.mine(2, function (err) {
           if (err) return done(err)
 
           regtestUtils.broadcast(tx.toHex(), function (err) {
@@ -292,15 +292,15 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
     })
   })
 
-  // Check first combination of complex CSV, lawyer after 20 blocks
-  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) can send after 20 blocks ', function (done) {
+  // Check first combination of complex CSV, lawyer after 5 blocks
+  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) can send after 5 blocks ', function (done) {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
+      // 2 blocks from now
+      const sequence1 = bip68.encode({ blocks: 2 })
       // 5 blocks from now
-      const sequence1 = bip68.encode({ blocks: 5 })
-      // 10 blocks from now
-      const sequence2 = bip68.encode({ blocks: 20 })
+      const sequence2 = bip68.encode({ blocks: 5 })
       const p2sh = bitcoin.payments.p2sh({
         redeem: {
           output: complexCsvOutput(alice, bob, charles, dave, sequence1, sequence2)
@@ -332,7 +332,8 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
         }).input
         tx.setInputScript(0, redeemScriptSig)
 
-        regtestUtils.mine(30, function (err) { // 30 > 20
+        // Wait 5 blocks
+        regtestUtils.mine(5, function (err) {
           if (err) return done(err)
 
           regtestUtils.broadcast(tx.toHex(), function (err) {
