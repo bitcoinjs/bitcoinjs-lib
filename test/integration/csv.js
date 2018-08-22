@@ -69,7 +69,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   }
 
   // expiry will pass, {Alice's signature} OP_TRUE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future) (simple CHECKSEQUENCEVERIFY)', function (done) {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
@@ -128,7 +128,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   })
 
   // expiry in the future, {Alice's signature} OP_TRUE
-  it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry', function (done) {
+  it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry (simple CHECKSEQUENCEVERIFY)', function (done) {
     // two hours after confirmation
     const sequence = bip68.encode({ seconds: 7168 })
     const p2sh = bitcoin.payments.p2sh({
@@ -174,7 +174,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   })
 
   // Check first combination of complex CSV, 2 of 3
-  it('can create (and broadcast via 3PBP) a Transaction where Bob and Charles can send ', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction where Bob and Charles can send (complex CHECKSEQUENCEVERIFY)', function (done) {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
@@ -231,7 +231,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   })
 
   // Check first combination of complex CSV, lawyer + 1 of 3 after 2 blocks
-  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) and Bob can send after 2 blocks ', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)', function (done) {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
@@ -293,7 +293,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   })
 
   // Check first combination of complex CSV, lawyer after 5 blocks
-  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) can send after 5 blocks ', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) can send after 5 blocks (complex CHECKSEQUENCEVERIFY)', function (done) {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
