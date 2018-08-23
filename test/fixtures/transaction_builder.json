@@ -1561,8 +1561,7 @@
             "scriptSigAfter": "OP_0 OP_0 OP_0 30440220793d87f2a8afeb856816efa38984418c692c15170e99ca371f547454079c0dd3022074ae95e438fee1f37619fabe0ce1083c3be0d65c3defb5337833d50fdc694b1301 52210258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a9121038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f2103b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d953ae",
             "signs": [
               {
-                "keyPair": "cTkcnMZoFYH1UgumzCFHv2veLMNN1PaJyHHUxFT127zhNGBqqEZ2",
-                "redeemScript": "OP_2 0258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a91 038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f 03b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d9 OP_3 OP_CHECKMULTISIG"
+                "keyPair": "cTkcnMZoFYH1UgumzCFHv2veLMNN1PaJyHHUxFT127zhNGBqqEZ2"
               }
             ]
           }

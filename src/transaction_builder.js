@@ -216,6 +216,8 @@ function expandOutput (script, ourPubKey) {
 }
 
 function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScript) {
+  redeemScript = redeemScript || input.redeemScript
+
   if (redeemScript && witnessScript) {
     const p2wsh = payments.p2wsh({ redeem: { output: witnessScript } })
     const p2wshAlt = payments.p2wsh({ output: redeemScript })
