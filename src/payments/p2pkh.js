@@ -106,18 +106,19 @@ function p2pkh (a, opts) {
         a.output[23] !== OPS.OP_EQUALVERIFY ||
         a.output[24] !== OPS.OP_CHECKSIG) throw new TypeError('Output is invalid')
 
-      if (hash && !hash.equals(a.output.slice(3, 23))) throw new TypeError('Hash mismatch')
-      else hash = a.output.slice(3, 23)
+      const hash2 = a.output.slice(3, 23)
+      if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
+      else hash = hash2
     }
 
     if (a.pubkey) {
-      let pkh = bcrypto.hash160(a.pubkey)
+      const pkh = bcrypto.hash160(a.pubkey)
       if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
       else hash = pkh
     }
 
     if (a.input) {
-      let chunks = _chunks()
+      const chunks = _chunks()
       if (chunks.length !== 2) throw new TypeError('Input is invalid')
       if (!bscript.isCanonicalScriptSignature(chunks[0])) throw new TypeError('Input has invalid signature')
       if (!ecc.isPoint(chunks[1])) throw new TypeError('Input has invalid pubkey')
@@ -125,7 +126,7 @@ function p2pkh (a, opts) {
       if (a.signature && !a.signature.equals(chunks[0])) throw new TypeError('Signature mismatch')
       if (a.pubkey && !a.pubkey.equals(chunks[1])) throw new TypeError('Pubkey mismatch')
 
-      let pkh = bcrypto.hash160(chunks[1])
+      const pkh = bcrypto.hash160(chunks[1])
       if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
     }
   }

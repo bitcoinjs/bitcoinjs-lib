@@ -58,7 +58,7 @@ function p2sh (a, opts) {
   const _redeem = lazy.value(function () {
     const chunks = _chunks()
     return {
-      network: network,
+      network,
       output: chunks[chunks.length - 1],
       input: bscript.compile(chunks.slice(0, -1)),
       witness: a.witness || []
@@ -111,7 +111,7 @@ function p2sh (a, opts) {
     if (a.address) {
       if (_address().version !== network.scriptHash) throw new TypeError('Invalid version or Network mismatch')
       if (_address().hash.length !== 20) throw new TypeError('Invalid address')
-      else hash = _address().hash
+      hash = _address().hash
     }
 
     if (a.hash) {
@@ -125,6 +125,7 @@ function p2sh (a, opts) {
         a.output[0] !== OPS.OP_HASH160 ||
         a.output[1] !== 0x14 ||
         a.output[22] !== OPS.OP_EQUAL) throw new TypeError('Output is invalid')
+
       const hash2 = a.output.slice(2, 22)
       if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
       else hash = hash2
@@ -165,9 +166,10 @@ function p2sh (a, opts) {
 
     if (a.redeem) {
       if (a.redeem.network && a.redeem.network !== network) throw new TypeError('Network mismatch')
-      if (o.redeem) {
-        if (a.redeem.output && !a.redeem.output.equals(o.redeem.output)) throw new TypeError('Redeem.output mismatch')
-        if (a.redeem.input && !a.redeem.input.equals(o.redeem.input)) throw new TypeError('Redeem.input mismatch')
+      if (a.input) {
+        const redeem = _redeem()
+        if (a.redeem.output && !a.redeem.output.equals(redeem.output)) throw new TypeError('Redeem.output mismatch')
+        if (a.redeem.input && !a.redeem.input.equals(redeem.input)) throw new TypeError('Redeem.input mismatch')
       }
 
       checkRedeem(a.redeem)

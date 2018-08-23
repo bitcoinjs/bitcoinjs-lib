@@ -270,6 +270,20 @@
       }
     },
     {
+      "exception": "Witness and redeem.witness mismatch",
+      "arguments": {
+        "redeem": {
+          "output": "OP_TRUE",
+          "witness": [
+            "04000000ff"
+          ]
+        },
+        "witness": [
+          "04000000ee"
+        ]
+      }
+    },
+    {
       "exception": "Ambiguous witness source",
       "arguments": {
         "redeem": {

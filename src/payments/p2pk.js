@@ -1,10 +1,10 @@
-let lazy = require('./lazy')
-let typef = require('typeforce')
-let OPS = require('bitcoin-ops')
-let ecc = require('tiny-secp256k1')
+const lazy = require('./lazy')
+const typef = require('typeforce')
+const OPS = require('bitcoin-ops')
+const ecc = require('tiny-secp256k1')
 
-let bscript = require('../script')
-let BITCOIN_NETWORK = require('../networks').bitcoin
+const bscript = require('../script')
+const BITCOIN_NETWORK = require('../networks').bitcoin
 
 // input: {signature}
 // output: {pubKey} OP_CHECKSIG
@@ -27,10 +27,10 @@ function p2pk (a, opts) {
     input: typef.maybe(typef.Buffer)
   }, a)
 
-  let _chunks = lazy.value(function () { return bscript.decompile(a.input) })
+  const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
 
-  let network = a.network || BITCOIN_NETWORK
-  let o = { network }
+  const network = a.network || BITCOIN_NETWORK
+  const o = { network }
 
   lazy.prop(o, 'output', function () {
     if (!a.pubkey) return
@@ -58,22 +58,19 @@ function p2pk (a, opts) {
 
   // extended validation
   if (opts.validate) {
-    if (a.pubkey && a.output) {
-      if (!a.pubkey.equals(o.pubkey)) throw new TypeError('Pubkey mismatch')
-    }
-
     if (a.output) {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG) throw new TypeError('Output is invalid')
       if (!ecc.isPoint(o.pubkey)) throw new TypeError('Output pubkey is invalid')
+      if (a.pubkey && !a.pubkey.equals(o.pubkey)) throw new TypeError('Pubkey mismatch')
     }
 
     if (a.signature) {
-      if (a.input && !a.input.equals(o.input)) throw new TypeError('Input mismatch')
+      if (a.input && !a.input.equals(o.input)) throw new TypeError('Signature mismatch')
     }
 
     if (a.input) {
       if (_chunks().length !== 1) throw new TypeError('Input is invalid')
-      if (!bscript.isCanonicalScriptSignature(_chunks()[0])) throw new TypeError('Input has invalid signature')
+      if (!bscript.isCanonicalScriptSignature(o.signature)) throw new TypeError('Input has invalid signature')
     }
   }
 
