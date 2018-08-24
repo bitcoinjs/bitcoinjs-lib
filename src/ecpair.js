@@ -36,9 +36,23 @@ ECPair.prototype.toWIF = function () {
   return wif.encode(this.network.wif, this.__d, this.compressed)
 }
 
-ECPair.prototype.sign = function (hash) {
+ECPair.prototype.sign = function (hash, lowR) {
   if (!this.__d) throw new Error('Missing private key')
-  return ecc.sign(hash, this.__d)
+  if (lowR !== undefined && typeof lowR !== 'boolean') throw new Error('lowR must be a boolean')
+
+  let signature = ecc.sign(hash, this.__d)
+
+  if (lowR) {
+    let counter = 0
+    let extraEntropy = Buffer.alloc(32, 0)
+    while (signature[0] > 0x7f) {
+      counter++
+      extraEntropy.writeUIntLE(counter, 0, 6)
+      signature = ecc.sign(hash, this.__d, extraEntropy)
+    }
+  }
+
+  return signature
 }
 
 ECPair.prototype.verify = function (hash, signature) {

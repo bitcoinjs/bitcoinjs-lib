@@ -438,6 +438,7 @@ function TransactionBuilder (network, maximumFeeRate) {
   this.__inputs = []
   this.__tx = new Transaction()
   this.__tx.version = 2
+  this.__lowR = false
 }
 
 TransactionBuilder.prototype.setLockTime = function (locktime) {
@@ -460,6 +461,12 @@ TransactionBuilder.prototype.setVersion = function (version) {
 
   // XXX: this might eventually become more complex depending on what the versions represent
   this.__tx.version = version
+}
+
+TransactionBuilder.prototype.setLowR = function (lowR) {
+  typeforce(types.Boolean, lowR)
+
+  this.__lowR = lowR
 }
 
 TransactionBuilder.fromTransaction = function (transaction, network) {
@@ -680,7 +687,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
       throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
     }
 
-    const signature = keyPair.sign(signatureHash)
+    const signature = keyPair.sign(signatureHash, this.__lowR)
     input.signatures[i] = bscript.signature.encode(signature, hashType)
     return true
   })
