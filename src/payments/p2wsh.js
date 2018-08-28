@@ -28,7 +28,7 @@ function p2wsh (a, opts) {
     !a.redeem &&
     !a.witness
   ) throw new TypeError('Not enough data')
-  opts = opts || { validate: true }
+  opts = Object.assign({ validate: true }, opts || {})
 
   typef({
     network: typef.maybe(typef.Object),

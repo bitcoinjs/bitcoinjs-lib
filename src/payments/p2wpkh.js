@@ -21,7 +21,7 @@ function p2wpkh (a, opts) {
     !a.pubkey &&
     !a.witness
   ) throw new TypeError('Not enough data')
-  opts = opts || { validate: true }
+  opts = Object.assign({ validate: true }, opts || {})
 
   typef({
     address: typef.maybe(typef.String),
