@@ -5,6 +5,7 @@
       "arguments": {
         "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q"
       },
+      "options": {},
       "expected": {
         "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
@@ -221,6 +222,7 @@
     },
     {
       "exception": "Output is invalid",
+      "options": {},
       "arguments": {
         "output": "OP_HASH256 ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff OP_EQUAL"
       }

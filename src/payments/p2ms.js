@@ -24,7 +24,7 @@ function p2ms (a, opts) {
     !(a.pubkeys && a.m !== undefined) &&
     !a.signatures
   ) throw new TypeError('Not enough data')
-  opts = opts || { validate: true }
+  opts = Object.assign({ validate: true }, opts || {})
 
   function isAcceptableSignature (x) {
     return bscript.isCanonicalScriptSignature(x) || (opts.allowIncomplete && (x === OPS.OP_0))

@@ -19,7 +19,7 @@ function p2data (a, opts) {
     !a.data &&
     !a.output
   ) throw new TypeError('Not enough data')
-  opts = opts || { validate: true }
+  opts = Object.assign({ validate: true }, opts || {})
 
   typef({
     network: typef.maybe(typef.Object),

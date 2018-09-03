@@ -5,6 +5,7 @@
       "arguments": {
         "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT"
       },
+      "options": {},
       "expected": {
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
@@ -182,6 +183,7 @@
     {
       "description": "Expected OP_HASH160",
       "exception": "Output is invalid",
+      "options": {},
       "arguments": {
         "output": "OP_HASH256 ffffffffffffffffffffffffffffffffffffffff OP_EQUAL"
       }

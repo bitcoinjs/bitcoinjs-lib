@@ -5,6 +5,7 @@
       "arguments": {
         "address": "bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d"
       },
+      "options": {},
       "expected": {
         "hash": "ea6d525c0c955d90d3dbd29a81ef8bfb79003727",
         "output": "OP_0 ea6d525c0c955d90d3dbd29a81ef8bfb79003727",
@@ -108,6 +109,7 @@
     },
     {
       "exception": "Pubkey mismatch",
+      "options": {},
       "arguments": {
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
         "witness": [

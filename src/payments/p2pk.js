@@ -16,7 +16,7 @@ function p2pk (a, opts) {
     !a.input &&
     !a.signature
   ) throw new TypeError('Not enough data')
-  opts = opts || { validate: true }
+  opts = Object.assign({ validate: true }, opts || {})
 
   typef({
     network: typef.maybe(typef.Object),

@@ -489,27 +489,12 @@ describe('TransactionBuilder', function () {
           input.signs.forEach(function (sign) {
             // rebuild the transaction each-time after the first
             if (tx) {
-              // do we filter OP_0's beforehand?
-              if (sign.filterOP_0) {
-                const scriptSig = tx.ins[i].script
-
-                // ignore OP_0 on the front, ignore redeemScript
-                const signatures = bscript.decompile(scriptSig)
-                  .slice(1, -1)
-                  .filter(x => x !== ops.OP_0)
-
-                // rebuild/replace the scriptSig without them
-                const replacement = payments.p2sh({
-                  redeem: payments.p2ms({
-                    output: redeemScript,
-                    signatures
-                  }, { allowIncomplete: true })
-                }).input
-                assert.strictEqual(bscript.toASM(replacement), sign.scriptSigFiltered)
-
-                tx.ins[i].script = replacement
+              // manually override the scriptSig?
+              if (sign.scriptSigBefore) {
+                tx.ins[i].script = bscript.fromASM(sign.scriptSigBefore)
               }
-              // now import it
+
+              // rebuild
               txb = TransactionBuilder.fromTransaction(tx, network)
             }
 
@@ -518,6 +503,7 @@ describe('TransactionBuilder', function () {
 
             // update the tx
             tx = txb.buildIncomplete()
+
             // now verify the serialized scriptSig is as expected
             assert.strictEqual(bscript.toASM(tx.ins[i].script), sign.scriptSig)
           })

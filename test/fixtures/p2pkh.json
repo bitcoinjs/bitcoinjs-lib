@@ -5,6 +5,7 @@
       "arguments": {
         "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh"
       },
+      "options": {},
       "expected": {
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_DUP OP_HASH160 168b992bcfc44050310b3a94bd0771136d0b28d1 OP_EQUALVERIFY OP_CHECKSIG",
@@ -103,6 +104,7 @@
     {
       "description": "Unexpected OP_DUP",
       "exception": "Output is invalid",
+      "options": {},
       "arguments": {
         "output": "OP_DUP OP_DUP 168b992bcfc44050310b3a94bd0771136d0b28d137 OP_EQUALVERIFY"
       }

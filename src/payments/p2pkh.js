@@ -18,7 +18,7 @@ function p2pkh (a, opts) {
     !a.pubkey &&
     !a.input
   ) throw new TypeError('Not enough data')
-  opts = opts || { validate: true }
+  opts = Object.assign({ validate: true }, opts || {})
 
   typef({
     network: typef.maybe(typef.Object),

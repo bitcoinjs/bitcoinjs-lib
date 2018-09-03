@@ -5,6 +5,7 @@
       "arguments": {
         "output": "OP_2 030000000000000000000000000000000000000000000000000000000000000001 030000000000000000000000000000000000000000000000000000000000000002 OP_2 OP_CHECKMULTISIG"
       },
+      "options": {},
       "expected": {
         "m": 2,
         "n": 2,
@@ -239,6 +240,7 @@
     {
       "description": "n !== output pubkeys",
       "exception": "Output is invalid",
+      "options": {},
       "arguments": {
         "output": "OP_1 030000000000000000000000000000000000000000000000000000000000000001 OP_2 OP_CHECKMULTISIG"
       }
@@ -266,6 +268,7 @@
     },
     {
       "exception": "Pubkeys mismatch",
+      "options": {},
       "arguments": {
         "pubkeys": [
           "030000000000000000000000000000000000000000000000000000000000000001"
@@ -325,6 +328,7 @@
     {
       "description": "Missing OP_0",
       "exception": "Input is invalid",
+      "options": {},
       "arguments": {
         "m": 2,
         "pubkeys": [
