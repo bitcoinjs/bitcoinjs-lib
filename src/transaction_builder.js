@@ -56,14 +56,14 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
       }
     }
 
-    case SCRIPT_TYPES.MULTISIG: {
+    case SCRIPT_TYPES.P2MS: {
       const { pubkeys, signatures } = payments.p2ms({
         input: scriptSig,
         output: scriptPubKey
       }, { allowIncomplete: true })
 
       return {
-        prevOutType: SCRIPT_TYPES.MULTISIG,
+        prevOutType: SCRIPT_TYPES.P2MS,
         pubkeys: pubkeys,
         signatures: signatures
       }
@@ -126,7 +126,7 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
 
 // could be done in expandInput, but requires the original Transaction for hashForSignature
 function fixMultisigOrder (input, transaction, vin) {
-  if (input.redeemScriptType !== SCRIPT_TYPES.MULTISIG || !input.redeemScript) return
+  if (input.redeemScriptType !== SCRIPT_TYPES.P2MS || !input.redeemScript) return
   if (input.pubkeys.length === input.signatures.length) return
 
   const unmatched = input.signatures.concat()
@@ -202,7 +202,7 @@ function expandOutput (script, ourPubKey) {
       }
     }
 
-    case SCRIPT_TYPES.MULTISIG: {
+    case SCRIPT_TYPES.P2MS: {
       const p2ms = payments.p2ms({ output: script })
       return {
         type,
@@ -392,7 +392,7 @@ function build (type, input, allowIncomplete) {
 
       return payments.p2pk({ signature: signatures[0] })
     }
-    case SCRIPT_TYPES.MULTISIG: {
+    case SCRIPT_TYPES.P2MS: {
       if (allowIncomplete) {
         signatures = signatures.map(x => x || ops.OP_0)
       } else {
