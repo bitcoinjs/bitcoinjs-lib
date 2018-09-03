@@ -477,7 +477,7 @@ describe('TransactionBuilder', function () {
                   redeem: payments.p2ms({
                     output: redeemScript,
                     signatures
-                  }, { allowIncomplete: true })
+                  }, { allowIncomplete: true, validate: false })
                 }).input
                 assert.strictEqual(bscript.toASM(replacement), sign.scriptSigFiltered)
 
