@@ -21,20 +21,18 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
 
   // IF MTP (from when confirmed) > seconds, aQ can redeem
   function csvCheckSigOutput (aQ, bQ, sequence) {
-    return bitcoin.script.compile([
-      /* eslint-disable indent */
-      bitcoin.opcodes.OP_IF,
-          bitcoin.script.number.encode(sequence),
-          bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
-          bitcoin.opcodes.OP_DROP,
-      bitcoin.opcodes.OP_ELSE,
-          bQ.publicKey,
-          bitcoin.opcodes.OP_CHECKSIGVERIFY,
-      bitcoin.opcodes.OP_ENDIF,
-      aQ.publicKey,
-      bitcoin.opcodes.OP_CHECKSIG
-      /* eslint-enable indent */
-    ])
+    return bitcoin.script.fromASM(`
+      OP_IF
+          ${bitcoin.script.number.encode(sequence).toString('hex')}
+          OP_CHECKSEQUENCEVERIFY
+          OP_DROP
+      OP_ELSE
+          ${bQ.publicKey.toString('hex')}
+          OP_CHECKSIGVERIFY
+      OP_ENDIF
+      ${aQ.publicKey.toString('hex')}
+      OP_CHECKSIG
+    `.trim().replace(/\s+/g, ' '))
   }
 
   // 2 of 3 multisig of bQ, cQ, dQ,
@@ -44,33 +42,31 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   // Note: bitcoinjs-lib will not offer specific support for problems with
   //       advanced script usages such as below. Use at your own risk.
   function complexCsvOutput (aQ, bQ, cQ, dQ, sequence1, sequence2) {
-    return bitcoin.script.compile([
-      /* eslint-disable indent */
-      bitcoin.opcodes.OP_IF,
-          bitcoin.opcodes.OP_IF,
-              bitcoin.opcodes.OP_2,
-          bitcoin.opcodes.OP_ELSE,
-              bitcoin.script.number.encode(sequence1),
-              bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
-              bitcoin.opcodes.OP_DROP,
-              aQ.publicKey,
-              bitcoin.opcodes.OP_CHECKSIGVERIFY,
-              bitcoin.opcodes.OP_1,
-          bitcoin.opcodes.OP_ENDIF,
-          bQ.publicKey,
-          cQ.publicKey,
-          dQ.publicKey,
-          bitcoin.opcodes.OP_3,
-          bitcoin.opcodes.OP_CHECKMULTISIG,
-      bitcoin.opcodes.OP_ELSE,
-          bitcoin.script.number.encode(sequence2),
-          bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
-          bitcoin.opcodes.OP_DROP,
-          aQ.publicKey,
-          bitcoin.opcodes.OP_CHECKSIG,
-      bitcoin.opcodes.OP_ENDIF
-      /* eslint-enable indent */
-    ])
+    return bitcoin.script.fromASM(`
+      OP_IF
+          OP_IF
+              OP_2
+          OP_ELSE
+              ${bitcoin.script.number.encode(sequence1).toString('hex')}
+              OP_CHECKSEQUENCEVERIFY
+              OP_DROP
+              ${aQ.publicKey.toString('hex')}
+              OP_CHECKSIGVERIFY
+              OP_1
+          OP_ENDIF
+          ${bQ.publicKey.toString('hex')}
+          ${cQ.publicKey.toString('hex')}
+          ${dQ.publicKey.toString('hex')}
+          OP_3
+          OP_CHECKMULTISIG
+      OP_ELSE
+          ${bitcoin.script.number.encode(sequence2).toString('hex')}
+          OP_CHECKSEQUENCEVERIFY
+          OP_DROP
+          ${aQ.publicKey.toString('hex')}
+          OP_CHECKSIG
+      OP_ENDIF
+    `.trim().replace(/\s+/g, ' '))
   }
 
   // expiry will pass, {Alice's signature} OP_TRUE
