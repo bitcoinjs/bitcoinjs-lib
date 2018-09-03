@@ -22,49 +22,54 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   // IF MTP (from when confirmed) > seconds, aQ can redeem
   function csvCheckSigOutput (aQ, bQ, sequence) {
     return bitcoin.script.compile([
+      /* eslint-disable indent */
       bitcoin.opcodes.OP_IF,
-      bitcoin.script.number.encode(sequence),
-      bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
-      bitcoin.opcodes.OP_DROP,
-
+          bitcoin.script.number.encode(sequence),
+          bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
+          bitcoin.opcodes.OP_DROP,
       bitcoin.opcodes.OP_ELSE,
-      bQ.publicKey,
-      bitcoin.opcodes.OP_CHECKSIGVERIFY,
+          bQ.publicKey,
+          bitcoin.opcodes.OP_CHECKSIGVERIFY,
       bitcoin.opcodes.OP_ENDIF,
-
       aQ.publicKey,
       bitcoin.opcodes.OP_CHECKSIG
+      /* eslint-enable indent */
     ])
   }
 
-  // 2 of 3 multisig of bQ, cQ, dQ, but after sequence1 time,
-  // aQ can allow the multisig to become 1 of 3.
-  // But after sequence2 time, aQ can sign for the output all by themself.
+  // 2 of 3 multisig of bQ, cQ, dQ,
+  // but after sequence1 time, aQ can allow the multisig to become 1 of 3.
+  // but after sequence2 time, aQ can sign for the output all by themself.
+  // Ref: https://github.com/bitcoinbook/bitcoinbook/blob/f8b883dcd4e3d1b9adf40fed59b7e898fbd9241f/ch07.asciidoc#complex-script-example
+  // Note: bitcoinjs-lib will not offer specific support for problems with
+  //       advanced script usages such as below. Use at your own risk.
   function complexCsvOutput (aQ, bQ, cQ, dQ, sequence1, sequence2) {
     return bitcoin.script.compile([
+      /* eslint-disable indent */
       bitcoin.opcodes.OP_IF,
-      bitcoin.opcodes.OP_IF,
-      bitcoin.opcodes.OP_2,
+          bitcoin.opcodes.OP_IF,
+              bitcoin.opcodes.OP_2,
+          bitcoin.opcodes.OP_ELSE,
+              bitcoin.script.number.encode(sequence1),
+              bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
+              bitcoin.opcodes.OP_DROP,
+              aQ.publicKey,
+              bitcoin.opcodes.OP_CHECKSIGVERIFY,
+              bitcoin.opcodes.OP_1,
+          bitcoin.opcodes.OP_ENDIF,
+          bQ.publicKey,
+          cQ.publicKey,
+          dQ.publicKey,
+          bitcoin.opcodes.OP_3,
+          bitcoin.opcodes.OP_CHECKMULTISIG,
       bitcoin.opcodes.OP_ELSE,
-      bitcoin.script.number.encode(sequence1),
-      bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
-      bitcoin.opcodes.OP_DROP,
-      aQ.publicKey,
-      bitcoin.opcodes.OP_CHECKSIGVERIFY,
-      bitcoin.opcodes.OP_1,
-      bitcoin.opcodes.OP_ENDIF,
-      bQ.publicKey,
-      cQ.publicKey,
-      dQ.publicKey,
-      bitcoin.opcodes.OP_3,
-      bitcoin.opcodes.OP_CHECKMULTISIG,
-      bitcoin.opcodes.OP_ELSE,
-      bitcoin.script.number.encode(sequence2),
-      bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
-      bitcoin.opcodes.OP_DROP,
-      aQ.publicKey,
-      bitcoin.opcodes.OP_CHECKSIG,
+          bitcoin.script.number.encode(sequence2),
+          bitcoin.opcodes.OP_CHECKSEQUENCEVERIFY,
+          bitcoin.opcodes.OP_DROP,
+          aQ.publicKey,
+          bitcoin.opcodes.OP_CHECKSIG,
       bitcoin.opcodes.OP_ENDIF
+      /* eslint-enable indent */
     ])
   }
 
@@ -230,8 +235,8 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
     })
   })
 
-  // Check first combination of complex CSV, lawyer + 1 of 3 after 2 blocks
-  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)', function (done) {
+  // Check first combination of complex CSV, mediator + 1 of 3 after 2 blocks
+  it('can create (and broadcast via 3PBP) a Transaction where Alice (mediator) and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)', function (done) {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
@@ -254,7 +259,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
         txb.addInput(unspent.txId, unspent.vout, sequence1) // Set sequence1 for input
         txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
 
-        // OP_0 {Bob sig} {Alice lawyer sig} OP_FALSE OP_TRUE
+        // OP_0 {Bob sig} {Alice mediator sig} OP_FALSE OP_TRUE
         const tx = txb.buildIncomplete()
         const signatureHash = tx.hashForSignature(0, p2sh.redeem.output, hashType)
         const redeemScriptSig = bitcoin.payments.p2sh({
@@ -292,8 +297,8 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
     })
   })
 
-  // Check first combination of complex CSV, lawyer after 5 blocks
-  it('can create (and broadcast via 3PBP) a Transaction where Alice (lawyer) can send after 5 blocks (complex CHECKSEQUENCEVERIFY)', function (done) {
+  // Check first combination of complex CSV, mediator after 5 blocks
+  it('can create (and broadcast via 3PBP) a Transaction where Alice (mediator) can send after 5 blocks (complex CHECKSEQUENCEVERIFY)', function (done) {
     regtestUtils.height(function (err, height) {
       if (err) return done(err)
 
@@ -316,7 +321,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
         txb.addInput(unspent.txId, unspent.vout, sequence2) // Set sequence2 for input
         txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
 
-        // {Alice lawyer sig} OP_FALSE
+        // {Alice mediator sig} OP_FALSE
         const tx = txb.buildIncomplete()
         const signatureHash = tx.hashForSignature(0, p2sh.redeem.output, hashType)
         const redeemScriptSig = bitcoin.payments.p2sh({
