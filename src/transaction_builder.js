@@ -57,7 +57,7 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
     }
 
     case SCRIPT_TYPES.P2MS: {
-      const { pubkeys, signatures } = payments.p2ms({
+      const { m, pubkeys, signatures } = payments.p2ms({
         input: scriptSig,
         output: scriptPubKey
       }, { allowIncomplete: true })
@@ -65,7 +65,8 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
       return {
         prevOutType: SCRIPT_TYPES.P2MS,
         pubkeys: pubkeys,
-        signatures: signatures
+        signatures: signatures,
+        maxSignatures: m
       }
     }
   }
@@ -207,7 +208,8 @@ function expandOutput (script, ourPubKey) {
       return {
         type,
         pubkeys: p2ms.pubkeys,
-        signatures: p2ms.pubkeys.map(() => undefined)
+        signatures: p2ms.pubkeys.map(() => undefined),
+        maxSignatures: p2ms.m
       }
     }
   }
@@ -250,7 +252,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
-      signatures: expanded.signatures
+      signatures: expanded.signatures,
+      maxSignatures: expanded.maxSignatures
     }
   }
 
@@ -288,7 +291,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
-      signatures: expanded.signatures
+      signatures: expanded.signatures,
+      maxSignatures: expanded.maxSignatures
     }
   }
 
@@ -321,7 +325,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
-      signatures: expanded.signatures
+      signatures: expanded.signatures,
+      maxSignatures: expanded.maxSignatures
     }
   }
 
@@ -351,7 +356,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
-      signatures: expanded.signatures
+      signatures: expanded.signatures,
+      maxSignatures: expanded.maxSignatures
     }
   }
 
@@ -365,7 +371,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
     signType: SCRIPT_TYPES.P2PKH,
 
     pubkeys: [ourPubKey],
-    signatures: [undefined]
+    signatures: [undefined],
+    maxSignatures: 1
   }
 }
 
@@ -393,13 +400,14 @@ function build (type, input, allowIncomplete) {
       return payments.p2pk({ signature: signatures[0] })
     }
     case SCRIPT_TYPES.P2MS: {
+      const m = input.maxSignatures
       if (allowIncomplete) {
         signatures = signatures.map(x => x || ops.OP_0)
       } else {
         signatures = signatures.filter(x => x)
       }
-
-      return payments.p2ms({ signatures }, { allowIncomplete })
+      const validate = !allowIncomplete || (m === signatures.length)
+      return payments.p2ms({ m, pubkeys, signatures }, { allowIncomplete, validate })
     }
     case SCRIPT_TYPES.P2SH: {
       const redeem = build(input.redeemScriptType, input, allowIncomplete)
