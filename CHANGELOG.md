@@ -15,7 +15,7 @@ __changed__
 - `ECPair` (and all ECDSA code) now uses [`tiny-secp256k1`](http://github.com/bitcoinjs/tiny-secp256k1), which uses the [`libsecp256k1` library](https://github.com/bitcoin-core/secp256k1) (#1070)
 - `TransactionBuilder` internal variables are now `__` prefixed to discourage public usage (#1038)
 - `TransactionBuilder` now defaults to version 2 transaction versions (#1036)
-- `script.decompile` now returns `Buffer` or `null`, if decompilation failed (#1039)
+- `script.decompile` now returns `[Buffer]` or `null`, if decompilation failed (#1039)
 
 __fixed__
 - Fixed `TransactionBuilder` rejecting uncompressed public keys to comply with BIP143 (#987)
