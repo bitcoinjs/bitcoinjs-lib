@@ -187,8 +187,8 @@ describe('ECPair', function () {
     })
 
     it('loops until d is within interval [1, n) : 1', hoodwink(function () {
-      const rng = this.stub(function f () {
-        if (f.calls === 0) return ZERO // 0
+      const rng = this.stub(function () {
+        if (rng.calls === 0) return ZERO // 0
         return ONE // >0
       }, 2)
 
@@ -196,9 +196,9 @@ describe('ECPair', function () {
     }))
 
     it('loops until d is within interval [1, n) : n - 1', hoodwink(function () {
-      const rng = this.stub(function f () {
-        if (f.calls === 0) return ZERO // <1
-        if (f.calls === 1) return GROUP_ORDER // >n-1
+      const rng = this.stub(function () {
+        if (rng.calls === 0) return ZERO // <1
+        if (rng.calls === 1) return GROUP_ORDER // >n-1
         return GROUP_ORDER_LESS_1 // n-1
       }, 3)
 
