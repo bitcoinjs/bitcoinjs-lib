@@ -4,8 +4,6 @@ const assert = require('assert')
 const baddress = require('../src/address')
 const bcrypto = require('../src/crypto')
 const bscript = require('../src/script')
-const ops = require('bitcoin-ops')
-const payments = require('../src/payments')
 
 const ECPair = require('../src/ecpair')
 const Transaction = require('../src/transaction')
