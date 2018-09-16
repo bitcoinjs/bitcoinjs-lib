@@ -1,3 +1,7 @@
+# 4.0.2
+__fixed__
+- Fixed `TransactionBuilder` not throwing when payment type validation should fail (#1195)
+
 # 4.0.1
 __fixed__
 - Fixed `tiny-secp256k1` dependency version (used `ecurve`) (#1139)
