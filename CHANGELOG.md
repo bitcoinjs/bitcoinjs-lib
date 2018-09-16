@@ -2,6 +2,9 @@
 __fixed__
 - Fixed `TransactionBuilder` not throwing when payment type validation should fail (#1195)
 
+__removed__
+- Removed rogue `package.json` from `src/payments` (#1216)
+
 # 4.0.1
 __fixed__
 - Fixed `tiny-secp256k1` dependency version (used `ecurve`) (#1139)
