@@ -709,9 +709,19 @@ TransactionBuilder.prototype.__canModifyInputs = function () {
   })
 }
 
-// TODO: handle incomplete SIGHASH_NONE flow
 TransactionBuilder.prototype.__needsOutputs = function () {
-  return this.__tx.outs.length === 0
+  // if inputs are being signed with SIGHASH_NONE, we don't strictly need outputs
+  // .build() will fail, but .buildIncomplete() is OK
+  return (this.__tx.outs.length === 0) && this.__inputs.some((input) => {
+    if (!input.signatures) return false
+
+    return input.signatures.some((signature) => {
+      if (!signature) return false // no signature, no issue
+      const hashType = signatureHashType(signature)
+      if (hashType & Transaction.SIGHASH_NONE) return false // SIGHASH_NONE doesn't care about outputs
+      return true // SIGHASH_* does care
+    })
+  })
 }
 
 TransactionBuilder.prototype.__canModifyOutputs = function () {

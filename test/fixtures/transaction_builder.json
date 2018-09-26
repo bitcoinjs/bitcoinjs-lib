@@ -2359,12 +2359,21 @@
         ]
       },
       {
-        "description": "Transaction w/ no outputs",
+        "description": "Transaction w/ no outputs (but 1 SIGHASH_ALL)",
         "exception": "Transaction needs outputs",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 0,
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          },
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
             "signs": [
               {
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
