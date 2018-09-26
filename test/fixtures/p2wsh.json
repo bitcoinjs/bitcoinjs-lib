@@ -179,6 +179,24 @@
           ]
         }
       }
+    },
+    {
+      "description": "p2wsh-p2pkh, out (network derived from redeem)",
+      "arguments": {
+        "redeem": {
+          "address": "this is P2PKH context, unknown and ignored by p2wsh",
+          "output": "OP_DUP OP_HASH160 c30afa58ae0673b00a45b5c17dff4633780f1400 OP_EQUALVERIFY OP_CHECKSIG",
+          "network": "testnet"
+        }
+      },
+      "expected": {
+        "address": "tb1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ssaskm8v",
+        "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "input": null,
+        "witness": null,
+        "network": "testnet"
+      }
     }
   ],
   "invalid": [
@@ -303,6 +321,15 @@
         "network": "bitcoin",
         "redeem": {
           "network": "testnet"
+        }
+      }
+    },
+    {
+      "exception": "Network mismatch",
+      "arguments": {
+        "network": "testnet",
+        "redeem": {
+          "network": "bitcoin"
         }
       }
     },

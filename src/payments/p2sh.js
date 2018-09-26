@@ -45,7 +45,11 @@ function p2sh (a, opts) {
     witness: typef.maybe(typef.arrayOf(typef.Buffer))
   }, a)
 
-  const network = a.network || BITCOIN_NETWORK
+  let network = a.network
+  if (!network) {
+    network = (a.redeem && a.redeem.network) || BITCOIN_NETWORK
+  }
+
   const o = { network }
 
   const _address = lazy.value(function () {

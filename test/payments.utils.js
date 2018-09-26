@@ -1,6 +1,6 @@
 const t = require('assert')
 const bscript = require('../src/script')
-const bnetworks = require('../src/networks')
+const BNETWORKS = require('../src/networks')
 
 function tryHex (x) {
   if (Buffer.isBuffer(x)) return x.toString('hex')
@@ -58,7 +58,7 @@ function equate (a, b, args) {
 
   equateBase(a, b, '')
   if (b.redeem) equateBase(a.redeem, b.redeem, 'redeem.')
-  if (b.network) t.deepEqual(a.network, b.network, 'Inequal *.network')
+  if (b.network) t.deepEqual(a.network, BNETWORKS[b.network], 'Inequal *.network')
 
   // contextual
   if (b.signature === null) b.signature = undefined
@@ -76,7 +76,7 @@ function equate (a, b, args) {
 function preform (x) {
   x = Object.assign({}, x)
 
-  if (x.network) x.network = bnetworks[x.network]
+  if (x.network) x.network = BNETWORKS[x.network]
   if (typeof x.inputHex === 'string') {
     x.input = Buffer.from(x.inputHex, 'hex')
     delete x.inputHex
@@ -96,10 +96,11 @@ function preform (x) {
   if (x.pubkeys) x.pubkeys = x.pubkeys.map(fromHex)
   if (x.signatures) x.signatures = x.signatures.map(function (y) { return Number.isFinite(y) ? y : Buffer.from(y, 'hex') })
   if (x.redeem) {
+    x.redeem = Object.assign({}, x.redeem)
     if (typeof x.redeem.input === 'string') x.redeem.input = asmToBuffer(x.redeem.input)
     if (typeof x.redeem.output === 'string') x.redeem.output = asmToBuffer(x.redeem.output)
     if (Array.isArray(x.redeem.witness)) x.redeem.witness = x.redeem.witness.map(fromHex)
-    if (x.redeem.network) x.redeem.network = bnetworks[x.redeem.network]
+    if (x.redeem.network) x.redeem.network = BNETWORKS[x.redeem.network]
   }
 
   return x

@@ -59,7 +59,11 @@ function p2wsh (a, opts) {
   })
   const _rchunks = lazy.value(function () { return bscript.decompile(a.redeem.input) })
 
-  const network = a.network || BITCOIN_NETWORK
+  let network = a.network
+  if (!network) {
+    network = (a.redeem && a.redeem.network) || BITCOIN_NETWORK
+  }
+
   const o = { network }
 
   lazy.prop(o, 'address', function () {
