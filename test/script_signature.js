@@ -1,5 +1,4 @@
-/* global describe, it */
-
+const { describe, it } = require('mocha')
 const assert = require('assert')
 const bscriptSig = require('../src/script').signature
 const Buffer = require('safe-buffer').Buffer

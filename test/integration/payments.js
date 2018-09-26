@@ -1,7 +1,6 @@
-/* global describe, it */
-
 const bitcoin = require('../../')
 
+const { describe, it } = require('mocha')
 const regtestUtils = require('./_regtest')
 const NETWORK = regtestUtils.network
 const keyPairs = [
