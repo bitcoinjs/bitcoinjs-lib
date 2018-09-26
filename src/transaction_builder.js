@@ -56,16 +56,17 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
       }
     }
 
-    case SCRIPT_TYPES.MULTISIG: {
-      const { pubkeys, signatures } = payments.p2ms({
+    case SCRIPT_TYPES.P2MS: {
+      const { m, pubkeys, signatures } = payments.p2ms({
         input: scriptSig,
         output: scriptPubKey
       }, { allowIncomplete: true })
 
       return {
-        prevOutType: SCRIPT_TYPES.MULTISIG,
+        prevOutType: SCRIPT_TYPES.P2MS,
         pubkeys: pubkeys,
-        signatures: signatures
+        signatures: signatures,
+        maxSignatures: m
       }
     }
   }
@@ -126,7 +127,7 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
 
 // could be done in expandInput, but requires the original Transaction for hashForSignature
 function fixMultisigOrder (input, transaction, vin) {
-  if (input.redeemScriptType !== SCRIPT_TYPES.MULTISIG || !input.redeemScript) return
+  if (input.redeemScriptType !== SCRIPT_TYPES.P2MS || !input.redeemScript) return
   if (input.pubkeys.length === input.signatures.length) return
 
   const unmatched = input.signatures.concat()
@@ -202,12 +203,13 @@ function expandOutput (script, ourPubKey) {
       }
     }
 
-    case SCRIPT_TYPES.MULTISIG: {
+    case SCRIPT_TYPES.P2MS: {
       const p2ms = payments.p2ms({ output: script })
       return {
         type,
         pubkeys: p2ms.pubkeys,
-        signatures: p2ms.pubkeys.map(() => undefined)
+        signatures: p2ms.pubkeys.map(() => undefined),
+        maxSignatures: p2ms.m
       }
     }
   }
@@ -250,7 +252,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
-      signatures: expanded.signatures
+      signatures: expanded.signatures,
+      maxSignatures: expanded.maxSignatures
     }
   }
 
@@ -288,7 +291,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
-      signatures: expanded.signatures
+      signatures: expanded.signatures,
+      maxSignatures: expanded.maxSignatures
     }
   }
 
@@ -321,7 +325,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
-      signatures: expanded.signatures
+      signatures: expanded.signatures,
+      maxSignatures: expanded.maxSignatures
     }
   }
 
@@ -351,7 +356,8 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
       signType: expanded.type,
 
       pubkeys: expanded.pubkeys,
-      signatures: expanded.signatures
+      signatures: expanded.signatures,
+      maxSignatures: expanded.maxSignatures
     }
   }
 
@@ -392,14 +398,18 @@ function build (type, input, allowIncomplete) {
 
       return payments.p2pk({ signature: signatures[0] })
     }
-    case SCRIPT_TYPES.MULTISIG: {
+    case SCRIPT_TYPES.P2MS: {
+      const m = input.maxSignatures
       if (allowIncomplete) {
         signatures = signatures.map(x => x || ops.OP_0)
       } else {
         signatures = signatures.filter(x => x)
       }
 
-      return payments.p2ms({ signatures }, { allowIncomplete })
+      // if the transaction is not not complete (complete), or if signatures.length === m, validate
+      // otherwise, the number of OP_0's may be >= m, so don't validate (boo)
+      const validate = !allowIncomplete || (m === signatures.length)
+      return payments.p2ms({ m, pubkeys, signatures }, { allowIncomplete, validate })
     }
     case SCRIPT_TYPES.P2SH: {
       const redeem = build(input.redeemScriptType, input, allowIncomplete)

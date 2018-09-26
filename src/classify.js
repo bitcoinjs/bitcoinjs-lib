@@ -9,7 +9,7 @@ const witnessScriptHash = require('./templates/witnessscripthash')
 const witnessCommitment = require('./templates/witnesscommitment')
 
 const types = {
-  MULTISIG: 'multisig',
+  P2MS: 'multisig',
   NONSTANDARD: 'nonstandard',
   NULLDATA: 'nulldata',
   P2PK: 'pubkey',
@@ -30,7 +30,7 @@ function classifyOutput (script) {
   const chunks = decompile(script)
   if (!chunks) throw new TypeError('Invalid script')
 
-  if (multisig.output.check(chunks)) return types.MULTISIG
+  if (multisig.output.check(chunks)) return types.P2MS
   if (pubKey.output.check(chunks)) return types.P2PK
   if (witnessCommitment.output.check(chunks)) return types.WITNESS_COMMITMENT
   if (nullData.output.check(chunks)) return types.NULLDATA
@@ -45,7 +45,7 @@ function classifyInput (script, allowIncomplete) {
 
   if (pubKeyHash.input.check(chunks)) return types.P2PKH
   if (scriptHash.input.check(chunks, allowIncomplete)) return types.P2SH
-  if (multisig.input.check(chunks, allowIncomplete)) return types.MULTISIG
+  if (multisig.input.check(chunks, allowIncomplete)) return types.P2MS
   if (pubKey.input.check(chunks)) return types.P2PK
 
   return types.NONSTANDARD
