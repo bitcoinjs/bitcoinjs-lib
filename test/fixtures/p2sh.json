@@ -326,6 +326,24 @@
       }
     },
     {
+      "exception": "Network mismatch",
+      "arguments": {
+        "network": "bitcoin",
+        "redeem": {
+          "network": "testnet"
+        }
+      }
+    },
+    {
+      "exception": "Network mismatch",
+      "arguments": {
+        "network": "testnet",
+        "redeem": {
+          "network": "bitcoin"
+        }
+      }
+    },
+    {
       "exception": "Empty input",
       "arguments": {
         "inputHex": "01ff"
