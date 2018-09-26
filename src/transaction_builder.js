@@ -406,6 +406,9 @@ function build (type, input, allowIncomplete) {
       } else {
         signatures = signatures.filter(x => x)
       }
+
+      // if the transaction is not not complete (complete), or if signatures.length === m, validate
+      // otherwise, the number of OP_0's may be >= m, so don't validate (boo)
       const validate = !allowIncomplete || (m === signatures.length)
       return payments.p2ms({ m, pubkeys, signatures }, { allowIncomplete, validate })
     }
