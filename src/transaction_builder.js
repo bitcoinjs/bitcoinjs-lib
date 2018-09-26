@@ -371,8 +371,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
     signType: SCRIPT_TYPES.P2PKH,
 
     pubkeys: [ourPubKey],
-    signatures: [undefined],
-    maxSignatures: 1
+    signatures: [undefined]
   }
 }
 
