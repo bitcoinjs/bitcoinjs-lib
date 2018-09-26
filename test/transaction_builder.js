@@ -340,6 +340,7 @@ describe('TransactionBuilder', function () {
       it('throws ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
         const txb = construct(f, true)
 
+        let threw = false
         f.inputs.forEach(function (input, index) {
           input.signs.forEach(function (sign) {
             const keyPairNetwork = NETWORKS[sign.network || f.network]
@@ -355,15 +356,18 @@ describe('TransactionBuilder', function () {
               witnessScript = bscript.fromASM(sign.witnessScript)
             }
 
-            if (!sign.throws) {
-              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
-            } else {
+            if (sign.throws) {
               assert.throws(function () {
                 txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
               }, new RegExp(f.exception))
+              threw = true
+            } else {
+              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
             }
           })
         })
+
+        assert.equal(threw, true)
       })
     })
   })
