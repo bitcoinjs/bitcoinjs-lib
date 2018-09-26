@@ -7,13 +7,13 @@ const typeforce = require('typeforce')
 const types = require('./types')
 const varuint = require('varuint-bitcoin')
 
-const varSliceSize = (someScript) => {
+function varSliceSize (someScript) {
   const length = someScript.length
 
   return varuint.encodingLength(length) + length
 }
 
-const vectorSize = (someVector) => {
+function vectorSize (someVector) {
   const length = someVector.length
 
   return varuint.encodingLength(length) + someVector.reduce((sum, witness) => {
@@ -241,24 +241,24 @@ class Transaction {
 
     let tbuffer, toffset
 
-    const writeSlice = (slice) => {
+    function writeSlice (slice) {
       toffset += slice.copy(tbuffer, toffset)
     }
 
-    const writeUInt32 = (i) => {
+    function writeUInt32 (i) {
       toffset = tbuffer.writeUInt32LE(i, toffset)
     }
 
-    const writeUInt64 = (i) => {
+    function writeUInt64 (i) {
       toffset = bufferutils.writeUInt64LE(tbuffer, i, toffset)
     }
 
-    const writeVarInt = (i) => {
+    function writeVarInt (i) {
       varuint.encode(i, tbuffer, toffset)
       toffset += varuint.encode.bytes
     }
 
-    const writeVarSlice = (slice) => {
+    function writeVarSlice (slice) {
       writeVarInt(slice.length)
       writeSlice(slice)
     }
@@ -354,37 +354,37 @@ class Transaction {
 
     let offset = initialOffset || 0
 
-    const writeSlice = (slice) => {
+    function writeSlice (slice) {
       offset += slice.copy(buffer, offset)
     }
 
-    const writeUInt8 = (i) => {
+    function writeUInt8 (i) {
       offset = buffer.writeUInt8(i, offset)
     }
 
-    const writeUInt32 = (i) => {
+    function writeUInt32 (i) {
       offset = buffer.writeUInt32LE(i, offset)
     }
 
-    const writeInt32 = (i) => {
+    function writeInt32 (i) {
       offset = buffer.writeInt32LE(i, offset)
     }
 
-    const writeUInt64 = (i) => {
+    function writeUInt64 (i) {
       offset = bufferutils.writeUInt64LE(buffer, i, offset)
     }
 
-    const writeVarInt = (i) => {
+    function writeVarInt (i) {
       varuint.encode(i, buffer, offset)
       offset += varuint.encode.bytes
     }
 
-    const writeVarSlice = (slice) => {
+    function writeVarSlice (slice) {
       writeVarInt(slice.length)
       writeSlice(slice)
     }
 
-    const writeVector = (vector) => {
+    function writeVector (vector) {
       writeVarInt(vector.length)
       vector.forEach(writeVarSlice)
     }
@@ -451,40 +451,40 @@ class Transaction {
 Transaction.fromBuffer = (buffer, __noStrict) => {
   let offset = 0
 
-  const readSlice = (n) => {
+  function readSlice (n) {
     offset += n
     return buffer.slice(offset - n, offset)
   }
 
-  const readUInt32 = () => {
+  function readUInt32 () {
     const i = buffer.readUInt32LE(offset)
     offset += 4
     return i
   }
 
-  const readInt32 = () => {
+  function readInt32 () {
     const i = buffer.readInt32LE(offset)
     offset += 4
     return i
   }
 
-  const readUInt64 = () => {
+  function readUInt64 () {
     const i = bufferutils.readUInt64LE(buffer, offset)
     offset += 8
     return i
   }
 
-  const readVarInt = () => {
+  function readVarInt () {
     const vi = varuint.decode(buffer, offset)
     offset += varuint.decode.bytes
     return vi
   }
 
-  const readVarSlice = () => {
+  function readVarSlice () {
     return readSlice(readVarInt())
   }
 
-  const readVector = () => {
+  function readVector () {
     const count = readVarInt()
     const vector = []
     for (var i = 0; i < count; i++) vector.push(readVarSlice())
