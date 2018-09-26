@@ -26,6 +26,7 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 - Standardized, using [standard](https://github.com/standard/standard) and Node `Buffer`'s throughout, and
 - Friendly, with a strong and helpful community, ready to answer questions.
 
+
 ## Documentation
 Presently,  we do not have any formal documentation other than our [examples](#examples), please [ask for help](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new) if our examples aren't enough to guide you.
 
@@ -42,6 +43,27 @@ If in doubt, see the [.travis.yml](.travis.yml) for what versions are used by ou
 
 
 ## Usage
+Crypto is hard.
+
+When working with private keys, the random number generator is fundamentally one of the most important parts of any software you write.
+For random number generation, we *default* to the [`randombytes`](https://github.com/crypto-browserify/randombytes) module, which uses [`window.crypto.getRandomValues`](https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues) in the browser, or Node js' [`crypto.randomBytes`](https://nodejs.org/api/crypto.html#crypto_crypto_randombytes_size_callback), depending on your build system.
+Although this default is ~OK, there is no simple way to detect if the underlying RNG provided is good enough, or if it is **catastrophically bad**.
+You should always verify this yourself to your own standards.
+
+This library uses [tiny-secp256k1](https://github.com/bitcoinjs/tiny-secp256k1), which uses [RFC6979](https://tools.ietf.org/html/rfc6979) to help prevent `k` re-use and exploitation.
+Unfortunately, this isn't a silver bullet.
+Often, Javascript itself is working against us by bypassing these counter-measures.
+
+Problems in [`Buffer (UInt8Array)`](https://github.com/feross/buffer), for example, can trivially result in catastrophic fund loss without any warning.
+It can do this through undermining your random number generation, accidentally producing a duplicate `k` value, sending Bitcoin to a malformed output script, or any of a million different ways.
+Running tests in your target environment is important and a recommended step to verify continuously.
+
+Finally, **adhere to best practice**.   We aren't an authorative source for best practice, but, at the very least:
+
+* Don't re-use addresses.  Privacy is important, but, .... TODO
+* Don't share BIP32 extended public keys. They are a liability, and [as shown in our examples](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/crypto.js#L68), it only takes 1 mistake until **catastrophic failure**.
+* TODO, anythign else of importance here?
+
 
 ### Browser
 The recommended method of using `bitcoinjs-lib` in your browser is through [Browserify](https://github.com/substack/node-browserify).
