@@ -1,8 +1,8 @@
 const { describe, it, beforeEach } = require('mocha')
 const assert = require('assert')
 const baddress = require('../src/address')
-const bcrypto = require('../src/crypto')
 const bscript = require('../src/script')
+const payments = require('../src/payments')
 
 const ECPair = require('../src/ecpair')
 const Transaction = require('../src/transaction')
@@ -10,11 +10,6 @@ const TransactionBuilder = require('../src/transaction_builder')
 const NETWORKS = require('../src/networks')
 
 const fixtures = require('./fixtures/transaction_builder')
-
-// TODO: remove
-function getAddress (node) {
-  return baddress.toBase58Check(bcrypto.hash160(node.publicKey), NETWORKS.bitcoin.pubKeyHash)
-}
 
 function constructSign (f, txb) {
   const network = NETWORKS[f.network]
@@ -236,6 +231,7 @@ describe('TransactionBuilder', function () {
 
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
       txb.addInput(txHash, 0)
+      txb.addOutput(scripts[0], 1000)
       txb.sign(0, keyPair)
 
       assert.throws(function () {
@@ -251,7 +247,7 @@ describe('TransactionBuilder', function () {
     })
 
     it('accepts an address string and value', function () {
-      const address = getAddress(keyPair)
+      const { address } = payments.p2pkh({ pubkey: keyPair.publicKey })
       const vout = txb.addOutput(address, 1000)
       assert.strictEqual(vout, 0)
 
@@ -318,6 +314,7 @@ describe('TransactionBuilder', function () {
     it('throws if if there exist any scriptSigs', function () {
       const txb = new TransactionBuilder()
       txb.addInput(txHash, 0)
+      txb.addOutput(scripts[0], 100)
       txb.sign(0, keyPair)
 
       assert.throws(function () {
@@ -345,6 +342,7 @@ describe('TransactionBuilder', function () {
       it('throws ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), function () {
         const txb = construct(f, true)
 
+        let threw = false
         f.inputs.forEach(function (input, index) {
           input.signs.forEach(function (sign) {
             const keyPairNetwork = NETWORKS[sign.network || f.network]
@@ -360,15 +358,18 @@ describe('TransactionBuilder', function () {
               witnessScript = bscript.fromASM(sign.witnessScript)
             }
 
-            if (!sign.throws) {
-              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
-            } else {
+            if (sign.throws) {
               assert.throws(function () {
                 txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
               }, new RegExp(f.exception))
+              threw = true
+            } else {
+              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
             }
           })
         })
+
+        assert.equal(threw, true)
       })
     })
   })

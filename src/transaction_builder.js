@@ -633,7 +633,9 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   // TODO: remove keyPair.network matching in 4.0.0
   if (keyPair.network && keyPair.network !== this.network) throw new TypeError('Inconsistent network')
   if (!this.__inputs[vin]) throw new Error('No input at index: ' + vin)
+
   hashType = hashType || Transaction.SIGHASH_ALL
+  if (this.__needsOutputs(hashType)) throw new Error('Transaction needs outputs')
 
   const input = this.__inputs[vin]
 
@@ -694,8 +696,7 @@ function signatureHashType (buffer) {
 
 TransactionBuilder.prototype.__canModifyInputs = function () {
   return this.__inputs.every(function (input) {
-    // any signatures?
-    if (input.signatures === undefined) return true
+    if (!input.signatures) return true
 
     return input.signatures.every(function (signature) {
       if (!signature) return true
@@ -704,6 +705,25 @@ TransactionBuilder.prototype.__canModifyInputs = function () {
       // if SIGHASH_ANYONECANPAY is set, signatures would not
       // be invalidated by more inputs
       return hashType & Transaction.SIGHASH_ANYONECANPAY
+    })
+  })
+}
+
+TransactionBuilder.prototype.__needsOutputs = function (signingHashType) {
+  if (signingHashType === Transaction.SIGHASH_ALL) {
+    return this.__tx.outs.length === 0
+  }
+
+  // if inputs are being signed with SIGHASH_NONE, we don't strictly need outputs
+  // .build() will fail, but .buildIncomplete() is OK
+  return (this.__tx.outs.length === 0) && this.__inputs.some((input) => {
+    if (!input.signatures) return false
+
+    return input.signatures.some((signature) => {
+      if (!signature) return false // no signature, no issue
+      const hashType = signatureHashType(signature)
+      if (hashType & Transaction.SIGHASH_NONE) return false // SIGHASH_NONE doesn't care about outputs
+      return true // SIGHASH_* does care
     })
   })
 }
