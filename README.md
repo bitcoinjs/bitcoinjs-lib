@@ -23,7 +23,7 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 - Easy to audit and verify,
 - Tested, with test coverage >95%,
 - Advanced and feature rich,
-- Standardized, using [standard](http://github.com/standard/standard) and Node `Buffer`'s throughout, and
+- Standardized, using [standard](https://github.com/standard/standard) and Node `Buffer`'s throughout, and
 - Friendly, with a strong and helpful community, ready to answer questions.
 
 ## Documentation
@@ -45,9 +45,9 @@ If in doubt, see the [.travis.yml](.travis.yml) for what versions are used by ou
 
 ### Browser
 The recommended method of using `bitcoinjs-lib` in your browser is through [Browserify](https://github.com/substack/node-browserify).
-If you're familiar with how to use browserify, ignore this and carry on, otherwise, it is recommended to read the tutorial at http://browserify.org/.
+If you're familiar with how to use browserify, ignore this and carry on, otherwise, it is recommended to read the tutorial at https://browserify.org/.
 
-**NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](http://babeljs.io/docs/plugins/preset-es2015/) preset).
+**NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](https://babeljs.io/docs/plugins/preset-es2015/) preset).
 
 **WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use atleast [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
 
