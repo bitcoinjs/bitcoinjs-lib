@@ -231,6 +231,7 @@ describe('TransactionBuilder', function () {
 
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', function () {
       txb.addInput(txHash, 0)
+      txb.addOutput(scripts[0], 1000)
       txb.sign(0, keyPair)
 
       assert.throws(function () {

@@ -633,9 +633,9 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
   // TODO: remove keyPair.network matching in 4.0.0
   if (keyPair.network && keyPair.network !== this.network) throw new TypeError('Inconsistent network')
   if (!this.__inputs[vin]) throw new Error('No input at index: ' + vin)
-  if (this.__needsOutputs()) throw new Error('Transaction needs outputs')
 
   hashType = hashType || Transaction.SIGHASH_ALL
+  if (this.__needsOutputs(hashType)) throw new Error('Transaction needs outputs')
 
   const input = this.__inputs[vin]
 
@@ -709,7 +709,11 @@ TransactionBuilder.prototype.__canModifyInputs = function () {
   })
 }
 
-TransactionBuilder.prototype.__needsOutputs = function () {
+TransactionBuilder.prototype.__needsOutputs = function (signingHashType) {
+  if (signingHashType === Transaction.SIGHASH_ALL) {
+    return this.__tx.outs.length === 0
+  }
+
   // if inputs are being signed with SIGHASH_NONE, we don't strictly need outputs
   // .build() will fail, but .buildIncomplete() is OK
   return (this.__tx.outs.length === 0) && this.__inputs.some((input) => {

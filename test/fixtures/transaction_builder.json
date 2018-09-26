@@ -2359,7 +2359,7 @@
         ]
       },
       {
-        "description": "Transaction w/ no outputs (but 1 SIGHASH_ALL)",
+        "description": "Transaction w/ no outputs (but 1 SIGHASH_NONE)",
         "exception": "Transaction needs outputs",
         "inputs": [
           {
@@ -2367,13 +2367,31 @@
             "vout": 0,
             "signs": [
               {
-                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "hashType": 2
               }
             ]
           },
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "vout": 1,
+            "signs": [
+              {
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": []
+      },
+      {
+        "description": "Transaction w/ no outputs",
+        "exception": "Transaction needs outputs",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
             "signs": [
               {
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
