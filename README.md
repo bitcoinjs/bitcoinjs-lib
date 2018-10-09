@@ -1,14 +1,7 @@
-# BitcoinJS (bitcoinjs-lib)
+# GroestlcoinJS (groestlcoinjs-lib)
 
-[![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
-[![NPM](https://img.shields.io/npm/v/bitcoinjs-lib.svg)](https://www.npmjs.org/package/bitcoinjs-lib)
-[![tip for next commit](https://tip4commit.com/projects/735.svg)](http://tip4commit.com/projects/735)
-
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
-
-
-The pure JavaScript Bitcoin library for node.js and browsers.
-Used by over a million wallet users and the backbone for almost all Bitcoin web wallets in production today.
+The pure JavaScript Groestlcoin library for node.js and browsers.
+Used by over a million wallet users and the backbone for almost all Groestlcoin web wallets in production today.
 
 
 ## Features
@@ -22,26 +15,18 @@ Used by over a million wallet users and the backbone for almost all Bitcoin web 
 - Principled: No support for browsers with crap RNG (IE < 11)
 - Standardized: Node community coding style, Browserify, Node's stdlib and Buffers.
 - Fast: Optimized code, uses typed arrays instead of byte arrays for performance.
-- Experiment-friendly: Bitcoin Mainnet and Testnet support.
-- Altcoin-ready: Capable of working with bitcoin-derived cryptocurrencies (such as Dogecoin).
-
-
-## Should I use this in production?
-
-If you are thinking of using the master branch of this library in production, **stop**.
-Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/bitcoinjs/bitcoinjs-lib/tags).
-
+- Experiment-friendly: Groestlcoin Mainnet and Testnet support.
 
 ## Installation
 
-`npm install bitcoinjs-lib`
+`npm install groestlcoinjs-lib`
 
 
 ## Setup
 
 ### Node.js
 
-    var bitcoin = require('bitcoinjs-lib')
+    var bitcoin = require('groestlcoinjs-lib')
 
 
 ### Browser
@@ -55,7 +40,7 @@ From your repository, create an `index.js` file
 ``` javascript
 module.exports = {
   base58: require('bs58'),
-  bitcoin: require('bitcoinjs-lib'),
+  bitcoin: require('groestlcoinjs-lib'),
   ecurve: require('ecurve'),
   BigInteger: require('bigi')
 }
@@ -63,7 +48,7 @@ module.exports = {
 
 Install each of the above packages locally
 ``` bash
-npm install bs58 bitcoinjs-lib ecurve bigi
+npm install bs58 groestlcoinjs-lib ecurve bigi
 ```
 
 After installation, use browserify to compile `index.js` for use in the browser:
@@ -83,17 +68,6 @@ uglifyjs ... --mangle --reserved 'Array,BigInteger,Boolean,ECPair,Function,Numbe
 ```
 
 **NOTE**: If you expect this library to run on an iOS 10 device, ensure that you are using [buffer@5.0.5](https://www.npmjs.com/package/buffer) or greater.
-
-### Flow
-
-Definitions for [Flow typechecker](https://flowtype.org/) are available in flow-typed repository.
-
-[You can either download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_v0.17.x-/bitcoinjs-lib_v2.x.x.js) from the repo, or with the flow-typed CLI
-
-    # npm install -g flow-typed
-    $ flow-typed install -f 0.27 bitcoinjs-lib@2.2.0 # 0.27 for flow version, 2.2.0 for bitcoinjs-lib version
-
-The definitions are complete and up to date with version 2.2.0. The definitions are maintained by [@runn1ng](https://github.com/runn1ng).
 
 ## Examples
 
@@ -121,40 +95,11 @@ The below examples are implemented as integration tests, they should be very eas
 If you have a use case that you feel could be listed here, please [ask for it](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new)!
 
 
-## Projects utilizing BitcoinJS
+## Projects utilizing GroestlcoinJS
 
-- [BitAddress](https://www.bitaddress.org)
-- [Blockchain.info](https://blockchain.info/wallet)
-- [Blocktrail](https://www.blocktrail.com/)
-- [Dark Wallet](https://www.darkwallet.is/)
-- [DecentralBank](http://decentralbank.com/)
-- [Dogechain Wallet](https://dogechain.info)
-- [EI8HT Wallet](http://ei8.ht/)
-- [GreenAddress](https://greenaddress.it)
+- [CoinID](https://coinid.org)
 - [Melis Wallet](https://melis.io)
-- [Robocoin](https://wallet.robocoin.com)
-- [Skyhook ATM](http://projectskyhook.com)
-
-
-## Contributors
-
-Stefan Thomas is the inventor and creator of this project. His pioneering work made Bitcoin web wallets possible.
-Daniel Cousens, Wei Lu, JP Richardson and Kyle Drake lead the major refactor of the library from 0.1.3 to 1.0.0.
-
-Since then, many people have contributed. [Click here](https://github.com/bitcoinjs/bitcoinjs-lib/graphs/contributors) to see the comprehensive list.
-
-
-## Contributing
-
-We are always accepting of pull requests, but we do adhere to specific standards in regards to coding style, test driven development and commit messages.
-
-Please make your best effort to adhere to these when contributing to save on trivial corrections.
-
-
-### Running the test suite
-
-    $ npm test
-    $ npm run-script coverage
+- [Jaxx](https://jaxx.io)
 
 
 ## Complementing Libraries
@@ -176,9 +121,7 @@ Please make your best effort to adhere to these when contributing to save on tri
 
 ## Alternatives
 
-- [Bitcore](https://github.com/bitpay/bitcore)
-- [Cryptocoin](https://github.com/cryptocoinjs/cryptocoin)
-
+- [Bitcore](https://github.com/groestlcoin/groestlcore)
 
 ## LICENSE [MIT](LICENSE)
 

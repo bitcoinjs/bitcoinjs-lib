@@ -83,7 +83,7 @@ Block.fromHex = function (hex) {
 }
 
 Block.prototype.getHash = function () {
-  return bcrypto.hash256(this.toBuffer(true))
+  return bcrypto.groestl(this.toBuffer(true))
 }
 
 Block.prototype.getId = function () {

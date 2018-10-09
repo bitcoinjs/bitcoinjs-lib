@@ -52,9 +52,9 @@ describe('types', function () {
       { value: -1, result: false },
       { value: 0, result: true },
       { value: 1, result: true },
-      { value: 20999999 * 1e8, result: true },
-      { value: 21000000 * 1e8, result: true },
-      { value: 21000001 * 1e8, result: false }
+      { value: 104999999 * 1e8, result: true },
+      { value: 105000000 * 1e8, result: true },
+      { value: 105000001 * 1e8, result: false }
     ].forEach(function (f) {
       it('returns ' + f.result + ' for valid for ' + f.value, function () {
         assert.strictEqual(types.Satoshi(f.value), f.result)

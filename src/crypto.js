@@ -1,4 +1,5 @@
 var createHash = require('create-hash')
+var groestlhash = require('groestl-hash-js')
 
 function ripemd160 (buffer) {
   return createHash('rmd160').update(buffer).digest()
@@ -18,6 +19,10 @@ function hash160 (buffer) {
 
 function hash256 (buffer) {
   return sha256(sha256(buffer))
+}
+
+function groestl (buffer) {
+  return Buffer.from(Module.ccall('GroestlCoinHash', 'string', ['string'], [buffer.toString("hex")]), "hex");
 }
 
 module.exports = {
