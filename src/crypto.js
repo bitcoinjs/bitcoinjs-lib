@@ -22,7 +22,7 @@ function hash256 (buffer) {
 }
 
 function groestl (buffer) {
-  return Buffer.from(Module.ccall('GroestlCoinHash', 'string', ['string'], [buffer.toString("hex")]), "hex");
+  return return Buffer(groestlhash.groestl_2(buffer, 1, 2))
 }
 
 module.exports = {
@@ -30,5 +30,6 @@ module.exports = {
   hash256: hash256,
   ripemd160: ripemd160,
   sha1: sha1,
-  sha256: sha256
+  sha256: sha256,
+  groestl: groestl
 }
