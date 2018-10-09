@@ -1,0 +1,72 @@
+{
+  "valid": [
+    {
+      "description": "output from output",
+      "arguments": {
+        "output": "OP_RETURN a3b147dbe4a85579fc4b5a1811e76620560e07267e62b9a0d6858f9127735cadd82f67e06c24dbc4"
+      },
+      "options": {},
+      "expected": {
+        "data": [
+          "a3b147dbe4a85579fc4b5a1811e76620560e07267e62b9a0d6858f9127735cadd82f67e06c24dbc4"
+        ],
+        "output": "OP_RETURN a3b147dbe4a85579fc4b5a1811e76620560e07267e62b9a0d6858f9127735cadd82f67e06c24dbc4",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "output from data",
+      "arguments": {
+        "data": [
+          "a3b147dbe4a85579fc4b5a1811e76620560e07267e62b9a0d6858f9127735cadd82f67e06c24dbc4"
+        ]
+      },
+      "expected": {
+        "data": [
+          "a3b147dbe4a85579fc4b5a1811e76620560e07267e62b9a0d6858f9127735cadd82f67e06c24dbc4"
+        ],
+        "output": "OP_RETURN a3b147dbe4a85579fc4b5a1811e76620560e07267e62b9a0d6858f9127735cadd82f67e06c24dbc4",
+        "input": null,
+        "witness": null
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "exception": "Not enough data",
+      "arguments": {}
+    },
+    {
+      "description": "First OP is not OP_RETURN",
+      "exception": "Output is invalid",
+      "options": {},
+      "arguments": {
+        "output": "OP_1 OP_2 OP_ADD"
+      }
+    }
+  ],
+  "dynamic": {
+    "depends": {
+      "data": [ "data", "output" ],
+      "output": [ "output", "data" ]
+    },
+    "details": [
+      {
+        "description": "embed",
+        "data": [
+          "a3b147dbe4a85579fc4b5a1811e76620560e07267e62b9a0d6858f9127735cadd82f67e06c24dbc4"
+        ],
+        "output": "OP_RETURN a3b147dbe4a85579fc4b5a1811e76620560e07267e62b9a0d6858f9127735cadd82f67e06c24dbc4"
+      },
+      {
+        "description": "embed",
+        "data": [
+          "a3b147dbe4a85579fc4b5a1811e76620560e0726",
+          "7e62b9a0d6858f9127735cadd82f67e06c24dbc4"
+        ],
+        "output": "OP_RETURN a3b147dbe4a85579fc4b5a1811e76620560e0726 7e62b9a0d6858f9127735cadd82f67e06c24dbc4"
+      }
+    ]
+  }
+}

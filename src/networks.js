@@ -4,6 +4,7 @@
 module.exports = {
   bitcoin: {
     messagePrefix: '\x1cGroestlCoin Signed Message:\n',
+    bech32: 'grs',
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4
@@ -14,6 +15,7 @@ module.exports = {
   },
   testnet: {
     messagePrefix: '\x1cGroestlCoin Signed Message:\n',
+    bech32: 'tgrs',
     bip32: {
       public: 0x043587cf,
       private: 0x04358394
@@ -21,15 +23,5 @@ module.exports = {
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
     wif: 0xef
-  },
-  litecoin: {
-    messagePrefix: '\x19Litecoin Signed Message:\n',
-    bip32: {
-      public: 0x019da462,
-      private: 0x019d9cfe
-    },
-    pubKeyHash: 0x30,
-    scriptHash: 0x32,
-    wif: 0xb0
   }
 }

@@ -1,3 +1,77 @@
+# 4.0.2
+__fixed__
+- Fixed `TransactionBuilder` not throwing when payment type validation should fail (#1195)
+
+__removed__
+- Removed rogue `package.json` from `src/payments` (#1216)
+
+# 4.0.1
+__fixed__
+- Fixed `tiny-secp256k1` dependency version (used `ecurve`) (#1139)
+- Fixed `TransactionBuilder` throwing when trying to sign `P2WSH(P2WPKH)` (#1135)
+
+# 4.0.0
+__added__
+- Added [`bip32`](https://github.com/bitcoinjs/bip32) dependency as a primary export (#1073)
+- Added `ECPair.fromPrivateKey` (#1070)
+- Added `payments` export, with support for `p2pkh`, `p2pk`, `p2ms`, `p2sh`, `p2wpkh`, `p2wsh` and `embed` payment types (#1096, #1119)
+- Added `script.signature.encode/decode` for script signatures (#459)
+
+__changed__
+- `ECPair.prototype.sign` now returns a 64-byte signature `Buffer`, not an `ECSignature` object (#1084)
+- `ECPair` (and all ECDSA code) now uses [`tiny-secp256k1`](http://github.com/bitcoinjs/tiny-secp256k1), which uses the [`libsecp256k1` library](https://github.com/bitcoin-core/secp256k1) (#1070)
+- `TransactionBuilder` internal variables are now `__` prefixed to discourage public usage (#1038)
+- `TransactionBuilder` now defaults to version 2 transaction versions (#1036)
+- `script.decompile` now returns `[Buffer]` or `null`, if decompilation failed (#1039)
+
+__fixed__
+- Fixed `TransactionBuilder` rejecting uncompressed public keys to comply with BIP143 (#987)
+
+__removed__
+- Removed Node 4/5 LTS support (#1080)
+- Removed `ECPair.fromPublicKeyBuffer`, use `ECPair.fromPublicKey` (#1070)
+- Removed `ECPair.prototype.getAddress`, use `payments.p2pkh` instead (#1085)
+- Removed `ECPair.prototype.getPrivateKey`, use `ECPair.prototype.privateKey` property (#1070)
+- Removed `ECPair.prototype.getPublicKey`, use `ECPair.prototype.publicKey` property (#1070)
+- Removed `ECPair.prototype.getNetwork`, use `ECPair.prototype.network` property (#1070)
+- Removed `ECSignature`, use `script.signature.encode/decode` instead (#459)
+- Removed `HDNode`, use `bip32` export instead (#1073)
+- Removed `bufferutils` (#1035)
+- Removed `networks.litecoin`, BYO non-Bitcoin networks instead (#1095)
+- Removed `script.isCanonicalSignature`, use `script.isCanonicalScriptSignature` instead (#1094)
+- Removed `script.*.input/output/check` functions (`templates`), use `payments.*` instead (`templates` previously added in #681, #682) (#1119)
+- Removed dependency `bigi`, uses `bn.js` internally now (via `tiny-secp256k1`) (#1070, #1112)
+- Removed public access to `ECPair` constructor, use exported functions `ECPair.fromPrivateKey`, `ECPair.fromWIF`, `ECPair.makeRandom`, or `ECPair.fromPublicKey` (#1070)
+
+# 3.3.2
+__fixed__
+- Fixed `decodeStack` arbitrarily supporting non-Array arguments (#942)
+
+# 3.3.1
+__changed__
+- Increased the `TransactionBuilder` `maximumFeeRate` from 1000 to 2500 satoshis/byte. (#931)
+
+# 3.3.0
+__added__
+- Added `ECSignature.prototype.toRSBuffer`/`ECSignature.fromRSBuffer` (#915)
+- Added support to `TransactionBuilder` for 64-byte signatures via `.sign` (#915)
+- Added support to `TransactionBuilder` for the `.publicKey` standard as an alternative to `.getPublicKey()` (#915)
+
+# 3.2.1
+__fixed__
+- Fixed `script.scripthash.input.check` recursion (#898)
+- Fixed `TransactionBuilder` sometimes ignoring witness value (#901)
+- Fixed `script.witnessScriptHash.input` implementation (previously used the P2SH impl.) (#911)
+
+# 3.2.0
+__added__
+- Added `address.fromBech32/toBech32` (#846)
+
+# 3.1.0
+__added__
+- Added `Transaction.prototype.virtualSize` (#811)
+- Added `Transaction.prototype.weight` (#811)
+
 # 3.0.0
 From this release users can expect out-of-the-box Segregated Witness support.
 The majority of breaking changes have been in how `script` encoding/decoding occurs,  with the introduction of witness stacks.

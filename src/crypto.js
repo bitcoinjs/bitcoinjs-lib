@@ -1,5 +1,5 @@
-var createHash = require('create-hash')
-var groestlhash = require('groestl-hash-js')
+const createHash = require('create-hash')
+const groestlhash = require('groestl-hash-js')
 
 function ripemd160 (buffer) {
   return createHash('rmd160').update(buffer).digest()
