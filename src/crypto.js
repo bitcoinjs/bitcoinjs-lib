@@ -22,7 +22,7 @@ function hash256 (buffer) {
 }
 
 function groestl (buffer) {
-  return return Buffer(groestlhash.groestl_2(buffer, 1, 2))
+  return Buffer(groestlhash.groestl_2(buffer, 1, 1))
 }
 
 module.exports = {
