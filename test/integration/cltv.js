@@ -8,7 +8,7 @@ const bip65 = require('bip65')
 const alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', regtest)
 const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
 
-describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
+describe('groestlcoinjs-lib (transactions w/ CLTV)', function () {
   // force update MTP
   before(function (done) {
     regtestUtils.mine(11, done)

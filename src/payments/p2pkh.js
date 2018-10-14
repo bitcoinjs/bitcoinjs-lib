@@ -6,7 +6,7 @@ const ecc = require('tiny-secp256k1')
 const bcrypto = require('../crypto')
 const bscript = require('../script')
 const BITCOIN_NETWORK = require('../networks').bitcoin
-const bs58check = require('bs58check')
+const bs58grscheck = require('bs58grscheck')
 
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
@@ -32,7 +32,7 @@ function p2pkh (a, opts) {
   }, a)
 
   const _address = lazy.value(function () {
-    const payload = bs58check.decode(a.address)
+    const payload = bs58grscheck.decode(a.address)
     const version = payload.readUInt8(0)
     const hash = payload.slice(1)
     return { version, hash }
@@ -48,7 +48,7 @@ function p2pkh (a, opts) {
     const payload = Buffer.allocUnsafe(21)
     payload.writeUInt8(network.pubKeyHash, 0)
     o.hash.copy(payload, 1)
-    return bs58check.encode(payload)
+    return bs58grscheck.encode(payload)
   })
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(3, 23)

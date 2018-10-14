@@ -67,7 +67,7 @@ function stealthDualReceive (d, r, eG) {
   return v
 }
 
-describe('bitcoinjs-lib (crypto)', function () {
+describe('groestlcoinjs-lib (crypto)', function () {
   it('can generate a single-key stealth address', function () {
     // XXX: should be randomly generated, see next test for example
     const recipient = bitcoin.ECPair.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss') // private to recipient

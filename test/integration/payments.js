@@ -41,7 +41,7 @@ function buildAndSign (depends, prevOutput, redeemScript, witnessScript, done) {
   const { output } = fn(base)
   if (!output) throw new TypeError('Missing output')
 
-  describe('bitcoinjs-lib (payments - ' + k + ')', function () {
+  describe('groestlcoinjs-lib (payments - ' + k + ')', function () {
     it('can broadcast as an output, and be spent as an input', (done) => {
       buildAndSign(depends, output, null, null, done)
     })

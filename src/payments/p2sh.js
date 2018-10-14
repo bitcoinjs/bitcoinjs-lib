@@ -5,7 +5,7 @@ const OPS = require('bitcoin-ops')
 const bcrypto = require('../crypto')
 const bscript = require('../script')
 const BITCOIN_NETWORK = require('../networks').bitcoin
-const bs58check = require('bs58check')
+const bs58grscheck = require('bs58grscheck')
 
 function stacksEqual (a, b) {
   if (a.length !== b.length) return false
@@ -53,7 +53,7 @@ function p2sh (a, opts) {
   const o = { network }
 
   const _address = lazy.value(function () {
-    const payload = bs58check.decode(a.address)
+    const payload = bs58grscheck.decode(a.address)
     const version = payload.readUInt8(0)
     const hash = payload.slice(1)
     return { version, hash }
@@ -76,7 +76,7 @@ function p2sh (a, opts) {
     const payload = Buffer.allocUnsafe(21)
     payload.writeUInt8(network.scriptHash, 0)
     o.hash.copy(payload, 1)
-    return bs58check.encode(payload)
+    return bs58grscheck.encode(payload)
   })
   lazy.prop(o, 'hash', function () {
     // in order of least effort
