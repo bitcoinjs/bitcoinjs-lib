@@ -8,7 +8,7 @@ function rng () {
   return Buffer.from('YT8dAtK4d16A3P1z+TpwB2jJ4aFH3g9M1EioIBkLEV4=', 'base64')
 }
 
-describe('bitcoinjs-lib (transactions)', function () {
+describe('groestlcoinjs-lib (transactions)', function () {
   it('can create a 1-to-1 Transaction', function () {
     const alice = bitcoin.ECPair.fromWIF('L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy')
     const txb = new bitcoin.TransactionBuilder()
@@ -85,7 +85,7 @@ describe('bitcoinjs-lib (transactions)', function () {
       if (err) return done(err)
 
       const txb = new bitcoin.TransactionBuilder(regtest)
-      const data = Buffer.from('bitcoinjs-lib', 'utf8')
+      const data = Buffer.from('groestlcoinjs-lib', 'utf8')
       const embed = bitcoin.payments.embed({ data: [data] })
       txb.addInput(unspent.txId, unspent.vout)
       txb.addOutput(embed.output, 1000)

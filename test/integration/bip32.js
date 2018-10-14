@@ -8,7 +8,7 @@ function getAddress (node, network) {
   return bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address
 }
 
-describe('bitcoinjs-lib (BIP32)', function () {
+describe('groestlcoinjs-lib (BIP32)', function () {
   it('can import a BIP32 testnet xpriv and export to WIF', function () {
     const xpriv = 'tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK'
     const node = bip32.fromBase58(xpriv, bitcoin.networks.testnet)

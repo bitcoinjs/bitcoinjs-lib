@@ -202,7 +202,7 @@ __changed__
 
 __removed__
 - export `Address`, `strings` are now used,  benchwith no performance loss for most use cases
-- export `base58check`, use [`bs58check`](https://github.com/bitcoinjs/bs58check) instead
+- export `base58grscheck`, use [`bs58grscheck`](https://github.com/groestlcoin/bs58grscheck) instead
 - export `ecdsa`, use [`ecurve`](https://github.com/cryptocoinjs/ecurve) instead
 - export `ECKey`, use new export `ECPair` instead
 - export `ECPubKey`, use new export `ECPair` instead

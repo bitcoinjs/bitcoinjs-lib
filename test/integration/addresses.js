@@ -17,7 +17,7 @@ const LITECOIN = {
 // deterministic RNG for testing only
 function rng () { return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
 
-describe('bitcoinjs-lib (addresses)', function () {
+describe('groestlcoinjs-lib (addresses)', function () {
   it('can generate a random address', function () {
     const keyPair = bitcoin.ECPair.makeRandom({ rng: rng })
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })

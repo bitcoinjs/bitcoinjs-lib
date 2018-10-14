@@ -34,7 +34,7 @@
     "bip32": "^1.0.0",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
-    "bs58check": "https://github.com/Groestlcoin/bs58check.git",
+    "bs58grscheck": "https://github.com/Groestlcoin/bs58grscheck.git",
     "create-hash": "^1.1.0",
     "create-hmac": "^1.1.3",
     "merkle-lib": "^2.0.10",

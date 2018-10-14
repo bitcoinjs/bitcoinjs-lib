@@ -124,7 +124,7 @@ npm run-script coverage
 - [BIP68](https://github.com/bitcoinjs/bip68) - Relative lock-time encoding library
 - [BIP69](https://github.com/bitcoinjs/bip69) - Lexicographical Indexing of Transaction Inputs and Outputs
 - [Base58](https://github.com/cryptocoinjs/bs58) - Base58 encoding/decoding
-- [Base58 Check](https://github.com/bitcoinjs/bs58check) - Base58 check encoding/decoding
+- [Base58 GRS Check](https://github.com/bitcoinjs/bs58grscheck) - Base58 check encoding/decoding
 - [Bech32](https://github.com/bitcoinjs/bech32) - A BIP173 compliant Bech32 encoding library
 - [coinselect](https://github.com/bitcoinjs/coinselect) - A fee-optimizing, transaction input selection module for bitcoinjs-lib.
 - [merkle-lib](https://github.com/bitcoinjs/merkle-lib) - A performance conscious library for merkle root and tree calculations.

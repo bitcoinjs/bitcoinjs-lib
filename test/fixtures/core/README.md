@@ -1,24 +1,24 @@
 Description
 ------------
 
-This directory contains data-driven tests for various aspects of Bitcoin.
+This directory contains data-driven tests for various aspects of Groestlcoin.
 
 
-Bitcoinjs-lib notes
+Groestlcoinjs-lib notes
 -------------------
 
-This directory does not contain all the Bitcoin core tests.
+This directory does not contain all the Groestlcoin core tests.
 Missing core test data includes:
 
 * `alertTests.raw`
-	Bitcoin-js does not interact with the Bitcoin network directly.
+	Groestlcoin-js does not interact with the Groestlcoin network directly.
 
 * `tx_invalid.json`
-	Bitcoin-js can not evaluate Scripts, making testing this irrelevant.
+	Groestlcoin-js can not evaluate Scripts, making testing this irrelevant.
 	It can decode valid Transactions, therefore `tx_valid.json` remains.
 
 * `script*.json`
-	Bitcoin-js can not evaluate Scripts, making testing this irrelevant.
+	Groestlcoin-js can not evaluate Scripts, making testing this irrelevant.
 
 
 License
