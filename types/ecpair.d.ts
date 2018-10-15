@@ -8,7 +8,7 @@
  * Kento https://github.com/kento1218.
  */
 
-import { Network } from "./network";
+import { Network } from "./networks";
 
 export namespace ECPair {
 
@@ -30,6 +30,8 @@ export namespace ECPair {
     rng?: Rng
   }): ECPair
 }
+
+export type Rng = (size: number) => Buffer
 
 export interface ECPair {
   readonly compressed: boolean
