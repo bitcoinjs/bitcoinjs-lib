@@ -31,7 +31,7 @@
   ],
   "dependencies": {
     "bech32": "^1.1.2",
-    "bip32": "https://github.com/Groestlcoin/bip32grs",
+    "bip32grs": "https://github.com/Groestlcoin/bip32grs",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "bs58grscheck": "https://github.com/Groestlcoin/bs58grscheck.git",
