@@ -64,7 +64,7 @@ export default class Transaction {
 
   setInputScript(index: number, scriptSig: Buffer): void
 
-  setWitness(index: number, witness: any, ...args: any[]): void
+  setWitness(index: number, ...witnesses: Buffer[]): void
 
   toBuffer(buffer?: Buffer, initialOffset?: number): Buffer
 
