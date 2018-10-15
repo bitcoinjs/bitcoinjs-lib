@@ -11,16 +11,16 @@ const isTransaction = (tx) => ['addInput', 'addOutput', 'byteLength',
   'isCoinbase', 'setInputScript', 'setWitness',
   'toBuffer', 'toHex', 'virtualSize',
   'weight'].every(method => {
-    if (typeof tx[method] !== 'function') {
-      console.error(method + ' is not a function')
-      return false
-    }
-    return true
-  })
+  if (typeof tx[method] !== 'function') {
+    console.error(method + ' is not a function')
+    return false
+  }
+  return true
+})
 
 describe('Transaction', () => {
   describe('fromBuffer/fromHex', () => {
-    function importExport(f) {
+    function importExport (f) {
       const txHex = f.hex || f.txHex
 
       it(f.description + ' fromHex returns a transaction', () => {
@@ -74,7 +74,7 @@ describe('Transaction', () => {
     })
   })
 
-  describe.only('bytelength', () => {
+  describe('bytelength', () => {
     fixtures.valid.forEach(f => {
       it(`byteLength of ${f.description} should return an integer`, () => {
         const tx = Transaction.fromHex(f.hex)
@@ -109,7 +109,7 @@ describe('Transaction', () => {
   })
 
   describe('getHash/getId', () => {
-    function verify(f) {
+    function verify (f) {
       const tx = Transaction.fromHex(f.whex || f.hex)
       it('getHash of ' + f.description + 'should return a buffer', () => {
         assert(Buffer.isBuffer(tx.getHash()))
@@ -124,7 +124,7 @@ describe('Transaction', () => {
   })
 
   describe('isCoinbase', function () {
-    function verify(f) {
+    function verify (f) {
       it('isCoinbase of ' + f.description + ' should return boolean', () => {
         const tx = Transaction.fromHex(f.hex)
 
