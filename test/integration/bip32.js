@@ -1,6 +1,6 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
-const bip32 = require('bip32')
+const bip32 = require('bip32grs')
 const bip39 = require('bip39')
 const bitcoin = require('../../')
 

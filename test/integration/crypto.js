@@ -2,7 +2,7 @@ const { describe, it } = require('mocha')
 const assert = require('assert')
 const BN = require('bn.js')
 const bitcoin = require('../../')
-const bip32 = require('bip32')
+const bip32 = require('bip32grs')
 const crypto = require('crypto')
 const tinysecp = require('tiny-secp256k1')
 

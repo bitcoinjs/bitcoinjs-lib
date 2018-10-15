@@ -2,7 +2,7 @@ const ecc = require('tiny-secp256k1')
 const randomBytes = require('randombytes')
 const typeforce = require('typeforce')
 const types = require('./types')
-const wif = require('wif')
+const wif = require('wifgrs')
 
 const NETWORKS = require('./networks')
 const isOptions = typeforce.maybe(typeforce.compile({
