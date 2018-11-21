@@ -212,7 +212,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
       regtestUtils.broadcast(tx.toHex(), function (err) {
         assert.throws(function () {
           if (err) throw err
-        }, /Error: 64: non-final/)
+        }, /Error: non-final \(code 64\)/)
 
         done()
       })
