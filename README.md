@@ -74,7 +74,7 @@ npm install -g flow-typed
 flow-typed install -f 0.27 bitcoinjs-lib@2.2.0
 ```
 
-These flow bindings are not maintained by the maintainers of this repository.
+**WARNING**: These flow-typed definitions are not maintained by the maintainers of this repository.
 
 
 ## Examples
