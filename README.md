@@ -49,7 +49,7 @@ If you're familiar with how to use browserify, ignore this and carry on, otherwi
 
 **NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](http://babeljs.io/docs/plugins/preset-es2015/) preset).
 
-**NOTE**: If you expect this library to run on an iOS 10 device, ensure that you are using [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater.
+**WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use atleast [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
 
 ### Typescript or VSCode users
 Type declarations for Typescript [are available](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/0897921174860ec3d5318992d2323b3ae8100a68/types/bitcoinjs-lib) for version `^3.0.0` of the library.
@@ -74,7 +74,7 @@ npm install -g flow-typed
 flow-typed install -f 0.27 bitcoinjs-lib@2.2.0
 ```
 
-These definitions are maintained by [@runn1ng](https://github.com/runn1ng).
+**WARNING**: These flow-typed definitions are not maintained by the maintainers of this repository.
 
 
 ## Examples
