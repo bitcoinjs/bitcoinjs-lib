@@ -264,17 +264,28 @@ describe('bitcoinjs-lib (transactions)', function () {
     const txb = new bitcoin.TransactionBuilder()
 
     txb.setVersion(1)
-    txb.addInput('61d520ccb74288c96bc1a2b20ea1c0d5a704776dd0164a396efec3ea7040349d', 0) // Alice's previous transaction output, has 15000 satoshis
+    // Alice's previous transaction output, has 15000 satoshis
+    txb.addInput('61d520ccb74288c96bc1a2b20ea1c0d5a704776dd0164a396efec3ea7040349d', 0)
     txb.addOutput('1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP', 12000)
     // (in)15000 - (out)12000 = (fee)3000, this is the miner fee
 
-    txb.sign(0, {
+    const fakeECPair = {
+      // publicKey should be a Buffer with the DER encoded public key
       publicKey: Buffer.from('029f50f51d63b345039a290c94bffd3180c99ed659ff6ea6b1242bca47eb93b59f', 'hex'),
+      // sign is a function that takes a 32 byte Buffer, signs the 32 byte Buffer directly (no extra hashing)
+      // And returns a 64 byte Buffer:
+      //   The 1st 32 bytes is the signature R value in big endian
+      //   The 2nd 32 bytes is the signature S value in big endian
+      //   Both Buffers are padded with 0x00 bytes on the left (MSB)
+      //   so they are always 32 bytes each.
       sign: function (hash) {
         const privateKey = Buffer.from('8c112cf628362ecf4d482f68af2dbb50c8a2cb90d226215de925417aa9336a48', 'hex')
         return tinysecp.sign(hash, privateKey)
       }
-    })
+    }
+
+    // Now use the object with publicKey and sign attributes just as you would use an ECPair
+    txb.sign(0, fakeECPair)
 
     // prepare for broadcast to the Bitcoin network, see "can broadcast via 3PBP"
     assert.strictEqual(txb.build().toHex(), '01000000019d344070eac3fe6e394a16d06d7704a7d5c0a10eb2a2c16bc98842b7cc20d561000000006b48304502210088828c0bdfcdca68d8ae0caeb6ec62cd3fd5f9b2191848edae33feb533df35d302202e0beadd35e17e7f83a733f5277028a9b453d525553e3f5d2d7a7aa8010a81d60121029f50f51d63b345039a290c94bffd3180c99ed659ff6ea6b1242bca47eb93b59fffffffff01e02e0000000000001976a91406afd46bcdfd22ef94ac122aa11f241244a37ecc88ac00000000')
