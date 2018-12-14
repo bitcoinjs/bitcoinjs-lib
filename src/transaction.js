@@ -8,6 +8,7 @@ const script_1 = require('./script');
 const types = require('./types');
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
+const BN = require('bn.js');
 function varSliceSize(someScript) {
   const length = someScript.length;
   return varuint.encodingLength(length) + length;
@@ -163,14 +164,23 @@ class Transaction {
       }) - 1
     );
   }
-  addOutput(scriptPubKey, value) {
-    typeforce(types.tuple(types.Buffer, types.Satoshi), arguments);
+  addOutput(script, value) {
+    typeforce(
+      types.tuple(types.Buffer, typeforce.anyOf(types.Satoshi, 'String')),
+      arguments,
+    );
     // Add the output and return the output's index
     return (
-      this.outs.push({
-        script: scriptPubKey,
-        value,
-      }) - 1
+      this.outs.push(
+        Object.assign(
+          { script },
+          typeof value === 'string'
+            ? {
+                valueBuffer: new BN(value, 10).toBuffer('le', 8),
+              }
+            : { value },
+        ),
+      ) - 1
     );
   }
   hasWitnesses() {
@@ -379,6 +389,36 @@ class Transaction {
     writeUInt32(hashType);
     return bcrypto.hash256(tbuffer);
   }
+  hashForForkId(inIndex, prevOutScript, inAmount, hashType) {
+    typeforce(
+      types.tuple(
+        types.UInt32,
+        types.Buffer,
+        /* types.UInt8 */ types.Number,
+        types.maybe(typeforce.UInt53),
+      ),
+      arguments,
+    );
+
+    // This function works the way it does because bitcoincash
+    // uses BIP143 as their replay protection, AND their algo
+    // includes `forkId | hashType`, AND since their forkId=0,
+    // this is a no-op, and has no difference to segwit. To support
+    // other forks, another parameter is required, and a new parameter
+    // would be required in the hashForWitnessV0 function, or
+    // it could be broken into two..
+
+    // BIP143 sighash activated via 0x40 bit
+    if (!(hashType & Transaction.SIGHASH_BIP143FORKID)) {
+      return this.hashForSignature(inIndex, prevOutScript, hashType);
+    }
+
+    if (types.Null(inAmount)) {
+      throw new Error('ForkId sighash requires value of input to be signed.');
+    }
+
+    return this.hashForWitnessV0(inIndex, prevOutScript, inAmount, hashType);
+  }
   getHash(forWitness) {
     // wtxid for coinbase is always 32 bytes of 0x00
     if (forWitness && this.isCoinbase()) return Buffer.alloc(32, 0);
@@ -470,6 +510,7 @@ Transaction.SIGHASH_ALL = 0x01;
 Transaction.SIGHASH_NONE = 0x02;
 Transaction.SIGHASH_SINGLE = 0x03;
 Transaction.SIGHASH_ANYONECANPAY = 0x80;
+Transaction.SIGHASH_BIP143FORKID = 0x40;
 Transaction.ADVANCED_TRANSACTION_MARKER = 0x00;
 Transaction.ADVANCED_TRANSACTION_FLAG = 0x01;
 exports.Transaction = Transaction;

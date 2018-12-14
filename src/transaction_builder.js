@@ -49,14 +49,17 @@ function txIsTransaction(tx) {
 class TransactionBuilder {
   // WARNING: maximumFeeRate is __NOT__ to be relied on,
   //          it's just another potential safety mechanism (safety in-depth)
-  constructor(network = networks.bitcoin, maximumFeeRate = 2500) {
+  constructor(network = networks.bitcoin, maximumFeeRate = 2500, version = 2) {
     this.network = network;
     this.maximumFeeRate = maximumFeeRate;
     this.__PREV_TX_SET = {};
     this.__INPUTS = [];
     this.__TX = new transaction_1.Transaction();
-    this.__TX.version = 2;
+    this.__TX.version = version;
     this.__USE_LOW_R = false;
+
+    this.__forkId = false;
+
     console.warn(
       'Deprecation Warning: TransactionBuilder will be removed in the future. ' +
         '(v6.x.x or later) Please use the Psbt class instead. Examples of usage ' +
@@ -65,8 +68,10 @@ class TransactionBuilder {
         'files as well.',
     );
   }
-  static fromTransaction(transaction, network) {
+  static fromTransaction(transaction, network, forkIdTx) {
     const txb = new TransactionBuilder(network);
+    txb.useForkId(Boolean(forkIdTx));
+
     // Copy transaction fields
     txb.setVersion(transaction.version);
     txb.setLockTime(transaction.locktime);
@@ -80,13 +85,17 @@ class TransactionBuilder {
         sequence: txIn.sequence,
         script: txIn.script,
         witness: txIn.witness,
+        value: txIn.value,
       });
     });
     // fix some things not possible through the public API
     txb.__INPUTS.forEach((input, i) => {
-      fixMultisigOrder(input, transaction, i);
+      fixMultisigOrder(input, transaction, i, input.value, forkIdTx);
     });
     return txb;
+  }
+  useForkId(enable) {
+    this.__forkId = enable;
   }
   setLowR(setting) {
     typeforce(typeforce.maybe(typeforce.Boolean), setting);
@@ -173,6 +182,7 @@ class TransactionBuilder {
         witnessValue,
         witnessScript,
         this.__USE_LOW_R,
+        this.__forkId,
       ),
     );
   }
@@ -422,7 +432,7 @@ function expandInput(scriptSig, witnessStack, type, scriptPubKey) {
   };
 }
 // could be done in expandInput, but requires the original Transaction for hashForSignature
-function fixMultisigOrder(input, transaction, vin) {
+function fixMultisigOrder(input, transaction, vin, value, forkId) {
   if (input.redeemScriptType !== SCRIPT_TYPES.P2MS || !input.redeemScript)
     return;
   if (input.pubkeys.length === input.signatures.length) return;
@@ -436,11 +446,18 @@ function fixMultisigOrder(input, transaction, vin) {
       if (!signature) return false;
       // TODO: avoid O(n) hashForSignature
       const parsed = bscript.signature.decode(signature);
-      const hash = transaction.hashForSignature(
-        vin,
-        input.redeemScript,
-        parsed.hashType,
-      );
+      const hash = forkId
+        ? transaction.hashForForkId(
+            vin,
+            input.signScript,
+            value,
+            parsed.hashType,
+          )
+        : transaction.hashForSignature(
+            vin,
+            input.redeemScript,
+            parsed.hashType,
+          );
       // skip if signature does not match pubKey
       if (!keyPair.verify(hash, parsed.signature)) return false;
       // remove matched signature from unmatched
@@ -958,9 +975,7 @@ function trySign({
     if (input.signatures[i]) throw new Error('Signature already exists');
     // TODO: add tests
     if (ourPubKey.length !== 33 && input.hasWitness) {
-      throw new Error(
-        'BIP143 rejects uncompressed public keys in P2WPKH or P2WSH',
-      );
+      throw new Error('Rejects uncompressed public keys in P2WPKH or P2WSH');
     }
     const signature = keyPair.sign(signatureHash, useLowR);
     input.signatures[i] = bscript.signature.encode(signature, hashType);
@@ -980,6 +995,7 @@ function getSigningData(
   witnessValue,
   witnessScript,
   useLowR,
+  forkId,
 ) {
   let vin;
   if (typeof signParams === 'number') {
@@ -1043,17 +1059,24 @@ function getSigningData(
     if (!canSign(input)) throw Error(input.prevOutType + ' not supported');
   }
   // ready to sign
-  let signatureHash;
-  if (input.hasWitness) {
-    signatureHash = tx.hashForWitnessV0(
-      vin,
-      input.signScript,
-      input.value,
-      hashType,
-    );
-  } else {
-    signatureHash = tx.hashForSignature(vin, input.signScript, hashType);
+  const hashMethod = forkId
+    ? 'hashForForkId'
+    : input.hasWitness
+    ? 'hashForWitnessV0'
+    : 'hashForSignature';
+
+  const hashArgs = [vin, input.signScript];
+
+  if (forkId) {
+    hashArgs.push(witnessValue);
+  } else if (input.hasWitness) {
+    hashArgs.push(input.value);
   }
+
+  hashArgs.push(hashType);
+
+  const signatureHash = tx[hashMethod](...hashArgs);
+
   return {
     input,
     ourPubKey,

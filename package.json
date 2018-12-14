@@ -1,6 +1,6 @@
 {
-  "name": "bitcoinjs-lib",
-  "version": "5.1.7",
+  "name": "@coinsquare/bitcoinjs-lib",
+  "version": "5.1.7-coinsquare",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
@@ -42,7 +42,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
+    "url": "https://github.com/coinsquare/bitcoinjs-lib.git"
   },
   "files": [
     "src",
