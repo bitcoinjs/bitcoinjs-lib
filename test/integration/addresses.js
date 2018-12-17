@@ -25,17 +25,6 @@ describe('bitcoinjs-lib (addresses)', function () {
     assert.strictEqual(address, '1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64')
   })
 
-  it('can generate an address from a SHA256 hash', function () {
-    const hash = bitcoin.crypto.sha256(Buffer.from('correct horse battery staple'))
-
-    const keyPair = bitcoin.ECPair.fromPrivateKey(hash)
-    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
-
-    // Generating addresses from SHA256 hashes is not secure if the input to the hash function is predictable
-    // Do not use with predictable inputs
-    assert.strictEqual(address, '1C7zdTfnkzmr13HfA2vNm5SJYRK6nEKyq8')
-  })
-
   it('can import an address via WIF', function () {
     const keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
