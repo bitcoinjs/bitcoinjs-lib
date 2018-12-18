@@ -68,6 +68,20 @@ class Block {
       block.transactions.push(tx)
     }
 
+    // This Block contains a witness commit
+    if (block.isWitnessBlock()) {
+      // The merkle root for the witness data is in an OP_RETURN output.
+      // There is no rule for the index of the output, so use filter to find it.
+      // The root is prepended with 0xaa21a9ed so check for 0x6a24aa21a9ed
+      // If multiple commits are found, the output with highest index is assumed.
+      let witnessCommits = block.transactions[0].outs
+        .filter(out => out.script.slice(0, 6).equals(Buffer.from('6a24aa21a9ed', 'hex')))
+        .map(out => out.script.slice(6, 38))
+
+      // Use the commit with the highest output (should only be one though)
+      block.witnessCommit = witnessCommits[witnessCommits.length - 1]
+    }
+
     return block
   }
 
@@ -83,13 +97,27 @@ class Block {
     return target
   }
 
-  static calculateMerkleRoot (transactions) {
+  static calculateMerkleRoot (transactions, forWitness) {
     typeforce([{ getHash: types.Function }], transactions)
     if (transactions.length === 0) throw TypeError('Cannot compute merkle root for zero transactions')
+    if (forWitness && transactions[0].ins[0].witness.length === 0) {
+      throw TypeError('Cannot compute witness commit for non-segwit block')
+    }
 
-    const hashes = transactions.map(transaction => transaction.getHash())
+    const hashes = transactions.map(transaction => transaction.getHash(forWitness))
 
-    return fastMerkleRoot(hashes, bcrypto.hash256)
+    const rootHash = fastMerkleRoot(hashes, bcrypto.hash256)
+
+    return forWitness
+      ? bcrypto.hash256(Buffer.concat([rootHash, transactions[0].ins[0].witness[0]]))
+      : rootHash
+  }
+
+  isWitnessBlock () {
+    return this.transactions &&
+      this.transactions.length > 0 &&
+      this.transactions[0] &&
+      this.transactions[0].ins[0].witness.length > 0
   }
 
   byteLength (headersOnly) {
@@ -163,6 +191,14 @@ class Block {
 
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions)
     return this.merkleRoot.compare(actualMerkleRoot) === 0
+  }
+
+  checkWitnessCommit () {
+    if (!this.transactions) return false
+    if (!this.isWitnessBlock()) return false
+
+    const actualWitnessCommit = Block.calculateMerkleRoot(this.transactions, true)
+    return this.witnessCommit.compare(actualWitnessCommit) === 0
   }
 
   checkProofOfWork () {

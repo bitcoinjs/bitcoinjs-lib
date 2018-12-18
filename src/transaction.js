@@ -336,13 +336,15 @@ class Transaction {
     return bcrypto.hash256(tbuffer)
   }
 
-  getHash () {
-    return bcrypto.hash256(this.__toBuffer(undefined, undefined, false))
+  getHash (forWitness) {
+    // wtxid for coinbase is always 32 bytes of 0x00
+    if (forWitness && this.isCoinbase()) return Buffer.alloc(32, 0)
+    return bcrypto.hash256(this.__toBuffer(undefined, undefined, forWitness))
   }
 
   getId () {
     // transaction hash's are displayed in reverse order
-    return this.getHash().reverse().toString('hex')
+    return this.getHash(false).reverse().toString('hex')
   }
 
   toBuffer (buffer, initialOffset) {
