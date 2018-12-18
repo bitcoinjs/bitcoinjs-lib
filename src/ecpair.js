@@ -10,39 +10,40 @@ const isOptions = typeforce.maybe(typeforce.compile({
   network: types.maybe(types.Network)
 }))
 
-function ECPair (d, Q, options) {
-  options = options || {}
+class ECPair {
+  constructor (d, Q, options) {
+    options = options || {}
 
-  this.compressed = options.compressed === undefined ? true : options.compressed
-  this.network = options.network || NETWORKS.bitcoin
+    this.compressed = options.compressed === undefined ? true : options.compressed
+    this.network = options.network || NETWORKS.bitcoin
 
-  this.__d = d || null
-  this.__Q = null
-  if (Q) this.__Q = ecc.pointCompress(Q, this.compressed)
-}
+    this.__d = d || null
+    this.__Q = null
+    if (Q) this.__Q = ecc.pointCompress(Q, this.compressed)
+  }
 
-Object.defineProperty(ECPair.prototype, 'privateKey', {
-  enumerable: false,
-  get: function () { return this.__d }
-})
+  get privateKey () {
+    return this.__d
+  }
 
-Object.defineProperty(ECPair.prototype, 'publicKey', { get: function () {
-  if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__d, this.compressed)
-  return this.__Q
-}})
+  get publicKey () {
+    if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__d, this.compressed)
+    return this.__Q
+  }
 
-ECPair.prototype.toWIF = function () {
-  if (!this.__d) throw new Error('Missing private key')
-  return wif.encode(this.network.wif, this.__d, this.compressed)
-}
+  toWIF () {
+    if (!this.__d) throw new Error('Missing private key')
+    return wif.encode(this.network.wif, this.__d, this.compressed)
+  }
 
-ECPair.prototype.sign = function (hash) {
-  if (!this.__d) throw new Error('Missing private key')
-  return ecc.sign(hash, this.__d)
-}
+  sign (hash) {
+    if (!this.__d) throw new Error('Missing private key')
+    return ecc.sign(hash, this.__d)
+  }
 
-ECPair.prototype.verify = function (hash, signature) {
-  return ecc.verify(hash, this.publicKey, signature)
+  verify (hash, signature) {
+    return ecc.verify(hash, this.publicKey, signature)
+  }
 }
 
 function fromPrivateKey (buffer, options) {
