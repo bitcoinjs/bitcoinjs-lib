@@ -5,6 +5,22 @@ const typeforce = require('typeforce')
 const types = require('./types')
 const varuint = require('varuint-bitcoin')
 
+const errorMerkleNoTxes = new TypeError('Cannot compute merkle root for zero transactions')
+const errorWitnessNotSegwit = new TypeError('Cannot compute witness commit for non-segwit block')
+const errorBufferTooSmall = new Error('Buffer too small (< 80 bytes)')
+
+function txesHaveWitness (transactions) {
+  return transactions !== undefined &&
+    transactions instanceof Array &&
+    transactions[0] &&
+    transactions[0].ins &&
+    transactions[0].ins instanceof Array &&
+    transactions[0].ins[0] &&
+    transactions[0].ins[0].witness &&
+    transactions[0].ins[0].witness instanceof Array &&
+    transactions[0].ins[0].witness.length > 0
+}
+
 const Transaction = require('./transaction')
 
 class Block {
@@ -18,7 +34,7 @@ class Block {
   }
 
   static fromBuffer (buffer) {
-    if (buffer.length < 80) throw new Error('Buffer too small (< 80 bytes)')
+    if (buffer.length < 80) throw errorBufferTooSmall
 
     let offset = 0
     const readSlice = n => {
@@ -99,10 +115,8 @@ class Block {
 
   static calculateMerkleRoot (transactions, forWitness) {
     typeforce([{ getHash: types.Function }], transactions)
-    if (transactions.length === 0) throw TypeError('Cannot compute merkle root for zero transactions')
-    if (forWitness && transactions[0].ins[0].witness.length === 0) {
-      throw TypeError('Cannot compute witness commit for non-segwit block')
-    }
+    if (transactions.length === 0) throw errorMerkleNoTxes
+    if (forWitness && !txesHaveWitness(transactions)) throw errorWitnessNotSegwit
 
     const hashes = transactions.map(transaction => transaction.getHash(forWitness))
 
@@ -114,10 +128,7 @@ class Block {
   }
 
   hasWitnessCommit () {
-    return this.transactions &&
-      this.transactions.length > 0 &&
-      this.transactions[0] &&
-      this.transactions[0].ins[0].witness.length > 0
+    return txesHaveWitness(this.transactions)
   }
 
   byteLength (headersOnly) {
@@ -187,21 +198,15 @@ class Block {
   }
 
   checkMerkleRoot () {
-    if (!this.transactions) {
-      throw new TypeError('Cannot compute merkle root for zero transactions')
-    }
+    if (!this.transactions) throw errorMerkleNoTxes
 
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions)
     return this.merkleRoot.compare(actualMerkleRoot) === 0
   }
 
   checkWitnessCommit () {
-    if (!this.transactions) {
-      throw new TypeError('Cannot compute merkle root for zero transactions')
-    }
-    if (!this.hasWitnessCommit()) {
-      throw new TypeError('Cannot compute witness commit for non-segwit block')
-    }
+    if (!this.transactions) throw errorMerkleNoTxes
+    if (!this.hasWitnessCommit()) throw errorWitnessNotSegwit
 
     const actualWitnessCommit = Block.calculateMerkleRoot(this.transactions, true)
     return this.witnessCommit.compare(actualWitnessCommit) === 0
