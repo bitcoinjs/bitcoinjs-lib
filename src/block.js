@@ -69,7 +69,7 @@ class Block {
     }
 
     // This Block contains a witness commit
-    if (block.isWitnessBlock()) {
+    if (block.hasWitnessCommit()) {
       // The merkle root for the witness data is in an OP_RETURN output.
       // There is no rule for the index of the output, so use filter to find it.
       // The root is prepended with 0xaa21a9ed so check for 0x6a24aa21a9ed
@@ -113,7 +113,7 @@ class Block {
       : rootHash
   }
 
-  isWitnessBlock () {
+  hasWitnessCommit () {
     return this.transactions &&
       this.transactions.length > 0 &&
       this.transactions[0] &&
@@ -187,15 +187,21 @@ class Block {
   }
 
   checkMerkleRoot () {
-    if (!this.transactions) return false
+    if (!this.transactions) {
+      throw new TypeError('Cannot compute merkle root for zero transactions')
+    }
 
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions)
     return this.merkleRoot.compare(actualMerkleRoot) === 0
   }
 
   checkWitnessCommit () {
-    if (!this.transactions) return false
-    if (!this.isWitnessBlock()) return false
+    if (!this.transactions) {
+      throw new TypeError('Cannot compute merkle root for zero transactions')
+    }
+    if (!this.hasWitnessCommit()) {
+      throw new TypeError('Cannot compute witness commit for non-segwit block')
+    }
 
     const actualWitnessCommit = Block.calculateMerkleRoot(this.transactions, true)
     return this.witnessCommit.compare(actualWitnessCommit) === 0
