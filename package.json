@@ -47,6 +47,7 @@
     "wif": "^2.0.1"
   },
   "devDependencies": {
+    "@types/node": "^10.12.18",
     "bip39": "^2.3.0",
     "bip65": "^1.0.1",
     "bip68": "^1.0.3",
@@ -58,7 +59,8 @@
     "mocha": "^5.2.0",
     "nyc": "^11.8.0",
     "proxyquire": "^2.0.1",
-    "standard": "^11.0.1"
+    "standard": "^11.0.1",
+    "typescript": "^3.2.2"
   },
   "license": "MIT"
 }
