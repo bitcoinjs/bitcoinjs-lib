@@ -50,7 +50,12 @@ function p2sh (a, opts) {
     network = (a.redeem && a.redeem.network) || BITCOIN_NETWORK
   }
 
-  const o = { network }
+  const o = {
+    network,
+    hash: undefined,
+    redeem: undefined,
+    input: undefined,
+  }
 
   const _address = lazy.value(function () {
     const payload = bs58check.decode(a.address)
@@ -191,3 +196,4 @@ function p2sh (a, opts) {
 }
 
 module.exports = p2sh
+export {}

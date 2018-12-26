@@ -15,3 +15,4 @@ check.toJSON = function () { return 'Witness pubKeyHash output' }
 module.exports = {
   check
 }
+export {}

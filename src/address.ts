@@ -95,3 +95,4 @@ module.exports = {
   toBech32: toBech32,
   toOutputScript: toOutputScript
 }
+export {}

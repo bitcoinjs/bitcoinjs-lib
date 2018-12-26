@@ -27,3 +27,4 @@ function check (script, allowIncomplete) {
 check.toJSON = function () { return 'multi-sig output' }
 
 module.exports = { check }
+export {}

@@ -14,3 +14,4 @@ function check (script) {
 check.toJSON = function () { return 'scriptHash output' }
 
 module.exports = { check }
+export {}

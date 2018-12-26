@@ -64,7 +64,12 @@ function p2wsh (a, opts) {
     network = (a.redeem && a.redeem.network) || BITCOIN_NETWORK
   }
 
-  const o = { network }
+  const o = {
+    network,
+    hash: undefined,
+    redeem: undefined,
+    witness: undefined,
+  }
 
   lazy.prop(o, 'address', function () {
     if (!o.hash) return
@@ -178,3 +183,4 @@ function p2wsh (a, opts) {
 }
 
 module.exports = p2wsh
+export {}

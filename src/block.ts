@@ -175,3 +175,4 @@ Block.prototype.checkProofOfWork = function () {
 }
 
 module.exports = Block
+export {}

@@ -30,7 +30,12 @@ function p2pk (a, opts) {
   const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
 
   const network = a.network || BITCOIN_NETWORK
-  const o = { network }
+  const o = {
+    network,
+    input: undefined,
+    pubkey: undefined,
+    signature: undefined,
+  }
 
   lazy.prop(o, 'output', function () {
     if (!a.pubkey) return
@@ -78,3 +83,4 @@ function p2pk (a, opts) {
 }
 
 module.exports = p2pk
+export {}

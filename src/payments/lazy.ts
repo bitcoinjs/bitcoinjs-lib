@@ -28,3 +28,4 @@ function value (f) {
 }
 
 module.exports = { prop, value }
+export {}

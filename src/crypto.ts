@@ -27,3 +27,4 @@ module.exports = {
   sha1: sha1,
   sha256: sha256
 }
+export {}

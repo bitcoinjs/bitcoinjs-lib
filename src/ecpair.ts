@@ -104,3 +104,4 @@ module.exports = {
   fromPublicKey,
   fromWIF
 }
+export {}

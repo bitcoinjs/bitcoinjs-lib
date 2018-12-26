@@ -37,3 +37,4 @@ function check (chunks, allowIncomplete) {
 check.toJSON = function () { return 'witnessScriptHash input' }
 
 module.exports = { check }
+export {}

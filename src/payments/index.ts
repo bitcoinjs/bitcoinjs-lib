@@ -10,3 +10,4 @@ module.exports = { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh }
 
 // TODO
 // witness commitment
+export {}

@@ -138,7 +138,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
 }
 
 Transaction.fromHex = function (hex) {
-  return Transaction.fromBuffer(Buffer.from(hex, 'hex'))
+  return Transaction.fromBuffer(Buffer.from(hex, 'hex'), undefined)
 }
 
 Transaction.isCoinbaseHash = function (buffer) {
@@ -490,3 +490,4 @@ Transaction.prototype.setWitness = function (index, witness) {
 }
 
 module.exports = Transaction
+export {}

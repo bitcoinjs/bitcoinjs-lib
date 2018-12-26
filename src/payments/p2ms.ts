@@ -42,7 +42,15 @@ function p2ms (a, opts) {
   }, a)
 
   const network = a.network || BITCOIN_NETWORK
-  const o = { network }
+  const o = {
+    network,
+    m: undefined,
+    n: undefined,
+    pubkeys: undefined,
+    output: undefined,
+    input: undefined,
+    signatures: undefined,
+  }
 
   let chunks
   let decoded = false
@@ -129,7 +137,7 @@ function p2ms (a, opts) {
       if (a.input[0] !== OPS.OP_0) throw new TypeError('Input is invalid')
       if (o.signatures.length === 0 || !o.signatures.every(isAcceptableSignature)) throw new TypeError('Input has invalid signature(s)')
 
-      if (a.signatures && !stacksEqual(a.signatures.equals(o.signatures))) throw new TypeError('Signature mismatch')
+      if (a.signatures && !stacksEqual(a.signatures.equals(o.signatures), undefined)) throw new TypeError('Signature mismatch')
       if (a.m !== undefined && a.m !== a.signatures.length) throw new TypeError('Signature count mismatch')
     }
   }
@@ -138,3 +146,4 @@ function p2ms (a, opts) {
 }
 
 module.exports = p2ms
+export {}

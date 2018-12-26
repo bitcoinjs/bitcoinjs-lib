@@ -46,7 +46,12 @@ function p2wpkh (a, opts) {
   })
 
   const network = a.network || BITCOIN_NETWORK
-  const o = { network }
+  const o = {
+    network,
+    hash: undefined,
+    pubkey: undefined,
+    witness: undefined,
+  }
 
   lazy.prop(o, 'address', function () {
     if (!o.hash) return
@@ -133,3 +138,4 @@ function p2wpkh (a, opts) {
 }
 
 module.exports = p2wpkh
+export {}

@@ -46,3 +46,4 @@ function check (script, allowIncomplete) {
 check.toJSON = function () { return 'scriptHash input' }
 
 module.exports = { check }
+export {}

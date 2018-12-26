@@ -14,3 +14,4 @@ module.exports = {
   payments: require('./payments'),
   script: script
 }
+export {}

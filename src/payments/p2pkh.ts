@@ -40,7 +40,12 @@ function p2pkh (a, opts) {
   const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
 
   const network = a.network || BITCOIN_NETWORK
-  const o = { network }
+  const o = {
+    network,
+    hash: undefined,
+    pubkey: undefined,
+    input: undefined,
+  }
 
   lazy.prop(o, 'address', function () {
     if (!o.hash) return
@@ -135,3 +140,4 @@ function p2pkh (a, opts) {
 }
 
 module.exports = p2pkh
+export {}

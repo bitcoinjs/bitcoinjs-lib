@@ -47,3 +47,4 @@ for (var typeName in typeforce) {
 }
 
 module.exports = types
+export {}

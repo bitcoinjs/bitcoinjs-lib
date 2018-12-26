@@ -68,3 +68,4 @@ module.exports = {
   witness: classifyWitness,
   types: types
 }
+export {}

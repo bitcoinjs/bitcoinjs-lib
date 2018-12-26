@@ -13,3 +13,4 @@ function check (script) {
 check.toJSON = function () { return 'pubKey output' }
 
 module.exports = { check }
+export {}

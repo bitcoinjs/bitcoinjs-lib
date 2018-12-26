@@ -21,3 +21,4 @@ function check (script, allowIncomplete) {
 check.toJSON = function () { return 'multisig input' }
 
 module.exports = { check }
+export {}

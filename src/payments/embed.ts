@@ -28,7 +28,10 @@ function p2data (a, opts) {
   }, a)
 
   const network = a.network || BITCOIN_NETWORK
-  const o = { network }
+  const o = {
+    network,
+    data: undefined
+  }
 
   lazy.prop(o, 'output', function () {
     if (!a.data) return
@@ -54,3 +57,4 @@ function p2data (a, opts) {
 }
 
 module.exports = p2data
+export {}

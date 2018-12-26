@@ -16,3 +16,4 @@ function check (script) {
 check.toJSON = function () { return 'witnessPubKeyHash input' }
 
 module.exports = { check }
+export {}

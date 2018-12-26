@@ -27,3 +27,4 @@ module.exports = {
   readUInt64LE: readUInt64LE,
   writeUInt64LE: writeUInt64LE
 }
+export {}

@@ -1,6 +1,6 @@
 const t = require('assert')
-const bscript = require('../src/script')
-const BNETWORKS = require('../src/networks')
+const bscript = require('../dist/src/script')
+const BNETWORKS = require('../dist/src/networks')
 
 function tryHex (x) {
   if (Buffer.isBuffer(x)) return x.toString('hex')

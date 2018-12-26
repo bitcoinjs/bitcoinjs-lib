@@ -12,3 +12,4 @@ function check (script) {
 check.toJSON = function () { return 'pubKeyHash input' }
 
 module.exports = { check }
+export {}

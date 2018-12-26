@@ -36,3 +36,4 @@ module.exports = {
     wif: 0xef
   }
 }
+export {}

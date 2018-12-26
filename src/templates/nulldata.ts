@@ -12,3 +12,4 @@ function check (script) {
 check.toJSON = function () { return 'null data output' }
 
 module.exports = { output: { check: check } }
+export {}

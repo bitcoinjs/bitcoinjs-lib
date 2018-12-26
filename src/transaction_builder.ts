@@ -102,7 +102,7 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
     const outputType = classify.output(redeem.output)
     let expanded
     if (outputType === SCRIPT_TYPES.P2WPKH) {
-      expanded = expandInput(redeem.input, redeem.witness, outputType)
+      expanded = expandInput(redeem.input, redeem.witness, outputType, undefined)
     } else {
       expanded = expandInput(bscript.compile(redeem.witness), [], outputType, redeem.output)
     }
@@ -473,7 +473,7 @@ TransactionBuilder.prototype.setVersion = function (version) {
 }
 
 TransactionBuilder.fromTransaction = function (transaction, network) {
-  const txb = new TransactionBuilder(network)
+  const txb = new TransactionBuilder(network, undefined)
 
   // Copy transaction fields
   txb.setVersion(transaction.version)
@@ -537,11 +537,17 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
   const prevTxOut = txHash.toString('hex') + ':' + vout
   if (this.__prevTxSet[prevTxOut] !== undefined) throw new Error('Duplicate TxOut: ' + prevTxOut)
 
-  let input = {}
+  let input = {
+    value: undefined,
+    prevOutScript: undefined,
+    pubkeys: undefined,
+    signatures: undefined,
+    prevOutType: undefined,
+  }
 
   // derive what we can from the scriptSig
   if (options.script !== undefined) {
-    input = expandInput(options.script, options.witness || [])
+    input = expandInput(options.script, options.witness || [], undefined, undefined)
   }
 
   // if an input value was given, retain it
@@ -554,7 +560,7 @@ TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options)
     let prevOutType
 
     if (!input.pubkeys && !input.signatures) {
-      const expanded = expandOutput(options.prevOutScript)
+      const expanded = expandOutput(options.prevOutScript, undefined)
       if (expanded.pubkeys) {
         input.pubkeys = expanded.pubkeys
         input.signatures = expanded.signatures
@@ -705,10 +711,10 @@ function signatureHashType (buffer) {
 }
 
 TransactionBuilder.prototype.__canModifyInputs = function () {
-  return this.__inputs.every(function (input) {
+  return (this.__inputs || []).every(function (input) {
     if (!input.signatures) return true
 
-    return input.signatures.every(function (signature) {
+    return (input.signatures || []).every(function (signature) {
       if (!signature) return true
       const hashType = signatureHashType(signature)
 
@@ -775,3 +781,4 @@ TransactionBuilder.prototype.__overMaximumFees = function (bytes) {
 }
 
 module.exports = TransactionBuilder
+export {}
