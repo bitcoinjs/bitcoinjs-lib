@@ -6,8 +6,21 @@ const networks = require('./networks')
 const typeforce = require('typeforce')
 const types = require('./types')
 const payments = require('./payments')
+import * as Networks from './networks'
+import { Network } from './networks'
 
-function fromBase58Check (address) {
+export declare type Base58CheckResult = {
+  hash: Buffer;
+  version: number;
+}
+
+export declare type Bech32Result = {
+  version: number;
+  prefix: string;
+  data: Buffer;
+}
+
+function fromBase58Check (address: string): Base58CheckResult {
   const payload = bs58check.decode(address)
 
   // TODO: 4.0.0, move to "toOutputScript"
@@ -20,7 +33,7 @@ function fromBase58Check (address) {
   return { version: version, hash: hash }
 }
 
-function fromBech32 (address) {
+function fromBech32 (address: string): Bech32Result {
   const result = bech32.decode(address)
   const data = bech32.fromWords(result.words.slice(1))
 
@@ -31,7 +44,7 @@ function fromBech32 (address) {
   }
 }
 
-function toBase58Check (hash, version) {
+function toBase58Check (hash: Buffer, version: number): string {
   typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
 
   const payload = Buffer.allocUnsafe(21)
@@ -41,14 +54,14 @@ function toBase58Check (hash, version) {
   return bs58check.encode(payload)
 }
 
-function toBech32 (data, version, prefix) {
+function toBech32 (data: Buffer, version: number, prefix: string): string {
   const words = bech32.toWords(data)
   words.unshift(version)
 
   return bech32.encode(prefix, words)
 }
 
-function fromOutputScript (output, network) {
+function fromOutputScript (output: Buffer, network: Network): string { //TODO: Network
   network = network || networks.bitcoin
 
   try { return payments.p2pkh({ output, network }).address } catch (e) {}
@@ -59,27 +72,28 @@ function fromOutputScript (output, network) {
   throw new Error(bscript.toASM(output) + ' has no matching Address')
 }
 
-function toOutputScript (address, network) {
+function toOutputScript (address: string, network: Network): Buffer {
   network = network || networks.bitcoin
 
-  let decode
+  let decodeBase58: Base58CheckResult
+  let decodeBech32: Bech32Result
   try {
-    decode = fromBase58Check(address)
+    decodeBase58 = fromBase58Check(address)
   } catch (e) {}
 
-  if (decode) {
-    if (decode.version === network.pubKeyHash) return payments.p2pkh({ hash: decode.hash }).output
-    if (decode.version === network.scriptHash) return payments.p2sh({ hash: decode.hash }).output
+  if (decodeBase58) {
+    if (decodeBase58.version === network.pubKeyHash) return payments.p2pkh({ hash: decodeBase58.hash }).output
+    if (decodeBase58.version === network.scriptHash) return payments.p2sh({ hash: decodeBase58.hash }).output
   } else {
     try {
-      decode = fromBech32(address)
+      decodeBech32 = fromBech32(address)
     } catch (e) {}
 
-    if (decode) {
-      if (decode.prefix !== network.bech32) throw new Error(address + ' has an invalid prefix')
-      if (decode.version === 0) {
-        if (decode.data.length === 20) return payments.p2wpkh({ hash: decode.data }).output
-        if (decode.data.length === 32) return payments.p2wsh({ hash: decode.data }).output
+    if (decodeBech32) {
+      if (decodeBech32.prefix !== network.bech32) throw new Error(address + ' has an invalid prefix')
+      if (decodeBech32.version === 0) {
+        if (decodeBech32.data.length === 20) return payments.p2wpkh({ hash: decodeBech32.data }).output
+        if (decodeBech32.data.length === 32) return payments.p2wsh({ hash: decodeBech32.data }).output
       }
     }
   }

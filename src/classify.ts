@@ -9,18 +9,18 @@ const witnessScriptHash = require('./templates/witnessscripthash')
 const witnessCommitment = require('./templates/witnesscommitment')
 
 const types = {
-  P2MS: 'multisig',
-  NONSTANDARD: 'nonstandard',
-  NULLDATA: 'nulldata',
-  P2PK: 'pubkey',
-  P2PKH: 'pubkeyhash',
-  P2SH: 'scripthash',
-  P2WPKH: 'witnesspubkeyhash',
-  P2WSH: 'witnessscripthash',
-  WITNESS_COMMITMENT: 'witnesscommitment'
+  P2MS: <string> 'multisig',
+  NONSTANDARD: <string> 'nonstandard',
+  NULLDATA: <string> 'nulldata',
+  P2PK: <string> 'pubkey',
+  P2PKH: <string> 'pubkeyhash',
+  P2SH: <string> 'scripthash',
+  P2WPKH: <string> 'witnesspubkeyhash',
+  P2WSH: <string> 'witnessscripthash',
+  WITNESS_COMMITMENT: <string> 'witnesscommitment'
 }
 
-function classifyOutput (script) {
+function classifyOutput (script: Buffer): string {
   if (witnessPubKeyHash.output.check(script)) return types.P2WPKH
   if (witnessScriptHash.output.check(script)) return types.P2WSH
   if (pubKeyHash.output.check(script)) return types.P2PKH
@@ -38,7 +38,7 @@ function classifyOutput (script) {
   return types.NONSTANDARD
 }
 
-function classifyInput (script, allowIncomplete) {
+function classifyInput (script: Buffer, allowIncomplete: boolean): string {
   // XXX: optimization, below functions .decompile before use
   const chunks = decompile(script)
   if (!chunks) throw new TypeError('Invalid script')
@@ -51,7 +51,7 @@ function classifyInput (script, allowIncomplete) {
   return types.NONSTANDARD
 }
 
-function classifyWitness (script, allowIncomplete) {
+function classifyWitness (script: Buffer, allowIncomplete: boolean): string {
   // XXX: optimization, below functions .decompile before use
   const chunks = decompile(script)
   if (!chunks) throw new TypeError('Invalid script')
@@ -62,10 +62,9 @@ function classifyWitness (script, allowIncomplete) {
   return types.NONSTANDARD
 }
 
-module.exports = {
-  input: classifyInput,
-  output: classifyOutput,
-  witness: classifyWitness,
-  types: types
+export {
+  classifyInput as input,
+  classifyOutput as output,
+  classifyWitness as witness,
+  types,
 }
-export {}

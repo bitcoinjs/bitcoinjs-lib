@@ -1,30 +1,21 @@
 const createHash = require('create-hash')
 
-function ripemd160 (buffer) {
+export function ripemd160 (buffer: Buffer): Buffer {
   return createHash('rmd160').update(buffer).digest()
 }
 
-function sha1 (buffer) {
+export function sha1 (buffer: Buffer): Buffer {
   return createHash('sha1').update(buffer).digest()
 }
 
-function sha256 (buffer) {
+export function sha256 (buffer: Buffer): Buffer {
   return createHash('sha256').update(buffer).digest()
 }
 
-function hash160 (buffer) {
+export function hash160 (buffer: Buffer): Buffer {
   return ripemd160(sha256(buffer))
 }
 
-function hash256 (buffer) {
+export function hash256 (buffer: Buffer): Buffer {
   return sha256(sha256(buffer))
 }
-
-module.exports = {
-  hash160: hash160,
-  hash256: hash256,
-  ripemd160: ripemd160,
-  sha1: sha1,
-  sha256: sha256
-}
-export {}
