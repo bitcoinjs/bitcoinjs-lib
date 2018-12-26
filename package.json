@@ -21,7 +21,7 @@
     "standard": "standard",
     "test": "npm run build && npm run standard && npm run coverage",
     "unit": "npm run build && mocha",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -d -p tsconfig.json"
   },
   "repository": {
     "type": "git",

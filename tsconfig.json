@@ -7,12 +7,12 @@
     "types": [
       "node"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
     "strictPropertyInitialization": false,
     "noImplicitThis": false,
     "alwaysStrict": false,

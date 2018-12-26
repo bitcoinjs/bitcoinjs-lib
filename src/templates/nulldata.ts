@@ -3,7 +3,7 @@
 const bscript = require('../script')
 const OPS = require('bitcoin-ops')
 
-function check (script) {
+export function check (script) {
   const buffer = bscript.compile(script)
 
   return buffer.length > 1 &&
@@ -11,5 +11,8 @@ function check (script) {
 }
 check.toJSON = function () { return 'null data output' }
 
-module.exports = { output: { check: check } }
-export {}
+const output = { check }
+
+export {
+  output
+}

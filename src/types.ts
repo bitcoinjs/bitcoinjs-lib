@@ -1,25 +1,25 @@
 const typeforce = require('typeforce')
 
-const UINT31_MAX = Math.pow(2, 31) - 1
-function UInt31 (value) {
+const UINT31_MAX: number = Math.pow(2, 31) - 1
+export function UInt31 (value: number): boolean {
   return typeforce.UInt32(value) && value <= UINT31_MAX
 }
 
-function BIP32Path (value) {
-  return typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
+export function BIP32Path (value: string): boolean {
+  return typeforce.String(value) && !!value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
 }
 BIP32Path.toJSON = function () { return 'BIP32 derivation path' }
 
-const SATOSHI_MAX = 21 * 1e14
-function Satoshi (value) {
+const SATOSHI_MAX: number = 21 * 1e14
+export function Satoshi (value: number): boolean {
   return typeforce.UInt53(value) && value <= SATOSHI_MAX
 }
 
 // external dependent types
-const ECPoint = typeforce.quacksLike('Point')
+export const ECPoint = typeforce.quacksLike('Point')
 
 // exposed, external API
-const Network = typeforce.compile({
+export const Network = typeforce.compile({
   messagePrefix: typeforce.oneOf(typeforce.Buffer, typeforce.String),
   bip32: {
     public: typeforce.UInt32,
@@ -30,21 +30,7 @@ const Network = typeforce.compile({
   wif: typeforce.UInt8
 })
 
-// extend typeforce types with ours
-const types = {
-  BIP32Path: BIP32Path,
-  Buffer256bit: typeforce.BufferN(32),
-  ECPoint: ECPoint,
-  Hash160bit: typeforce.BufferN(20),
-  Hash256bit: typeforce.BufferN(32),
-  Network: Network,
-  Satoshi: Satoshi,
-  UInt31: UInt31
-}
-
-for (var typeName in typeforce) {
-  types[typeName] = typeforce[typeName]
-}
-
-module.exports = types
-export {}
+export const Buffer256bit = typeforce.BufferN(32)
+export const Hash160bit = typeforce.BufferN(20)
+export const Hash256bit = typeforce.BufferN(32)
+export * from 'typeforce'
