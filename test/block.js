@@ -32,6 +32,9 @@ describe('Block', function () {
         assert.strictEqual(block.version, f.version)
         assert.strictEqual(block.prevHash.toString('hex'), f.prevHash)
         assert.strictEqual(block.merkleRoot.toString('hex'), f.merkleRoot)
+        if (block.witnessCommit) {
+          assert.strictEqual(block.witnessCommit.toString('hex'), f.witnessCommit)
+        }
         assert.strictEqual(block.timestamp, f.timestamp)
         assert.strictEqual(block.bits, f.bits)
         assert.strictEqual(block.nonce, f.nonce)
@@ -113,6 +116,12 @@ describe('Block', function () {
       it('returns ' + f.merkleRoot + ' for ' + f.id, function () {
         assert.strictEqual(Block.calculateMerkleRoot(block.transactions).toString('hex'), f.merkleRoot)
       })
+
+      if (f.witnessCommit) {
+        it('returns witness commit ' + f.witnessCommit + ' for ' + f.id, function () {
+          assert.strictEqual(Block.calculateMerkleRoot(block.transactions, true).toString('hex'), f.witnessCommit)
+        })
+      }
     })
   })
 
@@ -129,6 +138,12 @@ describe('Block', function () {
       it('returns ' + f.valid + ' for ' + f.id, function () {
         assert.strictEqual(block.checkMerkleRoot(), true)
       })
+
+      if (f.witnessCommit) {
+        it('validates witness commit for ' + f.id, function () {
+          assert.strictEqual(block.checkWitnessCommit(), true)
+        })
+      }
     })
   })
 

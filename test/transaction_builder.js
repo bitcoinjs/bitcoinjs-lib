@@ -5,7 +5,7 @@ const bscript = require('../dist/src/script')
 const payments = require('../dist/src/payments')
 
 const ECPair = require('../dist/src/ecpair')
-const Transaction = require('../dist/src/transaction')
+const Transaction = require('..').Transaction
 const TransactionBuilder = require('../dist/src/transaction_builder')
 const NETWORKS = require('../dist/src/networks')
 

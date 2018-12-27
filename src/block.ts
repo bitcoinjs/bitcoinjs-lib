@@ -1,3 +1,4 @@
+import { Transaction } from './transaction'
 const Buffer = require('safe-buffer').Buffer
 const bcrypto = require('./crypto')
 const fastMerkleRoot = require('merkle-lib/fastRoot')
@@ -9,7 +10,7 @@ const errorMerkleNoTxes = new TypeError('Cannot compute merkle root for zero tra
 const errorWitnessNotSegwit = new TypeError('Cannot compute witness commit for non-segwit block')
 const errorBufferTooSmall = new Error('Buffer too small (< 80 bytes)')
 
-function txesHaveWitness (transactions: Array<any>): boolean {
+function txesHaveWitness (transactions: Array<Transaction>): boolean {
   return transactions !== undefined &&
     transactions instanceof Array &&
     transactions[0] &&
@@ -21,8 +22,6 @@ function txesHaveWitness (transactions: Array<any>): boolean {
     transactions[0].ins[0].witness.length > 0
 }
 
-const Transaction = require('./transaction')
-
 export class Block {
   version: number
   prevHash: Buffer
@@ -31,7 +30,7 @@ export class Block {
   witnessCommit: Buffer
   bits: number
   nonce: number
-  transactions: Array<any>
+  transactions: Array<Transaction>
 
   constructor () {
     this.version = 1
@@ -120,12 +119,12 @@ export class Block {
     return target
   }
 
-  static calculateMerkleRoot (transactions: Array<any>, forWitness: boolean | void): Buffer {
+  static calculateMerkleRoot (transactions: Array<Transaction>, forWitness: boolean | void): Buffer {
     typeforce([{ getHash: types.Function }], transactions)
     if (transactions.length === 0) throw errorMerkleNoTxes
     if (forWitness && !txesHaveWitness(transactions)) throw errorWitnessNotSegwit
 
-    const hashes = transactions.map(transaction => transaction.getHash(forWitness))
+    const hashes = transactions.map(transaction => transaction.getHash((<boolean>forWitness)))
 
     const rootHash = fastMerkleRoot(hashes, bcrypto.hash256)
 

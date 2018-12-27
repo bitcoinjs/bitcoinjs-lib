@@ -1,3 +1,5 @@
+import { Transaction, Output } from './transaction'
+
 const Buffer = require('safe-buffer').Buffer
 const baddress = require('./address')
 const bcrypto = require('./crypto')
@@ -11,7 +13,6 @@ const classify = require('./classify')
 const SCRIPT_TYPES = classify.types
 
 const ECPair = require('./ecpair')
-const Transaction = require('./transaction')
 
 function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
   if (scriptSig.length === 0 && witnessStack.length === 0) return {}
@@ -517,9 +518,9 @@ TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOu
   } else if (txHash instanceof Transaction) {
     const txOut = txHash.outs[vout]
     prevOutScript = txOut.script
-    value = txOut.value
+    value = (<Output>txOut).value
 
-    txHash = txHash.getHash()
+    txHash = txHash.getHash(false)
   }
 
   return this.__addInputUnsafe(txHash, vout, {
