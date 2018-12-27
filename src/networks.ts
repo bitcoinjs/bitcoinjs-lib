@@ -1,6 +1,6 @@
 // https://en.bitcoin.it/wiki/List_of_address_prefixes
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
-export declare type Network = {
+export type Network = {
   messagePrefix: string;
   bech32: string;
   bip32: bip32;
@@ -9,7 +9,7 @@ export declare type Network = {
   wif: number;
 }
 
-declare type bip32 = {
+type bip32 = {
   public: number;
   private: number;
 }

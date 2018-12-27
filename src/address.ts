@@ -9,18 +9,18 @@ const payments = require('./payments')
 import * as Networks from './networks'
 import { Network } from './networks'
 
-export declare type Base58CheckResult = {
+export type Base58CheckResult = {
   hash: Buffer;
   version: number;
 }
 
-export declare type Bech32Result = {
+export type Bech32Result = {
   version: number;
   prefix: string;
   data: Buffer;
 }
 
-function fromBase58Check (address: string): Base58CheckResult {
+export function fromBase58Check (address: string): Base58CheckResult {
   const payload = bs58check.decode(address)
 
   // TODO: 4.0.0, move to "toOutputScript"
@@ -33,7 +33,7 @@ function fromBase58Check (address: string): Base58CheckResult {
   return { version: version, hash: hash }
 }
 
-function fromBech32 (address: string): Bech32Result {
+export function fromBech32 (address: string): Bech32Result {
   const result = bech32.decode(address)
   const data = bech32.fromWords(result.words.slice(1))
 
@@ -44,7 +44,7 @@ function fromBech32 (address: string): Bech32Result {
   }
 }
 
-function toBase58Check (hash: Buffer, version: number): string {
+export function toBase58Check (hash: Buffer, version: number): string {
   typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
 
   const payload = Buffer.allocUnsafe(21)
@@ -54,14 +54,14 @@ function toBase58Check (hash: Buffer, version: number): string {
   return bs58check.encode(payload)
 }
 
-function toBech32 (data: Buffer, version: number, prefix: string): string {
+export function toBech32 (data: Buffer, version: number, prefix: string): string {
   const words = bech32.toWords(data)
   words.unshift(version)
 
   return bech32.encode(prefix, words)
 }
 
-function fromOutputScript (output: Buffer, network: Network): string { //TODO: Network
+export function fromOutputScript (output: Buffer, network: Network): string { //TODO: Network
   network = network || networks.bitcoin
 
   try { return payments.p2pkh({ output, network }).address } catch (e) {}
@@ -72,7 +72,7 @@ function fromOutputScript (output: Buffer, network: Network): string { //TODO: N
   throw new Error(bscript.toASM(output) + ' has no matching Address')
 }
 
-function toOutputScript (address: string, network: Network): Buffer {
+export function toOutputScript (address: string, network: Network): Buffer {
   network = network || networks.bitcoin
 
   let decodeBase58: Base58CheckResult
@@ -100,13 +100,3 @@ function toOutputScript (address: string, network: Network): Buffer {
 
   throw new Error(address + ' has no matching Script')
 }
-
-module.exports = {
-  fromBase58Check: fromBase58Check,
-  fromBech32: fromBech32,
-  fromOutputScript: fromOutputScript,
-  toBase58Check: toBase58Check,
-  toBech32: toBech32,
-  toOutputScript: toOutputScript
-}
-export {}

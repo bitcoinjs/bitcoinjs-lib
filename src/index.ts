@@ -1,17 +1,26 @@
-const script = require('./script')
+const opcodes = require('bitcoin-ops')
 
-module.exports = {
-  Block: require('./block'),
-  ECPair: require('./ecpair'),
-  Transaction: require('./transaction'),
-  TransactionBuilder: require('./transaction_builder'),
+import * as Block from './block'
+import * as ECPair from './ecpair'
+import * as Transaction from './transaction'
+import * as TransactionBuilder from './transaction_builder'
+import * as address from './address'
+import * as bip32 from 'bip32'
+import * as crypto from './crypto'
+import * as networks from './networks'
+import * as payments from './payments'
+import * as script from './script'
 
-  address: require('./address'),
-  bip32: require('bip32'),
-  crypto: require('./crypto'),
-  networks: require('./networks'),
-  opcodes: require('bitcoin-ops'),
-  payments: require('./payments'),
-  script: script
+export {
+  Block,
+  ECPair,
+  Transaction,
+  TransactionBuilder,
+  address,
+  bip32,
+  crypto,
+  networks,
+  opcodes,
+  payments,
+  script,
 }
-export {}
