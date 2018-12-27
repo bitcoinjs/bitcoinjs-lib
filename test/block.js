@@ -1,6 +1,6 @@
 const { describe, it, beforeEach } = require('mocha')
 const assert = require('assert')
-const Block = require('../dist/src/block')
+const Block = require('..').Block
 
 const fixtures = require('./fixtures/block')
 

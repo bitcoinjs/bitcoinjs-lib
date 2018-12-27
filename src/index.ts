@@ -1,6 +1,6 @@
 const opcodes = require('bitcoin-ops')
 
-import * as Block from './block'
+import { Block } from './block'
 import * as ECPair from './ecpair'
 import * as Transaction from './transaction'
 import * as TransactionBuilder from './transaction_builder'
