@@ -1,51 +1,62 @@
+import { Network } from './networks'
+import * as NETWORKS from './networks'
 const ecc = require('tiny-secp256k1')
 const randomBytes = require('randombytes')
 const typeforce = require('typeforce')
 const types = require('./types')
 const wif = require('wif')
 
-const NETWORKS = require('./networks')
 const isOptions = typeforce.maybe(typeforce.compile({
   compressed: types.maybe(types.Boolean),
   network: types.maybe(types.Network)
 }))
 
-function ECPair (d, Q, options) {
-  options = options || {}
-
-  this.compressed = options.compressed === undefined ? true : options.compressed
-  this.network = options.network || NETWORKS.bitcoin
-
-  this.__d = d || null
-  this.__Q = null
-  if (Q) this.__Q = ecc.pointCompress(Q, this.compressed)
+export interface ECPairOptions {
+  compressed?: boolean
+  network?: Network
+  rng?(Buffer): Buffer
 }
 
-Object.defineProperty(ECPair.prototype, 'privateKey', {
-  enumerable: false,
-  get: function () { return this.__d }
-})
+class ECPair {
+  compressed: boolean
+  network: Network
+  private __d: Buffer
+  private __Q: Buffer
+  constructor (d: Buffer | void, Q: Buffer | void, options: ECPairOptions) {
+    if (options === undefined) options = {}
+    this.compressed = options.compressed === undefined ? true : options.compressed
+    this.network = options.network || NETWORKS.bitcoin
 
-Object.defineProperty(ECPair.prototype, 'publicKey', { get: function () {
-  if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__d, this.compressed)
-  return this.__Q
-}})
+    this.__d = d || null
+    this.__Q = null
+    if (Q) this.__Q = ecc.pointCompress(Q, this.compressed)
+  }
 
-ECPair.prototype.toWIF = function () {
-  if (!this.__d) throw new Error('Missing private key')
-  return wif.encode(this.network.wif, this.__d, this.compressed)
+  get privateKey (): Buffer {
+    return this.__d
+  }
+
+  get publicKey (): Buffer {
+    if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__d, this.compressed)
+    return this.__Q
+  }
+
+  toWIF (): string {
+    if (!this.__d) throw new Error('Missing private key')
+    return wif.encode(this.network.wif, this.__d, this.compressed)
+  }
+
+  sign (hash: Buffer): Buffer {
+    if (!this.__d) throw new Error('Missing private key')
+    return ecc.sign(hash, this.__d)
+  }
+
+  verify (hash: Buffer, signature: Buffer): Buffer {
+    return ecc.verify(hash, this.publicKey, signature)
+  }
 }
 
-ECPair.prototype.sign = function (hash) {
-  if (!this.__d) throw new Error('Missing private key')
-  return ecc.sign(hash, this.__d)
-}
-
-ECPair.prototype.verify = function (hash, signature) {
-  return ecc.verify(hash, this.publicKey, signature)
-}
-
-function fromPrivateKey (buffer, options) {
+function fromPrivateKey (buffer: Buffer, options: ECPairOptions): ECPair {
   typeforce(types.Buffer256bit, buffer)
   if (!ecc.isPrivate(buffer)) throw new TypeError('Private key not in range [1, n)')
   typeforce(isOptions, options)
@@ -53,13 +64,13 @@ function fromPrivateKey (buffer, options) {
   return new ECPair(buffer, null, options)
 }
 
-function fromPublicKey (buffer, options) {
+function fromPublicKey (buffer, options): ECPair {
   typeforce(ecc.isPoint, buffer)
   typeforce(isOptions, options)
   return new ECPair(null, buffer, options)
 }
 
-function fromWIF (string, network) {
+function fromWIF (string, network): ECPair {
   const decoded = wif.decode(string)
   const version = decoded.version
 
@@ -84,9 +95,9 @@ function fromWIF (string, network) {
   })
 }
 
-function makeRandom (options) {
+function makeRandom (options: ECPairOptions): ECPair {
   typeforce(isOptions, options)
-  options = options || {}
+  if (options === undefined) options = {}
   const rng = options.rng || randomBytes
 
   let d
@@ -98,10 +109,9 @@ function makeRandom (options) {
   return fromPrivateKey(d, options)
 }
 
-module.exports = {
+export {
   makeRandom,
   fromPrivateKey,
   fromPublicKey,
   fromWIF
 }
-export {}
