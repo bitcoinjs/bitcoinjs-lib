@@ -3,7 +3,7 @@ const opcodes = require('bitcoin-ops')
 import { Block } from './block'
 import * as ECPair from './ecpair'
 import { Transaction } from './transaction'
-import * as TransactionBuilder from './transaction_builder'
+import { TransactionBuilder } from './transaction_builder'
 import * as address from './address'
 import * as bip32 from 'bip32'
 import * as crypto from './crypto'

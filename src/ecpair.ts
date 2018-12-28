@@ -11,13 +11,24 @@ const isOptions = typeforce.maybe(typeforce.compile({
   network: types.maybe(types.Network)
 }))
 
-export interface ECPairOptions {
+interface ECPairOptions {
   compressed?: boolean
   network?: Network
   rng?(Buffer): Buffer
 }
 
-class ECPair {
+export interface ECPairInterface {
+  compressed: boolean
+  network: Network
+  privateKey: Buffer
+  publicKey: Buffer
+  toWIF(): string
+  sign(hash: Buffer): Buffer
+  verify(hash: Buffer, signature: Buffer): Buffer
+  getPublicKey?(): Buffer
+}
+
+class ECPair implements ECPairInterface {
   compressed: boolean
   network: Network
   private __d: Buffer

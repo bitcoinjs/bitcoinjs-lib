@@ -6,7 +6,7 @@ const payments = require('../dist/src/payments')
 
 const ECPair = require('../dist/src/ecpair')
 const Transaction = require('..').Transaction
-const TransactionBuilder = require('../dist/src/transaction_builder')
+const TransactionBuilder = require('..').TransactionBuilder
 const NETWORKS = require('../dist/src/networks')
 
 const fixtures = require('./fixtures/transaction_builder')

@@ -1,10 +1,11 @@
+import { Network } from './networks'
+import * as networks from './networks'
 import { Transaction, Output } from './transaction'
-
+import { ECPairInterface } from './ecpair'
 const Buffer = require('safe-buffer').Buffer
 const baddress = require('./address')
 const bcrypto = require('./crypto')
 const bscript = require('./script')
-const networks = require('./networks')
 const ops = require('bitcoin-ops')
 const payments = require('./payments')
 const typeforce = require('typeforce')
@@ -14,7 +15,370 @@ const SCRIPT_TYPES = classify.types
 
 const ECPair = require('./ecpair')
 
-function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
+interface TxbInput {
+  value?: number
+  hasWitness?: boolean
+  signScript?: Buffer
+  signType?: string
+  prevOutScript?: Buffer
+  redeemScript?: Buffer
+  redeemScriptType?: string
+  prevOutType?: string
+  pubkeys?: Array<Buffer>
+  signatures?: Array<Buffer>
+  witness?: Array<Buffer>
+  witnessScript?: Buffer
+  witnessScriptType?: string
+  script?: Buffer
+  sequence?: number
+  scriptSig?: Buffer
+  maxSignatures?: number
+}
+
+interface TxbOutput {
+  type: string
+  pubkeys?: Array<Buffer>
+  signatures?: Array<Buffer>
+  maxSignatures?: number
+}
+
+function txIsString(tx: Buffer | string | Transaction): tx is string {
+  return typeof (<string>tx) === 'string' || tx instanceof String
+}
+
+function txIsTransaction(tx: Buffer | string | Transaction): tx is Transaction {
+  return (<Transaction>tx) instanceof Transaction
+}
+
+export class TransactionBuilder {
+  network: Network
+  maximumFeeRate: number
+  private __prevTxSet: Object
+  private __inputs: Array<TxbInput>
+  private __tx: Transaction
+
+  constructor (network: Network, maximumFeeRate?: number) {
+    this.__prevTxSet = {}
+    this.network = network || networks.bitcoin
+
+    // WARNING: This is __NOT__ to be relied on, its just another potential safety mechanism (safety in-depth)
+    this.maximumFeeRate = maximumFeeRate || 2500
+
+    this.__inputs = []
+    this.__tx = new Transaction()
+    this.__tx.version = 2
+  }
+
+  static fromTransaction (transaction: Transaction, network?: Network): TransactionBuilder {
+    const txb = new TransactionBuilder(network)
+
+    // Copy transaction fields
+    txb.setVersion(transaction.version)
+    txb.setLockTime(transaction.locktime)
+
+    // Copy outputs (done first to avoid signature invalidation)
+    transaction.outs.forEach(txOut => {
+      txb.addOutput(txOut.script, (<Output>txOut).value)
+    })
+
+    // Copy inputs
+    transaction.ins.forEach(txIn => {
+      txb.__addInputUnsafe(txIn.hash, txIn.index, {
+        sequence: txIn.sequence,
+        script: txIn.script,
+        witness: txIn.witness
+      })
+    })
+
+    // fix some things not possible through the public API
+    txb.__inputs.forEach((input, i) => {
+      fixMultisigOrder(input, transaction, i)
+    })
+
+    return txb
+  }
+
+  setLockTime (locktime: number): void {
+    typeforce(types.UInt32, locktime)
+
+    // if any signatures exist, throw
+    if (this.__inputs.some(input => {
+      if (!input.signatures) return false
+
+      return input.signatures.some(s => s !== undefined)
+    })) {
+      throw new Error('No, this would invalidate signatures')
+    }
+
+    this.__tx.locktime = locktime
+  }
+
+  setVersion (version: number): void {
+    typeforce(types.UInt32, version)
+
+    // XXX: this might eventually become more complex depending on what the versions represent
+    this.__tx.version = version
+  }
+
+  addInput (txHash: Buffer | string | Transaction, vout: number, sequence: number, prevOutScript: Buffer): number {
+    if (!this.__canModifyInputs()) {
+      throw new Error('No, this would invalidate signatures')
+    }
+
+    let value: number
+
+    // is it a hex string?
+    if (txIsString(txHash)) {
+      // transaction hashs's are displayed in reverse order, un-reverse it
+      txHash = <Buffer> Buffer.from(txHash, 'hex').reverse()
+
+    // is it a Transaction object?
+    } else if (txIsTransaction(txHash)) {
+      const txOut = txHash.outs[vout]
+      prevOutScript = txOut.script
+      value = (<Output>txOut).value
+
+      txHash = <Buffer> txHash.getHash(false)
+    }
+
+    return this.__addInputUnsafe(txHash, vout, {
+      sequence: sequence,
+      prevOutScript: prevOutScript,
+      value: value
+    })
+  }
+
+  private __addInputUnsafe (txHash: Buffer, vout: number, options: TxbInput): number {
+    if (Transaction.isCoinbaseHash(txHash)) {
+      throw new Error('coinbase inputs not supported')
+    }
+
+    const prevTxOut = txHash.toString('hex') + ':' + vout
+    if (this.__prevTxSet[prevTxOut] !== undefined) throw new Error('Duplicate TxOut: ' + prevTxOut)
+
+    let input = <TxbInput>{}
+
+    // derive what we can from the scriptSig
+    if (options.script !== undefined) {
+      input = expandInput(options.script, options.witness || [])
+    }
+
+    // if an input value was given, retain it
+    if (options.value !== undefined) {
+      input.value = options.value
+    }
+
+    // derive what we can from the previous transactions output script
+    if (!input.prevOutScript && options.prevOutScript) {
+      let prevOutType
+
+      if (!input.pubkeys && !input.signatures) {
+        const expanded = expandOutput(options.prevOutScript)
+        if (expanded.pubkeys) {
+          input.pubkeys = expanded.pubkeys
+          input.signatures = expanded.signatures
+        }
+
+        prevOutType = expanded.type
+      }
+
+      input.prevOutScript = options.prevOutScript
+      input.prevOutType = prevOutType || classify.output(options.prevOutScript)
+    }
+
+    const vin = this.__tx.addInput(txHash, vout, options.sequence, options.scriptSig)
+    this.__inputs[vin] = input
+    this.__prevTxSet[prevTxOut] = true
+    return vin
+  }
+
+  addOutput (scriptPubKey: string | Buffer, value): number {
+    if (!this.__canModifyOutputs()) {
+      throw new Error('No, this would invalidate signatures')
+    }
+
+    // Attempt to get a script if it's a base58 or bech32 address string
+    if (typeof scriptPubKey === 'string') {
+      scriptPubKey = baddress.toOutputScript(scriptPubKey, this.network)
+    }
+
+    return this.__tx.addOutput(<Buffer>scriptPubKey, value)
+  }
+
+  build (): Transaction {
+    return this.__build(false)
+  }
+
+  buildIncomplete (): Transaction {
+    return this.__build(true)
+  }
+
+  private __build (allowIncomplete?: boolean): Transaction {
+    if (!allowIncomplete) {
+      if (!this.__tx.ins.length) throw new Error('Transaction has no inputs')
+      if (!this.__tx.outs.length) throw new Error('Transaction has no outputs')
+    }
+
+    const tx = this.__tx.clone()
+
+    // create script signatures from inputs
+    this.__inputs.forEach((input, i) => {
+      if (!input.prevOutType && !allowIncomplete) throw new Error('Transaction is not complete')
+
+      const result = build(input.prevOutType, input, allowIncomplete)
+      if (!result) {
+        if (!allowIncomplete && input.prevOutType === SCRIPT_TYPES.NONSTANDARD) throw new Error('Unknown input type')
+        if (!allowIncomplete) throw new Error('Not enough information')
+        return
+      }
+
+      tx.setInputScript(i, result.input)
+      tx.setWitness(i, result.witness)
+    })
+
+    if (!allowIncomplete) {
+      // do not rely on this, its merely a last resort
+      if (this.__overMaximumFees(tx.virtualSize())) {
+        throw new Error('Transaction has absurd fees')
+      }
+    }
+
+    return tx
+  }
+
+  sign (vin: number, keyPair: ECPairInterface, redeemScript: Buffer, hashType: number, witnessValue: number, witnessScript: Buffer) {
+    // TODO: remove keyPair.network matching in 4.0.0
+    if (keyPair.network && keyPair.network !== this.network) throw new TypeError('Inconsistent network')
+    if (!this.__inputs[vin]) throw new Error('No input at index: ' + vin)
+
+    hashType = hashType || Transaction.SIGHASH_ALL
+    if (this.__needsOutputs(hashType)) throw new Error('Transaction needs outputs')
+
+    const input = this.__inputs[vin]
+
+    // if redeemScript was previously provided, enforce consistency
+    if (input.redeemScript !== undefined &&
+        redeemScript &&
+        !input.redeemScript.equals(redeemScript)) {
+      throw new Error('Inconsistent redeemScript')
+    }
+
+    const ourPubKey = keyPair.publicKey || keyPair.getPublicKey()
+    if (!canSign(input)) {
+      if (witnessValue !== undefined) {
+        if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
+        typeforce(types.Satoshi, witnessValue)
+        input.value = witnessValue
+      }
+
+      if (!canSign(input)) {
+        const prepared = prepareInput(input, ourPubKey, redeemScript, witnessValue, witnessScript)
+
+        // updates inline
+        Object.assign(input, prepared)
+      }
+
+      if (!canSign(input)) throw Error(input.prevOutType + ' not supported')
+    }
+
+    // ready to sign
+    let signatureHash
+    if (input.hasWitness) {
+      signatureHash = this.__tx.hashForWitnessV0(vin, input.signScript, input.value, hashType)
+    } else {
+      signatureHash = this.__tx.hashForSignature(vin, input.signScript, hashType)
+    }
+
+    // enforce in order signing of public keys
+    const signed = input.pubkeys.some((pubKey, i) => {
+      if (!ourPubKey.equals(pubKey)) return false
+      if (input.signatures[i]) throw new Error('Signature already exists')
+
+      // TODO: add tests
+      if (ourPubKey.length !== 33 && input.hasWitness) {
+        throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
+      }
+
+      const signature = keyPair.sign(signatureHash)
+      input.signatures[i] = bscript.signature.encode(signature, hashType)
+      return true
+    })
+
+    if (!signed) throw new Error('Key pair cannot sign for this input')
+  }
+
+  private __canModifyInputs (): boolean {
+    return this.__inputs.every(input => {
+      if (!input.signatures) return true
+
+      return input.signatures.every(signature => {
+        if (!signature) return true
+        const hashType = signatureHashType(signature)
+
+        // if SIGHASH_ANYONECANPAY is set, signatures would not
+        // be invalidated by more inputs
+        return (hashType & Transaction.SIGHASH_ANYONECANPAY) !== 0
+      })
+    })
+  }
+
+  private __needsOutputs (signingHashType: number): boolean {
+    if (signingHashType === Transaction.SIGHASH_ALL) {
+      return this.__tx.outs.length === 0
+    }
+
+    // if inputs are being signed with SIGHASH_NONE, we don't strictly need outputs
+    // .build() will fail, but .buildIncomplete() is OK
+    return (this.__tx.outs.length === 0) && this.__inputs.some((input) => {
+      if (!input.signatures) return false
+
+      return input.signatures.some((signature) => {
+        if (!signature) return false // no signature, no issue
+        const hashType = signatureHashType(signature)
+        if (hashType & Transaction.SIGHASH_NONE) return false // SIGHASH_NONE doesn't care about outputs
+        return true // SIGHASH_* does care
+      })
+    })
+  }
+
+  private __canModifyOutputs (): boolean {
+    const nInputs = this.__tx.ins.length
+    const nOutputs = this.__tx.outs.length
+
+    return this.__inputs.every(input => {
+      if (input.signatures === undefined) return true
+
+      return input.signatures.every(signature => {
+        if (!signature) return true
+        const hashType = signatureHashType(signature)
+
+        const hashTypeMod = hashType & 0x1f
+        if (hashTypeMod === Transaction.SIGHASH_NONE) return true
+        if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
+          // if SIGHASH_SINGLE is set, and nInputs > nOutputs
+          // some signatures would be invalidated by the addition
+          // of more outputs
+          return nInputs <= nOutputs
+        }
+      })
+    })
+  }
+
+  private __overMaximumFees (bytes: number): boolean {
+    // not all inputs will have .value defined
+    const incoming = this.__inputs.reduce((a, x) => a + (x.value >>> 0), 0)
+
+    // but all outputs do, and if we have any input value
+    // we can immediately determine if the outputs are too small
+    const outgoing = this.__tx.outs.reduce((a, x) => a + (<Output>x).value, 0)
+    const fee = incoming - outgoing
+    const feeRate = fee / bytes
+
+    return feeRate > this.maximumFeeRate
+  }
+}
+
+function expandInput (scriptSig: Buffer, witnessStack: Array<Buffer>, type?: string, scriptPubKey?: Buffer): TxbInput {
   if (scriptSig.length === 0 && witnessStack.length === 0) return {}
   if (!type) {
     let ssType = classify.input(scriptSig, true)
@@ -103,7 +467,7 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
     const outputType = classify.output(redeem.output)
     let expanded
     if (outputType === SCRIPT_TYPES.P2WPKH) {
-      expanded = expandInput(redeem.input, redeem.witness, outputType, undefined)
+      expanded = expandInput(redeem.input, redeem.witness, outputType)
     } else {
       expanded = expandInput(bscript.compile(redeem.witness), [], outputType, redeem.output)
     }
@@ -127,18 +491,18 @@ function expandInput (scriptSig, witnessStack, type, scriptPubKey) {
 }
 
 // could be done in expandInput, but requires the original Transaction for hashForSignature
-function fixMultisigOrder (input, transaction, vin) {
+function fixMultisigOrder (input: TxbInput, transaction: Transaction, vin: number): void {
   if (input.redeemScriptType !== SCRIPT_TYPES.P2MS || !input.redeemScript) return
   if (input.pubkeys.length === input.signatures.length) return
 
   const unmatched = input.signatures.concat()
 
-  input.signatures = input.pubkeys.map(function (pubKey) {
+  input.signatures = input.pubkeys.map(pubKey => {
     const keyPair = ECPair.fromPublicKey(pubKey)
     let match
 
     // check for a signature
-    unmatched.some(function (signature, i) {
+    unmatched.some((signature, i) => {
       // skip if undefined || OP_0
       if (!signature) return false
 
@@ -160,7 +524,7 @@ function fixMultisigOrder (input, transaction, vin) {
   })
 }
 
-function expandOutput (script, ourPubKey) {
+function expandOutput (script: Buffer, ourPubKey?: Buffer): TxbOutput {
   typeforce(types.Buffer, script)
   const type = classify.output(script)
 
@@ -218,7 +582,7 @@ function expandOutput (script, ourPubKey) {
   return { type }
 }
 
-function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScript) {
+function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer, witnessValue: number, witnessScript: Buffer): TxbInput {
   if (redeemScript && witnessScript) {
     const p2wsh = payments.p2wsh({ redeem: { output: witnessScript } })
     const p2wshAlt = payments.p2wsh({ output: redeemScript })
@@ -231,7 +595,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
 
     const expanded = expandOutput(p2wsh.redeem.output, ourPubKey)
     if (!expanded.pubkeys) throw new Error(expanded.type + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')')
-    if (input.signatures && input.signatures.some(x => x)) {
+    if (input.signatures && input.signatures.some(x => x !== undefined)) {
       expanded.signatures = input.signatures
     }
 
@@ -271,7 +635,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
 
     const expanded = expandOutput(p2sh.redeem.output, ourPubKey)
     if (!expanded.pubkeys) throw new Error(expanded.type + ' not supported as redeemScript (' + bscript.toASM(redeemScript) + ')')
-    if (input.signatures && input.signatures.some(x => x)) {
+    if (input.signatures && input.signatures.some(x => x !== undefined)) {
       expanded.signatures = input.signatures
     }
 
@@ -307,7 +671,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
 
     const expanded = expandOutput(p2wsh.redeem.output, ourPubKey)
     if (!expanded.pubkeys) throw new Error(expanded.type + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')')
-    if (input.signatures && input.signatures.some(x => x)) {
+    if (input.signatures && input.signatures.some(x => x !== undefined)) {
       expanded.signatures = input.signatures
     }
 
@@ -339,7 +703,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
 
     const expanded = expandOutput(input.prevOutScript, ourPubKey)
     if (!expanded.pubkeys) throw new Error(expanded.type + ' not supported (' + bscript.toASM(input.prevOutScript) + ')')
-    if (input.signatures && input.signatures.some(x => x)) {
+    if (input.signatures && input.signatures.some(x => x !== undefined)) {
       expanded.signatures = input.signatures
     }
 
@@ -376,7 +740,7 @@ function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScri
   }
 }
 
-function build (type, input, allowIncomplete) {
+function build (type: string, input: TxbInput, allowIncomplete: boolean): any { //TODO payment type
   const pubkeys = input.pubkeys || []
   let signatures = input.signatures || []
 
@@ -439,201 +803,7 @@ function build (type, input, allowIncomplete) {
   }
 }
 
-function TransactionBuilder (network, maximumFeeRate) {
-  this.__prevTxSet = {}
-  this.network = network || networks.bitcoin
-
-  // WARNING: This is __NOT__ to be relied on, its just another potential safety mechanism (safety in-depth)
-  this.maximumFeeRate = maximumFeeRate || 2500
-
-  this.__inputs = []
-  this.__tx = new Transaction()
-  this.__tx.version = 2
-}
-
-TransactionBuilder.prototype.setLockTime = function (locktime) {
-  typeforce(types.UInt32, locktime)
-
-  // if any signatures exist, throw
-  if (this.__inputs.some(function (input) {
-    if (!input.signatures) return false
-
-    return input.signatures.some(function (s) { return s })
-  })) {
-    throw new Error('No, this would invalidate signatures')
-  }
-
-  this.__tx.locktime = locktime
-}
-
-TransactionBuilder.prototype.setVersion = function (version) {
-  typeforce(types.UInt32, version)
-
-  // XXX: this might eventually become more complex depending on what the versions represent
-  this.__tx.version = version
-}
-
-TransactionBuilder.fromTransaction = function (transaction, network) {
-  const txb = new TransactionBuilder(network, undefined)
-
-  // Copy transaction fields
-  txb.setVersion(transaction.version)
-  txb.setLockTime(transaction.locktime)
-
-  // Copy outputs (done first to avoid signature invalidation)
-  transaction.outs.forEach(function (txOut) {
-    txb.addOutput(txOut.script, txOut.value)
-  })
-
-  // Copy inputs
-  transaction.ins.forEach(function (txIn) {
-    txb.__addInputUnsafe(txIn.hash, txIn.index, {
-      sequence: txIn.sequence,
-      script: txIn.script,
-      witness: txIn.witness
-    })
-  })
-
-  // fix some things not possible through the public API
-  txb.__inputs.forEach(function (input, i) {
-    fixMultisigOrder(input, transaction, i)
-  })
-
-  return txb
-}
-
-TransactionBuilder.prototype.addInput = function (txHash, vout, sequence, prevOutScript) {
-  if (!this.__canModifyInputs()) {
-    throw new Error('No, this would invalidate signatures')
-  }
-
-  let value
-
-  // is it a hex string?
-  if (typeof txHash === 'string') {
-    // transaction hashs's are displayed in reverse order, un-reverse it
-    txHash = Buffer.from(txHash, 'hex').reverse()
-
-  // is it a Transaction object?
-  } else if (txHash instanceof Transaction) {
-    const txOut = txHash.outs[vout]
-    prevOutScript = txOut.script
-    value = (<Output>txOut).value
-
-    txHash = txHash.getHash(false)
-  }
-
-  return this.__addInputUnsafe(txHash, vout, {
-    sequence: sequence,
-    prevOutScript: prevOutScript,
-    value: value
-  })
-}
-
-TransactionBuilder.prototype.__addInputUnsafe = function (txHash, vout, options) {
-  if (Transaction.isCoinbaseHash(txHash)) {
-    throw new Error('coinbase inputs not supported')
-  }
-
-  const prevTxOut = txHash.toString('hex') + ':' + vout
-  if (this.__prevTxSet[prevTxOut] !== undefined) throw new Error('Duplicate TxOut: ' + prevTxOut)
-
-  let input = {
-    value: undefined,
-    prevOutScript: undefined,
-    pubkeys: undefined,
-    signatures: undefined,
-    prevOutType: undefined,
-  }
-
-  // derive what we can from the scriptSig
-  if (options.script !== undefined) {
-    input = expandInput(options.script, options.witness || [], undefined, undefined)
-  }
-
-  // if an input value was given, retain it
-  if (options.value !== undefined) {
-    input.value = options.value
-  }
-
-  // derive what we can from the previous transactions output script
-  if (!input.prevOutScript && options.prevOutScript) {
-    let prevOutType
-
-    if (!input.pubkeys && !input.signatures) {
-      const expanded = expandOutput(options.prevOutScript, undefined)
-      if (expanded.pubkeys) {
-        input.pubkeys = expanded.pubkeys
-        input.signatures = expanded.signatures
-      }
-
-      prevOutType = expanded.type
-    }
-
-    input.prevOutScript = options.prevOutScript
-    input.prevOutType = prevOutType || classify.output(options.prevOutScript)
-  }
-
-  const vin = this.__tx.addInput(txHash, vout, options.sequence, options.scriptSig)
-  this.__inputs[vin] = input
-  this.__prevTxSet[prevTxOut] = true
-  return vin
-}
-
-TransactionBuilder.prototype.addOutput = function (scriptPubKey, value) {
-  if (!this.__canModifyOutputs()) {
-    throw new Error('No, this would invalidate signatures')
-  }
-
-  // Attempt to get a script if it's a base58 or bech32 address string
-  if (typeof scriptPubKey === 'string') {
-    scriptPubKey = baddress.toOutputScript(scriptPubKey, this.network)
-  }
-
-  return this.__tx.addOutput(scriptPubKey, value)
-}
-
-TransactionBuilder.prototype.build = function () {
-  return this.__build(false)
-}
-TransactionBuilder.prototype.buildIncomplete = function () {
-  return this.__build(true)
-}
-
-TransactionBuilder.prototype.__build = function (allowIncomplete) {
-  if (!allowIncomplete) {
-    if (!this.__tx.ins.length) throw new Error('Transaction has no inputs')
-    if (!this.__tx.outs.length) throw new Error('Transaction has no outputs')
-  }
-
-  const tx = this.__tx.clone()
-
-  // create script signatures from inputs
-  this.__inputs.forEach(function (input, i) {
-    if (!input.prevOutType && !allowIncomplete) throw new Error('Transaction is not complete')
-
-    const result = build(input.prevOutType, input, allowIncomplete)
-    if (!result) {
-      if (!allowIncomplete && input.prevOutType === SCRIPT_TYPES.NONSTANDARD) throw new Error('Unknown input type')
-      if (!allowIncomplete) throw new Error('Not enough information')
-      return
-    }
-
-    tx.setInputScript(i, result.input)
-    tx.setWitness(i, result.witness)
-  })
-
-  if (!allowIncomplete) {
-    // do not rely on this, its merely a last resort
-    if (this.__overMaximumFees(tx.virtualSize())) {
-      throw new Error('Transaction has absurd fees')
-    }
-  }
-
-  return tx
-}
-
-function canSign (input) {
+function canSign (input: TxbInput): boolean {
   return input.signScript !== undefined &&
     input.signType !== undefined &&
     input.pubkeys !== undefined &&
@@ -646,140 +816,6 @@ function canSign (input) {
     )
 }
 
-TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashType, witnessValue, witnessScript) {
-  // TODO: remove keyPair.network matching in 4.0.0
-  if (keyPair.network && keyPair.network !== this.network) throw new TypeError('Inconsistent network')
-  if (!this.__inputs[vin]) throw new Error('No input at index: ' + vin)
-
-  hashType = hashType || Transaction.SIGHASH_ALL
-  if (this.__needsOutputs(hashType)) throw new Error('Transaction needs outputs')
-
-  const input = this.__inputs[vin]
-
-  // if redeemScript was previously provided, enforce consistency
-  if (input.redeemScript !== undefined &&
-      redeemScript &&
-      !input.redeemScript.equals(redeemScript)) {
-    throw new Error('Inconsistent redeemScript')
-  }
-
-  const ourPubKey = keyPair.publicKey || keyPair.getPublicKey()
-  if (!canSign(input)) {
-    if (witnessValue !== undefined) {
-      if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
-      typeforce(types.Satoshi, witnessValue)
-      input.value = witnessValue
-    }
-
-    if (!canSign(input)) {
-      const prepared = prepareInput(input, ourPubKey, redeemScript, witnessValue, witnessScript)
-
-      // updates inline
-      Object.assign(input, prepared)
-    }
-
-    if (!canSign(input)) throw Error(input.prevOutType + ' not supported')
-  }
-
-  // ready to sign
-  let signatureHash
-  if (input.hasWitness) {
-    signatureHash = this.__tx.hashForWitnessV0(vin, input.signScript, input.value, hashType)
-  } else {
-    signatureHash = this.__tx.hashForSignature(vin, input.signScript, hashType)
-  }
-
-  // enforce in order signing of public keys
-  const signed = input.pubkeys.some(function (pubKey, i) {
-    if (!ourPubKey.equals(pubKey)) return false
-    if (input.signatures[i]) throw new Error('Signature already exists')
-
-    // TODO: add tests
-    if (ourPubKey.length !== 33 && input.hasWitness) {
-      throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH')
-    }
-
-    const signature = keyPair.sign(signatureHash)
-    input.signatures[i] = bscript.signature.encode(signature, hashType)
-    return true
-  })
-
-  if (!signed) throw new Error('Key pair cannot sign for this input')
-}
-
-function signatureHashType (buffer) {
+function signatureHashType (buffer: Buffer): number {
   return buffer.readUInt8(buffer.length - 1)
 }
-
-TransactionBuilder.prototype.__canModifyInputs = function () {
-  return (this.__inputs || []).every(function (input) {
-    if (!input.signatures) return true
-
-    return (input.signatures || []).every(function (signature) {
-      if (!signature) return true
-      const hashType = signatureHashType(signature)
-
-      // if SIGHASH_ANYONECANPAY is set, signatures would not
-      // be invalidated by more inputs
-      return hashType & Transaction.SIGHASH_ANYONECANPAY
-    })
-  })
-}
-
-TransactionBuilder.prototype.__needsOutputs = function (signingHashType) {
-  if (signingHashType === Transaction.SIGHASH_ALL) {
-    return this.__tx.outs.length === 0
-  }
-
-  // if inputs are being signed with SIGHASH_NONE, we don't strictly need outputs
-  // .build() will fail, but .buildIncomplete() is OK
-  return (this.__tx.outs.length === 0) && this.__inputs.some((input) => {
-    if (!input.signatures) return false
-
-    return input.signatures.some((signature) => {
-      if (!signature) return false // no signature, no issue
-      const hashType = signatureHashType(signature)
-      if (hashType & Transaction.SIGHASH_NONE) return false // SIGHASH_NONE doesn't care about outputs
-      return true // SIGHASH_* does care
-    })
-  })
-}
-
-TransactionBuilder.prototype.__canModifyOutputs = function () {
-  const nInputs = this.__tx.ins.length
-  const nOutputs = this.__tx.outs.length
-
-  return this.__inputs.every(function (input) {
-    if (input.signatures === undefined) return true
-
-    return input.signatures.every(function (signature) {
-      if (!signature) return true
-      const hashType = signatureHashType(signature)
-
-      const hashTypeMod = hashType & 0x1f
-      if (hashTypeMod === Transaction.SIGHASH_NONE) return true
-      if (hashTypeMod === Transaction.SIGHASH_SINGLE) {
-        // if SIGHASH_SINGLE is set, and nInputs > nOutputs
-        // some signatures would be invalidated by the addition
-        // of more outputs
-        return nInputs <= nOutputs
-      }
-    })
-  })
-}
-
-TransactionBuilder.prototype.__overMaximumFees = function (bytes) {
-  // not all inputs will have .value defined
-  const incoming = this.__inputs.reduce(function (a, x) { return a + (x.value >>> 0) }, 0)
-
-  // but all outputs do, and if we have any input value
-  // we can immediately determine if the outputs are too small
-  const outgoing = this.__tx.outs.reduce(function (a, x) { return a + x.value }, 0)
-  const fee = incoming - outgoing
-  const feeRate = fee / bytes
-
-  return feeRate > this.maximumFeeRate
-}
-
-module.exports = TransactionBuilder
-export {}
