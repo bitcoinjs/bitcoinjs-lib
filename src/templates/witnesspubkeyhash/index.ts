@@ -1,5 +1,7 @@
-module.exports = {
-  input: require('./input'),
-  output: require('./output')
+import * as input from './input'
+import * as output from './output'
+
+export {
+  input,
+  output,
 }
-export {}

@@ -1,9 +1,9 @@
 // OP_0 {pubKeyHash}
 
-const bscript = require('../../script')
+import * as bscript from '../../script'
 const OPS = require('bitcoin-ops')
 
-function check (script) {
+export function check (script: Buffer | Array<number | Buffer>): boolean {
   const buffer = bscript.compile(script)
 
   return buffer.length === 22 &&
@@ -11,8 +11,3 @@ function check (script) {
     buffer[1] === 0x14
 }
 check.toJSON = function () { return 'Witness pubKeyHash output' }
-
-module.exports = {
-  check
-}
-export {}
