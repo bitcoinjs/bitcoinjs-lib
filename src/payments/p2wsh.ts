@@ -1,15 +1,16 @@
-const lazy = require('./lazy')
+import { Payment, PaymentOpts } from './index'
+import * as bscript from '../script'
+import * as bcrypto from '../crypto'
+import * as lazy from './lazy'
+import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 
 const bech32 = require('bech32')
-const bcrypto = require('../crypto')
-const bscript = require('../script')
-const BITCOIN_NETWORK = require('../networks').bitcoin
 
 const EMPTY_BUFFER = Buffer.alloc(0)
 
-function stacksEqual (a, b) {
+function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
   if (a.length !== b.length) return false
 
   return a.every(function (x, i) {
@@ -20,7 +21,7 @@ function stacksEqual (a, b) {
 // input: <>
 // witness: [redeemScriptSig ...] {redeemScript}
 // output: OP_0 {sha256(redeemScript)}
-function p2wsh (a, opts) {
+export function p2wsh (a: Payment, opts: PaymentOpts): Payment {
   if (
     !a.address &&
     !a.hash &&
@@ -64,12 +65,7 @@ function p2wsh (a, opts) {
     network = (a.redeem && a.redeem.network) || BITCOIN_NETWORK
   }
 
-  const o = {
-    network,
-    hash: undefined,
-    redeem: undefined,
-    witness: undefined,
-  }
+  const o: Payment = { network }
 
   lazy.prop(o, 'address', function () {
     if (!o.hash) return
@@ -126,7 +122,7 @@ function p2wsh (a, opts) {
 
   // extended validation
   if (opts.validate) {
-    let hash
+    let hash: Buffer
     if (a.address) {
       if (_address().prefix !== network.bech32) throw new TypeError('Invalid prefix or Network mismatch')
       if (_address().version !== 0x00) throw new TypeError('Invalid address version')
@@ -181,6 +177,3 @@ function p2wsh (a, opts) {
 
   return Object.assign(o, a)
 }
-
-module.exports = p2wsh
-export {}

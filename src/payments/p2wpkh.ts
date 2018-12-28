@@ -1,19 +1,20 @@
-const lazy = require('./lazy')
+import { Payment, PaymentOpts } from './index'
+import * as bscript from '../script'
+import * as bcrypto from '../crypto'
+import * as lazy from './lazy'
+import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 const ecc = require('tiny-secp256k1')
 
-const bcrypto = require('../crypto')
 const bech32 = require('bech32')
-const bscript = require('../script')
-const BITCOIN_NETWORK = require('../networks').bitcoin
 
 const EMPTY_BUFFER = Buffer.alloc(0)
 
 // witness: {signature} {pubKey}
 // input: <>
 // output: OP_0 {pubKeyHash}
-function p2wpkh (a, opts) {
+export function p2wpkh (a: Payment, opts: PaymentOpts): Payment {
   if (
     !a.address &&
     !a.hash &&
@@ -46,12 +47,7 @@ function p2wpkh (a, opts) {
   })
 
   const network = a.network || BITCOIN_NETWORK
-  const o = {
-    network,
-    hash: undefined,
-    pubkey: undefined,
-    witness: undefined,
-  }
+  const o: Payment = { network }
 
   lazy.prop(o, 'address', function () {
     if (!o.hash) return
@@ -93,7 +89,7 @@ function p2wpkh (a, opts) {
 
   // extended validation
   if (opts.validate) {
-    let hash
+    let hash: Buffer
     if (a.address) {
       if (network && network.bech32 !== _address().prefix) throw new TypeError('Invalid prefix or Network mismatch')
       if (_address().version !== 0x00) throw new TypeError('Invalid address version')
@@ -136,6 +132,3 @@ function p2wpkh (a, opts) {
 
   return Object.assign(o, a)
 }
-
-module.exports = p2wpkh
-export {}

@@ -1,14 +1,14 @@
-const lazy = require('./lazy')
+import { Payment, PaymentOpts } from './index'
+import * as bscript from '../script'
+import * as lazy from './lazy'
+import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 const ecc = require('tiny-secp256k1')
 
-const bscript = require('../script')
-const BITCOIN_NETWORK = require('../networks').bitcoin
-
 // input: {signature}
 // output: {pubKey} OP_CHECKSIG
-function p2pk (a, opts) {
+export function p2pk (a: Payment, opts: PaymentOpts): Payment {
   if (
     !a.input &&
     !a.output &&
@@ -30,12 +30,7 @@ function p2pk (a, opts) {
   const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
 
   const network = a.network || BITCOIN_NETWORK
-  const o = {
-    network,
-    input: undefined,
-    pubkey: undefined,
-    signature: undefined,
-  }
+  const o: Payment = { network }
 
   lazy.prop(o, 'output', function () {
     if (!a.pubkey) return
@@ -81,6 +76,3 @@ function p2pk (a, opts) {
 
   return Object.assign(o, a)
 }
-
-module.exports = p2pk
-export {}

@@ -4,7 +4,13 @@ const u = require('./payments.utils')
 
 ;['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(function (p) {
   describe(p, function () {
-    const fn = require('../dist/src/payments/' + p)
+    let fn
+    let payment = require('../dist/src/payments/' + p)
+    if (p === 'embed') {
+      fn = payment.p2data
+    } else {
+      fn = payment[p]
+    }
     const fixtures = require('./fixtures/' + p)
 
     fixtures.valid.forEach(function (f, i) {

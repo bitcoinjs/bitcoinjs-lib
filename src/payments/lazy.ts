@@ -1,4 +1,4 @@
-function prop (object, name, f) {
+export function prop (object: Object, name: string, f: ()=>any): void {
   Object.defineProperty(object, name, {
     configurable: true,
     enumerable: true,
@@ -18,14 +18,11 @@ function prop (object, name, f) {
   })
 }
 
-function value (f) {
-  let value
+export function value <T>(f: ()=>T): ()=>T {
+  let value: T
   return function () {
     if (value !== undefined) return value
     value = f()
     return value
   }
 }
-
-module.exports = { prop, value }
-export {}

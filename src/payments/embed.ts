@@ -1,11 +1,11 @@
-const lazy = require('./lazy')
+import { Payment, PaymentOpts } from './index'
+import * as bscript from '../script'
+import * as lazy from './lazy'
+import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 
-const bscript = require('../script')
-const BITCOIN_NETWORK = require('../networks').bitcoin
-
-function stacksEqual (a, b) {
+function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
   if (a.length !== b.length) return false
 
   return a.every(function (x, i) {
@@ -14,7 +14,7 @@ function stacksEqual (a, b) {
 }
 
 // output: OP_RETURN ...
-function p2data (a, opts) {
+export function p2data (a: Payment, opts: PaymentOpts): Payment {
   if (
     !a.data &&
     !a.output
@@ -28,10 +28,7 @@ function p2data (a, opts) {
   }, a)
 
   const network = a.network || BITCOIN_NETWORK
-  const o = {
-    network,
-    data: undefined
-  }
+  const o = <Payment>{ network }
 
   lazy.prop(o, 'output', function () {
     if (!a.data) return
@@ -55,6 +52,3 @@ function p2data (a, opts) {
 
   return Object.assign(o, a)
 }
-
-module.exports = p2data
-export {}

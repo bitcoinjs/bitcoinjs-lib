@@ -1,13 +1,14 @@
-const lazy = require('./lazy')
+import { Payment, PaymentOpts } from './index'
+import * as bscript from '../script'
+import * as bcrypto from '../crypto'
+import * as lazy from './lazy'
+import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 
-const bcrypto = require('../crypto')
-const bscript = require('../script')
-const BITCOIN_NETWORK = require('../networks').bitcoin
 const bs58check = require('bs58check')
 
-function stacksEqual (a, b) {
+function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
   if (a.length !== b.length) return false
 
   return a.every(function (x, i) {
@@ -18,7 +19,7 @@ function stacksEqual (a, b) {
 // input: [redeemScriptSig ...] {redeemScript}
 // witness: <?>
 // output: OP_HASH160 {hash160(redeemScript)} OP_EQUAL
-function p2sh (a, opts) {
+export function p2sh (a: Payment, opts: PaymentOpts): Payment {
   if (
     !a.address &&
     !a.hash &&
@@ -64,11 +65,11 @@ function p2sh (a, opts) {
     return { version, hash }
   })
   const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
-  const _redeem = lazy.value(function () {
+  const _redeem = lazy.value(function (): Payment {
     const chunks = _chunks()
     return {
       network,
-      output: chunks[chunks.length - 1],
+      output: <Buffer>chunks[chunks.length - 1],
       input: bscript.compile(chunks.slice(0, -1)),
       witness: a.witness || []
     }
@@ -116,7 +117,7 @@ function p2sh (a, opts) {
   })
 
   if (opts.validate) {
-    let hash
+    let hash: Buffer
     if (a.address) {
       if (_address().version !== network.scriptHash) throw new TypeError('Invalid version or Network mismatch')
       if (_address().hash.length !== 20) throw new TypeError('Invalid address')
@@ -141,7 +142,7 @@ function p2sh (a, opts) {
     }
 
     // inlined to prevent 'no-inner-declarations' failing
-    const checkRedeem = function (redeem) {
+    const checkRedeem = function (redeem: Payment): void {
       // is the redeem output empty/invalid?
       if (redeem.output) {
         const decompile = bscript.decompile(redeem.output)
@@ -177,7 +178,7 @@ function p2sh (a, opts) {
       if (a.redeem.network && a.redeem.network !== network) throw new TypeError('Network mismatch')
       if (a.input) {
         const redeem = _redeem()
-        if (a.redeem.output && !a.redeem.output.equals(redeem.output)) throw new TypeError('Redeem.output mismatch')
+        if (a.redeem.output && !a.redeem.output.equals(<Buffer>redeem.output)) throw new TypeError('Redeem.output mismatch')
         if (a.redeem.input && !a.redeem.input.equals(redeem.input)) throw new TypeError('Redeem.input mismatch')
       }
 
@@ -194,6 +195,3 @@ function p2sh (a, opts) {
 
   return Object.assign(o, a)
 }
-
-module.exports = p2sh
-export {}

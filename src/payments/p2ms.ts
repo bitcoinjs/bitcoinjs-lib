@@ -1,13 +1,14 @@
-const lazy = require('./lazy')
+import { Payment, PaymentOpts } from './index'
+import * as bscript from '../script'
+import * as lazy from './lazy'
+import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 const ecc = require('tiny-secp256k1')
 
-const bscript = require('../script')
-const BITCOIN_NETWORK = require('../networks').bitcoin
 const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
-function stacksEqual (a, b) {
+function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
   if (a.length !== b.length) return false
 
   return a.every(function (x, i) {
@@ -17,7 +18,7 @@ function stacksEqual (a, b) {
 
 // input: OP_0 [signatures ...]
 // output: m [pubKeys ...] n OP_CHECKMULTISIG
-function p2ms (a, opts) {
+export function p2ms (a: Payment, opts: PaymentOpts): Payment {
   if (
     !a.input &&
     !a.output &&
@@ -26,8 +27,8 @@ function p2ms (a, opts) {
   ) throw new TypeError('Not enough data')
   opts = Object.assign({ validate: true }, opts || {})
 
-  function isAcceptableSignature (x) {
-    return bscript.isCanonicalScriptSignature(x) || (opts.allowIncomplete && (x === OPS.OP_0))
+  function isAcceptableSignature (x: Buffer | number) {
+    return bscript.isCanonicalScriptSignature(<Buffer>x) || (opts.allowIncomplete && (<number>x === OPS.OP_0))
   }
 
   typef({
@@ -42,25 +43,17 @@ function p2ms (a, opts) {
   }, a)
 
   const network = a.network || BITCOIN_NETWORK
-  const o = {
-    network,
-    m: undefined,
-    n: undefined,
-    pubkeys: undefined,
-    output: undefined,
-    input: undefined,
-    signatures: undefined,
-  }
+  const o: Payment = { network }
 
-  let chunks
+  let chunks: Array<Buffer | number>
   let decoded = false
-  function decode (output) {
+  function decode (output: Buffer | Array<Buffer | number>): void {
     if (decoded) return
     decoded = true
     chunks = bscript.decompile(output)
-    o.m = chunks[0] - OP_INT_BASE
-    o.n = chunks[chunks.length - 2] - OP_INT_BASE
-    o.pubkeys = chunks.slice(1, -2)
+    o.m = <number>chunks[0] - OP_INT_BASE
+    o.n = <number>chunks[chunks.length - 2] - OP_INT_BASE
+    o.pubkeys = <Array<Buffer>>chunks.slice(1, -2)
   }
 
   lazy.prop(o, 'output', function () {
@@ -137,13 +130,10 @@ function p2ms (a, opts) {
       if (a.input[0] !== OPS.OP_0) throw new TypeError('Input is invalid')
       if (o.signatures.length === 0 || !o.signatures.every(isAcceptableSignature)) throw new TypeError('Input has invalid signature(s)')
 
-      if (a.signatures && !stacksEqual(a.signatures.equals(o.signatures), undefined)) throw new TypeError('Signature mismatch')
+      if (a.signatures && !stacksEqual(a.signatures, o.signatures)) throw new TypeError('Signature mismatch')
       if (a.m !== undefined && a.m !== a.signatures.length) throw new TypeError('Signature count mismatch')
     }
   }
 
   return Object.assign(o, a)
 }
-
-module.exports = p2ms
-export {}

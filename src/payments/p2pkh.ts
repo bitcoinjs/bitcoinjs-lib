@@ -1,16 +1,17 @@
-const lazy = require('./lazy')
+import { Payment, PaymentOpts } from './index'
+import * as bscript from '../script'
+import * as bcrypto from '../crypto'
+import * as lazy from './lazy'
+import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 const ecc = require('tiny-secp256k1')
 
-const bcrypto = require('../crypto')
-const bscript = require('../script')
-const BITCOIN_NETWORK = require('../networks').bitcoin
 const bs58check = require('bs58check')
 
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
-function p2pkh (a, opts) {
+export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
   if (
     !a.address &&
     !a.hash &&
@@ -90,7 +91,7 @@ function p2pkh (a, opts) {
 
   // extended validation
   if (opts.validate) {
-    let hash
+    let hash: Buffer
     if (a.address) {
       if (_address().version !== network.pubKeyHash) throw new TypeError('Invalid version or Network mismatch')
       if (_address().hash.length !== 20) throw new TypeError('Invalid address')
@@ -125,19 +126,16 @@ function p2pkh (a, opts) {
     if (a.input) {
       const chunks = _chunks()
       if (chunks.length !== 2) throw new TypeError('Input is invalid')
-      if (!bscript.isCanonicalScriptSignature(chunks[0])) throw new TypeError('Input has invalid signature')
+      if (!bscript.isCanonicalScriptSignature(<Buffer>chunks[0])) throw new TypeError('Input has invalid signature')
       if (!ecc.isPoint(chunks[1])) throw new TypeError('Input has invalid pubkey')
 
-      if (a.signature && !a.signature.equals(chunks[0])) throw new TypeError('Signature mismatch')
-      if (a.pubkey && !a.pubkey.equals(chunks[1])) throw new TypeError('Pubkey mismatch')
+      if (a.signature && !a.signature.equals(<Buffer>chunks[0])) throw new TypeError('Signature mismatch')
+      if (a.pubkey && !a.pubkey.equals(<Buffer>chunks[1])) throw new TypeError('Pubkey mismatch')
 
-      const pkh = bcrypto.hash160(chunks[1])
+      const pkh = bcrypto.hash160(<Buffer>chunks[1])
       if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
     }
   }
 
   return Object.assign(o, a)
 }
-
-module.exports = p2pkh
-export {}
