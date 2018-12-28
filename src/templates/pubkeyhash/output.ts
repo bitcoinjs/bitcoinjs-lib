@@ -1,9 +1,9 @@
 // OP_DUP OP_HASH160 {pubKeyHash} OP_EQUALVERIFY OP_CHECKSIG
 
-const bscript = require('../../script')
+import * as bscript from '../../script'
 const OPS = require('bitcoin-ops')
 
-function check (script) {
+export function check (script: Buffer | Array<number | Buffer>): boolean {
   const buffer = bscript.compile(script)
 
   return buffer.length === 25 &&
@@ -14,6 +14,3 @@ function check (script) {
     buffer[24] === OPS.OP_CHECKSIG
 }
 check.toJSON = function () { return 'pubKeyHash output' }
-
-module.exports = { check }
-export {}

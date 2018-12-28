@@ -1,15 +1,12 @@
 // {signature} {pubKey}
 
-const bscript = require('../../script')
+import * as bscript from '../../script'
 
-function check (script) {
+export function check (script: Buffer | Array<number | Buffer>): boolean {
   const chunks = bscript.decompile(script)
 
   return chunks.length === 2 &&
-    bscript.isCanonicalScriptSignature(chunks[0]) &&
-    bscript.isCanonicalPubKey(chunks[1])
+    bscript.isCanonicalScriptSignature(<Buffer>chunks[0]) &&
+    bscript.isCanonicalPubKey(<Buffer>chunks[1])
 }
 check.toJSON = function () { return 'pubKeyHash input' }
-
-module.exports = { check }
-export {}
