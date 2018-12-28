@@ -20,8 +20,8 @@ interface ECPairOptions {
 export interface ECPairInterface {
   compressed: boolean
   network: Network
-  privateKey: Buffer
-  publicKey: Buffer
+  privateKey: Buffer | null
+  publicKey: Buffer | null
   toWIF(): string
   sign(hash: Buffer): Buffer
   verify(hash: Buffer, signature: Buffer): Buffer
@@ -31,9 +31,9 @@ export interface ECPairInterface {
 class ECPair implements ECPairInterface {
   compressed: boolean
   network: Network
-  private __d: Buffer
-  private __Q: Buffer
-  constructor (d: Buffer | void, Q: Buffer | void, options: ECPairOptions) {
+  private __d: Buffer | null
+  private __Q: Buffer | null
+  constructor (d: Buffer | null, Q: Buffer | null, options: ECPairOptions) {
     if (options === undefined) options = {}
     this.compressed = options.compressed === undefined ? true : options.compressed
     this.network = options.network || NETWORKS.bitcoin
@@ -43,11 +43,11 @@ class ECPair implements ECPairInterface {
     if (Q) this.__Q = ecc.pointCompress(Q, this.compressed)
   }
 
-  get privateKey (): Buffer {
+  get privateKey (): Buffer | null {
     return this.__d
   }
 
-  get publicKey (): Buffer {
+  get publicKey (): Buffer | null {
     if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__d, this.compressed)
     return this.__Q
   }
@@ -87,7 +87,7 @@ function fromWIF (string: string, network: Network | Array<Network>): ECPair {
 
   // list of networks?
   if (types.Array(network)) {
-    network = (<Array<Network>>network).filter(function (x: Network) {
+    network = <Network>(<Array<Network>>network).filter(function (x: Network) {
       return version === x.wif
     }).pop()
 

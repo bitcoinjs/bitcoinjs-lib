@@ -24,8 +24,8 @@ interface TxbInput {
   redeemScript?: Buffer
   redeemScriptType?: string
   prevOutType?: string
-  pubkeys?: Array<Buffer>
-  signatures?: Array<Buffer>
+  pubkeys?: Array<Buffer> | Array<undefined>
+  signatures?: Array<Buffer> | Array<Buffer | undefined>
   witness?: Array<Buffer>
   witnessScript?: Buffer
   witnessScriptType?: string
@@ -38,7 +38,7 @@ interface TxbInput {
 interface TxbOutput {
   type: string
   pubkeys?: Array<Buffer>
-  signatures?: Array<Buffer>
+  signatures?: Array<Buffer> | Array<Buffer | undefined>
   maxSignatures?: number
 }
 
@@ -57,7 +57,7 @@ export class TransactionBuilder {
   private __inputs: Array<TxbInput>
   private __tx: Transaction
 
-  constructor (network: Network, maximumFeeRate?: number) {
+  constructor (network?: Network, maximumFeeRate?: number) {
     this.__prevTxSet = {}
     this.network = network || networks.bitcoin
 
@@ -125,7 +125,7 @@ export class TransactionBuilder {
       throw new Error('No, this would invalidate signatures')
     }
 
-    let value: number
+    let value: number | undefined = undefined
 
     // is it a hex string?
     if (txIsString(txHash)) {
@@ -225,7 +225,7 @@ export class TransactionBuilder {
     this.__inputs.forEach((input, i) => {
       if (!input.prevOutType && !allowIncomplete) throw new Error('Transaction is not complete')
 
-      const result = build(input.prevOutType, input, allowIncomplete)
+      const result = build(<string>input.prevOutType, input, allowIncomplete)
       if (!result) {
         if (!allowIncomplete && input.prevOutType === SCRIPT_TYPES.NONSTANDARD) throw new Error('Unknown input type')
         if (!allowIncomplete) throw new Error('Not enough information')
@@ -263,7 +263,7 @@ export class TransactionBuilder {
       throw new Error('Inconsistent redeemScript')
     }
 
-    const ourPubKey = keyPair.publicKey || keyPair.getPublicKey()
+    const ourPubKey = keyPair.publicKey || (<()=>Buffer>keyPair.getPublicKey)()
     if (!canSign(input)) {
       if (witnessValue !== undefined) {
         if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
@@ -284,15 +284,15 @@ export class TransactionBuilder {
     // ready to sign
     let signatureHash: Buffer
     if (input.hasWitness) {
-      signatureHash = this.__tx.hashForWitnessV0(vin, input.signScript, input.value, hashType)
+      signatureHash = this.__tx.hashForWitnessV0(vin, <Buffer>input.signScript, <number>input.value, hashType)
     } else {
-      signatureHash = this.__tx.hashForSignature(vin, input.signScript, hashType)
+      signatureHash = this.__tx.hashForSignature(vin, <Buffer>input.signScript, hashType)
     }
 
     // enforce in order signing of public keys
-    const signed = input.pubkeys.some((pubKey, i) => {
+    const signed = (<Array<Buffer>>input.pubkeys).some((pubKey, i) => {
       if (!ourPubKey.equals(pubKey)) return false
-      if (input.signatures[i]) throw new Error('Signature already exists')
+      if ((<Array<Buffer>>input.signatures)[i]) throw new Error('Signature already exists')
 
       // TODO: add tests
       if (ourPubKey.length !== 33 && input.hasWitness) {
@@ -300,7 +300,7 @@ export class TransactionBuilder {
       }
 
       const signature = keyPair.sign(signatureHash)
-      input.signatures[i] = bscript.signature.encode(signature, hashType)
+      ;(<Array<Buffer>>input.signatures)[i] = bscript.signature.encode(signature, hashType)
       return true
     })
 
@@ -348,7 +348,7 @@ export class TransactionBuilder {
     return this.__inputs.every(input => {
       if (input.signatures === undefined) return true
 
-      return input.signatures.every(signature => {
+      return input.signatures.every(<(signature: Buffer | undefined)=>boolean>(signature => {
         if (!signature) return true
         const hashType = signatureHashType(signature)
 
@@ -360,13 +360,13 @@ export class TransactionBuilder {
           // of more outputs
           return nInputs <= nOutputs
         }
-      })
+      }))
     })
   }
 
   private __overMaximumFees (bytes: number): boolean {
     // not all inputs will have .value defined
-    const incoming = this.__inputs.reduce((a, x) => a + (x.value >>> 0), 0)
+    const incoming = this.__inputs.reduce((a, x) => a + (<number>x.value >>> 0), 0)
 
     // but all outputs do, and if we have any input value
     // we can immediately determine if the outputs are too small
@@ -493,13 +493,13 @@ function expandInput (scriptSig: Buffer, witnessStack: Array<Buffer>, type?: str
 // could be done in expandInput, but requires the original Transaction for hashForSignature
 function fixMultisigOrder (input: TxbInput, transaction: Transaction, vin: number): void {
   if (input.redeemScriptType !== SCRIPT_TYPES.P2MS || !input.redeemScript) return
-  if (input.pubkeys.length === input.signatures.length) return
+  if ((<Array<Buffer>>input.pubkeys).length === (<Array<Buffer>>input.signatures).length) return
 
-  const unmatched = input.signatures.concat()
+  const unmatched = (<Array<Buffer | undefined>>input.signatures).concat()
 
-  input.signatures = input.pubkeys.map(pubKey => {
+  input.signatures = <Array<Buffer | undefined>>(<Array<Buffer>>input.pubkeys).map(pubKey => {
     const keyPair = ECPair.fromPublicKey(pubKey)
-    let match
+    let match: Buffer | undefined
 
     // check for a signature
     unmatched.some((signature, i) => {
@@ -508,7 +508,7 @@ function fixMultisigOrder (input: TxbInput, transaction: Transaction, vin: numbe
 
       // TODO: avoid O(n) hashForSignature
       const parsed = bscript.signature.decode(signature)
-      const hash = transaction.hashForSignature(vin, input.redeemScript, parsed.hashType)
+      const hash = transaction.hashForSignature(vin, (<Buffer>input.redeemScript), parsed.hashType)
 
       // skip if signature does not match pubKey
       if (!keyPair.verify(hash, parsed.signature)) return false
@@ -740,7 +740,7 @@ function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer,
   }
 }
 
-function build (type: string, input: TxbInput, allowIncomplete: boolean): any { //TODO payment type
+function build (type: string, input: TxbInput, allowIncomplete?: boolean): any { //TODO payment type
   const pubkeys = input.pubkeys || []
   let signatures = input.signatures || []
 
@@ -777,7 +777,7 @@ function build (type: string, input: TxbInput, allowIncomplete: boolean): any { 
       return payments.p2ms({ m, pubkeys, signatures }, { allowIncomplete, validate })
     }
     case SCRIPT_TYPES.P2SH: {
-      const redeem = build(input.redeemScriptType, input, allowIncomplete)
+      const redeem = build(<string>input.redeemScriptType, input, allowIncomplete)
       if (!redeem) return
 
       return payments.p2sh({
@@ -789,7 +789,7 @@ function build (type: string, input: TxbInput, allowIncomplete: boolean): any { 
       })
     }
     case SCRIPT_TYPES.P2WSH: {
-      const redeem = build(input.witnessScriptType, input, allowIncomplete)
+      const redeem = build(<string>input.witnessScriptType, input, allowIncomplete)
       if (!redeem) return
 
       return payments.p2wsh({

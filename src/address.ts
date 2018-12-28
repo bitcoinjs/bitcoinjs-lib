@@ -75,8 +75,8 @@ export function fromOutputScript (output: Buffer, network: Network): string { //
 export function toOutputScript (address: string, network: Network): Buffer {
   network = network || networks.bitcoin
 
-  let decodeBase58: Base58CheckResult
-  let decodeBech32: Bech32Result
+  let decodeBase58: Base58CheckResult | undefined = undefined
+  let decodeBech32: Bech32Result | undefined = undefined
   try {
     decodeBase58 = fromBase58Check(address)
   } catch (e) {}

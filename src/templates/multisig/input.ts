@@ -8,7 +8,7 @@ function partialSignature (value: number | Buffer): boolean {
 }
 
 export function check (script: Buffer | Array<number | Buffer>, allowIncomplete?: boolean): boolean {
-  const chunks = bscript.decompile(script)
+  const chunks = <Array<number | Buffer>>bscript.decompile(script)
   if (chunks.length < 2) return false
   if (chunks[0] !== OPS.OP_0) return false
 

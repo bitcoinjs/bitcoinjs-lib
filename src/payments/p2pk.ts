@@ -27,7 +27,7 @@ export function p2pk (a: Payment, opts: PaymentOpts): Payment {
     input: typef.maybe(typef.Buffer)
   }, a)
 
-  const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
+  const _chunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(<Buffer>a.input) })
 
   const network = a.network || BITCOIN_NETWORK
   const o: Payment = { network }
@@ -45,7 +45,7 @@ export function p2pk (a: Payment, opts: PaymentOpts): Payment {
   })
   lazy.prop(o, 'signature', function () {
     if (!a.input) return
-    return _chunks()[0]
+    return <Buffer>_chunks()[0]
   })
   lazy.prop(o, 'input', function () {
     if (!a.signature) return
@@ -61,16 +61,16 @@ export function p2pk (a: Payment, opts: PaymentOpts): Payment {
     if (a.output) {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG) throw new TypeError('Output is invalid')
       if (!ecc.isPoint(o.pubkey)) throw new TypeError('Output pubkey is invalid')
-      if (a.pubkey && !a.pubkey.equals(o.pubkey)) throw new TypeError('Pubkey mismatch')
+      if (a.pubkey && !a.pubkey.equals(<Buffer>o.pubkey)) throw new TypeError('Pubkey mismatch')
     }
 
     if (a.signature) {
-      if (a.input && !a.input.equals(o.input)) throw new TypeError('Signature mismatch')
+      if (a.input && !a.input.equals(<Buffer>o.input)) throw new TypeError('Signature mismatch')
     }
 
     if (a.input) {
       if (_chunks().length !== 1) throw new TypeError('Input is invalid')
-      if (!bscript.isCanonicalScriptSignature(o.signature)) throw new TypeError('Input has invalid signature')
+      if (!bscript.isCanonicalScriptSignature(<Buffer>o.signature)) throw new TypeError('Input has invalid signature')
     }
   }
 

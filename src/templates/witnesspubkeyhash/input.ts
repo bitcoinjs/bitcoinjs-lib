@@ -7,7 +7,7 @@ function isCompressedCanonicalPubKey (pubKey: Buffer): boolean {
 }
 
 export function check (script: Buffer | Array<number | Buffer>): boolean {
-  const chunks = bscript.decompile(script)
+  const chunks = <Array<number | Buffer>>bscript.decompile(script)
 
   return chunks.length === 2 &&
     bscript.isCanonicalScriptSignature(<Buffer>chunks[0]) &&

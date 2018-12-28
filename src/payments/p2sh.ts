@@ -1,4 +1,5 @@
 import { Payment, PaymentOpts } from './index'
+import { Network } from '../networks'
 import * as bscript from '../script'
 import * as bcrypto from '../crypto'
 import * as lazy from './lazy'
@@ -59,7 +60,7 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
     const hash = payload.slice(1)
     return { version, hash }
   })
-  const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
+  const _chunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(<Buffer>a.input) })
   const _redeem = lazy.value(function (): Payment {
     const chunks = _chunks()
     return {
@@ -75,7 +76,7 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
     if (!o.hash) return
 
     const payload = Buffer.allocUnsafe(21)
-    payload.writeUInt8(network.scriptHash, 0)
+    payload.writeUInt8((<Network>o.network).scriptHash, 0)
     o.hash.copy(payload, 1)
     return bs58check.encode(payload)
   })
@@ -101,8 +102,8 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
   })
   lazy.prop(o, 'input', function () {
     if (!a.redeem || !a.redeem.input || !a.redeem.output) return
-    return bscript.compile([].concat(
-      bscript.decompile(a.redeem.input),
+    return bscript.compile((<Array<Buffer | number>>[]).concat(
+      <Array<Buffer | number>>bscript.decompile(a.redeem.input),
       a.redeem.output
     ))
   })
@@ -112,7 +113,7 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
   })
 
   if (opts.validate) {
-    let hash: Buffer
+    let hash: Buffer = Buffer.from([])
     if (a.address) {
       if (_address().version !== network.scriptHash) throw new TypeError('Invalid version or Network mismatch')
       if (_address().hash.length !== 20) throw new TypeError('Invalid address')
@@ -120,7 +121,7 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
     }
 
     if (a.hash) {
-      if (hash && !hash.equals(a.hash)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(a.hash)) throw new TypeError('Hash mismatch')
       else hash = a.hash
     }
 
@@ -132,7 +133,7 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
         a.output[22] !== OPS.OP_EQUAL) throw new TypeError('Output is invalid')
 
       const hash2 = a.output.slice(2, 22)
-      if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
       else hash = hash2
     }
 
@@ -145,7 +146,7 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
 
         // match hash against other sources
         const hash2 = bcrypto.hash160(redeem.output)
-        if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
+        if (hash.length > 0 && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
         else hash = hash2
       }
 
@@ -155,7 +156,7 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
         if (!hasInput && !hasWitness) throw new TypeError('Empty input')
         if (hasInput && hasWitness) throw new TypeError('Input and witness provided')
         if (hasInput) {
-          const richunks = bscript.decompile(redeem.input)
+          const richunks = <Array<Buffer | number>>bscript.decompile(redeem.input)
           if (!bscript.isPushOnly(richunks)) throw new TypeError('Non push-only scriptSig')
         }
       }
@@ -174,7 +175,7 @@ export function p2sh (a: Payment, opts: PaymentOpts): Payment {
       if (a.input) {
         const redeem = _redeem()
         if (a.redeem.output && !a.redeem.output.equals(<Buffer>redeem.output)) throw new TypeError('Redeem.output mismatch')
-        if (a.redeem.input && !a.redeem.input.equals(redeem.input)) throw new TypeError('Redeem.input mismatch')
+        if (a.redeem.input && !a.redeem.input.equals(<Buffer>redeem.input)) throw new TypeError('Redeem.input mismatch')
       }
 
       checkRedeem(a.redeem)

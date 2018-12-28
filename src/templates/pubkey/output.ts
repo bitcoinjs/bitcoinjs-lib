@@ -4,7 +4,7 @@ import * as bscript from '../../script'
 const OPS = require('bitcoin-ops')
 
 export function check (script: Buffer | Array<number | Buffer>): boolean {
-  const chunks = bscript.decompile(script)
+  const chunks = <Array<number | Buffer>>bscript.decompile(script)
 
   return chunks.length === 2 &&
     bscript.isCanonicalPubKey(<Buffer>chunks[0]) &&

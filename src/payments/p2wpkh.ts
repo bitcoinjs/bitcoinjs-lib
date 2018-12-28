@@ -59,7 +59,7 @@ export function p2wpkh (a: Payment, opts: PaymentOpts): Payment {
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(2, 22)
     if (a.address) return _address().data
-    if (a.pubkey || o.pubkey) return bcrypto.hash160(a.pubkey || o.pubkey)
+    if (a.pubkey || o.pubkey) return bcrypto.hash160(<Buffer>a.pubkey || <Buffer>o.pubkey)
   })
   lazy.prop(o, 'output', function () {
     if (!o.hash) return
@@ -89,7 +89,7 @@ export function p2wpkh (a: Payment, opts: PaymentOpts): Payment {
 
   // extended validation
   if (opts.validate) {
-    let hash: Buffer
+    let hash: Buffer = Buffer.from([])
     if (a.address) {
       if (network && network.bech32 !== _address().prefix) throw new TypeError('Invalid prefix or Network mismatch')
       if (_address().version !== 0x00) throw new TypeError('Invalid address version')
@@ -98,7 +98,7 @@ export function p2wpkh (a: Payment, opts: PaymentOpts): Payment {
     }
 
     if (a.hash) {
-      if (hash && !hash.equals(a.hash)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(a.hash)) throw new TypeError('Hash mismatch')
       else hash = a.hash
     }
 
@@ -107,13 +107,13 @@ export function p2wpkh (a: Payment, opts: PaymentOpts): Payment {
         a.output.length !== 22 ||
         a.output[0] !== OPS.OP_0 ||
         a.output[1] !== 0x14) throw new TypeError('Output is invalid')
-      if (hash && !hash.equals(a.output.slice(2))) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(a.output.slice(2))) throw new TypeError('Hash mismatch')
       else hash = a.output.slice(2)
     }
 
     if (a.pubkey) {
       const pkh = bcrypto.hash160(a.pubkey)
-      if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
       else hash = pkh
     }
 
@@ -126,7 +126,7 @@ export function p2wpkh (a: Payment, opts: PaymentOpts): Payment {
       if (a.pubkey && !a.pubkey.equals(a.witness[1])) throw new TypeError('Pubkey mismatch')
 
       const pkh = bcrypto.hash160(a.witness[1])
-      if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
     }
   }
 

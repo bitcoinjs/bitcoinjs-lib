@@ -94,7 +94,7 @@ export function compile (chunks: Buffer | Array<number | Buffer>): Buffer {
   return buffer
 }
 
-export function decompile (buffer: Buffer | Array<number | Buffer>): Array<number | Buffer> {
+export function decompile (buffer: Buffer | Array<number | Buffer>): Array<number | Buffer> | null {
   // TODO: remove me
   if (chunksIsArray(buffer)) return buffer
 
@@ -141,7 +141,7 @@ export function decompile (buffer: Buffer | Array<number | Buffer>): Array<numbe
 
 export function toASM (chunks: Buffer | Array<number | Buffer>): string {
   if (chunksIsBuffer(chunks)) {
-    chunks = decompile(chunks)
+    chunks = <Array<number | Buffer>>decompile(chunks)
   }
 
   return chunks.map(function (chunk) {
@@ -171,7 +171,7 @@ export function fromASM (asm: string): Buffer {
 }
 
 export function toStack (chunks: Buffer | Array<number | Buffer>): Array<Buffer> {
-  chunks = decompile(chunks)
+  chunks = <Array<number | Buffer>>decompile(chunks)
   typeforce(isPushOnly, chunks)
 
   return chunks.map(function (op) {

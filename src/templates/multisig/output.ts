@@ -6,7 +6,7 @@ const OPS = require('bitcoin-ops')
 const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 export function check (script: Buffer | Array<number | Buffer>, allowIncomplete?: boolean): boolean {
-  const chunks = bscript.decompile(script)
+  const chunks = <Array<number | Buffer>>bscript.decompile(script)
 
   if (chunks.length < 4) return false
   if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) return false

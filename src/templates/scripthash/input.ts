@@ -10,13 +10,13 @@ import * as p2wsho from '../witnessscripthash/output'
 const Buffer = require('safe-buffer').Buffer
 
 export function check (script: Buffer | Array<number | Buffer>, allowIncomplete?: boolean): boolean {
-  const chunks = bscript.decompile(script)
+  const chunks = <Array<number | Buffer>>bscript.decompile(script)
   if (chunks.length < 1) return false
 
   const lastChunk = chunks[chunks.length - 1]
   if (!Buffer.isBuffer(lastChunk)) return false
 
-  const scriptSigChunks = bscript.decompile(bscript.compile(chunks.slice(0, -1)))
+  const scriptSigChunks = <Array<number | Buffer>>bscript.decompile(bscript.compile(chunks.slice(0, -1)))
   const redeemScriptChunks = bscript.decompile(<Buffer>lastChunk)
 
   // is redeemScript a valid script?

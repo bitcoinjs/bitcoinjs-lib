@@ -1,4 +1,5 @@
 import { Payment, PaymentOpts } from './index'
+import { Network } from '../networks'
 import * as bscript from '../script'
 import * as bcrypto from '../crypto'
 import * as lazy from './lazy'
@@ -58,7 +59,7 @@ export function p2wsh (a: Payment, opts: PaymentOpts): Payment {
       data: Buffer.from(data)
     }
   })
-  const _rchunks = lazy.value(function () { return bscript.decompile(a.redeem.input) })
+  const _rchunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(<Buffer>(<Payment>a.redeem).input) })
 
   let network = a.network
   if (!network) {
@@ -71,7 +72,7 @@ export function p2wsh (a: Payment, opts: PaymentOpts): Payment {
     if (!o.hash) return
     const words = bech32.toWords(o.hash)
     words.unshift(0x00)
-    return bech32.encode(network.bech32, words)
+    return bech32.encode((<Network>network).bech32, words)
   })
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(2)
@@ -111,18 +112,18 @@ export function p2wsh (a: Payment, opts: PaymentOpts): Payment {
       // assign, and blank the existing input
       o.redeem = Object.assign({ witness: stack }, a.redeem)
       o.redeem.input = EMPTY_BUFFER
-      return [].concat(stack, a.redeem.output)
+      return (<Array<Buffer>>[]).concat(stack, a.redeem.output)
     }
 
     if (!a.redeem) return
     if (!a.redeem.output) return
     if (!a.redeem.witness) return
-    return [].concat(a.redeem.witness, a.redeem.output)
+    return (<Array<Buffer>>[]).concat(a.redeem.witness, a.redeem.output)
   })
 
   // extended validation
   if (opts.validate) {
-    let hash: Buffer
+    let hash: Buffer = Buffer.from([])
     if (a.address) {
       if (_address().prefix !== network.bech32) throw new TypeError('Invalid prefix or Network mismatch')
       if (_address().version !== 0x00) throw new TypeError('Invalid address version')
@@ -131,7 +132,7 @@ export function p2wsh (a: Payment, opts: PaymentOpts): Payment {
     }
 
     if (a.hash) {
-      if (hash && !hash.equals(a.hash)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(a.hash)) throw new TypeError('Hash mismatch')
       else hash = a.hash
     }
 
@@ -141,7 +142,7 @@ export function p2wsh (a: Payment, opts: PaymentOpts): Payment {
         a.output[0] !== OPS.OP_0 ||
         a.output[1] !== 0x20) throw new TypeError('Output is invalid')
       const hash2 = a.output.slice(2)
-      if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
       else hash = hash2
     }
 
@@ -158,11 +159,11 @@ export function p2wsh (a: Payment, opts: PaymentOpts): Payment {
 
       // is the redeem output non-empty?
       if (a.redeem.output) {
-        if (bscript.decompile(a.redeem.output).length === 0) throw new TypeError('Redeem.output is invalid')
+        if ((<Array<Buffer | number>>bscript.decompile(a.redeem.output)).length === 0) throw new TypeError('Redeem.output is invalid')
 
         // match hash against other sources
         const hash2 = bcrypto.sha256(a.redeem.output)
-        if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
+        if (hash.length > 0 && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
         else hash = hash2
       }
 

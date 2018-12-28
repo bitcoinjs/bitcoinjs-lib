@@ -182,7 +182,7 @@ export class Transaction {
     return this.ins.length === 1 && Transaction.isCoinbaseHash(this.ins[0].hash)
   }
 
-  addInput (hash: Buffer, index: number, sequence: number, scriptSig: Buffer): number {
+  addInput (hash: Buffer, index: number, sequence?: number, scriptSig?: Buffer): number {
     typeforce(types.tuple(
       types.Hash256bit,
       types.UInt32,
@@ -199,7 +199,7 @@ export class Transaction {
       hash: hash,
       index: index,
       script: scriptSig || EMPTY_SCRIPT,
-      sequence: sequence,
+      sequence: <number>sequence,
       witness: EMPTY_WITNESS
     }) - 1)
   }
@@ -293,7 +293,7 @@ export class Transaction {
     if (inIndex >= this.ins.length) return ONE
 
     // ignore OP_CODESEPARATOR
-    const ourScript = bscript.compile(bscript.decompile(prevOutScript).filter((x) => {
+    const ourScript = bscript.compile((<Array<Buffer | number>>bscript.decompile(prevOutScript)).filter((x) => {
       return x !== <number>opcodes.OP_CODESEPARATOR
     }))
 
@@ -475,7 +475,7 @@ export class Transaction {
     let offset = initialOffset || 0
 
     function writeSlice (slice: Buffer): void {
-      offset += slice.copy(buffer, offset)
+      offset += slice.copy(<Buffer>buffer, offset)
     }
 
     function writeUInt8 (i: number) {

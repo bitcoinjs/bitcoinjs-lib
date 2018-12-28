@@ -10,12 +10,12 @@
     "allowJs": false,
     "strict": false,
     "noImplicitAny": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "strictPropertyInitialization": false,
-    "noImplicitThis": false,
-    "alwaysStrict": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
     "esModuleInterop": true
   },
   "include": [

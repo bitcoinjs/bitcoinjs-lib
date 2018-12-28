@@ -38,7 +38,7 @@ export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
     const hash = payload.slice(1)
     return { version, hash }
   })
-  const _chunks = lazy.value(function () { return bscript.decompile(a.input) })
+  const _chunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(<Buffer>a.input) })
 
   const network = a.network || BITCOIN_NETWORK
   const o: Payment = { network }
@@ -54,7 +54,7 @@ export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(3, 23)
     if (a.address) return _address().hash
-    if (a.pubkey || o.pubkey) return bcrypto.hash160(a.pubkey || o.pubkey)
+    if (a.pubkey || o.pubkey) return bcrypto.hash160(<Buffer>a.pubkey || <Buffer>o.pubkey)
   })
   lazy.prop(o, 'output', function () {
     if (!o.hash) return
@@ -68,11 +68,11 @@ export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
   })
   lazy.prop(o, 'pubkey', function () {
     if (!a.input) return
-    return _chunks()[1]
+    return <Buffer>_chunks()[1]
   })
   lazy.prop(o, 'signature', function () {
     if (!a.input) return
-    return _chunks()[0]
+    return <Buffer>_chunks()[0]
   })
   lazy.prop(o, 'input', function () {
     if (!a.pubkey) return
@@ -86,7 +86,7 @@ export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
 
   // extended validation
   if (opts.validate) {
-    let hash: Buffer
+    let hash: Buffer = Buffer.from([])
     if (a.address) {
       if (_address().version !== network.pubKeyHash) throw new TypeError('Invalid version or Network mismatch')
       if (_address().hash.length !== 20) throw new TypeError('Invalid address')
@@ -94,7 +94,7 @@ export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
     }
 
     if (a.hash) {
-      if (hash && !hash.equals(a.hash)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(a.hash)) throw new TypeError('Hash mismatch')
       else hash = a.hash
     }
 
@@ -108,13 +108,13 @@ export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
         a.output[24] !== OPS.OP_CHECKSIG) throw new TypeError('Output is invalid')
 
       const hash2 = a.output.slice(3, 23)
-      if (hash && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(hash2)) throw new TypeError('Hash mismatch')
       else hash = hash2
     }
 
     if (a.pubkey) {
       const pkh = bcrypto.hash160(a.pubkey)
-      if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
       else hash = pkh
     }
 
@@ -128,7 +128,7 @@ export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
       if (a.pubkey && !a.pubkey.equals(<Buffer>chunks[1])) throw new TypeError('Pubkey mismatch')
 
       const pkh = bcrypto.hash160(<Buffer>chunks[1])
-      if (hash && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
+      if (hash.length > 0 && !hash.equals(pkh)) throw new TypeError('Hash mismatch')
     }
   }
 

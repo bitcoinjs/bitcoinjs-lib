@@ -32,5 +32,5 @@ export function encode (commitment: Buffer): Buffer {
 export function decode (buffer: Buffer): Buffer {
   typeforce(check, buffer)
 
-  return (<Buffer>bscript.decompile(buffer)[1]).slice(4, 36)
+  return (<Buffer>(<Array<number | Buffer>>bscript.decompile(buffer))[1]).slice(4, 36)
 }
