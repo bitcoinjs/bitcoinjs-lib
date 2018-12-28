@@ -3,8 +3,8 @@
 import * as bscript from '../../script'
 const OPS = require('bitcoin-ops')
 
-function partialSignature (value) {
-  return value === OPS.OP_0 || bscript.isCanonicalScriptSignature(value)
+function partialSignature (value: number | Buffer): boolean {
+  return value === OPS.OP_0 || bscript.isCanonicalScriptSignature(<Buffer>value)
 }
 
 export function check (script: Buffer | Array<number | Buffer>, allowIncomplete?: boolean): boolean {
