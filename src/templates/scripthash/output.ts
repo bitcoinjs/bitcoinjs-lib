@@ -1,9 +1,9 @@
 // OP_HASH160 {scriptHash} OP_EQUAL
 
-const bscript = require('../../script')
+import * as bscript from '../../script'
 const OPS = require('bitcoin-ops')
 
-function check (script) {
+export function check (script: Buffer | Array<number | Buffer>): boolean {
   const buffer = bscript.compile(script)
 
   return buffer.length === 23 &&
@@ -12,6 +12,3 @@ function check (script) {
     buffer[22] === OPS.OP_EQUAL
 }
 check.toJSON = function () { return 'scriptHash output' }
-
-module.exports = { check }
-export {}

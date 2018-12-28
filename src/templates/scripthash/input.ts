@@ -1,15 +1,15 @@
 // <scriptSig> {serialized scriptPubKey script}
 
+import * as bscript from '../../script'
+import * as p2ms from '../multisig'
+import * as p2pk from '../pubkey'
+import * as p2pkh from '../pubkeyhash'
+import * as p2wpkho from '../witnesspubkeyhash/output'
+import * as p2wsho from '../witnessscripthash/output'
+
 const Buffer = require('safe-buffer').Buffer
-const bscript = require('../../script')
 
-const p2ms = require('../multisig/')
-const p2pk = require('../pubkey/')
-const p2pkh = require('../pubkeyhash/')
-const p2wpkho = require('../witnesspubkeyhash/output')
-const p2wsho = require('../witnessscripthash/output')
-
-function check (script, allowIncomplete) {
+export function check (script: Buffer | Array<number | Buffer>, allowIncomplete?: boolean): boolean {
   const chunks = bscript.decompile(script)
   if (chunks.length < 1) return false
 
@@ -17,7 +17,7 @@ function check (script, allowIncomplete) {
   if (!Buffer.isBuffer(lastChunk)) return false
 
   const scriptSigChunks = bscript.decompile(bscript.compile(chunks.slice(0, -1)))
-  const redeemScriptChunks = bscript.decompile(lastChunk)
+  const redeemScriptChunks = bscript.decompile(<Buffer>lastChunk)
 
   // is redeemScript a valid script?
   if (!redeemScriptChunks) return false
@@ -44,6 +44,3 @@ function check (script, allowIncomplete) {
   return false
 }
 check.toJSON = function () { return 'scriptHash input' }
-
-module.exports = { check }
-export {}
