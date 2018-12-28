@@ -34,3 +34,4 @@ export const Buffer256bit = typeforce.BufferN(32)
 export const Hash160bit = typeforce.BufferN(20)
 export const Hash256bit = typeforce.BufferN(32)
 export * from 'typeforce'
+export { Number } from 'typeforce'

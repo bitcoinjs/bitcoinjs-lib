@@ -1,9 +1,8 @@
 // OP_RETURN {data}
-
-const bscript = require('../script')
+import * as bscript from '../script'
 const OPS = require('bitcoin-ops')
 
-export function check (script) {
+export function check (script: Buffer | Array<number | Buffer>): boolean {
   const buffer = bscript.compile(script)
 
   return buffer.length > 1 &&
