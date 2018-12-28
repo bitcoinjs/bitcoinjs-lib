@@ -1,6 +1,6 @@
 const Buffer = require('safe-buffer').Buffer
 
-function decode (buffer, maxLength, minimal) {
+export function decode (buffer: Buffer, maxLength?: number, minimal?: boolean): number {
   maxLength = maxLength || 4
   minimal = minimal === undefined ? true : minimal
 
@@ -41,7 +41,7 @@ function scriptNumSize (i) {
             : 0
 }
 
-function encode (number) {
+export function encode (number: number): Buffer {
   let value = Math.abs(number)
   const size = scriptNumSize(value)
   const buffer = Buffer.allocUnsafe(size)
@@ -60,9 +60,3 @@ function encode (number) {
 
   return buffer
 }
-
-module.exports = {
-  decode: decode,
-  encode: encode
-}
-export {}

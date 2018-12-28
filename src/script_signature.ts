@@ -4,7 +4,7 @@ const typeforce = require('typeforce')
 const types = require('./types')
 
 const ZERO = Buffer.alloc(1, 0)
-function toDER (x) {
+function toDER (x: Buffer): Buffer {
   let i = 0
   while (x[i] === 0) ++i
   if (i === x.length) return ZERO
@@ -13,7 +13,7 @@ function toDER (x) {
   return x
 }
 
-function fromDER (x) {
+function fromDER (x: Buffer): Buffer {
   if (x[0] === 0x00) x = x.slice(1)
   const buffer = Buffer.alloc(32, 0)
   const bstart = Math.max(0, 32 - x.length)
@@ -21,8 +21,13 @@ function fromDER (x) {
   return buffer
 }
 
+interface ScriptSignature {
+  signature: Buffer
+  hashType: number
+}
+
 // BIP62: 1 byte hashType flag (only 0x01, 0x02, 0x03, 0x81, 0x82 and 0x83 are allowed)
-function decode (buffer) {
+export function decode (buffer: Buffer): ScriptSignature {
   const hashType = buffer.readUInt8(buffer.length - 1)
   const hashTypeMod = hashType & ~0x80
   if (hashTypeMod <= 0 || hashTypeMod >= 4) throw new Error('Invalid hashType ' + hashType)
@@ -37,7 +42,7 @@ function decode (buffer) {
   }
 }
 
-function encode (signature, hashType) {
+export function encode (signature: Buffer, hashType: number): Buffer {
   typeforce({
     signature: types.BufferN(64),
     hashType: types.UInt8
@@ -57,9 +62,3 @@ function encode (signature, hashType) {
     hashTypeBuffer
   ])
 }
-
-module.exports = {
-  decode: decode,
-  encode: encode
-}
-export {}

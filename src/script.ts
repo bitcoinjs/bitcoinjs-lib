@@ -10,37 +10,49 @@ const OPS = require('bitcoin-ops')
 const REVERSE_OPS = require('bitcoin-ops/map')
 const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
-function isOPInt (value) {
+function isOPInt (value:number): boolean {
   return types.Number(value) &&
     ((value === OPS.OP_0) ||
     (value >= OPS.OP_1 && value <= OPS.OP_16) ||
     (value === OPS.OP_1NEGATE))
 }
 
-function isPushOnlyChunk (value) {
-  return types.Buffer(value) || isOPInt(value)
+function isPushOnlyChunk (value: number | Buffer): boolean {
+  return types.Buffer(value) || isOPInt(<number>value)
 }
 
-function isPushOnly (value) {
+export function isPushOnly (value: Array<number | Buffer>) {
   return types.Array(value) && value.every(isPushOnlyChunk)
 }
 
-function asMinimalOP (buffer) {
+function asMinimalOP (buffer: Buffer): number | void {
   if (buffer.length === 0) return OPS.OP_0
   if (buffer.length !== 1) return
   if (buffer[0] >= 1 && buffer[0] <= 16) return OP_INT_BASE + buffer[0]
   if (buffer[0] === 0x81) return OPS.OP_1NEGATE
 }
 
-function compile (chunks) {
+function chunksIsBuffer(buf: Buffer | Array<number | Buffer>): buf is Buffer {
+  return Buffer.isBuffer(buf)
+}
+
+function chunksIsArray(buf: Buffer | Array<number | Buffer>): buf is Array<number | Buffer> {
+  return types.Array(buf)
+}
+
+function singleChunkIsBuffer(buf: number | Buffer): buf is Buffer {
+  return Buffer.isBuffer(buf)
+}
+
+export function compile (chunks: Buffer | Array<number | Buffer>): Buffer {
   // TODO: remove me
-  if (Buffer.isBuffer(chunks)) return chunks
+  if (chunksIsBuffer(chunks)) return chunks
 
   typeforce(types.Array, chunks)
 
-  const bufferSize = chunks.reduce(function (accum, chunk) {
+  const bufferSize = chunks.reduce(function (accum: number, chunk) {
     // data chunk
-    if (Buffer.isBuffer(chunk)) {
+    if (singleChunkIsBuffer(chunk)) {
       // adhere to BIP62.3, minimal push policy
       if (chunk.length === 1 && asMinimalOP(chunk) !== undefined) {
         return accum + 1
@@ -58,7 +70,7 @@ function compile (chunks) {
 
   chunks.forEach(function (chunk) {
     // data chunk
-    if (Buffer.isBuffer(chunk)) {
+    if (singleChunkIsBuffer(chunk)) {
       // adhere to BIP62.3, minimal push policy
       const opcode = asMinimalOP(chunk)
       if (opcode !== undefined) {
@@ -82,9 +94,9 @@ function compile (chunks) {
   return buffer
 }
 
-function decompile (buffer) {
+export function decompile (buffer: Buffer | Array<number | Buffer>): Array<number | Buffer> {
   // TODO: remove me
-  if (types.Array(buffer)) return buffer
+  if (chunksIsArray(buffer)) return buffer
 
   typeforce(types.Buffer, buffer)
 
@@ -127,17 +139,17 @@ function decompile (buffer) {
   return chunks
 }
 
-function toASM (chunks) {
-  if (Buffer.isBuffer(chunks)) {
+export function toASM (chunks: Buffer | Array<number | Buffer>): string {
+  if (chunksIsBuffer(chunks)) {
     chunks = decompile(chunks)
   }
 
   return chunks.map(function (chunk) {
     // data?
-    if (Buffer.isBuffer(chunk)) {
+    if (singleChunkIsBuffer(chunk)) {
       const op = asMinimalOP(chunk)
       if (op === undefined) return chunk.toString('hex')
-      chunk = op
+      chunk = <number>op
     }
 
     // opcode!
@@ -145,7 +157,7 @@ function toASM (chunks) {
   }).join(' ')
 }
 
-function fromASM (asm) {
+export function fromASM (asm: string): Buffer {
   typeforce(types.String, asm)
 
   return compile(asm.split(' ').map(function (chunkStr) {
@@ -158,49 +170,35 @@ function fromASM (asm) {
   }))
 }
 
-function toStack (chunks) {
+export function toStack (chunks: Buffer | Array<number | Buffer>): Array<Buffer> {
   chunks = decompile(chunks)
   typeforce(isPushOnly, chunks)
 
   return chunks.map(function (op) {
-    if (Buffer.isBuffer(op)) return op
+    if (singleChunkIsBuffer(op)) return op
     if (op === OPS.OP_0) return Buffer.allocUnsafe(0)
 
     return scriptNumber.encode(op - OP_INT_BASE)
   })
 }
 
-function isCanonicalPubKey (buffer) {
+export function isCanonicalPubKey (buffer: Buffer): boolean {
   return ecc.isPoint(buffer)
 }
 
-function isDefinedHashType (hashType) {
+export function isDefinedHashType (hashType: number): boolean {
   const hashTypeMod = hashType & ~0x80
 
   // return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
   return hashTypeMod > 0x00 && hashTypeMod < 0x04
 }
 
-function isCanonicalScriptSignature (buffer) {
+export function isCanonicalScriptSignature (buffer: Buffer): boolean {
   if (!Buffer.isBuffer(buffer)) return false
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false
 
   return bip66.check(buffer.slice(0, -1))
 }
 
-module.exports = {
-  compile: compile,
-  decompile: decompile,
-  fromASM: fromASM,
-  toASM: toASM,
-  toStack: toStack,
-
-  number: require('./script_number'),
-  signature: require('./script_signature'),
-
-  isCanonicalPubKey: isCanonicalPubKey,
-  isCanonicalScriptSignature: isCanonicalScriptSignature,
-  isPushOnly: isPushOnly,
-  isDefinedHashType: isDefinedHashType
-}
-export {}
+export const number = require('./script_number')
+export const signature = require('./script_signature')
