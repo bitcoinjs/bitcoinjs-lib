@@ -1,15 +1,14 @@
 // <scriptSig> {serialized scriptPubKey script}
 
-const bscript = require('../../script')
-const types = require('../../types')
+import * as bscript from '../../script'
 const typeforce = require('typeforce')
 
-const p2ms = require('../multisig/')
-const p2pk = require('../pubkey/')
-const p2pkh = require('../pubkeyhash/')
+import * as p2ms from '../multisig'
+import * as p2pk from '../pubkey'
+import * as p2pkh from '../pubkeyhash'
 
-function check (chunks, allowIncomplete) {
-  typeforce(types.Array, chunks)
+export function check (chunks: Array<Buffer>, allowIncomplete?: boolean): boolean {
+  typeforce(typeforce.Array, chunks)
   if (chunks.length < 1) return false
 
   const witnessScript = chunks[chunks.length - 1]
@@ -35,6 +34,3 @@ function check (chunks, allowIncomplete) {
   return false
 }
 check.toJSON = function () { return 'witnessScriptHash input' }
-
-module.exports = { check }
-export {}
