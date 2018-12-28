@@ -1,13 +1,13 @@
+import * as Networks from './networks'
+import { Network } from './networks'
+import * as types from './types'
 const Buffer = require('safe-buffer').Buffer
 const bech32 = require('bech32')
 const bs58check = require('bs58check')
 const bscript = require('./script')
 const networks = require('./networks')
 const typeforce = require('typeforce')
-const types = require('./types')
 const payments = require('./payments')
-import * as Networks from './networks'
-import { Network } from './networks'
 
 export type Base58CheckResult = {
   hash: Buffer;

@@ -1,10 +1,10 @@
 import * as bcrypto from './crypto'
+import * as bscript from './script'
+import * as types from './types'
 const Buffer = require('safe-buffer').Buffer
-const bscript = require('./script')
 const bufferutils = require('./bufferutils')
 const opcodes = require('bitcoin-ops')
 const typeforce = require('typeforce')
-const types = require('./types')
 const varuint = require('varuint-bitcoin')
 
 function varSliceSize (someScript: Buffer): number {
@@ -73,7 +73,7 @@ export class Transaction {
     this.ins = []
     this.outs = []
   }
-  
+
   static fromBuffer (buffer: Buffer, __noStrict: boolean): Transaction {
     let offset: number = 0
 
@@ -294,7 +294,7 @@ export class Transaction {
 
     // ignore OP_CODESEPARATOR
     const ourScript = bscript.compile(bscript.decompile(prevOutScript).filter((x) => {
-      return x !== opcodes.OP_CODESEPARATOR
+      return x !== <number>opcodes.OP_CODESEPARATOR
     }))
 
     const txTmp = this.clone()
@@ -465,46 +465,46 @@ export class Transaction {
     return Buffer.from(this.getHash(false).reverse()).toString('hex')
   }
 
-  toBuffer (buffer: Buffer | void, initialOffset: number | void): Buffer {
+  toBuffer (buffer?: Buffer, initialOffset?: number): Buffer {
     return this.__toBuffer(buffer, initialOffset, true)
   }
 
-  __toBuffer (buffer: Buffer | void, initialOffset: number | void, __allowWitness: boolean | void): Buffer {
+  __toBuffer (buffer?: Buffer, initialOffset?: number, __allowWitness?: boolean): Buffer {
     if (!buffer) buffer = <Buffer> Buffer.allocUnsafe(this.__byteLength((<boolean>__allowWitness)))
 
     let offset = initialOffset || 0
 
-    function writeSlice (slice) {
+    function writeSlice (slice: Buffer): void {
       offset += slice.copy(buffer, offset)
     }
 
-    function writeUInt8 (i) {
+    function writeUInt8 (i: number) {
       offset = (<Buffer>buffer).writeUInt8(i, offset)
     }
 
-    function writeUInt32 (i) {
+    function writeUInt32 (i: number) {
       offset = (<Buffer>buffer).writeUInt32LE(i, offset)
     }
 
-    function writeInt32 (i) {
+    function writeInt32 (i: number) {
       offset = (<Buffer>buffer).writeInt32LE(i, offset)
     }
 
-    function writeUInt64 (i) {
+    function writeUInt64 (i: number) {
       offset = bufferutils.writeUInt64LE(buffer, i, offset)
     }
 
-    function writeVarInt (i) {
+    function writeVarInt (i: number) {
       varuint.encode(i, buffer, offset)
       offset += varuint.encode.bytes
     }
 
-    function writeVarSlice (slice) {
+    function writeVarSlice (slice: Buffer) {
       writeVarInt(slice.length)
       writeSlice(slice)
     }
 
-    function writeVector (vector) {
+    function writeVector (vector: Array<Buffer>) {
       writeVarInt(vector.length)
       vector.forEach(writeVarSlice)
     }
@@ -555,13 +555,13 @@ export class Transaction {
     return this.toBuffer(undefined, undefined).toString('hex')
   }
 
-  setInputScript (index, scriptSig) {
+  setInputScript (index: number, scriptSig: Buffer) {
     typeforce(types.tuple(types.Number, types.Buffer), arguments)
 
     this.ins[index].script = scriptSig
   }
 
-  setWitness (index, witness) {
+  setWitness (index: number, witness: Array<Buffer>) {
     typeforce(types.tuple(types.Number, [types.Buffer]), arguments)
 
     this.ins[index].witness = witness

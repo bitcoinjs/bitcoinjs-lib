@@ -9,7 +9,7 @@
     ],
     "allowJs": false,
     "strict": false,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "strictNullChecks": false,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,

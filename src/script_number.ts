@@ -32,7 +32,7 @@ export function decode (buffer: Buffer, maxLength?: number, minimal?: boolean): 
   return result
 }
 
-function scriptNumSize (i) {
+function scriptNumSize (i: number): number {
   return i > 0x7fffffff ? 5
     : i > 0x7fffff ? 4
       : i > 0x7fff ? 3

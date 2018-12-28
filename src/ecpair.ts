@@ -1,9 +1,9 @@
 import { Network } from './networks'
 import * as NETWORKS from './networks'
+import * as types from './types'
 const ecc = require('tiny-secp256k1')
 const randomBytes = require('randombytes')
 const typeforce = require('typeforce')
-const types = require('./types')
 const wif = require('wif')
 
 const isOptions = typeforce.maybe(typeforce.compile({
@@ -14,7 +14,7 @@ const isOptions = typeforce.maybe(typeforce.compile({
 interface ECPairOptions {
   compressed?: boolean
   network?: Network
-  rng?(Buffer): Buffer
+  rng?(arg0: Buffer): Buffer
 }
 
 export interface ECPairInterface {
@@ -75,19 +75,19 @@ function fromPrivateKey (buffer: Buffer, options: ECPairOptions): ECPair {
   return new ECPair(buffer, null, options)
 }
 
-function fromPublicKey (buffer, options): ECPair {
+function fromPublicKey (buffer: Buffer, options: ECPairOptions): ECPair {
   typeforce(ecc.isPoint, buffer)
   typeforce(isOptions, options)
   return new ECPair(null, buffer, options)
 }
 
-function fromWIF (string, network): ECPair {
+function fromWIF (string: string, network: Network | Array<Network>): ECPair {
   const decoded = wif.decode(string)
   const version = decoded.version
 
   // list of networks?
   if (types.Array(network)) {
-    network = network.filter(function (x) {
+    network = (<Array<Network>>network).filter(function (x: Network) {
       return version === x.wif
     }).pop()
 
@@ -97,12 +97,12 @@ function fromWIF (string, network): ECPair {
   } else {
     network = network || NETWORKS.bitcoin
 
-    if (version !== network.wif) throw new Error('Invalid network version')
+    if (version !== (<Network>network).wif) throw new Error('Invalid network version')
   }
 
   return fromPrivateKey(decoded.privateKey, {
     compressed: decoded.compressed,
-    network: network
+    network: <Network>network
   })
 }
 

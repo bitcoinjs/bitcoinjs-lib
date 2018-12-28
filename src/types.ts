@@ -33,5 +33,17 @@ export const Network = typeforce.compile({
 export const Buffer256bit = typeforce.BufferN(32)
 export const Hash160bit = typeforce.BufferN(20)
 export const Hash256bit = typeforce.BufferN(32)
-export * from 'typeforce'
-export { Number, Array } from 'typeforce'
+export const Number = typeforce.Number
+export const Array = typeforce.Array
+export const Boolean = typeforce.Boolean
+export const String = typeforce.String
+export const Buffer = typeforce.Buffer
+export const Hex = typeforce.Hex
+export const maybe = typeforce.maybe
+export const tuple = typeforce.tuple
+export const UInt8 = typeforce.UInt8
+export const UInt32 = typeforce.UInt32
+export const Function = typeforce.Function
+export const BufferN = typeforce.BufferN
+export const Null = typeforce.Null
+export const oneOf = typeforce.oneOf

@@ -2,6 +2,7 @@ import { Network } from './networks'
 import * as networks from './networks'
 import { Transaction, Output } from './transaction'
 import { ECPairInterface } from './ecpair'
+import * as types from './types'
 const Buffer = require('safe-buffer').Buffer
 const baddress = require('./address')
 const bcrypto = require('./crypto')
@@ -9,7 +10,6 @@ const bscript = require('./script')
 const ops = require('bitcoin-ops')
 const payments = require('./payments')
 const typeforce = require('typeforce')
-const types = require('./types')
 const classify = require('./classify')
 const SCRIPT_TYPES = classify.types
 
@@ -53,7 +53,7 @@ function txIsTransaction(tx: Buffer | string | Transaction): tx is Transaction {
 export class TransactionBuilder {
   network: Network
   maximumFeeRate: number
-  private __prevTxSet: Object
+  private __prevTxSet: { [index: string]: boolean }
   private __inputs: Array<TxbInput>
   private __tx: Transaction
 
@@ -192,7 +192,7 @@ export class TransactionBuilder {
     return vin
   }
 
-  addOutput (scriptPubKey: string | Buffer, value): number {
+  addOutput (scriptPubKey: string | Buffer, value: number): number {
     if (!this.__canModifyOutputs()) {
       throw new Error('No, this would invalidate signatures')
     }
@@ -282,7 +282,7 @@ export class TransactionBuilder {
     }
 
     // ready to sign
-    let signatureHash
+    let signatureHash: Buffer
     if (input.hasWitness) {
       signatureHash = this.__tx.hashForWitnessV0(vin, input.signScript, input.value, hashType)
     } else {
@@ -573,7 +573,7 @@ function expandOutput (script: Buffer, ourPubKey?: Buffer): TxbOutput {
       return {
         type,
         pubkeys: p2ms.pubkeys,
-        signatures: p2ms.pubkeys.map(() => undefined),
+        signatures: p2ms.pubkeys.map((): undefined => undefined),
         maxSignatures: p2ms.m
       }
     }

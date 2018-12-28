@@ -1,7 +1,7 @@
+import * as types from './types'
 const bip66 = require('bip66')
 const Buffer = require('safe-buffer').Buffer
 const typeforce = require('typeforce')
-const types = require('./types')
 
 const ZERO = Buffer.alloc(1, 0)
 function toDER (x: Buffer): Buffer {

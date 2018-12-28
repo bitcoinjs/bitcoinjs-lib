@@ -1,9 +1,9 @@
 import { Transaction } from './transaction'
+import * as types from './types'
 const Buffer = require('safe-buffer').Buffer
 const bcrypto = require('./crypto')
 const fastMerkleRoot = require('merkle-lib/fastRoot')
 const typeforce = require('typeforce')
-const types = require('./types')
 const varuint = require('varuint-bitcoin')
 
 const errorMerkleNoTxes = new TypeError('Cannot compute merkle root for zero transactions')

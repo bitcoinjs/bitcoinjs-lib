@@ -1,9 +1,9 @@
+import * as types from './types'
 const Buffer = require('safe-buffer').Buffer
 const bip66 = require('bip66')
 const ecc = require('tiny-secp256k1')
 const pushdata = require('pushdata-bitcoin')
 const typeforce = require('typeforce')
-const types = require('./types')
 const scriptNumber = require('./script_number')
 
 const OPS = require('bitcoin-ops')
@@ -100,7 +100,7 @@ export function decompile (buffer: Buffer | Array<number | Buffer>): Array<numbe
 
   typeforce(types.Buffer, buffer)
 
-  const chunks = []
+  const chunks: Array<number | Buffer> = []
   let i = 0
 
   while (i < buffer.length) {
@@ -123,7 +123,7 @@ export function decompile (buffer: Buffer | Array<number | Buffer>): Array<numbe
       // decompile minimally
       const op = asMinimalOP(data)
       if (op !== undefined) {
-        chunks.push(op)
+        chunks.push(<number>op)
       } else {
         chunks.push(data)
       }
