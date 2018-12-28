@@ -1,4 +1,5 @@
-module.exports = {
-  output: require('./output')
+import * as output from './output'
+
+export {
+  output,
 }
-export {}

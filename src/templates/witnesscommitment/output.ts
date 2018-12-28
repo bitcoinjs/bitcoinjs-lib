@@ -1,14 +1,14 @@
 // OP_RETURN {aa21a9ed} {commitment}
 
+import * as bscript from '../../script'
+import * as types from '../../types'
 const Buffer = require('safe-buffer').Buffer
-const bscript = require('../../script')
-const types = require('../../types')
 const typeforce = require('typeforce')
 const OPS = require('bitcoin-ops')
 
-const HEADER = Buffer.from('aa21a9ed', 'hex')
+const HEADER: Buffer = Buffer.from('aa21a9ed', 'hex')
 
-function check (script) {
+export function check (script: Buffer | Array<number | Buffer>): boolean {
   const buffer = bscript.compile(script)
 
   return buffer.length > 37 &&
@@ -19,7 +19,7 @@ function check (script) {
 
 check.toJSON = function () { return 'Witness commitment output' }
 
-function encode (commitment) {
+export function encode (commitment: Buffer): Buffer {
   typeforce(types.Hash256bit, commitment)
 
   const buffer = Buffer.allocUnsafe(36)
@@ -29,15 +29,8 @@ function encode (commitment) {
   return bscript.compile([OPS.OP_RETURN, buffer])
 }
 
-function decode (buffer) {
+export function decode (buffer: Buffer): Buffer {
   typeforce(check, buffer)
 
-  return bscript.decompile(buffer)[1].slice(4, 36)
+  return (<Buffer>bscript.decompile(buffer)[1]).slice(4, 36)
 }
-
-module.exports = {
-  check: check,
-  decode: decode,
-  encode: encode
-}
-export {}
