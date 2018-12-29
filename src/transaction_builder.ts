@@ -279,7 +279,7 @@ export class TransactionBuilder {
       }
 
       if (!canSign(input)) {
-        const prepared = prepareInput(input, ourPubKey, redeemScript, witnessValue, witnessScript)
+        const prepared = prepareInput(input, ourPubKey, redeemScript, witnessScript)
 
         // updates inline
         Object.assign(input, prepared)
@@ -589,7 +589,7 @@ function expandOutput (script: Buffer, ourPubKey?: Buffer): TxbOutput {
   return { type }
 }
 
-function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer, witnessValue: number, witnessScript: Buffer): TxbInput {
+function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer, witnessScript: Buffer): TxbInput {
   if (redeemScript && witnessScript) {
     const p2wsh = <Payment> payments.p2wsh({ redeem: { output: witnessScript } })
     const p2wshAlt = <Payment> payments.p2wsh({ output: redeemScript })
