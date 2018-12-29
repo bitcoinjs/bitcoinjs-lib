@@ -4,7 +4,7 @@ import * as types from './types'
 import * as bscript from './script'
 import * as networks from './networks'
 import * as payments from './payments'
-const Buffer = require('safe-buffer').Buffer
+
 const bech32 = require('bech32')
 const bs58check = require('bs58check')
 const typeforce = require('typeforce')

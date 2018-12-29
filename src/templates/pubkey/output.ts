@@ -1,7 +1,7 @@
 // {pubKey} OP_CHECKSIG
 
 import * as bscript from '../../script'
-const OPS = require('bitcoin-ops')
+import { OPS } from '../../script'
 
 export function check (script: Buffer | Array<number | Buffer>): boolean {
   const chunks = <Array<number | Buffer>>bscript.decompile(script)

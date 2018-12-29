@@ -3,7 +3,7 @@ import * as bscript from '../script'
 import * as lazy from './lazy'
 import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
-const OPS = require('bitcoin-ops')
+import { OPS } from '../script'
 const ecc = require('tiny-secp256k1')
 
 const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
@@ -87,7 +87,7 @@ export function p2ms (a: Payment, opts?: PaymentOpts): Payment {
   })
   lazy.prop(o, 'input', function () {
     if (!a.signatures) return
-    return bscript.compile([OPS.OP_0].concat(a.signatures))
+    return bscript.compile((<Array<Buffer | number>>[OPS.OP_0]).concat(a.signatures))
   })
   lazy.prop(o, 'witness', function () {
     if (!o.input) return

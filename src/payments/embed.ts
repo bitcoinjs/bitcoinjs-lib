@@ -3,7 +3,7 @@ import * as bscript from '../script'
 import * as lazy from './lazy'
 import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
-const OPS = require('bitcoin-ops')
+import { OPS } from '../script'
 
 function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
   if (a.length !== b.length) return false
@@ -32,7 +32,7 @@ export function p2data (a: Payment, opts?: PaymentOpts): Payment {
 
   lazy.prop(o, 'output', function () {
     if (!a.data) return
-    return bscript.compile([OPS.OP_RETURN].concat(a.data))
+    return bscript.compile((<Array<Buffer | number>>[OPS.OP_RETURN]).concat(a.data))
   })
   lazy.prop(o, 'data', function () {
     if (!a.output) return

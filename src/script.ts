@@ -1,14 +1,15 @@
 import * as types from './types'
 import * as scriptNumber from './script_number'
 import * as scriptSignature from './script_signature'
-const Buffer = require('safe-buffer').Buffer
 const bip66 = require('bip66')
 const ecc = require('tiny-secp256k1')
 const pushdata = require('pushdata-bitcoin')
 const typeforce = require('typeforce')
 
-const OPS = require('bitcoin-ops')
-const REVERSE_OPS = require('bitcoin-ops/map')
+export type OpCode = number
+export const OPS = <{[index:string]: OpCode}> require('bitcoin-ops')
+
+const REVERSE_OPS = <{[index:number]: string}> require('bitcoin-ops/map')
 const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 function isOPInt (value:number): boolean {

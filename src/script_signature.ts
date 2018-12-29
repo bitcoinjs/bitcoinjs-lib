@@ -1,6 +1,6 @@
 import * as types from './types'
 const bip66 = require('bip66')
-const Buffer = require('safe-buffer').Buffer
+
 const typeforce = require('typeforce')
 
 const ZERO = Buffer.alloc(1, 0)

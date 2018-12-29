@@ -1,7 +1,7 @@
 // OP_HASH160 {scriptHash} OP_EQUAL
 
 import * as bscript from '../../script'
-const OPS = require('bitcoin-ops')
+import { OPS } from '../../script'
 
 export function check (script: Buffer | Array<number | Buffer>): boolean {
   const buffer = bscript.compile(script)

@@ -1,4 +1,3 @@
-const opcodes = require('bitcoin-ops')
 const bip32 = require('bip32')
 
 import { Block } from './block'
@@ -10,6 +9,7 @@ import * as crypto from './crypto'
 import * as networks from './networks'
 import * as payments from './payments'
 import * as script from './script'
+import { OPS as opcodes } from './script'
 
 export {
   Block,

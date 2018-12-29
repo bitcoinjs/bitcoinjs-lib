@@ -3,8 +3,8 @@ import * as bscript from './script'
 import * as types from './types'
 import * as bufferutils from './bufferutils'
 import { reverseBuffer } from './bufferutils'
-const Buffer = require('safe-buffer').Buffer
-const opcodes = require('bitcoin-ops')
+import { OPS as opcodes } from './script'
+
 const typeforce = require('typeforce')
 const varuint = require('varuint-bitcoin')
 

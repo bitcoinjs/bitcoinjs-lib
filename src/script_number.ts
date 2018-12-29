@@ -1,4 +1,4 @@
-const Buffer = require('safe-buffer').Buffer
+
 
 export function decode (buffer: Buffer, maxLength?: number, minimal?: boolean): number {
   maxLength = maxLength || 4

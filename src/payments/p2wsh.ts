@@ -5,7 +5,7 @@ import * as bcrypto from '../crypto'
 import * as lazy from './lazy'
 import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
-const OPS = require('bitcoin-ops')
+import { OPS } from '../script'
 
 const bech32 = require('bech32')
 

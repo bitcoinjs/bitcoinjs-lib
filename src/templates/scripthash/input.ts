@@ -7,7 +7,7 @@ import * as p2pkh from '../pubkeyhash'
 import * as p2wpkho from '../witnesspubkeyhash/output'
 import * as p2wsho from '../witnessscripthash/output'
 
-const Buffer = require('safe-buffer').Buffer
+
 
 export function check (script: Buffer | Array<number | Buffer>, allowIncomplete?: boolean): boolean {
   const chunks = <Array<number | Buffer>>bscript.decompile(script)

@@ -11,9 +11,9 @@ import * as bscript from './script'
 import { Payment } from './payments'
 import * as payments from './payments'
 import * as classify from './classify'
-const ops = require('bitcoin-ops')
+import { OPS as ops } from './script'
 const typeforce = require('typeforce')
-const Buffer = require('safe-buffer').Buffer
+
 const SCRIPT_TYPES = classify.types
 
 

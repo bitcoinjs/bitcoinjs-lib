@@ -50,7 +50,6 @@
     "merkle-lib": "^2.0.10",
     "pushdata-bitcoin": "^1.0.1",
     "randombytes": "^2.0.1",
-    "safe-buffer": "^5.1.1",
     "tiny-secp256k1": "^1.0.0",
     "typeforce": "^1.11.3",
     "typescript": "^3.2.2",

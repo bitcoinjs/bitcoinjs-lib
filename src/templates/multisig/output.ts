@@ -2,7 +2,7 @@
 
 import * as bscript from '../../script'
 import * as types from '../../types'
-const OPS = require('bitcoin-ops')
+import { OPS } from '../../script'
 const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
 
 export function check (script: Buffer | Array<number | Buffer>, allowIncomplete?: boolean): boolean {

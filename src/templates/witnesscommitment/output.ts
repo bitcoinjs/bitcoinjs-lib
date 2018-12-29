@@ -2,9 +2,9 @@
 
 import * as bscript from '../../script'
 import * as types from '../../types'
-const Buffer = require('safe-buffer').Buffer
+
 const typeforce = require('typeforce')
-const OPS = require('bitcoin-ops')
+import { OPS } from '../../script'
 
 const HEADER: Buffer = Buffer.from('aa21a9ed', 'hex')
 

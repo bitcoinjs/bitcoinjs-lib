@@ -2,7 +2,7 @@ import { Transaction } from './transaction'
 import * as types from './types'
 import * as bcrypto from './crypto'
 import { reverseBuffer } from './bufferutils'
-const Buffer = require('safe-buffer').Buffer
+
 const fastMerkleRoot = require('merkle-lib/fastRoot')
 const typeforce = require('typeforce')
 const varuint = require('varuint-bitcoin')

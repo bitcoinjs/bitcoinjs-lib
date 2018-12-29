@@ -1,7 +1,7 @@
 // OP_0 [signatures ...]
 
 import * as bscript from '../../script'
-const OPS = require('bitcoin-ops')
+import { OPS } from '../../script'
 
 function partialSignature (value: number | Buffer): boolean {
   return value === OPS.OP_0 || bscript.isCanonicalScriptSignature(<Buffer>value)
