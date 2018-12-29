@@ -1,10 +1,11 @@
 import * as types from './types'
+import * as scriptNumber from './script_number'
+import * as scriptSignature from './script_signature'
 const Buffer = require('safe-buffer').Buffer
 const bip66 = require('bip66')
 const ecc = require('tiny-secp256k1')
 const pushdata = require('pushdata-bitcoin')
 const typeforce = require('typeforce')
-const scriptNumber = require('./script_number')
 
 const OPS = require('bitcoin-ops')
 const REVERSE_OPS = require('bitcoin-ops/map')
@@ -200,5 +201,5 @@ export function isCanonicalScriptSignature (buffer: Buffer): boolean {
   return bip66.check(buffer.slice(0, -1))
 }
 
-export const number = require('./script_number')
-export const signature = require('./script_signature')
+export const number = scriptNumber
+export const signature = scriptSignature

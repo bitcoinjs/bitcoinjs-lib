@@ -14,7 +14,7 @@ function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
 }
 
 // output: OP_RETURN ...
-export function p2data (a: Payment, opts: PaymentOpts): Payment {
+export function p2data (a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.data &&
     !a.output

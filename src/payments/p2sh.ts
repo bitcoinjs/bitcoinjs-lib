@@ -20,7 +20,7 @@ function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
 // input: [redeemScriptSig ...] {redeemScript}
 // witness: <?>
 // output: OP_HASH160 {hash160(redeemScript)} OP_EQUAL
-export function p2sh (a: Payment, opts: PaymentOpts): Payment {
+export function p2sh (a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.address &&
     !a.hash &&

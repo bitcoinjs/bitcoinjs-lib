@@ -67,18 +67,18 @@ class ECPair implements ECPairInterface {
   }
 }
 
-function fromPrivateKey (buffer: Buffer, options: ECPairOptions): ECPair {
+function fromPrivateKey (buffer: Buffer, options?: ECPairOptions): ECPair {
   typeforce(types.Buffer256bit, buffer)
   if (!ecc.isPrivate(buffer)) throw new TypeError('Private key not in range [1, n)')
   typeforce(isOptions, options)
 
-  return new ECPair(buffer, null, options)
+  return new ECPair(buffer, null, <ECPairOptions>options)
 }
 
-function fromPublicKey (buffer: Buffer, options: ECPairOptions): ECPair {
+function fromPublicKey (buffer: Buffer, options?: ECPairOptions): ECPair {
   typeforce(ecc.isPoint, buffer)
   typeforce(isOptions, options)
-  return new ECPair(null, buffer, options)
+  return new ECPair(null, buffer, <ECPairOptions>options)
 }
 
 function fromWIF (string: string, network: Network | Array<Network>): ECPair {
@@ -106,7 +106,7 @@ function fromWIF (string: string, network: Network | Array<Network>): ECPair {
   })
 }
 
-function makeRandom (options: ECPairOptions): ECPair {
+function makeRandom (options?: ECPairOptions): ECPair {
   typeforce(isOptions, options)
   if (options === undefined) options = {}
   const rng = options.rng || randomBytes

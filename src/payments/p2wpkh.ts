@@ -14,7 +14,7 @@ const EMPTY_BUFFER = Buffer.alloc(0)
 // witness: {signature} {pubKey}
 // input: <>
 // output: OP_0 {pubKeyHash}
-export function p2wpkh (a: Payment, opts: PaymentOpts): Payment {
+export function p2wpkh (a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.address &&
     !a.hash &&

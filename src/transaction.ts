@@ -1,8 +1,8 @@
 import * as bcrypto from './crypto'
 import * as bscript from './script'
 import * as types from './types'
+import * as bufferutils from './bufferutils'
 const Buffer = require('safe-buffer').Buffer
-const bufferutils = require('./bufferutils')
 const opcodes = require('bitcoin-ops')
 const typeforce = require('typeforce')
 const varuint = require('varuint-bitcoin')
@@ -491,7 +491,7 @@ export class Transaction {
     }
 
     function writeUInt64 (i: number) {
-      offset = bufferutils.writeUInt64LE(buffer, i, offset)
+      offset = bufferutils.writeUInt64LE(<Buffer>buffer, i, offset)
     }
 
     function writeVarInt (i: number) {

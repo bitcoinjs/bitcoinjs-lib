@@ -11,7 +11,7 @@ const bs58check = require('bs58check')
 
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
-export function p2pkh (a: Payment, opts: PaymentOpts): Payment {
+export function p2pkh (a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.address &&
     !a.hash &&

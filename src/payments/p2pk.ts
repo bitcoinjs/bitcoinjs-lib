@@ -8,7 +8,7 @@ const ecc = require('tiny-secp256k1')
 
 // input: {signature}
 // output: {pubKey} OP_CHECKSIG
-export function p2pk (a: Payment, opts: PaymentOpts): Payment {
+export function p2pk (a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.input &&
     !a.output &&

@@ -18,7 +18,7 @@ function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
 
 // input: OP_0 [signatures ...]
 // output: m [pubKeys ...] n OP_CHECKMULTISIG
-export function p2ms (a: Payment, opts: PaymentOpts): Payment {
+export function p2ms (a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.input &&
     !a.output &&
@@ -28,7 +28,7 @@ export function p2ms (a: Payment, opts: PaymentOpts): Payment {
   opts = Object.assign({ validate: true }, opts || {})
 
   function isAcceptableSignature (x: Buffer | number) {
-    return bscript.isCanonicalScriptSignature(<Buffer>x) || (opts.allowIncomplete && (<number>x === OPS.OP_0)) !== undefined
+    return bscript.isCanonicalScriptSignature(<Buffer>x) || ((<PaymentOpts>opts).allowIncomplete && (<number>x === OPS.OP_0)) !== undefined
   }
 
   typef({

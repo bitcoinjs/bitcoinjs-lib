@@ -2,18 +2,19 @@ import { Network } from './networks'
 import * as networks from './networks'
 import { Transaction, Output } from './transaction'
 import { ECPairInterface } from './ecpair'
+import * as ECPair from './ecpair'
 import * as types from './types'
-const Buffer = require('safe-buffer').Buffer
-const baddress = require('./address')
-const bcrypto = require('./crypto')
-const bscript = require('./script')
+import * as baddress from './address'
+import * as bcrypto from './crypto'
+import * as bscript from './script'
+import { Payment } from './payments'
+import * as payments from './payments'
+import * as classify from './classify'
 const ops = require('bitcoin-ops')
-const payments = require('./payments')
 const typeforce = require('typeforce')
-const classify = require('./classify')
+const Buffer = require('safe-buffer').Buffer
 const SCRIPT_TYPES = classify.types
 
-const ECPair = require('./ecpair')
 
 interface TxbInput {
   value?: number
@@ -24,7 +25,7 @@ interface TxbInput {
   redeemScript?: Buffer
   redeemScriptType?: string
   prevOutType?: string
-  pubkeys?: Array<Buffer> | Array<undefined>
+  pubkeys?: Array<Buffer | undefined>
   signatures?: Array<Buffer> | Array<Buffer | undefined>
   witness?: Array<Buffer>
   witnessScript?: Buffer
@@ -37,7 +38,7 @@ interface TxbInput {
 
 interface TxbOutput {
   type: string
-  pubkeys?: Array<Buffer>
+  pubkeys?: Array<Buffer | undefined>
   signatures?: Array<Buffer> | Array<Buffer | undefined>
   maxSignatures?: number
 }
@@ -232,8 +233,8 @@ export class TransactionBuilder {
         return
       }
 
-      tx.setInputScript(i, result.input)
-      tx.setWitness(i, result.witness)
+      tx.setInputScript(i, <Buffer>result.input)
+      tx.setWitness(i, <Array<Buffer>>result.witness)
     })
 
     if (!allowIncomplete) {
@@ -381,8 +382,8 @@ export class TransactionBuilder {
 function expandInput (scriptSig: Buffer, witnessStack: Array<Buffer>, type?: string, scriptPubKey?: Buffer): TxbInput {
   if (scriptSig.length === 0 && witnessStack.length === 0) return {}
   if (!type) {
-    let ssType = classify.input(scriptSig, true)
-    let wsType = classify.witness(witnessStack, true)
+    let ssType: string | undefined = classify.input(scriptSig, true)
+    let wsType: string | undefined = classify.witness(witnessStack, true)
     if (ssType === SCRIPT_TYPES.NONSTANDARD) ssType = undefined
     if (wsType === SCRIPT_TYPES.NONSTANDARD) wsType = undefined
     type = ssType || wsType
@@ -442,14 +443,14 @@ function expandInput (scriptSig: Buffer, witnessStack: Array<Buffer>, type?: str
       witness: witnessStack
     })
 
-    const outputType = classify.output(redeem.output)
-    const expanded = expandInput(redeem.input, redeem.witness, outputType, redeem.output)
+    const outputType = classify.output(<Buffer>(<Payment>redeem).output)
+    const expanded = expandInput(<Buffer>(<Payment>redeem).input, <Array<Buffer>>(<Payment>redeem).witness, outputType, (<Payment>redeem).output)
     if (!expanded.prevOutType) return {}
 
     return {
       prevOutScript: output,
       prevOutType: SCRIPT_TYPES.P2SH,
-      redeemScript: redeem.output,
+      redeemScript: (<Payment>redeem).output,
       redeemScriptType: expanded.prevOutType,
       witnessScript: expanded.witnessScript,
       witnessScriptType: expanded.witnessScriptType,
@@ -464,19 +465,19 @@ function expandInput (scriptSig: Buffer, witnessStack: Array<Buffer>, type?: str
       input: scriptSig,
       witness: witnessStack
     })
-    const outputType = classify.output(redeem.output)
+    const outputType = classify.output(<Buffer>(<Payment>redeem).output)
     let expanded
     if (outputType === SCRIPT_TYPES.P2WPKH) {
-      expanded = expandInput(redeem.input, redeem.witness, outputType)
+      expanded = expandInput(<Buffer>(<Payment>redeem).input, <Array<Buffer>>(<Payment>redeem).witness, outputType)
     } else {
-      expanded = expandInput(bscript.compile(redeem.witness), [], outputType, redeem.output)
+      expanded = expandInput(bscript.compile(<Array<Buffer>>(<Payment>redeem).witness), [], outputType, (<Payment>redeem).output)
     }
     if (!expanded.prevOutType) return {}
 
     return {
       prevOutScript: output,
       prevOutType: SCRIPT_TYPES.P2WSH,
-      witnessScript: redeem.output,
+      witnessScript: (<Payment>redeem).output,
       witnessScriptType: expanded.prevOutType,
 
       pubkeys: expanded.pubkeys,
@@ -535,7 +536,7 @@ function expandOutput (script: Buffer, ourPubKey?: Buffer): TxbOutput {
       // does our hash160(pubKey) match the output scripts?
       const pkh1 = payments.p2pkh({ output: script }).hash
       const pkh2 = bcrypto.hash160(ourPubKey)
-      if (!pkh1.equals(pkh2)) return { type }
+      if (!(<Buffer>pkh1).equals(pkh2)) return { type }
 
       return {
         type,
@@ -550,7 +551,7 @@ function expandOutput (script: Buffer, ourPubKey?: Buffer): TxbOutput {
       // does our hash160(pubKey) match the output scripts?
       const wpkh1 = payments.p2wpkh({ output: script }).hash
       const wpkh2 = bcrypto.hash160(ourPubKey)
-      if (!wpkh1.equals(wpkh2)) return { type }
+      if (!(<Buffer>wpkh1).equals(wpkh2)) return { type }
 
       return {
         type,
@@ -573,7 +574,7 @@ function expandOutput (script: Buffer, ourPubKey?: Buffer): TxbOutput {
       return {
         type,
         pubkeys: p2ms.pubkeys,
-        signatures: p2ms.pubkeys.map((): undefined => undefined),
+        signatures: (<Array<Buffer>>p2ms.pubkeys).map((): undefined => undefined),
         maxSignatures: p2ms.m
       }
     }
@@ -584,16 +585,16 @@ function expandOutput (script: Buffer, ourPubKey?: Buffer): TxbOutput {
 
 function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer, witnessValue: number, witnessScript: Buffer): TxbInput {
   if (redeemScript && witnessScript) {
-    const p2wsh = payments.p2wsh({ redeem: { output: witnessScript } })
-    const p2wshAlt = payments.p2wsh({ output: redeemScript })
-    const p2sh = payments.p2sh({ redeem: { output: redeemScript } })
-    const p2shAlt = payments.p2sh({ redeem: p2wsh })
+    const p2wsh = <Payment> payments.p2wsh({ redeem: { output: witnessScript } })
+    const p2wshAlt = <Payment> payments.p2wsh({ output: redeemScript })
+    const p2sh = <Payment> payments.p2sh({ redeem: { output: redeemScript } })
+    const p2shAlt = <Payment> payments.p2sh({ redeem: p2wsh })
 
     // enforces P2SH(P2WSH(...))
-    if (!p2wsh.hash.equals(p2wshAlt.hash)) throw new Error('Witness script inconsistent with prevOutScript')
-    if (!p2sh.hash.equals(p2shAlt.hash)) throw new Error('Redeem script inconsistent with prevOutScript')
+    if (!(<Buffer>p2wsh.hash).equals(<Buffer>p2wshAlt.hash)) throw new Error('Witness script inconsistent with prevOutScript')
+    if (!(<Buffer>p2sh.hash).equals(<Buffer>p2shAlt.hash)) throw new Error('Redeem script inconsistent with prevOutScript')
 
-    const expanded = expandOutput(p2wsh.redeem.output, ourPubKey)
+    const expanded = expandOutput(<Buffer>(<Payment>p2wsh.redeem).output, ourPubKey)
     if (!expanded.pubkeys) throw new Error(expanded.type + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')')
     if (input.signatures && input.signatures.some(x => x !== undefined)) {
       expanded.signatures = input.signatures
@@ -623,17 +624,17 @@ function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer,
   }
 
   if (redeemScript) {
-    const p2sh = payments.p2sh({ redeem: { output: redeemScript } })
+    const p2sh = <Payment> payments.p2sh({ redeem: { output: redeemScript } })
 
     if (input.prevOutScript) {
       let p2shAlt
       try {
-        p2shAlt = payments.p2sh({ output: input.prevOutScript })
+        p2shAlt = <Payment> payments.p2sh({ output: input.prevOutScript })
       } catch (e) { throw new Error('PrevOutScript must be P2SH') }
-      if (!p2sh.hash.equals(p2shAlt.hash)) throw new Error('Redeem script inconsistent with prevOutScript')
+      if (!(<Buffer>p2sh.hash).equals(<Buffer>p2shAlt.hash)) throw new Error('Redeem script inconsistent with prevOutScript')
     }
 
-    const expanded = expandOutput(p2sh.redeem.output, ourPubKey)
+    const expanded = expandOutput(<Buffer>(<Payment>p2sh.redeem).output, ourPubKey)
     if (!expanded.pubkeys) throw new Error(expanded.type + ' not supported as redeemScript (' + bscript.toASM(redeemScript) + ')')
     if (input.signatures && input.signatures.some(x => x !== undefined)) {
       expanded.signatures = input.signatures
@@ -641,7 +642,7 @@ function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer,
 
     let signScript = redeemScript
     if (expanded.type === SCRIPT_TYPES.P2WPKH) {
-      signScript = payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output
+      signScript = <Buffer> payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output
     }
 
     return {
@@ -662,14 +663,14 @@ function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer,
   }
 
   if (witnessScript) {
-    const p2wsh = payments.p2wsh({ redeem: { output: witnessScript } })
+    const p2wsh = <Payment> payments.p2wsh({ redeem: { output: witnessScript } })
 
     if (input.prevOutScript) {
       const p2wshAlt = payments.p2wsh({ output: input.prevOutScript })
-      if (!p2wsh.hash.equals(p2wshAlt.hash)) throw new Error('Witness script inconsistent with prevOutScript')
+      if (!(<Buffer>p2wsh.hash).equals(<Buffer>p2wshAlt.hash)) throw new Error('Witness script inconsistent with prevOutScript')
     }
 
-    const expanded = expandOutput(p2wsh.redeem.output, ourPubKey)
+    const expanded = expandOutput(<Buffer>(<Payment>p2wsh.redeem).output, ourPubKey)
     if (!expanded.pubkeys) throw new Error(expanded.type + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')')
     if (input.signatures && input.signatures.some(x => x !== undefined)) {
       expanded.signatures = input.signatures
@@ -709,7 +710,7 @@ function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer,
 
     let signScript = input.prevOutScript
     if (expanded.type === SCRIPT_TYPES.P2WPKH) {
-      signScript = payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output
+      signScript = <Buffer> payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output
     }
 
     return {
@@ -740,9 +741,9 @@ function prepareInput (input: TxbInput, ourPubKey: Buffer, redeemScript: Buffer,
   }
 }
 
-function build (type: string, input: TxbInput, allowIncomplete?: boolean): any { //TODO payment type
-  const pubkeys = input.pubkeys || []
-  let signatures = input.signatures || []
+function build (type: string, input: TxbInput, allowIncomplete?: boolean): Payment | undefined {
+  const pubkeys = <Array<Buffer>>(input.pubkeys || [])
+  let signatures = <Array<Buffer>>(input.signatures || [])
 
   switch (type) {
     case SCRIPT_TYPES.P2PKH: {
