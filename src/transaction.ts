@@ -2,6 +2,7 @@ import * as bcrypto from './crypto'
 import * as bscript from './script'
 import * as types from './types'
 import * as bufferutils from './bufferutils'
+import { reverseBuffer } from './bufferutils'
 const Buffer = require('safe-buffer').Buffer
 const opcodes = require('bitcoin-ops')
 const typeforce = require('typeforce')
@@ -74,7 +75,7 @@ export class Transaction {
     this.outs = []
   }
 
-  static fromBuffer (buffer: Buffer, __noStrict: boolean): Transaction {
+  static fromBuffer (buffer: Buffer, __noStrict?: boolean): Transaction {
     let offset: number = 0
 
     function readSlice (n: number): Buffer {
@@ -234,7 +235,7 @@ export class Transaction {
     return this.__byteLength(true)
   }
 
-  __byteLength (__allowWitness: boolean): number {
+  private __byteLength (__allowWitness: boolean): number {
     const hasWitnesses = __allowWitness && this.hasWitnesses()
 
     return (
@@ -454,7 +455,7 @@ export class Transaction {
     return bcrypto.hash256(tbuffer)
   }
 
-  getHash (forWitness: boolean): Buffer {
+  getHash (forWitness?: boolean): Buffer {
     // wtxid for coinbase is always 32 bytes of 0x00
     if (forWitness && this.isCoinbase()) return Buffer.alloc(32, 0)
     return bcrypto.hash256(this.__toBuffer(undefined, undefined, forWitness))
@@ -462,14 +463,14 @@ export class Transaction {
 
   getId (): string {
     // transaction hash's are displayed in reverse order
-    return Buffer.from(this.getHash(false).reverse()).toString('hex')
+    return reverseBuffer(this.getHash(false)).toString('hex')
   }
 
   toBuffer (buffer?: Buffer, initialOffset?: number): Buffer {
     return this.__toBuffer(buffer, initialOffset, true)
   }
 
-  __toBuffer (buffer?: Buffer, initialOffset?: number, __allowWitness?: boolean): Buffer {
+  private __toBuffer (buffer?: Buffer, initialOffset?: number, __allowWitness?: boolean): Buffer {
     if (!buffer) buffer = <Buffer> Buffer.allocUnsafe(this.__byteLength((<boolean>__allowWitness)))
 
     let offset = initialOffset || 0

@@ -22,3 +22,16 @@ export function writeUInt64LE (buffer: Buffer, value: number, offset: number): n
   buffer.writeUInt32LE(Math.floor(value / 0x100000000), offset + 4)
   return offset + 8
 }
+
+export function reverseBuffer (buffer: Buffer): Buffer {
+  if (buffer.length < 1) return buffer
+  let j = buffer.length - 1
+  let tmp = 0
+  for (let i = 0; i < buffer.length / 2; i++) {
+    tmp = buffer[i]
+    buffer[i] = buffer[j]
+    buffer[j] = tmp
+    j--
+  }
+  return buffer
+}

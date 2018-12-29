@@ -33,14 +33,16 @@ class ECPair implements ECPairInterface {
   network: Network
   private __d: Buffer | null
   private __Q: Buffer | null
-  constructor (d: Buffer | null, Q: Buffer | null, options: ECPairOptions) {
+
+  constructor (d?: Buffer, Q?: Buffer, options?: ECPairOptions) {
     if (options === undefined) options = {}
     this.compressed = options.compressed === undefined ? true : options.compressed
     this.network = options.network || NETWORKS.bitcoin
 
-    this.__d = d || null
+    this.__d = null
     this.__Q = null
-    if (Q) this.__Q = ecc.pointCompress(Q, this.compressed)
+    if (d !== undefined) this.__d = d
+    if (Q !== undefined) this.__Q = ecc.pointCompress(Q, this.compressed)
   }
 
   get privateKey (): Buffer | null {
@@ -72,16 +74,16 @@ function fromPrivateKey (buffer: Buffer, options?: ECPairOptions): ECPair {
   if (!ecc.isPrivate(buffer)) throw new TypeError('Private key not in range [1, n)')
   typeforce(isOptions, options)
 
-  return new ECPair(buffer, null, <ECPairOptions>options)
+  return new ECPair(buffer, undefined, <ECPairOptions>options)
 }
 
 function fromPublicKey (buffer: Buffer, options?: ECPairOptions): ECPair {
   typeforce(ecc.isPoint, buffer)
   typeforce(isOptions, options)
-  return new ECPair(null, buffer, <ECPairOptions>options)
+  return new ECPair(undefined, buffer, <ECPairOptions>options)
 }
 
-function fromWIF (string: string, network: Network | Array<Network>): ECPair {
+function fromWIF (string: string, network?: Network | Array<Network>): ECPair {
   const decoded = wif.decode(string)
   const version = decoded.version
 

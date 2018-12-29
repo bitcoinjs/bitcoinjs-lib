@@ -1,6 +1,7 @@
 import { Transaction } from './transaction'
 import * as types from './types'
 import * as bcrypto from './crypto'
+import { reverseBuffer } from './bufferutils'
 const Buffer = require('safe-buffer').Buffer
 const fastMerkleRoot = require('merkle-lib/fastRoot')
 const typeforce = require('typeforce')
@@ -153,7 +154,7 @@ export class Block {
   }
 
   getId (): string {
-    return Buffer.from(this.getHash().reverse()).toString('hex')
+    return reverseBuffer(this.getHash()).toString('hex')
   }
 
   getUTCDate (): Date {
@@ -223,7 +224,7 @@ export class Block {
   }
 
   checkProofOfWork (): boolean {
-    const hash: Buffer = Buffer.from(this.getHash().reverse())
+    const hash: Buffer = reverseBuffer(this.getHash())
     const target = Block.calculateTarget(this.bits)
 
     return hash.compare(target) <= 0

@@ -1,5 +1,6 @@
 import { Network } from './networks'
 import * as networks from './networks'
+import { reverseBuffer } from './bufferutils'
 import { Transaction, Output } from './transaction'
 import { ECPairInterface } from './ecpair'
 import * as ECPair from './ecpair'
@@ -131,7 +132,7 @@ export class TransactionBuilder {
     // is it a hex string?
     if (txIsString(txHash)) {
       // transaction hashs's are displayed in reverse order, un-reverse it
-      txHash = <Buffer> Buffer.from(txHash, 'hex').reverse()
+      txHash = reverseBuffer(Buffer.from(txHash, 'hex'))
 
     // is it a Transaction object?
     } else if (txIsTransaction(txHash)) {
