@@ -217,7 +217,7 @@ function expandOutput (script, ourPubKey) {
   return { type }
 }
 
-function prepareInput (input, ourPubKey, redeemScript, witnessValue, witnessScript) {
+function prepareInput (input, ourPubKey, redeemScript, witnessScript) {
   if (redeemScript && witnessScript) {
     const p2wsh = payments.p2wsh({ redeem: { output: witnessScript } })
     const p2wshAlt = payments.p2wsh({ output: redeemScript })
@@ -665,7 +665,7 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
     }
 
     if (!canSign(input)) {
-      const prepared = prepareInput(input, ourPubKey, redeemScript, witnessValue, witnessScript)
+      const prepared = prepareInput(input, ourPubKey, redeemScript, witnessScript)
 
       // updates inline
       Object.assign(input, prepared)
