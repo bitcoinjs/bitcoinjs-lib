@@ -16,7 +16,7 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "esModuleInterop": true
+    "esModuleInterop": false
   },
   "include": [
       "src/**/*"
