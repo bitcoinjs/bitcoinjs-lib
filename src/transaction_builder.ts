@@ -16,31 +16,36 @@ const typeforce = require('typeforce')
 
 const SCRIPT_TYPES = classify.types
 
+type TxbSignatures = Array<Buffer> | Array<Buffer | undefined>
+type TxbPubkeys = Array<Buffer | undefined>
+type TxbWitness = Array<Buffer>
+type TxbScriptType = string
+type TxbScript = Buffer
 
 interface TxbInput {
   value?: number
   hasWitness?: boolean
-  signScript?: Buffer
-  signType?: string
-  prevOutScript?: Buffer
-  redeemScript?: Buffer
-  redeemScriptType?: string
-  prevOutType?: string
-  pubkeys?: Array<Buffer | undefined>
-  signatures?: Array<Buffer> | Array<Buffer | undefined>
-  witness?: Array<Buffer>
-  witnessScript?: Buffer
-  witnessScriptType?: string
-  script?: Buffer
+  signScript?: TxbScript
+  signType?: TxbScriptType
+  prevOutScript?: TxbScript
+  redeemScript?: TxbScript
+  redeemScriptType?: TxbScriptType
+  prevOutType?: TxbScriptType
+  pubkeys?: TxbPubkeys
+  signatures?: TxbSignatures
+  witness?: TxbWitness
+  witnessScript?: TxbScript
+  witnessScriptType?: TxbScriptType
+  script?: TxbScript
   sequence?: number
-  scriptSig?: Buffer
+  scriptSig?: TxbScript
   maxSignatures?: number
 }
 
 interface TxbOutput {
   type: string
-  pubkeys?: Array<Buffer | undefined>
-  signatures?: Array<Buffer> | Array<Buffer | undefined>
+  pubkeys?: TxbPubkeys
+  signatures?: TxbSignatures
   maxSignatures?: number
 }
 
