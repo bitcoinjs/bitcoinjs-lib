@@ -1,4 +1,4 @@
-import { Network } from '../networks'
+import { Network } from '../networks' // eslint-disable-line
 import { p2data as embed } from './embed'
 import { p2ms } from './p2ms'
 import { p2pk } from './p2pk'

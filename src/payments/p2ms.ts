@@ -1,9 +1,9 @@
-import { Payment, PaymentOpts } from './index'
+import { Payment, PaymentOpts } from './index' // eslint-disable-line
 import * as bscript from '../script'
 import * as lazy from './lazy'
 import { bitcoin as BITCOIN_NETWORK } from '../networks'
+const OPS = bscript.OPS
 const typef = require('typeforce')
-import { OPS } from '../script'
 const ecc = require('tiny-secp256k1')
 
 const OP_INT_BASE = OPS.OP_RESERVED // OP_1 - 1
@@ -28,7 +28,9 @@ export function p2ms (a: Payment, opts?: PaymentOpts): Payment {
   opts = Object.assign({ validate: true }, opts || {})
 
   function isAcceptableSignature (x: Buffer | number) {
-    return bscript.isCanonicalScriptSignature(<Buffer>x) || ((<PaymentOpts>opts).allowIncomplete && (<number>x === OPS.OP_0)) !== undefined
+    return bscript.isCanonicalScriptSignature(<Buffer>x) ||
+      ((<PaymentOpts>opts).allowIncomplete &&
+      (<number> x === OPS.OP_0)) !== undefined // eslint-disable-line
   }
 
   typef({
@@ -51,8 +53,8 @@ export function p2ms (a: Payment, opts?: PaymentOpts): Payment {
     if (decoded) return
     decoded = true
     chunks = <Array<Buffer | number>>bscript.decompile(output)
-    o.m = <number>chunks[0] - OP_INT_BASE
-    o.n = <number>chunks[chunks.length - 2] - OP_INT_BASE
+    o.m = <number> chunks[0] - OP_INT_BASE // eslint-disable-line
+    o.n = <number> chunks[chunks.length - 2] - OP_INT_BASE // eslint-disable-line
     o.pubkeys = <Array<Buffer>>chunks.slice(1, -2)
   }
 
@@ -103,9 +105,9 @@ export function p2ms (a: Payment, opts?: PaymentOpts): Payment {
       if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) throw new TypeError('Output is invalid')
 
       if (
-        <number>(<Payment>o).m <= 0 ||
-        <number>(<Payment>o).n > 16 ||
-        <number>(<Payment>o).m > <number>(<Payment>o).n ||
+        <number>(<Payment>o).m <= 0 || // eslint-disable-line
+        <number>(<Payment>o).n > 16 || // eslint-disable-line
+        <number>(<Payment>o).m > <number>(<Payment>o).n || // eslint-disable-line
         o.n !== chunks.length - 3) throw new TypeError('Output is invalid')
       if (!(<Array<Buffer>>o.pubkeys).every(x => ecc.isPoint(x))) throw new TypeError('Output is invalid')
 

@@ -1,9 +1,9 @@
-import { Payment, PaymentOpts } from './index'
+import { Payment, PaymentOpts } from './index' // eslint-disable-line
 import * as bscript from '../script'
 import * as lazy from './lazy'
 import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
-import { OPS } from '../script'
+const OPS = bscript.OPS
 
 function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
   if (a.length !== b.length) return false

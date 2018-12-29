@@ -24,7 +24,7 @@
     "nobuild:coverage-html": "nyc report --reporter=html",
     "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 --lines 90 mocha",
     "nobuild:integration": "mocha --timeout 50000 test/integration/",
-    "nobuild:standard": "standard",
+    "nobuild:standard": "standard src/**/*.ts",
     "nobuild:unit": "mocha",
     "prepare": "npm run build",
     "standard": "npm run build && npm run nobuild:standard",
@@ -63,12 +63,20 @@
     "bn.js": "^4.11.8",
     "bs58": "^4.0.0",
     "dhttp": "^3.0.0",
+    "eslint-plugin-typescript": "^0.14.0",
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^5.2.0",
     "nyc": "^11.8.0",
     "proxyquire": "^2.0.1",
-    "standard": "^11.0.1"
+    "standard": "^11.0.1",
+    "typescript-eslint-parser": "^21.0.2"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "standard": {
+    "parser": "typescript-eslint-parser",
+    "plugins": [
+      "typescript"
+    ]
+  }
 }

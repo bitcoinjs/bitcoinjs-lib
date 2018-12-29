@@ -18,7 +18,7 @@ export function prop (object: Object, name: string, f: ()=>any): void {
   })
 }
 
-export function value <T>(f: ()=>T): ()=>T {
+export function value <T> (f: ()=>T): ()=>T {
   let value: T
   return function (): T {
     if (value !== undefined) return value

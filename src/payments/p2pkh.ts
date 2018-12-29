@@ -1,10 +1,10 @@
-import { Payment, PaymentOpts } from './index'
+import { Payment, PaymentOpts } from './index' // eslint-disable-line
 import * as bscript from '../script'
 import * as bcrypto from '../crypto'
 import * as lazy from './lazy'
 import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
-import { OPS } from '../script'
+const OPS = bscript.OPS
 const ecc = require('tiny-secp256k1')
 
 const bs58check = require('bs58check')
@@ -54,7 +54,7 @@ export function p2pkh (a: Payment, opts?: PaymentOpts): Payment {
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(3, 23)
     if (a.address) return _address().hash
-    if (a.pubkey || o.pubkey) return bcrypto.hash160(<Buffer>a.pubkey || <Buffer>o.pubkey)
+    if (a.pubkey || o.pubkey) return bcrypto.hash160(<Buffer> a.pubkey || <Buffer>o.pubkey) // eslint-disable-line
   })
   lazy.prop(o, 'output', function () {
     if (!o.hash) return

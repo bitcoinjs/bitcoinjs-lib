@@ -1,9 +1,9 @@
-import { Payment, PaymentOpts } from './index'
+import { Payment, PaymentOpts } from './index' // eslint-disable-line
 import * as bscript from '../script'
 import * as lazy from './lazy'
 import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
-import { OPS } from '../script'
+const OPS = bscript.OPS
 const ecc = require('tiny-secp256k1')
 
 // input: {signature}

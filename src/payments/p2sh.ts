@@ -1,11 +1,10 @@
-import { Payment, PaymentOpts } from './index'
-import { Network } from '../networks'
+import { Payment, PaymentOpts } from './index' // eslint-disable-line
+import { Network, bitcoin as BITCOIN_NETWORK } from '../networks' // eslint-disable-line
 import * as bscript from '../script'
 import * as bcrypto from '../crypto'
 import * as lazy from './lazy'
-import { bitcoin as BITCOIN_NETWORK } from '../networks'
 const typef = require('typeforce')
-import { OPS } from '../script'
+const OPS = bscript.OPS
 
 const bs58check = require('bs58check')
 

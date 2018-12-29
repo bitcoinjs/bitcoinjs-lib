@@ -124,7 +124,7 @@ export class Block {
     return target
   }
 
-  static calculateMerkleRoot (transactions: Array<Transaction>, forWitness: boolean | void): Buffer {
+  static calculateMerkleRoot (transactions: Array<Transaction>, forWitness?: boolean): Buffer {
     typeforce([{ getHash: types.Function }], transactions)
     if (transactions.length === 0) throw errorMerkleNoTxes
     if (forWitness && !txesHaveWitness(transactions)) throw errorWitnessNotSegwit

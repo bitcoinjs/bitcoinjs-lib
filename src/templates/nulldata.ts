@@ -1,6 +1,6 @@
 // OP_RETURN {data}
 import * as bscript from '../script'
-import { OPS } from '../script'
+const OPS = bscript.OPS
 
 export function check (script: Buffer | Array<number | Buffer>): boolean {
   const buffer = bscript.compile(script)
