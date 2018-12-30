@@ -41,7 +41,7 @@
   "dependencies": {
     "@types/node": "^10.12.18",
     "bech32": "^1.1.2",
-    "bip32": "^1.0.0",
+    "bip32": "git+https://github.com/junderw/bip32.git#typeScript",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "bs58check": "^2.0.0",
