@@ -30,7 +30,7 @@ describe('ECPair', function () {
     })
 
     it('calls pointFromScalar lazily', hoodwink(function () {
-      assert.strictEqual(keyPair.__Q, null)
+      assert.strictEqual(keyPair.__Q, undefined)
 
       // .publicKey forces the memoization
       assert.strictEqual(keyPair.publicKey.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
