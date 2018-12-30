@@ -24,3 +24,8 @@ export {
   payments,
   script,
 }
+
+export { Payment, PaymentOpts } from './payments'
+export { Input as TxInput, Output as TxOutput } from './transaction'
+export { Network } from './networks'
+export { OpCode } from './script'
