@@ -15,10 +15,18 @@ const LITECOIN = {
 }
 
 // deterministic RNG for testing only
-function rng () { return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
+function rng (c) {
+  if (describe === undefined || it === undefined) {
+    console.error('DO NOT USE THIS rng FUNCTION OUTSIDE OF AUTOMATED TESTING!')
+    const randomBytes = require('randombytes')
+    return randomBytes(c)
+  }
+  return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
+}
 
 describe('bitcoinjs-lib (addresses)', function () {
   it('can generate a random address', function () {
+    // in production: const keyPair = bitcoin.ECPair.makeRandom({})
     const keyPair = bitcoin.ECPair.makeRandom({ rng: rng })
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
 
@@ -110,6 +118,7 @@ describe('bitcoinjs-lib (addresses)', function () {
   // other networks
   it('can generate a Testnet address', function () {
     const testnet = bitcoin.networks.testnet
+    // in production: const keyPair = bitcoin.ECPair.makeRandom({ network: testnet })
     const keyPair = bitcoin.ECPair.makeRandom({ network: testnet, rng: rng })
     const wif = keyPair.toWIF()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: testnet })
@@ -119,6 +128,7 @@ describe('bitcoinjs-lib (addresses)', function () {
   })
 
   it('can generate a Litecoin address', function () {
+    // in production: const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN })
     const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN, rng: rng })
     const wif = keyPair.toWIF()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: LITECOIN })
