@@ -64,7 +64,7 @@ describe('bitcoinjs-lib (transactions)', function () {
         txb.addInput(unspent1.txId, unspent1.vout) // alice2 unspent
         txb.addOutput('mwCwTceJvYV27KXBc3NJZys6CjsgsoeHmf', 8e4) // the actual "spend"
         txb.addOutput(aliceCpkh.address, 1e4) // Alice's change
-        // (in)(4e4 + 2e4) - (out)(1e4 + 3e4) = (fee)2e4 = 20000, this is the miner fee
+        // (in)(5e4 + 7e4) - (out)(8e4 + 1e4) = (fee)3e4 = 30000, this is the miner fee
 
         // Alice signs each input with the respective private keys
         txb.sign(0, alice1)
