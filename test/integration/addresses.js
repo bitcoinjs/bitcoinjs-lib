@@ -15,7 +15,14 @@ const LITECOIN = {
 }
 
 // deterministic RNG for testing only
-function rng () { return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz') }
+function rng (c) {
+  if (describe === undefined || it === undefined) {
+    console.error('DO NOT USE THIS rng FUNCTION OUTSIDE OF AUTOMATED TESTING!')
+    const randomBytes = require('randombytes')
+    return randomBytes(c)
+  }
+  return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
+}
 
 describe('bitcoinjs-lib (addresses)', function () {
   it('can generate a random address', function () {
