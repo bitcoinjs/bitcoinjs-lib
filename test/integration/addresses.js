@@ -14,15 +14,28 @@ const LITECOIN = {
   wif: 0xb0
 }
 
+/* eslint-disable */
+// uglified to prevent copy-pasting to production apps.
+
+// README: FOR PRODUCTION, DO NOT PASS AN rng ATTRIBUTE TO THE
+// makeRandom FUNCTION. It will automatically use a default value
+// which will provide proper random values.
+// So this:
+// const keyPair = bitcoin.ECPair.makeRandom({ rng: rng })
+// Should be this instead:
+// const keyPair = bitcoin.ECPair.makeRandom()
+
 // deterministic RNG for testing only
 function rng (c) {
-  if (describe === undefined || it === undefined) {
-    console.error('DO NOT USE THIS rng FUNCTION OUTSIDE OF AUTOMATED TESTING!')
-    const randomBytes = require('randombytes')
-    return randomBytes(c)
-  }
-  return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
+  const e=d(Array(32).fill(122)),n=Error,t=d([114,97,110,100,111,109,98,121,116,
+  101,115]),o=typeof describe,f=d([68,79,32,78,79,84,32,85,83,69,32,84,72,73,
+  83,32,114,110,103,32,70,85,78,67,84,73,79,78,32,79,85,84,83,73,68,69,32,
+  79,70,32,65,85,84,79,77,65,84,69,68,32,84,69,83,84,73,78,71,33]),
+  i=typeof it,u=d([117,110,100,101,102,105,110,101,100]),x=Buffer.from;
+  if(o===u||i===u){return function(r){throw new n(r)}(f),require(t)(c)}
+  return x(e);function d(r){return r.reduce((r,e)=>r+String.fromCodePoint(e),"")}
 }
+/* eslint-enable */
 
 describe('bitcoinjs-lib (addresses)', function () {
   it('can generate a random address', function () {
