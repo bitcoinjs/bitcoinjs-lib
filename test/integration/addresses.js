@@ -2,38 +2,28 @@ const { describe, it } = require('mocha')
 const assert = require('assert')
 const bitcoin = require('../../')
 const dhttp = require('dhttp/200')
-
-// WARNING: DO NOT USE THIS - IT IS NOT RANDOM
-// WARNING:   It produces the same 'number' every time for the purposes of testing.
-function unsafeDeterministicRng (c) {
-  if (process.env.NODE_ENV !== 'TESTING-BITCOINJS') {
-    throw new Error('DO NOT USE THIS FUNCTION - IT IS NOT RANDOM - IT IS FOR TESTING ONLY - IT PRODUCES THE SAME NUMBER EVERY TIME')
-  }
-
-  // deterministic result for TESTING ONLY
-  return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
-}
-
-const LITECOIN = {
-  messagePrefix: '\x19Litecoin Signed Message:\n',
-  bip32: {
-    public: 0x019da462,
-    private: 0x019d9cfe
-  },
-  pubKeyHash: 0x30,
-  scriptHash: 0x32,
-  wif: 0xb0
-}
+const TESTNET = bitcoin.networks.testnet
 
 describe('bitcoinjs-lib (addresses)', function () {
-  it('can generate a random address', function () {
-    // const keyPair = bitcoin.ECPair.makeRandom()
-
-    // WARNING: uses unsafeDeterministicRng function for testing, see warning at top of file
-    const keyPair = bitcoin.ECPair.makeRandom({ rng: unsafeDeterministicRng })
+  it('can generate a random address [and support the retrieval of transactions for that address (via 3PBP)', function (done) {
+    const keyPair = bitcoin.ECPair.makeRandom()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
 
-    assert.strictEqual(address, '1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64')
+    // bitcoin P2PKH addresses start with a '1'
+    assert.strictEqual(address.startsWith('1'), true)
+
+    dhttp({
+      method: 'GET',
+      url: 'https://blockchain.info/rawaddr/' + address
+    }, function (err, result) {
+      if (err) return done(err)
+
+      // random private keys [probably!] have no transactions
+      assert.strictEqual(result.n_tx, 0)
+      assert.strictEqual(result.total_received, 0)
+      assert.strictEqual(result.total_sent, 0)
+      done()
+    })
   })
 
   it('can import an address via WIF', function () {
@@ -100,47 +90,31 @@ describe('bitcoinjs-lib (addresses)', function () {
     assert.strictEqual(address, '3P4mrxQfmExfhxqjLnR2Ah4WES5EB1KBrN')
   })
 
-  it('can support the retrieval of transactions for an address (via 3PBP)', function (done) {
-    const keyPair = bitcoin.ECPair.makeRandom()
-    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
-
-    dhttp({
-      method: 'GET',
-      url: 'https://blockchain.info/rawaddr/' + address
-    }, function (err, result) {
-      if (err) return done(err)
-
-      // random private keys [probably!] have no transactions
-      assert.strictEqual(result.n_tx, 0)
-      assert.strictEqual(result.total_received, 0)
-      assert.strictEqual(result.total_sent, 0)
-      done()
-    })
-  })
-
-  // other networks
+  // examples using other network information
   it('can generate a Testnet address', function () {
-    const testnet = bitcoin.networks.testnet
-    // const keyPair = bitcoin.ECPair.makeRandom({ network: testnet })
+    const keyPair = bitcoin.ECPair.makeRandom({ network: TESTNET })
+    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: TESTNET })
 
-    // WARNING: uses unsafeDeterministicRng function for testing, see warning at top of file
-    const keyPair = bitcoin.ECPair.makeRandom({ network: testnet, rng: unsafeDeterministicRng })
-    const wif = keyPair.toWIF()
-    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: testnet })
-
-    assert.strictEqual(address, 'mubSzQNtZfDj1YdNP6pNDuZy6zs6GDn61L')
-    assert.strictEqual(wif, 'cRgnQe9MUu1JznntrLaoQpB476M8PURvXVQB5R2eqms5tXnzNsrr')
+    // bitcoin testnet P2PKH addresses start with a 'm'
+    assert.strictEqual(address.startsWith('m'), true)
   })
 
   it('can generate a Litecoin address', function () {
-    // const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN })
+    // WARNING: although possible, bitcoinjs is NOT necessarily compatible with Litecoin
+    const LITECOIN = {
+      messagePrefix: '\x19Litecoin Signed Message:\n',
+      bip32: {
+        public: 0x019da462,
+        private: 0x019d9cfe
+      },
+      pubKeyHash: 0x30,
+      scriptHash: 0x32,
+      wif: 0xb0
+    }
 
-    // WARNING: uses unsafeDeterministicRng function for testing, see warning at top of file
-    const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN, rng: unsafeDeterministicRng })
-    const wif = keyPair.toWIF()
+    const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN })
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: LITECOIN })
 
-    assert.strictEqual(address, 'LZJSxZbjqJ2XVEquqfqHg1RQTDdfST5PTn')
-    assert.strictEqual(wif, 'T7A4PUSgTDHecBxW1ZiYFrDNRih2o7M8Gf9xpoCgudPF9gDiNvuS')
+    assert.strictEqual(address.startsWith('L'), true)
   })
 })
