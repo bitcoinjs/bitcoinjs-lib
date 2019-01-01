@@ -27,10 +27,10 @@ describe('bitcoinjs-lib (addresses)', function () {
   })
 
   it('can import an address via WIF', function () {
-    const keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
+    const keyPair = bitcoin.ECPair.fromWIF('KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn')
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
 
-    assert.strictEqual(address, '19AAjaTUbRjQCMuVczepkoPswiZRhjtg31')
+    assert.strictEqual(address, '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH')
   })
 
   it('can generate a P2SH, pay-to-multisig (2-of-3) address', function () {
@@ -47,19 +47,19 @@ describe('bitcoinjs-lib (addresses)', function () {
   })
 
   it('can generate a SegWit address', function () {
-    const keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
+    const keyPair = bitcoin.ECPair.fromWIF('KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn')
     const { address } = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey })
 
-    assert.strictEqual(address, 'bc1qt97wqg464zrhnx23upykca5annqvwkwujjglky')
+    assert.strictEqual(address, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')
   })
 
   it('can generate a SegWit address (via P2SH)', function () {
-    const keyPair = bitcoin.ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct')
+    const keyPair = bitcoin.ECPair.fromWIF('KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn')
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey })
     })
 
-    assert.strictEqual(address, '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53')
+    assert.strictEqual(address, '3JvL6Ymt8MVWiCNHC7oWU6nLeHNJKLZGLN')
   })
 
   it('can generate a P2WSH (SegWit), pay-to-multisig (3-of-4) address', function () {
