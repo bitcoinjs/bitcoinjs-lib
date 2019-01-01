@@ -1,4 +1,4 @@
-import * as bip32 from 'bip32';
+declare const bip32: any;
 import * as ECPair from './ecpair';
 import * as address from './address';
 import * as crypto from './crypto';
@@ -14,4 +14,3 @@ export { Payment, PaymentOpts } from './payments';
 export { Input as TxInput, Output as TxOutput } from './transaction';
 export { Network } from './networks';
 export { OpCode } from './script';
-export { BIP32Interface } from 'bip32';
