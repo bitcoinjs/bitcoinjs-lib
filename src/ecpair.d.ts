@@ -27,8 +27,8 @@ declare class ECPair implements ECPairInterface {
     sign(hash: Buffer): Buffer;
     verify(hash: Buffer, signature: Buffer): Buffer;
 }
-declare function fromPrivateKey(buffer: Buffer, options?: ECPairOptions): ECPair;
-declare function fromPublicKey(buffer: Buffer, options?: ECPairOptions): ECPair;
-declare function fromWIF(string: string, network?: Network | Array<Network>): ECPair;
-declare function makeRandom(options?: ECPairOptions): ECPair;
+declare function fromPrivateKey(buffer: Buffer, options?: ECPairOptions): ECPairInterface;
+declare function fromPublicKey(buffer: Buffer, options?: ECPairOptions): ECPairInterface;
+declare function fromWIF(string: string, network?: Network | Array<Network>): ECPairInterface;
+declare function makeRandom(options?: ECPairOptions): ECPairInterface;
 export { makeRandom, fromPrivateKey, fromPublicKey, fromWIF };
