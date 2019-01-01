@@ -3,6 +3,17 @@ const assert = require('assert')
 const bitcoin = require('../../')
 const dhttp = require('dhttp/200')
 
+// WARNING: DO NOT USE THIS - IT IS NOT RANDOM
+// WARNING:   It produces the same 'number' every time for the purposes of testing.
+function unsafeDeterministicRng (c) {
+  if (process.env.NODE_ENV !== 'TESTING-BITCOINJS') {
+    throw new Error('DO NOT USE THIS FUNCTION - IT IS NOT RANDOM - IT IS FOR TESTING ONLY - IT PRODUCES THE SAME NUMBER EVERY TIME')
+  }
+
+  // deterministic result for TESTING ONLY
+  return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
+}
+
 const LITECOIN = {
   messagePrefix: '\x19Litecoin Signed Message:\n',
   bip32: {
@@ -14,16 +25,11 @@ const LITECOIN = {
   wif: 0xb0
 }
 
-// deterministic random number generator for TESTING ONLY
-// WARNING: DO NOT USE THIS - IT IS NOT RANDOM - it produces the same private key every time for the purposes of testing.
-function unsafeDeterministicRng (c) {
-  if (process.env.NODE_ENV !== 'TESTING-BITCOINJS') throw new Error('DO NOT USE THIS FUNCTION - IT IS NOT RANDOM - IT IS FOR TESTING ONLY - IT PRODUCES THE SAME PRIVATE KEY EVERY TIME')
-  return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
-}
-
 describe('bitcoinjs-lib (addresses)', function () {
   it('can generate a random address', function () {
     // const keyPair = bitcoin.ECPair.makeRandom()
+
+    // WARNING: uses unsafeDeterministicRng function for testing, see warning at top of file
     const keyPair = bitcoin.ECPair.makeRandom({ rng: unsafeDeterministicRng })
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
 
@@ -116,6 +122,8 @@ describe('bitcoinjs-lib (addresses)', function () {
   it('can generate a Testnet address', function () {
     const testnet = bitcoin.networks.testnet
     // const keyPair = bitcoin.ECPair.makeRandom({ network: testnet })
+
+    // WARNING: uses unsafeDeterministicRng function for testing, see warning at top of file
     const keyPair = bitcoin.ECPair.makeRandom({ network: testnet, rng: unsafeDeterministicRng })
     const wif = keyPair.toWIF()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: testnet })
@@ -126,6 +134,8 @@ describe('bitcoinjs-lib (addresses)', function () {
 
   it('can generate a Litecoin address', function () {
     // const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN })
+
+    // WARNING: uses unsafeDeterministicRng function for testing, see warning at top of file
     const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN, rng: unsafeDeterministicRng })
     const wif = keyPair.toWIF()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: LITECOIN })
