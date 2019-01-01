@@ -14,20 +14,17 @@ const LITECOIN = {
   wif: 0xb0
 }
 
-// deterministic RNG for testing only
-function rng (c) {
-  if (describe === undefined || it === undefined) {
-    console.error('DO NOT USE THIS rng FUNCTION OUTSIDE OF AUTOMATED TESTING!')
-    const randomBytes = require('randombytes')
-    return randomBytes(c)
-  }
+// deterministic random number generator for TESTING ONLY
+// WARNING: DO NOT USE THIS - IT IS NOT RANDOM - it produces the same private key every time for the purposes of testing.
+function unsafeDeterministicRng (c) {
+  if (process.env.NODE_ENV !== 'TESTING-BITCOINJS') throw new Error('DO NOT USE THIS FUNCTION - IT IS NOT RANDOM - IT IS FOR TESTING ONLY - IT PRODUCES THE SAME PRIVATE KEY EVERY TIME')
   return Buffer.from('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz')
 }
 
 describe('bitcoinjs-lib (addresses)', function () {
   it('can generate a random address', function () {
-    // in production: const keyPair = bitcoin.ECPair.makeRandom({})
-    const keyPair = bitcoin.ECPair.makeRandom({ rng: rng })
+    // const keyPair = bitcoin.ECPair.makeRandom()
+    const keyPair = bitcoin.ECPair.makeRandom({ rng: unsafeDeterministicRng })
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
 
     assert.strictEqual(address, '1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64')
@@ -118,8 +115,8 @@ describe('bitcoinjs-lib (addresses)', function () {
   // other networks
   it('can generate a Testnet address', function () {
     const testnet = bitcoin.networks.testnet
-    // in production: const keyPair = bitcoin.ECPair.makeRandom({ network: testnet })
-    const keyPair = bitcoin.ECPair.makeRandom({ network: testnet, rng: rng })
+    // const keyPair = bitcoin.ECPair.makeRandom({ network: testnet })
+    const keyPair = bitcoin.ECPair.makeRandom({ network: testnet, rng: unsafeDeterministicRng })
     const wif = keyPair.toWIF()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: testnet })
 
@@ -128,8 +125,8 @@ describe('bitcoinjs-lib (addresses)', function () {
   })
 
   it('can generate a Litecoin address', function () {
-    // in production: const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN })
-    const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN, rng: rng })
+    // const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN })
+    const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN, rng: unsafeDeterministicRng })
     const wif = keyPair.toWIF()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: LITECOIN })
 
