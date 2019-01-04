@@ -28,7 +28,8 @@
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
   "files": [
-    "src"
+    "src",
+    "types"
   ],
   "dependencies": {
     "bech32": "^1.1.2",
