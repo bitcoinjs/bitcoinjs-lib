@@ -3,7 +3,7 @@
   "version": "4.0.2",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
-  "types": "./src/index.d.ts",
+  "types": "./types/index.d.ts",
   "engines": {
     "node": ">=8.0.0"
   },
