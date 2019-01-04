@@ -1,6 +1,6 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
-const bufferutils = require('../dist/src/bufferutils')
+const bufferutils = require('../src/bufferutils')
 
 const fixtures = require('./fixtures/bufferutils.json')
 

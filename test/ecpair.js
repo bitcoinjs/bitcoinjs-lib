@@ -5,12 +5,12 @@ const assert = require('assert')
 const proxyquire = require('proxyquire')
 const hoodwink = require('hoodwink')
 
-const ECPair = require('../dist/src/ecpair')
+const ECPair = require('../src/ecpair')
 const tinysecp = require('tiny-secp256k1')
 
 const fixtures = require('./fixtures/ecpair.json')
 
-const NETWORKS = require('../dist/src/networks')
+const NETWORKS = require('../src/networks')
 const NETWORKS_LIST = [] // Object.values(NETWORKS)
 for (let networkName in NETWORKS) {
   NETWORKS_LIST.push(NETWORKS[networkName])
@@ -144,7 +144,7 @@ describe('ECPair', function () {
     describe('uses randombytes RNG', function () {
       it('generates a ECPair', function () {
         const stub = { randombytes: function () { return d } }
-        const ProxiedECPair = proxyquire('../dist/src/ecpair', stub)
+        const ProxiedECPair = proxyquire('../src/ecpair', stub)
 
         const keyPair = ProxiedECPair.makeRandom()
         assert.strictEqual(keyPair.toWIF(), exWIF)

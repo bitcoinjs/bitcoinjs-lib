@@ -1,18 +1,18 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
-const bscript = require('../dist/src/script')
-const classify = require('../dist/src/classify')
+const bscript = require('../src/script')
+const classify = require('../src/classify')
 
 const fixtures = require('./fixtures/templates.json')
 
-const multisig = require('../dist/src/templates/multisig')
-const nullData = require('../dist/src/templates/nulldata')
-const pubKey = require('../dist/src/templates/pubkey')
-const pubKeyHash = require('../dist/src/templates/pubkeyhash')
-const scriptHash = require('../dist/src/templates/scripthash')
-const witnessPubKeyHash = require('../dist/src/templates/witnesspubkeyhash')
-const witnessScriptHash = require('../dist/src/templates/witnessscripthash')
-const witnessCommitment = require('../dist/src/templates/witnesscommitment')
+const multisig = require('../src/templates/multisig')
+const nullData = require('../src/templates/nulldata')
+const pubKey = require('../src/templates/pubkey')
+const pubKeyHash = require('../src/templates/pubkeyhash')
+const scriptHash = require('../src/templates/scripthash')
+const witnessPubKeyHash = require('../src/templates/witnesspubkeyhash')
+const witnessScriptHash = require('../src/templates/witnessscripthash')
+const witnessCommitment = require('../src/templates/witnesscommitment')
 
 const tmap = {
   pubKey,

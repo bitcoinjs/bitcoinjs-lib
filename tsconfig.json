@@ -2,8 +2,9 @@
   "compilerOptions": {
     "target": "ES2015",
     "module": "commonjs",
-    "outDir": "./dist",
-    "rootDir": "./",
+    "outDir": "./src",
+    "declarationDir": "./types",
+    "rootDir": "./ts_src",
     "types": [
       "node"
     ],
@@ -19,7 +20,7 @@
     "esModuleInterop": false
   },
   "include": [
-      "src/**/*"
+      "ts_src/**/*.ts"
   ],
   "exclude": [
       "**/*.spec.ts",

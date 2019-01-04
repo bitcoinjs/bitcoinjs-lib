@@ -5,7 +5,7 @@ const u = require('./payments.utils')
 ;['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(function (p) {
   describe(p, function () {
     let fn
-    let payment = require('../dist/src/payments/' + p)
+    let payment = require('../src/payments/' + p)
     if (p === 'embed') {
       fn = payment.p2data
     } else {

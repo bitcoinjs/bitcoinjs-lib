@@ -1,6 +1,6 @@
 const { describe, it, beforeEach } = require('mocha')
 const assert = require('assert')
-const bscript = require('../dist/src/script')
+const bscript = require('../src/script')
 const fixtures = require('./fixtures/transaction')
 const Transaction = require('..').Transaction
 

@@ -1,6 +1,6 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
-const scriptNumber = require('../dist/src/script_number')
+const scriptNumber = require('../src/script_number')
 const fixtures = require('./fixtures/script_number.json')
 
 describe('script-number', function () {

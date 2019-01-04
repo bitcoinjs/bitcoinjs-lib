@@ -1,6 +1,6 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
-const bcrypto = require('../dist/src/crypto')
+const bcrypto = require('../src/crypto')
 
 const fixtures = require('./fixtures/crypto')
 

@@ -1,6 +1,6 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
-const types = require('../dist/src/types')
+const types = require('../src/types')
 const typeforce = require('typeforce')
 
 describe('types', function () {

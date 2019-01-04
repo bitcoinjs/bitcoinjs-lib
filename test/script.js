@@ -1,6 +1,6 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
-const bscript = require('../dist/src/script')
+const bscript = require('../src/script')
 const minimalData = require('minimaldata')
 
 const fixtures = require('./fixtures/script.json')

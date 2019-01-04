@@ -1,13 +1,13 @@
 const { describe, it, beforeEach } = require('mocha')
 const assert = require('assert')
-const baddress = require('../dist/src/address')
-const bscript = require('../dist/src/script')
-const payments = require('../dist/src/payments')
+const baddress = require('../src/address')
+const bscript = require('../src/script')
+const payments = require('../src/payments')
 
-const ECPair = require('../dist/src/ecpair')
+const ECPair = require('../src/ecpair')
 const Transaction = require('..').Transaction
 const TransactionBuilder = require('..').TransactionBuilder
-const NETWORKS = require('../dist/src/networks')
+const NETWORKS = require('../src/networks')
 
 const fixtures = require('./fixtures/transaction_builder')
 

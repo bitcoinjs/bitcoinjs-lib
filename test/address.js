@@ -1,7 +1,7 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
-const baddress = require('../dist/src/address')
-const bscript = require('../dist/src/script')
+const baddress = require('../src/address')
+const bscript = require('../src/script')
 const fixtures = require('./fixtures/address.json')
 const NETWORKS = Object.assign({
   litecoin: {
@@ -14,7 +14,7 @@ const NETWORKS = Object.assign({
     scriptHash: 0x32,
     wif: 0xb0
   }
-}, require('../dist/src/networks'))
+}, require('../src/networks'))
 
 describe('address', function () {
   describe('fromBase58Check', function () {
