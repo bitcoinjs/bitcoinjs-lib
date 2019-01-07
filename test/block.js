@@ -125,7 +125,7 @@ describe('Block', function () {
     })
   })
 
-  describe('checkMerkleRoot', function () {
+  describe('checkTxRoots', function () {
     fixtures.valid.forEach(function (f) {
       if (f.hex.length === 160) return
 
@@ -136,14 +136,8 @@ describe('Block', function () {
       })
 
       it('returns ' + f.valid + ' for ' + f.id, function () {
-        assert.strictEqual(block.checkMerkleRoot(), true)
+        assert.strictEqual(block.checkTxRoots(), true)
       })
-
-      if (f.witnessCommit) {
-        it('validates witness commit for ' + f.id, function () {
-          assert.strictEqual(block.checkWitnessCommit(), true)
-        })
-      }
     })
   })
 

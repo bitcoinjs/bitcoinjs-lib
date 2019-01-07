@@ -197,14 +197,25 @@ class Block {
     return this.toBuffer(headersOnly).toString('hex')
   }
 
+  checkTxRoots () {
+    return this.__checkMerkleRoot() &&
+      (this.hasWitnessCommit() ? this.__checkWitnessCommit() : true)
+  }
+
   checkMerkleRoot () {
+    console.warn('Deprecation Warning: Block method checkMerkleRoot will be ' +
+    'deprecated in v5. Please use checkTxRoots instead.')
+    return this.checkTxRoots()
+  }
+
+  __checkMerkleRoot () {
     if (!this.transactions) throw errorMerkleNoTxes
 
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions)
     return this.merkleRoot.compare(actualMerkleRoot) === 0
   }
 
-  checkWitnessCommit () {
+  __checkWitnessCommit () {
     if (!this.transactions) throw errorMerkleNoTxes
     if (!this.hasWitnessCommit()) throw errorWitnessNotSegwit
 
