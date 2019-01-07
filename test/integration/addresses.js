@@ -95,8 +95,8 @@ describe('bitcoinjs-lib (addresses)', function () {
     const keyPair = bitcoin.ECPair.makeRandom({ network: TESTNET })
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: TESTNET })
 
-    // bitcoin testnet P2PKH addresses start with a 'm'
-    assert.strictEqual(address.startsWith('m'), true)
+    // bitcoin testnet P2PKH addresses start with a 'm' or 'n'
+    assert.strictEqual(address.startsWith('m') || address.startsWith('n'), true)
   })
 
   it('can generate a Litecoin address', function () {
