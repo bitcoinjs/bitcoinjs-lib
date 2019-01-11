@@ -145,7 +145,7 @@ Block.calculateTarget = function (bits) {
   const exponent = ((bits & 0xff000000) >> 24) - 3
   const mantissa = bits & 0x007fffff
   const target = Buffer.alloc(32, 0)
-  target.writeUInt32BE(mantissa, 28 - exponent)
+  target.writeUIntBE(mantissa, 29 - exponent, 3)
   return target
 }
 

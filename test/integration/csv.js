@@ -132,7 +132,7 @@ describe('groestlcoinjs-lib (transactions w/ CSV)', function () {
       regtestUtils.broadcast(tx.toHex(), function (err) {
         assert.throws(function () {
           if (err) throw err
-        }, /Error: 64: non-BIP68-final/)
+        }, /Error: non-BIP68-final \(code 64\)/)
 
         done()
       })

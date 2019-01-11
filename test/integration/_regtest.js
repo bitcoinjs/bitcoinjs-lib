@@ -3,12 +3,12 @@ const bitcoin = require('../../')
 const dhttp = require('dhttp/200')
 
 const APIPASS = process.env.APIPASS || 'satoshi'
-const APIURL = 'https://api.dcousens.cloud/1'
+const APIURL = 'https://regtest.bitbank.cc/1'
 const NETWORK = bitcoin.networks.testnet
 
 function broadcast (txHex, callback) {
   dhttp({
-    method: 'PUT',
+    method: 'POST',
     url: APIURL + '/t/push',
     body: txHex
   }, callback)

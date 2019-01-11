@@ -64,7 +64,7 @@ describe('groestlcoinjs-lib (transactions)', function () {
         txb.addInput(unspent1.txId, unspent1.vout) // alice2 unspent
         txb.addOutput('mwCwTceJvYV27KXBc3NJZys6CjsgsoeHmf', 8e4) // the actual "spend"
         txb.addOutput(aliceCpkh.address, 1e4) // Alice's change
-        // (in)(4e4 + 2e4) - (out)(1e4 + 3e4) = (fee)2e4 = 20000, this is the miner fee
+        // (in)(5e4 + 7e4) - (out)(8e4 + 1e4) = (fee)3e4 = 30000, this is the miner fee
 
         // Alice signs each input with the respective private keys
         txb.sign(0, alice1)
@@ -258,7 +258,7 @@ describe('groestlcoinjs-lib (transactions)', function () {
     })
   })
 
-  it('can verify Transaction signatures', function () {
+  it('can verify Transaction (P2PKH) signatures', function () {
     const txHex = '010000000321c5f7e7bc98b3feda84aad36a5c99a02bcb8823a2f3eccbcd5da209698b5c20000000006b48304502210099e021772830207cf7c55b69948d3b16b4dcbf1f55a9cd80ebf8221a169735f9022064d33f11d62cd28240b3862afc0b901adc9f231c7124dd19bdb30367b61964c50121032b4c06c06c3ec0b7fa29519dfa5aae193ee2cc35ca127f29f14ec605d62fb63dffffffff8a75ce85441ddb3f342708ee33cc8ed418b07d9ba9e0e7c4e1cccfe9f52d8a88000000006946304302207916c23dae212c95a920423902fa44e939fb3d542f4478a7b46e9cde53705800021f0d74e9504146e404c1b8f9cba4dff2d4782e3075491c9ed07ce4a7d1c4461a01210216c92abe433106491bdeb4a261226f20f5a4ac86220cc6e37655aac6bf3c1f2affffffffdfef93f69fe32e944fad79fa8f882b3a155d80383252348caba1a77a5abbf7ef000000006b483045022100faa6e9ca289b46c64764a624c59ac30d9abcf1d4a04c4de9089e67cbe0d300a502206930afa683f6807502de5c2431bf9a1fd333c8a2910a76304df0f3d23d83443f0121039e05da8b8ea4f9868ecebb25998c7701542986233f4401799551fbecf316b18fffffffff01ff4b0000000000001976a9146c86476d1d85cd60116cd122a274e6a570a5a35c88acc96d0700'
     const keyPairs = [
       '032b4c06c06c3ec0b7fa29519dfa5aae193ee2cc35ca127f29f14ec605d62fb63d',
@@ -277,6 +277,36 @@ describe('groestlcoinjs-lib (transactions)', function () {
 
       const ss = bitcoin.script.signature.decode(p2pkh.signature)
       const hash = tx.hashForSignature(i, p2pkh.output, ss.hashType)
+
+      assert.strictEqual(keyPair.verify(hash, ss.signature), true)
+    })
+  })
+
+  it('can verify Transaction (P2SH(P2WPKH)) signatures', function () {
+    const utxos = {
+      'f72d1d83ac40fcedd01415751556a905844ab5f44bbb7728565ebb91b1590109:0': {
+        value: 50000
+      }
+    }
+
+    const txHex = '02000000000101090159b191bb5e562877bb4bf4b54a8405a95615751514d0edfc40ac831d2df7000000001716001435a179e5516947a39ae9c8a25e9fe62c0fc598edffffffff01204e0000000000001976a91431d43308d3c886d53e9ae8a45728370571ff456988ac0247304402206ec41f685b997a51f325b07ee852e82a535f6b52ef54485cc133e05168aa052a022070bafa86108acb51c77b2b259ae8fb7fd1efa10fef804fcfe9b13c2db719acf5012103fb03e9d0a9af86cbed94225dbb8bb70f6b82109bce0a61ddcf41dab6cbb4871100000000'
+    const tx = bitcoin.Transaction.fromHex(txHex)
+
+    tx.ins.forEach(function (input, i) {
+      const txId = Buffer.from(input.hash).reverse().toString('hex')
+      const utxo = utxos[`${txId}:${i}`]
+      if (!utxo) throw new Error('Missing utxo')
+
+      const p2sh = bitcoin.payments.p2sh({
+        input: input.script,
+        witness: input.witness
+      })
+      const p2wpkh = bitcoin.payments.p2wpkh(p2sh.redeem)
+      const p2pkh = bitcoin.payments.p2pkh({ pubkey: p2wpkh.pubkey }) // because P2WPKH is annoying
+
+      const ss = bitcoin.script.signature.decode(p2wpkh.signature)
+      const hash = tx.hashForWitnessV0(i, p2pkh.output, utxo.value, ss.hashType)
+      const keyPair = bitcoin.ECPair.fromPublicKey(p2wpkh.pubkey) // aka, cQ3EtF4mApRcogNGSeyPTKbmfxxn3Yfb1wecfKSws9a8bnYuxoAk
 
       assert.strictEqual(keyPair.verify(hash, ss.signature), true)
     })
