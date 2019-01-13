@@ -1,20 +1,20 @@
-var Buffer = require('safe-buffer').Buffer
-var bcrypto = require('./crypto')
-var bscript = require('./script')
-var bufferutils = require('./bufferutils')
-var opcodes = require('bitcoin-ops')
-var typeforce = require('typeforce')
-var types = require('./types')
-var varuint = require('varuint-bitcoin')
+const Buffer = require('safe-buffer').Buffer
+const bcrypto = require('./crypto')
+const bscript = require('./script')
+const bufferutils = require('./bufferutils')
+const opcodes = require('bitcoin-ops')
+const typeforce = require('typeforce')
+const types = require('./types')
+const varuint = require('varuint-bitcoin')
 
 function varSliceSize (someScript) {
-  var length = someScript.length
+  const length = someScript.length
 
   return varuint.encodingLength(length) + length
 }
 
 function vectorSize (someVector) {
-  var length = someVector.length
+  const length = someVector.length
 
   return varuint.encodingLength(length) + someVector.reduce(function (sum, witness) {
     return sum + varSliceSize(witness)
@@ -36,43 +36,43 @@ Transaction.SIGHASH_ANYONECANPAY = 0x80
 Transaction.ADVANCED_TRANSACTION_MARKER = 0x00
 Transaction.ADVANCED_TRANSACTION_FLAG = 0x01
 
-var EMPTY_SCRIPT = Buffer.allocUnsafe(0)
-var EMPTY_WITNESS = []
-var ZERO = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
-var ONE = Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
-var VALUE_UINT64_MAX = Buffer.from('ffffffffffffffff', 'hex')
-var BLANK_OUTPUT = {
+const EMPTY_SCRIPT = Buffer.allocUnsafe(0)
+const EMPTY_WITNESS = []
+const ZERO = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+const ONE = Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
+const VALUE_UINT64_MAX = Buffer.from('ffffffffffffffff', 'hex')
+const BLANK_OUTPUT = {
   script: EMPTY_SCRIPT,
   valueBuffer: VALUE_UINT64_MAX
 }
 
 Transaction.fromBuffer = function (buffer, __noStrict) {
-  var offset = 0
+  let offset = 0
   function readSlice (n) {
     offset += n
     return buffer.slice(offset - n, offset)
   }
 
   function readUInt32 () {
-    var i = buffer.readUInt32LE(offset)
+    const i = buffer.readUInt32LE(offset)
     offset += 4
     return i
   }
 
   function readInt32 () {
-    var i = buffer.readInt32LE(offset)
+    const i = buffer.readInt32LE(offset)
     offset += 4
     return i
   }
 
   function readUInt64 () {
-    var i = bufferutils.readUInt64LE(buffer, offset)
+    const i = bufferutils.readUInt64LE(buffer, offset)
     offset += 8
     return i
   }
 
   function readVarInt () {
-    var vi = varuint.decode(buffer, offset)
+    const vi = varuint.decode(buffer, offset)
     offset += varuint.decode.bytes
     return vi
   }
@@ -82,26 +82,26 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
   }
 
   function readVector () {
-    var count = readVarInt()
-    var vector = []
+    const count = readVarInt()
+    const vector = []
     for (var i = 0; i < count; i++) vector.push(readVarSlice())
     return vector
   }
 
-  var tx = new Transaction()
+  const tx = new Transaction()
   tx.version = readInt32()
 
-  var marker = buffer.readUInt8(offset)
-  var flag = buffer.readUInt8(offset + 1)
+  const marker = buffer.readUInt8(offset)
+  const flag = buffer.readUInt8(offset + 1)
 
-  var hasWitnesses = false
+  let hasWitnesses = false
   if (marker === Transaction.ADVANCED_TRANSACTION_MARKER &&
       flag === Transaction.ADVANCED_TRANSACTION_FLAG) {
     offset += 2
     hasWitnesses = true
   }
 
-  var vinLen = readVarInt()
+  const vinLen = readVarInt()
   for (var i = 0; i < vinLen; ++i) {
     tx.ins.push({
       hash: readSlice(32),
@@ -112,7 +112,7 @@ Transaction.fromBuffer = function (buffer, __noStrict) {
     })
   }
 
-  var voutLen = readVarInt()
+  const voutLen = readVarInt()
   for (i = 0; i < voutLen; ++i) {
     tx.outs.push({
       value: readUInt64(),
@@ -192,8 +192,8 @@ Transaction.prototype.hasWitnesses = function () {
 }
 
 Transaction.prototype.weight = function () {
-  var base = this.__byteLength(false)
-  var total = this.__byteLength(true)
+  const base = this.__byteLength(false)
+  const total = this.__byteLength(true)
   return base * 3 + total
 }
 
@@ -206,7 +206,7 @@ Transaction.prototype.byteLength = function () {
 }
 
 Transaction.prototype.__byteLength = function (__allowWitness) {
-  var hasWitnesses = __allowWitness && this.hasWitnesses()
+  const hasWitnesses = __allowWitness && this.hasWitnesses()
 
   return (
     (hasWitnesses ? 10 : 8) +
@@ -219,7 +219,7 @@ Transaction.prototype.__byteLength = function (__allowWitness) {
 }
 
 Transaction.prototype.clone = function () {
-  var newTx = new Transaction()
+  const newTx = new Transaction()
   newTx.version = this.version
   newTx.locktime = this.locktime
 
@@ -258,11 +258,11 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   if (inIndex >= this.ins.length) return ONE
 
   // ignore OP_CODESEPARATOR
-  var ourScript = bscript.compile(bscript.decompile(prevOutScript).filter(function (x) {
+  const ourScript = bscript.compile(bscript.decompile(prevOutScript).filter(function (x) {
     return x !== opcodes.OP_CODESEPARATOR
   }))
 
-  var txTmp = this.clone()
+  const txTmp = this.clone()
 
   // SIGHASH_NONE: ignore all outputs? (wildcard payee)
   if ((hashType & 0x1f) === Transaction.SIGHASH_NONE) {
@@ -309,7 +309,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
   }
 
   // serialize and hash
-  var buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4)
+  const buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4)
   buffer.writeInt32LE(hashType, buffer.length - 4)
   txTmp.__toBuffer(buffer, 0, false)
 
@@ -319,7 +319,7 @@ Transaction.prototype.hashForSignature = function (inIndex, prevOutScript, hashT
 Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value, hashType) {
   typeforce(types.tuple(types.UInt32, types.Buffer, types.Satoshi, types.UInt32), arguments)
 
-  var tbuffer, toffset
+  let tbuffer, toffset
   function writeSlice (slice) { toffset += slice.copy(tbuffer, toffset) }
   function writeUInt32 (i) { toffset = tbuffer.writeUInt32LE(i, toffset) }
   function writeUInt64 (i) { toffset = bufferutils.writeUInt64LE(tbuffer, i, toffset) }
@@ -329,9 +329,9 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
   }
   function writeVarSlice (slice) { writeVarInt(slice.length); writeSlice(slice) }
 
-  var hashOutputs = ZERO
-  var hashPrevouts = ZERO
-  var hashSequence = ZERO
+  let hashOutputs = ZERO
+  let hashPrevouts = ZERO
+  let hashSequence = ZERO
 
   if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
     tbuffer = Buffer.allocUnsafe(36 * this.ins.length)
@@ -360,7 +360,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
 
   if ((hashType & 0x1f) !== Transaction.SIGHASH_SINGLE &&
       (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
-    var txOutsSize = this.outs.reduce(function (sum, output) {
+    const txOutsSize = this.outs.reduce(function (sum, output) {
       return sum + 8 + varSliceSize(output.script)
     }, 0)
 
@@ -374,7 +374,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
 
     hashOutputs = bcrypto.hash256(tbuffer)
   } else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE && inIndex < this.outs.length) {
-    var output = this.outs[inIndex]
+    const output = this.outs[inIndex]
 
     tbuffer = Buffer.allocUnsafe(8 + varSliceSize(output.script))
     toffset = 0
@@ -387,7 +387,7 @@ Transaction.prototype.hashForWitnessV0 = function (inIndex, prevOutScript, value
   tbuffer = Buffer.allocUnsafe(156 + varSliceSize(prevOutScript))
   toffset = 0
 
-  var input = this.ins[inIndex]
+  const input = this.ins[inIndex]
   writeUInt32(this.version)
   writeSlice(hashPrevouts)
   writeSlice(hashSequence)
@@ -418,7 +418,7 @@ Transaction.prototype.toBuffer = function (buffer, initialOffset) {
 Transaction.prototype.__toBuffer = function (buffer, initialOffset, __allowWitness) {
   if (!buffer) buffer = Buffer.allocUnsafe(this.__byteLength(__allowWitness))
 
-  var offset = initialOffset || 0
+  let offset = initialOffset || 0
   function writeSlice (slice) { offset += slice.copy(buffer, offset) }
   function writeUInt8 (i) { offset = buffer.writeUInt8(i, offset) }
   function writeUInt32 (i) { offset = buffer.writeUInt32LE(i, offset) }
@@ -433,7 +433,7 @@ Transaction.prototype.__toBuffer = function (buffer, initialOffset, __allowWitne
 
   writeInt32(this.version)
 
-  var hasWitnesses = __allowWitness && this.hasWitnesses()
+  const hasWitnesses = __allowWitness && this.hasWitnesses()
 
   if (hasWitnesses) {
     writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER)

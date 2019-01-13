@@ -1,7 +1,7 @@
 {
   "valid": [
     {
-      "d": "1",
+      "d": "0000000000000000000000000000000000000000000000000000000000000001",
       "Q": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
       "compressed": true,
       "network": "bitcoin",
@@ -9,7 +9,7 @@
       "WIF": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
     },
     {
-      "d": "1",
+      "d": "0000000000000000000000000000000000000000000000000000000000000001",
       "Q": "0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8",
       "compressed": false,
       "network": "bitcoin",
@@ -17,7 +17,7 @@
       "WIF": "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf"
     },
     {
-      "d": "19898843618908353587043383062236220484949425084007183071220218307100305431102",
+      "d": "2bfe58ab6d9fd575bdc3a624e4825dd2b375d64ac033fbc46ea79dbab4f69a3e",
       "Q": "02b80011a883a0fd621ad46dfc405df1e74bf075cbaf700fd4aebef6e96f848340",
       "compressed": true,
       "network": "bitcoin",
@@ -25,7 +25,7 @@
       "WIF": "KxhEDBQyyEFymvfJD96q8stMbJMbZUb6D1PmXqBWZDU2WvbvVs9o"
     },
     {
-      "d": "48968302285117906840285529799176770990048954789747953886390402978935544927851",
+      "d": "6c4313b03f2e7324d75e642f0ab81b734b724e13fec930f309e222470236d66b",
       "Q": "024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34",
       "compressed": true,
       "network": "bitcoin",
@@ -33,7 +33,7 @@
       "WIF": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx"
     },
     {
-      "d": "48968302285117906840285529799176770990048954789747953886390402978935544927851",
+      "d": "6c4313b03f2e7324d75e642f0ab81b734b724e13fec930f309e222470236d66b",
       "Q": "044289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34cec320a0565fb7caf11b1ca2f445f9b7b012dda5718b3cface369ee3a034ded6",
       "compressed": false,
       "network": "bitcoin",
@@ -41,7 +41,7 @@
       "WIF": "5JdxzLtFPHNe7CAL8EBC6krdFv9pwPoRo4e3syMZEQT9srmK8hh"
     },
     {
-      "d": "48968302285117906840285529799176770990048954789747953886390402978935544927851",
+      "d": "6c4313b03f2e7324d75e642f0ab81b734b724e13fec930f309e222470236d66b",
       "Q": "024289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34",
       "compressed": true,
       "network": "testnet",
@@ -49,7 +49,7 @@
       "WIF": "cRD9b1m3vQxmwmjSoJy7Mj56f4uNFXjcWMCzpQCEmHASS4edEwXv"
     },
     {
-      "d": "48968302285117906840285529799176770990048954789747953886390402978935544927851",
+      "d": "6c4313b03f2e7324d75e642f0ab81b734b724e13fec930f309e222470236d66b",
       "Q": "044289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34cec320a0565fb7caf11b1ca2f445f9b7b012dda5718b3cface369ee3a034ded6",
       "compressed": false,
       "network": "testnet",
@@ -57,7 +57,7 @@
       "WIF": "92Qba5hnyWSn5Ffcka56yMQauaWY6ZLd91Vzxbi4a9CCetaHtYj"
     },
     {
-      "d": "115792089237316195423570985008687907852837564279074904382605163141518161494336",
+      "d": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140",
       "Q": "0379be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
       "compressed": true,
       "network": "bitcoin",
@@ -66,43 +66,53 @@
     }
   ],
   "invalid": {
-    "constructor": [
+    "fromPrivateKey": [
       {
-        "exception": "Private key must be greater than 0",
-        "d": "-1"
+        "exception": "Private key not in range \\[1, n\\)",
+        "d": "0000000000000000000000000000000000000000000000000000000000000000"
       },
       {
-        "exception": "Private key must be greater than 0",
-        "d": "0"
+        "exception": "Private key not in range \\[1, n\\)",
+        "d": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
       },
       {
-        "exception": "Private key must be less than the curve order",
-        "d": "115792089237316195423570985008687907852837564279074904382605163141518161494337"
-      },
-      {
-        "exception": "Private key must be less than the curve order",
-        "d": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        "exception": "Private key not in range \\[1, n\\)",
+        "d": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142"
       },
       {
         "exception": "Expected property \"compressed\" of type \\?Boolean, got Number 2",
-        "d": "1",
+        "d": "0000000000000000000000000000000000000000000000000000000000000001",
         "options": {
           "compressed": 2
         }
       },
       {
-        "exception": "Unexpected publicKey parameter",
-        "d": "1",
-        "Q": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
-      },
-      {
         "exception": "Expected property \"network.messagePrefix\" of type Buffer|String, got undefined",
-        "d": "1",
+        "d": "0000000000000000000000000000000000000000000000000000000000000001",
         "options": {
           "network": {}
         }
       }
-
+    ],
+    "fromPublicKey": [
+      {
+        "exception": "Expected isPoint, got Buffer",
+        "Q": "",
+        "options": {}
+      },
+      {
+        "exception": "Expected property \"network.messagePrefix\" of type Buffer|String, got undefined",
+        "Q": "044289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34cec320a0565fb7caf11b1ca2f445f9b7b012dda5718b3cface369ee3a034ded6",
+        "options": {
+          "network": {}
+        }
+      },
+      {
+        "description": "Bad X coordinate (== P)",
+        "exception": "Expected isPoint, got Buffer",
+        "Q": "040000000000000000000000000000000000000000000000000000000000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
+        "options": {}
+      }
     ],
     "fromWIF": [
       {

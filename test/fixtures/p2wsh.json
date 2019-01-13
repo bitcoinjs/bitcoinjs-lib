@@ -1,0 +1,408 @@
+{
+  "valid": [
+    {
+      "description": "p2wsh-*, out (from address)",
+      "arguments": {
+        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q"
+      },
+      "options": {},
+      "expected": {
+        "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
+        "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
+        "redeem": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "p2wsh-*, out (from hash)",
+      "arguments": {
+        "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0"
+      },
+      "expected": {
+        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
+        "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
+        "redeem": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "p2wsh-*, out (from output)",
+      "arguments": {
+        "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0"
+      },
+      "expected": {
+        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
+        "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
+        "redeem": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "p2wsh-p2pkh, out (from redeem)",
+      "arguments": {
+        "redeem": {
+          "address": "this is P2PKH context, unknown and ignored by p2wsh",
+          "output": "OP_DUP OP_HASH160 c30afa58ae0673b00a45b5c17dff4633780f1400 OP_EQUALVERIFY OP_CHECKSIG"
+        }
+      },
+      "expected": {
+        "address": "bc1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss2cq5ar",
+        "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "p2wsh-p2wpkh, out (from redeem)",
+      "arguments": {
+        "redeem": {
+          "hash": "this is P2WPKH context, unknown and ignored by p2wsh",
+          "output": "OP_0 c30afa58ae0673b00a45b5c17dff4633780f1400"
+        }
+      },
+      "expected": {
+        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
+        "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "p2wsh-p2pk, out (from redeem)",
+      "arguments": {
+        "redeem": {
+          "output": "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058 OP_CHECKSIG",
+          "pubkey": "this is P2WPKH context, unknown and ignored by p2wsh"
+        }
+      },
+      "expected": {
+        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
+        "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
+        "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "p2wsh-p2pkh, in and out (from redeem, transformed to witness)",
+      "arguments": {
+        "redeem": {
+          "output": "OP_DUP OP_HASH160 c30afa58ae0673b00a45b5c17dff4633780f1400 OP_EQUALVERIFY OP_CHECKSIG",
+          "input": "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501 03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058"
+        }
+      },
+      "expected": {
+        "address": "bc1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss2cq5ar",
+        "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "redeem": {
+          "input": ""
+        },
+        "input": "",
+        "witness": [
+          "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+          "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058",
+          "76a914c30afa58ae0673b00a45b5c17dff4633780f140088ac"
+        ]
+      }
+    },
+    {
+      "description": "p2wsh-p2wpkh, in and out (from redeem w/ witness)",
+      "arguments": {
+        "redeem": {
+          "output": "OP_0 c30afa58ae0673b00a45b5c17dff4633780f1400",
+          "input": "",
+          "witness": [
+            "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+            "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058"
+          ]
+        }
+      },
+      "expected": {
+        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
+        "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
+        "input": "",
+        "witness": [
+          "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+          "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058",
+          "0014c30afa58ae0673b00a45b5c17dff4633780f1400"
+        ]
+      }
+    },
+    {
+      "description": "p2wsh-p2pk, in and out (from witness)",
+      "arguments": {
+        "witness": [
+          "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+          "2103e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058ac"
+        ]
+      },
+      "expected": {
+        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
+        "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
+        "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
+        "redeem": {
+          "output": "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058 OP_CHECKSIG",
+          "input": "",
+          "witness": [
+            "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501"
+          ]
+        },
+        "input": ""
+      }
+    },
+    {
+      "description": "p2wsh-p2wpkh, in and out (from witness)",
+      "arguments": {
+        "witness": [
+          "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+          "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058",
+          "0014c30afa58ae0673b00a45b5c17dff4633780f1400"
+        ]
+      },
+      "expected": {
+        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
+        "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
+        "redeem": {
+          "output": "OP_0 c30afa58ae0673b00a45b5c17dff4633780f1400",
+          "input": "",
+          "witness": [
+            "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+            "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058"
+          ]
+        }
+      }
+    },
+    {
+      "description": "p2wsh-p2pkh, out (network derived from redeem)",
+      "arguments": {
+        "redeem": {
+          "address": "this is P2PKH context, unknown and ignored by p2wsh",
+          "output": "OP_DUP OP_HASH160 c30afa58ae0673b00a45b5c17dff4633780f1400 OP_EQUALVERIFY OP_CHECKSIG",
+          "network": "testnet"
+        }
+      },
+      "expected": {
+        "address": "tb1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ssaskm8v",
+        "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "input": null,
+        "witness": null,
+        "network": "testnet"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "exception": "Not enough data",
+      "arguments": {}
+    },
+    {
+      "description": "address.hash != H",
+      "exception": "Hash mismatch",
+      "arguments": {
+        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      }
+    },
+    {
+      "description": "address.hash != output.hash",
+      "exception": "Hash mismatch",
+      "arguments": {
+        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "output": "OP_0 ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      }
+    },
+    {
+      "description": "output.hash != H",
+      "exception": "Hash mismatch",
+      "arguments": {
+        "hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0"
+      }
+    },
+    {
+      "description": "H(redeem.output) != H",
+      "exception": "Hash mismatch",
+      "arguments": {
+        "hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "redeem": {
+          "output": "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058 OP_CHECKSIG"
+        }
+      }
+    },
+    {
+      "exception": "Output is invalid",
+      "options": {},
+      "arguments": {
+        "output": "OP_HASH256 ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff OP_EQUAL"
+      }
+    },
+    {
+      "exception": "Redeem.output is invalid",
+      "arguments": {
+        "redeem": {
+          "output": ""
+        }
+      }
+    },
+    {
+      "exception": "Non push-only scriptSig",
+      "arguments": {
+        "redeem": {
+          "output": "OP_TRUE",
+          "input": "OP_HASH256"
+        }
+      }
+    },
+    {
+      "exception": "Witness and redeem.output mismatch",
+      "arguments": {
+        "redeem": {
+          "output": "OP_TRUE",
+          "input": "OP_0"
+        },
+        "witness": [
+          "02ffff"
+        ]
+      }
+    },
+    {
+      "exception": "Witness and redeem.witness mismatch",
+      "arguments": {
+        "redeem": {
+          "output": "OP_TRUE",
+          "witness": [
+            "01"
+          ]
+        },
+        "witness": [
+          "00",
+          "02ffff"
+        ]
+      }
+    },
+    {
+      "exception": "Witness and redeem.witness mismatch",
+      "arguments": {
+        "redeem": {
+          "output": "OP_TRUE",
+          "witness": [
+            "04000000ff"
+          ]
+        },
+        "witness": [
+          "04000000ee"
+        ]
+      }
+    },
+    {
+      "exception": "Ambiguous witness source",
+      "arguments": {
+        "redeem": {
+          "output": "OP_TRUE",
+          "input": "01",
+          "witness": [
+            "01"
+          ]
+        }
+      }
+    },
+    {
+      "exception": "Network mismatch",
+      "arguments": {
+        "network": "bitcoin",
+        "redeem": {
+          "network": "testnet"
+        }
+      }
+    },
+    {
+      "exception": "Network mismatch",
+      "arguments": {
+        "network": "testnet",
+        "redeem": {
+          "network": "bitcoin"
+        }
+      }
+    },
+    {
+      "exception": "Invalid prefix or Network mismatch",
+      "arguments": {
+        "address": "foo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs30dvv"
+      }
+    },
+    {
+      "exception": "Invalid address version",
+      "arguments": {
+        "address": "bc1pqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq5us4ke"
+      }
+    },
+    {
+      "exception": "Invalid address data",
+      "arguments": {
+        "address": "bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8"
+      }
+    }
+  ],
+  "dynamic": {
+    "depends": {
+      "address": [ "address", "output", "hash", "redeem.output", "witness" ],
+      "hash": [ "address", "output", "hash", "redeem.output", "witness" ],
+      "output":  [ "address", "output", "hash", "redeem.output", "witness" ],
+      "redeem.output": [ "witness" ],
+      "redeem.input": [ [ "input", "witness" ], "witness" ],
+      "input": [ "witness" ],
+      "witness": [ "redeem" ]
+    },
+    "details": [
+      {
+        "description": "p2wsh-p2pkh",
+        "disabled": [
+          "redeem.input"
+        ],
+        "address": "bc1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss2cq5ar",
+        "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
+        "redeem": {
+          "output": "OP_DUP OP_HASH160 c30afa58ae0673b00a45b5c17dff4633780f1400 OP_EQUALVERIFY OP_CHECKSIG",
+          "input": "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501 03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058",
+          "witness": null
+        },
+        "input": "",
+        "witness": [
+          "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+          "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058",
+          "76a914c30afa58ae0673b00a45b5c17dff4633780f140088ac"
+        ]
+      },
+      {
+        "description": "p2wsh-p2wpkh",
+        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
+        "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
+        "redeem": {
+          "output": "OP_0 c30afa58ae0673b00a45b5c17dff4633780f1400",
+          "input": "",
+          "witness": [
+            "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+            "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058"
+          ]
+        },
+        "input": "",
+        "witness": [
+          "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
+          "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058",
+          "0014c30afa58ae0673b00a45b5c17dff4633780f1400"
+        ]
+      }
+    ]
+  }
+}

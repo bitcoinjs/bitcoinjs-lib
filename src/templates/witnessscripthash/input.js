@@ -1,26 +1,26 @@
 // <scriptSig> {serialized scriptPubKey script}
 
-var bscript = require('../../script')
-var types = require('../../types')
-var typeforce = require('typeforce')
+const bscript = require('../../script')
+const types = require('../../types')
+const typeforce = require('typeforce')
 
-var p2ms = require('../multisig/')
-var p2pk = require('../pubkey/')
-var p2pkh = require('../pubkeyhash/')
+const p2ms = require('../multisig/')
+const p2pk = require('../pubkey/')
+const p2pkh = require('../pubkeyhash/')
 
 function check (chunks, allowIncomplete) {
   typeforce(types.Array, chunks)
   if (chunks.length < 1) return false
 
-  var witnessScript = chunks[chunks.length - 1]
+  const witnessScript = chunks[chunks.length - 1]
   if (!Buffer.isBuffer(witnessScript)) return false
 
-  var witnessScriptChunks = bscript.decompile(witnessScript)
+  const witnessScriptChunks = bscript.decompile(witnessScript)
 
   // is witnessScript a valid script?
-  if (witnessScriptChunks.length === 0) return false
+  if (!witnessScriptChunks || witnessScriptChunks.length === 0) return false
 
-  var witnessRawScriptSig = bscript.compile(chunks.slice(0, -1))
+  const witnessRawScriptSig = bscript.compile(chunks.slice(0, -1))
 
   // match types
   if (p2pkh.input.check(witnessRawScriptSig) &&
@@ -36,29 +36,4 @@ function check (chunks, allowIncomplete) {
 }
 check.toJSON = function () { return 'witnessScriptHash input' }
 
-function encodeStack (witnessData, witnessScript) {
-  typeforce({
-    witnessData: [types.Buffer],
-    witnessScript: types.Buffer
-  }, {
-    witnessData: witnessData,
-    witnessScript: witnessScript
-  })
-
-  return [].concat(witnessData, witnessScript)
-}
-
-function decodeStack (stack) {
-  typeforce(typeforce.Array, stack)
-  typeforce(check, stack)
-  return {
-    witnessData: stack.slice(0, -1),
-    witnessScript: stack[stack.length - 1]
-  }
-}
-
-module.exports = {
-  check: check,
-  decodeStack: decodeStack,
-  encodeStack: encodeStack
-}
+module.exports = { check }

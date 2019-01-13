@@ -1,10 +1,20 @@
-/* global describe, it */
-
-var assert = require('assert')
-var baddress = require('../src/address')
-var networks = require('../src/networks')
-var bscript = require('../src/script')
-var fixtures = require('./fixtures/address.json')
+const { describe, it } = require('mocha')
+const assert = require('assert')
+const baddress = require('../src/address')
+const bscript = require('../src/script')
+const fixtures = require('./fixtures/address.json')
+const NETWORKS = Object.assign({
+  litecoin: {
+    messagePrefix: '\x19Litecoin Signed Message:\n',
+    bip32: {
+      public: 0x019da462,
+      private: 0x019d9cfe
+    },
+    pubKeyHash: 0x30,
+    scriptHash: 0x32,
+    wif: 0xb0
+  }
+}, require('../src/networks'))
 
 describe('address', function () {
   describe('fromBase58Check', function () {
@@ -12,7 +22,7 @@ describe('address', function () {
       if (!f.base58check) return
 
       it('decodes ' + f.base58check, function () {
-        var decode = baddress.fromBase58Check(f.base58check)
+        const decode = baddress.fromBase58Check(f.base58check)
 
         assert.strictEqual(decode.version, f.version)
         assert.strictEqual(decode.hash.toString('hex'), f.hash)
@@ -33,10 +43,10 @@ describe('address', function () {
       if (!f.bech32) return
 
       it('decodes ' + f.bech32, function () {
-        var actual = baddress.fromBech32(f.bech32)
+        const actual = baddress.fromBech32(f.bech32)
 
         assert.strictEqual(actual.version, f.version)
-        assert.strictEqual(actual.prefix, networks[f.network].bech32)
+        assert.strictEqual(actual.prefix, NETWORKS[f.network].bech32)
         assert.strictEqual(actual.data.toString('hex'), f.data)
       })
     })
@@ -53,8 +63,8 @@ describe('address', function () {
   describe('fromOutputScript', function () {
     fixtures.standard.forEach(function (f) {
       it('encodes ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
-        var script = bscript.fromASM(f.script)
-        var address = baddress.fromOutputScript(script, networks[f.network])
+        const script = bscript.fromASM(f.script)
+        const address = baddress.fromOutputScript(script, NETWORKS[f.network])
 
         assert.strictEqual(address, f.base58check || f.bech32.toLowerCase())
       })
@@ -62,7 +72,7 @@ describe('address', function () {
 
     fixtures.invalid.fromOutputScript.forEach(function (f) {
       it('throws when ' + f.script.slice(0, 30) + '... ' + f.exception, function () {
-        var script = bscript.fromASM(f.script)
+        const script = bscript.fromASM(f.script)
 
         assert.throws(function () {
           baddress.fromOutputScript(script)
@@ -76,7 +86,7 @@ describe('address', function () {
       if (!f.base58check) return
 
       it('encodes ' + f.hash + ' (' + f.network + ')', function () {
-        var address = baddress.toBase58Check(Buffer.from(f.hash, 'hex'), f.version)
+        const address = baddress.toBase58Check(Buffer.from(f.hash, 'hex'), f.version)
 
         assert.strictEqual(address, f.base58check)
       })
@@ -86,7 +96,7 @@ describe('address', function () {
   describe('toBech32', function () {
     fixtures.bech32.forEach((f, i) => {
       if (!f.bech32) return
-      var data = Buffer.from(f.data, 'hex')
+      const data = Buffer.from(f.data, 'hex')
 
       it('encode ' + f.address, function () {
         assert.deepEqual(baddress.toBech32(data, f.version, f.prefix), f.address)
@@ -107,7 +117,7 @@ describe('address', function () {
   describe('toOutputScript', function () {
     fixtures.standard.forEach(function (f) {
       it('decodes ' + f.script.slice(0, 30) + '... (' + f.network + ')', function () {
-        var script = baddress.toOutputScript(f.base58check || f.bech32, networks[f.network])
+        const script = baddress.toOutputScript(f.base58check || f.bech32, NETWORKS[f.network])
 
         assert.strictEqual(bscript.toASM(script), f.script)
       })

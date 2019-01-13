@@ -1,27 +1,26 @@
 // <scriptSig> {serialized scriptPubKey script}
 
-var Buffer = require('safe-buffer').Buffer
-var bscript = require('../../script')
-var typeforce = require('typeforce')
+const Buffer = require('safe-buffer').Buffer
+const bscript = require('../../script')
 
-var p2ms = require('../multisig/')
-var p2pk = require('../pubkey/')
-var p2pkh = require('../pubkeyhash/')
-var p2wpkho = require('../witnesspubkeyhash/output')
-var p2wsho = require('../witnessscripthash/output')
+const p2ms = require('../multisig/')
+const p2pk = require('../pubkey/')
+const p2pkh = require('../pubkeyhash/')
+const p2wpkho = require('../witnesspubkeyhash/output')
+const p2wsho = require('../witnessscripthash/output')
 
 function check (script, allowIncomplete) {
-  var chunks = bscript.decompile(script)
+  const chunks = bscript.decompile(script)
   if (chunks.length < 1) return false
 
-  var lastChunk = chunks[chunks.length - 1]
+  const lastChunk = chunks[chunks.length - 1]
   if (!Buffer.isBuffer(lastChunk)) return false
 
-  var scriptSigChunks = bscript.decompile(bscript.compile(chunks.slice(0, -1)))
-  var redeemScriptChunks = bscript.decompile(lastChunk)
+  const scriptSigChunks = bscript.decompile(bscript.compile(chunks.slice(0, -1)))
+  const redeemScriptChunks = bscript.decompile(lastChunk)
 
   // is redeemScript a valid script?
-  if (redeemScriptChunks.length === 0) return false
+  if (!redeemScriptChunks) return false
 
   // is redeemScriptSig push only?
   if (!bscript.isPushOnly(scriptSigChunks)) return false
@@ -46,40 +45,4 @@ function check (script, allowIncomplete) {
 }
 check.toJSON = function () { return 'scriptHash input' }
 
-function encodeStack (redeemScriptStack, redeemScript) {
-  var serializedScriptPubKey = bscript.compile(redeemScript)
-
-  return [].concat(redeemScriptStack, serializedScriptPubKey)
-}
-
-function encode (redeemScriptSig, redeemScript) {
-  var redeemScriptStack = bscript.decompile(redeemScriptSig)
-
-  return bscript.compile(encodeStack(redeemScriptStack, redeemScript))
-}
-
-function decodeStack (stack) {
-  typeforce(typeforce.Array, stack)
-  typeforce(check, stack)
-
-  return {
-    redeemScriptStack: stack.slice(0, -1),
-    redeemScript: stack[stack.length - 1]
-  }
-}
-
-function decode (buffer) {
-  var stack = bscript.decompile(buffer)
-  var result = decodeStack(stack)
-  result.redeemScriptSig = bscript.compile(result.redeemScriptStack)
-  delete result.redeemScriptStack
-  return result
-}
-
-module.exports = {
-  check: check,
-  decode: decode,
-  decodeStack: decodeStack,
-  encode: encode,
-  encodeStack: encodeStack
-}
+module.exports = { check }

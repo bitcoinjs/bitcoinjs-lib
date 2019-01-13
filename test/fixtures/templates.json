@@ -113,13 +113,26 @@
     },
     {
       "type": "nulldata",
-      "data": "06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
+      "data": [
+        "06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474"
+      ],
       "output": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
       "outputHex": "6a2606deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474"
     },
     {
       "type": "nulldata",
-      "data": "deadffffffffffffffffffffffffffffffffbeef",
+      "data": [
+        "deadffffffffffffffffffffffffffffffffbeef",
+        "deadffffffffffffffffffffffffffffffffbeef"
+      ],
+      "output": "OP_RETURN deadffffffffffffffffffffffffffffffffbeef deadffffffffffffffffffffffffffffffffbeef",
+      "outputHex": "6a14deadffffffffffffffffffffffffffffffffbeef14deadffffffffffffffffffffffffffffffffbeef"
+    },
+    {
+      "type": "nulldata",
+      "data": [
+        "deadffffffffffffffffffffffffffffffffbeef"
+      ],
       "output": "OP_RETURN deadffffffffffffffffffffffffffffffffbeef",
       "outputHex": "6a14deadffffffffffffffffffffffffffffffffbeef"
     },
