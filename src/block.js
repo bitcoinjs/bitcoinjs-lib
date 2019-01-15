@@ -21,10 +21,10 @@ function txesHaveWitnessCommit (transactions) {
 
 function anyTxHasWitness (transactions) {
   return transactions instanceof Array &&
-    transactions.any(tx =>
+    transactions.some(tx =>
       typeof tx === 'object' &&
       tx.ins instanceof Array &&
-      tx.ins.any(input =>
+      tx.ins.some(input =>
         typeof input === 'object' &&
         input.witness instanceof Array &&
         input.witness.length > 0
