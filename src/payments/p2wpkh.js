@@ -55,7 +55,7 @@ function p2wpkh(a, opts) {
         if (a.address)
             return _address().data;
         if (a.pubkey || o.pubkey)
-            return bcrypto.hash160(a.pubkey || o.pubkey); // eslint-disable-line
+            return bcrypto.hash160(a.pubkey || o.pubkey);
     });
     lazy.prop(o, 'output', function () {
         if (!o.hash)

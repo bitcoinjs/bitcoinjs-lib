@@ -59,7 +59,7 @@ export function p2sh (a: Payment, opts?: PaymentOpts): Payment {
     const hash = payload.slice(1)
     return { version, hash }
   })
-  const _chunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(<Buffer>a.input) })
+  const _chunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(a.input!) })
   const _redeem = lazy.value(function (): Payment {
     const chunks = _chunks()
     return {
@@ -75,7 +75,7 @@ export function p2sh (a: Payment, opts?: PaymentOpts): Payment {
     if (!o.hash) return
 
     const payload = Buffer.allocUnsafe(21)
-    payload.writeUInt8((<Network>o.network).scriptHash, 0)
+    payload.writeUInt8(o.network!.scriptHash, 0)
     o.hash.copy(payload, 1)
     return bs58check.encode(payload)
   })
@@ -173,8 +173,8 @@ export function p2sh (a: Payment, opts?: PaymentOpts): Payment {
       if (a.redeem.network && a.redeem.network !== network) throw new TypeError('Network mismatch')
       if (a.input) {
         const redeem = _redeem()
-        if (a.redeem.output && !a.redeem.output.equals(<Buffer>redeem.output)) throw new TypeError('Redeem.output mismatch')
-        if (a.redeem.input && !a.redeem.input.equals(<Buffer>redeem.input)) throw new TypeError('Redeem.input mismatch')
+        if (a.redeem.output && !a.redeem.output.equals(redeem.output!)) throw new TypeError('Redeem.output mismatch')
+        if (a.redeem.input && !a.redeem.input.equals(redeem.input!)) throw new TypeError('Redeem.input mismatch')
       }
 
       checkRedeem(a.redeem)

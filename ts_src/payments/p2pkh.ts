@@ -38,7 +38,7 @@ export function p2pkh (a: Payment, opts?: PaymentOpts): Payment {
     const hash = payload.slice(1)
     return { version, hash }
   })
-  const _chunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(<Buffer>a.input) })
+  const _chunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(a.input!) })
 
   const network = a.network || BITCOIN_NETWORK
   const o: Payment = { network }
@@ -54,7 +54,7 @@ export function p2pkh (a: Payment, opts?: PaymentOpts): Payment {
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(3, 23)
     if (a.address) return _address().hash
-    if (a.pubkey || o.pubkey) return bcrypto.hash160(<Buffer> a.pubkey || <Buffer>o.pubkey) // eslint-disable-line
+    if (a.pubkey || o.pubkey) return bcrypto.hash160(a.pubkey! || o.pubkey!)
   })
   lazy.prop(o, 'output', function () {
     if (!o.hash) return

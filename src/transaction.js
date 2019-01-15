@@ -369,13 +369,13 @@ class Transaction {
             offset += slice.copy(buffer, offset);
         }
         function writeUInt8(i) {
-            offset = buffer.writeUInt8(i, offset);
+            offset = (buffer).writeUInt8(i, offset);
         }
         function writeUInt32(i) {
-            offset = buffer.writeUInt32LE(i, offset);
+            offset = (buffer).writeUInt32LE(i, offset);
         }
         function writeInt32(i) {
-            offset = buffer.writeInt32LE(i, offset);
+            offset = (buffer).writeInt32LE(i, offset);
         }
         function writeUInt64(i) {
             offset = bufferutils.writeUInt64LE(buffer, i, offset);

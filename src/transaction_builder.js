@@ -270,7 +270,7 @@ class TransactionBuilder {
         return this.__inputs.every(input => {
             if (input.signatures === undefined)
                 return true;
-            return input.signatures.every((signature => {
+            return input.signatures.every(signature => {
                 if (!signature)
                     return true;
                 const hashType = signatureHashType(signature);
@@ -283,7 +283,8 @@ class TransactionBuilder {
                     // of more outputs
                     return nInputs <= nOutputs;
                 }
-            }));
+                return false;
+            });
         });
     }
     __overMaximumFees(bytes) {

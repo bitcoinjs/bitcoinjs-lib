@@ -59,7 +59,7 @@ export function p2wpkh (a: Payment, opts?: PaymentOpts): Payment {
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(2, 22)
     if (a.address) return _address().data
-    if (a.pubkey || o.pubkey) return bcrypto.hash160(<Buffer> a.pubkey || <Buffer>o.pubkey) // eslint-disable-line
+    if (a.pubkey || o.pubkey) return bcrypto.hash160(a.pubkey! || o.pubkey!)
   })
   lazy.prop(o, 'output', function () {
     if (!o.hash) return

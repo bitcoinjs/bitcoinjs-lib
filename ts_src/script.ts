@@ -125,7 +125,7 @@ export function decompile (buffer: Buffer | Array<number | Buffer>): Array<numbe
       // decompile minimally
       const op = asMinimalOP(data)
       if (op !== undefined) {
-        chunks.push(<number>op)
+        chunks.push(op)
       } else {
         chunks.push(data)
       }

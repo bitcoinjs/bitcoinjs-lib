@@ -58,7 +58,7 @@ export function p2wsh (a: Payment, opts?: PaymentOpts): Payment {
       data: Buffer.from(data)
     }
   })
-  const _rchunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(<Buffer>(<Payment>a.redeem).input) })
+  const _rchunks = <()=>Array<Buffer | number>>lazy.value(function () { return bscript.decompile(a.redeem!.input!) })
 
   let network = a.network
   if (!network) {
@@ -71,7 +71,7 @@ export function p2wsh (a: Payment, opts?: PaymentOpts): Payment {
     if (!o.hash) return
     const words = bech32.toWords(o.hash)
     words.unshift(0x00)
-    return bech32.encode((<Network>network).bech32, words)
+    return bech32.encode(network!.bech32, words)
   })
   lazy.prop(o, 'hash', function () {
     if (a.output) return a.output.slice(2)
@@ -158,7 +158,7 @@ export function p2wsh (a: Payment, opts?: PaymentOpts): Payment {
 
       // is the redeem output non-empty?
       if (a.redeem.output) {
-        if ((<Array<Buffer | number>>bscript.decompile(a.redeem.output)).length === 0) throw new TypeError('Redeem.output is invalid')
+        if (bscript.decompile(a.redeem.output)!.length === 0) throw new TypeError('Redeem.output is invalid')
 
         // match hash against other sources
         const hash2 = bcrypto.sha256(a.redeem.output)

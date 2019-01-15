@@ -129,7 +129,7 @@ export class Block {
     if (transactions.length === 0) throw errorMerkleNoTxes
     if (forWitness && !txesHaveWitness(transactions)) throw errorWitnessNotSegwit
 
-    const hashes = transactions.map(transaction => transaction.getHash((<boolean>forWitness)))
+    const hashes = transactions.map(transaction => transaction.getHash(forWitness!))
 
     const rootHash = fastMerkleRoot(hashes, bcrypto.hash256)
 
@@ -139,7 +139,7 @@ export class Block {
   }
 
   hasWitnessCommit (): boolean {
-    return txesHaveWitness(<Array<Transaction>>this.transactions)
+    return txesHaveWitness(this.transactions!)
   }
 
   byteLength (headersOnly: boolean): number {
@@ -184,8 +184,8 @@ export class Block {
     }
 
     writeInt32(this.version)
-    writeSlice(<Buffer>this.prevHash)
-    writeSlice(<Buffer>this.merkleRoot)
+    writeSlice(this.prevHash!)
+    writeSlice(this.merkleRoot!)
     writeUInt32(this.timestamp)
     writeUInt32(this.bits)
     writeUInt32(this.nonce)
@@ -212,7 +212,7 @@ export class Block {
     if (!this.transactions) throw errorMerkleNoTxes
 
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions)
-    return (<Buffer>this.merkleRoot).compare(actualMerkleRoot) === 0
+    return this.merkleRoot!.compare(actualMerkleRoot) === 0
   }
 
   checkWitnessCommit (): boolean {
@@ -220,7 +220,7 @@ export class Block {
     if (!this.hasWitnessCommit()) throw errorWitnessNotSegwit
 
     const actualWitnessCommit = Block.calculateMerkleRoot(this.transactions, true)
-    return (<Buffer>this.witnessCommit).compare(actualWitnessCommit) === 0
+    return this.witnessCommit!.compare(actualWitnessCommit) === 0
   }
 
   checkProofOfWork (): boolean {
