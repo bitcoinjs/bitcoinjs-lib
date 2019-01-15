@@ -15,7 +15,7 @@
     "bitcoinjs"
   ],
   "scripts": {
-    "build": "tsc -d -p ./tsconfig.json",
+    "build": "tsc -p ./tsconfig.json",
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
     "coverage": "npm run build && npm run nobuild:coverage",
@@ -39,7 +39,7 @@
     "src"
   ],
   "dependencies": {
-    "@types/node": "^10.12.18",
+    "@types/node": "10.12.18",
     "bech32": "^1.1.2",
     "bip32": "git+https://github.com/junderw/bip32.git#typeScript",
     "bip66": "^1.1.0",
@@ -52,7 +52,7 @@
     "randombytes": "^2.0.1",
     "tiny-secp256k1": "^1.0.0",
     "typeforce": "^1.11.3",
-    "typescript": "^3.2.2",
+    "typescript": "3.2.2",
     "varuint-bitcoin": "^1.0.4",
     "wif": "^2.0.1"
   },

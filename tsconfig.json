@@ -3,6 +3,7 @@
     "target": "ES2015",
     "module": "commonjs",
     "outDir": "./src",
+    "declaration": true,
     "declarationDir": "./types",
     "rootDir": "./ts_src",
     "types": [
