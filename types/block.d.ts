@@ -14,7 +14,9 @@ export declare class Block {
     static fromHex(hex: string): Block;
     static calculateTarget(bits: number): Buffer;
     static calculateMerkleRoot(transactions: Array<Transaction>, forWitness?: boolean): Buffer;
+    getWitnessCommit(): Buffer | null;
     hasWitnessCommit(): boolean;
+    hasWitness(): boolean;
     byteLength(headersOnly: boolean): number;
     getHash(): Buffer;
     getId(): string;
