@@ -208,14 +208,25 @@ export class Block {
     return this.toBuffer(headersOnly).toString('hex')
   }
 
+  checkTxRoots (): boolean {
+    return this.__checkMerkleRoot() &&
+      (this.hasWitnessCommit() ? this.__checkWitnessCommit() : true)
+  }
+
   checkMerkleRoot (): boolean {
+    console.warn('Deprecation Warning: Block method checkMerkleRoot will be ' +
+    'deprecated in v5. Please use checkTxRoots instead.')
+    return this.checkTxRoots()
+  }
+
+  __checkMerkleRoot (): boolean {
     if (!this.transactions) throw errorMerkleNoTxes
 
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions)
     return this.merkleRoot!.compare(actualMerkleRoot) === 0
   }
 
-  checkWitnessCommit (): boolean {
+  __checkWitnessCommit (): boolean {
     if (!this.transactions) throw errorMerkleNoTxes
     if (!this.hasWitnessCommit()) throw errorWitnessNotSegwit
 

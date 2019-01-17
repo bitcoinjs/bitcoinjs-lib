@@ -21,7 +21,9 @@ export declare class Block {
     getUTCDate(): Date;
     toBuffer(headersOnly: boolean): Buffer;
     toHex(headersOnly: boolean): string;
+    checkTxRoots(): boolean;
     checkMerkleRoot(): boolean;
-    checkWitnessCommit(): boolean;
+    __checkMerkleRoot(): boolean;
+    __checkWitnessCommit(): boolean;
     checkProofOfWork(): boolean;
 }
