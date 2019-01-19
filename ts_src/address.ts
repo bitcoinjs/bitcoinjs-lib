@@ -1,4 +1,3 @@
-import * as Networks from './networks'
 import { Network } from './networks'
 import * as types from './types'
 import * as bscript from './script'
