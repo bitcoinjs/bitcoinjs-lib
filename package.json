@@ -19,7 +19,8 @@
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
     "coverage": "npm run build && npm run nobuild:coverage",
-    "format": "prettier ts_src/*.ts ts_src/**/*.ts --ignore-path ./.prettierignore --write",
+    "format": "npm run prettier -- --write",
+    "format:ci": "npm run prettier -- --check",
     "integration": "npm run build && npm run nobuild:integration",
     "nobuild:coverage-report": "nyc report --reporter=lcov",
     "nobuild:coverage-html": "nyc report --reporter=html",
@@ -27,6 +28,7 @@
     "nobuild:integration": "mocha --timeout 50000 test/integration/",
     "nobuild:unit": "mocha",
     "prepare": "npm run build",
+    "prettier": "prettier ts_src/*.ts ts_src/**/*.ts --ignore-path ./.prettierignore",
     "test": "npm run build && npm run nobuild:coverage",
     "unit": "npm run build && npm run nobuild:unit"
   },
