@@ -53,7 +53,6 @@
     "randombytes": "^2.0.1",
     "tiny-secp256k1": "^1.0.0",
     "typeforce": "^1.11.3",
-    "typescript": "3.2.2",
     "varuint-bitcoin": "^1.0.4",
     "wif": "^2.0.1"
   },
@@ -71,6 +70,7 @@
     "nyc": "^11.8.0",
     "proxyquire": "^2.0.1",
     "standard": "^11.0.1",
+    "typescript": "3.2.2",
     "typescript-eslint-parser": "^21.0.2"
   },
   "license": "MIT",
