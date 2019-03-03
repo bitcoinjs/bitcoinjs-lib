@@ -8,13 +8,14 @@ const typeforce = require('typeforce');
 const wif = require('wif');
 const isOptions = typeforce.maybe(typeforce.compile({
     compressed: types.maybe(types.Boolean),
-    network: types.maybe(types.Network)
+    network: types.maybe(types.Network),
 }));
 class ECPair {
     constructor(d, Q, options) {
         if (options === undefined)
             options = {};
-        this.compressed = options.compressed === undefined ? true : options.compressed;
+        this.compressed =
+            options.compressed === undefined ? true : options.compressed;
         this.network = options.network || NETWORKS.bitcoin;
         this.__d = undefined;
         this.__Q = undefined;
@@ -64,9 +65,11 @@ function fromWIF(string, network) {
     const version = decoded.version;
     // list of networks?
     if (types.Array(network)) {
-        network = network.filter(function (x) {
+        network = network
+            .filter(function (x) {
             return version === x.wif;
-        }).pop();
+        })
+            .pop();
         if (!network)
             throw new Error('Unknown network version');
         // otherwise, assume a network object (or default to bitcoin)
@@ -78,7 +81,7 @@ function fromWIF(string, network) {
     }
     return fromPrivateKey(decoded.privateKey, {
         compressed: decoded.compressed,
-        network: network
+        network: network,
     });
 }
 exports.fromWIF = fromWIF;

@@ -11,10 +11,10 @@ exports.OPS = require('bitcoin-ops');
 const REVERSE_OPS = require('bitcoin-ops/map');
 const OP_INT_BASE = exports.OPS.OP_RESERVED; // OP_1 - 1
 function isOPInt(value) {
-    return types.Number(value) &&
-        ((value === exports.OPS.OP_0) ||
+    return (types.Number(value) &&
+        (value === exports.OPS.OP_0 ||
             (value >= exports.OPS.OP_1 && value <= exports.OPS.OP_16) ||
-            (value === exports.OPS.OP_1NEGATE));
+            value === exports.OPS.OP_1NEGATE));
 }
 function isPushOnlyChunk(value) {
     return types.Buffer(value) || isOPInt(value);
@@ -96,7 +96,7 @@ function decompile(buffer) {
     while (i < buffer.length) {
         const opcode = buffer[i];
         // data chunk
-        if ((opcode > exports.OPS.OP_0) && (opcode <= exports.OPS.OP_PUSHDATA4)) {
+        if (opcode > exports.OPS.OP_0 && opcode <= exports.OPS.OP_PUSHDATA4) {
             const d = pushdata.decode(buffer, i);
             // did reading a pushDataInt fail?
             if (d === null)
@@ -129,7 +129,8 @@ function toASM(chunks) {
     if (chunksIsBuffer(chunks)) {
         chunks = decompile(chunks);
     }
-    return chunks.map(function (chunk) {
+    return chunks
+        .map(function (chunk) {
         // data?
         if (singleChunkIsBuffer(chunk)) {
             const op = asMinimalOP(chunk);
@@ -139,7 +140,8 @@ function toASM(chunks) {
         }
         // opcode!
         return REVERSE_OPS[chunk];
-    }).join(' ');
+    })
+        .join(' ');
 }
 exports.toASM = toASM;
 function fromASM(asm) {

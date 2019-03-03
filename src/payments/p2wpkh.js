@@ -13,11 +13,7 @@ const EMPTY_BUFFER = Buffer.alloc(0);
 // input: <>
 // output: OP_0 {pubKeyHash}
 function p2wpkh(a, opts) {
-    if (!a.address &&
-        !a.hash &&
-        !a.output &&
-        !a.pubkey &&
-        !a.witness)
+    if (!a.address && !a.hash && !a.output && !a.pubkey && !a.witness)
         throw new TypeError('Not enough data');
     opts = Object.assign({ validate: true }, opts || {});
     typef({
@@ -28,7 +24,7 @@ function p2wpkh(a, opts) {
         output: typef.maybe(typef.BufferN(22)),
         pubkey: typef.maybe(ecc.isPoint),
         signature: typef.maybe(bscript.isCanonicalScriptSignature),
-        witness: typef.maybe(typef.arrayOf(typef.Buffer))
+        witness: typef.maybe(typef.arrayOf(typef.Buffer)),
     }, a);
     const _address = lazy.value(function () {
         const result = bech32.decode(a.address);
@@ -37,7 +33,7 @@ function p2wpkh(a, opts) {
         return {
             version,
             prefix: result.prefix,
-            data: Buffer.from(data)
+            data: Buffer.from(data),
         };
     });
     const network = a.network || networks_1.bitcoin;
@@ -60,10 +56,7 @@ function p2wpkh(a, opts) {
     lazy.prop(o, 'output', function () {
         if (!o.hash)
             return;
-        return bscript.compile([
-            OPS.OP_0,
-            o.hash
-        ]);
+        return bscript.compile([OPS.OP_0, o.hash]);
     });
     lazy.prop(o, 'pubkey', function () {
         if (a.pubkey)

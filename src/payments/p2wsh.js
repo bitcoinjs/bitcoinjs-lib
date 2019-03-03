@@ -19,11 +19,7 @@ function stacksEqual(a, b) {
 // witness: [redeemScriptSig ...] {redeemScript}
 // output: OP_0 {sha256(redeemScript)}
 function p2wsh(a, opts) {
-    if (!a.address &&
-        !a.hash &&
-        !a.output &&
-        !a.redeem &&
-        !a.witness)
+    if (!a.address && !a.hash && !a.output && !a.redeem && !a.witness)
         throw new TypeError('Not enough data');
     opts = Object.assign({ validate: true }, opts || {});
     typef({
@@ -35,10 +31,10 @@ function p2wsh(a, opts) {
             input: typef.maybe(typef.Buffer),
             network: typef.maybe(typef.Object),
             output: typef.maybe(typef.Buffer),
-            witness: typef.maybe(typef.arrayOf(typef.Buffer))
+            witness: typef.maybe(typef.arrayOf(typef.Buffer)),
         }),
         input: typef.maybe(typef.BufferN(0)),
-        witness: typef.maybe(typef.arrayOf(typef.Buffer))
+        witness: typef.maybe(typef.arrayOf(typef.Buffer)),
     }, a);
     const _address = lazy.value(function () {
         const result = bech32.decode(a.address);
@@ -47,10 +43,12 @@ function p2wsh(a, opts) {
         return {
             version,
             prefix: result.prefix,
-            data: Buffer.from(data)
+            data: Buffer.from(data),
         };
     });
-    const _rchunks = lazy.value(function () { return bscript.decompile(a.redeem.input); });
+    const _rchunks = lazy.value(function () {
+        return bscript.decompile(a.redeem.input);
+    });
     let network = a.network;
     if (!network) {
         network = (a.redeem && a.redeem.network) || networks_1.bitcoin;
@@ -74,10 +72,7 @@ function p2wsh(a, opts) {
     lazy.prop(o, 'output', function () {
         if (!o.hash)
             return;
-        return bscript.compile([
-            OPS.OP_0,
-            o.hash
-        ]);
+        return bscript.compile([OPS.OP_0, o.hash]);
     });
     lazy.prop(o, 'redeem', function () {
         if (!a.witness)
@@ -85,7 +80,7 @@ function p2wsh(a, opts) {
         return {
             output: a.witness[a.witness.length - 1],
             input: EMPTY_BUFFER,
-            witness: a.witness.slice(0, -1)
+            witness: a.witness.slice(0, -1),
         };
     });
     lazy.prop(o, 'input', function () {
@@ -165,11 +160,15 @@ function p2wsh(a, opts) {
             }
             if (a.redeem.input && !bscript.isPushOnly(_rchunks()))
                 throw new TypeError('Non push-only scriptSig');
-            if (a.witness && a.redeem.witness && !stacksEqual(a.witness, a.redeem.witness))
+            if (a.witness &&
+                a.redeem.witness &&
+                !stacksEqual(a.witness, a.redeem.witness))
                 throw new TypeError('Witness and redeem.witness mismatch');
         }
         if (a.witness) {
-            if (a.redeem && a.redeem.output && !a.redeem.output.equals(a.witness[a.witness.length - 1]))
+            if (a.redeem &&
+                a.redeem.output &&
+                !a.redeem.output.equals(a.witness[a.witness.length - 1]))
                 throw new TypeError('Witness and redeem.output mismatch');
         }
     }

@@ -10,22 +10,22 @@ const varuint = require('varuint-bitcoin');
 const errorMerkleNoTxes = new TypeError('Cannot compute merkle root for zero transactions');
 const errorWitnessNotSegwit = new TypeError('Cannot compute witness commit for non-segwit block');
 function txesHaveWitnessCommit(transactions) {
-    return transactions instanceof Array &&
+    return (transactions instanceof Array &&
         transactions[0] &&
         transactions[0].ins &&
         transactions[0].ins instanceof Array &&
         transactions[0].ins[0] &&
         transactions[0].ins[0].witness &&
         transactions[0].ins[0].witness instanceof Array &&
-        transactions[0].ins[0].witness.length > 0;
+        transactions[0].ins[0].witness.length > 0);
 }
 function anyTxHasWitness(transactions) {
-    return transactions instanceof Array &&
+    return (transactions instanceof Array &&
         transactions.some(tx => typeof tx === 'object' &&
             tx.ins instanceof Array &&
             tx.ins.some(input => typeof input === 'object' &&
                 input.witness instanceof Array &&
-                input.witness.length > 0));
+                input.witness.length > 0)));
 }
 class Block {
     constructor() {
@@ -116,9 +116,7 @@ class Block {
         // There is no rule for the index of the output, so use filter to find it.
         // The root is prepended with 0xaa21a9ed so check for 0x6a24aa21a9ed
         // If multiple commits are found, the output with highest index is assumed.
-        let witnessCommits = this.transactions[0].outs
-            .filter(out => out.script.slice(0, 6).equals(Buffer.from('6a24aa21a9ed', 'hex')))
-            .map(out => out.script.slice(6, 38));
+        let witnessCommits = this.transactions[0].outs.filter(out => out.script.slice(0, 6).equals(Buffer.from('6a24aa21a9ed', 'hex'))).map(out => out.script.slice(6, 38));
         if (witnessCommits.length === 0)
             return null;
         // Use the commit with the highest output (should only be one though)
@@ -141,8 +139,9 @@ class Block {
     byteLength(headersOnly) {
         if (headersOnly || !this.transactions)
             return 80;
-        return 80 + varuint.encodingLength(this.transactions.length) +
-            this.transactions.reduce((a, x) => a + x.byteLength(), 0);
+        return (80 +
+            varuint.encodingLength(this.transactions.length) +
+            this.transactions.reduce((a, x) => a + x.byteLength(), 0));
     }
     getHash() {
         return bcrypto.hash256(this.toBuffer(true));
@@ -197,8 +196,8 @@ class Block {
         let hasWitnessCommit = this.hasWitnessCommit();
         if (!hasWitnessCommit && this.hasWitness())
             return false;
-        return this.__checkMerkleRoot() &&
-            (hasWitnessCommit ? this.__checkWitnessCommit() : true);
+        return (this.__checkMerkleRoot() &&
+            (hasWitnessCommit ? this.__checkWitnessCommit() : true));
     }
     checkMerkleRoot() {
         console.warn('Deprecation Warning: Block method checkMerkleRoot will be ' +

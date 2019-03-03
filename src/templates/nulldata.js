@@ -5,10 +5,11 @@ const bscript = require("../script");
 const OPS = bscript.OPS;
 function check(script) {
     const buffer = bscript.compile(script);
-    return buffer.length > 1 &&
-        buffer[0] === OPS.OP_RETURN;
+    return buffer.length > 1 && buffer[0] === OPS.OP_RETURN;
 }
 exports.check = check;
-check.toJSON = function () { return 'null data output'; };
+check.toJSON = function () {
+    return 'null data output';
+};
 const output = { check };
 exports.output = output;

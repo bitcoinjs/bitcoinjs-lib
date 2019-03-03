@@ -14,9 +14,9 @@ function prop(object, name, f) {
                 configurable: true,
                 enumerable: true,
                 value: value,
-                writable: true
+                writable: true,
             });
-        }
+        },
     });
 }
 exports.prop = prop;

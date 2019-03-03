@@ -43,7 +43,7 @@ class TransactionBuilder {
             txb.__addInputUnsafe(txIn.hash, txIn.index, {
                 sequence: txIn.sequence,
                 script: txIn.script,
-                witness: txIn.witness
+                witness: txIn.witness,
             });
         });
         // fix some things not possible through the public API
@@ -89,7 +89,7 @@ class TransactionBuilder {
         return this.__addInputUnsafe(txHash, vout, {
             sequence: sequence,
             prevOutScript: prevOutScript,
-            value: value
+            value: value,
         });
     }
     __addInputUnsafe(txHash, vout, options) {
@@ -194,7 +194,7 @@ class TransactionBuilder {
         if (!canSign(input)) {
             if (witnessValue !== undefined) {
                 if (input.value !== undefined && input.value !== witnessValue)
-                    throw new Error('Input didn\'t match witnessValue');
+                    throw new Error("Input didn't match witnessValue");
                 typeforce(types.Satoshi, witnessValue);
                 input.value = witnessValue;
             }
@@ -251,18 +251,19 @@ class TransactionBuilder {
         }
         // if inputs are being signed with SIGHASH_NONE, we don't strictly need outputs
         // .build() will fail, but .buildIncomplete() is OK
-        return (this.__tx.outs.length === 0) && this.__inputs.some((input) => {
-            if (!input.signatures)
-                return false;
-            return input.signatures.some((signature) => {
-                if (!signature)
-                    return false; // no signature, no issue
-                const hashType = signatureHashType(signature);
-                if (hashType & transaction_1.Transaction.SIGHASH_NONE)
-                    return false; // SIGHASH_NONE doesn't care about outputs
-                return true; // SIGHASH_* does care
-            });
-        });
+        return (this.__tx.outs.length === 0 &&
+            this.__inputs.some(input => {
+                if (!input.signatures)
+                    return false;
+                return input.signatures.some(signature => {
+                    if (!signature)
+                        return false; // no signature, no issue
+                    const hashType = signatureHashType(signature);
+                    if (hashType & transaction_1.Transaction.SIGHASH_NONE)
+                        return false; // SIGHASH_NONE doesn't care about outputs
+                    return true; // SIGHASH_* does care
+                });
+            }));
     }
     __canModifyOutputs() {
         const nInputs = this.__tx.ins.length;
@@ -313,21 +314,25 @@ function expandInput(scriptSig, witnessStack, type, scriptPubKey) {
     }
     switch (type) {
         case SCRIPT_TYPES.P2WPKH: {
-            const { output, pubkey, signature } = payments.p2wpkh({ witness: witnessStack });
+            const { output, pubkey, signature } = payments.p2wpkh({
+                witness: witnessStack,
+            });
             return {
                 prevOutScript: output,
                 prevOutType: SCRIPT_TYPES.P2WPKH,
                 pubkeys: [pubkey],
-                signatures: [signature]
+                signatures: [signature],
             };
         }
         case SCRIPT_TYPES.P2PKH: {
-            const { output, pubkey, signature } = payments.p2pkh({ input: scriptSig });
+            const { output, pubkey, signature } = payments.p2pkh({
+                input: scriptSig,
+            });
             return {
                 prevOutScript: output,
                 prevOutType: SCRIPT_TYPES.P2PKH,
                 pubkeys: [pubkey],
-                signatures: [signature]
+                signatures: [signature],
             };
         }
         case SCRIPT_TYPES.P2PK: {
@@ -335,26 +340,26 @@ function expandInput(scriptSig, witnessStack, type, scriptPubKey) {
             return {
                 prevOutType: SCRIPT_TYPES.P2PK,
                 pubkeys: [undefined],
-                signatures: [signature]
+                signatures: [signature],
             };
         }
         case SCRIPT_TYPES.P2MS: {
             const { m, pubkeys, signatures } = payments.p2ms({
                 input: scriptSig,
-                output: scriptPubKey
+                output: scriptPubKey,
             }, { allowIncomplete: true });
             return {
                 prevOutType: SCRIPT_TYPES.P2MS,
                 pubkeys: pubkeys,
                 signatures: signatures,
-                maxSignatures: m
+                maxSignatures: m,
             };
         }
     }
     if (type === SCRIPT_TYPES.P2SH) {
         const { output, redeem } = payments.p2sh({
             input: scriptSig,
-            witness: witnessStack
+            witness: witnessStack,
         });
         const outputType = classify.output(redeem.output);
         const expanded = expandInput(redeem.input, redeem.witness, outputType, redeem.output);
@@ -368,13 +373,13 @@ function expandInput(scriptSig, witnessStack, type, scriptPubKey) {
             witnessScript: expanded.witnessScript,
             witnessScriptType: expanded.witnessScriptType,
             pubkeys: expanded.pubkeys,
-            signatures: expanded.signatures
+            signatures: expanded.signatures,
         };
     }
     if (type === SCRIPT_TYPES.P2WSH) {
         const { output, redeem } = payments.p2wsh({
             input: scriptSig,
-            witness: witnessStack
+            witness: witnessStack,
         });
         const outputType = classify.output(redeem.output);
         let expanded;
@@ -392,12 +397,12 @@ function expandInput(scriptSig, witnessStack, type, scriptPubKey) {
             witnessScript: redeem.output,
             witnessScriptType: expanded.prevOutType,
             pubkeys: expanded.pubkeys,
-            signatures: expanded.signatures
+            signatures: expanded.signatures,
         };
     }
     return {
         prevOutType: SCRIPT_TYPES.NONSTANDARD,
-        prevOutScript: scriptSig
+        prevOutScript: scriptSig,
     };
 }
 // could be done in expandInput, but requires the original Transaction for hashForSignature
@@ -444,7 +449,7 @@ function expandOutput(script, ourPubKey) {
             return {
                 type,
                 pubkeys: [ourPubKey],
-                signatures: [undefined]
+                signatures: [undefined],
             };
         }
         case SCRIPT_TYPES.P2WPKH: {
@@ -458,7 +463,7 @@ function expandOutput(script, ourPubKey) {
             return {
                 type,
                 pubkeys: [ourPubKey],
-                signatures: [undefined]
+                signatures: [undefined],
             };
         }
         case SCRIPT_TYPES.P2PK: {
@@ -466,7 +471,7 @@ function expandOutput(script, ourPubKey) {
             return {
                 type,
                 pubkeys: [p2pk.pubkey],
-                signatures: [undefined]
+                signatures: [undefined],
             };
         }
         case SCRIPT_TYPES.P2MS: {
@@ -475,7 +480,7 @@ function expandOutput(script, ourPubKey) {
                 type,
                 pubkeys: p2ms.pubkeys,
                 signatures: p2ms.pubkeys.map(() => undefined),
-                maxSignatures: p2ms.m
+                maxSignatures: p2ms.m,
             };
         }
     }
@@ -483,7 +488,7 @@ function expandOutput(script, ourPubKey) {
 }
 function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
     if (redeemScript && witnessScript) {
-        const p2wsh = payments.p2wsh({ redeem: { output: witnessScript } });
+        const p2wsh = (payments.p2wsh({ redeem: { output: witnessScript } }));
         const p2wshAlt = payments.p2wsh({ output: redeemScript });
         const p2sh = payments.p2sh({ redeem: { output: redeemScript } });
         const p2shAlt = payments.p2sh({ redeem: p2wsh });
@@ -494,7 +499,10 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
             throw new Error('Redeem script inconsistent with prevOutScript');
         const expanded = expandOutput(p2wsh.redeem.output, ourPubKey);
         if (!expanded.pubkeys)
-            throw new Error(expanded.type + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')');
+            throw new Error(expanded.type +
+                ' not supported as witnessScript (' +
+                bscript.toASM(witnessScript) +
+                ')');
         if (input.signatures && input.signatures.some(x => x !== undefined)) {
             expanded.signatures = input.signatures;
         }
@@ -513,7 +521,7 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
             signType: expanded.type,
             pubkeys: expanded.pubkeys,
             signatures: expanded.signatures,
-            maxSignatures: expanded.maxSignatures
+            maxSignatures: expanded.maxSignatures,
         };
     }
     if (redeemScript) {
@@ -531,7 +539,10 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
         }
         const expanded = expandOutput(p2sh.redeem.output, ourPubKey);
         if (!expanded.pubkeys)
-            throw new Error(expanded.type + ' not supported as redeemScript (' + bscript.toASM(redeemScript) + ')');
+            throw new Error(expanded.type +
+                ' not supported as redeemScript (' +
+                bscript.toASM(redeemScript) +
+                ')');
         if (input.signatures && input.signatures.some(x => x !== undefined)) {
             expanded.signatures = input.signatures;
         }
@@ -549,7 +560,7 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
             signType: expanded.type,
             pubkeys: expanded.pubkeys,
             signatures: expanded.signatures,
-            maxSignatures: expanded.maxSignatures
+            maxSignatures: expanded.maxSignatures,
         };
     }
     if (witnessScript) {
@@ -561,7 +572,10 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
         }
         const expanded = expandOutput(p2wsh.redeem.output, ourPubKey);
         if (!expanded.pubkeys)
-            throw new Error(expanded.type + ' not supported as witnessScript (' + bscript.toASM(witnessScript) + ')');
+            throw new Error(expanded.type +
+                ' not supported as witnessScript (' +
+                bscript.toASM(witnessScript) +
+                ')');
         if (input.signatures && input.signatures.some(x => x !== undefined)) {
             expanded.signatures = input.signatures;
         }
@@ -578,7 +592,7 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
             signType: expanded.type,
             pubkeys: expanded.pubkeys,
             signatures: expanded.signatures,
-            maxSignatures: expanded.maxSignatures
+            maxSignatures: expanded.maxSignatures,
         };
     }
     if (input.prevOutType && input.prevOutScript) {
@@ -591,13 +605,16 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
             throw new Error('PrevOutScript is missing');
         const expanded = expandOutput(input.prevOutScript, ourPubKey);
         if (!expanded.pubkeys)
-            throw new Error(expanded.type + ' not supported (' + bscript.toASM(input.prevOutScript) + ')');
+            throw new Error(expanded.type +
+                ' not supported (' +
+                bscript.toASM(input.prevOutScript) +
+                ')');
         if (input.signatures && input.signatures.some(x => x !== undefined)) {
             expanded.signatures = input.signatures;
         }
         let signScript = input.prevOutScript;
         if (expanded.type === SCRIPT_TYPES.P2WPKH) {
-            signScript = payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output;
+            signScript = (payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output);
         }
         return {
             prevOutType: expanded.type,
@@ -607,7 +624,7 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
             signType: expanded.type,
             pubkeys: expanded.pubkeys,
             signatures: expanded.signatures,
-            maxSignatures: expanded.maxSignatures
+            maxSignatures: expanded.maxSignatures,
         };
     }
     const prevOutScript = payments.p2pkh({ pubkey: ourPubKey }).output;
@@ -618,7 +635,7 @@ function prepareInput(input, ourPubKey, redeemScript, witnessScript) {
         signScript: prevOutScript,
         signType: SCRIPT_TYPES.P2PKH,
         pubkeys: [ourPubKey],
-        signatures: [undefined]
+        signatures: [undefined],
     };
 }
 function build(type, input, allowIncomplete) {
@@ -656,7 +673,7 @@ function build(type, input, allowIncomplete) {
             }
             // if the transaction is not not complete (complete), or if signatures.length === m, validate
             // otherwise, the number of OP_0's may be >= m, so don't validate (boo)
-            const validate = !allowIncomplete || (m === signatures.length);
+            const validate = !allowIncomplete || m === signatures.length;
             return payments.p2ms({ m, pubkeys, signatures }, { allowIncomplete, validate });
         }
         case SCRIPT_TYPES.P2SH: {
@@ -667,8 +684,8 @@ function build(type, input, allowIncomplete) {
                 redeem: {
                     output: redeem.output || input.redeemScript,
                     input: redeem.input,
-                    witness: redeem.witness
-                }
+                    witness: redeem.witness,
+                },
             });
         }
         case SCRIPT_TYPES.P2WSH: {
@@ -679,21 +696,20 @@ function build(type, input, allowIncomplete) {
                 redeem: {
                     output: input.witnessScript,
                     input: redeem.input,
-                    witness: redeem.witness
-                }
+                    witness: redeem.witness,
+                },
             });
         }
     }
 }
 function canSign(input) {
-    return input.signScript !== undefined &&
+    return (input.signScript !== undefined &&
         input.signType !== undefined &&
         input.pubkeys !== undefined &&
         input.signatures !== undefined &&
         input.signatures.length === input.pubkeys.length &&
         input.pubkeys.length > 0 &&
-        (input.hasWitness === false ||
-            input.value !== undefined);
+        (input.hasWitness === false || input.value !== undefined));
 }
 function signatureHashType(buffer) {
     return buffer.readUInt8(buffer.length - 1);

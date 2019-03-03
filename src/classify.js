@@ -18,7 +18,7 @@ const types = {
     P2SH: 'scripthash',
     P2WPKH: 'witnesspubkeyhash',
     P2WSH: 'witnessscripthash',
-    WITNESS_COMMITMENT: 'witnesscommitment'
+    WITNESS_COMMITMENT: 'witnesscommitment',
 };
 exports.types = types;
 function classifyOutput(script) {

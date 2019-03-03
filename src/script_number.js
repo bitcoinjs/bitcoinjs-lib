@@ -19,8 +19,8 @@ function decode(buffer, maxLength, minimal) {
         const a = buffer.readUInt32LE(0);
         const b = buffer.readUInt8(4);
         if (b & 0x80)
-            return -(((b & ~0x80) * 0x100000000) + a);
-        return (b * 0x100000000) + a;
+            return -((b & ~0x80) * 0x100000000 + a);
+        return b * 0x100000000 + a;
     }
     // 32-bit / 24-bit / 16-bit / 8-bit
     let result = 0;
@@ -33,11 +33,16 @@ function decode(buffer, maxLength, minimal) {
 }
 exports.decode = decode;
 function scriptNumSize(i) {
-    return i > 0x7fffffff ? 5
-        : i > 0x7fffff ? 4
-            : i > 0x7fff ? 3
-                : i > 0x7f ? 2
-                    : i > 0x00 ? 1
+    return i > 0x7fffffff
+        ? 5
+        : i > 0x7fffff
+            ? 4
+            : i > 0x7fff
+                ? 3
+                : i > 0x7f
+                    ? 2
+                    : i > 0x00
+                        ? 1
                         : 0;
 }
 function encode(number) {
