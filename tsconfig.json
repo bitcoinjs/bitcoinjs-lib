@@ -18,7 +18,9 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "esModuleInterop": false
+    "esModuleInterop": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "include": [
       "ts_src/**/*.ts"
