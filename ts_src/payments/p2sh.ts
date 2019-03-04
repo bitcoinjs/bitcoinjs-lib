@@ -1,19 +1,19 @@
-import { Payment, PaymentOpts } from './index' // eslint-disable-line
-import { bitcoin as BITCOIN_NETWORK } from '../networks' // eslint-disable-line
-import * as bscript from '../script'
-import * as bcrypto from '../crypto'
-import * as lazy from './lazy'
-const typef = require('typeforce')
-const OPS = bscript.OPS
+import { Payment, PaymentOpts } from './index'; // eslint-disable-line
+import { bitcoin as BITCOIN_NETWORK } from '../networks'; // eslint-disable-line
+import * as bscript from '../script';
+import * as bcrypto from '../crypto';
+import * as lazy from './lazy';
+const typef = require('typeforce');
+const OPS = bscript.OPS;
 
-const bs58check = require('bs58check')
+const bs58check = require('bs58check');
 
-function stacksEqual (a: Array<Buffer>, b: Array<Buffer>): boolean {
-  if (a.length !== b.length) return false
+function stacksEqual(a: Array<Buffer>, b: Array<Buffer>): boolean {
+  if (a.length !== b.length) return false;
 
-  return a.every(function (x, i) {
-    return x.equals(b[i])
-  })
+  return a.every(function(x, i) {
+    return x.equals(b[i]);
+  });
 }
 
 // input: [redeemScriptSig ...] {redeemScript}
