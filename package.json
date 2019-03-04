@@ -29,7 +29,7 @@
     "nobuild:unit": "mocha",
     "prepare": "npm run build",
     "prettier": "prettier ts_src/*.ts ts_src/**/*.ts --ignore-path ./.prettierignore",
-    "test": "npm run build && npm run nobuild:coverage",
+    "test": "npm run build && npm run format:ci && npm run nobuild:coverage",
     "unit": "npm run build && npm run nobuild:unit"
   },
   "repository": {
