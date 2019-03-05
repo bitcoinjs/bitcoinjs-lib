@@ -1,4 +1,4 @@
-import { Payment, PaymentOpts } from './index'; // eslint-disable-line
+import { Payment, PaymentOpts } from './index';
 import * as bscript from '../script';
 import * as lazy from './lazy';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';

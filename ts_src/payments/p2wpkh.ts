@@ -1,4 +1,4 @@
-import { Payment, PaymentOpts } from './index'; // eslint-disable-line
+import { Payment, PaymentOpts } from './index';
 import * as bscript from '../script';
 import * as bcrypto from '../crypto';
 import * as lazy from './lazy';

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const networks_1 = require("../networks"); // eslint-disable-line
+const networks_1 = require("../networks");
 const bscript = require("../script");
 const bcrypto = require("../crypto");
 const lazy = require("./lazy");

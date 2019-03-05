@@ -1,5 +1,5 @@
-import { Payment, PaymentOpts } from './index'; // eslint-disable-line
-import { bitcoin as BITCOIN_NETWORK } from '../networks'; // eslint-disable-line
+import { Payment, PaymentOpts } from './index';
+import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import * as bcrypto from '../crypto';
 import * as lazy from './lazy';

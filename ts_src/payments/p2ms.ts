@@ -1,4 +1,4 @@
-import { Payment, PaymentOpts } from './index'; // eslint-disable-line
+import { Payment, PaymentOpts } from './index';
 import * as bscript from '../script';
 import * as lazy from './lazy';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
@@ -32,7 +32,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
     return (
       bscript.isCanonicalScriptSignature(<Buffer>x) ||
       (opts!.allowIncomplete && <number>x === OPS.OP_0) !== undefined
-    ); // eslint-disable-line
+    );
   }
 
   typef(
@@ -58,8 +58,8 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
     if (decoded) return;
     decoded = true;
     chunks = <Array<Buffer | number>>bscript.decompile(output);
-    o.m = <number>chunks[0] - OP_INT_BASE; // eslint-disable-line
-    o.n = <number>chunks[chunks.length - 2] - OP_INT_BASE; // eslint-disable-line
+    o.m = <number>chunks[0] - OP_INT_BASE;
+    o.n = <number>chunks[chunks.length - 2] - OP_INT_BASE;
     o.pubkeys = <Array<Buffer>>chunks.slice(1, -2);
   }
 
@@ -115,12 +115,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
       if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG)
         throw new TypeError('Output is invalid');
 
-      if (
-        o.m! <= 0 || // eslint-disable-line
-        o.n! > 16 || // eslint-disable-line
-        o.m! > o.n! || // eslint-disable-line
-        o.n !== chunks.length - 3
-      )
+      if (o.m! <= 0 || o.n! > 16 || o.m! > o.n! || o.n !== chunks.length - 3)
         throw new TypeError('Output is invalid');
       if (!o.pubkeys!.every(x => ecc.isPoint(x)))
         throw new TypeError('Output is invalid');

@@ -25,7 +25,7 @@ function p2ms(a, opts) {
     opts = Object.assign({ validate: true }, opts || {});
     function isAcceptableSignature(x) {
         return (bscript.isCanonicalScriptSignature(x) ||
-            (opts.allowIncomplete && x === OPS.OP_0) !== undefined); // eslint-disable-line
+            (opts.allowIncomplete && x === OPS.OP_0) !== undefined);
     }
     typef({
         network: typef.maybe(typef.Object),
@@ -45,8 +45,8 @@ function p2ms(a, opts) {
             return;
         decoded = true;
         chunks = bscript.decompile(output);
-        o.m = chunks[0] - OP_INT_BASE; // eslint-disable-line
-        o.n = chunks[chunks.length - 2] - OP_INT_BASE; // eslint-disable-line
+        o.m = chunks[0] - OP_INT_BASE;
+        o.n = chunks[chunks.length - 2] - OP_INT_BASE;
         o.pubkeys = chunks.slice(1, -2);
     }
     lazy.prop(o, 'output', function () {
@@ -100,10 +100,7 @@ function p2ms(a, opts) {
                 throw new TypeError('Output is invalid');
             if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG)
                 throw new TypeError('Output is invalid');
-            if (o.m <= 0 || // eslint-disable-line
-                o.n > 16 || // eslint-disable-line
-                o.m > o.n || // eslint-disable-line
-                o.n !== chunks.length - 3)
+            if (o.m <= 0 || o.n > 16 || o.m > o.n || o.n !== chunks.length - 3)
                 throw new TypeError('Output is invalid');
             if (!o.pubkeys.every(x => ecc.isPoint(x)))
                 throw new TypeError('Output is invalid');
