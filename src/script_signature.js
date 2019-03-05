@@ -34,14 +34,14 @@ function decode(buffer) {
     const s = fromDER(decode.s);
     return {
         signature: Buffer.concat([r, s], 64),
-        hashType: hashType
+        hashType: hashType,
     };
 }
 exports.decode = decode;
 function encode(signature, hashType) {
     typeforce({
         signature: types.BufferN(64),
-        hashType: types.UInt8
+        hashType: types.UInt8,
     }, { signature, hashType });
     const hashTypeMod = hashType & ~0x80;
     if (hashTypeMod <= 0 || hashTypeMod >= 4)
@@ -50,9 +50,6 @@ function encode(signature, hashType) {
     hashTypeBuffer.writeUInt8(hashType, 0);
     const r = toDER(signature.slice(0, 32));
     const s = toDER(signature.slice(32, 64));
-    return Buffer.concat([
-        bip66.encode(r, s),
-        hashTypeBuffer
-    ]);
+    return Buffer.concat([bip66.encode(r, s), hashTypeBuffer]);
 }
 exports.encode = encode;

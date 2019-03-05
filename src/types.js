@@ -10,7 +10,9 @@ function BIP32Path(value) {
     return typeforce.String(value) && !!value.match(/^(m\/)?(\d+'?\/)*\d+'?$/);
 }
 exports.BIP32Path = BIP32Path;
-BIP32Path.toJSON = function () { return 'BIP32 derivation path'; };
+BIP32Path.toJSON = function () {
+    return 'BIP32 derivation path';
+};
 const SATOSHI_MAX = 21 * 1e14;
 function Satoshi(value) {
     return typeforce.UInt53(value) && value <= SATOSHI_MAX;
@@ -23,11 +25,11 @@ exports.Network = typeforce.compile({
     messagePrefix: typeforce.oneOf(typeforce.Buffer, typeforce.String),
     bip32: {
         public: typeforce.UInt32,
-        private: typeforce.UInt32
+        private: typeforce.UInt32,
     },
     pubKeyHash: typeforce.UInt8,
     scriptHash: typeforce.UInt8,
-    wif: typeforce.UInt8
+    wif: typeforce.UInt8,
 });
 exports.Buffer256bit = typeforce.BufferN(32);
 exports.Hash160bit = typeforce.BufferN(20);

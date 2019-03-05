@@ -14,14 +14,13 @@ function stacksEqual(a, b) {
 }
 // output: OP_RETURN ...
 function p2data(a, opts) {
-    if (!a.data &&
-        !a.output)
+    if (!a.data && !a.output)
         throw new TypeError('Not enough data');
     opts = Object.assign({ validate: true }, opts || {});
     typef({
         network: typef.maybe(typef.Object),
         output: typef.maybe(typef.Buffer),
-        data: typef.maybe(typef.arrayOf(typef.Buffer))
+        data: typef.maybe(typef.arrayOf(typef.Buffer)),
     }, a);
     const network = a.network || networks_1.bitcoin;
     const o = { network };

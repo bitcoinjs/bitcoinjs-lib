@@ -1,5 +1,3 @@
-/* eslint-disable no-new */
-
 const { describe, it, beforeEach } = require('mocha')
 const assert = require('assert')
 const proxyquire = require('proxyquire')

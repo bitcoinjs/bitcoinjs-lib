@@ -11,11 +11,7 @@ const bs58check = require('bs58check');
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
 function p2pkh(a, opts) {
-    if (!a.address &&
-        !a.hash &&
-        !a.output &&
-        !a.pubkey &&
-        !a.input)
+    if (!a.address && !a.hash && !a.output && !a.pubkey && !a.input)
         throw new TypeError('Not enough data');
     opts = Object.assign({ validate: true }, opts || {});
     typef({
@@ -25,7 +21,7 @@ function p2pkh(a, opts) {
         output: typef.maybe(typef.BufferN(25)),
         pubkey: typef.maybe(ecc.isPoint),
         signature: typef.maybe(bscript.isCanonicalScriptSignature),
-        input: typef.maybe(typef.Buffer)
+        input: typef.maybe(typef.Buffer),
     }, a);
     const _address = lazy.value(function () {
         const payload = bs58check.decode(a.address);
@@ -33,7 +29,9 @@ function p2pkh(a, opts) {
         const hash = payload.slice(1);
         return { version, hash };
     });
-    const _chunks = lazy.value(function () { return bscript.decompile(a.input); });
+    const _chunks = lazy.value(function () {
+        return bscript.decompile(a.input);
+    });
     const network = a.network || networks_1.bitcoin;
     const o = { network };
     lazy.prop(o, 'address', function () {
@@ -60,7 +58,7 @@ function p2pkh(a, opts) {
             OPS.OP_HASH160,
             o.hash,
             OPS.OP_EQUALVERIFY,
-            OPS.OP_CHECKSIG
+            OPS.OP_CHECKSIG,
         ]);
     });
     lazy.prop(o, 'pubkey', function () {

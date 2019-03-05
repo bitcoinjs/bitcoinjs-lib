@@ -14,9 +14,10 @@ function varSliceSize(someScript) {
 }
 function vectorSize(someVector) {
     const length = someVector.length;
-    return varuint.encodingLength(length) + someVector.reduce((sum, witness) => {
-        return sum + varSliceSize(witness);
-    }, 0);
+    return (varuint.encodingLength(length) +
+        someVector.reduce((sum, witness) => {
+            return sum + varSliceSize(witness);
+        }, 0));
 }
 const EMPTY_SCRIPT = Buffer.allocUnsafe(0);
 const EMPTY_WITNESS = [];
@@ -25,7 +26,7 @@ const ONE = Buffer.from('0000000000000000000000000000000000000000000000000000000
 const VALUE_UINT64_MAX = Buffer.from('ffffffffffffffff', 'hex');
 const BLANK_OUTPUT = {
     script: EMPTY_SCRIPT,
-    valueBuffer: VALUE_UINT64_MAX
+    valueBuffer: VALUE_UINT64_MAX,
 };
 function isOutput(out) {
     return out.value !== undefined;
@@ -90,14 +91,14 @@ class Transaction {
                 index: readUInt32(),
                 script: readVarSlice(),
                 sequence: readUInt32(),
-                witness: EMPTY_WITNESS
+                witness: EMPTY_WITNESS,
             });
         }
         const voutLen = readVarInt();
         for (i = 0; i < voutLen; ++i) {
             tx.outs.push({
                 value: readUInt64(),
-                script: readVarSlice()
+                script: readVarSlice(),
             });
         }
         if (hasWitnesses) {
@@ -127,7 +128,7 @@ class Transaction {
         return true;
     }
     isCoinbase() {
-        return this.ins.length === 1 && Transaction.isCoinbaseHash(this.ins[0].hash);
+        return (this.ins.length === 1 && Transaction.isCoinbaseHash(this.ins[0].hash));
     }
     addInput(hash, index, sequence, scriptSig) {
         typeforce(types.tuple(types.Hash256bit, types.UInt32, types.maybe(types.UInt32), types.maybe(types.Buffer)), arguments);
@@ -140,7 +141,7 @@ class Transaction {
             index: index,
             script: scriptSig || EMPTY_SCRIPT,
             sequence: sequence,
-            witness: EMPTY_WITNESS
+            witness: EMPTY_WITNESS,
         }) - 1);
     }
     addOutput(scriptPubKey, value) {
@@ -148,11 +149,11 @@ class Transaction {
         // Add the output and return the output's index
         return (this.outs.push({
             script: scriptPubKey,
-            value: value
+            value: value,
         }) - 1);
     }
     hasWitnesses() {
-        return this.ins.some((x) => {
+        return this.ins.some(x => {
             return x.witness.length !== 0;
         });
     }
@@ -178,27 +179,29 @@ class Transaction {
             this.outs.reduce((sum, output) => {
                 return sum + 8 + varSliceSize(output.script);
             }, 0) +
-            (hasWitnesses ? this.ins.reduce((sum, input) => {
-                return sum + vectorSize(input.witness);
-            }, 0) : 0));
+            (hasWitnesses
+                ? this.ins.reduce((sum, input) => {
+                    return sum + vectorSize(input.witness);
+                }, 0)
+                : 0));
     }
     clone() {
         const newTx = new Transaction();
         newTx.version = this.version;
         newTx.locktime = this.locktime;
-        newTx.ins = this.ins.map((txIn) => {
+        newTx.ins = this.ins.map(txIn => {
             return {
                 hash: txIn.hash,
                 index: txIn.index,
                 script: txIn.script,
                 sequence: txIn.sequence,
-                witness: txIn.witness
+                witness: txIn.witness,
             };
         });
-        newTx.outs = this.outs.map((txOut) => {
+        newTx.outs = this.outs.map(txOut => {
             return {
                 script: txOut.script,
-                value: txOut.value
+                value: txOut.value,
             };
         });
         return newTx;
@@ -217,7 +220,7 @@ class Transaction {
         if (inIndex >= this.ins.length)
             return ONE;
         // ignore OP_CODESEPARATOR
-        const ourScript = bscript.compile(bscript.decompile(prevOutScript).filter((x) => {
+        const ourScript = bscript.compile(bscript.decompile(prevOutScript).filter(x => {
             return x !== script_1.OPS.OP_CODESEPARATOR;
         }));
         const txTmp = this.clone();
@@ -257,7 +260,7 @@ class Transaction {
         }
         else {
             // "blank" others input scripts
-            txTmp.ins.forEach((input) => {
+            txTmp.ins.forEach(input => {
                 input.script = EMPTY_SCRIPT;
             });
             txTmp.ins[inIndex].script = ourScript;
@@ -295,7 +298,7 @@ class Transaction {
         if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
             tbuffer = Buffer.allocUnsafe(36 * this.ins.length);
             toffset = 0;
-            this.ins.forEach((txIn) => {
+            this.ins.forEach(txIn => {
                 writeSlice(txIn.hash);
                 writeUInt32(txIn.index);
             });
@@ -306,7 +309,7 @@ class Transaction {
             (hashType & 0x1f) !== Transaction.SIGHASH_NONE) {
             tbuffer = Buffer.allocUnsafe(4 * this.ins.length);
             toffset = 0;
-            this.ins.forEach((txIn) => {
+            this.ins.forEach(txIn => {
                 writeUInt32(txIn.sequence);
             });
             hashSequence = bcrypto.hash256(tbuffer);
@@ -318,13 +321,14 @@ class Transaction {
             }, 0);
             tbuffer = Buffer.allocUnsafe(txOutsSize);
             toffset = 0;
-            this.outs.forEach((out) => {
+            this.outs.forEach(out => {
                 writeUInt64(out.value);
                 writeVarSlice(out.script);
             });
             hashOutputs = bcrypto.hash256(tbuffer);
         }
-        else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE && inIndex < this.outs.length) {
+        else if ((hashType & 0x1f) === Transaction.SIGHASH_SINGLE &&
+            inIndex < this.outs.length) {
             const output = this.outs[inIndex];
             tbuffer = Buffer.allocUnsafe(8 + varSliceSize(output.script));
             toffset = 0;
@@ -369,13 +373,13 @@ class Transaction {
             offset += slice.copy(buffer, offset);
         }
         function writeUInt8(i) {
-            offset = (buffer).writeUInt8(i, offset);
+            offset = buffer.writeUInt8(i, offset);
         }
         function writeUInt32(i) {
-            offset = (buffer).writeUInt32LE(i, offset);
+            offset = buffer.writeUInt32LE(i, offset);
         }
         function writeInt32(i) {
-            offset = (buffer).writeInt32LE(i, offset);
+            offset = buffer.writeInt32LE(i, offset);
         }
         function writeUInt64(i) {
             offset = bufferutils.writeUInt64LE(buffer, i, offset);
@@ -399,14 +403,14 @@ class Transaction {
             writeUInt8(Transaction.ADVANCED_TRANSACTION_FLAG);
         }
         writeVarInt(this.ins.length);
-        this.ins.forEach((txIn) => {
+        this.ins.forEach(txIn => {
             writeSlice(txIn.hash);
             writeUInt32(txIn.index);
             writeVarSlice(txIn.script);
             writeUInt32(txIn.sequence);
         });
         writeVarInt(this.outs.length);
-        this.outs.forEach((txOut) => {
+        this.outs.forEach(txOut => {
             if (isOutput(txOut)) {
                 writeUInt64(txOut.value);
             }
@@ -416,7 +420,7 @@ class Transaction {
             writeVarSlice(txOut.script);
         });
         if (hasWitnesses) {
-            this.ins.forEach((input) => {
+            this.ins.forEach(input => {
                 writeVector(input.witness);
             });
         }

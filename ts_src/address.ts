@@ -1,101 +1,119 @@
-import { Network } from './networks'
-import * as types from './types'
-import * as bscript from './script'
-import * as networks from './networks'
-import * as payments from './payments'
+import { Network } from './networks';
+import * as types from './types';
+import * as bscript from './script';
+import * as networks from './networks';
+import * as payments from './payments';
 
-const bech32 = require('bech32')
-const bs58check = require('bs58check')
-const typeforce = require('typeforce')
+const bech32 = require('bech32');
+const bs58check = require('bs58check');
+const typeforce = require('typeforce');
 
 export type Base58CheckResult = {
   hash: Buffer;
   version: number;
-}
+};
 
 export type Bech32Result = {
   version: number;
   prefix: string;
   data: Buffer;
-}
+};
 
-export function fromBase58Check (address: string): Base58CheckResult {
-  const payload = bs58check.decode(address)
+export function fromBase58Check(address: string): Base58CheckResult {
+  const payload = bs58check.decode(address);
 
   // TODO: 4.0.0, move to "toOutputScript"
-  if (payload.length < 21) throw new TypeError(address + ' is too short')
-  if (payload.length > 21) throw new TypeError(address + ' is too long')
+  if (payload.length < 21) throw new TypeError(address + ' is too short');
+  if (payload.length > 21) throw new TypeError(address + ' is too long');
 
-  const version = payload.readUInt8(0)
-  const hash = payload.slice(1)
+  const version = payload.readUInt8(0);
+  const hash = payload.slice(1);
 
-  return { version: version, hash: hash }
+  return { version: version, hash: hash };
 }
 
-export function fromBech32 (address: string): Bech32Result {
-  const result = bech32.decode(address)
-  const data = bech32.fromWords(result.words.slice(1))
+export function fromBech32(address: string): Bech32Result {
+  const result = bech32.decode(address);
+  const data = bech32.fromWords(result.words.slice(1));
 
   return {
     version: result.words[0],
     prefix: result.prefix,
-    data: Buffer.from(data)
-  }
+    data: Buffer.from(data),
+  };
 }
 
-export function toBase58Check (hash: Buffer, version: number): string {
-  typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
+export function toBase58Check(hash: Buffer, version: number): string {
+  typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments);
 
-  const payload = Buffer.allocUnsafe(21)
-  payload.writeUInt8(version, 0)
-  hash.copy(payload, 1)
+  const payload = Buffer.allocUnsafe(21);
+  payload.writeUInt8(version, 0);
+  hash.copy(payload, 1);
 
-  return bs58check.encode(payload)
+  return bs58check.encode(payload);
 }
 
-export function toBech32 (data: Buffer, version: number, prefix: string): string {
-  const words = bech32.toWords(data)
-  words.unshift(version)
+export function toBech32(
+  data: Buffer,
+  version: number,
+  prefix: string,
+): string {
+  const words = bech32.toWords(data);
+  words.unshift(version);
 
-  return bech32.encode(prefix, words)
+  return bech32.encode(prefix, words);
 }
 
-export function fromOutputScript (output: Buffer, network: Network): string { //TODO: Network
-  network = network || networks.bitcoin
+export function fromOutputScript(output: Buffer, network: Network): string {
+  //TODO: Network
+  network = network || networks.bitcoin;
 
-  try { return <string>payments.p2pkh({ output, network }).address } catch (e) {}
-  try { return <string>payments.p2sh({ output, network }).address } catch (e) {}
-  try { return <string>payments.p2wpkh({ output, network }).address } catch (e) {}
-  try { return <string>payments.p2wsh({ output, network }).address } catch (e) {}
-
-  throw new Error(bscript.toASM(output) + ' has no matching Address')
-}
-
-export function toOutputScript (address: string, network: Network): Buffer {
-  network = network || networks.bitcoin
-
-  let decodeBase58: Base58CheckResult | undefined = undefined
-  let decodeBech32: Bech32Result | undefined = undefined
   try {
-    decodeBase58 = fromBase58Check(address)
+    return <string>payments.p2pkh({ output, network }).address;
+  } catch (e) {}
+  try {
+    return <string>payments.p2sh({ output, network }).address;
+  } catch (e) {}
+  try {
+    return <string>payments.p2wpkh({ output, network }).address;
+  } catch (e) {}
+  try {
+    return <string>payments.p2wsh({ output, network }).address;
+  } catch (e) {}
+
+  throw new Error(bscript.toASM(output) + ' has no matching Address');
+}
+
+export function toOutputScript(address: string, network: Network): Buffer {
+  network = network || networks.bitcoin;
+
+  let decodeBase58: Base58CheckResult | undefined = undefined;
+  let decodeBech32: Bech32Result | undefined = undefined;
+  try {
+    decodeBase58 = fromBase58Check(address);
   } catch (e) {}
 
   if (decodeBase58) {
-    if (decodeBase58.version === network.pubKeyHash) return <Buffer>payments.p2pkh({ hash: decodeBase58.hash }).output
-    if (decodeBase58.version === network.scriptHash) return <Buffer>payments.p2sh({ hash: decodeBase58.hash }).output
+    if (decodeBase58.version === network.pubKeyHash)
+      return <Buffer>payments.p2pkh({ hash: decodeBase58.hash }).output;
+    if (decodeBase58.version === network.scriptHash)
+      return <Buffer>payments.p2sh({ hash: decodeBase58.hash }).output;
   } else {
     try {
-      decodeBech32 = fromBech32(address)
+      decodeBech32 = fromBech32(address);
     } catch (e) {}
 
     if (decodeBech32) {
-      if (decodeBech32.prefix !== network.bech32) throw new Error(address + ' has an invalid prefix')
+      if (decodeBech32.prefix !== network.bech32)
+        throw new Error(address + ' has an invalid prefix');
       if (decodeBech32.version === 0) {
-        if (decodeBech32.data.length === 20) return <Buffer>payments.p2wpkh({ hash: decodeBech32.data }).output
-        if (decodeBech32.data.length === 32) return <Buffer>payments.p2wsh({ hash: decodeBech32.data }).output
+        if (decodeBech32.data.length === 20)
+          return <Buffer>payments.p2wpkh({ hash: decodeBech32.data }).output;
+        if (decodeBech32.data.length === 32)
+          return <Buffer>payments.p2wsh({ hash: decodeBech32.data }).output;
       }
     }
   }
 
-  throw new Error(address + ' has no matching Script')
+  throw new Error(address + ' has no matching Script');
 }

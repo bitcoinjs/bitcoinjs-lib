@@ -9,11 +9,7 @@ const ecc = require('tiny-secp256k1');
 // input: {signature}
 // output: {pubKey} OP_CHECKSIG
 function p2pk(a, opts) {
-    if (!a.input &&
-        !a.output &&
-        !a.pubkey &&
-        !a.input &&
-        !a.signature)
+    if (!a.input && !a.output && !a.pubkey && !a.input && !a.signature)
         throw new TypeError('Not enough data');
     opts = Object.assign({ validate: true }, opts || {});
     typef({
@@ -21,18 +17,17 @@ function p2pk(a, opts) {
         output: typef.maybe(typef.Buffer),
         pubkey: typef.maybe(ecc.isPoint),
         signature: typef.maybe(bscript.isCanonicalScriptSignature),
-        input: typef.maybe(typef.Buffer)
+        input: typef.maybe(typef.Buffer),
     }, a);
-    const _chunks = lazy.value(function () { return bscript.decompile(a.input); });
+    const _chunks = lazy.value(function () {
+        return bscript.decompile(a.input);
+    });
     const network = a.network || networks_1.bitcoin;
     const o = { network };
     lazy.prop(o, 'output', function () {
         if (!a.pubkey)
             return;
-        return bscript.compile([
-            a.pubkey,
-            OPS.OP_CHECKSIG
-        ]);
+        return bscript.compile([a.pubkey, OPS.OP_CHECKSIG]);
     });
     lazy.prop(o, 'pubkey', function () {
         if (!a.output)

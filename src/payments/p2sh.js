@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const networks_1 = require("../networks"); // eslint-disable-line
+const networks_1 = require("../networks");
 const bscript = require("../script");
 const bcrypto = require("../crypto");
 const lazy = require("./lazy");
@@ -18,11 +18,7 @@ function stacksEqual(a, b) {
 // witness: <?>
 // output: OP_HASH160 {hash160(redeemScript)} OP_EQUAL
 function p2sh(a, opts) {
-    if (!a.address &&
-        !a.hash &&
-        !a.output &&
-        !a.redeem &&
-        !a.input)
+    if (!a.address && !a.hash && !a.output && !a.redeem && !a.input)
         throw new TypeError('Not enough data');
     opts = Object.assign({ validate: true }, opts || {});
     typef({
@@ -34,10 +30,10 @@ function p2sh(a, opts) {
             network: typef.maybe(typef.Object),
             output: typef.maybe(typef.Buffer),
             input: typef.maybe(typef.Buffer),
-            witness: typef.maybe(typef.arrayOf(typef.Buffer))
+            witness: typef.maybe(typef.arrayOf(typef.Buffer)),
         }),
         input: typef.maybe(typef.Buffer),
-        witness: typef.maybe(typef.arrayOf(typef.Buffer))
+        witness: typef.maybe(typef.arrayOf(typef.Buffer)),
     }, a);
     let network = a.network;
     if (!network) {
@@ -50,14 +46,16 @@ function p2sh(a, opts) {
         const hash = payload.slice(1);
         return { version, hash };
     });
-    const _chunks = lazy.value(function () { return bscript.decompile(a.input); });
+    const _chunks = lazy.value(function () {
+        return bscript.decompile(a.input);
+    });
     const _redeem = lazy.value(function () {
         const chunks = _chunks();
         return {
             network,
             output: chunks[chunks.length - 1],
             input: bscript.compile(chunks.slice(0, -1)),
-            witness: a.witness || []
+            witness: a.witness || [],
         };
     });
     // output dependents
@@ -81,11 +79,7 @@ function p2sh(a, opts) {
     lazy.prop(o, 'output', function () {
         if (!o.hash)
             return;
-        return bscript.compile([
-            OPS.OP_HASH160,
-            o.hash,
-            OPS.OP_EQUAL
-        ]);
+        return bscript.compile([OPS.OP_HASH160, o.hash, OPS.OP_EQUAL]);
     });
     // input dependents
     lazy.prop(o, 'redeem', function () {
@@ -153,7 +147,7 @@ function p2sh(a, opts) {
                 if (hasInput && hasWitness)
                     throw new TypeError('Input and witness provided');
                 if (hasInput) {
-                    const richunks = bscript.decompile(redeem.input);
+                    const richunks = (bscript.decompile(redeem.input));
                     if (!bscript.isPushOnly(richunks))
                         throw new TypeError('Non push-only scriptSig');
                 }

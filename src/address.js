@@ -25,7 +25,7 @@ function fromBech32(address) {
     return {
         version: result.words[0],
         prefix: result.prefix,
-        data: Buffer.from(data)
+        data: Buffer.from(data),
     };
 }
 exports.fromBech32 = fromBech32;
@@ -44,6 +44,7 @@ function toBech32(data, version, prefix) {
 }
 exports.toBech32 = toBech32;
 function fromOutputScript(output, network) {
+    //TODO: Network
     network = network || networks.bitcoin;
     try {
         return payments.p2pkh({ output, network }).address;
