@@ -22,6 +22,7 @@
     "format": "npm run prettier -- --write",
     "format:ci": "npm run prettier -- --check",
     "integration": "npm run build && npm run nobuild:integration",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
     "nobuild:coverage-report": "nyc report --reporter=lcov",
     "nobuild:coverage-html": "nyc report --reporter=html",
     "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 --lines 90 mocha",
@@ -29,7 +30,7 @@
     "nobuild:unit": "mocha",
     "prepare": "npm run build",
     "prettier": "prettier 'ts_src/**/*.ts' --ignore-path ./.prettierignore",
-    "test": "npm run build && npm run format:ci && npm run nobuild:coverage",
+    "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
     "unit": "npm run build && npm run nobuild:unit"
   },
   "repository": {
@@ -64,15 +65,14 @@
     "bn.js": "^4.11.8",
     "bs58": "^4.0.0",
     "dhttp": "^3.0.0",
-    "eslint-plugin-typescript": "^0.14.0",
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^5.2.0",
     "nyc": "^11.8.0",
     "prettier": "^1.16.4",
     "proxyquire": "^2.0.1",
-    "typescript": "3.2.2",
-    "typescript-eslint-parser": "^21.0.2"
+    "tslint": "^5.13.1",
+    "typescript": "3.2.2"
   },
   "license": "MIT"
 }
