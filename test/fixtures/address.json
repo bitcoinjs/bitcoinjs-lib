@@ -29,6 +29,13 @@
       "script": "OP_DUP OP_HASH160 6ac624143d19a3c91d2ac5605f0aebdfeac5b826 OP_EQUALVERIFY OP_CHECKSIG"
     },
     {
+      "network": "zcash",
+      "version": "1cbd",
+      "hash": "8484f50714d67b89f5305ef037ea7bc7d1e002ff",
+      "base58check": "t3WeKQDxCijL5X7rwFem1MTL9ZwVJkUFhpF",
+      "script": "OP_HASH160 8484f50714d67b89f5305ef037ea7bc7d1e002ff OP_EQUAL"
+    },
+    {
       "network": "testnet",
       "version": 111,
       "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",

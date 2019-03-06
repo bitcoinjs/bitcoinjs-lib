@@ -12,7 +12,23 @@ const NETWORKS = Object.assign({
     },
     pubKeyHash: 0x30,
     scriptHash: 0x32,
-    wif: 0xb0
+    wif: 0xb0,
+    bytes: 21,
+    versionBytes: 1,
+    versionBase: 10
+  },
+  zcash: {
+    messagePrefix: '\x19Zcash Signed Message:\n',
+    bip32: {
+      public: 0x0488b21e,
+      private: 0x0488ade4
+    },
+    pubkeyHash: 0x1cb8,
+    scriptHash: 0x1cbd,
+    wif: 0x50,
+    bytes: 22,
+    versionBytes: 2,
+    versionBase: 16
   }
 }, require('../src/networks'))
 
@@ -22,7 +38,7 @@ describe('address', function () {
       if (!f.base58check) return
 
       it('decodes ' + f.base58check, function () {
-        const decode = baddress.fromBase58Check(f.base58check)
+        const decode = baddress.fromBase58Check(f.base58check, NETWORKS[f.network])
 
         assert.strictEqual(decode.version, f.version)
         assert.strictEqual(decode.hash.toString('hex'), f.hash)
@@ -86,7 +102,7 @@ describe('address', function () {
       if (!f.base58check) return
 
       it('encodes ' + f.hash + ' (' + f.network + ')', function () {
-        const address = baddress.toBase58Check(Buffer.from(f.hash, 'hex'), f.version)
+        const address = baddress.toBase58Check(Buffer.from(f.hash, 'hex'), f.version, NETWORKS[f.network])
 
         assert.strictEqual(address, f.base58check)
       })
