@@ -7,15 +7,26 @@ const typeforce = require('typeforce')
 const types = require('./types')
 const payments = require('./payments')
 
-function fromBase58Check (address) {
+function fromBase58Check (address, network) {
   const payload = bs58check.decode(address)
+  network = network || networks.bitcoin
 
   // TODO: 4.0.0, move to "toOutputScript"
-  if (payload.length < 21) throw new TypeError(address + ' is too short')
-  if (payload.length > 21) throw new TypeError(address + ' is too long')
+  if (payload.length < network.bytes) throw new TypeError(address + ' is too short')
+  if (payload.length > network.bytes) throw new TypeError(address + ' is too long')
 
-  const version = payload.readUInt8(0)
-  const hash = payload.slice(1)
+  // const version = payload.readUInt8(0)
+  // const hash = payload.slice(1)
+  let version
+  const hash = payload.slice(network.versionBytes)
+  if (network.versionBytes === 1) {
+    version = payload.readUInt8(0)
+  } else if (network.versionBytes === 2) {
+    version = payload.readUInt16BE(0)
+  }
+  if (network.versionBase === 16) {
+    version = version.toString(16)
+  }
 
   return { version: version, hash: hash }
 }
@@ -31,12 +42,21 @@ function fromBech32 (address) {
   }
 }
 
-function toBase58Check (hash, version) {
-  typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments)
+function toBase58Check (hash, version, network) {
+  typeforce(types.tuple(types.Hash160bit, types.UInt8), [hash, network.bytes])
+  typeforce(types.anyOf(types.UInt8, typeforce.HexN(2), typeforce.HexN(4)), version)
+  network = network || networks.bitcoin
 
-  const payload = Buffer.allocUnsafe(21)
-  payload.writeUInt8(version, 0)
-  hash.copy(payload, 1)
+  if (types.UInt8(version)) {
+    version = ('0' + version.toString(16)).slice(-2)
+  }
+
+  const payload = Buffer.allocUnsafe(network.bytes)
+  const versionBuf = Buffer.from(version, 'hex')
+  const bufLength = versionBuf.length
+
+  versionBuf.copy(payload, 0)
+  hash.copy(payload, bufLength)
 
   return bs58check.encode(payload)
 }
@@ -64,12 +84,15 @@ function toOutputScript (address, network) {
 
   let decode
   try {
-    decode = fromBase58Check(address)
+    decode = fromBase58Check(address, network)
   } catch (e) {}
 
   if (decode) {
     if (decode.version === network.pubKeyHash) return payments.p2pkh({ hash: decode.hash }).output
-    if (decode.version === network.scriptHash) return payments.p2sh({ hash: decode.hash }).output
+    if (decode.version === network.scriptHash) return payments.p2sh({ hash: decode.hash, network: network }).output
+    if (network.versionBase === 16) {
+      if (decode.version === network.scriptHash.toString(16)) return payments.p2sh({ hash: decode.hash, network: network }).output
+    }
   } else {
     try {
       decode = fromBech32(address)

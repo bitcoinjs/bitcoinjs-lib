@@ -11,7 +11,9 @@ module.exports = {
     },
     pubKeyHash: 0x00,
     scriptHash: 0x05,
-    wif: 0x80
+    wif: 0x80,
+    bytes: 21,
+    versionBytes: 1
   },
   regtest: {
     messagePrefix: '\x18Bitcoin Signed Message:\n',
@@ -22,7 +24,9 @@ module.exports = {
     },
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
-    wif: 0xef
+    wif: 0xef,
+    bytes: 21,
+    versionBytes: 1
   },
   testnet: {
     messagePrefix: '\x18Bitcoin Signed Message:\n',
@@ -33,6 +37,8 @@ module.exports = {
     },
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
-    wif: 0xef
+    wif: 0xef,
+    bytes: 21,
+    versionBytes: 1
   }
 }

@@ -53,7 +53,7 @@ describe('Bitcoin-core', function () {
       const version = network[typeMap[params.addrType]]
 
       it('can export ' + expected, function () {
-        assert.strictEqual(bitcoin.address.toBase58Check(hash, version), expected)
+        assert.strictEqual(bitcoin.address.toBase58Check(hash, version, network), expected)
       })
     })
   })
