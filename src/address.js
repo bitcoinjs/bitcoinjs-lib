@@ -15,8 +15,6 @@ function fromBase58Check (address, network) {
   if (payload.length < network.bytes) throw new TypeError(address + ' is too short')
   if (payload.length > network.bytes) throw new TypeError(address + ' is too long')
 
-  // const version = payload.readUInt8(0)
-  // const hash = payload.slice(1)
   let version
   const hash = payload.slice(network.versionBytes)
   if (network.versionBytes === 1) {

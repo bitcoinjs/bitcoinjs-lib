@@ -37,7 +37,7 @@ describe('address', function () {
     fixtures.standard.forEach(function (f) {
       if (!f.base58check) return
 
-      it('decodes ' + f.base58check + ' ' + f.bytes, function () {
+      it('decodes ' + f.base58check, function () {
         const decode = baddress.fromBase58Check(f.base58check, NETWORKS[f.network])
 
         assert.strictEqual(decode.version, f.version)
