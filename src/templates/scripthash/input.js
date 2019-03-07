@@ -39,6 +39,6 @@ function check(script, allowIncomplete) {
     return false;
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'scriptHash input';
 };

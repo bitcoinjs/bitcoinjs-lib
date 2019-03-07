@@ -9,6 +9,6 @@ function check(script) {
         bscript.isCanonicalPubKey(chunks[1]));
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'pubKeyHash input';
 };

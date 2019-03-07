@@ -10,6 +10,6 @@ function check(script) {
         chunks[1] === script_1.OPS.OP_CHECKSIG);
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'pubKey output';
 };

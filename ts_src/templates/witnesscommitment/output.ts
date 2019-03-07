@@ -1,10 +1,10 @@
 // OP_RETURN {aa21a9ed} {commitment}
 
 import * as bscript from '../../script';
+import { OPS } from '../../script';
 import * as types from '../../types';
 
 const typeforce = require('typeforce');
-import { OPS } from '../../script';
 
 const HEADER: Buffer = Buffer.from('aa21a9ed', 'hex');
 
@@ -19,7 +19,7 @@ export function check(script: Buffer | Array<number | Buffer>): boolean {
   );
 }
 
-check.toJSON = function() {
+check.toJSON = () => {
   return 'Witness commitment output';
 };
 
@@ -36,5 +36,5 @@ export function encode(commitment: Buffer): Buffer {
 export function decode(buffer: Buffer): Buffer {
   typeforce(check, buffer);
 
-  return (<Buffer>bscript.decompile(buffer)![1]).slice(4, 36);
+  return (bscript.decompile(buffer)![1] as Buffer).slice(4, 36);
 }

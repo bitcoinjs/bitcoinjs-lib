@@ -7,10 +7,7 @@ import * as p2ms from '../multisig';
 import * as p2pk from '../pubkey';
 import * as p2pkh from '../pubkeyhash';
 
-export function check(
-  chunks: Array<Buffer>,
-  allowIncomplete?: boolean,
-): boolean {
+export function check(chunks: Buffer[], allowIncomplete?: boolean): boolean {
   typeforce(typeforce.Array, chunks);
   if (chunks.length < 1) return false;
 
@@ -45,6 +42,6 @@ export function check(
 
   return false;
 }
-check.toJSON = function() {
+check.toJSON = () => {
   return 'witnessScriptHash input';
 };

@@ -8,7 +8,7 @@ function check(script) {
     return buffer.length > 1 && buffer[0] === OPS.OP_RETURN;
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'null data output';
 };
 const output = { check };

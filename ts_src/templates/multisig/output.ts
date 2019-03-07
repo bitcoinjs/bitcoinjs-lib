@@ -1,22 +1,23 @@
 // m [pubKeys ...] n OP_CHECKMULTISIG
 
+import { Stack } from '../../payments';
 import * as bscript from '../../script';
-import * as types from '../../types';
 import { OPS } from '../../script';
+import * as types from '../../types';
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 
 export function check(
-  script: Buffer | Array<number | Buffer>,
+  script: Buffer | Stack,
   allowIncomplete?: boolean,
 ): boolean {
-  const chunks = <Array<number | Buffer>>bscript.decompile(script);
+  const chunks = bscript.decompile(script) as Stack;
 
   if (chunks.length < 4) return false;
   if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG) return false;
   if (!types.Number(chunks[0])) return false;
   if (!types.Number(chunks[chunks.length - 2])) return false;
-  const m = <number>chunks[0] - OP_INT_BASE;
-  const n = <number>chunks[chunks.length - 2] - OP_INT_BASE;
+  const m = (chunks[0] as number) - OP_INT_BASE;
+  const n = (chunks[chunks.length - 2] as number) - OP_INT_BASE;
 
   if (m <= 0) return false;
   if (n > 16) return false;
@@ -24,9 +25,9 @@ export function check(
   if (n !== chunks.length - 3) return false;
   if (allowIncomplete) return true;
 
-  const keys = <Array<Buffer>>chunks.slice(1, -2);
+  const keys = chunks.slice(1, -2) as Buffer[];
   return keys.every(bscript.isCanonicalPubKey);
 }
-check.toJSON = function() {
+check.toJSON = () => {
   return 'multi-sig output';
 };

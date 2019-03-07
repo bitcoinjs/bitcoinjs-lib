@@ -2,8 +2,8 @@
 // m [pubKeys ...] n OP_CHECKMULTISIG
 Object.defineProperty(exports, "__esModule", { value: true });
 const bscript = require("../../script");
-const types = require("../../types");
 const script_1 = require("../../script");
+const types = require("../../types");
 const OP_INT_BASE = script_1.OPS.OP_RESERVED; // OP_1 - 1
 function check(script, allowIncomplete) {
     const chunks = bscript.decompile(script);
@@ -31,6 +31,6 @@ function check(script, allowIncomplete) {
     return keys.every(bscript.isCanonicalPubKey);
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'multi-sig output';
 };
