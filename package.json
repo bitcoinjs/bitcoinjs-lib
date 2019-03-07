@@ -69,9 +69,9 @@
     "minimaldata": "^1.0.2",
     "mocha": "^5.2.0",
     "nyc": "^11.8.0",
-    "prettier": "^1.16.4",
+    "prettier": "1.16.4",
     "proxyquire": "^2.0.1",
-    "tslint": "^5.13.1",
+    "tslint": "5.13.1",
     "typescript": "3.2.2"
   },
   "license": "MIT"
