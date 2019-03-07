@@ -24,7 +24,7 @@ function decode(buffer, maxLength, minimal) {
     }
     // 32-bit / 24-bit / 16-bit / 8-bit
     let result = 0;
-    for (var i = 0; i < length; ++i) {
+    for (let i = 0; i < length; ++i) {
         result |= buffer[i] << (8 * i);
     }
     if (buffer[length - 1] & 0x80)
@@ -45,12 +45,12 @@ function scriptNumSize(i) {
                         ? 1
                         : 0;
 }
-function encode(number) {
-    let value = Math.abs(number);
+function encode(_number) {
+    let value = Math.abs(_number);
     const size = scriptNumSize(value);
     const buffer = Buffer.allocUnsafe(size);
-    const negative = number < 0;
-    for (var i = 0; i < size; ++i) {
+    const negative = _number < 0;
+    for (let i = 0; i < size; ++i) {
         buffer.writeUInt8(value & 0xff, i);
         value >>= 8;
     }
