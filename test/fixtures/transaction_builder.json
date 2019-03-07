@@ -1976,7 +1976,7 @@
     "sign": [
       {
         "description": "Transaction w/ witness value mismatch",
-        "exception": "Input didn\\'t match witnessValue",
+        "exception": "Input did not match witnessValue",
         "network": "testnet",
         "inputs": [
           {
