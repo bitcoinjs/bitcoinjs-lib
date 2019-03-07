@@ -8,7 +8,7 @@ export function UInt31(value: number): boolean {
 export function BIP32Path(value: string): boolean {
   return typeforce.String(value) && !!value.match(/^(m\/)?(\d+'?\/)*\d+'?$/);
 }
-BIP32Path.toJSON = function() {
+BIP32Path.toJSON = () => {
   return 'BIP32 derivation path';
 };
 
@@ -35,10 +35,10 @@ export const Network = typeforce.compile({
 export const Buffer256bit = typeforce.BufferN(32);
 export const Hash160bit = typeforce.BufferN(20);
 export const Hash256bit = typeforce.BufferN(32);
-export const Number = typeforce.Number;
+export const Number = typeforce.Number; // tslint:disable-line variable-name
 export const Array = typeforce.Array;
-export const Boolean = typeforce.Boolean;
-export const String = typeforce.String;
+export const Boolean = typeforce.Boolean; // tslint:disable-line variable-name
+export const String = typeforce.String; // tslint:disable-line variable-name
 export const Buffer = typeforce.Buffer;
 export const Hex = typeforce.Hex;
 export const maybe = typeforce.maybe;
