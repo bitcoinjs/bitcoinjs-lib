@@ -1,8 +1,8 @@
-import { Payment, PaymentOpts } from './index';
-import * as bscript from '../script';
 import * as bcrypto from '../crypto';
-import * as lazy from './lazy';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import * as bscript from '../script';
+import { Payment, PaymentOpts, StackFunction } from './index';
+import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 const ecc = require('tiny-secp256k1');
@@ -30,20 +30,20 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
     a,
   );
 
-  const _address = lazy.value(function() {
+  const _address = lazy.value(() => {
     const payload = bs58check.decode(a.address);
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
     return { version, hash };
   });
-  const _chunks = <() => Array<Buffer | number>>lazy.value(function() {
+  const _chunks = lazy.value(() => {
     return bscript.decompile(a.input!);
-  });
+  }) as StackFunction;
 
   const network = a.network || BITCOIN_NETWORK;
   const o: Payment = { network };
 
-  lazy.prop(o, 'address', function() {
+  lazy.prop(o, 'address', () => {
     if (!o.hash) return;
 
     const payload = Buffer.allocUnsafe(21);
@@ -51,12 +51,12 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
     o.hash.copy(payload, 1);
     return bs58check.encode(payload);
   });
-  lazy.prop(o, 'hash', function() {
+  lazy.prop(o, 'hash', () => {
     if (a.output) return a.output.slice(3, 23);
     if (a.address) return _address().hash;
     if (a.pubkey || o.pubkey) return bcrypto.hash160(a.pubkey! || o.pubkey!);
   });
-  lazy.prop(o, 'output', function() {
+  lazy.prop(o, 'output', () => {
     if (!o.hash) return;
     return bscript.compile([
       OPS.OP_DUP,
@@ -66,20 +66,20 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
       OPS.OP_CHECKSIG,
     ]);
   });
-  lazy.prop(o, 'pubkey', function() {
+  lazy.prop(o, 'pubkey', () => {
     if (!a.input) return;
-    return <Buffer>_chunks()[1];
+    return _chunks()[1] as Buffer;
   });
-  lazy.prop(o, 'signature', function() {
+  lazy.prop(o, 'signature', () => {
     if (!a.input) return;
-    return <Buffer>_chunks()[0];
+    return _chunks()[0] as Buffer;
   });
-  lazy.prop(o, 'input', function() {
+  lazy.prop(o, 'input', () => {
     if (!a.pubkey) return;
     if (!a.signature) return;
     return bscript.compile([a.signature, a.pubkey]);
   });
-  lazy.prop(o, 'witness', function() {
+  lazy.prop(o, 'witness', () => {
     if (!o.input) return;
     return [];
   });
@@ -127,17 +127,17 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
     if (a.input) {
       const chunks = _chunks();
       if (chunks.length !== 2) throw new TypeError('Input is invalid');
-      if (!bscript.isCanonicalScriptSignature(<Buffer>chunks[0]))
+      if (!bscript.isCanonicalScriptSignature(chunks[0] as Buffer))
         throw new TypeError('Input has invalid signature');
       if (!ecc.isPoint(chunks[1]))
         throw new TypeError('Input has invalid pubkey');
 
-      if (a.signature && !a.signature.equals(<Buffer>chunks[0]))
+      if (a.signature && !a.signature.equals(chunks[0] as Buffer))
         throw new TypeError('Signature mismatch');
-      if (a.pubkey && !a.pubkey.equals(<Buffer>chunks[1]))
+      if (a.pubkey && !a.pubkey.equals(chunks[1] as Buffer))
         throw new TypeError('Pubkey mismatch');
 
-      const pkh = bcrypto.hash160(<Buffer>chunks[1]);
+      const pkh = bcrypto.hash160(chunks[1] as Buffer);
       if (hash.length > 0 && !hash.equals(pkh))
         throw new TypeError('Hash mismatch');
     }

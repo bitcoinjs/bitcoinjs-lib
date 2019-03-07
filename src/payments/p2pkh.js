@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bscript = require("../script");
 const bcrypto = require("../crypto");
-const lazy = require("./lazy");
 const networks_1 = require("../networks");
+const bscript = require("../script");
+const lazy = require("./lazy");
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 const ecc = require('tiny-secp256k1');
@@ -23,18 +23,18 @@ function p2pkh(a, opts) {
         signature: typef.maybe(bscript.isCanonicalScriptSignature),
         input: typef.maybe(typef.Buffer),
     }, a);
-    const _address = lazy.value(function () {
+    const _address = lazy.value(() => {
         const payload = bs58check.decode(a.address);
         const version = payload.readUInt8(0);
         const hash = payload.slice(1);
         return { version, hash };
     });
-    const _chunks = lazy.value(function () {
+    const _chunks = lazy.value(() => {
         return bscript.decompile(a.input);
     });
     const network = a.network || networks_1.bitcoin;
     const o = { network };
-    lazy.prop(o, 'address', function () {
+    lazy.prop(o, 'address', () => {
         if (!o.hash)
             return;
         const payload = Buffer.allocUnsafe(21);
@@ -42,7 +42,7 @@ function p2pkh(a, opts) {
         o.hash.copy(payload, 1);
         return bs58check.encode(payload);
     });
-    lazy.prop(o, 'hash', function () {
+    lazy.prop(o, 'hash', () => {
         if (a.output)
             return a.output.slice(3, 23);
         if (a.address)
@@ -50,7 +50,7 @@ function p2pkh(a, opts) {
         if (a.pubkey || o.pubkey)
             return bcrypto.hash160(a.pubkey || o.pubkey);
     });
-    lazy.prop(o, 'output', function () {
+    lazy.prop(o, 'output', () => {
         if (!o.hash)
             return;
         return bscript.compile([
@@ -61,24 +61,24 @@ function p2pkh(a, opts) {
             OPS.OP_CHECKSIG,
         ]);
     });
-    lazy.prop(o, 'pubkey', function () {
+    lazy.prop(o, 'pubkey', () => {
         if (!a.input)
             return;
         return _chunks()[1];
     });
-    lazy.prop(o, 'signature', function () {
+    lazy.prop(o, 'signature', () => {
         if (!a.input)
             return;
         return _chunks()[0];
     });
-    lazy.prop(o, 'input', function () {
+    lazy.prop(o, 'input', () => {
         if (!a.pubkey)
             return;
         if (!a.signature)
             return;
         return bscript.compile([a.signature, a.pubkey]);
     });
-    lazy.prop(o, 'witness', function () {
+    lazy.prop(o, 'witness', () => {
         if (!o.input)
             return;
         return [];
