@@ -49,6 +49,22 @@ The length of time required for peer review is unpredictable and will vary from 
 Refer to the [Git manual](https://git-scm.com/doc) for any information about `git`.
 
 
+## Regarding TypeScript
+This library is written in TypeScript with tslint, prettier, and the tsc transpiler. These tools will help during testing to notice improper logic before committing and sending a pull request.
+
+Some rules regarding TypeScript:
+
+* Modify the typescript source code in an IDE that will give you warnings for transpile/lint errors.
+* Once you are done with the modifications, run `npm run format` then `npm test`
+* Running the tests will transpile the ts files into js and d.ts files.
+* Use `git diff` or other tools to verify that the ts and js are changing the same parts.
+* Commit all changes to ts, js, and d.ts files.
+* Add tests where necessary.
+* Submit your pull request.
+
+Using TypeScript is for preventing bugs while writing code, as well as automatically generating type definitions. However, the JS file diffs must be verified, and any unverified JS will not be published to npm.
+
+
 ## We adhere to Bitcoin-Core policy
 Bitcoin script payment/script templates are based on community consensus,  but typically adhere to bitcoin-core node policy by default.
 
