@@ -6,9 +6,9 @@ const nullData = require("./templates/nulldata");
 const pubKey = require("./templates/pubkey");
 const pubKeyHash = require("./templates/pubkeyhash");
 const scriptHash = require("./templates/scripthash");
+const witnessCommitment = require("./templates/witnesscommitment");
 const witnessPubKeyHash = require("./templates/witnesspubkeyhash");
 const witnessScriptHash = require("./templates/witnessscripthash");
-const witnessCommitment = require("./templates/witnesscommitment");
 const types = {
     P2MS: 'multisig',
     NONSTANDARD: 'nonstandard',

@@ -12,5 +12,5 @@ declare const types: {
 };
 declare function classifyOutput(script: Buffer): string;
 declare function classifyInput(script: Buffer, allowIncomplete: boolean): string;
-declare function classifyWitness(script: Array<Buffer>, allowIncomplete: boolean): string;
+declare function classifyWitness(script: Buffer[], allowIncomplete: boolean): string;
 export { classifyInput as input, classifyOutput as output, classifyWitness as witness, types, };

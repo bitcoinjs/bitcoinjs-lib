@@ -4,20 +4,20 @@ import * as nullData from './templates/nulldata';
 import * as pubKey from './templates/pubkey';
 import * as pubKeyHash from './templates/pubkeyhash';
 import * as scriptHash from './templates/scripthash';
+import * as witnessCommitment from './templates/witnesscommitment';
 import * as witnessPubKeyHash from './templates/witnesspubkeyhash';
 import * as witnessScriptHash from './templates/witnessscripthash';
-import * as witnessCommitment from './templates/witnesscommitment';
 
 const types = {
-  P2MS: <string>'multisig',
-  NONSTANDARD: <string>'nonstandard',
-  NULLDATA: <string>'nulldata',
-  P2PK: <string>'pubkey',
-  P2PKH: <string>'pubkeyhash',
-  P2SH: <string>'scripthash',
-  P2WPKH: <string>'witnesspubkeyhash',
-  P2WSH: <string>'witnessscripthash',
-  WITNESS_COMMITMENT: <string>'witnesscommitment',
+  P2MS: 'multisig' as string,
+  NONSTANDARD: 'nonstandard' as string,
+  NULLDATA: 'nulldata' as string,
+  P2PK: 'pubkey' as string,
+  P2PKH: 'pubkeyhash' as string,
+  P2SH: 'scripthash' as string,
+  P2WPKH: 'witnesspubkeyhash' as string,
+  P2WSH: 'witnessscripthash' as string,
+  WITNESS_COMMITMENT: 'witnesscommitment' as string,
 };
 
 function classifyOutput(script: Buffer): string {
@@ -51,16 +51,13 @@ function classifyInput(script: Buffer, allowIncomplete: boolean): string {
   return types.NONSTANDARD;
 }
 
-function classifyWitness(
-  script: Array<Buffer>,
-  allowIncomplete: boolean,
-): string {
+function classifyWitness(script: Buffer[], allowIncomplete: boolean): string {
   // XXX: optimization, below functions .decompile before use
   const chunks = decompile(script);
   if (!chunks) throw new TypeError('Invalid script');
 
   if (witnessPubKeyHash.input.check(chunks)) return types.P2WPKH;
-  if (witnessScriptHash.input.check(<Array<Buffer>>chunks, allowIncomplete))
+  if (witnessScriptHash.input.check(chunks as Buffer[], allowIncomplete))
     return types.P2WSH;
 
   return types.NONSTANDARD;
