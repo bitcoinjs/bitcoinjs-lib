@@ -31,6 +31,7 @@ export interface PaymentOpts {
 
 export type StackElement = Buffer | number;
 export type Stack = StackElement[];
+export type StackFunction = () => Stack;
 
 export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh };
 

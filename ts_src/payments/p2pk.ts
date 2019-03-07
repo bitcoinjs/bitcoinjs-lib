@@ -1,7 +1,7 @@
-import { Payment, PaymentOpts } from './index';
-import * as bscript from '../script';
-import * as lazy from './lazy';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import * as bscript from '../script';
+import { Payment, PaymentOpts, StackFunction } from './index';
+import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 const ecc = require('tiny-secp256k1');
@@ -25,30 +25,30 @@ export function p2pk(a: Payment, opts?: PaymentOpts): Payment {
     a,
   );
 
-  const _chunks = <() => Array<Buffer | number>>lazy.value(function() {
+  const _chunks = lazy.value(() => {
     return bscript.decompile(a.input!);
-  });
+  }) as StackFunction;
 
   const network = a.network || BITCOIN_NETWORK;
   const o: Payment = { network };
 
-  lazy.prop(o, 'output', function() {
+  lazy.prop(o, 'output', () => {
     if (!a.pubkey) return;
     return bscript.compile([a.pubkey, OPS.OP_CHECKSIG]);
   });
-  lazy.prop(o, 'pubkey', function() {
+  lazy.prop(o, 'pubkey', () => {
     if (!a.output) return;
     return a.output.slice(1, -1);
   });
-  lazy.prop(o, 'signature', function() {
+  lazy.prop(o, 'signature', () => {
     if (!a.input) return;
-    return <Buffer>_chunks()[0];
+    return _chunks()[0] as Buffer;
   });
-  lazy.prop(o, 'input', function() {
+  lazy.prop(o, 'input', () => {
     if (!a.signature) return;
     return bscript.compile([a.signature]);
   });
-  lazy.prop(o, 'witness', function() {
+  lazy.prop(o, 'witness', () => {
     if (!o.input) return;
     return [];
   });

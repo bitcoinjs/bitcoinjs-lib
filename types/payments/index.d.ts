@@ -29,4 +29,5 @@ export interface PaymentOpts {
 }
 export declare type StackElement = Buffer | number;
 export declare type Stack = StackElement[];
+export declare type StackFunction = () => Stack;
 export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh };

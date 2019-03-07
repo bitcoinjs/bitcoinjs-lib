@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const networks_1 = require("../networks");
 const bscript = require("../script");
 const lazy = require("./lazy");
-const networks_1 = require("../networks");
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 const ecc = require('tiny-secp256k1');
@@ -19,32 +19,32 @@ function p2pk(a, opts) {
         signature: typef.maybe(bscript.isCanonicalScriptSignature),
         input: typef.maybe(typef.Buffer),
     }, a);
-    const _chunks = lazy.value(function () {
+    const _chunks = lazy.value(() => {
         return bscript.decompile(a.input);
     });
     const network = a.network || networks_1.bitcoin;
     const o = { network };
-    lazy.prop(o, 'output', function () {
+    lazy.prop(o, 'output', () => {
         if (!a.pubkey)
             return;
         return bscript.compile([a.pubkey, OPS.OP_CHECKSIG]);
     });
-    lazy.prop(o, 'pubkey', function () {
+    lazy.prop(o, 'pubkey', () => {
         if (!a.output)
             return;
         return a.output.slice(1, -1);
     });
-    lazy.prop(o, 'signature', function () {
+    lazy.prop(o, 'signature', () => {
         if (!a.input)
             return;
         return _chunks()[0];
     });
-    lazy.prop(o, 'input', function () {
+    lazy.prop(o, 'input', () => {
         if (!a.signature)
             return;
         return bscript.compile([a.signature]);
     });
-    lazy.prop(o, 'witness', function () {
+    lazy.prop(o, 'witness', () => {
         if (!o.input)
             return;
         return [];
