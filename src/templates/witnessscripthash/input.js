@@ -31,4 +31,6 @@ function check(chunks, allowIncomplete) {
     return false;
 }
 exports.check = check;
-check.toJSON = function () { return 'witnessScriptHash input'; };
+check.toJSON = function () {
+    return 'witnessScriptHash input';
+};

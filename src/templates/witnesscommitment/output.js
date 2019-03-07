@@ -8,13 +8,15 @@ const script_1 = require("../../script");
 const HEADER = Buffer.from('aa21a9ed', 'hex');
 function check(script) {
     const buffer = bscript.compile(script);
-    return buffer.length > 37 &&
+    return (buffer.length > 37 &&
         buffer[0] === script_1.OPS.OP_RETURN &&
         buffer[1] === 0x24 &&
-        buffer.slice(2, 6).equals(HEADER);
+        buffer.slice(2, 6).equals(HEADER));
 }
 exports.check = check;
-check.toJSON = function () { return 'Witness commitment output'; };
+check.toJSON = function () {
+    return 'Witness commitment output';
+};
 function encode(commitment) {
     typeforce(types.Hash256bit, commitment);
     const buffer = Buffer.allocUnsafe(36);

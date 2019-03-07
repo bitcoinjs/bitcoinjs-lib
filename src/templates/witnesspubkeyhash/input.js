@@ -7,9 +7,11 @@ function isCompressedCanonicalPubKey(pubKey) {
 }
 function check(script) {
     const chunks = bscript.decompile(script);
-    return chunks.length === 2 &&
+    return (chunks.length === 2 &&
         bscript.isCanonicalScriptSignature(chunks[0]) &&
-        isCompressedCanonicalPubKey(chunks[1]);
+        isCompressedCanonicalPubKey(chunks[1]));
 }
 exports.check = check;
-check.toJSON = function () { return 'witnessPubKeyHash input'; };
+check.toJSON = function () {
+    return 'witnessPubKeyHash input';
+};

@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bscript = require("../../script");
 const script_1 = require("../../script");
 function partialSignature(value) {
-    return value === script_1.OPS.OP_0 || bscript.isCanonicalScriptSignature(value);
+    return (value === script_1.OPS.OP_0 || bscript.isCanonicalScriptSignature(value));
 }
 function check(script, allowIncomplete) {
     const chunks = bscript.decompile(script);
@@ -18,4 +18,6 @@ function check(script, allowIncomplete) {
     return chunks.slice(1).every(bscript.isCanonicalScriptSignature);
 }
 exports.check = check;
-check.toJSON = function () { return 'multisig input'; };
+check.toJSON = function () {
+    return 'multisig input';
+};

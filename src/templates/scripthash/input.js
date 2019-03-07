@@ -24,8 +24,7 @@ function check(script, allowIncomplete) {
         return false;
     // is witness?
     if (chunks.length === 1) {
-        return p2wsho.check(redeemScriptChunks) ||
-            p2wpkho.check(redeemScriptChunks);
+        return (p2wsho.check(redeemScriptChunks) || p2wpkho.check(redeemScriptChunks));
     }
     // match types
     if (p2pkh.input.check(scriptSigChunks) &&
@@ -40,4 +39,6 @@ function check(script, allowIncomplete) {
     return false;
 }
 exports.check = check;
-check.toJSON = function () { return 'scriptHash input'; };
+check.toJSON = function () {
+    return 'scriptHash input';
+};

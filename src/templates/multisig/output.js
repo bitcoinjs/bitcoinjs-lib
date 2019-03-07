@@ -31,4 +31,6 @@ function check(script, allowIncomplete) {
     return keys.every(bscript.isCanonicalPubKey);
 }
 exports.check = check;
-check.toJSON = function () { return 'multi-sig output'; };
+check.toJSON = function () {
+    return 'multi-sig output';
+};
