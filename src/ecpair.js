@@ -17,30 +17,30 @@ class ECPair {
         this.compressed =
             options.compressed === undefined ? true : options.compressed;
         this.network = options.network || NETWORKS.bitcoin;
-        this.__d = undefined;
+        this.__D = undefined;
         this.__Q = undefined;
         if (d !== undefined)
-            this.__d = d;
+            this.__D = d;
         if (Q !== undefined)
             this.__Q = ecc.pointCompress(Q, this.compressed);
     }
     get privateKey() {
-        return this.__d;
+        return this.__D;
     }
     get publicKey() {
         if (!this.__Q)
-            this.__Q = ecc.pointFromScalar(this.__d, this.compressed);
+            this.__Q = ecc.pointFromScalar(this.__D, this.compressed);
         return this.__Q;
     }
     toWIF() {
-        if (!this.__d)
+        if (!this.__D)
             throw new Error('Missing private key');
-        return wif.encode(this.network.wif, this.__d, this.compressed);
+        return wif.encode(this.network.wif, this.__D, this.compressed);
     }
     sign(hash) {
-        if (!this.__d)
+        if (!this.__D)
             throw new Error('Missing private key');
-        return ecc.sign(hash, this.__d);
+        return ecc.sign(hash, this.__D);
     }
     verify(hash, signature) {
         return ecc.verify(hash, this.publicKey, signature);
@@ -60,13 +60,13 @@ function fromPublicKey(buffer, options) {
     return new ECPair(undefined, buffer, options);
 }
 exports.fromPublicKey = fromPublicKey;
-function fromWIF(string, network) {
-    const decoded = wif.decode(string);
+function fromWIF(wifString, network) {
+    const decoded = wif.decode(wifString);
     const version = decoded.version;
     // list of networks?
     if (types.Array(network)) {
         network = network
-            .filter(function (x) {
+            .filter((x) => {
             return version === x.wif;
         })
             .pop();

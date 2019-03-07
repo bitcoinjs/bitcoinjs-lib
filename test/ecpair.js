@@ -238,7 +238,7 @@ describe('ECPair', function () {
       }))
 
       it('throws if no private key is found', function () {
-        delete keyPair.__d
+        delete keyPair.__D
 
         assert.throws(function () {
           keyPair.sign(hash)

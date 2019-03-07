@@ -18,7 +18,7 @@ export interface ECPairInterface {
 declare class ECPair implements ECPairInterface {
     compressed: boolean;
     network: Network;
-    private __d?;
+    private __D?;
     private __Q?;
     constructor(d?: Buffer, Q?: Buffer, options?: ECPairOptions);
     readonly privateKey: Buffer | undefined;
@@ -29,6 +29,6 @@ declare class ECPair implements ECPairInterface {
 }
 declare function fromPrivateKey(buffer: Buffer, options?: ECPairOptions): ECPair;
 declare function fromPublicKey(buffer: Buffer, options?: ECPairOptions): ECPair;
-declare function fromWIF(string: string, network?: Network | Array<Network>): ECPair;
+declare function fromWIF(wifString: string, network?: Network | Network[]): ECPair;
 declare function makeRandom(options?: ECPairOptions): ECPair;
 export { makeRandom, fromPrivateKey, fromPublicKey, fromWIF };
