@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const types = require("./types");
 const scriptNumber = require("./script_number");
 const scriptSignature = require("./script_signature");
+const types = require("./types");
 const bip66 = require('bip66');
 const ecc = require('tiny-secp256k1');
 const pushdata = require('pushdata-bitcoin');
@@ -47,7 +47,7 @@ function compile(chunks) {
     if (chunksIsBuffer(chunks))
         return chunks;
     typeforce(types.Array, chunks);
-    const bufferSize = chunks.reduce(function (accum, chunk) {
+    const bufferSize = chunks.reduce((accum, chunk) => {
         // data chunk
         if (singleChunkIsBuffer(chunk)) {
             // adhere to BIP62.3, minimal push policy
@@ -61,7 +61,7 @@ function compile(chunks) {
     }, 0.0);
     const buffer = Buffer.allocUnsafe(bufferSize);
     let offset = 0;
-    chunks.forEach(function (chunk) {
+    chunks.forEach(chunk => {
         // data chunk
         if (singleChunkIsBuffer(chunk)) {
             // adhere to BIP62.3, minimal push policy
@@ -130,7 +130,7 @@ function toASM(chunks) {
         chunks = decompile(chunks);
     }
     return chunks
-        .map(function (chunk) {
+        .map(chunk => {
         // data?
         if (singleChunkIsBuffer(chunk)) {
             const op = asMinimalOP(chunk);
@@ -146,7 +146,7 @@ function toASM(chunks) {
 exports.toASM = toASM;
 function fromASM(asm) {
     typeforce(types.String, asm);
-    return compile(asm.split(' ').map(function (chunkStr) {
+    return compile(asm.split(' ').map(chunkStr => {
         // opcode?
         if (exports.OPS[chunkStr] !== undefined)
             return exports.OPS[chunkStr];
@@ -159,7 +159,7 @@ exports.fromASM = fromASM;
 function toStack(chunks) {
     chunks = decompile(chunks);
     typeforce(isPushOnly, chunks);
-    return chunks.map(function (op) {
+    return chunks.map(op => {
         if (singleChunkIsBuffer(op))
             return op;
         if (op === exports.OPS.OP_0)
@@ -186,5 +186,6 @@ function isCanonicalScriptSignature(buffer) {
     return bip66.check(buffer.slice(0, -1));
 }
 exports.isCanonicalScriptSignature = isCanonicalScriptSignature;
+// tslint:disable-next-line variable-name
 exports.number = scriptNumber;
 exports.signature = scriptSignature;
