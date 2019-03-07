@@ -4,16 +4,16 @@ function prop(object, name, f) {
     Object.defineProperty(object, name, {
         configurable: true,
         enumerable: true,
-        get: function () {
-            let value = f.call(this);
-            this[name] = value;
-            return value;
+        get() {
+            const _value = f.call(this);
+            this[name] = _value;
+            return _value;
         },
-        set: function (value) {
+        set(_value) {
             Object.defineProperty(this, name, {
                 configurable: true,
                 enumerable: true,
-                value: value,
+                value: _value,
                 writable: true,
             });
         },
@@ -21,12 +21,12 @@ function prop(object, name, f) {
 }
 exports.prop = prop;
 function value(f) {
-    let value;
-    return function () {
-        if (value !== undefined)
-            return value;
-        value = f();
-        return value;
+    let _value;
+    return () => {
+        if (_value !== undefined)
+            return _value;
+        _value = f();
+        return _value;
     };
 }
 exports.value = value;
