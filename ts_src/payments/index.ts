@@ -24,6 +24,8 @@ export interface Payment {
   witness?: Buffer[];
 }
 
+export type PaymentFunction = () => Payment;
+
 export interface PaymentOpts {
   validate?: boolean;
   allowIncomplete?: boolean;
