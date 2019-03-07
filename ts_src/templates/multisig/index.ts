@@ -1,7 +1,4 @@
-import * as input from './input'
-import * as output from './output'
+import * as input from './input';
+import * as output from './output';
 
-export {
-  input,
-  output,
-}
+export { input, output };
