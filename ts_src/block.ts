@@ -1,7 +1,7 @@
+import { reverseBuffer } from './bufferutils';
+import * as bcrypto from './crypto';
 import { Transaction } from './transaction';
 import * as types from './types';
-import * as bcrypto from './crypto';
-import { reverseBuffer } from './bufferutils';
 
 const fastMerkleRoot = require('merkle-lib/fastRoot');
 const typeforce = require('typeforce');
@@ -14,7 +14,7 @@ const errorWitnessNotSegwit = new TypeError(
   'Cannot compute witness commit for non-segwit block',
 );
 
-function txesHaveWitnessCommit(transactions: Array<Transaction>): boolean {
+function txesHaveWitnessCommit(transactions: Transaction[]): boolean {
   return (
     transactions instanceof Array &&
     transactions[0] &&
@@ -27,7 +27,7 @@ function txesHaveWitnessCommit(transactions: Array<Transaction>): boolean {
   );
 }
 
-function anyTxHasWitness(transactions: Array<Transaction>): boolean {
+function anyTxHasWitness(transactions: Transaction[]): boolean {
   return (
     transactions instanceof Array &&
     transactions.some(
@@ -45,26 +45,6 @@ function anyTxHasWitness(transactions: Array<Transaction>): boolean {
 }
 
 export class Block {
-  version: number;
-  prevHash?: Buffer;
-  merkleRoot?: Buffer;
-  timestamp: number;
-  witnessCommit?: Buffer;
-  bits: number;
-  nonce: number;
-  transactions?: Array<Transaction>;
-
-  constructor() {
-    this.version = 1;
-    this.timestamp = 0;
-    this.bits = 0;
-    this.nonce = 0;
-    this.prevHash = undefined;
-    this.merkleRoot = undefined;
-    this.witnessCommit = undefined;
-    this.transactions = undefined;
-  }
-
   static fromBuffer(buffer: Buffer): Block {
     if (buffer.length < 80) throw new Error('Buffer too small (< 80 bytes)');
 
@@ -111,12 +91,12 @@ export class Block {
     const nTransactions = readVarInt();
     block.transactions = [];
 
-    for (var i = 0; i < nTransactions; ++i) {
+    for (let i = 0; i < nTransactions; ++i) {
       const tx = readTransaction();
       block.transactions.push(tx);
     }
 
-    let witnessCommit = block.getWitnessCommit();
+    const witnessCommit = block.getWitnessCommit();
     // This Block contains a witness commit
     if (witnessCommit) block.witnessCommit = witnessCommit;
 
@@ -136,7 +116,7 @@ export class Block {
   }
 
   static calculateMerkleRoot(
-    transactions: Array<Transaction>,
+    transactions: Transaction[],
     forWitness?: boolean,
   ): Buffer {
     typeforce([{ getHash: types.Function }], transactions);
@@ -157,6 +137,26 @@ export class Block {
       : rootHash;
   }
 
+  version: number;
+  prevHash?: Buffer;
+  merkleRoot?: Buffer;
+  timestamp: number;
+  witnessCommit?: Buffer;
+  bits: number;
+  nonce: number;
+  transactions?: Transaction[];
+
+  constructor() {
+    this.version = 1;
+    this.timestamp = 0;
+    this.bits = 0;
+    this.nonce = 0;
+    this.prevHash = undefined;
+    this.merkleRoot = undefined;
+    this.witnessCommit = undefined;
+    this.transactions = undefined;
+  }
+
   getWitnessCommit(): Buffer | null {
     if (!txesHaveWitnessCommit(this.transactions!)) return null;
 
@@ -164,12 +164,12 @@ export class Block {
     // There is no rule for the index of the output, so use filter to find it.
     // The root is prepended with 0xaa21a9ed so check for 0x6a24aa21a9ed
     // If multiple commits are found, the output with highest index is assumed.
-    let witnessCommits = this.transactions![0].outs.filter(out =>
+    const witnessCommits = this.transactions![0].outs.filter(out =>
       out.script.slice(0, 6).equals(Buffer.from('6a24aa21a9ed', 'hex')),
     ).map(out => out.script.slice(6, 38));
     if (witnessCommits.length === 0) return null;
     // Use the commit with the highest output (should only be one though)
-    let result = witnessCommits[witnessCommits.length - 1];
+    const result = witnessCommits[witnessCommits.length - 1];
 
     if (!(result instanceof Buffer && result.length === 32)) return null;
     return result;
@@ -261,7 +261,7 @@ export class Block {
   checkTxRoots(): boolean {
     // If the Block has segwit transactions but no witness commit,
     // there's no way it can be valid, so fail the check.
-    let hasWitnessCommit = this.hasWitnessCommit();
+    const hasWitnessCommit = this.hasWitnessCommit();
     if (!hasWitnessCommit && this.hasWitness()) return false;
     return (
       this.__checkMerkleRoot() &&
@@ -277,14 +277,21 @@ export class Block {
     return this.checkTxRoots();
   }
 
-  __checkMerkleRoot(): boolean {
+  checkProofOfWork(): boolean {
+    const hash: Buffer = reverseBuffer(this.getHash());
+    const target = Block.calculateTarget(this.bits);
+
+    return hash.compare(target) <= 0;
+  }
+
+  private __checkMerkleRoot(): boolean {
     if (!this.transactions) throw errorMerkleNoTxes;
 
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions);
     return this.merkleRoot!.compare(actualMerkleRoot) === 0;
   }
 
-  __checkWitnessCommit(): boolean {
+  private __checkWitnessCommit(): boolean {
     if (!this.transactions) throw errorMerkleNoTxes;
     if (!this.hasWitnessCommit()) throw errorWitnessNotSegwit;
 
@@ -293,12 +300,5 @@ export class Block {
       true,
     );
     return this.witnessCommit!.compare(actualWitnessCommit) === 0;
-  }
-
-  checkProofOfWork(): boolean {
-    const hash: Buffer = reverseBuffer(this.getHash());
-    const target = Block.calculateTarget(this.bits);
-
-    return hash.compare(target) <= 0;
   }
 }

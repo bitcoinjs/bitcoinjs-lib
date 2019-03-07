@@ -2,6 +2,7 @@
   "defaultSeverity": "error",
   "extends": ["tslint:recommended"],
   "rules": {
+    "arrow-parens": [true, "ban-single-arg-parens"],
     "curly": false,
     "indent": [
       true,
@@ -12,6 +13,8 @@
     "match-default-export-name": true,
     "max-classes-per-file": [false],
     "member-access": [true, "no-public"],
+    "no-bitwise": false,
+    "no-console": false,
     "no-empty": [true, "allow-empty-catch"],
     "no-implicit-dependencies": true,
     "no-return-await": true,
