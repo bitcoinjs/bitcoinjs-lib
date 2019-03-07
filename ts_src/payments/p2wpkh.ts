@@ -1,8 +1,8 @@
-import { Payment, PaymentOpts } from './index';
-import * as bscript from '../script';
 import * as bcrypto from '../crypto';
-import * as lazy from './lazy';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import * as bscript from '../script';
+import { Payment, PaymentOpts } from './index';
+import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 const ecc = require('tiny-secp256k1');
@@ -33,7 +33,7 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
     a,
   );
 
-  const _address = lazy.value(function() {
+  const _address = lazy.value(() => {
     const result = bech32.decode(a.address);
     const version = result.words.shift();
     const data = bech32.fromWords(result.words);
@@ -47,36 +47,36 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
   const network = a.network || BITCOIN_NETWORK;
   const o: Payment = { network };
 
-  lazy.prop(o, 'address', function() {
+  lazy.prop(o, 'address', () => {
     if (!o.hash) return;
 
     const words = bech32.toWords(o.hash);
     words.unshift(0x00);
     return bech32.encode(network.bech32, words);
   });
-  lazy.prop(o, 'hash', function() {
+  lazy.prop(o, 'hash', () => {
     if (a.output) return a.output.slice(2, 22);
     if (a.address) return _address().data;
     if (a.pubkey || o.pubkey) return bcrypto.hash160(a.pubkey! || o.pubkey!);
   });
-  lazy.prop(o, 'output', function() {
+  lazy.prop(o, 'output', () => {
     if (!o.hash) return;
     return bscript.compile([OPS.OP_0, o.hash]);
   });
-  lazy.prop(o, 'pubkey', function() {
+  lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;
     if (!a.witness) return;
     return a.witness[1];
   });
-  lazy.prop(o, 'signature', function() {
+  lazy.prop(o, 'signature', () => {
     if (!a.witness) return;
     return a.witness[0];
   });
-  lazy.prop(o, 'input', function() {
+  lazy.prop(o, 'input', () => {
     if (!o.witness) return;
     return EMPTY_BUFFER;
   });
-  lazy.prop(o, 'witness', function() {
+  lazy.prop(o, 'witness', () => {
     if (!a.pubkey) return;
     if (!a.signature) return;
     return [a.signature, a.pubkey];
