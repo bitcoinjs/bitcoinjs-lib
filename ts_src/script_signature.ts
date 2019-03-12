@@ -33,14 +33,12 @@ export function decode(buffer: Buffer): ScriptSignature {
   if (hashTypeMod <= 0 || hashTypeMod >= 4)
     throw new Error('Invalid hashType ' + hashType);
 
-  const decode = bip66.decode(buffer.slice(0, -1));
-  const r = fromDER(decode.r);
-  const s = fromDER(decode.s);
+  const decoded = bip66.decode(buffer.slice(0, -1));
+  const r = fromDER(decoded.r);
+  const s = fromDER(decoded.s);
+  const signature = Buffer.concat([r, s], 64);
 
-  return {
-    signature: Buffer.concat([r, s], 64),
-    hashType: hashType,
-  };
+  return { signature, hashType };
 }
 
 export function encode(signature: Buffer, hashType: number): Buffer {

@@ -10,7 +10,7 @@ function BIP32Path(value) {
     return typeforce.String(value) && !!value.match(/^(m\/)?(\d+'?\/)*\d+'?$/);
 }
 exports.BIP32Path = BIP32Path;
-BIP32Path.toJSON = function () {
+BIP32Path.toJSON = () => {
     return 'BIP32 derivation path';
 };
 const SATOSHI_MAX = 21 * 1e14;
@@ -34,10 +34,10 @@ exports.Network = typeforce.compile({
 exports.Buffer256bit = typeforce.BufferN(32);
 exports.Hash160bit = typeforce.BufferN(20);
 exports.Hash256bit = typeforce.BufferN(32);
-exports.Number = typeforce.Number;
+exports.Number = typeforce.Number; // tslint:disable-line variable-name
 exports.Array = typeforce.Array;
-exports.Boolean = typeforce.Boolean;
-exports.String = typeforce.String;
+exports.Boolean = typeforce.Boolean; // tslint:disable-line variable-name
+exports.String = typeforce.String; // tslint:disable-line variable-name
 exports.Buffer = typeforce.Buffer;
 exports.Hex = typeforce.Hex;
 exports.maybe = typeforce.maybe;

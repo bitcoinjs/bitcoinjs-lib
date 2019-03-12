@@ -1,24 +1,21 @@
 /// <reference types="node" />
-export declare type BlankOutput = {
+export interface BlankOutput {
     script: Buffer;
     valueBuffer: Buffer;
-};
-export declare type Output = {
+}
+export interface Output {
     script: Buffer;
     value: number;
-};
-export declare type Input = {
+}
+declare type OpenOutput = Output | BlankOutput;
+export interface Input {
     hash: Buffer;
     index: number;
     script: Buffer;
     sequence: number;
-    witness: Array<Buffer>;
-};
+    witness: Buffer[];
+}
 export declare class Transaction {
-    version: number;
-    locktime: number;
-    ins: Array<Input>;
-    outs: Array<Output | BlankOutput>;
     static readonly DEFAULT_SEQUENCE = 4294967295;
     static readonly SIGHASH_ALL = 1;
     static readonly SIGHASH_NONE = 2;
@@ -26,10 +23,14 @@ export declare class Transaction {
     static readonly SIGHASH_ANYONECANPAY = 128;
     static readonly ADVANCED_TRANSACTION_MARKER = 0;
     static readonly ADVANCED_TRANSACTION_FLAG = 1;
-    constructor();
-    static fromBuffer(buffer: Buffer, __noStrict?: boolean): Transaction;
+    static fromBuffer(buffer: Buffer, _NO_STRICT?: boolean): Transaction;
     static fromHex(hex: string): Transaction;
     static isCoinbaseHash(buffer: Buffer): boolean;
+    version: number;
+    locktime: number;
+    ins: Input[];
+    outs: OpenOutput[];
+    constructor();
     isCoinbase(): boolean;
     addInput(hash: Buffer, index: number, sequence?: number, scriptSig?: Buffer): number;
     addOutput(scriptPubKey: Buffer, value: number): number;
@@ -37,7 +38,6 @@ export declare class Transaction {
     weight(): number;
     virtualSize(): number;
     byteLength(): number;
-    private __byteLength;
     clone(): Transaction;
     /**
      * Hash transaction for signing a specific input.
@@ -52,8 +52,10 @@ export declare class Transaction {
     getHash(forWitness?: boolean): Buffer;
     getId(): string;
     toBuffer(buffer?: Buffer, initialOffset?: number): Buffer;
-    private __toBuffer;
     toHex(): string;
     setInputScript(index: number, scriptSig: Buffer): void;
-    setWitness(index: number, witness: Array<Buffer>): void;
+    setWitness(index: number, witness: Buffer[]): void;
+    private __byteLength;
+    private __toBuffer;
 }
+export {};

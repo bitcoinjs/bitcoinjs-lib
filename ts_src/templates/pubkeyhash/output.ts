@@ -15,6 +15,6 @@ export function check(script: Buffer | Array<number | Buffer>): boolean {
     buffer[24] === OPS.OP_CHECKSIG
   );
 }
-check.toJSON = function() {
+check.toJSON = () => {
   return 'pubKeyHash output';
 };

@@ -13,6 +13,6 @@ function check(script) {
         buffer[24] === script_1.OPS.OP_CHECKSIG);
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'pubKeyHash output';
 };

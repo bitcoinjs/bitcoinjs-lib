@@ -1,14 +1,14 @@
 /// <reference types="node" />
 import { Network } from './networks';
-export declare type Base58CheckResult = {
+export interface Base58CheckResult {
     hash: Buffer;
     version: number;
-};
-export declare type Bech32Result = {
+}
+export interface Bech32Result {
     version: number;
     prefix: string;
     data: Buffer;
-};
+}
 export declare function fromBase58Check(address: string): Base58CheckResult;
 export declare function fromBech32(address: string): Bech32Result;
 export declare function toBase58Check(hash: Buffer, version: number): string;

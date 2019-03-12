@@ -1,17 +1,23 @@
-import { Payment, PaymentOpts } from './index';
+import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import * as bcrypto from '../crypto';
+import {
+  Payment,
+  PaymentFunction,
+  PaymentOpts,
+  Stack,
+  StackFunction,
+} from './index';
 import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 
 const bs58check = require('bs58check');
 
-function stacksEqual(a: Array<Buffer>, b: Array<Buffer>): boolean {
+function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
   if (a.length !== b.length) return false;
 
-  return a.every(function(x, i) {
+  return a.every((x, i) => {
     return x.equals(b[i]);
   });
 }
@@ -51,27 +57,29 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
 
   const o: Payment = { network };
 
-  const _address = lazy.value(function() {
+  const _address = lazy.value(() => {
     const payload = bs58check.decode(a.address);
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
     return { version, hash };
   });
-  const _chunks = <() => Array<Buffer | number>>lazy.value(function() {
+  const _chunks = lazy.value(() => {
     return bscript.decompile(a.input!);
-  });
-  const _redeem = lazy.value(function(): Payment {
-    const chunks = _chunks();
-    return {
-      network,
-      output: <Buffer>chunks[chunks.length - 1],
-      input: bscript.compile(chunks.slice(0, -1)),
-      witness: a.witness || [],
-    };
-  });
+  }) as StackFunction;
+  const _redeem = lazy.value(
+    (): Payment => {
+      const chunks = _chunks();
+      return {
+        network,
+        output: chunks[chunks.length - 1] as Buffer,
+        input: bscript.compile(chunks.slice(0, -1)),
+        witness: a.witness || [],
+      };
+    },
+  ) as PaymentFunction;
 
   // output dependents
-  lazy.prop(o, 'address', function() {
+  lazy.prop(o, 'address', () => {
     if (!o.hash) return;
 
     const payload = Buffer.allocUnsafe(21);
@@ -79,32 +87,32 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
     o.hash.copy(payload, 1);
     return bs58check.encode(payload);
   });
-  lazy.prop(o, 'hash', function() {
+  lazy.prop(o, 'hash', () => {
     // in order of least effort
     if (a.output) return a.output.slice(2, 22);
     if (a.address) return _address().hash;
     if (o.redeem && o.redeem.output) return bcrypto.hash160(o.redeem.output);
   });
-  lazy.prop(o, 'output', function() {
+  lazy.prop(o, 'output', () => {
     if (!o.hash) return;
     return bscript.compile([OPS.OP_HASH160, o.hash, OPS.OP_EQUAL]);
   });
 
   // input dependents
-  lazy.prop(o, 'redeem', function() {
+  lazy.prop(o, 'redeem', () => {
     if (!a.input) return;
     return _redeem();
   });
-  lazy.prop(o, 'input', function() {
+  lazy.prop(o, 'input', () => {
     if (!a.redeem || !a.redeem.input || !a.redeem.output) return;
     return bscript.compile(
-      (<Array<Buffer | number>>[]).concat(
-        <Array<Buffer | number>>bscript.decompile(a.redeem.input),
+      ([] as Stack).concat(
+        bscript.decompile(a.redeem.input) as Stack,
         a.redeem.output,
       ),
     );
   });
-  lazy.prop(o, 'witness', function() {
+  lazy.prop(o, 'witness', () => {
     if (o.redeem && o.redeem.witness) return o.redeem.witness;
     if (o.input) return [];
   });
@@ -140,7 +148,7 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
     }
 
     // inlined to prevent 'no-inner-declarations' failing
-    const checkRedeem = function(redeem: Payment): void {
+    const checkRedeem = (redeem: Payment): void => {
       // is the redeem output empty/invalid?
       if (redeem.output) {
         const decompile = bscript.decompile(redeem.output);
@@ -161,9 +169,7 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
         if (hasInput && hasWitness)
           throw new TypeError('Input and witness provided');
         if (hasInput) {
-          const richunks = <Array<Buffer | number>>(
-            bscript.decompile(redeem.input)
-          );
+          const richunks = bscript.decompile(redeem.input) as Stack;
           if (!bscript.isPushOnly(richunks))
             throw new TypeError('Non push-only scriptSig');
         }

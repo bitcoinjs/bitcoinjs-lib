@@ -33,7 +33,7 @@ export interface ECPairInterface {
 class ECPair implements ECPairInterface {
   compressed: boolean;
   network: Network;
-  private __d?: Buffer;
+  private __D?: Buffer;
   private __Q?: Buffer;
 
   constructor(d?: Buffer, Q?: Buffer, options?: ECPairOptions) {
@@ -42,29 +42,29 @@ class ECPair implements ECPairInterface {
       options.compressed === undefined ? true : options.compressed;
     this.network = options.network || NETWORKS.bitcoin;
 
-    this.__d = undefined;
+    this.__D = undefined;
     this.__Q = undefined;
-    if (d !== undefined) this.__d = d;
+    if (d !== undefined) this.__D = d;
     if (Q !== undefined) this.__Q = ecc.pointCompress(Q, this.compressed);
   }
 
   get privateKey(): Buffer | undefined {
-    return this.__d;
+    return this.__D;
   }
 
   get publicKey(): Buffer | undefined {
-    if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__d, this.compressed);
+    if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__D, this.compressed);
     return this.__Q;
   }
 
   toWIF(): string {
-    if (!this.__d) throw new Error('Missing private key');
-    return wif.encode(this.network.wif, this.__d, this.compressed);
+    if (!this.__D) throw new Error('Missing private key');
+    return wif.encode(this.network.wif, this.__D, this.compressed);
   }
 
   sign(hash: Buffer): Buffer {
-    if (!this.__d) throw new Error('Missing private key');
-    return ecc.sign(hash, this.__d);
+    if (!this.__D) throw new Error('Missing private key');
+    return ecc.sign(hash, this.__D);
   }
 
   verify(hash: Buffer, signature: Buffer): Buffer {
@@ -78,26 +78,26 @@ function fromPrivateKey(buffer: Buffer, options?: ECPairOptions): ECPair {
     throw new TypeError('Private key not in range [1, n)');
   typeforce(isOptions, options);
 
-  return new ECPair(buffer, undefined, <ECPairOptions>options);
+  return new ECPair(buffer, undefined, options as ECPairOptions);
 }
 
 function fromPublicKey(buffer: Buffer, options?: ECPairOptions): ECPair {
   typeforce(ecc.isPoint, buffer);
   typeforce(isOptions, options);
-  return new ECPair(undefined, buffer, <ECPairOptions>options);
+  return new ECPair(undefined, buffer, options as ECPairOptions);
 }
 
-function fromWIF(string: string, network?: Network | Array<Network>): ECPair {
-  const decoded = wif.decode(string);
+function fromWIF(wifString: string, network?: Network | Network[]): ECPair {
+  const decoded = wif.decode(wifString);
   const version = decoded.version;
 
   // list of networks?
   if (types.Array(network)) {
-    network = <Network>(<Array<Network>>network)
-      .filter(function(x: Network) {
+    network = (network as Network[])
+      .filter((x: Network) => {
         return version === x.wif;
       })
-      .pop();
+      .pop() as Network;
 
     if (!network) throw new Error('Unknown network version');
 
@@ -105,13 +105,13 @@ function fromWIF(string: string, network?: Network | Array<Network>): ECPair {
   } else {
     network = network || NETWORKS.bitcoin;
 
-    if (version !== (<Network>network).wif)
+    if (version !== (network as Network).wif)
       throw new Error('Invalid network version');
   }
 
   return fromPrivateKey(decoded.privateKey, {
     compressed: decoded.compressed,
-    network: <Network>network,
+    network: network as Network,
   });
 }
 

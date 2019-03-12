@@ -10,24 +10,30 @@ import { p2wsh } from './p2wsh';
 export interface Payment {
   network?: Network;
   output?: Buffer;
-  data?: Array<Buffer>;
+  data?: Buffer[];
   m?: number;
   n?: number;
-  pubkeys?: Array<Buffer>;
+  pubkeys?: Buffer[];
   input?: Buffer;
-  signatures?: Array<Buffer>;
+  signatures?: Buffer[];
   pubkey?: Buffer;
   signature?: Buffer;
   address?: string;
   hash?: Buffer;
   redeem?: Payment;
-  witness?: Array<Buffer>;
+  witness?: Buffer[];
 }
+
+export type PaymentFunction = () => Payment;
 
 export interface PaymentOpts {
   validate?: boolean;
   allowIncomplete?: boolean;
 }
+
+export type StackElement = Buffer | number;
+export type Stack = StackElement[];
+export type StackFunction = () => Stack;
 
 export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh };
 

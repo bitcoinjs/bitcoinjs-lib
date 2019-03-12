@@ -7,7 +7,7 @@ export function check(script: Buffer | Array<number | Buffer>): boolean {
 
   return buffer.length > 1 && buffer[0] === OPS.OP_RETURN;
 }
-check.toJSON = function() {
+check.toJSON = () => {
   return 'null data output';
 };
 

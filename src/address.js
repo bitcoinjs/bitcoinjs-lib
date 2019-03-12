@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const types = require("./types");
-const bscript = require("./script");
 const networks = require("./networks");
 const payments = require("./payments");
+const bscript = require("./script");
+const types = require("./types");
 const bech32 = require('bech32');
 const bs58check = require('bs58check');
 const typeforce = require('typeforce');
@@ -16,7 +16,7 @@ function fromBase58Check(address) {
         throw new TypeError(address + ' is too long');
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
-    return { version: version, hash: hash };
+    return { version, hash };
 }
 exports.fromBase58Check = fromBase58Check;
 function fromBech32(address) {
@@ -44,7 +44,7 @@ function toBech32(data, version, prefix) {
 }
 exports.toBech32 = toBech32;
 function fromOutputScript(output, network) {
-    //TODO: Network
+    // TODO: Network
     network = network || networks.bitcoin;
     try {
         return payments.p2pkh({ output, network }).address;
@@ -67,8 +67,8 @@ function fromOutputScript(output, network) {
 exports.fromOutputScript = fromOutputScript;
 function toOutputScript(address, network) {
     network = network || networks.bitcoin;
-    let decodeBase58 = undefined;
-    let decodeBech32 = undefined;
+    let decodeBase58;
+    let decodeBech32;
     try {
         decodeBase58 = fromBase58Check(address);
     }

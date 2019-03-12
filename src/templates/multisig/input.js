@@ -18,6 +18,6 @@ function check(script, allowIncomplete) {
     return chunks.slice(1).every(bscript.isCanonicalScriptSignature);
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'multisig input';
 };

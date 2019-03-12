@@ -12,6 +12,6 @@ function check(script) {
         isCompressedCanonicalPubKey(chunks[1]));
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'witnessPubKeyHash input';
 };

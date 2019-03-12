@@ -1,18 +1,18 @@
 // https://en.bitcoin.it/wiki/List_of_address_prefixes
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
-export type Network = {
+export interface Network {
   messagePrefix: string;
   bech32: string;
-  bip32: bip32;
+  bip32: Bip32;
   pubKeyHash: number;
   scriptHash: number;
   wif: number;
-};
+}
 
-type bip32 = {
+interface Bip32 {
   public: number;
   private: number;
-};
+}
 
 export const bitcoin: Network = {
   messagePrefix: '\x18Bitcoin Signed Message:\n',

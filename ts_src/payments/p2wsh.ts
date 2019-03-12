@@ -1,7 +1,7 @@
-import { Payment, PaymentOpts } from './index';
+import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import * as bcrypto from '../crypto';
+import { Payment, PaymentOpts, StackFunction } from './index';
 import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
@@ -10,10 +10,10 @@ const bech32 = require('bech32');
 
 const EMPTY_BUFFER = Buffer.alloc(0);
 
-function stacksEqual(a: Array<Buffer>, b: Array<Buffer>): boolean {
+function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
   if (a.length !== b.length) return false;
 
-  return a.every(function(x, i) {
+  return a.every((x, i) => {
     return x.equals(b[i]);
   });
 }
@@ -46,7 +46,7 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
     a,
   );
 
-  const _address = lazy.value(function() {
+  const _address = lazy.value(() => {
     const result = bech32.decode(a.address);
     const version = result.words.shift();
     const data = bech32.fromWords(result.words);
@@ -56,9 +56,9 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
       data: Buffer.from(data),
     };
   });
-  const _rchunks = <() => Array<Buffer | number>>lazy.value(function() {
+  const _rchunks = lazy.value(() => {
     return bscript.decompile(a.redeem!.input!);
-  });
+  }) as StackFunction;
 
   let network = a.network;
   if (!network) {
@@ -67,22 +67,22 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
 
   const o: Payment = { network };
 
-  lazy.prop(o, 'address', function() {
+  lazy.prop(o, 'address', () => {
     if (!o.hash) return;
     const words = bech32.toWords(o.hash);
     words.unshift(0x00);
     return bech32.encode(network!.bech32, words);
   });
-  lazy.prop(o, 'hash', function() {
+  lazy.prop(o, 'hash', () => {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.redeem && o.redeem.output) return bcrypto.sha256(o.redeem.output);
   });
-  lazy.prop(o, 'output', function() {
+  lazy.prop(o, 'output', () => {
     if (!o.hash) return;
     return bscript.compile([OPS.OP_0, o.hash]);
   });
-  lazy.prop(o, 'redeem', function() {
+  lazy.prop(o, 'redeem', () => {
     if (!a.witness) return;
     return {
       output: a.witness[a.witness.length - 1],
@@ -90,11 +90,11 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
       witness: a.witness.slice(0, -1),
     };
   });
-  lazy.prop(o, 'input', function() {
+  lazy.prop(o, 'input', () => {
     if (!o.witness) return;
     return EMPTY_BUFFER;
   });
-  lazy.prop(o, 'witness', function() {
+  lazy.prop(o, 'witness', () => {
     // transform redeem input to witness stack?
     if (
       a.redeem &&
@@ -108,13 +108,13 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
       // assign, and blank the existing input
       o.redeem = Object.assign({ witness: stack }, a.redeem);
       o.redeem.input = EMPTY_BUFFER;
-      return (<Array<Buffer>>[]).concat(stack, a.redeem.output);
+      return ([] as Buffer[]).concat(stack, a.redeem.output);
     }
 
     if (!a.redeem) return;
     if (!a.redeem.output) return;
     if (!a.redeem.witness) return;
-    return (<Array<Buffer>>[]).concat(a.redeem.witness, a.redeem.output);
+    return ([] as Buffer[]).concat(a.redeem.witness, a.redeem.output);
   });
 
   // extended validation

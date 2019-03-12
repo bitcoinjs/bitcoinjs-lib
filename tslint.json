@@ -1,0 +1,34 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:recommended"],
+  "rules": {
+    "arrow-parens": [true, "ban-single-arg-parens"],
+    "curly": false,
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
+    "interface-name": [false],
+    "match-default-export-name": true,
+    "max-classes-per-file": [false],
+    "member-access": [true, "no-public"],
+    "no-bitwise": false,
+    "no-console": false,
+    "no-empty": [true, "allow-empty-catch"],
+    "no-implicit-dependencies": true,
+    "no-return-await": true,
+    "no-var-requires": false,
+    "no-unused-expression": false,
+    "object-literal-sort-keys": false,
+    "quotemark": [true, "single"],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore",
+      "allow-pascal-case"
+    ]
+  },
+  "rulesDirectory": []
+}

@@ -27,7 +27,7 @@ export function decode(
 
   // 32-bit / 24-bit / 16-bit / 8-bit
   let result = 0;
-  for (var i = 0; i < length; ++i) {
+  for (let i = 0; i < length; ++i) {
     result |= buffer[i] << (8 * i);
   }
 
@@ -50,13 +50,13 @@ function scriptNumSize(i: number): number {
     : 0;
 }
 
-export function encode(number: number): Buffer {
-  let value = Math.abs(number);
+export function encode(_number: number): Buffer {
+  let value = Math.abs(_number);
   const size = scriptNumSize(value);
   const buffer = Buffer.allocUnsafe(size);
-  const negative = number < 0;
+  const negative = _number < 0;
 
-  for (var i = 0; i < size; ++i) {
+  for (let i = 0; i < size; ++i) {
     buffer.writeUInt8(value & 0xff, i);
     value >>= 8;
   }

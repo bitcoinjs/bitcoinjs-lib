@@ -2,9 +2,9 @@
 // OP_RETURN {aa21a9ed} {commitment}
 Object.defineProperty(exports, "__esModule", { value: true });
 const bscript = require("../../script");
+const script_1 = require("../../script");
 const types = require("../../types");
 const typeforce = require('typeforce');
-const script_1 = require("../../script");
 const HEADER = Buffer.from('aa21a9ed', 'hex');
 function check(script) {
     const buffer = bscript.compile(script);
@@ -14,7 +14,7 @@ function check(script) {
         buffer.slice(2, 6).equals(HEADER));
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'Witness commitment output';
 };
 function encode(commitment) {

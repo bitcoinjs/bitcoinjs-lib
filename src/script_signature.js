@@ -29,13 +29,11 @@ function decode(buffer) {
     const hashTypeMod = hashType & ~0x80;
     if (hashTypeMod <= 0 || hashTypeMod >= 4)
         throw new Error('Invalid hashType ' + hashType);
-    const decode = bip66.decode(buffer.slice(0, -1));
-    const r = fromDER(decode.r);
-    const s = fromDER(decode.s);
-    return {
-        signature: Buffer.concat([r, s], 64),
-        hashType: hashType,
-    };
+    const decoded = bip66.decode(buffer.slice(0, -1));
+    const r = fromDER(decoded.r);
+    const s = fromDER(decoded.s);
+    const signature = Buffer.concat([r, s], 64);
+    return { signature, hashType };
 }
 exports.decode = decode;
 function encode(signature, hashType) {

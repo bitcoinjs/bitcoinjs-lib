@@ -1,15 +1,15 @@
-export declare type Network = {
+export interface Network {
     messagePrefix: string;
     bech32: string;
-    bip32: bip32;
+    bip32: Bip32;
     pubKeyHash: number;
     scriptHash: number;
     wif: number;
-};
-declare type bip32 = {
+}
+interface Bip32 {
     public: number;
     private: number;
-};
+}
 export declare const bitcoin: Network;
 export declare const regtest: Network;
 export declare const testnet: Network;

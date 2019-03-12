@@ -11,6 +11,6 @@ function check(script) {
         buffer[22] === script_1.OPS.OP_EQUAL);
 }
 exports.check = check;
-check.toJSON = function () {
+check.toJSON = () => {
     return 'scriptHash output';
 };

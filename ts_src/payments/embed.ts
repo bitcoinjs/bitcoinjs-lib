@@ -1,14 +1,15 @@
-import { Payment, PaymentOpts } from './index';
-import * as bscript from '../script';
-import * as lazy from './lazy';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import * as bscript from '../script';
+import { Payment, PaymentOpts, Stack } from './index';
+import * as lazy from './lazy';
+
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 
-function stacksEqual(a: Array<Buffer>, b: Array<Buffer>): boolean {
+function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
   if (a.length !== b.length) return false;
 
-  return a.every(function(x, i) {
+  return a.every((x, i) => {
     return x.equals(b[i]);
   });
 }
@@ -28,15 +29,13 @@ export function p2data(a: Payment, opts?: PaymentOpts): Payment {
   );
 
   const network = a.network || BITCOIN_NETWORK;
-  const o = <Payment>{ network };
+  const o = { network } as Payment;
 
-  lazy.prop(o, 'output', function() {
+  lazy.prop(o, 'output', () => {
     if (!a.data) return;
-    return bscript.compile(
-      (<Array<Buffer | number>>[OPS.OP_RETURN]).concat(a.data),
-    );
+    return bscript.compile(([OPS.OP_RETURN] as Stack).concat(a.data));
   });
-  lazy.prop(o, 'data', function() {
+  lazy.prop(o, 'data', () => {
     if (!a.output) return;
     return bscript.decompile(a.output)!.slice(1);
   });
@@ -50,7 +49,7 @@ export function p2data(a: Payment, opts?: PaymentOpts): Payment {
       if (!chunks!.slice(1).every(typef.Buffer))
         throw new TypeError('Output is invalid');
 
-      if (a.data && !stacksEqual(a.data, <Array<Buffer>>o.data))
+      if (a.data && !stacksEqual(a.data, o.data as Buffer[]))
         throw new TypeError('Data mismatch');
     }
   }

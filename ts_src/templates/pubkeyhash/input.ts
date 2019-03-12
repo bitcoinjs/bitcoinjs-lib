@@ -1,16 +1,17 @@
 // {signature} {pubKey}
 
+import { Stack } from '../../payments';
 import * as bscript from '../../script';
 
-export function check(script: Buffer | Array<number | Buffer>): boolean {
-  const chunks = <Array<number | Buffer>>bscript.decompile(script);
+export function check(script: Buffer | Stack): boolean {
+  const chunks = bscript.decompile(script) as Stack;
 
   return (
     chunks.length === 2 &&
-    bscript.isCanonicalScriptSignature(<Buffer>chunks[0]) &&
-    bscript.isCanonicalPubKey(<Buffer>chunks[1])
+    bscript.isCanonicalScriptSignature(chunks[0] as Buffer) &&
+    bscript.isCanonicalPubKey(chunks[1] as Buffer)
   );
 }
-check.toJSON = function() {
+check.toJSON = () => {
   return 'pubKeyHash input';
 };

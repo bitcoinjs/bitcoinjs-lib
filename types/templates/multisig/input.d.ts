@@ -1,5 +1,6 @@
 /// <reference types="node" />
-export declare function check(script: Buffer | Array<number | Buffer>, allowIncomplete?: boolean): boolean;
+import { Stack } from '../../payments';
+export declare function check(script: Buffer | Stack, allowIncomplete?: boolean): boolean;
 export declare namespace check {
     var toJSON: () => string;
 }

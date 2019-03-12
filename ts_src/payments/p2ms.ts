@@ -1,17 +1,17 @@
-import { Payment, PaymentOpts } from './index';
-import * as bscript from '../script';
-import * as lazy from './lazy';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import * as bscript from '../script';
+import { Payment, PaymentOpts, Stack } from './index';
+import * as lazy from './lazy';
 const OPS = bscript.OPS;
 const typef = require('typeforce');
 const ecc = require('tiny-secp256k1');
 
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 
-function stacksEqual(a: Array<Buffer>, b: Array<Buffer>): boolean {
+function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
   if (a.length !== b.length) return false;
 
-  return a.every(function(x, i) {
+  return a.every((x, i) => {
     return x.equals(b[i]);
   });
 }
@@ -30,8 +30,8 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
 
   function isAcceptableSignature(x: Buffer | number) {
     return (
-      bscript.isCanonicalScriptSignature(<Buffer>x) ||
-      (opts!.allowIncomplete && <number>x === OPS.OP_0) !== undefined
+      bscript.isCanonicalScriptSignature(x as Buffer) ||
+      (opts!.allowIncomplete && (x as number) === OPS.OP_0) !== undefined
     );
   }
 
@@ -52,23 +52,23 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
   const network = a.network || BITCOIN_NETWORK;
   const o: Payment = { network };
 
-  let chunks: Array<Buffer | number> = [];
+  let chunks: Stack = [];
   let decoded = false;
-  function decode(output: Buffer | Array<Buffer | number>): void {
+  function decode(output: Buffer | Stack): void {
     if (decoded) return;
     decoded = true;
-    chunks = <Array<Buffer | number>>bscript.decompile(output);
-    o.m = <number>chunks[0] - OP_INT_BASE;
-    o.n = <number>chunks[chunks.length - 2] - OP_INT_BASE;
-    o.pubkeys = <Array<Buffer>>chunks.slice(1, -2);
+    chunks = bscript.decompile(output) as Stack;
+    o.m = (chunks[0] as number) - OP_INT_BASE;
+    o.n = (chunks[chunks.length - 2] as number) - OP_INT_BASE;
+    o.pubkeys = chunks.slice(1, -2) as Buffer[];
   }
 
-  lazy.prop(o, 'output', function() {
+  lazy.prop(o, 'output', () => {
     if (!a.m) return;
     if (!o.n) return;
     if (!a.pubkeys) return;
     return bscript.compile(
-      (<Array<Buffer | number>>[]).concat(
+      ([] as Stack).concat(
         OP_INT_BASE + a.m,
         a.pubkeys,
         OP_INT_BASE + o.n,
@@ -76,31 +76,29 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
       ),
     );
   });
-  lazy.prop(o, 'm', function() {
+  lazy.prop(o, 'm', () => {
     if (!o.output) return;
     decode(o.output);
     return o.m;
   });
-  lazy.prop(o, 'n', function() {
+  lazy.prop(o, 'n', () => {
     if (!o.pubkeys) return;
     return o.pubkeys.length;
   });
-  lazy.prop(o, 'pubkeys', function() {
+  lazy.prop(o, 'pubkeys', () => {
     if (!a.output) return;
     decode(a.output);
     return o.pubkeys;
   });
-  lazy.prop(o, 'signatures', function() {
+  lazy.prop(o, 'signatures', () => {
     if (!a.input) return;
     return bscript.decompile(a.input)!.slice(1);
   });
-  lazy.prop(o, 'input', function() {
+  lazy.prop(o, 'input', () => {
     if (!a.signatures) return;
-    return bscript.compile(
-      (<Array<Buffer | number>>[OPS.OP_0]).concat(a.signatures),
-    );
+    return bscript.compile(([OPS.OP_0] as Stack).concat(a.signatures));
   });
-  lazy.prop(o, 'witness', function() {
+  lazy.prop(o, 'witness', () => {
     if (!o.input) return;
     return [];
   });

@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const networks_1 = require("../networks");
 const bscript = require("../script");
 const lazy = require("./lazy");
-const networks_1 = require("../networks");
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 function stacksEqual(a, b) {
     if (a.length !== b.length)
         return false;
-    return a.every(function (x, i) {
+    return a.every((x, i) => {
         return x.equals(b[i]);
     });
 }
@@ -24,12 +24,12 @@ function p2data(a, opts) {
     }, a);
     const network = a.network || networks_1.bitcoin;
     const o = { network };
-    lazy.prop(o, 'output', function () {
+    lazy.prop(o, 'output', () => {
         if (!a.data)
             return;
         return bscript.compile([OPS.OP_RETURN].concat(a.data));
     });
-    lazy.prop(o, 'data', function () {
+    lazy.prop(o, 'data', () => {
         if (!a.output)
             return;
         return bscript.decompile(a.output).slice(1);

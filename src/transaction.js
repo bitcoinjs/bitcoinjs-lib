@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bcrypto = require("./crypto");
-const bscript = require("./script");
-const types = require("./types");
 const bufferutils = require("./bufferutils");
 const bufferutils_1 = require("./bufferutils");
+const bcrypto = require("./crypto");
+const bscript = require("./script");
 const script_1 = require("./script");
+const types = require("./types");
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
 function varSliceSize(someScript) {
@@ -38,7 +38,7 @@ class Transaction {
         this.ins = [];
         this.outs = [];
     }
-    static fromBuffer(buffer, __noStrict) {
+    static fromBuffer(buffer, _NO_STRICT) {
         let offset = 0;
         function readSlice(n) {
             offset += n;
@@ -70,7 +70,7 @@ class Transaction {
         function readVector() {
             const count = readVarInt();
             const vector = [];
-            for (var i = 0; i < count; i++)
+            for (let i = 0; i < count; i++)
                 vector.push(readVarSlice());
             return vector;
         }
@@ -85,7 +85,7 @@ class Transaction {
             hasWitnesses = true;
         }
         const vinLen = readVarInt();
-        for (var i = 0; i < vinLen; ++i) {
+        for (let i = 0; i < vinLen; ++i) {
             tx.ins.push({
                 hash: readSlice(32),
                 index: readUInt32(),
@@ -95,14 +95,14 @@ class Transaction {
             });
         }
         const voutLen = readVarInt();
-        for (i = 0; i < voutLen; ++i) {
+        for (let i = 0; i < voutLen; ++i) {
             tx.outs.push({
                 value: readUInt64(),
                 script: readVarSlice(),
             });
         }
         if (hasWitnesses) {
-            for (i = 0; i < vinLen; ++i) {
+            for (let i = 0; i < vinLen; ++i) {
                 tx.ins[i].witness = readVector();
             }
             // was this pointless?
@@ -110,7 +110,7 @@ class Transaction {
                 throw new Error('Transaction has superfluous witness data');
         }
         tx.locktime = readUInt32();
-        if (__noStrict)
+        if (_NO_STRICT)
             return tx;
         if (offset !== buffer.length)
             throw new Error('Transaction has unexpected data');
@@ -121,7 +121,7 @@ class Transaction {
     }
     static isCoinbaseHash(buffer) {
         typeforce(types.Hash256bit, buffer);
-        for (var i = 0; i < 32; ++i) {
+        for (let i = 0; i < 32; ++i) {
             if (buffer[i] !== 0)
                 return false;
         }
@@ -137,8 +137,8 @@ class Transaction {
         }
         // Add the input and return the input's index
         return (this.ins.push({
-            hash: hash,
-            index: index,
+            hash,
+            index,
             script: scriptSig || EMPTY_SCRIPT,
             sequence: sequence,
             witness: EMPTY_WITNESS,
@@ -149,7 +149,7 @@ class Transaction {
         // Add the output and return the output's index
         return (this.outs.push({
             script: scriptPubKey,
-            value: value,
+            value,
         }) - 1);
     }
     hasWitnesses() {
@@ -167,23 +167,6 @@ class Transaction {
     }
     byteLength() {
         return this.__byteLength(true);
-    }
-    __byteLength(__allowWitness) {
-        const hasWitnesses = __allowWitness && this.hasWitnesses();
-        return ((hasWitnesses ? 10 : 8) +
-            varuint.encodingLength(this.ins.length) +
-            varuint.encodingLength(this.outs.length) +
-            this.ins.reduce((sum, input) => {
-                return sum + 40 + varSliceSize(input.script);
-            }, 0) +
-            this.outs.reduce((sum, output) => {
-                return sum + 8 + varSliceSize(output.script);
-            }, 0) +
-            (hasWitnesses
-                ? this.ins.reduce((sum, input) => {
-                    return sum + vectorSize(input.witness);
-                }, 0)
-                : 0));
     }
     clone() {
         const newTx = new Transaction();
@@ -242,7 +225,7 @@ class Transaction {
             // truncate outputs after
             txTmp.outs.length = inIndex + 1;
             // "blank" outputs before
-            for (var i = 0; i < inIndex; i++) {
+            for (let i = 0; i < inIndex; i++) {
                 txTmp.outs[i] = BLANK_OUTPUT;
             }
             // ignore sequence numbers (except at inIndex)
@@ -365,9 +348,37 @@ class Transaction {
     toBuffer(buffer, initialOffset) {
         return this.__toBuffer(buffer, initialOffset, true);
     }
-    __toBuffer(buffer, initialOffset, __allowWitness) {
+    toHex() {
+        return this.toBuffer(undefined, undefined).toString('hex');
+    }
+    setInputScript(index, scriptSig) {
+        typeforce(types.tuple(types.Number, types.Buffer), arguments);
+        this.ins[index].script = scriptSig;
+    }
+    setWitness(index, witness) {
+        typeforce(types.tuple(types.Number, [types.Buffer]), arguments);
+        this.ins[index].witness = witness;
+    }
+    __byteLength(_ALLOW_WITNESS) {
+        const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
+        return ((hasWitnesses ? 10 : 8) +
+            varuint.encodingLength(this.ins.length) +
+            varuint.encodingLength(this.outs.length) +
+            this.ins.reduce((sum, input) => {
+                return sum + 40 + varSliceSize(input.script);
+            }, 0) +
+            this.outs.reduce((sum, output) => {
+                return sum + 8 + varSliceSize(output.script);
+            }, 0) +
+            (hasWitnesses
+                ? this.ins.reduce((sum, input) => {
+                    return sum + vectorSize(input.witness);
+                }, 0)
+                : 0));
+    }
+    __toBuffer(buffer, initialOffset, _ALLOW_WITNESS) {
         if (!buffer)
-            buffer = Buffer.allocUnsafe(this.__byteLength(__allowWitness));
+            buffer = Buffer.allocUnsafe(this.__byteLength(_ALLOW_WITNESS));
         let offset = initialOffset || 0;
         function writeSlice(slice) {
             offset += slice.copy(buffer, offset);
@@ -397,7 +408,7 @@ class Transaction {
             vector.forEach(writeVarSlice);
         }
         writeInt32(this.version);
-        const hasWitnesses = __allowWitness && this.hasWitnesses();
+        const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
         if (hasWitnesses) {
             writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER);
             writeUInt8(Transaction.ADVANCED_TRANSACTION_FLAG);
@@ -429,17 +440,6 @@ class Transaction {
         if (initialOffset !== undefined)
             return buffer.slice(initialOffset, offset);
         return buffer;
-    }
-    toHex() {
-        return this.toBuffer(undefined, undefined).toString('hex');
-    }
-    setInputScript(index, scriptSig) {
-        typeforce(types.tuple(types.Number, types.Buffer), arguments);
-        this.ins[index].script = scriptSig;
-    }
-    setWitness(index, witness) {
-        typeforce(types.tuple(types.Number, [types.Buffer]), arguments);
-        this.ins[index].witness = witness;
     }
 }
 Transaction.DEFAULT_SEQUENCE = 0xffffffff;

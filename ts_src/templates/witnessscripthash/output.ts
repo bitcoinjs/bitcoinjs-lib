@@ -8,6 +8,6 @@ export function check(script: Buffer | Array<number | Buffer>): boolean {
 
   return buffer.length === 34 && buffer[0] === OPS.OP_0 && buffer[1] === 0x20;
 }
-check.toJSON = function() {
+check.toJSON = () => {
   return 'Witness scriptHash output';
 };

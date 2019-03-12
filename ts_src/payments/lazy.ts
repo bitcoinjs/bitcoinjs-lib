@@ -1,17 +1,17 @@
-export function prop(object: Object, name: string, f: () => any): void {
+export function prop(object: {}, name: string, f: () => any): void {
   Object.defineProperty(object, name, {
     configurable: true,
     enumerable: true,
-    get: function() {
-      let value = f.call(this);
-      this[name] = value;
-      return value;
+    get() {
+      const _value = f.call(this);
+      this[name] = _value;
+      return _value;
     },
-    set: function(value) {
+    set(_value) {
       Object.defineProperty(this, name, {
         configurable: true,
         enumerable: true,
-        value: value,
+        value: _value,
         writable: true,
       });
     },
@@ -19,10 +19,10 @@ export function prop(object: Object, name: string, f: () => any): void {
 }
 
 export function value<T>(f: () => T): () => T {
-  let value: T;
-  return function(): T {
-    if (value !== undefined) return value;
-    value = f();
-    return value;
+  let _value: T;
+  return (): T => {
+    if (_value !== undefined) return _value;
+    _value = f();
+    return _value;
   };
 }

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const networks_1 = require("../networks");
 const bscript = require("../script");
 const lazy = require("./lazy");
-const networks_1 = require("../networks");
 const OPS = bscript.OPS;
 const typef = require('typeforce');
 const ecc = require('tiny-secp256k1');
@@ -10,7 +10,7 @@ const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 function stacksEqual(a, b) {
     if (a.length !== b.length)
         return false;
-    return a.every(function (x, i) {
+    return a.every((x, i) => {
         return x.equals(b[i]);
     });
 }
@@ -49,7 +49,7 @@ function p2ms(a, opts) {
         o.n = chunks[chunks.length - 2] - OP_INT_BASE;
         o.pubkeys = chunks.slice(1, -2);
     }
-    lazy.prop(o, 'output', function () {
+    lazy.prop(o, 'output', () => {
         if (!a.m)
             return;
         if (!o.n)
@@ -58,34 +58,34 @@ function p2ms(a, opts) {
             return;
         return bscript.compile([].concat(OP_INT_BASE + a.m, a.pubkeys, OP_INT_BASE + o.n, OPS.OP_CHECKMULTISIG));
     });
-    lazy.prop(o, 'm', function () {
+    lazy.prop(o, 'm', () => {
         if (!o.output)
             return;
         decode(o.output);
         return o.m;
     });
-    lazy.prop(o, 'n', function () {
+    lazy.prop(o, 'n', () => {
         if (!o.pubkeys)
             return;
         return o.pubkeys.length;
     });
-    lazy.prop(o, 'pubkeys', function () {
+    lazy.prop(o, 'pubkeys', () => {
         if (!a.output)
             return;
         decode(a.output);
         return o.pubkeys;
     });
-    lazy.prop(o, 'signatures', function () {
+    lazy.prop(o, 'signatures', () => {
         if (!a.input)
             return;
         return bscript.decompile(a.input).slice(1);
     });
-    lazy.prop(o, 'input', function () {
+    lazy.prop(o, 'input', () => {
         if (!a.signatures)
             return;
         return bscript.compile([OPS.OP_0].concat(a.signatures));
     });
-    lazy.prop(o, 'witness', function () {
+    lazy.prop(o, 'witness', () => {
         if (!o.input)
             return;
         return [];
