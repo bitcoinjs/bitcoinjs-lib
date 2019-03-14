@@ -199,11 +199,6 @@ class Block {
         return (this.__checkMerkleRoot() &&
             (hasWitnessCommit ? this.__checkWitnessCommit() : true));
     }
-    checkMerkleRoot() {
-        console.warn('Deprecation Warning: Block method checkMerkleRoot will be ' +
-            'deprecated in v5. Please use checkTxRoots instead.');
-        return this.checkTxRoots();
-    }
     checkProofOfWork() {
         const hash = bufferutils_1.reverseBuffer(this.getHash());
         const target = Block.calculateTarget(this.bits);

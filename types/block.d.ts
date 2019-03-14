@@ -24,7 +24,6 @@ export declare class Block {
     toBuffer(headersOnly: boolean): Buffer;
     toHex(headersOnly: boolean): string;
     checkTxRoots(): boolean;
-    checkMerkleRoot(): boolean;
     checkProofOfWork(): boolean;
     private __checkMerkleRoot;
     private __checkWitnessCommit;

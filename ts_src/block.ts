@@ -269,14 +269,6 @@ export class Block {
     );
   }
 
-  checkMerkleRoot(): boolean {
-    console.warn(
-      'Deprecation Warning: Block method checkMerkleRoot will be ' +
-        'deprecated in v5. Please use checkTxRoots instead.',
-    );
-    return this.checkTxRoots();
-  }
-
   checkProofOfWork(): boolean {
     const hash: Buffer = reverseBuffer(this.getHash());
     const target = Block.calculateTarget(this.bits);

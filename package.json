@@ -28,7 +28,6 @@
     "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 --lines 90 mocha",
     "nobuild:integration": "mocha --timeout 50000 test/integration/",
     "nobuild:unit": "mocha",
-    "prepare": "npm run build",
     "prettier": "prettier 'ts_src/**/*.ts' --ignore-path ./.prettierignore",
     "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
     "unit": "npm run build && npm run nobuild:unit"
