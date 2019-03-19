@@ -90,6 +90,25 @@ describe('bitcoinjs-lib (addresses)', function () {
     assert.strictEqual(address, '3P4mrxQfmExfhxqjLnR2Ah4WES5EB1KBrN')
   })
 
+  it('can verify an address is valid', function () {
+    const network = bitcoin.networks.bitcoin
+    const address = '3P4mrxQfmExfhxqjLnR2Ah4WES5EB1KBrN'
+    // address is valid if toOutputScript doesn't throw
+    bitcoin.address.toOutputScript(address, network)
+  })
+
+  it('can detect invalid address', function () {
+    const network = bitcoin.networks.bitcoin
+    const address = 'mubSzQNtZfDj1YdNP6pNDuZy6zs6GDn61L'
+    // address is invalid if toOutputScript throws
+    try {
+      bitcoin.address.toOutputScript(address, network)
+      assert(false)
+    } catch (e) {
+      assert(e, Error(address + ' has no matching Script'))
+    }
+  })
+
   // examples using other network information
   it('can generate a Testnet address', function () {
     const keyPair = bitcoin.ECPair.makeRandom({ network: TESTNET })
