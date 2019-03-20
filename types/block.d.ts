@@ -13,7 +13,6 @@ export declare class Block {
     bits: number;
     nonce: number;
     transactions?: Transaction[];
-    constructor();
     getWitnessCommit(): Buffer | null;
     hasWitnessCommit(): boolean;
     hasWitness(): boolean;

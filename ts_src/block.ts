@@ -14,36 +14,6 @@ const errorWitnessNotSegwit = new TypeError(
   'Cannot compute witness commit for non-segwit block',
 );
 
-function txesHaveWitnessCommit(transactions: Transaction[]): boolean {
-  return (
-    transactions instanceof Array &&
-    transactions[0] &&
-    transactions[0].ins &&
-    transactions[0].ins instanceof Array &&
-    transactions[0].ins[0] &&
-    transactions[0].ins[0].witness &&
-    transactions[0].ins[0].witness instanceof Array &&
-    transactions[0].ins[0].witness.length > 0
-  );
-}
-
-function anyTxHasWitness(transactions: Transaction[]): boolean {
-  return (
-    transactions instanceof Array &&
-    transactions.some(
-      tx =>
-        typeof tx === 'object' &&
-        tx.ins instanceof Array &&
-        tx.ins.some(
-          input =>
-            typeof input === 'object' &&
-            input.witness instanceof Array &&
-            input.witness.length > 0,
-        ),
-    )
-  );
-}
-
 export class Block {
   static fromBuffer(buffer: Buffer): Block {
     if (buffer.length < 80) throw new Error('Buffer too small (< 80 bytes)');
@@ -137,25 +107,14 @@ export class Block {
       : rootHash;
   }
 
-  version: number;
-  prevHash?: Buffer;
-  merkleRoot?: Buffer;
-  timestamp: number;
-  witnessCommit?: Buffer;
-  bits: number;
-  nonce: number;
-  transactions?: Transaction[];
-
-  constructor() {
-    this.version = 1;
-    this.timestamp = 0;
-    this.bits = 0;
-    this.nonce = 0;
-    this.prevHash = undefined;
-    this.merkleRoot = undefined;
-    this.witnessCommit = undefined;
-    this.transactions = undefined;
-  }
+  version: number = 1;
+  prevHash?: Buffer = undefined;
+  merkleRoot?: Buffer = undefined;
+  timestamp: number = 0;
+  witnessCommit?: Buffer = undefined;
+  bits: number = 0;
+  nonce: number = 0;
+  transactions?: Transaction[] = undefined;
 
   getWitnessCommit(): Buffer | null {
     if (!txesHaveWitnessCommit(this.transactions!)) return null;
@@ -293,4 +252,34 @@ export class Block {
     );
     return this.witnessCommit!.compare(actualWitnessCommit) === 0;
   }
+}
+
+function txesHaveWitnessCommit(transactions: Transaction[]): boolean {
+  return (
+    transactions instanceof Array &&
+    transactions[0] &&
+    transactions[0].ins &&
+    transactions[0].ins instanceof Array &&
+    transactions[0].ins[0] &&
+    transactions[0].ins[0].witness &&
+    transactions[0].ins[0].witness instanceof Array &&
+    transactions[0].ins[0].witness.length > 0
+  );
+}
+
+function anyTxHasWitness(transactions: Transaction[]): boolean {
+  return (
+    transactions instanceof Array &&
+    transactions.some(
+      tx =>
+        typeof tx === 'object' &&
+        tx.ins instanceof Array &&
+        tx.ins.some(
+          input =>
+            typeof input === 'object' &&
+            input.witness instanceof Array &&
+            input.witness.length > 0,
+        ),
+    )
+  );
 }

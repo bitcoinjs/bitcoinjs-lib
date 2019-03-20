@@ -33,19 +33,18 @@ export interface ECPairInterface {
 class ECPair implements ECPairInterface {
   compressed: boolean;
   network: Network;
-  private __D?: Buffer;
-  private __Q?: Buffer;
 
-  constructor(d?: Buffer, Q?: Buffer, options?: ECPairOptions) {
+  constructor(
+    private __D?: Buffer,
+    private __Q?: Buffer,
+    options?: ECPairOptions,
+  ) {
     if (options === undefined) options = {};
     this.compressed =
       options.compressed === undefined ? true : options.compressed;
     this.network = options.network || NETWORKS.bitcoin;
 
-    this.__D = undefined;
-    this.__Q = undefined;
-    if (d !== undefined) this.__D = d;
-    if (Q !== undefined) this.__Q = ecc.pointCompress(Q, this.compressed);
+    if (__Q !== undefined) this.__Q = ecc.pointCompress(__Q, this.compressed);
   }
 
   get privateKey(): Buffer | undefined {

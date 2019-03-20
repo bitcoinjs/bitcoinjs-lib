@@ -16,11 +16,11 @@ export interface ECPairInterface {
     getPublicKey?(): Buffer;
 }
 declare class ECPair implements ECPairInterface {
-    compressed: boolean;
-    network: Network;
     private __D?;
     private __Q?;
-    constructor(d?: Buffer, Q?: Buffer, options?: ECPairOptions);
+    compressed: boolean;
+    network: Network;
+    constructor(__D?: Buffer | undefined, __Q?: Buffer | undefined, options?: ECPairOptions);
     readonly privateKey: Buffer | undefined;
     readonly publicKey: Buffer | undefined;
     toWIF(): string;

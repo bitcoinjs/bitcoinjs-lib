@@ -20,6 +20,16 @@ function txIsTransaction(tx) {
     return tx instanceof transaction_1.Transaction;
 }
 class TransactionBuilder {
+    // WARNING: maximumFeeRate is __NOT__ to be relied on,
+    //          it's just another potential safety mechanism (safety in-depth)
+    constructor(network = networks.bitcoin, maximumFeeRate = 2500) {
+        this.network = network;
+        this.maximumFeeRate = maximumFeeRate;
+        this.__PREV_TX_SET = {};
+        this.__INPUTS = [];
+        this.__TX = new transaction_1.Transaction();
+        this.__TX.version = 2;
+    }
     static fromTransaction(transaction, network) {
         const txb = new TransactionBuilder(network);
         // Copy transaction fields
@@ -42,15 +52,6 @@ class TransactionBuilder {
             fixMultisigOrder(input, transaction, i);
         });
         return txb;
-    }
-    constructor(network, maximumFeeRate) {
-        this.__PREV_TX_SET = {};
-        this.network = network || networks.bitcoin;
-        // WARNING: This is __NOT__ to be relied on, its just another potential safety mechanism (safety in-depth)
-        this.maximumFeeRate = maximumFeeRate || 2500;
-        this.__INPUTS = [];
-        this.__TX = new transaction_1.Transaction();
-        this.__TX.version = 2;
     }
     setLockTime(locktime) {
         typeforce(types.UInt32, locktime);

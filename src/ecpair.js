@@ -11,18 +11,16 @@ const isOptions = typeforce.maybe(typeforce.compile({
     network: types.maybe(types.Network),
 }));
 class ECPair {
-    constructor(d, Q, options) {
+    constructor(__D, __Q, options) {
+        this.__D = __D;
+        this.__Q = __Q;
         if (options === undefined)
             options = {};
         this.compressed =
             options.compressed === undefined ? true : options.compressed;
         this.network = options.network || NETWORKS.bitcoin;
-        this.__D = undefined;
-        this.__Q = undefined;
-        if (d !== undefined)
-            this.__D = d;
-        if (Q !== undefined)
-            this.__Q = ecc.pointCompress(Q, this.compressed);
+        if (__Q !== undefined)
+            this.__Q = ecc.pointCompress(__Q, this.compressed);
     }
     get privateKey() {
         return this.__D;

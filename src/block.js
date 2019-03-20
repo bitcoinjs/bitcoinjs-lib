@@ -9,25 +9,17 @@ const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
 const errorMerkleNoTxes = new TypeError('Cannot compute merkle root for zero transactions');
 const errorWitnessNotSegwit = new TypeError('Cannot compute witness commit for non-segwit block');
-function txesHaveWitnessCommit(transactions) {
-    return (transactions instanceof Array &&
-        transactions[0] &&
-        transactions[0].ins &&
-        transactions[0].ins instanceof Array &&
-        transactions[0].ins[0] &&
-        transactions[0].ins[0].witness &&
-        transactions[0].ins[0].witness instanceof Array &&
-        transactions[0].ins[0].witness.length > 0);
-}
-function anyTxHasWitness(transactions) {
-    return (transactions instanceof Array &&
-        transactions.some(tx => typeof tx === 'object' &&
-            tx.ins instanceof Array &&
-            tx.ins.some(input => typeof input === 'object' &&
-                input.witness instanceof Array &&
-                input.witness.length > 0)));
-}
 class Block {
+    constructor() {
+        this.version = 1;
+        this.prevHash = undefined;
+        this.merkleRoot = undefined;
+        this.timestamp = 0;
+        this.witnessCommit = undefined;
+        this.bits = 0;
+        this.nonce = 0;
+        this.transactions = undefined;
+    }
     static fromBuffer(buffer) {
         if (buffer.length < 80)
             throw new Error('Buffer too small (< 80 bytes)');
@@ -98,16 +90,6 @@ class Block {
         return forWitness
             ? bcrypto.hash256(Buffer.concat([rootHash, transactions[0].ins[0].witness[0]]))
             : rootHash;
-    }
-    constructor() {
-        this.version = 1;
-        this.timestamp = 0;
-        this.bits = 0;
-        this.nonce = 0;
-        this.prevHash = undefined;
-        this.merkleRoot = undefined;
-        this.witnessCommit = undefined;
-        this.transactions = undefined;
     }
     getWitnessCommit() {
         if (!txesHaveWitnessCommit(this.transactions))
@@ -220,3 +202,21 @@ class Block {
     }
 }
 exports.Block = Block;
+function txesHaveWitnessCommit(transactions) {
+    return (transactions instanceof Array &&
+        transactions[0] &&
+        transactions[0].ins &&
+        transactions[0].ins instanceof Array &&
+        transactions[0].ins[0] &&
+        transactions[0].ins[0].witness &&
+        transactions[0].ins[0].witness instanceof Array &&
+        transactions[0].ins[0].witness.length > 0);
+}
+function anyTxHasWitness(transactions) {
+    return (transactions instanceof Array &&
+        transactions.some(tx => typeof tx === 'object' &&
+            tx.ins instanceof Array &&
+            tx.ins.some(input => typeof input === 'object' &&
+                input.witness instanceof Array &&
+                input.witness.length > 0)));
+}

@@ -3,9 +3,9 @@ import { ECPairInterface } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
 export declare class TransactionBuilder {
-    static fromTransaction(transaction: Transaction, network?: Network): TransactionBuilder;
     network: Network;
     maximumFeeRate: number;
+    static fromTransaction(transaction: Transaction, network?: Network): TransactionBuilder;
     private __PREV_TX_SET;
     private __INPUTS;
     private __TX;

@@ -182,17 +182,10 @@ export class Transaction {
     return true;
   }
 
-  version: number;
-  locktime: number;
-  ins: Input[];
-  outs: OpenOutput[];
-
-  constructor() {
-    this.version = 1;
-    this.locktime = 0;
-    this.ins = [];
-    this.outs = [];
-  }
+  version: number = 1;
+  locktime: number = 0;
+  ins: Input[] = [];
+  outs: OpenOutput[] = [];
 
   isCoinbase(): boolean {
     return (

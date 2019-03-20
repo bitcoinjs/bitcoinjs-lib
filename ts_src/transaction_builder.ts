@@ -91,19 +91,17 @@ export class TransactionBuilder {
     return txb;
   }
 
-  network: Network;
-  maximumFeeRate: number;
   private __PREV_TX_SET: { [index: string]: boolean };
   private __INPUTS: TxbInput[];
   private __TX: Transaction;
 
-  constructor(network?: Network, maximumFeeRate?: number) {
+  // WARNING: maximumFeeRate is __NOT__ to be relied on,
+  //          it's just another potential safety mechanism (safety in-depth)
+  constructor(
+    public network: Network = networks.bitcoin,
+    public maximumFeeRate: number = 2500,
+  ) {
     this.__PREV_TX_SET = {};
-    this.network = network || networks.bitcoin;
-
-    // WARNING: This is __NOT__ to be relied on, its just another potential safety mechanism (safety in-depth)
-    this.maximumFeeRate = maximumFeeRate || 2500;
-
     this.__INPUTS = [];
     this.__TX = new Transaction();
     this.__TX.version = 2;
