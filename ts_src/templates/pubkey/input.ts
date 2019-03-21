@@ -11,6 +11,6 @@ export function check(script: Buffer | Stack): boolean {
     bscript.isCanonicalScriptSignature(chunks[0] as Buffer)
   );
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'pubKey input';
 };

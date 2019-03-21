@@ -28,6 +28,6 @@ export function check(
   const keys = chunks.slice(1, -2) as Buffer[];
   return keys.every(bscript.isCanonicalPubKey);
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'multi-sig output';
 };

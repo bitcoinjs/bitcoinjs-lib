@@ -22,6 +22,12 @@
     "no-unused-expression": false,
     "object-literal-sort-keys": false,
     "quotemark": [true, "single"],
+    "typedef": [
+      true,
+      "call-signature",
+      "arrow-call-signature",
+      "property-declaration"
+    ],
     "variable-name": [
       true,
       "ban-keywords",

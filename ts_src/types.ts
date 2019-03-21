@@ -8,7 +8,7 @@ export function UInt31(value: number): boolean {
 export function BIP32Path(value: string): boolean {
   return typeforce.String(value) && !!value.match(/^(m\/)?(\d+'?\/)*\d+'?$/);
 }
-BIP32Path.toJSON = () => {
+BIP32Path.toJSON = (): string => {
   return 'BIP32 derivation path';
 };
 

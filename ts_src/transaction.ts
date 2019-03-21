@@ -497,17 +497,17 @@ export class Transaction {
     return this.__toBuffer(buffer, initialOffset, true);
   }
 
-  toHex() {
+  toHex(): string {
     return this.toBuffer(undefined, undefined).toString('hex');
   }
 
-  setInputScript(index: number, scriptSig: Buffer) {
+  setInputScript(index: number, scriptSig: Buffer): void {
     typeforce(types.tuple(types.Number, types.Buffer), arguments);
 
     this.ins[index].script = scriptSig;
   }
 
-  setWitness(index: number, witness: Buffer[]) {
+  setWitness(index: number, witness: Buffer[]): void {
     typeforce(types.tuple(types.Number, [types.Buffer]), arguments);
 
     this.ins[index].witness = witness;
@@ -548,33 +548,33 @@ export class Transaction {
       offset += slice.copy(buffer!, offset);
     }
 
-    function writeUInt8(i: number) {
+    function writeUInt8(i: number): void {
       offset = buffer!.writeUInt8(i, offset);
     }
 
-    function writeUInt32(i: number) {
+    function writeUInt32(i: number): void {
       offset = buffer!.writeUInt32LE(i, offset);
     }
 
-    function writeInt32(i: number) {
+    function writeInt32(i: number): void {
       offset = buffer!.writeInt32LE(i, offset);
     }
 
-    function writeUInt64(i: number) {
+    function writeUInt64(i: number): void {
       offset = bufferutils.writeUInt64LE(buffer!, i, offset);
     }
 
-    function writeVarInt(i: number) {
+    function writeVarInt(i: number): void {
       varuint.encode(i, buffer, offset);
       offset += varuint.encode.bytes;
     }
 
-    function writeVarSlice(slice: Buffer) {
+    function writeVarSlice(slice: Buffer): void {
       writeVarInt(slice.length);
       writeSlice(slice);
     }
 
-    function writeVector(vector: Buffer[]) {
+    function writeVector(vector: Buffer[]): void {
       writeVarInt(vector.length);
       vector.forEach(writeVarSlice);
     }

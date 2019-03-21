@@ -42,6 +42,6 @@ export function check(chunks: Buffer[], allowIncomplete?: boolean): boolean {
 
   return false;
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'witnessScriptHash input';
 };

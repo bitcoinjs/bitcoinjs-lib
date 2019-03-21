@@ -56,6 +56,6 @@ export function check(
 
   return false;
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'scriptHash input';
 };

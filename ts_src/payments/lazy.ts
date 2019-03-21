@@ -2,12 +2,12 @@ export function prop(object: {}, name: string, f: () => any): void {
   Object.defineProperty(object, name, {
     configurable: true,
     enumerable: true,
-    get() {
+    get(): any {
       const _value = f.call(this);
       this[name] = _value;
       return _value;
     },
-    set(_value) {
+    set(_value: any): void {
       Object.defineProperty(this, name, {
         configurable: true,
         enumerable: true,

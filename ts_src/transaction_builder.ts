@@ -192,7 +192,7 @@ export class TransactionBuilder {
     hashType: number,
     witnessValue: number,
     witnessScript: Buffer,
-  ) {
+  ): void {
     // TODO: remove keyPair.network matching in 4.0.0
     if (keyPair.network && keyPair.network !== this.network)
       throw new TypeError('Inconsistent network');

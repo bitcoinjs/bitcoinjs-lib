@@ -8,6 +8,6 @@ export function check(script: Buffer | Array<number | Buffer>): boolean {
 
   return buffer.length === 22 && buffer[0] === OPS.OP_0 && buffer[1] === 0x14;
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'Witness pubKeyHash output';
 };
