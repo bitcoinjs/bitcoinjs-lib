@@ -26,7 +26,7 @@ function isPushOnlyChunk(value: number | Buffer): boolean {
   return types.Buffer(value) || isOPInt(value as number);
 }
 
-export function isPushOnly(value: Stack) {
+export function isPushOnly(value: Stack): boolean {
   return types.Array(value) && value.every(isPushOnlyChunk);
 }
 

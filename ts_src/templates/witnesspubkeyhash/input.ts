@@ -16,6 +16,6 @@ export function check(script: Buffer | Stack): boolean {
     isCompressedCanonicalPubKey(chunks[1] as Buffer)
   );
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'witnessPubKeyHash input';
 };

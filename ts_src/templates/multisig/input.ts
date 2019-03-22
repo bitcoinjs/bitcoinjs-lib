@@ -26,6 +26,6 @@ export function check(
     bscript.isCanonicalScriptSignature,
   );
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'multisig input';
 };

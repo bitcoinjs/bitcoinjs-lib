@@ -19,7 +19,7 @@ export function check(script: Buffer | Array<number | Buffer>): boolean {
   );
 }
 
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'Witness commitment output';
 };
 

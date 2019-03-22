@@ -12,6 +12,6 @@ export function check(script: Buffer | Stack): boolean {
     bscript.isCanonicalPubKey(chunks[1] as Buffer)
   );
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'pubKeyHash input';
 };

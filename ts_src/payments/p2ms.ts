@@ -28,7 +28,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
 
-  function isAcceptableSignature(x: Buffer | number) {
+  function isAcceptableSignature(x: Buffer | number): boolean {
     return (
       bscript.isCanonicalScriptSignature(x as Buffer) ||
       (opts!.allowIncomplete && (x as number) === OPS.OP_0) !== undefined

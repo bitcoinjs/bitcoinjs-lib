@@ -13,6 +13,6 @@ export function check(script: Buffer | Array<number | Buffer>): boolean {
     buffer[22] === OPS.OP_EQUAL
   );
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'scriptHash output';
 };

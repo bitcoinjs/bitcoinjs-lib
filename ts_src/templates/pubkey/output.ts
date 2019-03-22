@@ -13,6 +13,6 @@ export function check(script: Buffer | Stack): boolean {
     chunks[1] === OPS.OP_CHECKSIG
   );
 }
-check.toJSON = () => {
+check.toJSON = (): string => {
   return 'pubKey output';
 };
