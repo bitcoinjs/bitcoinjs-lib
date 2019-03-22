@@ -1,13 +1,14 @@
 sudo: false
 language: node_js
 node_js:
+  - "8"
   - "lts/*"
-  - "9"
-  - "10"
 matrix:
   include:
     - node_js: "lts/*"
       env: TEST_SUITE=format:ci
+    - node_js: "lts/*"
+      env: TEST_SUITE=lint
     - node_js: "lts/*"
       env: TEST_SUITE=coverage
 env:
