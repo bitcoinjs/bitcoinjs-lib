@@ -1,7 +1,7 @@
 const createHash = require('create-hash')
 
 function ripemd160 (buffer) {
-  return createHash('rmd160').update(buffer).digest()
+  return createHash('ripemd160').update(buffer).digest()
 }
 
 function sha1 (buffer) {
