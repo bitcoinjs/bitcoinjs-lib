@@ -21,6 +21,7 @@
     "coverage": "npm run build && npm run nobuild:coverage",
     "format": "npm run prettier -- --write",
     "format:ci": "npm run prettier -- --check",
+    "gitdiff:ci": "npm run build && git diff --exit-code",
     "integration": "npm run build && npm run nobuild:integration",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "nobuild:coverage-report": "nyc report --reporter=lcov",

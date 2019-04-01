@@ -8,6 +8,8 @@ matrix:
     - node_js: "lts/*"
       env: TEST_SUITE=format:ci
     - node_js: "lts/*"
+      env: TEST_SUITE=gitdiff:ci
+    - node_js: "lts/*"
       env: TEST_SUITE=lint
     - node_js: "lts/*"
       env: TEST_SUITE=coverage
