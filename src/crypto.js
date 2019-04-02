@@ -2,9 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const createHash = require('create-hash');
 function ripemd160(buffer) {
-    return createHash('rmd160')
-        .update(buffer)
-        .digest();
+    try {
+        return createHash('rmd160')
+            .update(buffer)
+            .digest();
+    }
+    catch (err) {
+        return createHash('ripemd160')
+            .update(buffer)
+            .digest();
+    }
 }
 exports.ripemd160 = ripemd160;
 function sha1(buffer) {

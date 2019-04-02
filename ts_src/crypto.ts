@@ -1,9 +1,15 @@
 const createHash = require('create-hash');
 
 export function ripemd160(buffer: Buffer): Buffer {
-  return createHash('rmd160')
-    .update(buffer)
-    .digest();
+  try {
+    return createHash('rmd160')
+      .update(buffer)
+      .digest();
+  } catch (err) {
+    return createHash('ripemd160')
+      .update(buffer)
+      .digest();
+  }
 }
 
 export function sha1(buffer: Buffer): Buffer {
