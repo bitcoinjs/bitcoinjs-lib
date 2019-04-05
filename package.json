@@ -1,8 +1,9 @@
 {
   "name": "bitcoinjs-lib",
-  "version": "4.0.3",
+  "version": "5.0.0",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
+  "types": "./types/index.d.ts",
   "engines": {
     "node": ">=8.0.0"
   },
@@ -14,24 +15,36 @@
     "bitcoinjs"
   ],
   "scripts": {
-    "coverage-report": "nyc report --reporter=lcov",
-    "coverage-html": "nyc report --reporter=html",
-    "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
-    "integration": "mocha --timeout 50000 test/integration/",
-    "standard": "standard",
-    "test": "npm run standard && npm run coverage",
-    "unit": "mocha"
+    "build": "tsc -p ./tsconfig.json",
+    "coverage-report": "npm run build && npm run nobuild:coverage-report",
+    "coverage-html": "npm run build && npm run nobuild:coverage-html",
+    "coverage": "npm run build && npm run nobuild:coverage",
+    "format": "npm run prettier -- --write",
+    "format:ci": "npm run prettier -- --check",
+    "gitdiff:ci": "npm run build && git diff --exit-code",
+    "integration": "npm run build && npm run nobuild:integration",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "nobuild:coverage-report": "nyc report --reporter=lcov",
+    "nobuild:coverage-html": "nyc report --reporter=html",
+    "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 --lines 90 mocha",
+    "nobuild:integration": "mocha --timeout 50000 test/integration/",
+    "nobuild:unit": "mocha",
+    "prettier": "prettier 'ts_src/**/*.ts' --ignore-path ./.prettierignore",
+    "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
+    "unit": "npm run build && npm run nobuild:unit"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
   "files": [
-    "src"
+    "src",
+    "types"
   ],
   "dependencies": {
+    "@types/node": "10.12.18",
     "bech32": "^1.1.2",
-    "bip32": "^1.0.0",
+    "bip32": "^2.0.0",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "bs58check": "^2.0.0",
@@ -40,7 +53,6 @@
     "merkle-lib": "^2.0.10",
     "pushdata-bitcoin": "^1.0.1",
     "randombytes": "^2.0.1",
-    "safe-buffer": "^5.1.1",
     "tiny-secp256k1": "^1.0.0",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.0.4",
@@ -56,9 +68,11 @@
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^5.2.0",
-    "nyc": "^11.8.0",
+    "nyc": "^13.3.0",
+    "prettier": "1.16.4",
     "proxyquire": "^2.0.1",
-    "standard": "^11.0.1"
+    "tslint": "5.13.1",
+    "typescript": "3.2.2"
   },
   "license": "MIT"
 }

@@ -2,9 +2,9 @@
 [![Build Status](https://travis-ci.org/bitcoinjs/bitcoinjs-lib.png?branch=master)](https://travis-ci.org/bitcoinjs/bitcoinjs-lib)
 [![NPM](https://img.shields.io/npm/v/bitcoinjs-lib.svg)](https://www.npmjs.org/package/bitcoinjs-lib)
 
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-A javascript Bitcoin library for node.js and browsers.
+A javascript Bitcoin library for node.js and browsers. Written in TypeScript, but committing the JS files to verify.
 
 Released under the terms of the [MIT LICENSE](LICENSE).
 
@@ -23,7 +23,7 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 - Easy to audit and verify,
 - Tested, with test coverage >95%,
 - Advanced and feature rich,
-- Standardized, using [standard](https://github.com/standard/standard) and Node `Buffer`'s throughout, and
+- Standardized, using [prettier](https://github.com/prettier/prettier) and Node `Buffer`'s throughout, and
 - Friendly, with a strong and helpful community, ready to answer questions.
 
 
@@ -78,30 +78,7 @@ If you're familiar with how to use browserify, ignore this and carry on, otherwi
 **WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use atleast [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
 
 ### Typescript or VSCode users
-Type declarations for Typescript [are available](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/0897921174860ec3d5318992d2323b3ae8100a68/types/bitcoinjs-lib) for version `^3.0.0` of the library.
-
-``` bash
-npm install @types/bitcoinjs-lib
-```
-
-For VSCode (and other editors), it is advised to install the type declarations, as Intellisense uses that information to help you code (autocompletion, static analysis).
-
-**WARNING**: These Typescript definitions are not maintained by the maintainers of this repository, and are instead maintained at [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped).
-Please report any issues or problems there.
-
-
-### Flow
-[Flow-type](https://flowtype.org/) definitions for are available in the [flow-*typed* repository](https://github.com/flowtype/flow-typed/tree/master/definitions/npm/bitcoinjs-lib_v2.x.x) for version `^2.0.0` of the library.
-
-You can [download them directly](https://github.com/flowtype/flow-typed/blob/master/definitions/npm/bitcoinjs-lib_v2.x.x/flow_v0.17.x-/bitcoinjs-lib_v2.x.x.js), or using the flow-typed CLI:
-
-``` bash
-npm install -g flow-typed
-flow-typed install -f 0.27 bitcoinjs-lib@2.2.0
-```
-
-**WARNING**: These flow-typed definitions are not maintained by the maintainers of this repository.
-
+Type declarations for Typescript are included in this library. Normal installation should include all the needed type information.
 
 ## Examples
 The below examples are implemented as integration tests, they should be very easy to understand.

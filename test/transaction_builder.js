@@ -5,8 +5,8 @@ const bscript = require('../src/script')
 const payments = require('../src/payments')
 
 const ECPair = require('../src/ecpair')
-const Transaction = require('../src/transaction')
-const TransactionBuilder = require('../src/transaction_builder')
+const Transaction = require('..').Transaction
+const TransactionBuilder = require('..').TransactionBuilder
 const NETWORKS = require('../src/networks')
 
 const fixtures = require('./fixtures/transaction_builder')
@@ -164,7 +164,7 @@ describe('TransactionBuilder', function () {
       const tx = Transaction.fromHex(fixtures.valid.classification.hex)
       const txb = TransactionBuilder.fromTransaction(tx)
 
-      txb.__inputs.forEach(function (i) {
+      txb.__INPUTS.forEach(function (i) {
         assert.strictEqual(i.prevOutType, 'scripthash')
         assert.strictEqual(i.redeemScriptType, 'multisig')
       })
@@ -191,22 +191,22 @@ describe('TransactionBuilder', function () {
       const vin = txb.addInput(txHash, 1, 54)
       assert.strictEqual(vin, 0)
 
-      const txIn = txb.__tx.ins[0]
+      const txIn = txb.__TX.ins[0]
       assert.strictEqual(txIn.hash, txHash)
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
-      assert.strictEqual(txb.__inputs[0].prevOutScript, undefined)
+      assert.strictEqual(txb.__INPUTS[0].prevOutScript, undefined)
     })
 
     it('accepts a txHash, index [, sequence number and scriptPubKey]', function () {
       const vin = txb.addInput(txHash, 1, 54, scripts[1])
       assert.strictEqual(vin, 0)
 
-      const txIn = txb.__tx.ins[0]
+      const txIn = txb.__TX.ins[0]
       assert.strictEqual(txIn.hash, txHash)
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
-      assert.strictEqual(txb.__inputs[0].prevOutScript, scripts[1])
+      assert.strictEqual(txb.__INPUTS[0].prevOutScript, scripts[1])
     })
 
     it('accepts a prevTx, index [and sequence number]', function () {
@@ -217,11 +217,11 @@ describe('TransactionBuilder', function () {
       const vin = txb.addInput(prevTx, 1, 54)
       assert.strictEqual(vin, 0)
 
-      const txIn = txb.__tx.ins[0]
+      const txIn = txb.__TX.ins[0]
       assert.deepEqual(txIn.hash, prevTx.getHash())
       assert.strictEqual(txIn.index, 1)
       assert.strictEqual(txIn.sequence, 54)
-      assert.strictEqual(txb.__inputs[0].prevOutScript, scripts[1])
+      assert.strictEqual(txb.__INPUTS[0].prevOutScript, scripts[1])
     })
 
     it('returns the input index', function () {
@@ -251,7 +251,7 @@ describe('TransactionBuilder', function () {
       const vout = txb.addOutput(address, 1000)
       assert.strictEqual(vout, 0)
 
-      const txout = txb.__tx.outs[0]
+      const txout = txb.__TX.outs[0]
       assert.deepEqual(txout.script, scripts[0])
       assert.strictEqual(txout.value, 1000)
     })
@@ -260,7 +260,7 @@ describe('TransactionBuilder', function () {
       const vout = txb.addOutput(scripts[0], 1000)
       assert.strictEqual(vout, 0)
 
-      const txout = txb.__tx.outs[0]
+      const txout = txb.__TX.outs[0]
       assert.deepEqual(txout.script, scripts[0])
       assert.strictEqual(txout.value, 1000)
     })
@@ -533,10 +533,10 @@ describe('TransactionBuilder', function () {
       '194a565cd6aa4cc38b8eaffa343402201c5b4b61d73fa38e49c1ee68cc0e6dfd2f5dae453dd86eb142e87a' +
       '0bafb1bc8401210283409659355b6d1cc3c32decd5d561abaac86c37a353b52895a5e6c196d6f44800000000'
       const txb = TransactionBuilder.fromTransaction(Transaction.fromHex(rawtx))
-      txb.__inputs[0].value = 241530
-      txb.__inputs[1].value = 241530
-      txb.__inputs[2].value = 248920
-      txb.__inputs[3].value = 248920
+      txb.__INPUTS[0].value = 241530
+      txb.__INPUTS[1].value = 241530
+      txb.__INPUTS[2].value = 248920
+      txb.__INPUTS[3].value = 248920
 
       assert.throws(function () {
         txb.build()

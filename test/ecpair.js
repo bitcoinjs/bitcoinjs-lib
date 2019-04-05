@@ -1,5 +1,3 @@
-/* eslint-disable no-new */
-
 const { describe, it, beforeEach } = require('mocha')
 const assert = require('assert')
 const proxyquire = require('proxyquire')
@@ -30,7 +28,7 @@ describe('ECPair', function () {
     })
 
     it('calls pointFromScalar lazily', hoodwink(function () {
-      assert.strictEqual(keyPair.__Q, null)
+      assert.strictEqual(keyPair.__Q, undefined)
 
       // .publicKey forces the memoization
       assert.strictEqual(keyPair.publicKey.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
@@ -240,7 +238,7 @@ describe('ECPair', function () {
       }))
 
       it('throws if no private key is found', function () {
-        delete keyPair.__d
+        delete keyPair.__D
 
         assert.throws(function () {
           keyPair.sign(hash)

@@ -1,3 +1,15 @@
+# 5.0.0
+__added__
+- TypeScript support (#1319)
+- `Block.prototype.checkTxRoots` will check the merkleRoot and witnessCommit if it exists against the transactions array. (e52abec) (0426c66)
+
+__changed__
+- `Transaction.prototype.getHash` now has `forWitness?: boolean` which when true returns the hash for wtxid (a652d04)
+- `Block.calculateMerkleRoot` now has `forWitness?: boolean` which when true returns the witness commit (a652d04)
+
+__removed__
+- `Block.prototype.checkMerkleRoot` was removed, please use `checkTxRoots` (0426c66)
+
 # 4.0.3
 __fixed__
 - Fixed `TransactionBuilder` to require that the Transaction has outputs before signing (#1151)
