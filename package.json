@@ -1,6 +1,6 @@
 {
   "name": "bitcoinjs-lib",
-  "version": "4.0.3",
+  "version": "5.0.0",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
