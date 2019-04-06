@@ -1,18 +1,11 @@
 const createHash = require('create-hash')
 
-let rmd160
-try {
-  rmd160 = require('crypto')
-    .getHashes()
-    .includes('rmd160')
-    ? 'rmd160'
-    : 'ripemd160'
-} catch (err) {
-  rmd160 = 'rmd160'
-}
-
 function ripemd160 (buffer) {
-  return createHash(rmd160).update(buffer).digest()
+  try {
+    return createHash('rmd160').update(buffer).digest()
+  } catch (err) {
+    return createHash('ripemd160').update(buffer).digest()
+  }
 }
 
 function sha1 (buffer) {
