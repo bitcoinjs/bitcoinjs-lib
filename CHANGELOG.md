@@ -10,6 +10,14 @@ __changed__
 __removed__
 - `Block.prototype.checkMerkleRoot` was removed, please use `checkTxRoots` (0426c66)
 
+# 4.0.5
+__fixed__
+- Fixed bug where Angular apps break due to lack of crypto at build time. Reverted #1373 and added (6bead5d).
+
+# 4.0.4
+__fixed__
+- Fixed bug where Electron v4 breaks due to lack of `'rmd160'` alias for ripemd160 hash. (#1373)
+
 # 4.0.3
 __fixed__
 - Fixed `TransactionBuilder` to require that the Transaction has outputs before signing (#1151)
