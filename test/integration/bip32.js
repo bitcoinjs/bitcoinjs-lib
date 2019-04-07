@@ -13,7 +13,7 @@ describe('bitcoinjs-lib (BIP32)', function () {
     const xpriv = 'tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK'
     const node = bip32.fromBase58(xpriv, bitcoin.networks.testnet)
 
-    assert.equal(node.toWIF(), 'cQfoY67cetFNunmBUX5wJiw3VNoYx3gG9U9CAofKE6BfiV1fSRw7')
+    assert.strictEqual(node.toWIF(), 'cQfoY67cetFNunmBUX5wJiw3VNoYx3gG9U9CAofKE6BfiV1fSRw7')
   })
 
   it('can export a BIP32 xpriv, then import it', function () {
@@ -23,8 +23,8 @@ describe('bitcoinjs-lib (BIP32)', function () {
     const string = node.toBase58()
     const restored = bip32.fromBase58(string)
 
-    assert.equal(getAddress(node), getAddress(restored)) // same public key
-    assert.equal(node.toWIF(), restored.toWIF()) // same private key
+    assert.strictEqual(getAddress(node), getAddress(restored)) // same public key
+    assert.strictEqual(node.toWIF(), restored.toWIF()) // same private key
   })
 
   it('can export a BIP32 xpub', function () {
@@ -33,7 +33,7 @@ describe('bitcoinjs-lib (BIP32)', function () {
     const node = bip32.fromSeed(seed)
     const string = node.neutered().toBase58()
 
-    assert.equal(string, 'xpub661MyMwAqRbcGhVeaVfEBA25e3cP9DsJQZoE8iep5fZSxy3TnPBNBgWnMZx56oreNc48ZoTkQfatNJ9VWnQ7ZcLZcVStpaXLTeG8bGrzX3n')
+    assert.strictEqual(string, 'xpub661MyMwAqRbcGhVeaVfEBA25e3cP9DsJQZoE8iep5fZSxy3TnPBNBgWnMZx56oreNc48ZoTkQfatNJ9VWnQ7ZcLZcVStpaXLTeG8bGrzX3n')
   })
 
   it('can create a BIP32, bitcoin, account 0, external address', function () {
@@ -47,8 +47,8 @@ describe('bitcoinjs-lib (BIP32)', function () {
       .derive(0)
       .derive(0)
 
-    assert.equal(getAddress(child1), '1JHyB1oPXufr4FXkfitsjgNB5yRY9jAaa7')
-    assert.equal(getAddress(child1b), '1JHyB1oPXufr4FXkfitsjgNB5yRY9jAaa7')
+    assert.strictEqual(getAddress(child1), '1JHyB1oPXufr4FXkfitsjgNB5yRY9jAaa7')
+    assert.strictEqual(getAddress(child1b), '1JHyB1oPXufr4FXkfitsjgNB5yRY9jAaa7')
   })
 
   it('can create a BIP44, bitcoin, account 0, external address', function () {
@@ -63,8 +63,8 @@ describe('bitcoinjs-lib (BIP32)', function () {
       .derive(0)
       .derive(0)
 
-    assert.equal(getAddress(child1), '12Tyvr1U8A3ped6zwMEU5M8cx3G38sP5Au')
-    assert.equal(getAddress(child1b), '12Tyvr1U8A3ped6zwMEU5M8cx3G38sP5Au')
+    assert.strictEqual(getAddress(child1), '12Tyvr1U8A3ped6zwMEU5M8cx3G38sP5Au')
+    assert.strictEqual(getAddress(child1b), '12Tyvr1U8A3ped6zwMEU5M8cx3G38sP5Au')
   })
 
   it('can create a BIP49, bitcoin testnet, account 0, external address', function () {
@@ -79,7 +79,7 @@ describe('bitcoinjs-lib (BIP32)', function () {
       redeem: bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: bitcoin.networks.testnet }),
       network: bitcoin.networks.testnet
     })
-    assert.equal(address, '2Mww8dCYPUpKHofjgcXcBCEGmniw9CoaiD2')
+    assert.strictEqual(address, '2Mww8dCYPUpKHofjgcXcBCEGmniw9CoaiD2')
   })
 
   it('can use BIP39 to generate BIP32 addresses', function () {

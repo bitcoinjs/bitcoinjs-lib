@@ -8,24 +8,22 @@ const keyPairs = [
   bitcoin.ECPair.makeRandom({ network: NETWORK })
 ]
 
-function buildAndSign (depends, prevOutput, redeemScript, witnessScript, done) {
-  regtestUtils.faucetComplex(prevOutput, 5e4, (err, unspent) => {
-    if (err) return done(err)
+async function buildAndSign (depends, prevOutput, redeemScript, witnessScript) {
+  const unspent = await regtestUtils.faucetComplex(prevOutput, 5e4)
 
-    const txb = new bitcoin.TransactionBuilder(NETWORK)
-    txb.addInput(unspent.txId, unspent.vout, null, prevOutput)
-    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
+  const txb = new bitcoin.TransactionBuilder(NETWORK)
+  txb.addInput(unspent.txId, unspent.vout, null, prevOutput)
+  txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
 
-    if (depends.signatures) {
-      keyPairs.forEach((keyPair) => {
-        txb.sign(0, keyPair, redeemScript, null, unspent.value, witnessScript)
-      })
-    } else if (depends.signature) {
-      txb.sign(0, keyPairs[0], redeemScript, null, unspent.value, witnessScript)
-    }
+  if (depends.signatures) {
+    keyPairs.forEach((keyPair) => {
+      txb.sign(0, keyPair, redeemScript, null, unspent.value, witnessScript)
+    })
+  } else if (depends.signature) {
+    txb.sign(0, keyPairs[0], redeemScript, null, unspent.value, witnessScript)
+  }
 
-    regtestUtils.broadcast(txb.build().toHex(), done)
-  })
+  return regtestUtils.broadcast(txb.build().toHex())
 }
 
 ;['p2ms', 'p2pk', 'p2pkh', 'p2wpkh'].forEach((k) => {
@@ -42,28 +40,28 @@ function buildAndSign (depends, prevOutput, redeemScript, witnessScript, done) {
   if (!output) throw new TypeError('Missing output')
 
   describe('bitcoinjs-lib (payments - ' + k + ')', function () {
-    it('can broadcast as an output, and be spent as an input', (done) => {
-      buildAndSign(depends, output, null, null, done)
+    it('can broadcast as an output, and be spent as an input', async () => {
+      await buildAndSign(depends, output, null, null)
     })
 
-    it('can (as P2SH(' + k + ')) broadcast as an output, and be spent as an input', (done) => {
+    it('can (as P2SH(' + k + ')) broadcast as an output, and be spent as an input', async () => {
       const p2sh = bitcoin.payments.p2sh({ redeem: { output }, network: NETWORK })
-      buildAndSign(depends, p2sh.output, p2sh.redeem.output, null, done)
+      await buildAndSign(depends, p2sh.output, p2sh.redeem.output, null)
     })
 
     // NOTE: P2WPKH cannot be wrapped in P2WSH, consensus fail
     if (k === 'p2wpkh') return
 
-    it('can (as P2WSH(' + k + ')) broadcast as an output, and be spent as an input', (done) => {
+    it('can (as P2WSH(' + k + ')) broadcast as an output, and be spent as an input', async () => {
       const p2wsh = bitcoin.payments.p2wsh({ redeem: { output }, network: NETWORK })
-      buildAndSign(depends, p2wsh.output, null, p2wsh.redeem.output, done)
+      await buildAndSign(depends, p2wsh.output, null, p2wsh.redeem.output)
     })
 
-    it('can (as P2SH(P2WSH(' + k + '))) broadcast as an output, and be spent as an input', (done) => {
+    it('can (as P2SH(P2WSH(' + k + '))) broadcast as an output, and be spent as an input', async () => {
       const p2wsh = bitcoin.payments.p2wsh({ redeem: { output }, network: NETWORK })
       const p2sh = bitcoin.payments.p2sh({ redeem: { output: p2wsh.output }, network: NETWORK })
 
-      buildAndSign(depends, p2sh.output, p2sh.redeem.output, p2wsh.redeem.output, done)
+      await buildAndSign(depends, p2sh.output, p2sh.redeem.output, p2wsh.redeem.output)
     })
   })
 })

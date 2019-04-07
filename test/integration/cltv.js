@@ -10,8 +10,8 @@ const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZs
 
 describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   // force update MTP
-  before(function (done) {
-    regtestUtils.mine(11, done)
+  before(async function () {
+    await regtestUtils.mine(11)
   })
 
   const hashType = bitcoin.Transaction.SIGHASH_ALL
@@ -38,188 +38,160 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   }
 
   // expiry past, {Alice's signature} OP_TRUE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)', async function () {
     // 3 hours ago
     const lockTime = bip65.encode({ utc: utcNow() - (3600 * 3) })
     const redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
     const { address } = bitcoin.payments.p2sh({ redeem: { output: redeemScript, network: regtest }, network: regtest })
 
     // fund the P2SH(CLTV) address
-    regtestUtils.faucet(address, 1e5, function (err, unspent) {
-      if (err) return done(err)
+    const unspent = await regtestUtils.faucet(address, 1e5)
+    const txb = new bitcoin.TransactionBuilder(regtest)
+    txb.setLockTime(lockTime)
+    // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
+    txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
+    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
 
-      const txb = new bitcoin.TransactionBuilder(regtest)
-      txb.setLockTime(lockTime)
-      // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
-      txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
-      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
+    // {Alice's signature} OP_TRUE
+    const tx = txb.buildIncomplete()
+    const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
+    const redeemScriptSig = bitcoin.payments.p2sh({
+      redeem: {
+        input: bitcoin.script.compile([
+          bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+          bitcoin.opcodes.OP_TRUE
+        ]),
+        output: redeemScript
+      }
+    }).input
+    tx.setInputScript(0, redeemScriptSig)
 
-      // {Alice's signature} OP_TRUE
-      const tx = txb.buildIncomplete()
-      const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
-      const redeemScriptSig = bitcoin.payments.p2sh({
-        redeem: {
-          input: bitcoin.script.compile([
-            bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
-            bitcoin.opcodes.OP_TRUE
-          ]),
-          output: redeemScript
-        }
-      }).input
-      tx.setInputScript(0, redeemScriptSig)
+    await regtestUtils.broadcast(tx.toHex())
 
-      regtestUtils.broadcast(tx.toHex(), function (err) {
-        if (err) return done(err)
-
-        regtestUtils.verify({
-          txId: tx.getId(),
-          address: regtestUtils.RANDOM_ADDRESS,
-          vout: 0,
-          value: 7e4
-        }, done)
-      })
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: regtestUtils.RANDOM_ADDRESS,
+      vout: 0,
+      value: 7e4
     })
   })
 
   // expiry will pass, {Alice's signature} OP_TRUE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', function (done) {
-    regtestUtils.height(function (err, height) {
-      if (err) return done(err)
+  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', async function () {
+    const height = await regtestUtils.height()
+    // 5 blocks from now
+    const lockTime = bip65.encode({ blocks: height + 5 })
+    const redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
+    const { address } = bitcoin.payments.p2sh({ redeem: { output: redeemScript, network: regtest }, network: regtest })
 
-      // 5 blocks from now
-      const lockTime = bip65.encode({ blocks: height + 5 })
-      const redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
-      const { address } = bitcoin.payments.p2sh({ redeem: { output: redeemScript, network: regtest }, network: regtest })
+    // fund the P2SH(CLTV) address
+    const unspent = await regtestUtils.faucet(address, 1e5)
+    const txb = new bitcoin.TransactionBuilder(regtest)
+    txb.setLockTime(lockTime)
+    // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
+    txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
+    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
 
-      // fund the P2SH(CLTV) address
-      regtestUtils.faucet(address, 1e5, function (err, unspent) {
-        if (err) return done(err)
+    // {Alice's signature} OP_TRUE
+    const tx = txb.buildIncomplete()
+    const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
+    const redeemScriptSig = bitcoin.payments.p2sh({
+      redeem: {
+        input: bitcoin.script.compile([
+          bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+          bitcoin.opcodes.OP_TRUE
+        ]),
+        output: redeemScript
+      }
+    }).input
+    tx.setInputScript(0, redeemScriptSig)
 
-        const txb = new bitcoin.TransactionBuilder(regtest)
-        txb.setLockTime(lockTime)
-        // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
-        txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
-        txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
-
-        // {Alice's signature} OP_TRUE
-        const tx = txb.buildIncomplete()
-        const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
-        const redeemScriptSig = bitcoin.payments.p2sh({
-          redeem: {
-            input: bitcoin.script.compile([
-              bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
-              bitcoin.opcodes.OP_TRUE
-            ]),
-            output: redeemScript
-          }
-        }).input
-        tx.setInputScript(0, redeemScriptSig)
-
-        // TODO: test that it failures _prior_ to expiry, unfortunately, race conditions when run concurrently
-        // ...
-        // into the future!
-        regtestUtils.mine(5, function (err) {
-          if (err) return done(err)
-
-          regtestUtils.broadcast(tx.toHex(), function (err) {
-            if (err) return done(err)
-
-            regtestUtils.verify({
-              txId: tx.getId(),
-              address: regtestUtils.RANDOM_ADDRESS,
-              vout: 0,
-              value: 7e4
-            }, done)
-          })
-        })
-      })
+    // TODO: test that it failures _prior_ to expiry, unfortunately, race conditions when run concurrently
+    // ...
+    // into the future!
+    await regtestUtils.mine(5)
+    await regtestUtils.broadcast(tx.toHex())
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: regtestUtils.RANDOM_ADDRESS,
+      vout: 0,
+      value: 7e4
     })
   })
 
   // expiry ignored, {Bob's signature} {Alice's signature} OP_FALSE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time', function (done) {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time', async function () {
     // two hours ago
     const lockTime = bip65.encode({ utc: utcNow() - (3600 * 2) })
     const redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
     const { address } = bitcoin.payments.p2sh({ redeem: { output: redeemScript, network: regtest }, network: regtest })
 
     // fund the P2SH(CLTV) address
-    regtestUtils.faucet(address, 2e5, function (err, unspent) {
-      if (err) return done(err)
+    const unspent = await regtestUtils.faucet(address, 2e5)
+    const txb = new bitcoin.TransactionBuilder(regtest)
+    txb.setLockTime(lockTime)
+    // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
+    txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
+    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 8e4)
 
-      const txb = new bitcoin.TransactionBuilder(regtest)
-      txb.setLockTime(lockTime)
-      // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
-      txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
-      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 8e4)
+    // {Alice's signature} {Bob's signature} OP_FALSE
+    const tx = txb.buildIncomplete()
+    const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
+    const redeemScriptSig = bitcoin.payments.p2sh({
+      redeem: {
+        input: bitcoin.script.compile([
+          bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+          bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
+          bitcoin.opcodes.OP_FALSE
+        ]),
+        output: redeemScript
+      }
+    }).input
+    tx.setInputScript(0, redeemScriptSig)
 
-      // {Alice's signature} {Bob's signature} OP_FALSE
-      const tx = txb.buildIncomplete()
-      const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
-      const redeemScriptSig = bitcoin.payments.p2sh({
-        redeem: {
-          input: bitcoin.script.compile([
-            bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
-            bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
-            bitcoin.opcodes.OP_FALSE
-          ]),
-          output: redeemScript
-        }
-      }).input
-      tx.setInputScript(0, redeemScriptSig)
-
-      regtestUtils.broadcast(tx.toHex(), function (err) {
-        if (err) return done(err)
-
-        regtestUtils.verify({
-          txId: tx.getId(),
-          address: regtestUtils.RANDOM_ADDRESS,
-          vout: 0,
-          value: 8e4
-        }, done)
-      })
+    await regtestUtils.broadcast(tx.toHex())
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: regtestUtils.RANDOM_ADDRESS,
+      vout: 0,
+      value: 8e4
     })
   })
 
   // expiry in the future, {Alice's signature} OP_TRUE
-  it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry', function (done) {
+  it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry', async function () {
     // two hours from now
     const lockTime = bip65.encode({ utc: utcNow() + (3600 * 2) })
     const redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
     const { address } = bitcoin.payments.p2sh({ redeem: { output: redeemScript, network: regtest }, network: regtest })
 
     // fund the P2SH(CLTV) address
-    regtestUtils.faucet(address, 2e4, function (err, unspent) {
-      if (err) return done(err)
+    const unspent = await regtestUtils.faucet(address, 2e4)
+    const txb = new bitcoin.TransactionBuilder(regtest)
+    txb.setLockTime(lockTime)
+    // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
+    txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
+    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e4)
 
-      const txb = new bitcoin.TransactionBuilder(regtest)
-      txb.setLockTime(lockTime)
-      // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
-      txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
-      txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e4)
+    // {Alice's signature} OP_TRUE
+    const tx = txb.buildIncomplete()
+    const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
+    const redeemScriptSig = bitcoin.payments.p2sh({
+      redeem: {
+        input: bitcoin.script.compile([
+          bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
+          bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
+          bitcoin.opcodes.OP_TRUE
+        ]),
+        output: redeemScript
+      }
+    }).input
+    tx.setInputScript(0, redeemScriptSig)
 
-      // {Alice's signature} OP_TRUE
-      const tx = txb.buildIncomplete()
-      const signatureHash = tx.hashForSignature(0, redeemScript, hashType)
-      const redeemScriptSig = bitcoin.payments.p2sh({
-        redeem: {
-          input: bitcoin.script.compile([
-            bitcoin.script.signature.encode(alice.sign(signatureHash), hashType),
-            bitcoin.script.signature.encode(bob.sign(signatureHash), hashType),
-            bitcoin.opcodes.OP_TRUE
-          ]),
-          output: redeemScript
-        }
-      }).input
-      tx.setInputScript(0, redeemScriptSig)
-
-      regtestUtils.broadcast(tx.toHex(), function (err) {
-        assert.throws(function () {
-          if (err) throw err
-        }, /Error: non-final \(code 64\)/)
-
-        done()
-      })
+    await regtestUtils.broadcast(tx.toHex()).catch(err => {
+      assert.throws(function () {
+        if (err) throw err
+      }, /Error: non-final \(code 64\)/)
     })
   })
 })

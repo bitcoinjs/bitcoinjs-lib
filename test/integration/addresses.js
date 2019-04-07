@@ -1,29 +1,26 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
 const bitcoin = require('../../')
-const dhttp = require('dhttp/200')
+const dhttp = require('./_regtest').dhttp
 const TESTNET = bitcoin.networks.testnet
 
 describe('bitcoinjs-lib (addresses)', function () {
-  it('can generate a random address [and support the retrieval of transactions for that address (via 3PBP)', function (done) {
+  it('can generate a random address [and support the retrieval of transactions for that address (via 3PBP)', async function () {
     const keyPair = bitcoin.ECPair.makeRandom()
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey })
 
     // bitcoin P2PKH addresses start with a '1'
     assert.strictEqual(address.startsWith('1'), true)
 
-    dhttp({
+    const result = await dhttp({
       method: 'GET',
       url: 'https://blockchain.info/rawaddr/' + address
-    }, function (err, result) {
-      if (err) return done(err)
-
-      // random private keys [probably!] have no transactions
-      assert.strictEqual(result.n_tx, 0)
-      assert.strictEqual(result.total_received, 0)
-      assert.strictEqual(result.total_sent, 0)
-      done()
     })
+
+    // random private keys [probably!] have no transactions
+    assert.strictEqual(result.n_tx, 0)
+    assert.strictEqual(result.total_received, 0)
+    assert.strictEqual(result.total_sent, 0)
   })
 
   it('can import an address via WIF', function () {
