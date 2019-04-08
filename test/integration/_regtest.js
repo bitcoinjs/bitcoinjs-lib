@@ -46,11 +46,12 @@ async function faucet (address, value) {
   let count = 0
   let _unspents = []
   const sleep = ms => new Promise((resolve, reject) => setTimeout(resolve, ms))
+  const randInt = (min, max) => min + Math.floor((max - min + 1) * Math.random())
   do {
     if (count > 0) {
       if (count >= 5) throw new Error('Missing Inputs')
       console.log('Missing Inputs, retry #' + count)
-      await sleep(200)
+      await sleep(randInt(150, 250))
     }
 
     const txId = await _faucetRequest(address, value)
@@ -68,7 +69,7 @@ async function faucet (address, value) {
         }
       )
 
-    await sleep(100)
+    await sleep(randInt(50, 150))
 
     const results = await unspents(address)
 
