@@ -134,8 +134,8 @@ export class TransactionBuilder {
   addInput(
     txHash: Buffer | string | Transaction,
     vout: number,
-    sequence: number,
-    prevOutScript: Buffer,
+    sequence?: number,
+    prevOutScript?: Buffer,
   ): number {
     if (!this.__canModifyInputs()) {
       throw new Error('No, this would invalidate signatures');
@@ -188,10 +188,10 @@ export class TransactionBuilder {
   sign(
     vin: number,
     keyPair: ECPairInterface,
-    redeemScript: Buffer,
-    hashType: number,
-    witnessValue: number,
-    witnessScript: Buffer,
+    redeemScript?: Buffer,
+    hashType?: number,
+    witnessValue?: number,
+    witnessScript?: Buffer,
   ): void {
     // TODO: remove keyPair.network matching in 4.0.0
     if (keyPair.network && keyPair.network !== this.network)
@@ -267,7 +267,7 @@ export class TransactionBuilder {
       }
 
       const signature = keyPair.sign(signatureHash);
-      input.signatures![i] = bscript.signature.encode(signature, hashType);
+      input.signatures![i] = bscript.signature.encode(signature, hashType!);
       return true;
     });
 
@@ -679,8 +679,8 @@ function expandOutput(script: Buffer, ourPubKey?: Buffer): TxbOutput {
 function prepareInput(
   input: TxbInput,
   ourPubKey: Buffer,
-  redeemScript: Buffer,
-  witnessScript: Buffer,
+  redeemScript?: Buffer,
+  witnessScript?: Buffer,
 ): TxbInput {
   if (redeemScript && witnessScript) {
     const p2wsh = payments.p2wsh({
