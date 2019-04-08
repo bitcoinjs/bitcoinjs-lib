@@ -12,11 +12,11 @@ export declare class TransactionBuilder {
     constructor(network?: Network, maximumFeeRate?: number);
     setLockTime(locktime: number): void;
     setVersion(version: number): void;
-    addInput(txHash: Buffer | string | Transaction, vout: number, sequence: number, prevOutScript: Buffer): number;
+    addInput(txHash: Buffer | string | Transaction, vout: number, sequence?: number, prevOutScript?: Buffer): number;
     addOutput(scriptPubKey: string | Buffer, value: number): number;
     build(): Transaction;
     buildIncomplete(): Transaction;
-    sign(vin: number, keyPair: ECPairInterface, redeemScript: Buffer, hashType: number, witnessValue: number, witnessScript: Buffer): void;
+    sign(vin: number, keyPair: ECPairInterface, redeemScript?: Buffer, hashType?: number, witnessValue?: number, witnessScript?: Buffer): void;
     private __addInputUnsafe;
     private __build;
     private __canModifyInputs;
