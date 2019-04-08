@@ -35,10 +35,17 @@ function height () {
   })
 }
 
+function _faucetRequest (address, value) {
+  return dhttp({
+    method: 'POST',
+    url: APIURL + '/r/faucet?address=' + address + '&value=' + value + '&key=' + APIPASS
+  })
+}
+
 async function faucet (address, value) {
   let count = 0
   let _unspents = []
-  const sleep = ms => new Promise(r => setTimeout(r, ms))
+  const sleep = ms => new Promise((resolve, reject) => setTimeout(resolve, ms))
   do {
     if (count > 0) {
       if (count >= 5) throw new Error('Missing Inputs')
@@ -46,10 +53,20 @@ async function faucet (address, value) {
       await sleep(200)
     }
 
-    const txId = await dhttp({
-      method: 'POST',
-      url: APIURL + '/r/faucet?address=' + address + '&value=' + value + '&key=' + APIPASS
-    })
+    const txId = await _faucetRequest(address, value)
+      .then(
+        v => v, // Pass success value as is
+        async err => {
+          // Bad Request error is fixed by making sure height is >= 432
+          const currentHeight = await height()
+          if (err.message === 'Bad Request' && currentHeight < 432) {
+            await mine(432 - currentHeight)
+            return _faucetRequest(address, value)
+          } else {
+            throw err
+          }
+        }
+      )
 
     await sleep(100)
 
