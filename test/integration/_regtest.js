@@ -63,6 +63,8 @@ async function faucet (address, value) {
           if (err.message === 'Bad Request' && currentHeight < 432) {
             await mine(432 - currentHeight)
             return _faucetRequest(address, value)
+          } else if (err.message === 'Bad Request' && currentHeight >= 432) {
+            return _faucetRequest(address, value)
           } else {
             throw err
           }
