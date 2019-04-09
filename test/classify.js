@@ -25,12 +25,12 @@ const tmap = {
   witnessCommitment
 }
 
-describe('classify', function () {
-  describe('input', function () {
-    fixtures.valid.forEach(function (f) {
+describe('classify', () => {
+  describe('input', () => {
+    fixtures.valid.forEach(f => {
       if (!f.input) return
 
-      it('classifies ' + f.input + ' as ' + f.type, function () {
+      it('classifies ' + f.input + ' as ' + f.type, () => {
         const input = bscript.fromASM(f.input)
         const type = classify.input(input)
 
@@ -38,11 +38,11 @@ describe('classify', function () {
       })
     })
 
-    fixtures.valid.forEach(function (f) {
+    fixtures.valid.forEach(f => {
       if (!f.input) return
       if (!f.typeIncomplete) return
 
-      it('classifies incomplete ' + f.input + ' as ' + f.typeIncomplete, function () {
+      it('classifies incomplete ' + f.input + ' as ' + f.typeIncomplete, () => {
         const input = bscript.fromASM(f.input)
         const type = classify.input(input, true)
 
@@ -51,11 +51,11 @@ describe('classify', function () {
     })
   })
 
-  describe('classifyOutput', function () {
-    fixtures.valid.forEach(function (f) {
+  describe('classifyOutput', () => {
+    fixtures.valid.forEach(f => {
       if (!f.output) return
 
-      it('classifies ' + f.output + ' as ' + f.type, function () {
+      it('classifies ' + f.output + ' as ' + f.type, () => {
         const output = bscript.fromASM(f.output)
         const type = classify.output(output)
 
@@ -73,12 +73,12 @@ describe('classify', function () {
     'multisig',
     'nullData',
     'witnessCommitment'
-  ].forEach(function (name) {
+  ].forEach(name => {
     const inputType = tmap[name].input
     const outputType = tmap[name].output
 
-    describe(name + '.input.check', function () {
-      fixtures.valid.forEach(function (f) {
+    describe(name + '.input.check', () => {
+      fixtures.valid.forEach(f => {
         if (name.toLowerCase() === classify.types.P2WPKH) return
         if (name.toLowerCase() === classify.types.P2WSH) return
         const expected = name.toLowerCase() === f.type.toLowerCase()
@@ -86,14 +86,14 @@ describe('classify', function () {
         if (inputType && f.input) {
           const input = bscript.fromASM(f.input)
 
-          it('returns ' + expected + ' for ' + f.input, function () {
+          it('returns ' + expected + ' for ' + f.input, () => {
             assert.strictEqual(inputType.check(input), expected)
           })
 
           if (f.typeIncomplete) {
             const expectedIncomplete = name.toLowerCase() === f.typeIncomplete
 
-            it('returns ' + expected + ' for ' + f.input, function () {
+            it('returns ' + expected + ' for ' + f.input, () => {
               assert.strictEqual(inputType.check(input, true), expectedIncomplete)
             })
           }
@@ -102,10 +102,10 @@ describe('classify', function () {
 
       if (!(fixtures.invalid[name])) return
 
-      fixtures.invalid[name].inputs.forEach(function (f) {
+      fixtures.invalid[name].inputs.forEach(f => {
         if (!f.input && !f.inputHex) return
 
-        it('returns false for ' + f.description + ' (' + (f.input || f.inputHex) + ')', function () {
+        it('returns false for ' + f.description + ' (' + (f.input || f.inputHex) + ')', () => {
           let input
 
           if (f.input) {
@@ -119,12 +119,12 @@ describe('classify', function () {
       })
     })
 
-    describe(name + '.output.check', function () {
-      fixtures.valid.forEach(function (f) {
+    describe(name + '.output.check', () => {
+      fixtures.valid.forEach(f => {
         const expected = name.toLowerCase() === f.type
 
         if (outputType && f.output) {
-          it('returns ' + expected + ' for ' + f.output, function () {
+          it('returns ' + expected + ' for ' + f.output, () => {
             const output = bscript.fromASM(f.output)
 
             if (name.toLowerCase() === 'nulldata' && f.type === classify.types.WITNESS_COMMITMENT) return
@@ -136,10 +136,10 @@ describe('classify', function () {
 
       if (!(fixtures.invalid[name])) return
 
-      fixtures.invalid[name].outputs.forEach(function (f) {
+      fixtures.invalid[name].outputs.forEach(f => {
         if (!f.output && !f.outputHex) return
 
-        it('returns false for ' + f.description + ' (' + (f.output || f.outputHex) + ')', function () {
+        it('returns false for ' + f.description + ' (' + (f.output || f.outputHex) + ')', () => {
           let output
 
           if (f.output) {
