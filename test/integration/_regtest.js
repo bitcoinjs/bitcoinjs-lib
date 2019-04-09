@@ -71,7 +71,7 @@ async function faucet (address, value) {
         }
       )
 
-    await sleep(randInt(50, 150))
+    await sleep(randInt(10, 40))
 
     const results = await unspents(address)
 
