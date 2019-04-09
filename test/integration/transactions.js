@@ -8,8 +8,8 @@ function rng () {
   return Buffer.from('YT8dAtK4d16A3P1z+TpwB2jJ4aFH3g9M1EioIBkLEV4=', 'base64')
 }
 
-describe('bitcoinjs-lib (transactions)', function () {
-  it('can create a 1-to-1 Transaction', function () {
+describe('bitcoinjs-lib (transactions)', () => {
+  it('can create a 1-to-1 Transaction', () => {
     const alice = bitcoin.ECPair.fromWIF('L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy')
     const txb = new bitcoin.TransactionBuilder()
 
@@ -24,7 +24,7 @@ describe('bitcoinjs-lib (transactions)', function () {
     assert.strictEqual(txb.build().toHex(), '01000000019d344070eac3fe6e394a16d06d7704a7d5c0a10eb2a2c16bc98842b7cc20d561000000006b48304502210088828c0bdfcdca68d8ae0caeb6ec62cd3fd5f9b2191848edae33feb533df35d302202e0beadd35e17e7f83a733f5277028a9b453d525553e3f5d2d7a7aa8010a81d60121029f50f51d63b345039a290c94bffd3180c99ed659ff6ea6b1242bca47eb93b59fffffffff01e02e0000000000001976a91406afd46bcdfd22ef94ac122aa11f241244a37ecc88ac00000000')
   })
 
-  it('can create a 2-to-2 Transaction', function () {
+  it('can create a 2-to-2 Transaction', () => {
     const alice = bitcoin.ECPair.fromWIF('L1Knwj9W3qK3qMKdTvmg3VfzUs3ij2LETTFhxza9LfD5dngnoLG1')
     const bob = bitcoin.ECPair.fromWIF('KwcN2pT3wnRAurhy7qMczzbkpY5nXMW2ubh696UBc1bcwctTx26z')
 
@@ -232,17 +232,17 @@ describe('bitcoinjs-lib (transactions)', function () {
     })
   })
 
-  it('can verify Transaction (P2PKH) signatures', function () {
+  it('can verify Transaction (P2PKH) signatures', () => {
     const txHex = '010000000321c5f7e7bc98b3feda84aad36a5c99a02bcb8823a2f3eccbcd5da209698b5c20000000006b48304502210099e021772830207cf7c55b69948d3b16b4dcbf1f55a9cd80ebf8221a169735f9022064d33f11d62cd28240b3862afc0b901adc9f231c7124dd19bdb30367b61964c50121032b4c06c06c3ec0b7fa29519dfa5aae193ee2cc35ca127f29f14ec605d62fb63dffffffff8a75ce85441ddb3f342708ee33cc8ed418b07d9ba9e0e7c4e1cccfe9f52d8a88000000006946304302207916c23dae212c95a920423902fa44e939fb3d542f4478a7b46e9cde53705800021f0d74e9504146e404c1b8f9cba4dff2d4782e3075491c9ed07ce4a7d1c4461a01210216c92abe433106491bdeb4a261226f20f5a4ac86220cc6e37655aac6bf3c1f2affffffffdfef93f69fe32e944fad79fa8f882b3a155d80383252348caba1a77a5abbf7ef000000006b483045022100faa6e9ca289b46c64764a624c59ac30d9abcf1d4a04c4de9089e67cbe0d300a502206930afa683f6807502de5c2431bf9a1fd333c8a2910a76304df0f3d23d83443f0121039e05da8b8ea4f9868ecebb25998c7701542986233f4401799551fbecf316b18fffffffff01ff4b0000000000001976a9146c86476d1d85cd60116cd122a274e6a570a5a35c88acc96d0700'
     const keyPairs = [
       '032b4c06c06c3ec0b7fa29519dfa5aae193ee2cc35ca127f29f14ec605d62fb63d',
       '0216c92abe433106491bdeb4a261226f20f5a4ac86220cc6e37655aac6bf3c1f2a',
       '039e05da8b8ea4f9868ecebb25998c7701542986233f4401799551fbecf316b18f'
-    ].map(function (q) { return bitcoin.ECPair.fromPublicKey(Buffer.from(q, 'hex')) })
+    ].map(q => { return bitcoin.ECPair.fromPublicKey(Buffer.from(q, 'hex')) })
 
     const tx = bitcoin.Transaction.fromHex(txHex)
 
-    tx.ins.forEach(function (input, i) {
+    tx.ins.forEach((input, i) => {
       const keyPair = keyPairs[i]
       const p2pkh = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
@@ -256,7 +256,7 @@ describe('bitcoinjs-lib (transactions)', function () {
     })
   })
 
-  it('can verify Transaction (P2SH(P2WPKH)) signatures', function () {
+  it('can verify Transaction (P2SH(P2WPKH)) signatures', () => {
     const utxos = {
       'f72d1d83ac40fcedd01415751556a905844ab5f44bbb7728565ebb91b1590109:0': {
         value: 50000
@@ -266,7 +266,7 @@ describe('bitcoinjs-lib (transactions)', function () {
     const txHex = '02000000000101090159b191bb5e562877bb4bf4b54a8405a95615751514d0edfc40ac831d2df7000000001716001435a179e5516947a39ae9c8a25e9fe62c0fc598edffffffff01204e0000000000001976a91431d43308d3c886d53e9ae8a45728370571ff456988ac0247304402206ec41f685b997a51f325b07ee852e82a535f6b52ef54485cc133e05168aa052a022070bafa86108acb51c77b2b259ae8fb7fd1efa10fef804fcfe9b13c2db719acf5012103fb03e9d0a9af86cbed94225dbb8bb70f6b82109bce0a61ddcf41dab6cbb4871100000000'
     const tx = bitcoin.Transaction.fromHex(txHex)
 
-    tx.ins.forEach(function (input, i) {
+    tx.ins.forEach((input, i) => {
       const txId = Buffer.from(input.hash).reverse().toString('hex')
       const utxo = utxos[`${txId}:${i}`]
       if (!utxo) throw new Error('Missing utxo')

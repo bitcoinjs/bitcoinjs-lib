@@ -47,7 +47,7 @@ async function faucet (address, value) {
   let _unspents = []
   const sleep = ms => new Promise((resolve, reject) => setTimeout(resolve, ms))
   const randInt = (min, max) => min + Math.floor((max - min + 1) * Math.random())
-  do {
+  while (_unspents.length === 0) {
     if (count > 0) {
       if (count >= 5) throw new Error('Missing Inputs')
       console.log('Missing Inputs, retry #' + count)
@@ -78,7 +78,7 @@ async function faucet (address, value) {
     _unspents = results.filter(x => x.txId === txId)
 
     count++
-  } while (_unspents.length === 0)
+  }
 
   return _unspents.pop()
 }

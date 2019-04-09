@@ -8,9 +8,9 @@ const bip65 = require('bip65')
 const alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', regtest)
 const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
 
-describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
+describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
   // force update MTP
-  before(async function () {
+  before(async () => {
     await regtestUtils.mine(11)
   })
 
@@ -38,7 +38,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   }
 
   // expiry past, {Alice's signature} OP_TRUE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)', async function () {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)', async () => {
     // 3 hours ago
     const lockTime = bip65.encode({ utc: utcNow() - (3600 * 3) })
     const redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
@@ -77,7 +77,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   })
 
   // expiry will pass, {Alice's signature} OP_TRUE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', async function () {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', async () => {
     const height = await regtestUtils.height()
     // 5 blocks from now
     const lockTime = bip65.encode({ blocks: height + 5 })
@@ -120,7 +120,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   })
 
   // expiry ignored, {Bob's signature} {Alice's signature} OP_FALSE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time', async function () {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time', async () => {
     // two hours ago
     const lockTime = bip65.encode({ utc: utcNow() - (3600 * 2) })
     const redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
@@ -159,7 +159,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
   })
 
   // expiry in the future, {Alice's signature} OP_TRUE
-  it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry', async function () {
+  it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry', async () => {
     // two hours from now
     const lockTime = bip65.encode({ utc: utcNow() + (3600 * 2) })
     const redeemScript = cltvCheckSigOutput(alice, bob, lockTime)
@@ -189,7 +189,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', function () {
     tx.setInputScript(0, redeemScriptSig)
 
     await regtestUtils.broadcast(tx.toHex()).catch(err => {
-      assert.throws(function () {
+      assert.throws(() => {
         if (err) throw err
       }, /Error: non-final \(code 64\)/)
     })

@@ -1,5 +1,11 @@
 sudo: false
 language: node_js
+services:
+  - docker
+before_install:
+  - docker pull junderw/bitcoinjs-regtest-server
+  - docker run -d -p 127.0.0.1:8080:8080 junderw/bitcoinjs-regtest-server
+  - docker ps -a
 node_js:
   - "8"
   - "lts/*"
@@ -15,5 +21,5 @@ matrix:
       env: TEST_SUITE=coverage
 env:
   - TEST_SUITE=unit
-  - TEST_SUITE=integration
+  - TEST_SUITE=integration APIURL=http://127.0.0.1:8080/1
 script: npm run-script $TEST_SUITE

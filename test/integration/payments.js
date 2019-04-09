@@ -16,7 +16,7 @@ async function buildAndSign (depends, prevOutput, redeemScript, witnessScript) {
   txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4)
 
   if (depends.signatures) {
-    keyPairs.forEach((keyPair) => {
+    keyPairs.forEach(keyPair => {
       txb.sign(0, keyPair, redeemScript, null, unspent.value, witnessScript)
     })
   } else if (depends.signature) {
@@ -26,7 +26,7 @@ async function buildAndSign (depends, prevOutput, redeemScript, witnessScript) {
   return regtestUtils.broadcast(txb.build().toHex())
 }
 
-;['p2ms', 'p2pk', 'p2pkh', 'p2wpkh'].forEach((k) => {
+;['p2ms', 'p2pk', 'p2pkh', 'p2wpkh'].forEach(k => {
   const fixtures = require('../fixtures/' + k)
   const { depends } = fixtures.dynamic
   const fn = bitcoin.payments[k]
@@ -39,7 +39,7 @@ async function buildAndSign (depends, prevOutput, redeemScript, witnessScript) {
   const { output } = fn(base)
   if (!output) throw new TypeError('Missing output')
 
-  describe('bitcoinjs-lib (payments - ' + k + ')', function () {
+  describe('bitcoinjs-lib (payments - ' + k + ')', () => {
     it('can broadcast as an output, and be spent as an input', async () => {
       await buildAndSign(depends, output, null, null)
     })

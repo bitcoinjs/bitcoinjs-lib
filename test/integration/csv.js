@@ -8,9 +8,9 @@ const bip68 = require('bip68')
 const alice = bitcoin.ECPair.fromWIF('cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe', regtest)
 const bob = bitcoin.ECPair.fromWIF('cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x', regtest)
 
-describe('bitcoinjs-lib (transactions w/ CSV)', function () {
+describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   // force update MTP
-  before(async function () {
+  before(async () => {
     await regtestUtils.mine(11)
   })
 
@@ -35,7 +35,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   }
 
   // expiry will pass, {Alice's signature} OP_TRUE
-  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', async function () {
+  it('can create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)', async () => {
     // 5 blocks from now
     const sequence = bip68.encode({ blocks: 5 })
     const p2sh = bitcoin.payments.p2sh({
@@ -84,7 +84,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
   })
 
   // expiry in the future, {Alice's signature} OP_TRUE
-  it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry', async function () {
+  it('can create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry', async () => {
     // two hours after confirmation
     const sequence = bip68.encode({ seconds: 7168 })
     const p2sh = bitcoin.payments.p2sh({
@@ -119,7 +119,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', function () {
     tx.setInputScript(0, redeemScriptSig)
 
     await regtestUtils.broadcast(tx.toHex()).catch(err => {
-      assert.throws(function () {
+      assert.throws(() => {
         if (err) throw err
       }, /Error: non-BIP68-final \(code 64\)/)
     })
