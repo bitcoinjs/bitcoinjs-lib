@@ -10,7 +10,7 @@ const dhttp = options => new Promise((resolve, reject) => {
 })
 
 const APIPASS = process.env.APIPASS || 'satoshi'
-const APIURL = 'https://regtest.bitbank.cc/1'
+const APIURL = process.env.APIURL || 'https://regtest.bitbank.cc/1'
 const NETWORK = bitcoin.networks.testnet
 
 function broadcast (txHex) {
