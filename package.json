@@ -15,7 +15,9 @@
     "bitcoinjs"
   ],
   "scripts": {
-    "build": "tsc -p ./tsconfig.json",
+    "build": "npm run build-src && npm run build-test",
+    "build-src": "tsc -p ./tsconfig.json",
+    "build-test": "tsc -p ./tsconfig-test.json",
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
     "coverage": "npm run build && npm run nobuild:coverage",
@@ -23,13 +25,15 @@
     "format:ci": "npm run prettier -- --check",
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "integration": "npm run build && npm run nobuild:integration",
-    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "lint": "npm run lint-src && npm run lint-test",
+    "lint-src": "tslint -p tsconfig.json -c tslint.json",
+    "lint-test": "tslint -p tsconfig-test.json -c tslint-test.json",
     "nobuild:coverage-report": "nyc report --reporter=lcov",
     "nobuild:coverage-html": "nyc report --reporter=html",
     "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 --lines 90 mocha",
     "nobuild:integration": "mocha --timeout 50000 test/integration/",
     "nobuild:unit": "mocha",
-    "prettier": "prettier 'ts_src/**/*.ts' --ignore-path ./.prettierignore",
+    "prettier": "prettier '{ts_src,ts_test}/**/*.ts' --ignore-path ./.prettierignore",
     "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
     "unit": "npm run build && npm run nobuild:unit"
   },
@@ -59,7 +63,7 @@
     "wif": "^2.0.1"
   },
   "devDependencies": {
-    "bip39": "^2.3.0",
+    "bip39": "^3.0.1",
     "bip65": "^1.0.1",
     "bip68": "^1.0.3",
     "bn.js": "^4.11.8",

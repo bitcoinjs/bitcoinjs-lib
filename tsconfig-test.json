@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "outDir": "./test",
+    "declaration": false,
+    "rootDir": "./ts_test",
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "allowJs": false,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+    "esModuleInterop": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "ts_test/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts",
+    "node_modules/**/*"
+  ]
+}
