@@ -3,7 +3,7 @@ import { Network } from './networks';
 interface ECPairOptions {
     compressed?: boolean;
     network?: Network;
-    rng?(arg0: Buffer): Buffer;
+    rng?(arg0: number): Buffer;
 }
 export interface ECPairInterface {
     compressed: boolean;
