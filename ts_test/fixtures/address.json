@@ -1,0 +1,195 @@
+{
+  "standard": [
+    {
+      "network": "bitcoin",
+      "version": 0,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "base58check": "1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH",
+      "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
+    },
+    {
+      "network": "bitcoin",
+      "version": 5,
+      "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
+      "base58check": "3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr",
+      "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
+    },
+    {
+      "network": "litecoin",
+      "version": 50,
+      "hash": "332bdfb31f688c0be0137c7c038a6d0fea0de0b6",
+      "base58check": "MCZjFcwYJwwYqXAbd3bbnxaCVGs81cp43Z",
+      "script": "OP_HASH160 332bdfb31f688c0be0137c7c038a6d0fea0de0b6 OP_EQUAL"
+    },
+    {
+      "network": "litecoin",
+      "version": 48,
+      "hash": "6ac624143d19a3c91d2ac5605f0aebdfeac5b826",
+      "base58check": "LUxXFcwXFPpRZdMv4aYu6bDwPdC2skQ5YW",
+      "script": "OP_DUP OP_HASH160 6ac624143d19a3c91d2ac5605f0aebdfeac5b826 OP_EQUALVERIFY OP_CHECKSIG"
+    },
+    {
+      "network": "testnet",
+      "version": 111,
+      "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "base58check": "mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r",
+      "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
+    },
+    {
+      "network": "testnet",
+      "version": 196,
+      "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
+      "base58check": "2NByiBUaEXrhmqAsg7BbLpcQSAQs1EDwt5w",
+      "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
+    },
+    {
+      "network": "bitcoin",
+      "version": 0,
+      "bech32": "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",
+      "data": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6"
+
+    },
+    {
+      "network": "testnet",
+      "version": 0,
+      "bech32": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7",
+      "data": "1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262",
+      "script": "OP_0 1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262"
+    },
+    {
+      "network": "testnet",
+      "version": 0,
+      "bech32": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
+      "data": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433",
+      "script": "OP_0 000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"
+    },
+    {
+      "network": "regtest",
+      "version": 0,
+      "bech32": "bcrt1qjh3dnrafy8f2zszh5sdqn6c3ycfljh930yza9nt72v30dkw8mlvscn82zx",
+      "data": "95e2d98fa921d2a14057a41a09eb112613f95cb17905d2cd7e5322f6d9c7dfd9",
+      "script": "OP_0 95e2d98fa921d2a14057a41a09eb112613f95cb17905d2cd7e5322f6d9c7dfd9"
+    },
+    {
+      "network": "regtest",
+      "version": 0,
+      "bech32": "bcrt1qqqqqqqqqqqqqqahrwf6d62emdxmpq8gu3xe9au9fjwc9sxxn4k2qujfh7u",
+      "data": "000000000000000076e37274dd2b3b69b6101d1c89b25ef0a993b05818d3ad94",
+      "script": "OP_0 000000000000000076e37274dd2b3b69b6101d1c89b25ef0a993b05818d3ad94"
+    }
+  ],
+  "bech32": [
+    {
+      "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx",
+      "version": 1,
+      "prefix": "bc",
+      "data": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"
+    },
+    {
+      "address": "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj",
+      "version": 2,
+      "prefix": "bc",
+      "data": "751e76e8199196d454941c45d1b3a323"
+    },
+    {
+      "address": "BC1SW50QA3JX3S",
+      "version": 16,
+      "prefix": "bc",
+      "data": "751e"
+    }
+  ],
+  "invalid": {
+    "bech32": [
+      {
+        "address": "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5",
+        "exception": "Invalid checksum"
+      },
+      {
+        "address": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sL5k7",
+        "exception": "Mixed-case string"
+      },
+      {
+        "address": "tb1pw508d6qejxtdg4y5r3zarqfsj6c3",
+        "exception": "Excess padding"
+      },
+      {
+        "address": "bc1zw508d6qejxtdg4y5r3zarvaryvqyzf3du",
+        "exception": "Excess padding"
+      },
+      {
+        "address": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv",
+        "exception": "Non-zero padding"
+      }
+    ],
+    "fromBase58Check": [
+      {
+        "address": "7SeEnXWPaCCALbVrTnszCVGfRU8cGfx",
+        "exception": "is too short"
+      },
+      {
+        "address": "j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe",
+        "exception": "is too long"
+      }
+    ],
+    "fromOutputScript": [
+      {
+        "exception": "has no matching Address",
+        "script": "031f1e68f82112b373f0fe980b3a89d212d2b5c01fb51eb25acb8b4c4b4299ce95 OP_CHECKSIG"
+      },
+      {
+        "exception": "has no matching Address",
+        "script": "OP_TRUE 032487c2a32f7c8d57d2a93906a6457afd00697925b0e6e145d89af6d3bca33016 02308673d16987eaa010e540901cc6fe3695e758c19f46ce604e174dac315e685a OP_2 OP_CHECKMULTISIG"
+      },
+      {
+        "exception": "has no matching Address",
+        "script": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474"
+      },
+      {
+        "exception": "has no matching Address",
+        "script": "OP_0 75"
+      },
+      {
+        "exception": "has no matching Address",
+        "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd675"
+      }
+    ],
+    "toOutputScript": [
+      {
+        "exception": "has no matching Script",
+        "address": "24kPZCmVgzfkpGdXExy56234MRHrsqQxNWE"
+      },
+      {
+        "exception": "has an invalid prefix",
+        "address": "BC1SW50QA3JX3S",
+        "network": {
+          "bech32": "foo"
+        }
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "bc1rw5uspcuh"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "BC1SW50QA3JX3S"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "bc10w508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw5rljs90"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2"
+      }
+    ]
+  }
+}
