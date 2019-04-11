@@ -1,8 +1,9 @@
 import { Block } from '..';
+import { FixtureBlock } from './fixtureTypes';
 const { describe, it, beforeEach } = require('mocha');
 const assert = require('assert');
 
-const fixtures = require('../ts_test/fixtures/block');
+const fixtures: FixtureBlock = require('../ts_test/fixtures/block');
 
 describe('Block', () => {
   describe('version', () => {

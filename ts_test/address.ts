@@ -1,9 +1,10 @@
 import * as bitcoinjs from '..';
+import { FixtureAddress } from './fixtureTypes';
 const baddress = bitcoinjs.address;
 const bscript = bitcoinjs.script;
 const { describe, it } = require('mocha');
 const assert = require('assert');
-const fixtures = require('../ts_test/fixtures/address.json');
+const fixtures: FixtureAddress = require('../ts_test/fixtures/address.json');
 // @ts-ignore
 const NETWORKS = Object.assign(
   {
@@ -140,7 +141,7 @@ describe('address', () => {
     fixtures.invalid.toOutputScript.forEach(f => {
       it('throws when ' + f.exception, () => {
         assert.throws(() => {
-          baddress.toOutputScript(f.address, f.network);
+          baddress.toOutputScript(f.address, f.network as any);
         }, new RegExp(f.address + ' ' + f.exception));
       });
     });

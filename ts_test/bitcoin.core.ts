@@ -1,16 +1,27 @@
 import * as bitcoin from '..';
+import {
+  CoreBase58Attributes,
+  CoreBase58EncodeDecode,
+  CoreBase58KeysInvalid,
+  CoreBase58KeysValid,
+  CoreBlocks,
+  CoreSigCanonical,
+  CoreSigHash,
+  CoreSigNonCanonical,
+  CoreTxValid,
+} from './fixtureTypes';
 const { describe, it } = require('mocha');
 const assert = require('assert');
 const base58 = require('bs58');
 
-const base58EncodeDecode = require('../ts_test/fixtures/core/base58_encode_decode.json');
-const base58KeysInvalid = require('../ts_test/fixtures/core/base58_keys_invalid.json');
-const base58KeysValid = require('../ts_test/fixtures/core/base58_keys_valid.json');
-const blocksValid = require('../ts_test/fixtures/core/blocks.json');
-const sigCanonical = require('../ts_test/fixtures/core/sig_canonical.json');
-const sigHash = require('../ts_test/fixtures/core/sighash.json');
-const sigNoncanonical = require('../ts_test/fixtures/core/sig_noncanonical.json');
-const txValid = require('../ts_test/fixtures/core/tx_valid.json');
+const base58EncodeDecode: CoreBase58EncodeDecode = require('../ts_test/fixtures/core/base58_encode_decode.json');
+const base58KeysInvalid: CoreBase58KeysInvalid = require('../ts_test/fixtures/core/base58_keys_invalid.json');
+const base58KeysValid: CoreBase58KeysValid = require('../ts_test/fixtures/core/base58_keys_valid.json');
+const blocksValid: CoreBlocks = require('../ts_test/fixtures/core/blocks.json');
+const sigCanonical: CoreSigCanonical = require('../ts_test/fixtures/core/sig_canonical.json');
+const sigHash: CoreSigHash = require('../ts_test/fixtures/core/sighash.json');
+const sigNoncanonical: CoreSigNonCanonical = require('../ts_test/fixtures/core/sig_noncanonical.json');
+const txValid: CoreTxValid = require('../ts_test/fixtures/core/tx_valid.json');
 
 describe('Bitcoin-core', () => {
   // base58EncodeDecode
@@ -44,8 +55,8 @@ describe('Bitcoin-core', () => {
 
     base58KeysValid.forEach(f => {
       const expected = f[0];
-      const hash = Buffer.from(f[1], 'hex');
-      const params = f[2];
+      const hash = Buffer.from(f[1] as string, 'hex');
+      const params = f[2] as CoreBase58Attributes;
 
       if (params.isPrivkey) return;
 
@@ -92,9 +103,9 @@ describe('Bitcoin-core', () => {
   // base58KeysValid
   describe('ECPair', () => {
     base58KeysValid.forEach(f => {
-      const string0 = f[0];
+      const string0 = f[0] as string;
       const hex = f[1];
-      const params = f[2];
+      const params = f[2] as CoreBase58Attributes;
 
       if (!params.isPrivkey) return;
 
@@ -154,13 +165,13 @@ describe('Bitcoin-core', () => {
       //      const verifyFlags = f[2] // TODO: do we need to test this?
 
       it('can decode ' + fhex, () => {
-        const transaction = bitcoin.Transaction.fromHex(fhex);
+        const transaction = bitcoin.Transaction.fromHex(fhex as string);
 
         transaction.ins.forEach((txIn, i) => {
           const input = inputs[i];
 
           // reverse because test data is reversed
-          const prevOutHash = Buffer.from(input[0], 'hex').reverse();
+          const prevOutHash = Buffer.from(input[0] as string, 'hex').reverse();
           const prevOutIndex = input[1];
 
           assert.deepStrictEqual(txIn.hash, prevOutHash);
@@ -178,10 +189,10 @@ describe('Bitcoin-core', () => {
       // Objects that are only a single string are ignored
       if (f.length === 1) return;
 
-      const txHex = f[0];
-      const scriptHex = f[1];
-      const inIndex = f[2];
-      const hashType = f[3];
+      const txHex = f[0] as string;
+      const scriptHex = f[1] as string;
+      const inIndex = f[2] as number;
+      const hashType = f[3] as number;
       const expectedHash = f[4];
 
       const hashTypes = [];
