@@ -64,7 +64,7 @@ export function toBech32(
   return bech32.encode(prefix, words);
 }
 
-export function fromOutputScript(output: Buffer, network: Network): string {
+export function fromOutputScript(output: Buffer, network?: Network): string {
   // TODO: Network
   network = network || networks.bitcoin;
 
@@ -84,7 +84,7 @@ export function fromOutputScript(output: Buffer, network: Network): string {
   throw new Error(bscript.toASM(output) + ' has no matching Address');
 }
 
-export function toOutputScript(address: string, network: Network): Buffer {
+export function toOutputScript(address: string, network?: Network): Buffer {
   network = network || networks.bitcoin;
 
   let decodeBase58: Base58CheckResult | undefined;
