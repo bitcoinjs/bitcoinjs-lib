@@ -1,10 +1,11 @@
 import { script as bscript } from '..';
+import { FixtureScript, FixtureTemplates } from './fixtureTypes';
 const { describe, it } = require('mocha');
 const assert = require('assert');
 const minimalData = require('minimaldata');
 
-const fixtures = require('../ts_test/fixtures/script.json');
-const fixtures2 = require('../ts_test/fixtures/templates.json');
+const fixtures: FixtureScript = require('../ts_test/fixtures/script.json');
+const fixtures2: FixtureTemplates = require('../ts_test/fixtures/templates.json');
 
 describe('script', () => {
   // TODO
@@ -161,7 +162,7 @@ describe('script', () => {
       });
     });
 
-    function testEncodingForSize(i): void {
+    function testEncodingForSize(i: number): void {
       it('compliant for data PUSH of length ' + i, () => {
         const buffer = Buffer.alloc(i);
         const script = bscript.compile([buffer]);

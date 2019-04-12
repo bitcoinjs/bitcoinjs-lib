@@ -1,18 +1,19 @@
 import { script } from '..';
+import { FixtureSignature, FixtureSignatureRawSig } from './fixtureTypes';
 const { describe, it } = require('mocha');
 const assert = require('assert');
 const bscriptSig = script.signature;
-const fixtures = require('../ts_test/fixtures/signature.json');
+const fixtures: FixtureSignature = require('../ts_test/fixtures/signature.json');
 
 describe('Script Signatures', () => {
-  function fromRaw(signature): Buffer {
+  function fromRaw(signature: FixtureSignatureRawSig): Buffer {
     return Buffer.concat(
       [Buffer.from(signature.r, 'hex'), Buffer.from(signature.s, 'hex')],
       64,
     );
   }
 
-  function toRaw(signature): any {
+  function toRaw(signature: Buffer): FixtureSignatureRawSig {
     return {
       r: signature.slice(0, 32).toString('hex'),
       s: signature.slice(32, 64).toString('hex'),

@@ -7,22 +7,29 @@ import {
   Transaction,
   TransactionBuilder,
 } from '..';
+import {
+  FixtureTransactionBuilder,
+  FixtureTransactionBuilderValidBuild,
+} from './fixtureTypes';
 const { describe, it, beforeEach } = require('mocha');
 const assert = require('assert');
 
-const fixtures = require('../ts_test/fixtures/transaction_builder');
+const fixtures: FixtureTransactionBuilder = require('../ts_test/fixtures/transaction_builder');
 
-function constructSign(f, txb): TransactionBuilder {
+function constructSign(
+  f: FixtureTransactionBuilderValidBuild,
+  txb: TransactionBuilder,
+): TransactionBuilder {
   const network = NETWORKS[f.network];
-  const stages = f.stages && f.stages.concat();
+  const stages: string[] = f.stages && f.stages.concat();
 
   f.inputs.forEach((input, index) => {
     if (!input.signs) return;
     input.signs.forEach(sign => {
       const keyPair = ECPair.fromWIF(sign.keyPair, network);
-      let redeemScript;
-      let witnessScript;
-      let value;
+      let redeemScript: Buffer;
+      let witnessScript: Buffer;
+      let value: number;
 
       if (sign.redeemScript) {
         redeemScript = bscript.fromASM(sign.redeemScript);
@@ -56,7 +63,10 @@ function constructSign(f, txb): TransactionBuilder {
   return txb;
 }
 
-function construct(f, dontSign?): TransactionBuilder {
+function construct(
+  f: FixtureTransactionBuilderValidBuild,
+  dontSign?: boolean,
+): TransactionBuilder {
   const network = NETWORKS[f.network];
   const txb = new TransactionBuilder(network);
 
@@ -64,8 +74,8 @@ function construct(f, dontSign?): TransactionBuilder {
   if (Number.isFinite(f.version)) txb.setVersion(f.version);
   if (f.locktime !== undefined) txb.setLockTime(f.locktime);
 
-  f.inputs.forEach(input => {
-    let prevTx;
+  f.inputs.forEach((input: any) => {
+    let prevTx: Transaction;
     if (input.txRaw) {
       const constructed = construct(input.txRaw);
       if (input.txRaw.incomplete) prevTx = constructed.buildIncomplete();
@@ -76,7 +86,7 @@ function construct(f, dontSign?): TransactionBuilder {
       prevTx = input.txId;
     }
 
-    let prevTxScript;
+    let prevTxScript: Buffer;
     if (input.prevTxScript) {
       prevTxScript = bscript.fromASM(input.prevTxScript);
     }
@@ -84,7 +94,7 @@ function construct(f, dontSign?): TransactionBuilder {
     txb.addInput(prevTx, input.vout, input.sequence, prevTxScript);
   });
 
-  f.outputs.forEach(output => {
+  f.outputs.forEach((output: any) => {
     if (output.address) {
       txb.addOutput(output.address, output.value);
     } else {
@@ -197,10 +207,12 @@ describe('TransactionBuilder', () => {
       const txb = TransactionBuilder.fromTransaction(tx);
 
       // @ts-ignore
-      txb.__INPUTS.forEach(i => {
-        assert.strictEqual(i.prevOutType, 'scripthash');
-        assert.strictEqual(i.redeemScriptType, 'multisig');
-      });
+      txb.__INPUTS.forEach(
+        (i: { prevOutType?: string; redeemScriptType?: string }) => {
+          assert.strictEqual(i.prevOutType, 'scripthash');
+          assert.strictEqual(i.redeemScriptType, 'multisig');
+        },
+      );
     });
 
     fixtures.invalid.fromTransaction.forEach(f => {
@@ -215,7 +227,7 @@ describe('TransactionBuilder', () => {
   });
 
   describe('addInput', () => {
-    let txb;
+    let txb: TransactionBuilder;
     beforeEach(() => {
       txb = new TransactionBuilder();
     });
@@ -224,10 +236,12 @@ describe('TransactionBuilder', () => {
       const vin = txb.addInput(txHash, 1, 54);
       assert.strictEqual(vin, 0);
 
+      // @ts-ignore
       const txIn = txb.__TX.ins[0];
       assert.strictEqual(txIn.hash, txHash);
       assert.strictEqual(txIn.index, 1);
       assert.strictEqual(txIn.sequence, 54);
+      // @ts-ignore
       assert.strictEqual(txb.__INPUTS[0].prevOutScript, undefined);
     });
 
@@ -235,10 +249,12 @@ describe('TransactionBuilder', () => {
       const vin = txb.addInput(txHash, 1, 54, scripts[1]);
       assert.strictEqual(vin, 0);
 
+      // @ts-ignore
       const txIn = txb.__TX.ins[0];
       assert.strictEqual(txIn.hash, txHash);
       assert.strictEqual(txIn.index, 1);
       assert.strictEqual(txIn.sequence, 54);
+      // @ts-ignore
       assert.strictEqual(txb.__INPUTS[0].prevOutScript, scripts[1]);
     });
 
@@ -250,10 +266,12 @@ describe('TransactionBuilder', () => {
       const vin = txb.addInput(prevTx, 1, 54);
       assert.strictEqual(vin, 0);
 
+      // @ts-ignore
       const txIn = txb.__TX.ins[0];
       assert.deepStrictEqual(txIn.hash, prevTx.getHash());
       assert.strictEqual(txIn.index, 1);
       assert.strictEqual(txIn.sequence, 54);
+      // @ts-ignore
       assert.strictEqual(txb.__INPUTS[0].prevOutScript, scripts[1]);
     });
 
@@ -274,7 +292,7 @@ describe('TransactionBuilder', () => {
   });
 
   describe('addOutput', () => {
-    let txb;
+    let txb: TransactionBuilder;
     beforeEach(() => {
       txb = new TransactionBuilder();
     });
@@ -284,6 +302,7 @@ describe('TransactionBuilder', () => {
       const vout = txb.addOutput(address, 1000);
       assert.strictEqual(vout, 0);
 
+      // @ts-ignore
       const txout = txb.__TX.outs[0];
       assert.deepStrictEqual(txout.script, scripts[0]);
       assert.strictEqual(txout.value, 1000);
@@ -293,6 +312,7 @@ describe('TransactionBuilder', () => {
       const vout = txb.addOutput(scripts[0], 1000);
       assert.strictEqual(vout, 0);
 
+      // @ts-ignore
       const txout = txb.__TX.outs[0];
       assert.deepStrictEqual(txout.script, scripts[0]);
       assert.strictEqual(txout.value, 1000);
@@ -364,7 +384,7 @@ describe('TransactionBuilder', () => {
             return Buffer.alloc(32, 1);
           },
         }).publicKey,
-        sign: (hash): Buffer => {
+        sign: (): Buffer => {
           return Buffer.alloc(64, 0x5f);
         },
       };
@@ -402,8 +422,8 @@ describe('TransactionBuilder', () => {
             input.signs.forEach(sign => {
               const keyPairNetwork = NETWORKS[sign.network || f.network];
               const keyPair2 = ECPair.fromWIF(sign.keyPair, keyPairNetwork);
-              let redeemScript;
-              let witnessScript;
+              let redeemScript: Buffer;
+              let witnessScript: Buffer;
 
               if (sign.redeemScript) {
                 redeemScript = bscript.fromASM(sign.redeemScript);
@@ -459,7 +479,7 @@ describe('TransactionBuilder', () => {
       describe('for ' + (f.description || f.exception), () => {
         it('throws ' + f.exception, () => {
           assert.throws(() => {
-            let txb;
+            let txb: TransactionBuilder;
             if (f.txHex) {
               txb = TransactionBuilder.fromTransaction(
                 Transaction.fromHex(f.txHex),
@@ -476,7 +496,7 @@ describe('TransactionBuilder', () => {
         if (f.incomplete) {
           it('throws ' + f.exception, () => {
             assert.throws(() => {
-              let txb;
+              let txb: TransactionBuilder;
               if (f.txHex) {
                 txb = TransactionBuilder.fromTransaction(
                   Transaction.fromHex(f.txHex),
@@ -490,7 +510,7 @@ describe('TransactionBuilder', () => {
           });
         } else {
           it('does not throw if buildIncomplete', () => {
-            let txb;
+            let txb: TransactionBuilder;
             if (f.txHex) {
               txb = TransactionBuilder.fromTransaction(
                 Transaction.fromHex(f.txHex),
@@ -578,7 +598,7 @@ describe('TransactionBuilder', () => {
       it(f.description, () => {
         const network = NETWORKS[f.network];
         let txb = construct(f, true);
-        let tx;
+        let tx: Transaction;
 
         f.inputs.forEach((input, i) => {
           const redeemScript = bscript.fromASM(input.redeemScript);

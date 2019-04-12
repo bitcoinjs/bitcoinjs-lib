@@ -24,10 +24,13 @@ describe('ECPair', () => {
             keyPair = __1.ECPair.fromPrivateKey(ONE);
         });
         it('calls pointFromScalar lazily', hoodwink(() => {
+            // @ts-ignore
             assert.strictEqual(keyPair.__Q, undefined);
             // .publicKey forces the memoization
             assert.strictEqual(keyPair.publicKey.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798');
-            assert.strictEqual(keyPair.__Q.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798');
+            assert.strictEqual(
+            // @ts-ignore
+            keyPair.__Q.toString('hex'), '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798');
         }));
     });
     describe('fromPrivateKey', () => {
@@ -61,6 +64,7 @@ describe('ECPair', () => {
             it('throws ' + f.exception, () => {
                 const d = Buffer.from(f.d, 'hex');
                 assert.throws(() => {
+                    // @ts-ignore
                     __1.ECPair.fromPrivateKey(d, f.options);
                 }, new RegExp(f.exception));
             });
@@ -203,6 +207,7 @@ describe('ECPair', () => {
                 assert.strictEqual(keyPair.sign(hash), signature);
             }));
             it('throws if no private key is found', () => {
+                // @ts-ignore
                 delete keyPair.__D;
                 assert.throws(() => {
                     keyPair.sign(hash);

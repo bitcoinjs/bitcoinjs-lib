@@ -221,6 +221,7 @@ export type FixtureScriptNumber = [
 export interface FixtureScript {
   valid: Array<{
     asm: string;
+    type?: string;
     script: string;
     stack?: string[];
     nonstandard?: {
@@ -239,23 +240,21 @@ export interface FixtureScript {
     }>;
   };
 }
+export interface FixtureSignatureRawSig {
+  r: string;
+  s: string;
+}
 export interface FixtureSignature {
   valid: Array<{
     hex: string;
     hashType: number;
-    raw: {
-      r: string;
-      s: string;
-    };
+    raw: FixtureSignatureRawSig;
   }>;
   invalid: Array<{
     exception: string;
     hex: string;
     hashType?: number;
-    raw?: {
-      r: string;
-      s: string;
-    };
+    raw?: FixtureSignatureRawSig;
   }>;
 }
 export interface FixtureTemplateInput {
@@ -333,36 +332,43 @@ export interface FixtureTemplates {
     };
   };
 }
+export interface FixtureTransactionBuilderValidBuild {
+  description: string;
+  exception?: string;
+  txHex: string;
+  txHexAfter?: string;
+  version?: number | null;
+  locktime?: number;
+  network?: string;
+  incomplete?: boolean;
+  stages?: string[];
+  outputs: Array<{
+    script: string;
+    value: number;
+  }>;
+  inputs: Array<{
+    vout: number;
+    txHex?: string;
+    txId?: string;
+    sequence?: number;
+    scriptSig?: string;
+    scriptSigAfter?: string;
+    prevTxScript?: string;
+    signs: Array<{
+      keyPair: string;
+      throws?: boolean;
+      stage?: string;
+      value?: number;
+      witnessScript?: string;
+      redeemScript?: string;
+      network?: string;
+      hashType?: number;
+    }>;
+  }>;
+}
 export interface FixtureTransactionBuilder {
   valid: {
-    build: Array<{
-      description: string;
-      txHex: string;
-      version?: number | null;
-      locktime?: number;
-      network?: string;
-      incomplete?: boolean;
-      outputs: Array<{
-        script: string;
-        value: number;
-      }>;
-      inputs: Array<{
-        vout: number;
-        txHex?: string;
-        txId?: string;
-        sequence?: number;
-        prevTxScript?: string;
-        signs: Array<{
-          keyPair: string;
-          throws?: boolean;
-          value?: number;
-          witnessScript?: string;
-          redeemScript?: string;
-          network?: string;
-          hashType?: number;
-        }>;
-      }>;
-    }>;
+    build: FixtureTransactionBuilderValidBuild[];
     fromTransaction: Array<{
       description: string;
       network: string;
@@ -376,6 +382,8 @@ export interface FixtureTransactionBuilder {
         txHex?: string;
         txId?: string;
         prevTxScript?: string;
+        scriptSig?: string;
+        scriptSigAfter?: string;
         signs: Array<{
           keyPair: string;
           throws?: boolean;
@@ -387,23 +395,7 @@ export interface FixtureTransactionBuilder {
         }>;
       }>;
     }>;
-    fromTransactionSequential: Array<{
-      description: string;
-      network: string;
-      txHex: string;
-      txHexAfter: string;
-      version: number;
-      incomplete: boolean;
-      inputs: Array<{
-        vout: number;
-        scriptSig: string;
-        scriptSigAfter: string;
-        signs: Array<{
-          keyPair: string;
-          redeemScript?: string;
-        }>;
-      }>;
-    }>;
+    fromTransactionSequential: FixtureTransactionBuilderValidBuild[];
     classification: {
       hex: string;
     };
@@ -420,6 +412,7 @@ export interface FixtureTransactionBuilder {
         vout: number;
         txHex?: string;
         txId?: string;
+        redeemScript?: string;
         prevTxScript?: string;
         signs: Array<{
           keyPair: string;
@@ -427,6 +420,8 @@ export interface FixtureTransactionBuilder {
           value?: number;
           witnessScript?: string;
           redeemScript?: string;
+          scriptSigBefore?: string;
+          scriptSig?: string;
           network?: string;
           hashType?: number;
         }>;
@@ -434,56 +429,8 @@ export interface FixtureTransactionBuilder {
     }>;
   };
   invalid: {
-    build: Array<{
-      exception: string;
-      description?: string;
-      network?: string;
-      incomplete?: boolean;
-      txHex?: string;
-      outputs?: Array<{
-        script: string;
-        value: number;
-      }>;
-      inputs?: Array<{
-        vout: number;
-        txHex?: string;
-        txId?: string;
-        prevTxScript?: string;
-        signs: Array<{
-          keyPair: string;
-          throws?: boolean;
-          value?: number;
-          witnessScript?: string;
-          redeemScript?: string;
-          network?: string;
-          hashType?: number;
-        }>;
-      }>;
-    }>;
-    sign: Array<{
-      description?: string;
-      network?: string;
-      exception: string;
-      inputs: Array<{
-        vout: number;
-        txHex?: string;
-        txId?: string;
-        prevTxScript?: string;
-        signs: Array<{
-          keyPair: string;
-          throws?: boolean;
-          value?: number;
-          witnessScript?: string;
-          redeemScript?: string;
-          network?: string;
-          hashType?: number;
-        }>;
-      }>;
-      outputs: Array<{
-        script: string;
-        value: number;
-      }>;
-    }>;
+    build: FixtureTransactionBuilderValidBuild[];
+    sign: FixtureTransactionBuilderValidBuild[];
     fromTransaction: Array<{
       exception: string;
       txHex: string;

@@ -1,5 +1,6 @@
-import { ECPair } from '..';
+import { ECPair, ECPairInterface } from '..';
 import { networks as NETWORKS } from '..';
+import { FixtureECPair } from './fixtureTypes';
 const { describe, it, beforeEach } = require('mocha');
 const assert = require('assert');
 const proxyquire = require('proxyquire');
@@ -7,7 +8,7 @@ const hoodwink = require('hoodwink');
 
 const tinysecp = require('tiny-secp256k1');
 
-const fixtures = require('../ts_test/fixtures/ecpair.json');
+const fixtures: FixtureECPair = require('../ts_test/fixtures/ecpair.json');
 
 const NETWORKS_LIST = []; // Object.values(NETWORKS)
 for (const networkName in NETWORKS) {
@@ -30,7 +31,7 @@ const GROUP_ORDER_LESS_1 = Buffer.from(
 
 describe('ECPair', () => {
   describe('getPublicKey', () => {
-    let keyPair;
+    let keyPair: ECPairInterface;
 
     beforeEach(() => {
       keyPair = ECPair.fromPrivateKey(ONE);
@@ -39,6 +40,7 @@ describe('ECPair', () => {
     it(
       'calls pointFromScalar lazily',
       hoodwink(() => {
+        // @ts-ignore
         assert.strictEqual(keyPair.__Q, undefined);
 
         // .publicKey forces the memoization
@@ -47,6 +49,7 @@ describe('ECPair', () => {
           '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798',
         );
         assert.strictEqual(
+          // @ts-ignore
           keyPair.__Q.toString('hex'),
           '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798',
         );
@@ -93,7 +96,8 @@ describe('ECPair', () => {
       it('throws ' + f.exception, () => {
         const d = Buffer.from(f.d, 'hex');
         assert.throws(() => {
-          ECPair.fromPrivateKey(d, f.options);
+          // @ts-ignore
+          ECPair.fromPrivateKey(d, f.options as ECPairInterface);
         }, new RegExp(f.exception));
       });
     });
@@ -104,7 +108,7 @@ describe('ECPair', () => {
       it('throws ' + f.exception, () => {
         const Q = Buffer.from(f.Q, 'hex');
         assert.throws(() => {
-          ECPair.fromPublicKey(Q, f.options);
+          ECPair.fromPublicKey(Q, f.options as ECPairInterface);
         }, new RegExp(f.exception));
       });
     });
@@ -246,9 +250,9 @@ describe('ECPair', () => {
   });
 
   describe('tinysecp wrappers', () => {
-    let keyPair;
-    let hash;
-    let signature;
+    let keyPair: ECPairInterface;
+    let hash: Buffer;
+    let signature: Buffer;
 
     beforeEach(() => {
       keyPair = ECPair.makeRandom();
@@ -263,7 +267,7 @@ describe('ECPair', () => {
           this.mock(
             tinysecp,
             'sign',
-            (h, d) => {
+            (h: Buffer, d: Buffer) => {
               assert.strictEqual(h, hash);
               assert.strictEqual(d, keyPair.privateKey);
               return signature;
@@ -276,6 +280,7 @@ describe('ECPair', () => {
       );
 
       it('throws if no private key is found', () => {
+        // @ts-ignore
         delete keyPair.__D;
 
         assert.throws(() => {
@@ -291,7 +296,7 @@ describe('ECPair', () => {
           this.mock(
             tinysecp,
             'verify',
-            (h, q, s) => {
+            (h: Buffer, q: Buffer, s: Buffer) => {
               assert.strictEqual(h, hash);
               assert.strictEqual(q, keyPair.publicKey);
               assert.strictEqual(s, signature);

@@ -42,7 +42,7 @@ function construct(f, dontSign) {
         txb.setVersion(f.version);
     if (f.locktime !== undefined)
         txb.setLockTime(f.locktime);
-    f.inputs.forEach(input => {
+    f.inputs.forEach((input) => {
         let prevTx;
         if (input.txRaw) {
             const constructed = construct(input.txRaw);
@@ -63,7 +63,7 @@ function construct(f, dontSign) {
         }
         txb.addInput(prevTx, input.vout, input.sequence, prevTxScript);
     });
-    f.outputs.forEach(output => {
+    f.outputs.forEach((output) => {
         if (output.address) {
             txb.addOutput(output.address, output.value);
         }
@@ -137,7 +137,7 @@ describe('TransactionBuilder', () => {
             const tx = __1.Transaction.fromHex(fixtures.valid.classification.hex);
             const txb = __1.TransactionBuilder.fromTransaction(tx);
             // @ts-ignore
-            txb.__INPUTS.forEach(i => {
+            txb.__INPUTS.forEach((i) => {
                 assert.strictEqual(i.prevOutType, 'scripthash');
                 assert.strictEqual(i.redeemScriptType, 'multisig');
             });
@@ -159,19 +159,23 @@ describe('TransactionBuilder', () => {
         it('accepts a txHash, index [and sequence number]', () => {
             const vin = txb.addInput(txHash, 1, 54);
             assert.strictEqual(vin, 0);
+            // @ts-ignore
             const txIn = txb.__TX.ins[0];
             assert.strictEqual(txIn.hash, txHash);
             assert.strictEqual(txIn.index, 1);
             assert.strictEqual(txIn.sequence, 54);
+            // @ts-ignore
             assert.strictEqual(txb.__INPUTS[0].prevOutScript, undefined);
         });
         it('accepts a txHash, index [, sequence number and scriptPubKey]', () => {
             const vin = txb.addInput(txHash, 1, 54, scripts[1]);
             assert.strictEqual(vin, 0);
+            // @ts-ignore
             const txIn = txb.__TX.ins[0];
             assert.strictEqual(txIn.hash, txHash);
             assert.strictEqual(txIn.index, 1);
             assert.strictEqual(txIn.sequence, 54);
+            // @ts-ignore
             assert.strictEqual(txb.__INPUTS[0].prevOutScript, scripts[1]);
         });
         it('accepts a prevTx, index [and sequence number]', () => {
@@ -180,10 +184,12 @@ describe('TransactionBuilder', () => {
             prevTx.addOutput(scripts[1], 1);
             const vin = txb.addInput(prevTx, 1, 54);
             assert.strictEqual(vin, 0);
+            // @ts-ignore
             const txIn = txb.__TX.ins[0];
             assert.deepStrictEqual(txIn.hash, prevTx.getHash());
             assert.strictEqual(txIn.index, 1);
             assert.strictEqual(txIn.sequence, 54);
+            // @ts-ignore
             assert.strictEqual(txb.__INPUTS[0].prevOutScript, scripts[1]);
         });
         it('returns the input index', () => {
@@ -208,6 +214,7 @@ describe('TransactionBuilder', () => {
             const { address } = __1.payments.p2pkh({ pubkey: keyPair.publicKey });
             const vout = txb.addOutput(address, 1000);
             assert.strictEqual(vout, 0);
+            // @ts-ignore
             const txout = txb.__TX.outs[0];
             assert.deepStrictEqual(txout.script, scripts[0]);
             assert.strictEqual(txout.value, 1000);
@@ -215,6 +222,7 @@ describe('TransactionBuilder', () => {
         it('accepts a ScriptPubKey and value', () => {
             const vout = txb.addOutput(scripts[0], 1000);
             assert.strictEqual(vout, 0);
+            // @ts-ignore
             const txout = txb.__TX.outs[0];
             assert.deepStrictEqual(txout.script, scripts[0]);
             assert.strictEqual(txout.value, 1000);
@@ -276,7 +284,7 @@ describe('TransactionBuilder', () => {
                         return Buffer.alloc(32, 1);
                     },
                 }).publicKey,
-                sign: (hash) => {
+                sign: () => {
                     return Buffer.alloc(64, 0x5f);
                 },
             };

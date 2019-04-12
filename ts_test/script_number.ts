@@ -1,8 +1,9 @@
 import { script } from '..';
+import { FixtureScriptNumber } from './fixtureTypes';
 const { describe, it } = require('mocha');
 const assert = require('assert');
 const scriptNumber = script.number;
-const fixtures = require('../ts_test/fixtures/script_number.json');
+const fixtures: FixtureScriptNumber = require('../ts_test/fixtures/script_number.json');
 
 describe('script-number', () => {
   describe('decode', () => {

@@ -71,6 +71,7 @@ describe('Block', () => {
 
       it('exports ' + f.description, () => {
         assert.strictEqual(block.toHex(true), f.hex.slice(0, 160));
+        // @ts-ignore
         assert.strictEqual(block.toHex(), f.hex);
       });
     });
