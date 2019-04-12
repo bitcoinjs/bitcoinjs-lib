@@ -175,6 +175,7 @@ export interface FixtureECPair {
     }>;
   };
 }
+
 export interface FixtureEmbed {
   valid: Array<{
     description: string;
@@ -208,6 +209,44 @@ export interface FixtureEmbed {
       data: string[];
       output: string;
     }>;
+  };
+}
+export interface FixtureP2MSValid {
+  description: string;
+  m: number;
+  n: number;
+  output: string;
+  pubkeys: string[];
+  signatures: Array<string | number>;
+  input: string;
+  witness: string[];
+}
+export interface FixtureP2MS {
+  valid: Array<{
+    description: string;
+    options: {
+      allowIncomplete: boolean;
+    };
+    arguments: FixtureP2MSValid;
+    expected: FixtureP2MSValid;
+  }>;
+  invalid: Array<{
+    description: string;
+    exception: string;
+    options: {};
+    arguments: FixtureP2MSValid;
+  }>;
+  dynamic: {
+    depends: {
+      m: string[];
+      n: Array<string | string[]>;
+      output: Array<string | string[]>;
+      pubkeys: string[];
+      signatures: string[][];
+      input: string[][];
+      witness: string[][];
+    };
+    details: FixtureP2MSValid[];
   };
 }
 

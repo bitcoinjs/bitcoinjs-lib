@@ -127,7 +127,7 @@ function preform(x) {
     if (x.pubkeys)
         x.pubkeys = x.pubkeys.map(fromHex);
     if (x.signatures)
-        x.signatures = x.signatures.map(y => {
+        x.signatures = x.signatures.map((y) => {
             // @ts-ignore
             return Number.isFinite(y) ? y : Buffer.from(y, 'hex');
         });
@@ -146,11 +146,11 @@ function preform(x) {
     return x;
 }
 function from(path, object, result) {
-    path = path.split('.');
+    const pathArray = path.split('.');
     result = result || {};
     let r = result;
-    path.forEach((k, i) => {
-        if (i < path.length - 1) {
+    pathArray.forEach((k, i) => {
+        if (i < pathArray.length - 1) {
             r[k] = r[k] || {};
             // recurse
             r = r[k];
