@@ -1,18 +1,26 @@
 import * as assert from 'assert';
 import { beforeEach, describe, it } from 'mocha';
 import { script as bscript } from '..';
-const fixtures = require('../ts_test/fixtures/transaction');
+import {
+  FixtureTransaction,
+  FixtureTransactionRaw,
+  FixtureTransactionValid,
+} from './fixtureTypes';
+const fixtures: FixtureTransaction = require('../ts_test/fixtures/transaction');
 import { Transaction } from '..';
 
 describe('Transaction', () => {
-  function fromRaw(raw, noWitness?): Transaction {
+  function fromRaw(
+    raw: FixtureTransactionRaw,
+    noWitness?: boolean,
+  ): Transaction {
     const tx = new Transaction();
     tx.version = raw.version;
     tx.locktime = raw.locktime;
 
     raw.ins.forEach((txIn, i) => {
       const txHash = Buffer.from(txIn.hash, 'hex');
-      let scriptSig;
+      let scriptSig: Buffer;
 
       if (txIn.data) {
         scriptSig = Buffer.from(txIn.data, 'hex');
@@ -32,7 +40,7 @@ describe('Transaction', () => {
     });
 
     raw.outs.forEach(txOut => {
-      let script;
+      let script: Buffer;
 
       if (txOut.data) {
         script = Buffer.from(txOut.data, 'hex');
@@ -47,7 +55,7 @@ describe('Transaction', () => {
   }
 
   describe('fromBuffer/fromHex', () => {
-    function importExport(f): void {
+    function importExport(f: FixtureTransactionValid): void {
       const id = f.id || f.hash;
       const txHex = f.hex || f.txHex;
 
@@ -154,7 +162,7 @@ describe('Transaction', () => {
   });
 
   describe('addInput', () => {
-    let prevTxHash;
+    let prevTxHash: Buffer;
     beforeEach(() => {
       prevTxHash = Buffer.from(
         'ffffffff00ffff000000000000000000000000000000000000000000101010ff',
@@ -199,8 +207,8 @@ describe('Transaction', () => {
 
   describe('clone', () => {
     fixtures.valid.forEach(f => {
-      let actual;
-      let expected;
+      let actual: Transaction;
+      let expected: Transaction;
 
       beforeEach(() => {
         expected = Transaction.fromHex(f.hex);
@@ -218,7 +226,7 @@ describe('Transaction', () => {
   });
 
   describe('getHash/getId', () => {
-    function verify(f): void {
+    function verify(f: FixtureTransactionValid): void {
       it('should return the id for ' + f.id + '(' + f.description + ')', () => {
         const tx = Transaction.fromHex(f.whex || f.hex);
 
@@ -231,7 +239,7 @@ describe('Transaction', () => {
   });
 
   describe('isCoinbase', () => {
-    function verify(f): void {
+    function verify(f: FixtureTransactionValid): void {
       it(
         'should return ' +
           f.coinbase +
@@ -268,7 +276,7 @@ describe('Transaction', () => {
       // @ts-ignore
       const original = tx.__toBuffer;
       // @ts-ignore
-      tx.__toBuffer = (a, b, c): Buffer => {
+      tx.__toBuffer = (a?: Buffer, b?: number, c?: boolean): Buffer => {
         if (c !== false) throw new Error('hashForSignature MUST pass false');
 
         return original.call(this, a, b, c);

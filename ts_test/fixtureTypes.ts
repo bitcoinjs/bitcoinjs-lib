@@ -437,5 +437,54 @@ export interface FixtureTransactionBuilder {
     }>;
   };
 }
+export interface FixtureTransactionRaw {
+  version: number;
+  ins: Array<{
+    hash: string;
+    index: number;
+    data: string;
+    script: string;
+    sequence: number;
+    witness: string[];
+  }>;
+  outs: Array<{
+    script: string;
+    data: string;
+    value: number;
+  }>;
+  locktime: number;
+}
+export interface FixtureTransactionValid {
+  description: string;
+  id: string;
+  hash: string;
+  txHex: string;
+  script: string;
+  inIndex: number;
+  type: number;
+  value: number;
+  hex: string;
+  whex: string;
+  raw: FixtureTransactionRaw;
+  coinbase: boolean;
+  virtualSize: number;
+  weight: number;
+}
+export interface FixtureTransaction {
+  valid: FixtureTransactionValid[];
+  hashForSignature: FixtureTransactionValid[];
+  hashForWitnessV0: FixtureTransactionValid[];
+  invalid: {
+    addInput: Array<{
+      exception: string;
+      hash: string;
+      index: number;
+    }>;
+    fromBuffer: Array<{
+      exception: string;
+      hex: string;
+    }>;
+  };
+}
 
 // aa
