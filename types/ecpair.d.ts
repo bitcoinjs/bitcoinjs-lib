@@ -11,7 +11,7 @@ export interface ECPairInterface {
     privateKey?: Buffer;
     publicKey?: Buffer;
     toWIF(): string;
-    sign(hash: Buffer): Buffer;
+    sign(hash: Buffer, lowR?: boolean): Buffer;
     verify(hash: Buffer, signature: Buffer): Buffer;
     getPublicKey?(): Buffer;
 }
