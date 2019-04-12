@@ -61,9 +61,23 @@ class ECPair implements ECPairInterface {
     return wif.encode(this.network.wif, this.__D, this.compressed);
   }
 
-  sign(hash: Buffer): Buffer {
+  sign(hash: Buffer, lowR: boolean = false): Buffer {
     if (!this.__D) throw new Error('Missing private key');
-    return ecc.sign(hash, this.__D);
+    if (lowR === false) {
+      return ecc.sign(hash, this.__D);
+    } else {
+      let sig = ecc.sign(hash, this.__D);
+      const extraData = Buffer.alloc(32, 0);
+      let counter = 0;
+      // if first try is lowR, skip the loop
+      // for second try and on, add extra entropy counting up
+      while (sig[0] > 0x7f) {
+        counter++;
+        extraData.writeUIntLE(counter, 0, 6);
+        sig = ecc.signWithEntropy(hash, this.__D, extraData);
+      }
+      return sig;
+    }
   }
 
   verify(hash: Buffer, signature: Buffer): Buffer {

@@ -24,7 +24,7 @@ declare class ECPair implements ECPairInterface {
     readonly privateKey: Buffer | undefined;
     readonly publicKey: Buffer | undefined;
     toWIF(): string;
-    sign(hash: Buffer): Buffer;
+    sign(hash: Buffer, lowR?: boolean): Buffer;
     verify(hash: Buffer, signature: Buffer): Buffer;
 }
 declare function fromPrivateKey(buffer: Buffer, options?: ECPairOptions): ECPair;
