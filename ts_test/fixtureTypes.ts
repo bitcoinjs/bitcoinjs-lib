@@ -258,6 +258,27 @@ export interface FixtureSignature {
     };
   }>;
 }
+export interface FixtureTemplateInput {
+  description?: string;
+  input?: string;
+  inputHex?: string;
+  output?: string;
+  signatures?: string[];
+  exception?: string;
+  type?: string;
+}
+export interface FixtureTemplateOutput {
+  exception?: string;
+  commitment?: string;
+  description?: string;
+  scriptPubKeyHex?: string;
+  outputHex?: string;
+  hash?: string;
+  m?: number;
+  output?: string;
+  pubKeys?: string[];
+  signatures?: string[];
+}
 export interface FixtureTemplates {
   valid: Array<{
     type: string;
@@ -283,83 +304,32 @@ export interface FixtureTemplates {
   }>;
   invalid: {
     pubKey: {
-      inputs: Array<{
-        description: string;
-        input: string;
-      }>;
-      outputs: Array<{
-        description: string;
-        outputHex?: string;
-        output?: string;
-      }>;
+      inputs: FixtureTemplateInput[];
+      outputs: FixtureTemplateOutput[];
     };
     pubKeyHash: {
-      inputs: Array<{
-        description: string;
-        input: string;
-      }>;
-      outputs: Array<{
-        description?: string;
-        outputHex?: string;
-        exception?: string;
-        hash?: string;
-      }>;
+      inputs: FixtureTemplateInput[];
+      outputs: FixtureTemplateOutput[];
     };
     scriptHash: {
-      inputs: Array<{
-        description: string;
-        input: string;
-      }>;
-      outputs: Array<{
-        description?: string;
-        outputHex?: string;
-        exception?: string;
-        hash?: string;
-      }>;
+      inputs: FixtureTemplateInput[];
+      outputs: FixtureTemplateOutput[];
     };
     multisig: {
-      inputs: Array<{
-        output: string;
-        signatures: string[];
-        exception?: string;
-        description?: string;
-        type?: string;
-      }>;
-      outputs: Array<{
-        description?: string;
-        output?: string;
-        exception?: string;
-        m?: number;
-        pubKeys?: string[];
-        signatures?: string[];
-      }>;
+      inputs: FixtureTemplateInput[];
+      outputs: FixtureTemplateOutput[];
     };
     witnessPubKeyHash: {
       inputs: [];
-      outputs: Array<{
-        description?: string;
-        outputHex?: string;
-        exception?: string;
-        hash?: string;
-      }>;
+      outputs: FixtureTemplateOutput[];
     };
     witnessScriptHash: {
       inputs: [];
-      outputs: Array<{
-        description?: string;
-        outputHex?: string;
-        exception?: string;
-        hash?: string;
-      }>;
+      outputs: FixtureTemplateOutput[];
     };
     witnessCommitment: {
       inputs: [];
-      outputs: Array<{
-        exception?: string;
-        commitment?: string;
-        description?: string;
-        scriptPubKeyHex?: string;
-      }>;
+      outputs: FixtureTemplateOutput[];
     };
   };
 }

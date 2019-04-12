@@ -91,7 +91,7 @@ describe('classify', () => {
             });
             if (!fixtures.invalid[name])
                 return;
-            fixtures.invalid[name].inputs.forEach(f => {
+            fixtures.invalid[name].inputs.forEach((f) => {
                 if (!f.input && !f.inputHex)
                     return;
                 it('returns false for ' +
@@ -128,7 +128,7 @@ describe('classify', () => {
             });
             if (!fixtures.invalid[name])
                 return;
-            fixtures.invalid[name].outputs.forEach(f => {
+            fixtures.invalid[name].outputs.forEach((f) => {
                 if (!f.output && !f.outputHex)
                     return;
                 it('returns false for ' +

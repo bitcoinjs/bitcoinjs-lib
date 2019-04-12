@@ -1,8 +1,9 @@
+import { FixtureBufferUtils } from './fixtureTypes';
 const { describe, it } = require('mocha');
 const assert = require('assert');
 const bufferutils = require('../src/bufferutils');
 
-const fixtures = require('../ts_test/fixtures/bufferutils.json');
+const fixtures: FixtureBufferUtils = require('../ts_test/fixtures/bufferutils.json');
 
 describe('bufferutils', () => {
   describe('readUInt64LE', () => {

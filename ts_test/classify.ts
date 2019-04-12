@@ -1,9 +1,14 @@
+import {
+  FixtureTemplateInput,
+  FixtureTemplateOutput,
+  FixtureTemplates,
+} from './fixtureTypes';
 const { describe, it } = require('mocha');
 const assert = require('assert');
 const bscript = require('../src/script');
 const classify = require('../src/classify');
 
-const fixtures = require('../ts_test/fixtures/templates.json');
+const fixtures: FixtureTemplates = require('../ts_test/fixtures/templates.json');
 
 const multisig = require('../src/templates/multisig');
 const nullData = require('../src/templates/nulldata');
@@ -104,7 +109,7 @@ describe('classify', () => {
 
       if (!fixtures.invalid[name]) return;
 
-      fixtures.invalid[name].inputs.forEach(f => {
+      fixtures.invalid[name].inputs.forEach((f: FixtureTemplateInput) => {
         if (!f.input && !f.inputHex) return;
 
         it(
@@ -114,7 +119,7 @@ describe('classify', () => {
             (f.input || f.inputHex) +
             ')',
           () => {
-            let input;
+            let input: Buffer;
 
             if (f.input) {
               input = bscript.fromASM(f.input);
@@ -153,7 +158,7 @@ describe('classify', () => {
 
       if (!fixtures.invalid[name]) return;
 
-      fixtures.invalid[name].outputs.forEach(f => {
+      fixtures.invalid[name].outputs.forEach((f: FixtureTemplateOutput) => {
         if (!f.output && !f.outputHex) return;
 
         it(
@@ -163,7 +168,7 @@ describe('classify', () => {
             (f.output || f.outputHex) +
             ')',
           () => {
-            let output;
+            let output: Buffer;
 
             if (f.output) {
               output = bscript.fromASM(f.output);

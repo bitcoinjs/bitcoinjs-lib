@@ -63,7 +63,7 @@ describe('Block', () => {
 
   describe('toBuffer/toHex', () => {
     fixtures.valid.forEach(f => {
-      let block;
+      let block: Block;
 
       beforeEach(() => {
         block = Block.fromHex(f.hex);
@@ -78,7 +78,7 @@ describe('Block', () => {
 
   describe('getHash/getId', () => {
     fixtures.valid.forEach(f => {
-      let block;
+      let block: Block;
 
       beforeEach(() => {
         block = Block.fromHex(f.hex);
@@ -93,7 +93,7 @@ describe('Block', () => {
 
   describe('getUTCDate', () => {
     fixtures.valid.forEach(f => {
-      let block;
+      let block: Block;
 
       beforeEach(() => {
         block = Block.fromHex(f.hex);
@@ -117,7 +117,7 @@ describe('Block', () => {
     fixtures.valid.forEach(f => {
       if (f.hex.length === 160) return;
 
-      let block;
+      let block: Block;
 
       beforeEach(() => {
         block = Block.fromHex(f.hex);
@@ -145,7 +145,7 @@ describe('Block', () => {
     fixtures.valid.forEach(f => {
       if (f.hex.length === 160) return;
 
-      let block;
+      let block: Block;
 
       beforeEach(() => {
         block = Block.fromHex(f.hex);
@@ -159,7 +159,7 @@ describe('Block', () => {
 
   describe('checkProofOfWork', () => {
     fixtures.valid.forEach(f => {
-      let block;
+      let block: Block;
 
       beforeEach(() => {
         block = Block.fromHex(f.hex);
