@@ -9,7 +9,9 @@ export declare class TransactionBuilder {
     private __PREV_TX_SET;
     private __INPUTS;
     private __TX;
+    private __USE_LOW_R;
     constructor(network?: Network, maximumFeeRate?: number);
+    setLowR(setting?: boolean): boolean;
     setLockTime(locktime: number): void;
     setVersion(version: number): void;
     addInput(txHash: Buffer | string | Transaction, vout: number, sequence?: number, prevOutScript?: Buffer): number;
