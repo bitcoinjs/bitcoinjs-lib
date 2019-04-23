@@ -12,7 +12,7 @@ export interface ECPairInterface {
     publicKey?: Buffer;
     toWIF(): string;
     sign(hash: Buffer): Buffer;
-    verify(hash: Buffer, signature: Buffer): Buffer;
+    verify(hash: Buffer, signature: Buffer): boolean;
     getPublicKey?(): Buffer;
 }
 declare class ECPair implements ECPairInterface {
@@ -25,7 +25,7 @@ declare class ECPair implements ECPairInterface {
     readonly publicKey: Buffer | undefined;
     toWIF(): string;
     sign(hash: Buffer): Buffer;
-    verify(hash: Buffer, signature: Buffer): Buffer;
+    verify(hash: Buffer, signature: Buffer): boolean;
 }
 declare function fromPrivateKey(buffer: Buffer, options?: ECPairOptions): ECPair;
 declare function fromPublicKey(buffer: Buffer, options?: ECPairOptions): ECPair;
