@@ -15,7 +15,8 @@
     "bitcoinjs"
   ],
   "scripts": {
-    "build": "tsc -p ./tsconfig.json",
+    "clean": "rimraf src",
+    "build": "npm run clean && tsc -p ./tsconfig.json",
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
     "coverage": "npm run build && npm run nobuild:coverage",
@@ -71,6 +72,7 @@
     "nyc": "^13.3.0",
     "prettier": "1.16.4",
     "proxyquire": "^2.0.1",
+    "rimraf": "^2.6.3",
     "tslint": "5.13.1",
     "typescript": "3.2.2"
   },
