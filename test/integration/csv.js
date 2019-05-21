@@ -18,7 +18,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
 
   const hashType = bitcoin.Transaction.SIGHASH_ALL
 
-  // IF MTP (from when confirmed) > seconds, aQ can redeem
+  // IF MTP (from when confirmed) > seconds, _alice can redeem
   function csvCheckSigOutput (_alice, _bob, sequence) {
     return bitcoin.script.fromASM(`
       OP_IF
@@ -34,9 +34,9 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
     `.trim().replace(/\s+/g, ' '))
   }
 
-  // 2 of 3 multisig of bQ, cQ, dQ,
-  // but after sequence1 time, aQ can allow the multisig to become 1 of 3.
-  // but after sequence2 time, aQ can sign for the output all by themself.
+  // 2 of 3 multisig of _bob, _charles, _dave,
+  // but after sequence1 time, _alice can allow the multisig to become 1 of 3.
+  // but after sequence2 time, _alice can sign for the output all by themself.
   // Ref: https://github.com/bitcoinbook/bitcoinbook/blob/f8b883dcd4e3d1b9adf40fed59b7e898fbd9241f/ch07.asciidoc#complex-script-example
   // Note: bitcoinjs-lib will not offer specific support for problems with
   //       advanced script usages such as below. Use at your own risk.
