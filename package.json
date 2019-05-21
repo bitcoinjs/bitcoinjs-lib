@@ -22,7 +22,7 @@
     "coverage": "npm run build && npm run nobuild:coverage",
     "format": "npm run prettier -- --write",
     "formatjs": "npm run prettierjs -- --write > /dev/null 2>&1",
-    "format:ci": "npm run prettier -- --check",
+    "format:ci": "npm run prettier -- --check && npm run prettierjs -- --check",
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "integration": "npm run build && npm run nobuild:integration",
     "lint": "tslint -p tsconfig.json -c tslint.json",
