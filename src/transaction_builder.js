@@ -29,6 +29,7 @@ class TransactionBuilder {
         this.__INPUTS = [];
         this.__TX = new transaction_1.Transaction();
         this.__TX.version = 2;
+        this.__USE_LOW_R = false;
     }
     static fromTransaction(transaction, network) {
         const txb = new TransactionBuilder(network);
@@ -52,6 +53,14 @@ class TransactionBuilder {
             fixMultisigOrder(input, transaction, i);
         });
         return txb;
+    }
+    setLowR(setting) {
+        typeforce(typeforce.maybe(typeforce.Boolean), setting);
+        if (setting === undefined) {
+            setting = true;
+        }
+        this.__USE_LOW_R = setting;
+        return setting;
     }
     setLockTime(locktime) {
         typeforce(types.UInt32, locktime);
@@ -159,7 +168,7 @@ class TransactionBuilder {
             if (ourPubKey.length !== 33 && input.hasWitness) {
                 throw new Error('BIP143 rejects uncompressed public keys in P2WPKH or P2WSH');
             }
-            const signature = keyPair.sign(signatureHash);
+            const signature = keyPair.sign(signatureHash, this.__USE_LOW_R);
             input.signatures[i] = bscript.signature.encode(signature, hashType);
             return true;
         });

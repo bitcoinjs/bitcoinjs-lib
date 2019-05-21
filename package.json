@@ -45,7 +45,7 @@
   "dependencies": {
     "@types/node": "10.12.18",
     "bech32": "^1.1.2",
-    "bip32": "^2.0.0",
+    "bip32": "^2.0.3",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "bs58check": "^2.0.0",
@@ -69,11 +69,11 @@
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^5.2.0",
-    "nyc": "^13.3.0",
+    "nyc": "^14.1.1",
     "prettier": "1.16.4",
     "proxyquire": "^2.0.1",
     "rimraf": "^2.6.3",
-    "tslint": "5.13.1",
+    "tslint": "^5.16.0",
     "typescript": "3.2.2"
   },
   "license": "MIT"
