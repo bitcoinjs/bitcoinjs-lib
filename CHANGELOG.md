@@ -1,3 +1,10 @@
+# 5.0.4
+__added__
+- low R value support for ECPair, bip32, and TransactionBuilder (default off) via `txb.setLowR()` (#1385)
+
+__fixed__
+- Fixed Various TypeScript types that have been pushed out since v5.0.0 (#1388)
+
 # 5.0.0
 __added__
 - TypeScript support (#1319)
