@@ -26,7 +26,7 @@ export interface ECPairInterface {
   publicKey?: Buffer;
   toWIF(): string;
   sign(hash: Buffer, lowR?: boolean): Buffer;
-  verify(hash: Buffer, signature: Buffer): Buffer;
+  verify(hash: Buffer, signature: Buffer): boolean;
   getPublicKey?(): Buffer;
 }
 
@@ -80,7 +80,7 @@ class ECPair implements ECPairInterface {
     }
   }
 
-  verify(hash: Buffer, signature: Buffer): Buffer {
+  verify(hash: Buffer, signature: Buffer): boolean {
     return ecc.verify(hash, this.publicKey, signature);
   }
 }
