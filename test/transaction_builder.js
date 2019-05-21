@@ -338,6 +338,25 @@ describe('TransactionBuilder', () => {
       assert.strictEqual(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f02205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f0121031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078fffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
     })
 
+    it('supports low R signature signing', () => {
+      let txb = new TransactionBuilder()
+      txb.setVersion(1)
+      txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
+      txb.addOutput('1111111111111111111114oLvT2', 100000)
+      txb.sign(0, keyPair)
+      // high R
+      assert.strictEqual(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006b483045022100b872677f35c9c14ad9c41d83649fb049250f32574e0b2547d67e209ed14ff05d022059b36ad058be54e887a1a311d5c393cb4941f6b93a0b090845ec67094de8972b01210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
+
+      txb = new TransactionBuilder()
+      txb.setVersion(1)
+      txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
+      txb.addOutput('1111111111111111111114oLvT2', 100000)
+      txb.setLowR()
+      txb.sign(0, keyPair)
+      // low R
+      assert.strictEqual(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a473044022012a601efa8756ebe83e9ac7a7db061c3147e3b49d8be67685799fe51a4c8c62f02204d568d301d5ce14af390d566d4fd50e7b8ee48e71ec67786c029e721194dae3601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
+    })
+
     fixtures.invalid.sign.forEach(f => {
       it('throws ' + f.exception + (f.description ? ' (' + f.description + ')' : ''), () => {
         const txb = construct(f, true)
