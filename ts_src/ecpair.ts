@@ -22,8 +22,8 @@ interface ECPairOptions {
 export interface ECPairInterface {
   compressed: boolean;
   network: Network;
+  publicKey: Buffer;
   privateKey?: Buffer;
-  publicKey?: Buffer;
   toWIF(): string;
   sign(hash: Buffer): Buffer;
   verify(hash: Buffer, signature: Buffer): boolean;
@@ -51,8 +51,9 @@ class ECPair implements ECPairInterface {
     return this.__D;
   }
 
-  get publicKey(): Buffer | undefined {
-    if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__D, this.compressed);
+  get publicKey(): Buffer {
+    if (!this.__Q)
+      this.__Q = ecc.pointFromScalar(this.__D, this.compressed) as Buffer;
     return this.__Q;
   }
 
@@ -77,13 +78,13 @@ function fromPrivateKey(buffer: Buffer, options?: ECPairOptions): ECPair {
     throw new TypeError('Private key not in range [1, n)');
   typeforce(isOptions, options);
 
-  return new ECPair(buffer, undefined, options as ECPairOptions);
+  return new ECPair(buffer, undefined, options);
 }
 
 function fromPublicKey(buffer: Buffer, options?: ECPairOptions): ECPair {
   typeforce(ecc.isPoint, buffer);
   typeforce(isOptions, options);
-  return new ECPair(undefined, buffer, options as ECPairOptions);
+  return new ECPair(undefined, buffer, options);
 }
 
 function fromWIF(wifString: string, network?: Network | Network[]): ECPair {
