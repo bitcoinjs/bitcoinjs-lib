@@ -5,9 +5,10 @@
       "arguments": {
         "output": "030000000000000000000000000000000000000000000000000000000000000001 OP_CHECKSIG"
       },
+      "options": {},
       "expected": {
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
-        "signatures": null,
+        "signature": null,
         "input": null,
         "witness": null
       }
@@ -19,7 +20,7 @@
       },
       "expected": {
         "output": "030000000000000000000000000000000000000000000000000000000000000001 OP_CHECKSIG",
-        "signatures": null,
+        "signature": null,
         "input": null,
         "witness": null
       }
@@ -97,6 +98,7 @@
     },
     {
       "exception": "Pubkey mismatch",
+      "options": {},
       "arguments": {
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
         "output": "030000000000000000000000000000000000000000000000000000000000000002 OP_CHECKSIG"
@@ -115,6 +117,19 @@
       "arguments": {
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
         "input": "ffffffffffffffff"
+      }
+    },
+    {
+      "exception": "Input has invalid signature",
+      "arguments": {
+        "input": "30060201ff0201ff01"
+      }
+    },
+    {
+      "exception": "Signature mismatch",
+      "arguments": {
+        "signature": "300602010002010001",
+        "input": "300602010302010301"
       }
     }
   ],

@@ -1,3 +1,40 @@
+# 5.0.0
+__added__
+- TypeScript support (#1319)
+- `Block.prototype.checkTxRoots` will check the merkleRoot and witnessCommit if it exists against the transactions array. (e52abec) (0426c66)
+
+__changed__
+- `Transaction.prototype.getHash` now has `forWitness?: boolean` which when true returns the hash for wtxid (a652d04)
+- `Block.calculateMerkleRoot` now has `forWitness?: boolean` which when true returns the witness commit (a652d04)
+
+__removed__
+- `Block.prototype.checkMerkleRoot` was removed, please use `checkTxRoots` (0426c66)
+
+# 4.0.5
+__fixed__
+- Fixed bug where Angular apps break due to lack of crypto at build time. Reverted #1373 and added (6bead5d).
+
+# 4.0.4
+__fixed__
+- Fixed bug where Electron v4 breaks due to lack of `'rmd160'` alias for ripemd160 hash. (#1373)
+
+# 4.0.3
+__fixed__
+- Fixed `TransactionBuilder` to require that the Transaction has outputs before signing (#1151)
+- Fixed `payments.p2sh`, which now takes the network from the redeem attribute if one is not given in the object argument (#1232)
+- Fixed `Block.calculateTarget` to allow for exponents up to 29 (#1285)
+- Fixed some low priority rarely occurring bugs with multisig payments and `TransactionBuilder` multisig processing (#1307)
+
+__added__
+- Regtest network object to `networks` (#1261)
+
+# 4.0.2
+__fixed__
+- Fixed `TransactionBuilder` not throwing when payment type validation should fail (#1195)
+
+__removed__
+- Removed rogue `package.json` from `src/payments` (#1216)
+
 # 4.0.1
 __fixed__
 - Fixed `tiny-secp256k1` dependency version (used `ecurve`) (#1139)
@@ -12,10 +49,10 @@ __added__
 
 __changed__
 - `ECPair.prototype.sign` now returns a 64-byte signature `Buffer`, not an `ECSignature` object (#1084)
-- `ECPair` (and all ECDSA code) now uses [`tiny-secp256k1`](http://github.com/bitcoinjs/tiny-secp256k1), which uses the [`libsecp256k1` library](https://github.com/bitcoin-core/secp256k1) (#1070)
+- `ECPair` (and all ECDSA code) now uses [`tiny-secp256k1`](https://github.com/bitcoinjs/tiny-secp256k1), which uses the [`libsecp256k1` library](https://github.com/bitcoin-core/secp256k1) (#1070)
 - `TransactionBuilder` internal variables are now `__` prefixed to discourage public usage (#1038)
 - `TransactionBuilder` now defaults to version 2 transaction versions (#1036)
-- `script.decompile` now returns `Buffer` or `null`, if decompilation failed (#1039)
+- `script.decompile` now returns `[Buffer]` or `null`, if decompilation failed (#1039)
 
 __fixed__
 - Fixed `TransactionBuilder` rejecting uncompressed public keys to comply with BIP143 (#987)

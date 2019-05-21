@@ -1,8 +1,9 @@
 {
   "name": "bitcoinjs-lib",
-  "version": "4.0.1",
+  "version": "5.0.3",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
+  "types": "./types/index.d.ts",
   "engines": {
     "node": ">=8.0.0"
   },
@@ -14,24 +15,39 @@
     "bitcoinjs"
   ],
   "scripts": {
-    "coverage-report": "nyc report --reporter=lcov",
-    "coverage-html": "nyc report --reporter=html",
-    "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
-    "integration": "mocha --timeout 50000 test/integration/",
-    "standard": "standard",
-    "test": "npm run standard && npm run coverage",
-    "unit": "mocha"
+    "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
+    "clean": "rimraf src",
+    "coverage-report": "npm run build && npm run nobuild:coverage-report",
+    "coverage-html": "npm run build && npm run nobuild:coverage-html",
+    "coverage": "npm run build && npm run nobuild:coverage",
+    "format": "npm run prettier -- --write",
+    "formatjs": "npm run prettierjs -- --write > /dev/null 2>&1",
+    "format:ci": "npm run prettier -- --check && npm run prettierjs -- --check",
+    "gitdiff:ci": "npm run build && git diff --exit-code",
+    "integration": "npm run build && npm run nobuild:integration",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "nobuild:coverage-report": "nyc report --reporter=lcov",
+    "nobuild:coverage-html": "nyc report --reporter=html",
+    "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 --lines 90 mocha",
+    "nobuild:integration": "mocha --timeout 50000 test/integration/",
+    "nobuild:unit": "mocha",
+    "prettier": "prettier 'ts_src/**/*.ts' --ignore-path ./.prettierignore",
+    "prettierjs": "prettier 'src/**/*.js' --ignore-path ./.prettierignore",
+    "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
+    "unit": "npm run build && npm run nobuild:unit"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
   "files": [
-    "src"
+    "src",
+    "types"
   ],
   "dependencies": {
+    "@types/node": "10.12.18",
     "bech32": "^1.1.2",
-    "bip32": "^1.0.0",
+    "bip32": "^2.0.3",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "bs58check": "^2.0.0",
@@ -40,8 +56,7 @@
     "merkle-lib": "^2.0.10",
     "pushdata-bitcoin": "^1.0.1",
     "randombytes": "^2.0.1",
-    "safe-buffer": "^5.1.1",
-    "tiny-secp256k1": "^1.0.0",
+    "tiny-secp256k1": "^1.1.1",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.0.4",
     "wif": "^2.0.1"
@@ -52,13 +67,16 @@
     "bip68": "^1.0.3",
     "bn.js": "^4.11.8",
     "bs58": "^4.0.0",
-    "dhttp": "^2.5.0",
-    "hoodwink": "^1.0.0",
+    "dhttp": "^3.0.0",
+    "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^5.2.0",
-    "nyc": "^11.8.0",
+    "nyc": "^14.1.1",
+    "prettier": "1.16.4",
     "proxyquire": "^2.0.1",
-    "standard": "^11.0.1"
+    "rimraf": "^2.6.3",
+    "tslint": "^5.16.0",
+    "typescript": "3.2.2"
   },
   "license": "MIT"
 }

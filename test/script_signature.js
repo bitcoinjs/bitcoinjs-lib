@@ -1,11 +1,10 @@
-/* global describe, it */
-
+const { describe, it } = require('mocha')
 const assert = require('assert')
 const bscriptSig = require('../src/script').signature
 const Buffer = require('safe-buffer').Buffer
 const fixtures = require('./fixtures/signature.json')
 
-describe('Script Signatures', function () {
+describe('Script Signatures', () => {
   function fromRaw (signature) {
     return Buffer.concat([
       Buffer.from(signature.r, 'hex'),
@@ -20,43 +19,43 @@ describe('Script Signatures', function () {
     }
   }
 
-  describe('encode', function () {
-    fixtures.valid.forEach(function (f) {
-      it('encodes ' + f.hex, function () {
+  describe('encode', () => {
+    fixtures.valid.forEach(f => {
+      it('encodes ' + f.hex, () => {
         const buffer = bscriptSig.encode(fromRaw(f.raw), f.hashType)
 
         assert.strictEqual(buffer.toString('hex'), f.hex)
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
+    fixtures.invalid.forEach(f => {
       if (!f.raw) return
 
-      it('throws ' + f.exception, function () {
+      it('throws ' + f.exception, () => {
         const signature = fromRaw(f.raw)
 
-        assert.throws(function () {
+        assert.throws(() => {
           bscriptSig.encode(signature, f.hashType)
         }, new RegExp(f.exception))
       })
     })
   })
 
-  describe('decode', function () {
-    fixtures.valid.forEach(function (f) {
-      it('decodes ' + f.hex, function () {
+  describe('decode', () => {
+    fixtures.valid.forEach(f => {
+      it('decodes ' + f.hex, () => {
         const decode = bscriptSig.decode(Buffer.from(f.hex, 'hex'))
 
-        assert.deepEqual(toRaw(decode.signature), f.raw)
+        assert.deepStrictEqual(toRaw(decode.signature), f.raw)
         assert.strictEqual(decode.hashType, f.hashType)
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
-      it('throws on ' + f.hex, function () {
+    fixtures.invalid.forEach(f => {
+      it('throws on ' + f.hex, () => {
         const buffer = Buffer.from(f.hex, 'hex')
 
-        assert.throws(function () {
+        assert.throws(() => {
           bscriptSig.decode(buffer)
         }, new RegExp(f.exception))
       })

@@ -1,6 +1,6 @@
-let t = require('assert')
-let bscript = require('../src/script')
-let bnetworks = require('../src/networks')
+const t = require('assert')
+const bscript = require('../src/script')
+const BNETWORKS = require('../src/networks')
 
 function tryHex (x) {
   if (Buffer.isBuffer(x)) return x.toString('hex')
@@ -39,7 +39,7 @@ function carryOver (a, b) {
 function equateBase (a, b, context) {
   if ('output' in b) t.strictEqual(tryASM(a.output), tryASM(b.output), `Inequal ${context}output`)
   if ('input' in b) t.strictEqual(tryASM(a.input), tryASM(b.input), `Inequal ${context}input`)
-  if ('witness' in b) t.deepEqual(tryHex(a.witness), tryHex(b.witness), `Inequal ${context}witness`)
+  if ('witness' in b) t.deepStrictEqual(tryHex(a.witness), tryHex(b.witness), `Inequal ${context}witness`)
 }
 
 function equate (a, b, args) {
@@ -58,25 +58,26 @@ function equate (a, b, args) {
 
   equateBase(a, b, '')
   if (b.redeem) equateBase(a.redeem, b.redeem, 'redeem.')
-  if (b.network) t.deepEqual(a.network, b.network, 'Inequal *.network')
+  if (b.network) t.deepStrictEqual(a.network, BNETWORKS[b.network], 'Inequal *.network')
 
   // contextual
   if (b.signature === null) b.signature = undefined
+  if (b.signatures === null) b.signatures = undefined
   if ('address' in b) t.strictEqual(a.address, b.address, 'Inequal *.address')
   if ('hash' in b) t.strictEqual(tryHex(a.hash), tryHex(b.hash), 'Inequal *.hash')
   if ('pubkey' in b) t.strictEqual(tryHex(a.pubkey), tryHex(b.pubkey), 'Inequal *.pubkey')
   if ('signature' in b) t.strictEqual(tryHex(a.signature), tryHex(b.signature), 'Inequal signature')
   if ('m' in b) t.strictEqual(a.m, b.m, 'Inequal *.m')
   if ('n' in b) t.strictEqual(a.n, b.n, 'Inequal *.n')
-  if ('pubkeys' in b) t.deepEqual(tryHex(a.pubkeys), tryHex(b.pubkeys), 'Inequal *.pubkeys')
-  if ('signatures' in b) t.deepEqual(tryHex(a.signatures), tryHex(b.signatures), 'Inequal *.signatures')
-  if ('data' in b) t.deepEqual(tryHex(a.data), tryHex(b.data), 'Inequal *.data')
+  if ('pubkeys' in b) t.deepStrictEqual(tryHex(a.pubkeys), tryHex(b.pubkeys), 'Inequal *.pubkeys')
+  if ('signatures' in b) t.deepStrictEqual(tryHex(a.signatures), tryHex(b.signatures), 'Inequal *.signatures')
+  if ('data' in b) t.deepStrictEqual(tryHex(a.data), tryHex(b.data), 'Inequal *.data')
 }
 
 function preform (x) {
   x = Object.assign({}, x)
 
-  if (x.network) x.network = bnetworks[x.network]
+  if (x.network) x.network = BNETWORKS[x.network]
   if (typeof x.inputHex === 'string') {
     x.input = Buffer.from(x.inputHex, 'hex')
     delete x.inputHex
@@ -94,12 +95,13 @@ function preform (x) {
   if (x.pubkey) x.pubkey = Buffer.from(x.pubkey, 'hex')
   if (x.signature) x.signature = Buffer.from(x.signature, 'hex')
   if (x.pubkeys) x.pubkeys = x.pubkeys.map(fromHex)
-  if (x.signatures) x.signatures = x.signatures.map(function (y) { return Number.isFinite(y) ? y : Buffer.from(y, 'hex') })
+  if (x.signatures) x.signatures = x.signatures.map(y => { return Number.isFinite(y) ? y : Buffer.from(y, 'hex') })
   if (x.redeem) {
+    x.redeem = Object.assign({}, x.redeem)
     if (typeof x.redeem.input === 'string') x.redeem.input = asmToBuffer(x.redeem.input)
     if (typeof x.redeem.output === 'string') x.redeem.output = asmToBuffer(x.redeem.output)
     if (Array.isArray(x.redeem.witness)) x.redeem.witness = x.redeem.witness.map(fromHex)
-    if (x.redeem.network) x.redeem.network = bnetworks[x.redeem.network]
+    if (x.redeem.network) x.redeem.network = BNETWORKS[x.redeem.network]
   }
 
   return x

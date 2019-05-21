@@ -1,22 +1,27 @@
-/* global describe, it */
-
+const { describe, it } = require('mocha')
 const assert = require('assert')
 const u = require('./payments.utils')
 
-;['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(function (p) {
-  describe(p, function () {
-    const fn = require('../src/payments/' + p)
+;['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(p => {
+  describe(p, () => {
+    let fn
+    let payment = require('../src/payments/' + p)
+    if (p === 'embed') {
+      fn = payment.p2data
+    } else {
+      fn = payment[p]
+    }
     const fixtures = require('./fixtures/' + p)
 
-    fixtures.valid.forEach(function (f, i) {
-      it(f.description + ' as expected', function () {
+    fixtures.valid.forEach((f, i) => {
+      it(f.description + ' as expected', () => {
         const args = u.preform(f.arguments)
         const actual = fn(args, f.options)
 
         u.equate(actual, f.expected, f.arguments)
       })
 
-      it(f.description + ' as expected (no validation)', function () {
+      it(f.description + ' as expected (no validation)', () => {
         const args = u.preform(f.arguments)
         const actual = fn(args, Object.assign({}, f.options, {
           validate: false
@@ -26,11 +31,11 @@ const u = require('./payments.utils')
       })
     })
 
-    fixtures.invalid.forEach(function (f) {
-      it('throws ' + f.exception + (f.description ? ('for ' + f.description) : ''), function () {
+    fixtures.invalid.forEach(f => {
+      it('throws ' + f.exception + (f.description ? ('for ' + f.description) : ''), () => {
         const args = u.preform(f.arguments)
 
-        assert.throws(function () {
+        assert.throws(() => {
           fn(args, f.options)
         }, new RegExp(f.exception))
       })
@@ -40,23 +45,23 @@ const u = require('./payments.utils')
     if (!fixtures.dynamic) return
     const { depends, details } = fixtures.dynamic
 
-    details.forEach(function (f) {
+    details.forEach(f => {
       const detail = u.preform(f)
       const disabled = {}
-      if (f.disabled) f.disabled.forEach(function (k) { disabled[k] = true })
+      if (f.disabled) f.disabled.forEach(k => { disabled[k] = true })
 
       for (let key in depends) {
         if (key in disabled) continue
         const dependencies = depends[key]
 
-        dependencies.forEach(function (dependency) {
+        dependencies.forEach(dependency => {
           if (!Array.isArray(dependency)) dependency = [dependency]
 
           const args = {}
-          dependency.forEach(function (d) { u.from(d, detail, args) })
+          dependency.forEach(d => { u.from(d, detail, args) })
           const expected = u.from(key, detail)
 
-          it(f.description + ', ' + key + ' derives from ' + JSON.stringify(dependency), function () {
+          it(f.description + ', ' + key + ' derives from ' + JSON.stringify(dependency), () => {
             u.equate(fn(args), expected)
           })
         })
