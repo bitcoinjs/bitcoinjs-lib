@@ -19,17 +19,17 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   const hashType = bitcoin.Transaction.SIGHASH_ALL
 
   // IF MTP (from when confirmed) > seconds, aQ can redeem
-  function csvCheckSigOutput (aQ, bQ, sequence) {
+  function csvCheckSigOutput (_alice, _bob, sequence) {
     return bitcoin.script.fromASM(`
       OP_IF
           ${bitcoin.script.number.encode(sequence).toString('hex')}
           OP_CHECKSEQUENCEVERIFY
           OP_DROP
       OP_ELSE
-          ${bQ.publicKey.toString('hex')}
+          ${_bob.publicKey.toString('hex')}
           OP_CHECKSIGVERIFY
       OP_ENDIF
-      ${aQ.publicKey.toString('hex')}
+      ${_alice.publicKey.toString('hex')}
       OP_CHECKSIG
     `.trim().replace(/\s+/g, ' '))
   }
@@ -40,7 +40,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   // Ref: https://github.com/bitcoinbook/bitcoinbook/blob/f8b883dcd4e3d1b9adf40fed59b7e898fbd9241f/ch07.asciidoc#complex-script-example
   // Note: bitcoinjs-lib will not offer specific support for problems with
   //       advanced script usages such as below. Use at your own risk.
-  function complexCsvOutput (aQ, bQ, cQ, dQ, sequence1, sequence2) {
+  function complexCsvOutput (_alice, _bob, _charles, _dave, sequence1, sequence2) {
     return bitcoin.script.fromASM(`
       OP_IF
           OP_IF
@@ -49,20 +49,20 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
               ${bitcoin.script.number.encode(sequence1).toString('hex')}
               OP_CHECKSEQUENCEVERIFY
               OP_DROP
-              ${aQ.publicKey.toString('hex')}
+              ${_alice.publicKey.toString('hex')}
               OP_CHECKSIGVERIFY
               OP_1
           OP_ENDIF
-          ${bQ.publicKey.toString('hex')}
-          ${cQ.publicKey.toString('hex')}
-          ${dQ.publicKey.toString('hex')}
+          ${_bob.publicKey.toString('hex')}
+          ${_charles.publicKey.toString('hex')}
+          ${_dave.publicKey.toString('hex')}
           OP_3
           OP_CHECKMULTISIG
       OP_ELSE
           ${bitcoin.script.number.encode(sequence2).toString('hex')}
           OP_CHECKSEQUENCEVERIFY
           OP_DROP
-          ${aQ.publicKey.toString('hex')}
+          ${_alice.publicKey.toString('hex')}
           OP_CHECKSIG
       OP_ENDIF
     `.trim().replace(/\s+/g, ' '))
