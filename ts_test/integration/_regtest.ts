@@ -9,7 +9,7 @@ interface ECPairInterface {
   publicKey?: Buffer;
   toWIF(): string;
   sign(hash: Buffer): Buffer;
-  verify(hash: Buffer, signature: Buffer): Buffer;
+  verify(hash: Buffer, signature: Buffer): boolean;
   getPublicKey?(): Buffer;
 }
 

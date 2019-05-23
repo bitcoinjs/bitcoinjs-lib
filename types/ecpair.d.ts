@@ -8,11 +8,11 @@ interface ECPairOptions {
 export interface ECPairInterface {
     compressed: boolean;
     network: Network;
+    publicKey: Buffer;
     privateKey?: Buffer;
-    publicKey?: Buffer;
     toWIF(): string;
-    sign(hash: Buffer): Buffer;
-    verify(hash: Buffer, signature: Buffer): Buffer;
+    sign(hash: Buffer, lowR?: boolean): Buffer;
+    verify(hash: Buffer, signature: Buffer): boolean;
     getPublicKey?(): Buffer;
 }
 declare class ECPair implements ECPairInterface {
@@ -22,10 +22,10 @@ declare class ECPair implements ECPairInterface {
     network: Network;
     constructor(__D?: Buffer | undefined, __Q?: Buffer | undefined, options?: ECPairOptions);
     readonly privateKey: Buffer | undefined;
-    readonly publicKey: Buffer | undefined;
+    readonly publicKey: Buffer;
     toWIF(): string;
-    sign(hash: Buffer): Buffer;
-    verify(hash: Buffer, signature: Buffer): Buffer;
+    sign(hash: Buffer, lowR?: boolean): Buffer;
+    verify(hash: Buffer, signature: Buffer): boolean;
 }
 declare function fromPrivateKey(buffer: Buffer, options?: ECPairOptions): ECPair;
 declare function fromPublicKey(buffer: Buffer, options?: ECPairOptions): ECPair;

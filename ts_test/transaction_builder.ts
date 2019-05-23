@@ -409,6 +409,49 @@ describe('TransactionBuilder', () => {
       );
     });
 
+    it('supports low R signature signing', () => {
+      let txb = new TransactionBuilder();
+      txb.setVersion(1);
+      txb.addInput(
+        'fffffffffffffffffffffffffffffffffffffffffffffffffffffffff' + 'fffffff',
+        1,
+      );
+      txb.addOutput('1111111111111111111114oLvT2', 100000);
+      txb.sign(0, keyPair);
+      // high R
+      assert.strictEqual(
+        txb.build().toHex(),
+        '0100000001ffffffffffffffffffff' +
+          'ffffffffffffffffffffffffffffffffffffffffffff010000006b483045022100b8' +
+          '72677f35c9c14ad9c41d83649fb049250f32574e0b2547d67e209ed14ff05d022059' +
+          'b36ad058be54e887a1a311d5c393cb4941f6b93a0b090845ec67094de8972b012102' +
+          '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffff' +
+          'ffff01a0860100000000001976a91400000000000000000000000000000000000000' +
+          '0088ac00000000',
+      );
+
+      txb = new TransactionBuilder();
+      txb.setVersion(1);
+      txb.addInput(
+        'fffffffffffffffffffffffffffffffffffffffffffffffffffffffff' + 'fffffff',
+        1,
+      );
+      txb.addOutput('1111111111111111111114oLvT2', 100000);
+      txb.setLowR();
+      txb.sign(0, keyPair);
+      // low R
+      assert.strictEqual(
+        txb.build().toHex(),
+        '0100000001ffffffffffffffffffff' +
+          'ffffffffffffffffffffffffffffffffffffffffffff010000006a473044022012a6' +
+          '01efa8756ebe83e9ac7a7db061c3147e3b49d8be67685799fe51a4c8c62f02204d56' +
+          '8d301d5ce14af390d566d4fd50e7b8ee48e71ec67786c029e721194dae3601210279' +
+          'be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffff' +
+          'ff01a0860100000000001976a9140000000000000000000000000000000000000000' +
+          '88ac00000000',
+      );
+    });
+
     fixtures.invalid.sign.forEach(f => {
       it(
         'throws ' +

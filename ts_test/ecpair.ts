@@ -310,6 +310,38 @@ describe('ECPair', () => {
       );
     });
   });
+
+  describe('optional low R signing', () => {
+    const sig = Buffer.from(
+      '95a6619140fca3366f1d3b013b0367c4f86e39508a50fdce' +
+        'e5245fbb8bd60aa6086449e28cf15387cf9f85100bfd0838624ca96759e59f65c10a00' +
+        '16b86f5229',
+      'hex',
+    );
+    const sigLowR = Buffer.from(
+      '6a2660c226e8055afad317eeba918a304be79208d505' +
+        '3bc5ea4a5e4c5892b4a061c717c5284ae5202d721c0e49b4717b79966280906b1d3b52' +
+        '95d1fdde963c35',
+      'hex',
+    );
+    const lowRKeyPair = ECPair.fromWIF(
+      'L3nThUzbAwpUiBAjR5zCu66ybXSPMr2zZ3ikp' + 'ScpTPiYTxBynfZu',
+    );
+    const dataToSign = Buffer.from(
+      'b6c5c548a7f6164c8aa7af5350901626ebd69f9ae' + '2c1ecf8871f5088ec204cfe',
+      'hex',
+    );
+
+    it('signs with normal R by default', () => {
+      const signed = lowRKeyPair.sign(dataToSign);
+      assert.deepStrictEqual(sig, signed);
+    });
+
+    it('signs with low R when true is passed', () => {
+      const signed = lowRKeyPair.sign(dataToSign, true);
+      assert.deepStrictEqual(sigLowR, signed);
+    });
+  });
 });
 
 export {};

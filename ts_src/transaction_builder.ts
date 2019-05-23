@@ -94,6 +94,7 @@ export class TransactionBuilder {
   private __PREV_TX_SET: { [index: string]: boolean };
   private __INPUTS: TxbInput[];
   private __TX: Transaction;
+  private __USE_LOW_R: boolean;
 
   // WARNING: maximumFeeRate is __NOT__ to be relied on,
   //          it's just another potential safety mechanism (safety in-depth)
@@ -105,6 +106,16 @@ export class TransactionBuilder {
     this.__INPUTS = [];
     this.__TX = new Transaction();
     this.__TX.version = 2;
+    this.__USE_LOW_R = false;
+  }
+
+  setLowR(setting?: boolean): boolean {
+    typeforce(typeforce.maybe(typeforce.Boolean), setting);
+    if (setting === undefined) {
+      setting = true;
+    }
+    this.__USE_LOW_R = setting;
+    return setting;
   }
 
   setLockTime(locktime: number): void {
@@ -266,7 +277,7 @@ export class TransactionBuilder {
         );
       }
 
-      const signature = keyPair.sign(signatureHash);
+      const signature = keyPair.sign(signatureHash, this.__USE_LOW_R);
       input.signatures![i] = bscript.signature.encode(signature, hashType!);
       return true;
     });
