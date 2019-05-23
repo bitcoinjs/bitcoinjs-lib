@@ -51,7 +51,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   // 2 of 3 multisig of _bob, _charles, _dave,
   // but after sequence1 time, _alice can allow the multisig to become 1 of 3.
   // but after sequence2 time, _alice can sign for the output all by themself.
-  // Ref: https://github.com/bitcoinbook/bitcoinbook/blob/f8b883dcd4e3d1b9adf40fed59b7e898fbd9241f/ch07.asciidoc#complex-script-example
+  // Ref: https://github.com/bitcoinbook/bitcoinbook/blob/second_edition_print3_rc2/ch07.asciidoc#complex-script-example
   // Note: bitcoinjs-lib will not offer specific support for problems with
   //       advanced script usages such as below. Use at your own risk.
   function complexCsvOutput(
