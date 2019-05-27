@@ -14,7 +14,8 @@ export { Transaction } from './transaction';
 export { TransactionBuilder } from './transaction_builder';
 
 export { BIP32Interface } from 'bip32';
+export { ECPairInterface } from './ecpair';
 export { Network } from './networks';
-export { Payment, PaymentOpts } from './payments';
+export { Payment, PaymentOpts, Stack, StackElement } from './payments';
 export { OpCode } from './script';
 export { Input as TxInput, Output as TxOutput } from './transaction';
