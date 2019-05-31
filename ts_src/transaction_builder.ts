@@ -1,3 +1,4 @@
+import { extractTransaction } from 'bip174';
 import * as baddress from './address';
 import { reverseBuffer } from './bufferutils';
 import * as classify from './classify';
@@ -12,7 +13,6 @@ import * as bscript from './script';
 import { OPS as ops } from './script';
 import { Output, Transaction } from './transaction';
 import * as types from './types';
-const { extractTransaction } = require('bip174');
 const typeforce = require('typeforce');
 
 const SCRIPT_TYPES = classify.types;

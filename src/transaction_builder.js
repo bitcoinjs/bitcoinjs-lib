@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+const bip174_1 = require('bip174');
 const baddress = require('./address');
 const bufferutils_1 = require('./bufferutils');
 const classify = require('./classify');
@@ -11,7 +12,6 @@ const bscript = require('./script');
 const script_1 = require('./script');
 const transaction_1 = require('./transaction');
 const types = require('./types');
-const { extractTransaction } = require('bip174');
 const typeforce = require('typeforce');
 const SCRIPT_TYPES = classify.types;
 function txIsString(tx) {
@@ -56,7 +56,7 @@ class TransactionBuilder {
     return txb;
   }
   static fromPsbt(psbtBuffer, network) {
-    const { transaction } = extractTransaction({
+    const { transaction } = bip174_1.extractTransaction({
       psbt: psbtBuffer.toString('hex'),
     });
     const tx = transaction_1.Transaction.fromHex(transaction);
