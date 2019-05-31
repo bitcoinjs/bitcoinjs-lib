@@ -11,6 +11,7 @@ const bscript = require('./script');
 const script_1 = require('./script');
 const transaction_1 = require('./transaction');
 const types = require('./types');
+const { extractTransaction } = require('bip174');
 const typeforce = require('typeforce');
 const SCRIPT_TYPES = classify.types;
 function txIsString(tx) {
@@ -53,6 +54,13 @@ class TransactionBuilder {
       fixMultisigOrder(input, transaction, i);
     });
     return txb;
+  }
+  static fromPsbt(psbtBuffer, network) {
+    const { transaction } = extractTransaction({
+      psbt: psbtBuffer.toString('hex'),
+    });
+    const tx = transaction_1.Transaction.fromHex(transaction);
+    return TransactionBuilder.fromTransaction(tx, network);
   }
   setLowR(setting) {
     typeforce(typeforce.maybe(typeforce.Boolean), setting);

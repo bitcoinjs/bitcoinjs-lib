@@ -12,6 +12,7 @@ import * as bscript from './script';
 import { OPS as ops } from './script';
 import { Output, Transaction } from './transaction';
 import * as types from './types';
+const { extractTransaction } = require('bip174');
 const typeforce = require('typeforce');
 
 const SCRIPT_TYPES = classify.types;
@@ -89,6 +90,15 @@ export class TransactionBuilder {
     });
 
     return txb;
+  }
+
+  static fromPsbt(psbtBuffer: Buffer, network?: Network): TransactionBuilder {
+    const { transaction } = extractTransaction({
+      psbt: psbtBuffer.toString('hex'),
+    });
+    const tx = Transaction.fromHex(transaction);
+
+    return TransactionBuilder.fromTransaction(tx, network);
   }
 
   private __PREV_TX_SET: { [index: string]: boolean };
