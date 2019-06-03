@@ -56,10 +56,33 @@ class TransactionBuilder {
     return txb;
   }
   static fromPsbt(psbtBuffer, network) {
-    const { transaction } = bip174_1.extractTransaction({
+    const { unsigned_transaction, inputs } = bip174_1.decodePsbt({
       psbt: psbtBuffer.toString('hex'),
     });
-    const tx = transaction_1.Transaction.fromHex(transaction);
+    const tx = transaction_1.Transaction.fromHex(unsigned_transaction);
+    inputs.forEach((input, vin) => {
+      if (input.final_scriptsig) {
+        tx.setInputScript(vin, Buffer.from(input.final_scriptsig, 'hex'));
+      }
+      if (input.final_scriptwitness) {
+        const finalScriptWitness = Buffer.from(
+          input.final_scriptwitness,
+          'hex',
+        );
+        const witnessElements = script_1
+          .decompile(finalScriptWitness)
+          .map(chunk => {
+            if (!chunk) {
+              return Buffer.from([]);
+            }
+            if (Buffer.isBuffer(chunk)) {
+              return chunk;
+            }
+            return Buffer.from([chunk]);
+          });
+        tx.setWitness(vin, script_1.decompile(witnessElements));
+      }
+    });
     return TransactionBuilder.fromTransaction(tx, network);
   }
   setLowR(setting) {

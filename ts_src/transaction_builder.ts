@@ -1,4 +1,4 @@
-import { extractTransaction } from 'bip174';
+import { decodePsbt } from 'bip174';
 import * as baddress from './address';
 import { reverseBuffer } from './bufferutils';
 import * as classify from './classify';
@@ -10,7 +10,7 @@ import * as networks from './networks';
 import { Payment } from './payments';
 import * as payments from './payments';
 import * as bscript from './script';
-import { OPS as ops } from './script';
+import { decompile, OPS as ops } from './script';
 import { Output, Transaction } from './transaction';
 import * as types from './types';
 const typeforce = require('typeforce');
@@ -93,10 +93,40 @@ export class TransactionBuilder {
   }
 
   static fromPsbt(psbtBuffer: Buffer, network?: Network): TransactionBuilder {
-    const { transaction } = extractTransaction({
+    const { unsigned_transaction, inputs } = decodePsbt({
       psbt: psbtBuffer.toString('hex'),
     });
-    const tx = Transaction.fromHex(transaction);
+
+    const tx = Transaction.fromHex(unsigned_transaction!);
+
+    inputs.forEach((input, vin) => {
+      if (input.final_scriptsig) {
+        tx.setInputScript(vin, Buffer.from(input.final_scriptsig, 'hex'));
+      }
+
+      if (input.final_scriptwitness) {
+        const finalScriptWitness = Buffer.from(
+          input.final_scriptwitness,
+          'hex',
+        );
+
+        const witnessElements = (decompile(finalScriptWitness) as []).map(
+          chunk => {
+            if (!chunk) {
+              return Buffer.from([]);
+            }
+
+            if (Buffer.isBuffer(chunk)) {
+              return chunk;
+            }
+
+            return Buffer.from([chunk]);
+          },
+        );
+
+        tx.setWitness(vin, decompile(witnessElements) as []);
+      }
+    });
 
     return TransactionBuilder.fromTransaction(tx, network);
   }
