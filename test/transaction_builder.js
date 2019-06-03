@@ -181,6 +181,18 @@ describe('TransactionBuilder', () => {
     })
   })
 
+  describe('fromPsbt', () => {
+    fixtures.valid.fromPsbt.forEach(f => {
+      it('returns TransactionBuilder, with ' + f.description, () => {
+
+        const txb = TransactionBuilder.fromPsbt(f.psbt)
+        const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
+
+        assert.strictEqual(txAfter.toHex(), f.txHex)
+      })
+    })
+  })
+
   describe('addInput', () => {
     let txb
     beforeEach(() => {
