@@ -120,6 +120,17 @@ describe('Transaction', () => {
     })
   })
 
+  describe('toPsbt', () => {
+    fixtures.valid
+      .filter(f => f.psbt)
+      .forEach(f => {
+        it('exports ' + f.description + ' (' + f.id + ')', () => {
+          const actual = fromRaw(f.raw, true)
+          assert.strictEqual(actual.toPsbt(), f.psbt)
+        })
+      })
+  })
+
   describe('hasWitnesses', () => {
     fixtures.valid.forEach(f => {
       it('detects if the transaction has witnesses: ' + (f.whex ? 'true' : 'false'), () => {
