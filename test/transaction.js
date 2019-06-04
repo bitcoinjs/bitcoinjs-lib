@@ -3,6 +3,7 @@ const assert = require('assert')
 const bscript = require('../src/script')
 const fixtures = require('./fixtures/transaction')
 const Transaction = require('..').Transaction
+const TransactionBuilder = require('..').TransactionBuilder
 
 describe('Transaction', () => {
   function fromRaw (raw, noWitness) {
@@ -127,6 +128,14 @@ describe('Transaction', () => {
         it('exports ' + f.description + ' (' + f.id + ')', () => {
           const actual = fromRaw(f.raw, true)
           assert.strictEqual(actual.toPsbt(), f.psbt)
+        })
+
+        it('doesn\'t loose transaction data when cycling through toPsbt() => fromPsbt(), with: ' + f.description + ' (' + f.id + ')', () => {
+          const tx = fromRaw(f.raw, true)
+          const psbt = tx.toPsbt()
+          const txbFromPsbt = TransactionBuilder.fromPsbt(Buffer.from(psbt, 'hex'))
+          const txFromPsbt = f.incomplete ? txbFromPsbt.buildIncomplete() : txbFromPsbt.build()
+          assert.strictEqual(tx.toHex(), txFromPsbt.toHex())
         })
       })
   })
