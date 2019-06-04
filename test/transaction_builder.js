@@ -190,6 +190,12 @@ describe('TransactionBuilder', () => {
 
         assert.strictEqual(txAfter.toHex(), f.txHex)
       })
+
+      it('doesn\'t loose PSBT data when cycling through fromPsbt() => toPsbt(), with ' + f.description, () => {
+        const txb = TransactionBuilder.fromPsbt(f.psbt)
+        const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
+        assert.strictEqual(f.psbt, txAfter.toPsbt())
+      })
     })
   })
 
