@@ -128,6 +128,8 @@ export class TransactionBuilder {
       }
     });
 
+    // TODO: Store reference to imported PSBT so we we can merge metadata into the PSBT we export from toPsbt()
+
     return TransactionBuilder.fromTransaction(tx, network);
   }
 
