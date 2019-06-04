@@ -113,6 +113,9 @@ export class TransactionBuilder {
         const witnessElements = (decompile(finalScriptWitness) as []).map(
           chunk => {
             if (!chunk) {
+              // TODO: Check why/if this is needed.
+              // Do we really want to return <Buffer > instead of <Buffer 00> when `chunk` is 0/0x00/OP_0/OP_FALSE?
+              // Copied from https://github.com/bitcoinjs/bip174/blob/a00379750b41be799d822d060457a6580b7e41db/src/extract_transaction.js#L42
               return Buffer.from([]);
             }
 
