@@ -1,3 +1,4 @@
+import { createPsbt } from 'bip174';
 import * as bufferutils from './bufferutils';
 import { reverseBuffer } from './bufferutils';
 import * as bcrypto from './crypto';
@@ -5,6 +6,7 @@ import * as bscript from './script';
 import { OPS as opcodes } from './script';
 import * as types from './types';
 
+const reverse = require('buffer-reverse');
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
 
@@ -499,6 +501,35 @@ export class Transaction {
 
   toHex(): string {
     return this.toBuffer(undefined, undefined).toString('hex');
+  }
+
+  toPsbt(): string {
+    const outputs = this.outs.map(output => ({
+      script: output.script.toString('hex'),
+      tokens: (output as Output).value,
+    }));
+
+    const utxos = this.ins.map(input => ({
+      id: reverse(input.hash).toString('hex'),
+      vout: input.index,
+      sequence: input.sequence,
+    }));
+
+    const timelock = this.locktime;
+    const { version } = this;
+
+    const { psbt } = createPsbt({
+      outputs,
+      utxos,
+      timelock,
+      version,
+    });
+
+    // TODO: Add signature data to PSBT
+
+    // TODO: Merge with imported PSBT if exists so we don't lose data
+
+    return psbt;
   }
 
   setInputScript(index: number, scriptSig: Buffer): void {
