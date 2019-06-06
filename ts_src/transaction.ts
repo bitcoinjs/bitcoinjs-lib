@@ -503,7 +503,7 @@ export class Transaction {
     return this.toBuffer(undefined, undefined).toString('hex');
   }
 
-  toPsbt(): string {
+  toPsbtString(): string {
     const outputs = this.outs.map(output => ({
       script: output.script.toString('hex'),
       tokens: (output as Output).value,
@@ -529,7 +529,7 @@ export class Transaction {
 
     // TODO: Merge with imported PSBT if exists so we don't lose data
 
-    return psbt;
+    return Buffer.from(psbt, 'hex').toString('base64');
   }
 
   setInputScript(index: number, scriptSig: Buffer): void {

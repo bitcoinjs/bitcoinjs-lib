@@ -380,7 +380,7 @@ class Transaction {
   toHex() {
     return this.toBuffer(undefined, undefined).toString('hex');
   }
-  toPsbt() {
+  toPsbtString() {
     const outputs = this.outs.map(output => ({
       script: output.script.toString('hex'),
       tokens: output.value,
@@ -400,7 +400,7 @@ class Transaction {
     });
     // TODO: Add signature data to PSBT
     // TODO: Merge with imported PSBT if exists so we don't lose data
-    return psbt;
+    return Buffer.from(psbt, 'hex').toString('base64');
   }
   setInputScript(index, scriptSig) {
     typeforce(types.tuple(types.Number, types.Buffer), arguments);

@@ -6,7 +6,7 @@ export declare class TransactionBuilder {
     network: Network;
     maximumFeeRate: number;
     static fromTransaction(transaction: Transaction, network?: Network): TransactionBuilder;
-    static fromPsbt(psbtBuffer: Buffer, network?: Network): TransactionBuilder;
+    static fromPsbtString(psbtString: string, network?: Network): TransactionBuilder;
     private __PREV_TX_SET;
     private __INPUTS;
     private __TX;

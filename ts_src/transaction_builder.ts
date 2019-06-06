@@ -92,9 +92,12 @@ export class TransactionBuilder {
     return txb;
   }
 
-  static fromPsbt(psbtBuffer: Buffer, network?: Network): TransactionBuilder {
+  static fromPsbtString(
+    psbtString: string,
+    network?: Network,
+  ): TransactionBuilder {
     const { unsigned_transaction, inputs } = decodePsbt({
-      psbt: psbtBuffer.toString('hex'),
+      psbt: Buffer.from(psbtString, 'base64').toString('hex'),
     });
 
     const tx = Transaction.fromHex(unsigned_transaction!);
@@ -132,7 +135,7 @@ export class TransactionBuilder {
       }
     });
 
-    // TODO: Store reference to imported PSBT so we we can merge metadata into the PSBT we export from toPsbt()
+    // TODO: Store reference to imported PSBT so we we can merge metadata into the PSBT we export from toPsbtString()
 
     return TransactionBuilder.fromTransaction(tx, network);
   }

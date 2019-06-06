@@ -55,9 +55,9 @@ class TransactionBuilder {
     });
     return txb;
   }
-  static fromPsbt(psbtBuffer, network) {
+  static fromPsbtString(psbtString, network) {
     const { unsigned_transaction, inputs } = bip174_1.decodePsbt({
-      psbt: psbtBuffer.toString('hex'),
+      psbt: Buffer.from(psbtString, 'base64').toString('hex'),
     });
     const tx = transaction_1.Transaction.fromHex(unsigned_transaction);
     inputs.forEach((input, vin) => {
@@ -87,7 +87,7 @@ class TransactionBuilder {
         tx.setWitness(vin, script_1.decompile(witnessElements));
       }
     });
-    // TODO: Store reference to imported PSBT so we we can merge metadata into the PSBT we export from toPsbt()
+    // TODO: Store reference to imported PSBT so we we can merge metadata into the PSBT we export from toPsbtString()
     return TransactionBuilder.fromTransaction(tx, network);
   }
   setLowR(setting) {

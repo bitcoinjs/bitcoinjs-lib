@@ -121,21 +121,21 @@ describe('Transaction', () => {
     })
   })
 
-  describe('toPsbt', () => {
+  describe('toPsbtString', () => {
     fixtures.valid
       .filter(f => f.psbt)
       .forEach(f => {
         it('exports ' + f.description + ' (' + f.id + ')', () => {
           const actual = fromRaw(f.raw, true)
-          assert.strictEqual(actual.toPsbt(), f.psbt)
+          assert.strictEqual(actual.toPsbtString(), f.psbt)
         })
 
-        it('doesn\'t loose transaction data when cycling through toPsbt() => fromPsbt(), with: ' + f.description + ' (' + f.id + ')', () => {
+        it('doesn\'t loose transaction data when cycling through toPsbtString() => fromPsbtString(), with: ' + f.description + ' (' + f.id + ')', () => {
           const tx = fromRaw(f.raw, true)
-          const psbt = tx.toPsbt()
-          const txbFromPsbt = TransactionBuilder.fromPsbt(Buffer.from(psbt, 'hex'))
-          const txFromPsbt = f.incomplete ? txbFromPsbt.buildIncomplete() : txbFromPsbt.build()
-          assert.strictEqual(tx.toHex(), txFromPsbt.toHex())
+          const psbt = tx.toPsbtString()
+          const txbfromPsbtString = TransactionBuilder.fromPsbtString(psbt)
+          const txfromPsbtString = f.incomplete ? txbfromPsbtString.buildIncomplete() : txbfromPsbtString.build()
+          assert.strictEqual(tx.toHex(), txfromPsbtString.toHex())
         })
       })
   })
