@@ -198,6 +198,17 @@ describe('TransactionBuilderV2', () => {
     })
   })
 
+  describe('toPsbtString', () => {
+    fixtures.valid.toPsbtString.forEach(f => {
+      it('returns a PSBT string, with ' + f.description, () => {
+        const tx = Transaction.fromHex(f.txHex)
+        const txb = TransactionBuilderV2.fromTransaction(tx)
+
+        assert.strictEqual(txb.toPsbtString(), f.psbt)
+      })
+    })
+  })
+
   describe('addInput', () => {
     let txb
     beforeEach(() => {

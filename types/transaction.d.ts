@@ -52,7 +52,6 @@ export declare class Transaction {
     getId(): string;
     toBuffer(buffer?: Buffer, initialOffset?: number): Buffer;
     toHex(): string;
-    toPsbtString(): string;
     setInputScript(index: number, scriptSig: Buffer): void;
     setWitness(index: number, witness: Buffer[]): void;
     private __byteLength;

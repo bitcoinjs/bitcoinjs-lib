@@ -1526,6 +1526,14 @@
         "txHex": "0200000001279a2323a5dfb51fc45f220fa58b0fc13e1e3342792a85d7e36cd6333b5cbc390000000000ffffffff01a05aea0b000000001976a914ffe9c0061097cc3b636f2cb0460fa4fc427d2b4588ac00000000"
       }
     ],
+    "toPsbtString": [
+      {
+        "description": "Standard unsigned transaction (1:2)",
+        "incomplete": false,
+        "psbt": "cHNidP8BAHUCAAAAASaBcTce3/KF6Tet7qSze3gADAVmy7OtZGQXE8pCFxv2AAAAAAD+////AtPf9QUAAAAAGXapFNDFmQPFusKGh2DpD9UhpGZap2UgiKwA4fUFAAAAABepFDVF5uM7gyxHBQ8k0+65PJwDlIvHh7MuEwAAAAAA",
+        "txHex": "0200000001268171371edff285e937adeea4b37b78000c0566cbb3ad64641713ca42171bf60000000000feffffff02d3dff505000000001976a914d0c59903c5bac2868760e90fd521a4665aa7652088ac00e1f5050000000017a9143545e6e33b832c47050f24d3eeb93c9c03948bc787b32e1300"
+      }
+    ],
     "fromTransaction": [
       {
         "description": "Transaction w/ P2SH(P2MS 2/2) -> OP_RETURN | 1 OP_0 fixes to 2 OP_0, no signatures",

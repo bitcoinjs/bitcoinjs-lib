@@ -20,6 +20,7 @@ export declare class TransactionBuilderV2 {
     build(): Transaction;
     buildIncomplete(): Transaction;
     sign(vin: number, keyPair: ECPairInterface, redeemScript?: Buffer, hashType?: number, witnessValue?: number, witnessScript?: Buffer): void;
+    toPsbtString(): string;
     private __addInputUnsafe;
     private __build;
     private __canModifyInputs;

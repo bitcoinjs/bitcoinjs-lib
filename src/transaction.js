@@ -1,13 +1,11 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-const bip174_1 = require('bip174');
 const bufferutils = require('./bufferutils');
 const bufferutils_1 = require('./bufferutils');
 const bcrypto = require('./crypto');
 const bscript = require('./script');
 const script_1 = require('./script');
 const types = require('./types');
-const reverse = require('buffer-reverse');
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
 function varSliceSize(someScript) {
@@ -379,28 +377,6 @@ class Transaction {
   }
   toHex() {
     return this.toBuffer(undefined, undefined).toString('hex');
-  }
-  toPsbtString() {
-    const outputs = this.outs.map(output => ({
-      script: output.script.toString('hex'),
-      tokens: output.value,
-    }));
-    const utxos = this.ins.map(input => ({
-      id: reverse(input.hash).toString('hex'),
-      vout: input.index,
-      sequence: input.sequence,
-    }));
-    const timelock = this.locktime;
-    const { version } = this;
-    const { psbt } = bip174_1.createPsbt({
-      outputs,
-      utxos,
-      timelock,
-      version,
-    });
-    // TODO: Add signature data to PSBT
-    // TODO: Merge with imported PSBT if exists so we don't lose data
-    return Buffer.from(psbt, 'hex').toString('base64');
   }
   setInputScript(index, scriptSig) {
     typeforce(types.tuple(types.Number, types.Buffer), arguments);

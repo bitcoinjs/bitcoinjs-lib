@@ -121,25 +121,6 @@ describe('Transaction', () => {
     })
   })
 
-  describe('toPsbtString', () => {
-    fixtures.valid
-      .filter(f => f.psbt)
-      .forEach(f => {
-        it('exports ' + f.description + ' (' + f.id + ')', () => {
-          const actual = fromRaw(f.raw, true)
-          assert.strictEqual(actual.toPsbtString(), f.psbt)
-        })
-
-        it('doesn\'t loose transaction data when cycling through toPsbtString() => fromPsbtString(), with: ' + f.description + ' (' + f.id + ')', () => {
-          const tx = fromRaw(f.raw, true)
-          const psbt = tx.toPsbtString()
-          const txbfromPsbtString = TransactionBuilderV2.fromPsbtString(psbt)
-          const txfromPsbtString = f.incomplete ? txbfromPsbtString.buildIncomplete() : txbfromPsbtString.build()
-          assert.strictEqual(tx.toHex(), txfromPsbtString.toHex())
-        })
-      })
-  })
-
   describe('hasWitnesses', () => {
     fixtures.valid.forEach(f => {
       it('detects if the transaction has witnesses: ' + (f.whex ? 'true' : 'false'), () => {

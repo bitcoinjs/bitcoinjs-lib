@@ -12,6 +12,7 @@ const bscript = require('./script');
 const script_1 = require('./script');
 const transaction_1 = require('./transaction');
 const types = require('./types');
+const reverse = require('buffer-reverse');
 const typeforce = require('typeforce');
 const SCRIPT_TYPES = classify.types;
 function txIsString(tx) {
@@ -222,6 +223,28 @@ class TransactionBuilderV2 {
       return true;
     });
     if (!signed) throw new Error('Key pair cannot sign for this input');
+  }
+  toPsbtString() {
+    const outputs = this.__TX.outs.map(output => ({
+      script: output.script.toString('hex'),
+      tokens: output.value,
+    }));
+    const utxos = this.__TX.ins.map(input => ({
+      id: reverse(input.hash).toString('hex'),
+      vout: input.index,
+      sequence: input.sequence,
+    }));
+    const timelock = this.__TX.locktime;
+    const { version } = this.__TX;
+    const { psbt } = bip174_1.createPsbt({
+      outputs,
+      utxos,
+      timelock,
+      version,
+    });
+    // TODO: Add signature data to PSBT
+    // TODO: Merge with imported PSBT if exists so we don't lose data
+    return Buffer.from(psbt, 'hex').toString('base64');
   }
   __addInputUnsafe(txHash, vout, options) {
     if (transaction_1.Transaction.isCoinbaseHash(txHash)) {

@@ -1,4 +1,4 @@
-import { decodePsbt } from 'bip174';
+import { createPsbt, decodePsbt } from 'bip174';
 import * as baddress from './address';
 import { reverseBuffer } from './bufferutils';
 import * as classify from './classify';
@@ -13,6 +13,8 @@ import * as bscript from './script';
 import { decompile, OPS as ops } from './script';
 import { Output, Transaction } from './transaction';
 import * as types from './types';
+
+const reverse = require('buffer-reverse');
 const typeforce = require('typeforce');
 
 const SCRIPT_TYPES = classify.types;
@@ -332,6 +334,35 @@ export class TransactionBuilderV2 {
     });
 
     if (!signed) throw new Error('Key pair cannot sign for this input');
+  }
+
+  toPsbtString(): string {
+    const outputs = this.__TX.outs.map(output => ({
+      script: output.script.toString('hex'),
+      tokens: (output as Output).value,
+    }));
+
+    const utxos = this.__TX.ins.map(input => ({
+      id: reverse(input.hash).toString('hex'),
+      vout: input.index,
+      sequence: input.sequence,
+    }));
+
+    const timelock = this.__TX.locktime;
+    const { version } = this.__TX;
+
+    const { psbt } = createPsbt({
+      outputs,
+      utxos,
+      timelock,
+      version,
+    });
+
+    // TODO: Add signature data to PSBT
+
+    // TODO: Merge with imported PSBT if exists so we don't lose data
+
+    return Buffer.from(psbt, 'hex').toString('base64');
   }
 
   private __addInputUnsafe(
