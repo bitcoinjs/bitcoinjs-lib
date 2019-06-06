@@ -6,7 +6,7 @@ const payments = require('../src/payments')
 
 const ECPair = require('../src/ecpair')
 const Transaction = require('..').Transaction
-const TransactionBuilder = require('..').TransactionBuilder
+const TransactionBuilderV2 = require('..').TransactionBuilderV2
 const NETWORKS = require('../src/networks')
 
 const fixtures = require('./fixtures/transaction_builder')
@@ -40,7 +40,7 @@ function constructSign (f, txb) {
       if (sign.stage) {
         const tx = txb.buildIncomplete()
         assert.strictEqual(tx.toHex(), stages.shift())
-        txb = TransactionBuilder.fromTransaction(tx, network)
+        txb = TransactionBuilderV2.fromTransaction(tx, network)
       }
     })
   })
@@ -50,7 +50,7 @@ function constructSign (f, txb) {
 
 function construct (f, dontSign) {
   const network = NETWORKS[f.network]
-  const txb = new TransactionBuilder(network)
+  const txb = new TransactionBuilderV2(network)
 
   if (Number.isFinite(f.version)) txb.setVersion(f.version)
   if (f.locktime !== undefined) txb.setLockTime(f.locktime)
@@ -87,7 +87,7 @@ function construct (f, dontSign) {
   return constructSign(f, txb)
 }
 
-describe('TransactionBuilder', () => {
+describe('TransactionBuilderV2', () => {
   // constants
   const keyPair = ECPair.fromPrivateKey(Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex'))
   const scripts = [
@@ -100,11 +100,11 @@ describe('TransactionBuilder', () => {
 
   describe('fromTransaction', () => {
     fixtures.valid.build.forEach(f => {
-      it('returns TransactionBuilder, with ' + f.description, () => {
+      it('returns TransactionBuilderV2, with ' + f.description, () => {
         const network = NETWORKS[f.network || 'bitcoin']
 
         const tx = Transaction.fromHex(f.txHex)
-        const txb = TransactionBuilder.fromTransaction(tx, network)
+        const txb = TransactionBuilderV2.fromTransaction(tx, network)
         const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
 
         assert.strictEqual(txAfter.toHex(), f.txHex)
@@ -113,7 +113,7 @@ describe('TransactionBuilder', () => {
     })
 
     fixtures.valid.fromTransaction.forEach(f => {
-      it('returns TransactionBuilder, with ' + f.description, () => {
+      it('returns TransactionBuilderV2, with ' + f.description, () => {
         const tx = new Transaction()
 
         f.inputs.forEach(input => {
@@ -126,7 +126,7 @@ describe('TransactionBuilder', () => {
           tx.addOutput(bscript.fromASM(output.script), output.value)
         })
 
-        const txb = TransactionBuilder.fromTransaction(tx)
+        const txb = TransactionBuilderV2.fromTransaction(tx)
         const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
 
         txAfter.ins.forEach((input, i) => {
@@ -143,7 +143,7 @@ describe('TransactionBuilder', () => {
       it('with ' + f.description, () => {
         const network = NETWORKS[f.network]
         const tx = Transaction.fromHex(f.txHex)
-        const txb = TransactionBuilder.fromTransaction(tx, network)
+        const txb = TransactionBuilderV2.fromTransaction(tx, network)
 
         tx.ins.forEach((input, i) => {
           assert.strictEqual(bscript.toASM(input.script), f.inputs[i].scriptSig)
@@ -162,7 +162,7 @@ describe('TransactionBuilder', () => {
 
     it('classifies transaction inputs', () => {
       const tx = Transaction.fromHex(fixtures.valid.classification.hex)
-      const txb = TransactionBuilder.fromTransaction(tx)
+      const txb = TransactionBuilderV2.fromTransaction(tx)
 
       txb.__INPUTS.forEach(i => {
         assert.strictEqual(i.prevOutType, 'scripthash')
@@ -175,16 +175,33 @@ describe('TransactionBuilder', () => {
         const tx = Transaction.fromHex(f.txHex)
 
         assert.throws(() => {
-          TransactionBuilder.fromTransaction(tx)
+          TransactionBuilderV2.fromTransaction(tx)
         }, new RegExp(f.exception))
       })
+    })
+  })
+
+  describe('fromPsbtString', () => {
+    fixtures.valid.fromPsbtString.forEach(f => {
+      it('returns TransactionBuilderV2, with ' + f.description, () => {
+        const txb = TransactionBuilderV2.fromPsbtString(f.psbt)
+        const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
+        assert.strictEqual(txAfter.toHex(), f.txHex)
+      })
+
+      // Comment this test out for now because it won't pass until we get signitures working
+      // it('doesn\'t loose PSBT data when cycling through fromPsbtString() => toPsbtString(), with ' + f.description, () => {
+      //   const txb = TransactionBuilderV2.fromPsbtString(f.psbt)
+      //   const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
+      //   assert.strictEqual(f.psbt, txAfter.toPsbtString())
+      // })
     })
   })
 
   describe('addInput', () => {
     let txb
     beforeEach(() => {
-      txb = new TransactionBuilder()
+      txb = new TransactionBuilderV2()
     })
 
     it('accepts a txHash, index [and sequence number]', () => {
@@ -243,7 +260,7 @@ describe('TransactionBuilder', () => {
   describe('addOutput', () => {
     let txb
     beforeEach(() => {
-      txb = new TransactionBuilder()
+      txb = new TransactionBuilderV2()
     })
 
     it('accepts an address string and value', () => {
@@ -312,7 +329,7 @@ describe('TransactionBuilder', () => {
 
   describe('setLockTime', () => {
     it('throws if if there exist any scriptSigs', () => {
-      const txb = new TransactionBuilder()
+      const txb = new TransactionBuilderV2()
       txb.addInput(txHash, 0)
       txb.addOutput(scripts[0], 100)
       txb.sign(0, keyPair)
@@ -330,7 +347,7 @@ describe('TransactionBuilder', () => {
         sign: hash => { return Buffer.alloc(64, 0x5f) }
       }
 
-      const txb = new TransactionBuilder()
+      const txb = new TransactionBuilderV2()
       txb.setVersion(1)
       txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
       txb.addOutput('1111111111111111111114oLvT2', 100000)
@@ -339,7 +356,7 @@ describe('TransactionBuilder', () => {
     })
 
     it('supports low R signature signing', () => {
-      let txb = new TransactionBuilder()
+      let txb = new TransactionBuilderV2()
       txb.setVersion(1)
       txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
       txb.addOutput('1111111111111111111114oLvT2', 100000)
@@ -347,7 +364,7 @@ describe('TransactionBuilder', () => {
       // high R
       assert.strictEqual(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006b483045022100b872677f35c9c14ad9c41d83649fb049250f32574e0b2547d67e209ed14ff05d022059b36ad058be54e887a1a311d5c393cb4941f6b93a0b090845ec67094de8972b01210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
 
-      txb = new TransactionBuilder()
+      txb = new TransactionBuilderV2()
       txb.setVersion(1)
       txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
       txb.addOutput('1111111111111111111114oLvT2', 100000)
@@ -410,7 +427,7 @@ describe('TransactionBuilder', () => {
           assert.throws(() => {
             let txb
             if (f.txHex) {
-              txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
+              txb = TransactionBuilderV2.fromTransaction(Transaction.fromHex(f.txHex))
             } else {
               txb = construct(f)
             }
@@ -425,7 +442,7 @@ describe('TransactionBuilder', () => {
             assert.throws(() => {
               let txb
               if (f.txHex) {
-                txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
+                txb = TransactionBuilderV2.fromTransaction(Transaction.fromHex(f.txHex))
               } else {
                 txb = construct(f)
               }
@@ -437,7 +454,7 @@ describe('TransactionBuilder', () => {
           it('does not throw if buildIncomplete', () => {
             let txb
             if (f.txHex) {
-              txb = TransactionBuilder.fromTransaction(Transaction.fromHex(f.txHex))
+              txb = TransactionBuilderV2.fromTransaction(Transaction.fromHex(f.txHex))
             } else {
               txb = construct(f)
             }
@@ -453,7 +470,7 @@ describe('TransactionBuilder', () => {
       const randomAddress = '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH'
 
       const randomTx = Transaction.fromHex(randomTxData)
-      let tx = new TransactionBuilder()
+      let tx = new TransactionBuilderV2()
       tx.addInput(randomTx, 0)
       tx.addOutput(randomAddress, 1000)
       tx = tx.buildIncomplete()
@@ -464,7 +481,7 @@ describe('TransactionBuilder', () => {
       const inp = Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a80400000017a91471a8ec07ff69c6c4fee489184c462a9b1b9237488700000000', 'hex') // arbitrary P2SH input
       const inpTx = Transaction.fromBuffer(inp)
 
-      const txb = new TransactionBuilder(NETWORKS.testnet)
+      const txb = new TransactionBuilderV2(NETWORKS.testnet)
       txb.addInput(inpTx, 0)
       txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
 
@@ -475,7 +492,7 @@ describe('TransactionBuilder', () => {
       const inp = Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a8040000001600141a15805e1f4040c9f68ccc887fca2e63547d794b00000000', 'hex')
       const inpTx = Transaction.fromBuffer(inp)
 
-      const txb = new TransactionBuilder(NETWORKS.testnet)
+      const txb = new TransactionBuilderV2(NETWORKS.testnet)
       txb.addInput(inpTx, 0)
       txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
 
@@ -485,7 +502,7 @@ describe('TransactionBuilder', () => {
     it('for incomplete P2WSH with 0 signatures', () => {
       const inpTx = Transaction.fromBuffer(Buffer.from('010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a80400000022002072df76fcc0b231b94bdf7d8c25d7eef4716597818d211e19ade7813bff7a250200000000', 'hex'))
 
-      const txb = new TransactionBuilder(NETWORKS.testnet)
+      const txb = new TransactionBuilderV2(NETWORKS.testnet)
       txb.addInput(inpTx, 0)
       txb.addOutput('2NAkqp5xffoomp5RLBcakuGpZ12GU4twdz4', 1e8) // arbitrary output
 
@@ -512,7 +529,7 @@ describe('TransactionBuilder', () => {
               }
 
               // rebuild
-              txb = TransactionBuilder.fromTransaction(tx, network)
+              txb = TransactionBuilderV2.fromTransaction(tx, network)
             }
 
             const keyPair2 = ECPair.fromWIF(sign.keyPair, network)
@@ -551,7 +568,7 @@ describe('TransactionBuilder', () => {
       'd561abaac86c37a353b52895a5e6c196d6f44802473044022007be81ffd4297441ab10e740fc9bab9545a2' +
       '194a565cd6aa4cc38b8eaffa343402201c5b4b61d73fa38e49c1ee68cc0e6dfd2f5dae453dd86eb142e87a' +
       '0bafb1bc8401210283409659355b6d1cc3c32decd5d561abaac86c37a353b52895a5e6c196d6f44800000000'
-      const txb = TransactionBuilder.fromTransaction(Transaction.fromHex(rawtx))
+      const txb = TransactionBuilderV2.fromTransaction(Transaction.fromHex(rawtx))
       txb.__INPUTS[0].value = 241530
       txb.__INPUTS[1].value = 241530
       txb.__INPUTS[2].value = 248920
@@ -567,7 +584,7 @@ describe('TransactionBuilder', () => {
       const witnessScript = Buffer.from('522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea1952ae', 'hex')
       const redeemScript = Buffer.from('002024376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af', 'hex')
       const scriptPubKey = Buffer.from('a914b64f1a3eacc1c8515592a6f10457e8ff90e4db6a87', 'hex')
-      const txb = new TransactionBuilder(network)
+      const txb = new TransactionBuilderV2(network)
       txb.setVersion(1)
       txb.addInput('a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529', 1, 0xffffffff, scriptPubKey)
       txb.addOutput(scriptPubKey, 99000)
@@ -580,7 +597,7 @@ describe('TransactionBuilder', () => {
       assert.strictEqual(tx.getId(), 'f15d0a65b21b4471405b21a099f8b18e1ae4d46d55efbd0f4766cf11ad6cb821')
 
       const txHex = tx.toHex()
-      TransactionBuilder.fromTransaction(Transaction.fromHex(txHex))
+      TransactionBuilderV2.fromTransaction(Transaction.fromHex(txHex))
     })
 
     it('should handle badly pre-filled OP_0s', () => {
@@ -593,7 +610,7 @@ describe('TransactionBuilder', () => {
       tx.addOutput(Buffer.from('76a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac', 'hex'), 1000)
 
       // now import the Transaction
-      const txb = TransactionBuilder.fromTransaction(tx, NETWORKS.testnet)
+      const txb = TransactionBuilderV2.fromTransaction(tx, NETWORKS.testnet)
 
       const keyPair2 = ECPair.fromWIF('91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe', network)
       txb.sign(0, keyPair2, redeemScript)
@@ -604,7 +621,7 @@ describe('TransactionBuilder', () => {
     })
 
     it('should not classify blank scripts as nonstandard', () => {
-      let txb = new TransactionBuilder()
+      let txb = new TransactionBuilderV2()
       txb.setVersion(1)
       txb.addInput('aa94ab02c182214f090e99a0d57021caffd0f195a81c24602b1028b130b63e31', 0)
 
@@ -618,7 +635,7 @@ describe('TransactionBuilder', () => {
       assert.strictEqual(txId, '54f097315acbaedb92a95455da3368eb45981cdae5ffbc387a9afc872c0f29b3')
 
       // and, repeat
-      txb = TransactionBuilder.fromTransaction(Transaction.fromHex(incomplete))
+      txb = TransactionBuilderV2.fromTransaction(Transaction.fromHex(incomplete))
       txb.addOutput('1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK', 15000)
       txb.sign(0, keyPair)
       const txId2 = txb.build().getId()

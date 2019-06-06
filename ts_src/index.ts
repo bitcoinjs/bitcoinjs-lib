@@ -12,6 +12,7 @@ export { Block } from './block';
 export { OPS as opcodes } from './script';
 export { Transaction } from './transaction';
 export { TransactionBuilder } from './transaction_builder';
+export { TransactionBuilderV2 } from './transaction_builder_v2';
 
 export { BIP32Interface } from 'bip32';
 export { ECPairInterface } from './ecpair';

@@ -22,3 +22,5 @@ var transaction_1 = require('./transaction');
 exports.Transaction = transaction_1.Transaction;
 var transaction_builder_1 = require('./transaction_builder');
 exports.TransactionBuilder = transaction_builder_1.TransactionBuilder;
+var transaction_builder_v2_1 = require('./transaction_builder_v2');
+exports.TransactionBuilderV2 = transaction_builder_v2_1.TransactionBuilderV2;

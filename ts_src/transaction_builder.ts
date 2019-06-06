@@ -1,4 +1,3 @@
-import { decodePsbt } from 'bip174';
 import * as baddress from './address';
 import { reverseBuffer } from './bufferutils';
 import * as classify from './classify';
@@ -10,7 +9,7 @@ import * as networks from './networks';
 import { Payment } from './payments';
 import * as payments from './payments';
 import * as bscript from './script';
-import { decompile, OPS as ops } from './script';
+import { OPS as ops } from './script';
 import { Output, Transaction } from './transaction';
 import * as types from './types';
 const typeforce = require('typeforce');
@@ -90,54 +89,6 @@ export class TransactionBuilder {
     });
 
     return txb;
-  }
-
-  static fromPsbtString(
-    psbtString: string,
-    network?: Network,
-  ): TransactionBuilder {
-    const { unsigned_transaction, inputs } = decodePsbt({
-      psbt: Buffer.from(psbtString, 'base64').toString('hex'),
-    });
-
-    const tx = Transaction.fromHex(unsigned_transaction!);
-
-    inputs.forEach((input, vin) => {
-      if (input.final_scriptsig) {
-        tx.setInputScript(vin, Buffer.from(input.final_scriptsig, 'hex'));
-      }
-
-      if (input.final_scriptwitness) {
-        const finalScriptWitness = Buffer.from(
-          input.final_scriptwitness,
-          'hex',
-        );
-
-        const witnessElements = (decompile(finalScriptWitness) as []).map(
-          chunk => {
-            if (!chunk) {
-              // TODO: Check why/if this is needed.
-              // Do we really want to return <Buffer > instead of <Buffer 00> when `chunk` is 0/0x00/OP_0/OP_FALSE?
-              // tslint:disable-next-line:max-line-length
-              // Copied from: https://github.com/bitcoinjs/bip174/blob/a00379750b41be799d822d060457a6580b7e41db/src/extract_transaction.js#L42
-              return Buffer.from([]);
-            }
-
-            if (Buffer.isBuffer(chunk)) {
-              return chunk;
-            }
-
-            return Buffer.from([chunk]);
-          },
-        );
-
-        tx.setWitness(vin, decompile(witnessElements) as []);
-      }
-    });
-
-    // TODO: Store reference to imported PSBT so we we can merge metadata into the PSBT we export from toPsbtString()
-
-    return TransactionBuilder.fromTransaction(tx, network);
   }
 
   private __PREV_TX_SET: { [index: string]: boolean };

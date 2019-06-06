@@ -3,7 +3,7 @@ const assert = require('assert')
 const bscript = require('../src/script')
 const fixtures = require('./fixtures/transaction')
 const Transaction = require('..').Transaction
-const TransactionBuilder = require('..').TransactionBuilder
+const TransactionBuilderV2 = require('..').TransactionBuilderV2
 
 describe('Transaction', () => {
   function fromRaw (raw, noWitness) {
@@ -133,7 +133,7 @@ describe('Transaction', () => {
         it('doesn\'t loose transaction data when cycling through toPsbtString() => fromPsbtString(), with: ' + f.description + ' (' + f.id + ')', () => {
           const tx = fromRaw(f.raw, true)
           const psbt = tx.toPsbtString()
-          const txbfromPsbtString = TransactionBuilder.fromPsbtString(psbt)
+          const txbfromPsbtString = TransactionBuilderV2.fromPsbtString(psbt)
           const txfromPsbtString = f.incomplete ? txbfromPsbtString.buildIncomplete() : txbfromPsbtString.build()
           assert.strictEqual(tx.toHex(), txfromPsbtString.toHex())
         })
