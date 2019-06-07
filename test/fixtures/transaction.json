@@ -1,37 +1,6 @@
 {
   "valid": [
     {
-      "description": "Standard unsigned transaction (1:2)",
-      "incomplete": true,
-      "id": "af2cac1e0e33d896d9d0751d66fcb2fa54b737c7a13199281fb57e4f497bb652",
-      "hash": "52b67b494f7eb51f289931a1c737b754fab2fc661d75d0d996d8330e1eac2caf",
-      "hex": "0200000001268171371edff285e937adeea4b37b78000c0566cbb3ad64641713ca42171bf60000000000feffffff02d3dff505000000001976a914d0c59903c5bac2868760e90fd521a4665aa7652088ac00e1f5050000000017a9143545e6e33b832c47050f24d3eeb93c9c03948bc787b32e1300",
-      "raw": {
-        "version": 2,
-        "locktime": 1257139,
-        "ins": [
-          {
-            "hash": "268171371edff285e937adeea4b37b78000c0566cbb3ad64641713ca42171bf6",
-            "index": 0,
-            "sequence": 4294967294
-          }
-        ],
-        "outs":[
-          {
-            "value": 99999699,
-            "script": "OP_DUP OP_HASH160 d0c59903c5bac2868760e90fd521a4665aa76520 OP_EQUALVERIFY OP_CHECKSIG"
-          },
-          {
-            "value": 100000000,
-            "script": "OP_HASH160 3545e6e33b832c47050f24d3eeb93c9c03948bc7 OP_EQUAL"
-          }
-        ]
-      },
-      "coinbase": false,
-      "virtualSize": 117,
-      "weight": 468
-    },
-    {
       "description": "Standard transaction (1:1)",
       "id": "a0ff943d3f644d8832b1fa74be4d0ad2577615dc28a7ef74ff8c271b603a082a",
       "hash": "2a083a601b278cff74efa728dc157657d20a4dbe74fab132884d643f3d94ffa0",
