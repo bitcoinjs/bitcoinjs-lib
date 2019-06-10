@@ -18,7 +18,10 @@ export declare class TransactionBuilder {
     addOutput(scriptPubKey: string | Buffer, value: number): number;
     build(): Transaction;
     buildIncomplete(): Transaction;
+    createSignHash(vin: number, keyPair: ECPairInterface, redeemScript?: Buffer, hashType?: number, witnessValue?: number, witnessScript?: Buffer): Buffer;
+    attachSignature(vin: number, keyPair: ECPairInterface, signature: Buffer, hashType?: number): void;
     sign(vin: number, keyPair: ECPairInterface, redeemScript?: Buffer, hashType?: number, witnessValue?: number, witnessScript?: Buffer): void;
+    private __sign;
     private __addInputUnsafe;
     private __build;
     private __canModifyInputs;

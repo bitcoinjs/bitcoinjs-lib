@@ -118,7 +118,14 @@ class TransactionBuilder {
   buildIncomplete() {
     return this.__build(true);
   }
-  sign(vin, keyPair, redeemScript, hashType, witnessValue, witnessScript) {
+  createSignHash(
+    vin,
+    keyPair,
+    redeemScript,
+    hashType,
+    witnessValue,
+    witnessScript,
+  ) {
     // TODO: remove keyPair.network matching in 4.0.0
     if (keyPair.network && keyPair.network !== this.network)
       throw new TypeError('Inconsistent network');
@@ -171,6 +178,31 @@ class TransactionBuilder {
         hashType,
       );
     }
+    return signatureHash;
+  }
+  attachSignature(vin, keyPair, signature, hashType) {
+    hashType = hashType || transaction_1.Transaction.SIGHASH_ALL;
+    const signatureResolver = () => signature;
+    this.__sign(vin, keyPair, signatureResolver, hashType);
+  }
+  sign(vin, keyPair, redeemScript, hashType, witnessValue, witnessScript) {
+    hashType = hashType || transaction_1.Transaction.SIGHASH_ALL;
+    const hashToSign = this.createSignHash(
+      vin,
+      keyPair,
+      redeemScript,
+      hashType,
+      witnessValue,
+      witnessScript,
+    );
+    const signatureResolver = () => keyPair.sign(hashToSign, this.__USE_LOW_R);
+    this.__sign(vin, keyPair, signatureResolver, hashType);
+  }
+  __sign(vin, keyPair, signatureResolver, hashType) {
+    hashType = hashType || transaction_1.Transaction.SIGHASH_ALL;
+    if (!this.__INPUTS[vin]) throw new Error('No input at index: ' + vin);
+    const input = this.__INPUTS[vin];
+    const ourPubKey = keyPair.publicKey || keyPair.getPublicKey();
     // enforce in order signing of public keys
     const signed = input.pubkeys.some((pubKey, i) => {
       if (!ourPubKey.equals(pubKey)) return false;
@@ -181,8 +213,10 @@ class TransactionBuilder {
           'BIP143 rejects uncompressed public keys in P2WPKH or P2WSH',
         );
       }
-      const signature = keyPair.sign(signatureHash, this.__USE_LOW_R);
-      input.signatures[i] = bscript.signature.encode(signature, hashType);
+      input.signatures[i] = bscript.signature.encode(
+        signatureResolver(),
+        hashType,
+      );
       return true;
     });
     if (!signed) throw new Error('Key pair cannot sign for this input');
