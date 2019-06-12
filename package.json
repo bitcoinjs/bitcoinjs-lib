@@ -28,7 +28,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "nobuild:coverage-report": "nyc report --reporter=lcov",
     "nobuild:coverage-html": "nyc report --reporter=html",
-    "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 --lines 90 mocha",
+    "nobuild:coverage": "nyc --check-coverage --branches 85 --functions 90 --lines 90 mocha",
     "nobuild:integration": "mocha --timeout 50000 test/integration/",
     "nobuild:unit": "mocha",
     "prettier": "prettier 'ts_src/**/*.ts' --ignore-path ./.prettierignore",

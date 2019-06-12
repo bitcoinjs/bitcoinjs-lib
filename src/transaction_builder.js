@@ -13,6 +13,20 @@ const transaction_1 = require('./transaction');
 const types = require('./types');
 const typeforce = require('typeforce');
 const SCRIPT_TYPES = classify.types;
+const PREVOUT_TYPES = new Set([
+  // Raw
+  'p2pkh',
+  'p2pk',
+  'p2wpkh',
+  'p2ms',
+  // P2SH wrapped
+  'p2sh-p2wpkh',
+  'p2sh-p2ms',
+  // P2WSH wrapped
+  'p2wsh-p2ms',
+  // P2SH-P2WSH wrapper
+  'p2sh-p2wsh-p2ms',
+]);
 function txIsString(tx) {
   return typeof tx === 'string' || tx instanceof String;
 }
@@ -118,7 +132,103 @@ class TransactionBuilder {
   buildIncomplete() {
     return this.__build(true);
   }
-  sign(vin, keyPair, redeemScript, hashType, witnessValue, witnessScript) {
+  sign(
+    signParams,
+    keyPair,
+    redeemScript,
+    hashType,
+    witnessValue,
+    witnessScript,
+  ) {
+    let vin;
+    if (typeof signParams === 'number') {
+      console.warn(
+        'DEPRECATED: TransactionBuilder sign method arguments ' +
+          'will change in v6, please use the TxbSignArg interface',
+      );
+      vin = signParams;
+    } else if (typeof signParams === 'object') {
+      if (!PREVOUT_TYPES.has(signParams.prevOutScriptType)) {
+        throw new TypeError(
+          `Unknown prevOutScriptType "${signParams.prevOutScriptType}"`,
+        );
+      }
+      typeforce(typeforce.tuple(typeforce.Number, typeforce.Object), [
+        signParams.vin,
+        signParams.keyPair,
+      ]);
+      vin = signParams.vin;
+      keyPair = signParams.keyPair;
+      const prevOutType = (this.__INPUTS[vin] || []).prevOutType;
+      switch (signParams.prevOutScriptType) {
+        case 'p2pkh':
+          if (prevOutType !== 'pubkeyhash') {
+            throw new TypeError(`input #${vin} is not of type p2pkh`);
+          }
+          break;
+        case 'p2pk':
+          if (prevOutType !== 'pubkey') {
+            throw new TypeError(`input #${vin} is not of type p2pk`);
+          }
+          break;
+        case 'p2wpkh':
+          if (prevOutType !== 'witnesspubkeyhash') {
+            throw new TypeError(`input #${vin} is not of type p2wpkh`);
+          }
+          typeforce(typeforce.Buffer, signParams.witnessScript);
+          typeforce(typeforce.Satoshi, signParams.witnessValue);
+          witnessScript = signParams.witnessScript;
+          witnessValue = signParams.witnessValue;
+          break;
+        case 'p2ms':
+          if (prevOutType !== 'multisig') {
+            throw new TypeError(`input #${vin} is not of type p2ms`);
+          }
+          break;
+        case 'p2sh-p2wpkh':
+          if (prevOutType !== 'scripthash') {
+            throw new TypeError(`input #${vin} is not of type p2sh-p2wpkh`);
+          }
+          typeforce(typeforce.Buffer, signParams.witnessScript);
+          typeforce(typeforce.Buffer, signParams.redeemScript);
+          typeforce(typeforce.Satoshi, signParams.witnessValue);
+          witnessScript = signParams.witnessScript;
+          redeemScript = signParams.redeemScript;
+          witnessValue = signParams.witnessValue;
+          break;
+        case 'p2sh-p2ms':
+          if (prevOutType !== 'scripthash') {
+            throw new TypeError(`input #${vin} is not of type p2sh-p2ms`);
+          }
+          typeforce(typeforce.Buffer, signParams.redeemScript);
+          redeemScript = signParams.redeemScript;
+          break;
+        case 'p2wsh-p2ms':
+          if (prevOutType !== 'witnessscripthash') {
+            throw new TypeError(`input #${vin} is not of type p2wsh-p2ms`);
+          }
+          typeforce(typeforce.Buffer, signParams.witnessScript);
+          typeforce(typeforce.Satoshi, signParams.witnessValue);
+          witnessScript = signParams.witnessScript;
+          witnessValue = signParams.witnessValue;
+          break;
+        case 'p2sh-p2wsh-p2ms':
+          if (prevOutType !== 'scripthash') {
+            throw new TypeError(`input #${vin} is not of type p2sh-p2wsh-p2ms`);
+          }
+          typeforce(typeforce.Buffer, signParams.witnessScript);
+          typeforce(typeforce.Buffer, signParams.redeemScript);
+          typeforce(typeforce.Satoshi, signParams.witnessValue);
+          witnessScript = signParams.witnessScript;
+          redeemScript = signParams.redeemScript;
+          witnessValue = signParams.witnessValue;
+          break;
+      }
+    } else {
+      throw new TypeError(
+        'TransactionBuilder sign first arg must be TxbSignArg or number',
+      );
+    }
     // TODO: remove keyPair.network matching in 4.0.0
     if (keyPair.network && keyPair.network !== this.network)
       throw new TypeError('Inconsistent network');

@@ -2,6 +2,15 @@
 import { ECPairInterface } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
+interface TxbSignArg {
+    prevOutScriptType: string;
+    vin: number;
+    keyPair: ECPairInterface;
+    redeemScript?: Buffer;
+    hashType?: number;
+    witnessValue?: number;
+    witnessScript?: Buffer;
+}
 export declare class TransactionBuilder {
     network: Network;
     maximumFeeRate: number;
@@ -18,7 +27,7 @@ export declare class TransactionBuilder {
     addOutput(scriptPubKey: string | Buffer, value: number): number;
     build(): Transaction;
     buildIncomplete(): Transaction;
-    sign(vin: number, keyPair: ECPairInterface, redeemScript?: Buffer, hashType?: number, witnessValue?: number, witnessScript?: Buffer): void;
+    sign(signParams: number | TxbSignArg, keyPair: ECPairInterface, redeemScript?: Buffer, hashType?: number, witnessValue?: number, witnessScript?: Buffer): void;
     private __addInputUnsafe;
     private __build;
     private __canModifyInputs;
@@ -26,3 +35,4 @@ export declare class TransactionBuilder {
     private __canModifyOutputs;
     private __overMaximumFees;
 }
+export {};
