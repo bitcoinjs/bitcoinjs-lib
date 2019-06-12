@@ -139,6 +139,9 @@ class TransactionBuilderV2 {
       value,
     });
   }
+  get inputCount() {
+    return this.__INPUTS.length;
+  }
   addOutput(scriptPubKey, value) {
     if (!this.__canModifyOutputs()) {
       throw new Error('No, this would invalidate signatures');

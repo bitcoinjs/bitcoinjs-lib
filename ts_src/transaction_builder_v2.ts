@@ -226,6 +226,10 @@ export class TransactionBuilderV2 {
     });
   }
 
+  get inputCount(): number {
+    return this.__INPUTS.length;
+  }
+
   addOutput(scriptPubKey: string | Buffer, value: number): number {
     if (!this.__canModifyOutputs()) {
       throw new Error('No, this would invalidate signatures');
