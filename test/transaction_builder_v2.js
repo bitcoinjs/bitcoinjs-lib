@@ -209,6 +209,18 @@ describe('TransactionBuilderV2', () => {
     })
   })
 
+  describe('inputCount', () => {
+    fixtures.valid.inputCount.forEach(f => {
+      it('correctly counts the number of inputs, with ' + f.description, () => {
+        const txb = new TransactionBuilderV2()
+
+        f.inputs.forEach(({txId, vout}) => txb.addInput(txId, vout))
+
+        assert.strictEqual(txb.inputCount, f.inputCount)
+      })
+    })
+  })
+
   describe('addInput', () => {
     let txb
     beforeEach(() => {

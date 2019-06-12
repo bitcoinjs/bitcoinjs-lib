@@ -1535,6 +1535,37 @@
         "txHex": "0200000001268171371edff285e937adeea4b37b78000c0566cbb3ad64641713ca42171bf60000000000feffffff02d3dff505000000001976a914d0c59903c5bac2868760e90fd521a4665aa7652088ac00e1f5050000000017a9143545e6e33b832c47050f24d3eeb93c9c03948bc787b32e1300"
       }
     ],
+    "inputCount": [
+      {
+        "description": "Transaction Builder w/ no inputs",
+        "inputCount": 0,
+        "inputs": []
+      },
+      {
+        "description": "Transaction Builder w/ 1 input",
+        "inputCount": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0
+          }
+        ]
+      },
+      {
+        "description": "Transaction Builder w/ 2 inputs",
+        "inputCount": 2,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0
+          },
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 1
+          }
+        ]
+      }
+    ],
     "fromTransaction": [
       {
         "description": "Transaction w/ P2SH(P2MS 2/2) -> OP_RETURN | 1 OP_0 fixes to 2 OP_0, no signatures",
