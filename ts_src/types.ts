@@ -12,6 +12,14 @@ BIP32Path.toJSON = (): string => {
   return 'BIP32 derivation path';
 };
 
+export function Signer(obj: any): boolean {
+  return (
+    (typeforce.Buffer(obj.publicKey) ||
+      typeof obj.getPublicKey === 'function') &&
+    typeof obj.sign === 'function'
+  );
+}
+
 const SATOSHI_MAX: number = 21 * 1e14;
 export function Satoshi(value: number): boolean {
   return typeforce.UInt53(value) && value <= SATOSHI_MAX;

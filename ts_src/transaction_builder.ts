@@ -256,7 +256,7 @@ export class TransactionBuilder {
           `Unknown prevOutScriptType "${signParams.prevOutScriptType}"`,
         );
       }
-      typeforce(typeforce.tuple(typeforce.Number, typeforce.Object), [
+      typeforce(typeforce.tuple(typeforce.Number, types.Signer), [
         signParams.vin,
         signParams.keyPair,
       ]);
