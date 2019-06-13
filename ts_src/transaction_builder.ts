@@ -252,12 +252,14 @@ export class TransactionBuilder {
       vin = signParams;
     } else if (typeof signParams === 'object') {
       checkSignArgs(this, signParams);
-      vin = signParams.vin;
-      keyPair = signParams.keyPair;
-      redeemScript = signParams.redeemScript;
-      hashType = signParams.hashType;
-      witnessValue = signParams.witnessValue;
-      witnessScript = signParams.witnessScript;
+      ({
+        vin,
+        keyPair,
+        redeemScript,
+        hashType,
+        witnessValue,
+        witnessScript,
+      } = signParams);
     } else {
       throw new TypeError(
         'TransactionBuilder sign first arg must be TxbSignArg or number',
