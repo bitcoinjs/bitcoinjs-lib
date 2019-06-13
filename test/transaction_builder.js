@@ -21,21 +21,29 @@ function constructSign (f, txb) {
       const keyPair = ECPair.fromWIF(sign.keyPair, network)
       let redeemScript
       let witnessScript
-      let value
+      let witnessValue
 
       if (sign.redeemScript) {
         redeemScript = bscript.fromASM(sign.redeemScript)
       }
 
       if (sign.value) {
-        value = sign.value
+        witnessValue = sign.value
       }
 
       if (sign.witnessScript) {
         witnessScript = bscript.fromASM(sign.witnessScript)
       }
 
-      txb.sign(index, keyPair, redeemScript, sign.hashType, value, witnessScript)
+      txb.sign({
+        prevOutScriptType: sign.prevOutScriptType,
+        vin: index,
+        keyPair,
+        redeemScript,
+        hashType: sign.hashType,
+        witnessValue,
+        witnessScript,
+      })
 
       if (sign.stage) {
         const tx = txb.buildIncomplete()
@@ -232,7 +240,11 @@ describe('TransactionBuilder', () => {
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', () => {
       txb.addInput(txHash, 0)
       txb.addOutput(scripts[0], 1000)
-      txb.sign(0, keyPair)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+      })
 
       assert.throws(() => {
         txb.addInput(txHash, 0)
@@ -274,26 +286,46 @@ describe('TransactionBuilder', () => {
     it('add second output after signed first input with SIGHASH_NONE', () => {
       txb.addInput(txHash, 0)
       txb.addOutput(scripts[0], 2000)
-      txb.sign(0, keyPair, undefined, Transaction.SIGHASH_NONE)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+        hashType: Transaction.SIGHASH_NONE,
+      })
       assert.strictEqual(txb.addOutput(scripts[1], 9000), 1)
     })
 
     it('add first output after signed first input with SIGHASH_NONE', () => {
       txb.addInput(txHash, 0)
-      txb.sign(0, keyPair, undefined, Transaction.SIGHASH_NONE)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+        hashType: Transaction.SIGHASH_NONE,
+      })
       assert.strictEqual(txb.addOutput(scripts[0], 2000), 0)
     })
 
     it('add second output after signed first input with SIGHASH_SINGLE', () => {
       txb.addInput(txHash, 0)
       txb.addOutput(scripts[0], 2000)
-      txb.sign(0, keyPair, undefined, Transaction.SIGHASH_SINGLE)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+        hashType: Transaction.SIGHASH_SINGLE,
+      })
       assert.strictEqual(txb.addOutput(scripts[1], 9000), 1)
     })
 
     it('add first output after signed first input with SIGHASH_SINGLE', () => {
       txb.addInput(txHash, 0)
-      txb.sign(0, keyPair, undefined, Transaction.SIGHASH_SINGLE)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+        hashType: Transaction.SIGHASH_SINGLE,
+      })
       assert.throws(() => {
         txb.addOutput(scripts[0], 2000)
       }, /No, this would invalidate signatures/)
@@ -302,7 +334,11 @@ describe('TransactionBuilder', () => {
     it('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', () => {
       txb.addInput(txHash, 0)
       txb.addOutput(scripts[0], 2000)
-      txb.sign(0, keyPair)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+      })
 
       assert.throws(() => {
         txb.addOutput(scripts[1], 9000)
@@ -315,7 +351,11 @@ describe('TransactionBuilder', () => {
       const txb = new TransactionBuilder()
       txb.addInput(txHash, 0)
       txb.addOutput(scripts[0], 100)
-      txb.sign(0, keyPair)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+      })
 
       assert.throws(() => {
         txb.setLockTime(65535)
@@ -334,7 +374,11 @@ describe('TransactionBuilder', () => {
       txb.setVersion(1)
       txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
       txb.addOutput('1111111111111111111114oLvT2', 100000)
-      txb.sign(0, keyPair)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+      })
       assert.strictEqual(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f02205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f0121031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078fffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
     })
 
@@ -343,7 +387,11 @@ describe('TransactionBuilder', () => {
       txb.setVersion(1)
       txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
       txb.addOutput('1111111111111111111114oLvT2', 100000)
-      txb.sign(0, keyPair)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+      })
       // high R
       assert.strictEqual(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006b483045022100b872677f35c9c14ad9c41d83649fb049250f32574e0b2547d67e209ed14ff05d022059b36ad058be54e887a1a311d5c393cb4941f6b93a0b090845ec67094de8972b01210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
 
@@ -352,7 +400,11 @@ describe('TransactionBuilder', () => {
       txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
       txb.addOutput('1111111111111111111114oLvT2', 100000)
       txb.setLowR()
-      txb.sign(0, keyPair)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+      })
       // low R
       assert.strictEqual(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a473044022012a601efa8756ebe83e9ac7a7db061c3147e3b49d8be67685799fe51a4c8c62f02204d568d301d5ce14af390d566d4fd50e7b8ee48e71ec67786c029e721194dae3601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
     })
@@ -379,11 +431,27 @@ describe('TransactionBuilder', () => {
 
             if (sign.throws) {
               assert.throws(() => {
-                txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
+                txb.sign({
+                  prevOutScriptType: sign.prevOutScriptType,
+                  vin: index,
+                  keyPair: keyPair2,
+                  redeemScript,
+                  hashType: sign.hashType,
+                  witnessValue: sign.value,
+                  witnessScript,
+                })
               }, new RegExp(f.exception))
               threw = true
             } else {
-              txb.sign(index, keyPair2, redeemScript, sign.hashType, sign.value, witnessScript)
+              txb.sign({
+                prevOutScriptType: sign.prevOutScriptType,
+                vin: index,
+                keyPair: keyPair2,
+                redeemScript,
+                hashType: sign.hashType,
+                witnessValue: sign.value,
+                witnessScript,
+              })
             }
           })
         })
@@ -516,7 +584,13 @@ describe('TransactionBuilder', () => {
             }
 
             const keyPair2 = ECPair.fromWIF(sign.keyPair, network)
-            txb.sign(i, keyPair2, redeemScript, sign.hashType)
+            txb.sign({
+              prevOutScriptType: sign.prevOutScriptType,
+              vin: i,
+              keyPair: keyPair2,
+              redeemScript,
+              hashType: sign.hashType,
+            })
 
             // update the tx
             tx = txb.buildIncomplete()
@@ -571,7 +645,14 @@ describe('TransactionBuilder', () => {
       txb.setVersion(1)
       txb.addInput('a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529', 1, 0xffffffff, scriptPubKey)
       txb.addOutput(scriptPubKey, 99000)
-      txb.sign(0, keyPair, redeemScript, null, 100000, witnessScript)
+      txb.sign({
+        prevOutScriptType: 'p2sh-p2wsh-p2ms',
+        vin: 0,
+        keyPair,
+        redeemScript,
+        witnessValue: 100000,
+        witnessScript,
+      })
 
       // 2-of-2 signed only once
       const tx = txb.buildIncomplete()
@@ -596,7 +677,12 @@ describe('TransactionBuilder', () => {
       const txb = TransactionBuilder.fromTransaction(tx, NETWORKS.testnet)
 
       const keyPair2 = ECPair.fromWIF('91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe', network)
-      txb.sign(0, keyPair2, redeemScript)
+      txb.sign({
+        prevOutScriptType: 'p2sh-p2ms',
+        vin: 0,
+        keyPair: keyPair2,
+        redeemScript,
+      })
 
       const tx2 = txb.build()
       assert.strictEqual(tx2.getId(), 'eab59618a564e361adef6d918bd792903c3d41bcf1220137364fb847880467f9')
@@ -613,14 +699,22 @@ describe('TransactionBuilder', () => {
 
       // sign, as expected
       txb.addOutput('1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK', 15000)
-      txb.sign(0, keyPair)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+      })
       const txId = txb.build().getId()
       assert.strictEqual(txId, '54f097315acbaedb92a95455da3368eb45981cdae5ffbc387a9afc872c0f29b3')
 
       // and, repeat
       txb = TransactionBuilder.fromTransaction(Transaction.fromHex(incomplete))
       txb.addOutput('1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK', 15000)
-      txb.sign(0, keyPair)
+      txb.sign({
+        prevOutScriptType: 'p2pkh',
+        vin: 0,
+        keyPair,
+      })
       const txId2 = txb.build().getId()
       assert.strictEqual(txId, txId2)
     })

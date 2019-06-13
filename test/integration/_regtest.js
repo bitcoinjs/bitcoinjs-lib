@@ -92,7 +92,11 @@ async function faucetComplex (output, value) {
   const txvb = new bitcoin.TransactionBuilder(NETWORK)
   txvb.addInput(unspent.txId, unspent.vout, null, p2pkh.output)
   txvb.addOutput(output, value)
-  txvb.sign(0, keyPair)
+  txvb.sign({
+    prevOutScriptType: 'p2pkh',
+    vin: 0,
+    keyPair
+  })
   const txv = txvb.build()
 
   await broadcast(txv.toHex())

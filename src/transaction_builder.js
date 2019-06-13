@@ -20,13 +20,26 @@ const PREVOUT_TYPES = new Set([
   'p2wpkh',
   'p2ms',
   // P2SH wrapped
+  'p2sh-p2pkh',
+  'p2sh-p2pk',
   'p2sh-p2wpkh',
   'p2sh-p2ms',
   // P2WSH wrapped
+  'p2wsh-p2pkh',
+  'p2wsh-p2pk',
   'p2wsh-p2ms',
   // P2SH-P2WSH wrapper
+  'p2sh-p2wsh-p2pkh',
+  'p2sh-p2wsh-p2pk',
   'p2sh-p2wsh-p2ms',
 ]);
+function tfMessage(type, value, message) {
+  try {
+    typeforce(type, value);
+  } catch (err) {
+    throw new Error(message);
+  }
+}
 function txIsString(tx) {
   return typeof tx === 'string' || tx instanceof String;
 }
@@ -159,66 +172,198 @@ class TransactionBuilder {
       ]);
       vin = signParams.vin;
       keyPair = signParams.keyPair;
+      hashType = signParams.hashType;
       const prevOutType = (this.__INPUTS[vin] || []).prevOutType;
-      switch (signParams.prevOutScriptType) {
+      const posType = signParams.prevOutScriptType;
+      switch (posType) {
         case 'p2pkh':
-          if (prevOutType !== 'pubkeyhash') {
-            throw new TypeError(`input #${vin} is not of type p2pkh`);
+          if (prevOutType && prevOutType !== 'pubkeyhash') {
+            throw new TypeError(
+              `input #${vin} is not of type p2pkh: ${prevOutType}`,
+            );
           }
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessScript,
+            `${posType} requires NO witnessScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.redeemScript,
+            `${posType} requires NO redeemScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessValue,
+            `${posType} requires NO witnessValue`,
+          );
           break;
         case 'p2pk':
-          if (prevOutType !== 'pubkey') {
-            throw new TypeError(`input #${vin} is not of type p2pk`);
+          if (prevOutType && prevOutType !== 'pubkey') {
+            throw new TypeError(
+              `input #${vin} is not of type p2pk: ${prevOutType}`,
+            );
           }
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessScript,
+            `${posType} requires NO witnessScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.redeemScript,
+            `${posType} requires NO redeemScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessValue,
+            `${posType} requires NO witnessValue`,
+          );
           break;
         case 'p2wpkh':
-          if (prevOutType !== 'witnesspubkeyhash') {
-            throw new TypeError(`input #${vin} is not of type p2wpkh`);
+          if (prevOutType && prevOutType !== 'witnesspubkeyhash') {
+            throw new TypeError(
+              `input #${vin} is not of type p2wpkh: ${prevOutType}`,
+            );
           }
-          typeforce(typeforce.Buffer, signParams.witnessScript);
-          typeforce(typeforce.Satoshi, signParams.witnessValue);
-          witnessScript = signParams.witnessScript;
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessScript,
+            `${posType} requires NO witnessScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.redeemScript,
+            `${posType} requires NO redeemScript`,
+          );
+          tfMessage(
+            types.Satoshi,
+            signParams.witnessValue,
+            `${posType} requires witnessValue`,
+          );
           witnessValue = signParams.witnessValue;
           break;
         case 'p2ms':
-          if (prevOutType !== 'multisig') {
-            throw new TypeError(`input #${vin} is not of type p2ms`);
+          if (prevOutType && prevOutType !== 'multisig') {
+            throw new TypeError(
+              `input #${vin} is not of type p2ms: ${prevOutType}`,
+            );
           }
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessScript,
+            `${posType} requires NO witnessScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.redeemScript,
+            `${posType} requires NO redeemScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessValue,
+            `${posType} requires NO witnessValue`,
+          );
           break;
         case 'p2sh-p2wpkh':
-          if (prevOutType !== 'scripthash') {
-            throw new TypeError(`input #${vin} is not of type p2sh-p2wpkh`);
+          if (prevOutType && prevOutType !== 'scripthash') {
+            throw new TypeError(
+              `input #${vin} is not of type p2sh-p2wpkh: ${prevOutType}`,
+            );
           }
-          typeforce(typeforce.Buffer, signParams.witnessScript);
-          typeforce(typeforce.Buffer, signParams.redeemScript);
-          typeforce(typeforce.Satoshi, signParams.witnessValue);
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessScript,
+            `${posType} requires NO witnessScript`,
+          );
+          tfMessage(
+            typeforce.Buffer,
+            signParams.redeemScript,
+            `${posType} requires redeemScript`,
+          );
+          tfMessage(
+            types.Satoshi,
+            signParams.witnessValue,
+            `${posType} requires witnessValue`,
+          );
           witnessScript = signParams.witnessScript;
           redeemScript = signParams.redeemScript;
           witnessValue = signParams.witnessValue;
           break;
         case 'p2sh-p2ms':
-          if (prevOutType !== 'scripthash') {
-            throw new TypeError(`input #${vin} is not of type p2sh-p2ms`);
+        case 'p2sh-p2pk':
+        case 'p2sh-p2pkh':
+          if (prevOutType && prevOutType !== 'scripthash') {
+            throw new TypeError(
+              `input #${vin} is not of type ${posType}: ${prevOutType}`,
+            );
           }
-          typeforce(typeforce.Buffer, signParams.redeemScript);
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessScript,
+            `${posType} requires NO witnessScript`,
+          );
+          tfMessage(
+            typeforce.Buffer,
+            signParams.redeemScript,
+            `${posType} requires redeemScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.witnessValue,
+            `${posType} requires NO witnessValue`,
+          );
           redeemScript = signParams.redeemScript;
           break;
         case 'p2wsh-p2ms':
-          if (prevOutType !== 'witnessscripthash') {
-            throw new TypeError(`input #${vin} is not of type p2wsh-p2ms`);
+        case 'p2wsh-p2pk':
+        case 'p2wsh-p2pkh':
+          if (prevOutType && prevOutType !== 'witnessscripthash') {
+            throw new TypeError(
+              `input #${vin} is not of type ${posType}: ${prevOutType}`,
+            );
           }
-          typeforce(typeforce.Buffer, signParams.witnessScript);
-          typeforce(typeforce.Satoshi, signParams.witnessValue);
+          tfMessage(
+            typeforce.Buffer,
+            signParams.witnessScript,
+            `${posType} requires witnessScript`,
+          );
+          tfMessage(
+            typeforce.value(undefined),
+            signParams.redeemScript,
+            `${posType} requires NO redeemScript`,
+          );
+          tfMessage(
+            types.Satoshi,
+            signParams.witnessValue,
+            `${posType} requires witnessValue`,
+          );
           witnessScript = signParams.witnessScript;
           witnessValue = signParams.witnessValue;
           break;
         case 'p2sh-p2wsh-p2ms':
-          if (prevOutType !== 'scripthash') {
-            throw new TypeError(`input #${vin} is not of type p2sh-p2wsh-p2ms`);
+        case 'p2sh-p2wsh-p2pk':
+        case 'p2sh-p2wsh-p2pkh':
+          if (prevOutType && prevOutType !== 'scripthash') {
+            throw new TypeError(
+              `input #${vin} is not of type ${posType}: ${prevOutType}`,
+            );
           }
-          typeforce(typeforce.Buffer, signParams.witnessScript);
-          typeforce(typeforce.Buffer, signParams.redeemScript);
-          typeforce(typeforce.Satoshi, signParams.witnessValue);
+          tfMessage(
+            typeforce.Buffer,
+            signParams.witnessScript,
+            `${posType} requires witnessScript`,
+          );
+          tfMessage(
+            typeforce.Buffer,
+            signParams.redeemScript,
+            `${posType} requires witnessScript`,
+          );
+          tfMessage(
+            types.Satoshi,
+            signParams.witnessValue,
+            `${posType} requires witnessScript`,
+          );
           witnessScript = signParams.witnessScript;
           redeemScript = signParams.redeemScript;
           witnessValue = signParams.witnessValue;
@@ -228,6 +373,9 @@ class TransactionBuilder {
       throw new TypeError(
         'TransactionBuilder sign first arg must be TxbSignArg or number',
       );
+    }
+    if (keyPair === undefined) {
+      throw new Error('sign requires keypair');
     }
     // TODO: remove keyPair.network matching in 4.0.0
     if (keyPair.network && keyPair.network !== this.network)
