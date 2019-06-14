@@ -153,24 +153,17 @@ class TransactionBuilder {
     witnessValue,
     witnessScript,
   ) {
-    const data = getSigningData(
-      this,
-      signParams,
-      keyPair,
-      redeemScript,
-      hashType,
-      witnessValue,
-      witnessScript,
-    );
-    const { input, ourPubKey, signatureHash } = data;
-    ({ keyPair, hashType } = data);
     trySign(
-      input,
-      ourPubKey,
-      keyPair,
-      signatureHash,
-      hashType,
-      this.__USE_LOW_R,
+      getSigningData(
+        this,
+        signParams,
+        keyPair,
+        redeemScript,
+        hashType,
+        witnessValue,
+        witnessScript,
+        this.__USE_LOW_R,
+      ),
     );
   }
   __addInputUnsafe(txHash, vout, options) {
@@ -934,7 +927,14 @@ function checkSignArgs(txb, signParams) {
       break;
   }
 }
-function trySign(input, ourPubKey, keyPair, signatureHash, hashType, useLowR) {
+function trySign({
+  input,
+  ourPubKey,
+  keyPair,
+  signatureHash,
+  hashType,
+  useLowR,
+}) {
   // enforce in order signing of public keys
   let signed = false;
   for (const [i, pubKey] of input.pubkeys.entries()) {
@@ -960,6 +960,7 @@ function getSigningData(
   hashType,
   witnessValue,
   witnessScript,
+  useLowR,
 ) {
   let vin;
   if (typeof signParams === 'number') {
@@ -1045,5 +1046,6 @@ function getSigningData(
     keyPair,
     signatureHash,
     hashType,
+    useLowR: !!useLowR,
   };
 }

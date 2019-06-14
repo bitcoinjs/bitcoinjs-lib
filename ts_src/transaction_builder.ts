@@ -243,26 +243,17 @@ export class TransactionBuilder {
     witnessValue?: number,
     witnessScript?: Buffer,
   ): void {
-    const data = getSigningData(
-      this,
-      signParams,
-      keyPair,
-      redeemScript,
-      hashType,
-      witnessValue,
-      witnessScript,
-    );
-
-    const { input, ourPubKey, signatureHash } = data;
-    ({ keyPair, hashType } = data);
-
     trySign(
-      input,
-      ourPubKey,
-      keyPair,
-      signatureHash,
-      hashType,
-      this.__USE_LOW_R,
+      getSigningData(
+        this,
+        signParams,
+        keyPair,
+        redeemScript,
+        hashType,
+        witnessValue,
+        witnessScript,
+        this.__USE_LOW_R,
+      ),
     );
   }
 
@@ -1161,14 +1152,14 @@ function checkSignArgs(txb: TransactionBuilder, signParams: TxbSignArg): void {
   }
 }
 
-function trySign(
-  input: TxbInput,
-  ourPubKey: Buffer,
-  keyPair: ECPairInterface,
-  signatureHash: Buffer,
-  hashType: number,
-  useLowR: boolean,
-): void {
+function trySign({
+  input,
+  ourPubKey,
+  keyPair,
+  signatureHash,
+  hashType,
+  useLowR,
+}: SigningData): void {
   // enforce in order signing of public keys
   let signed = false;
   for (const [i, pubKey] of input.pubkeys!.entries()) {
@@ -1190,6 +1181,15 @@ function trySign(
   if (!signed) throw new Error('Key pair cannot sign for this input');
 }
 
+interface SigningData {
+  input: TxbInput;
+  ourPubKey: Buffer;
+  keyPair: ECPairInterface;
+  signatureHash: Buffer;
+  hashType: number;
+  useLowR: boolean;
+}
+
 function getSigningData(
   txb: TransactionBuilder,
   signParams: number | TxbSignArg,
@@ -1198,13 +1198,8 @@ function getSigningData(
   hashType?: number,
   witnessValue?: number,
   witnessScript?: Buffer,
-): {
-  input: TxbInput;
-  ourPubKey: Buffer;
-  keyPair: ECPairInterface;
-  signatureHash: Buffer;
-  hashType: number;
-} {
+  useLowR?: boolean,
+): SigningData {
   let vin: number;
   if (typeof signParams === 'number') {
     console.warn(
@@ -1302,5 +1297,6 @@ function getSigningData(
     keyPair,
     signatureHash,
     hashType,
+    useLowR: !!useLowR,
   };
 }
