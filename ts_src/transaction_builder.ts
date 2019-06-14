@@ -245,7 +245,10 @@ export class TransactionBuilder {
   ): void {
     trySign(
       getSigningData(
-        this,
+        this.network,
+        this.__INPUTS,
+        this.__needsOutputs.bind(this),
+        this.__TX,
         signParams,
         keyPair,
         redeemScript,
@@ -949,7 +952,7 @@ function signatureHashType(buffer: Buffer): number {
   return buffer.readUInt8(buffer.length - 1);
 }
 
-function checkSignArgs(txb: TransactionBuilder, signParams: TxbSignArg): void {
+function checkSignArgs(inputs: TxbInput[], signParams: TxbSignArg): void {
   if (!PREVOUT_TYPES.has(signParams.prevOutScriptType)) {
     throw new TypeError(
       `Unknown prevOutScriptType "${signParams.prevOutScriptType}"`,
@@ -963,8 +966,7 @@ function checkSignArgs(txb: TransactionBuilder, signParams: TxbSignArg): void {
     ),
     [signParams.vin, signParams.hashType, signParams.keyPair],
   );
-  // @ts-ignore
-  const prevOutType = (txb.__INPUTS[signParams.vin] || []).prevOutType;
+  const prevOutType = (inputs[signParams.vin] || []).prevOutType;
   const posType = signParams.prevOutScriptType;
   switch (posType) {
     case 'p2pkh':
@@ -1190,8 +1192,13 @@ interface SigningData {
   useLowR: boolean;
 }
 
+type HashTypeCheck = (hashType: number) => boolean;
+
 function getSigningData(
-  txb: TransactionBuilder,
+  network: Network,
+  inputs: TxbInput[],
+  needsOutputs: HashTypeCheck,
+  tx: Transaction,
   signParams: number | TxbSignArg,
   keyPair?: ECPairInterface,
   redeemScript?: Buffer,
@@ -1208,7 +1215,7 @@ function getSigningData(
     );
     vin = signParams;
   } else if (typeof signParams === 'object') {
-    checkSignArgs(txb, signParams);
+    checkSignArgs(inputs, signParams);
     ({
       vin,
       keyPair,
@@ -1226,18 +1233,14 @@ function getSigningData(
     throw new Error('sign requires keypair');
   }
   // TODO: remove keyPair.network matching in 4.0.0
-  if (keyPair.network && keyPair.network !== txb.network)
+  if (keyPair.network && keyPair.network !== network)
     throw new TypeError('Inconsistent network');
-  // @ts-ignore
-  if (!txb.__INPUTS[vin]) throw new Error('No input at index: ' + vin);
+  if (!inputs[vin]) throw new Error('No input at index: ' + vin);
 
   hashType = hashType || Transaction.SIGHASH_ALL;
-  // @ts-ignore
-  if (txb.__needsOutputs(hashType))
-    throw new Error('Transaction needs outputs');
+  if (needsOutputs(hashType)) throw new Error('Transaction needs outputs');
 
-  // @ts-ignore
-  const input = txb.__INPUTS[vin];
+  const input = inputs[vin];
 
   // if redeemScript was previously provided, enforce consistency
   if (
@@ -1275,16 +1278,14 @@ function getSigningData(
   // ready to sign
   let signatureHash: Buffer;
   if (input.hasWitness) {
-    // @ts-ignore
-    signatureHash = txb.__TX.hashForWitnessV0(
+    signatureHash = tx.hashForWitnessV0(
       vin,
       input.signScript as Buffer,
       input.value as number,
       hashType,
     );
   } else {
-    // @ts-ignore
-    signatureHash = txb.__TX.hashForSignature(
+    signatureHash = tx.hashForSignature(
       vin,
       input.signScript as Buffer,
       hashType,
