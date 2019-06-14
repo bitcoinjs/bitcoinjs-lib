@@ -2,7 +2,7 @@ import * as baddress from './address';
 import { reverseBuffer } from './bufferutils';
 import * as classify from './classify';
 import * as bcrypto from './crypto';
-import { ECPairInterface } from './ecpair';
+import { Signer } from './ecpair';
 import * as ECPair from './ecpair';
 import { Network } from './networks';
 import * as networks from './networks';
@@ -74,7 +74,7 @@ interface TxbOutput {
 interface TxbSignArg {
   prevOutScriptType: string;
   vin: number;
-  keyPair: ECPairInterface;
+  keyPair: Signer;
   redeemScript?: Buffer;
   hashType?: number;
   witnessValue?: number;
@@ -237,7 +237,7 @@ export class TransactionBuilder {
 
   sign(
     signParams: number | TxbSignArg,
-    keyPair?: ECPairInterface,
+    keyPair?: Signer,
     redeemScript?: Buffer,
     hashType?: number,
     witnessValue?: number,
@@ -1186,7 +1186,7 @@ function trySign({
 interface SigningData {
   input: TxbInput;
   ourPubKey: Buffer;
-  keyPair: ECPairInterface;
+  keyPair: Signer;
   signatureHash: Buffer;
   hashType: number;
   useLowR: boolean;
@@ -1200,7 +1200,7 @@ function getSigningData(
   needsOutputs: HashTypeCheck,
   tx: Transaction,
   signParams: number | TxbSignArg,
-  keyPair?: ECPairInterface,
+  keyPair?: Signer,
   redeemScript?: Buffer,
   hashType?: number,
   witnessValue?: number,
@@ -1251,7 +1251,8 @@ function getSigningData(
     throw new Error('Inconsistent redeemScript');
   }
 
-  const ourPubKey = keyPair.publicKey || keyPair.getPublicKey!();
+  const ourPubKey =
+    keyPair.publicKey || (keyPair.getPublicKey && keyPair.getPublicKey());
   if (!canSign(input)) {
     if (witnessValue !== undefined) {
       if (input.value !== undefined && input.value !== witnessValue)

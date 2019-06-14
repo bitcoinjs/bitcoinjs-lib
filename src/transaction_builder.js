@@ -1007,7 +1007,8 @@ function getSigningData(
   ) {
     throw new Error('Inconsistent redeemScript');
   }
-  const ourPubKey = keyPair.publicKey || keyPair.getPublicKey();
+  const ourPubKey =
+    keyPair.publicKey || (keyPair.getPublicKey && keyPair.getPublicKey());
   if (!canSign(input)) {
     if (witnessValue !== undefined) {
       if (input.value !== undefined && input.value !== witnessValue)

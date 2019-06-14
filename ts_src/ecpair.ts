@@ -19,15 +19,26 @@ interface ECPairOptions {
   rng?(arg0: number): Buffer;
 }
 
-export interface ECPairInterface {
+export interface Signer {
+  publicKey: Buffer;
+  network?: Network;
+  sign(hash: Buffer, lowR?: boolean): Buffer;
+  getPublicKey?(): Buffer;
+}
+
+export interface SignerAsync {
+  publicKey: Buffer;
+  network?: Network;
+  sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
+  getPublicKey?(): Buffer;
+}
+
+export interface ECPairInterface extends Signer {
   compressed: boolean;
   network: Network;
-  publicKey: Buffer;
   privateKey?: Buffer;
   toWIF(): string;
-  sign(hash: Buffer, lowR?: boolean): Buffer;
   verify(hash: Buffer, signature: Buffer): boolean;
-  getPublicKey?(): Buffer;
 }
 
 class ECPair implements ECPairInterface {
