@@ -31,6 +31,7 @@ class TransactionBuilderV2 {
     this.__INPUTS = [];
     this.__TX = new transaction_1.Transaction();
     this.__TX.version = 2;
+    this.__PSBT = '';
     this.__USE_LOW_R = false;
   }
   static fromTransaction(transaction, network) {
@@ -88,8 +89,9 @@ class TransactionBuilderV2 {
         tx.setWitness(vin, script_1.decompile(witnessElements));
       }
     });
-    // TODO: Store reference to imported PSBT so we we can merge metadata into the PSBT we export from toPsbtString()
-    return TransactionBuilderV2.fromTransaction(tx, network);
+    const txb = TransactionBuilderV2.fromTransaction(tx, network);
+    txb.__PSBT = psbtString;
+    return txb;
   }
   setLowR(setting) {
     typeforce(typeforce.maybe(typeforce.Boolean), setting);
@@ -246,7 +248,9 @@ class TransactionBuilderV2 {
       version,
     });
     // TODO: Add signature data to PSBT
-    // TODO: Merge with imported PSBT if exists so we don't lose data
+    if (this.__PSBT) {
+      // TODO: Merge with imported PSBT if exists so we don't lose data
+    }
     return Buffer.from(psbt, 'hex').toString('base64');
   }
   __addInputUnsafe(txHash, vout, options) {

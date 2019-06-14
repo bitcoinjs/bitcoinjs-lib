@@ -10,6 +10,7 @@ export declare class TransactionBuilderV2 {
     private __PREV_TX_SET;
     private __INPUTS;
     private __TX;
+    private __PSBT;
     private __USE_LOW_R;
     constructor(network?: Network, maximumFeeRate?: number);
     setLowR(setting?: boolean): boolean;

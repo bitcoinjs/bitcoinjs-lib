@@ -137,14 +137,17 @@ export class TransactionBuilderV2 {
       }
     });
 
-    // TODO: Store reference to imported PSBT so we we can merge metadata into the PSBT we export from toPsbtString()
+    const txb = TransactionBuilderV2.fromTransaction(tx, network);
 
-    return TransactionBuilderV2.fromTransaction(tx, network);
+    txb.__PSBT = psbtString;
+
+    return txb;
   }
 
   private __PREV_TX_SET: { [index: string]: boolean };
   private __INPUTS: TxbInput[];
   private __TX: Transaction;
+  private __PSBT: string;
   private __USE_LOW_R: boolean;
 
   // WARNING: maximumFeeRate is __NOT__ to be relied on,
@@ -157,6 +160,7 @@ export class TransactionBuilderV2 {
     this.__INPUTS = [];
     this.__TX = new Transaction();
     this.__TX.version = 2;
+    this.__PSBT = '';
     this.__USE_LOW_R = false;
   }
 
@@ -364,7 +368,9 @@ export class TransactionBuilderV2 {
 
     // TODO: Add signature data to PSBT
 
-    // TODO: Merge with imported PSBT if exists so we don't lose data
+    if (this.__PSBT) {
+      // TODO: Merge with imported PSBT if exists so we don't lose data
+    }
 
     return Buffer.from(psbt, 'hex').toString('base64');
   }
