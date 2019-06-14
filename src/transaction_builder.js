@@ -153,98 +153,25 @@ class TransactionBuilder {
     witnessValue,
     witnessScript,
   ) {
-    let vin;
-    if (typeof signParams === 'number') {
-      console.warn(
-        'DEPRECATED: TransactionBuilder sign method arguments ' +
-          'will change in v6, please use the TxbSignArg interface',
-      );
-      vin = signParams;
-    } else if (typeof signParams === 'object') {
-      checkSignArgs(this, signParams);
-      ({
-        vin,
-        keyPair,
-        redeemScript,
-        hashType,
-        witnessValue,
-        witnessScript,
-      } = signParams);
-    } else {
-      throw new TypeError(
-        'TransactionBuilder sign first arg must be TxbSignArg or number',
-      );
-    }
-    if (keyPair === undefined) {
-      throw new Error('sign requires keypair');
-    }
-    // TODO: remove keyPair.network matching in 4.0.0
-    if (keyPair.network && keyPair.network !== this.network)
-      throw new TypeError('Inconsistent network');
-    if (!this.__INPUTS[vin]) throw new Error('No input at index: ' + vin);
-    hashType = hashType || transaction_1.Transaction.SIGHASH_ALL;
-    if (this.__needsOutputs(hashType))
-      throw new Error('Transaction needs outputs');
-    const input = this.__INPUTS[vin];
-    // if redeemScript was previously provided, enforce consistency
-    if (
-      input.redeemScript !== undefined &&
-      redeemScript &&
-      !input.redeemScript.equals(redeemScript)
-    ) {
-      throw new Error('Inconsistent redeemScript');
-    }
-    const ourPubKey = keyPair.publicKey || keyPair.getPublicKey();
-    if (!canSign(input)) {
-      if (witnessValue !== undefined) {
-        if (input.value !== undefined && input.value !== witnessValue)
-          throw new Error('Input did not match witnessValue');
-        typeforce(types.Satoshi, witnessValue);
-        input.value = witnessValue;
-      }
-      if (!canSign(input)) {
-        const prepared = prepareInput(
-          input,
-          ourPubKey,
-          redeemScript,
-          witnessScript,
-        );
-        // updates inline
-        Object.assign(input, prepared);
-      }
-      if (!canSign(input)) throw Error(input.prevOutType + ' not supported');
-    }
-    // ready to sign
-    let signatureHash;
-    if (input.hasWitness) {
-      signatureHash = this.__TX.hashForWitnessV0(
-        vin,
-        input.signScript,
-        input.value,
-        hashType,
-      );
-    } else {
-      signatureHash = this.__TX.hashForSignature(
-        vin,
-        input.signScript,
-        hashType,
-      );
-    }
-    // enforce in order signing of public keys
-    const signed = input.pubkeys.some((pubKey, i) => {
-      if (!ourPubKey.equals(pubKey)) return false;
-      if (input.signatures[i]) throw new Error('Signature already exists');
-      // TODO: add tests
-      if (ourPubKey.length !== 33 && input.hasWitness) {
-        throw new Error(
-          'BIP143 rejects uncompressed public keys in P2WPKH or P2WSH',
-        );
-      }
-      const signature = keyPair.sign(signatureHash, this.__USE_LOW_R);
-      input.signatures[i] = bscript.signature.encode(signature, hashType);
-      return true;
-    });
-    if (!signed) throw new Error('Key pair cannot sign for this input');
+    const data = getSigningData(
+      this,
+      signParams,
+      keyPair,
+      redeemScript,
+      hashType,
+      witnessValue,
+      witnessScript,
+    );
+    const { input, ourPubKey, signatureHash } = data;
+    ({ keyPair, hashType } = data);
+    trySign(
+      input,
+      ourPubKey,
+      keyPair,
+      signatureHash,
+      hashType,
+      this.__USE_LOW_R,
+    );
   }
   __addInputUnsafe(txHash, vout, options) {
     if (transaction_1.Transaction.isCoinbaseHash(txHash)) {
@@ -1006,4 +933,116 @@ function checkSignArgs(txb, signParams) {
       );
       break;
   }
+}
+function trySign(input, ourPubKey, keyPair, signatureHash, hashType, useLowR) {
+  // enforce in order signing of public keys
+  const signed = input.pubkeys.some((pubKey, i) => {
+    if (!ourPubKey.equals(pubKey)) return false;
+    if (input.signatures[i]) throw new Error('Signature already exists');
+    // TODO: add tests
+    if (ourPubKey.length !== 33 && input.hasWitness) {
+      throw new Error(
+        'BIP143 rejects uncompressed public keys in P2WPKH or P2WSH',
+      );
+    }
+    const signature = keyPair.sign(signatureHash, useLowR);
+    input.signatures[i] = bscript.signature.encode(signature, hashType);
+    return true;
+  });
+  if (!signed) throw new Error('Key pair cannot sign for this input');
+}
+function getSigningData(
+  txb,
+  signParams,
+  keyPair,
+  redeemScript,
+  hashType,
+  witnessValue,
+  witnessScript,
+) {
+  let vin;
+  if (typeof signParams === 'number') {
+    console.warn(
+      'DEPRECATED: TransactionBuilder sign method arguments ' +
+        'will change in v6, please use the TxbSignArg interface',
+    );
+    vin = signParams;
+  } else if (typeof signParams === 'object') {
+    checkSignArgs(txb, signParams);
+    ({
+      vin,
+      keyPair,
+      redeemScript,
+      hashType,
+      witnessValue,
+      witnessScript,
+    } = signParams);
+  } else {
+    throw new TypeError(
+      'TransactionBuilder sign first arg must be TxbSignArg or number',
+    );
+  }
+  if (keyPair === undefined) {
+    throw new Error('sign requires keypair');
+  }
+  // TODO: remove keyPair.network matching in 4.0.0
+  if (keyPair.network && keyPair.network !== txb.network)
+    throw new TypeError('Inconsistent network');
+  // @ts-ignore
+  if (!txb.__INPUTS[vin]) throw new Error('No input at index: ' + vin);
+  hashType = hashType || transaction_1.Transaction.SIGHASH_ALL;
+  // @ts-ignore
+  if (txb.__needsOutputs(hashType))
+    throw new Error('Transaction needs outputs');
+  // @ts-ignore
+  const input = txb.__INPUTS[vin];
+  // if redeemScript was previously provided, enforce consistency
+  if (
+    input.redeemScript !== undefined &&
+    redeemScript &&
+    !input.redeemScript.equals(redeemScript)
+  ) {
+    throw new Error('Inconsistent redeemScript');
+  }
+  const ourPubKey = keyPair.publicKey || keyPair.getPublicKey();
+  if (!canSign(input)) {
+    if (witnessValue !== undefined) {
+      if (input.value !== undefined && input.value !== witnessValue)
+        throw new Error('Input did not match witnessValue');
+      typeforce(types.Satoshi, witnessValue);
+      input.value = witnessValue;
+    }
+    if (!canSign(input)) {
+      const prepared = prepareInput(
+        input,
+        ourPubKey,
+        redeemScript,
+        witnessScript,
+      );
+      // updates inline
+      Object.assign(input, prepared);
+    }
+    if (!canSign(input)) throw Error(input.prevOutType + ' not supported');
+  }
+  // ready to sign
+  let signatureHash;
+  if (input.hasWitness) {
+    // @ts-ignore
+    signatureHash = txb.__TX.hashForWitnessV0(
+      vin,
+      input.signScript,
+      input.value,
+      hashType,
+    );
+  } else {
+    // @ts-ignore
+    signatureHash = txb.__TX.hashForSignature(vin, input.signScript, hashType);
+  }
+  return {
+    input,
+    ourPubKey,
+    keyPair,
+    signatureHash,
+    hashType,
+  };
 }
