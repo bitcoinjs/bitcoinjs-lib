@@ -188,13 +188,6 @@ describe('TransactionBuilderV2', () => {
         const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
         assert.strictEqual(txAfter.toHex(), f.txHex)
       })
-
-      // Comment this test out for now because it won't pass until we get signitures working
-      // it('doesn\'t loose PSBT data when cycling through fromPsbtString() => toPsbtString(), with ' + f.description, () => {
-      //   const txb = TransactionBuilderV2.fromPsbtString(f.psbt)
-      //   const txAfter = f.incomplete ? txb.buildIncomplete() : txb.build()
-      //   assert.strictEqual(f.psbt, txAfter.toPsbtString())
-      // })
     })
   })
 
@@ -205,6 +198,13 @@ describe('TransactionBuilderV2', () => {
         const txb = TransactionBuilderV2.fromTransaction(tx)
 
         assert.strictEqual(txb.toPsbtString(), f.psbt)
+      })
+    })
+
+    fixtures.valid.fromPsbtString.forEach(f => {
+      it('doesn\'t loose PSBT data when cycling through fromPsbtString() => toPsbtString(), with ' + f.description, () => {
+        const txb = TransactionBuilderV2.fromPsbtString(f.psbt)
+        assert.strictEqual(f.psbt, txb.toPsbtString())
       })
     })
   })
