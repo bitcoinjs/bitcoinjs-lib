@@ -936,8 +936,9 @@ function checkSignArgs(txb, signParams) {
 }
 function trySign(input, ourPubKey, keyPair, signatureHash, hashType, useLowR) {
   // enforce in order signing of public keys
-  const signed = input.pubkeys.some((pubKey, i) => {
-    if (!ourPubKey.equals(pubKey)) return false;
+  let signed = false;
+  for (const [i, pubKey] of input.pubkeys.entries()) {
+    if (!ourPubKey.equals(pubKey)) continue;
     if (input.signatures[i]) throw new Error('Signature already exists');
     // TODO: add tests
     if (ourPubKey.length !== 33 && input.hasWitness) {
@@ -947,8 +948,8 @@ function trySign(input, ourPubKey, keyPair, signatureHash, hashType, useLowR) {
     }
     const signature = keyPair.sign(signatureHash, useLowR);
     input.signatures[i] = bscript.signature.encode(signature, hashType);
-    return true;
-  });
+    signed = true;
+  }
   if (!signed) throw new Error('Key pair cannot sign for this input');
 }
 function getSigningData(
