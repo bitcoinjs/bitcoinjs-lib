@@ -241,7 +241,7 @@ class TransactionBuilderV2 {
     }));
     const timelock = this.__TX.locktime;
     const { version } = this.__TX;
-    const { psbt } = bip174_1.createPsbt({
+    let { psbt } = bip174_1.createPsbt({
       outputs,
       utxos,
       timelock,
@@ -249,7 +249,9 @@ class TransactionBuilderV2 {
     });
     // TODO: Add signature data to PSBT
     if (this.__PSBT) {
-      // TODO: Merge with imported PSBT if exists so we don't lose data
+      ({ psbt } = bip174_1.combinePsbts({
+        psbts: [Buffer.from(this.__PSBT, 'base64').toString('hex'), psbt],
+      }));
     }
     return Buffer.from(psbt, 'hex').toString('base64');
   }

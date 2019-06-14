@@ -1,4 +1,4 @@
-import { createPsbt, decodePsbt } from 'bip174';
+import { combinePsbts, createPsbt, decodePsbt } from 'bip174';
 import * as baddress from './address';
 import { reverseBuffer } from './bufferutils';
 import * as classify from './classify';
@@ -359,7 +359,7 @@ export class TransactionBuilderV2 {
     const timelock = this.__TX.locktime;
     const { version } = this.__TX;
 
-    const { psbt } = createPsbt({
+    let { psbt } = createPsbt({
       outputs,
       utxos,
       timelock,
@@ -369,7 +369,9 @@ export class TransactionBuilderV2 {
     // TODO: Add signature data to PSBT
 
     if (this.__PSBT) {
-      // TODO: Merge with imported PSBT if exists so we don't lose data
+      ({ psbt } = combinePsbts({
+        psbts: [Buffer.from(this.__PSBT, 'base64').toString('hex'), psbt],
+      }));
     }
 
     return Buffer.from(psbt, 'hex').toString('base64');
