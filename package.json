@@ -74,6 +74,7 @@
     "nyc": "^14.1.1",
     "prettier": "1.16.4",
     "proxyquire": "^2.0.1",
+    "regtest-client": "0.1.0",
     "rimraf": "^2.6.3",
     "tslint": "^5.16.0",
     "typescript": "3.2.2"
