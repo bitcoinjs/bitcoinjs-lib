@@ -102,7 +102,16 @@ function construct (f, dontSign, useOldSignArgs) {
   return constructSign(f, txb, useOldSignArgs)
 }
 
+// TODO: Remove loop in v6
 for (const useOldSignArgs of [ false, true ]) {
+  // Search for "// TODO: Remove me in v6"
+  // to find the second part of this console.warn replace
+  let consoleWarn;
+  if (useOldSignArgs) {
+    consoleWarn = console.warn;
+    // Silence console.warn during these tests
+    console.warn = () => undefined;
+  }
   describe(`TransactionBuilder: useOldSignArgs === ${useOldSignArgs}`, () => {
     // constants
     const keyPair = ECPair.fromPrivateKey(Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex'))
@@ -725,6 +734,10 @@ for (const useOldSignArgs of [ false, true ]) {
         })
         const txId2 = txb.build().getId()
         assert.strictEqual(txId, txId2)
+        // TODO: Remove me in v6
+        if (useOldSignArgs) {
+          console.warn = consoleWarn;
+        }
       })
     })
   })
