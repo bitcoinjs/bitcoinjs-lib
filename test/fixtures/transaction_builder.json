@@ -2471,6 +2471,190 @@
         ]
       },
       {
+        "exception": "input #0 is not of type p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2wpkh: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2ms: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2wpkh: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wpkh",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2wsh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2wsh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "Unknown prevOutScriptType \"notvalidtype\"",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "notvalidtype",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
         "description": "Transaction w/ no outputs (but 1 SIGHASH_NONE)",
         "exception": "Transaction needs outputs",
         "inputs": [

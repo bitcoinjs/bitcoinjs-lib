@@ -104,7 +104,7 @@ function construct (f, dontSign, useOldSignArgs) {
 
 // TODO: Remove loop in v6
 for (const useOldSignArgs of [ false, true ]) {
-  // Search for "// TODO: Remove me in v6"
+  // Search for "useOldSignArgs"
   // to find the second part of this console.warn replace
   let consoleWarn;
   if (useOldSignArgs) {
@@ -424,6 +424,49 @@ for (const useOldSignArgs of [ false, true ]) {
         })
         // low R
         assert.strictEqual(txb.build().toHex(), '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a473044022012a601efa8756ebe83e9ac7a7db061c3147e3b49d8be67685799fe51a4c8c62f02204d568d301d5ce14af390d566d4fd50e7b8ee48e71ec67786c029e721194dae3601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000')
+      })
+
+      it('fails when missing required arguments', () => {
+        let txb = new TransactionBuilder()
+        txb.setVersion(1)
+        txb.addInput('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 1)
+        txb.addOutput('1111111111111111111114oLvT2', 100000)
+        assert.throws(() => {
+          txb.sign()
+        }, /TransactionBuilder sign first arg must be TxbSignArg or number/)
+        assert.throws(() => {
+          txb.sign({
+            prevOutScriptType: 'p2pkh',
+            vin: 1,
+            keyPair,
+          })
+        }, /No input at index: 1/)
+        assert.throws(() => {
+          txb.sign({
+            prevOutScriptType: 'p2pkh',
+            keyPair,
+          })
+        }, /sign must include vin parameter as Number \(input index\)/)
+        assert.throws(() => {
+          txb.sign({
+            prevOutScriptType: 'p2pkh',
+            vin: 0,
+            keyPair: {},
+          })
+        }, /sign must include keyPair parameter as Signer interface/)
+        assert.throws(() => {
+          txb.sign({
+            prevOutScriptType: 'p2pkh',
+            vin: 0,
+            keyPair,
+            hashType: 'string',
+          })
+        }, /sign hashType parameter must be a number/)
+        if (useOldSignArgs) {
+          assert.throws(() => {
+            txb.sign(0)
+          }, /sign requires keypair/)
+        }
       })
 
       fixtures.invalid.sign.forEach(f => {

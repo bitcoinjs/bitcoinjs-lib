@@ -734,13 +734,20 @@ function checkSignArgs(inputs, signParams) {
       `Unknown prevOutScriptType "${signParams.prevOutScriptType}"`,
     );
   }
-  typeforce(
-    typeforce.tuple(
-      typeforce.Number,
-      typeforce.maybe(typeforce.Number),
-      types.Signer,
-    ),
-    [signParams.vin, signParams.hashType, signParams.keyPair],
+  tfMessage(
+    typeforce.Number,
+    signParams.vin,
+    `sign must include vin parameter as Number (input index)`,
+  );
+  tfMessage(
+    types.Signer,
+    signParams.keyPair,
+    `sign must include keyPair parameter as Signer interface`,
+  );
+  tfMessage(
+    typeforce.maybe(typeforce.Number),
+    signParams.hashType,
+    `sign hashType parameter must be a number`,
   );
   const prevOutType = (inputs[signParams.vin] || []).prevOutType;
   const posType = signParams.prevOutScriptType;
