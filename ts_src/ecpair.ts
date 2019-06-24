@@ -1,7 +1,7 @@
+import { ecc } from './ecc';
 import { Network } from './networks';
 import * as NETWORKS from './networks';
 import * as types from './types';
-const ecc = require('tiny-secp256k1');
 const randomBytes = require('randombytes');
 const typeforce = require('typeforce');
 const wif = require('wif');
@@ -64,7 +64,7 @@ class ECPair implements ECPairInterface {
 
   get publicKey(): Buffer {
     if (!this.__Q)
-      this.__Q = ecc.pointFromScalar(this.__D, this.compressed) as Buffer;
+      this.__Q = ecc.pointFromScalar(this.__D as Buffer, this.compressed);
     return this.__Q;
   }
 

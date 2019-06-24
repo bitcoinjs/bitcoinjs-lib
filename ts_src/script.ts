@@ -1,9 +1,9 @@
+import { ecc } from './ecc';
 import { Stack } from './payments';
 import * as scriptNumber from './script_number';
 import * as scriptSignature from './script_signature';
 import * as types from './types';
 const bip66 = require('bip66');
-const ecc = require('tiny-secp256k1');
 const pushdata = require('pushdata-bitcoin');
 const typeforce = require('typeforce');
 

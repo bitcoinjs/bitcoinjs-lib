@@ -1,11 +1,11 @@
 import * as bcrypto from '../crypto';
+import { ecc } from '../ecc';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
-const ecc = require('tiny-secp256k1');
 
 const bech32 = require('bech32');
 

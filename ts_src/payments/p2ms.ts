@@ -1,10 +1,10 @@
+import { ecc } from '../ecc';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { Payment, PaymentOpts, Stack } from './index';
 import * as lazy from './lazy';
 const OPS = bscript.OPS;
 const typef = require('typeforce');
-const ecc = require('tiny-secp256k1');
 
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 

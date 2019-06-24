@@ -1,12 +1,12 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 const bcrypto = require('../crypto');
+const ecc_1 = require('../ecc');
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const lazy = require('./lazy');
 const typef = require('typeforce');
 const OPS = bscript.OPS;
-const ecc = require('tiny-secp256k1');
 const bech32 = require('bech32');
 const EMPTY_BUFFER = Buffer.alloc(0);
 // witness: {signature} {pubKey}
@@ -23,7 +23,7 @@ function p2wpkh(a, opts) {
       input: typef.maybe(typef.BufferN(0)),
       network: typef.maybe(typef.Object),
       output: typef.maybe(typef.BufferN(22)),
-      pubkey: typef.maybe(ecc.isPoint),
+      pubkey: typef.maybe(ecc_1.ecc.isPoint),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
     },
@@ -112,7 +112,7 @@ function p2wpkh(a, opts) {
       if (a.witness.length !== 2) throw new TypeError('Witness is invalid');
       if (!bscript.isCanonicalScriptSignature(a.witness[0]))
         throw new TypeError('Witness has invalid signature');
-      if (!ecc.isPoint(a.witness[1]))
+      if (!ecc_1.ecc.isPoint(a.witness[1]))
         throw new TypeError('Witness has invalid pubkey');
       if (a.signature && !a.signature.equals(a.witness[0]))
         throw new TypeError('Signature mismatch');

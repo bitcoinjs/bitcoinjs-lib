@@ -1,11 +1,11 @@
 import * as bcrypto from '../crypto';
+import { ecc } from '../ecc';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { Payment, PaymentOpts, StackFunction } from './index';
 import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
-const ecc = require('tiny-secp256k1');
 
 const bs58check = require('bs58check');
 
@@ -129,7 +129,7 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
       if (chunks.length !== 2) throw new TypeError('Input is invalid');
       if (!bscript.isCanonicalScriptSignature(chunks[0] as Buffer))
         throw new TypeError('Input has invalid signature');
-      if (!ecc.isPoint(chunks[1]))
+      if (!ecc.isPoint(chunks[1] as Buffer))
         throw new TypeError('Input has invalid pubkey');
 
       if (a.signature && !a.signature.equals(chunks[0] as Buffer))

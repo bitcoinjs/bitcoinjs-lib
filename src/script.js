@@ -1,10 +1,10 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+const ecc_1 = require('./ecc');
 const scriptNumber = require('./script_number');
 const scriptSignature = require('./script_signature');
 const types = require('./types');
 const bip66 = require('bip66');
-const ecc = require('tiny-secp256k1');
 const pushdata = require('pushdata-bitcoin');
 const typeforce = require('typeforce');
 exports.OPS = require('bitcoin-ops');
@@ -157,7 +157,7 @@ function toStack(chunks) {
 }
 exports.toStack = toStack;
 function isCanonicalPubKey(buffer) {
-  return ecc.isPoint(buffer);
+  return ecc_1.ecc.isPoint(buffer);
 }
 exports.isCanonicalPubKey = isCanonicalPubKey;
 function isDefinedHashType(hashType) {

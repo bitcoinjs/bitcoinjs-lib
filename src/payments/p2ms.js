@@ -1,11 +1,11 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+const ecc_1 = require('../ecc');
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const lazy = require('./lazy');
 const OPS = bscript.OPS;
 const typef = require('typeforce');
-const ecc = require('tiny-secp256k1');
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
@@ -36,7 +36,7 @@ function p2ms(a, opts) {
       m: typef.maybe(typef.Number),
       n: typef.maybe(typef.Number),
       output: typef.maybe(typef.Buffer),
-      pubkeys: typef.maybe(typef.arrayOf(ecc.isPoint)),
+      pubkeys: typef.maybe(typef.arrayOf(ecc_1.ecc.isPoint)),
       signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
       input: typef.maybe(typef.Buffer),
     },
@@ -104,7 +104,7 @@ function p2ms(a, opts) {
         throw new TypeError('Output is invalid');
       if (o.m <= 0 || o.n > 16 || o.m > o.n || o.n !== chunks.length - 3)
         throw new TypeError('Output is invalid');
-      if (!o.pubkeys.every(x => ecc.isPoint(x)))
+      if (!o.pubkeys.every(x => ecc_1.ecc.isPoint(x)))
         throw new TypeError('Output is invalid');
       if (a.m !== undefined && a.m !== o.m) throw new TypeError('m mismatch');
       if (a.n !== undefined && a.n !== o.n) throw new TypeError('n mismatch');

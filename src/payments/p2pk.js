@@ -1,11 +1,11 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+const ecc_1 = require('../ecc');
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const lazy = require('./lazy');
 const typef = require('typeforce');
 const OPS = bscript.OPS;
-const ecc = require('tiny-secp256k1');
 // input: {signature}
 // output: {pubKey} OP_CHECKSIG
 function p2pk(a, opts) {
@@ -16,7 +16,7 @@ function p2pk(a, opts) {
     {
       network: typef.maybe(typef.Object),
       output: typef.maybe(typef.Buffer),
-      pubkey: typef.maybe(ecc.isPoint),
+      pubkey: typef.maybe(ecc_1.ecc.isPoint),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       input: typef.maybe(typef.Buffer),
     },
@@ -52,7 +52,7 @@ function p2pk(a, opts) {
     if (a.output) {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG)
         throw new TypeError('Output is invalid');
-      if (!ecc.isPoint(o.pubkey))
+      if (!ecc_1.ecc.isPoint(o.pubkey))
         throw new TypeError('Output pubkey is invalid');
       if (a.pubkey && !a.pubkey.equals(o.pubkey))
         throw new TypeError('Pubkey mismatch');

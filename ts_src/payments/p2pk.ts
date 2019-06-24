@@ -1,10 +1,10 @@
+import { ecc } from '../ecc';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { Payment, PaymentOpts, StackFunction } from './index';
 import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
-const ecc = require('tiny-secp256k1');
 
 // input: {signature}
 // output: {pubKey} OP_CHECKSIG
@@ -58,7 +58,7 @@ export function p2pk(a: Payment, opts?: PaymentOpts): Payment {
     if (a.output) {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG)
         throw new TypeError('Output is invalid');
-      if (!ecc.isPoint(o.pubkey))
+      if (!ecc.isPoint(o.pubkey as Buffer))
         throw new TypeError('Output pubkey is invalid');
       if (a.pubkey && !a.pubkey.equals(o.pubkey!))
         throw new TypeError('Pubkey mismatch');
