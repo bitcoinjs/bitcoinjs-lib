@@ -28,6 +28,7 @@ export declare class TransactionBuilder {
     build(): Transaction;
     buildIncomplete(): Transaction;
     sign(signParams: number | TxbSignArg, keyPair?: Signer, redeemScript?: Buffer, hashType?: number, witnessValue?: number, witnessScript?: Buffer): void;
+    signAsync(signParams: number | TxbSignArg, keyPair?: Signer, redeemScript?: Buffer, hashType?: number, witnessValue?: number, witnessScript?: Buffer): Promise<void>;
     private __addInputUnsafe;
     private __build;
     private __canModifyInputs;

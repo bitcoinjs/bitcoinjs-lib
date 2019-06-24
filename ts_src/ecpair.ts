@@ -19,18 +19,18 @@ interface ECPairOptions {
   rng?(arg0: number): Buffer;
 }
 
-export interface Signer {
+export interface SignerBase {
   publicKey: Buffer;
   network?: Network;
-  sign(hash: Buffer, lowR?: boolean): Buffer;
   getPublicKey?(): Buffer;
 }
 
-export interface SignerAsync {
-  publicKey: Buffer;
-  network?: Network;
+export interface Signer extends SignerBase {
+  sign(hash: Buffer, lowR?: boolean): Buffer;
+}
+
+export interface SignerAsync extends SignerBase {
   sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
-  getPublicKey?(): Buffer;
 }
 
 export interface ECPairInterface extends Signer {

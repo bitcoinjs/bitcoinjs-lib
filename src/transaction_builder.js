@@ -153,21 +153,43 @@ class TransactionBuilder {
     witnessValue,
     witnessScript,
   ) {
-    trySign(
-      getSigningData(
-        this.network,
-        this.__INPUTS,
-        this.__needsOutputs.bind(this),
-        this.__TX,
-        signParams,
-        keyPair,
-        redeemScript,
-        hashType,
-        witnessValue,
-        witnessScript,
-        this.__USE_LOW_R,
-      ),
+    const signData = getSigningData(
+      this.network,
+      this.__INPUTS,
+      this.__needsOutputs.bind(this),
+      this.__TX,
+      signParams,
+      keyPair,
+      redeemScript,
+      hashType,
+      witnessValue,
+      witnessScript,
+      this.__USE_LOW_R,
     );
+    trySign(signData);
+  }
+  signAsync(
+    signParams,
+    keyPair,
+    redeemScript,
+    hashType,
+    witnessValue,
+    witnessScript,
+  ) {
+    const signData = getSigningData(
+      this.network,
+      this.__INPUTS,
+      this.__needsOutputs.bind(this),
+      this.__TX,
+      signParams,
+      keyPair,
+      redeemScript,
+      hashType,
+      witnessValue,
+      witnessScript,
+      this.__USE_LOW_R,
+    );
+    return trySignAsync(signData);
   }
   __addInputUnsafe(txHash, vout, options) {
     if (transaction_1.Transaction.isCoinbaseHash(txHash)) {
@@ -956,6 +978,31 @@ function trySign({
       );
     }
     const signature = keyPair.sign(signatureHash, useLowR);
+    input.signatures[i] = bscript.signature.encode(signature, hashType);
+    signed = true;
+  }
+  if (!signed) throw new Error('Key pair cannot sign for this input');
+}
+async function trySignAsync({
+  input,
+  ourPubKey,
+  keyPair,
+  signatureHash,
+  hashType,
+  useLowR,
+}) {
+  // enforce in order signing of public keys
+  let signed = false;
+  for (const [i, pubKey] of input.pubkeys.entries()) {
+    if (!ourPubKey.equals(pubKey)) continue;
+    if (input.signatures[i]) throw new Error('Signature already exists');
+    // TODO: add tests
+    if (ourPubKey.length !== 33 && input.hasWitness) {
+      throw new Error(
+        'BIP143 rejects uncompressed public keys in P2WPKH or P2WSH',
+      );
+    }
+    const signature = await keyPair.sign(signatureHash, useLowR);
     input.signatures[i] = bscript.signature.encode(signature, hashType);
     signed = true;
   }
