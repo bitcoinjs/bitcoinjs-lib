@@ -7,6 +7,7 @@ import * as payments from './payments';
 import * as script from './script';
 export { ECPair, address, bip32, crypto, networks, payments, script };
 export { Block } from './block';
+export { Psbt } from './psbt';
 export { OPS as opcodes } from './script';
 export { Transaction } from './transaction';
 export { TransactionBuilder } from './transaction_builder';
