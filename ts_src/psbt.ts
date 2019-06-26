@@ -1,5 +1,6 @@
 import { Psbt as PsbtBase } from 'bip174';
 import { Signer } from './ecpair';
+import { Transaction } from './transaction';
 
 export class Psbt extends PsbtBase {
   constructor() {
@@ -30,6 +31,24 @@ export class Psbt extends PsbtBase {
     //         sign_witness(witnessScript)
     // else:
     //     assert False
+
+    const input = this.inputs[inputIndex];
+    if (input === undefined) throw new Error(`No input #${inputIndex}`);
+
+    // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
+    if (input.nonWitnessUtxo) {
+      const unsignedTx = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+      const nonWitnessUtxoTx = Transaction.fromBuffer(input.nonWitnessUtxo);
+
+      const inputHash = unsignedTx.ins[inputIndex].hash;
+      const utxoHash = nonWitnessUtxoTx.getHash();
+
+      if (Buffer.compare(inputHash, utxoHash) !== 0) {
+        throw new Error(
+          `Non-witness UTXO hash for input #${inputIndex} doesn't match the hash specified in the prevout`,
+        );
+      }
+    }
 
     // TODO: Get hash to sign
     const hash = Buffer.alloc(32);
