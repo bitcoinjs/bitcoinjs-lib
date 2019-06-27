@@ -1,5 +1,6 @@
 import { Psbt as PsbtBase } from 'bip174';
 import { Signer } from './ecpair';
+import * as payments from './payments';
 import { Transaction } from './transaction';
 
 export class Psbt extends PsbtBase {
@@ -35,18 +36,34 @@ export class Psbt extends PsbtBase {
     const input = this.inputs[inputIndex];
     if (input === undefined) throw new Error(`No input #${inputIndex}`);
 
-    // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
     if (input.nonWitnessUtxo) {
       const unsignedTx = Transaction.fromBuffer(this.globalMap.unsignedTx!);
       const nonWitnessUtxoTx = Transaction.fromBuffer(input.nonWitnessUtxo);
 
-      const inputHash = unsignedTx.ins[inputIndex].hash;
+      const prevoutHash = unsignedTx.ins[inputIndex].hash;
       const utxoHash = nonWitnessUtxoTx.getHash();
 
-      if (Buffer.compare(inputHash, utxoHash) !== 0) {
+      // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
+      if (Buffer.compare(prevoutHash, utxoHash) !== 0) {
         throw new Error(
           `Non-witness UTXO hash for input #${inputIndex} doesn't match the hash specified in the prevout`,
         );
+      }
+
+      if (input.redeemScript) {
+        const prevoutIndex = unsignedTx.ins[inputIndex].index;
+        const prevout = nonWitnessUtxoTx.outs[prevoutIndex];
+
+        const redeemScriptOutput = payments.p2sh({
+          redeem: { output: input.redeemScript },
+        }).output as Buffer;
+
+        // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
+        if (Buffer.compare(prevout.script, redeemScriptOutput) !== 0) {
+          throw new Error(
+            `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+          );
+        }
       }
     }
 
