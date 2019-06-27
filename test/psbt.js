@@ -39,5 +39,37 @@ describe(`Psbt`, () => {
         psbt.signInput(inputIndex, keyPair)
       })
     })
+
+    it('throws if redeem script does not match the scriptPubKey in the prevout', () => {
+      const inputUtxo = '0200000001aad73931018bd25f84ae400b68848be09db706eac2ac18298babee71ab656f8b0000000048473044022058f6fc7c6a33e1b31548d481c826c015bd30135aad42cd67790dab66d2ad243b02204a1ced2604c6735b6393e5b41691dd78b00f0c5942fb9f751856faa938157dba01feffffff0280f0fa020000000017a9140fb9463421696b82c833af241c78c17ddbde493487d0f20a270100000017a91429ca74f8a08f81999428185c97b5d852e4063f618765000000'
+      const inputRedeemScript = '00208c2353173743b595dfb4a07b72ba8e42e3797da74e87fe7d9d7497e3b2028903'
+      const inputHash = '75ddabb27b8845f5247975c8a5ba7c6f336c4570708ebe230caf6db5217ae858'
+      const inputIndex = 0
+
+      const psbt = new Psbt()
+      psbt.addInput({hash: inputHash, index: inputIndex})
+      psbt.addNonWitnessUtxoToInput(inputIndex, Buffer.from(inputUtxo, 'hex'))
+      psbt.addRedeemScriptToInput(inputIndex, Buffer.from(inputRedeemScript, 'hex'))
+
+      assert.throws(() => {
+        psbt.signInput(inputIndex, keyPair)
+      })
+    })
+
+    it('does not throw if redeem script matches the scriptPubKey in the prevout', () => {
+      const inputUtxo = '0200000001aad73931018bd25f84ae400b68848be09db706eac2ac18298babee71ab656f8b0000000048473044022058f6fc7c6a33e1b31548d481c826c015bd30135aad42cd67790dab66d2ad243b02204a1ced2604c6735b6393e5b41691dd78b00f0c5942fb9f751856faa938157dba01feffffff0280f0fa020000000017a9140fb9463421696b82c833af241c78c17ddbde493487d0f20a270100000017a91429ca74f8a08f81999428185c97b5d852e4063f618765000000'
+      const inputRedeemScript = '5221029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f2102dab61ff49a14db6a7d02b0cd1fbb78fc4b18312b5b4e54dae4dba2fbfef536d752ae'
+      const inputHash = '75ddabb27b8845f5247975c8a5ba7c6f336c4570708ebe230caf6db5217ae858'
+      const inputIndex = 0
+
+      const psbt = new Psbt()
+      psbt.addInput({hash: inputHash, index: inputIndex})
+      psbt.addNonWitnessUtxoToInput(inputIndex, Buffer.from(inputUtxo, 'hex'))
+      psbt.addRedeemScriptToInput(inputIndex, Buffer.from(inputRedeemScript, 'hex'))
+
+      assert.doesNotThrow(() => {
+        psbt.signInput(inputIndex, keyPair)
+      })
+    })
   })
 })
