@@ -61,6 +61,20 @@ class Psbt extends bip174_1.Psbt {
           );
         }
       }
+    } else if (input.witnessUtxo) {
+      if (input.redeemScript) {
+        const redeemScriptOutput = payments.p2sh({
+          redeem: { output: input.redeemScript },
+        }).output;
+        // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
+        if (
+          Buffer.compare(input.witnessUtxo.script, redeemScriptOutput) !== 0
+        ) {
+          throw new Error(
+            `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+          );
+        }
+      }
     }
     // TODO: Get hash to sign
     const hash = Buffer.alloc(32);

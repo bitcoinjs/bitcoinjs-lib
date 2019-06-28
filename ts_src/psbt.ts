@@ -65,6 +65,21 @@ export class Psbt extends PsbtBase {
           );
         }
       }
+    } else if (input.witnessUtxo) {
+      if (input.redeemScript) {
+        const redeemScriptOutput = payments.p2sh({
+          redeem: { output: input.redeemScript },
+        }).output as Buffer;
+
+        // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
+        if (
+          Buffer.compare(input.witnessUtxo.script, redeemScriptOutput) !== 0
+        ) {
+          throw new Error(
+            `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+          );
+        }
+      }
     }
 
     // TODO: Get hash to sign
