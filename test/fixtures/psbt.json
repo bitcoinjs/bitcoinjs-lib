@@ -1,0 +1,30 @@
+{
+  "signInput": {
+    "checks": [
+      {
+        "description": "checks non-witness UTXO matches the hash specified in the prevout",
+        "shouldSign": {
+          "psbt": "cHNidP8BADMBAAAAAZIApPIHomdoPo/sOJ8NI9jzILd0cnGn0yAZHRv3D9DSAAAAAAD/////AAAAAAAAAQD9tQEBAAAAAn3dz3mi5UEDC8dThx0cnU3BY+TWvVrvrkvYTeZOFqZSAAAAAItIMEUCIQDTosO1iuDwtVFxGqiUn0eHJEKO+gPzF5w6UNwsms5GqgIgGy2oSiFCmhCvGHcxyIL8H3J+e4lXPgfwGS6ePeefq/ABQQQOOnWcM7A+Gvjl2G+0R6QO/yRMhHpPgnQnbbSQBU6L4Hb4gB3cnFJG7oa28zz+OOi35Xq52zkOs+wexq6e7qET/f///0/vbX88Hl0L6nM7L9ZE+kVs33PyHrfohmonIdeSZunoAQAAAIpHMEQCIChKKYnUXEimyKVWsws0Z+r2q/hm7HXE2fDjhyB09iwHAiBoatgoacFmnmvhYsSjTkxhepcXZvK5aIeJ6y9Jj+XrawFBBA46dZwzsD4a+OXYb7RHpA7/JEyEek+CdCdttJAFTovgdviAHdycUkbuhrbzPP446LflernbOQ6z7B7Grp7uoRP9////AiTHDQAAAAAAGXapFNpkc+03Pgj0bdgAP8p7py++nFVeiKycsA4AAAAAABl2qRRJcHmSWY+FoxqmcVr3D+UHYQtvi4isEcAIAAAA",
+          "inputToCheck": 0
+        },
+        "shouldThrow": {
+          "errorMessage": "Non-witness UTXO hash for input #0 doesn't match the hash specified in the prevout",
+          "psbt": "cHNidP8BADMBAAAAAZIApPIHomdoPo/sOJ8NI9jzILd0cnGn0yAZHRv3D9DSAAAAAAD/////AAAAAAAAAQC/AgAAAAHBYCumjIwkFFCni2Hb/eJymJGB0HU3secNMbfbk5VX8gAAAABqRzBEAiAphyuXV5hQyHZY5DG7nfSj8+QVkHd1KaVeJesR7Mr+9QIgURcAqh6iws1JklH5kBTyLFr2OgDHb9JNplABSgqBmekBIQJkGH2e53OqMzrCI2eEeLHfPqJoF4/JRH4KYMRD7dqnSf3///8BmV0AAAAAAAAZdqkUdZ1mdwkelzuenZnxnGj79D4/BfmIrMjTCAAAAA==",
+          "inputToCheck": 0
+        }
+      },
+      {
+        "description": "checks redeem script matches the scriptPubKey in the prevout",
+        "shouldSign": {
+          "psbt": "cHNidP8BADMBAAAAAVjoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////AAAAAAAAAQC7AgAAAAGq1zkxAYvSX4SuQAtohIvgnbcG6sKsGCmLq+5xq2VviwAAAABIRzBEAiBY9vx8ajPhsxVI1IHIJsAVvTATWq1CzWd5Datm0q0kOwIgShztJgTGc1tjk+W0FpHdeLAPDFlC+591GFb6qTgVfboB/v///wKA8PoCAAAAABepFA+5RjQhaWuCyDOvJBx4wX3b3kk0h9DyCicBAAAAF6kUKcp0+KCPgZmUKBhcl7XYUuQGP2GHZQAAAAEER1IhApWDvzmuCmCXR60Zmt3WNPphCFWdbFzTm0whg/GrluB/IQLath/0mhTban0CsM0fu3j8SxgxK1tOVNrk26L7/vU211KuAAA=",
+          "inputToCheck": 0
+        },
+        "shouldThrow": {
+          "errorMessage": "Redeem script for input #0 doesn't match the scriptPubKey in the prevout",
+          "psbt": "cHNidP8BADMBAAAAAVjoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////AAAAAAAAAQC7AgAAAAGq1zkxAYvSX4SuQAtohIvgnbcG6sKsGCmLq+5xq2VviwAAAABIRzBEAiBY9vx8ajPhsxVI1IHIJsAVvTATWq1CzWd5Datm0q0kOwIgShztJgTGc1tjk+W0FpHdeLAPDFlC+591GFb6qTgVfboB/v///wKA8PoCAAAAABepFA+5RjQhaWuCyDOvJBx4wX3b3kk0h9DyCicBAAAAF6kUKcp0+KCPgZmUKBhcl7XYUuQGP2GHZQAAAAEEIgAgjCNTFzdDtZXftKB7crqOQuN5fadOh/59nXSX47ICiQMAAA==",
+          "inputToCheck": 0
+        }
+      }
+    ]
+  }
+}
