@@ -13,7 +13,7 @@ const checkRedeemScript = (
   }).output as Buffer;
 
   // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
-  if (Buffer.compare(scriptPubKey, redeemScriptOutput) !== 0) {
+  if (!scriptPubKey.equals(redeemScriptOutput)) {
     throw new Error(
       `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
     );
@@ -61,7 +61,7 @@ export class Psbt extends PsbtBase {
       const utxoHash = nonWitnessUtxoTx.getHash();
 
       // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
-      if (Buffer.compare(prevoutHash, utxoHash) !== 0) {
+      if (!prevoutHash.equals(utxoHash)) {
         throw new Error(
           `Non-witness UTXO hash for input #${inputIndex} doesn't match the hash specified in the prevout`,
         );

@@ -8,7 +8,7 @@ const checkRedeemScript = (inputIndex, scriptPubKey, redeemScript) => {
     redeem: { output: redeemScript },
   }).output;
   // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
-  if (Buffer.compare(scriptPubKey, redeemScriptOutput) !== 0) {
+  if (!scriptPubKey.equals(redeemScriptOutput)) {
     throw new Error(
       `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
     );
@@ -54,7 +54,7 @@ class Psbt extends bip174_1.Psbt {
       const prevoutHash = unsignedTx.ins[inputIndex].hash;
       const utxoHash = nonWitnessUtxoTx.getHash();
       // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
-      if (Buffer.compare(prevoutHash, utxoHash) !== 0) {
+      if (!prevoutHash.equals(utxoHash)) {
         throw new Error(
           `Non-witness UTXO hash for input #${inputIndex} doesn't match the hash specified in the prevout`,
         );
