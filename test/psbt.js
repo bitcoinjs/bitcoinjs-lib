@@ -1,4 +1,4 @@
-const { describe, it, beforeEach } = require('mocha')
+const { describe, it } = require('mocha')
 const assert = require('assert')
 
 const ECPair = require('../src/ecpair')
