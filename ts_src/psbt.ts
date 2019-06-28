@@ -12,7 +12,6 @@ const checkRedeemScript = (
     redeem: { output: redeemScript },
   }).output as Buffer;
 
-  // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
   if (!scriptPubKey.equals(redeemScriptOutput)) {
     throw new Error(
       `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
@@ -70,10 +69,13 @@ export class Psbt extends PsbtBase {
       if (input.redeemScript) {
         const prevoutIndex = unsignedTx.ins[inputIndex].index;
         const prevout = nonWitnessUtxoTx.outs[prevoutIndex];
+
+        // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
         checkRedeemScript(inputIndex, prevout.script, input.redeemScript);
       }
     } else if (input.witnessUtxo) {
       if (input.redeemScript) {
+        // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
         checkRedeemScript(
           inputIndex,
           input.witnessUtxo.script,
