@@ -3,6 +3,17 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const bip174_1 = require('bip174');
 const payments = require('./payments');
 const transaction_1 = require('./transaction');
+const checkRedeemScript = (inputIndex, scriptPubKey, redeemScript) => {
+  const redeemScriptOutput = payments.p2sh({
+    redeem: { output: redeemScript },
+  }).output;
+  // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
+  if (Buffer.compare(scriptPubKey, redeemScriptOutput) !== 0) {
+    throw new Error(
+      `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+    );
+  }
+};
 class Psbt extends bip174_1.Psbt {
   constructor() {
     super();
@@ -51,29 +62,15 @@ class Psbt extends bip174_1.Psbt {
       if (input.redeemScript) {
         const prevoutIndex = unsignedTx.ins[inputIndex].index;
         const prevout = nonWitnessUtxoTx.outs[prevoutIndex];
-        const redeemScriptOutput = payments.p2sh({
-          redeem: { output: input.redeemScript },
-        }).output;
-        // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
-        if (Buffer.compare(prevout.script, redeemScriptOutput) !== 0) {
-          throw new Error(
-            `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
-          );
-        }
+        checkRedeemScript(inputIndex, prevout.script, input.redeemScript);
       }
     } else if (input.witnessUtxo) {
       if (input.redeemScript) {
-        const redeemScriptOutput = payments.p2sh({
-          redeem: { output: input.redeemScript },
-        }).output;
-        // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
-        if (
-          Buffer.compare(input.witnessUtxo.script, redeemScriptOutput) !== 0
-        ) {
-          throw new Error(
-            `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
-          );
-        }
+        checkRedeemScript(
+          inputIndex,
+          input.witnessUtxo.script,
+          input.redeemScript,
+        );
       }
     }
     // TODO: Get hash to sign
