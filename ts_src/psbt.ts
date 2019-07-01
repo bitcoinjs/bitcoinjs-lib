@@ -1,22 +1,42 @@
 import { Psbt as PsbtBase } from 'bip174';
 import { Signer } from './ecpair';
 import * as payments from './payments';
-import * as script from './script';
+import * as bscript from './script';
 import { Transaction } from './transaction';
 
-const checkRedeemScript = (
+type ScriptCheckerFunction = (idx: number, spk: Buffer, rs: Buffer) => void;
+
+const scriptCheckerFactory = (
+  payment: any,
+  paymentScriptName: string,
+): ScriptCheckerFunction => (
   inputIndex: number,
   scriptPubKey: Buffer,
   redeemScript: Buffer,
 ): void => {
-  const redeemScriptOutput = payments.p2sh({
+  const redeemScriptOutput = payment({
     redeem: { output: redeemScript },
   }).output as Buffer;
 
   if (!scriptPubKey.equals(redeemScriptOutput)) {
     throw new Error(
-      `Redeem script for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+      `${paymentScriptName} for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
     );
+  }
+};
+
+const checkRedeemScript = scriptCheckerFactory(payments.p2sh, 'Redeem script');
+const checkWitnessScript = scriptCheckerFactory(
+  payments.p2wsh,
+  'Witness script',
+);
+
+const isP2WPKH = (script: Buffer): boolean => {
+  try {
+    payments.p2wpkh({ output: script });
+    return true;
+  } catch (err) {
+    return false;
   }
 };
 
@@ -53,8 +73,11 @@ export class Psbt extends PsbtBase {
     const input = this.inputs[inputIndex];
     if (input === undefined) throw new Error(`No input #${inputIndex}`);
 
+    const unsignedTx = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+    const sighashType = input.sighashType || 0x01;
+    let hash: Buffer;
+
     if (input.nonWitnessUtxo) {
-      const unsignedTx = Transaction.fromBuffer(this.globalMap.unsignedTx!);
       const nonWitnessUtxoTx = Transaction.fromBuffer(input.nonWitnessUtxo);
 
       const prevoutHash = unsignedTx.ins[inputIndex].hash;
@@ -67,14 +90,26 @@ export class Psbt extends PsbtBase {
         );
       }
 
-      if (input.redeemScript) {
-        const prevoutIndex = unsignedTx.ins[inputIndex].index;
-        const prevout = nonWitnessUtxoTx.outs[prevoutIndex];
+      const prevoutIndex = unsignedTx.ins[inputIndex].index;
+      const prevout = nonWitnessUtxoTx.outs[prevoutIndex];
 
+      if (input.redeemScript) {
         // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
         checkRedeemScript(inputIndex, prevout.script, input.redeemScript);
+        hash = unsignedTx.hashForSignature(
+          inputIndex,
+          input.redeemScript,
+          sighashType,
+        );
+      } else {
+        hash = unsignedTx.hashForSignature(
+          inputIndex,
+          prevout.script,
+          sighashType,
+        );
       }
     } else if (input.witnessUtxo) {
+      let script: Buffer;
       if (input.redeemScript) {
         // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
         checkRedeemScript(
@@ -82,18 +117,37 @@ export class Psbt extends PsbtBase {
           input.witnessUtxo.script,
           input.redeemScript,
         );
+        script = input.redeemScript;
+      } else {
+        script = input.witnessUtxo.script;
       }
+      if (isP2WPKH(script)) {
+        // P2WPKH uses the P2PKH template for prevoutScript when signing
+        const signingScript = payments.p2pkh({ hash: script.slice(2) }).output!;
+        hash = unsignedTx.hashForWitnessV0(
+          inputIndex,
+          signingScript,
+          input.witnessUtxo.value,
+          sighashType,
+        );
+      } else {
+        if (!input.witnessScript)
+          throw new Error('Segwit input needs witnessScript if not P2WPKH');
+        checkWitnessScript(inputIndex, script, input.witnessScript);
+        hash = unsignedTx.hashForWitnessV0(
+          inputIndex,
+          script,
+          input.witnessUtxo.value,
+          sighashType,
+        );
+      }
+    } else {
+      throw new Error('Need a Utxo input item for signing');
     }
-
-    // TODO: Get hash to sign
-    const hash = Buffer.alloc(32);
 
     const partialSig = {
       pubkey: keyPair.publicKey,
-      signature: script.signature.encode(
-        keyPair.sign(hash),
-        input.sighashType || 0x01,
-      ),
+      signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
     };
 
     return this.addPartialSigToInput(inputIndex, partialSig);
