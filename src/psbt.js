@@ -1,6 +1,8 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 const bip174_1 = require('bip174');
+const utils_1 = require('bip174/src/lib/utils');
+const classify = require('./classify');
 const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
@@ -23,17 +25,67 @@ const checkWitnessScript = scriptCheckerFactory(
   payments.p2wsh,
   'Witness script',
 );
-const isP2WPKH = script => {
+const isPayment = (script, payment) => {
   try {
-    payments.p2wpkh({ output: script });
+    payment({ output: script });
     return true;
   } catch (err) {
     return false;
   }
 };
+function getScriptFromInput(inputIndex, input, _unsignedTx) {
+  let script;
+  if (input.nonWitnessUtxo) {
+    if (input.redeemScript) {
+      script = input.redeemScript;
+    } else {
+      const unsignedTx = transaction_1.Transaction.fromBuffer(_unsignedTx);
+      const nonWitnessUtxoTx = transaction_1.Transaction.fromBuffer(
+        input.nonWitnessUtxo,
+      );
+      const prevoutIndex = unsignedTx.ins[inputIndex].index;
+      script = nonWitnessUtxoTx.outs[prevoutIndex].script;
+    }
+  } else if (input.witnessUtxo) {
+    if (input.witnessScript) {
+      script = input.witnessScript;
+    } else if (input.redeemScript) {
+      script = payments.p2pkh({ hash: input.redeemScript.slice(2) }).output;
+    } else {
+      script = payments.p2pkh({ hash: input.witnessUtxo.script.slice(2) })
+        .output;
+    }
+  } else {
+    return;
+  }
+  return script;
+}
 class Psbt extends bip174_1.Psbt {
-  constructor() {
+  constructor(network) {
     super();
+    this.network = network;
+  }
+  canFinalize(inputIndex) {
+    const input = utils_1.checkForInput(this.inputs, inputIndex);
+    const script = getScriptFromInput(
+      inputIndex,
+      input,
+      this.globalMap.unsignedTx,
+    );
+    if (!script) return false;
+    const scriptType = classify.output(script);
+    switch (scriptType) {
+      case 'pubkey':
+        return false;
+      case 'pubkeyhash':
+        return false;
+      case 'multisig':
+        return false;
+      case 'witnesspubkeyhash':
+        return false;
+      default:
+        return false;
+    }
   }
   signInput(inputIndex, keyPair) {
     // TODO: Implement BIP174 pre-sign checks:
@@ -108,7 +160,7 @@ class Psbt extends bip174_1.Psbt {
       } else {
         script = input.witnessUtxo.script;
       }
-      if (isP2WPKH(script)) {
+      if (isPayment(script, payments.p2wpkh)) {
         // P2WPKH uses the P2PKH template for prevoutScript when signing
         const signingScript = payments.p2pkh({ hash: script.slice(2) }).output;
         hash = unsignedTx.hashForWitnessV0(
