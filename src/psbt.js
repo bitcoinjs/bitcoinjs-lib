@@ -2,6 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const bip174_1 = require('bip174');
 const payments = require('./payments');
+const script = require('./script');
 const transaction_1 = require('./transaction');
 const checkRedeemScript = (inputIndex, scriptPubKey, redeemScript) => {
   const redeemScriptOutput = payments.p2sh({
@@ -78,15 +79,11 @@ class Psbt extends bip174_1.Psbt {
     const hash = Buffer.alloc(32);
     const partialSig = {
       pubkey: keyPair.publicKey,
-      signature: keyPair.sign(hash),
+      signature: script.signature.encode(
+        keyPair.sign(hash),
+        input.sighashType || 0x01,
+      ),
     };
-    // Just hardcode this for now to satisfy the stricter sig type checks
-    partialSig.signature = Buffer.from(
-      '304302200424b58effaaa694e1559ea5c93bbfd4a89064224055cdf070b6' +
-        '771469442d07021f5c8eb0fea6516d60b8acb33ad64ede60e8785bfb3aa9' +
-        '4b99bdf86151db9a9a01',
-      'hex',
-    );
     return this.addPartialSigToInput(inputIndex, partialSig);
   }
 }
