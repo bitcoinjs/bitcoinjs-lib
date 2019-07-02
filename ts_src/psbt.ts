@@ -22,16 +22,24 @@ export class Psbt extends PsbtBase {
     );
     if (!script) return false;
     const scriptType = classifyScript(script);
-    // TODO: for each type
+
+    const hasSigs = (neededSigs: number, partialSig?: any[]): boolean => {
+      if (!partialSig) return false;
+      if (partialSig.length > neededSigs)
+        throw new Error('Too many signatures');
+      return partialSig.length === neededSigs;
+    };
+
     switch (scriptType) {
       case 'pubkey':
-        return false;
+        return hasSigs(1, input.partialSig);
       case 'pubkeyhash':
-        return false;
+        return hasSigs(1, input.partialSig);
       case 'multisig':
-        return false;
+        const p2ms = payments.p2ms({ output: script });
+        return hasSigs(p2ms.m!, input.partialSig);
       case 'witnesspubkeyhash':
-        return false;
+        return hasSigs(1, input.partialSig);
       default:
         return false;
     }
