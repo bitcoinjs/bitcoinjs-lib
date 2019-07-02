@@ -7,20 +7,23 @@ const Psbt = require('..').Psbt
 const fixtures = require('./fixtures/psbt')
 
 describe(`Psbt`, () => {
-  // constants
-  const keyPair = ECPair.fromPrivateKey(Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex'))
-
   describe('signInput', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, () => {
         const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
         assert.doesNotThrow(() => {
-          psbtThatShouldsign.signInput(f.shouldSign.inputToCheck, keyPair)
+          psbtThatShouldsign.signInput(
+            f.shouldSign.inputToCheck,
+            ECPair.fromWIF(f.shouldSign.WIF),
+          )
         })
     
         const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
         assert.throws(() => {
-          psbtThatShouldThrow.signInput(f.shouldThrow.inputToCheck, keyPair)
+          psbtThatShouldThrow.signInput(
+            f.shouldThrow.inputToCheck,
+            ECPair.fromWIF(f.shouldThrow.WIF),
+          )
         }, {message: f.shouldThrow.errorMessage})
       })
     })
