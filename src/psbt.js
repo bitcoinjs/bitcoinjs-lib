@@ -2,6 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const bip174_1 = require('bip174');
 const utils_1 = require('bip174/src/lib/utils');
+const crypto_1 = require('./crypto');
 const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
@@ -54,29 +55,24 @@ class Psbt extends bip174_1.Psbt {
   signInput(inputIndex, keyPair) {
     const input = this.inputs[inputIndex];
     if (input === undefined) throw new Error(`No input #${inputIndex}`);
-    const { hash, sighashType } = getHashForSig(
+    const { hash, sighashType, script } = getHashForSig(
       inputIndex,
       input,
       this.globalMap.unsignedTx,
     );
     const pubkey = keyPair.publicKey;
-    // // TODO: throw error when the pubkey or pubkey hash is not found anywhere
-    // // in the script
-    // const pubkeyHash = hash160(keyPair.publicKey);
-    //
-    // const decompiled = bscript.decompile(script);
-    // if (decompiled === null) throw new Error('Unknown script error');
-    //
-    // const hasKey = decompiled.some(element => {
-    //   if (typeof element === 'number') return false;
-    //   return element.equals(pubkey) || element.equals(pubkeyHash);
-    // });
-    //
-    // if (!hasKey) {
-    //   throw new Error(
-    //     `Can not sign for this input with the key ${pubkey.toString('hex')}`,
-    //   );
-    // }
+    const pubkeyHash = crypto_1.hash160(keyPair.publicKey);
+    const decompiled = bscript.decompile(script);
+    if (decompiled === null) throw new Error('Unknown script error');
+    const hasKey = decompiled.some(element => {
+      if (typeof element === 'number') return false;
+      return element.equals(pubkey) || element.equals(pubkeyHash);
+    });
+    if (!hasKey) {
+      throw new Error(
+        `Can not sign for this input with the key ${pubkey.toString('hex')}`,
+      );
+    }
     const partialSig = {
       pubkey,
       signature: bscript.signature.encode(keyPair.sign(hash), sighashType),

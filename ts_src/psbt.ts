@@ -1,7 +1,7 @@
 import { Psbt as PsbtBase } from 'bip174';
 import { PsbtInput } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
-// import { hash160 } from './crypto'; // TODO: used in pubkey check
+import { hash160 } from './crypto';
 import { Signer } from './ecpair';
 import { Network } from './networks';
 import * as payments from './payments';
@@ -60,30 +60,28 @@ export class Psbt extends PsbtBase {
   signInput(inputIndex: number, keyPair: Signer): Psbt {
     const input = this.inputs[inputIndex];
     if (input === undefined) throw new Error(`No input #${inputIndex}`);
-    const {
-      hash,
-      sighashType,
-      // script, // TODO: use for pubkey check below
-    } = getHashForSig(inputIndex, input, this.globalMap.unsignedTx!);
+    const { hash, sighashType, script } = getHashForSig(
+      inputIndex,
+      input,
+      this.globalMap.unsignedTx!,
+    );
 
     const pubkey = keyPair.publicKey;
-    // // TODO: throw error when the pubkey or pubkey hash is not found anywhere
-    // // in the script
-    // const pubkeyHash = hash160(keyPair.publicKey);
-    //
-    // const decompiled = bscript.decompile(script);
-    // if (decompiled === null) throw new Error('Unknown script error');
-    //
-    // const hasKey = decompiled.some(element => {
-    //   if (typeof element === 'number') return false;
-    //   return element.equals(pubkey) || element.equals(pubkeyHash);
-    // });
-    //
-    // if (!hasKey) {
-    //   throw new Error(
-    //     `Can not sign for this input with the key ${pubkey.toString('hex')}`,
-    //   );
-    // }
+    const pubkeyHash = hash160(keyPair.publicKey);
+
+    const decompiled = bscript.decompile(script);
+    if (decompiled === null) throw new Error('Unknown script error');
+
+    const hasKey = decompiled.some(element => {
+      if (typeof element === 'number') return false;
+      return element.equals(pubkey) || element.equals(pubkeyHash);
+    });
+
+    if (!hasKey) {
+      throw new Error(
+        `Can not sign for this input with the key ${pubkey.toString('hex')}`,
+      );
+    }
 
     const partialSig = {
       pubkey,
