@@ -16,6 +16,20 @@
         }
       },
       {
+        "description": "checks a UTXO value exists for the input",
+        "shouldSign": {
+          "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
+          "inputToCheck": 0,
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+        },
+        "shouldThrow": {
+          "errorMessage": "Need a Utxo input item for signing",
+          "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAAA=",
+          "inputToCheck": 0,
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+        }
+      },
+      {
         "description": "checks privkey matches the input it's signing",
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
