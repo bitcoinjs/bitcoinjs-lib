@@ -9,8 +9,20 @@ import * as bscript from './script';
 import { Transaction } from './transaction';
 
 export class Psbt extends PsbtBase {
+  // protected __TX: Transaction;
   constructor(public network?: Network) {
     super();
+    // // TODO: figure out a way to use a Transaction Object instead of a Buffer
+    // // TODO: Caching, since .toBuffer() calls every time we get is lame.
+    // this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+    // delete this.globalMap.unsignedTx;
+    // Object.defineProperty(this.globalMap, 'unsignedTx', {
+    //   enumerable: true,
+    //   writable: false,
+    //   get(): Buffer {
+    //     return this.__TX.toBuffer();
+    //   }
+    // });
   }
 
   canFinalize(inputIndex: number): boolean {

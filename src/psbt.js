@@ -6,9 +6,21 @@ const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
 class Psbt extends bip174_1.Psbt {
+  // protected __TX: Transaction;
   constructor(network) {
     super();
     this.network = network;
+    // // TODO: figure out a way to use a Transaction Object instead of a Buffer
+    // // TODO: Caching, since .toBuffer() calls every time we get is lame.
+    // this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+    // delete this.globalMap.unsignedTx;
+    // Object.defineProperty(this.globalMap, 'unsignedTx', {
+    //   enumerable: true,
+    //   writable: false,
+    //   get(): Buffer {
+    //     return this.__TX.toBuffer();
+    //   }
+    // });
   }
   canFinalize(inputIndex) {
     const input = utils_1.checkForInput(this.inputs, inputIndex);
