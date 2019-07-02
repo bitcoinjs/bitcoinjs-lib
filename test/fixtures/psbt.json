@@ -2,6 +2,20 @@
   "signInput": {
     "checks": [
       {
+        "description": "checks privkey matches the input it's signing",
+        "shouldSign": {
+          "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
+          "inputToCheck": 0,
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+        },
+        "shouldThrow": {
+          "errorMessage": "Can not sign for this input with the key 02e717fee6be913148f9fd676c0876b7e4574118542c6758b4a9fb9f38f171842b",
+          "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
+          "inputToCheck": 0,
+          "WIF": "Kz4mjzErKCH5eQ97RXNQd3Wv7WsLA83BjynfQk4N7BB8J5xuUjAv"
+        }
+      },
+      {
         "description": "checks non-witness UTXO matches the hash specified in the prevout",
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
