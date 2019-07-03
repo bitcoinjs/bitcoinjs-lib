@@ -6,6 +6,7 @@ const crypto_1 = require('./crypto');
 const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
+const varuint = require('varuint-bitcoin');
 class Psbt extends bip174_1.Psbt {
   // protected __TX: Transaction;
   constructor(network) {
@@ -23,56 +24,75 @@ class Psbt extends bip174_1.Psbt {
     //   }
     // });
   }
-  canFinalize(inputIndex) {
+  extractTransaction() {
+    if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
+    const tx = transaction_1.Transaction.fromBuffer(this.globalMap.unsignedTx);
+    this.inputs.forEach((input, idx) => {
+      if (input.finalScriptSig) tx.ins[idx].script = input.finalScriptSig;
+      if (input.finalScriptWitness) {
+        const decompiled = bscript.decompile(input.finalScriptWitness);
+        if (decompiled) tx.ins[idx].witness = bscript.toStack(decompiled);
+      }
+    });
+    return tx;
+  }
+  finalizeAllInputs() {
+    const inputResults = range(this.inputs.length).map(idx =>
+      this.finalizeInput(idx),
+    );
+    const result = inputResults.every(val => val === true);
+    return {
+      result,
+      inputResults,
+    };
+  }
+  finalizeInput(inputIndex) {
     const input = utils_1.checkForInput(this.inputs, inputIndex);
-    const script = getScriptFromInput(
+    const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
       this.globalMap.unsignedTx,
     );
     if (!script) return false;
     const scriptType = classifyScript(script);
-    const hasSigs = (neededSigs, partialSig) => {
-      if (!partialSig) return false;
-      if (partialSig.length > neededSigs)
-        throw new Error('Too many signatures');
-      return partialSig.length === neededSigs;
-    };
-    switch (scriptType) {
-      case 'pubkey':
-        return hasSigs(1, input.partialSig);
-      case 'pubkeyhash':
-        return hasSigs(1, input.partialSig);
-      case 'multisig':
-        const p2ms = payments.p2ms({ output: script });
-        return hasSigs(p2ms.m, input.partialSig);
-      case 'witnesspubkeyhash':
-        return hasSigs(1, input.partialSig);
-      default:
-        return false;
+    if (!canFinalize(input, script, scriptType)) return false;
+    let finalScriptSig;
+    let finalScriptWitness;
+    // Wow, the payments API is very handy
+    const payment = getPayment(script, scriptType, input.partialSig);
+    const p2wsh = !isP2WSH ? null : payments.p2wsh({ redeem: payment });
+    const p2sh = !isP2SH ? null : payments.p2sh({ redeem: p2wsh || payment });
+    if (isSegwit) {
+      if (p2wsh) {
+        finalScriptWitness = witnessStackToScriptWitness(p2wsh.witness);
+      } else {
+        finalScriptWitness = witnessStackToScriptWitness(payment.witness);
+      }
+      if (p2sh) {
+        finalScriptSig = bscript.compile([p2sh.redeem.output]);
+      }
+    } else {
+      finalScriptSig = payment.input;
     }
+    if (finalScriptSig)
+      this.addFinalScriptSigToInput(inputIndex, finalScriptSig);
+    if (finalScriptWitness)
+      this.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
+    if (!finalScriptSig && !finalScriptWitness) return false;
+    this.clearFinalizedInput(inputIndex);
+    return true;
   }
   signInput(inputIndex, keyPair) {
-    const input = this.inputs[inputIndex];
-    if (input === undefined) throw new Error(`No input #${inputIndex}`);
+    const input = utils_1.checkForInput(this.inputs, inputIndex);
+    if (!keyPair || !keyPair.publicKey)
+      throw new Error('Need Signer to sign input');
     const { hash, sighashType, script } = getHashForSig(
       inputIndex,
       input,
       this.globalMap.unsignedTx,
     );
     const pubkey = keyPair.publicKey;
-    const pubkeyHash = crypto_1.hash160(keyPair.publicKey);
-    const decompiled = bscript.decompile(script);
-    if (decompiled === null) throw new Error('Unknown script error');
-    const hasKey = decompiled.some(element => {
-      if (typeof element === 'number') return false;
-      return element.equals(pubkey) || element.equals(pubkeyHash);
-    });
-    if (!hasKey) {
-      throw new Error(
-        `Can not sign for this input with the key ${pubkey.toString('hex')}`,
-      );
-    }
+    checkScriptForPubkey(pubkey, script);
     const partialSig = {
       pubkey,
       signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
@@ -81,6 +101,77 @@ class Psbt extends bip174_1.Psbt {
   }
 }
 exports.Psbt = Psbt;
+//
+//
+//
+//
+// Helper functions
+//
+//
+//
+//
+function isFinalized(input) {
+  return !!input.finalScriptSig || !!input.finalScriptWitness;
+}
+function getPayment(script, scriptType, partialSig) {
+  let payment;
+  switch (scriptType) {
+    case 'multisig':
+      payment = payments.p2ms({
+        output: script,
+        signatures: partialSig.map(ps => ps.signature),
+      });
+      break;
+    case 'pubkey':
+      payment = payments.p2pk({
+        output: script,
+        signature: partialSig[0].signature,
+      });
+      break;
+    case 'pubkeyhash':
+      payment = payments.p2pkh({
+        output: script,
+        pubkey: partialSig[0].pubkey,
+        signature: partialSig[0].signature,
+      });
+      break;
+    case 'witnesspubkeyhash':
+      payment = payments.p2wpkh({
+        output: script,
+        pubkey: partialSig[0].pubkey,
+        signature: partialSig[0].signature,
+      });
+      break;
+  }
+  return payment;
+}
+function canFinalize(input, script, scriptType) {
+  switch (scriptType) {
+    case 'pubkey':
+    case 'pubkeyhash':
+    case 'witnesspubkeyhash':
+      return hasSigs(1, input.partialSig);
+    case 'multisig':
+      const p2ms = payments.p2ms({ output: script });
+      return hasSigs(p2ms.m, input.partialSig);
+    default:
+      return false;
+  }
+}
+function checkScriptForPubkey(pubkey, script) {
+  const pubkeyHash = crypto_1.hash160(pubkey);
+  const decompiled = bscript.decompile(script);
+  if (decompiled === null) throw new Error('Unknown script error');
+  const hasKey = decompiled.some(element => {
+    if (typeof element === 'number') return false;
+    return element.equals(pubkey) || element.equals(pubkeyHash);
+  });
+  if (!hasKey) {
+    throw new Error(
+      `Can not sign for this input with the key ${pubkey.toString('hex')}`,
+    );
+  }
+}
 const getHashForSig = (inputIndex, input, txBuf) => {
   const unsignedTx = transaction_1.Transaction.fromBuffer(txBuf);
   const sighashType =
@@ -202,29 +293,67 @@ const classifyScript = script => {
   return 'nonstandard';
 };
 function getScriptFromInput(inputIndex, input, _unsignedTx) {
-  let script;
+  const res = {
+    script: null,
+    isSegwit: false,
+    isP2SH: false,
+    isP2WSH: false,
+  };
   if (input.nonWitnessUtxo) {
     if (input.redeemScript) {
-      script = input.redeemScript;
+      res.isP2SH = true;
+      res.script = input.redeemScript;
     } else {
       const unsignedTx = transaction_1.Transaction.fromBuffer(_unsignedTx);
       const nonWitnessUtxoTx = transaction_1.Transaction.fromBuffer(
         input.nonWitnessUtxo,
       );
       const prevoutIndex = unsignedTx.ins[inputIndex].index;
-      script = nonWitnessUtxoTx.outs[prevoutIndex].script;
+      res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
     }
   } else if (input.witnessUtxo) {
+    res.isSegwit = true;
+    res.isP2SH = !!input.redeemScript;
+    res.isP2WSH = !!input.witnessScript;
     if (input.witnessScript) {
-      script = input.witnessScript;
+      res.script = input.witnessScript;
     } else if (input.redeemScript) {
-      script = payments.p2pkh({ hash: input.redeemScript.slice(2) }).output;
+      res.script = payments.p2pkh({
+        hash: input.redeemScript.slice(2),
+      }).output;
     } else {
-      script = payments.p2pkh({ hash: input.witnessUtxo.script.slice(2) })
-        .output;
+      res.script = payments.p2pkh({
+        hash: input.witnessUtxo.script.slice(2),
+      }).output;
     }
-  } else {
-    return;
   }
-  return script;
+  return res;
 }
+const hasSigs = (neededSigs, partialSig) => {
+  if (!partialSig) return false;
+  if (partialSig.length > neededSigs) throw new Error('Too many signatures');
+  return partialSig.length === neededSigs;
+};
+function witnessStackToScriptWitness(witness) {
+  let buffer = Buffer.allocUnsafe(0);
+  function writeSlice(slice) {
+    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+  }
+  function writeVarInt(i) {
+    const currentLen = buffer.length;
+    const varintLen = varuint.encodingLength(i);
+    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+    varuint.encode(i, buffer, currentLen);
+  }
+  function writeVarSlice(slice) {
+    writeVarInt(slice.length);
+    writeSlice(slice);
+  }
+  function writeVector(vector) {
+    writeVarInt(vector.length);
+    vector.forEach(writeVarSlice);
+  }
+  writeVector(witness);
+  return buffer;
+}
+const range = n => [...Array(n).keys()];
