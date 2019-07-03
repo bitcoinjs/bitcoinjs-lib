@@ -2,7 +2,7 @@ import { Psbt as PsbtBase } from 'bip174';
 import { PartialSig, PsbtInput } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
 import { hash160 } from './crypto';
-import { Signer } from './ecpair';
+import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
@@ -65,30 +65,14 @@ export class Psbt extends PsbtBase {
     const scriptType = classifyScript(script);
     if (!canFinalize(input, script, scriptType)) return false;
 
-    let finalScriptSig: Buffer | undefined;
-    let finalScriptWitness: Buffer | undefined;
-
-    // Wow, the payments API is very handy
-    const payment: payments.Payment = getPayment(
+    const { finalScriptSig, finalScriptWitness } = getFinalScripts(
       script,
       scriptType,
       input.partialSig!,
+      isSegwit,
+      isP2SH,
+      isP2WSH,
     );
-    const p2wsh = !isP2WSH ? null : payments.p2wsh({ redeem: payment });
-    const p2sh = !isP2SH ? null : payments.p2sh({ redeem: p2wsh || payment });
-
-    if (isSegwit) {
-      if (p2wsh) {
-        finalScriptWitness = witnessStackToScriptWitness(p2wsh.witness!);
-      } else {
-        finalScriptWitness = witnessStackToScriptWitness(payment.witness!);
-      }
-      if (p2sh) {
-        finalScriptSig = bscript.compile([p2sh.redeem!.output!]);
-      }
-    } else {
-      finalScriptSig = payment.input;
-    }
 
     if (finalScriptSig)
       this.addFinalScriptSigToInput(inputIndex, finalScriptSig);
@@ -101,25 +85,45 @@ export class Psbt extends PsbtBase {
   }
 
   signInput(inputIndex: number, keyPair: Signer): Psbt {
-    const input = checkForInput(this.inputs, inputIndex);
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
-    const { hash, sighashType, script } = getHashForSig(
+    const { hash, sighashType } = getHashAndSighashType(
+      this.inputs,
       inputIndex,
-      input,
+      keyPair.publicKey,
       this.globalMap.unsignedTx!,
     );
 
-    const pubkey = keyPair.publicKey;
-
-    checkScriptForPubkey(pubkey, script);
-
     const partialSig = {
-      pubkey,
+      pubkey: keyPair.publicKey,
       signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
     };
 
     return this.addPartialSigToInput(inputIndex, partialSig);
+  }
+
+  async signInputAsync(
+    inputIndex: number,
+    keyPair: SignerAsync,
+  ): Promise<void> {
+    if (!keyPair || !keyPair.publicKey)
+      throw new Error('Need Signer to sign input');
+    const { hash, sighashType } = getHashAndSighashType(
+      this.inputs,
+      inputIndex,
+      keyPair.publicKey,
+      this.globalMap.unsignedTx!,
+    );
+
+    const partialSig = {
+      pubkey: keyPair.publicKey,
+      signature: bscript.signature.encode(
+        await keyPair.sign(hash),
+        sighashType,
+      ),
+    };
+
+    this.addPartialSigToInput(inputIndex, partialSig);
   }
 }
 
@@ -135,6 +139,61 @@ export class Psbt extends PsbtBase {
 
 function isFinalized(input: PsbtInput): boolean {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
+}
+
+function getHashAndSighashType(
+  inputs: PsbtInput[],
+  inputIndex: number,
+  pubkey: Buffer,
+  txBuf: Buffer,
+): {
+  hash: Buffer;
+  sighashType: number;
+} {
+  const input = checkForInput(inputs, inputIndex);
+  const { hash, sighashType, script } = getHashForSig(inputIndex, input, txBuf);
+  checkScriptForPubkey(pubkey, script);
+  return {
+    hash,
+    sighashType,
+  };
+}
+
+function getFinalScripts(
+  script: Buffer,
+  scriptType: string,
+  partialSig: PartialSig[],
+  isSegwit: boolean,
+  isP2SH: boolean,
+  isP2WSH: boolean,
+): {
+  finalScriptSig: Buffer | undefined;
+  finalScriptWitness: Buffer | undefined;
+} {
+  let finalScriptSig: Buffer | undefined;
+  let finalScriptWitness: Buffer | undefined;
+
+  // Wow, the payments API is very handy
+  const payment: payments.Payment = getPayment(script, scriptType, partialSig);
+  const p2wsh = !isP2WSH ? null : payments.p2wsh({ redeem: payment });
+  const p2sh = !isP2SH ? null : payments.p2sh({ redeem: p2wsh || payment });
+
+  if (isSegwit) {
+    if (p2wsh) {
+      finalScriptWitness = witnessStackToScriptWitness(p2wsh.witness!);
+    } else {
+      finalScriptWitness = witnessStackToScriptWitness(payment.witness!);
+    }
+    if (p2sh) {
+      finalScriptSig = bscript.compile([p2sh.redeem!.output!]);
+    }
+  } else {
+    finalScriptSig = payment.input;
+  }
+  return {
+    finalScriptSig,
+    finalScriptWitness,
+  };
 }
 
 function getPayment(

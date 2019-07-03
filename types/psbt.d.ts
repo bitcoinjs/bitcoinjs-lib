@@ -1,5 +1,5 @@
 import { Psbt as PsbtBase } from 'bip174';
-import { Signer } from './ecpair';
+import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
 export declare class Psbt extends PsbtBase {
@@ -12,4 +12,5 @@ export declare class Psbt extends PsbtBase {
     };
     finalizeInput(inputIndex: number): boolean;
     signInput(inputIndex: number, keyPair: Signer): Psbt;
+    signInputAsync(inputIndex: number, keyPair: SignerAsync): Promise<void>;
 }
