@@ -23,6 +23,16 @@ describe(`Psbt`, () => {
         })
       })
     })
+
+    fixtures.bip174.failSignChecks.forEach(f => {
+      const keyPair = ECPair.makeRandom()
+      it(`Fails Signer checks: ${f.description}`, () => {
+        const psbt =  Psbt.fromBase64(f.psbt)
+        assert.throws(() => {
+          psbt.signInput(f.inputToCheck, keyPair)
+        }, {message: f.errorMessage})
+      })
+    })
   })
 
   describe('signInput', () => {
