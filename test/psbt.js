@@ -16,10 +16,10 @@ describe(`Psbt`, () => {
       })
     })
 
-    fixtures.bip174.valid.forEach((psbt, i) => {
-      it(`Valid #${i + 1}`, () => {
+    fixtures.bip174.valid.forEach(f => {
+      it(`Valid: ${f.description}`, () => {
         assert.doesNotThrow(() => {
-          Psbt.fromBase64(psbt)
+          Psbt.fromBase64(f.psbt)
         })
       })
     })
