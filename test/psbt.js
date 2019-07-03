@@ -15,6 +15,14 @@ describe(`Psbt`, () => {
         }, {message: f.errorMessage})
       })
     })
+
+    fixtures.bip174.valid.forEach((psbt, i) => {
+      it(`Valid #${i + 1}`, () => {
+        assert.doesNotThrow(() => {
+          Psbt.fromBase64(psbt)
+        })
+      })
+    })
   })
 
   describe('signInput', () => {
