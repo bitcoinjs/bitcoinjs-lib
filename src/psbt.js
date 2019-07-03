@@ -87,7 +87,7 @@ class Psbt extends bip174_1.Psbt {
     };
     return this.addPartialSigToInput(inputIndex, partialSig);
   }
-  async signInputAsync(inputIndex, keyPair) {
+  signInputAsync(inputIndex, keyPair) {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
     const { hash, sighashType } = getHashAndSighashType(
@@ -96,14 +96,13 @@ class Psbt extends bip174_1.Psbt {
       keyPair.publicKey,
       this.globalMap.unsignedTx,
     );
-    const partialSig = {
-      pubkey: keyPair.publicKey,
-      signature: bscript.signature.encode(
-        await keyPair.sign(hash),
-        sighashType,
-      ),
-    };
-    this.addPartialSigToInput(inputIndex, partialSig);
+    return keyPair.sign(hash).then(signature => {
+      const partialSig = {
+        pubkey: keyPair.publicKey,
+        signature: bscript.signature.encode(signature, sighashType),
+      };
+      this.addPartialSigToInput(inputIndex, partialSig);
+    });
   }
 }
 exports.Psbt = Psbt;

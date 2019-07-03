@@ -102,10 +102,7 @@ export class Psbt extends PsbtBase {
     return this.addPartialSigToInput(inputIndex, partialSig);
   }
 
-  async signInputAsync(
-    inputIndex: number,
-    keyPair: SignerAsync,
-  ): Promise<void> {
+  signInputAsync(inputIndex: number, keyPair: SignerAsync): Promise<void> {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
     const { hash, sighashType } = getHashAndSighashType(
@@ -115,15 +112,14 @@ export class Psbt extends PsbtBase {
       this.globalMap.unsignedTx!,
     );
 
-    const partialSig = {
-      pubkey: keyPair.publicKey,
-      signature: bscript.signature.encode(
-        await keyPair.sign(hash),
-        sighashType,
-      ),
-    };
+    return keyPair.sign(hash).then(signature => {
+      const partialSig = {
+        pubkey: keyPair.publicKey,
+        signature: bscript.signature.encode(signature, sighashType),
+      };
 
-    this.addPartialSigToInput(inputIndex, partialSig);
+      this.addPartialSigToInput(inputIndex, partialSig);
+    });
   }
 }
 
