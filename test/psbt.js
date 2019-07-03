@@ -8,8 +8,8 @@ const fixtures = require('./fixtures/psbt')
 
 describe(`Psbt`, () => {
   describe('BIP174 Test Vectors', () => {
-    fixtures.bip174.invalid.forEach(f => {
-      it(`Invalid: "${f.errorMessage}"`, () => {    
+    fixtures.bip174.invalid.forEach((f, i) => {
+      it(`Invalid #${i + 1}: "${f.errorMessage}"`, () => {
         assert.throws(() => {
           Psbt.fromBase64(f.psbt)
         }, {message: f.errorMessage})
