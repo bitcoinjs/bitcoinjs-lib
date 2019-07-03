@@ -32,8 +32,9 @@ export class Psbt extends PsbtBase {
     this.inputs.forEach((input, idx) => {
       if (input.finalScriptSig) tx.ins[idx].script = input.finalScriptSig;
       if (input.finalScriptWitness) {
-        const decompiled = bscript.decompile(input.finalScriptWitness);
-        if (decompiled) tx.ins[idx].witness = bscript.toStack(decompiled);
+        tx.ins[idx].witness = scriptWitnessToWitnessStack(
+          input.finalScriptWitness,
+        );
       }
     });
     return tx;
@@ -181,15 +182,36 @@ function getFinalScripts(
       finalScriptWitness = witnessStackToScriptWitness(payment.witness!);
     }
     if (p2sh) {
-      finalScriptSig = bscript.compile([p2sh.redeem!.output!]);
+      finalScriptSig = p2sh.input;
     }
   } else {
-    finalScriptSig = payment.input;
+    if (p2sh) {
+      finalScriptSig = p2sh.input;
+    } else {
+      finalScriptSig = payment.input;
+    }
   }
   return {
     finalScriptSig,
     finalScriptWitness,
   };
+}
+
+function getSortedSigs(script: Buffer, partialSig: PartialSig[]): Buffer[] {
+  const p2ms = payments.p2ms({ output: script });
+  // for each pubkey in order of p2ms script
+  return p2ms
+    .pubkeys!.map(pk => {
+      // filter partialSig array by pubkey being equal
+      return (
+        partialSig.filter(ps => {
+          return ps.pubkey.equals(pk);
+        })[0] || {}
+      ).signature;
+      // Any pubkey without a match will return undefined
+      // this last filter removes all the undefined items in the array.
+    })
+    .filter(v => !!v);
 }
 
 function getPayment(
@@ -200,9 +222,10 @@ function getPayment(
   let payment: payments.Payment;
   switch (scriptType) {
     case 'multisig':
+      const sigs = getSortedSigs(script, partialSig);
       payment = payments.p2ms({
         output: script,
-        signatures: partialSig.map(ps => ps.signature),
+        signatures: sigs,
       });
       break;
     case 'pubkey':
@@ -343,7 +366,7 @@ const getHashForSig = (
       checkWitnessScript(inputIndex, _script, input.witnessScript);
       hash = unsignedTx.hashForWitnessV0(
         inputIndex,
-        _script,
+        input.witnessScript,
         input.witnessUtxo.value,
         sighashType,
       );
@@ -446,11 +469,11 @@ function getScriptFromInput(
     if (input.witnessScript) {
       res.script = input.witnessScript;
     } else if (input.redeemScript) {
-      res.script = payments.p2pkh({
+      res.script = payments.p2wpkh({
         hash: input.redeemScript.slice(2),
       }).output!;
     } else {
-      res.script = payments.p2pkh({
+      res.script = payments.p2wpkh({
         hash: input.witnessUtxo.script.slice(2),
       }).output!;
     }
@@ -492,6 +515,34 @@ function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
   writeVector(witness);
 
   return buffer;
+}
+
+function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
+  let offset = 0;
+
+  function readSlice(n: number): Buffer {
+    offset += n;
+    return buffer.slice(offset - n, offset);
+  }
+
+  function readVarInt(): number {
+    const vi = varuint.decode(buffer, offset);
+    offset += varuint.decode.bytes;
+    return vi;
+  }
+
+  function readVarSlice(): Buffer {
+    return readSlice(readVarInt());
+  }
+
+  function readVector(): Buffer[] {
+    const count = readVarInt();
+    const vector: Buffer[] = [];
+    for (let i = 0; i < count; i++) vector.push(readVarSlice());
+    return vector;
+  }
+
+  return readVector();
 }
 
 const range = (n: number): number[] => [...Array(n).keys()];
