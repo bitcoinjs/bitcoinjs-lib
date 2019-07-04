@@ -13,6 +13,7 @@ const varuint = require('varuint-bitcoin');
 class Psbt extends bip174_1.Psbt {
   static fromTransaction(txBuf) {
     const tx = transaction_1.Transaction.fromBuffer(txBuf);
+    checkTxEmpty(tx);
     const psbt = new this();
     psbt.__TX = tx;
     let inputCount = tx.ins.length;
@@ -35,6 +36,7 @@ class Psbt extends bip174_1.Psbt {
     let tx;
     const txCountGetter = txBuf => {
       tx = transaction_1.Transaction.fromBuffer(txBuf);
+      checkTxEmpty(tx);
       return {
         inputCount: tx.ins.length,
         outputCount: tx.outs.length,
@@ -564,3 +566,15 @@ function scriptWitnessToWitnessStack(buffer) {
   return readVector();
 }
 const range = n => [...Array(n).keys()];
+function checkTxEmpty(tx) {
+  const isEmpty = tx.ins.every(
+    input =>
+      input.script &&
+      input.script.length === 0 &&
+      input.witness &&
+      input.witness.length === 0,
+  );
+  if (!isEmpty) {
+    throw new Error('Format Error: Transaction ScriptSigs are not empty');
+  }
+}

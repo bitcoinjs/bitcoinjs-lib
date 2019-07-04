@@ -22,6 +22,7 @@ export class Psbt extends PsbtBase {
     txBuf: Buffer,
   ): InstanceType<T> {
     const tx = Transaction.fromBuffer(txBuf);
+    checkTxEmpty(tx);
     const psbt = new this() as Psbt;
     psbt.__TX = tx;
     let inputCount = tx.ins.length;
@@ -52,6 +53,7 @@ export class Psbt extends PsbtBase {
       outputCount: number;
     } => {
       tx = Transaction.fromBuffer(txBuf);
+      checkTxEmpty(tx);
       return {
         inputCount: tx.ins.length,
         outputCount: tx.outs.length,
@@ -719,3 +721,16 @@ function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
 }
 
 const range = (n: number): number[] => [...Array(n).keys()];
+
+function checkTxEmpty(tx: Transaction): void {
+  const isEmpty = tx.ins.every(
+    input =>
+      input.script &&
+      input.script.length === 0 &&
+      input.witness &&
+      input.witness.length === 0,
+  );
+  if (!isEmpty) {
+    throw new Error('Format Error: Transaction ScriptSigs are not empty');
+  }
+}
