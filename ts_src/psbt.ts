@@ -19,6 +19,7 @@ export class Psbt extends PsbtBase {
   private opts: PsbtOpts;
   constructor(opts: PsbtOptsOptional = {}) {
     super();
+    this.setVersion(2);
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     // // TODO: figure out a way to use a Transaction Object instead of a Buffer
     // // TODO: Caching, since .toBuffer() calls every time we get is lame.
