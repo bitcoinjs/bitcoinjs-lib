@@ -188,4 +188,14 @@ describe(`Psbt`, () => {
       assert.strictEqual(psbt.extractTransaction().version, 1)
     })
   })
+
+  describe('setLocktime', () => {
+    it('Sets the nLockTime value of the unsigned transaction', () => {
+      const psbt = new Psbt()
+
+      assert.strictEqual(psbt.extractTransaction().locktime, 0)
+      psbt.setLocktime(1)
+      assert.strictEqual(psbt.extractTransaction().locktime, 1)
+    })
+  })
 })
