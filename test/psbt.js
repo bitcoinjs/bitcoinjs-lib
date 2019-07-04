@@ -33,6 +33,20 @@ describe(`Psbt`, () => {
         }, {message: f.errorMessage})
       })
     })
+
+    fixtures.bip174.creator.forEach(f => {
+      it('Creates expected PSBT', () => {
+        const psbt = new Psbt()
+        for (const input of f.inputs) {
+          psbt.addInput(input)
+        }
+        for (const output of f.outputs) {
+          const script = Buffer.from(output.script, 'hex');
+          psbt.addOutput({...output, script})
+        }
+        assert.strictEqual(psbt.toBase64(), f.result)
+      })
+    })
   })
 
   describe('signInput', () => {
