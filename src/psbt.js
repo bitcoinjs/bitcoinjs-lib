@@ -3,6 +3,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const bip174_1 = require('bip174');
 const utils_1 = require('bip174/src/lib/utils');
 const address_1 = require('./address');
+const bufferutils_1 = require('./bufferutils');
 const crypto_1 = require('./crypto');
 const networks_1 = require('./networks');
 const payments = require('./payments');
@@ -12,28 +13,92 @@ const varuint = require('varuint-bitcoin');
 class Psbt extends bip174_1.Psbt {
   constructor(opts = {}) {
     super();
+    // set defaults
     this.setVersion(2);
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
-    // // TODO: figure out a way to use a Transaction Object instead of a Buffer
-    // // TODO: Caching, since .toBuffer() calls every time we get is lame.
-    // this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
-    // delete this.globalMap.unsignedTx;
-    // Object.defineProperty(this.globalMap, 'unsignedTx', {
-    //   enumerable: true,
-    //   writable: false,
-    //   get(): Buffer {
-    //     return this.__TX.toBuffer();
-    //   }
-    // });
+    this.__TX = transaction_1.Transaction.fromBuffer(this.globalMap.unsignedTx);
+    // set cache
+    const self = this;
+    delete this.globalMap.unsignedTx;
+    Object.defineProperty(this.globalMap, 'unsignedTx', {
+      enumerable: true,
+      get() {
+        if (self.__TX_BUF_CACHE !== undefined) {
+          return self.__TX_BUF_CACHE;
+        } else {
+          self.__TX_BUF_CACHE = self.__TX.toBuffer();
+          return self.__TX_BUF_CACHE;
+        }
+      },
+      set(data) {
+        self.__TX_BUF_CACHE = data;
+      },
+    });
+    // Make data hidden when enumerating
+    const dpew = (obj, attr, enumerable, writable) =>
+      Object.defineProperty(obj, attr, {
+        enumerable,
+        writable,
+      });
+    dpew(this, '__TX', false, false);
+    dpew(this, '__TX_BUF_CACHE', false, true);
+    dpew(this, 'opts', false, true);
   }
-  addOutput(outputData, allowNoInput = false, transactionOutputAdder) {
+  addInput(inputData) {
+    const self = this;
+    const inputAdder = (_inputData, txBuf) => {
+      if (
+        !txBuf ||
+        _inputData.hash === undefined ||
+        _inputData.index === undefined ||
+        (!Buffer.isBuffer(_inputData.hash) &&
+          typeof _inputData.hash !== 'string') ||
+        typeof _inputData.index !== 'number'
+      ) {
+        throw new Error('Error adding input.');
+      }
+      const prevHash = Buffer.isBuffer(_inputData.hash)
+        ? _inputData.hash
+        : bufferutils_1.reverseBuffer(Buffer.from(_inputData.hash, 'hex'));
+      self.__TX.ins.push({
+        hash: prevHash,
+        index: _inputData.index,
+        script: Buffer.alloc(0),
+        sequence:
+          _inputData.sequence || transaction_1.Transaction.DEFAULT_SEQUENCE,
+        witness: [],
+      });
+      console.log(self.__TX);
+      return self.__TX.toBuffer();
+    };
+    return super.addInput(inputData, inputAdder);
+  }
+  addOutput(outputData) {
     const { address } = outputData;
     if (typeof address === 'string') {
       const { network } = this.opts;
       const script = address_1.toOutputScript(address, network);
       outputData = Object.assign(outputData, { script });
     }
-    return super.addOutput(outputData, allowNoInput, transactionOutputAdder);
+    const self = this;
+    const outputAdder = (_outputData, txBuf) => {
+      if (
+        !txBuf ||
+        _outputData.script === undefined ||
+        _outputData.value === undefined ||
+        !Buffer.isBuffer(_outputData.script) ||
+        typeof _outputData.value !== 'number'
+      ) {
+        throw new Error('Error adding output.');
+      }
+      self.__TX.outs.push({
+        script: _outputData.script,
+        value: _outputData.value,
+      });
+      console.log(self.__TX);
+      return self.__TX.toBuffer();
+    };
+    return super.addOutput(outputData, true, outputAdder);
   }
   extractTransaction() {
     if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');

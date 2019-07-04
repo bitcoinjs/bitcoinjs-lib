@@ -1,14 +1,15 @@
-/// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { TransactionOutput } from 'bip174/src/lib/interfaces';
+import { TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
 export declare class Psbt extends PsbtBase {
+    private __TX;
+    private __TX_BUF_CACHE?;
     private opts;
     constructor(opts?: PsbtOptsOptional);
-    addOutput(outputData: TransactionOutput, allowNoInput?: boolean): this;
-    addOutput<T>(outputData: T, allowNoInput?: boolean, transactionOutputAdder?: (output: T, txBuffer: Buffer) => Buffer): this;
+    addInput(inputData: TransactionInput): this;
+    addOutput(outputData: TransactionOutput): this;
     extractTransaction(): Transaction;
     finalizeAllInputs(): {
         result: boolean;

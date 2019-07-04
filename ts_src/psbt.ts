@@ -2,10 +2,12 @@ import { Psbt as PsbtBase } from 'bip174';
 import {
   PartialSig,
   PsbtInput,
+  TransactionInput,
   TransactionOutput,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
 import { toOutputScript } from './address';
+import { reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
 import { Signer, SignerAsync } from './ecpair';
 import { bitcoin as btcNetwork, Network } from './networks';
@@ -15,46 +17,111 @@ import { Transaction } from './transaction';
 const varuint = require('varuint-bitcoin');
 
 export class Psbt extends PsbtBase {
-  // protected __TX: Transaction;
+  private __TX: Transaction;
+  private __TX_BUF_CACHE?: Buffer;
   private opts: PsbtOpts;
   constructor(opts: PsbtOptsOptional = {}) {
     super();
+    // set defaults
     this.setVersion(2);
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
-    // // TODO: figure out a way to use a Transaction Object instead of a Buffer
-    // // TODO: Caching, since .toBuffer() calls every time we get is lame.
-    // this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
-    // delete this.globalMap.unsignedTx;
-    // Object.defineProperty(this.globalMap, 'unsignedTx', {
-    //   enumerable: true,
-    //   writable: false,
-    //   get(): Buffer {
-    //     return this.__TX.toBuffer();
-    //   }
-    // });
+    this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+
+    // set cache
+    const self = this;
+    delete this.globalMap.unsignedTx;
+    Object.defineProperty(this.globalMap, 'unsignedTx', {
+      enumerable: true,
+      get(): Buffer {
+        if (self.__TX_BUF_CACHE !== undefined) {
+          return self.__TX_BUF_CACHE;
+        } else {
+          self.__TX_BUF_CACHE = self.__TX.toBuffer();
+          return self.__TX_BUF_CACHE;
+        }
+      },
+      set(data: Buffer): void {
+        self.__TX_BUF_CACHE = data;
+      },
+    });
+
+    // Make data hidden when enumerating
+    const dpew = (
+      obj: any,
+      attr: string,
+      enumerable: boolean,
+      writable: boolean,
+    ): any =>
+      Object.defineProperty(obj, attr, {
+        enumerable,
+        writable,
+      });
+    dpew(this, '__TX', false, false);
+    dpew(this, '__TX_BUF_CACHE', false, true);
+    dpew(this, 'opts', false, true);
   }
 
-  addOutput(outputData: TransactionOutput, allowNoInput?: boolean): this;
-  addOutput<T>(
-    outputData: T,
-    allowNoInput?: boolean,
-    transactionOutputAdder?: (output: T, txBuffer: Buffer) => Buffer,
-  ): this;
-  addOutput<T>(
-    outputData: T | TransactionOutput,
-    allowNoInput: boolean = false,
-    transactionOutputAdder?: (
-      output: T | TransactionOutput,
-      txBuffer: Buffer,
-    ) => Buffer,
-  ): this {
+  addInput(inputData: TransactionInput): this {
+    const self = this;
+    const inputAdder = (
+      _inputData: TransactionInput,
+      txBuf: Buffer,
+    ): Buffer => {
+      if (
+        !txBuf ||
+        (_inputData as any).hash === undefined ||
+        (_inputData as any).index === undefined ||
+        (!Buffer.isBuffer((_inputData as any).hash) &&
+          typeof (_inputData as any).hash !== 'string') ||
+        typeof (_inputData as any).index !== 'number'
+      ) {
+        throw new Error('Error adding input.');
+      }
+      const prevHash = Buffer.isBuffer(_inputData.hash)
+        ? _inputData.hash
+        : reverseBuffer(Buffer.from(_inputData.hash, 'hex'));
+      self.__TX.ins.push({
+        hash: prevHash,
+        index: _inputData.index,
+        script: Buffer.alloc(0),
+        sequence: _inputData.sequence || Transaction.DEFAULT_SEQUENCE,
+        witness: [],
+      });
+      console.log(self.__TX);
+      return self.__TX.toBuffer();
+    };
+    return super.addInput(inputData, inputAdder);
+  }
+
+  addOutput(outputData: TransactionOutput): this {
     const { address } = outputData as any;
     if (typeof address === 'string') {
       const { network } = this.opts;
       const script = toOutputScript(address, network);
       outputData = Object.assign(outputData, { script });
     }
-    return super.addOutput(outputData, allowNoInput, transactionOutputAdder);
+    const self = this;
+    const outputAdder = (
+      _outputData: TransactionOutput,
+      txBuf: Buffer,
+    ): Buffer => {
+      if (
+        !txBuf ||
+        (_outputData as any).script === undefined ||
+        (_outputData as any).value === undefined ||
+        !Buffer.isBuffer((_outputData as any).script) ||
+        typeof (_outputData as any).value !== 'number'
+      ) {
+        throw new Error('Error adding output.');
+      }
+      self.__TX.outs.push({
+        script: (_outputData as any).script!,
+        value: _outputData.value,
+      });
+      console.log(self.__TX);
+      return self.__TX.toBuffer();
+    };
+    return super.addOutput(outputData, true, outputAdder);
   }
 
   extractTransaction(): Transaction {
