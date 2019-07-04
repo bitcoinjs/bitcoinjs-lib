@@ -178,4 +178,14 @@ describe(`Psbt`, () => {
       })
     })
   })
+
+  describe('setVersion', () => {
+    it('Sets the version value of the unsigned transaction', () => {
+      const psbt = new Psbt()
+
+      assert.strictEqual(psbt.extractTransaction().version, 2)
+      psbt.setVersion(1)
+      assert.strictEqual(psbt.extractTransaction().version, 1)
+    })
+  })
 })
