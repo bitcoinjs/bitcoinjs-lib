@@ -2,16 +2,17 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const bip174_1 = require('bip174');
 const utils_1 = require('bip174/src/lib/utils');
+const address_1 = require('./address');
 const crypto_1 = require('./crypto');
+const networks_1 = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
 const varuint = require('varuint-bitcoin');
 class Psbt extends bip174_1.Psbt {
-  // protected __TX: Transaction;
-  constructor(network) {
+  constructor(opts = {}) {
     super();
-    this.network = network;
+    this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     // // TODO: figure out a way to use a Transaction Object instead of a Buffer
     // // TODO: Caching, since .toBuffer() calls every time we get is lame.
     // this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
@@ -23,6 +24,15 @@ class Psbt extends bip174_1.Psbt {
     //     return this.__TX.toBuffer();
     //   }
     // });
+  }
+  addOutput(outputData, allowNoInput = false, transactionOutputAdder) {
+    const { address } = outputData;
+    if (typeof address === 'string') {
+      const { network } = this.opts;
+      const script = address_1.toOutputScript(address, network);
+      outputData = Object.assign(outputData, { script });
+    }
+    return super.addOutput(outputData, allowNoInput, transactionOutputAdder);
   }
   extractTransaction() {
     if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
@@ -107,15 +117,9 @@ class Psbt extends bip174_1.Psbt {
   }
 }
 exports.Psbt = Psbt;
-//
-//
-//
-//
-// Helper functions
-//
-//
-//
-//
+const DEFAULT_OPTS = {
+  network: networks_1.bitcoin,
+};
 function isFinalized(input) {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }

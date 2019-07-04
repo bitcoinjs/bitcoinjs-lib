@@ -1,9 +1,14 @@
 import { Psbt as PsbtBase } from 'bip174';
-import { PartialSig, PsbtInput } from 'bip174/src/lib/interfaces';
+import {
+  PartialSig,
+  PsbtInput,
+  TransactionOutput,
+} from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
+import { toOutputScript } from './address';
 import { hash160 } from './crypto';
 import { Signer, SignerAsync } from './ecpair';
-import { Network } from './networks';
+import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import { Transaction } from './transaction';
@@ -11,8 +16,10 @@ const varuint = require('varuint-bitcoin');
 
 export class Psbt extends PsbtBase {
   // protected __TX: Transaction;
-  constructor(public network?: Network) {
+  private opts: PsbtOpts;
+  constructor(opts: PsbtOptsOptional = {}) {
     super();
+    this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     // // TODO: figure out a way to use a Transaction Object instead of a Buffer
     // // TODO: Caching, since .toBuffer() calls every time we get is lame.
     // this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
@@ -24,6 +31,29 @@ export class Psbt extends PsbtBase {
     //     return this.__TX.toBuffer();
     //   }
     // });
+  }
+
+  addOutput(outputData: TransactionOutput, allowNoInput?: boolean): this;
+  addOutput<T>(
+    outputData: T,
+    allowNoInput?: boolean,
+    transactionOutputAdder?: (output: T, txBuffer: Buffer) => Buffer,
+  ): this;
+  addOutput<T>(
+    outputData: T | TransactionOutput,
+    allowNoInput: boolean = false,
+    transactionOutputAdder?: (
+      output: T | TransactionOutput,
+      txBuffer: Buffer,
+    ) => Buffer,
+  ): this {
+    const { address } = outputData as any;
+    if (typeof address === 'string') {
+      const { network } = this.opts;
+      const script = toOutputScript(address, network);
+      outputData = Object.assign(outputData, { script });
+    }
+    return super.addOutput(outputData, allowNoInput, transactionOutputAdder);
   }
 
   extractTransaction(): Transaction {
@@ -133,6 +163,18 @@ export class Psbt extends PsbtBase {
 //
 //
 //
+
+interface PsbtOptsOptional {
+  network?: Network;
+}
+
+interface PsbtOpts {
+  network: Network;
+}
+
+const DEFAULT_OPTS = {
+  network: btcNetwork,
+};
 
 function isFinalized(input: PsbtInput): boolean {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
