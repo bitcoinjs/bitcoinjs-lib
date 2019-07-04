@@ -169,4 +169,13 @@ describe(`Psbt`, () => {
       })
     })
   })
+
+  describe('fromTransaction', () => {
+    fixtures.fromTransaction.forEach(f => {
+      it('Creates the expected PSBT from a transaction buffer', () => {
+        const psbt = Psbt.fromTransaction(Buffer.from(f.transaction, 'hex'))
+        assert.strictEqual(psbt.toBase64(), f.result)
+      })
+    })
+  })
 })
