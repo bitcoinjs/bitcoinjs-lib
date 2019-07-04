@@ -13,6 +13,7 @@ export declare class Psbt extends PsbtBase {
     constructor(opts?: PsbtOptsOptional);
     setVersion(version: number): this;
     setLocktime(locktime: number): this;
+    setSequence(inputIndex: number, sequence: number): this;
     addInput(inputData: TransactionInput): this;
     addOutput(outputData: TransactionOutput): this;
     extractTransaction(): Transaction;

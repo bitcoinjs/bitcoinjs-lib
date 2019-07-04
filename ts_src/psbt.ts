@@ -108,18 +108,34 @@ export class Psbt extends PsbtBase {
   }
 
   setVersion(version: number): this {
+    check32Bit(version);
+    checkInputsForPartialSig(this.inputs, 'setVersion');
     this.__TX.version = version;
     this.__TX_BUF_CACHE = undefined;
     return this;
   }
 
   setLocktime(locktime: number): this {
+    check32Bit(locktime);
+    checkInputsForPartialSig(this.inputs, 'setLocktime');
     this.__TX.locktime = locktime;
     this.__TX_BUF_CACHE = undefined;
     return this;
   }
 
+  setSequence(inputIndex: number, sequence: number): this {
+    check32Bit(sequence);
+    checkInputsForPartialSig(this.inputs, 'setSequence');
+    if (this.__TX.ins.length <= inputIndex) {
+      throw new Error('Input index too high');
+    }
+    this.__TX.ins[inputIndex].sequence = sequence;
+    this.__TX_BUF_CACHE = undefined;
+    return this;
+  }
+
   addInput(inputData: TransactionInput): this {
+    checkInputsForPartialSig(this.inputs, 'addInput');
     const self = this;
     const inputAdder = (
       _inputData: TransactionInput,
@@ -152,6 +168,7 @@ export class Psbt extends PsbtBase {
   }
 
   addOutput(outputData: TransactionOutput): this {
+    checkInputsForPartialSig(this.inputs, 'addOutput');
     const { address } = outputData as any;
     if (typeof address === 'string') {
       const { network } = this.opts;
@@ -732,5 +749,51 @@ function checkTxEmpty(tx: Transaction): void {
   );
   if (!isEmpty) {
     throw new Error('Format Error: Transaction ScriptSigs are not empty');
+  }
+}
+
+function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
+  inputs.forEach(input => {
+    let throws = false;
+    if ((input.partialSig || []).length > 0) {
+      if (input.sighashType !== undefined) {
+        const whitelist: string[] = [];
+        const isAnyoneCanPay =
+          input.sighashType & Transaction.SIGHASH_ANYONECANPAY;
+        if (isAnyoneCanPay) whitelist.push('addInput');
+        if (!isAnyoneCanPay && action === 'addInput') {
+          throws = true;
+        }
+        const hashType = input.sighashType & 0x1f;
+        switch (hashType) {
+          case Transaction.SIGHASH_ALL:
+            break;
+          case Transaction.SIGHASH_SINGLE:
+          case Transaction.SIGHASH_NONE:
+            whitelist.push('addOutput');
+            whitelist.push('setSequence');
+            break;
+        }
+        if (whitelist.indexOf(action) === -1) {
+          throws = true;
+        }
+      } else {
+        throws = true;
+      }
+    }
+    if (throws) {
+      throw new Error('Can not modify transaction, signatures exist.');
+    }
+  });
+}
+
+function check32Bit(num: number): void {
+  if (
+    typeof num !== 'number' ||
+    num !== Math.floor(num) ||
+    num > 0xffffffff ||
+    num < 0
+  ) {
+    throw new Error('Invalid 32 bit integer');
   }
 }
