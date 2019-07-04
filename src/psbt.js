@@ -175,20 +175,23 @@ class Psbt extends bip174_1.Psbt {
     return this.addPartialSigToInput(inputIndex, partialSig);
   }
   signInputAsync(inputIndex, keyPair) {
-    if (!keyPair || !keyPair.publicKey)
-      throw new Error('Need Signer to sign input');
-    const { hash, sighashType } = getHashAndSighashType(
-      this.inputs,
-      inputIndex,
-      keyPair.publicKey,
-      this.globalMap.unsignedTx,
-    );
-    return keyPair.sign(hash).then(signature => {
-      const partialSig = {
-        pubkey: keyPair.publicKey,
-        signature: bscript.signature.encode(signature, sighashType),
-      };
-      this.addPartialSigToInput(inputIndex, partialSig);
+    return new Promise((resolve, reject) => {
+      if (!keyPair || !keyPair.publicKey)
+        return reject(new Error('Need Signer to sign input'));
+      const { hash, sighashType } = getHashAndSighashType(
+        this.inputs,
+        inputIndex,
+        keyPair.publicKey,
+        this.globalMap.unsignedTx,
+      );
+      Promise.resolve(keyPair.sign(hash)).then(signature => {
+        const partialSig = {
+          pubkey: keyPair.publicKey,
+          signature: bscript.signature.encode(signature, sighashType),
+        };
+        this.addPartialSigToInput(inputIndex, partialSig);
+        resolve();
+      });
     });
   }
 }

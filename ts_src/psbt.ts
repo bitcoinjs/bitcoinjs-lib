@@ -214,23 +214,28 @@ export class Psbt extends PsbtBase {
   }
 
   signInputAsync(inputIndex: number, keyPair: SignerAsync): Promise<void> {
-    if (!keyPair || !keyPair.publicKey)
-      throw new Error('Need Signer to sign input');
-    const { hash, sighashType } = getHashAndSighashType(
-      this.inputs,
-      inputIndex,
-      keyPair.publicKey,
-      this.globalMap.unsignedTx!,
+    return new Promise(
+      (resolve, reject): void => {
+        if (!keyPair || !keyPair.publicKey)
+          return reject(new Error('Need Signer to sign input'));
+        const { hash, sighashType } = getHashAndSighashType(
+          this.inputs,
+          inputIndex,
+          keyPair.publicKey,
+          this.globalMap.unsignedTx!,
+        );
+
+        Promise.resolve(keyPair.sign(hash)).then(signature => {
+          const partialSig = {
+            pubkey: keyPair.publicKey,
+            signature: bscript.signature.encode(signature, sighashType),
+          };
+
+          this.addPartialSigToInput(inputIndex, partialSig);
+          resolve();
+        });
+      },
     );
-
-    return keyPair.sign(hash).then(signature => {
-      const partialSig = {
-        pubkey: keyPair.publicKey,
-        signature: bscript.signature.encode(signature, sighashType),
-      };
-
-      this.addPartialSigToInput(inputIndex, partialSig);
-    });
   }
 }
 
