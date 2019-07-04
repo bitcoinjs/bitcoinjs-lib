@@ -3,6 +3,7 @@ const assert = require('assert')
 
 const ECPair = require('../src/ecpair')
 const Psbt = require('..').Psbt
+const NETWORKS = require('../src/networks')
 
 const fixtures = require('./fixtures/psbt')
 
@@ -97,6 +98,19 @@ describe(`Psbt`, () => {
 
         assert.strictEqual(psbt.toBase64(), f.result)
       })
+    })
+  })
+
+  fixtures.bip174.signer.forEach(f => {
+    it('Signs PSBT to the expected result', () => {
+      const psbt =  Psbt.fromBase64(f.psbt)
+
+      f.keys.forEach(({inputToSign, WIF}) => {
+        const keyPair = ECPair.fromWIF(WIF, NETWORKS.testnet);
+        psbt.signInput(inputToSign, keyPair);
+      })
+
+      assert.strictEqual(psbt.toBase64(), f.result)
     })
   })
 
