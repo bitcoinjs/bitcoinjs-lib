@@ -114,6 +114,20 @@ describe(`Psbt`, () => {
     })
   })
 
+  fixtures.bip174.combiner.forEach(f => {
+    it('Combines two PSBTs to the expected result', () => {
+      const psbts =  f.psbts.map(psbt => Psbt.fromBase64(psbt))
+
+      psbts[0].combine(psbts[1])
+
+      // Produces a different Base64 string due to implemetation specific key-value ordering.
+      // That means this test will fail:
+      // assert.strictEqual(psbts[0].toBase64(), f.result)
+      // However, if we compare the actual PSBT properties we can see they are logically identical:
+      assert.deepStrictEqual(psbts[0], Psbt.fromBase64(f.result))
+    })
+  })
+
   describe('signInput', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, () => {
