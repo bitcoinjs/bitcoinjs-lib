@@ -11,6 +11,39 @@ const bscript = require('./script');
 const transaction_1 = require('./transaction');
 const varuint = require('varuint-bitcoin');
 class Psbt extends bip174_1.Psbt {
+  static fromTransaction(txBuf) {
+    const tx = transaction_1.Transaction.fromBuffer(txBuf);
+    const psbt = new this();
+    psbt.__TX = tx;
+    let inputCount = tx.ins.length;
+    let outputCount = tx.outs.length;
+    while (inputCount > 0) {
+      psbt.inputs.push({
+        keyVals: [],
+      });
+      inputCount--;
+    }
+    while (outputCount > 0) {
+      psbt.outputs.push({
+        keyVals: [],
+      });
+      outputCount--;
+    }
+    return psbt;
+  }
+  static fromBuffer(buffer) {
+    let tx;
+    const txCountGetter = txBuf => {
+      tx = transaction_1.Transaction.fromBuffer(txBuf);
+      return {
+        inputCount: tx.ins.length,
+        outputCount: tx.outs.length,
+      };
+    };
+    const psbt = super.fromBuffer(buffer, txCountGetter);
+    psbt.__TX = tx;
+    return psbt;
+  }
   constructor(opts = {}) {
     super();
     // set defaults
@@ -40,7 +73,7 @@ class Psbt extends bip174_1.Psbt {
         enumerable,
         writable,
       });
-    dpew(this, '__TX', false, false);
+    dpew(this, '__TX', false, true);
     dpew(this, '__TX_BUF_CACHE', false, true);
     dpew(this, 'opts', false, true);
   }
@@ -112,7 +145,7 @@ class Psbt extends bip174_1.Psbt {
   }
   extractTransaction() {
     if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
-    const tx = transaction_1.Transaction.fromBuffer(this.globalMap.unsignedTx);
+    const tx = this.__TX.clone();
     this.inputs.forEach((input, idx) => {
       if (input.finalScriptSig) tx.ins[idx].script = input.finalScriptSig;
       if (input.finalScriptWitness) {
@@ -138,7 +171,7 @@ class Psbt extends bip174_1.Psbt {
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
-      this.globalMap.unsignedTx,
+      this.__TX,
     );
     if (!script) return false;
     const scriptType = classifyScript(script);
@@ -166,7 +199,7 @@ class Psbt extends bip174_1.Psbt {
       this.inputs,
       inputIndex,
       keyPair.publicKey,
-      this.globalMap.unsignedTx,
+      this.__TX,
     );
     const partialSig = {
       pubkey: keyPair.publicKey,
@@ -182,7 +215,7 @@ class Psbt extends bip174_1.Psbt {
         this.inputs,
         inputIndex,
         keyPair.publicKey,
-        this.globalMap.unsignedTx,
+        this.__TX,
       );
       Promise.resolve(keyPair.sign(hash)).then(signature => {
         const partialSig = {
@@ -202,9 +235,13 @@ const DEFAULT_OPTS = {
 function isFinalized(input) {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }
-function getHashAndSighashType(inputs, inputIndex, pubkey, txBuf) {
+function getHashAndSighashType(inputs, inputIndex, pubkey, unsignedTx) {
   const input = utils_1.checkForInput(inputs, inputIndex);
-  const { hash, sighashType, script } = getHashForSig(inputIndex, input, txBuf);
+  const { hash, sighashType, script } = getHashForSig(
+    inputIndex,
+    input,
+    unsignedTx,
+  );
   checkScriptForPubkey(pubkey, script);
   return {
     hash,
@@ -322,8 +359,7 @@ function checkScriptForPubkey(pubkey, script) {
     );
   }
 }
-const getHashForSig = (inputIndex, input, txBuf) => {
-  const unsignedTx = transaction_1.Transaction.fromBuffer(txBuf);
+const getHashForSig = (inputIndex, input, unsignedTx) => {
   const sighashType =
     input.sighashType || transaction_1.Transaction.SIGHASH_ALL;
   let hash;
@@ -442,7 +478,7 @@ const classifyScript = script => {
   if (isP2PK(script)) return 'pubkey';
   return 'nonstandard';
 };
-function getScriptFromInput(inputIndex, input, _unsignedTx) {
+function getScriptFromInput(inputIndex, input, unsignedTx) {
   const res = {
     script: null,
     isSegwit: false,
@@ -454,7 +490,6 @@ function getScriptFromInput(inputIndex, input, _unsignedTx) {
       res.isP2SH = true;
       res.script = input.redeemScript;
     } else {
-      const unsignedTx = transaction_1.Transaction.fromBuffer(_unsignedTx);
       const nonWitnessUtxoTx = transaction_1.Transaction.fromBuffer(
         input.nonWitnessUtxo,
       );

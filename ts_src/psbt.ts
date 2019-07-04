@@ -17,6 +17,50 @@ import { Transaction } from './transaction';
 const varuint = require('varuint-bitcoin');
 
 export class Psbt extends PsbtBase {
+  static fromTransaction<T extends typeof PsbtBase>(
+    this: T,
+    txBuf: Buffer,
+  ): InstanceType<T> {
+    const tx = Transaction.fromBuffer(txBuf);
+    const psbt = new this() as Psbt;
+    psbt.__TX = tx;
+    let inputCount = tx.ins.length;
+    let outputCount = tx.outs.length;
+    while (inputCount > 0) {
+      psbt.inputs.push({
+        keyVals: [],
+      });
+      inputCount--;
+    }
+    while (outputCount > 0) {
+      psbt.outputs.push({
+        keyVals: [],
+      });
+      outputCount--;
+    }
+    return psbt as InstanceType<T>;
+  }
+  static fromBuffer<T extends typeof PsbtBase>(
+    this: T,
+    buffer: Buffer,
+  ): InstanceType<T> {
+    let tx: Transaction | undefined;
+    const txCountGetter = (
+      txBuf: Buffer,
+    ): {
+      inputCount: number;
+      outputCount: number;
+    } => {
+      tx = Transaction.fromBuffer(txBuf);
+      return {
+        inputCount: tx.ins.length,
+        outputCount: tx.outs.length,
+      };
+    };
+    const psbt = super.fromBuffer(buffer, txCountGetter) as Psbt;
+    psbt.__TX = tx!;
+    return psbt as InstanceType<T>;
+  }
   private __TX: Transaction;
   private __TX_BUF_CACHE?: Buffer;
   private opts: PsbtOpts;
@@ -56,7 +100,7 @@ export class Psbt extends PsbtBase {
         enumerable,
         writable,
       });
-    dpew(this, '__TX', false, false);
+    dpew(this, '__TX', false, true);
     dpew(this, '__TX_BUF_CACHE', false, true);
     dpew(this, 'opts', false, true);
   }
@@ -138,7 +182,7 @@ export class Psbt extends PsbtBase {
 
   extractTransaction(): Transaction {
     if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
-    const tx = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+    const tx = this.__TX.clone();
     this.inputs.forEach((input, idx) => {
       if (input.finalScriptSig) tx.ins[idx].script = input.finalScriptSig;
       if (input.finalScriptWitness) {
@@ -169,7 +213,7 @@ export class Psbt extends PsbtBase {
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
-      this.globalMap.unsignedTx!,
+      this.__TX,
     );
     if (!script) return false;
 
@@ -195,14 +239,14 @@ export class Psbt extends PsbtBase {
     return true;
   }
 
-  signInput(inputIndex: number, keyPair: Signer): Psbt {
+  signInput(inputIndex: number, keyPair: Signer): this {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
     const { hash, sighashType } = getHashAndSighashType(
       this.inputs,
       inputIndex,
       keyPair.publicKey,
-      this.globalMap.unsignedTx!,
+      this.__TX,
     );
 
     const partialSig = {
@@ -222,7 +266,7 @@ export class Psbt extends PsbtBase {
           this.inputs,
           inputIndex,
           keyPair.publicKey,
-          this.globalMap.unsignedTx!,
+          this.__TX,
         );
 
         Promise.resolve(keyPair.sign(hash)).then(signature => {
@@ -269,13 +313,17 @@ function getHashAndSighashType(
   inputs: PsbtInput[],
   inputIndex: number,
   pubkey: Buffer,
-  txBuf: Buffer,
+  unsignedTx: Transaction,
 ): {
   hash: Buffer;
   sighashType: number;
 } {
   const input = checkForInput(inputs, inputIndex);
-  const { hash, sighashType, script } = getHashForSig(inputIndex, input, txBuf);
+  const { hash, sighashType, script } = getHashForSig(
+    inputIndex,
+    input,
+    unsignedTx,
+  );
   checkScriptForPubkey(pubkey, script);
   return {
     hash,
@@ -424,9 +472,8 @@ interface HashForSigData {
 const getHashForSig = (
   inputIndex: number,
   input: PsbtInput,
-  txBuf: Buffer,
+  unsignedTx: Transaction,
 ): HashForSigData => {
-  const unsignedTx = Transaction.fromBuffer(txBuf);
   const sighashType = input.sighashType || Transaction.SIGHASH_ALL;
   let hash: Buffer;
   let script: Buffer;
@@ -571,7 +618,7 @@ interface GetScriptReturn {
 function getScriptFromInput(
   inputIndex: number,
   input: PsbtInput,
-  _unsignedTx: Buffer,
+  unsignedTx: Transaction,
 ): GetScriptReturn {
   const res: GetScriptReturn = {
     script: null,
@@ -584,7 +631,6 @@ function getScriptFromInput(
       res.isP2SH = true;
       res.script = input.redeemScript;
     } else {
-      const unsignedTx = Transaction.fromBuffer(_unsignedTx);
       const nonWitnessUtxoTx = Transaction.fromBuffer(input.nonWitnessUtxo);
       const prevoutIndex = unsignedTx.ins[inputIndex].index;
       res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
