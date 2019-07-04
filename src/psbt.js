@@ -128,7 +128,6 @@ class Psbt extends bip174_1.Psbt {
           _inputData.sequence || transaction_1.Transaction.DEFAULT_SEQUENCE,
         witness: [],
       });
-      console.log(self.__TX);
       return self.__TX.toBuffer();
     };
     return super.addInput(inputData, inputAdder);
@@ -156,7 +155,6 @@ class Psbt extends bip174_1.Psbt {
         script: _outputData.script,
         value: _outputData.value,
       });
-      console.log(self.__TX);
       return self.__TX.toBuffer();
     };
     return super.addOutput(outputData, true, outputAdder);

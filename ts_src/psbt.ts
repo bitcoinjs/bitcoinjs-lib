@@ -161,7 +161,6 @@ export class Psbt extends PsbtBase {
         sequence: _inputData.sequence || Transaction.DEFAULT_SEQUENCE,
         witness: [],
       });
-      console.log(self.__TX);
       return self.__TX.toBuffer();
     };
     return super.addInput(inputData, inputAdder);
@@ -193,7 +192,6 @@ export class Psbt extends PsbtBase {
         script: (_outputData as any).script!,
         value: _outputData.value,
       });
-      console.log(self.__TX);
       return self.__TX.toBuffer();
     };
     return super.addOutput(outputData, true, outputAdder);
