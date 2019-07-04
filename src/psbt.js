@@ -14,9 +14,9 @@ class Psbt extends bip174_1.Psbt {
   constructor(opts = {}) {
     super();
     // set defaults
-    this.setVersion(2);
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     this.__TX = transaction_1.Transaction.fromBuffer(this.globalMap.unsignedTx);
+    this.setVersion(2);
     // set cache
     const self = this;
     delete this.globalMap.unsignedTx;
@@ -43,6 +43,16 @@ class Psbt extends bip174_1.Psbt {
     dpew(this, '__TX', false, false);
     dpew(this, '__TX_BUF_CACHE', false, true);
     dpew(this, 'opts', false, true);
+  }
+  setVersion(version) {
+    this.__TX.version = version;
+    this.__TX_BUF_CACHE = undefined;
+    return this;
+  }
+  setLocktime(locktime) {
+    this.__TX.locktime = locktime;
+    this.__TX_BUF_CACHE = undefined;
+    return this;
   }
   addInput(inputData) {
     const self = this;

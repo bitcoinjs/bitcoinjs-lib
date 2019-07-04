@@ -8,6 +8,8 @@ export declare class Psbt extends PsbtBase {
     private __TX_BUF_CACHE?;
     private opts;
     constructor(opts?: PsbtOptsOptional);
+    setVersion(version: number): this;
+    setLocktime(locktime: number): this;
     addInput(inputData: TransactionInput): this;
     addOutput(outputData: TransactionOutput): this;
     extractTransaction(): Transaction;

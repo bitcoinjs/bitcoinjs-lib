@@ -23,9 +23,9 @@ export class Psbt extends PsbtBase {
   constructor(opts: PsbtOptsOptional = {}) {
     super();
     // set defaults
-    this.setVersion(2);
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+    this.setVersion(2);
 
     // set cache
     const self = this;
@@ -59,6 +59,18 @@ export class Psbt extends PsbtBase {
     dpew(this, '__TX', false, false);
     dpew(this, '__TX_BUF_CACHE', false, true);
     dpew(this, 'opts', false, true);
+  }
+
+  setVersion(version: number): this {
+    this.__TX.version = version;
+    this.__TX_BUF_CACHE = undefined;
+    return this;
+  }
+
+  setLocktime(locktime: number): this {
+    this.__TX.locktime = locktime;
+    this.__TX_BUF_CACHE = undefined;
+    return this;
   }
 
   addInput(inputData: TransactionInput): this {
