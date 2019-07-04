@@ -198,4 +198,30 @@ describe(`Psbt`, () => {
       assert.strictEqual(psbt.extractTransaction().locktime, 1)
     })
   })
+
+  describe('setSequence', () => {
+    it('Sets the sequence number for a given input', () => {
+      const psbt = new Psbt()
+      psbt.addInput({
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0
+      });
+
+      assert.strictEqual(psbt.__TX.ins[0].sequence, 0xffffffff)
+      psbt.setSequence(0, 0)
+      assert.strictEqual(psbt.__TX.ins[0].sequence, 0)
+    })
+
+    it('throws if input index is too high', () => {
+      const psbt = new Psbt()
+      psbt.addInput({
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0
+      });
+
+      assert.throws(() => {
+        psbt.setSequence(1, 0)
+      }, {message: 'Input index too high'})
+    })
+  })
 })
