@@ -128,6 +128,16 @@ describe(`Psbt`, () => {
     })
   })
 
+  fixtures.bip174.finalizer.forEach(f => {
+    it('Finalizes inputs and gives the expected PSBT', () => {
+      const psbt =  Psbt.fromBase64(f.psbt)
+
+      psbt.finalizeAllInputs()
+
+      assert.strictEqual(psbt.toBase64(), f.result)
+    })
+  })
+
   describe('signInput', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, () => {
