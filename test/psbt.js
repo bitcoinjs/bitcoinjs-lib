@@ -138,6 +138,16 @@ describe(`Psbt`, () => {
     })
   })
 
+  fixtures.bip174.extractor.forEach(f => {
+    it('Extracts the expected transaction from a PSBT', () => {
+      const psbt =  Psbt.fromBase64(f.psbt)
+
+      const transaction = psbt.extractTransaction().toHex()
+
+      assert.strictEqual(transaction, f.transaction)
+    })
+  })
+
   describe('signInput', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, () => {
