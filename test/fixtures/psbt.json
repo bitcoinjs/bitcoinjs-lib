@@ -304,6 +304,37 @@
       }
     ]
   },
+  "addInput": {
+    "checks": [
+      {
+        "description": "checks for hash and index",
+        "inputData": {
+          "hash": 42
+        },
+        "exception": "Error adding input."
+      },
+      {
+        "description": "checks for hash and index",
+        "inputData": {
+          "hash": "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f",
+          "index": 2
+        },
+        "equals": "cHNidP8BADMCAAAAAQABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4PAgAAAAD/////AAAAAAAAAAA="
+      }
+    ]
+  },
+  "addOutput": {
+    "checks": [
+      {
+        "description": "checks for hash and index",
+        "outputData": {
+          "address": "1P2NFEBp32V2arRwZNww6tgXEV58FG94mr",
+          "value": "xyz"
+        },
+        "exception": "Error adding output."
+      }
+    ]
+  },
   "signInput": {
     "checks": [
       {

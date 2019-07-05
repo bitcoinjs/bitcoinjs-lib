@@ -21,8 +21,16 @@ const initBuffers = (attr, data) => {
   } else if (attr === 'bip32Derivation') {
     data.masterFingerprint = b(data.masterFingerprint)
     data.pubkey = b(data.pubkey)
-  }  else if (attr === 'witnessUtxo') {
+  } else if (attr === 'witnessUtxo') {
     data.script = b(data.script)
+  } else if (attr === 'hash') {
+    if (
+      typeof data === 'string' &&
+      data.match(/^[0-9a-f]*$/i) &&
+      data.length % 2 === 0
+    ) {
+      data = b(data)
+    }
   }
 
   return data
@@ -140,11 +148,55 @@ describe(`Psbt`, () => {
 
   fixtures.bip174.extractor.forEach(f => {
     it('Extracts the expected transaction from a PSBT', () => {
-      const psbt =  Psbt.fromBase64(f.psbt)
+      const psbt1 =  Psbt.fromBase64(f.psbt)
+      const transaction1 = psbt1.extractTransaction(true).toHex()
 
-      const transaction = psbt.extractTransaction().toHex()
+      const psbt2 =  Psbt.fromBase64(f.psbt)
+      const transaction2 = psbt2.extractTransaction().toHex()
 
-      assert.strictEqual(transaction, f.transaction)
+      assert.strictEqual(transaction1, transaction2)
+      assert.strictEqual(transaction1, f.transaction)
+
+      const psbt3 =  Psbt.fromBase64(f.psbt)
+      delete psbt3.inputs[0].finalScriptSig
+      delete psbt3.inputs[0].finalScriptWitness
+      assert.throws(() => {
+        psbt3.extractTransaction()
+      }, new RegExp('Not finalized'))
+
+      const psbt4 =  Psbt.fromBase64(f.psbt)
+      psbt4.setMaximumFeeRate(1)
+      assert.throws(() => {
+        psbt4.extractTransaction()
+      }, new RegExp('Warning: You are paying around [\\d.]+ in fees'))
+
+      const psbt5 =  Psbt.fromBase64(f.psbt)
+      psbt5.extractTransaction(true)
+      const fr1 = psbt5.getFeeRate()
+      const fr2 = psbt5.getFeeRate()
+      assert.strictEqual(fr1, fr2)
+    })
+  })
+
+  describe('signInputAsync', () => {
+    fixtures.signInput.checks.forEach(f => {
+      it(f.description, async () => {
+        const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+        assert.doesNotReject(async () => {
+          await psbtThatShouldsign.signInputAsync(
+            f.shouldSign.inputToCheck,
+            ECPair.fromWIF(f.shouldSign.WIF),
+          )
+        })
+
+        const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+        assert.rejects(async () => {
+          await psbtThatShouldThrow.signInputAsync(
+            f.shouldThrow.inputToCheck,
+            ECPair.fromWIF(f.shouldThrow.WIF),
+          )
+        }, {message: f.shouldThrow.errorMessage})
+      })
     })
   })
 
@@ -175,6 +227,54 @@ describe(`Psbt`, () => {
       it('Creates the expected PSBT from a transaction buffer', () => {
         const psbt = Psbt.fromTransaction(Buffer.from(f.transaction, 'hex'))
         assert.strictEqual(psbt.toBase64(), f.result)
+      })
+    })
+  })
+
+  describe('addInput', () => {
+    fixtures.addInput.checks.forEach(f => {
+      for (const attr of Object.keys(f.inputData)) {
+        f.inputData[attr] = initBuffers(attr, f.inputData[attr])
+      }
+      it(f.description, () => {
+        const psbt = new Psbt()
+
+        if (f.exception) {
+          assert.throws(() => {
+            psbt.addInput(f.inputData)
+          }, new RegExp(f.exception))
+        } else {
+          assert.doesNotThrow(() => {
+            psbt.addInput(f.inputData)
+            if (f.equals) {
+              assert.strictEqual(psbt.toBase64(), f.equals)
+            } else {
+              console.log(psbt.toBase64())
+            }
+          })
+        }
+      })
+    })
+  })
+
+  describe('addOutput', () => {
+    fixtures.addOutput.checks.forEach(f => {
+      for (const attr of Object.keys(f.outputData)) {
+        f.outputData[attr] = initBuffers(attr, f.outputData[attr])
+      }
+      it(f.description, () => {
+        const psbt = new Psbt()
+
+        if (f.exception) {
+          assert.throws(() => {
+            psbt.addOutput(f.outputData)
+          }, new RegExp(f.exception))
+        } else {
+          assert.doesNotThrow(() => {
+            psbt.addOutput(f.outputData)
+            console.log(psbt.toBase64())
+          })
+        }
       })
     })
   })
@@ -222,6 +322,16 @@ describe(`Psbt`, () => {
       assert.throws(() => {
         psbt.setSequence(1, 0)
       }, {message: 'Input index too high'})
+    })
+  })
+
+  describe('setMaximumFeeRate', () => {
+    it('Sets the maximumFeeRate value', () => {
+      const psbt = new Psbt()
+
+      assert.strictEqual(psbt.opts.maximumFeeRate, 5000)
+      psbt.setMaximumFeeRate(6000)
+      assert.strictEqual(psbt.opts.maximumFeeRate, 6000)
     })
   })
 

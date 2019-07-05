@@ -13,9 +13,10 @@ const varuint = require('varuint-bitcoin');
 class Psbt extends bip174_1.Psbt {
   constructor(opts = {}) {
     super();
-    this.__NON_WITNESS_UTXO_CACHE = {
+    this.__CACHE = {
       __NON_WITNESS_UTXO_TX_CACHE: [],
       __NON_WITNESS_UTXO_BUF_CACHE: [],
+      __TX_IN_CACHE: {},
     };
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
@@ -48,7 +49,7 @@ class Psbt extends bip174_1.Psbt {
     dpew(this, '__EXTRACTED_TX', false, true);
     dpew(this, '__FEE_RATE', false, true);
     dpew(this, '__TX_BUF_CACHE', false, true);
-    dpew(this, '__NON_WITNESS_UTXO_CACHE', false, true);
+    dpew(this, '__CACHE', false, true);
     dpew(this, 'opts', false, true);
   }
   static fromTransaction(txBuf) {
@@ -56,6 +57,7 @@ class Psbt extends bip174_1.Psbt {
     checkTxEmpty(tx);
     const psbt = new this();
     psbt.__TX = tx;
+    checkTxForDupeIns(tx, psbt.__CACHE);
     let inputCount = tx.ins.length;
     let outputCount = tx.outs.length;
     while (inputCount > 0) {
@@ -84,7 +86,11 @@ class Psbt extends bip174_1.Psbt {
     };
     const psbt = super.fromBuffer(buffer, txCountGetter);
     psbt.__TX = tx;
+    checkTxForDupeIns(tx, psbt.__CACHE);
     return psbt;
+  }
+  get inputCount() {
+    return this.inputs.length;
   }
   setMaximumFeeRate(satoshiPerByte) {
     check32Bit(satoshiPerByte); // 42.9 BTC per byte IS excessive... so throw
@@ -134,14 +140,17 @@ class Psbt extends bip174_1.Psbt {
       const prevHash = Buffer.isBuffer(_inputData.hash)
         ? _inputData.hash
         : bufferutils_1.reverseBuffer(Buffer.from(_inputData.hash, 'hex'));
-      self.__TX.ins.push({
-        hash: prevHash,
-        index: _inputData.index,
-        script: Buffer.alloc(0),
-        sequence:
-          _inputData.sequence || transaction_1.Transaction.DEFAULT_SEQUENCE,
-        witness: [],
-      });
+      // Check if input already exists in cache.
+      const input = { hash: prevHash, index: _inputData.index };
+      checkTxInputCache(self.__CACHE, input);
+      self.__TX.ins.push(
+        Object.assign({}, input, {
+          script: Buffer.alloc(0),
+          sequence:
+            _inputData.sequence || transaction_1.Transaction.DEFAULT_SEQUENCE,
+          witness: [],
+        }),
+      );
       return self.__TX.toBuffer();
     };
     super.addInput(inputData, inputAdder);
@@ -182,7 +191,7 @@ class Psbt extends bip174_1.Psbt {
   addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo) {
     super.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
     const input = this.inputs[inputIndex];
-    addNonWitnessTxCache(this.__NON_WITNESS_UTXO_CACHE, input, inputIndex);
+    addNonWitnessTxCache(this.__CACHE, input, inputIndex);
     return this;
   }
   extractTransaction(disableFeeCheck) {
@@ -238,9 +247,9 @@ class Psbt extends bip174_1.Psbt {
       if (input.witnessUtxo) {
         inputAmount += input.witnessUtxo.value;
       } else if (input.nonWitnessUtxo) {
-        const cache = this.__NON_WITNESS_UTXO_CACHE;
+        const cache = this.__CACHE;
         if (!cache.__NON_WITNESS_UTXO_TX_CACHE[idx]) {
-          addNonWitnessTxCache(this.__NON_WITNESS_UTXO_CACHE, input, idx);
+          addNonWitnessTxCache(this.__CACHE, input, idx);
         }
         const vout = this.__TX.ins[idx].index;
         const out = cache.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout];
@@ -272,7 +281,7 @@ class Psbt extends bip174_1.Psbt {
       inputIndex,
       input,
       this.__TX,
-      this.__NON_WITNESS_UTXO_CACHE,
+      this.__CACHE,
     );
     if (!script) return false;
     const scriptType = classifyScript(script);
@@ -301,7 +310,7 @@ class Psbt extends bip174_1.Psbt {
       inputIndex,
       keyPair.publicKey,
       this.__TX,
-      this.__NON_WITNESS_UTXO_CACHE,
+      this.__CACHE,
     );
     const partialSig = {
       pubkey: keyPair.publicKey,
@@ -318,7 +327,7 @@ class Psbt extends bip174_1.Psbt {
         inputIndex,
         keyPair.publicKey,
         this.__TX,
-        this.__NON_WITNESS_UTXO_CACHE,
+        this.__CACHE,
       );
       Promise.resolve(keyPair.sign(hash)).then(signature => {
         const partialSig = {
@@ -359,6 +368,19 @@ function addNonWitnessTxCache(cache, input, inputIndex) {
       self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = data;
     },
   });
+}
+function checkTxForDupeIns(tx, cache) {
+  tx.ins.forEach(input => {
+    checkTxInputCache(cache, input);
+  });
+}
+function checkTxInputCache(cache, input) {
+  const key =
+    bufferutils_1.reverseBuffer(Buffer.from(input.hash)).toString('hex') +
+    ':' +
+    input.index;
+  if (cache.__TX_IN_CACHE[key]) throw new Error('Duplicate input detected.');
+  cache.__TX_IN_CACHE[key] = 1;
 }
 function isFinalized(input) {
   return !!input.finalScriptSig || !!input.finalScriptWitness;

@@ -26,6 +26,7 @@ export class Psbt extends PsbtBase {
     checkTxEmpty(tx);
     const psbt = new this() as Psbt;
     psbt.__TX = tx;
+    checkTxForDupeIns(tx, psbt.__CACHE);
     let inputCount = tx.ins.length;
     let outputCount = tx.outs.length;
     while (inputCount > 0) {
@@ -62,11 +63,13 @@ export class Psbt extends PsbtBase {
     };
     const psbt = super.fromBuffer(buffer, txCountGetter) as Psbt;
     psbt.__TX = tx!;
+    checkTxForDupeIns(tx!, psbt.__CACHE);
     return psbt as InstanceType<T>;
   }
-  private __NON_WITNESS_UTXO_CACHE = {
+  private __CACHE = {
     __NON_WITNESS_UTXO_TX_CACHE: [] as Transaction[],
     __NON_WITNESS_UTXO_BUF_CACHE: [] as Buffer[],
+    __TX_IN_CACHE: {} as { [index: string]: number },
   };
   private __TX: Transaction;
   private __TX_BUF_CACHE?: Buffer;
@@ -113,8 +116,12 @@ export class Psbt extends PsbtBase {
     dpew(this, '__EXTRACTED_TX', false, true);
     dpew(this, '__FEE_RATE', false, true);
     dpew(this, '__TX_BUF_CACHE', false, true);
-    dpew(this, '__NON_WITNESS_UTXO_CACHE', false, true);
+    dpew(this, '__CACHE', false, true);
     dpew(this, 'opts', false, true);
+  }
+
+  get inputCount(): number {
+    return this.inputs.length;
   }
 
   setMaximumFeeRate(satoshiPerByte: number): void {
@@ -172,9 +179,13 @@ export class Psbt extends PsbtBase {
       const prevHash = Buffer.isBuffer(_inputData.hash)
         ? _inputData.hash
         : reverseBuffer(Buffer.from(_inputData.hash, 'hex'));
+
+      // Check if input already exists in cache.
+      const input = { hash: prevHash, index: _inputData.index };
+      checkTxInputCache(self.__CACHE, input);
+
       self.__TX.ins.push({
-        hash: prevHash,
-        index: _inputData.index,
+        ...input,
         script: Buffer.alloc(0),
         sequence: _inputData.sequence || Transaction.DEFAULT_SEQUENCE,
         witness: [],
@@ -227,7 +238,7 @@ export class Psbt extends PsbtBase {
   ): this {
     super.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
     const input = this.inputs[inputIndex];
-    addNonWitnessTxCache(this.__NON_WITNESS_UTXO_CACHE, input, inputIndex);
+    addNonWitnessTxCache(this.__CACHE, input, inputIndex);
     return this;
   }
 
@@ -285,9 +296,9 @@ export class Psbt extends PsbtBase {
       if (input.witnessUtxo) {
         inputAmount += input.witnessUtxo.value;
       } else if (input.nonWitnessUtxo) {
-        const cache = this.__NON_WITNESS_UTXO_CACHE;
+        const cache = this.__CACHE;
         if (!cache.__NON_WITNESS_UTXO_TX_CACHE[idx]) {
-          addNonWitnessTxCache(this.__NON_WITNESS_UTXO_CACHE, input, idx);
+          addNonWitnessTxCache(this.__CACHE, input, idx);
         }
         const vout = this.__TX.ins[idx].index;
         const out = cache.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout] as Output;
@@ -327,7 +338,7 @@ export class Psbt extends PsbtBase {
       inputIndex,
       input,
       this.__TX,
-      this.__NON_WITNESS_UTXO_CACHE,
+      this.__CACHE,
     );
     if (!script) return false;
 
@@ -361,7 +372,7 @@ export class Psbt extends PsbtBase {
       inputIndex,
       keyPair.publicKey,
       this.__TX,
-      this.__NON_WITNESS_UTXO_CACHE,
+      this.__CACHE,
     );
 
     const partialSig = {
@@ -382,7 +393,7 @@ export class Psbt extends PsbtBase {
           inputIndex,
           keyPair.publicKey,
           this.__TX,
-          this.__NON_WITNESS_UTXO_CACHE,
+          this.__CACHE,
         );
 
         Promise.resolve(keyPair.sign(hash)).then(signature => {
@@ -409,9 +420,10 @@ export class Psbt extends PsbtBase {
 //
 //
 
-interface NonWitnessUtxoCache {
+interface PsbtCache {
   __NON_WITNESS_UTXO_TX_CACHE: Transaction[];
   __NON_WITNESS_UTXO_BUF_CACHE: Buffer[];
+  __TX_IN_CACHE: { [index: string]: number };
 }
 
 interface PsbtOptsOptional {
@@ -430,7 +442,7 @@ const DEFAULT_OPTS = {
 };
 
 function addNonWitnessTxCache(
-  cache: NonWitnessUtxoCache,
+  cache: PsbtCache,
   input: PsbtInput,
   inputIndex: number,
 ): void {
@@ -460,6 +472,22 @@ function addNonWitnessTxCache(
   });
 }
 
+function checkTxForDupeIns(tx: Transaction, cache: PsbtCache): void {
+  tx.ins.forEach(input => {
+    checkTxInputCache(cache, input);
+  });
+}
+
+function checkTxInputCache(
+  cache: PsbtCache,
+  input: { hash: Buffer; index: number },
+): void {
+  const key =
+    reverseBuffer(Buffer.from(input.hash)).toString('hex') + ':' + input.index;
+  if (cache.__TX_IN_CACHE[key]) throw new Error('Duplicate input detected.');
+  cache.__TX_IN_CACHE[key] = 1;
+}
+
 function isFinalized(input: PsbtInput): boolean {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }
@@ -469,7 +497,7 @@ function getHashAndSighashType(
   inputIndex: number,
   pubkey: Buffer,
   unsignedTx: Transaction,
-  cache: NonWitnessUtxoCache,
+  cache: PsbtCache,
 ): {
   hash: Buffer;
   sighashType: number;
@@ -630,7 +658,7 @@ const getHashForSig = (
   inputIndex: number,
   input: PsbtInput,
   unsignedTx: Transaction,
-  cache: NonWitnessUtxoCache,
+  cache: PsbtCache,
 ): HashForSigData => {
   const sighashType = input.sighashType || Transaction.SIGHASH_ALL;
   let hash: Buffer;
@@ -780,7 +808,7 @@ function getScriptFromInput(
   inputIndex: number,
   input: PsbtInput,
   unsignedTx: Transaction,
-  cache: NonWitnessUtxoCache,
+  cache: PsbtCache,
 ): GetScriptReturn {
   const res: GetScriptReturn = {
     script: null,
