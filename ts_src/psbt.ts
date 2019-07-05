@@ -64,12 +64,14 @@ export class Psbt extends PsbtBase {
     psbt.__TX = tx!;
     return psbt as InstanceType<T>;
   }
+  private __NON_WITNESS_UTXO_CACHE = {
+    __NON_WITNESS_UTXO_TX_CACHE: [] as Transaction[],
+    __NON_WITNESS_UTXO_BUF_CACHE: [] as Buffer[],
+  };
   private __TX: Transaction;
   private __TX_BUF_CACHE?: Buffer;
   private __FEE_RATE?: number;
   private __EXTRACTED_TX?: Transaction;
-  private __NON_WITNESS_UTXO_TX_CACHE: Transaction[] = [];
-  private __NON_WITNESS_UTXO_BUF_CACHE: Buffer[] = [];
   private opts: PsbtOpts;
   constructor(opts: PsbtOptsOptional = {}) {
     super();
@@ -111,8 +113,7 @@ export class Psbt extends PsbtBase {
     dpew(this, '__EXTRACTED_TX', false, true);
     dpew(this, '__FEE_RATE', false, true);
     dpew(this, '__TX_BUF_CACHE', false, true);
-    dpew(this, '__NON_WITNESS_UTXO_TX_CACHE', false, true);
-    dpew(this, '__NON_WITNESS_UTXO_BUF_CACHE', false, true);
+    dpew(this, '__NON_WITNESS_UTXO_CACHE', false, true);
     dpew(this, 'opts', false, true);
   }
 
@@ -226,7 +227,7 @@ export class Psbt extends PsbtBase {
   ): this {
     super.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
     const input = this.inputs[inputIndex];
-    addNonWitnessTxCache(this, input, inputIndex);
+    addNonWitnessTxCache(this.__NON_WITNESS_UTXO_CACHE, input, inputIndex);
     return this;
   }
 
@@ -284,12 +285,12 @@ export class Psbt extends PsbtBase {
       if (input.witnessUtxo) {
         inputAmount += input.witnessUtxo.value;
       } else if (input.nonWitnessUtxo) {
-        // @ts-ignore
-        if (!this.__NON_WITNESS_UTXO_TX_CACHE[idx]) {
-          addNonWitnessTxCache(this, input, idx);
+        const cache = this.__NON_WITNESS_UTXO_CACHE;
+        if (!cache.__NON_WITNESS_UTXO_TX_CACHE[idx]) {
+          addNonWitnessTxCache(this.__NON_WITNESS_UTXO_CACHE, input, idx);
         }
         const vout = this.__TX.ins[idx].index;
-        const out = this.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout] as Output;
+        const out = cache.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout] as Output;
         inputAmount += out.value;
       } else {
         throw new Error('Missing input value: index #' + idx);
@@ -326,7 +327,7 @@ export class Psbt extends PsbtBase {
       inputIndex,
       input,
       this.__TX,
-      this,
+      this.__NON_WITNESS_UTXO_CACHE,
     );
     if (!script) return false;
 
@@ -360,7 +361,7 @@ export class Psbt extends PsbtBase {
       inputIndex,
       keyPair.publicKey,
       this.__TX,
-      this,
+      this.__NON_WITNESS_UTXO_CACHE,
     );
 
     const partialSig = {
@@ -381,7 +382,7 @@ export class Psbt extends PsbtBase {
           inputIndex,
           keyPair.publicKey,
           this.__TX,
-          this,
+          this.__NON_WITNESS_UTXO_CACHE,
         );
 
         Promise.resolve(keyPair.sign(hash)).then(signature => {
@@ -408,6 +409,11 @@ export class Psbt extends PsbtBase {
 //
 //
 
+interface NonWitnessUtxoCache {
+  __NON_WITNESS_UTXO_TX_CACHE: Transaction[];
+  __NON_WITNESS_UTXO_BUF_CACHE: Buffer[];
+}
+
 interface PsbtOptsOptional {
   network?: Network;
   maximumFeeRate?: number;
@@ -424,39 +430,31 @@ const DEFAULT_OPTS = {
 };
 
 function addNonWitnessTxCache(
-  psbt: Psbt,
+  cache: NonWitnessUtxoCache,
   input: PsbtInput,
   inputIndex: number,
 ): void {
-  // @ts-ignore
-  psbt.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo!;
+  cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo!;
 
   const tx = Transaction.fromBuffer(input.nonWitnessUtxo!);
-  // @ts-ignore
-  psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
+  cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
 
-  const self = psbt;
+  const self = cache;
   const selfIndex = inputIndex;
   delete input.nonWitnessUtxo;
   Object.defineProperty(input, 'nonWitnessUtxo', {
     enumerable: true,
     get(): Buffer {
-      // @ts-ignore
       if (self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] !== undefined) {
-        // @ts-ignore
         return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
       } else {
-        // @ts-ignore
         self.__NON_WITNESS_UTXO_BUF_CACHE[
           selfIndex
-          // @ts-ignore
         ] = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex].toBuffer();
-        // @ts-ignore
         return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
       }
     },
     set(data: Buffer): void {
-      // @ts-ignore
       self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = data;
     },
   });
@@ -471,7 +469,7 @@ function getHashAndSighashType(
   inputIndex: number,
   pubkey: Buffer,
   unsignedTx: Transaction,
-  psbt: Psbt,
+  cache: NonWitnessUtxoCache,
 ): {
   hash: Buffer;
   sighashType: number;
@@ -481,7 +479,7 @@ function getHashAndSighashType(
     inputIndex,
     input,
     unsignedTx,
-    psbt,
+    cache,
   );
   checkScriptForPubkey(pubkey, script);
   return {
@@ -632,19 +630,17 @@ const getHashForSig = (
   inputIndex: number,
   input: PsbtInput,
   unsignedTx: Transaction,
-  psbt: Psbt,
+  cache: NonWitnessUtxoCache,
 ): HashForSigData => {
   const sighashType = input.sighashType || Transaction.SIGHASH_ALL;
   let hash: Buffer;
   let script: Buffer;
 
   if (input.nonWitnessUtxo) {
-    // @ts-ignore
-    if (!psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
-      addNonWitnessTxCache(psbt, input, inputIndex);
+    if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+      addNonWitnessTxCache(cache, input, inputIndex);
     }
-    // @ts-ignore
-    const nonWitnessUtxoTx = psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+    const nonWitnessUtxoTx = cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
 
     const prevoutHash = unsignedTx.ins[inputIndex].hash;
     const utxoHash = nonWitnessUtxoTx.getHash();
@@ -784,7 +780,7 @@ function getScriptFromInput(
   inputIndex: number,
   input: PsbtInput,
   unsignedTx: Transaction,
-  psbt: Psbt,
+  cache: NonWitnessUtxoCache,
 ): GetScriptReturn {
   const res: GetScriptReturn = {
     script: null,
@@ -797,12 +793,10 @@ function getScriptFromInput(
       res.isP2SH = true;
       res.script = input.redeemScript;
     } else {
-      // @ts-ignore
-      if (!psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
-        addNonWitnessTxCache(psbt, input, inputIndex);
+      if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+        addNonWitnessTxCache(cache, input, inputIndex);
       }
-      // @ts-ignore
-      const nonWitnessUtxoTx = psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+      const nonWitnessUtxoTx = cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
       const prevoutIndex = unsignedTx.ins[inputIndex].index;
       res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
     }
