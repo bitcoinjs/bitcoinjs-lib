@@ -17,6 +17,11 @@ import * as bscript from './script';
 import { Output, Transaction } from './transaction';
 const varuint = require('varuint-bitcoin');
 
+const DEFAULT_OPTS: PsbtOpts = {
+  network: btcNetwork,
+  maximumFeeRate: 5000, // satoshi per byte
+};
+
 export class Psbt extends PsbtBase {
   static fromTransaction<T extends typeof PsbtBase>(
     this: T,
@@ -250,11 +255,11 @@ export class Psbt extends PsbtBase {
       const satoshis = feeRate * vsize;
       if (feeRate >= this.opts.maximumFeeRate) {
         throw new Error(
-          `Warning: You are paying around ${satoshis / 1e8} in fees, which ` +
-            `is ${feeRate} satoshi per byte for a transaction with a VSize of ` +
-            `${vsize} bytes (segwit counted as 0.25 byte per byte)\n` +
-            `Use setMaximumFeeRate method to raise your threshold, or pass ` +
-            `true to the first arg of extractTransaction.`,
+          `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
+            `fees, which is ${feeRate} satoshi per byte for a transaction ` +
+            `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
+            `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
+            `pass true to the first arg of extractTransaction.`,
         );
       }
     }
@@ -303,8 +308,6 @@ export class Psbt extends PsbtBase {
         const vout = this.__TX.ins[idx].index;
         const out = cache.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout] as Output;
         inputAmount += out.value;
-      } else {
-        throw new Error('Missing input value: index #' + idx);
       }
     });
     this.__EXTRACTED_TX = tx;
@@ -435,11 +438,6 @@ interface PsbtOpts {
   network: Network;
   maximumFeeRate: number;
 }
-
-const DEFAULT_OPTS = {
-  network: btcNetwork,
-  maximumFeeRate: 5000, // satoshi per byte
-};
 
 function addNonWitnessTxCache(
   cache: PsbtCache,

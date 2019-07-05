@@ -10,6 +10,10 @@ const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
 const varuint = require('varuint-bitcoin');
+const DEFAULT_OPTS = {
+  network: networks_1.bitcoin,
+  maximumFeeRate: 5000,
+};
 class Psbt extends bip174_1.Psbt {
   constructor(opts = {}) {
     super();
@@ -202,11 +206,11 @@ class Psbt extends bip174_1.Psbt {
       const satoshis = feeRate * vsize;
       if (feeRate >= this.opts.maximumFeeRate) {
         throw new Error(
-          `Warning: You are paying around ${satoshis / 1e8} in fees, which ` +
-            `is ${feeRate} satoshi per byte for a transaction with a VSize of ` +
-            `${vsize} bytes (segwit counted as 0.25 byte per byte)\n` +
-            `Use setMaximumFeeRate method to raise your threshold, or pass ` +
-            `true to the first arg of extractTransaction.`,
+          `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
+            `fees, which is ${feeRate} satoshi per byte for a transaction ` +
+            `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
+            `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
+            `pass true to the first arg of extractTransaction.`,
         );
       }
     }
@@ -254,8 +258,6 @@ class Psbt extends bip174_1.Psbt {
         const vout = this.__TX.ins[idx].index;
         const out = cache.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout];
         inputAmount += out.value;
-      } else {
-        throw new Error('Missing input value: index #' + idx);
       }
     });
     this.__EXTRACTED_TX = tx;
@@ -341,10 +343,6 @@ class Psbt extends bip174_1.Psbt {
   }
 }
 exports.Psbt = Psbt;
-const DEFAULT_OPTS = {
-  network: networks_1.bitcoin,
-  maximumFeeRate: 5000,
-};
 function addNonWitnessTxCache(cache, input, inputIndex) {
   cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo;
   const tx = transaction_1.Transaction.fromBuffer(input.nonWitnessUtxo);

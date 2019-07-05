@@ -97,6 +97,16 @@ describe(`Psbt`, () => {
                     arg.forEach(a => adder(i, initBuffers(attr, a)))
                   } else {
                     adder(i, initBuffers(attr, arg))
+                    if (attr === 'nonWitnessUtxo') {
+                      const first = psbt.inputs[i].nonWitnessUtxo
+                      psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[i] = undefined
+                      const second = psbt.inputs[i].nonWitnessUtxo
+                      psbt.inputs[i].nonWitnessUtxo = Buffer.from([1,2,3])
+                      psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[i] = undefined
+                      const third = psbt.inputs[i].nonWitnessUtxo
+                      assert.ok(first.equals(second))
+                      assert.ok(first.equals(third))
+                    }
                   }
                 }
               }
@@ -139,6 +149,10 @@ describe(`Psbt`, () => {
   fixtures.bip174.finalizer.forEach(f => {
     it('Finalizes inputs and gives the expected PSBT', () => {
       const psbt =  Psbt.fromBase64(f.psbt)
+
+      assert.throws(() => {
+        psbt.getFeeRate()
+      }, new RegExp('PSBT must be finalized to calculate fee rate'))
 
       psbt.finalizeAllInputs()
 
@@ -196,6 +210,11 @@ describe(`Psbt`, () => {
             ECPair.fromWIF(f.shouldThrow.WIF),
           )
         }, {message: f.shouldThrow.errorMessage})
+        assert.rejects(async () => {
+          await psbtThatShouldThrow.signInputAsync(
+            f.shouldThrow.inputToCheck,
+          )
+        }, new RegExp('Need Signer to sign input'))
       })
     })
   })
@@ -218,6 +237,11 @@ describe(`Psbt`, () => {
             ECPair.fromWIF(f.shouldThrow.WIF),
           )
         }, {message: f.shouldThrow.errorMessage})
+        assert.throws(() => {
+          psbtThatShouldThrow.signInput(
+            f.shouldThrow.inputToCheck,
+          )
+        }, new RegExp('Need Signer to sign input'))
       })
     })
   })
@@ -252,6 +276,9 @@ describe(`Psbt`, () => {
               console.log(psbt.toBase64())
             }
           })
+          assert.throws(() => {
+            psbt.addInput(f.inputData)
+          }, new RegExp('Duplicate input detected.'))
         }
       })
     })
@@ -307,6 +334,7 @@ describe(`Psbt`, () => {
         index: 0
       });
 
+      assert.strictEqual(psbt.inputCount, 1)
       assert.strictEqual(psbt.__TX.ins[0].sequence, 0xffffffff)
       psbt.setSequence(0, 0)
       assert.strictEqual(psbt.__TX.ins[0].sequence, 0)
