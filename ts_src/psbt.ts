@@ -1,5 +1,6 @@
 import { Psbt as PsbtBase } from 'bip174';
 import {
+  NonWitnessUtxo,
   PartialSig,
   PsbtInput,
   TransactionInput,
@@ -13,7 +14,7 @@ import { Signer, SignerAsync } from './ecpair';
 import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
-import { Transaction } from './transaction';
+import { Output, Transaction } from './transaction';
 const varuint = require('varuint-bitcoin');
 
 export class Psbt extends PsbtBase {
@@ -65,6 +66,10 @@ export class Psbt extends PsbtBase {
   }
   private __TX: Transaction;
   private __TX_BUF_CACHE?: Buffer;
+  private __FEE_RATE?: number;
+  private __EXTRACTED_TX?: Transaction;
+  private __NON_WITNESS_UTXO_TX_CACHE: Transaction[] = [];
+  private __NON_WITNESS_UTXO_BUF_CACHE: Buffer[] = [];
   private opts: PsbtOpts;
   constructor(opts: PsbtOptsOptional = {}) {
     super();
@@ -103,8 +108,17 @@ export class Psbt extends PsbtBase {
         writable,
       });
     dpew(this, '__TX', false, true);
+    dpew(this, '__EXTRACTED_TX', false, true);
+    dpew(this, '__FEE_RATE', false, true);
     dpew(this, '__TX_BUF_CACHE', false, true);
+    dpew(this, '__NON_WITNESS_UTXO_TX_CACHE', false, true);
+    dpew(this, '__NON_WITNESS_UTXO_BUF_CACHE', false, true);
     dpew(this, 'opts', false, true);
+  }
+
+  setMaximumFeeRate(satoshiPerByte: number): void {
+    check32Bit(satoshiPerByte); // 42.9 BTC per byte IS excessive... so throw
+    this.opts.maximumFeeRate = satoshiPerByte;
   }
 
   setVersion(version: number): this {
@@ -112,6 +126,7 @@ export class Psbt extends PsbtBase {
     checkInputsForPartialSig(this.inputs, 'setVersion');
     this.__TX.version = version;
     this.__TX_BUF_CACHE = undefined;
+    this.__EXTRACTED_TX = undefined;
     return this;
   }
 
@@ -120,6 +135,7 @@ export class Psbt extends PsbtBase {
     checkInputsForPartialSig(this.inputs, 'setLocktime');
     this.__TX.locktime = locktime;
     this.__TX_BUF_CACHE = undefined;
+    this.__EXTRACTED_TX = undefined;
     return this;
   }
 
@@ -131,6 +147,7 @@ export class Psbt extends PsbtBase {
     }
     this.__TX.ins[inputIndex].sequence = sequence;
     this.__TX_BUF_CACHE = undefined;
+    this.__EXTRACTED_TX = undefined;
     return this;
   }
 
@@ -197,8 +214,33 @@ export class Psbt extends PsbtBase {
     return super.addOutput(outputData, true, outputAdder);
   }
 
-  extractTransaction(): Transaction {
+  addNonWitnessUtxoToInput(
+    inputIndex: number,
+    nonWitnessUtxo: NonWitnessUtxo,
+  ): this {
+    super.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
+    const input = this.inputs[inputIndex];
+    addNonWitnessTxCache(this, input, inputIndex);
+    return this;
+  }
+
+  extractTransaction(disableFeeCheck?: boolean): Transaction {
     if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
+    if (!disableFeeCheck) {
+      const feeRate = this.__FEE_RATE || this.getFeeRate();
+      const vsize = this.__EXTRACTED_TX!.virtualSize();
+      const satoshis = feeRate * vsize;
+      if (feeRate >= this.opts.maximumFeeRate) {
+        throw new Error(
+          `Warning: You are paying around ${satoshis / 1e8} in fees, which ` +
+            `is ${feeRate} satoshi per byte for a transaction with a VSize of ` +
+            `${vsize} bytes (segwit counted as 0.25 byte per byte)\n` +
+            `Use setMaximumFeeRate method to raise your threshold, or pass ` +
+            `true to the first arg of extractTransaction.`,
+        );
+      }
+    }
+    if (this.__EXTRACTED_TX) return this.__EXTRACTED_TX;
     const tx = this.__TX.clone();
     this.inputs.forEach((input, idx) => {
       if (input.finalScriptSig) tx.ins[idx].script = input.finalScriptSig;
@@ -208,7 +250,54 @@ export class Psbt extends PsbtBase {
         );
       }
     });
+    this.__EXTRACTED_TX = tx;
     return tx;
+  }
+
+  getFeeRate(): number {
+    if (!this.inputs.every(isFinalized))
+      throw new Error('PSBT must be finalized to calculate fee rate');
+    if (this.__FEE_RATE) return this.__FEE_RATE;
+    let tx: Transaction;
+    let inputAmount = 0;
+    let mustFinalize = true;
+    if (this.__EXTRACTED_TX) {
+      tx = this.__EXTRACTED_TX;
+      mustFinalize = false;
+    } else {
+      tx = this.__TX.clone();
+    }
+    this.inputs.forEach((input, idx) => {
+      if (mustFinalize && input.finalScriptSig)
+        tx.ins[idx].script = input.finalScriptSig;
+      if (mustFinalize && input.finalScriptWitness) {
+        tx.ins[idx].witness = scriptWitnessToWitnessStack(
+          input.finalScriptWitness,
+        );
+      }
+      if (input.witnessUtxo) {
+        inputAmount += input.witnessUtxo.value;
+      } else if (input.nonWitnessUtxo) {
+        // @ts-ignore
+        if (!this.__NON_WITNESS_UTXO_TX_CACHE[idx]) {
+          addNonWitnessTxCache(this, input, idx);
+        }
+        const vout = this.__TX.ins[idx].index;
+        const out = this.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout] as Output;
+        inputAmount += out.value;
+      } else {
+        throw new Error('Missing input value: index #' + idx);
+      }
+    });
+    this.__EXTRACTED_TX = tx;
+    const outputAmount = (tx.outs as Output[]).reduce(
+      (total, o) => total + o.value,
+      0,
+    );
+    const fee = inputAmount - outputAmount;
+    const bytes = tx.virtualSize();
+    this.__FEE_RATE = Math.floor(fee / bytes);
+    return this.__FEE_RATE;
   }
 
   finalizeAllInputs(): {
@@ -231,6 +320,7 @@ export class Psbt extends PsbtBase {
       inputIndex,
       input,
       this.__TX,
+      this,
     );
     if (!script) return false;
 
@@ -264,6 +354,7 @@ export class Psbt extends PsbtBase {
       inputIndex,
       keyPair.publicKey,
       this.__TX,
+      this,
     );
 
     const partialSig = {
@@ -284,6 +375,7 @@ export class Psbt extends PsbtBase {
           inputIndex,
           keyPair.publicKey,
           this.__TX,
+          this,
         );
 
         Promise.resolve(keyPair.sign(hash)).then(signature => {
@@ -312,15 +404,57 @@ export class Psbt extends PsbtBase {
 
 interface PsbtOptsOptional {
   network?: Network;
+  maximumFeeRate?: number;
 }
 
 interface PsbtOpts {
   network: Network;
+  maximumFeeRate: number;
 }
 
 const DEFAULT_OPTS = {
   network: btcNetwork,
+  maximumFeeRate: 5000, // satoshi per byte
 };
+
+function addNonWitnessTxCache(
+  psbt: Psbt,
+  input: PsbtInput,
+  inputIndex: number,
+): void {
+  // @ts-ignore
+  psbt.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo!;
+
+  const tx = Transaction.fromBuffer(input.nonWitnessUtxo!);
+  // @ts-ignore
+  psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
+
+  const self = psbt;
+  const selfIndex = inputIndex;
+  delete input.nonWitnessUtxo;
+  Object.defineProperty(input, 'nonWitnessUtxo', {
+    enumerable: true,
+    get(): Buffer {
+      // @ts-ignore
+      if (self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] !== undefined) {
+        // @ts-ignore
+        return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      } else {
+        // @ts-ignore
+        self.__NON_WITNESS_UTXO_BUF_CACHE[
+          selfIndex
+          // @ts-ignore
+        ] = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex].toBuffer();
+        // @ts-ignore
+        return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      }
+    },
+    set(data: Buffer): void {
+      // @ts-ignore
+      self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = data;
+    },
+  });
+}
 
 function isFinalized(input: PsbtInput): boolean {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
@@ -331,6 +465,7 @@ function getHashAndSighashType(
   inputIndex: number,
   pubkey: Buffer,
   unsignedTx: Transaction,
+  psbt: Psbt,
 ): {
   hash: Buffer;
   sighashType: number;
@@ -340,6 +475,7 @@ function getHashAndSighashType(
     inputIndex,
     input,
     unsignedTx,
+    psbt,
   );
   checkScriptForPubkey(pubkey, script);
   return {
@@ -490,13 +626,19 @@ const getHashForSig = (
   inputIndex: number,
   input: PsbtInput,
   unsignedTx: Transaction,
+  psbt: Psbt,
 ): HashForSigData => {
   const sighashType = input.sighashType || Transaction.SIGHASH_ALL;
   let hash: Buffer;
   let script: Buffer;
 
   if (input.nonWitnessUtxo) {
-    const nonWitnessUtxoTx = Transaction.fromBuffer(input.nonWitnessUtxo);
+    // @ts-ignore
+    if (!psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+      addNonWitnessTxCache(psbt, input, inputIndex);
+    }
+    // @ts-ignore
+    const nonWitnessUtxoTx = psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
 
     const prevoutHash = unsignedTx.ins[inputIndex].hash;
     const utxoHash = nonWitnessUtxoTx.getHash();
@@ -636,6 +778,7 @@ function getScriptFromInput(
   inputIndex: number,
   input: PsbtInput,
   unsignedTx: Transaction,
+  psbt: Psbt,
 ): GetScriptReturn {
   const res: GetScriptReturn = {
     script: null,
@@ -648,7 +791,12 @@ function getScriptFromInput(
       res.isP2SH = true;
       res.script = input.redeemScript;
     } else {
-      const nonWitnessUtxoTx = Transaction.fromBuffer(input.nonWitnessUtxo);
+      // @ts-ignore
+      if (!psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+        addNonWitnessTxCache(psbt, input, inputIndex);
+      }
+      // @ts-ignore
+      const nonWitnessUtxoTx = psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
       const prevoutIndex = unsignedTx.ins[inputIndex].index;
       res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
     }

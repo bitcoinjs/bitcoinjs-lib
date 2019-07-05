@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
+import { NonWitnessUtxo, TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
@@ -9,14 +9,21 @@ export declare class Psbt extends PsbtBase {
     static fromBuffer<T extends typeof PsbtBase>(this: T, buffer: Buffer): InstanceType<T>;
     private __TX;
     private __TX_BUF_CACHE?;
+    private __FEE_RATE?;
+    private __EXTRACTED_TX?;
+    private __NON_WITNESS_UTXO_TX_CACHE;
+    private __NON_WITNESS_UTXO_BUF_CACHE;
     private opts;
     constructor(opts?: PsbtOptsOptional);
+    setMaximumFeeRate(satoshiPerByte: number): void;
     setVersion(version: number): this;
     setLocktime(locktime: number): this;
     setSequence(inputIndex: number, sequence: number): this;
     addInput(inputData: TransactionInput): this;
     addOutput(outputData: TransactionOutput): this;
-    extractTransaction(): Transaction;
+    addNonWitnessUtxoToInput(inputIndex: number, nonWitnessUtxo: NonWitnessUtxo): this;
+    extractTransaction(disableFeeCheck?: boolean): Transaction;
+    getFeeRate(): number;
     finalizeAllInputs(): {
         result: boolean;
         inputResults: boolean[];
@@ -27,5 +34,6 @@ export declare class Psbt extends PsbtBase {
 }
 interface PsbtOptsOptional {
     network?: Network;
+    maximumFeeRate?: number;
 }
 export {};

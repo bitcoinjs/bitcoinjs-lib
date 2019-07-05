@@ -11,6 +11,45 @@ const bscript = require('./script');
 const transaction_1 = require('./transaction');
 const varuint = require('varuint-bitcoin');
 class Psbt extends bip174_1.Psbt {
+  constructor(opts = {}) {
+    super();
+    this.__NON_WITNESS_UTXO_TX_CACHE = [];
+    this.__NON_WITNESS_UTXO_BUF_CACHE = [];
+    // set defaults
+    this.opts = Object.assign({}, DEFAULT_OPTS, opts);
+    this.__TX = transaction_1.Transaction.fromBuffer(this.globalMap.unsignedTx);
+    this.setVersion(2);
+    // set cache
+    const self = this;
+    delete this.globalMap.unsignedTx;
+    Object.defineProperty(this.globalMap, 'unsignedTx', {
+      enumerable: true,
+      get() {
+        if (self.__TX_BUF_CACHE !== undefined) {
+          return self.__TX_BUF_CACHE;
+        } else {
+          self.__TX_BUF_CACHE = self.__TX.toBuffer();
+          return self.__TX_BUF_CACHE;
+        }
+      },
+      set(data) {
+        self.__TX_BUF_CACHE = data;
+      },
+    });
+    // Make data hidden when enumerating
+    const dpew = (obj, attr, enumerable, writable) =>
+      Object.defineProperty(obj, attr, {
+        enumerable,
+        writable,
+      });
+    dpew(this, '__TX', false, true);
+    dpew(this, '__EXTRACTED_TX', false, true);
+    dpew(this, '__FEE_RATE', false, true);
+    dpew(this, '__TX_BUF_CACHE', false, true);
+    dpew(this, '__NON_WITNESS_UTXO_TX_CACHE', false, true);
+    dpew(this, '__NON_WITNESS_UTXO_BUF_CACHE', false, true);
+    dpew(this, 'opts', false, true);
+  }
   static fromTransaction(txBuf) {
     const tx = transaction_1.Transaction.fromBuffer(txBuf);
     checkTxEmpty(tx);
@@ -46,44 +85,16 @@ class Psbt extends bip174_1.Psbt {
     psbt.__TX = tx;
     return psbt;
   }
-  constructor(opts = {}) {
-    super();
-    // set defaults
-    this.opts = Object.assign({}, DEFAULT_OPTS, opts);
-    this.__TX = transaction_1.Transaction.fromBuffer(this.globalMap.unsignedTx);
-    this.setVersion(2);
-    // set cache
-    const self = this;
-    delete this.globalMap.unsignedTx;
-    Object.defineProperty(this.globalMap, 'unsignedTx', {
-      enumerable: true,
-      get() {
-        if (self.__TX_BUF_CACHE !== undefined) {
-          return self.__TX_BUF_CACHE;
-        } else {
-          self.__TX_BUF_CACHE = self.__TX.toBuffer();
-          return self.__TX_BUF_CACHE;
-        }
-      },
-      set(data) {
-        self.__TX_BUF_CACHE = data;
-      },
-    });
-    // Make data hidden when enumerating
-    const dpew = (obj, attr, enumerable, writable) =>
-      Object.defineProperty(obj, attr, {
-        enumerable,
-        writable,
-      });
-    dpew(this, '__TX', false, true);
-    dpew(this, '__TX_BUF_CACHE', false, true);
-    dpew(this, 'opts', false, true);
+  setMaximumFeeRate(satoshiPerByte) {
+    check32Bit(satoshiPerByte); // 42.9 BTC per byte IS excessive... so throw
+    this.opts.maximumFeeRate = satoshiPerByte;
   }
   setVersion(version) {
     check32Bit(version);
     checkInputsForPartialSig(this.inputs, 'setVersion');
     this.__TX.version = version;
     this.__TX_BUF_CACHE = undefined;
+    this.__EXTRACTED_TX = undefined;
     return this;
   }
   setLocktime(locktime) {
@@ -91,6 +102,7 @@ class Psbt extends bip174_1.Psbt {
     checkInputsForPartialSig(this.inputs, 'setLocktime');
     this.__TX.locktime = locktime;
     this.__TX_BUF_CACHE = undefined;
+    this.__EXTRACTED_TX = undefined;
     return this;
   }
   setSequence(inputIndex, sequence) {
@@ -101,6 +113,7 @@ class Psbt extends bip174_1.Psbt {
     }
     this.__TX.ins[inputIndex].sequence = sequence;
     this.__TX_BUF_CACHE = undefined;
+    this.__EXTRACTED_TX = undefined;
     return this;
   }
   addInput(inputData) {
@@ -159,8 +172,29 @@ class Psbt extends bip174_1.Psbt {
     };
     return super.addOutput(outputData, true, outputAdder);
   }
-  extractTransaction() {
+  addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo) {
+    super.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
+    const input = this.inputs[inputIndex];
+    addNonWitnessTxCache(this, input, inputIndex);
+    return this;
+  }
+  extractTransaction(disableFeeCheck) {
     if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
+    if (!disableFeeCheck) {
+      const feeRate = this.__FEE_RATE || this.getFeeRate();
+      const vsize = this.__EXTRACTED_TX.virtualSize();
+      const satoshis = feeRate * vsize;
+      if (feeRate >= this.opts.maximumFeeRate) {
+        throw new Error(
+          `Warning: You are paying around ${satoshis / 1e8} in fees, which ` +
+            `is ${feeRate} satoshi per byte for a transaction with a VSize of ` +
+            `${vsize} bytes (segwit counted as 0.25 byte per byte)\n` +
+            `Use setMaximumFeeRate method to raise your threshold, or pass ` +
+            `true to the first arg of extractTransaction.`,
+        );
+      }
+    }
+    if (this.__EXTRACTED_TX) return this.__EXTRACTED_TX;
     const tx = this.__TX.clone();
     this.inputs.forEach((input, idx) => {
       if (input.finalScriptSig) tx.ins[idx].script = input.finalScriptSig;
@@ -170,7 +204,50 @@ class Psbt extends bip174_1.Psbt {
         );
       }
     });
+    this.__EXTRACTED_TX = tx;
     return tx;
+  }
+  getFeeRate() {
+    if (!this.inputs.every(isFinalized))
+      throw new Error('PSBT must be finalized to calculate fee rate');
+    if (this.__FEE_RATE) return this.__FEE_RATE;
+    let tx;
+    let inputAmount = 0;
+    let mustFinalize = true;
+    if (this.__EXTRACTED_TX) {
+      tx = this.__EXTRACTED_TX;
+      mustFinalize = false;
+    } else {
+      tx = this.__TX.clone();
+    }
+    this.inputs.forEach((input, idx) => {
+      if (mustFinalize && input.finalScriptSig)
+        tx.ins[idx].script = input.finalScriptSig;
+      if (mustFinalize && input.finalScriptWitness) {
+        tx.ins[idx].witness = scriptWitnessToWitnessStack(
+          input.finalScriptWitness,
+        );
+      }
+      if (input.witnessUtxo) {
+        inputAmount += input.witnessUtxo.value;
+      } else if (input.nonWitnessUtxo) {
+        // @ts-ignore
+        if (!this.__NON_WITNESS_UTXO_TX_CACHE[idx]) {
+          addNonWitnessTxCache(this, input, idx);
+        }
+        const vout = this.__TX.ins[idx].index;
+        const out = this.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout];
+        inputAmount += out.value;
+      } else {
+        throw new Error('Missing input value: index #' + idx);
+      }
+    });
+    this.__EXTRACTED_TX = tx;
+    const outputAmount = tx.outs.reduce((total, o) => total + o.value, 0);
+    const fee = inputAmount - outputAmount;
+    const bytes = tx.virtualSize();
+    this.__FEE_RATE = Math.floor(fee / bytes);
+    return this.__FEE_RATE;
   }
   finalizeAllInputs() {
     const inputResults = range(this.inputs.length).map(idx =>
@@ -188,6 +265,7 @@ class Psbt extends bip174_1.Psbt {
       inputIndex,
       input,
       this.__TX,
+      this,
     );
     if (!script) return false;
     const scriptType = classifyScript(script);
@@ -216,6 +294,7 @@ class Psbt extends bip174_1.Psbt {
       inputIndex,
       keyPair.publicKey,
       this.__TX,
+      this,
     );
     const partialSig = {
       pubkey: keyPair.publicKey,
@@ -232,6 +311,7 @@ class Psbt extends bip174_1.Psbt {
         inputIndex,
         keyPair.publicKey,
         this.__TX,
+        this,
       );
       Promise.resolve(keyPair.sign(hash)).then(signature => {
         const partialSig = {
@@ -247,16 +327,50 @@ class Psbt extends bip174_1.Psbt {
 exports.Psbt = Psbt;
 const DEFAULT_OPTS = {
   network: networks_1.bitcoin,
+  maximumFeeRate: 5000,
 };
+function addNonWitnessTxCache(psbt, input, inputIndex) {
+  // @ts-ignore
+  psbt.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo;
+  const tx = transaction_1.Transaction.fromBuffer(input.nonWitnessUtxo);
+  // @ts-ignore
+  psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
+  const self = psbt;
+  const selfIndex = inputIndex;
+  delete input.nonWitnessUtxo;
+  Object.defineProperty(input, 'nonWitnessUtxo', {
+    enumerable: true,
+    get() {
+      // @ts-ignore
+      if (self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] !== undefined) {
+        // @ts-ignore
+        return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      } else {
+        // @ts-ignore
+        self.__NON_WITNESS_UTXO_BUF_CACHE[
+          selfIndex
+          // @ts-ignore
+        ] = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex].toBuffer();
+        // @ts-ignore
+        return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      }
+    },
+    set(data) {
+      // @ts-ignore
+      self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = data;
+    },
+  });
+}
 function isFinalized(input) {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }
-function getHashAndSighashType(inputs, inputIndex, pubkey, unsignedTx) {
+function getHashAndSighashType(inputs, inputIndex, pubkey, unsignedTx, psbt) {
   const input = utils_1.checkForInput(inputs, inputIndex);
   const { hash, sighashType, script } = getHashForSig(
     inputIndex,
     input,
     unsignedTx,
+    psbt,
   );
   checkScriptForPubkey(pubkey, script);
   return {
@@ -375,15 +489,18 @@ function checkScriptForPubkey(pubkey, script) {
     );
   }
 }
-const getHashForSig = (inputIndex, input, unsignedTx) => {
+const getHashForSig = (inputIndex, input, unsignedTx, psbt) => {
   const sighashType =
     input.sighashType || transaction_1.Transaction.SIGHASH_ALL;
   let hash;
   let script;
   if (input.nonWitnessUtxo) {
-    const nonWitnessUtxoTx = transaction_1.Transaction.fromBuffer(
-      input.nonWitnessUtxo,
-    );
+    // @ts-ignore
+    if (!psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+      addNonWitnessTxCache(psbt, input, inputIndex);
+    }
+    // @ts-ignore
+    const nonWitnessUtxoTx = psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
     const prevoutHash = unsignedTx.ins[inputIndex].hash;
     const utxoHash = nonWitnessUtxoTx.getHash();
     // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
@@ -494,7 +611,7 @@ const classifyScript = script => {
   if (isP2PK(script)) return 'pubkey';
   return 'nonstandard';
 };
-function getScriptFromInput(inputIndex, input, unsignedTx) {
+function getScriptFromInput(inputIndex, input, unsignedTx, psbt) {
   const res = {
     script: null,
     isSegwit: false,
@@ -506,9 +623,12 @@ function getScriptFromInput(inputIndex, input, unsignedTx) {
       res.isP2SH = true;
       res.script = input.redeemScript;
     } else {
-      const nonWitnessUtxoTx = transaction_1.Transaction.fromBuffer(
-        input.nonWitnessUtxo,
-      );
+      // @ts-ignore
+      if (!psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+        addNonWitnessTxCache(psbt, input, inputIndex);
+      }
+      // @ts-ignore
+      const nonWitnessUtxoTx = psbt.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
       const prevoutIndex = unsignedTx.ins[inputIndex].index;
       res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
     }
