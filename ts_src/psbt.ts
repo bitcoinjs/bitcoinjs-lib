@@ -180,7 +180,10 @@ export class Psbt extends PsbtBase {
       });
       return self.__TX.toBuffer();
     };
-    return super.addInput(inputData, inputAdder);
+    super.addInput(inputData, inputAdder);
+    this.__FEE_RATE = undefined;
+    this.__EXTRACTED_TX = undefined;
+    return this;
   }
 
   addOutput(outputData: TransactionOutput): this {
@@ -211,7 +214,10 @@ export class Psbt extends PsbtBase {
       });
       return self.__TX.toBuffer();
     };
-    return super.addOutput(outputData, true, outputAdder);
+    super.addOutput(outputData, true, outputAdder);
+    this.__FEE_RATE = undefined;
+    this.__EXTRACTED_TX = undefined;
+    return this;
   }
 
   addNonWitnessUtxoToInput(

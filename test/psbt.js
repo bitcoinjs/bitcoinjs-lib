@@ -158,7 +158,7 @@ describe(`Psbt`, () => {
             ECPair.fromWIF(f.shouldSign.WIF),
           )
         })
-    
+
         const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
         assert.throws(() => {
           psbtThatShouldThrow.signInput(
@@ -222,6 +222,31 @@ describe(`Psbt`, () => {
       assert.throws(() => {
         psbt.setSequence(1, 0)
       }, {message: 'Input index too high'})
+    })
+  })
+
+  describe('Method return types', () => {
+    it('fromTransaction returns Psbt type (not base class)', () => {
+      const psbt = Psbt.fromTransaction(Buffer.from([2,0,0,0,0,0,0,0,0,0]));
+      assert.strictEqual(psbt instanceof Psbt, true);
+      assert.ok(psbt.__TX);
+    })
+    it('fromBuffer returns Psbt type (not base class)', () => {
+      const psbt = Psbt.fromBuffer(Buffer.from(
+        '70736274ff01000a01000000000000000000000000', 'hex' //cHNidP8BAAoBAAAAAAAAAAAAAAAA
+      ));
+      assert.strictEqual(psbt instanceof Psbt, true);
+      assert.ok(psbt.__TX);
+    })
+    it('fromBase64 returns Psbt type (not base class)', () => {
+      const psbt = Psbt.fromBase64('cHNidP8BAAoBAAAAAAAAAAAAAAAA');
+      assert.strictEqual(psbt instanceof Psbt, true);
+      assert.ok(psbt.__TX);
+    })
+    it('fromHex returns Psbt type (not base class)', () => {
+      const psbt = Psbt.fromHex('70736274ff01000a01000000000000000000000000');
+      assert.strictEqual(psbt instanceof Psbt, true);
+      assert.ok(psbt.__TX);
     })
   })
 })

@@ -143,7 +143,10 @@ class Psbt extends bip174_1.Psbt {
       });
       return self.__TX.toBuffer();
     };
-    return super.addInput(inputData, inputAdder);
+    super.addInput(inputData, inputAdder);
+    this.__FEE_RATE = undefined;
+    this.__EXTRACTED_TX = undefined;
+    return this;
   }
   addOutput(outputData) {
     checkInputsForPartialSig(this.inputs, 'addOutput');
@@ -170,7 +173,10 @@ class Psbt extends bip174_1.Psbt {
       });
       return self.__TX.toBuffer();
     };
-    return super.addOutput(outputData, true, outputAdder);
+    super.addOutput(outputData, true, outputAdder);
+    this.__FEE_RATE = undefined;
+    this.__EXTRACTED_TX = undefined;
+    return this;
   }
   addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo) {
     super.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
