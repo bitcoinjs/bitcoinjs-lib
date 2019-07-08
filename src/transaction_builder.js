@@ -137,6 +137,10 @@ class TransactionBuilder {
     if (typeof scriptPubKey === 'string') {
       scriptPubKey = baddress.toOutputScript(scriptPubKey, this.network);
     }
+    const DUST_AMOUNT = 5460;
+    if (value < DUST_AMOUNT) {
+      throw new TypeError(`Value too small (< ${DUST_AMOUNT} satoshi)`);
+    }
     return this.__TX.addOutput(scriptPubKey, value);
   }
   build() {

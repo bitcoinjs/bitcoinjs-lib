@@ -361,6 +361,13 @@ for (const useOldSignArgs of [ false, true ]) {
           txb.addOutput(scripts[1], 9000)
         }, /No, this would invalidate signatures/)
       })
+
+      it('should throw error if value is small than 5460 satoshi (dust transaction)', () => {
+        const error = new TypeError('Value too small (< 5460 satoshi)')
+
+        let txb = new TransactionBuilder()
+        assert.throws(() => txb.addOutput('1Gokm82v6DmtwKEB8AiVhm82hyFSsEvBDK', 5400), error)
+      })
     })
 
     describe('setLockTime', () => {
