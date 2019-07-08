@@ -5,6 +5,7 @@ const utils_1 = require('bip174/src/lib/utils');
 const address_1 = require('./address');
 const bufferutils_1 = require('./bufferutils');
 const crypto_1 = require('./crypto');
+const ecpair_1 = require('./ecpair');
 const networks_1 = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
@@ -304,6 +305,39 @@ class Psbt extends bip174_1.Psbt {
     this.clearFinalizedInput(inputIndex);
     return true;
   }
+  validateSignatures(inputIndex, pubkey) {
+    const input = this.inputs[inputIndex];
+    const partialSig = (input || {}).partialSig;
+    if (!input || !partialSig || partialSig.length < 1)
+      throw new Error('No signatures to validate');
+    const mySigs = pubkey
+      ? partialSig.filter(sig => sig.pubkey.equals(pubkey))
+      : partialSig;
+    if (mySigs.length < 1) throw new Error('No signatures for this pubkey');
+    const results = [];
+    let hashCache;
+    let scriptCache;
+    let sighashCache;
+    for (const pSig of mySigs) {
+      const sig = bscript.signature.decode(pSig.signature);
+      const { hash, script } =
+        sighashCache !== sig.hashType
+          ? getHashForSig(
+              inputIndex,
+              Object.assign({}, input, { sighashType: sig.hashType }),
+              this.__TX,
+              this.__CACHE,
+            )
+          : { hash: hashCache, script: scriptCache };
+      sighashCache = sig.hashType;
+      hashCache = hash;
+      scriptCache = script;
+      checkScriptForPubkey(pSig.pubkey, script, 'verify');
+      const keypair = ecpair_1.fromPublicKey(pSig.pubkey);
+      results.push(keypair.verify(hash, sig.signature));
+    }
+    return results.every(res => res === true);
+  }
   signInput(inputIndex, keyPair) {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
@@ -391,7 +425,7 @@ function getHashAndSighashType(inputs, inputIndex, pubkey, unsignedTx, cache) {
     unsignedTx,
     cache,
   );
-  checkScriptForPubkey(pubkey, script);
+  checkScriptForPubkey(pubkey, script, 'sign');
   return {
     hash,
     sighashType,
@@ -494,7 +528,7 @@ function canFinalize(input, script, scriptType) {
       return false;
   }
 }
-function checkScriptForPubkey(pubkey, script) {
+function checkScriptForPubkey(pubkey, script, action) {
   const pubkeyHash = crypto_1.hash160(pubkey);
   const decompiled = bscript.decompile(script);
   if (decompiled === null) throw new Error('Unknown script error');
@@ -504,7 +538,7 @@ function checkScriptForPubkey(pubkey, script) {
   });
   if (!hasKey) {
     throw new Error(
-      `Can not sign for this input with the key ${pubkey.toString('hex')}`,
+      `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
     );
   }
 }

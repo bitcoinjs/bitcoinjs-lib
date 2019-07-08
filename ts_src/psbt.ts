@@ -10,7 +10,11 @@ import { checkForInput } from 'bip174/src/lib/utils';
 import { toOutputScript } from './address';
 import { reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
-import { Signer, SignerAsync } from './ecpair';
+import {
+  fromPublicKey as ecPairFromPublicKey,
+  Signer,
+  SignerAsync,
+} from './ecpair';
 import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
@@ -367,6 +371,40 @@ export class Psbt extends PsbtBase {
     return true;
   }
 
+  validateSignatures(inputIndex: number, pubkey?: Buffer): boolean {
+    const input = this.inputs[inputIndex];
+    const partialSig = (input || {}).partialSig;
+    if (!input || !partialSig || partialSig.length < 1)
+      throw new Error('No signatures to validate');
+    const mySigs = pubkey
+      ? partialSig.filter(sig => sig.pubkey.equals(pubkey))
+      : partialSig;
+    if (mySigs.length < 1) throw new Error('No signatures for this pubkey');
+    const results: boolean[] = [];
+    let hashCache: Buffer;
+    let scriptCache: Buffer;
+    let sighashCache: number;
+    for (const pSig of mySigs) {
+      const sig = bscript.signature.decode(pSig.signature);
+      const { hash, script } =
+        sighashCache! !== sig.hashType
+          ? getHashForSig(
+              inputIndex,
+              Object.assign({}, input, { sighashType: sig.hashType }),
+              this.__TX,
+              this.__CACHE,
+            )
+          : { hash: hashCache!, script: scriptCache! };
+      sighashCache = sig.hashType;
+      hashCache = hash;
+      scriptCache = script;
+      checkScriptForPubkey(pSig.pubkey, script, 'verify');
+      const keypair = ecPairFromPublicKey(pSig.pubkey);
+      results.push(keypair.verify(hash, sig.signature));
+    }
+    return results.every(res => res === true);
+  }
+
   signInput(inputIndex: number, keyPair: Signer): this {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
@@ -507,7 +545,7 @@ function getHashAndSighashType(
     unsignedTx,
     cache,
   );
-  checkScriptForPubkey(pubkey, script);
+  checkScriptForPubkey(pubkey, script, 'sign');
   return {
     hash,
     sighashType,
@@ -628,7 +666,11 @@ function canFinalize(
   }
 }
 
-function checkScriptForPubkey(pubkey: Buffer, script: Buffer): void {
+function checkScriptForPubkey(
+  pubkey: Buffer,
+  script: Buffer,
+  action: string,
+): void {
   const pubkeyHash = hash160(pubkey);
 
   const decompiled = bscript.decompile(script);
@@ -641,7 +683,7 @@ function checkScriptForPubkey(pubkey: Buffer, script: Buffer): void {
 
   if (!hasKey) {
     throw new Error(
-      `Can not sign for this input with the key ${pubkey.toString('hex')}`,
+      `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
     );
   }
 }

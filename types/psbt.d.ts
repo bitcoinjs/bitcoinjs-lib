@@ -29,6 +29,7 @@ export declare class Psbt extends PsbtBase {
         inputResults: boolean[];
     };
     finalizeInput(inputIndex: number): boolean;
+    validateSignatures(inputIndex: number, pubkey?: Buffer): boolean;
     signInput(inputIndex: number, keyPair: Signer): this;
     signInputAsync(inputIndex: number, keyPair: SignerAsync): Promise<void>;
 }
