@@ -405,6 +405,61 @@ export class Psbt extends PsbtBase {
     return results.every(res => res === true);
   }
 
+  sign(keyPair: Signer): this {
+    if (!keyPair || !keyPair.publicKey)
+      throw new Error('Need Signer to sign input');
+
+    // TODO: Add a pubkey/pubkeyhash cache to each input
+    // as input information is added, then eventually
+    // optimize this method.
+    const results: boolean[] = [];
+    for (const [i] of this.inputs.entries()) {
+      try {
+        this.signInput(i, keyPair);
+        results.push(true);
+      } catch (err) {
+        results.push(false);
+      }
+    }
+    if (results.every(v => v === false)) {
+      throw new Error('No inputs were signed');
+    }
+    return this;
+  }
+
+  signAsync(keyPair: SignerAsync): Promise<void> {
+    return new Promise(
+      (resolve, reject): any => {
+        if (!keyPair || !keyPair.publicKey)
+          return reject(new Error('Need Signer to sign input'));
+
+        // TODO: Add a pubkey/pubkeyhash cache to each input
+        // as input information is added, then eventually
+        // optimize this method.
+        const results: boolean[] = [];
+        const promises: Array<Promise<void>> = [];
+        for (const [i] of this.inputs.entries()) {
+          promises.push(
+            this.signInputAsync(i, keyPair).then(
+              () => {
+                results.push(true);
+              },
+              () => {
+                results.push(false);
+              },
+            ),
+          );
+        }
+        return Promise.all(promises).then(() => {
+          if (results.every(v => v === false)) {
+            return reject(new Error('No inputs were signed'));
+          }
+          resolve();
+        });
+      },
+    );
+  }
+
   signInput(inputIndex: number, keyPair: Signer): this {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');

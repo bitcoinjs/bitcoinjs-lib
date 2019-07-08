@@ -110,8 +110,13 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     const signer2 = bitcoin.Psbt.fromBase64(psbtBaseText)
 
     // Alice signs each input with the respective private keys
-    signer1.signInput(0, alice1.keys[0])
-    signer2.signInput(1, alice2.keys[0])
+    // signInput and signInputAsync are better
+    // (They take the input index explicitly as the first arg)
+    signer1.sign(alice1.keys[0])
+    signer2.sign(alice2.keys[0])
+
+    // If your signer object's sign method returns a promise, use the following
+    // await signer2.signAsync(alice2.keys[0])
 
     // encode to send back to combiner (signer 1 and 2 are not near each other)
     const s1text = signer1.toBase64()

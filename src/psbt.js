@@ -338,6 +338,55 @@ class Psbt extends bip174_1.Psbt {
     }
     return results.every(res => res === true);
   }
+  sign(keyPair) {
+    if (!keyPair || !keyPair.publicKey)
+      throw new Error('Need Signer to sign input');
+    // TODO: Add a pubkey/pubkeyhash cache to each input
+    // as input information is added, then eventually
+    // optimize this method.
+    const results = [];
+    for (const [i] of this.inputs.entries()) {
+      try {
+        this.signInput(i, keyPair);
+        results.push(true);
+      } catch (err) {
+        results.push(false);
+      }
+    }
+    if (results.every(v => v === false)) {
+      throw new Error('No inputs were signed');
+    }
+    return this;
+  }
+  signAsync(keyPair) {
+    return new Promise((resolve, reject) => {
+      if (!keyPair || !keyPair.publicKey)
+        return reject(new Error('Need Signer to sign input'));
+      // TODO: Add a pubkey/pubkeyhash cache to each input
+      // as input information is added, then eventually
+      // optimize this method.
+      const results = [];
+      const promises = [];
+      for (const [i] of this.inputs.entries()) {
+        promises.push(
+          this.signInputAsync(i, keyPair).then(
+            () => {
+              results.push(true);
+            },
+            () => {
+              results.push(false);
+            },
+          ),
+        );
+      }
+      return Promise.all(promises).then(() => {
+        if (results.every(v => v === false)) {
+          return reject(new Error('No inputs were signed'));
+        }
+        resolve();
+      });
+    });
+  }
   signInput(inputIndex, keyPair) {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
