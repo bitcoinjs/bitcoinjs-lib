@@ -1028,32 +1028,26 @@ function checkTxEmpty(tx: Transaction): void {
 function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
   inputs.forEach(input => {
     let throws = false;
-    if ((input.partialSig || []).length > 0) {
-      if (input.sighashType !== undefined) {
-        const whitelist: string[] = [];
-        const isAnyoneCanPay =
-          input.sighashType & Transaction.SIGHASH_ANYONECANPAY;
-        if (isAnyoneCanPay) whitelist.push('addInput');
-        if (!isAnyoneCanPay && action === 'addInput') {
-          throws = true;
-        }
-        const hashType = input.sighashType & 0x1f;
-        switch (hashType) {
-          case Transaction.SIGHASH_ALL:
-            break;
-          case Transaction.SIGHASH_SINGLE:
-          case Transaction.SIGHASH_NONE:
-            whitelist.push('addOutput');
-            whitelist.push('setSequence');
-            break;
-        }
-        if (whitelist.indexOf(action) === -1) {
-          throws = true;
-        }
-      } else {
+    if ((input.partialSig || []).length === 0) return;
+    input.partialSig!.forEach(pSig => {
+      const { hashType } = bscript.signature.decode(pSig.signature);
+      const whitelist: string[] = [];
+      const isAnyoneCanPay = hashType & Transaction.SIGHASH_ANYONECANPAY;
+      if (isAnyoneCanPay) whitelist.push('addInput');
+      const hashMod = hashType & 0x1f;
+      switch (hashMod) {
+        case Transaction.SIGHASH_ALL:
+          break;
+        case Transaction.SIGHASH_SINGLE:
+        case Transaction.SIGHASH_NONE:
+          whitelist.push('addOutput');
+          whitelist.push('setSequence');
+          break;
+      }
+      if (whitelist.indexOf(action) === -1) {
         throws = true;
       }
-    }
+    });
     if (throws) {
       throw new Error('Can not modify transaction, signatures exist.');
     }
