@@ -204,73 +204,46 @@ export class Psbt extends PsbtBase {
 
   extractTransaction(disableFeeCheck?: boolean): Transaction {
     if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
+    const c = this.__CACHE;
     if (!disableFeeCheck) {
-      const feeRate = this.__CACHE.__FEE_RATE || this.getFeeRate();
-      const vsize = this.__CACHE.__EXTRACTED_TX!.virtualSize();
-      const satoshis = feeRate * vsize;
-      if (feeRate >= this.opts.maximumFeeRate) {
-        throw new Error(
-          `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
-            `fees, which is ${feeRate} satoshi per byte for a transaction ` +
-            `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
-            `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
-            `pass true to the first arg of extractTransaction.`,
-        );
-      }
+      checkFees(this, c, this.opts);
     }
-    if (this.__CACHE.__EXTRACTED_TX) return this.__CACHE.__EXTRACTED_TX;
-    const tx = this.__CACHE.__TX.clone();
-    this.inputs.forEach((input, idx) => {
-      if (input.finalScriptSig) tx.ins[idx].script = input.finalScriptSig;
-      if (input.finalScriptWitness) {
-        tx.ins[idx].witness = scriptWitnessToWitnessStack(
-          input.finalScriptWitness,
-        );
-      }
-    });
-    this.__CACHE.__EXTRACTED_TX = tx;
+    if (c.__EXTRACTED_TX) return c.__EXTRACTED_TX;
+    const tx = c.__TX.clone();
+    inputFinalizeGetAmts(this.inputs, tx, c, true, false);
+    c.__EXTRACTED_TX = tx;
     return tx;
   }
 
   getFeeRate(): number {
     if (!this.inputs.every(isFinalized))
       throw new Error('PSBT must be finalized to calculate fee rate');
-    if (this.__CACHE.__FEE_RATE) return this.__CACHE.__FEE_RATE;
+    const c = this.__CACHE;
+    if (c.__FEE_RATE) return c.__FEE_RATE;
     let tx: Transaction;
-    let inputAmount = 0;
     let mustFinalize = true;
-    if (this.__CACHE.__EXTRACTED_TX) {
-      tx = this.__CACHE.__EXTRACTED_TX;
+    if (c.__EXTRACTED_TX) {
+      tx = c.__EXTRACTED_TX;
       mustFinalize = false;
     } else {
-      tx = this.__CACHE.__TX.clone();
+      tx = c.__TX.clone();
     }
-    this.inputs.forEach((input, idx) => {
-      if (mustFinalize && input.finalScriptSig)
-        tx.ins[idx].script = input.finalScriptSig;
-      if (mustFinalize && input.finalScriptWitness) {
-        tx.ins[idx].witness = scriptWitnessToWitnessStack(
-          input.finalScriptWitness,
-        );
-      }
-      if (input.witnessUtxo) {
-        inputAmount += input.witnessUtxo.value;
-      } else if (input.nonWitnessUtxo) {
-        const nwTx = nonWitnessUtxoTxFromCache(this.__CACHE, input, idx);
-        const vout = this.__CACHE.__TX.ins[idx].index;
-        const out = nwTx.outs[vout] as Output;
-        inputAmount += out.value;
-      }
-    });
-    this.__CACHE.__EXTRACTED_TX = tx;
+    const inputAmount = inputFinalizeGetAmts(
+      this.inputs,
+      tx,
+      c,
+      mustFinalize,
+      true,
+    );
+    c.__EXTRACTED_TX = tx;
     const outputAmount = (tx.outs as Output[]).reduce(
       (total, o) => total + o.value,
       0,
     );
     const fee = inputAmount - outputAmount;
     const bytes = tx.virtualSize();
-    this.__CACHE.__FEE_RATE = Math.floor(fee / bytes);
-    return this.__CACHE.__FEE_RATE;
+    c.__FEE_RATE = Math.floor(fee / bytes);
+    return c.__FEE_RATE;
   }
 
   finalizeAllInputs(): {
@@ -1073,6 +1046,49 @@ function getOutputAdder(
     });
     return selfCache.__TX.toBuffer();
   };
+}
+
+function checkFees(psbt: Psbt, cache: PsbtCache, opts: PsbtOpts): void {
+  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
+  const vsize = cache.__EXTRACTED_TX!.virtualSize();
+  const satoshis = feeRate * vsize;
+  if (feeRate >= opts.maximumFeeRate) {
+    throw new Error(
+      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
+        `fees, which is ${feeRate} satoshi per byte for a transaction ` +
+        `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
+        `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
+        `pass true to the first arg of extractTransaction.`,
+    );
+  }
+}
+
+function inputFinalizeGetAmts(
+  inputs: PsbtInput[],
+  tx: Transaction,
+  cache: PsbtCache,
+  mustFinalize: boolean,
+  getAmounts: boolean,
+): number {
+  let inputAmount = 0;
+  inputs.forEach((input, idx) => {
+    if (mustFinalize && input.finalScriptSig)
+      tx.ins[idx].script = input.finalScriptSig;
+    if (mustFinalize && input.finalScriptWitness) {
+      tx.ins[idx].witness = scriptWitnessToWitnessStack(
+        input.finalScriptWitness,
+      );
+    }
+    if (getAmounts && input.witnessUtxo) {
+      inputAmount += input.witnessUtxo.value;
+    } else if (getAmounts && input.nonWitnessUtxo) {
+      const nwTx = nonWitnessUtxoTxFromCache(cache, input, idx);
+      const vout = tx.ins[idx].index;
+      const out = nwTx.outs[vout] as Output;
+      inputAmount += out.value;
+    }
+  });
+  return inputAmount;
 }
 
 function check32Bit(num: number): void {
