@@ -233,31 +233,24 @@ export class Psbt extends PsbtBase {
     return c.__FEE_RATE!;
   }
 
-  finalizeAllInputs(): {
-    result: boolean;
-    inputResults: boolean[];
-  } {
-    const inputResults = range(this.inputs.length).map(idx =>
-      this.finalizeInput(idx),
-    );
-    const result = inputResults.every(val => val === true);
-    return {
-      result,
-      inputResults,
-    };
+  finalizeAllInputs(): this {
+    checkForInput(this.inputs, 0); // making sure we have at least one
+    range(this.inputs.length).forEach(idx => this.finalizeInput(idx));
+    return this;
   }
 
-  finalizeInput(inputIndex: number): boolean {
+  finalizeInput(inputIndex: number): this {
     const input = checkForInput(this.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
       this.__CACHE,
     );
-    if (!script) return false;
+    if (!script) throw new Error(`No script found for input #${inputIndex}`);
 
     const scriptType = classifyScript(script);
-    if (!canFinalize(input, script, scriptType)) return false;
+    if (!canFinalize(input, script, scriptType))
+      throw new Error(`Can not finalize input #${inputIndex}`);
 
     const { finalScriptSig, finalScriptWitness } = getFinalScripts(
       script,
@@ -272,10 +265,19 @@ export class Psbt extends PsbtBase {
       this.addFinalScriptSigToInput(inputIndex, finalScriptSig);
     if (finalScriptWitness)
       this.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
-    if (!finalScriptSig && !finalScriptWitness) return false;
+    if (!finalScriptSig && !finalScriptWitness)
+      throw new Error(`Unknown error finalizing input #${inputIndex}`);
 
     this.clearFinalizedInput(inputIndex);
-    return true;
+    return this;
+  }
+
+  validateAllSignatures(): boolean {
+    checkForInput(this.inputs, 0); // making sure we have at least one
+    const results = range(this.inputs.length).map(idx =>
+      this.validateSignatures(idx),
+    );
+    return results.reduce((final, res) => res === true && final, true);
   }
 
   validateSignatures(inputIndex: number, pubkey?: Buffer): boolean {
@@ -319,7 +321,7 @@ export class Psbt extends PsbtBase {
     // as input information is added, then eventually
     // optimize this method.
     const results: boolean[] = [];
-    for (const [i] of this.inputs.entries()) {
+    for (const i of range(this.inputs.length)) {
       try {
         this.signInput(i, keyPair);
         results.push(true);

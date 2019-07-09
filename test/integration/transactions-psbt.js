@@ -225,26 +225,25 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       } = inputData
       assert.deepStrictEqual({ hash, index, witnessUtxo, redeemScript }, inputData)
     }
+    const keyPair = p2sh.keys[0]
+    const outputData = {
+      script: p2sh.payment.output, // sending to myself for fun
+      value: 2e4
+    }
 
-    const psbt = new bitcoin.Psbt({ network: regtest })
+    const tx = new bitcoin.Psbt()
       .addInput(inputData)
-      .addOutput({
-        address: regtestUtils.RANDOM_ADDRESS,
-        value: 2e4
-      })
-      .signInput(0, p2sh.keys[0])
-
-    assert.strictEqual(psbt.validateSignatures(0), true)
-    psbt.finalizeAllInputs()
-
-    const tx = psbt.extractTransaction()
+      .addOutput(outputData)
+      .sign(keyPair)
+      .finalizeAllInputs()
+      .extractTransaction()
 
     // build and broadcast to the Bitcoin RegTest network
     await regtestUtils.broadcast(tx.toHex())
 
     await regtestUtils.verify({
       txId: tx.getId(),
-      address: regtestUtils.RANDOM_ADDRESS,
+      address: p2sh.payment.address,
       vout: 0,
       value: 2e4
     })

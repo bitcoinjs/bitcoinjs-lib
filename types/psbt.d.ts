@@ -20,11 +20,9 @@ export declare class Psbt extends PsbtBase {
     addNonWitnessUtxoToInput(inputIndex: number, nonWitnessUtxo: NonWitnessUtxo): this;
     extractTransaction(disableFeeCheck?: boolean): Transaction;
     getFeeRate(): number;
-    finalizeAllInputs(): {
-        result: boolean;
-        inputResults: boolean[];
-    };
-    finalizeInput(inputIndex: number): boolean;
+    finalizeAllInputs(): this;
+    finalizeInput(inputIndex: number): this;
+    validateAllSignatures(): boolean;
     validateSignatures(inputIndex: number, pubkey?: Buffer): boolean;
     sign(keyPair: Signer): this;
     signAsync(keyPair: SignerAsync): Promise<void>;
