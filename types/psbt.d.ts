@@ -11,11 +11,14 @@ export declare class Psbt extends PsbtBase {
     private opts;
     constructor(opts?: PsbtOptsOptional);
     readonly inputCount: number;
+    clone(): Psbt;
     setMaximumFeeRate(satoshiPerByte: number): void;
     setVersion(version: number): this;
     setLocktime(locktime: number): this;
     setSequence(inputIndex: number, sequence: number): this;
+    addInputs(inputDatas: TransactionInput[]): this;
     addInput(inputData: TransactionInput): this;
+    addOutputs(outputDatas: TransactionOutput[]): this;
     addOutput(outputData: TransactionOutput): this;
     addNonWitnessUtxoToInput(inputIndex: number, nonWitnessUtxo: NonWitnessUtxo): this;
     extractTransaction(disableFeeCheck?: boolean): Transaction;

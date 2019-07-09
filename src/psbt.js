@@ -95,6 +95,12 @@ class Psbt extends bip174_1.Psbt {
   get inputCount() {
     return this.inputs.length;
   }
+  clone() {
+    // TODO: more efficient cloning
+    const res = Psbt.fromBuffer(this.toBuffer());
+    res.opts = JSON.parse(JSON.stringify(this.opts));
+    return res;
+  }
   setMaximumFeeRate(satoshiPerByte) {
     check32Bit(satoshiPerByte); // 42.9 BTC per byte IS excessive... so throw
     this.opts.maximumFeeRate = satoshiPerByte;
@@ -129,6 +135,10 @@ class Psbt extends bip174_1.Psbt {
     c.__EXTRACTED_TX = undefined;
     return this;
   }
+  addInputs(inputDatas) {
+    inputDatas.forEach(inputData => this.addInput(inputData));
+    return this;
+  }
   addInput(inputData) {
     checkInputsForPartialSig(this.inputs, 'addInput');
     const c = this.__CACHE;
@@ -136,6 +146,10 @@ class Psbt extends bip174_1.Psbt {
     super.addInput(inputData, inputAdder);
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+  addOutputs(outputDatas) {
+    outputDatas.forEach(outputData => this.addOutput(outputData));
     return this;
   }
   addOutput(outputData) {

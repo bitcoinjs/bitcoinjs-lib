@@ -130,6 +130,13 @@ export class Psbt extends PsbtBase {
     return this.inputs.length;
   }
 
+  clone(): Psbt {
+    // TODO: more efficient cloning
+    const res = Psbt.fromBuffer(this.toBuffer());
+    res.opts = JSON.parse(JSON.stringify(this.opts));
+    return res;
+  }
+
   setMaximumFeeRate(satoshiPerByte: number): void {
     check32Bit(satoshiPerByte); // 42.9 BTC per byte IS excessive... so throw
     this.opts.maximumFeeRate = satoshiPerByte;
@@ -168,6 +175,11 @@ export class Psbt extends PsbtBase {
     return this;
   }
 
+  addInputs(inputDatas: TransactionInput[]): this {
+    inputDatas.forEach(inputData => this.addInput(inputData));
+    return this;
+  }
+
   addInput(inputData: TransactionInput): this {
     checkInputsForPartialSig(this.inputs, 'addInput');
     const c = this.__CACHE;
@@ -175,6 +187,11 @@ export class Psbt extends PsbtBase {
     super.addInput(inputData, inputAdder);
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+
+  addOutputs(outputDatas: TransactionOutput[]): this {
+    outputDatas.forEach(outputData => this.addOutput(outputData));
     return this;
   }
 
