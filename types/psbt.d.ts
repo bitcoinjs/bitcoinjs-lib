@@ -8,10 +8,6 @@ export declare class Psbt extends PsbtBase {
     static fromTransaction<T extends typeof PsbtBase>(this: T, txBuf: Buffer): InstanceType<T>;
     static fromBuffer<T extends typeof PsbtBase>(this: T, buffer: Buffer): InstanceType<T>;
     private __CACHE;
-    private __TX;
-    private __TX_BUF_CACHE?;
-    private __FEE_RATE?;
-    private __EXTRACTED_TX?;
     private opts;
     constructor(opts?: PsbtOptsOptional);
     readonly inputCount: number;

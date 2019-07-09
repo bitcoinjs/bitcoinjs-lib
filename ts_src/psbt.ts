@@ -34,7 +34,7 @@ export class Psbt extends PsbtBase {
     const tx = Transaction.fromBuffer(txBuf);
     checkTxEmpty(tx);
     const psbt = new this() as Psbt;
-    psbt.__TX = tx;
+    psbt.__CACHE.__TX = tx;
     checkTxForDupeIns(tx, psbt.__CACHE);
     let inputCount = tx.ins.length;
     let outputCount = tx.outs.length;
@@ -71,25 +71,22 @@ export class Psbt extends PsbtBase {
       };
     };
     const psbt = super.fromBuffer(buffer, txCountGetter) as Psbt;
-    psbt.__TX = tx!;
+    psbt.__CACHE.__TX = tx!;
     checkTxForDupeIns(tx!, psbt.__CACHE);
     return psbt as InstanceType<T>;
   }
-  private __CACHE = {
-    __NON_WITNESS_UTXO_TX_CACHE: [] as Transaction[],
-    __NON_WITNESS_UTXO_BUF_CACHE: [] as Buffer[],
-    __TX_IN_CACHE: {} as { [index: string]: number },
+  private __CACHE: PsbtCache = {
+    __NON_WITNESS_UTXO_TX_CACHE: [],
+    __NON_WITNESS_UTXO_BUF_CACHE: [],
+    __TX_IN_CACHE: {},
+    __TX: new Transaction(),
   };
-  private __TX: Transaction;
-  private __TX_BUF_CACHE?: Buffer;
-  private __FEE_RATE?: number;
-  private __EXTRACTED_TX?: Transaction;
   private opts: PsbtOpts;
   constructor(opts: PsbtOptsOptional = {}) {
     super();
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
-    this.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+    this.__CACHE.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
     this.setVersion(2);
 
     // set cache
@@ -98,15 +95,15 @@ export class Psbt extends PsbtBase {
     Object.defineProperty(this.globalMap, 'unsignedTx', {
       enumerable: true,
       get(): Buffer {
-        if (self.__TX_BUF_CACHE !== undefined) {
-          return self.__TX_BUF_CACHE;
+        if (self.__CACHE.__TX_BUF_CACHE !== undefined) {
+          return self.__CACHE.__TX_BUF_CACHE;
         } else {
-          self.__TX_BUF_CACHE = self.__TX.toBuffer();
-          return self.__TX_BUF_CACHE;
+          self.__CACHE.__TX_BUF_CACHE = self.__CACHE.__TX.toBuffer();
+          return self.__CACHE.__TX_BUF_CACHE;
         }
       },
       set(data: Buffer): void {
-        self.__TX_BUF_CACHE = data;
+        self.__CACHE.__TX_BUF_CACHE = data;
       },
     });
 
@@ -123,8 +120,6 @@ export class Psbt extends PsbtBase {
       });
     dpew(this, '__TX', false, true);
     dpew(this, '__EXTRACTED_TX', false, true);
-    dpew(this, '__FEE_RATE', false, true);
-    dpew(this, '__TX_BUF_CACHE', false, true);
     dpew(this, '__CACHE', false, true);
     dpew(this, 'opts', false, true);
   }
@@ -141,69 +136,42 @@ export class Psbt extends PsbtBase {
   setVersion(version: number): this {
     check32Bit(version);
     checkInputsForPartialSig(this.inputs, 'setVersion');
-    this.__TX.version = version;
-    this.__TX_BUF_CACHE = undefined;
-    this.__EXTRACTED_TX = undefined;
+    const c = this.__CACHE;
+    c.__TX.version = version;
+    c.__TX_BUF_CACHE = undefined;
+    c.__EXTRACTED_TX = undefined;
     return this;
   }
 
   setLocktime(locktime: number): this {
     check32Bit(locktime);
     checkInputsForPartialSig(this.inputs, 'setLocktime');
-    this.__TX.locktime = locktime;
-    this.__TX_BUF_CACHE = undefined;
-    this.__EXTRACTED_TX = undefined;
+    const c = this.__CACHE;
+    c.__TX.locktime = locktime;
+    c.__TX_BUF_CACHE = undefined;
+    c.__EXTRACTED_TX = undefined;
     return this;
   }
 
   setSequence(inputIndex: number, sequence: number): this {
     check32Bit(sequence);
     checkInputsForPartialSig(this.inputs, 'setSequence');
-    if (this.__TX.ins.length <= inputIndex) {
+    const c = this.__CACHE;
+    if (c.__TX.ins.length <= inputIndex) {
       throw new Error('Input index too high');
     }
-    this.__TX.ins[inputIndex].sequence = sequence;
-    this.__TX_BUF_CACHE = undefined;
-    this.__EXTRACTED_TX = undefined;
+    c.__TX.ins[inputIndex].sequence = sequence;
+    c.__TX_BUF_CACHE = undefined;
+    c.__EXTRACTED_TX = undefined;
     return this;
   }
 
   addInput(inputData: TransactionInput): this {
     checkInputsForPartialSig(this.inputs, 'addInput');
-    const self = this;
-    const inputAdder = (
-      _inputData: TransactionInput,
-      txBuf: Buffer,
-    ): Buffer => {
-      if (
-        !txBuf ||
-        (_inputData as any).hash === undefined ||
-        (_inputData as any).index === undefined ||
-        (!Buffer.isBuffer((_inputData as any).hash) &&
-          typeof (_inputData as any).hash !== 'string') ||
-        typeof (_inputData as any).index !== 'number'
-      ) {
-        throw new Error('Error adding input.');
-      }
-      const prevHash = Buffer.isBuffer(_inputData.hash)
-        ? _inputData.hash
-        : reverseBuffer(Buffer.from(_inputData.hash, 'hex'));
-
-      // Check if input already exists in cache.
-      const input = { hash: prevHash, index: _inputData.index };
-      checkTxInputCache(self.__CACHE, input);
-
-      self.__TX.ins.push({
-        ...input,
-        script: Buffer.alloc(0),
-        sequence: _inputData.sequence || Transaction.DEFAULT_SEQUENCE,
-        witness: [],
-      });
-      return self.__TX.toBuffer();
-    };
+    const inputAdder = getInputAdder(this.__CACHE);
     super.addInput(inputData, inputAdder);
-    this.__FEE_RATE = undefined;
-    this.__EXTRACTED_TX = undefined;
+    this.__CACHE.__FEE_RATE = undefined;
+    this.__CACHE.__EXTRACTED_TX = undefined;
     return this;
   }
 
@@ -229,15 +197,15 @@ export class Psbt extends PsbtBase {
       ) {
         throw new Error('Error adding output.');
       }
-      self.__TX.outs.push({
+      self.__CACHE.__TX.outs.push({
         script: (_outputData as any).script!,
         value: _outputData.value,
       });
-      return self.__TX.toBuffer();
+      return self.__CACHE.__TX.toBuffer();
     };
     super.addOutput(outputData, true, outputAdder);
-    this.__FEE_RATE = undefined;
-    this.__EXTRACTED_TX = undefined;
+    this.__CACHE.__FEE_RATE = undefined;
+    this.__CACHE.__EXTRACTED_TX = undefined;
     return this;
   }
 
@@ -254,8 +222,8 @@ export class Psbt extends PsbtBase {
   extractTransaction(disableFeeCheck?: boolean): Transaction {
     if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
     if (!disableFeeCheck) {
-      const feeRate = this.__FEE_RATE || this.getFeeRate();
-      const vsize = this.__EXTRACTED_TX!.virtualSize();
+      const feeRate = this.__CACHE.__FEE_RATE || this.getFeeRate();
+      const vsize = this.__CACHE.__EXTRACTED_TX!.virtualSize();
       const satoshis = feeRate * vsize;
       if (feeRate >= this.opts.maximumFeeRate) {
         throw new Error(
@@ -267,8 +235,8 @@ export class Psbt extends PsbtBase {
         );
       }
     }
-    if (this.__EXTRACTED_TX) return this.__EXTRACTED_TX;
-    const tx = this.__TX.clone();
+    if (this.__CACHE.__EXTRACTED_TX) return this.__CACHE.__EXTRACTED_TX;
+    const tx = this.__CACHE.__TX.clone();
     this.inputs.forEach((input, idx) => {
       if (input.finalScriptSig) tx.ins[idx].script = input.finalScriptSig;
       if (input.finalScriptWitness) {
@@ -277,22 +245,22 @@ export class Psbt extends PsbtBase {
         );
       }
     });
-    this.__EXTRACTED_TX = tx;
+    this.__CACHE.__EXTRACTED_TX = tx;
     return tx;
   }
 
   getFeeRate(): number {
     if (!this.inputs.every(isFinalized))
       throw new Error('PSBT must be finalized to calculate fee rate');
-    if (this.__FEE_RATE) return this.__FEE_RATE;
+    if (this.__CACHE.__FEE_RATE) return this.__CACHE.__FEE_RATE;
     let tx: Transaction;
     let inputAmount = 0;
     let mustFinalize = true;
-    if (this.__EXTRACTED_TX) {
-      tx = this.__EXTRACTED_TX;
+    if (this.__CACHE.__EXTRACTED_TX) {
+      tx = this.__CACHE.__EXTRACTED_TX;
       mustFinalize = false;
     } else {
-      tx = this.__TX.clone();
+      tx = this.__CACHE.__TX.clone();
     }
     this.inputs.forEach((input, idx) => {
       if (mustFinalize && input.finalScriptSig)
@@ -306,20 +274,20 @@ export class Psbt extends PsbtBase {
         inputAmount += input.witnessUtxo.value;
       } else if (input.nonWitnessUtxo) {
         const nwTx = nonWitnessUtxoTxFromCache(this.__CACHE, input, idx);
-        const vout = this.__TX.ins[idx].index;
+        const vout = this.__CACHE.__TX.ins[idx].index;
         const out = nwTx.outs[vout] as Output;
         inputAmount += out.value;
       }
     });
-    this.__EXTRACTED_TX = tx;
+    this.__CACHE.__EXTRACTED_TX = tx;
     const outputAmount = (tx.outs as Output[]).reduce(
       (total, o) => total + o.value,
       0,
     );
     const fee = inputAmount - outputAmount;
     const bytes = tx.virtualSize();
-    this.__FEE_RATE = Math.floor(fee / bytes);
-    return this.__FEE_RATE;
+    this.__CACHE.__FEE_RATE = Math.floor(fee / bytes);
+    return this.__CACHE.__FEE_RATE;
   }
 
   finalizeAllInputs(): {
@@ -341,7 +309,7 @@ export class Psbt extends PsbtBase {
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
-      this.__TX,
+      this.__CACHE.__TX,
       this.__CACHE,
     );
     if (!script) return false;
@@ -388,7 +356,7 @@ export class Psbt extends PsbtBase {
           ? getHashForSig(
               inputIndex,
               Object.assign({}, input, { sighashType: sig.hashType }),
-              this.__TX,
+              this.__CACHE.__TX,
               this.__CACHE,
             )
           : { hash: hashCache!, script: scriptCache! };
@@ -464,7 +432,7 @@ export class Psbt extends PsbtBase {
       this.inputs,
       inputIndex,
       keyPair.publicKey,
-      this.__TX,
+      this.__CACHE.__TX,
       this.__CACHE,
     );
 
@@ -485,7 +453,7 @@ export class Psbt extends PsbtBase {
           this.inputs,
           inputIndex,
           keyPair.publicKey,
-          this.__TX,
+          this.__CACHE.__TX,
           this.__CACHE,
         );
 
@@ -517,6 +485,10 @@ interface PsbtCache {
   __NON_WITNESS_UTXO_TX_CACHE: Transaction[];
   __NON_WITNESS_UTXO_BUF_CACHE: Buffer[];
   __TX_IN_CACHE: { [index: string]: number };
+  __TX: Transaction;
+  __TX_BUF_CACHE?: Buffer;
+  __FEE_RATE?: number;
+  __EXTRACTED_TX?: Transaction;
 }
 
 interface PsbtOptsOptional {
@@ -1063,6 +1035,39 @@ function nonWitnessUtxoTxFromCache(
     addNonWitnessTxCache(cache, input, inputIndex);
   }
   return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+}
+
+function getInputAdder(
+  cache: PsbtCache,
+): (_inputData: TransactionInput, txBuf: Buffer) => Buffer {
+  const selfCache = cache;
+  return (_inputData: TransactionInput, txBuf: Buffer): Buffer => {
+    if (
+      !txBuf ||
+      (_inputData as any).hash === undefined ||
+      (_inputData as any).index === undefined ||
+      (!Buffer.isBuffer((_inputData as any).hash) &&
+        typeof (_inputData as any).hash !== 'string') ||
+      typeof (_inputData as any).index !== 'number'
+    ) {
+      throw new Error('Error adding input.');
+    }
+    const prevHash = Buffer.isBuffer(_inputData.hash)
+      ? _inputData.hash
+      : reverseBuffer(Buffer.from(_inputData.hash, 'hex'));
+
+    // Check if input already exists in cache.
+    const input = { hash: prevHash, index: _inputData.index };
+    checkTxInputCache(selfCache, input);
+
+    selfCache.__TX.ins.push({
+      ...input,
+      script: Buffer.alloc(0),
+      sequence: _inputData.sequence || Transaction.DEFAULT_SEQUENCE,
+      witness: [],
+    });
+    return selfCache.__TX.toBuffer();
+  };
 }
 
 function check32Bit(num: number): void {
