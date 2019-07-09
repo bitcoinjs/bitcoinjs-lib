@@ -26,25 +26,24 @@ class Psbt extends bip174_1.Psbt {
     };
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
-    this.__CACHE.__TX = transaction_1.Transaction.fromBuffer(
-      this.globalMap.unsignedTx,
-    );
+    const c = this.__CACHE;
+    c.__TX = transaction_1.Transaction.fromBuffer(this.globalMap.unsignedTx);
     this.setVersion(2);
     // set cache
-    const self = this;
     delete this.globalMap.unsignedTx;
     Object.defineProperty(this.globalMap, 'unsignedTx', {
       enumerable: true,
       get() {
-        if (self.__CACHE.__TX_BUF_CACHE !== undefined) {
-          return self.__CACHE.__TX_BUF_CACHE;
+        const buf = c.__TX_BUF_CACHE;
+        if (buf !== undefined) {
+          return buf;
         } else {
-          self.__CACHE.__TX_BUF_CACHE = self.__CACHE.__TX.toBuffer();
-          return self.__CACHE.__TX_BUF_CACHE;
+          c.__TX_BUF_CACHE = c.__TX.toBuffer();
+          return c.__TX_BUF_CACHE;
         }
       },
       set(data) {
-        self.__CACHE.__TX_BUF_CACHE = data;
+        c.__TX_BUF_CACHE = data;
       },
     });
     // Make data hidden when enumerating
@@ -53,8 +52,6 @@ class Psbt extends bip174_1.Psbt {
         enumerable,
         writable,
       });
-    dpew(this, '__TX', false, true);
-    dpew(this, '__EXTRACTED_TX', false, true);
     dpew(this, '__CACHE', false, true);
     dpew(this, 'opts', false, true);
   }
@@ -216,7 +213,6 @@ class Psbt extends bip174_1.Psbt {
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
-      this.__CACHE.__TX,
       this.__CACHE,
     );
     if (!script) return false;
@@ -258,7 +254,6 @@ class Psbt extends bip174_1.Psbt {
           ? getHashForSig(
               inputIndex,
               Object.assign({}, input, { sighashType: sig.hashType }),
-              this.__CACHE.__TX,
               this.__CACHE,
             )
           : { hash: hashCache, script: scriptCache };
@@ -327,7 +322,6 @@ class Psbt extends bip174_1.Psbt {
       this.inputs,
       inputIndex,
       keyPair.publicKey,
-      this.__CACHE.__TX,
       this.__CACHE,
     );
     const partialSig = {
@@ -344,7 +338,6 @@ class Psbt extends bip174_1.Psbt {
         this.inputs,
         inputIndex,
         keyPair.publicKey,
-        this.__CACHE.__TX,
         this.__CACHE,
       );
       Promise.resolve(keyPair.sign(hash)).then(signature => {
@@ -400,14 +393,9 @@ function checkTxInputCache(cache, input) {
 function isFinalized(input) {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }
-function getHashAndSighashType(inputs, inputIndex, pubkey, unsignedTx, cache) {
+function getHashAndSighashType(inputs, inputIndex, pubkey, cache) {
   const input = utils_1.checkForInput(inputs, inputIndex);
-  const { hash, sighashType, script } = getHashForSig(
-    inputIndex,
-    input,
-    unsignedTx,
-    cache,
-  );
+  const { hash, sighashType, script } = getHashForSig(inputIndex, input, cache);
   checkScriptForPubkey(pubkey, script, 'sign');
   return {
     hash,
@@ -525,7 +513,8 @@ function checkScriptForPubkey(pubkey, script, action) {
     );
   }
 }
-function getHashForSig(inputIndex, input, unsignedTx, cache) {
+function getHashForSig(inputIndex, input, cache) {
+  const unsignedTx = cache.__TX;
   const sighashType =
     input.sighashType || transaction_1.Transaction.SIGHASH_ALL;
   let hash;
@@ -646,7 +635,8 @@ function classifyScript(script) {
   if (isP2PK(script)) return 'pubkey';
   return 'nonstandard';
 }
-function getScriptFromInput(inputIndex, input, unsignedTx, cache) {
+function getScriptFromInput(inputIndex, input, cache) {
+  const unsignedTx = cache.__TX;
   const res = {
     script: null,
     isSegwit: false,

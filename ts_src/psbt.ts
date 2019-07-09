@@ -52,6 +52,7 @@ export class Psbt extends PsbtBase {
     }
     return psbt as InstanceType<T>;
   }
+
   static fromBuffer<T extends typeof PsbtBase>(
     this: T,
     buffer: Buffer,
@@ -75,6 +76,7 @@ export class Psbt extends PsbtBase {
     checkTxForDupeIns(tx!, psbt.__CACHE);
     return psbt as InstanceType<T>;
   }
+
   private __CACHE: PsbtCache = {
     __NON_WITNESS_UTXO_TX_CACHE: [],
     __NON_WITNESS_UTXO_BUF_CACHE: [],
@@ -82,28 +84,30 @@ export class Psbt extends PsbtBase {
     __TX: new Transaction(),
   };
   private opts: PsbtOpts;
+
   constructor(opts: PsbtOptsOptional = {}) {
     super();
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
-    this.__CACHE.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
+    const c = this.__CACHE;
+    c.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
     this.setVersion(2);
 
     // set cache
-    const self = this;
     delete this.globalMap.unsignedTx;
     Object.defineProperty(this.globalMap, 'unsignedTx', {
       enumerable: true,
       get(): Buffer {
-        if (self.__CACHE.__TX_BUF_CACHE !== undefined) {
-          return self.__CACHE.__TX_BUF_CACHE;
+        const buf = c.__TX_BUF_CACHE;
+        if (buf !== undefined) {
+          return buf;
         } else {
-          self.__CACHE.__TX_BUF_CACHE = self.__CACHE.__TX.toBuffer();
-          return self.__CACHE.__TX_BUF_CACHE;
+          c.__TX_BUF_CACHE = c.__TX.toBuffer();
+          return c.__TX_BUF_CACHE;
         }
       },
       set(data: Buffer): void {
-        self.__CACHE.__TX_BUF_CACHE = data;
+        c.__TX_BUF_CACHE = data;
       },
     });
 
@@ -118,8 +122,6 @@ export class Psbt extends PsbtBase {
         enumerable,
         writable,
       });
-    dpew(this, '__TX', false, true);
-    dpew(this, '__EXTRACTED_TX', false, true);
     dpew(this, '__CACHE', false, true);
     dpew(this, 'opts', false, true);
   }
@@ -265,7 +267,6 @@ export class Psbt extends PsbtBase {
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
-      this.__CACHE.__TX,
       this.__CACHE,
     );
     if (!script) return false;
@@ -312,7 +313,6 @@ export class Psbt extends PsbtBase {
           ? getHashForSig(
               inputIndex,
               Object.assign({}, input, { sighashType: sig.hashType }),
-              this.__CACHE.__TX,
               this.__CACHE,
             )
           : { hash: hashCache!, script: scriptCache! };
@@ -388,7 +388,6 @@ export class Psbt extends PsbtBase {
       this.inputs,
       inputIndex,
       keyPair.publicKey,
-      this.__CACHE.__TX,
       this.__CACHE,
     );
 
@@ -409,7 +408,6 @@ export class Psbt extends PsbtBase {
           this.inputs,
           inputIndex,
           keyPair.publicKey,
-          this.__CACHE.__TX,
           this.__CACHE,
         );
 
@@ -513,19 +511,13 @@ function getHashAndSighashType(
   inputs: PsbtInput[],
   inputIndex: number,
   pubkey: Buffer,
-  unsignedTx: Transaction,
   cache: PsbtCache,
 ): {
   hash: Buffer;
   sighashType: number;
 } {
   const input = checkForInput(inputs, inputIndex);
-  const { hash, sighashType, script } = getHashForSig(
-    inputIndex,
-    input,
-    unsignedTx,
-    cache,
-  );
+  const { hash, sighashType, script } = getHashForSig(inputIndex, input, cache);
   checkScriptForPubkey(pubkey, script, 'sign');
   return {
     hash,
@@ -678,9 +670,9 @@ interface HashForSigData {
 function getHashForSig(
   inputIndex: number,
   input: PsbtInput,
-  unsignedTx: Transaction,
   cache: PsbtCache,
 ): HashForSigData {
+  const unsignedTx = cache.__TX;
   const sighashType = input.sighashType || Transaction.SIGHASH_ALL;
   let hash: Buffer;
   let script: Buffer;
@@ -831,9 +823,9 @@ interface GetScriptReturn {
 function getScriptFromInput(
   inputIndex: number,
   input: PsbtInput,
-  unsignedTx: Transaction,
   cache: PsbtCache,
 ): GetScriptReturn {
+  const unsignedTx = cache.__TX;
   const res: GetScriptReturn = {
     script: null,
     isSegwit: false,
