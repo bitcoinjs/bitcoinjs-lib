@@ -1,6 +1,7 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 const bip174_1 = require('bip174');
+const varuint = require('bip174/src/lib/converter/varint');
 const utils_1 = require('bip174/src/lib/utils');
 const address_1 = require('./address');
 const bufferutils_1 = require('./bufferutils');
@@ -10,7 +11,6 @@ const networks_1 = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
-const varuint = require('varuint-bitcoin');
 const DEFAULT_OPTS = {
   network: networks_1.bitcoin,
   maximumFeeRate: 5000,

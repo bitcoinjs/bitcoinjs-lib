@@ -1,4 +1,5 @@
 import { Psbt as PsbtBase } from 'bip174';
+import * as varuint from 'bip174/src/lib/converter/varint';
 import {
   NonWitnessUtxo,
   PartialSig,
@@ -19,7 +20,6 @@ import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
-const varuint = require('varuint-bitcoin');
 
 const DEFAULT_OPTS: PsbtOpts = {
   network: btcNetwork,
@@ -946,7 +946,7 @@ function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
 
   function readVarInt(): number {
     const vi = varuint.decode(buffer, offset);
-    offset += varuint.decode.bytes;
+    offset += (varuint.decode as any).bytes;
     return vi;
   }
 
