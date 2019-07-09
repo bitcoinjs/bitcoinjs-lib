@@ -749,12 +749,12 @@ interface HashForSigData {
   sighashType: number;
 }
 
-const getHashForSig = (
+function getHashForSig(
   inputIndex: number,
   input: PsbtInput,
   unsignedTx: Transaction,
   cache: PsbtCache,
-): HashForSigData => {
+): HashForSigData {
   const sighashType = input.sighashType || Transaction.SIGHASH_ALL;
   let hash: Buffer;
   let script: Buffer;
@@ -839,28 +839,30 @@ const getHashForSig = (
     sighashType,
     hash,
   };
-};
+}
 
 type ScriptCheckerFunction = (idx: number, spk: Buffer, rs: Buffer) => void;
 
-const scriptCheckerFactory = (
+function scriptCheckerFactory(
   payment: any,
   paymentScriptName: string,
-): ScriptCheckerFunction => (
-  inputIndex: number,
-  scriptPubKey: Buffer,
-  redeemScript: Buffer,
-): void => {
-  const redeemScriptOutput = payment({
-    redeem: { output: redeemScript },
-  }).output as Buffer;
+): ScriptCheckerFunction {
+  return (
+    inputIndex: number,
+    scriptPubKey: Buffer,
+    redeemScript: Buffer,
+  ): void => {
+    const redeemScriptOutput = payment({
+      redeem: { output: redeemScript },
+    }).output as Buffer;
 
-  if (!scriptPubKey.equals(redeemScriptOutput)) {
-    throw new Error(
-      `${paymentScriptName} for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
-    );
-  }
-};
+    if (!scriptPubKey.equals(redeemScriptOutput)) {
+      throw new Error(
+        `${paymentScriptName} for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+      );
+    }
+  };
+}
 
 const checkRedeemScript = scriptCheckerFactory(payments.p2sh, 'Redeem script');
 const checkWitnessScript = scriptCheckerFactory(
@@ -870,28 +872,28 @@ const checkWitnessScript = scriptCheckerFactory(
 
 type isPaymentFunction = (script: Buffer) => boolean;
 
-const isPaymentFactory = (payment: any): isPaymentFunction => (
-  script: Buffer,
-): boolean => {
-  try {
-    payment({ output: script });
-    return true;
-  } catch (err) {
-    return false;
-  }
-};
+function isPaymentFactory(payment: any): isPaymentFunction {
+  return (script: Buffer): boolean => {
+    try {
+      payment({ output: script });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+}
 const isP2WPKH = isPaymentFactory(payments.p2wpkh);
 const isP2PKH = isPaymentFactory(payments.p2pkh);
 const isP2MS = isPaymentFactory(payments.p2ms);
 const isP2PK = isPaymentFactory(payments.p2pk);
 
-const classifyScript = (script: Buffer): string => {
+function classifyScript(script: Buffer): string {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
   if (isP2PKH(script)) return 'pubkeyhash';
   if (isP2MS(script)) return 'multisig';
   if (isP2PK(script)) return 'pubkey';
   return 'nonstandard';
-};
+}
 
 interface GetScriptReturn {
   script: Buffer | null;
@@ -942,11 +944,11 @@ function getScriptFromInput(
   return res;
 }
 
-const hasSigs = (neededSigs: number, partialSig?: any[]): boolean => {
+function hasSigs(neededSigs: number, partialSig?: any[]): boolean {
   if (!partialSig) return false;
   if (partialSig.length > neededSigs) throw new Error('Too many signatures');
   return partialSig.length === neededSigs;
-};
+}
 
 function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
   let buffer = Buffer.allocUnsafe(0);
@@ -1006,7 +1008,9 @@ function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
   return readVector();
 }
 
-const range = (n: number): number[] => [...Array(n).keys()];
+function range(n: number): number[] {
+  return [...Array(n).keys()];
+}
 
 function checkTxEmpty(tx: Transaction): void {
   const isEmpty = tx.ins.every(
