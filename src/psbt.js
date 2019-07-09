@@ -352,30 +352,119 @@ class Psbt extends bip174_1.Psbt {
   }
 }
 exports.Psbt = Psbt;
-function addNonWitnessTxCache(cache, input, inputIndex) {
-  cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo;
-  const tx = transaction_1.Transaction.fromBuffer(input.nonWitnessUtxo);
-  cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
-  const self = cache;
-  const selfIndex = inputIndex;
-  delete input.nonWitnessUtxo;
-  Object.defineProperty(input, 'nonWitnessUtxo', {
-    enumerable: true,
-    get() {
-      const buf = self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
-      const txCache = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex];
-      if (buf !== undefined) {
-        return buf;
-      } else {
-        const newBuf = txCache.toBuffer();
-        self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = newBuf;
-        return newBuf;
+function canFinalize(input, script, scriptType) {
+  switch (scriptType) {
+    case 'pubkey':
+    case 'pubkeyhash':
+    case 'witnesspubkeyhash':
+      return hasSigs(1, input.partialSig);
+    case 'multisig':
+      const p2ms = payments.p2ms({ output: script });
+      return hasSigs(p2ms.m, input.partialSig);
+    default:
+      return false;
+  }
+}
+function hasSigs(neededSigs, partialSig) {
+  if (!partialSig) return false;
+  if (partialSig.length > neededSigs) throw new Error('Too many signatures');
+  return partialSig.length === neededSigs;
+}
+function isFinalized(input) {
+  return !!input.finalScriptSig || !!input.finalScriptWitness;
+}
+function isPaymentFactory(payment) {
+  return script => {
+    try {
+      payment({ output: script });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+}
+const isP2MS = isPaymentFactory(payments.p2ms);
+const isP2PK = isPaymentFactory(payments.p2pk);
+const isP2PKH = isPaymentFactory(payments.p2pkh);
+const isP2WPKH = isPaymentFactory(payments.p2wpkh);
+function check32Bit(num) {
+  if (
+    typeof num !== 'number' ||
+    num !== Math.floor(num) ||
+    num > 0xffffffff ||
+    num < 0
+  ) {
+    throw new Error('Invalid 32 bit integer');
+  }
+}
+function checkFees(psbt, cache, opts) {
+  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
+  const vsize = cache.__EXTRACTED_TX.virtualSize();
+  const satoshis = feeRate * vsize;
+  if (feeRate >= opts.maximumFeeRate) {
+    throw new Error(
+      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
+        `fees, which is ${feeRate} satoshi per byte for a transaction ` +
+        `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
+        `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
+        `pass true to the first arg of extractTransaction.`,
+    );
+  }
+}
+function checkInputsForPartialSig(inputs, action) {
+  inputs.forEach(input => {
+    let throws = false;
+    if ((input.partialSig || []).length === 0) return;
+    input.partialSig.forEach(pSig => {
+      const { hashType } = bscript.signature.decode(pSig.signature);
+      const whitelist = [];
+      const isAnyoneCanPay =
+        hashType & transaction_1.Transaction.SIGHASH_ANYONECANPAY;
+      if (isAnyoneCanPay) whitelist.push('addInput');
+      const hashMod = hashType & 0x1f;
+      switch (hashMod) {
+        case transaction_1.Transaction.SIGHASH_ALL:
+          break;
+        case transaction_1.Transaction.SIGHASH_SINGLE:
+        case transaction_1.Transaction.SIGHASH_NONE:
+          whitelist.push('addOutput');
+          whitelist.push('setSequence');
+          break;
       }
-    },
-    set(data) {
-      self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = data;
-    },
+      if (whitelist.indexOf(action) === -1) {
+        throws = true;
+      }
+    });
+    if (throws) {
+      throw new Error('Can not modify transaction, signatures exist.');
+    }
   });
+}
+function checkScriptForPubkey(pubkey, script, action) {
+  const pubkeyHash = crypto_1.hash160(pubkey);
+  const decompiled = bscript.decompile(script);
+  if (decompiled === null) throw new Error('Unknown script error');
+  const hasKey = decompiled.some(element => {
+    if (typeof element === 'number') return false;
+    return element.equals(pubkey) || element.equals(pubkeyHash);
+  });
+  if (!hasKey) {
+    throw new Error(
+      `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
+    );
+  }
+}
+function checkTxEmpty(tx) {
+  const isEmpty = tx.ins.every(
+    input =>
+      input.script &&
+      input.script.length === 0 &&
+      input.witness &&
+      input.witness.length === 0,
+  );
+  if (!isEmpty) {
+    throw new Error('Format Error: Transaction ScriptSigs are not empty');
+  }
 }
 function checkTxForDupeIns(tx, cache) {
   tx.ins.forEach(input => {
@@ -390,18 +479,23 @@ function checkTxInputCache(cache, input) {
   if (cache.__TX_IN_CACHE[key]) throw new Error('Duplicate input detected.');
   cache.__TX_IN_CACHE[key] = 1;
 }
-function isFinalized(input) {
-  return !!input.finalScriptSig || !!input.finalScriptWitness;
-}
-function getHashAndSighashType(inputs, inputIndex, pubkey, cache) {
-  const input = utils_1.checkForInput(inputs, inputIndex);
-  const { hash, sighashType, script } = getHashForSig(inputIndex, input, cache);
-  checkScriptForPubkey(pubkey, script, 'sign');
-  return {
-    hash,
-    sighashType,
+function scriptCheckerFactory(payment, paymentScriptName) {
+  return (inputIndex, scriptPubKey, redeemScript) => {
+    const redeemScriptOutput = payment({
+      redeem: { output: redeemScript },
+    }).output;
+    if (!scriptPubKey.equals(redeemScriptOutput)) {
+      throw new Error(
+        `${paymentScriptName} for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+      );
+    }
   };
 }
+const checkRedeemScript = scriptCheckerFactory(payments.p2sh, 'Redeem script');
+const checkWitnessScript = scriptCheckerFactory(
+  payments.p2wsh,
+  'Witness script',
+);
 function getFinalScripts(
   script,
   scriptType,
@@ -437,81 +531,14 @@ function getFinalScripts(
     finalScriptWitness,
   };
 }
-function getSortedSigs(script, partialSig) {
-  const p2ms = payments.p2ms({ output: script });
-  // for each pubkey in order of p2ms script
-  return p2ms.pubkeys
-    .map(pk => {
-      // filter partialSig array by pubkey being equal
-      return (
-        partialSig.filter(ps => {
-          return ps.pubkey.equals(pk);
-        })[0] || {}
-      ).signature;
-      // Any pubkey without a match will return undefined
-      // this last filter removes all the undefined items in the array.
-    })
-    .filter(v => !!v);
-}
-function getPayment(script, scriptType, partialSig) {
-  let payment;
-  switch (scriptType) {
-    case 'multisig':
-      const sigs = getSortedSigs(script, partialSig);
-      payment = payments.p2ms({
-        output: script,
-        signatures: sigs,
-      });
-      break;
-    case 'pubkey':
-      payment = payments.p2pk({
-        output: script,
-        signature: partialSig[0].signature,
-      });
-      break;
-    case 'pubkeyhash':
-      payment = payments.p2pkh({
-        output: script,
-        pubkey: partialSig[0].pubkey,
-        signature: partialSig[0].signature,
-      });
-      break;
-    case 'witnesspubkeyhash':
-      payment = payments.p2wpkh({
-        output: script,
-        pubkey: partialSig[0].pubkey,
-        signature: partialSig[0].signature,
-      });
-      break;
-  }
-  return payment;
-}
-function canFinalize(input, script, scriptType) {
-  switch (scriptType) {
-    case 'pubkey':
-    case 'pubkeyhash':
-    case 'witnesspubkeyhash':
-      return hasSigs(1, input.partialSig);
-    case 'multisig':
-      const p2ms = payments.p2ms({ output: script });
-      return hasSigs(p2ms.m, input.partialSig);
-    default:
-      return false;
-  }
-}
-function checkScriptForPubkey(pubkey, script, action) {
-  const pubkeyHash = crypto_1.hash160(pubkey);
-  const decompiled = bscript.decompile(script);
-  if (decompiled === null) throw new Error('Unknown script error');
-  const hasKey = decompiled.some(element => {
-    if (typeof element === 'number') return false;
-    return element.equals(pubkey) || element.equals(pubkeyHash);
-  });
-  if (!hasKey) {
-    throw new Error(
-      `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
-    );
-  }
+function getHashAndSighashType(inputs, inputIndex, pubkey, cache) {
+  const input = utils_1.checkForInput(inputs, inputIndex);
+  const { hash, sighashType, script } = getHashForSig(inputIndex, input, cache);
+  checkScriptForPubkey(pubkey, script, 'sign');
+  return {
+    hash,
+    sighashType,
+  };
 }
 function getHashForSig(inputIndex, input, cache) {
   const unsignedTx = cache.__TX;
@@ -597,182 +624,6 @@ function getHashForSig(inputIndex, input, cache) {
     hash,
   };
 }
-function scriptCheckerFactory(payment, paymentScriptName) {
-  return (inputIndex, scriptPubKey, redeemScript) => {
-    const redeemScriptOutput = payment({
-      redeem: { output: redeemScript },
-    }).output;
-    if (!scriptPubKey.equals(redeemScriptOutput)) {
-      throw new Error(
-        `${paymentScriptName} for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
-      );
-    }
-  };
-}
-const checkRedeemScript = scriptCheckerFactory(payments.p2sh, 'Redeem script');
-const checkWitnessScript = scriptCheckerFactory(
-  payments.p2wsh,
-  'Witness script',
-);
-function isPaymentFactory(payment) {
-  return script => {
-    try {
-      payment({ output: script });
-      return true;
-    } catch (err) {
-      return false;
-    }
-  };
-}
-const isP2WPKH = isPaymentFactory(payments.p2wpkh);
-const isP2PKH = isPaymentFactory(payments.p2pkh);
-const isP2MS = isPaymentFactory(payments.p2ms);
-const isP2PK = isPaymentFactory(payments.p2pk);
-function classifyScript(script) {
-  if (isP2WPKH(script)) return 'witnesspubkeyhash';
-  if (isP2PKH(script)) return 'pubkeyhash';
-  if (isP2MS(script)) return 'multisig';
-  if (isP2PK(script)) return 'pubkey';
-  return 'nonstandard';
-}
-function getScriptFromInput(inputIndex, input, cache) {
-  const unsignedTx = cache.__TX;
-  const res = {
-    script: null,
-    isSegwit: false,
-    isP2SH: false,
-    isP2WSH: false,
-  };
-  if (input.nonWitnessUtxo) {
-    if (input.redeemScript) {
-      res.isP2SH = true;
-      res.script = input.redeemScript;
-    } else {
-      const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
-        cache,
-        input,
-        inputIndex,
-      );
-      const prevoutIndex = unsignedTx.ins[inputIndex].index;
-      res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
-    }
-  } else if (input.witnessUtxo) {
-    res.isSegwit = true;
-    res.isP2SH = !!input.redeemScript;
-    res.isP2WSH = !!input.witnessScript;
-    if (input.witnessScript) {
-      res.script = input.witnessScript;
-    } else if (input.redeemScript) {
-      res.script = payments.p2wpkh({
-        hash: input.redeemScript.slice(2),
-      }).output;
-    } else {
-      res.script = payments.p2wpkh({
-        hash: input.witnessUtxo.script.slice(2),
-      }).output;
-    }
-  }
-  return res;
-}
-function hasSigs(neededSigs, partialSig) {
-  if (!partialSig) return false;
-  if (partialSig.length > neededSigs) throw new Error('Too many signatures');
-  return partialSig.length === neededSigs;
-}
-function witnessStackToScriptWitness(witness) {
-  let buffer = Buffer.allocUnsafe(0);
-  function writeSlice(slice) {
-    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
-  }
-  function writeVarInt(i) {
-    const currentLen = buffer.length;
-    const varintLen = varuint.encodingLength(i);
-    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
-    varuint.encode(i, buffer, currentLen);
-  }
-  function writeVarSlice(slice) {
-    writeVarInt(slice.length);
-    writeSlice(slice);
-  }
-  function writeVector(vector) {
-    writeVarInt(vector.length);
-    vector.forEach(writeVarSlice);
-  }
-  writeVector(witness);
-  return buffer;
-}
-function scriptWitnessToWitnessStack(buffer) {
-  let offset = 0;
-  function readSlice(n) {
-    offset += n;
-    return buffer.slice(offset - n, offset);
-  }
-  function readVarInt() {
-    const vi = varuint.decode(buffer, offset);
-    offset += varuint.decode.bytes;
-    return vi;
-  }
-  function readVarSlice() {
-    return readSlice(readVarInt());
-  }
-  function readVector() {
-    const count = readVarInt();
-    const vector = [];
-    for (let i = 0; i < count; i++) vector.push(readVarSlice());
-    return vector;
-  }
-  return readVector();
-}
-function range(n) {
-  return [...Array(n).keys()];
-}
-function checkTxEmpty(tx) {
-  const isEmpty = tx.ins.every(
-    input =>
-      input.script &&
-      input.script.length === 0 &&
-      input.witness &&
-      input.witness.length === 0,
-  );
-  if (!isEmpty) {
-    throw new Error('Format Error: Transaction ScriptSigs are not empty');
-  }
-}
-function checkInputsForPartialSig(inputs, action) {
-  inputs.forEach(input => {
-    let throws = false;
-    if ((input.partialSig || []).length === 0) return;
-    input.partialSig.forEach(pSig => {
-      const { hashType } = bscript.signature.decode(pSig.signature);
-      const whitelist = [];
-      const isAnyoneCanPay =
-        hashType & transaction_1.Transaction.SIGHASH_ANYONECANPAY;
-      if (isAnyoneCanPay) whitelist.push('addInput');
-      const hashMod = hashType & 0x1f;
-      switch (hashMod) {
-        case transaction_1.Transaction.SIGHASH_ALL:
-          break;
-        case transaction_1.Transaction.SIGHASH_SINGLE:
-        case transaction_1.Transaction.SIGHASH_NONE:
-          whitelist.push('addOutput');
-          whitelist.push('setSequence');
-          break;
-      }
-      if (whitelist.indexOf(action) === -1) {
-        throws = true;
-      }
-    });
-    if (throws) {
-      throw new Error('Can not modify transaction, signatures exist.');
-    }
-  });
-}
-function nonWitnessUtxoTxFromCache(cache, input, inputIndex) {
-  if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
-    addNonWitnessTxCache(cache, input, inputIndex);
-  }
-  return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
-}
 function getInputAdder(cache) {
   const selfCache = cache;
   return (_inputData, txBuf) => {
@@ -822,19 +673,162 @@ function getOutputAdder(cache) {
     return selfCache.__TX.toBuffer();
   };
 }
-function checkFees(psbt, cache, opts) {
-  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
-  const vsize = cache.__EXTRACTED_TX.virtualSize();
-  const satoshis = feeRate * vsize;
-  if (feeRate >= opts.maximumFeeRate) {
-    throw new Error(
-      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
-        `fees, which is ${feeRate} satoshi per byte for a transaction ` +
-        `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
-        `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
-        `pass true to the first arg of extractTransaction.`,
-    );
+function getPayment(script, scriptType, partialSig) {
+  let payment;
+  switch (scriptType) {
+    case 'multisig':
+      const sigs = getSortedSigs(script, partialSig);
+      payment = payments.p2ms({
+        output: script,
+        signatures: sigs,
+      });
+      break;
+    case 'pubkey':
+      payment = payments.p2pk({
+        output: script,
+        signature: partialSig[0].signature,
+      });
+      break;
+    case 'pubkeyhash':
+      payment = payments.p2pkh({
+        output: script,
+        pubkey: partialSig[0].pubkey,
+        signature: partialSig[0].signature,
+      });
+      break;
+    case 'witnesspubkeyhash':
+      payment = payments.p2wpkh({
+        output: script,
+        pubkey: partialSig[0].pubkey,
+        signature: partialSig[0].signature,
+      });
+      break;
   }
+  return payment;
+}
+function getScriptFromInput(inputIndex, input, cache) {
+  const unsignedTx = cache.__TX;
+  const res = {
+    script: null,
+    isSegwit: false,
+    isP2SH: false,
+    isP2WSH: false,
+  };
+  if (input.nonWitnessUtxo) {
+    if (input.redeemScript) {
+      res.isP2SH = true;
+      res.script = input.redeemScript;
+    } else {
+      const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
+        cache,
+        input,
+        inputIndex,
+      );
+      const prevoutIndex = unsignedTx.ins[inputIndex].index;
+      res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
+    }
+  } else if (input.witnessUtxo) {
+    res.isSegwit = true;
+    res.isP2SH = !!input.redeemScript;
+    res.isP2WSH = !!input.witnessScript;
+    if (input.witnessScript) {
+      res.script = input.witnessScript;
+    } else if (input.redeemScript) {
+      res.script = payments.p2wpkh({
+        hash: input.redeemScript.slice(2),
+      }).output;
+    } else {
+      res.script = payments.p2wpkh({
+        hash: input.witnessUtxo.script.slice(2),
+      }).output;
+    }
+  }
+  return res;
+}
+function getSortedSigs(script, partialSig) {
+  const p2ms = payments.p2ms({ output: script });
+  // for each pubkey in order of p2ms script
+  return p2ms.pubkeys
+    .map(pk => {
+      // filter partialSig array by pubkey being equal
+      return (
+        partialSig.filter(ps => {
+          return ps.pubkey.equals(pk);
+        })[0] || {}
+      ).signature;
+      // Any pubkey without a match will return undefined
+      // this last filter removes all the undefined items in the array.
+    })
+    .filter(v => !!v);
+}
+function scriptWitnessToWitnessStack(buffer) {
+  let offset = 0;
+  function readSlice(n) {
+    offset += n;
+    return buffer.slice(offset - n, offset);
+  }
+  function readVarInt() {
+    const vi = varuint.decode(buffer, offset);
+    offset += varuint.decode.bytes;
+    return vi;
+  }
+  function readVarSlice() {
+    return readSlice(readVarInt());
+  }
+  function readVector() {
+    const count = readVarInt();
+    const vector = [];
+    for (let i = 0; i < count; i++) vector.push(readVarSlice());
+    return vector;
+  }
+  return readVector();
+}
+function witnessStackToScriptWitness(witness) {
+  let buffer = Buffer.allocUnsafe(0);
+  function writeSlice(slice) {
+    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+  }
+  function writeVarInt(i) {
+    const currentLen = buffer.length;
+    const varintLen = varuint.encodingLength(i);
+    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+    varuint.encode(i, buffer, currentLen);
+  }
+  function writeVarSlice(slice) {
+    writeVarInt(slice.length);
+    writeSlice(slice);
+  }
+  function writeVector(vector) {
+    writeVarInt(vector.length);
+    vector.forEach(writeVarSlice);
+  }
+  writeVector(witness);
+  return buffer;
+}
+function addNonWitnessTxCache(cache, input, inputIndex) {
+  cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo;
+  const tx = transaction_1.Transaction.fromBuffer(input.nonWitnessUtxo);
+  cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
+  const self = cache;
+  const selfIndex = inputIndex;
+  delete input.nonWitnessUtxo;
+  Object.defineProperty(input, 'nonWitnessUtxo', {
+    enumerable: true,
+    get() {
+      const buf = self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      const txCache = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex];
+      if (buf !== undefined) {
+        return buf;
+      } else {
+        const newBuf = txCache.toBuffer();
+        self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = newBuf;
+        return newBuf;
+      }
+    },
+    set(data) {
+      self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = data;
+    },
+  });
 }
 function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize, getAmounts) {
   let inputAmount = 0;
@@ -857,13 +851,19 @@ function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize, getAmounts) {
   });
   return inputAmount;
 }
-function check32Bit(num) {
-  if (
-    typeof num !== 'number' ||
-    num !== Math.floor(num) ||
-    num > 0xffffffff ||
-    num < 0
-  ) {
-    throw new Error('Invalid 32 bit integer');
+function nonWitnessUtxoTxFromCache(cache, input, inputIndex) {
+  if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+    addNonWitnessTxCache(cache, input, inputIndex);
   }
+  return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+}
+function classifyScript(script) {
+  if (isP2WPKH(script)) return 'witnesspubkeyhash';
+  if (isP2PKH(script)) return 'pubkeyhash';
+  if (isP2MS(script)) return 'multisig';
+  if (isP2PK(script)) return 'pubkey';
+  return 'nonstandard';
+}
+function range(n) {
+  return [...Array(n).keys()];
 }

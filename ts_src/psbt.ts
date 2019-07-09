@@ -425,16 +425,6 @@ export class Psbt extends PsbtBase {
   }
 }
 
-//
-//
-//
-//
-// Helper functions
-//
-//
-//
-//
-
 interface PsbtCache {
   __NON_WITNESS_UTXO_TX_CACHE: Transaction[];
   __NON_WITNESS_UTXO_BUF_CACHE: Buffer[];
@@ -455,36 +445,137 @@ interface PsbtOpts {
   maximumFeeRate: number;
 }
 
-function addNonWitnessTxCache(
-  cache: PsbtCache,
+function canFinalize(
   input: PsbtInput,
-  inputIndex: number,
-): void {
-  cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo!;
+  script: Buffer,
+  scriptType: string,
+): boolean {
+  switch (scriptType) {
+    case 'pubkey':
+    case 'pubkeyhash':
+    case 'witnesspubkeyhash':
+      return hasSigs(1, input.partialSig);
+    case 'multisig':
+      const p2ms = payments.p2ms({ output: script });
+      return hasSigs(p2ms.m!, input.partialSig);
+    default:
+      return false;
+  }
+}
 
-  const tx = Transaction.fromBuffer(input.nonWitnessUtxo!);
-  cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
+function hasSigs(neededSigs: number, partialSig?: any[]): boolean {
+  if (!partialSig) return false;
+  if (partialSig.length > neededSigs) throw new Error('Too many signatures');
+  return partialSig.length === neededSigs;
+}
 
-  const self = cache;
-  const selfIndex = inputIndex;
-  delete input.nonWitnessUtxo;
-  Object.defineProperty(input, 'nonWitnessUtxo', {
-    enumerable: true,
-    get(): Buffer {
-      const buf = self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
-      const txCache = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex];
-      if (buf !== undefined) {
-        return buf;
-      } else {
-        const newBuf = txCache.toBuffer();
-        self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = newBuf;
-        return newBuf;
+function isFinalized(input: PsbtInput): boolean {
+  return !!input.finalScriptSig || !!input.finalScriptWitness;
+}
+
+function isPaymentFactory(payment: any): (script: Buffer) => boolean {
+  return (script: Buffer): boolean => {
+    try {
+      payment({ output: script });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+}
+const isP2MS = isPaymentFactory(payments.p2ms);
+const isP2PK = isPaymentFactory(payments.p2pk);
+const isP2PKH = isPaymentFactory(payments.p2pkh);
+const isP2WPKH = isPaymentFactory(payments.p2wpkh);
+
+function check32Bit(num: number): void {
+  if (
+    typeof num !== 'number' ||
+    num !== Math.floor(num) ||
+    num > 0xffffffff ||
+    num < 0
+  ) {
+    throw new Error('Invalid 32 bit integer');
+  }
+}
+
+function checkFees(psbt: Psbt, cache: PsbtCache, opts: PsbtOpts): void {
+  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
+  const vsize = cache.__EXTRACTED_TX!.virtualSize();
+  const satoshis = feeRate * vsize;
+  if (feeRate >= opts.maximumFeeRate) {
+    throw new Error(
+      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
+        `fees, which is ${feeRate} satoshi per byte for a transaction ` +
+        `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
+        `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
+        `pass true to the first arg of extractTransaction.`,
+    );
+  }
+}
+
+function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
+  inputs.forEach(input => {
+    let throws = false;
+    if ((input.partialSig || []).length === 0) return;
+    input.partialSig!.forEach(pSig => {
+      const { hashType } = bscript.signature.decode(pSig.signature);
+      const whitelist: string[] = [];
+      const isAnyoneCanPay = hashType & Transaction.SIGHASH_ANYONECANPAY;
+      if (isAnyoneCanPay) whitelist.push('addInput');
+      const hashMod = hashType & 0x1f;
+      switch (hashMod) {
+        case Transaction.SIGHASH_ALL:
+          break;
+        case Transaction.SIGHASH_SINGLE:
+        case Transaction.SIGHASH_NONE:
+          whitelist.push('addOutput');
+          whitelist.push('setSequence');
+          break;
       }
-    },
-    set(data: Buffer): void {
-      self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = data;
-    },
+      if (whitelist.indexOf(action) === -1) {
+        throws = true;
+      }
+    });
+    if (throws) {
+      throw new Error('Can not modify transaction, signatures exist.');
+    }
   });
+}
+
+function checkScriptForPubkey(
+  pubkey: Buffer,
+  script: Buffer,
+  action: string,
+): void {
+  const pubkeyHash = hash160(pubkey);
+
+  const decompiled = bscript.decompile(script);
+  if (decompiled === null) throw new Error('Unknown script error');
+
+  const hasKey = decompiled.some(element => {
+    if (typeof element === 'number') return false;
+    return element.equals(pubkey) || element.equals(pubkeyHash);
+  });
+
+  if (!hasKey) {
+    throw new Error(
+      `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
+    );
+  }
+}
+
+function checkTxEmpty(tx: Transaction): void {
+  const isEmpty = tx.ins.every(
+    input =>
+      input.script &&
+      input.script.length === 0 &&
+      input.witness &&
+      input.witness.length === 0,
+  );
+  if (!isEmpty) {
+    throw new Error('Format Error: Transaction ScriptSigs are not empty');
+  }
 }
 
 function checkTxForDupeIns(tx: Transaction, cache: PsbtCache): void {
@@ -503,27 +594,31 @@ function checkTxInputCache(
   cache.__TX_IN_CACHE[key] = 1;
 }
 
-function isFinalized(input: PsbtInput): boolean {
-  return !!input.finalScriptSig || !!input.finalScriptWitness;
-}
+function scriptCheckerFactory(
+  payment: any,
+  paymentScriptName: string,
+): (idx: number, spk: Buffer, rs: Buffer) => void {
+  return (
+    inputIndex: number,
+    scriptPubKey: Buffer,
+    redeemScript: Buffer,
+  ): void => {
+    const redeemScriptOutput = payment({
+      redeem: { output: redeemScript },
+    }).output as Buffer;
 
-function getHashAndSighashType(
-  inputs: PsbtInput[],
-  inputIndex: number,
-  pubkey: Buffer,
-  cache: PsbtCache,
-): {
-  hash: Buffer;
-  sighashType: number;
-} {
-  const input = checkForInput(inputs, inputIndex);
-  const { hash, sighashType, script } = getHashForSig(inputIndex, input, cache);
-  checkScriptForPubkey(pubkey, script, 'sign');
-  return {
-    hash,
-    sighashType,
+    if (!scriptPubKey.equals(redeemScriptOutput)) {
+      throw new Error(
+        `${paymentScriptName} for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+      );
+    }
   };
 }
+const checkRedeemScript = scriptCheckerFactory(payments.p2sh, 'Redeem script');
+const checkWitnessScript = scriptCheckerFactory(
+  payments.p2wsh,
+  'Witness script',
+);
 
 function getFinalScripts(
   script: Buffer,
@@ -566,112 +661,33 @@ function getFinalScripts(
   };
 }
 
-function getSortedSigs(script: Buffer, partialSig: PartialSig[]): Buffer[] {
-  const p2ms = payments.p2ms({ output: script });
-  // for each pubkey in order of p2ms script
-  return p2ms
-    .pubkeys!.map(pk => {
-      // filter partialSig array by pubkey being equal
-      return (
-        partialSig.filter(ps => {
-          return ps.pubkey.equals(pk);
-        })[0] || {}
-      ).signature;
-      // Any pubkey without a match will return undefined
-      // this last filter removes all the undefined items in the array.
-    })
-    .filter(v => !!v);
-}
-
-function getPayment(
-  script: Buffer,
-  scriptType: string,
-  partialSig: PartialSig[],
-): payments.Payment {
-  let payment: payments.Payment;
-  switch (scriptType) {
-    case 'multisig':
-      const sigs = getSortedSigs(script, partialSig);
-      payment = payments.p2ms({
-        output: script,
-        signatures: sigs,
-      });
-      break;
-    case 'pubkey':
-      payment = payments.p2pk({
-        output: script,
-        signature: partialSig[0].signature,
-      });
-      break;
-    case 'pubkeyhash':
-      payment = payments.p2pkh({
-        output: script,
-        pubkey: partialSig[0].pubkey,
-        signature: partialSig[0].signature,
-      });
-      break;
-    case 'witnesspubkeyhash':
-      payment = payments.p2wpkh({
-        output: script,
-        pubkey: partialSig[0].pubkey,
-        signature: partialSig[0].signature,
-      });
-      break;
-  }
-  return payment!;
-}
-
-function canFinalize(
-  input: PsbtInput,
-  script: Buffer,
-  scriptType: string,
-): boolean {
-  switch (scriptType) {
-    case 'pubkey':
-    case 'pubkeyhash':
-    case 'witnesspubkeyhash':
-      return hasSigs(1, input.partialSig);
-    case 'multisig':
-      const p2ms = payments.p2ms({ output: script });
-      return hasSigs(p2ms.m!, input.partialSig);
-    default:
-      return false;
-  }
-}
-
-function checkScriptForPubkey(
+function getHashAndSighashType(
+  inputs: PsbtInput[],
+  inputIndex: number,
   pubkey: Buffer,
-  script: Buffer,
-  action: string,
-): void {
-  const pubkeyHash = hash160(pubkey);
-
-  const decompiled = bscript.decompile(script);
-  if (decompiled === null) throw new Error('Unknown script error');
-
-  const hasKey = decompiled.some(element => {
-    if (typeof element === 'number') return false;
-    return element.equals(pubkey) || element.equals(pubkeyHash);
-  });
-
-  if (!hasKey) {
-    throw new Error(
-      `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
-    );
-  }
-}
-
-interface HashForSigData {
-  script: Buffer;
+  cache: PsbtCache,
+): {
   hash: Buffer;
   sighashType: number;
+} {
+  const input = checkForInput(inputs, inputIndex);
+  const { hash, sighashType, script } = getHashForSig(inputIndex, input, cache);
+  checkScriptForPubkey(pubkey, script, 'sign');
+  return {
+    hash,
+    sighashType,
+  };
 }
 
 function getHashForSig(
   inputIndex: number,
   input: PsbtInput,
   cache: PsbtCache,
-): HashForSigData {
+): {
+  script: Buffer;
+  hash: Buffer;
+  sighashType: number;
+} {
   const unsignedTx = cache.__TX;
   const sighashType = input.sighashType || Transaction.SIGHASH_ALL;
   let hash: Buffer;
@@ -760,231 +776,6 @@ function getHashForSig(
   };
 }
 
-type ScriptCheckerFunction = (idx: number, spk: Buffer, rs: Buffer) => void;
-
-function scriptCheckerFactory(
-  payment: any,
-  paymentScriptName: string,
-): ScriptCheckerFunction {
-  return (
-    inputIndex: number,
-    scriptPubKey: Buffer,
-    redeemScript: Buffer,
-  ): void => {
-    const redeemScriptOutput = payment({
-      redeem: { output: redeemScript },
-    }).output as Buffer;
-
-    if (!scriptPubKey.equals(redeemScriptOutput)) {
-      throw new Error(
-        `${paymentScriptName} for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
-      );
-    }
-  };
-}
-
-const checkRedeemScript = scriptCheckerFactory(payments.p2sh, 'Redeem script');
-const checkWitnessScript = scriptCheckerFactory(
-  payments.p2wsh,
-  'Witness script',
-);
-
-type isPaymentFunction = (script: Buffer) => boolean;
-
-function isPaymentFactory(payment: any): isPaymentFunction {
-  return (script: Buffer): boolean => {
-    try {
-      payment({ output: script });
-      return true;
-    } catch (err) {
-      return false;
-    }
-  };
-}
-const isP2WPKH = isPaymentFactory(payments.p2wpkh);
-const isP2PKH = isPaymentFactory(payments.p2pkh);
-const isP2MS = isPaymentFactory(payments.p2ms);
-const isP2PK = isPaymentFactory(payments.p2pk);
-
-function classifyScript(script: Buffer): string {
-  if (isP2WPKH(script)) return 'witnesspubkeyhash';
-  if (isP2PKH(script)) return 'pubkeyhash';
-  if (isP2MS(script)) return 'multisig';
-  if (isP2PK(script)) return 'pubkey';
-  return 'nonstandard';
-}
-
-interface GetScriptReturn {
-  script: Buffer | null;
-  isSegwit: boolean;
-  isP2SH: boolean;
-  isP2WSH: boolean;
-}
-function getScriptFromInput(
-  inputIndex: number,
-  input: PsbtInput,
-  cache: PsbtCache,
-): GetScriptReturn {
-  const unsignedTx = cache.__TX;
-  const res: GetScriptReturn = {
-    script: null,
-    isSegwit: false,
-    isP2SH: false,
-    isP2WSH: false,
-  };
-  if (input.nonWitnessUtxo) {
-    if (input.redeemScript) {
-      res.isP2SH = true;
-      res.script = input.redeemScript;
-    } else {
-      const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
-        cache,
-        input,
-        inputIndex,
-      );
-      const prevoutIndex = unsignedTx.ins[inputIndex].index;
-      res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
-    }
-  } else if (input.witnessUtxo) {
-    res.isSegwit = true;
-    res.isP2SH = !!input.redeemScript;
-    res.isP2WSH = !!input.witnessScript;
-    if (input.witnessScript) {
-      res.script = input.witnessScript;
-    } else if (input.redeemScript) {
-      res.script = payments.p2wpkh({
-        hash: input.redeemScript.slice(2),
-      }).output!;
-    } else {
-      res.script = payments.p2wpkh({
-        hash: input.witnessUtxo.script.slice(2),
-      }).output!;
-    }
-  }
-  return res;
-}
-
-function hasSigs(neededSigs: number, partialSig?: any[]): boolean {
-  if (!partialSig) return false;
-  if (partialSig.length > neededSigs) throw new Error('Too many signatures');
-  return partialSig.length === neededSigs;
-}
-
-function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
-  let buffer = Buffer.allocUnsafe(0);
-
-  function writeSlice(slice: Buffer): void {
-    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
-  }
-
-  function writeVarInt(i: number): void {
-    const currentLen = buffer.length;
-    const varintLen = varuint.encodingLength(i);
-
-    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
-    varuint.encode(i, buffer, currentLen);
-  }
-
-  function writeVarSlice(slice: Buffer): void {
-    writeVarInt(slice.length);
-    writeSlice(slice);
-  }
-
-  function writeVector(vector: Buffer[]): void {
-    writeVarInt(vector.length);
-    vector.forEach(writeVarSlice);
-  }
-
-  writeVector(witness);
-
-  return buffer;
-}
-
-function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
-  let offset = 0;
-
-  function readSlice(n: number): Buffer {
-    offset += n;
-    return buffer.slice(offset - n, offset);
-  }
-
-  function readVarInt(): number {
-    const vi = varuint.decode(buffer, offset);
-    offset += varuint.decode.bytes;
-    return vi;
-  }
-
-  function readVarSlice(): Buffer {
-    return readSlice(readVarInt());
-  }
-
-  function readVector(): Buffer[] {
-    const count = readVarInt();
-    const vector: Buffer[] = [];
-    for (let i = 0; i < count; i++) vector.push(readVarSlice());
-    return vector;
-  }
-
-  return readVector();
-}
-
-function range(n: number): number[] {
-  return [...Array(n).keys()];
-}
-
-function checkTxEmpty(tx: Transaction): void {
-  const isEmpty = tx.ins.every(
-    input =>
-      input.script &&
-      input.script.length === 0 &&
-      input.witness &&
-      input.witness.length === 0,
-  );
-  if (!isEmpty) {
-    throw new Error('Format Error: Transaction ScriptSigs are not empty');
-  }
-}
-
-function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
-  inputs.forEach(input => {
-    let throws = false;
-    if ((input.partialSig || []).length === 0) return;
-    input.partialSig!.forEach(pSig => {
-      const { hashType } = bscript.signature.decode(pSig.signature);
-      const whitelist: string[] = [];
-      const isAnyoneCanPay = hashType & Transaction.SIGHASH_ANYONECANPAY;
-      if (isAnyoneCanPay) whitelist.push('addInput');
-      const hashMod = hashType & 0x1f;
-      switch (hashMod) {
-        case Transaction.SIGHASH_ALL:
-          break;
-        case Transaction.SIGHASH_SINGLE:
-        case Transaction.SIGHASH_NONE:
-          whitelist.push('addOutput');
-          whitelist.push('setSequence');
-          break;
-      }
-      if (whitelist.indexOf(action) === -1) {
-        throws = true;
-      }
-    });
-    if (throws) {
-      throw new Error('Can not modify transaction, signatures exist.');
-    }
-  });
-}
-
-function nonWitnessUtxoTxFromCache(
-  cache: PsbtCache,
-  input: PsbtInput,
-  inputIndex: number,
-): Transaction {
-  if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
-    addNonWitnessTxCache(cache, input, inputIndex);
-  }
-  return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
-}
-
 function getInputAdder(
   cache: PsbtCache,
 ): (_inputData: TransactionInput, txBuf: Buffer) => Buffer {
@@ -1040,19 +831,199 @@ function getOutputAdder(
   };
 }
 
-function checkFees(psbt: Psbt, cache: PsbtCache, opts: PsbtOpts): void {
-  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
-  const vsize = cache.__EXTRACTED_TX!.virtualSize();
-  const satoshis = feeRate * vsize;
-  if (feeRate >= opts.maximumFeeRate) {
-    throw new Error(
-      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
-        `fees, which is ${feeRate} satoshi per byte for a transaction ` +
-        `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
-        `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
-        `pass true to the first arg of extractTransaction.`,
-    );
+function getPayment(
+  script: Buffer,
+  scriptType: string,
+  partialSig: PartialSig[],
+): payments.Payment {
+  let payment: payments.Payment;
+  switch (scriptType) {
+    case 'multisig':
+      const sigs = getSortedSigs(script, partialSig);
+      payment = payments.p2ms({
+        output: script,
+        signatures: sigs,
+      });
+      break;
+    case 'pubkey':
+      payment = payments.p2pk({
+        output: script,
+        signature: partialSig[0].signature,
+      });
+      break;
+    case 'pubkeyhash':
+      payment = payments.p2pkh({
+        output: script,
+        pubkey: partialSig[0].pubkey,
+        signature: partialSig[0].signature,
+      });
+      break;
+    case 'witnesspubkeyhash':
+      payment = payments.p2wpkh({
+        output: script,
+        pubkey: partialSig[0].pubkey,
+        signature: partialSig[0].signature,
+      });
+      break;
   }
+  return payment!;
+}
+
+interface GetScriptReturn {
+  script: Buffer | null;
+  isSegwit: boolean;
+  isP2SH: boolean;
+  isP2WSH: boolean;
+}
+function getScriptFromInput(
+  inputIndex: number,
+  input: PsbtInput,
+  cache: PsbtCache,
+): GetScriptReturn {
+  const unsignedTx = cache.__TX;
+  const res: GetScriptReturn = {
+    script: null,
+    isSegwit: false,
+    isP2SH: false,
+    isP2WSH: false,
+  };
+  if (input.nonWitnessUtxo) {
+    if (input.redeemScript) {
+      res.isP2SH = true;
+      res.script = input.redeemScript;
+    } else {
+      const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
+        cache,
+        input,
+        inputIndex,
+      );
+      const prevoutIndex = unsignedTx.ins[inputIndex].index;
+      res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
+    }
+  } else if (input.witnessUtxo) {
+    res.isSegwit = true;
+    res.isP2SH = !!input.redeemScript;
+    res.isP2WSH = !!input.witnessScript;
+    if (input.witnessScript) {
+      res.script = input.witnessScript;
+    } else if (input.redeemScript) {
+      res.script = payments.p2wpkh({
+        hash: input.redeemScript.slice(2),
+      }).output!;
+    } else {
+      res.script = payments.p2wpkh({
+        hash: input.witnessUtxo.script.slice(2),
+      }).output!;
+    }
+  }
+  return res;
+}
+
+function getSortedSigs(script: Buffer, partialSig: PartialSig[]): Buffer[] {
+  const p2ms = payments.p2ms({ output: script });
+  // for each pubkey in order of p2ms script
+  return p2ms
+    .pubkeys!.map(pk => {
+      // filter partialSig array by pubkey being equal
+      return (
+        partialSig.filter(ps => {
+          return ps.pubkey.equals(pk);
+        })[0] || {}
+      ).signature;
+      // Any pubkey without a match will return undefined
+      // this last filter removes all the undefined items in the array.
+    })
+    .filter(v => !!v);
+}
+
+function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
+  let offset = 0;
+
+  function readSlice(n: number): Buffer {
+    offset += n;
+    return buffer.slice(offset - n, offset);
+  }
+
+  function readVarInt(): number {
+    const vi = varuint.decode(buffer, offset);
+    offset += varuint.decode.bytes;
+    return vi;
+  }
+
+  function readVarSlice(): Buffer {
+    return readSlice(readVarInt());
+  }
+
+  function readVector(): Buffer[] {
+    const count = readVarInt();
+    const vector: Buffer[] = [];
+    for (let i = 0; i < count; i++) vector.push(readVarSlice());
+    return vector;
+  }
+
+  return readVector();
+}
+
+function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
+  let buffer = Buffer.allocUnsafe(0);
+
+  function writeSlice(slice: Buffer): void {
+    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+  }
+
+  function writeVarInt(i: number): void {
+    const currentLen = buffer.length;
+    const varintLen = varuint.encodingLength(i);
+
+    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+    varuint.encode(i, buffer, currentLen);
+  }
+
+  function writeVarSlice(slice: Buffer): void {
+    writeVarInt(slice.length);
+    writeSlice(slice);
+  }
+
+  function writeVector(vector: Buffer[]): void {
+    writeVarInt(vector.length);
+    vector.forEach(writeVarSlice);
+  }
+
+  writeVector(witness);
+
+  return buffer;
+}
+
+function addNonWitnessTxCache(
+  cache: PsbtCache,
+  input: PsbtInput,
+  inputIndex: number,
+): void {
+  cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo!;
+
+  const tx = Transaction.fromBuffer(input.nonWitnessUtxo!);
+  cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
+
+  const self = cache;
+  const selfIndex = inputIndex;
+  delete input.nonWitnessUtxo;
+  Object.defineProperty(input, 'nonWitnessUtxo', {
+    enumerable: true,
+    get(): Buffer {
+      const buf = self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      const txCache = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex];
+      if (buf !== undefined) {
+        return buf;
+      } else {
+        const newBuf = txCache.toBuffer();
+        self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = newBuf;
+        return newBuf;
+      }
+    },
+    set(data: Buffer): void {
+      self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = data;
+    },
+  });
 }
 
 function inputFinalizeGetAmts(
@@ -1083,13 +1054,25 @@ function inputFinalizeGetAmts(
   return inputAmount;
 }
 
-function check32Bit(num: number): void {
-  if (
-    typeof num !== 'number' ||
-    num !== Math.floor(num) ||
-    num > 0xffffffff ||
-    num < 0
-  ) {
-    throw new Error('Invalid 32 bit integer');
+function nonWitnessUtxoTxFromCache(
+  cache: PsbtCache,
+  input: PsbtInput,
+  inputIndex: number,
+): Transaction {
+  if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+    addNonWitnessTxCache(cache, input, inputIndex);
   }
+  return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+}
+
+function classifyScript(script: Buffer): string {
+  if (isP2WPKH(script)) return 'witnesspubkeyhash';
+  if (isP2PKH(script)) return 'pubkeyhash';
+  if (isP2MS(script)) return 'multisig';
+  if (isP2PK(script)) return 'pubkey';
+  return 'nonstandard';
+}
+
+function range(n: number): number[] {
+  return [...Array(n).keys()];
 }
