@@ -212,8 +212,7 @@ export class Psbt extends PsbtBase {
     }
     if (c.__EXTRACTED_TX) return c.__EXTRACTED_TX;
     const tx = c.__TX.clone();
-    inputFinalizeGetAmts(this.inputs, tx, c, true, false);
-    c.__EXTRACTED_TX = tx;
+    inputFinalizeGetAmts(this.inputs, tx, c, true);
     return tx;
   }
 
@@ -230,22 +229,8 @@ export class Psbt extends PsbtBase {
     } else {
       tx = c.__TX.clone();
     }
-    const inputAmount = inputFinalizeGetAmts(
-      this.inputs,
-      tx,
-      c,
-      mustFinalize,
-      true,
-    );
-    c.__EXTRACTED_TX = tx;
-    const outputAmount = (tx.outs as Output[]).reduce(
-      (total, o) => total + o.value,
-      0,
-    );
-    const fee = inputAmount - outputAmount;
-    const bytes = tx.virtualSize();
-    c.__FEE_RATE = Math.floor(fee / bytes);
-    return c.__FEE_RATE;
+    inputFinalizeGetAmts(this.inputs, tx, c, mustFinalize);
+    return c.__FEE_RATE!;
   }
 
   finalizeAllInputs(): {
@@ -1031,8 +1016,7 @@ function inputFinalizeGetAmts(
   tx: Transaction,
   cache: PsbtCache,
   mustFinalize: boolean,
-  getAmounts: boolean,
-): number {
+): void {
   let inputAmount = 0;
   inputs.forEach((input, idx) => {
     if (mustFinalize && input.finalScriptSig)
@@ -1042,16 +1026,26 @@ function inputFinalizeGetAmts(
         input.finalScriptWitness,
       );
     }
-    if (getAmounts && input.witnessUtxo) {
+    if (input.witnessUtxo) {
       inputAmount += input.witnessUtxo.value;
-    } else if (getAmounts && input.nonWitnessUtxo) {
+    } else if (input.nonWitnessUtxo) {
       const nwTx = nonWitnessUtxoTxFromCache(cache, input, idx);
       const vout = tx.ins[idx].index;
       const out = nwTx.outs[vout] as Output;
       inputAmount += out.value;
     }
   });
-  return inputAmount;
+  const outputAmount = (tx.outs as Output[]).reduce(
+    (total, o) => total + o.value,
+    0,
+  );
+  const fee = inputAmount - outputAmount;
+  if (fee < 0) {
+    throw new Error('Outputs are spending more than Inputs');
+  }
+  const bytes = tx.virtualSize();
+  cache.__EXTRACTED_TX = tx;
+  cache.__FEE_RATE = Math.floor(fee / bytes);
 }
 
 function nonWitnessUtxoTxFromCache(
@@ -1059,10 +1053,11 @@ function nonWitnessUtxoTxFromCache(
   input: PsbtInput,
   inputIndex: number,
 ): Transaction {
-  if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+  const c = cache.__NON_WITNESS_UTXO_TX_CACHE;
+  if (!c[inputIndex]) {
     addNonWitnessTxCache(cache, input, inputIndex);
   }
-  return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+  return c[inputIndex];
 }
 
 function classifyScript(script: Buffer): string {

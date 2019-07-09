@@ -167,8 +167,7 @@ class Psbt extends bip174_1.Psbt {
     }
     if (c.__EXTRACTED_TX) return c.__EXTRACTED_TX;
     const tx = c.__TX.clone();
-    inputFinalizeGetAmts(this.inputs, tx, c, true, false);
-    c.__EXTRACTED_TX = tx;
+    inputFinalizeGetAmts(this.inputs, tx, c, true);
     return tx;
   }
   getFeeRate() {
@@ -184,18 +183,7 @@ class Psbt extends bip174_1.Psbt {
     } else {
       tx = c.__TX.clone();
     }
-    const inputAmount = inputFinalizeGetAmts(
-      this.inputs,
-      tx,
-      c,
-      mustFinalize,
-      true,
-    );
-    c.__EXTRACTED_TX = tx;
-    const outputAmount = tx.outs.reduce((total, o) => total + o.value, 0);
-    const fee = inputAmount - outputAmount;
-    const bytes = tx.virtualSize();
-    c.__FEE_RATE = Math.floor(fee / bytes);
+    inputFinalizeGetAmts(this.inputs, tx, c, mustFinalize);
     return c.__FEE_RATE;
   }
   finalizeAllInputs() {
@@ -830,7 +818,7 @@ function addNonWitnessTxCache(cache, input, inputIndex) {
     },
   });
 }
-function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize, getAmounts) {
+function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize) {
   let inputAmount = 0;
   inputs.forEach((input, idx) => {
     if (mustFinalize && input.finalScriptSig)
@@ -840,22 +828,30 @@ function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize, getAmounts) {
         input.finalScriptWitness,
       );
     }
-    if (getAmounts && input.witnessUtxo) {
+    if (input.witnessUtxo) {
       inputAmount += input.witnessUtxo.value;
-    } else if (getAmounts && input.nonWitnessUtxo) {
+    } else if (input.nonWitnessUtxo) {
       const nwTx = nonWitnessUtxoTxFromCache(cache, input, idx);
       const vout = tx.ins[idx].index;
       const out = nwTx.outs[vout];
       inputAmount += out.value;
     }
   });
-  return inputAmount;
+  const outputAmount = tx.outs.reduce((total, o) => total + o.value, 0);
+  const fee = inputAmount - outputAmount;
+  if (fee < 0) {
+    throw new Error('Outputs are spending more than Inputs');
+  }
+  const bytes = tx.virtualSize();
+  cache.__EXTRACTED_TX = tx;
+  cache.__FEE_RATE = Math.floor(fee / bytes);
 }
 function nonWitnessUtxoTxFromCache(cache, input, inputIndex) {
-  if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+  const c = cache.__NON_WITNESS_UTXO_TX_CACHE;
+  if (!c[inputIndex]) {
     addNonWitnessTxCache(cache, input, inputIndex);
   }
-  return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+  return c[inputIndex];
 }
 function classifyScript(script) {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
