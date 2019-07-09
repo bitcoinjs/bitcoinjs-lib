@@ -252,12 +252,9 @@ class Psbt extends bip174_1.Psbt {
       if (input.witnessUtxo) {
         inputAmount += input.witnessUtxo.value;
       } else if (input.nonWitnessUtxo) {
-        const cache = this.__CACHE;
-        if (!cache.__NON_WITNESS_UTXO_TX_CACHE[idx]) {
-          addNonWitnessTxCache(this.__CACHE, input, idx);
-        }
+        const nwTx = nonWitnessUtxoTxFromCache(this.__CACHE, input, idx);
         const vout = this.__TX.ins[idx].index;
-        const out = cache.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout];
+        const out = nwTx.outs[vout];
         inputAmount += out.value;
       }
     });
@@ -436,13 +433,14 @@ function addNonWitnessTxCache(cache, input, inputIndex) {
   Object.defineProperty(input, 'nonWitnessUtxo', {
     enumerable: true,
     get() {
-      if (self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] !== undefined) {
-        return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      const buf = self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      const txCache = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex];
+      if (buf !== undefined) {
+        return buf;
       } else {
-        self.__NON_WITNESS_UTXO_BUF_CACHE[
-          selfIndex
-        ] = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex].toBuffer();
-        return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+        const newBuf = txCache.toBuffer();
+        self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = newBuf;
+        return newBuf;
       }
     },
     set(data) {
@@ -597,10 +595,11 @@ function getHashForSig(inputIndex, input, unsignedTx, cache) {
   let hash;
   let script;
   if (input.nonWitnessUtxo) {
-    if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
-      addNonWitnessTxCache(cache, input, inputIndex);
-    }
-    const nonWitnessUtxoTx = cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+    const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
+      cache,
+      input,
+      inputIndex,
+    );
     const prevoutHash = unsignedTx.ins[inputIndex].hash;
     const utxoHash = nonWitnessUtxoTx.getHash();
     // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
@@ -723,10 +722,11 @@ function getScriptFromInput(inputIndex, input, unsignedTx, cache) {
       res.isP2SH = true;
       res.script = input.redeemScript;
     } else {
-      if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
-        addNonWitnessTxCache(cache, input, inputIndex);
-      }
-      const nonWitnessUtxoTx = cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+      const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
+        cache,
+        input,
+        inputIndex,
+      );
       const prevoutIndex = unsignedTx.ins[inputIndex].index;
       res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
     }
@@ -840,6 +840,12 @@ function checkInputsForPartialSig(inputs, action) {
       throw new Error('Can not modify transaction, signatures exist.');
     }
   });
+}
+function nonWitnessUtxoTxFromCache(cache, input, inputIndex) {
+  if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+    addNonWitnessTxCache(cache, input, inputIndex);
+  }
+  return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
 }
 function check32Bit(num) {
   if (

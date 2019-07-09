@@ -305,12 +305,9 @@ export class Psbt extends PsbtBase {
       if (input.witnessUtxo) {
         inputAmount += input.witnessUtxo.value;
       } else if (input.nonWitnessUtxo) {
-        const cache = this.__CACHE;
-        if (!cache.__NON_WITNESS_UTXO_TX_CACHE[idx]) {
-          addNonWitnessTxCache(this.__CACHE, input, idx);
-        }
+        const nwTx = nonWitnessUtxoTxFromCache(this.__CACHE, input, idx);
         const vout = this.__TX.ins[idx].index;
-        const out = cache.__NON_WITNESS_UTXO_TX_CACHE[idx].outs[vout] as Output;
+        const out = nwTx.outs[vout] as Output;
         inputAmount += out.value;
       }
     });
@@ -548,13 +545,14 @@ function addNonWitnessTxCache(
   Object.defineProperty(input, 'nonWitnessUtxo', {
     enumerable: true,
     get(): Buffer {
-      if (self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] !== undefined) {
-        return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      const buf = self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+      const txCache = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex];
+      if (buf !== undefined) {
+        return buf;
       } else {
-        self.__NON_WITNESS_UTXO_BUF_CACHE[
-          selfIndex
-        ] = self.__NON_WITNESS_UTXO_TX_CACHE[selfIndex].toBuffer();
-        return self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex];
+        const newBuf = txCache.toBuffer();
+        self.__NON_WITNESS_UTXO_BUF_CACHE[selfIndex] = newBuf;
+        return newBuf;
       }
     },
     set(data: Buffer): void {
@@ -760,10 +758,11 @@ function getHashForSig(
   let script: Buffer;
 
   if (input.nonWitnessUtxo) {
-    if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
-      addNonWitnessTxCache(cache, input, inputIndex);
-    }
-    const nonWitnessUtxoTx = cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+    const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
+      cache,
+      input,
+      inputIndex,
+    );
 
     const prevoutHash = unsignedTx.ins[inputIndex].hash;
     const utxoHash = nonWitnessUtxoTx.getHash();
@@ -918,10 +917,11 @@ function getScriptFromInput(
       res.isP2SH = true;
       res.script = input.redeemScript;
     } else {
-      if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
-        addNonWitnessTxCache(cache, input, inputIndex);
-      }
-      const nonWitnessUtxoTx = cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
+      const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
+        cache,
+        input,
+        inputIndex,
+      );
       const prevoutIndex = unsignedTx.ins[inputIndex].index;
       res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
     }
@@ -1052,6 +1052,17 @@ function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
       throw new Error('Can not modify transaction, signatures exist.');
     }
   });
+}
+
+function nonWitnessUtxoTxFromCache(
+  cache: PsbtCache,
+  input: PsbtInput,
+  inputIndex: number,
+): Transaction {
+  if (!cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex]) {
+    addNonWitnessTxCache(cache, input, inputIndex);
+  }
+  return cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex];
 }
 
 function check32Bit(num: number): void {
