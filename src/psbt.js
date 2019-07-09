@@ -134,10 +134,11 @@ class Psbt extends bip174_1.Psbt {
   }
   addInput(inputData) {
     checkInputsForPartialSig(this.inputs, 'addInput');
-    const inputAdder = getInputAdder(this.__CACHE);
+    const c = this.__CACHE;
+    const inputAdder = getInputAdder(c);
     super.addInput(inputData, inputAdder);
-    this.__CACHE.__FEE_RATE = undefined;
-    this.__CACHE.__EXTRACTED_TX = undefined;
+    c.__FEE_RATE = undefined;
+    c.__EXTRACTED_TX = undefined;
     return this;
   }
   addOutput(outputData) {
@@ -148,26 +149,11 @@ class Psbt extends bip174_1.Psbt {
       const script = address_1.toOutputScript(address, network);
       outputData = Object.assign(outputData, { script });
     }
-    const self = this;
-    const outputAdder = (_outputData, txBuf) => {
-      if (
-        !txBuf ||
-        _outputData.script === undefined ||
-        _outputData.value === undefined ||
-        !Buffer.isBuffer(_outputData.script) ||
-        typeof _outputData.value !== 'number'
-      ) {
-        throw new Error('Error adding output.');
-      }
-      self.__CACHE.__TX.outs.push({
-        script: _outputData.script,
-        value: _outputData.value,
-      });
-      return self.__CACHE.__TX.toBuffer();
-    };
+    const c = this.__CACHE;
+    const outputAdder = getOutputAdder(c);
     super.addOutput(outputData, true, outputAdder);
-    this.__CACHE.__FEE_RATE = undefined;
-    this.__CACHE.__EXTRACTED_TX = undefined;
+    c.__FEE_RATE = undefined;
+    c.__EXTRACTED_TX = undefined;
     return this;
   }
   addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo) {
@@ -851,6 +837,25 @@ function getInputAdder(cache) {
         witness: [],
       }),
     );
+    return selfCache.__TX.toBuffer();
+  };
+}
+function getOutputAdder(cache) {
+  const selfCache = cache;
+  return (_outputData, txBuf) => {
+    if (
+      !txBuf ||
+      _outputData.script === undefined ||
+      _outputData.value === undefined ||
+      !Buffer.isBuffer(_outputData.script) ||
+      typeof _outputData.value !== 'number'
+    ) {
+      throw new Error('Error adding output.');
+    }
+    selfCache.__TX.outs.push({
+      script: _outputData.script,
+      value: _outputData.value,
+    });
     return selfCache.__TX.toBuffer();
   };
 }

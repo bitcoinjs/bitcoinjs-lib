@@ -168,10 +168,11 @@ export class Psbt extends PsbtBase {
 
   addInput(inputData: TransactionInput): this {
     checkInputsForPartialSig(this.inputs, 'addInput');
-    const inputAdder = getInputAdder(this.__CACHE);
+    const c = this.__CACHE;
+    const inputAdder = getInputAdder(c);
     super.addInput(inputData, inputAdder);
-    this.__CACHE.__FEE_RATE = undefined;
-    this.__CACHE.__EXTRACTED_TX = undefined;
+    c.__FEE_RATE = undefined;
+    c.__EXTRACTED_TX = undefined;
     return this;
   }
 
@@ -183,29 +184,11 @@ export class Psbt extends PsbtBase {
       const script = toOutputScript(address, network);
       outputData = Object.assign(outputData, { script });
     }
-    const self = this;
-    const outputAdder = (
-      _outputData: TransactionOutput,
-      txBuf: Buffer,
-    ): Buffer => {
-      if (
-        !txBuf ||
-        (_outputData as any).script === undefined ||
-        (_outputData as any).value === undefined ||
-        !Buffer.isBuffer((_outputData as any).script) ||
-        typeof (_outputData as any).value !== 'number'
-      ) {
-        throw new Error('Error adding output.');
-      }
-      self.__CACHE.__TX.outs.push({
-        script: (_outputData as any).script!,
-        value: _outputData.value,
-      });
-      return self.__CACHE.__TX.toBuffer();
-    };
+    const c = this.__CACHE;
+    const outputAdder = getOutputAdder(c);
     super.addOutput(outputData, true, outputAdder);
-    this.__CACHE.__FEE_RATE = undefined;
-    this.__CACHE.__EXTRACTED_TX = undefined;
+    c.__FEE_RATE = undefined;
+    c.__EXTRACTED_TX = undefined;
     return this;
   }
 
@@ -1065,6 +1048,28 @@ function getInputAdder(
       script: Buffer.alloc(0),
       sequence: _inputData.sequence || Transaction.DEFAULT_SEQUENCE,
       witness: [],
+    });
+    return selfCache.__TX.toBuffer();
+  };
+}
+
+function getOutputAdder(
+  cache: PsbtCache,
+): (_outputData: TransactionOutput, txBuf: Buffer) => Buffer {
+  const selfCache = cache;
+  return (_outputData: TransactionOutput, txBuf: Buffer): Buffer => {
+    if (
+      !txBuf ||
+      (_outputData as any).script === undefined ||
+      (_outputData as any).value === undefined ||
+      !Buffer.isBuffer((_outputData as any).script) ||
+      typeof (_outputData as any).value !== 'number'
+    ) {
+      throw new Error('Error adding output.');
+    }
+    selfCache.__TX.outs.push({
+      script: (_outputData as any).script!,
+      value: _outputData.value,
     });
     return selfCache.__TX.toBuffer();
   };
