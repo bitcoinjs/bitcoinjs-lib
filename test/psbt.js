@@ -83,16 +83,6 @@ describe(`Psbt`, () => {
                     arg.forEach(a => adder(i, a))
                   } else {
                     adder(i, arg)
-                    if (attr === 'nonWitnessUtxo') {
-                      const first = psbt.inputs[i].nonWitnessUtxo
-                      psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[i] = undefined
-                      const second = psbt.inputs[i].nonWitnessUtxo
-                      psbt.inputs[i].nonWitnessUtxo = Buffer.from([1,2,3])
-                      psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[i] = undefined
-                      const third = psbt.inputs[i].nonWitnessUtxo
-                      assert.ok(first.equals(second))
-                      assert.ok(first.equals(third))
-                    }
                   }
                 }
               }
@@ -473,4 +463,27 @@ describe(`Psbt`, () => {
       assert.ok(psbt.__CACHE.__TX);
     })
   })
+
+  describe('Cache', () => {
+    it('non-witness UTXOs are cached', () => {
+      const f = fixtures.cache.nonWitnessUtxo;
+      const psbt = Psbt.fromBase64(f.psbt)
+      const index = f.inputIndex;
+
+      // Cache is empty
+      assert.strictEqual(psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index], undefined)
+
+      // Cache is populated
+      psbt.addNonWitnessUtxoToInput(index, f.nonWitnessUtxo)
+      const value = psbt.inputs[index].nonWitnessUtxo
+      assert.ok(psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index].equals(value))
+      assert.ok(psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index].equals(f.nonWitnessUtxo))
+
+      // Cache is rebuilt from internal transaction object when cleared
+      psbt.inputs[index].nonWitnessUtxo = Buffer.from([1,2,3])
+      psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index] = undefined
+      assert.ok(psbt.inputs[index].nonWitnessUtxo.equals(value))
+    })
+  })
 })
+
