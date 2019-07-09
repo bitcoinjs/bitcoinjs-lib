@@ -174,37 +174,37 @@
         "psbt": "cHNidP8BAJoCAAAAAljoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////g40EJ9DsZQpoqka7CwmK6kQiwHGyyng1Kgd5WdB86h0BAAAAAP////8CcKrwCAAAAAAWABTYXCtx0AYLCcmIauuBXlCZHdoSTQDh9QUAAAAAFgAUAK6pouXw+HaliN9VRuh0LR2HAI8AAAAAAAAAAAA=",
         "inputData": [
           {
-            "nonWitnessUtxo": "0200000001aad73931018bd25f84ae400b68848be09db706eac2ac18298babee71ab656f8b0000000048473044022058f6fc7c6a33e1b31548d481c826c015bd30135aad42cd67790dab66d2ad243b02204a1ced2604c6735b6393e5b41691dd78b00f0c5942fb9f751856faa938157dba01feffffff0280f0fa020000000017a9140fb9463421696b82c833af241c78c17ddbde493487d0f20a270100000017a91429ca74f8a08f81999428185c97b5d852e4063f618765000000",
-            "redeemScript": "5221029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f2102dab61ff49a14db6a7d02b0cd1fbb78fc4b18312b5b4e54dae4dba2fbfef536d752ae",
+            "nonWitnessUtxo": "Buffer.from('0200000001aad73931018bd25f84ae400b68848be09db706eac2ac18298babee71ab656f8b0000000048473044022058f6fc7c6a33e1b31548d481c826c015bd30135aad42cd67790dab66d2ad243b02204a1ced2604c6735b6393e5b41691dd78b00f0c5942fb9f751856faa938157dba01feffffff0280f0fa020000000017a9140fb9463421696b82c833af241c78c17ddbde493487d0f20a270100000017a91429ca74f8a08f81999428185c97b5d852e4063f618765000000', 'hex')",
+            "redeemScript": "Buffer.from('5221029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f2102dab61ff49a14db6a7d02b0cd1fbb78fc4b18312b5b4e54dae4dba2fbfef536d752ae', 'hex')",
             "bip32Derivation": [
               {
-                "masterFingerprint": "d90c6a4f",
-                "pubkey": "029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f",
+                "masterFingerprint": "Buffer.from('d90c6a4f', 'hex')",
+                "pubkey": "Buffer.from('029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f', 'hex')",
                 "path": "m/0'/0'/0'"
               },
               {
-                "masterFingerprint": "d90c6a4f",
-                "pubkey": "02dab61ff49a14db6a7d02b0cd1fbb78fc4b18312b5b4e54dae4dba2fbfef536d7",
+                "masterFingerprint": "Buffer.from('d90c6a4f', 'hex')",
+                "pubkey": "Buffer.from('02dab61ff49a14db6a7d02b0cd1fbb78fc4b18312b5b4e54dae4dba2fbfef536d7', 'hex')",
                 "path": "m/0'/0'/1'"
               }
             ]
           },
           {
             "witnessUtxo": {
-              "script": "a914b7f5faf40e3d40a5a459b1db3535f2b72fa921e887",
+              "script": "Buffer.from('a914b7f5faf40e3d40a5a459b1db3535f2b72fa921e887', 'hex')",
               "value": 200000000
             },
-            "redeemScript": "00208c2353173743b595dfb4a07b72ba8e42e3797da74e87fe7d9d7497e3b2028903",
-            "witnessScript": "522103089dc10c7ac6db54f91329af617333db388cead0c231f723379d1b99030b02dc21023add904f3d6dcf59ddb906b0dee23529b7ffb9ed50e5e86151926860221f0e7352ae",
+            "redeemScript": "Buffer.from('00208c2353173743b595dfb4a07b72ba8e42e3797da74e87fe7d9d7497e3b2028903', 'hex')",
+            "witnessScript": "Buffer.from('522103089dc10c7ac6db54f91329af617333db388cead0c231f723379d1b99030b02dc21023add904f3d6dcf59ddb906b0dee23529b7ffb9ed50e5e86151926860221f0e7352ae', 'hex')",
             "bip32Derivation": [
               {
-                "masterFingerprint": "d90c6a4f",
-                "pubkey": "023add904f3d6dcf59ddb906b0dee23529b7ffb9ed50e5e86151926860221f0e73",
+                "masterFingerprint": "Buffer.from('d90c6a4f', 'hex')",
+                "pubkey": "Buffer.from('023add904f3d6dcf59ddb906b0dee23529b7ffb9ed50e5e86151926860221f0e73', 'hex')",
                 "path": "m/0'/0'/3'"
               },
               {
-                "masterFingerprint": "d90c6a4f",
-                "pubkey": "03089dc10c7ac6db54f91329af617333db388cead0c231f723379d1b99030b02dc",
+                "masterFingerprint": "Buffer.from('d90c6a4f', 'hex')",
+                "pubkey": "Buffer.from('03089dc10c7ac6db54f91329af617333db388cead0c231f723379d1b99030b02dc', 'hex')",
                 "path": "m/0'/0'/2'"
               }
             ]
@@ -214,8 +214,8 @@
           {
             "bip32Derivation": [
               {
-                "masterFingerprint": "d90c6a4f",
-                "pubkey": "03a9a4c37f5996d3aa25dbac6b570af0650394492942460b354753ed9eeca58771",
+                "masterFingerprint": "Buffer.from('d90c6a4f', 'hex')",
+                "pubkey": "Buffer.from('03a9a4c37f5996d3aa25dbac6b570af0650394492942460b354753ed9eeca58771', 'hex')",
                 "path": "m/0'/0'/4'"
               }
             ]
@@ -223,8 +223,8 @@
           {
             "bip32Derivation": [
               {
-                "masterFingerprint": "d90c6a4f",
-                "pubkey": "027f6399757d2eff55a136ad02c684b1838b6556e5f1b6b34282a94b6b50051096",
+                "masterFingerprint": "Buffer.from('d90c6a4f', 'hex')",
+                "pubkey": "Buffer.from('027f6399757d2eff55a136ad02c684b1838b6556e5f1b6b34282a94b6b50051096', 'hex')",
                 "path": "m/0'/0'/5'"
               }
             ]
@@ -316,7 +316,7 @@
       {
         "description": "checks for hash and index",
         "inputData": {
-          "hash": "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f",
+          "hash": "Buffer.from('000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f', 'hex')",
           "index": 2
         },
         "equals": "cHNidP8BADMCAAAAAQABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4PAgAAAAD/////AAAAAAAAAAA="

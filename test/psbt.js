@@ -5,36 +5,22 @@ const ECPair = require('../src/ecpair')
 const Psbt = require('..').Psbt
 const NETWORKS = require('../src/networks')
 
-const fixtures = require('./fixtures/psbt')
+const initBuffers = object => JSON.parse(JSON.stringify(object), (key, value) => {
+  const regex = new RegExp(/^Buffer.from\(['"](.*)['"], ['"](.*)['"]\)$/)
+  const result = regex.exec(value)
+  if (!result) return value
+
+  const data = result[1]
+  const encoding = result[2]
+
+  return Buffer.from(data, encoding)
+})
+
+const fixtures = initBuffers(require('./fixtures/psbt'))
 
 const upperCaseFirstLetter = str => str.replace(/^./, s => s.toUpperCase())
 
 const b = hex => Buffer.from(hex, 'hex');
-
-const initBuffers = (attr, data) => {
-  if ([
-    'nonWitnessUtxo',
-    'redeemScript',
-    'witnessScript'
-  ].includes(attr)) {
-    data = b(data)
-  } else if (attr === 'bip32Derivation') {
-    data.masterFingerprint = b(data.masterFingerprint)
-    data.pubkey = b(data.pubkey)
-  } else if (attr === 'witnessUtxo') {
-    data.script = b(data.script)
-  } else if (attr === 'hash') {
-    if (
-      typeof data === 'string' &&
-      data.match(/^[0-9a-f]*$/i) &&
-      data.length % 2 === 0
-    ) {
-      data = b(data)
-    }
-  }
-
-  return data
-};
 
 describe(`Psbt`, () => {
   describe('BIP174 Test Vectors', () => {
@@ -94,9 +80,9 @@ describe(`Psbt`, () => {
                   adder = adder.bind(psbt)
                   const arg = data[attr]
                   if (Array.isArray(arg)) {
-                    arg.forEach(a => adder(i, initBuffers(attr, a)))
+                    arg.forEach(a => adder(i, a))
                   } else {
-                    adder(i, initBuffers(attr, arg))
+                    adder(i, arg)
                     if (attr === 'nonWitnessUtxo') {
                       const first = psbt.inputs[i].nonWitnessUtxo
                       psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[i] = undefined
@@ -320,7 +306,7 @@ describe(`Psbt`, () => {
   describe('addInput', () => {
     fixtures.addInput.checks.forEach(f => {
       for (const attr of Object.keys(f.inputData)) {
-        f.inputData[attr] = initBuffers(attr, f.inputData[attr])
+        f.inputData[attr] = f.inputData[attr]
       }
       it(f.description, () => {
         const psbt = new Psbt()
@@ -349,7 +335,7 @@ describe(`Psbt`, () => {
   describe('addOutput', () => {
     fixtures.addOutput.checks.forEach(f => {
       for (const attr of Object.keys(f.outputData)) {
-        f.outputData[attr] = initBuffers(attr, f.outputData[attr])
+        f.outputData[attr] = f.outputData[attr]
       }
       it(f.description, () => {
         const psbt = new Psbt()
