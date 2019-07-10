@@ -216,6 +216,7 @@ class Psbt extends bip174_1.Psbt {
     const scriptType = classifyScript(script);
     if (!canFinalize(input, script, scriptType))
       throw new Error(`Can not finalize input #${inputIndex}`);
+    checkPartialSigSighashes(input);
     const { finalScriptSig, finalScriptWitness } = getFinalScripts(
       script,
       scriptType,
@@ -443,6 +444,16 @@ function checkInputsForPartialSig(inputs, action) {
     });
     if (throws) {
       throw new Error('Can not modify transaction, signatures exist.');
+    }
+  });
+}
+function checkPartialSigSighashes(input) {
+  if (!input.sighashType || !input.partialSig) return;
+  const { partialSig, sighashType } = input;
+  partialSig.forEach(pSig => {
+    const { hashType } = bscript.signature.decode(pSig.signature);
+    if (sighashType !== hashType) {
+      throw new Error('Signature sighash does not match input sighash type');
     }
   });
 }
