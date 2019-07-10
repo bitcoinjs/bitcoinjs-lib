@@ -27,10 +27,10 @@ export declare class Psbt extends PsbtBase {
     finalizeInput(inputIndex: number): this;
     validateAllSignatures(): boolean;
     validateSignatures(inputIndex: number, pubkey?: Buffer): boolean;
-    sign(keyPair: Signer): this;
-    signAsync(keyPair: SignerAsync): Promise<void>;
-    signInput(inputIndex: number, keyPair: Signer): this;
-    signInputAsync(inputIndex: number, keyPair: SignerAsync): Promise<void>;
+    sign(keyPair: Signer, sighashTypes?: number[]): this;
+    signAsync(keyPair: SignerAsync, sighashTypes?: number[]): Promise<void>;
+    signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
+    signInputAsync(inputIndex: number, keyPair: SignerAsync, sighashTypes?: number[]): Promise<void>;
 }
 interface PsbtOptsOptional {
     network?: Network;

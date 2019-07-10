@@ -332,7 +332,10 @@ export class Psbt extends PsbtBase {
     return results.every(res => res === true);
   }
 
-  sign(keyPair: Signer): this {
+  sign(
+    keyPair: Signer,
+    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+  ): this {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
 
@@ -342,7 +345,7 @@ export class Psbt extends PsbtBase {
     const results: boolean[] = [];
     for (const i of range(this.inputs.length)) {
       try {
-        this.signInput(i, keyPair);
+        this.signInput(i, keyPair, sighashTypes);
         results.push(true);
       } catch (err) {
         results.push(false);
@@ -354,7 +357,10 @@ export class Psbt extends PsbtBase {
     return this;
   }
 
-  signAsync(keyPair: SignerAsync): Promise<void> {
+  signAsync(
+    keyPair: SignerAsync,
+    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+  ): Promise<void> {
     return new Promise(
       (resolve, reject): any => {
         if (!keyPair || !keyPair.publicKey)
@@ -367,7 +373,7 @@ export class Psbt extends PsbtBase {
         const promises: Array<Promise<void>> = [];
         for (const [i] of this.inputs.entries()) {
           promises.push(
-            this.signInputAsync(i, keyPair).then(
+            this.signInputAsync(i, keyPair, sighashTypes).then(
               () => {
                 results.push(true);
               },
@@ -387,7 +393,11 @@ export class Psbt extends PsbtBase {
     );
   }
 
-  signInput(inputIndex: number, keyPair: Signer): this {
+  signInput(
+    inputIndex: number,
+    keyPair: Signer,
+    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+  ): this {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
     const { hash, sighashType } = getHashAndSighashType(
@@ -395,6 +405,7 @@ export class Psbt extends PsbtBase {
       inputIndex,
       keyPair.publicKey,
       this.__CACHE,
+      sighashTypes,
     );
 
     const partialSig = {
@@ -405,7 +416,11 @@ export class Psbt extends PsbtBase {
     return this.addPartialSigToInput(inputIndex, partialSig);
   }
 
-  signInputAsync(inputIndex: number, keyPair: SignerAsync): Promise<void> {
+  signInputAsync(
+    inputIndex: number,
+    keyPair: SignerAsync,
+    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+  ): Promise<void> {
     return new Promise(
       (resolve, reject): void => {
         if (!keyPair || !keyPair.publicKey)
@@ -415,6 +430,7 @@ export class Psbt extends PsbtBase {
           inputIndex,
           keyPair.publicKey,
           this.__CACHE,
+          sighashTypes,
         );
 
         Promise.resolve(keyPair.sign(hash)).then(signature => {
@@ -683,12 +699,18 @@ function getHashAndSighashType(
   inputIndex: number,
   pubkey: Buffer,
   cache: PsbtCache,
+  sighashTypes: number[],
 ): {
   hash: Buffer;
   sighashType: number;
 } {
   const input = checkForInput(inputs, inputIndex);
-  const { hash, sighashType, script } = getHashForSig(inputIndex, input, cache);
+  const { hash, sighashType, script } = getHashForSig(
+    inputIndex,
+    input,
+    cache,
+    sighashTypes,
+  );
   checkScriptForPubkey(pubkey, script, 'sign');
   return {
     hash,
@@ -700,6 +722,7 @@ function getHashForSig(
   inputIndex: number,
   input: PsbtInput,
   cache: PsbtCache,
+  sighashTypes?: number[],
 ): {
   script: Buffer;
   hash: Buffer;
@@ -707,6 +730,13 @@ function getHashForSig(
 } {
   const unsignedTx = cache.__TX;
   const sighashType = input.sighashType || Transaction.SIGHASH_ALL;
+  if (sighashTypes && sighashTypes.indexOf(sighashType) < 0) {
+    const str = sighashTypeToString(sighashType);
+    throw new Error(
+      `Sighash type is not allowed. Retry the sign method passing the ` +
+        `sighashTypes array of whitelisted types. Sighash type: ${str}`,
+    );
+  }
   let hash: Buffer;
   let script: Buffer;
 
@@ -979,6 +1009,26 @@ function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
   }
 
   return readVector();
+}
+
+function sighashTypeToString(sighashType: number): string {
+  let text =
+    sighashType & Transaction.SIGHASH_ANYONECANPAY
+      ? 'SIGHASH_ANYONECANPAY | '
+      : '';
+  const sigMod = sighashType & 0x1f;
+  switch (sigMod) {
+    case Transaction.SIGHASH_ALL:
+      text += 'SIGHASH_ALL';
+      break;
+    case Transaction.SIGHASH_SINGLE:
+      text += 'SIGHASH_SINGLE';
+      break;
+    case Transaction.SIGHASH_NONE:
+      text += 'SIGHASH_NONE';
+      break;
+  }
+  return text;
 }
 
 function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
