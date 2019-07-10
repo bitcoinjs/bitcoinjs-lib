@@ -122,7 +122,7 @@ describe(`Psbt`, () => {
     })
   
     fixtures.bip174.finalizer.forEach(f => {
-      it(`Finalizes inputs and gives the expected PSBT: ${f.description}`, () => {
+      it("Finalizes inputs and gives the expected PSBT", () => {
         const psbt =  Psbt.fromBase64(f.psbt)
   
         psbt.finalizeAllInputs()
@@ -262,6 +262,18 @@ describe(`Psbt`, () => {
         assert.throws(() => {
           psbtThatShouldThrow.sign()
         }, new RegExp('Need Signer to sign input'))
+      })
+    })
+  })
+
+  describe('finalizeAllInputs', () => {
+    fixtures.finalizeAllInputs.forEach(f => {
+      it(`Finalizes inputs of type "${f.type}"`, () => {
+        const psbt =  Psbt.fromBase64(f.psbt)
+
+        psbt.finalizeAllInputs()
+
+        assert.strictEqual(psbt.toBase64(), f.result)
       })
     })
   })
