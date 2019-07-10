@@ -126,10 +126,6 @@ describe(`Psbt`, () => {
     it('Finalizes inputs and gives the expected PSBT', () => {
       const psbt =  Psbt.fromBase64(f.psbt)
 
-      assert.throws(() => {
-        psbt.getFeeRate()
-      }, new RegExp('PSBT must be finalized to calculate fee rate'))
-
       psbt.finalizeAllInputs()
 
       assert.strictEqual(psbt.toBase64(), f.result)
@@ -404,6 +400,23 @@ describe(`Psbt`, () => {
       assert.throws(() => {
         psbt.validateSignatures(f.index, f.incorrectPubkey)
       }, new RegExp('No signatures for this pubkey'))
+    })
+  })
+
+  describe('getFeeRate', () => {
+    it('Throws error if called before inputs are finalized', () => {
+      const f = fixtures.getFeeRate
+      const psbt =  Psbt.fromBase64(f.psbt)
+
+      assert.throws(() => {
+        psbt.getFeeRate()
+      }, new RegExp('PSBT must be finalized to calculate fee rate'))
+
+      psbt.finalizeAllInputs()
+
+      assert.doesNotThrow(() => {
+        psbt.getFeeRate()
+      })
     })
   })
 
