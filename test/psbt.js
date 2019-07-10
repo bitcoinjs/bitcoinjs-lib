@@ -93,74 +93,74 @@ describe(`Psbt`, () => {
         assert.strictEqual(psbt.toBase64(), f.result)
       })
     })
-  })
 
-  fixtures.bip174.signer.forEach(f => {
-    it('Signs PSBT to the expected result', () => {
-      const psbt =  Psbt.fromBase64(f.psbt)
-
-      f.keys.forEach(({inputToSign, WIF}) => {
-        const keyPair = ECPair.fromWIF(WIF, NETWORKS.testnet);
-        psbt.signInput(inputToSign, keyPair);
+    fixtures.bip174.signer.forEach(f => {
+      it('Signs PSBT to the expected result', () => {
+        const psbt =  Psbt.fromBase64(f.psbt)
+  
+        f.keys.forEach(({inputToSign, WIF}) => {
+          const keyPair = ECPair.fromWIF(WIF, NETWORKS.testnet);
+          psbt.signInput(inputToSign, keyPair);
+        })
+  
+        assert.strictEqual(psbt.toBase64(), f.result)
       })
-
-      assert.strictEqual(psbt.toBase64(), f.result)
     })
-  })
-
-  fixtures.bip174.combiner.forEach(f => {
-    it('Combines two PSBTs to the expected result', () => {
-      const psbts =  f.psbts.map(psbt => Psbt.fromBase64(psbt))
-
-      psbts[0].combine(psbts[1])
-
-      // Produces a different Base64 string due to implemetation specific key-value ordering.
-      // That means this test will fail:
-      // assert.strictEqual(psbts[0].toBase64(), f.result)
-      // However, if we compare the actual PSBT properties we can see they are logically identical:
-      assert.deepStrictEqual(psbts[0], Psbt.fromBase64(f.result))
+  
+    fixtures.bip174.combiner.forEach(f => {
+      it('Combines two PSBTs to the expected result', () => {
+        const psbts =  f.psbts.map(psbt => Psbt.fromBase64(psbt))
+  
+        psbts[0].combine(psbts[1])
+  
+        // Produces a different Base64 string due to implemetation specific key-value ordering.
+        // That means this test will fail:
+        // assert.strictEqual(psbts[0].toBase64(), f.result)
+        // However, if we compare the actual PSBT properties we can see they are logically identical:
+        assert.deepStrictEqual(psbts[0], Psbt.fromBase64(f.result))
+      })
     })
-  })
-
-  fixtures.bip174.finalizer.forEach(f => {
-    it(`Finalizes inputs and gives the expected PSBT: ${f.description}`, () => {
-      const psbt =  Psbt.fromBase64(f.psbt)
-
-      psbt.finalizeAllInputs()
-
-      assert.strictEqual(psbt.toBase64(), f.result)
+  
+    fixtures.bip174.finalizer.forEach(f => {
+      it(`Finalizes inputs and gives the expected PSBT: ${f.description}`, () => {
+        const psbt =  Psbt.fromBase64(f.psbt)
+  
+        psbt.finalizeAllInputs()
+  
+        assert.strictEqual(psbt.toBase64(), f.result)
+      })
     })
-  })
-
-  fixtures.bip174.extractor.forEach(f => {
-    it('Extracts the expected transaction from a PSBT', () => {
-      const psbt1 =  Psbt.fromBase64(f.psbt)
-      const transaction1 = psbt1.extractTransaction(true).toHex()
-
-      const psbt2 =  Psbt.fromBase64(f.psbt)
-      const transaction2 = psbt2.extractTransaction().toHex()
-
-      assert.strictEqual(transaction1, transaction2)
-      assert.strictEqual(transaction1, f.transaction)
-
-      const psbt3 =  Psbt.fromBase64(f.psbt)
-      delete psbt3.inputs[0].finalScriptSig
-      delete psbt3.inputs[0].finalScriptWitness
-      assert.throws(() => {
-        psbt3.extractTransaction()
-      }, new RegExp('Not finalized'))
-
-      const psbt4 =  Psbt.fromBase64(f.psbt)
-      psbt4.setMaximumFeeRate(1)
-      assert.throws(() => {
-        psbt4.extractTransaction()
-      }, new RegExp('Warning: You are paying around [\\d.]+ in fees'))
-
-      const psbt5 =  Psbt.fromBase64(f.psbt)
-      psbt5.extractTransaction(true)
-      const fr1 = psbt5.getFeeRate()
-      const fr2 = psbt5.getFeeRate()
-      assert.strictEqual(fr1, fr2)
+  
+    fixtures.bip174.extractor.forEach(f => {
+      it('Extracts the expected transaction from a PSBT', () => {
+        const psbt1 =  Psbt.fromBase64(f.psbt)
+        const transaction1 = psbt1.extractTransaction(true).toHex()
+  
+        const psbt2 =  Psbt.fromBase64(f.psbt)
+        const transaction2 = psbt2.extractTransaction().toHex()
+  
+        assert.strictEqual(transaction1, transaction2)
+        assert.strictEqual(transaction1, f.transaction)
+  
+        const psbt3 =  Psbt.fromBase64(f.psbt)
+        delete psbt3.inputs[0].finalScriptSig
+        delete psbt3.inputs[0].finalScriptWitness
+        assert.throws(() => {
+          psbt3.extractTransaction()
+        }, new RegExp('Not finalized'))
+  
+        const psbt4 =  Psbt.fromBase64(f.psbt)
+        psbt4.setMaximumFeeRate(1)
+        assert.throws(() => {
+          psbt4.extractTransaction()
+        }, new RegExp('Warning: You are paying around [\\d.]+ in fees'))
+  
+        const psbt5 =  Psbt.fromBase64(f.psbt)
+        psbt5.extractTransaction(true)
+        const fr1 = psbt5.getFeeRate()
+        const fr2 = psbt5.getFeeRate()
+        assert.strictEqual(fr1, fr2)
+      })
     })
   })
 
@@ -505,4 +505,3 @@ describe(`Psbt`, () => {
     })
   })
 })
-
