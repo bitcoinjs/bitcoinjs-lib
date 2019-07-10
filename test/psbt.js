@@ -130,20 +130,6 @@ describe(`Psbt`, () => {
         psbt.getFeeRate()
       }, new RegExp('PSBT must be finalized to calculate fee rate'))
 
-      const pubkey = Buffer.from(
-        '029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f',
-        'hex',
-      )
-      assert.strictEqual(psbt.validateSignatures(0), true)
-      assert.strictEqual(psbt.validateSignatures(0, pubkey), true)
-      assert.throws(() => {
-        pubkey[32] = 42
-        psbt.validateSignatures(0, pubkey)
-      }, new RegExp('No signatures for this pubkey'))
-      assert.throws(() => {
-        psbt.validateSignatures(42)
-      }, new RegExp('No signatures to validate'))
-
       psbt.finalizeAllInputs()
 
       assert.strictEqual(psbt.toBase64(), f.result)
@@ -398,6 +384,26 @@ describe(`Psbt`, () => {
       assert.strictEqual(psbt.opts.maximumFeeRate, 5000)
       psbt.setMaximumFeeRate(6000)
       assert.strictEqual(psbt.opts.maximumFeeRate, 6000)
+    })
+  })
+
+  describe('validateSignatures', () => {
+    const f = fixtures.validateSignatures
+    it('Correctly validates a signature', () => {
+      const psbt = Psbt.fromBase64(f.psbt)
+
+      assert.strictEqual(psbt.validateSignatures(f.index), true)
+      assert.throws(() => {
+        psbt.validateSignatures(f.nonExistantIndex)
+      }, new RegExp('No signatures to validate'))
+    })
+
+    it('Correctly validates a signature against a pubkey', () => {
+      const psbt = Psbt.fromBase64(f.psbt)
+      assert.strictEqual(psbt.validateSignatures(f.index, f.pubkey), true)
+      assert.throws(() => {
+        psbt.validateSignatures(f.index, f.incorrectPubkey)
+      }, new RegExp('No signatures for this pubkey'))
     })
   })
 
