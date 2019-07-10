@@ -123,7 +123,7 @@ describe(`Psbt`, () => {
   })
 
   fixtures.bip174.finalizer.forEach(f => {
-    it('Finalizes inputs and gives the expected PSBT', () => {
+    it(`Finalizes inputs and gives the expected PSBT: ${f.description}`, () => {
       const psbt =  Psbt.fromBase64(f.psbt)
 
       psbt.finalizeAllInputs()
