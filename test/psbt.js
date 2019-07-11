@@ -167,26 +167,32 @@ describe(`Psbt`, () => {
   describe('signInputAsync', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, async () => {
-        const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
-        assert.doesNotReject(async () => {
-          await psbtThatShouldsign.signInputAsync(
-            f.shouldSign.inputToCheck,
-            ECPair.fromWIF(f.shouldSign.WIF),
-          )
-        })
+        if (f.shouldSign) {
+          const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+          assert.doesNotReject(async () => {
+            await psbtThatShouldsign.signInputAsync(
+              f.shouldSign.inputToCheck,
+              ECPair.fromWIF(f.shouldSign.WIF),
+              f.shouldSign.sighashTypes || undefined,
+            )
+          })
+        }
 
-        const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
-        assert.rejects(async () => {
-          await psbtThatShouldThrow.signInputAsync(
-            f.shouldThrow.inputToCheck,
-            ECPair.fromWIF(f.shouldThrow.WIF),
-          )
-        }, new RegExp(f.shouldThrow.errorMessage))
-        assert.rejects(async () => {
-          await psbtThatShouldThrow.signInputAsync(
-            f.shouldThrow.inputToCheck,
-          )
-        }, new RegExp('Need Signer to sign input'))
+        if (f.shouldThrow) {
+          const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+          assert.rejects(async () => {
+            await psbtThatShouldThrow.signInputAsync(
+              f.shouldThrow.inputToCheck,
+              ECPair.fromWIF(f.shouldThrow.WIF),
+              f.shouldThrow.sighashTypes || undefined,
+            )
+          }, new RegExp(f.shouldThrow.errorMessage))
+          assert.rejects(async () => {
+            await psbtThatShouldThrow.signInputAsync(
+              f.shouldThrow.inputToCheck,
+            )
+          }, new RegExp('Need Signer to sign input'))
+        }
       })
     })
   })
@@ -194,26 +200,32 @@ describe(`Psbt`, () => {
   describe('signInput', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, () => {
-        const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
-        assert.doesNotThrow(() => {
-          psbtThatShouldsign.signInput(
-            f.shouldSign.inputToCheck,
-            ECPair.fromWIF(f.shouldSign.WIF),
-          )
-        })
+        if (f.shouldSign) {
+          const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+          assert.doesNotThrow(() => {
+            psbtThatShouldsign.signInput(
+              f.shouldSign.inputToCheck,
+              ECPair.fromWIF(f.shouldSign.WIF),
+              f.shouldSign.sighashTypes || undefined,
+            )
+          })
+        }
 
-        const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
-        assert.throws(() => {
-          psbtThatShouldThrow.signInput(
-            f.shouldThrow.inputToCheck,
-            ECPair.fromWIF(f.shouldThrow.WIF),
-          )
-        }, new RegExp(f.shouldThrow.errorMessage))
-        assert.throws(() => {
-          psbtThatShouldThrow.signInput(
-            f.shouldThrow.inputToCheck,
-          )
-        }, new RegExp('Need Signer to sign input'))
+        if (f.shouldThrow) {
+          const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+          assert.throws(() => {
+            psbtThatShouldThrow.signInput(
+              f.shouldThrow.inputToCheck,
+              ECPair.fromWIF(f.shouldThrow.WIF),
+              f.shouldThrow.sighashTypes || undefined,
+            )
+          }, new RegExp(f.shouldThrow.errorMessage))
+          assert.throws(() => {
+            psbtThatShouldThrow.signInput(
+              f.shouldThrow.inputToCheck,
+            )
+          }, new RegExp('Need Signer to sign input'))
+        }
       })
     })
   })
@@ -222,22 +234,28 @@ describe(`Psbt`, () => {
     fixtures.signInput.checks.forEach(f => {
       if (f.description === 'checks the input exists') return
       it(f.description, async () => {
-        const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
-        assert.doesNotReject(async () => {
-          await psbtThatShouldsign.signAsync(
-            ECPair.fromWIF(f.shouldSign.WIF),
-          )
-        })
+        if (f.shouldSign) {
+          const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+          assert.doesNotReject(async () => {
+            await psbtThatShouldsign.signAsync(
+              ECPair.fromWIF(f.shouldSign.WIF),
+              f.shouldSign.sighashTypes || undefined,
+            )
+          })
+        }
 
-        const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
-        assert.rejects(async () => {
-          await psbtThatShouldThrow.signAsync(
-            ECPair.fromWIF(f.shouldThrow.WIF),
-          )
-        }, new RegExp('No inputs were signed'))
-        assert.rejects(async () => {
-          await psbtThatShouldThrow.signAsync()
-        }, new RegExp('Need Signer to sign input'))
+        if (f.shouldThrow) {
+          const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+          assert.rejects(async () => {
+            await psbtThatShouldThrow.signAsync(
+              ECPair.fromWIF(f.shouldThrow.WIF),
+              f.shouldThrow.sighashTypes || undefined,
+            )
+          }, new RegExp('No inputs were signed'))
+          assert.rejects(async () => {
+            await psbtThatShouldThrow.signAsync()
+          }, new RegExp('Need Signer to sign input'))
+        }
       })
     })
   })
@@ -246,22 +264,28 @@ describe(`Psbt`, () => {
     fixtures.signInput.checks.forEach(f => {
       if (f.description === 'checks the input exists') return
       it(f.description, () => {
-        const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
-        assert.doesNotThrow(() => {
-          psbtThatShouldsign.sign(
-            ECPair.fromWIF(f.shouldSign.WIF),
-          )
-        })
+        if (f.shouldSign) {
+          const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+          assert.doesNotThrow(() => {
+            psbtThatShouldsign.sign(
+              ECPair.fromWIF(f.shouldSign.WIF),
+              f.shouldSign.sighashTypes || undefined,
+            )
+          })
+        }
 
-        const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
-        assert.throws(() => {
-          psbtThatShouldThrow.sign(
-            ECPair.fromWIF(f.shouldThrow.WIF),
-          )
-        }, new RegExp('No inputs were signed'))
-        assert.throws(() => {
-          psbtThatShouldThrow.sign()
-        }, new RegExp('Need Signer to sign input'))
+        if (f.shouldThrow) {
+          const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+          assert.throws(() => {
+            psbtThatShouldThrow.sign(
+              ECPair.fromWIF(f.shouldThrow.WIF),
+              f.shouldThrow.sighashTypes || undefined,
+            )
+          }, new RegExp('No inputs were signed'))
+          assert.throws(() => {
+            psbtThatShouldThrow.sign()
+          }, new RegExp('Need Signer to sign input'))
+        }
       })
     })
   })

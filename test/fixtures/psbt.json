@@ -427,6 +427,15 @@
           "inputToCheck": 0,
           "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
         }
+      },
+      {
+        "description": "allows signing non-whitelisted sighashtype when explicitly passed in",
+        "shouldSign": {
+          "psbt": "cHNidP8BADMBAAAAAYaq+PdOUY2PnV9kZKa82XlqrPByOqwH2TRg2+LQdqs2AAAAAAD/////AAAAAAAAAQEgAOH1BQAAAAAXqRSTNeWHqa9INvSnQ120SZeJc+6JSocBAwSBAAAAAQQWABQvLKRyDqYsPYImhD3eURpDGL10RwAA",
+          "sighashTypes": [129],
+          "inputToCheck": 0,
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+        }
       }
     ]
   },
