@@ -116,6 +116,11 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
     if (!a.redeem.witness) return;
     return ([] as Buffer[]).concat(a.redeem.witness, a.redeem.output);
   });
+  lazy.prop(o, 'name', () => {
+    const nameParts = ['p2wsh'];
+    if (o.redeem !== undefined) nameParts.push(o.redeem.name!);
+    return nameParts.join('-');
+  });
 
   // extended validation
   if (opts.validate) {

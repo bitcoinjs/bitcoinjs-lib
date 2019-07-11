@@ -41,6 +41,27 @@ const u = require('./payments.utils')
       })
     })
 
+    if (p === 'p2sh') {
+      const p2wsh = require('../src/payments/p2wsh').p2wsh
+      const p2pk = require('../src/payments/p2pk').p2pk
+      it('properly assembles nested p2wsh with names', () => {
+        const actual = fn({
+          redeem: p2wsh({
+            redeem: p2pk({
+              pubkey: Buffer.from(
+                '03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058',
+                'hex',
+              )
+            })
+          })
+        })
+        assert.strictEqual(actual.address, '3MGbrbye4ttNUXM8WAvBFRKry4fkS9fjuw')
+        assert.strictEqual(actual.name, 'p2sh-p2wsh-p2pk')
+        assert.strictEqual(actual.redeem.name, 'p2wsh-p2pk')
+        assert.strictEqual(actual.redeem.redeem.name, 'p2pk')
+      })
+    }
+
     // cross-verify dynamically too
     if (!fixtures.dynamic) return
     const { depends, details } = fixtures.dynamic

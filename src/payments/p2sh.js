@@ -93,6 +93,11 @@ function p2sh(a, opts) {
     if (o.redeem && o.redeem.witness) return o.redeem.witness;
     if (o.input) return [];
   });
+  lazy.prop(o, 'name', () => {
+    const nameParts = ['p2sh'];
+    if (o.redeem !== undefined) nameParts.push(o.redeem.name);
+    return nameParts.join('-');
+  });
   if (opts.validate) {
     let hash = Buffer.from([]);
     if (a.address) {

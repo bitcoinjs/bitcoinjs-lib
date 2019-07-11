@@ -36,7 +36,7 @@ function p2pkh(a, opts) {
     return bscript.decompile(a.input);
   });
   const network = a.network || networks_1.bitcoin;
-  const o = { network };
+  const o = { name: 'p2pkh', network };
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
     const payload = Buffer.allocUnsafe(21);

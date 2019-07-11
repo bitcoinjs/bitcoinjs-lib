@@ -7,6 +7,7 @@
       },
       "options": {},
       "expected": {
+        "name": "p2wpkh",
         "hash": "ea6d525c0c955d90d3dbd29a81ef8bfb79003727",
         "output": "OP_0 ea6d525c0c955d90d3dbd29a81ef8bfb79003727",
         "signature": null,
@@ -20,6 +21,7 @@
         "hash": "ea6d525c0c955d90d3dbd29a81ef8bfb79003727"
       },
       "expected": {
+        "name": "p2wpkh",
         "address": "bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d",
         "output": "OP_0 ea6d525c0c955d90d3dbd29a81ef8bfb79003727",
         "signature": null,
@@ -33,6 +35,7 @@
         "output": "OP_0 ea6d525c0c955d90d3dbd29a81ef8bfb79003727"
       },
       "expected": {
+        "name": "p2wpkh",
         "address": "bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d",
         "hash": "ea6d525c0c955d90d3dbd29a81ef8bfb79003727",
         "signature": null,
@@ -46,6 +49,7 @@
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001"
       },
       "expected": {
+        "name": "p2wpkh",
         "address": "bc1qz69ej270c3q9qvgt822t6pm3zdksk2x35j2jlm",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_0 168b992bcfc44050310b3a94bd0771136d0b28d1",
@@ -61,6 +65,7 @@
         "signature": "300602010002010001"
       },
       "expected": {
+        "name": "p2wpkh",
         "address": "bc1qz69ej270c3q9qvgt822t6pm3zdksk2x35j2jlm",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_0 168b992bcfc44050310b3a94bd0771136d0b28d1",
@@ -80,6 +85,7 @@
         ]
       },
       "expected": {
+        "name": "p2wpkh",
         "address": "bc1qz69ej270c3q9qvgt822t6pm3zdksk2x35j2jlm",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_0 168b992bcfc44050310b3a94bd0771136d0b28d1",

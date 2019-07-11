@@ -116,6 +116,11 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
     if (o.redeem && o.redeem.witness) return o.redeem.witness;
     if (o.input) return [];
   });
+  lazy.prop(o, 'name', () => {
+    const nameParts = ['p2sh'];
+    if (o.redeem !== undefined) nameParts.push(o.redeem.name!);
+    return nameParts.join('-');
+  });
 
   if (opts.validate) {
     let hash: Buffer = Buffer.from([]);

@@ -24,7 +24,7 @@ function p2data(a, opts) {
     a,
   );
   const network = a.network || networks_1.bitcoin;
-  const o = { network };
+  const o = { name: 'embed', network };
   lazy.prop(o, 'output', () => {
     if (!a.data) return;
     return bscript.compile([OPS.OP_RETURN].concat(a.data));

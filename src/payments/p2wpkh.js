@@ -40,7 +40,7 @@ function p2wpkh(a, opts) {
     };
   });
   const network = a.network || networks_1.bitcoin;
-  const o = { network };
+  const o = { name: 'p2wpkh', network };
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
     const words = bech32.toWords(o.hash);
