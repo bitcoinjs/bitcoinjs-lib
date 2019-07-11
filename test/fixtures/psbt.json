@@ -429,6 +429,15 @@
         }
       },
       {
+        "description": "checks the sighash type",
+        "shouldThrow": {
+          "errorMessage": "Sighash type is not allowed. Retry the sign method passing the sighashTypes array of whitelisted types. Sighash type: SIGHASH_ANYONECANPAY | SIGHASH_ALL",
+          "psbt": "cHNidP8BADMBAAAAAYaq+PdOUY2PnV9kZKa82XlqrPByOqwH2TRg2+LQdqs2AAAAAAD/////AAAAAAAAAQEgAOH1BQAAAAAXqRSTNeWHqa9INvSnQ120SZeJc+6JSocBAwSBAAAAAQQWABQvLKRyDqYsPYImhD3eURpDGL10RwAA",
+          "inputToCheck": 0,
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+        }
+      },
+      {
         "description": "allows signing non-whitelisted sighashtype when explicitly passed in",
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAYaq+PdOUY2PnV9kZKa82XlqrPByOqwH2TRg2+LQdqs2AAAAAAD/////AAAAAAAAAQEgAOH1BQAAAAAXqRSTNeWHqa9INvSnQ120SZeJc+6JSocBAwSBAAAAAQQWABQvLKRyDqYsPYImhD3eURpDGL10RwAA",
