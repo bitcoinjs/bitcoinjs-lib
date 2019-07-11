@@ -314,7 +314,7 @@
         "exception": "Error adding input."
       },
       {
-        "description": "checks for hash and index",
+        "description": "should be equal",
         "inputData": {
           "hash": "Buffer.from('000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f', 'hex')",
           "index": 2
@@ -326,12 +326,19 @@
   "addOutput": {
     "checks": [
       {
-        "description": "checks for hash and index",
+        "description": "Checks value is number",
         "outputData": {
           "address": "1P2NFEBp32V2arRwZNww6tgXEV58FG94mr",
           "value": "xyz"
         },
         "exception": "Error adding output."
+      },
+      {
+        "description": "Adds output normally",
+        "outputData": {
+          "address": "1P2NFEBp32V2arRwZNww6tgXEV58FG94mr",
+          "value": 42
+        }
       }
     ]
   },
@@ -446,8 +453,8 @@
     },
     {
       "type": "P2WPKH",
-      "psbt": "cHNidP8BAFUCAAAAAQgW434j2ReNazU0B0+Wa45cPWyUkrl6beWc1ZA6s7qYAAAAAAD/////AYA4AQAAAAAAGXapFC6fT3nay4TXcKcXnM8ZZ89Pmi8xiKwAAAAAAAEAvAIAAAABX6KFQJqSuzjln4vq33jes8S/HAJw/W8fB2hmYJvF95AAAAAAakcwRAIgBfylcQEFaoyuzZcVT1AG3nU3FxDE2ZRNSQbH0Pb38pkCIBh+SztZRlITl/WbdA/Z7SVsVqApPeT1HmzpiLcunN4yASECHwUJGd/AygUjfs6zraDrLcjE5arbSBzHCVX/DQD3tuf/////AZBfAQAAAAAAFgAU2gkxRpZzSTR+etKYJ+B243D+sbYAAAAAIgIDV7l7X08dWtzMR2saPXJo782Tot5+PQBMZZOm3GGTUHpIMEUCIQDxPCn2fwfxoYgGVyi5++mXNAmCX2wWRS7LuJB2qQkMVQIgHsxylMEWd7ladApdSpnEtSwWb4/QJGOnsDGZCPxvfucBAAA=",
-      "result": "cHNidP8BAFUCAAAAAQgW434j2ReNazU0B0+Wa45cPWyUkrl6beWc1ZA6s7qYAAAAAAD/////AYA4AQAAAAAAGXapFC6fT3nay4TXcKcXnM8ZZ89Pmi8xiKwAAAAAAAEAvAIAAAABX6KFQJqSuzjln4vq33jes8S/HAJw/W8fB2hmYJvF95AAAAAAakcwRAIgBfylcQEFaoyuzZcVT1AG3nU3FxDE2ZRNSQbH0Pb38pkCIBh+SztZRlITl/WbdA/Z7SVsVqApPeT1HmzpiLcunN4yASECHwUJGd/AygUjfs6zraDrLcjE5arbSBzHCVX/DQD3tuf/////AZBfAQAAAAAAFgAU2gkxRpZzSTR+etKYJ+B243D+sbYAAAAAAQcAAAA="
+      "psbt": "cHNidP8BAFICAAAAAb5UIQFSoXPjqxSmuiSZkM5PjaycnrXQ6VB+u2+MzbSGAAAAAAD/////ASBOAAAAAAAAFgAUXsVBEaHSlhycDORbHHtBKwDo4zIAAAAAAAEBHzB1AAAAAAAAFgAUvIgag7HZu7Rjd/ugmJC/MHlZmAYiAgLN1zezMD4c4uegTbgfJ1GCtN5/hlJYaJt7e8mt1BVzIEcwRAIgXhgL5G81tXP7MAaKJtA0QaFu17bLocOGqxXmDoIfYUACIAOIynpoPS/dTz9Omg2h7v5kiql7ab0SPzWDdxpvpsUcAQAA",
+      "result": "cHNidP8BAFICAAAAAb5UIQFSoXPjqxSmuiSZkM5PjaycnrXQ6VB+u2+MzbSGAAAAAAD/////ASBOAAAAAAAAFgAUXsVBEaHSlhycDORbHHtBKwDo4zIAAAAAAAEBHzB1AAAAAAAAFgAUvIgag7HZu7Rjd/ugmJC/MHlZmAYBCGsCRzBEAiBeGAvkbzW1c/swBoom0DRBoW7Xtsuhw4arFeYOgh9hQAIgA4jKemg9L91PP06aDaHu/mSKqXtpvRI/NYN3Gm+mxRwBIQLN1zezMD4c4uegTbgfJ1GCtN5/hlJYaJt7e8mt1BVzIAAA"
     },
     {
       "type": "P2WSH-P2PK",
@@ -478,5 +485,8 @@
       "nonWitnessUtxo": "Buffer.from('0200000001aad73931018bd25f84ae400b68848be09db706eac2ac18298babee71ab656f8b0000000048473044022058f6fc7c6a33e1b31548d481c826c015bd30135aad42cd67790dab66d2ad243b02204a1ced2604c6735b6393e5b41691dd78b00f0c5942fb9f751856faa938157dba01feffffff0280f0fa020000000017a9140fb9463421696b82c833af241c78c17ddbde493487d0f20a270100000017a91429ca74f8a08f81999428185c97b5d852e4063f618765000000', 'hex')",
       "inputIndex": 0
     }
+  },
+  "clone": {
+    "psbt": "cHNidP8BAKYCAAAAAlwKQ3suPWwEJ/zQ9sZsIioOcHKU1KoLMxlMNSXVIkEWAAAAAAD/////YYDJMap+mYgbTrCNAdpWHN+EkKvl+XYao/6co/EQfwMAAAAAAP////8CkF8BAAAAAAAWABRnPBAmVHz2HL+8/1U+QG5L2thjmjhKAAAAAAAAIgAg700yfFRyhWzQnPHIUb/XQqsjlpf4A0uw682pCVWuQ8IAAAAAAAEBKzB1AAAAAAAAIgAgth9oE4cDfC5aV58VgkW5CptHsIxppYzJV8C5kT6aTo8iAgNfNgnFnEPS9s4PY/I5bezpWiAEzQ4DRTASgdSdeMM06UgwRQIhALO0xRpuqP3aVkm+DPykrtqe6fPNSgNblp9K9MAwmtHJAiAHV5ZvZN8Vi49n/o9ISFyvtHsPXXPKqBxC9m2m2HlpYgEBBSMhA182CcWcQ9L2zg9j8jlt7OlaIATNDgNFMBKB1J14wzTprAABASuAOAEAAAAAACIAILYfaBOHA3wuWlefFYJFuQqbR7CMaaWMyVfAuZE+mk6PIgIDXzYJxZxD0vbOD2PyOW3s6VogBM0OA0UwEoHUnXjDNOlIMEUCIQC6XN6tpo9mYlZej4BXSSh5D1K6aILBfQ4WBWXUrISx6wIgVaxFUsz8y59xJ1V4sZ1qarHX9pZ+MJmLKbl2ZSadisoBAQUjIQNfNgnFnEPS9s4PY/I5bezpWiAEzQ4DRTASgdSdeMM06awAAAA="
   }
 }

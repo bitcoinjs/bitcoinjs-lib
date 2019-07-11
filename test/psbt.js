@@ -28,7 +28,7 @@ describe(`Psbt`, () => {
       it(`Invalid: ${f.description}`, () => {
         assert.throws(() => {
           Psbt.fromBase64(f.psbt)
-        }, {message: f.errorMessage})
+        }, new RegExp(f.errorMessage))
       })
     })
 
@@ -46,7 +46,7 @@ describe(`Psbt`, () => {
         const psbt =  Psbt.fromBase64(f.psbt)
         assert.throws(() => {
           psbt.signInput(f.inputToCheck, keyPair)
-        }, {message: f.errorMessage})
+        }, new RegExp(f.errorMessage))
       })
     })
 
@@ -181,7 +181,7 @@ describe(`Psbt`, () => {
             f.shouldThrow.inputToCheck,
             ECPair.fromWIF(f.shouldThrow.WIF),
           )
-        }, {message: f.shouldThrow.errorMessage})
+        }, new RegExp(f.shouldThrow.errorMessage))
         assert.rejects(async () => {
           await psbtThatShouldThrow.signInputAsync(
             f.shouldThrow.inputToCheck,
@@ -208,7 +208,7 @@ describe(`Psbt`, () => {
             f.shouldThrow.inputToCheck,
             ECPair.fromWIF(f.shouldThrow.WIF),
           )
-        }, {message: f.shouldThrow.errorMessage})
+        }, new RegExp(f.shouldThrow.errorMessage))
         assert.throws(() => {
           psbtThatShouldThrow.signInput(
             f.shouldThrow.inputToCheck,
@@ -276,6 +276,23 @@ describe(`Psbt`, () => {
         assert.strictEqual(psbt.toBase64(), f.result)
       })
     })
+    it('fails if no script found', () => {
+      const psbt = new Psbt()
+      psbt.addInput({
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0
+      })
+      assert.throws(() => {
+        psbt.finalizeAllInputs()
+      }, new RegExp('No script found for input #0'))
+      psbt.addWitnessUtxoToInput(0, {
+        script: Buffer.from('0014d85c2b71d0060b09c9886aeb815e50991dda124d', 'hex'),
+        value: 2e5
+      })
+      assert.throws(() => {
+        psbt.finalizeAllInputs()
+      }, new RegExp('Can not finalize input #0'))
+    })
   })
 
   describe('fromTransaction', () => {
@@ -289,9 +306,6 @@ describe(`Psbt`, () => {
 
   describe('addInput', () => {
     fixtures.addInput.checks.forEach(f => {
-      for (const attr of Object.keys(f.inputData)) {
-        f.inputData[attr] = f.inputData[attr]
-      }
       it(f.description, () => {
         const psbt = new Psbt()
 
@@ -299,13 +313,14 @@ describe(`Psbt`, () => {
           assert.throws(() => {
             psbt.addInput(f.inputData)
           }, new RegExp(f.exception))
+          assert.throws(() => {
+            psbt.addInputs([f.inputData])
+          }, new RegExp(f.exception))
         } else {
           assert.doesNotThrow(() => {
-            psbt.addInput(f.inputData)
+            psbt.addInputs([f.inputData])
             if (f.equals) {
               assert.strictEqual(psbt.toBase64(), f.equals)
-            } else {
-              console.log(psbt.toBase64())
             }
           })
           assert.throws(() => {
@@ -318,9 +333,6 @@ describe(`Psbt`, () => {
 
   describe('addOutput', () => {
     fixtures.addOutput.checks.forEach(f => {
-      for (const attr of Object.keys(f.outputData)) {
-        f.outputData[attr] = f.outputData[attr]
-      }
       it(f.description, () => {
         const psbt = new Psbt()
 
@@ -328,10 +340,15 @@ describe(`Psbt`, () => {
           assert.throws(() => {
             psbt.addOutput(f.outputData)
           }, new RegExp(f.exception))
+          assert.throws(() => {
+            psbt.addOutputs([f.outputData])
+          }, new RegExp(f.exception))
         } else {
           assert.doesNotThrow(() => {
             psbt.addOutput(f.outputData)
-            console.log(psbt.toBase64())
+          })
+          assert.doesNotThrow(() => {
+            psbt.addOutputs([f.outputData])
           })
         }
       })
@@ -381,7 +398,26 @@ describe(`Psbt`, () => {
 
       assert.throws(() => {
         psbt.setSequence(1, 0)
-      }, {message: 'Input index too high'})
+      }, new RegExp('Input index too high'))
+    })
+  })
+
+  describe('clone', () => {
+    it('Should clone a psbt exactly with no reference', () => {
+      const f = fixtures.clone
+      const psbt = Psbt.fromBase64(f.psbt)
+      const notAClone = Object.assign(new Psbt(), psbt) // references still active
+      const clone = psbt.clone()
+
+      assert.strictEqual(psbt.validateAllSignatures(), true)
+
+      assert.strictEqual(clone.toBase64(), psbt.toBase64())
+      assert.strictEqual(clone.toBase64(), notAClone.toBase64())
+      assert.strictEqual(psbt.toBase64(), notAClone.toBase64())
+      psbt.globalMap.unsignedTx[3] = 0xff
+      assert.notStrictEqual(clone.toBase64(), psbt.toBase64())
+      assert.notStrictEqual(clone.toBase64(), notAClone.toBase64())
+      assert.strictEqual(psbt.toBase64(), notAClone.toBase64())
     })
   })
 
@@ -426,6 +462,8 @@ describe(`Psbt`, () => {
 
       psbt.finalizeAllInputs()
 
+      assert.strictEqual(psbt.getFeeRate(), f.fee)
+      psbt.__CACHE.__FEE_RATE = undefined
       assert.strictEqual(psbt.getFeeRate(), f.fee)
     })
   })
