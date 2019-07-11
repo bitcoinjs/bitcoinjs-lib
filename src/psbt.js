@@ -404,6 +404,7 @@ const isP2MS = isPaymentFactory(payments.p2ms);
 const isP2PK = isPaymentFactory(payments.p2pk);
 const isP2PKH = isPaymentFactory(payments.p2pkh);
 const isP2WPKH = isPaymentFactory(payments.p2wpkh);
+const isP2WSHScript = isPaymentFactory(payments.p2wsh);
 function check32Bit(num) {
   if (
     typeof num !== 'number' ||
@@ -611,19 +612,16 @@ function getHashForSig(inputIndex, input, cache, sighashTypes) {
       // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
       checkRedeemScript(inputIndex, prevout.script, input.redeemScript);
       script = input.redeemScript;
-      hash = unsignedTx.hashForSignature(
-        inputIndex,
-        input.redeemScript,
-        sighashType,
-      );
     } else {
       script = prevout.script;
-      hash = unsignedTx.hashForSignature(
-        inputIndex,
-        prevout.script,
-        sighashType,
+    }
+    if (isP2WPKH(script) || isP2WSHScript(script)) {
+      throw new Error(
+        `Input #${inputIndex} has nonWitnessUtxo but segwit script: ` +
+          `${script.toString('hex')}`,
       );
     }
+    hash = unsignedTx.hashForSignature(inputIndex, script, sighashType);
   } else if (input.witnessUtxo) {
     let _script; // so we don't shadow the `let script` above
     if (input.redeemScript) {
@@ -647,7 +645,7 @@ function getHashForSig(inputIndex, input, cache, sighashTypes) {
         sighashType,
       );
       script = _script;
-    } else {
+    } else if (isP2WSHScript(_script)) {
       if (!input.witnessScript)
         throw new Error('Segwit input needs witnessScript if not P2WPKH');
       checkWitnessScript(inputIndex, _script, input.witnessScript);
@@ -659,6 +657,11 @@ function getHashForSig(inputIndex, input, cache, sighashTypes) {
       );
       // want to make sure the script we return is the actual meaningful script
       script = input.witnessScript;
+    } else {
+      throw new Error(
+        `Input #${inputIndex} has witnessUtxo but non-segwit script: ` +
+          `${_script.toString('hex')}`,
+      );
     }
   } else {
     throw new Error('Need a Utxo input item for signing');
