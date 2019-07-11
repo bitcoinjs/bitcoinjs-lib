@@ -143,8 +143,8 @@ describe(`Psbt`, () => {
         assert.strictEqual(transaction1, f.transaction)
 
         const psbt3 =  Psbt.fromBase64(f.psbt)
-        delete psbt3.inputs[0].finalScriptSig
-        delete psbt3.inputs[0].finalScriptWitness
+        delete psbt3.data.inputs[0].finalScriptSig
+        delete psbt3.data.inputs[0].finalScriptWitness
         assert.throws(() => {
           psbt3.extractTransaction()
         }, new RegExp('Not finalized'))
@@ -414,7 +414,7 @@ describe(`Psbt`, () => {
       assert.strictEqual(clone.toBase64(), psbt.toBase64())
       assert.strictEqual(clone.toBase64(), notAClone.toBase64())
       assert.strictEqual(psbt.toBase64(), notAClone.toBase64())
-      psbt.globalMap.unsignedTx[3] = 0xff
+      psbt.data.globalMap.unsignedTx[3] = 0xff
       assert.notStrictEqual(clone.toBase64(), psbt.toBase64())
       assert.notStrictEqual(clone.toBase64(), notAClone.toBase64())
       assert.strictEqual(psbt.toBase64(), notAClone.toBase64())
@@ -542,14 +542,14 @@ describe(`Psbt`, () => {
 
       // Cache is populated
       psbt.addNonWitnessUtxoToInput(index, f.nonWitnessUtxo)
-      const value = psbt.inputs[index].nonWitnessUtxo
+      const value = psbt.data.inputs[index].nonWitnessUtxo
       assert.ok(psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index].equals(value))
       assert.ok(psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index].equals(f.nonWitnessUtxo))
 
       // Cache is rebuilt from internal transaction object when cleared
-      psbt.inputs[index].nonWitnessUtxo = Buffer.from([1,2,3])
+      psbt.data.inputs[index].nonWitnessUtxo = Buffer.from([1,2,3])
       psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index] = undefined
-      assert.ok(psbt.inputs[index].nonWitnessUtxo.equals(value))
+      assert.ok(psbt.data.inputs[index].nonWitnessUtxo.equals(value))
     })
   })
 })

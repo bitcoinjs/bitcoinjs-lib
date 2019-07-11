@@ -1,11 +1,21 @@
 import { Psbt as PsbtBase } from 'bip174';
 import * as varuint from 'bip174/src/lib/converter/varint';
 import {
+  Bip32Derivation,
+  FinalScriptSig,
+  FinalScriptWitness,
+  GlobalXpub,
+  KeyValue,
   NonWitnessUtxo,
   PartialSig,
+  PorCommitment,
   PsbtInput,
+  RedeemScript,
+  SighashType,
   TransactionInput,
   TransactionOutput,
+  WitnessScript,
+  WitnessUtxo,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
 import { toOutputScript } from './address';
@@ -26,37 +36,42 @@ const DEFAULT_OPTS: PsbtOpts = {
   maximumFeeRate: 5000, // satoshi per byte
 };
 
-export class Psbt extends PsbtBase {
-  static fromTransaction<T extends typeof PsbtBase>(
-    this: T,
-    txBuf: Buffer,
-  ): InstanceType<T> {
+export class Psbt {
+  static fromTransaction(txBuf: Buffer, opts: PsbtOptsOptional = {}): Psbt {
     const tx = Transaction.fromBuffer(txBuf);
     checkTxEmpty(tx);
-    const psbt = new this() as Psbt;
+    const psbtBase = new PsbtBase();
+    const psbt = new Psbt(opts, psbtBase);
     psbt.__CACHE.__TX = tx;
     checkTxForDupeIns(tx, psbt.__CACHE);
     let inputCount = tx.ins.length;
     let outputCount = tx.outs.length;
     while (inputCount > 0) {
-      psbt.inputs.push({
-        keyVals: [],
+      psbtBase.inputs.push({
+        unknownKeyVals: [],
       });
       inputCount--;
     }
     while (outputCount > 0) {
-      psbt.outputs.push({
-        keyVals: [],
+      psbtBase.outputs.push({
+        unknownKeyVals: [],
       });
       outputCount--;
     }
-    return psbt as InstanceType<T>;
+    return psbt;
   }
 
-  static fromBuffer<T extends typeof PsbtBase>(
-    this: T,
-    buffer: Buffer,
-  ): InstanceType<T> {
+  static fromBase64(data: string, opts: PsbtOptsOptional = {}): Psbt {
+    const buffer = Buffer.from(data, 'base64');
+    return this.fromBuffer(buffer, opts);
+  }
+
+  static fromHex(data: string, opts: PsbtOptsOptional = {}): Psbt {
+    const buffer = Buffer.from(data, 'hex');
+    return this.fromBuffer(buffer, opts);
+  }
+
+  static fromBuffer(buffer: Buffer, opts: PsbtOptsOptional = {}): Psbt {
     let tx: Transaction | undefined;
     const txCountGetter = (
       txBuf: Buffer,
@@ -71,10 +86,11 @@ export class Psbt extends PsbtBase {
         outputCount: tx.outs.length,
       };
     };
-    const psbt = super.fromBuffer(buffer, txCountGetter) as Psbt;
+    const psbtBase = PsbtBase.fromBuffer(buffer, txCountGetter);
+    const psbt = new Psbt(opts, psbtBase);
     psbt.__CACHE.__TX = tx!;
     checkTxForDupeIns(tx!, psbt.__CACHE);
-    return psbt as InstanceType<T>;
+    return psbt;
   }
 
   private __CACHE: PsbtCache = {
@@ -85,17 +101,19 @@ export class Psbt extends PsbtBase {
   };
   private opts: PsbtOpts;
 
-  constructor(opts: PsbtOptsOptional = {}) {
-    super();
+  constructor(
+    opts: PsbtOptsOptional = {},
+    readonly data: PsbtBase = new PsbtBase(),
+  ) {
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     const c = this.__CACHE;
-    c.__TX = Transaction.fromBuffer(this.globalMap.unsignedTx!);
-    this.setVersion(2);
+    c.__TX = Transaction.fromBuffer(data.globalMap.unsignedTx!);
+    if (this.data.inputs.length === 0) this.setVersion(2);
 
     // set cache
-    delete this.globalMap.unsignedTx;
-    Object.defineProperty(this.globalMap, 'unsignedTx', {
+    delete data.globalMap.unsignedTx;
+    Object.defineProperty(data.globalMap, 'unsignedTx', {
       enumerable: true,
       get(): Buffer {
         const buf = c.__TX_BUF_CACHE;
@@ -106,8 +124,8 @@ export class Psbt extends PsbtBase {
           return c.__TX_BUF_CACHE;
         }
       },
-      set(data: Buffer): void {
-        c.__TX_BUF_CACHE = data;
+      set(_data: Buffer): void {
+        c.__TX_BUF_CACHE = _data;
       },
     });
 
@@ -127,12 +145,17 @@ export class Psbt extends PsbtBase {
   }
 
   get inputCount(): number {
-    return this.inputs.length;
+    return this.data.inputs.length;
+  }
+
+  combine(...those: Psbt[]): this {
+    this.data.combine(...those.map(o => o.data));
+    return this;
   }
 
   clone(): Psbt {
     // TODO: more efficient cloning
-    const res = Psbt.fromBuffer(this.toBuffer());
+    const res = Psbt.fromBuffer(this.data.toBuffer());
     res.opts = JSON.parse(JSON.stringify(this.opts));
     return res;
   }
@@ -144,7 +167,7 @@ export class Psbt extends PsbtBase {
 
   setVersion(version: number): this {
     check32Bit(version);
-    checkInputsForPartialSig(this.inputs, 'setVersion');
+    checkInputsForPartialSig(this.data.inputs, 'setVersion');
     const c = this.__CACHE;
     c.__TX.version = version;
     c.__TX_BUF_CACHE = undefined;
@@ -154,7 +177,7 @@ export class Psbt extends PsbtBase {
 
   setLocktime(locktime: number): this {
     check32Bit(locktime);
-    checkInputsForPartialSig(this.inputs, 'setLocktime');
+    checkInputsForPartialSig(this.data.inputs, 'setLocktime');
     const c = this.__CACHE;
     c.__TX.locktime = locktime;
     c.__TX_BUF_CACHE = undefined;
@@ -164,7 +187,7 @@ export class Psbt extends PsbtBase {
 
   setSequence(inputIndex: number, sequence: number): this {
     check32Bit(sequence);
-    checkInputsForPartialSig(this.inputs, 'setSequence');
+    checkInputsForPartialSig(this.data.inputs, 'setSequence');
     const c = this.__CACHE;
     if (c.__TX.ins.length <= inputIndex) {
       throw new Error('Input index too high');
@@ -181,10 +204,16 @@ export class Psbt extends PsbtBase {
   }
 
   addInput(inputData: TransactionInput): this {
-    checkInputsForPartialSig(this.inputs, 'addInput');
+    checkInputsForPartialSig(this.data.inputs, 'addInput');
     const c = this.__CACHE;
     const inputAdder = getInputAdder(c);
-    super.addInput(inputData, inputAdder);
+    this.data.addInput(inputData, inputAdder);
+
+    const inputIndex = this.data.inputs.length - 1;
+    const input = this.data.inputs[inputIndex];
+    if (input.nonWitnessUtxo) {
+      addNonWitnessTxCache(this.__CACHE, input, inputIndex);
+    }
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -196,7 +225,7 @@ export class Psbt extends PsbtBase {
   }
 
   addOutput(outputData: TransactionOutput): this {
-    checkInputsForPartialSig(this.inputs, 'addOutput');
+    checkInputsForPartialSig(this.data.inputs, 'addOutput');
     const { address } = outputData as any;
     if (typeof address === 'string') {
       const { network } = this.opts;
@@ -205,36 +234,26 @@ export class Psbt extends PsbtBase {
     }
     const c = this.__CACHE;
     const outputAdder = getOutputAdder(c);
-    super.addOutput(outputData, true, outputAdder);
+    this.data.addOutput(outputData, outputAdder, true);
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
   }
 
-  addNonWitnessUtxoToInput(
-    inputIndex: number,
-    nonWitnessUtxo: NonWitnessUtxo,
-  ): this {
-    super.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
-    const input = this.inputs[inputIndex];
-    addNonWitnessTxCache(this.__CACHE, input, inputIndex);
-    return this;
-  }
-
   extractTransaction(disableFeeCheck?: boolean): Transaction {
-    if (!this.inputs.every(isFinalized)) throw new Error('Not finalized');
+    if (!this.data.inputs.every(isFinalized)) throw new Error('Not finalized');
     const c = this.__CACHE;
     if (!disableFeeCheck) {
       checkFees(this, c, this.opts);
     }
     if (c.__EXTRACTED_TX) return c.__EXTRACTED_TX;
     const tx = c.__TX.clone();
-    inputFinalizeGetAmts(this.inputs, tx, c, true);
+    inputFinalizeGetAmts(this.data.inputs, tx, c, true);
     return tx;
   }
 
   getFeeRate(): number {
-    if (!this.inputs.every(isFinalized))
+    if (!this.data.inputs.every(isFinalized))
       throw new Error('PSBT must be finalized to calculate fee rate');
     const c = this.__CACHE;
     if (c.__FEE_RATE) return c.__FEE_RATE;
@@ -246,18 +265,18 @@ export class Psbt extends PsbtBase {
     } else {
       tx = c.__TX.clone();
     }
-    inputFinalizeGetAmts(this.inputs, tx, c, mustFinalize);
+    inputFinalizeGetAmts(this.data.inputs, tx, c, mustFinalize);
     return c.__FEE_RATE!;
   }
 
   finalizeAllInputs(): this {
-    checkForInput(this.inputs, 0); // making sure we have at least one
-    range(this.inputs.length).forEach(idx => this.finalizeInput(idx));
+    checkForInput(this.data.inputs, 0); // making sure we have at least one
+    range(this.data.inputs.length).forEach(idx => this.finalizeInput(idx));
     return this;
   }
 
   finalizeInput(inputIndex: number): this {
-    const input = checkForInput(this.inputs, inputIndex);
+    const input = checkForInput(this.data.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
@@ -281,26 +300,26 @@ export class Psbt extends PsbtBase {
     );
 
     if (finalScriptSig)
-      this.addFinalScriptSigToInput(inputIndex, finalScriptSig);
+      this.data.addFinalScriptSigToInput(inputIndex, finalScriptSig);
     if (finalScriptWitness)
-      this.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
+      this.data.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
     if (!finalScriptSig && !finalScriptWitness)
       throw new Error(`Unknown error finalizing input #${inputIndex}`);
 
-    this.clearFinalizedInput(inputIndex);
+    this.data.clearFinalizedInput(inputIndex);
     return this;
   }
 
   validateAllSignatures(): boolean {
-    checkForInput(this.inputs, 0); // making sure we have at least one
-    const results = range(this.inputs.length).map(idx =>
+    checkForInput(this.data.inputs, 0); // making sure we have at least one
+    const results = range(this.data.inputs.length).map(idx =>
       this.validateSignatures(idx),
     );
     return results.reduce((final, res) => res === true && final, true);
   }
 
   validateSignatures(inputIndex: number, pubkey?: Buffer): boolean {
-    const input = this.inputs[inputIndex];
+    const input = this.data.inputs[inputIndex];
     const partialSig = (input || {}).partialSig;
     if (!input || !partialSig || partialSig.length < 1)
       throw new Error('No signatures to validate');
@@ -343,7 +362,7 @@ export class Psbt extends PsbtBase {
     // as input information is added, then eventually
     // optimize this method.
     const results: boolean[] = [];
-    for (const i of range(this.inputs.length)) {
+    for (const i of range(this.data.inputs.length)) {
       try {
         this.signInput(i, keyPair, sighashTypes);
         results.push(true);
@@ -371,7 +390,7 @@ export class Psbt extends PsbtBase {
         // optimize this method.
         const results: boolean[] = [];
         const promises: Array<Promise<void>> = [];
-        for (const [i] of this.inputs.entries()) {
+        for (const [i] of this.data.inputs.entries()) {
           promises.push(
             this.signInputAsync(i, keyPair, sighashTypes).then(
               () => {
@@ -401,7 +420,7 @@ export class Psbt extends PsbtBase {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
     const { hash, sighashType } = getHashAndSighashType(
-      this.inputs,
+      this.data.inputs,
       inputIndex,
       keyPair.publicKey,
       this.__CACHE,
@@ -413,7 +432,8 @@ export class Psbt extends PsbtBase {
       signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
     };
 
-    return this.addPartialSigToInput(inputIndex, partialSig);
+    this.data.addPartialSigToInput(inputIndex, partialSig);
+    return this;
   }
 
   signInputAsync(
@@ -426,7 +446,7 @@ export class Psbt extends PsbtBase {
         if (!keyPair || !keyPair.publicKey)
           return reject(new Error('Need Signer to sign input'));
         const { hash, sighashType } = getHashAndSighashType(
-          this.inputs,
+          this.data.inputs,
           inputIndex,
           keyPair.publicKey,
           this.__CACHE,
@@ -439,11 +459,142 @@ export class Psbt extends PsbtBase {
             signature: bscript.signature.encode(signature, sighashType),
           };
 
-          this.addPartialSigToInput(inputIndex, partialSig);
+          this.data.addPartialSigToInput(inputIndex, partialSig);
           resolve();
         });
       },
     );
+  }
+
+  toBuffer(): Buffer {
+    return this.data.toBuffer();
+  }
+
+  toHex(): string {
+    return this.data.toHex();
+  }
+
+  toBase64(): string {
+    return this.data.toBase64();
+  }
+
+  addGlobalXpubToGlobal(globalXpub: GlobalXpub): this {
+    this.data.addGlobalXpubToGlobal(globalXpub);
+    return this;
+  }
+
+  addNonWitnessUtxoToInput(
+    inputIndex: number,
+    nonWitnessUtxo: NonWitnessUtxo,
+  ): this {
+    this.data.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
+    const input = this.data.inputs[inputIndex];
+    addNonWitnessTxCache(this.__CACHE, input, inputIndex);
+    return this;
+  }
+
+  addWitnessUtxoToInput(inputIndex: number, witnessUtxo: WitnessUtxo): this {
+    this.data.addWitnessUtxoToInput(inputIndex, witnessUtxo);
+    return this;
+  }
+
+  addPartialSigToInput(inputIndex: number, partialSig: PartialSig): this {
+    this.data.addPartialSigToInput(inputIndex, partialSig);
+    return this;
+  }
+
+  addSighashTypeToInput(inputIndex: number, sighashType: SighashType): this {
+    this.data.addSighashTypeToInput(inputIndex, sighashType);
+    return this;
+  }
+
+  addRedeemScriptToInput(inputIndex: number, redeemScript: RedeemScript): this {
+    this.data.addRedeemScriptToInput(inputIndex, redeemScript);
+    return this;
+  }
+
+  addWitnessScriptToInput(
+    inputIndex: number,
+    witnessScript: WitnessScript,
+  ): this {
+    this.data.addWitnessScriptToInput(inputIndex, witnessScript);
+    return this;
+  }
+
+  addBip32DerivationToInput(
+    inputIndex: number,
+    bip32Derivation: Bip32Derivation,
+  ): this {
+    this.data.addBip32DerivationToInput(inputIndex, bip32Derivation);
+    return this;
+  }
+
+  addFinalScriptSigToInput(
+    inputIndex: number,
+    finalScriptSig: FinalScriptSig,
+  ): this {
+    this.data.addFinalScriptSigToInput(inputIndex, finalScriptSig);
+    return this;
+  }
+
+  addFinalScriptWitnessToInput(
+    inputIndex: number,
+    finalScriptWitness: FinalScriptWitness,
+  ): this {
+    this.data.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
+    return this;
+  }
+
+  addPorCommitmentToInput(
+    inputIndex: number,
+    porCommitment: PorCommitment,
+  ): this {
+    this.data.addPorCommitmentToInput(inputIndex, porCommitment);
+    return this;
+  }
+
+  addRedeemScriptToOutput(
+    outputIndex: number,
+    redeemScript: RedeemScript,
+  ): this {
+    this.data.addRedeemScriptToOutput(outputIndex, redeemScript);
+    return this;
+  }
+
+  addWitnessScriptToOutput(
+    outputIndex: number,
+    witnessScript: WitnessScript,
+  ): this {
+    this.data.addWitnessScriptToOutput(outputIndex, witnessScript);
+    return this;
+  }
+
+  addBip32DerivationToOutput(
+    outputIndex: number,
+    bip32Derivation: Bip32Derivation,
+  ): this {
+    this.data.addBip32DerivationToOutput(outputIndex, bip32Derivation);
+    return this;
+  }
+
+  addUnknownKeyValToGlobal(keyVal: KeyValue): this {
+    this.data.addUnknownKeyValToGlobal(keyVal);
+    return this;
+  }
+
+  addUnknownKeyValToInput(inputIndex: number, keyVal: KeyValue): this {
+    this.data.addUnknownKeyValToInput(inputIndex, keyVal);
+    return this;
+  }
+
+  addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this {
+    this.data.addUnknownKeyValToOutput(outputIndex, keyVal);
+    return this;
+  }
+
+  clearFinalizedInput(inputIndex: number): this {
+    this.data.clearFinalizedInput(inputIndex);
+    return this;
   }
 }
 

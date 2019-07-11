@@ -1,16 +1,20 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { NonWitnessUtxo, TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
+import { Bip32Derivation, FinalScriptSig, FinalScriptWitness, GlobalXpub, KeyValue, NonWitnessUtxo, PartialSig, PorCommitment, RedeemScript, SighashType, TransactionInput, TransactionOutput, WitnessScript, WitnessUtxo } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
-export declare class Psbt extends PsbtBase {
-    static fromTransaction<T extends typeof PsbtBase>(this: T, txBuf: Buffer): InstanceType<T>;
-    static fromBuffer<T extends typeof PsbtBase>(this: T, buffer: Buffer): InstanceType<T>;
+export declare class Psbt {
+    readonly data: PsbtBase;
+    static fromTransaction(txBuf: Buffer, opts?: PsbtOptsOptional): Psbt;
+    static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
+    static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
+    static fromBuffer(buffer: Buffer, opts?: PsbtOptsOptional): Psbt;
     private __CACHE;
     private opts;
-    constructor(opts?: PsbtOptsOptional);
+    constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
     readonly inputCount: number;
+    combine(...those: Psbt[]): this;
     clone(): Psbt;
     setMaximumFeeRate(satoshiPerByte: number): void;
     setVersion(version: number): this;
@@ -20,7 +24,6 @@ export declare class Psbt extends PsbtBase {
     addInput(inputData: TransactionInput): this;
     addOutputs(outputDatas: TransactionOutput[]): this;
     addOutput(outputData: TransactionOutput): this;
-    addNonWitnessUtxoToInput(inputIndex: number, nonWitnessUtxo: NonWitnessUtxo): this;
     extractTransaction(disableFeeCheck?: boolean): Transaction;
     getFeeRate(): number;
     finalizeAllInputs(): this;
@@ -31,6 +34,27 @@ export declare class Psbt extends PsbtBase {
     signAsync(keyPair: SignerAsync, sighashTypes?: number[]): Promise<void>;
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
     signInputAsync(inputIndex: number, keyPair: SignerAsync, sighashTypes?: number[]): Promise<void>;
+    toBuffer(): Buffer;
+    toHex(): string;
+    toBase64(): string;
+    addGlobalXpubToGlobal(globalXpub: GlobalXpub): this;
+    addNonWitnessUtxoToInput(inputIndex: number, nonWitnessUtxo: NonWitnessUtxo): this;
+    addWitnessUtxoToInput(inputIndex: number, witnessUtxo: WitnessUtxo): this;
+    addPartialSigToInput(inputIndex: number, partialSig: PartialSig): this;
+    addSighashTypeToInput(inputIndex: number, sighashType: SighashType): this;
+    addRedeemScriptToInput(inputIndex: number, redeemScript: RedeemScript): this;
+    addWitnessScriptToInput(inputIndex: number, witnessScript: WitnessScript): this;
+    addBip32DerivationToInput(inputIndex: number, bip32Derivation: Bip32Derivation): this;
+    addFinalScriptSigToInput(inputIndex: number, finalScriptSig: FinalScriptSig): this;
+    addFinalScriptWitnessToInput(inputIndex: number, finalScriptWitness: FinalScriptWitness): this;
+    addPorCommitmentToInput(inputIndex: number, porCommitment: PorCommitment): this;
+    addRedeemScriptToOutput(outputIndex: number, redeemScript: RedeemScript): this;
+    addWitnessScriptToOutput(outputIndex: number, witnessScript: WitnessScript): this;
+    addBip32DerivationToOutput(outputIndex: number, bip32Derivation: Bip32Derivation): this;
+    addUnknownKeyValToGlobal(keyVal: KeyValue): this;
+    addUnknownKeyValToInput(inputIndex: number, keyVal: KeyValue): this;
+    addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;
+    clearFinalizedInput(inputIndex: number): this;
 }
 interface PsbtOptsOptional {
     network?: Network;
