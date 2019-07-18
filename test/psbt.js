@@ -72,20 +72,8 @@ describe(`Psbt`, () => {
           const fixtureData = f[`${inputOrOutput}Data`]
           if (fixtureData) {
             for (const [i, data] of fixtureData.entries()) {
-              const attrs = Object.keys(data)
-              for (const attr of attrs) {
-                const upperAttr = upperCaseFirstLetter(attr)
-                let adder = psbt[`add${upperAttr}To${upperCaseFirstLetter(inputOrOutput)}`]
-                if (adder !== undefined) {
-                  adder = adder.bind(psbt)
-                  const arg = data[attr]
-                  if (Array.isArray(arg)) {
-                    arg.forEach(a => adder(i, a))
-                  } else {
-                    adder(i, arg)
-                  }
-                }
-              }
+              const txt = upperCaseFirstLetter(inputOrOutput)
+              psbt[`update${txt}`](i, data)
             }
           }
         }
@@ -309,9 +297,11 @@ describe(`Psbt`, () => {
       assert.throws(() => {
         psbt.finalizeAllInputs()
       }, new RegExp('No script found for input #0'))
-      psbt.addWitnessUtxoToInput(0, {
-        script: Buffer.from('0014d85c2b71d0060b09c9886aeb815e50991dda124d', 'hex'),
-        value: 2e5
+      psbt.updateInput(0, {
+        witnessUtxo: {
+          script: Buffer.from('0014d85c2b71d0060b09c9886aeb815e50991dda124d', 'hex'),
+          value: 2e5
+        }
       })
       assert.throws(() => {
         psbt.finalizeAllInputs()
@@ -438,7 +428,7 @@ describe(`Psbt`, () => {
       assert.strictEqual(clone.toBase64(), psbt.toBase64())
       assert.strictEqual(clone.toBase64(), notAClone.toBase64())
       assert.strictEqual(psbt.toBase64(), notAClone.toBase64())
-      psbt.data.globalMap.unsignedTx[3] = 0xff
+      psbt.__CACHE.__TX.version |= 0xff0000
       assert.notStrictEqual(clone.toBase64(), psbt.toBase64())
       assert.notStrictEqual(clone.toBase64(), notAClone.toBase64())
       assert.strictEqual(psbt.toBase64(), notAClone.toBase64())
@@ -565,7 +555,7 @@ describe(`Psbt`, () => {
       assert.strictEqual(psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index], undefined)
 
       // Cache is populated
-      psbt.addNonWitnessUtxoToInput(index, f.nonWitnessUtxo)
+      psbt.updateInput(index, { nonWitnessUtxo: f.nonWitnessUtxo })
       const value = psbt.data.inputs[index].nonWitnessUtxo
       assert.ok(psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index].equals(value))
       assert.ok(psbt.__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index].equals(f.nonWitnessUtxo))

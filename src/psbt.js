@@ -16,7 +16,7 @@ const DEFAULT_OPTS = {
   maximumFeeRate: 5000,
 };
 class Psbt {
-  constructor(opts = {}, data = new bip174_1.Psbt()) {
+  constructor(opts = {}, data = new bip174_1.Psbt(new PsbtTransaction())) {
     this.data = data;
     this.__CACHE = {
       __NON_WITNESS_UTXO_TX_CACHE: [],
@@ -27,11 +27,11 @@ class Psbt {
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     const c = this.__CACHE;
-    c.__TX = transaction_1.Transaction.fromBuffer(data.globalMap.unsignedTx);
+    c.__TX = this.data.globalMap.unsignedTx.tx;
     if (this.data.inputs.length === 0) this.setVersion(2);
     // set cache
-    delete data.globalMap.unsignedTx;
-    Object.defineProperty(data.globalMap, 'unsignedTx', {
+    this.unsignedTx = Buffer.from([]);
+    Object.defineProperty(this, 'unsignedTx', {
       enumerable: true,
       get() {
         const buf = c.__TX_BUF_CACHE;
@@ -56,24 +56,20 @@ class Psbt {
     dpew(this, 'opts', false, true);
   }
   static fromTransaction(txBuf, opts = {}) {
-    const tx = transaction_1.Transaction.fromBuffer(txBuf);
-    checkTxEmpty(tx);
-    const psbtBase = new bip174_1.Psbt();
+    const tx = new PsbtTransaction(txBuf);
+    checkTxEmpty(tx.tx);
+    const psbtBase = new bip174_1.Psbt(tx);
     const psbt = new Psbt(opts, psbtBase);
-    psbt.__CACHE.__TX = tx;
-    checkTxForDupeIns(tx, psbt.__CACHE);
-    let inputCount = tx.ins.length;
-    let outputCount = tx.outs.length;
+    psbt.__CACHE.__TX = tx.tx;
+    checkTxForDupeIns(tx.tx, psbt.__CACHE);
+    let inputCount = tx.tx.ins.length;
+    let outputCount = tx.tx.outs.length;
     while (inputCount > 0) {
-      psbtBase.inputs.push({
-        unknownKeyVals: [],
-      });
+      psbtBase.inputs.push({});
       inputCount--;
     }
     while (outputCount > 0) {
-      psbtBase.outputs.push({
-        unknownKeyVals: [],
-      });
+      psbtBase.outputs.push({});
       outputCount--;
     }
     return psbt;
@@ -87,16 +83,8 @@ class Psbt {
     return this.fromBuffer(buffer, opts);
   }
   static fromBuffer(buffer, opts = {}) {
-    let tx;
-    const txCountGetter = txBuf => {
-      tx = transaction_1.Transaction.fromBuffer(txBuf);
-      checkTxEmpty(tx);
-      return {
-        inputCount: tx.ins.length,
-        outputCount: tx.outs.length,
-      };
-    };
-    const psbtBase = bip174_1.Psbt.fromBuffer(buffer, txCountGetter);
+    const psbtBase = bip174_1.Psbt.fromBuffer(buffer, transactionFromBuffer);
+    const tx = psbtBase.globalMap.unsignedTx.tx;
     const psbt = new Psbt(opts, psbtBase);
     psbt.__CACHE.__TX = tx;
     checkTxForDupeIns(tx, psbt.__CACHE);
@@ -156,8 +144,9 @@ class Psbt {
   addInput(inputData) {
     checkInputsForPartialSig(this.data.inputs, 'addInput');
     const c = this.__CACHE;
-    const inputAdder = getInputAdder(c);
-    this.data.addInput(inputData, inputAdder);
+    this.data.addInput(inputData);
+    const txIn = c.__TX.ins[c.__TX.ins.length - 1];
+    checkTxInputCache(c, txIn);
     const inputIndex = this.data.inputs.length - 1;
     const input = this.data.inputs[inputIndex];
     if (input.nonWitnessUtxo) {
@@ -180,8 +169,7 @@ class Psbt {
       outputData = Object.assign(outputData, { script });
     }
     const c = this.__CACHE;
-    const outputAdder = getOutputAdder(c);
-    this.data.addOutput(outputData, outputAdder, true);
+    this.data.addOutput(outputData);
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -238,10 +226,9 @@ class Psbt {
       isP2SH,
       isP2WSH,
     );
-    if (finalScriptSig)
-      this.data.addFinalScriptSigToInput(inputIndex, finalScriptSig);
+    if (finalScriptSig) this.data.updateInput(inputIndex, { finalScriptSig });
     if (finalScriptWitness)
-      this.data.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
+      this.data.updateInput(inputIndex, { finalScriptWitness });
     if (!finalScriptSig && !finalScriptWitness)
       throw new Error(`Unknown error finalizing input #${inputIndex}`);
     this.data.clearFinalizedInput(inputIndex);
@@ -349,11 +336,13 @@ class Psbt {
       this.__CACHE,
       sighashTypes,
     );
-    const partialSig = {
-      pubkey: keyPair.publicKey,
-      signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
-    };
-    this.data.addPartialSigToInput(inputIndex, partialSig);
+    const partialSig = [
+      {
+        pubkey: keyPair.publicKey,
+        signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
+      },
+    ];
+    this.data.updateInput(inputIndex, { partialSig });
     return this;
   }
   signInputAsync(
@@ -372,11 +361,13 @@ class Psbt {
         sighashTypes,
       );
       Promise.resolve(keyPair.sign(hash)).then(signature => {
-        const partialSig = {
-          pubkey: keyPair.publicKey,
-          signature: bscript.signature.encode(signature, sighashType),
-        };
-        this.data.addPartialSigToInput(inputIndex, partialSig);
+        const partialSig = [
+          {
+            pubkey: keyPair.publicKey,
+            signature: bscript.signature.encode(signature, sighashType),
+          },
+        ];
+        this.data.updateInput(inputIndex, { partialSig });
         resolve();
       });
     });
@@ -390,62 +381,23 @@ class Psbt {
   toBase64() {
     return this.data.toBase64();
   }
-  addGlobalXpubToGlobal(globalXpub) {
-    this.data.addGlobalXpubToGlobal(globalXpub);
+  updateGlobal(updateData) {
+    this.data.updateGlobal(updateData);
     return this;
   }
-  addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo) {
-    this.data.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
-    const input = this.data.inputs[inputIndex];
-    addNonWitnessTxCache(this.__CACHE, input, inputIndex);
+  updateInput(inputIndex, updateData) {
+    this.data.updateInput(inputIndex, updateData);
+    if (updateData.nonWitnessUtxo) {
+      addNonWitnessTxCache(
+        this.__CACHE,
+        this.data.inputs[inputIndex],
+        inputIndex,
+      );
+    }
     return this;
   }
-  addWitnessUtxoToInput(inputIndex, witnessUtxo) {
-    this.data.addWitnessUtxoToInput(inputIndex, witnessUtxo);
-    return this;
-  }
-  addPartialSigToInput(inputIndex, partialSig) {
-    this.data.addPartialSigToInput(inputIndex, partialSig);
-    return this;
-  }
-  addSighashTypeToInput(inputIndex, sighashType) {
-    this.data.addSighashTypeToInput(inputIndex, sighashType);
-    return this;
-  }
-  addRedeemScriptToInput(inputIndex, redeemScript) {
-    this.data.addRedeemScriptToInput(inputIndex, redeemScript);
-    return this;
-  }
-  addWitnessScriptToInput(inputIndex, witnessScript) {
-    this.data.addWitnessScriptToInput(inputIndex, witnessScript);
-    return this;
-  }
-  addBip32DerivationToInput(inputIndex, bip32Derivation) {
-    this.data.addBip32DerivationToInput(inputIndex, bip32Derivation);
-    return this;
-  }
-  addFinalScriptSigToInput(inputIndex, finalScriptSig) {
-    this.data.addFinalScriptSigToInput(inputIndex, finalScriptSig);
-    return this;
-  }
-  addFinalScriptWitnessToInput(inputIndex, finalScriptWitness) {
-    this.data.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
-    return this;
-  }
-  addPorCommitmentToInput(inputIndex, porCommitment) {
-    this.data.addPorCommitmentToInput(inputIndex, porCommitment);
-    return this;
-  }
-  addRedeemScriptToOutput(outputIndex, redeemScript) {
-    this.data.addRedeemScriptToOutput(outputIndex, redeemScript);
-    return this;
-  }
-  addWitnessScriptToOutput(outputIndex, witnessScript) {
-    this.data.addWitnessScriptToOutput(outputIndex, witnessScript);
-    return this;
-  }
-  addBip32DerivationToOutput(outputIndex, bip32Derivation) {
-    this.data.addBip32DerivationToOutput(outputIndex, bip32Derivation);
+  updateOutput(outputIndex, updateData) {
+    this.data.updateOutput(outputIndex, updateData);
     return this;
   }
   addUnknownKeyValToGlobal(keyVal) {
@@ -466,6 +418,54 @@ class Psbt {
   }
 }
 exports.Psbt = Psbt;
+const transactionFromBuffer = buffer => new PsbtTransaction(buffer);
+class PsbtTransaction {
+  constructor(buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
+    this.tx = transaction_1.Transaction.fromBuffer(buffer);
+    if (this.tx.ins.some(input => input.script.length !== 0)) {
+      throw new Error('Format Error: Transaction ScriptSigs are not empty');
+    }
+    Object.defineProperty(this, 'tx', {
+      enumerable: false,
+      writable: true,
+    });
+  }
+  getInputOutputCounts() {
+    return {
+      inputCount: this.tx.ins.length,
+      outputCount: this.tx.outs.length,
+    };
+  }
+  addInput(input) {
+    if (
+      input.hash === undefined ||
+      input.index === undefined ||
+      (!Buffer.isBuffer(input.hash) && typeof input.hash !== 'string') ||
+      typeof input.index !== 'number'
+    ) {
+      throw new Error('Error adding input.');
+    }
+    const hash =
+      typeof input.hash === 'string'
+        ? bufferutils_1.reverseBuffer(Buffer.from(input.hash, 'hex'))
+        : input.hash;
+    this.tx.addInput(hash, input.index, input.sequence);
+  }
+  addOutput(output) {
+    if (
+      output.script === undefined ||
+      output.value === undefined ||
+      !Buffer.isBuffer(output.script) ||
+      typeof output.value !== 'number'
+    ) {
+      throw new Error('Error adding output.');
+    }
+    this.tx.addOutput(output.script, output.value);
+  }
+  toBuffer() {
+    return this.tx.toBuffer();
+  }
+}
 function canFinalize(input, script, scriptType) {
   switch (scriptType) {
     case 'pubkey':
@@ -767,55 +767,6 @@ function getHashForSig(inputIndex, input, cache, sighashTypes) {
     script,
     sighashType,
     hash,
-  };
-}
-function getInputAdder(cache) {
-  const selfCache = cache;
-  return (_inputData, txBuf) => {
-    if (
-      !txBuf ||
-      _inputData.hash === undefined ||
-      _inputData.index === undefined ||
-      (!Buffer.isBuffer(_inputData.hash) &&
-        typeof _inputData.hash !== 'string') ||
-      typeof _inputData.index !== 'number'
-    ) {
-      throw new Error('Error adding input.');
-    }
-    const prevHash = Buffer.isBuffer(_inputData.hash)
-      ? _inputData.hash
-      : bufferutils_1.reverseBuffer(Buffer.from(_inputData.hash, 'hex'));
-    // Check if input already exists in cache.
-    const input = { hash: prevHash, index: _inputData.index };
-    checkTxInputCache(selfCache, input);
-    selfCache.__TX.ins.push(
-      Object.assign({}, input, {
-        script: Buffer.alloc(0),
-        sequence:
-          _inputData.sequence || transaction_1.Transaction.DEFAULT_SEQUENCE,
-        witness: [],
-      }),
-    );
-    return selfCache.__TX.toBuffer();
-  };
-}
-function getOutputAdder(cache) {
-  const selfCache = cache;
-  return (_outputData, txBuf) => {
-    if (
-      !txBuf ||
-      _outputData.script === undefined ||
-      _outputData.value === undefined ||
-      !Buffer.isBuffer(_outputData.script) ||
-      typeof _outputData.value !== 'number'
-    ) {
-      throw new Error('Error adding output.');
-    }
-    selfCache.__TX.outs.push({
-      script: _outputData.script,
-      value: _outputData.value,
-    });
-    return selfCache.__TX.toBuffer();
   };
 }
 function getPayment(script, scriptType, partialSig) {

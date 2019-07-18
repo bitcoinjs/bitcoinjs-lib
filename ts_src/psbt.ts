@@ -1,21 +1,16 @@
 import { Psbt as PsbtBase } from 'bip174';
 import * as varuint from 'bip174/src/lib/converter/varint';
 import {
-  Bip32Derivation,
-  FinalScriptSig,
-  FinalScriptWitness,
-  GlobalXpub,
   KeyValue,
-  NonWitnessUtxo,
   PartialSig,
-  PorCommitment,
+  PsbtGlobalUpdate,
   PsbtInput,
-  RedeemScript,
-  SighashType,
+  PsbtInputUpdate,
+  PsbtOutputUpdate,
+  Transaction as ITransaction,
+  TransactionFromBuffer,
   TransactionInput,
   TransactionOutput,
-  WitnessScript,
-  WitnessUtxo,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
 import { toOutputScript } from './address';
@@ -38,24 +33,20 @@ const DEFAULT_OPTS: PsbtOpts = {
 
 export class Psbt {
   static fromTransaction(txBuf: Buffer, opts: PsbtOptsOptional = {}): Psbt {
-    const tx = Transaction.fromBuffer(txBuf);
-    checkTxEmpty(tx);
-    const psbtBase = new PsbtBase();
+    const tx = new PsbtTransaction(txBuf);
+    checkTxEmpty(tx.tx);
+    const psbtBase = new PsbtBase(tx);
     const psbt = new Psbt(opts, psbtBase);
-    psbt.__CACHE.__TX = tx;
-    checkTxForDupeIns(tx, psbt.__CACHE);
-    let inputCount = tx.ins.length;
-    let outputCount = tx.outs.length;
+    psbt.__CACHE.__TX = tx.tx;
+    checkTxForDupeIns(tx.tx, psbt.__CACHE);
+    let inputCount = tx.tx.ins.length;
+    let outputCount = tx.tx.outs.length;
     while (inputCount > 0) {
-      psbtBase.inputs.push({
-        unknownKeyVals: [],
-      });
+      psbtBase.inputs.push({});
       inputCount--;
     }
     while (outputCount > 0) {
-      psbtBase.outputs.push({
-        unknownKeyVals: [],
-      });
+      psbtBase.outputs.push({});
       outputCount--;
     }
     return psbt;
@@ -72,27 +63,16 @@ export class Psbt {
   }
 
   static fromBuffer(buffer: Buffer, opts: PsbtOptsOptional = {}): Psbt {
-    let tx: Transaction | undefined;
-    const txCountGetter = (
-      txBuf: Buffer,
-    ): {
-      inputCount: number;
-      outputCount: number;
-    } => {
-      tx = Transaction.fromBuffer(txBuf);
-      checkTxEmpty(tx);
-      return {
-        inputCount: tx.ins.length,
-        outputCount: tx.outs.length,
-      };
-    };
-    const psbtBase = PsbtBase.fromBuffer(buffer, txCountGetter);
+    const psbtBase = PsbtBase.fromBuffer(buffer, transactionFromBuffer);
+    const tx: Transaction = (psbtBase.globalMap.unsignedTx as PsbtTransaction)
+      .tx;
     const psbt = new Psbt(opts, psbtBase);
-    psbt.__CACHE.__TX = tx!;
-    checkTxForDupeIns(tx!, psbt.__CACHE);
+    psbt.__CACHE.__TX = tx;
+    checkTxForDupeIns(tx, psbt.__CACHE);
     return psbt;
   }
 
+  unsignedTx: Buffer;
   private __CACHE: PsbtCache = {
     __NON_WITNESS_UTXO_TX_CACHE: [],
     __NON_WITNESS_UTXO_BUF_CACHE: [],
@@ -103,17 +83,17 @@ export class Psbt {
 
   constructor(
     opts: PsbtOptsOptional = {},
-    readonly data: PsbtBase = new PsbtBase(),
+    readonly data: PsbtBase = new PsbtBase(new PsbtTransaction()),
   ) {
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     const c = this.__CACHE;
-    c.__TX = Transaction.fromBuffer(data.globalMap.unsignedTx!);
+    c.__TX = (this.data.globalMap.unsignedTx as PsbtTransaction).tx;
     if (this.data.inputs.length === 0) this.setVersion(2);
 
     // set cache
-    delete data.globalMap.unsignedTx;
-    Object.defineProperty(data.globalMap, 'unsignedTx', {
+    this.unsignedTx = Buffer.from([]);
+    Object.defineProperty(this, 'unsignedTx', {
       enumerable: true,
       get(): Buffer {
         const buf = c.__TX_BUF_CACHE;
@@ -206,8 +186,9 @@ export class Psbt {
   addInput(inputData: TransactionInput): this {
     checkInputsForPartialSig(this.data.inputs, 'addInput');
     const c = this.__CACHE;
-    const inputAdder = getInputAdder(c);
-    this.data.addInput(inputData, inputAdder);
+    this.data.addInput(inputData);
+    const txIn = c.__TX.ins[c.__TX.ins.length - 1];
+    checkTxInputCache(c, txIn);
 
     const inputIndex = this.data.inputs.length - 1;
     const input = this.data.inputs[inputIndex];
@@ -233,8 +214,7 @@ export class Psbt {
       outputData = Object.assign(outputData, { script });
     }
     const c = this.__CACHE;
-    const outputAdder = getOutputAdder(c);
-    this.data.addOutput(outputData, outputAdder, true);
+    this.data.addOutput(outputData);
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -299,10 +279,9 @@ export class Psbt {
       isP2WSH,
     );
 
-    if (finalScriptSig)
-      this.data.addFinalScriptSigToInput(inputIndex, finalScriptSig);
+    if (finalScriptSig) this.data.updateInput(inputIndex, { finalScriptSig });
     if (finalScriptWitness)
-      this.data.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
+      this.data.updateInput(inputIndex, { finalScriptWitness });
     if (!finalScriptSig && !finalScriptWitness)
       throw new Error(`Unknown error finalizing input #${inputIndex}`);
 
@@ -427,12 +406,14 @@ export class Psbt {
       sighashTypes,
     );
 
-    const partialSig = {
-      pubkey: keyPair.publicKey,
-      signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
-    };
+    const partialSig = [
+      {
+        pubkey: keyPair.publicKey,
+        signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
+      },
+    ];
 
-    this.data.addPartialSigToInput(inputIndex, partialSig);
+    this.data.updateInput(inputIndex, { partialSig });
     return this;
   }
 
@@ -454,12 +435,14 @@ export class Psbt {
         );
 
         Promise.resolve(keyPair.sign(hash)).then(signature => {
-          const partialSig = {
-            pubkey: keyPair.publicKey,
-            signature: bscript.signature.encode(signature, sighashType),
-          };
+          const partialSig = [
+            {
+              pubkey: keyPair.publicKey,
+              signature: bscript.signature.encode(signature, sighashType),
+            },
+          ];
 
-          this.data.addPartialSigToInput(inputIndex, partialSig);
+          this.data.updateInput(inputIndex, { partialSig });
           resolve();
         });
       },
@@ -478,102 +461,25 @@ export class Psbt {
     return this.data.toBase64();
   }
 
-  addGlobalXpubToGlobal(globalXpub: GlobalXpub): this {
-    this.data.addGlobalXpubToGlobal(globalXpub);
+  updateGlobal(updateData: PsbtGlobalUpdate): this {
+    this.data.updateGlobal(updateData);
     return this;
   }
 
-  addNonWitnessUtxoToInput(
-    inputIndex: number,
-    nonWitnessUtxo: NonWitnessUtxo,
-  ): this {
-    this.data.addNonWitnessUtxoToInput(inputIndex, nonWitnessUtxo);
-    const input = this.data.inputs[inputIndex];
-    addNonWitnessTxCache(this.__CACHE, input, inputIndex);
+  updateInput(inputIndex: number, updateData: PsbtInputUpdate): this {
+    this.data.updateInput(inputIndex, updateData);
+    if (updateData.nonWitnessUtxo) {
+      addNonWitnessTxCache(
+        this.__CACHE,
+        this.data.inputs[inputIndex],
+        inputIndex,
+      );
+    }
     return this;
   }
 
-  addWitnessUtxoToInput(inputIndex: number, witnessUtxo: WitnessUtxo): this {
-    this.data.addWitnessUtxoToInput(inputIndex, witnessUtxo);
-    return this;
-  }
-
-  addPartialSigToInput(inputIndex: number, partialSig: PartialSig): this {
-    this.data.addPartialSigToInput(inputIndex, partialSig);
-    return this;
-  }
-
-  addSighashTypeToInput(inputIndex: number, sighashType: SighashType): this {
-    this.data.addSighashTypeToInput(inputIndex, sighashType);
-    return this;
-  }
-
-  addRedeemScriptToInput(inputIndex: number, redeemScript: RedeemScript): this {
-    this.data.addRedeemScriptToInput(inputIndex, redeemScript);
-    return this;
-  }
-
-  addWitnessScriptToInput(
-    inputIndex: number,
-    witnessScript: WitnessScript,
-  ): this {
-    this.data.addWitnessScriptToInput(inputIndex, witnessScript);
-    return this;
-  }
-
-  addBip32DerivationToInput(
-    inputIndex: number,
-    bip32Derivation: Bip32Derivation,
-  ): this {
-    this.data.addBip32DerivationToInput(inputIndex, bip32Derivation);
-    return this;
-  }
-
-  addFinalScriptSigToInput(
-    inputIndex: number,
-    finalScriptSig: FinalScriptSig,
-  ): this {
-    this.data.addFinalScriptSigToInput(inputIndex, finalScriptSig);
-    return this;
-  }
-
-  addFinalScriptWitnessToInput(
-    inputIndex: number,
-    finalScriptWitness: FinalScriptWitness,
-  ): this {
-    this.data.addFinalScriptWitnessToInput(inputIndex, finalScriptWitness);
-    return this;
-  }
-
-  addPorCommitmentToInput(
-    inputIndex: number,
-    porCommitment: PorCommitment,
-  ): this {
-    this.data.addPorCommitmentToInput(inputIndex, porCommitment);
-    return this;
-  }
-
-  addRedeemScriptToOutput(
-    outputIndex: number,
-    redeemScript: RedeemScript,
-  ): this {
-    this.data.addRedeemScriptToOutput(outputIndex, redeemScript);
-    return this;
-  }
-
-  addWitnessScriptToOutput(
-    outputIndex: number,
-    witnessScript: WitnessScript,
-  ): this {
-    this.data.addWitnessScriptToOutput(outputIndex, witnessScript);
-    return this;
-  }
-
-  addBip32DerivationToOutput(
-    outputIndex: number,
-    bip32Derivation: Bip32Derivation,
-  ): this {
-    this.data.addBip32DerivationToOutput(outputIndex, bip32Derivation);
+  updateOutput(outputIndex: number, updateData: PsbtOutputUpdate): this {
+    this.data.updateOutput(outputIndex, updateData);
     return this;
   }
 
@@ -616,6 +522,67 @@ interface PsbtOptsOptional {
 interface PsbtOpts {
   network: Network;
   maximumFeeRate: number;
+}
+
+const transactionFromBuffer: TransactionFromBuffer = (
+  buffer: Buffer,
+): ITransaction => new PsbtTransaction(buffer);
+
+class PsbtTransaction implements ITransaction {
+  tx: Transaction;
+  constructor(buffer: Buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
+    this.tx = Transaction.fromBuffer(buffer);
+    if (this.tx.ins.some(input => input.script.length !== 0)) {
+      throw new Error('Format Error: Transaction ScriptSigs are not empty');
+    }
+    Object.defineProperty(this, 'tx', {
+      enumerable: false,
+      writable: true,
+    });
+  }
+
+  getInputOutputCounts(): {
+    inputCount: number;
+    outputCount: number;
+  } {
+    return {
+      inputCount: this.tx.ins.length,
+      outputCount: this.tx.outs.length,
+    };
+  }
+
+  addInput(input: any): void {
+    if (
+      (input as any).hash === undefined ||
+      (input as any).index === undefined ||
+      (!Buffer.isBuffer((input as any).hash) &&
+        typeof (input as any).hash !== 'string') ||
+      typeof (input as any).index !== 'number'
+    ) {
+      throw new Error('Error adding input.');
+    }
+    const hash =
+      typeof input.hash === 'string'
+        ? reverseBuffer(Buffer.from(input.hash, 'hex'))
+        : input.hash;
+    this.tx.addInput(hash, input.index, input.sequence);
+  }
+
+  addOutput(output: any): void {
+    if (
+      (output as any).script === undefined ||
+      (output as any).value === undefined ||
+      !Buffer.isBuffer((output as any).script) ||
+      typeof (output as any).value !== 'number'
+    ) {
+      throw new Error('Error adding output.');
+    }
+    this.tx.addOutput(output.script, output.value);
+  }
+
+  toBuffer(): Buffer {
+    return this.tx.toBuffer();
+  }
 }
 
 function canFinalize(
@@ -976,61 +943,6 @@ function getHashForSig(
     script,
     sighashType,
     hash,
-  };
-}
-
-function getInputAdder(
-  cache: PsbtCache,
-): (_inputData: TransactionInput, txBuf: Buffer) => Buffer {
-  const selfCache = cache;
-  return (_inputData: TransactionInput, txBuf: Buffer): Buffer => {
-    if (
-      !txBuf ||
-      (_inputData as any).hash === undefined ||
-      (_inputData as any).index === undefined ||
-      (!Buffer.isBuffer((_inputData as any).hash) &&
-        typeof (_inputData as any).hash !== 'string') ||
-      typeof (_inputData as any).index !== 'number'
-    ) {
-      throw new Error('Error adding input.');
-    }
-    const prevHash = Buffer.isBuffer(_inputData.hash)
-      ? _inputData.hash
-      : reverseBuffer(Buffer.from(_inputData.hash, 'hex'));
-
-    // Check if input already exists in cache.
-    const input = { hash: prevHash, index: _inputData.index };
-    checkTxInputCache(selfCache, input);
-
-    selfCache.__TX.ins.push({
-      ...input,
-      script: Buffer.alloc(0),
-      sequence: _inputData.sequence || Transaction.DEFAULT_SEQUENCE,
-      witness: [],
-    });
-    return selfCache.__TX.toBuffer();
-  };
-}
-
-function getOutputAdder(
-  cache: PsbtCache,
-): (_outputData: TransactionOutput, txBuf: Buffer) => Buffer {
-  const selfCache = cache;
-  return (_outputData: TransactionOutput, txBuf: Buffer): Buffer => {
-    if (
-      !txBuf ||
-      (_outputData as any).script === undefined ||
-      (_outputData as any).value === undefined ||
-      !Buffer.isBuffer((_outputData as any).script) ||
-      typeof (_outputData as any).value !== 'number'
-    ) {
-      throw new Error('Error adding output.');
-    }
-    selfCache.__TX.outs.push({
-      script: (_outputData as any).script!,
-      value: _outputData.value,
-    });
-    return selfCache.__TX.toBuffer();
   };
 }
 
