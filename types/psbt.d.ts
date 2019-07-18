@@ -4,9 +4,40 @@ import { KeyValue, PsbtGlobalUpdate, PsbtInputUpdate, PsbtOutputUpdate, Transact
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
+/**
+ * Psbt class can parse and generate a PSBT binary based off of the BIP174.
+ * There are 6 roles that this class fulfills. (Explained in BIP174)
+ *
+ * Creator: This can be done with `new Psbt()`
+ * Updater: This can be done with `psbt.addInput(input)`, `psbt.addInputs(inputs)`,
+ *   `psbt.addOutput(output)`, `psbt.addOutputs(outputs)` when you are looking to
+ *   add new inputs and outputs to the PSBT, and `psbt.updateGlobal(itemObject)`,
+ *   `psbt.updateInput(itemObject)`, `psbt.updateOutput(itemObject)`
+ *   addInput requires hash: Buffer | string; and index: number; as attributes
+ *   and can also include any attributes that are used in updateInput method.
+ *   addOutput requires script: Buffer; and value: number; and likewise can include
+ *   data for updateOutput.
+ *   For a list of what attributes should be what types. Check the bip174 library.
+ *   Also, check the integration tests for some examples of usage.
+ * Signer: There are a few methods. sign and signAsync, which will search all input
+ *   information for your pubkey or pubkeyhash, and only sign inputs where it finds
+ *   your info. Or you can explicitly sign a specific input with signInput and
+ *   signInputAsync. For the async methods you can create a SignerAsync object
+ *   and use something like a hardware wallet to sign with. (You must implement this)
+ * Combiner: psbts can be combined easily with `psbt.combine(psbt2, psbt3, psbt4 ...)`
+ *   the psbt calling combine will always have precedence when a conflict occurs.
+ *   Combine checks if the internal bitcoin transaction is the same, so be sure that
+ *   all sequences, version, locktime, etc. are the same before combining.
+ * Input Finalizer: This role is fairly important. Not only does it need to construct
+ *   the input scriptSigs and witnesses, but it SHOULD verify the signatures etc.
+ *   Before running `psbt.finalizeAllInputs()` please run `psbt.validateAllSignatures()`
+ *   Running any finalize method will delete any data in the input(s) that are no longer
+ *   needed due to the finalized scripts containing the information.
+ * Transaction Extractor: This role will perform some checks before returning a
+ *   Transaction object. Such as fee rate not being larger than maximumFeeRate etc.
+ */
 export declare class Psbt {
     readonly data: PsbtBase;
-    static fromTransaction(txBuf: Buffer, opts?: PsbtOptsOptional): Psbt;
     static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromBuffer(buffer: Buffer, opts?: PsbtOptsOptional): Psbt;
@@ -32,9 +63,9 @@ export declare class Psbt {
     validateAllSignatures(): boolean;
     validateSignatures(inputIndex: number, pubkey?: Buffer): boolean;
     sign(keyPair: Signer, sighashTypes?: number[]): this;
-    signAsync(keyPair: SignerAsync, sighashTypes?: number[]): Promise<void>;
+    signAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
-    signInputAsync(inputIndex: number, keyPair: SignerAsync, sighashTypes?: number[]): Promise<void>;
+    signInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     toBuffer(): Buffer;
     toHex(): string;
     toBase64(): string;

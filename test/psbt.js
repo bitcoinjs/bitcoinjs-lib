@@ -309,15 +309,6 @@ describe(`Psbt`, () => {
     })
   })
 
-  describe('fromTransaction', () => {
-    fixtures.fromTransaction.forEach(f => {
-      it('Creates the expected PSBT from a transaction buffer', () => {
-        const psbt = Psbt.fromTransaction(Buffer.from(f.transaction, 'hex'))
-        assert.strictEqual(psbt.toBase64(), f.result)
-      })
-    })
-  })
-
   describe('addInput', () => {
     fixtures.addInput.checks.forEach(f => {
       it(f.description, () => {
@@ -521,11 +512,6 @@ describe(`Psbt`, () => {
   })
 
   describe('Method return types', () => {
-    it('fromTransaction returns Psbt type (not base class)', () => {
-      const psbt = Psbt.fromTransaction(Buffer.from([2,0,0,0,0,0,0,0,0,0]));
-      assert.strictEqual(psbt instanceof Psbt, true);
-      assert.ok(psbt.__CACHE.__TX);
-    })
     it('fromBuffer returns Psbt type (not base class)', () => {
       const psbt = Psbt.fromBuffer(Buffer.from(
         '70736274ff01000a01000000000000000000000000', 'hex' //cHNidP8BAAoBAAAAAAAAAAAAAAAA

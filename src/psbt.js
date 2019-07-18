@@ -11,10 +11,54 @@ const networks_1 = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
+/**
+ * These are the default arguments for a Psbt instance.
+ */
 const DEFAULT_OPTS = {
+  /**
+   * A bitcoinjs Network object. This is only used if you pass an `address`
+   * parameter to addOutput. Otherwise it is not needed and can be left default.
+   */
   network: networks_1.bitcoin,
+  /**
+   * When extractTransaction is called, the fee rate is checked.
+   * THIS IS NOT TO BE RELIED ON.
+   * It is only here as a last ditch effort to prevent sending a 500 BTC fee etc.
+   */
   maximumFeeRate: 5000,
 };
+/**
+ * Psbt class can parse and generate a PSBT binary based off of the BIP174.
+ * There are 6 roles that this class fulfills. (Explained in BIP174)
+ *
+ * Creator: This can be done with `new Psbt()`
+ * Updater: This can be done with `psbt.addInput(input)`, `psbt.addInputs(inputs)`,
+ *   `psbt.addOutput(output)`, `psbt.addOutputs(outputs)` when you are looking to
+ *   add new inputs and outputs to the PSBT, and `psbt.updateGlobal(itemObject)`,
+ *   `psbt.updateInput(itemObject)`, `psbt.updateOutput(itemObject)`
+ *   addInput requires hash: Buffer | string; and index: number; as attributes
+ *   and can also include any attributes that are used in updateInput method.
+ *   addOutput requires script: Buffer; and value: number; and likewise can include
+ *   data for updateOutput.
+ *   For a list of what attributes should be what types. Check the bip174 library.
+ *   Also, check the integration tests for some examples of usage.
+ * Signer: There are a few methods. sign and signAsync, which will search all input
+ *   information for your pubkey or pubkeyhash, and only sign inputs where it finds
+ *   your info. Or you can explicitly sign a specific input with signInput and
+ *   signInputAsync. For the async methods you can create a SignerAsync object
+ *   and use something like a hardware wallet to sign with. (You must implement this)
+ * Combiner: psbts can be combined easily with `psbt.combine(psbt2, psbt3, psbt4 ...)`
+ *   the psbt calling combine will always have precedence when a conflict occurs.
+ *   Combine checks if the internal bitcoin transaction is the same, so be sure that
+ *   all sequences, version, locktime, etc. are the same before combining.
+ * Input Finalizer: This role is fairly important. Not only does it need to construct
+ *   the input scriptSigs and witnesses, but it SHOULD verify the signatures etc.
+ *   Before running `psbt.finalizeAllInputs()` please run `psbt.validateAllSignatures()`
+ *   Running any finalize method will delete any data in the input(s) that are no longer
+ *   needed due to the finalized scripts containing the information.
+ * Transaction Extractor: This role will perform some checks before returning a
+ *   Transaction object. Such as fee rate not being larger than maximumFeeRate etc.
+ */
 class Psbt {
   constructor(opts = {}, data = new bip174_1.Psbt(new PsbtTransaction())) {
     this.data = data;
@@ -54,25 +98,6 @@ class Psbt {
       });
     dpew(this, '__CACHE', false, true);
     dpew(this, 'opts', false, true);
-  }
-  static fromTransaction(txBuf, opts = {}) {
-    const tx = new PsbtTransaction(txBuf);
-    checkTxEmpty(tx.tx);
-    const psbtBase = new bip174_1.Psbt(tx);
-    const psbt = new Psbt(opts, psbtBase);
-    psbt.__CACHE.__TX = tx.tx;
-    checkTxForDupeIns(tx.tx, psbt.__CACHE);
-    let inputCount = tx.tx.ins.length;
-    let outputCount = tx.tx.outs.length;
-    while (inputCount > 0) {
-      psbtBase.inputs.push({});
-      inputCount--;
-    }
-    while (outputCount > 0) {
-      psbtBase.outputs.push({});
-      outputCount--;
-    }
-    return psbt;
   }
   static fromBase64(data, opts = {}) {
     const buffer = Buffer.from(data, 'base64');
@@ -418,13 +443,20 @@ class Psbt {
   }
 }
 exports.Psbt = Psbt;
+/**
+ * This function is needed to pass to the bip174 base class's fromBuffer.
+ * It takes the "transaction buffer" portion of the psbt buffer and returns a
+ * Transaction (From the bip174 library) interface.
+ */
 const transactionFromBuffer = buffer => new PsbtTransaction(buffer);
+/**
+ * This class implements the Transaction interface from bip174 library.
+ * It contains a bitcoinjs-lib Transaction object.
+ */
 class PsbtTransaction {
   constructor(buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
     this.tx = transaction_1.Transaction.fromBuffer(buffer);
-    if (this.tx.ins.some(input => input.script.length !== 0)) {
-      throw new Error('Format Error: Transaction ScriptSigs are not empty');
-    }
+    checkTxEmpty(this.tx);
     Object.defineProperty(this, 'tx', {
       enumerable: false,
       writable: true,
