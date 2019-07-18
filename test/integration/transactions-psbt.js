@@ -48,7 +48,9 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       //   value: 90000,
       // },
 
-      // Not featured here: redeemScript. A Buffer of the redeemScript
+      // Not featured here:
+      //   redeemScript. A Buffer of the redeemScript for P2SH
+      //   witnessScript. A Buffer of the witnessScript for P2WSH
     });
     psbt.addOutput({
       address: '1KRMKfeZcmosxALVYESdPNez1AP1mEtywp',
@@ -149,8 +151,6 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     // This step it new. Since we separate the signing operation and
     // the creation of the scriptSig and witness stack, we are able to
     psbt.finalizeAllInputs();
-    // it returns an array of the success of each input, also a result attribute
-    // which is true if all array items are true.
 
     // build and broadcast our RegTest network
     await regtestUtils.broadcast(psbt.extractTransaction().toHex());
