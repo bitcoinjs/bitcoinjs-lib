@@ -1,3 +1,16 @@
+# 5.1.0
+__added__
+- A new `Psbt` class for creating, distributing, combining, signing, and compiling Transactions (#1425)
+- A `name` attribute to the Payment interface. P2SH and P2WSH are nested with `'-'` as separator, and p2ms is in the format of `'p2ms(m of n)''` all others are just hard coded. (#1433)
+
+__changed__
+- `TransactionBuilder`: Migrate to stricter type checks during sign by switching to a single object parameter (#1416)
+- `tests`: Use regtest-client as separate library (#1421)
+
+# 5.0.5
+__added__
+- Added `ECPairInterface` `Stack` and `StackElement` interfaces to the main index.ts export (TypeScript only affected)
+
 # 5.0.4
 __added__
 - low R value support for ECPair, bip32, and TransactionBuilder (default off) via `txb.setLowR()` (#1385)
