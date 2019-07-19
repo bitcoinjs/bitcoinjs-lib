@@ -96,7 +96,6 @@ export class Psbt {
     return psbt;
   }
 
-  unsignedTx: Buffer;
   private __CACHE: PsbtCache = {
     __NON_WITNESS_UTXO_TX_CACHE: [],
     __NON_WITNESS_UTXO_BUF_CACHE: [],
@@ -114,24 +113,6 @@ export class Psbt {
     const c = this.__CACHE;
     c.__TX = (this.data.globalMap.unsignedTx as PsbtTransaction).tx;
     if (this.data.inputs.length === 0) this.setVersion(2);
-
-    // set cache
-    this.unsignedTx = Buffer.from([]);
-    Object.defineProperty(this, 'unsignedTx', {
-      enumerable: true,
-      get(): Buffer {
-        const buf = c.__TX_BUF_CACHE;
-        if (buf !== undefined) {
-          return buf;
-        } else {
-          c.__TX_BUF_CACHE = c.__TX.toBuffer();
-          return c.__TX_BUF_CACHE;
-        }
-      },
-      set(_data: Buffer): void {
-        c.__TX_BUF_CACHE = _data;
-      },
-    });
 
     // Make data hidden when enumerating
     const dpew = (
@@ -174,7 +155,6 @@ export class Psbt {
     checkInputsForPartialSig(this.data.inputs, 'setVersion');
     const c = this.__CACHE;
     c.__TX.version = version;
-    c.__TX_BUF_CACHE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
   }
@@ -184,7 +164,6 @@ export class Psbt {
     checkInputsForPartialSig(this.data.inputs, 'setLocktime');
     const c = this.__CACHE;
     c.__TX.locktime = locktime;
-    c.__TX_BUF_CACHE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
   }
@@ -197,7 +176,6 @@ export class Psbt {
       throw new Error('Input index too high');
     }
     c.__TX.ins[inputIndex].sequence = sequence;
-    c.__TX_BUF_CACHE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
   }
@@ -533,7 +511,6 @@ interface PsbtCache {
   __NON_WITNESS_UTXO_BUF_CACHE: Buffer[];
   __TX_IN_CACHE: { [index: string]: number };
   __TX: Transaction;
-  __TX_BUF_CACHE?: Buffer;
   __FEE_RATE?: number;
   __EXTRACTED_TX?: Transaction;
 }

@@ -73,23 +73,6 @@ class Psbt {
     const c = this.__CACHE;
     c.__TX = this.data.globalMap.unsignedTx.tx;
     if (this.data.inputs.length === 0) this.setVersion(2);
-    // set cache
-    this.unsignedTx = Buffer.from([]);
-    Object.defineProperty(this, 'unsignedTx', {
-      enumerable: true,
-      get() {
-        const buf = c.__TX_BUF_CACHE;
-        if (buf !== undefined) {
-          return buf;
-        } else {
-          c.__TX_BUF_CACHE = c.__TX.toBuffer();
-          return c.__TX_BUF_CACHE;
-        }
-      },
-      set(_data) {
-        c.__TX_BUF_CACHE = _data;
-      },
-    });
     // Make data hidden when enumerating
     const dpew = (obj, attr, enumerable, writable) =>
       Object.defineProperty(obj, attr, {
@@ -137,7 +120,6 @@ class Psbt {
     checkInputsForPartialSig(this.data.inputs, 'setVersion');
     const c = this.__CACHE;
     c.__TX.version = version;
-    c.__TX_BUF_CACHE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
   }
@@ -146,7 +128,6 @@ class Psbt {
     checkInputsForPartialSig(this.data.inputs, 'setLocktime');
     const c = this.__CACHE;
     c.__TX.locktime = locktime;
-    c.__TX_BUF_CACHE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
   }
@@ -158,7 +139,6 @@ class Psbt {
       throw new Error('Input index too high');
     }
     c.__TX.ins[inputIndex].sequence = sequence;
-    c.__TX_BUF_CACHE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
   }
