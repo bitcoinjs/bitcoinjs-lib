@@ -219,14 +219,14 @@ describe(`Psbt`, () => {
     })
   })
 
-  describe('signAsync', () => {
+  describe('signAllInputsAsync', () => {
     fixtures.signInput.checks.forEach(f => {
       if (f.description === 'checks the input exists') return
       it(f.description, async () => {
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
           assert.doesNotReject(async () => {
-            await psbtThatShouldsign.signAsync(
+            await psbtThatShouldsign.signAllInputsAsync(
               ECPair.fromWIF(f.shouldSign.WIF),
               f.shouldSign.sighashTypes || undefined,
             )
@@ -236,13 +236,13 @@ describe(`Psbt`, () => {
         if (f.shouldThrow) {
           const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
           assert.rejects(async () => {
-            await psbtThatShouldThrow.signAsync(
+            await psbtThatShouldThrow.signAllInputsAsync(
               ECPair.fromWIF(f.shouldThrow.WIF),
               f.shouldThrow.sighashTypes || undefined,
             )
           }, new RegExp('No inputs were signed'))
           assert.rejects(async () => {
-            await psbtThatShouldThrow.signAsync()
+            await psbtThatShouldThrow.signAllInputsAsync()
           }, new RegExp('Need Signer to sign input'))
         }
       })
@@ -345,13 +345,13 @@ describe(`Psbt`, () => {
     })
   })
 
-  describe('signHDAsync', () => {
+  describe('signAllInputsHDAsync', () => {
     fixtures.signInputHD.checks.forEach(f => {
       it(f.description, async () => {
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
           assert.doesNotReject(async () => {
-            await psbtThatShouldsign.signHDAsync(
+            await psbtThatShouldsign.signAllInputsHDAsync(
               bip32.fromBase58(f.shouldSign.xprv),
               f.shouldSign.sighashTypes || undefined,
             )
@@ -361,13 +361,13 @@ describe(`Psbt`, () => {
         if (f.shouldThrow) {
           const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
           assert.rejects(async () => {
-            await psbtThatShouldThrow.signHDAsync(
+            await psbtThatShouldThrow.signAllInputsHDAsync(
               bip32.fromBase58(f.shouldThrow.xprv),
               f.shouldThrow.sighashTypes || undefined,
             )
           }, new RegExp('No inputs were signed'))
           assert.rejects(async () => {
-            await psbtThatShouldThrow.signHDAsync()
+            await psbtThatShouldThrow.signAllInputsHDAsync()
           }, new RegExp('Need HDSigner to sign input'))
         }
       })

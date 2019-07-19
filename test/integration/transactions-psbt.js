@@ -132,7 +132,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     signer2.signAllInputs(alice2.keys[0]);
 
     // If your signer object's sign method returns a promise, use the following
-    // await signer2.signAsync(alice2.keys[0])
+    // await signer2.signAllInputsAsync(alice2.keys[0])
 
     // encode to send back to combiner (signer 1 and 2 are not near each other)
     const s1text = signer1.toBase64();

@@ -19,7 +19,7 @@ import { Transaction } from './transaction';
  *   data for updateOutput.
  *   For a list of what attributes should be what types. Check the bip174 library.
  *   Also, check the integration tests for some examples of usage.
- * Signer: There are a few methods. signAllInputs and signAsync, which will search all input
+ * Signer: There are a few methods. signAllInputs and signAllInputsAsync, which will search all input
  *   information for your pubkey or pubkeyhash, and only sign inputs where it finds
  *   your info. Or you can explicitly sign a specific input with signInput and
  *   signInputAsync. For the async methods you can create a SignerAsync object
@@ -62,11 +62,11 @@ export declare class Psbt {
     validateSignaturesOfAllInputs(): boolean;
     validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
-    signHDAsync(hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
+    signAllInputsHDAsync(hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
     signInputHD(inputIndex: number, hdKeyPair: HDSigner, sighashTypes?: number[]): this;
     signInputHDAsync(inputIndex: number, hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
     signAllInputs(keyPair: Signer, sighashTypes?: number[]): this;
-    signAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
+    signAllInputsAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
     signInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     toBuffer(): Buffer;

@@ -42,7 +42,7 @@ const DEFAULT_OPTS = {
  *   data for updateOutput.
  *   For a list of what attributes should be what types. Check the bip174 library.
  *   Also, check the integration tests for some examples of usage.
- * Signer: There are a few methods. signAllInputs and signAsync, which will search all input
+ * Signer: There are a few methods. signAllInputs and signAllInputsAsync, which will search all input
  *   information for your pubkey or pubkeyhash, and only sign inputs where it finds
  *   your info. Or you can explicitly sign a specific input with signInput and
  *   signInputAsync. For the async methods you can create a SignerAsync object
@@ -295,7 +295,7 @@ class Psbt {
     }
     return this;
   }
-  signHDAsync(
+  signAllInputsHDAsync(
     hdKeyPair,
     sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
   ) {
@@ -380,7 +380,10 @@ class Psbt {
     }
     return this;
   }
-  signAsync(keyPair, sighashTypes = [transaction_1.Transaction.SIGHASH_ALL]) {
+  signAllInputsAsync(
+    keyPair,
+    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
+  ) {
     return new Promise((resolve, reject) => {
       if (!keyPair || !keyPair.publicKey)
         return reject(new Error('Need Signer to sign input'));
