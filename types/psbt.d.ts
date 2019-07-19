@@ -61,6 +61,10 @@ export declare class Psbt {
     finalizeInput(inputIndex: number): this;
     validateAllSignatures(): boolean;
     validateSignatures(inputIndex: number, pubkey?: Buffer): boolean;
+    signHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
+    signHDAsync(hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
+    signInputHD(inputIndex: number, hdKeyPair: HDSigner, sighashTypes?: number[]): this;
+    signInputHDAsync(inputIndex: number, hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
     sign(keyPair: Signer, sighashTypes?: number[]): this;
     signAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
@@ -79,5 +83,34 @@ export declare class Psbt {
 interface PsbtOptsOptional {
     network?: Network;
     maximumFeeRate?: number;
+}
+interface HDSignerBase {
+    /**
+     * DER format compressed publicKey buffer
+     */
+    publicKey: Buffer;
+    /**
+     * The first 4 bytes of the sha256-ripemd160 of the publicKey
+     */
+    fingerprint: Buffer;
+}
+interface HDSigner extends HDSignerBase {
+    /**
+     * The path string must match /^m(\/\d+'?)+$/
+     * ex. m/44'/0'/0'/1/23 levels with ' must be hard derivations
+     */
+    derivePath(path: string): HDSigner;
+    /**
+     * Input hash (the "message digest") for the signature algorithm
+     * Return a 64 byte signature (32 byte r and 32 byte s in that order)
+     */
+    sign(hash: Buffer): Buffer;
+}
+/**
+ * Same as above but with async sign method
+ */
+interface HDSignerAsync extends HDSignerBase {
+    derivePath(path: string): HDSignerAsync;
+    sign(hash: Buffer): Promise<Buffer>;
 }
 export {};

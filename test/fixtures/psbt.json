@@ -448,6 +448,52 @@
       }
     ]
   },
+  "signInputHD": {
+    "checks": [
+      {
+        "description": "checks the bip32Derivation exists",
+        "shouldSign": {
+          "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYDn85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kYBCppsiwAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
+          "inputToCheck": 0,
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+        },
+        "shouldThrow": {
+          "errorMessage": "Need bip32Derivation to sign with HD",
+          "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
+          "inputToCheck": 0,
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+        }
+      },
+      {
+        "description": "checks the bip32Derivation exists",
+        "shouldSign": {
+          "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYDn85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kYBCppsiwAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
+          "inputToCheck": 0,
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+        },
+        "shouldThrow": {
+          "errorMessage": "Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint",
+          "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYD/85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kY/////ywAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
+          "inputToCheck": 0,
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+        }
+      },
+      {
+        "description": "checks the bip32Derivation exists",
+        "shouldSign": {
+          "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYDn85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kYBCppsiwAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
+          "inputToCheck": 0,
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+        },
+        "shouldThrow": {
+          "errorMessage": "pubkey did not match bip32Derivation",
+          "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYD/85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kYBCppsiwAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
+          "inputToCheck": 0,
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+        }
+      }
+    ]
+  },
   "finalizeAllInputs": [
     {
       "type": "P2PK",

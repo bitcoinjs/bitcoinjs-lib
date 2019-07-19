@@ -1,6 +1,7 @@
 const { describe, it } = require('mocha')
 const assert = require('assert')
 
+const bip32 = require('bip32')
 const ECPair = require('../src/ecpair')
 const Psbt = require('..').Psbt
 const NETWORKS = require('../src/networks')
@@ -273,6 +274,130 @@ describe(`Psbt`, () => {
           assert.throws(() => {
             psbtThatShouldThrow.sign()
           }, new RegExp('Need Signer to sign input'))
+        }
+      })
+    })
+  })
+
+  describe('signInputHDAsync', () => {
+    fixtures.signInputHD.checks.forEach(f => {
+      it(f.description, async () => {
+        if (f.shouldSign) {
+          const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+          assert.doesNotReject(async () => {
+            await psbtThatShouldsign.signInputHDAsync(
+              f.shouldSign.inputToCheck,
+              bip32.fromBase58(f.shouldSign.xprv),
+              f.shouldSign.sighashTypes || undefined,
+            )
+          })
+        }
+
+        if (f.shouldThrow) {
+          const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+          assert.rejects(async () => {
+            await psbtThatShouldThrow.signInputHDAsync(
+              f.shouldThrow.inputToCheck,
+              bip32.fromBase58(f.shouldThrow.xprv),
+              f.shouldThrow.sighashTypes || undefined,
+            )
+          }, new RegExp(f.shouldThrow.errorMessage))
+          assert.rejects(async () => {
+            await psbtThatShouldThrow.signInputHDAsync(
+              f.shouldThrow.inputToCheck,
+            )
+          }, new RegExp('Need HDSigner to sign input'))
+        }
+      })
+    })
+  })
+
+  describe('signInputHD', () => {
+    fixtures.signInputHD.checks.forEach(f => {
+      it(f.description, () => {
+        if (f.shouldSign) {
+          const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+          assert.doesNotThrow(() => {
+            psbtThatShouldsign.signInputHD(
+              f.shouldSign.inputToCheck,
+              bip32.fromBase58(f.shouldSign.xprv),
+              f.shouldSign.sighashTypes || undefined,
+            )
+          })
+        }
+
+        if (f.shouldThrow) {
+          const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+          assert.throws(() => {
+            psbtThatShouldThrow.signInputHD(
+              f.shouldThrow.inputToCheck,
+              bip32.fromBase58(f.shouldThrow.xprv),
+              f.shouldThrow.sighashTypes || undefined,
+            )
+          }, new RegExp(f.shouldThrow.errorMessage))
+          assert.throws(() => {
+            psbtThatShouldThrow.signInputHD(
+              f.shouldThrow.inputToCheck,
+            )
+          }, new RegExp('Need HDSigner to sign input'))
+        }
+      })
+    })
+  })
+
+  describe('signHDAsync', () => {
+    fixtures.signInputHD.checks.forEach(f => {
+      it(f.description, async () => {
+        if (f.shouldSign) {
+          const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+          assert.doesNotReject(async () => {
+            await psbtThatShouldsign.signHDAsync(
+              bip32.fromBase58(f.shouldSign.xprv),
+              f.shouldSign.sighashTypes || undefined,
+            )
+          })
+        }
+
+        if (f.shouldThrow) {
+          const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+          assert.rejects(async () => {
+            await psbtThatShouldThrow.signHDAsync(
+              bip32.fromBase58(f.shouldThrow.xprv),
+              f.shouldThrow.sighashTypes || undefined,
+            )
+          }, new RegExp('No inputs were signed'))
+          assert.rejects(async () => {
+            await psbtThatShouldThrow.signHDAsync()
+          }, new RegExp('Need HDSigner to sign input'))
+        }
+      })
+    })
+  })
+
+  describe('signHD', () => {
+    fixtures.signInputHD.checks.forEach(f => {
+      it(f.description, () => {
+        if (f.shouldSign) {
+          const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
+          assert.doesNotThrow(() => {
+            psbtThatShouldsign.signHD(
+              bip32.fromBase58(f.shouldSign.xprv),
+              f.shouldSign.sighashTypes || undefined,
+            )
+          })
+        }
+
+        if (f.shouldThrow) {
+          const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
+          assert.throws(() => {
+            psbtThatShouldThrow.signHD(
+              bip32.fromBase58(f.shouldThrow.xprv),
+              f.shouldThrow.sighashTypes || undefined,
+            )
+          }, new RegExp('No inputs were signed'))
+          assert.throws(() => {
+            psbtThatShouldThrow.signHD()
+          }, new RegExp('Need HDSigner to sign input'))
         }
       })
     })

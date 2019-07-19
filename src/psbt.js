@@ -278,6 +278,86 @@ class Psbt {
     }
     return results.every(res => res === true);
   }
+  signHD(hdKeyPair, sighashTypes = [transaction_1.Transaction.SIGHASH_ALL]) {
+    if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
+      throw new Error('Need HDSigner to sign input');
+    }
+    const results = [];
+    for (const i of range(this.data.inputs.length)) {
+      try {
+        this.signInputHD(i, hdKeyPair, sighashTypes);
+        results.push(true);
+      } catch (err) {
+        results.push(false);
+      }
+    }
+    if (results.every(v => v === false)) {
+      throw new Error('No inputs were signed');
+    }
+    return this;
+  }
+  signHDAsync(
+    hdKeyPair,
+    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
+  ) {
+    return new Promise((resolve, reject) => {
+      if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
+        return reject(new Error('Need HDSigner to sign input'));
+      }
+      const results = [];
+      const promises = [];
+      for (const i of range(this.data.inputs.length)) {
+        promises.push(
+          this.signInputHDAsync(i, hdKeyPair, sighashTypes).then(
+            () => {
+              results.push(true);
+            },
+            () => {
+              results.push(false);
+            },
+          ),
+        );
+      }
+      return Promise.all(promises).then(() => {
+        if (results.every(v => v === false)) {
+          return reject(new Error('No inputs were signed'));
+        }
+        resolve();
+      });
+    });
+  }
+  signInputHD(
+    inputIndex,
+    hdKeyPair,
+    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
+  ) {
+    if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
+      throw new Error('Need HDSigner to sign input');
+    }
+    const signers = getSignersFromHD(inputIndex, this.data.inputs, hdKeyPair);
+    signers.forEach(signer => this.signInput(inputIndex, signer, sighashTypes));
+    return this;
+  }
+  signInputHDAsync(
+    inputIndex,
+    hdKeyPair,
+    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
+  ) {
+    return new Promise((resolve, reject) => {
+      if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
+        return reject(new Error('Need HDSigner to sign input'));
+      }
+      const signers = getSignersFromHD(inputIndex, this.data.inputs, hdKeyPair);
+      const promises = signers.map(signer =>
+        this.signInputAsync(inputIndex, signer, sighashTypes),
+      );
+      return Promise.all(promises)
+        .then(() => {
+          resolve();
+        })
+        .catch(reject);
+    });
+  }
   sign(keyPair, sighashTypes = [transaction_1.Transaction.SIGHASH_ALL]) {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
@@ -852,6 +932,34 @@ function getScriptFromInput(inputIndex, input, cache) {
     }
   }
   return res;
+}
+function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
+  const input = utils_1.checkForInput(inputs, inputIndex);
+  if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
+    throw new Error('Need bip32Derivation to sign with HD');
+  }
+  const myDerivations = input.bip32Derivation
+    .map(bipDv => {
+      if (bipDv.masterFingerprint.equals(hdKeyPair.fingerprint)) {
+        return bipDv;
+      } else {
+        return;
+      }
+    })
+    .filter(v => !!v);
+  if (myDerivations.length === 0) {
+    throw new Error(
+      'Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint',
+    );
+  }
+  const signers = myDerivations.map(bipDv => {
+    const node = hdKeyPair.derivePath(bipDv.path);
+    if (!bipDv.pubkey.equals(node.publicKey)) {
+      throw new Error('pubkey did not match bip32Derivation');
+    }
+    return node;
+  });
+  return signers;
 }
 function getSortedSigs(script, partialSig) {
   const p2ms = payments.p2ms({ output: script });
