@@ -1,6 +1,8 @@
 const { describe, it } = require('mocha');
 const assert = require('assert');
 const bitcoin = require('../../');
+const bip32 = require('bip32');
+const rng = require('randombytes');
 const regtestUtils = require('./_regtest');
 const regtest = regtestUtils.network;
 
@@ -403,24 +405,87 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       value: 2e4,
     });
   });
+
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WPKH input using HD', async () => {
+    const hdRoot = bip32.fromSeed(rng(64));
+    const masterFingerprint = hdRoot.fingerprint;
+    const path = "m/84'/0'/0'/0/0";
+    const childNode = hdRoot.derivePath(path);
+    const pubkey = childNode.publicKey;
+
+    // This information should be added to your input via updateInput
+    // You can add multiple bip32Derivation objects for multisig, but
+    // each must have a unique pubkey.
+    //
+    // This is useful because as long as you store the masterFingerprint on
+    // the PSBT Creator's server, you can have the PSBT Creator do the heavy
+    // lifting with derivation from your m/84'/0'/0' xpub, (deriving only 0/0 )
+    // and your signer just needs to pass in an HDSigner interface (ie. bip32 library)
+    const updateData = {
+      bip32Derivation: [
+        {
+          masterFingerprint,
+          path,
+          pubkey,
+        }
+      ]
+    }
+    const p2wpkh = createPayment('p2wpkh', [childNode]);
+    const inputData = await getInputData(5e4, p2wpkh.payment, true, 'noredeem');
+    {
+      const { hash, index, witnessUtxo } = inputData;
+      assert.deepStrictEqual({ hash, index, witnessUtxo }, inputData);
+    }
+
+    // You can add extra attributes for updateData into the addInput(s) object(s)
+    Object.assign(inputData, updateData)
+
+    const psbt = new bitcoin.Psbt({ network: regtest })
+      .addInput(inputData)
+      // .updateInput(0, updateData) // if you didn't merge the bip32Derivation with inputData
+      .addOutput({
+        address: regtestUtils.RANDOM_ADDRESS,
+        value: 2e4,
+      })
+      .signInputHD(0, hdRoot); // must sign with root!!!
+
+    assert.strictEqual(psbt.validateSignatures(0), true);
+    assert.strictEqual(psbt.validateSignatures(0, childNode.publicKey), true);
+    psbt.finalizeAllInputs();
+
+    const tx = psbt.extractTransaction();
+
+    // build and broadcast to the Bitcoin RegTest network
+    await regtestUtils.broadcast(tx.toHex());
+
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: regtestUtils.RANDOM_ADDRESS,
+      vout: 0,
+      value: 2e4,
+    });
+  });
 });
 
-function createPayment(_type, network) {
+function createPayment(_type, myKeys, network) {
   network = network || regtest;
   const splitType = _type.split('-').reverse();
   const isMultisig = splitType[0].slice(0, 4) === 'p2ms';
-  const keys = [];
+  const keys = myKeys || [];
   let m;
   if (isMultisig) {
     const match = splitType[0].match(/^p2ms\((\d+) of (\d+)\)$/);
     m = parseInt(match[1]);
     let n = parseInt(match[2]);
-    while (n > 1) {
+    if (keys.length > 0 && keys.length !== n) {
+      throw new Error('Need n keys for multisig')
+    }
+    while (!myKeys && n > 1) {
       keys.push(bitcoin.ECPair.makeRandom({ network }));
       n--;
     }
   }
-  keys.push(bitcoin.ECPair.makeRandom({ network }));
+  if (!myKeys) keys.push(bitcoin.ECPair.makeRandom({ network }));
 
   let payment;
   splitType.forEach(type => {
