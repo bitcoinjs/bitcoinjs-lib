@@ -62,16 +62,14 @@ const DEFAULT_OPTS = {
 class Psbt {
   constructor(opts = {}, data = new bip174_1.Psbt(new PsbtTransaction())) {
     this.data = data;
+    // set defaults
+    this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     this.__CACHE = {
       __NON_WITNESS_UTXO_TX_CACHE: [],
       __NON_WITNESS_UTXO_BUF_CACHE: [],
       __TX_IN_CACHE: {},
-      __TX: new transaction_1.Transaction(),
+      __TX: this.data.globalMap.unsignedTx.tx,
     };
-    // set defaults
-    this.opts = Object.assign({}, DEFAULT_OPTS, opts);
-    const c = this.__CACHE;
-    c.__TX = this.data.globalMap.unsignedTx.tx;
     if (this.data.inputs.length === 0) this.setVersion(2);
     // Make data hidden when enumerating
     const dpew = (obj, attr, enumerable, writable) =>
@@ -92,10 +90,8 @@ class Psbt {
   }
   static fromBuffer(buffer, opts = {}) {
     const psbtBase = bip174_1.Psbt.fromBuffer(buffer, transactionFromBuffer);
-    const tx = psbtBase.globalMap.unsignedTx.tx;
     const psbt = new Psbt(opts, psbtBase);
-    psbt.__CACHE.__TX = tx;
-    checkTxForDupeIns(tx, psbt.__CACHE);
+    checkTxForDupeIns(psbt.__CACHE.__TX, psbt.__CACHE);
     return psbt;
   }
   get inputCount() {
