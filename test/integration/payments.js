@@ -7,6 +7,7 @@ const keyPairs = [
   bitcoin.ECPair.makeRandom({ network: NETWORK }),
   bitcoin.ECPair.makeRandom({ network: NETWORK })
 ]
+console.warn = () => {} // Silence the Deprecation Warning
 
 async function buildAndSign (depends, prevOutput, redeemScript, witnessScript) {
   const unspent = await regtestUtils.faucetComplex(prevOutput, 5e4)

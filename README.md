@@ -85,6 +85,14 @@ The below examples are implemented as integration tests, they should be very eas
 Otherwise, pull requests are appreciated.
 Some examples interact (via HTTPS) with a 3rd Party Blockchain Provider (3PBP).
 
+### Warning: Currently the tests use TransactionBuilder, which will be removed in the future (v6.x.x or higher)
+We will move towards replacing all instances of TransactionBuilder in the tests with the new Psbt.
+
+Currently we have a few examples on how to use the newer Psbt class at the following link:
+- [Psbt examples](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions-psbt.js)
+
+The rest of the examples are below (using TransactionBuilder for Transaction creation)
+
 - [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.js)
 - [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.js)
 - [Generate a 2-of-3 P2SH multisig address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.js)
