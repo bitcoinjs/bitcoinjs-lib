@@ -249,14 +249,14 @@ describe(`Psbt`, () => {
     })
   })
 
-  describe('sign', () => {
+  describe('signAllInputs', () => {
     fixtures.signInput.checks.forEach(f => {
       if (f.description === 'checks the input exists') return
       it(f.description, () => {
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
           assert.doesNotThrow(() => {
-            psbtThatShouldsign.sign(
+            psbtThatShouldsign.signAllInputs(
               ECPair.fromWIF(f.shouldSign.WIF),
               f.shouldSign.sighashTypes || undefined,
             )
@@ -266,13 +266,13 @@ describe(`Psbt`, () => {
         if (f.shouldThrow) {
           const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
           assert.throws(() => {
-            psbtThatShouldThrow.sign(
+            psbtThatShouldThrow.signAllInputs(
               ECPair.fromWIF(f.shouldThrow.WIF),
               f.shouldThrow.sighashTypes || undefined,
             )
           }, new RegExp('No inputs were signed'))
           assert.throws(() => {
-            psbtThatShouldThrow.sign()
+            psbtThatShouldThrow.signAllInputs()
           }, new RegExp('Need Signer to sign input'))
         }
       })
@@ -374,13 +374,13 @@ describe(`Psbt`, () => {
     })
   })
 
-  describe('signHD', () => {
+  describe('signAllInputsHD', () => {
     fixtures.signInputHD.checks.forEach(f => {
       it(f.description, () => {
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt)
           assert.doesNotThrow(() => {
-            psbtThatShouldsign.signHD(
+            psbtThatShouldsign.signAllInputsHD(
               bip32.fromBase58(f.shouldSign.xprv),
               f.shouldSign.sighashTypes || undefined,
             )
@@ -390,13 +390,13 @@ describe(`Psbt`, () => {
         if (f.shouldThrow) {
           const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt)
           assert.throws(() => {
-            psbtThatShouldThrow.signHD(
+            psbtThatShouldThrow.signAllInputsHD(
               bip32.fromBase58(f.shouldThrow.xprv),
               f.shouldThrow.sighashTypes || undefined,
             )
           }, new RegExp('No inputs were signed'))
           assert.throws(() => {
-            psbtThatShouldThrow.signHD()
+            psbtThatShouldThrow.signAllInputsHD()
           }, new RegExp('Need HDSigner to sign input'))
         }
       })
@@ -505,7 +505,7 @@ describe(`Psbt`, () => {
     })
   })
 
-  describe('setSequence', () => {
+  describe('setInputSequence', () => {
     it('Sets the sequence number for a given input', () => {
       const psbt = new Psbt()
       psbt.addInput({
@@ -515,7 +515,7 @@ describe(`Psbt`, () => {
 
       assert.strictEqual(psbt.inputCount, 1)
       assert.strictEqual(psbt.__CACHE.__TX.ins[0].sequence, 0xffffffff)
-      psbt.setSequence(0, 0)
+      psbt.setInputSequence(0, 0)
       assert.strictEqual(psbt.__CACHE.__TX.ins[0].sequence, 0)
     })
 
@@ -527,7 +527,7 @@ describe(`Psbt`, () => {
       });
 
       assert.throws(() => {
-        psbt.setSequence(1, 0)
+        psbt.setInputSequence(1, 0)
       }, new RegExp('Input index too high'))
     })
   })
@@ -539,7 +539,7 @@ describe(`Psbt`, () => {
       const notAClone = Object.assign(new Psbt(), psbt) // references still active
       const clone = psbt.clone()
 
-      assert.strictEqual(psbt.validateAllSignatures(), true)
+      assert.strictEqual(psbt.validateSignaturesOfAllInputs(), true)
 
       assert.strictEqual(clone.toBase64(), psbt.toBase64())
       assert.strictEqual(clone.toBase64(), notAClone.toBase64())
@@ -561,22 +561,22 @@ describe(`Psbt`, () => {
     })
   })
 
-  describe('validateSignatures', () => {
-    const f = fixtures.validateSignatures
+  describe('validateSignaturesOfInput', () => {
+    const f = fixtures.validateSignaturesOfInput
     it('Correctly validates a signature', () => {
       const psbt = Psbt.fromBase64(f.psbt)
 
-      assert.strictEqual(psbt.validateSignatures(f.index), true)
+      assert.strictEqual(psbt.validateSignaturesOfInput(f.index), true)
       assert.throws(() => {
-        psbt.validateSignatures(f.nonExistantIndex)
+        psbt.validateSignaturesOfInput(f.nonExistantIndex)
       }, new RegExp('No signatures to validate'))
     })
 
     it('Correctly validates a signature against a pubkey', () => {
       const psbt = Psbt.fromBase64(f.psbt)
-      assert.strictEqual(psbt.validateSignatures(f.index, f.pubkey), true)
+      assert.strictEqual(psbt.validateSignaturesOfInput(f.index, f.pubkey), true)
       assert.throws(() => {
-        psbt.validateSignatures(f.index, f.incorrectPubkey)
+        psbt.validateSignaturesOfInput(f.index, f.incorrectPubkey)
       }, new RegExp('No signatures for this pubkey'))
     })
   })
@@ -623,7 +623,7 @@ describe(`Psbt`, () => {
     assert.throws(() => {
       psbt.setVersion(3)
     }, new RegExp('Can not modify transaction, signatures exist.'))
-    psbt.validateSignatures(0)
+    psbt.validateSignaturesOfInput(0)
     psbt.finalizeAllInputs()
     assert.strictEqual(
       psbt.extractTransaction().toHex(),

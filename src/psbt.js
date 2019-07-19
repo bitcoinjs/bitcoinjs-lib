@@ -42,7 +42,7 @@ const DEFAULT_OPTS = {
  *   data for updateOutput.
  *   For a list of what attributes should be what types. Check the bip174 library.
  *   Also, check the integration tests for some examples of usage.
- * Signer: There are a few methods. sign and signAsync, which will search all input
+ * Signer: There are a few methods. signAllInputs and signAsync, which will search all input
  *   information for your pubkey or pubkeyhash, and only sign inputs where it finds
  *   your info. Or you can explicitly sign a specific input with signInput and
  *   signInputAsync. For the async methods you can create a SignerAsync object
@@ -53,7 +53,7 @@ const DEFAULT_OPTS = {
  *   all sequences, version, locktime, etc. are the same before combining.
  * Input Finalizer: This role is fairly important. Not only does it need to construct
  *   the input scriptSigs and witnesses, but it SHOULD verify the signatures etc.
- *   Before running `psbt.finalizeAllInputs()` please run `psbt.validateAllSignatures()`
+ *   Before running `psbt.finalizeAllInputs()` please run `psbt.validateSignaturesOfAllInputs()`
  *   Running any finalize method will delete any data in the input(s) that are no longer
  *   needed due to the finalized scripts containing the information.
  * Transaction Extractor: This role will perform some checks before returning a
@@ -131,9 +131,9 @@ class Psbt {
     c.__EXTRACTED_TX = undefined;
     return this;
   }
-  setSequence(inputIndex, sequence) {
+  setInputSequence(inputIndex, sequence) {
     check32Bit(sequence);
-    checkInputsForPartialSig(this.data.inputs, 'setSequence');
+    checkInputsForPartialSig(this.data.inputs, 'setInputSequence');
     const c = this.__CACHE;
     if (c.__TX.ins.length <= inputIndex) {
       throw new Error('Input index too high');
@@ -239,14 +239,14 @@ class Psbt {
     this.data.clearFinalizedInput(inputIndex);
     return this;
   }
-  validateAllSignatures() {
+  validateSignaturesOfAllInputs() {
     utils_1.checkForInput(this.data.inputs, 0); // making sure we have at least one
     const results = range(this.data.inputs.length).map(idx =>
-      this.validateSignatures(idx),
+      this.validateSignaturesOfInput(idx),
     );
     return results.reduce((final, res) => res === true && final, true);
   }
-  validateSignatures(inputIndex, pubkey) {
+  validateSignaturesOfInput(inputIndex, pubkey) {
     const input = this.data.inputs[inputIndex];
     const partialSig = (input || {}).partialSig;
     if (!input || !partialSig || partialSig.length < 1)
@@ -278,7 +278,10 @@ class Psbt {
     }
     return results.every(res => res === true);
   }
-  signHD(hdKeyPair, sighashTypes = [transaction_1.Transaction.SIGHASH_ALL]) {
+  signAllInputsHD(
+    hdKeyPair,
+    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
+  ) {
     if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
       throw new Error('Need HDSigner to sign input');
     }
@@ -358,7 +361,10 @@ class Psbt {
         .catch(reject);
     });
   }
-  sign(keyPair, sighashTypes = [transaction_1.Transaction.SIGHASH_ALL]) {
+  signAllInputs(
+    keyPair,
+    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
+  ) {
     if (!keyPair || !keyPair.publicKey)
       throw new Error('Need Signer to sign input');
     // TODO: Add a pubkey/pubkeyhash cache to each input
@@ -635,7 +641,7 @@ function checkInputsForPartialSig(inputs, action) {
         case transaction_1.Transaction.SIGHASH_SINGLE:
         case transaction_1.Transaction.SIGHASH_NONE:
           whitelist.push('addOutput');
-          whitelist.push('setSequence');
+          whitelist.push('setInputSequence');
           break;
       }
       if (whitelist.indexOf(action) === -1) {

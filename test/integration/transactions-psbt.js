@@ -59,7 +59,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       value: 80000,
     });
     psbt.signInput(0, alice);
-    psbt.validateSignatures(0);
+    psbt.validateSignaturesOfInput(0);
     psbt.finalizeAllInputs();
     assert.strictEqual(
       psbt.extractTransaction().toHex(),
@@ -128,8 +128,8 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     // Alice signs each input with the respective private keys
     // signInput and signInputAsync are better
     // (They take the input index explicitly as the first arg)
-    signer1.sign(alice1.keys[0]);
-    signer2.sign(alice2.keys[0]);
+    signer1.signAllInputs(alice1.keys[0]);
+    signer2.signAllInputs(alice2.keys[0]);
 
     // If your signer object's sign method returns a promise, use the following
     // await signer2.signAsync(alice2.keys[0])
@@ -147,8 +147,8 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     // Finalizer wants to check all signatures are valid before finalizing.
     // If the finalizer wants to check for specific pubkeys, the second arg
     // can be passed. See the first multisig example below.
-    assert.strictEqual(psbt.validateSignatures(0), true);
-    assert.strictEqual(psbt.validateSignatures(1), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(1), true);
 
     // This step it new. Since we separate the signing operation and
     // the creation of the scriptSig and witness stack, we are able to
@@ -183,7 +183,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       })
       .signInput(0, alice1.keys[0]);
 
-    assert.strictEqual(psbt.validateSignatures(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
     psbt.finalizeAllInputs();
 
     // build and broadcast to the RegTest network
@@ -215,13 +215,13 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .signInput(0, multisig.keys[0])
       .signInput(0, multisig.keys[2]);
 
-    assert.strictEqual(psbt.validateSignatures(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
     assert.strictEqual(
-      psbt.validateSignatures(0, multisig.keys[0].publicKey),
+      psbt.validateSignaturesOfInput(0, multisig.keys[0].publicKey),
       true,
     );
     assert.throws(() => {
-      psbt.validateSignatures(0, multisig.keys[3].publicKey);
+      psbt.validateSignaturesOfInput(0, multisig.keys[3].publicKey);
     }, new RegExp('No signatures for this pubkey'));
     psbt.finalizeAllInputs();
 
@@ -267,7 +267,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     const tx = new bitcoin.Psbt()
       .addInputs([inputData, inputData2])
       .addOutputs([outputData, outputData2])
-      .sign(keyPair)
+      .signAllInputs(keyPair)
       .finalizeAllInputs()
       .extractTransaction();
 
@@ -300,7 +300,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       })
       .signInput(0, p2wpkh.keys[0]);
 
-    assert.strictEqual(psbt.validateSignatures(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
     psbt.finalizeAllInputs();
 
     const tx = psbt.extractTransaction();
@@ -340,7 +340,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       })
       .signInput(0, p2wsh.keys[0]);
 
-    assert.strictEqual(psbt.validateSignatures(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
     psbt.finalizeAllInputs();
 
     const tx = psbt.extractTransaction();
@@ -383,13 +383,13 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .signInput(0, p2sh.keys[2])
       .signInput(0, p2sh.keys[3]);
 
-    assert.strictEqual(psbt.validateSignatures(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
     assert.strictEqual(
-      psbt.validateSignatures(0, p2sh.keys[3].publicKey),
+      psbt.validateSignaturesOfInput(0, p2sh.keys[3].publicKey),
       true,
     );
     assert.throws(() => {
-      psbt.validateSignatures(0, p2sh.keys[1].publicKey);
+      psbt.validateSignaturesOfInput(0, p2sh.keys[1].publicKey);
     }, new RegExp('No signatures for this pubkey'));
     psbt.finalizeAllInputs();
 
@@ -449,8 +449,8 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       })
       .signInputHD(0, hdRoot); // must sign with root!!!
 
-    assert.strictEqual(psbt.validateSignatures(0), true);
-    assert.strictEqual(psbt.validateSignatures(0, childNode.publicKey), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0, childNode.publicKey), true);
     psbt.finalizeAllInputs();
 
     const tx = psbt.extractTransaction();

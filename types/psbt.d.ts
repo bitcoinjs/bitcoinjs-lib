@@ -19,7 +19,7 @@ import { Transaction } from './transaction';
  *   data for updateOutput.
  *   For a list of what attributes should be what types. Check the bip174 library.
  *   Also, check the integration tests for some examples of usage.
- * Signer: There are a few methods. sign and signAsync, which will search all input
+ * Signer: There are a few methods. signAllInputs and signAsync, which will search all input
  *   information for your pubkey or pubkeyhash, and only sign inputs where it finds
  *   your info. Or you can explicitly sign a specific input with signInput and
  *   signInputAsync. For the async methods you can create a SignerAsync object
@@ -30,7 +30,7 @@ import { Transaction } from './transaction';
  *   all sequences, version, locktime, etc. are the same before combining.
  * Input Finalizer: This role is fairly important. Not only does it need to construct
  *   the input scriptSigs and witnesses, but it SHOULD verify the signatures etc.
- *   Before running `psbt.finalizeAllInputs()` please run `psbt.validateAllSignatures()`
+ *   Before running `psbt.finalizeAllInputs()` please run `psbt.validateSignaturesOfAllInputs()`
  *   Running any finalize method will delete any data in the input(s) that are no longer
  *   needed due to the finalized scripts containing the information.
  * Transaction Extractor: This role will perform some checks before returning a
@@ -50,7 +50,7 @@ export declare class Psbt {
     setMaximumFeeRate(satoshiPerByte: number): void;
     setVersion(version: number): this;
     setLocktime(locktime: number): this;
-    setSequence(inputIndex: number, sequence: number): this;
+    setInputSequence(inputIndex: number, sequence: number): this;
     addInputs(inputDatas: TransactionInput[]): this;
     addInput(inputData: TransactionInput): this;
     addOutputs(outputDatas: TransactionOutput[]): this;
@@ -59,13 +59,13 @@ export declare class Psbt {
     getFeeRate(): number;
     finalizeAllInputs(): this;
     finalizeInput(inputIndex: number): this;
-    validateAllSignatures(): boolean;
-    validateSignatures(inputIndex: number, pubkey?: Buffer): boolean;
-    signHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
+    validateSignaturesOfAllInputs(): boolean;
+    validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
+    signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
     signHDAsync(hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
     signInputHD(inputIndex: number, hdKeyPair: HDSigner, sighashTypes?: number[]): this;
     signInputHDAsync(inputIndex: number, hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
-    sign(keyPair: Signer, sighashTypes?: number[]): this;
+    signAllInputs(keyPair: Signer, sighashTypes?: number[]): this;
     signAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
     signInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
