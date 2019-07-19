@@ -103,6 +103,11 @@ function p2wsh(a, opts) {
     if (!a.redeem.witness) return;
     return [].concat(a.redeem.witness, a.redeem.output);
   });
+  lazy.prop(o, 'name', () => {
+    const nameParts = ['p2wsh'];
+    if (o.redeem !== undefined) nameParts.push(o.redeem.name);
+    return nameParts.join('-');
+  });
   // extended validation
   if (opts.validate) {
     let hash = Buffer.from([]);

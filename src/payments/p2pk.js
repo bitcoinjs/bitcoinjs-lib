@@ -26,7 +26,7 @@ function p2pk(a, opts) {
     return bscript.decompile(a.input);
   });
   const network = a.network || networks_1.bitcoin;
-  const o = { network };
+  const o = { name: 'p2pk', network };
   lazy.prop(o, 'output', () => {
     if (!a.pubkey) return;
     return bscript.compile([a.pubkey, OPS.OP_CHECKSIG]);

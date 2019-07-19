@@ -45,7 +45,7 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
   });
 
   const network = a.network || BITCOIN_NETWORK;
-  const o: Payment = { network };
+  const o: Payment = { name: 'p2wpkh', network };
 
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;

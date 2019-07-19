@@ -93,6 +93,10 @@ function p2ms(a, opts) {
     if (!o.input) return;
     return [];
   });
+  lazy.prop(o, 'name', () => {
+    if (!o.m || !o.n) return;
+    return `p2ms(${o.m} of ${o.n})`;
+  });
   // extended validation
   if (opts.validate) {
     if (a.output) {

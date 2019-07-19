@@ -8,6 +8,7 @@ import { p2sh } from './p2sh';
 import { p2wpkh } from './p2wpkh';
 import { p2wsh } from './p2wsh';
 export interface Payment {
+    name?: string;
     network?: Network;
     output?: Buffer;
     data?: Buffer[];
