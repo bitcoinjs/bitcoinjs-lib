@@ -3,6 +3,7 @@ const assert = require('assert')
 const bitcoin = require('../../')
 const regtestUtils = require('./_regtest')
 const regtest = regtestUtils.network
+console.warn = () => {} // Silence the Deprecation Warning
 
 function rng () {
   return Buffer.from('YT8dAtK4d16A3P1z+TpwB2jJ4aFH3g9M1EioIBkLEV4=', 'base64')

@@ -9,6 +9,8 @@ const Transaction = require('..').Transaction
 const TransactionBuilder = require('..').TransactionBuilder
 const NETWORKS = require('../src/networks')
 
+console.warn = () => {} // Silence the Deprecation Warning
+
 const fixtures = require('./fixtures/transaction_builder')
 
 function constructSign (f, txb, useOldSignArgs) {
