@@ -1,3 +1,7 @@
+# 5.1.1
+__changed__
+- Name inconsistencies for Psbt class. (Quick fix)
+
 # 5.1.0
 __added__
 - A new `Psbt` class for creating, distributing, combining, signing, and compiling Transactions (#1425)
