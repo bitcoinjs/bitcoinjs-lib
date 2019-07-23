@@ -798,20 +798,7 @@ function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
     let pSigs: PartialSig[] = [];
     if ((input.partialSig || []).length === 0) {
       if (!input.finalScriptSig && !input.finalScriptWitness) return;
-      const scriptItems = !input.finalScriptSig
-        ? []
-        : bscript.decompile(input.finalScriptSig) || [];
-      const witnessItems = !input.finalScriptWitness
-        ? []
-        : bscript.decompile(input.finalScriptWitness) || [];
-      pSigs = scriptItems
-        .concat(witnessItems)
-        .filter(item => {
-          return (
-            Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item)
-          );
-        })
-        .map(sig => ({ signature: sig })) as PartialSig[];
+      pSigs = getPsigsFromInputFinalScripts(input);
     } else {
       pSigs = input.partialSig!;
     }
@@ -1138,6 +1125,21 @@ function getPayment(
       break;
   }
   return payment!;
+}
+
+function getPsigsFromInputFinalScripts(input: PsbtInput): PartialSig[] {
+  const scriptItems = !input.finalScriptSig
+    ? []
+    : bscript.decompile(input.finalScriptSig) || [];
+  const witnessItems = !input.finalScriptWitness
+    ? []
+    : bscript.decompile(input.finalScriptWitness) || [];
+  return scriptItems
+    .concat(witnessItems)
+    .filter(item => {
+      return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
+    })
+    .map(sig => ({ signature: sig })) as PartialSig[];
 }
 
 interface GetScriptReturn {

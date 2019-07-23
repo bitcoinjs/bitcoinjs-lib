@@ -629,20 +629,7 @@ function checkInputsForPartialSig(inputs, action) {
     let pSigs = [];
     if ((input.partialSig || []).length === 0) {
       if (!input.finalScriptSig && !input.finalScriptWitness) return;
-      const scriptItems = !input.finalScriptSig
-        ? []
-        : bscript.decompile(input.finalScriptSig) || [];
-      const witnessItems = !input.finalScriptWitness
-        ? []
-        : bscript.decompile(input.finalScriptWitness) || [];
-      pSigs = scriptItems
-        .concat(witnessItems)
-        .filter(item => {
-          return (
-            Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item)
-          );
-        })
-        .map(sig => ({ signature: sig }));
+      pSigs = getPsigsFromInputFinalScripts(input);
     } else {
       pSigs = input.partialSig;
     }
@@ -917,6 +904,20 @@ function getPayment(script, scriptType, partialSig) {
       break;
   }
   return payment;
+}
+function getPsigsFromInputFinalScripts(input) {
+  const scriptItems = !input.finalScriptSig
+    ? []
+    : bscript.decompile(input.finalScriptSig) || [];
+  const witnessItems = !input.finalScriptWitness
+    ? []
+    : bscript.decompile(input.finalScriptWitness) || [];
+  return scriptItems
+    .concat(witnessItems)
+    .filter(item => {
+      return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
+    })
+    .map(sig => ({ signature: sig }));
 }
 function getScriptFromInput(inputIndex, input, cache) {
   const unsignedTx = cache.__TX;
