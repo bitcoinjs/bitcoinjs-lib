@@ -625,6 +625,9 @@ describe(`Psbt`, () => {
     }, new RegExp('Can not modify transaction, signatures exist.'))
     psbt.validateSignaturesOfInput(0)
     psbt.finalizeAllInputs()
+    assert.throws(() => {
+      psbt.setVersion(3)
+    }, new RegExp('Can not modify transaction, signatures exist.'))
     assert.strictEqual(
       psbt.extractTransaction().toHex(),
       '02000000013ebc8203037dda39d482bf41ff3be955996c50d9d4f7cfc3d2097a694a7' +
