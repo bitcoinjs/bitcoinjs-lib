@@ -626,8 +626,27 @@ function checkFees(psbt, cache, opts) {
 function checkInputsForPartialSig(inputs, action) {
   inputs.forEach(input => {
     let throws = false;
-    if ((input.partialSig || []).length === 0) return;
-    input.partialSig.forEach(pSig => {
+    let pSigs = [];
+    if ((input.partialSig || []).length === 0) {
+      if (!input.finalScriptSig && !input.finalScriptWitness) return;
+      const scriptItems = !input.finalScriptSig
+        ? []
+        : bscript.decompile(input.finalScriptSig) || [];
+      const witnessItems = !input.finalScriptWitness
+        ? []
+        : bscript.decompile(input.finalScriptWitness) || [];
+      pSigs = scriptItems
+        .concat(witnessItems)
+        .filter(item => {
+          return (
+            Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item)
+          );
+        })
+        .map(sig => ({ signature: sig }));
+    } else {
+      pSigs = input.partialSig;
+    }
+    pSigs.forEach(pSig => {
       const { hashType } = bscript.signature.decode(pSig.signature);
       const whitelist = [];
       const isAnyoneCanPay =
