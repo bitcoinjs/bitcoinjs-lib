@@ -20,6 +20,7 @@ export interface SignerAsync {
 export interface ECPairInterface extends Signer {
     compressed: boolean;
     network: Network;
+    lowR: boolean;
     privateKey?: Buffer;
     toWIF(): string;
     verify(hash: Buffer, signature: Buffer): boolean;
@@ -29,6 +30,7 @@ declare class ECPair implements ECPairInterface {
     private __Q?;
     compressed: boolean;
     network: Network;
+    lowR: boolean;
     constructor(__D?: Buffer | undefined, __Q?: Buffer | undefined, options?: ECPairOptions);
     readonly privateKey: Buffer | undefined;
     readonly publicKey: Buffer;

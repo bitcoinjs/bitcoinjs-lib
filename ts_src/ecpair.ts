@@ -36,6 +36,7 @@ export interface SignerAsync {
 export interface ECPairInterface extends Signer {
   compressed: boolean;
   network: Network;
+  lowR: boolean;
   privateKey?: Buffer;
   toWIF(): string;
   verify(hash: Buffer, signature: Buffer): boolean;
@@ -44,12 +45,14 @@ export interface ECPairInterface extends Signer {
 class ECPair implements ECPairInterface {
   compressed: boolean;
   network: Network;
+  lowR: boolean;
 
   constructor(
     private __D?: Buffer,
     private __Q?: Buffer,
     options?: ECPairOptions,
   ) {
+    this.lowR = false;
     if (options === undefined) options = {};
     this.compressed =
       options.compressed === undefined ? true : options.compressed;
@@ -73,8 +76,9 @@ class ECPair implements ECPairInterface {
     return wif.encode(this.network.wif, this.__D, this.compressed);
   }
 
-  sign(hash: Buffer, lowR: boolean = false): Buffer {
+  sign(hash: Buffer, lowR?: boolean): Buffer {
     if (!this.__D) throw new Error('Missing private key');
+    if (lowR === undefined) lowR = this.lowR;
     if (lowR === false) {
       return ecc.sign(hash, this.__D);
     } else {

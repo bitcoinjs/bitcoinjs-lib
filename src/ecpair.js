@@ -16,6 +16,7 @@ class ECPair {
   constructor(__D, __Q, options) {
     this.__D = __D;
     this.__Q = __Q;
+    this.lowR = false;
     if (options === undefined) options = {};
     this.compressed =
       options.compressed === undefined ? true : options.compressed;
@@ -33,8 +34,9 @@ class ECPair {
     if (!this.__D) throw new Error('Missing private key');
     return wif.encode(this.network.wif, this.__D, this.compressed);
   }
-  sign(hash, lowR = false) {
+  sign(hash, lowR) {
     if (!this.__D) throw new Error('Missing private key');
+    if (lowR === undefined) lowR = this.lowR;
     if (lowR === false) {
       return ecc.sign(hash, this.__D);
     } else {
