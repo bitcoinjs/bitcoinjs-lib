@@ -1,3 +1,7 @@
+# 5.1.2
+__added__
+- `ECPair` and `bip32` objects now have a lowR boolean attribute defaulted to false. You may set it to true to ensure that the sign method uses low R values (#1442) (This is to enable low R usage in Psbt, since we decided not to give the low R flag to the Psbt class, since it makes more sense to be an attribute of the Signer interface)
+
 # 5.1.1
 __changed__
 - Name inconsistencies for Psbt class. (Quick fix)
