@@ -193,7 +193,7 @@ describe('bitcoinjs-lib (transactions)', () => {
     const keyPair = bitcoin.ECPair.makeRandom({ network: regtest })
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network: regtest })
 
-    const unspent = await regtestUtils.faucetComplex(p2wpkh.address, 5e4)
+    const unspent = await regtestUtils.faucetComplex(p2wpkh.output, 5e4)
 
     // XXX: build the Transaction w/ a P2WPKH input
     const txb = new bitcoin.TransactionBuilder(regtest)
@@ -223,7 +223,7 @@ describe('bitcoinjs-lib (transactions)', () => {
     const p2pk = bitcoin.payments.p2pk({ pubkey: keyPair.publicKey, network: regtest })
     const p2wsh = bitcoin.payments.p2wsh({ redeem: p2pk, network: regtest })
 
-    const unspent = await regtestUtils.faucetComplex(p2wsh.address, 5e4)
+    const unspent = await regtestUtils.faucetComplex(p2wsh.output, 5e4)
 
     // XXX: build the Transaction w/ a P2WSH input
     const txb = new bitcoin.TransactionBuilder(regtest)
