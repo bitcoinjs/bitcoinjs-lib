@@ -7,13 +7,13 @@ interface ECPairOptions {
 }
 export interface Signer {
     publicKey: Buffer;
-    network?: Network;
+    network?: any;
     sign(hash: Buffer, lowR?: boolean): Buffer;
     getPublicKey?(): Buffer;
 }
 export interface SignerAsync {
     publicKey: Buffer;
-    network?: Network;
+    network?: any;
     sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
     getPublicKey?(): Buffer;
 }
