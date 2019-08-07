@@ -1,3 +1,8 @@
+# 5.1.3
+__changed__
+- TypeScript types: Made Signer and SignerAsync use any for network since we only check for equivalence. (#1448)
+- TypeScript types: Made the args for addInput and addOutput for Psbt actually accept updateInput and updateOutput parameters. (#1449)
+
 # 5.1.2
 __added__
 - `ECPair` and `bip32` objects now have a lowR boolean attribute defaulted to false. You may set it to true to ensure that the sign method uses low R values (#1442) (This is to enable low R usage in Psbt, since we decided not to give the low R flag to the Psbt class, since it makes more sense to be an attribute of the Signer interface)
