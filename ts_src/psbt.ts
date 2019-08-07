@@ -6,6 +6,7 @@ import {
   PsbtGlobalUpdate,
   PsbtInput,
   PsbtInputUpdate,
+  PsbtOutput,
   PsbtOutputUpdate,
   Transaction as ITransaction,
   TransactionFromBuffer,
@@ -176,12 +177,12 @@ export class Psbt {
     return this;
   }
 
-  addInputs(inputDatas: TransactionInput[]): this {
+  addInputs(inputDatas: PsbtInputExtended[]): this {
     inputDatas.forEach(inputData => this.addInput(inputData));
     return this;
   }
 
-  addInput(inputData: TransactionInput): this {
+  addInput(inputData: PsbtInputExtended): this {
     checkInputsForPartialSig(this.data.inputs, 'addInput');
     const c = this.__CACHE;
     this.data.addInput(inputData);
@@ -198,12 +199,12 @@ export class Psbt {
     return this;
   }
 
-  addOutputs(outputDatas: TransactionOutput[]): this {
+  addOutputs(outputDatas: PsbtOutputExtended[]): this {
     outputDatas.forEach(outputData => this.addOutput(outputData));
     return this;
   }
 
-  addOutput(outputData: TransactionOutput): this {
+  addOutput(outputData: PsbtOutputExtended): this {
     checkInputsForPartialSig(this.data.inputs, 'addOutput');
     const { address } = outputData as any;
     if (typeof address === 'string') {
@@ -621,6 +622,10 @@ interface PsbtOpts {
   network: Network;
   maximumFeeRate: number;
 }
+
+interface PsbtInputExtended extends PsbtInput, TransactionInput {}
+
+interface PsbtOutputExtended extends PsbtOutput, TransactionOutput {}
 
 interface HDSignerBase {
   /**
