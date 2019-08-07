@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInputUpdate, PsbtOutputUpdate, TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
@@ -51,10 +51,10 @@ export declare class Psbt {
     setVersion(version: number): this;
     setLocktime(locktime: number): this;
     setInputSequence(inputIndex: number, sequence: number): this;
-    addInputs(inputDatas: TransactionInput[]): this;
-    addInput(inputData: TransactionInput): this;
-    addOutputs(outputDatas: TransactionOutput[]): this;
-    addOutput(outputData: TransactionOutput): this;
+    addInputs(inputDatas: PsbtInputExtended[]): this;
+    addInput(inputData: PsbtInputExtended): this;
+    addOutputs(outputDatas: PsbtOutputExtended[]): this;
+    addOutput(outputData: PsbtOutputExtended): this;
     extractTransaction(disableFeeCheck?: boolean): Transaction;
     getFeeRate(): number;
     finalizeAllInputs(): this;
@@ -83,6 +83,10 @@ export declare class Psbt {
 interface PsbtOptsOptional {
     network?: Network;
     maximumFeeRate?: number;
+}
+interface PsbtInputExtended extends PsbtInput, TransactionInput {
+}
+interface PsbtOutputExtended extends PsbtOutput, TransactionOutput {
 }
 interface HDSignerBase {
     /**
