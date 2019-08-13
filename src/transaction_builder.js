@@ -1007,7 +1007,7 @@ function getSigningData(
     throw new Error('sign requires keypair');
   }
   // TODO: remove keyPair.network matching in 4.0.0
-  if (keyPair.network && keyPair.network !== network)
+  if (keyPair.network && JSON.stringify(keyPair.network) !== JSON.stringify(network))
     throw new TypeError('Inconsistent network');
   if (!inputs[vin]) throw new Error('No input at index: ' + vin);
   hashType = hashType || transaction_1.Transaction.SIGHASH_ALL;
