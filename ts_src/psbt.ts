@@ -1,19 +1,5 @@
-import { Psbt as PsbtBase } from 'bip174';
-import * as varuint from 'bip174/src/lib/converter/varint';
-import {
-  KeyValue,
-  PartialSig,
-  PsbtGlobalUpdate,
-  PsbtInput,
-  PsbtInputUpdate,
-  PsbtOutput,
-  PsbtOutputUpdate,
-  Transaction as ITransaction,
-  TransactionFromBuffer,
-  TransactionInput,
-  TransactionOutput,
-} from 'bip174/src/lib/interfaces';
-import { checkForInput } from 'bip174/src/lib/utils';
+import * as bip174 from 'bip174'
+
 import { toOutputScript } from './address';
 import { reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
@@ -26,6 +12,9 @@ import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
+
+const { checkForInput } = bip174.utils
+
 
 /**
  * These are the default arguments for a Psbt instance.
@@ -88,7 +77,7 @@ export class Psbt {
   }
 
   static fromBuffer(buffer: Buffer, opts: PsbtOptsOptional = {}): Psbt {
-    const psbtBase = PsbtBase.fromBuffer(buffer, transactionFromBuffer);
+    const psbtBase = bip174.Psbt.fromBuffer(buffer, transactionFromBuffer);
     const psbt = new Psbt(opts, psbtBase);
     checkTxForDupeIns(psbt.__CACHE.__TX, psbt.__CACHE);
     return psbt;
@@ -99,7 +88,7 @@ export class Psbt {
 
   constructor(
     opts: PsbtOptsOptional = {},
-    readonly data: PsbtBase = new PsbtBase(new PsbtTransaction()),
+    readonly data: bip174.Psbt = new bip174.Psbt(new PsbtTransaction()),
   ) {
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
@@ -561,12 +550,12 @@ export class Psbt {
     return this.data.toBase64();
   }
 
-  updateGlobal(updateData: PsbtGlobalUpdate): this {
+  updateGlobal(updateData: bip174.PsbtGlobalUpdate): this {
     this.data.updateGlobal(updateData);
     return this;
   }
 
-  updateInput(inputIndex: number, updateData: PsbtInputUpdate): this {
+  updateInput(inputIndex: number, updateData: bip174.PsbtInputUpdate): this {
     this.data.updateInput(inputIndex, updateData);
     if (updateData.nonWitnessUtxo) {
       addNonWitnessTxCache(
@@ -578,22 +567,22 @@ export class Psbt {
     return this;
   }
 
-  updateOutput(outputIndex: number, updateData: PsbtOutputUpdate): this {
+  updateOutput(outputIndex: number, updateData: bip174.PsbtOutputUpdate): this {
     this.data.updateOutput(outputIndex, updateData);
     return this;
   }
 
-  addUnknownKeyValToGlobal(keyVal: KeyValue): this {
+  addUnknownKeyValToGlobal(keyVal: bip174.KeyValue): this {
     this.data.addUnknownKeyValToGlobal(keyVal);
     return this;
   }
 
-  addUnknownKeyValToInput(inputIndex: number, keyVal: KeyValue): this {
+  addUnknownKeyValToInput(inputIndex: number, keyVal: bip174.KeyValue): this {
     this.data.addUnknownKeyValToInput(inputIndex, keyVal);
     return this;
   }
 
-  addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this {
+  addUnknownKeyValToOutput(outputIndex: number, keyVal: bip174.KeyValue): this {
     this.data.addUnknownKeyValToOutput(outputIndex, keyVal);
     return this;
   }
@@ -623,9 +612,9 @@ interface PsbtOpts {
   maximumFeeRate: number;
 }
 
-interface PsbtInputExtended extends PsbtInput, TransactionInput {}
+export interface PsbtInputExtended extends bip174.PsbtInput, bip174.TransactionInput {}
 
-interface PsbtOutputExtended extends PsbtOutput, TransactionOutput {}
+export interface PsbtOutputExtended extends bip174.PsbtOutput, bip174.TransactionOutput {}
 
 interface HDSignerBase {
   /**
@@ -638,7 +627,7 @@ interface HDSignerBase {
   fingerprint: Buffer;
 }
 
-interface HDSigner extends HDSignerBase {
+export interface HDSigner extends HDSignerBase {
   /**
    * The path string must match /^m(\/\d+'?)+$/
    * ex. m/44'/0'/0'/1/23 levels with ' must be hard derivations
@@ -654,7 +643,7 @@ interface HDSigner extends HDSignerBase {
 /**
  * Same as above but with async sign method
  */
-interface HDSignerAsync extends HDSignerBase {
+export interface HDSignerAsync extends HDSignerBase {
   derivePath(path: string): HDSignerAsync;
   sign(hash: Buffer): Promise<Buffer>;
 }
@@ -664,15 +653,15 @@ interface HDSignerAsync extends HDSignerBase {
  * It takes the "transaction buffer" portion of the psbt buffer and returns a
  * Transaction (From the bip174 library) interface.
  */
-const transactionFromBuffer: TransactionFromBuffer = (
+const transactionFromBuffer: bip174.TransactionFromBuffer = (
   buffer: Buffer,
-): ITransaction => new PsbtTransaction(buffer);
+): bip174.Transaction => new PsbtTransaction(buffer);
 
 /**
  * This class implements the Transaction interface from bip174 library.
  * It contains a bitcoinjs-lib Transaction object.
  */
-class PsbtTransaction implements ITransaction {
+class PsbtTransaction implements bip174.Transaction {
   tx: Transaction;
   constructor(buffer: Buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
     this.tx = Transaction.fromBuffer(buffer);
@@ -728,7 +717,7 @@ class PsbtTransaction implements ITransaction {
 }
 
 function canFinalize(
-  input: PsbtInput,
+  input: bip174.PsbtInput,
   script: Buffer,
   scriptType: string,
 ): boolean {
@@ -751,7 +740,7 @@ function hasSigs(neededSigs: number, partialSig?: any[]): boolean {
   return partialSig.length === neededSigs;
 }
 
-function isFinalized(input: PsbtInput): boolean {
+function isFinalized(input: bip174.PsbtInput): boolean {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }
 
@@ -797,10 +786,10 @@ function checkFees(psbt: Psbt, cache: PsbtCache, opts: PsbtOpts): void {
   }
 }
 
-function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
+function checkInputsForPartialSig(inputs: bip174.PsbtInput[], action: string): void {
   inputs.forEach(input => {
     let throws = false;
-    let pSigs: PartialSig[] = [];
+    let pSigs: bip174.PartialSig[] = [];
     if ((input.partialSig || []).length === 0) {
       if (!input.finalScriptSig && !input.finalScriptWitness) return;
       pSigs = getPsigsFromInputFinalScripts(input);
@@ -832,7 +821,7 @@ function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
   });
 }
 
-function checkPartialSigSighashes(input: PsbtInput): void {
+function checkPartialSigSighashes(input: bip174.PsbtInput): void {
   if (!input.sighashType || !input.partialSig) return;
   const { partialSig, sighashType } = input;
   partialSig.forEach(pSig => {
@@ -923,7 +912,7 @@ const checkWitnessScript = scriptCheckerFactory(
 function getFinalScripts(
   script: Buffer,
   scriptType: string,
-  partialSig: PartialSig[],
+  partialSig: bip174.PartialSig[],
   isSegwit: boolean,
   isP2SH: boolean,
   isP2WSH: boolean,
@@ -962,7 +951,7 @@ function getFinalScripts(
 }
 
 function getHashAndSighashType(
-  inputs: PsbtInput[],
+  inputs: bip174.PsbtInput[],
   inputIndex: number,
   pubkey: Buffer,
   cache: PsbtCache,
@@ -987,7 +976,7 @@ function getHashAndSighashType(
 
 function getHashForSig(
   inputIndex: number,
-  input: PsbtInput,
+  input: bip174.PsbtInput,
   cache: PsbtCache,
   sighashTypes?: number[],
 ): {
@@ -1097,7 +1086,7 @@ function getHashForSig(
 function getPayment(
   script: Buffer,
   scriptType: string,
-  partialSig: PartialSig[],
+  partialSig: bip174.PartialSig[],
 ): payments.Payment {
   let payment: payments.Payment;
   switch (scriptType) {
@@ -1132,7 +1121,7 @@ function getPayment(
   return payment!;
 }
 
-function getPsigsFromInputFinalScripts(input: PsbtInput): PartialSig[] {
+function getPsigsFromInputFinalScripts(input: bip174.PsbtInput): bip174.PartialSig[] {
   const scriptItems = !input.finalScriptSig
     ? []
     : bscript.decompile(input.finalScriptSig) || [];
@@ -1144,7 +1133,7 @@ function getPsigsFromInputFinalScripts(input: PsbtInput): PartialSig[] {
     .filter(item => {
       return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
     })
-    .map(sig => ({ signature: sig })) as PartialSig[];
+    .map(sig => ({ signature: sig })) as bip174.PartialSig[];
 }
 
 interface GetScriptReturn {
@@ -1155,7 +1144,7 @@ interface GetScriptReturn {
 }
 function getScriptFromInput(
   inputIndex: number,
-  input: PsbtInput,
+  input: bip174.PsbtInput,
   cache: PsbtCache,
 ): GetScriptReturn {
   const unsignedTx = cache.__TX;
@@ -1199,7 +1188,7 @@ function getScriptFromInput(
 
 function getSignersFromHD(
   inputIndex: number,
-  inputs: PsbtInput[],
+  inputs: bip174.PsbtInput[],
   hdKeyPair: HDSigner | HDSignerAsync,
 ): Array<Signer | SignerAsync> {
   const input = checkForInput(inputs, inputIndex);
@@ -1230,7 +1219,7 @@ function getSignersFromHD(
   return signers;
 }
 
-function getSortedSigs(script: Buffer, partialSig: PartialSig[]): Buffer[] {
+function getSortedSigs(script: Buffer, partialSig: bip174.PartialSig[]): Buffer[] {
   const p2ms = payments.p2ms({ output: script });
   // for each pubkey in order of p2ms script
   return p2ms
@@ -1256,8 +1245,8 @@ function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
   }
 
   function readVarInt(): number {
-    const vi = varuint.decode(buffer, offset);
-    offset += (varuint.decode as any).bytes;
+    const vi = bip174.varint.decode(buffer, offset);
+    offset += (bip174.varint.decode as any).bytes;
     return vi;
   }
 
@@ -1304,10 +1293,10 @@ function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
 
   function writeVarInt(i: number): void {
     const currentLen = buffer.length;
-    const varintLen = varuint.encodingLength(i);
+    const varintLen = bip174.varint.encodingLength(i);
 
     buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
-    varuint.encode(i, buffer, currentLen);
+    bip174.varint.encode(i, buffer, currentLen);
   }
 
   function writeVarSlice(slice: Buffer): void {
@@ -1327,7 +1316,7 @@ function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
 
 function addNonWitnessTxCache(
   cache: PsbtCache,
-  input: PsbtInput,
+  input: bip174.PsbtInput,
   inputIndex: number,
 ): void {
   cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo!;
@@ -1358,7 +1347,7 @@ function addNonWitnessTxCache(
 }
 
 function inputFinalizeGetAmts(
-  inputs: PsbtInput[],
+  inputs: bip174.PsbtInput[],
   tx: Transaction,
   cache: PsbtCache,
   mustFinalize: boolean,
@@ -1396,7 +1385,7 @@ function inputFinalizeGetAmts(
 
 function nonWitnessUtxoTxFromCache(
   cache: PsbtCache,
-  input: PsbtInput,
+  input: bip174.PsbtInput,
   inputIndex: number,
 ): Transaction {
   const c = cache.__NON_WITNESS_UTXO_TX_CACHE;

@@ -1,8 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-const bip174_1 = require('bip174');
-const varuint = require('bip174/src/lib/converter/varint');
-const utils_1 = require('bip174/src/lib/utils');
+const bip174 = require('bip174');
 const address_1 = require('./address');
 const bufferutils_1 = require('./bufferutils');
 const crypto_1 = require('./crypto');
@@ -11,6 +9,7 @@ const networks_1 = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
+const { checkForInput } = bip174.utils;
 /**
  * These are the default arguments for a Psbt instance.
  */
@@ -60,7 +59,7 @@ const DEFAULT_OPTS = {
  *   Transaction object. Such as fee rate not being larger than maximumFeeRate etc.
  */
 class Psbt {
-  constructor(opts = {}, data = new bip174_1.Psbt(new PsbtTransaction())) {
+  constructor(opts = {}, data = new bip174.Psbt(new PsbtTransaction())) {
     this.data = data;
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
@@ -89,7 +88,7 @@ class Psbt {
     return this.fromBuffer(buffer, opts);
   }
   static fromBuffer(buffer, opts = {}) {
-    const psbtBase = bip174_1.Psbt.fromBuffer(buffer, transactionFromBuffer);
+    const psbtBase = bip174.Psbt.fromBuffer(buffer, transactionFromBuffer);
     const psbt = new Psbt(opts, psbtBase);
     checkTxForDupeIns(psbt.__CACHE.__TX, psbt.__CACHE);
     return psbt;
@@ -203,12 +202,12 @@ class Psbt {
     return c.__FEE_RATE;
   }
   finalizeAllInputs() {
-    utils_1.checkForInput(this.data.inputs, 0); // making sure we have at least one
+    checkForInput(this.data.inputs, 0); // making sure we have at least one
     range(this.data.inputs.length).forEach(idx => this.finalizeInput(idx));
     return this;
   }
   finalizeInput(inputIndex) {
-    const input = utils_1.checkForInput(this.data.inputs, inputIndex);
+    const input = checkForInput(this.data.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
@@ -236,7 +235,7 @@ class Psbt {
     return this;
   }
   validateSignaturesOfAllInputs() {
-    utils_1.checkForInput(this.data.inputs, 0); // making sure we have at least one
+    checkForInput(this.data.inputs, 0); // making sure we have at least one
     const results = range(this.data.inputs.length).map(idx =>
       this.validateSignaturesOfInput(idx),
     );
@@ -766,7 +765,7 @@ function getHashAndSighashType(
   cache,
   sighashTypes,
 ) {
-  const input = utils_1.checkForInput(inputs, inputIndex);
+  const input = checkForInput(inputs, inputIndex);
   const { hash, sighashType, script } = getHashForSig(
     inputIndex,
     input,
@@ -959,7 +958,7 @@ function getScriptFromInput(inputIndex, input, cache) {
   return res;
 }
 function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
-  const input = utils_1.checkForInput(inputs, inputIndex);
+  const input = checkForInput(inputs, inputIndex);
   if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
     throw new Error('Need bip32Derivation to sign with HD');
   }
@@ -1009,8 +1008,8 @@ function scriptWitnessToWitnessStack(buffer) {
     return buffer.slice(offset - n, offset);
   }
   function readVarInt() {
-    const vi = varuint.decode(buffer, offset);
-    offset += varuint.decode.bytes;
+    const vi = bip174.varint.decode(buffer, offset);
+    offset += bip174.varint.decode.bytes;
     return vi;
   }
   function readVarSlice() {
@@ -1050,9 +1049,9 @@ function witnessStackToScriptWitness(witness) {
   }
   function writeVarInt(i) {
     const currentLen = buffer.length;
-    const varintLen = varuint.encodingLength(i);
+    const varintLen = bip174.varint.encodingLength(i);
     buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
-    varuint.encode(i, buffer, currentLen);
+    bip174.varint.encode(i, buffer, currentLen);
   }
   function writeVarSlice(slice) {
     writeVarInt(slice.length);

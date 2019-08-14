@@ -1,6 +1,5 @@
 /// <reference types="node" />
-import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
+import * as bip174 from 'bip174';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
@@ -37,13 +36,13 @@ import { Transaction } from './transaction';
  *   Transaction object. Such as fee rate not being larger than maximumFeeRate etc.
  */
 export declare class Psbt {
-    readonly data: PsbtBase;
+    readonly data: bip174.Psbt;
     static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromBuffer(buffer: Buffer, opts?: PsbtOptsOptional): Psbt;
     private __CACHE;
     private opts;
-    constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
+    constructor(opts?: PsbtOptsOptional, data?: bip174.Psbt);
     readonly inputCount: number;
     combine(...those: Psbt[]): this;
     clone(): Psbt;
@@ -72,21 +71,21 @@ export declare class Psbt {
     toBuffer(): Buffer;
     toHex(): string;
     toBase64(): string;
-    updateGlobal(updateData: PsbtGlobalUpdate): this;
-    updateInput(inputIndex: number, updateData: PsbtInputUpdate): this;
-    updateOutput(outputIndex: number, updateData: PsbtOutputUpdate): this;
-    addUnknownKeyValToGlobal(keyVal: KeyValue): this;
-    addUnknownKeyValToInput(inputIndex: number, keyVal: KeyValue): this;
-    addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;
+    updateGlobal(updateData: bip174.PsbtGlobalUpdate): this;
+    updateInput(inputIndex: number, updateData: bip174.PsbtInputUpdate): this;
+    updateOutput(outputIndex: number, updateData: bip174.PsbtOutputUpdate): this;
+    addUnknownKeyValToGlobal(keyVal: bip174.KeyValue): this;
+    addUnknownKeyValToInput(inputIndex: number, keyVal: bip174.KeyValue): this;
+    addUnknownKeyValToOutput(outputIndex: number, keyVal: bip174.KeyValue): this;
     clearFinalizedInput(inputIndex: number): this;
 }
 interface PsbtOptsOptional {
     network?: Network;
     maximumFeeRate?: number;
 }
-interface PsbtInputExtended extends PsbtInput, TransactionInput {
+export interface PsbtInputExtended extends bip174.PsbtInput, bip174.TransactionInput {
 }
-interface PsbtOutputExtended extends PsbtOutput, TransactionOutput {
+export interface PsbtOutputExtended extends bip174.PsbtOutput, bip174.TransactionOutput {
 }
 interface HDSignerBase {
     /**
@@ -98,7 +97,7 @@ interface HDSignerBase {
      */
     fingerprint: Buffer;
 }
-interface HDSigner extends HDSignerBase {
+export interface HDSigner extends HDSignerBase {
     /**
      * The path string must match /^m(\/\d+'?)+$/
      * ex. m/44'/0'/0'/1/23 levels with ' must be hard derivations
@@ -113,7 +112,7 @@ interface HDSigner extends HDSignerBase {
 /**
  * Same as above but with async sign method
  */
-interface HDSignerAsync extends HDSignerBase {
+export interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Buffer): Promise<Buffer>;
 }
