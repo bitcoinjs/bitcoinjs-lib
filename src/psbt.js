@@ -815,13 +815,29 @@ function getHashForSig(inputIndex, input, cache, sighashTypes) {
     } else {
       script = prevout.script;
     }
-    if (isP2WPKH(script) || isP2WSHScript(script)) {
-      throw new Error(
-        `Input #${inputIndex} has nonWitnessUtxo but segwit script: ` +
-          `${script.toString('hex')}`,
+    if (isP2WSHScript(script)) {
+      if (!input.witnessScript)
+        throw new Error('Segwit input needs witnessScript if not P2WPKH');
+      checkWitnessScript(inputIndex, script, input.witnessScript);
+      hash = unsignedTx.hashForWitnessV0(
+        inputIndex,
+        input.witnessScript,
+        prevout.value,
+        sighashType,
       );
+      script = input.witnessScript;
+    } else if (isP2WPKH(script)) {
+      // P2WPKH uses the P2PKH template for prevoutScript when signing
+      const signingScript = payments.p2pkh({ hash: script.slice(2) }).output;
+      hash = unsignedTx.hashForWitnessV0(
+        inputIndex,
+        signingScript,
+        prevout.value,
+        sighashType,
+      );
+    } else {
+      hash = unsignedTx.hashForSignature(inputIndex, script, sighashType);
     }
-    hash = unsignedTx.hashForSignature(inputIndex, script, sighashType);
   } else if (input.witnessUtxo) {
     let _script; // so we don't shadow the `let script` above
     if (input.redeemScript) {
@@ -927,11 +943,14 @@ function getScriptFromInput(inputIndex, input, cache) {
     isP2SH: false,
     isP2WSH: false,
   };
-  if (input.nonWitnessUtxo) {
-    if (input.redeemScript) {
-      res.isP2SH = true;
-      res.script = input.redeemScript;
-    } else {
+  res.isP2SH = !!input.redeemScript;
+  res.isP2WSH = !!input.witnessScript;
+  if (input.witnessScript) {
+    res.script = input.witnessScript;
+  } else if (input.redeemScript) {
+    res.script = input.redeemScript;
+  } else {
+    if (input.nonWitnessUtxo) {
       const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
         cache,
         input,
@@ -939,22 +958,12 @@ function getScriptFromInput(inputIndex, input, cache) {
       );
       const prevoutIndex = unsignedTx.ins[inputIndex].index;
       res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
+    } else if (input.witnessUtxo) {
+      res.script = input.witnessUtxo.script;
     }
-  } else if (input.witnessUtxo) {
+  }
+  if (input.witnessScript || isP2WPKH(res.script)) {
     res.isSegwit = true;
-    res.isP2SH = !!input.redeemScript;
-    res.isP2WSH = !!input.witnessScript;
-    if (input.witnessScript) {
-      res.script = input.witnessScript;
-    } else if (input.redeemScript) {
-      res.script = payments.p2wpkh({
-        hash: input.redeemScript.slice(2),
-      }).output;
-    } else {
-      res.script = payments.p2wpkh({
-        hash: input.witnessUtxo.script.slice(2),
-      }).output;
-    }
   }
   return res;
 }

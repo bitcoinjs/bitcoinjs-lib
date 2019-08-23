@@ -282,6 +282,36 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     });
   });
 
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2SH(P2WPKH) input with nonWitnessUtxo', async () => {
+    // For learning purposes, ignore this test.
+    // REPEATING ABOVE BUT WITH nonWitnessUtxo by passing false to getInputData
+    const p2sh = createPayment('p2sh-p2wpkh');
+    const inputData = await getInputData(5e4, p2sh.payment, false, 'p2sh');
+    const inputData2 = await getInputData(5e4, p2sh.payment, false, 'p2sh');
+    const keyPair = p2sh.keys[0];
+    const outputData = {
+      script: p2sh.payment.output,
+      value: 2e4,
+    };
+    const outputData2 = {
+      script: p2sh.payment.output,
+      value: 7e4,
+    };
+    const tx = new bitcoin.Psbt()
+      .addInputs([inputData, inputData2])
+      .addOutputs([outputData, outputData2])
+      .signAllInputs(keyPair)
+      .finalizeAllInputs()
+      .extractTransaction();
+    await regtestUtils.broadcast(tx.toHex());
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: p2sh.payment.address,
+      vout: 0,
+      value: 2e4,
+    });
+  });
+
   it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WPKH input', async () => {
     // the only thing that changes is you don't give a redeemscript for input data
 
@@ -308,6 +338,29 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     // build and broadcast to the Bitcoin RegTest network
     await regtestUtils.broadcast(tx.toHex());
 
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: regtestUtils.RANDOM_ADDRESS,
+      vout: 0,
+      value: 2e4,
+    });
+  });
+
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WPKH input with nonWitnessUtxo', async () => {
+    // For learning purposes, ignore this test.
+    // REPEATING ABOVE BUT WITH nonWitnessUtxo by passing false to getInputData
+    const p2wpkh = createPayment('p2wpkh');
+    const inputData = await getInputData(5e4, p2wpkh.payment, false, 'noredeem');
+    const psbt = new bitcoin.Psbt({ network: regtest })
+      .addInput(inputData)
+      .addOutput({
+        address: regtestUtils.RANDOM_ADDRESS,
+        value: 2e4,
+      })
+      .signInput(0, p2wpkh.keys[0]);
+    psbt.finalizeAllInputs();
+    const tx = psbt.extractTransaction();
+    await regtestUtils.broadcast(tx.toHex());
     await regtestUtils.verify({
       txId: tx.getId(),
       address: regtestUtils.RANDOM_ADDRESS,
@@ -348,6 +401,29 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     // build and broadcast to the Bitcoin RegTest network
     await regtestUtils.broadcast(tx.toHex());
 
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: regtestUtils.RANDOM_ADDRESS,
+      vout: 0,
+      value: 2e4,
+    });
+  });
+
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WSH(P2PK) input with nonWitnessUtxo', async () => {
+    // For learning purposes, ignore this test.
+    // REPEATING ABOVE BUT WITH nonWitnessUtxo by passing false to getInputData
+    const p2wsh = createPayment('p2wsh-p2pk');
+    const inputData = await getInputData(5e4, p2wsh.payment, false, 'p2wsh');
+    const psbt = new bitcoin.Psbt({ network: regtest })
+      .addInput(inputData)
+      .addOutput({
+        address: regtestUtils.RANDOM_ADDRESS,
+        value: 2e4,
+      })
+      .signInput(0, p2wsh.keys[0]);
+    psbt.finalizeAllInputs();
+    const tx = psbt.extractTransaction();
+    await regtestUtils.broadcast(tx.toHex());
     await regtestUtils.verify({
       txId: tx.getId(),
       address: regtestUtils.RANDOM_ADDRESS,
@@ -398,6 +474,31 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     // build and broadcast to the Bitcoin RegTest network
     await regtestUtils.broadcast(tx.toHex());
 
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: regtestUtils.RANDOM_ADDRESS,
+      vout: 0,
+      value: 2e4,
+    });
+  });
+
+  it('can create (and broadcast via 3PBP) a Transaction, w/ a P2SH(P2WSH(P2MS(3 of 4))) (SegWit multisig) input with nonWitnessUtxo', async () => {
+    // For learning purposes, ignore this test.
+    // REPEATING ABOVE BUT WITH nonWitnessUtxo by passing false to getInputData
+    const p2sh = createPayment('p2sh-p2wsh-p2ms(3 of 4)');
+    const inputData = await getInputData(5e4, p2sh.payment, false, 'p2sh-p2wsh');
+    const psbt = new bitcoin.Psbt({ network: regtest })
+      .addInput(inputData)
+      .addOutput({
+        address: regtestUtils.RANDOM_ADDRESS,
+        value: 2e4,
+      })
+      .signInput(0, p2sh.keys[0])
+      .signInput(0, p2sh.keys[2])
+      .signInput(0, p2sh.keys[3]);
+    psbt.finalizeAllInputs();
+    const tx = psbt.extractTransaction();
+    await regtestUtils.broadcast(tx.toHex());
     await regtestUtils.verify({
       txId: tx.getId(),
       address: regtestUtils.RANDOM_ADDRESS,
