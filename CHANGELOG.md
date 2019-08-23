@@ -1,3 +1,7 @@
+# 5.1.4
+__changed__
+- `Psbt` inputs using segwit scripts can now work with nonWitnessUtxo as well as the original witnessUtxo. The reasoning for this is that nonWitnessUtxo has all the information contained in the witnessUtxo, so rejecting signing even though we have all the info we need is unnecessary. Trying to sign a non-segwit script with a witnessUtxo will still throw an Error as it should.
+
 # 5.1.3
 __changed__
 - TypeScript types: Made Signer and SignerAsync use any for network since we only check for equivalence. (#1448)
