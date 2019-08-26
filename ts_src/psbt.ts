@@ -194,6 +194,8 @@ export class Psbt {
     if (input.nonWitnessUtxo) {
       addNonWitnessTxCache(this.__CACHE, input, inputIndex);
     }
+    c.__FEE = undefined;
+    c.__VSIZE = undefined;
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -214,6 +216,8 @@ export class Psbt {
     }
     const c = this.__CACHE;
     this.data.addOutput(outputData);
+    c.__FEE = undefined;
+    c.__VSIZE = undefined;
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -232,20 +236,25 @@ export class Psbt {
   }
 
   getFeeRate(): number {
-    if (!this.data.inputs.every(isFinalized))
-      throw new Error('PSBT must be finalized to calculate fee rate');
-    const c = this.__CACHE;
-    if (c.__FEE_RATE) return c.__FEE_RATE;
-    let tx: Transaction;
-    let mustFinalize = true;
-    if (c.__EXTRACTED_TX) {
-      tx = c.__EXTRACTED_TX;
-      mustFinalize = false;
-    } else {
-      tx = c.__TX.clone();
-    }
-    inputFinalizeGetAmts(this.data.inputs, tx, c, mustFinalize);
-    return c.__FEE_RATE!;
+    return getTxCacheValue(
+      '__FEE_RATE',
+      'fee rate',
+      this.data.inputs,
+      this.__CACHE,
+    )!;
+  }
+
+  getFee(): number {
+    return getTxCacheValue('__FEE', 'fee', this.data.inputs, this.__CACHE)!;
+  }
+
+  getVSize(): number {
+    return getTxCacheValue(
+      '__VSIZE',
+      'virtual size',
+      this.data.inputs,
+      this.__CACHE,
+    )!;
   }
 
   finalizeAllInputs(): this {
@@ -610,6 +619,8 @@ interface PsbtCache {
   __TX_IN_CACHE: { [index: string]: number };
   __TX: Transaction;
   __FEE_RATE?: number;
+  __FEE?: number;
+  __VSIZE?: number;
   __EXTRACTED_TX?: Transaction;
 }
 
@@ -919,6 +930,32 @@ const checkWitnessScript = scriptCheckerFactory(
   payments.p2wsh,
   'Witness script',
 );
+
+type TxCacheNumberKey = '__FEE_RATE' | '__FEE' | '__VSIZE';
+function getTxCacheValue(
+  key: TxCacheNumberKey,
+  name: string,
+  inputs: PsbtInput[],
+  c: PsbtCache,
+): number | undefined {
+  if (!inputs.every(isFinalized))
+    throw new Error(`PSBT must be finalized to calculate ${name}`);
+  if (key === '__FEE_RATE' && c.__FEE_RATE) return c.__FEE_RATE;
+  if (key === '__FEE' && c.__FEE) return c.__FEE;
+  if (key === '__VSIZE' && c.__VSIZE) return c.__VSIZE;
+  let tx: Transaction;
+  let mustFinalize = true;
+  if (c.__EXTRACTED_TX) {
+    tx = c.__EXTRACTED_TX;
+    mustFinalize = false;
+  } else {
+    tx = c.__TX.clone();
+  }
+  inputFinalizeGetAmts(inputs, tx, c, mustFinalize);
+  if (key === '__FEE_RATE') return c.__FEE_RATE!;
+  else if (key === '__FEE') return c.__FEE!;
+  else if (key === '__VSIZE') return c.__VSIZE!;
+}
 
 function getFinalScripts(
   script: Buffer,
@@ -1398,6 +1435,8 @@ function inputFinalizeGetAmts(
     throw new Error('Outputs are spending more than Inputs');
   }
   const bytes = tx.virtualSize();
+  cache.__VSIZE = bytes;
+  cache.__FEE = fee;
   cache.__EXTRACTED_TX = tx;
   cache.__FEE_RATE = Math.floor(fee / bytes);
 }

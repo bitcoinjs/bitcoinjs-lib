@@ -153,6 +153,8 @@ class Psbt {
     if (input.nonWitnessUtxo) {
       addNonWitnessTxCache(this.__CACHE, input, inputIndex);
     }
+    c.__FEE = undefined;
+    c.__VSIZE = undefined;
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -171,6 +173,8 @@ class Psbt {
     }
     const c = this.__CACHE;
     this.data.addOutput(outputData);
+    c.__FEE = undefined;
+    c.__VSIZE = undefined;
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -187,20 +191,23 @@ class Psbt {
     return tx;
   }
   getFeeRate() {
-    if (!this.data.inputs.every(isFinalized))
-      throw new Error('PSBT must be finalized to calculate fee rate');
-    const c = this.__CACHE;
-    if (c.__FEE_RATE) return c.__FEE_RATE;
-    let tx;
-    let mustFinalize = true;
-    if (c.__EXTRACTED_TX) {
-      tx = c.__EXTRACTED_TX;
-      mustFinalize = false;
-    } else {
-      tx = c.__TX.clone();
-    }
-    inputFinalizeGetAmts(this.data.inputs, tx, c, mustFinalize);
-    return c.__FEE_RATE;
+    return getTxCacheValue(
+      '__FEE_RATE',
+      'fee rate',
+      this.data.inputs,
+      this.__CACHE,
+    );
+  }
+  getFee() {
+    return getTxCacheValue('__FEE', 'fee', this.data.inputs, this.__CACHE);
+  }
+  getVSize() {
+    return getTxCacheValue(
+      '__VSIZE',
+      'virtual size',
+      this.data.inputs,
+      this.__CACHE,
+    );
   }
   finalizeAllInputs() {
     utils_1.checkForInput(this.data.inputs, 0); // making sure we have at least one
@@ -724,6 +731,25 @@ const checkWitnessScript = scriptCheckerFactory(
   payments.p2wsh,
   'Witness script',
 );
+function getTxCacheValue(key, name, inputs, c) {
+  if (!inputs.every(isFinalized))
+    throw new Error(`PSBT must be finalized to calculate ${name}`);
+  if (key === '__FEE_RATE' && c.__FEE_RATE) return c.__FEE_RATE;
+  if (key === '__FEE' && c.__FEE) return c.__FEE;
+  if (key === '__VSIZE' && c.__VSIZE) return c.__VSIZE;
+  let tx;
+  let mustFinalize = true;
+  if (c.__EXTRACTED_TX) {
+    tx = c.__EXTRACTED_TX;
+    mustFinalize = false;
+  } else {
+    tx = c.__TX.clone();
+  }
+  inputFinalizeGetAmts(inputs, tx, c, mustFinalize);
+  if (key === '__FEE_RATE') return c.__FEE_RATE;
+  else if (key === '__FEE') return c.__FEE;
+  else if (key === '__VSIZE') return c.__VSIZE;
+}
 function getFinalScripts(
   script,
   scriptType,
@@ -1124,6 +1150,8 @@ function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize) {
     throw new Error('Outputs are spending more than Inputs');
   }
   const bytes = tx.virtualSize();
+  cache.__VSIZE = bytes;
+  cache.__FEE = fee;
   cache.__EXTRACTED_TX = tx;
   cache.__FEE_RATE = Math.floor(fee / bytes);
 }

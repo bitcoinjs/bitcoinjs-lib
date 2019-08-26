@@ -149,6 +149,16 @@ describe(`Psbt`, () => {
         const fr1 = psbt5.getFeeRate()
         const fr2 = psbt5.getFeeRate()
         assert.strictEqual(fr1, fr2)
+
+        const psbt6 =  Psbt.fromBase64(f.psbt)
+        const f1 = psbt6.getFee()
+        const f2 = psbt6.getFee()
+        assert.strictEqual(f1, f2)
+
+        const psbt7 =  Psbt.fromBase64(f.psbt)
+        const vs1 = psbt7.getVSize()
+        const vs2 = psbt7.getVSize()
+        assert.strictEqual(vs1, vs2)
       })
     })
   })
