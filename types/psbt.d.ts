@@ -57,6 +57,7 @@ export declare class Psbt {
     addOutput(outputData: PsbtOutputExtended): this;
     extractTransaction(disableFeeCheck?: boolean): Transaction;
     getFeeRate(): number;
+    getFee(): number;
     finalizeAllInputs(): this;
     finalizeInput(inputIndex: number): this;
     validateSignaturesOfAllInputs(): boolean;
