@@ -195,7 +195,6 @@ export class Psbt {
       addNonWitnessTxCache(this.__CACHE, input, inputIndex);
     }
     c.__FEE = undefined;
-    c.__VSIZE = undefined;
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -217,7 +216,6 @@ export class Psbt {
     const c = this.__CACHE;
     this.data.addOutput(outputData);
     c.__FEE = undefined;
-    c.__VSIZE = undefined;
     c.__FEE_RATE = undefined;
     c.__EXTRACTED_TX = undefined;
     return this;
@@ -246,15 +244,6 @@ export class Psbt {
 
   getFee(): number {
     return getTxCacheValue('__FEE', 'fee', this.data.inputs, this.__CACHE)!;
-  }
-
-  getVSize(): number {
-    return getTxCacheValue(
-      '__VSIZE',
-      'virtual size',
-      this.data.inputs,
-      this.__CACHE,
-    )!;
   }
 
   finalizeAllInputs(): this {
@@ -620,7 +609,6 @@ interface PsbtCache {
   __TX: Transaction;
   __FEE_RATE?: number;
   __FEE?: number;
-  __VSIZE?: number;
   __EXTRACTED_TX?: Transaction;
 }
 
@@ -931,7 +919,7 @@ const checkWitnessScript = scriptCheckerFactory(
   'Witness script',
 );
 
-type TxCacheNumberKey = '__FEE_RATE' | '__FEE' | '__VSIZE';
+type TxCacheNumberKey = '__FEE_RATE' | '__FEE';
 function getTxCacheValue(
   key: TxCacheNumberKey,
   name: string,
@@ -942,7 +930,6 @@ function getTxCacheValue(
     throw new Error(`PSBT must be finalized to calculate ${name}`);
   if (key === '__FEE_RATE' && c.__FEE_RATE) return c.__FEE_RATE;
   if (key === '__FEE' && c.__FEE) return c.__FEE;
-  if (key === '__VSIZE' && c.__VSIZE) return c.__VSIZE;
   let tx: Transaction;
   let mustFinalize = true;
   if (c.__EXTRACTED_TX) {
@@ -954,7 +941,6 @@ function getTxCacheValue(
   inputFinalizeGetAmts(inputs, tx, c, mustFinalize);
   if (key === '__FEE_RATE') return c.__FEE_RATE!;
   else if (key === '__FEE') return c.__FEE!;
-  else if (key === '__VSIZE') return c.__VSIZE!;
 }
 
 function getFinalScripts(
@@ -1435,7 +1421,6 @@ function inputFinalizeGetAmts(
     throw new Error('Outputs are spending more than Inputs');
   }
   const bytes = tx.virtualSize();
-  cache.__VSIZE = bytes;
   cache.__FEE = fee;
   cache.__EXTRACTED_TX = tx;
   cache.__FEE_RATE = Math.floor(fee / bytes);
