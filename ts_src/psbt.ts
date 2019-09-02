@@ -11,7 +11,6 @@ import {
   Transaction as ITransaction,
   TransactionFromBuffer,
   TransactionInput,
-  TransactionOutput,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
 import { toOutputScript } from './address';
@@ -624,7 +623,17 @@ interface PsbtOpts {
 
 interface PsbtInputExtended extends PsbtInput, TransactionInput {}
 
-interface PsbtOutputExtended extends PsbtOutput, TransactionOutput {}
+type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
+
+interface PsbtOutputExtendedAddress extends PsbtOutput {
+  address: string;
+  value: number;
+}
+
+interface PsbtOutputExtendedScript extends PsbtOutput {
+  script: Buffer;
+  value: number;
+}
 
 interface HDSignerBase {
   /**

@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
@@ -87,7 +87,14 @@ interface PsbtOptsOptional {
 }
 interface PsbtInputExtended extends PsbtInput, TransactionInput {
 }
-interface PsbtOutputExtended extends PsbtOutput, TransactionOutput {
+declare type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
+interface PsbtOutputExtendedAddress extends PsbtOutput {
+    address: string;
+    value: number;
+}
+interface PsbtOutputExtendedScript extends PsbtOutput {
+    script: Buffer;
+    value: number;
 }
 interface HDSignerBase {
     /**
