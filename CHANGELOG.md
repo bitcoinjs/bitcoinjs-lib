@@ -1,3 +1,7 @@
+# 5.1.6
+__fixed__
+- `PsbtOutputExtended` did not support using the address attribute properly. It is now fixed.
+
 # 5.1.5
 __added__
 - `Psbt` now has `getFee(): number` for use when all inputs are finalized. It returns the satoshi fee of the transaction. Calling getFee, getFeeRate, or extractTransaction will cache these values so if you call one after the other, the second call will return immediately.
