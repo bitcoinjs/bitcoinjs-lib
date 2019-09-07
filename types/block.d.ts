@@ -16,12 +16,12 @@ export declare class Block {
     getWitnessCommit(): Buffer | null;
     hasWitnessCommit(): boolean;
     hasWitness(): boolean;
-    byteLength(headersOnly: boolean): number;
+    byteLength(headersOnly?: boolean): number;
     getHash(): Buffer;
     getId(): string;
     getUTCDate(): Date;
-    toBuffer(headersOnly: boolean): Buffer;
-    toHex(headersOnly: boolean): string;
+    toBuffer(headersOnly?: boolean): Buffer;
+    toHex(headersOnly?: boolean): string;
     checkTxRoots(): boolean;
     checkProofOfWork(): boolean;
     private __checkMerkleRoot;

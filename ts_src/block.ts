@@ -148,7 +148,7 @@ export class Block {
     return anyTxHasWitness(this.transactions!);
   }
 
-  byteLength(headersOnly: boolean): number {
+  byteLength(headersOnly?: boolean): number {
     if (headersOnly || !this.transactions) return 80;
 
     return (
@@ -174,7 +174,7 @@ export class Block {
   }
 
   // TODO: buffer, offset compatibility
-  toBuffer(headersOnly: boolean): Buffer {
+  toBuffer(headersOnly?: boolean): Buffer {
     const buffer: Buffer = Buffer.allocUnsafe(this.byteLength(headersOnly));
 
     let offset: number = 0;
@@ -213,7 +213,7 @@ export class Block {
     return buffer;
   }
 
-  toHex(headersOnly: boolean): string {
+  toHex(headersOnly?: boolean): string {
     return this.toBuffer(headersOnly).toString('hex');
   }
 

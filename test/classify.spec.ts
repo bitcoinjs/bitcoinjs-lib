@@ -1,18 +1,18 @@
-const { describe, it } = require('mocha')
-const assert = require('assert')
-const bscript = require('../src/script')
-const classify = require('../src/classify')
+import * as assert from 'assert';
+import { describe, it } from 'mocha';
+import * as bscript from '../src/script';
+import * as classify from '../src/classify';
 
-const fixtures = require('./fixtures/templates.json')
+import * as fixtures from './fixtures/templates.json';
 
-const multisig = require('../src/templates/multisig')
-const nullData = require('../src/templates/nulldata')
-const pubKey = require('../src/templates/pubkey')
-const pubKeyHash = require('../src/templates/pubkeyhash')
-const scriptHash = require('../src/templates/scripthash')
-const witnessPubKeyHash = require('../src/templates/witnesspubkeyhash')
-const witnessScriptHash = require('../src/templates/witnessscripthash')
-const witnessCommitment = require('../src/templates/witnesscommitment')
+import * as multisig from '../src/templates/multisig';
+import * as nullData from '../src/templates/nulldata';
+import * as pubKey from '../src/templates/pubkey';
+import * as pubKeyHash from '../src/templates/pubkeyhash';
+import * as scriptHash from '../src/templates/scripthash';
+import * as witnessPubKeyHash from '../src/templates/witnesspubkeyhash';
+import * as witnessScriptHash from '../src/templates/witnessscripthash';
+import * as witnessCommitment from '../src/templates/witnesscommitment';
 
 const tmap = {
   pubKey,
@@ -22,49 +22,48 @@ const tmap = {
   witnessScriptHash,
   multisig,
   nullData,
-  witnessCommitment
-}
+  witnessCommitment,
+};
 
 describe('classify', () => {
   describe('input', () => {
     fixtures.valid.forEach(f => {
-      if (!f.input) return
+      if (!f.input) return;
 
       it('classifies ' + f.input + ' as ' + f.type, () => {
-        const input = bscript.fromASM(f.input)
-        const type = classify.input(input)
+        const input = bscript.fromASM(f.input);
+        const type = classify.input(input);
 
-        assert.strictEqual(type, f.type)
-      })
-    })
+        assert.strictEqual(type, f.type);
+      });
+    });
 
     fixtures.valid.forEach(f => {
-      if (!f.input) return
-      if (!f.typeIncomplete) return
+      if (!f.input) return;
+      if (!f.typeIncomplete) return;
 
       it('classifies incomplete ' + f.input + ' as ' + f.typeIncomplete, () => {
-        const input = bscript.fromASM(f.input)
-        const type = classify.input(input, true)
+        const input = bscript.fromASM(f.input);
+        const type = classify.input(input, true);
 
-        assert.strictEqual(type, f.typeIncomplete)
-      })
-    })
-  })
+        assert.strictEqual(type, f.typeIncomplete);
+      });
+    });
+  });
 
   describe('classifyOutput', () => {
     fixtures.valid.forEach(f => {
-      if (!f.output) return
+      if (!f.output) return;
 
       it('classifies ' + f.output + ' as ' + f.type, () => {
-        const output = bscript.fromASM(f.output)
-        const type = classify.output(output)
+        const output = bscript.fromASM(f.output);
+        const type = classify.output(output);
 
-        assert.strictEqual(type, f.type)
-      })
-    })
-  })
-
-  ;[
+        assert.strictEqual(type, f.type);
+      });
+    });
+  });
+  [
     'pubKey',
     'pubKeyHash',
     'scriptHash',
@@ -72,85 +71,110 @@ describe('classify', () => {
     'witnessScriptHash',
     'multisig',
     'nullData',
-    'witnessCommitment'
+    'witnessCommitment',
   ].forEach(name => {
-    const inputType = tmap[name].input
-    const outputType = tmap[name].output
+    const inputType = (tmap as any)[name].input;
+    const outputType = (tmap as any)[name].output;
 
     describe(name + '.input.check', () => {
       fixtures.valid.forEach(f => {
-        if (name.toLowerCase() === classify.types.P2WPKH) return
-        if (name.toLowerCase() === classify.types.P2WSH) return
-        const expected = name.toLowerCase() === f.type.toLowerCase()
+        if (name.toLowerCase() === classify.types.P2WPKH) return;
+        if (name.toLowerCase() === classify.types.P2WSH) return;
+        const expected = name.toLowerCase() === f.type.toLowerCase();
 
         if (inputType && f.input) {
-          const input = bscript.fromASM(f.input)
+          const input = bscript.fromASM(f.input);
 
           it('returns ' + expected + ' for ' + f.input, () => {
-            assert.strictEqual(inputType.check(input), expected)
-          })
+            assert.strictEqual(inputType.check(input), expected);
+          });
 
           if (f.typeIncomplete) {
-            const expectedIncomplete = name.toLowerCase() === f.typeIncomplete
+            const expectedIncomplete = name.toLowerCase() === f.typeIncomplete;
 
             it('returns ' + expected + ' for ' + f.input, () => {
-              assert.strictEqual(inputType.check(input, true), expectedIncomplete)
-            })
+              assert.strictEqual(
+                inputType.check(input, true),
+                expectedIncomplete,
+              );
+            });
           }
         }
-      })
+      });
 
-      if (!(fixtures.invalid[name])) return
+      if (!(fixtures.invalid as any)[name]) return;
 
-      fixtures.invalid[name].inputs.forEach(f => {
-        if (!f.input && !f.inputHex) return
+      (fixtures.invalid as any)[name].inputs.forEach((f: any) => {
+        if (!f.input && !f.inputHex) return;
 
-        it('returns false for ' + f.description + ' (' + (f.input || f.inputHex) + ')', () => {
-          let input
+        it(
+          'returns false for ' +
+            f.description +
+            ' (' +
+            (f.input || f.inputHex) +
+            ')',
+          () => {
+            let input;
 
-          if (f.input) {
-            input = bscript.fromASM(f.input)
-          } else {
-            input = Buffer.from(f.inputHex, 'hex')
-          }
+            if (f.input) {
+              input = bscript.fromASM(f.input);
+            } else {
+              input = Buffer.from(f.inputHex, 'hex');
+            }
 
-          assert.strictEqual(inputType.check(input), false)
-        })
-      })
-    })
+            assert.strictEqual(inputType.check(input), false);
+          },
+        );
+      });
+    });
 
     describe(name + '.output.check', () => {
       fixtures.valid.forEach(f => {
-        const expected = name.toLowerCase() === f.type
+        const expected = name.toLowerCase() === f.type;
 
         if (outputType && f.output) {
           it('returns ' + expected + ' for ' + f.output, () => {
-            const output = bscript.fromASM(f.output)
+            const output = bscript.fromASM(f.output);
 
-            if (name.toLowerCase() === 'nulldata' && f.type === classify.types.WITNESS_COMMITMENT) return
-            if (name.toLowerCase() === 'witnesscommitment' && f.type === classify.types.NULLDATA) return
-            assert.strictEqual(outputType.check(output), expected)
-          })
+            if (
+              name.toLowerCase() === 'nulldata' &&
+              f.type === classify.types.WITNESS_COMMITMENT
+            )
+              return;
+            if (
+              name.toLowerCase() === 'witnesscommitment' &&
+              f.type === classify.types.NULLDATA
+            )
+              return;
+            assert.strictEqual(outputType.check(output), expected);
+          });
         }
-      })
+      });
 
-      if (!(fixtures.invalid[name])) return
+      if (!(fixtures.invalid as any)[name]) return;
 
-      fixtures.invalid[name].outputs.forEach(f => {
-        if (!f.output && !f.outputHex) return
+      (fixtures.invalid as any)[name].outputs.forEach((f: any) => {
+        if (!f.output && !f.outputHex) return;
 
-        it('returns false for ' + f.description + ' (' + (f.output || f.outputHex) + ')', () => {
-          let output
+        it(
+          'returns false for ' +
+            f.description +
+            ' (' +
+            (f.output || f.outputHex) +
+            ')',
+          () => {
+            let output;
 
-          if (f.output) {
-            output = bscript.fromASM(f.output)
-          } else {
-            output = Buffer.from(f.outputHex, 'hex')
-          }
+            if (f.output) {
+              output = bscript.fromASM(f.output);
+            } else {
+              output = Buffer.from(f.outputHex, 'hex');
+            }
 
-          assert.strictEqual(outputType.check(output), false)
-        })
-      })
-    })
-  })
-})
+            assert.strictEqual(outputType.check(output), false);
+          },
+        );
+      });
+    });
+  });
+});

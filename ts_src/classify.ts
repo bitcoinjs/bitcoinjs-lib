@@ -38,7 +38,7 @@ function classifyOutput(script: Buffer): string {
   return types.NONSTANDARD;
 }
 
-function classifyInput(script: Buffer, allowIncomplete: boolean): string {
+function classifyInput(script: Buffer, allowIncomplete?: boolean): string {
   // XXX: optimization, below functions .decompile before use
   const chunks = decompile(script);
   if (!chunks) throw new TypeError('Invalid script');
@@ -51,7 +51,7 @@ function classifyInput(script: Buffer, allowIncomplete: boolean): string {
   return types.NONSTANDARD;
 }
 
-function classifyWitness(script: Buffer[], allowIncomplete: boolean): string {
+function classifyWitness(script: Buffer[], allowIncomplete?: boolean): string {
   // XXX: optimization, below functions .decompile before use
   const chunks = decompile(script);
   if (!chunks) throw new TypeError('Invalid script');
