@@ -6,23 +6,27 @@ const dhttp = regtestUtils.dhttp;
 const TESTNET = bitcoin.networks.testnet;
 
 describe('bitcoinjs-lib (addresses)', () => {
-  it('can generate a random address [and support the retrieval of transactions for that address (via 3PBP)', async () => {
-    const keyPair = bitcoin.ECPair.makeRandom();
-    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
+  it(
+    'can generate a random address [and support the retrieval of ' +
+      'transactions for that address (via 3PBP)]',
+    async () => {
+      const keyPair = bitcoin.ECPair.makeRandom();
+      const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
 
-    // bitcoin P2PKH addresses start with a '1'
-    assert.strictEqual(address!.startsWith('1'), true);
+      // bitcoin P2PKH addresses start with a '1'
+      assert.strictEqual(address!.startsWith('1'), true);
 
-    const result = await dhttp({
-      method: 'GET',
-      url: 'https://blockchain.info/rawaddr/' + address,
-    });
+      const result = await dhttp({
+        method: 'GET',
+        url: 'https://blockchain.info/rawaddr/' + address,
+      });
 
-    // random private keys [probably!] have no transactions
-    assert.strictEqual((result as any).n_tx, 0);
-    assert.strictEqual((result as any).total_received, 0);
-    assert.strictEqual((result as any).total_sent, 0);
-  });
+      // random private keys [probably!] have no transactions
+      assert.strictEqual((result as any).n_tx, 0);
+      assert.strictEqual((result as any).total_received, 0);
+      assert.strictEqual((result as any).total_sent, 0);
+    },
+  );
 
   it('can import an address via WIF', () => {
     const keyPair = bitcoin.ECPair.fromWIF(

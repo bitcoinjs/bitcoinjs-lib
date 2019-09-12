@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export interface BlankOutput {
     script: Buffer;
     valueBuffer: Buffer;

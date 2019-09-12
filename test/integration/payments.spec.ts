@@ -6,46 +6,43 @@ const keyPairs = [
   bitcoin.ECPair.makeRandom({ network: NETWORK }),
   bitcoin.ECPair.makeRandom({ network: NETWORK }),
 ];
-console.warn = () => {}; // Silence the Deprecation Warning
 
 async function buildAndSign(
   depends: any,
   prevOutput: any,
   redeemScript: any,
   witnessScript: any,
-) {
+): Promise<null> {
   const unspent = await regtestUtils.faucetComplex(prevOutput, 5e4);
+  const utx = await regtestUtils.fetch(unspent.txId);
 
-  const txb = new bitcoin.TransactionBuilder(NETWORK);
-  txb.addInput(unspent.txId, unspent.vout, undefined, prevOutput);
-  txb.addOutput(regtestUtils.RANDOM_ADDRESS, 2e4);
-
-  const posType = depends.prevOutScriptType;
-  const needsValue = !!witnessScript || posType.slice(-6) === 'p2wpkh';
+  const psbt = new bitcoin.Psbt({ network: NETWORK })
+    .addInput({
+      hash: unspent.txId,
+      index: unspent.vout,
+      nonWitnessUtxo: Buffer.from(utx.txHex, 'hex'),
+      ...(redeemScript ? { redeemScript } : {}),
+      ...(witnessScript ? { witnessScript } : {}),
+    })
+    .addOutput({
+      address: regtestUtils.RANDOM_ADDRESS,
+      value: 2e4,
+    });
 
   if (depends.signatures) {
     keyPairs.forEach(keyPair => {
-      txb.sign({
-        prevOutScriptType: posType,
-        vin: 0,
-        keyPair,
-        redeemScript,
-        witnessValue: needsValue ? unspent.value : undefined,
-        witnessScript,
-      });
+      psbt.signInput(0, keyPair);
     });
   } else if (depends.signature) {
-    txb.sign({
-      prevOutScriptType: posType,
-      vin: 0,
-      keyPair: keyPairs[0],
-      redeemScript,
-      witnessValue: needsValue ? unspent.value : undefined,
-      witnessScript,
-    });
+    psbt.signInput(0, keyPairs[0]);
   }
 
-  return regtestUtils.broadcast(txb.build().toHex());
+  return regtestUtils.broadcast(
+    psbt
+      .finalizeAllInputs()
+      .extractTransaction()
+      .toHex(),
+  );
 }
 
 ['p2ms', 'p2pk', 'p2pkh', 'p2wpkh'].forEach(k => {

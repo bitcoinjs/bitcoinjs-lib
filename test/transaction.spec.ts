@@ -5,7 +5,7 @@ import * as bscript from '../src/script';
 import * as fixtures from './fixtures/transaction.json';
 
 describe('Transaction', () => {
-  function fromRaw(raw: any, noWitness?: boolean) {
+  function fromRaw(raw: any, noWitness?: boolean): Transaction {
     const tx = new Transaction();
     tx.version = raw.version;
     tx.locktime = raw.locktime;
@@ -47,7 +47,7 @@ describe('Transaction', () => {
   }
 
   describe('fromBuffer/fromHex', () => {
-    function importExport(f: any) {
+    function importExport(f: any): void {
       const id = f.id || f.hash;
       const txHex = f.hex || f.txHex;
 
@@ -218,7 +218,7 @@ describe('Transaction', () => {
   });
 
   describe('getHash/getId', () => {
-    function verify(f: any) {
+    function verify(f: any): void {
       it('should return the id for ' + f.id + '(' + f.description + ')', () => {
         const tx = Transaction.fromHex(f.whex || f.hex);
 
@@ -231,7 +231,7 @@ describe('Transaction', () => {
   });
 
   describe('isCoinbase', () => {
-    function verify(f: any) {
+    function verify(f: any): void {
       it(
         'should return ' +
           f.coinbase +

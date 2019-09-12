@@ -1,4 +1,3 @@
-/// <reference types="node" />
 interface ScriptSignature {
     signature: Buffer;
     hashType: number;

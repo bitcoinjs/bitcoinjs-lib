@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import * as bscript from '../src/script';
 import * as classify from '../src/classify';
+import * as bscript from '../src/script';
 
 import * as fixtures from './fixtures/templates.json';
 
@@ -10,9 +10,9 @@ import * as nullData from '../src/templates/nulldata';
 import * as pubKey from '../src/templates/pubkey';
 import * as pubKeyHash from '../src/templates/pubkeyhash';
 import * as scriptHash from '../src/templates/scripthash';
+import * as witnessCommitment from '../src/templates/witnesscommitment';
 import * as witnessPubKeyHash from '../src/templates/witnesspubkeyhash';
 import * as witnessScriptHash from '../src/templates/witnessscripthash';
-import * as witnessCommitment from '../src/templates/witnesscommitment';
 
 const tmap = {
   pubKey,

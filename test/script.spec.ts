@@ -12,7 +12,7 @@ describe('script', () => {
       assert.strictEqual(false, bscript.isCanonicalPubKey(0 as any));
     });
     it('rejects smaller than 33', () => {
-      for (var i = 0; i < 33; i++) {
+      for (let i = 0; i < 33; i++) {
         assert.strictEqual(
           false,
           bscript.isCanonicalPubKey(Buffer.allocUnsafe(i)),
@@ -20,7 +20,9 @@ describe('script', () => {
       }
     });
   });
-  describe.skip('isCanonicalScriptSignature', () => {});
+  describe.skip('isCanonicalScriptSignature', () => {
+    assert.ok(true);
+  });
 
   describe('fromASM/toASM', () => {
     fixtures.valid.forEach(f => {
@@ -157,19 +159,19 @@ describe('script', () => {
       });
     });
 
-    function testEncodingForSize(i: number) {
-      it('compliant for data PUSH of length ' + i, () => {
-        const buffer = Buffer.alloc(i);
+    function testEncodingForSize(num: number): void {
+      it('compliant for data PUSH of length ' + num, () => {
+        const buffer = Buffer.alloc(num);
         const script = bscript.compile([buffer]);
 
         assert(
           minimalData(script),
-          'Failed for ' + i + ' length script: ' + script.toString('hex'),
+          'Failed for ' + num + ' length script: ' + script.toString('hex'),
         );
       });
     }
 
-    for (var i = 0; i < 520; ++i) {
+    for (let i = 0; i < 520; ++i) {
       testEncodingForSize(i);
     }
   });

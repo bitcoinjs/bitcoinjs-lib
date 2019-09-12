@@ -1,16 +1,18 @@
 import * as assert from 'assert';
 import { beforeEach, describe, it } from 'mocha';
-import * as baddress from '../src/address';
-import * as bscript from '../src/script';
-import * as payments from '../src/payments';
 import {
   ECPair,
   networks as NETWORKS,
   Transaction,
   TransactionBuilder,
 } from '..';
+import * as baddress from '../src/address';
+import * as payments from '../src/payments';
+import * as bscript from '../src/script';
 
-console.warn = () => {}; // Silence the Deprecation Warning
+console.warn = (): void => {
+  return;
+}; // Silence the Deprecation Warning
 
 import * as fixtures from './fixtures/transaction_builder.json';
 
@@ -128,7 +130,7 @@ for (const useOldSignArgs of [false, true]) {
   if (useOldSignArgs) {
     consoleWarn = console.warn;
     // Silence console.warn during these tests
-    console.warn = () => undefined;
+    console.warn = (): undefined => undefined;
   }
   describe(`TransactionBuilder: useOldSignArgs === ${useOldSignArgs}`, () => {
     // constants
@@ -425,13 +427,13 @@ for (const useOldSignArgs of [false, true]) {
 
     describe('sign', () => {
       it('supports the alternative abstract interface { publicKey, sign }', () => {
-        const keyPair = {
+        const innerKeyPair = {
           publicKey: ECPair.makeRandom({
-            rng: () => {
+            rng: (): Buffer => {
               return Buffer.alloc(32, 1);
             },
           }).publicKey,
-          sign: () => {
+          sign: (): Buffer => {
             return Buffer.alloc(64, 0x5f);
           },
         };
@@ -446,11 +448,16 @@ for (const useOldSignArgs of [false, true]) {
         txb.sign({
           prevOutScriptType: 'p2pkh',
           vin: 0,
-          keyPair,
+          keyPair: innerKeyPair,
         });
         assert.strictEqual(
           txb.build().toHex(),
-          '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f02205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f0121031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078fffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000',
+          '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffff' +
+            'ffffffff010000006a47304402205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f' +
+            '5f5f5f5f5f5f5f5f5f5f5f5f5f02205f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f' +
+            '5f5f5f5f5f5f5f5f5f5f5f5f5f5f0121031b84c5567b126440995d3ed5aaba0565' +
+            'd71e1834604819ff9c17f5e9d5dd078fffffffff01a0860100000000001976a914' +
+            '000000000000000000000000000000000000000088ac00000000',
         );
       });
 
@@ -470,7 +477,12 @@ for (const useOldSignArgs of [false, true]) {
         // high R
         assert.strictEqual(
           txb.build().toHex(),
-          '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006b483045022100b872677f35c9c14ad9c41d83649fb049250f32574e0b2547d67e209ed14ff05d022059b36ad058be54e887a1a311d5c393cb4941f6b93a0b090845ec67094de8972b01210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000',
+          '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffff' +
+            'ffffffff010000006b483045022100b872677f35c9c14ad9c41d83649fb049250f' +
+            '32574e0b2547d67e209ed14ff05d022059b36ad058be54e887a1a311d5c393cb49' +
+            '41f6b93a0b090845ec67094de8972b01210279be667ef9dcbbac55a06295ce870b' +
+            '07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a9' +
+            '14000000000000000000000000000000000000000088ac00000000',
         );
 
         txb = new TransactionBuilder();
@@ -489,12 +501,17 @@ for (const useOldSignArgs of [false, true]) {
         // low R
         assert.strictEqual(
           txb.build().toHex(),
-          '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a473044022012a601efa8756ebe83e9ac7a7db061c3147e3b49d8be67685799fe51a4c8c62f02204d568d301d5ce14af390d566d4fd50e7b8ee48e71ec67786c029e721194dae3601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914000000000000000000000000000000000000000088ac00000000',
+          '0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffff' +
+            'ffffffff010000006a473044022012a601efa8756ebe83e9ac7a7db061c3147e3b' +
+            '49d8be67685799fe51a4c8c62f02204d568d301d5ce14af390d566d4fd50e7b8ee' +
+            '48e71ec67786c029e721194dae3601210279be667ef9dcbbac55a06295ce870b07' +
+            '029bfcdb2dce28d959f2815b16f81798ffffffff01a0860100000000001976a914' +
+            '000000000000000000000000000000000000000088ac00000000',
         );
       });
 
       it('fails when missing required arguments', () => {
-        let txb = new TransactionBuilder();
+        const txb = new TransactionBuilder();
         txb.setVersion(1);
         txb.addInput(
           'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
@@ -663,7 +680,12 @@ for (const useOldSignArgs of [false, true]) {
 
       it('for incomplete with 0 signatures', () => {
         const randomTxData =
-          '0100000000010100010000000000000000000000000000000000000000000000000000000000000000000000ffffffff01e8030000000000001976a9144c9c3dfac4207d5d8cb89df5722cb3d712385e3f88ac02483045022100aa5d8aa40a90f23ce2c3d11bc845ca4a12acd99cbea37de6b9f6d86edebba8cb022022dedc2aa0a255f74d04c0b76ece2d7c691f9dd11a64a8ac49f62a99c3a05f9d01232103596d3451025c19dbbdeb932d6bf8bfb4ad499b95b6f88db8899efac102e5fc71ac00000000';
+          '010000000001010001000000000000000000000000000000000000000000000000' +
+          '0000000000000000000000ffffffff01e8030000000000001976a9144c9c3dfac4' +
+          '207d5d8cb89df5722cb3d712385e3f88ac02483045022100aa5d8aa40a90f23ce2' +
+          'c3d11bc845ca4a12acd99cbea37de6b9f6d86edebba8cb022022dedc2aa0a255f7' +
+          '4d04c0b76ece2d7c691f9dd11a64a8ac49f62a99c3a05f9d01232103596d345102' +
+          '5c19dbbdeb932d6bf8bfb4ad499b95b6f88db8899efac102e5fc71ac00000000';
         const randomAddress = '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH';
 
         const randomTx = Transaction.fromHex(randomTxData);
@@ -676,7 +698,9 @@ for (const useOldSignArgs of [false, true]) {
 
       it('for incomplete P2SH with 0 signatures', () => {
         const inp = Buffer.from(
-          '010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a80400000017a91471a8ec07ff69c6c4fee489184c462a9b1b9237488700000000',
+          '010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be9' +
+            '59391c100000000000ffffffff0100c817a80400000017a91471a8ec07ff69c6c4' +
+            'fee489184c462a9b1b9237488700000000',
           'hex',
         ); // arbitrary P2SH input
         const inpTx = Transaction.fromBuffer(inp);
@@ -690,7 +714,9 @@ for (const useOldSignArgs of [false, true]) {
 
       it('for incomplete P2WPKH with 0 signatures', () => {
         const inp = Buffer.from(
-          '010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a8040000001600141a15805e1f4040c9f68ccc887fca2e63547d794b00000000',
+          '010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be9' +
+            '59391c100000000000ffffffff0100c817a8040000001600141a15805e1f4040c9' +
+            'f68ccc887fca2e63547d794b00000000',
           'hex',
         );
         const inpTx = Transaction.fromBuffer(inp);
@@ -705,7 +731,9 @@ for (const useOldSignArgs of [false, true]) {
       it('for incomplete P2WSH with 0 signatures', () => {
         const inpTx = Transaction.fromBuffer(
           Buffer.from(
-            '010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80be959391c100000000000ffffffff0100c817a80400000022002072df76fcc0b231b94bdf7d8c25d7eef4716597818d211e19ade7813bff7a250200000000',
+            '010000000173120703f67318aef51f7251272a6816d3f7523bb25e34b136d80b' +
+              'e959391c100000000000ffffffff0100c817a80400000022002072df76fcc0b2' +
+              '31b94bdf7d8c25d7eef4716597818d211e19ade7813bff7a250200000000',
             'hex',
           ),
         );
@@ -800,12 +828,14 @@ for (const useOldSignArgs of [false, true]) {
       });
 
       it('should classify witness inputs with witness = true during multisigning', () => {
-        const keyPair = ECPair.fromWIF(
+        const innerKeyPair = ECPair.fromWIF(
           'cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS',
           network,
         );
         const witnessScript = Buffer.from(
-          '522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea1952ae',
+          '522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e3' +
+            '52e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532' +
+            'b9ea1952ae',
           'hex',
         );
         const redeemScript = Buffer.from(
@@ -828,7 +858,7 @@ for (const useOldSignArgs of [false, true]) {
         txb.sign({
           prevOutScriptType: 'p2sh-p2wsh-p2ms',
           vin: 0,
-          keyPair,
+          keyPair: innerKeyPair,
           redeemScript,
           witnessValue: 100000,
           witnessScript,
@@ -850,10 +880,24 @@ for (const useOldSignArgs of [false, true]) {
       it('should handle badly pre-filled OP_0s', () => {
         // OP_0 is used where a signature is missing
         const redeemScripSig = bscript.fromASM(
-          'OP_0 OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae',
+          'OP_0 OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17' +
+            'be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621eb' +
+            'd9691d6b48c0d4283d7d01 52410479be667ef9dcbbac55a06295ce870b07029bf' +
+            'cdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b44' +
+            '8a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778' +
+            'e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f6326' +
+            '53266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c' +
+            '845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99' +
+            '934c2231b6cb9fd7584b8e67253ae',
         );
         const redeemScript = bscript.fromASM(
-          'OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG',
+          'OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f' +
+            '81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d' +
+            '4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c70' +
+            '9ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe5' +
+            '2a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce03' +
+            '6f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67' +
+            '2 OP_3 OP_CHECKMULTISIG',
         );
 
         const tx = new Transaction();
@@ -895,7 +939,17 @@ for (const useOldSignArgs of [false, true]) {
         );
         assert.strictEqual(
           bscript.toASM(tx2.ins[0].script),
-          'OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae',
+          'OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b' +
+            '63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691' +
+            'd6b48c0d4283d7d01 3045022100a346c61738304eac5e7702188764d19cdf68f4' +
+            '466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881' +
+            'd7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870' +
+            'b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a' +
+            '8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07' +
+            'cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceae' +
+            'ef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5' +
+            '229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f35' +
+            '66500a99934c2231b6cb9fd7584b8e67253ae',
         );
       });
 
@@ -908,7 +962,7 @@ for (const useOldSignArgs of [false, true]) {
         );
 
         const incomplete = txb.buildIncomplete().toHex();
-        const keyPair = ECPair.fromWIF(
+        const innerKeyPair = ECPair.fromWIF(
           'L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy',
         );
 
@@ -917,7 +971,7 @@ for (const useOldSignArgs of [false, true]) {
         txb.sign({
           prevOutScriptType: 'p2pkh',
           vin: 0,
-          keyPair,
+          keyPair: innerKeyPair,
         });
         const txId = txb.build().getId();
         assert.strictEqual(
@@ -933,7 +987,7 @@ for (const useOldSignArgs of [false, true]) {
         txb.sign({
           prevOutScriptType: 'p2pkh',
           vin: 0,
-          keyPair,
+          keyPair: innerKeyPair,
         });
         const txId2 = txb.build().getId();
         assert.strictEqual(txId, txId2);

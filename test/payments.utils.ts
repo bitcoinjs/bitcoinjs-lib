@@ -1,6 +1,6 @@
 import * as t from 'assert';
-import * as bscript from '../src/script';
 import * as BNETWORKS from '../src/networks';
+import * as bscript from '../src/script';
 
 function tryHex(x: Buffer | Buffer[]): string | string[] {
   if (Buffer.isBuffer(x)) return x.toString('hex');
@@ -17,12 +17,13 @@ function tryASM(x: Buffer): string {
   if (Buffer.isBuffer(x)) return bscript.toASM(x);
   return x;
 }
-function asmToBuffer(x: string) {
+function asmToBuffer(x: string): Buffer {
   if (x === '') return Buffer.alloc(0);
   return bscript.fromASM(x);
 }
-function carryOver(a: any, b: any) {
-  for (let k in b) {
+function carryOver(a: any, b: any): void {
+  for (const k in b) {
+    if (!k) continue;
     if (k in a && k === 'redeem') {
       carryOver(a[k], b[k]);
       continue;
@@ -36,7 +37,7 @@ function carryOver(a: any, b: any) {
   }
 }
 
-function equateBase(a: any, b: any, context: string) {
+function equateBase(a: any, b: any, context: string): void {
   if ('output' in b)
     t.strictEqual(
       tryASM(a.output),
@@ -53,7 +54,7 @@ function equateBase(a: any, b: any, context: string) {
     );
 }
 
-export function equate(a: any, b: any, args?: any) {
+export function equate(a: any, b: any, args?: any): void {
   b = Object.assign({}, b);
   carryOver(b, args);
 
@@ -108,7 +109,7 @@ export function equate(a: any, b: any, args?: any) {
     t.deepStrictEqual(tryHex(a.data), tryHex(b.data), 'Inequal *.data');
 }
 
-export function preform(x: any) {
+export function preform(x: any): any {
   x = Object.assign({}, x);
 
   if (x.network) x.network = (BNETWORKS as any)[x.network];
@@ -148,7 +149,7 @@ export function preform(x: any) {
   return x;
 }
 
-export function from(path: string, object: any, result?: any) {
+export function from(path: string, object: any, result?: any): any {
   const paths = path.split('.');
   result = result || {};
 
