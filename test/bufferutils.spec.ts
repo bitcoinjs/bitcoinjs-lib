@@ -9,9 +9,9 @@ describe('bufferutils', () => {
     fixtures.valid.forEach(f => {
       it('decodes ' + f.hex, () => {
         const buffer = Buffer.from(f.hex, 'hex');
-        const number = bufferutils.readUInt64LE(buffer, 0);
+        const num = bufferutils.readUInt64LE(buffer, 0);
 
-        assert.strictEqual(number, f.dec);
+        assert.strictEqual(num, f.dec);
       });
     });
 

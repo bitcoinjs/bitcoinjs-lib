@@ -7,8 +7,8 @@ import * as base58KeysInvalid from './fixtures/core/base58_keys_invalid.json';
 import * as base58KeysValid from './fixtures/core/base58_keys_valid.json';
 import * as blocksValid from './fixtures/core/blocks.json';
 import * as sigCanonical from './fixtures/core/sig_canonical.json';
-import * as sigHash from './fixtures/core/sighash.json';
 import * as sigNoncanonical from './fixtures/core/sig_noncanonical.json';
+import * as sigHash from './fixtures/core/sighash.json';
 import * as txValid from './fixtures/core/tx_valid.json';
 
 describe('Bitcoin-core', () => {
@@ -72,11 +72,11 @@ describe('Bitcoin-core', () => {
     ];
 
     base58KeysInvalid.forEach(f => {
-      const string = f[0];
+      const strng = f[0];
 
-      it('throws on ' + string, () => {
+      it('throws on ' + strng, () => {
         assert.throws(() => {
-          const address = bitcoin.address.fromBase58Check(string);
+          const address = bitcoin.address.fromBase58Check(strng);
 
           assert.notStrictEqual(
             allowedNetworks.indexOf(address.version),
@@ -121,11 +121,11 @@ describe('Bitcoin-core', () => {
     ];
 
     base58KeysInvalid.forEach(f => {
-      const string = f[0];
+      const strng = f[0];
 
-      it('throws on ' + string, () => {
+      it('throws on ' + strng, () => {
         assert.throws(() => {
-          bitcoin.ECPair.fromWIF(string, allowedNetworks);
+          bitcoin.ECPair.fromWIF(strng, allowedNetworks);
         }, /(Invalid|Unknown) (checksum|compression flag|network version|WIF length)/);
       });
     });
@@ -242,9 +242,14 @@ describe('Bitcoin-core', () => {
       const buffer = Buffer.from(hex, 'hex');
 
       it('throws on ' + description, () => {
+        const reg = new RegExp(
+          'Expected DER (integer|sequence)|(R|S) value (excessively ' +
+            'padded|is negative)|(R|S|DER sequence) length is (zero|too ' +
+            'short|too long|invalid)|Invalid hashType',
+        );
         assert.throws(() => {
           bitcoin.script.signature.decode(buffer);
-        }, /Expected DER (integer|sequence)|(R|S) value (excessively padded|is negative)|(R|S|DER sequence) length is (zero|too short|too long|invalid)|Invalid hashType/);
+        }, reg);
       });
     });
   });

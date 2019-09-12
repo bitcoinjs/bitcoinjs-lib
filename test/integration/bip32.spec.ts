@@ -1,7 +1,7 @@
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
+import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 
 function getAddress(node: any, network?: any): string {
@@ -25,8 +25,8 @@ describe('bitcoinjs-lib (BIP32)', () => {
       'praise you muffin lion enable neck grocery crumble super myself license ghost';
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const node = bip32.fromSeed(seed);
-    const string = node.toBase58();
-    const restored = bip32.fromBase58(string);
+    const strng = node.toBase58();
+    const restored = bip32.fromBase58(strng);
 
     assert.strictEqual(getAddress(node), getAddress(restored)); // same public key
     assert.strictEqual(node.toWIF(), restored.toWIF()); // same private key
@@ -37,10 +37,10 @@ describe('bitcoinjs-lib (BIP32)', () => {
       'praise you muffin lion enable neck grocery crumble super myself license ghost';
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const node = bip32.fromSeed(seed);
-    const string = node.neutered().toBase58();
+    const strng = node.neutered().toBase58();
 
     assert.strictEqual(
-      string,
+      strng,
       'xpub661MyMwAqRbcGhVeaVfEBA25e3cP9DsJQZoE8iep5fZSxy3TnPBNBgWnMZx56oreNc48ZoTkQfatNJ9VWnQ7ZcLZcVStpaXLTeG8bGrzX3n',
     );
   });

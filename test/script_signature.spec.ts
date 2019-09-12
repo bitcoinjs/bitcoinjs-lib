@@ -4,14 +4,19 @@ import { signature as bscriptSig } from '../src/script';
 import * as fixtures from './fixtures/signature.json';
 
 describe('Script Signatures', () => {
-  function fromRaw(signature: { r: string; s: string }) {
+  function fromRaw(signature: { r: string; s: string }): Buffer {
     return Buffer.concat(
       [Buffer.from(signature.r, 'hex'), Buffer.from(signature.s, 'hex')],
       64,
     );
   }
 
-  function toRaw(signature: Buffer) {
+  function toRaw(
+    signature: Buffer,
+  ): {
+    r: string;
+    s: string;
+  } {
     return {
       r: signature.slice(0, 32).toString('hex'),
       s: signature.slice(32, 64).toString('hex'),

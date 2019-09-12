@@ -19,7 +19,7 @@ const initBuffers = (object: any): typeof preFixtures =>
 
 const fixtures = initBuffers(preFixtures);
 
-const upperCaseFirstLetter = (str: string) =>
+const upperCaseFirstLetter = (str: string): string =>
   str.replace(/^./, s => s.toUpperCase());
 
 // const b = (hex: string) => Buffer.from(hex, 'hex');
@@ -662,7 +662,7 @@ describe(`Psbt`, () => {
       const psbt = Psbt.fromBuffer(
         Buffer.from(
           '70736274ff01000a01000000000000000000000000',
-          'hex', //cHNidP8BAAoBAAAAAAAAAAAAAAAA
+          'hex', // cHNidP8BAAoBAAAAAAAAAAAAAAAA
         ),
       );
       assert.strictEqual(psbt instanceof Psbt, true);

@@ -28,6 +28,7 @@
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "integration": "npm run build && npm run nobuild:integration",
     "lint": "tslint -p tsconfig.json -c tslint.json",
+    "lint:tests": "tslint -p test/tsconfig.json -c tslint.json",
     "mocha:ts": "mocha --recursive --require test/ts-node-register",
     "nobuild:coverage-report": "nyc report --reporter=lcov",
     "nobuild:coverage-html": "nyc report --reporter=html",

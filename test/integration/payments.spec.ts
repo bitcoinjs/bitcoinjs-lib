@@ -12,7 +12,7 @@ async function buildAndSign(
   prevOutput: any,
   redeemScript: any,
   witnessScript: any,
-) {
+): Promise<null> {
   const unspent = await regtestUtils.faucetComplex(prevOutput, 5e4);
   const utx = await regtestUtils.fetch(unspent.txId);
 

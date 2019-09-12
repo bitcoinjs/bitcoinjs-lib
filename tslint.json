@@ -21,7 +21,7 @@
     "no-var-requires": false,
     "no-unused-expression": false,
     "object-literal-sort-keys": false,
-    "quotemark": [true, "single"],
+    "quotemark": [true, "single", "avoid-escape"],
     "typedef": [
       true,
       "call-signature",

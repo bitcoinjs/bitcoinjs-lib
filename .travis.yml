@@ -20,6 +20,8 @@ matrix:
     - node_js: "lts/*"
       env: TEST_SUITE=lint
     - node_js: "lts/*"
+      env: TEST_SUITE=lint:tests
+    - node_js: "lts/*"
       env: TEST_SUITE=coverage
 env:
   - TEST_SUITE=unit

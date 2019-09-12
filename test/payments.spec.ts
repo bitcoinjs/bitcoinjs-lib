@@ -1,11 +1,11 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import * as u from './payments.utils';
 import { PaymentCreator } from '../src/payments';
+import * as u from './payments.utils';
 ['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(p => {
   describe(p, () => {
     let fn: PaymentCreator;
-    let payment = require('../src/payments/' + p);
+    const payment = require('../src/payments/' + p);
     if (p === 'embed') {
       fn = payment.p2data;
     } else {
@@ -83,7 +83,7 @@ import { PaymentCreator } from '../src/payments';
           disabled[k] = true;
         });
 
-      for (let key in depends) {
+      for (const key in depends) {
         if (key in disabled) continue;
         const dependencies = depends[key];
 
