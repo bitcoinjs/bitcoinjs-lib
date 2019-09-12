@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
 import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';

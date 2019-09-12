@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { Signer } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';

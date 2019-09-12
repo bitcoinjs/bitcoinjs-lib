@@ -10,7 +10,7 @@ function toOutputScript(address: string): Buffer {
 }
 
 function idToHash(txid: string): Buffer {
-  return Buffer.from(txid, 'hex').reverse() as Buffer;
+  return Buffer.from(txid, 'hex').reverse();
 }
 
 const alice = bitcoin.ECPair.fromWIF(

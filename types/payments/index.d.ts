@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { Network } from '../networks';
 import { p2data as embed } from './embed';
 import { p2ms } from './p2ms';

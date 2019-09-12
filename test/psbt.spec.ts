@@ -14,7 +14,7 @@ const initBuffers = (object: any): typeof preFixtures =>
     const data = result[1];
     const encoding = result[2];
 
-    return Buffer.from(data, encoding);
+    return Buffer.from(data, encoding as any);
   });
 
 const fixtures = initBuffers(preFixtures);
