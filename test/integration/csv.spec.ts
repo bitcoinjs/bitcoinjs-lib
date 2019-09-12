@@ -5,6 +5,14 @@ import { regtestUtils } from './_regtest';
 const regtest = regtestUtils.network;
 const bip68 = require('bip68');
 
+function toOutputScript(address: string): Buffer {
+  return bitcoin.address.toOutputScript(address, regtest);
+}
+
+function idToHash(txid: string): Buffer {
+  return Buffer.from(txid, 'hex').reverse() as Buffer;
+}
+
 const alice = bitcoin.ECPair.fromWIF(
   'cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe',
   regtest,
@@ -21,7 +29,6 @@ const dave = bitcoin.ECPair.fromWIF(
   'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMwS4pqnx',
   regtest,
 );
-console.warn = () => {}; // Silence the Deprecation Warning
 
 describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   // force update MTP
@@ -111,12 +118,12 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
     // fund the P2SH(CSV) address
     const unspent = await regtestUtils.faucet(p2sh.address!, 1e5);
 
-    const txb = new bitcoin.TransactionBuilder(regtest);
-    txb.addInput(unspent.txId, unspent.vout, sequence);
-    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4);
+    const tx = new bitcoin.Transaction();
+    tx.version = 2;
+    tx.addInput(idToHash(unspent.txId), unspent.vout, sequence);
+    tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 7e4);
 
     // {Alice's signature} OP_TRUE
-    const tx = txb.buildIncomplete();
     const signatureHash = tx.hashForSignature(
       0,
       p2sh.redeem!.output!,
@@ -164,12 +171,12 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
     // fund the P2SH(CSV) address
     const unspent = await regtestUtils.faucet(p2sh.address!, 2e4);
 
-    const txb = new bitcoin.TransactionBuilder(regtest);
-    txb.addInput(unspent.txId, unspent.vout, sequence);
-    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e4);
+    const tx = new bitcoin.Transaction();
+    tx.version = 2;
+    tx.addInput(idToHash(unspent.txId), unspent.vout, sequence);
+    tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 1e4);
 
     // {Alice's signature} OP_TRUE
-    const tx = txb.buildIncomplete();
     const signatureHash = tx.hashForSignature(
       0,
       p2sh.redeem!.output!,
@@ -219,12 +226,12 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
     // fund the P2SH(CCSV) address
     const unspent = await regtestUtils.faucet(p2sh.address!, 1e5);
 
-    const txb = new bitcoin.TransactionBuilder(regtest);
-    txb.addInput(unspent.txId, unspent.vout);
-    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4);
+    const tx = new bitcoin.Transaction();
+    tx.version = 2;
+    tx.addInput(idToHash(unspent.txId), unspent.vout);
+    tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 7e4);
 
     // OP_0 {Bob sig} {Charles sig} OP_TRUE OP_TRUE
-    const tx = txb.buildIncomplete();
     const signatureHash = tx.hashForSignature(
       0,
       p2sh.redeem!.output!,
@@ -282,12 +289,12 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
     // fund the P2SH(CCSV) address
     const unspent = await regtestUtils.faucet(p2sh.address!, 1e5);
 
-    const txb = new bitcoin.TransactionBuilder(regtest);
-    txb.addInput(unspent.txId, unspent.vout, sequence1); // Set sequence1 for input
-    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4);
+    const tx = new bitcoin.Transaction();
+    tx.version = 2;
+    tx.addInput(idToHash(unspent.txId), unspent.vout, sequence1); // Set sequence1 for input
+    tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 7e4);
 
     // OP_0 {Bob sig} {Alice mediator sig} OP_FALSE OP_TRUE
-    const tx = txb.buildIncomplete();
     const signatureHash = tx.hashForSignature(
       0,
       p2sh.redeem!.output!,
@@ -345,12 +352,12 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
     // fund the P2SH(CCSV) address
     const unspent = await regtestUtils.faucet(p2sh.address!, 1e5);
 
-    const txb = new bitcoin.TransactionBuilder(regtest);
-    txb.addInput(unspent.txId, unspent.vout, sequence2); // Set sequence2 for input
-    txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4);
+    const tx = new bitcoin.Transaction();
+    tx.version = 2;
+    tx.addInput(idToHash(unspent.txId), unspent.vout, sequence2); // Set sequence2 for input
+    tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 7e4);
 
     // {Alice mediator sig} OP_FALSE
-    const tx = txb.buildIncomplete();
     const signatureHash = tx.hashForSignature(
       0,
       p2sh.redeem!.output!,
