@@ -143,6 +143,17 @@ class Psbt {
     return this;
   }
   addInput(inputData) {
+    if (
+      arguments.length > 1 ||
+      !inputData ||
+      inputData.hash === undefined ||
+      inputData.index === undefined
+    ) {
+      throw new Error(
+        `Invalid arguments for Psbt.addInput. ` +
+          `Requires single object with at least [hash] and [index]`,
+      );
+    }
     checkInputsForPartialSig(this.data.inputs, 'addInput');
     const c = this.__CACHE;
     this.data.addInput(inputData);
@@ -163,6 +174,17 @@ class Psbt {
     return this;
   }
   addOutput(outputData) {
+    if (
+      arguments.length > 1 ||
+      !outputData ||
+      outputData.value === undefined ||
+      (outputData.address === undefined && outputData.script === undefined)
+    ) {
+      throw new Error(
+        `Invalid arguments for Psbt.addOutput. ` +
+          `Requires single object with at least [script or address] and [value]`,
+      );
+    }
     checkInputsForPartialSig(this.data.inputs, 'addOutput');
     const { address } = outputData;
     if (typeof address === 'string') {
