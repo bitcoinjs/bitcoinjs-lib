@@ -1,5 +1,5 @@
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput } from 'bip174/src/lib/interfaces';
+import { KeyValue, PartialSig, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
@@ -58,7 +58,7 @@ export declare class Psbt {
     getFeeRate(): number;
     getFee(): number;
     finalizeAllInputs(): this;
-    finalizeInput(inputIndex: number): this;
+    finalizeInput(inputIndex: number, { classifyScript: classifyScriptF, canFinalize: canFinalizeF, getFinalScripts: getFinalScriptsF, }?: IFinalizeFuncs): this;
     validateSignaturesOfAllInputs(): boolean;
     validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
@@ -124,4 +124,15 @@ interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Buffer): Promise<Buffer>;
 }
+interface IFinalizeFuncs {
+    classifyScript: FinalizeFuncClassifyScript;
+    canFinalize: FinalizeFuncCanFinalize;
+    getFinalScripts: FinalizeFuncGetFinalScripts;
+}
+declare type FinalizeFuncClassifyScript = (script: Buffer) => string;
+declare type FinalizeFuncCanFinalize = (input: PsbtInput, script: Buffer, scriptType: string) => boolean;
+declare type FinalizeFuncGetFinalScripts = (script: Buffer, scriptType: string, partialSig: PartialSig[], isSegwit: boolean, isP2SH: boolean, isP2WSH: boolean) => {
+    finalScriptSig: Buffer | undefined;
+    finalScriptWitness: Buffer | undefined;
+};
 export {};

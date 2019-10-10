@@ -251,7 +251,18 @@ export class Psbt {
     return this;
   }
 
-  finalizeInput(inputIndex: number): this {
+  finalizeInput(
+    inputIndex: number,
+    {
+      classifyScript: classifyScriptF,
+      canFinalize: canFinalizeF,
+      getFinalScripts: getFinalScriptsF,
+    }: IFinalizeFuncs = {
+      classifyScript,
+      canFinalize,
+      getFinalScripts,
+    },
+  ): this {
     const input = checkForInput(this.data.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
@@ -260,13 +271,13 @@ export class Psbt {
     );
     if (!script) throw new Error(`No script found for input #${inputIndex}`);
 
-    const scriptType = classifyScript(script);
-    if (!canFinalize(input, script, scriptType))
+    const scriptType = classifyScriptF(script);
+    if (!canFinalizeF(input, script, scriptType))
       throw new Error(`Can not finalize input #${inputIndex}`);
 
     checkPartialSigSighashes(input);
 
-    const { finalScriptSig, finalScriptWitness } = getFinalScripts(
+    const { finalScriptSig, finalScriptWitness } = getFinalScriptsF(
       script,
       scriptType,
       input.partialSig!,
@@ -734,6 +745,39 @@ class PsbtTransaction implements ITransaction {
     return this.tx.toBuffer();
   }
 }
+
+// This interface is added to allow for custom scripts to be finalized with PSBT.
+interface IFinalizeFuncs {
+  classifyScript: FinalizeFuncClassifyScript;
+  canFinalize: FinalizeFuncCanFinalize;
+  getFinalScripts: FinalizeFuncGetFinalScripts;
+}
+
+// Takes the meaningful script (redeemScript for P2SH and witnessScript for P2WSH)
+// and returns a string to classify the script.
+type FinalizeFuncClassifyScript = (script: Buffer) => string;
+// Takes the Psbt data for the input and the meaningful script and its type name.
+// returns true if we can finalize the input
+type FinalizeFuncCanFinalize = (
+  input: PsbtInput,
+  script: Buffer,
+  scriptType: string,
+) => boolean;
+// Takes the meaningful script, its type name, all the signatures from this input,
+// and 3 booleans to tell you if it is segwit, P2SH, and P2WSH.
+// it returns finalScriptSig and finalScriptWitness to be placed in the Psbt.
+// if one is not needed, it should be undefined. (In TypeScript, it must be declared but undefined.)
+type FinalizeFuncGetFinalScripts = (
+  script: Buffer,
+  scriptType: string,
+  partialSig: PartialSig[],
+  isSegwit: boolean,
+  isP2SH: boolean,
+  isP2WSH: boolean,
+) => {
+  finalScriptSig: Buffer | undefined;
+  finalScriptWitness: Buffer | undefined;
+};
 
 function canFinalize(
   input: PsbtInput,

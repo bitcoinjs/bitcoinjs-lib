@@ -204,7 +204,18 @@ class Psbt {
     range(this.data.inputs.length).forEach(idx => this.finalizeInput(idx));
     return this;
   }
-  finalizeInput(inputIndex) {
+  finalizeInput(
+    inputIndex,
+    {
+      classifyScript: classifyScriptF,
+      canFinalize: canFinalizeF,
+      getFinalScripts: getFinalScriptsF,
+    } = {
+      classifyScript,
+      canFinalize,
+      getFinalScripts,
+    },
+  ) {
     const input = utils_1.checkForInput(this.data.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
@@ -212,11 +223,11 @@ class Psbt {
       this.__CACHE,
     );
     if (!script) throw new Error(`No script found for input #${inputIndex}`);
-    const scriptType = classifyScript(script);
-    if (!canFinalize(input, script, scriptType))
+    const scriptType = classifyScriptF(script);
+    if (!canFinalizeF(input, script, scriptType))
       throw new Error(`Can not finalize input #${inputIndex}`);
     checkPartialSigSighashes(input);
-    const { finalScriptSig, finalScriptWitness } = getFinalScripts(
+    const { finalScriptSig, finalScriptWitness } = getFinalScriptsF(
       script,
       scriptType,
       input.partialSig,
