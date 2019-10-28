@@ -1,5 +1,5 @@
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PartialSig, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput } from 'bip174/src/lib/interfaces';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
@@ -58,7 +58,7 @@ export declare class Psbt {
     getFeeRate(): number;
     getFee(): number;
     finalizeAllInputs(): this;
-    finalizeInput(inputIndex: number, { classifyScript: classifyScriptF, canFinalize: canFinalizeF, getFinalScripts: getFinalScriptsF, }?: IFinalizeFuncs): this;
+    finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this;
     validateSignaturesOfAllInputs(): boolean;
     validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
@@ -124,14 +124,18 @@ interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Buffer): Promise<Buffer>;
 }
-interface IFinalizeFuncs {
-    classifyScript: FinalizeFuncClassifyScript;
-    canFinalize: FinalizeFuncCanFinalize;
-    getFinalScripts: FinalizeFuncGetFinalScripts;
-}
-declare type FinalizeFuncClassifyScript = (script: Buffer) => string;
-declare type FinalizeFuncCanFinalize = (input: PsbtInput, script: Buffer, scriptType: string) => boolean;
-declare type FinalizeFuncGetFinalScripts = (script: Buffer, scriptType: string, partialSig: PartialSig[], isSegwit: boolean, isP2SH: boolean, isP2WSH: boolean) => {
+/**
+ * This function must do two things:
+ * 1. Check if the `input` can be finalized. If it can not be finalized, throw.
+ *   ie. `Can not finalize input #${inputIndex}`
+ * 2. Create the finalScriptSig and finalScriptWitness Buffers.
+ */
+declare type FinalScriptsFunc = (inputIndex: number, // Which input is it?
+input: PsbtInput, // The PSBT input contents
+script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
+isSegwit: boolean, // Is it segwit?
+isP2SH: boolean, // Is it P2SH?
+isP2WSH: boolean) => {
     finalScriptSig: Buffer | undefined;
     finalScriptWitness: Buffer | undefined;
 };
