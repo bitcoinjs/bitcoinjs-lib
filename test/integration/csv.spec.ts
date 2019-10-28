@@ -1,9 +1,11 @@
 import * as assert from 'assert';
+import { PsbtInput } from 'bip174/src/lib/interfaces';
 import { before, describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
 const regtest = regtestUtils.network;
 const bip68 = require('bip68');
+const varuint = require('varuint-bitcoin');
 
 function toOutputScript(address: string): Buffer {
   return bitcoin.address.toOutputScript(address, regtest);
@@ -129,33 +131,28 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
 
       // fund the P2SH(CSV) address
       const unspent = await regtestUtils.faucet(p2sh.address!, 1e5);
+      const utx = await regtestUtils.fetch(unspent.txId);
+      // for non segwit inputs, you must pass the full transaction buffer
+      const nonWitnessUtxo = Buffer.from(utx.txHex, 'hex');
 
-      const tx = new bitcoin.Transaction();
-      tx.version = 2;
-      tx.addInput(idToHash(unspent.txId), unspent.vout, sequence);
-      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 7e4);
-
-      // {Alice's signature} OP_TRUE
-      const signatureHash = tx.hashForSignature(
-        0,
-        p2sh.redeem!.output!,
-        hashType,
-      );
-      const redeemScriptSig = bitcoin.payments.p2sh({
-        network: regtest,
-        redeem: {
-          network: regtest,
-          output: p2sh.redeem!.output,
-          input: bitcoin.script.compile([
-            bitcoin.script.signature.encode(
-              alice.sign(signatureHash),
-              hashType,
-            ),
-            bitcoin.opcodes.OP_TRUE,
-          ]),
-        },
-      }).input;
-      tx.setInputScript(0, redeemScriptSig!);
+      // This is an example of using the finalizeInput second parameter to
+      // define how you finalize the inputs, allowing for any type of script.
+      const tx = new bitcoin.Psbt({ network: regtest })
+        .setVersion(2)
+        .addInput({
+          hash: unspent.txId,
+          index: unspent.vout,
+          sequence,
+          redeemScript: p2sh.redeem!.output!,
+          nonWitnessUtxo,
+        })
+        .addOutput({
+          address: regtestUtils.RANDOM_ADDRESS,
+          value: 7e4,
+        })
+        .signInput(0, alice)
+        .finalizeInput(0, csvGetFinalScripts) // See csvGetFinalScripts below
+        .extractTransaction();
 
       // TODO: test that it failures _prior_ to expiry, unfortunately, race conditions when run concurrently
       // ...
@@ -430,3 +427,88 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
     },
   );
 });
+
+// This function is used to finalize a CSV transaction using PSBT.
+// See first test above.
+function csvGetFinalScripts(
+  inputIndex: number,
+  input: PsbtInput,
+  script: Buffer,
+  isSegwit: boolean,
+  isP2SH: boolean,
+  isP2WSH: boolean,
+): {
+  finalScriptSig: Buffer | undefined;
+  finalScriptWitness: Buffer | undefined;
+} {
+  // Step 1: Check to make sure the meaningful script matches what you expect.
+  const decompiled = bitcoin.script.decompile(script);
+  // Checking if first OP is OP_IF... should do better check in production!
+  // You may even want to check the public keys in the script against a
+  // whitelist depending on the circumstances!!!
+  // You also want to check the contents of the input to see if you have enough
+  // info to actually construct the scriptSig and Witnesses.
+  if (!decompiled || decompiled[0] !== bitcoin.opcodes.OP_IF) {
+    throw new Error(`Can not finalize input #${inputIndex}`);
+  }
+
+  // Step 2: Create final scripts
+  let payment: bitcoin.Payment = {
+    network: regtest,
+    output: script,
+    // This logic should be more strict and make sure the pubkeys in the
+    // meaningful script are the ones signing in the PSBT etc.
+    input: bitcoin.script.compile([
+      input.partialSig![0].signature,
+      bitcoin.opcodes.OP_TRUE,
+    ]),
+  };
+  if (isP2WSH && isSegwit)
+    payment = bitcoin.payments.p2wsh({
+      network: regtest,
+      redeem: payment,
+    });
+  if (isP2SH)
+    payment = bitcoin.payments.p2sh({
+      network: regtest,
+      redeem: payment,
+    });
+
+  function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
+    let buffer = Buffer.allocUnsafe(0);
+
+    function writeSlice(slice: Buffer): void {
+      buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+    }
+
+    function writeVarInt(i: number): void {
+      const currentLen = buffer.length;
+      const varintLen = varuint.encodingLength(i);
+
+      buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+      varuint.encode(i, buffer, currentLen);
+    }
+
+    function writeVarSlice(slice: Buffer): void {
+      writeVarInt(slice.length);
+      writeSlice(slice);
+    }
+
+    function writeVector(vector: Buffer[]): void {
+      writeVarInt(vector.length);
+      vector.forEach(writeVarSlice);
+    }
+
+    writeVector(witness);
+
+    return buffer;
+  }
+
+  return {
+    finalScriptSig: payment.input,
+    finalScriptWitness:
+      payment.witness && payment.witness.length > 0
+        ? witnessStackToScriptWitness(payment.witness)
+        : undefined,
+  };
+}
