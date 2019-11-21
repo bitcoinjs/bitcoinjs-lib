@@ -36,26 +36,19 @@ const ONE: Buffer = Buffer.from(
   'hex',
 );
 const VALUE_UINT64_MAX: Buffer = Buffer.from('ffffffffffffffff', 'hex');
-const BLANK_OUTPUT: BlankOutput = {
+const BLANK_OUTPUT = {
   script: EMPTY_SCRIPT,
   valueBuffer: VALUE_UINT64_MAX,
 };
 
-function isOutput(out: Output | BlankOutput): out is Output {
-  return (out as Output).value !== undefined;
-}
-
-export interface BlankOutput {
-  script: Buffer;
-  valueBuffer: Buffer;
+function isOutput(out: Output): boolean {
+  return out.value !== undefined;
 }
 
 export interface Output {
   script: Buffer;
   value: number;
 }
-
-type OpenOutput = Output | BlankOutput;
 
 export interface Input {
   hash: Buffer;
@@ -185,7 +178,7 @@ export class Transaction {
   version: number = 1;
   locktime: number = 0;
   ins: Input[] = [];
-  outs: OpenOutput[] = [];
+  outs: Output[] = [];
 
   isCoinbase(): boolean {
     return (
@@ -275,7 +268,7 @@ export class Transaction {
     newTx.outs = this.outs.map(txOut => {
       return {
         script: txOut.script,
-        value: (txOut as Output).value,
+        value: txOut.value,
       };
     });
 
@@ -333,7 +326,7 @@ export class Transaction {
 
       // "blank" outputs before
       for (let i = 0; i < inIndex; i++) {
-        txTmp.outs[i] = BLANK_OUTPUT;
+        (txTmp.outs as any)[i] = BLANK_OUTPUT;
       }
 
       // ignore sequence numbers (except at inIndex)
@@ -445,7 +438,7 @@ export class Transaction {
       toffset = 0;
 
       this.outs.forEach(out => {
-        writeUInt64((out as Output).value);
+        writeUInt64(out.value);
         writeVarSlice(out.script);
       });
 
@@ -458,7 +451,7 @@ export class Transaction {
 
       tbuffer = Buffer.allocUnsafe(8 + varSliceSize(output.script));
       toffset = 0;
-      writeUInt64((output as Output).value);
+      writeUInt64(output.value);
       writeVarSlice(output.script);
 
       hashOutputs = bcrypto.hash256(tbuffer);
@@ -602,7 +595,7 @@ export class Transaction {
       if (isOutput(txOut)) {
         writeUInt64(txOut.value);
       } else {
-        writeSlice(txOut.valueBuffer);
+        writeSlice((txOut as any).valueBuffer);
       }
 
       writeVarSlice(txOut.script);
