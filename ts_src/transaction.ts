@@ -268,7 +268,7 @@ export class Transaction {
     newTx.outs = this.outs.map(txOut => {
       return {
         script: txOut.script,
-        value: (txOut as Output).value,
+        value: txOut.value,
       };
     });
 
@@ -438,7 +438,7 @@ export class Transaction {
       toffset = 0;
 
       this.outs.forEach(out => {
-        writeUInt64((out as Output).value);
+        writeUInt64(out.value);
         writeVarSlice(out.script);
       });
 
@@ -451,7 +451,7 @@ export class Transaction {
 
       tbuffer = Buffer.allocUnsafe(8 + varSliceSize(output.script));
       toffset = 0;
-      writeUInt64((output as Output).value);
+      writeUInt64(output.value);
       writeVarSlice(output.script);
 
       hashOutputs = bcrypto.hash256(tbuffer);
