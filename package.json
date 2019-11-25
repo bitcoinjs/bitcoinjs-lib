@@ -49,7 +49,6 @@
     "types"
   ],
   "dependencies": {
-    "@types/node": "12.7.5",
     "bech32": "^1.1.2",
     "bip174": "^1.0.1",
     "bip32": "^2.0.4",
@@ -69,6 +68,7 @@
   "devDependencies": {
     "@types/bs58": "^4.0.0",
     "@types/mocha": "^5.2.7",
+    "@types/node": "12.7.5",
     "@types/proxyquire": "^1.3.28",
     "bip39": "^3.0.2",
     "bip65": "^1.0.1",
