@@ -133,7 +133,10 @@
       "prevHash": "8980ebb11236bacc66c447d5ad961bc546c0f9cc385a08000000000000000000",
       "timestamp": 1537429727,
       "valid": true,
-      "version": 536870912
+      "version": 536870912,
+      "size": 2355,
+      "strippedSize": 2209,
+      "weight": 8982
     }
   ],
   "invalid": [
