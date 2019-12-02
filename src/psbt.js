@@ -568,15 +568,27 @@ function canFinalize(input, script, scriptType) {
       return hasSigs(1, input.partialSig);
     case 'multisig':
       const p2ms = payments.p2ms({ output: script });
-      return hasSigs(p2ms.m, input.partialSig);
+      return hasSigs(p2ms.m, input.partialSig, p2ms.pubkeys);
     default:
       return false;
   }
 }
-function hasSigs(neededSigs, partialSig) {
+function hasSigs(neededSigs, partialSig, pubkeys) {
   if (!partialSig) return false;
-  if (partialSig.length > neededSigs) throw new Error('Too many signatures');
-  return partialSig.length === neededSigs;
+  let sigs;
+  if (pubkeys) {
+    sigs = pubkeys
+      .map(pkey => {
+        const pubkey = ecpair_1.fromPublicKey(pkey, { compressed: true })
+          .publicKey;
+        return partialSig.filter(pSig => pSig.pubkey.equals(pubkey))[0];
+      })
+      .filter(v => !!v);
+  } else {
+    sigs = partialSig;
+  }
+  if (sigs.length > neededSigs) throw new Error('Too many signatures');
+  return sigs.length === neededSigs;
 }
 function isFinalized(input) {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
