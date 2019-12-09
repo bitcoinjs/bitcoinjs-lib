@@ -581,7 +581,7 @@ function hasSigs(neededSigs, partialSig, pubkeys) {
       .map(pkey => {
         const pubkey = ecpair_1.fromPublicKey(pkey, { compressed: true })
           .publicKey;
-        return partialSig.filter(pSig => pSig.pubkey.equals(pubkey))[0];
+        return partialSig.find(pSig => pSig.pubkey.equals(pubkey));
       })
       .filter(v => !!v);
   } else {
