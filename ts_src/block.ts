@@ -160,8 +160,7 @@ export class Block {
     return (
       80 +
       varuint.encodingLength(this.transactions.length) +
-      // @ts-ignore using the __byteLength private method on Transaction
-      this.transactions.reduce((a, x) => a + x.__byteLength(allowWitness), 0)
+      this.transactions.reduce((a, x) => a + x.byteLength(allowWitness), 0)
     );
   }
 

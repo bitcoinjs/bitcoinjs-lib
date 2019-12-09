@@ -237,8 +237,8 @@ export class Transaction {
   }
 
   weight(): number {
-    const base = this.__byteLength(false);
-    const total = this.__byteLength(true);
+    const base = this.byteLength(false);
+    const total = this.byteLength(true);
     return base * 3 + total;
   }
 
@@ -246,8 +246,25 @@ export class Transaction {
     return Math.ceil(this.weight() / 4);
   }
 
-  byteLength(): number {
-    return this.__byteLength(true);
+  byteLength(_ALLOW_WITNESS: boolean = true): number {
+    const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
+
+    return (
+      (hasWitnesses ? 10 : 8) +
+      varuint.encodingLength(this.ins.length) +
+      varuint.encodingLength(this.outs.length) +
+      this.ins.reduce((sum, input) => {
+        return sum + 40 + varSliceSize(input.script);
+      }, 0) +
+      this.outs.reduce((sum, output) => {
+        return sum + 8 + varSliceSize(output.script);
+      }, 0) +
+      (hasWitnesses
+        ? this.ins.reduce((sum, input) => {
+            return sum + vectorSize(input.witness);
+          }, 0)
+        : 0)
+    );
   }
 
   clone(): Transaction {
@@ -352,7 +369,7 @@ export class Transaction {
     }
 
     // serialize and hash
-    const buffer: Buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4);
+    const buffer: Buffer = Buffer.allocUnsafe(txTmp.byteLength(false) + 4);
     buffer.writeInt32LE(hashType, buffer.length - 4);
     txTmp.__toBuffer(buffer, 0, false);
 
@@ -506,34 +523,13 @@ export class Transaction {
     this.ins[index].witness = witness;
   }
 
-  private __byteLength(_ALLOW_WITNESS: boolean): number {
-    const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
-
-    return (
-      (hasWitnesses ? 10 : 8) +
-      varuint.encodingLength(this.ins.length) +
-      varuint.encodingLength(this.outs.length) +
-      this.ins.reduce((sum, input) => {
-        return sum + 40 + varSliceSize(input.script);
-      }, 0) +
-      this.outs.reduce((sum, output) => {
-        return sum + 8 + varSliceSize(output.script);
-      }, 0) +
-      (hasWitnesses
-        ? this.ins.reduce((sum, input) => {
-            return sum + vectorSize(input.witness);
-          }, 0)
-        : 0)
-    );
-  }
-
   private __toBuffer(
     buffer?: Buffer,
     initialOffset?: number,
-    _ALLOW_WITNESS?: boolean,
+    _ALLOW_WITNESS: boolean = false,
   ): Buffer {
     if (!buffer)
-      buffer = Buffer.allocUnsafe(this.__byteLength(_ALLOW_WITNESS!)) as Buffer;
+      buffer = Buffer.allocUnsafe(this.byteLength(_ALLOW_WITNESS)) as Buffer;
 
     let offset = initialOffset || 0;
 
