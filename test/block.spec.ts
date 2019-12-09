@@ -48,6 +48,11 @@ describe('Block', () => {
         assert.strictEqual(block.bits, f.bits);
         assert.strictEqual(block.nonce, f.nonce);
         assert.strictEqual(!block.transactions, f.hex.length === 160);
+        if (f.size && f.strippedSize && f.weight) {
+          assert.strictEqual(block.byteLength(false, true), f.size);
+          assert.strictEqual(block.byteLength(false, false), f.strippedSize);
+          assert.strictEqual(block.weight(), f.weight);
+        }
       });
     });
 

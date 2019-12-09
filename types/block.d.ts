@@ -15,7 +15,8 @@ export declare class Block {
     getWitnessCommit(): Buffer | null;
     hasWitnessCommit(): boolean;
     hasWitness(): boolean;
-    byteLength(headersOnly?: boolean): number;
+    weight(): number;
+    byteLength(headersOnly?: boolean, allowWitness?: boolean): number;
     getHash(): Buffer;
     getId(): string;
     getUTCDate(): Date;

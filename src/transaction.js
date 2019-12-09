@@ -179,15 +179,31 @@ class Transaction {
     });
   }
   weight() {
-    const base = this.__byteLength(false);
-    const total = this.__byteLength(true);
+    const base = this.byteLength(false);
+    const total = this.byteLength(true);
     return base * 3 + total;
   }
   virtualSize() {
     return Math.ceil(this.weight() / 4);
   }
-  byteLength() {
-    return this.__byteLength(true);
+  byteLength(_ALLOW_WITNESS = true) {
+    const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
+    return (
+      (hasWitnesses ? 10 : 8) +
+      varuint.encodingLength(this.ins.length) +
+      varuint.encodingLength(this.outs.length) +
+      this.ins.reduce((sum, input) => {
+        return sum + 40 + varSliceSize(input.script);
+      }, 0) +
+      this.outs.reduce((sum, output) => {
+        return sum + 8 + varSliceSize(output.script);
+      }, 0) +
+      (hasWitnesses
+        ? this.ins.reduce((sum, input) => {
+            return sum + vectorSize(input.witness);
+          }, 0)
+        : 0)
+    );
   }
   clone() {
     const newTx = new Transaction();
@@ -269,7 +285,7 @@ class Transaction {
       txTmp.ins[inIndex].script = ourScript;
     }
     // serialize and hash
-    const buffer = Buffer.allocUnsafe(txTmp.__byteLength(false) + 4);
+    const buffer = Buffer.allocUnsafe(txTmp.byteLength(false) + 4);
     buffer.writeInt32LE(hashType, buffer.length - 4);
     txTmp.__toBuffer(buffer, 0, false);
     return bcrypto.hash256(buffer);
@@ -386,27 +402,8 @@ class Transaction {
     typeforce(types.tuple(types.Number, [types.Buffer]), arguments);
     this.ins[index].witness = witness;
   }
-  __byteLength(_ALLOW_WITNESS) {
-    const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
-    return (
-      (hasWitnesses ? 10 : 8) +
-      varuint.encodingLength(this.ins.length) +
-      varuint.encodingLength(this.outs.length) +
-      this.ins.reduce((sum, input) => {
-        return sum + 40 + varSliceSize(input.script);
-      }, 0) +
-      this.outs.reduce((sum, output) => {
-        return sum + 8 + varSliceSize(output.script);
-      }, 0) +
-      (hasWitnesses
-        ? this.ins.reduce((sum, input) => {
-            return sum + vectorSize(input.witness);
-          }, 0)
-        : 0)
-    );
-  }
-  __toBuffer(buffer, initialOffset, _ALLOW_WITNESS) {
-    if (!buffer) buffer = Buffer.allocUnsafe(this.__byteLength(_ALLOW_WITNESS));
+  __toBuffer(buffer, initialOffset, _ALLOW_WITNESS = false) {
+    if (!buffer) buffer = Buffer.allocUnsafe(this.byteLength(_ALLOW_WITNESS));
     let offset = initialOffset || 0;
     function writeSlice(slice) {
       offset += slice.copy(buffer, offset);

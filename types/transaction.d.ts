@@ -30,7 +30,7 @@ export declare class Transaction {
     hasWitnesses(): boolean;
     weight(): number;
     virtualSize(): number;
-    byteLength(): number;
+    byteLength(_ALLOW_WITNESS?: boolean): number;
     clone(): Transaction;
     /**
      * Hash transaction for signing a specific input.
@@ -48,6 +48,5 @@ export declare class Transaction {
     toHex(): string;
     setInputScript(index: number, scriptSig: Buffer): void;
     setWitness(index: number, witness: Buffer[]): void;
-    private __byteLength;
     private __toBuffer;
 }
