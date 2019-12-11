@@ -311,7 +311,7 @@
         "inputData": {
           "hash": 42
         },
-        "exception": "Error adding input."
+        "exception": "Invalid arguments for Psbt\\.addInput\\. Requires single object with at least \\[hash\\] and \\[index\\]"
       },
       {
         "description": "should be equal",
