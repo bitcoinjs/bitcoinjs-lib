@@ -107,6 +107,7 @@ class Transaction {
     for (let i = 0; i < voutLen; ++i) {
       tx.outs.push({
         value: readUInt64(),
+        utxoid: readSlice(32),
         script: readVarSlice(),
       });
     }
@@ -220,8 +221,9 @@ class Transaction {
     });
     newTx.outs = this.outs.map(txOut => {
       return {
-        script: txOut.script,
         value: txOut.value,
+        utxoid: txOut.utxoid,
+        script: txOut.script,
       };
     });
     return newTx;
