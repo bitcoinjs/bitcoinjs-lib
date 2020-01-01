@@ -530,6 +530,36 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     },
   );
 
+  it(
+    'can create (and broadcast via 3PBP) a Transaction, w/ a ' +
+      'P2SH(P2MS(2 of 2)) input with nonWitnessUtxo',
+    async () => {
+      const myKey = bitcoin.ECPair.makeRandom({ network: regtest });
+      const myKeys = [
+        myKey,
+        bitcoin.ECPair.fromPrivateKey(myKey.privateKey!, { network: regtest }),
+      ];
+      const p2sh = createPayment('p2sh-p2ms(2 of 2)', myKeys);
+      const inputData = await getInputData(5e4, p2sh.payment, false, 'p2sh');
+      const psbt = new bitcoin.Psbt({ network: regtest })
+        .addInput(inputData)
+        .addOutput({
+          address: regtestUtils.RANDOM_ADDRESS,
+          value: 2e4,
+        })
+        .signInput(0, p2sh.keys[0]);
+      psbt.finalizeAllInputs();
+      const tx = psbt.extractTransaction();
+      await regtestUtils.broadcast(tx.toHex());
+      await regtestUtils.verify({
+        txId: tx.getId(),
+        address: regtestUtils.RANDOM_ADDRESS,
+        vout: 0,
+        value: 2e4,
+      });
+    },
+  );
+
   it('can create (and broadcast via 3PBP) a Transaction, w/ a P2WPKH input using HD', async () => {
     const hdRoot = bip32.fromSeed(rng(64));
     const masterFingerprint = hdRoot.fingerprint;

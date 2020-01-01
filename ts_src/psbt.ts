@@ -770,16 +770,32 @@ function canFinalize(
       return hasSigs(1, input.partialSig);
     case 'multisig':
       const p2ms = payments.p2ms({ output: script });
-      return hasSigs(p2ms.m!, input.partialSig);
+      return hasSigs(p2ms.m!, input.partialSig, p2ms.pubkeys);
     default:
       return false;
   }
 }
 
-function hasSigs(neededSigs: number, partialSig?: any[]): boolean {
+function hasSigs(
+  neededSigs: number,
+  partialSig?: any[],
+  pubkeys?: Buffer[],
+): boolean {
   if (!partialSig) return false;
-  if (partialSig.length > neededSigs) throw new Error('Too many signatures');
-  return partialSig.length === neededSigs;
+  let sigs: any;
+  if (pubkeys) {
+    sigs = pubkeys
+      .map(pkey => {
+        const pubkey = ecPairFromPublicKey(pkey, { compressed: true })
+          .publicKey;
+        return partialSig.find(pSig => pSig.pubkey.equals(pubkey));
+      })
+      .filter(v => !!v);
+  } else {
+    sigs = partialSig;
+  }
+  if (sigs.length > neededSigs) throw new Error('Too many signatures');
+  return sigs.length === neededSigs;
 }
 
 function isFinalized(input: PsbtInput): boolean {
