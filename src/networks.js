@@ -14,8 +14,8 @@ module.exports = {
     wif: 0x80
   },
   regtest: {
-    messagePrefix: '\x18Bitcoin Signed Message:\n',
-    bech32: 'bcrt',
+    messagePrefix: '\x1cGroestlCoin Signed Message:\n',
+    bech32: 'grsrt',
     bip32: {
       public: 0x043587cf,
       private: 0x04358394
