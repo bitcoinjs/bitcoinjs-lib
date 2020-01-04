@@ -1,6 +1,6 @@
 {
   "name": "groestlcoinjs-lib",
-  "version": "4.0.2",
+  "version": "4.0.5",
   "description": "Client-side Groestlcoin JavaScript library",
   "main": "./src/index.js",
   "engines": {
@@ -31,7 +31,7 @@
   ],
   "dependencies": {
     "bech32": "^1.1.2",
-    "bip32grs": "https://github.com/Groestlcoin/bip32grs",
+    "bip32grs": "https://github.com/Groestlcoin/bip32grs#v1.0.4",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "bs58grscheck": "https://github.com/Groestlcoin/bs58grscheck.git",

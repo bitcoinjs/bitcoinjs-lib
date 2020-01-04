@@ -63,6 +63,20 @@
       "bech32": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
       "data": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433",
       "script": "OP_0 000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"
+    },
+    {
+      "network": "regtest",
+      "version": 0,
+      "bech32": "bcrt1qjh3dnrafy8f2zszh5sdqn6c3ycfljh930yza9nt72v30dkw8mlvscn82zx",
+      "data": "95e2d98fa921d2a14057a41a09eb112613f95cb17905d2cd7e5322f6d9c7dfd9",
+      "script": "OP_0 95e2d98fa921d2a14057a41a09eb112613f95cb17905d2cd7e5322f6d9c7dfd9"
+    },
+    {
+      "network": "regtest",
+      "version": 0,
+      "bech32": "bcrt1qqqqqqqqqqqqqqahrwf6d62emdxmpq8gu3xe9au9fjwc9sxxn4k2qujfh7u",
+      "data": "000000000000000076e37274dd2b3b69b6101d1c89b25ef0a993b05818d3ad94",
+      "script": "OP_0 000000000000000076e37274dd2b3b69b6101d1c89b25ef0a993b05818d3ad94"
     }
   ],
   "bech32": [

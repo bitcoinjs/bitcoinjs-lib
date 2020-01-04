@@ -129,7 +129,7 @@ function p2ms (a, opts) {
       if (a.input[0] !== OPS.OP_0) throw new TypeError('Input is invalid')
       if (o.signatures.length === 0 || !o.signatures.every(isAcceptableSignature)) throw new TypeError('Input has invalid signature(s)')
 
-      if (a.signatures && !stacksEqual(a.signatures.equals(o.signatures))) throw new TypeError('Signature mismatch')
+      if (a.signatures && !stacksEqual(a.signatures, o.signatures)) throw new TypeError('Signature mismatch')
       if (a.m !== undefined && a.m !== a.signatures.length) throw new TypeError('Signature count mismatch')
     }
   }

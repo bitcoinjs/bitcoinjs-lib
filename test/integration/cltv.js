@@ -50,6 +50,7 @@ describe('groestlcoinjs-lib (transactions w/ CLTV)', function () {
 
       const txb = new bitcoin.TransactionBuilder(regtest)
       txb.setLockTime(lockTime)
+      // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
       txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
 
@@ -96,6 +97,7 @@ describe('groestlcoinjs-lib (transactions w/ CLTV)', function () {
 
         const txb = new bitcoin.TransactionBuilder(regtest)
         txb.setLockTime(lockTime)
+        // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
         txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
         txb.addOutput(regtestUtils.RANDOM_ADDRESS, 7e4)
 
@@ -147,6 +149,7 @@ describe('groestlcoinjs-lib (transactions w/ CLTV)', function () {
 
       const txb = new bitcoin.TransactionBuilder(regtest)
       txb.setLockTime(lockTime)
+      // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
       txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 8e4)
 
@@ -191,6 +194,7 @@ describe('groestlcoinjs-lib (transactions w/ CLTV)', function () {
 
       const txb = new bitcoin.TransactionBuilder(regtest)
       txb.setLockTime(lockTime)
+      // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
       txb.addInput(unspent.txId, unspent.vout, 0xfffffffe)
       txb.addOutput(regtestUtils.RANDOM_ADDRESS, 1e4)
 
@@ -212,7 +216,7 @@ describe('groestlcoinjs-lib (transactions w/ CLTV)', function () {
       regtestUtils.broadcast(tx.toHex(), function (err) {
         assert.throws(function () {
           if (err) throw err
-        }, /Error: 64: non-final/)
+        }, /Error: non-final \(code 64\)/)
 
         done()
       })
