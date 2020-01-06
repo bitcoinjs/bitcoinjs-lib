@@ -226,7 +226,7 @@ class Psbt {
     range(this.data.inputs.length).forEach(idx => this.finalizeInput(idx));
     return this;
   }
-  finalizeInput(inputIndex) {
+  finalizeInput(inputIndex, finalScriptsFunc = getFinalScripts) {
     const input = utils_1.checkForInput(this.data.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
@@ -234,14 +234,11 @@ class Psbt {
       this.__CACHE,
     );
     if (!script) throw new Error(`No script found for input #${inputIndex}`);
-    const scriptType = classifyScript(script);
-    if (!canFinalize(input, script, scriptType))
-      throw new Error(`Can not finalize input #${inputIndex}`);
     checkPartialSigSighashes(input);
-    const { finalScriptSig, finalScriptWitness } = getFinalScripts(
+    const { finalScriptSig, finalScriptWitness } = finalScriptsFunc(
+      inputIndex,
+      input,
       script,
-      scriptType,
-      input.partialSig,
       isSegwit,
       isP2SH,
       isP2WSH,
@@ -772,7 +769,20 @@ function getTxCacheValue(key, name, inputs, c) {
   if (key === '__FEE_RATE') return c.__FEE_RATE;
   else if (key === '__FEE') return c.__FEE;
 }
-function getFinalScripts(
+function getFinalScripts(inputIndex, input, script, isSegwit, isP2SH, isP2WSH) {
+  const scriptType = classifyScript(script);
+  if (!canFinalize(input, script, scriptType))
+    throw new Error(`Can not finalize input #${inputIndex}`);
+  return prepareFinalScripts(
+    script,
+    scriptType,
+    input.partialSig,
+    isSegwit,
+    isP2SH,
+    isP2WSH,
+  );
+}
+function prepareFinalScripts(
   script,
   scriptType,
   partialSig,

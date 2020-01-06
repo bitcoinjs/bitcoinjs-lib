@@ -58,7 +58,7 @@ export declare class Psbt {
     getFeeRate(): number;
     getFee(): number;
     finalizeAllInputs(): this;
-    finalizeInput(inputIndex: number): this;
+    finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this;
     validateSignaturesOfAllInputs(): boolean;
     validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
@@ -124,4 +124,19 @@ interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Buffer): Promise<Buffer>;
 }
+/**
+ * This function must do two things:
+ * 1. Check if the `input` can be finalized. If it can not be finalized, throw.
+ *   ie. `Can not finalize input #${inputIndex}`
+ * 2. Create the finalScriptSig and finalScriptWitness Buffers.
+ */
+declare type FinalScriptsFunc = (inputIndex: number, // Which input is it?
+input: PsbtInput, // The PSBT input contents
+script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
+isSegwit: boolean, // Is it segwit?
+isP2SH: boolean, // Is it P2SH?
+isP2WSH: boolean) => {
+    finalScriptSig: Buffer | undefined;
+    finalScriptWitness: Buffer | undefined;
+};
 export {};

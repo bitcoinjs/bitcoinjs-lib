@@ -274,7 +274,10 @@ export class Psbt {
     return this;
   }
 
-  finalizeInput(inputIndex: number): this {
+  finalizeInput(
+    inputIndex: number,
+    finalScriptsFunc: FinalScriptsFunc = getFinalScripts,
+  ): this {
     const input = checkForInput(this.data.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
@@ -283,16 +286,12 @@ export class Psbt {
     );
     if (!script) throw new Error(`No script found for input #${inputIndex}`);
 
-    const scriptType = classifyScript(script);
-    if (!canFinalize(input, script, scriptType))
-      throw new Error(`Can not finalize input #${inputIndex}`);
-
     checkPartialSigSighashes(input);
 
-    const { finalScriptSig, finalScriptWitness } = getFinalScripts(
+    const { finalScriptSig, finalScriptWitness } = finalScriptsFunc(
+      inputIndex,
+      input,
       script,
-      scriptType,
-      input.partialSig!,
       isSegwit,
       isP2SH,
       isP2WSH,
@@ -991,7 +990,49 @@ function getTxCacheValue(
   else if (key === '__FEE') return c.__FEE!;
 }
 
+/**
+ * This function must do two things:
+ * 1. Check if the `input` can be finalized. If it can not be finalized, throw.
+ *   ie. `Can not finalize input #${inputIndex}`
+ * 2. Create the finalScriptSig and finalScriptWitness Buffers.
+ */
+type FinalScriptsFunc = (
+  inputIndex: number, // Which input is it?
+  input: PsbtInput, // The PSBT input contents
+  script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
+  isSegwit: boolean, // Is it segwit?
+  isP2SH: boolean, // Is it P2SH?
+  isP2WSH: boolean, // Is it P2WSH?
+) => {
+  finalScriptSig: Buffer | undefined;
+  finalScriptWitness: Buffer | undefined;
+};
+
 function getFinalScripts(
+  inputIndex: number,
+  input: PsbtInput,
+  script: Buffer,
+  isSegwit: boolean,
+  isP2SH: boolean,
+  isP2WSH: boolean,
+): {
+  finalScriptSig: Buffer | undefined;
+  finalScriptWitness: Buffer | undefined;
+} {
+  const scriptType = classifyScript(script);
+  if (!canFinalize(input, script, scriptType))
+    throw new Error(`Can not finalize input #${inputIndex}`);
+  return prepareFinalScripts(
+    script,
+    scriptType,
+    input.partialSig!,
+    isSegwit,
+    isP2SH,
+    isP2WSH,
+  );
+}
+
+function prepareFinalScripts(
   script: Buffer,
   scriptType: string,
   partialSig: PartialSig[],
