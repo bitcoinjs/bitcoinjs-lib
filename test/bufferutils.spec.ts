@@ -209,6 +209,9 @@ describe('bufferutils', () => {
         testBuffer(bufferWriter, expectedBuffer, expectedOffset);
       });
       testBuffer(bufferWriter, expectedBuffer);
+      assert.throws(() => {
+        bufferWriter.writeSlice(Buffer.from([0, 0]));
+      }, /^Error: Cannot write slice out of bounds$/);
     });
 
     it('writeVarSlice', () => {
@@ -421,6 +424,9 @@ describe('bufferutils', () => {
         const val = bufferReader.readSlice(v.length);
         testValue(bufferReader, val, Buffer.from(v), expectedOffset);
       });
+      assert.throws(() => {
+        bufferReader.readSlice(2);
+      }, /^Error: Cannot read slice out of bounds$/);
     });
 
     it('readVarSlice', () => {

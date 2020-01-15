@@ -78,6 +78,9 @@ export class BufferWriter {
   }
 
   writeSlice(slice: Buffer): void {
+    if (this.buffer.length < this.offset + slice.length) {
+      throw new Error('Cannot write slice out of bounds');
+    }
     this.offset += slice.copy(this.buffer, this.offset);
   }
 
@@ -131,8 +134,12 @@ export class BufferReader {
   }
 
   readSlice(n: number): Buffer {
+    if (this.buffer.length < this.offset + n) {
+      throw new Error('Cannot read slice out of bounds');
+    }
+    const result = this.buffer.slice(this.offset, this.offset + n);
     this.offset += n;
-    return this.buffer.slice(this.offset - n, this.offset);
+    return result;
   }
 
   readVarSlice(): Buffer {
