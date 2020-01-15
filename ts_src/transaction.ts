@@ -1,5 +1,4 @@
-import * as bufferutils from './bufferutils';
-import { reverseBuffer } from './bufferutils';
+import { BufferReader, BufferWriter, reverseBuffer } from './bufferutils';
 import * as bcrypto from './crypto';
 import * as bscript from './script';
 import { OPS as opcodes } from './script';
@@ -68,85 +67,46 @@ export class Transaction {
   static readonly ADVANCED_TRANSACTION_FLAG = 0x01;
 
   static fromBuffer(buffer: Buffer, _NO_STRICT?: boolean): Transaction {
-    let offset: number = 0;
-
-    function readSlice(n: number): Buffer {
-      offset += n;
-      return buffer.slice(offset - n, offset);
-    }
-
-    function readUInt32(): number {
-      const i = buffer.readUInt32LE(offset);
-      offset += 4;
-      return i;
-    }
-
-    function readInt32(): number {
-      const i = buffer.readInt32LE(offset);
-      offset += 4;
-      return i;
-    }
-
-    function readUInt64(): number {
-      const i = bufferutils.readUInt64LE(buffer, offset);
-      offset += 8;
-      return i;
-    }
-
-    function readVarInt(): number {
-      const vi = varuint.decode(buffer, offset);
-      offset += varuint.decode.bytes;
-      return vi;
-    }
-
-    function readVarSlice(): Buffer {
-      return readSlice(readVarInt());
-    }
-
-    function readVector(): Buffer[] {
-      const count = readVarInt();
-      const vector: Buffer[] = [];
-      for (let i = 0; i < count; i++) vector.push(readVarSlice());
-      return vector;
-    }
+    const bufferReader = new BufferReader(buffer);
 
     const tx = new Transaction();
-    tx.version = readInt32();
+    tx.version = bufferReader.readInt32();
 
-    const marker = buffer.readUInt8(offset);
-    const flag = buffer.readUInt8(offset + 1);
+    const marker = bufferReader.readUInt8();
+    const flag = bufferReader.readUInt8();
 
     let hasWitnesses = false;
     if (
       marker === Transaction.ADVANCED_TRANSACTION_MARKER &&
       flag === Transaction.ADVANCED_TRANSACTION_FLAG
     ) {
-      offset += 2;
       hasWitnesses = true;
+    } else {
+      bufferReader.offset -= 2;
     }
 
-    const vinLen = readVarInt();
+    const vinLen = bufferReader.readVarInt();
     for (let i = 0; i < vinLen; ++i) {
       tx.ins.push({
-        hash: readSlice(32),
-        index: readUInt32(),
-        script: readVarSlice(),
-        sequence: readUInt32(),
+        hash: bufferReader.readSlice(32),
+        index: bufferReader.readUInt32(),
+        script: bufferReader.readVarSlice(),
+        sequence: bufferReader.readUInt32(),
         witness: EMPTY_WITNESS,
       });
     }
 
-    const voutLen = readVarInt();
+    const voutLen = bufferReader.readVarInt();
     for (let i = 0; i < voutLen; ++i) {
       tx.outs.push({
-        value: readUInt64(),
-        script: readVarSlice(),
+        value: bufferReader.readUInt64(),
+        script: bufferReader.readVarSlice(),
       });
     }
 
     if (hasWitnesses) {
       for (let i = 0; i < vinLen; ++i) {
-        tx.ins[i].witness = readVector();
+        tx.ins[i].witness = bufferReader.readVector();
       }
 
       // was this pointless?
@@ -154,10 +114,10 @@ export class Transaction {
         throw new Error('Transaction has superfluous witness data');
     }
 
-    tx.locktime = readUInt32();
+    tx.locktime = bufferReader.readUInt32();
 
     if (_NO_STRICT) return tx;
-    if (offset !== buffer.length)
+    if (bufferReader.offset !== buffer.length)
       throw new Error('Transaction has unexpected data');
 
     return tx;
@@ -388,29 +348,7 @@ export class Transaction {
     );
 
     let tbuffer: Buffer = Buffer.from([]);
-    let toffset: number = 0;
-
-    function writeSlice(slice: Buffer): void {
-      toffset += slice.copy(tbuffer, toffset);
-    }
-
-    function writeUInt32(i: number): void {
-      toffset = tbuffer.writeUInt32LE(i, toffset);
-    }
-
-    function writeUInt64(i: number): void {
-      toffset = bufferutils.writeUInt64LE(tbuffer, i, toffset);
-    }
-
-    function writeVarInt(i: number): void {
-      varuint.encode(i, tbuffer, toffset);
-      toffset += varuint.encode.bytes;
-    }
-
-    function writeVarSlice(slice: Buffer): void {
-      writeVarInt(slice.length);
-      writeSlice(slice);
-    }
+    let bufferWriter: BufferWriter;
 
     let hashOutputs = ZERO;
     let hashPrevouts = ZERO;
@@ -418,11 +356,11 @@ export class Transaction {
 
     if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
       tbuffer = Buffer.allocUnsafe(36 * this.ins.length);
-      toffset = 0;
+      bufferWriter = new BufferWriter(tbuffer, 0);
 
       this.ins.forEach(txIn => {
-        writeSlice(txIn.hash);
-        writeUInt32(txIn.index);
+        bufferWriter.writeSlice(txIn.hash);
+        bufferWriter.writeUInt32(txIn.index);
       });
 
       hashPrevouts = bcrypto.hash256(tbuffer);
@@ -434,10 +372,10 @@ export class Transaction {
       (hashType & 0x1f) !== Transaction.SIGHASH_NONE
     ) {
       tbuffer = Buffer.allocUnsafe(4 * this.ins.length);
-      toffset = 0;
+      bufferWriter = new BufferWriter(tbuffer, 0);
 
       this.ins.forEach(txIn => {
-        writeUInt32(txIn.sequence);
+        bufferWriter.writeUInt32(txIn.sequence);
       });
 
       hashSequence = bcrypto.hash256(tbuffer);
@@ -452,11 +390,11 @@ export class Transaction {
       }, 0);
 
       tbuffer = Buffer.allocUnsafe(txOutsSize);
-      toffset = 0;
+      bufferWriter = new BufferWriter(tbuffer, 0);
 
       this.outs.forEach(out => {
-        writeUInt64(out.value);
-        writeVarSlice(out.script);
+        bufferWriter.writeUInt64(out.value);
+        bufferWriter.writeVarSlice(out.script);
       });
 
       hashOutputs = bcrypto.hash256(tbuffer);
@@ -467,28 +405,28 @@ export class Transaction {
       const output = this.outs[inIndex];
 
       tbuffer = Buffer.allocUnsafe(8 + varSliceSize(output.script));
-      toffset = 0;
-      writeUInt64(output.value);
-      writeVarSlice(output.script);
+      bufferWriter = new BufferWriter(tbuffer, 0);
+      bufferWriter.writeUInt64(output.value);
+      bufferWriter.writeVarSlice(output.script);
 
       hashOutputs = bcrypto.hash256(tbuffer);
     }
 
     tbuffer = Buffer.allocUnsafe(156 + varSliceSize(prevOutScript));
-    toffset = 0;
+    bufferWriter = new BufferWriter(tbuffer, 0);
 
     const input = this.ins[inIndex];
-    writeUInt32(this.version);
-    writeSlice(hashPrevouts);
-    writeSlice(hashSequence);
-    writeSlice(input.hash);
-    writeUInt32(input.index);
-    writeVarSlice(prevOutScript);
-    writeUInt64(value);
-    writeUInt32(input.sequence);
-    writeSlice(hashOutputs);
-    writeUInt32(this.locktime);
-    writeUInt32(hashType);
+    bufferWriter.writeUInt32(this.version);
+    bufferWriter.writeSlice(hashPrevouts);
+    bufferWriter.writeSlice(hashSequence);
+    bufferWriter.writeSlice(input.hash);
+    bufferWriter.writeUInt32(input.index);
+    bufferWriter.writeVarSlice(prevOutScript);
+    bufferWriter.writeUInt64(value);
+    bufferWriter.writeUInt32(input.sequence);
+    bufferWriter.writeSlice(hashOutputs);
+    bufferWriter.writeUInt32(this.locktime);
+    bufferWriter.writeUInt32(hashType);
     return bcrypto.hash256(tbuffer);
   }
 
@@ -531,82 +469,48 @@ export class Transaction {
     if (!buffer)
       buffer = Buffer.allocUnsafe(this.byteLength(_ALLOW_WITNESS)) as Buffer;
 
-    let offset = initialOffset || 0;
+    const bufferWriter = new BufferWriter(buffer, initialOffset || 0);
 
-    function writeSlice(slice: Buffer): void {
-      offset += slice.copy(buffer!, offset);
-    }
-
-    function writeUInt8(i: number): void {
-      offset = buffer!.writeUInt8(i, offset);
-    }
-
-    function writeUInt32(i: number): void {
-      offset = buffer!.writeUInt32LE(i, offset);
-    }
-
-    function writeInt32(i: number): void {
-      offset = buffer!.writeInt32LE(i, offset);
-    }
-
-    function writeUInt64(i: number): void {
-      offset = bufferutils.writeUInt64LE(buffer!, i, offset);
-    }
-
-    function writeVarInt(i: number): void {
-      varuint.encode(i, buffer, offset);
-      offset += varuint.encode.bytes;
-    }
-
-    function writeVarSlice(slice: Buffer): void {
-      writeVarInt(slice.length);
-      writeSlice(slice);
-    }
-
-    function writeVector(vector: Buffer[]): void {
-      writeVarInt(vector.length);
-      vector.forEach(writeVarSlice);
-    }
-
-    writeInt32(this.version);
+    bufferWriter.writeInt32(this.version);
 
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
 
     if (hasWitnesses) {
-      writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER);
-      writeUInt8(Transaction.ADVANCED_TRANSACTION_FLAG);
+      bufferWriter.writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER);
+      bufferWriter.writeUInt8(Transaction.ADVANCED_TRANSACTION_FLAG);
     }
 
-    writeVarInt(this.ins.length);
+    bufferWriter.writeVarInt(this.ins.length);
 
     this.ins.forEach(txIn => {
-      writeSlice(txIn.hash);
-      writeUInt32(txIn.index);
-      writeVarSlice(txIn.script);
-      writeUInt32(txIn.sequence);
+      bufferWriter.writeSlice(txIn.hash);
+      bufferWriter.writeUInt32(txIn.index);
+      bufferWriter.writeVarSlice(txIn.script);
+      bufferWriter.writeUInt32(txIn.sequence);
     });
 
-    writeVarInt(this.outs.length);
+    bufferWriter.writeVarInt(this.outs.length);
     this.outs.forEach(txOut => {
       if (isOutput(txOut)) {
-        writeUInt64(txOut.value);
+        bufferWriter.writeUInt64(txOut.value);
       } else {
-        writeSlice((txOut as any).valueBuffer);
+        bufferWriter.writeSlice((txOut as any).valueBuffer);
       }
 
-      writeVarSlice(txOut.script);
+      bufferWriter.writeVarSlice(txOut.script);
     });
 
     if (hasWitnesses) {
       this.ins.forEach(input => {
-        writeVector(input.witness);
+        bufferWriter.writeVector(input.witness);
       });
     }
 
-    writeUInt32(this.locktime);
+    bufferWriter.writeUInt32(this.locktime);
 
     // avoid slicing unless necessary
-    if (initialOffset !== undefined) return buffer.slice(initialOffset, offset);
+    if (initialOffset !== undefined)
+      return buffer.slice(initialOffset, bufferWriter.offset);
     return buffer;
   }
 }

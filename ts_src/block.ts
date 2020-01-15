@@ -1,4 +1,4 @@
-import { reverseBuffer } from './bufferutils';
+import { BufferReader, BufferWriter, reverseBuffer } from './bufferutils';
 import * as bcrypto from './crypto';
 import { Transaction } from './transaction';
 import * as types from './types';
@@ -18,47 +18,28 @@ export class Block {
   static fromBuffer(buffer: Buffer): Block {
     if (buffer.length < 80) throw new Error('Buffer too small (< 80 bytes)');
 
-    let offset: number = 0;
-    const readSlice = (n: number): Buffer => {
-      offset += n;
-      return buffer.slice(offset - n, offset);
-    };
-
-    const readUInt32 = (): number => {
-      const i = buffer.readUInt32LE(offset);
-      offset += 4;
-      return i;
-    };
-
-    const readInt32 = (): number => {
-      const i = buffer.readInt32LE(offset);
-      offset += 4;
-      return i;
-    };
+    const bufferReader = new BufferReader(buffer);
 
     const block = new Block();
-    block.version = readInt32();
-    block.prevHash = readSlice(32);
-    block.merkleRoot = readSlice(32);
-    block.timestamp = readUInt32();
-    block.bits = readUInt32();
-    block.nonce = readUInt32();
+    block.version = bufferReader.readInt32();
+    block.prevHash = bufferReader.readSlice(32);
+    block.merkleRoot = bufferReader.readSlice(32);
+    block.timestamp = bufferReader.readUInt32();
+    block.bits = bufferReader.readUInt32();
+    block.nonce = bufferReader.readUInt32();
 
     if (buffer.length === 80) return block;
 
-    const readVarInt = (): number => {
-      const vi = varuint.decode(buffer, offset);
-      offset += varuint.decode.bytes;
-      return vi;
-    };
-
     const readTransaction = (): any => {
-      const tx = Transaction.fromBuffer(buffer.slice(offset), true);
-      offset += tx.byteLength();
+      const tx = Transaction.fromBuffer(
+        bufferReader.buffer.slice(bufferReader.offset),
+        true,
+      );
+      bufferReader.offset += tx.byteLength();
       return tx;
     };
 
-    const nTransactions = readVarInt();
+    const nTransactions = bufferReader.readVarInt();
     block.transactions = [];
 
     for (let i = 0; i < nTransactions; ++i) {
@@ -183,37 +164,24 @@ export class Block {
   toBuffer(headersOnly?: boolean): Buffer {
     const buffer: Buffer = Buffer.allocUnsafe(this.byteLength(headersOnly));
 
-    let offset: number = 0;
-    const writeSlice = (slice: Buffer): void => {
-      slice.copy(buffer, offset);
-      offset += slice.length;
-    };
+    const bufferWriter = new BufferWriter(buffer);
 
-    const writeInt32 = (i: number): void => {
-      buffer.writeInt32LE(i, offset);
-      offset += 4;
-    };
-    const writeUInt32 = (i: number): void => {
-      buffer.writeUInt32LE(i, offset);
-      offset += 4;
-    };
-
-    writeInt32(this.version);
-    writeSlice(this.prevHash!);
-    writeSlice(this.merkleRoot!);
-    writeUInt32(this.timestamp);
-    writeUInt32(this.bits);
-    writeUInt32(this.nonce);
+    bufferWriter.writeInt32(this.version);
+    bufferWriter.writeSlice(this.prevHash!);
+    bufferWriter.writeSlice(this.merkleRoot!);
+    bufferWriter.writeUInt32(this.timestamp);
+    bufferWriter.writeUInt32(this.bits);
+    bufferWriter.writeUInt32(this.nonce);
 
     if (headersOnly || !this.transactions) return buffer;
 
-    varuint.encode(this.transactions.length, buffer, offset);
-    offset += varuint.encode.bytes;
+    varuint.encode(this.transactions.length, buffer, bufferWriter.offset);
+    bufferWriter.offset += varuint.encode.bytes;
 
     this.transactions.forEach(tx => {
       const txSize = tx.byteLength(); // TODO: extract from toBuffer?
-      tx.toBuffer(buffer, offset);
-      offset += txSize;
+      tx.toBuffer(buffer, bufferWriter.offset);
+      bufferWriter.offset += txSize;
     });
 
     return buffer;
