@@ -1,6 +1,5 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-const buffer_writer_1 = require('./buffer_writer');
 const bufferutils = require('./bufferutils');
 const bufferutils_1 = require('./bufferutils');
 const bcrypto = require('./crypto');
@@ -303,7 +302,7 @@ class Transaction {
     let hashSequence = ZERO;
     if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
       tbuffer = Buffer.allocUnsafe(36 * this.ins.length);
-      bufferWriter = new buffer_writer_1.BufferWriter(tbuffer, 0);
+      bufferWriter = new bufferutils_1.BufferWriter(tbuffer, 0);
       this.ins.forEach(txIn => {
         bufferWriter.writeSlice(txIn.hash);
         bufferWriter.writeUInt32(txIn.index);
@@ -316,7 +315,7 @@ class Transaction {
       (hashType & 0x1f) !== Transaction.SIGHASH_NONE
     ) {
       tbuffer = Buffer.allocUnsafe(4 * this.ins.length);
-      bufferWriter = new buffer_writer_1.BufferWriter(tbuffer, 0);
+      bufferWriter = new bufferutils_1.BufferWriter(tbuffer, 0);
       this.ins.forEach(txIn => {
         bufferWriter.writeUInt32(txIn.sequence);
       });
@@ -330,7 +329,7 @@ class Transaction {
         return sum + 8 + varSliceSize(output.script);
       }, 0);
       tbuffer = Buffer.allocUnsafe(txOutsSize);
-      bufferWriter = new buffer_writer_1.BufferWriter(tbuffer, 0);
+      bufferWriter = new bufferutils_1.BufferWriter(tbuffer, 0);
       this.outs.forEach(out => {
         bufferWriter.writeUInt64(out.value);
         bufferWriter.writeVarSlice(out.script);
@@ -342,13 +341,13 @@ class Transaction {
     ) {
       const output = this.outs[inIndex];
       tbuffer = Buffer.allocUnsafe(8 + varSliceSize(output.script));
-      bufferWriter = new buffer_writer_1.BufferWriter(tbuffer, 0);
+      bufferWriter = new bufferutils_1.BufferWriter(tbuffer, 0);
       bufferWriter.writeUInt64(output.value);
       bufferWriter.writeVarSlice(output.script);
       hashOutputs = bcrypto.hash256(tbuffer);
     }
     tbuffer = Buffer.allocUnsafe(156 + varSliceSize(prevOutScript));
-    bufferWriter = new buffer_writer_1.BufferWriter(tbuffer, 0);
+    bufferWriter = new bufferutils_1.BufferWriter(tbuffer, 0);
     const input = this.ins[inIndex];
     bufferWriter.writeUInt32(this.version);
     bufferWriter.writeSlice(hashPrevouts);
@@ -388,7 +387,7 @@ class Transaction {
   }
   __toBuffer(buffer, initialOffset, _ALLOW_WITNESS = false) {
     if (!buffer) buffer = Buffer.allocUnsafe(this.byteLength(_ALLOW_WITNESS));
-    const bufferWriter = new buffer_writer_1.BufferWriter(
+    const bufferWriter = new bufferutils_1.BufferWriter(
       buffer,
       initialOffset || 0,
     );

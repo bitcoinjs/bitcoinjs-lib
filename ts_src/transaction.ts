@@ -1,6 +1,5 @@
-import { BufferWriter } from './buffer_writer';
 import * as bufferutils from './bufferutils';
-import { reverseBuffer } from './bufferutils';
+import { BufferWriter, reverseBuffer } from './bufferutils';
 import * as bcrypto from './crypto';
 import * as bscript from './script';
 import { OPS as opcodes } from './script';

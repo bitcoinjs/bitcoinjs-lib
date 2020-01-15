@@ -1,5 +1,8 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+const types = require('./types');
+const typeforce = require('typeforce');
+const varuint = require('varuint-bitcoin');
 // https://github.com/feross/buffer/blob/master/index.js#L1127
 function verifuint(value, max) {
   if (typeof value !== 'number')
@@ -38,3 +41,90 @@ function reverseBuffer(buffer) {
   return buffer;
 }
 exports.reverseBuffer = reverseBuffer;
+/**
+ * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
+ */
+class BufferWriter {
+  constructor(buffer, offset = 0) {
+    this.buffer = buffer;
+    this.offset = offset;
+    typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
+  }
+  writeUInt8(i) {
+    this.offset = this.buffer.writeUInt8(i, this.offset);
+  }
+  writeInt32(i) {
+    this.offset = this.buffer.writeInt32LE(i, this.offset);
+  }
+  writeUInt32(i) {
+    this.offset = this.buffer.writeUInt32LE(i, this.offset);
+  }
+  writeUInt64(i) {
+    this.offset = writeUInt64LE(this.buffer, i, this.offset);
+  }
+  writeVarInt(i) {
+    varuint.encode(i, this.buffer, this.offset);
+    this.offset += varuint.encode.bytes;
+  }
+  writeSlice(slice) {
+    this.offset += slice.copy(this.buffer, this.offset);
+  }
+  writeVarSlice(slice) {
+    this.writeVarInt(slice.length);
+    this.writeSlice(slice);
+  }
+  writeVector(vector) {
+    this.writeVarInt(vector.length);
+    vector.forEach(buf => this.writeVarSlice(buf));
+  }
+}
+exports.BufferWriter = BufferWriter;
+/**
+ * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
+ */
+class BufferReader {
+  constructor(buffer, offset = 0) {
+    this.buffer = buffer;
+    this.offset = offset;
+    typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
+  }
+  readUInt8() {
+    const result = this.buffer.readUInt8(this.offset);
+    this.offset++;
+    return result;
+  }
+  readInt32() {
+    const result = this.buffer.readInt32LE(this.offset);
+    this.offset += 4;
+    return result;
+  }
+  readUInt32() {
+    const result = this.buffer.readUInt32LE(this.offset);
+    this.offset += 4;
+    return result;
+  }
+  readUInt64() {
+    const result = readUInt64LE(this.buffer, this.offset);
+    this.offset += 8;
+    return result;
+  }
+  readVarInt() {
+    const vi = varuint.decode(this.buffer, this.offset);
+    this.offset += varuint.decode.bytes;
+    return vi;
+  }
+  readSlice(n) {
+    this.offset += n;
+    return this.buffer.slice(this.offset - n, this.offset);
+  }
+  readVarSlice() {
+    return this.readSlice(this.readVarInt());
+  }
+  readVector() {
+    const count = this.readVarInt();
+    const vector = [];
+    for (let i = 0; i < count; i++) vector.push(this.readVarSlice());
+    return vector;
+  }
+}
+exports.BufferReader = BufferReader;
