@@ -93,7 +93,7 @@ export class BufferWriter {
 }
 
 /**
- * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
+ * Helper class for reading of bitcoin data types from a buffer.
  */
 export class BufferReader {
   constructor(public buffer: Buffer, public offset: number = 0) {

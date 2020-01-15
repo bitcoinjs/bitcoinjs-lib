@@ -18,7 +18,7 @@ export declare class BufferWriter {
     writeVector(vector: Buffer[]): void;
 }
 /**
- * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
+ * Helper class for reading of bitcoin data types from a buffer.
  */
 export declare class BufferReader {
     buffer: Buffer;
