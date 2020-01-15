@@ -1,5 +1,4 @@
-import * as bufferutils from './bufferutils';
-import { BufferWriter, reverseBuffer } from './bufferutils';
+import { BufferReader, BufferWriter, reverseBuffer } from './bufferutils';
 import * as bcrypto from './crypto';
 import * as bscript from './script';
 import { OPS as opcodes } from './script';
@@ -68,85 +67,46 @@ export class Transaction {
   static readonly ADVANCED_TRANSACTION_FLAG = 0x01;
 
   static fromBuffer(buffer: Buffer, _NO_STRICT?: boolean): Transaction {
-    let offset: number = 0;
-
-    function readSlice(n: number): Buffer {
-      offset += n;
-      return buffer.slice(offset - n, offset);
-    }
-
-    function readUInt32(): number {
-      const i = buffer.readUInt32LE(offset);
-      offset += 4;
-      return i;
-    }
-
-    function readInt32(): number {
-      const i = buffer.readInt32LE(offset);
-      offset += 4;
-      return i;
-    }
-
-    function readUInt64(): number {
-      const i = bufferutils.readUInt64LE(buffer, offset);
-      offset += 8;
-      return i;
-    }
-
-    function readVarInt(): number {
-      const vi = varuint.decode(buffer, offset);
-      offset += varuint.decode.bytes;
-      return vi;
-    }
-
-    function readVarSlice(): Buffer {
-      return readSlice(readVarInt());
-    }
-
-    function readVector(): Buffer[] {
-      const count = readVarInt();
-      const vector: Buffer[] = [];
-      for (let i = 0; i < count; i++) vector.push(readVarSlice());
-      return vector;
-    }
+    const bufferReader = new BufferReader(buffer);
 
     const tx = new Transaction();
-    tx.version = readInt32();
+    tx.version = bufferReader.readInt32();
 
-    const marker = buffer.readUInt8(offset);
-    const flag = buffer.readUInt8(offset + 1);
+    const marker = bufferReader.readUInt8();
+    const flag = bufferReader.readUInt8();
 
     let hasWitnesses = false;
     if (
       marker === Transaction.ADVANCED_TRANSACTION_MARKER &&
       flag === Transaction.ADVANCED_TRANSACTION_FLAG
     ) {
-      offset += 2;
       hasWitnesses = true;
+    } else {
+      bufferReader.offset -= 2;
     }
 
-    const vinLen = readVarInt();
+    const vinLen = bufferReader.readVarInt();
     for (let i = 0; i < vinLen; ++i) {
       tx.ins.push({
-        hash: readSlice(32),
-        index: readUInt32(),
-        script: readVarSlice(),
-        sequence: readUInt32(),
+        hash: bufferReader.readSlice(32),
+        index: bufferReader.readUInt32(),
+        script: bufferReader.readVarSlice(),
+        sequence: bufferReader.readUInt32(),
         witness: EMPTY_WITNESS,
       });
     }
 
-    const voutLen = readVarInt();
+    const voutLen = bufferReader.readVarInt();
     for (let i = 0; i < voutLen; ++i) {
       tx.outs.push({
-        value: readUInt64(),
-        script: readVarSlice(),
+        value: bufferReader.readUInt64(),
+        script: bufferReader.readVarSlice(),
       });
     }
 
     if (hasWitnesses) {
       for (let i = 0; i < vinLen; ++i) {
-        tx.ins[i].witness = readVector();
+        tx.ins[i].witness = bufferReader.readVector();
       }
 
       // was this pointless?
@@ -154,10 +114,10 @@ export class Transaction {
         throw new Error('Transaction has superfluous witness data');
     }
 
-    tx.locktime = readUInt32();
+    tx.locktime = bufferReader.readUInt32();
 
     if (_NO_STRICT) return tx;
-    if (offset !== buffer.length)
+    if (bufferReader.offset !== buffer.length)
       throw new Error('Transaction has unexpected data');
 
     return tx;

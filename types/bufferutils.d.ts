@@ -5,7 +5,7 @@ export declare function reverseBuffer(buffer: Buffer): Buffer;
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
 export declare class BufferWriter {
-    private buffer;
+    buffer: Buffer;
     offset: number;
     constructor(buffer: Buffer, offset?: number);
     writeUInt8(i: number): void;
@@ -21,7 +21,7 @@ export declare class BufferWriter {
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
 export declare class BufferReader {
-    private buffer;
+    buffer: Buffer;
     offset: number;
     constructor(buffer: Buffer, offset?: number);
     readUInt8(): number;

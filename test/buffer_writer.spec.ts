@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import { BufferWriter } from '../src/buffer_writer';
+import { BufferWriter } from '../src/bufferutils';
 
 const varuint = require('varuint-bitcoin');
 

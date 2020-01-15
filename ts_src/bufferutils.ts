@@ -52,7 +52,7 @@ export function reverseBuffer(buffer: Buffer): Buffer {
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
 export class BufferWriter {
-  constructor(private buffer: Buffer, public offset: number = 0) {
+  constructor(public buffer: Buffer, public offset: number = 0) {
     typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
   }
 
@@ -96,7 +96,7 @@ export class BufferWriter {
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
 export class BufferReader {
-  constructor(private buffer: Buffer, public offset: number = 0) {
+  constructor(public buffer: Buffer, public offset: number = 0) {
     typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
   }
 
