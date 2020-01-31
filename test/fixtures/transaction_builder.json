@@ -11,6 +11,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -34,6 +35,7 @@
             "prevTxScript": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 OP_CHECKSIG",
             "signs": [
               {
+                "prevOutScriptType": "p2pk",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -56,6 +58,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "redeemScript": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
               }
@@ -80,11 +83,14 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG"
               },
               {
-                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG"
               }
             ]
           }
@@ -108,9 +114,11 @@
             "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
               },
               {
+                "prevOutScriptType": "p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
               }
             ]
@@ -135,9 +143,11 @@
             "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
               },
               {
+                "prevOutScriptType": "p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
               }
             ]
@@ -162,9 +172,11 @@
             "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
               },
               {
+                "prevOutScriptType": "p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
               }
             ]
@@ -188,11 +200,14 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG"
               },
               {
-                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe"
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG"
               }
             ]
           }
@@ -215,12 +230,15 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
                 "hashType": 1
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
                 "hashType": 2
               }
             ]
@@ -244,6 +262,7 @@
             "prevTxScript": "OP_HASH160 e89677d91455e541630d62c63718bef738b478b1 OP_EQUAL",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pk",
                 "keyPair": "KxLDMPtVM7sLSu2v5n1LybDibw6P9FFbL4pUwJ51UDm7rp5AmXWW",
                 "redeemScript": "033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70f OP_CHECKSIG"
               }
@@ -267,6 +286,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -291,6 +311,7 @@
             "sequence": 2147001,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -314,6 +335,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -337,6 +359,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "cQ6483mDWwoG8o4tn6nU9Jg52RKMjPUWXSY1vycAyPRXQJ1Pn2Rq"
               }
             ]
@@ -359,6 +382,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -381,6 +405,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -404,6 +429,7 @@
             "prevTxScript": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6",
             "signs": [
               {
+                "prevOutScriptType": "p2wpkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "value": 10000
               }
@@ -428,6 +454,7 @@
             "prevTxScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
             "signs": [
               {
+                "prevOutScriptType": "p2wsh-p2pk",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
                 "value": 80000
@@ -452,9 +479,9 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 3,
-                "value": 30000000
+                "hashType": 3
               }
             ],
             "sequence": 4294967295,
@@ -482,9 +509,9 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 1,
-                "value": 40000
+                "hashType": 1
               }
             ],
             "sequence": 4294967295,
@@ -495,9 +522,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 1,
-                "value": 40000
+                "hashType": 1
               }
             ],
             "sequence": 4294967295,
@@ -508,9 +535,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 1,
-                "value": 40000
+                "hashType": 1
               }
             ],
             "sequence": 4294967295,
@@ -542,9 +569,9 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 129,
-                "value": 40000
+                "hashType": 129
               }
             ],
             "sequence": 4294967295,
@@ -555,9 +582,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 129,
-                "value": 40000
+                "hashType": 129
               }
             ],
             "sequence": 4294967295,
@@ -568,9 +595,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 129,
-                "value": 40000
+                "hashType": 129
               }
             ],
             "sequence": 4294967295,
@@ -602,9 +629,9 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 3,
-                "value": 40000
+                "hashType": 3
               }
             ],
             "sequence": 4294967295,
@@ -615,9 +642,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 3,
-                "value": 40000
+                "hashType": 3
               }
             ],
             "sequence": 4294967295,
@@ -628,9 +655,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 3,
-                "value": 40000
+                "hashType": 3
               }
             ],
             "sequence": 4294967295,
@@ -662,9 +689,9 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 131,
-                "value": 40000
+                "hashType": 131
               }
             ],
             "sequence": 4294967295,
@@ -675,9 +702,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 131,
-                "value": 40000
+                "hashType": 131
               }
             ],
             "sequence": 4294967295,
@@ -688,9 +715,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 131,
-                "value": 40000
+                "hashType": 131
               }
             ],
             "sequence": 4294967295,
@@ -722,9 +749,9 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 2,
-                "value": 40000
+                "hashType": 2
               }
             ],
             "sequence": 4294967295,
@@ -735,9 +762,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 2,
-                "value": 40000
+                "hashType": 2
               }
             ],
             "sequence": 4294967295,
@@ -748,9 +775,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 2,
-                "value": 40000
+                "hashType": 2
               }
             ],
             "sequence": 4294967295,
@@ -782,9 +809,9 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 130,
-                "value": 40000
+                "hashType": 130
               }
             ],
             "sequence": 4294967295,
@@ -795,9 +822,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 130,
-                "value": 40000
+                "hashType": 130
               }
             ],
             "sequence": 4294967295,
@@ -808,9 +835,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
-                "hashType": 130,
-                "value": 40000
+                "hashType": 130
               }
             ],
             "sequence": 4294967295,
@@ -842,9 +869,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pk",
                 "keyPair": "L3Wh2WPg21MWqzMFYsVC7PeBXcq1ow32KRccRihnTUnAhJaZUvg1",
-                "hashType": 1,
-                "value": 625000000
+                "hashType": 1
               }
             ],
             "sequence": 4294967278,
@@ -855,6 +882,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2wpkh",
                 "keyPair": "KzVTBhbMaKrAYagJ11VdTaBrb6yzLykLGyuMBkf9sCFPDxdT8shL",
                 "hashType": 1,
                 "value": 600000000
@@ -886,6 +914,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wpkh",
                 "keyPair": "L57KYn5isHFThD4cohjJgLTZA2vaxnMMKWngnzbttF159yH9dARf",
                 "hashType": 1,
                 "redeemScript": "OP_0 79091972186c449eb1ded22b78e40d009bdf0089",
@@ -909,7 +938,7 @@
         "locktime": 1170
       },
       {
-        "description": "Sighash V1: P2WSH(P2SH(P2MS 6/6))",
+        "description": "Sighash V1: P2SH(P2WSH(P2MS 6/6))",
         "txHex": "0100000000010136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000023220020a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54ffffffff02e6312761010000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688ac583e0f00000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac0800483045022100f902f491c4df15199e584790ae8c7202569a977accac0a09fa3f4f3b6ec3517602205961a951c4a12fa966da67b6fd75975b9de156b9895f8ab5f289ecaee12b9b3501473044022068c7946a43232757cbdf9176f009a928e1cd9a1a8c212f15c1e11ac9f2925d9002205b75f937ff2f9f3c1246e547e54f62e027f64eefa2695578cc6432cdabce271502483045022100bd5294e145d729e9593f49079b74e6e4b8aeba63440408595ce0949d5c6450a702207f9c9fb45907fe0180d3f4bee499006007bb90894b5f824a26dfa5d3afec543303483045022100febf9409d7f3c091ddc4d296a483aae7b3d2a91d38f6ea2a153f7ff085fe7766022078d11972c74cd78f816152463a5e1a5d986dfb94b55cf5f7242e4f6d5df000ff81483045022100a5263ea0553ba89221984bd7f0b13613db16e7a70c549a86de0cc0444141a407022005c360ef0ae5a5d4f9f2f87a56c1546cc8268cab08c73501d6b3be2e1e1a8a088247304402201a0e125aed6a700e45d6c86017d5a9d2264c8079319d868f3f163f5d63cb5bfe02200887608f2322ca0d82df67316275371028b0b21750417d594117963fe23b67ec83cf56210307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba32103b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b21034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a21033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f42103a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac162102d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b56ae00000000",
         "version": 1,
         "inputs": [
@@ -918,6 +947,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "L15NqbRvcqso8ZCqD8aFaZV3CTypw6svjk8oCWsAfMmNViahS2Mw",
                 "hashType": 1,
                 "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
@@ -925,6 +955,7 @@
                 "value": 987654321
               },
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "Kwpf3fycToLH1ymZUkezFrYwTjhKaucHD861Ft5A4Tih855LBxVx",
                 "hashType": 2,
                 "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
@@ -932,6 +963,7 @@
                 "value": 987654321
               },
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "L1EV111k2WzNTapY2etd1TaB2aWbjUgouko9YyipS2S8H8WdGkQi",
                 "hashType": 3,
                 "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
@@ -939,6 +971,7 @@
                 "value": 987654321
               },
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "KwuvEmpBtJaw8SQLnpi3CoEHZJvv33EnYBHn13VcDuwprJqmkfSH",
                 "hashType": 129,
                 "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
@@ -946,6 +979,7 @@
                 "value": 987654321
               },
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "L5kdM8eWyfj8pdRDWA8j5SmBwAQt2yyhqjb2ZZQxtRGJfCquC6TB",
                 "hashType": 130,
                 "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
@@ -953,6 +987,7 @@
                 "value": 987654321
               },
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "KyT4JbJVRy5FZ6ZEZhkaocP2JSBXiF7X3Cx6DBAGLrydR9fiXQUK",
                 "hashType": 131,
                 "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
@@ -986,9 +1021,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pk",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
-                "hashType": 1,
-                "value": 80000
+                "hashType": 1
               }
             ],
             "sequence": 4294967295,
@@ -1013,10 +1048,10 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pk",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
-                "redeemScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
-                "value": 80000
+                "redeemScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG"
               }
             ],
             "sequence": 4294967295,
@@ -1041,6 +1076,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2wsh-p2pk",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
                 "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
@@ -1069,6 +1105,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2pk",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
                 "redeemScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
@@ -1098,9 +1135,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
-                "hashType": 1,
-                "value": 80000
+                "hashType": 1
               }
             ],
             "sequence": 4294967295,
@@ -1125,10 +1162,10 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pkh",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
-                "redeemScript": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
-                "value": 80000
+                "redeemScript": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
               }
             ],
             "sequence": 4294967295,
@@ -1153,6 +1190,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2wsh-p2pkh",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
                 "witnessScript": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
@@ -1181,6 +1219,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2pkh",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
                 "witnessScript": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
@@ -1210,9 +1249,9 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2ms",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
-                "hashType": 1,
-                "value": 80000
+                "hashType": 1
               }
             ],
             "sequence": 4294967295,
@@ -1237,10 +1276,10 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
-                "redeemScript": "OP_1 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_1 OP_CHECKMULTISIG",
-                "value": 80000
+                "redeemScript": "OP_1 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_1 OP_CHECKMULTISIG"
               }
             ],
             "sequence": 4294967295,
@@ -1265,6 +1304,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2wsh-p2ms",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
                 "witnessScript": "OP_1 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_1 OP_CHECKMULTISIG",
@@ -1293,6 +1333,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
                 "witnessScript": "OP_1 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_1 OP_CHECKMULTISIG",
@@ -1322,6 +1363,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2wpkh",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
                 "value": 80000
@@ -1349,6 +1391,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wpkh",
                 "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
                 "hashType": 1,
                 "redeemScript": "OP_0 851a33a5ef0d4279bd5854949174e2c65b1d4500",
@@ -1377,6 +1420,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -1402,6 +1446,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS",
                 "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
                 "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
@@ -1430,12 +1475,14 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS",
                 "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
                 "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
                 "value": 100000
               },
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "cTUFsNeVd8TKU4yREN8nMdViNnHyNvCCYVRmRUmkMLgomiMWTiii",
                 "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
                 "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
@@ -1453,7 +1500,7 @@
         ]
       },
       {
-        "description": "P2WSH(P2MS 2/3) -> P2PKH",
+        "description": "P2SH(P2WSH(P2MS 2/3)) -> P2PKH",
         "network": "testnet",
         "txHex": "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000232200201b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701ffffffff01f07e0e00000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac0400473044022036c9ecb03cb04c09be1f52766725dcfe9a815973bd2f34ce19a345f2d925a45502207b90737852d2508db104ad17612de473687e67928c045555a1ed8d495c0570d901483045022100aec0e58e4e597b35ca5a727702a0da3d4f2ef4759914da7fc80aecb3c479a6d902201ec27ea8dcca4b73ee81e4b627f52f9e627c3497f61e4beeb98f86e02979640a0169522103c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc5787721020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b02102d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc914953ae00000000",
         "version": 1,
@@ -1466,6 +1513,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "cUxccFVBdJRq6HnyxiFMd8Z15GLThXaNLcnPBgoXLEv9iX6wuV2b",
                 "witnessScript": "OP_2 03c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc57877 020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b0 02d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc9149 OP_3 OP_CHECKMULTISIG",
                 "redeemScript": "OP_0 1b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701",
@@ -1473,6 +1521,7 @@
                 "stage": true
               },
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
                 "keyPair": "cVSNe9ZdZRsRvEBL8YRR7YiZmH4cLsf5FthgERWkZezJVrGseaXy",
                 "witnessScript": "OP_2 03c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc57877 020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b0 02d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc9149 OP_3 OP_CHECKMULTISIG",
                 "redeemScript": "OP_0 1b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701",
@@ -1561,6 +1610,7 @@
             "scriptSigAfter": "OP_0 OP_0 OP_0 30440220793d87f2a8afeb856816efa38984418c692c15170e99ca371f547454079c0dd3022074ae95e438fee1f37619fabe0ce1083c3be0d65c3defb5337833d50fdc694b1301 52210258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a9121038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f2103b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d953ae",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "cTkcnMZoFYH1UgumzCFHv2veLMNN1PaJyHHUxFT127zhNGBqqEZ2",
                 "redeemScript": "OP_2 0258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a91 038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f 03b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d9 OP_3 OP_CHECKMULTISIG"
               }
@@ -1585,11 +1635,13 @@
             "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 0,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 1,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
                 "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
@@ -1616,11 +1668,13 @@
             "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 1,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
                 "scriptSig": "OP_0 OP_0 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 0,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
@@ -1647,11 +1701,13 @@
             "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 0,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 1,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
                 "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
@@ -1678,11 +1734,13 @@
             "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 0,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 1,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
                 "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 3045022100ae06d8269b79b5cfa0297d1d88261b0061e52fc2814948c3aa05fa78ee76894302206e0c79a5c90569d8c72a542ef9a06471cbbcd2c651b312339983dfba4f8ff46301 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
@@ -1709,11 +1767,13 @@
             "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 0,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 2,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
                 "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
@@ -1740,11 +1800,13 @@
             "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 2,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
                 "scriptSig": "OP_0 OP_0 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 0,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
@@ -1771,11 +1833,13 @@
             "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 0,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 2,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
                 "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
@@ -1802,11 +1866,13 @@
             "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 2,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
                 "scriptSig": "OP_0 OP_0 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "pubKeyIndex": 0,
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "scriptSigBefore": "OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae",
@@ -1863,6 +1929,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzBQVXYUGDAvqG7VeU3C7ZMRYiwtsxSVVFcYGzKU9E4aUVDUquZU"
               }
             ]
@@ -1900,6 +1967,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -1927,6 +1995,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG"
               }
@@ -1976,14 +2045,15 @@
     "sign": [
       {
         "description": "Transaction w/ witness value mismatch",
-        "exception": "Input didn\\'t match witnessValue",
+        "exception": "Input did not match witnessValue",
         "network": "testnet",
         "inputs": [
           {
-            "txHex": "0100000001f7e6430096cd2790bac115aaab22c0a50fb0a1794305302e1a399e81d8d354f4020000006a47304402205793a862d193264afc32713e2e14541e1ff9ebb647dd7e7e6a0051d0faa87de302205216653741ecbbed573ea2fc053209dd6980616701c27be5b958a159fc97f45a012103e877e7deb32d19250dcfe534ea82c99ad739800295cd5429a7f69e2896c36fcdfeffffff0340420f00000000001976a9145c7b8d623fba952d2387703d051d8e931a6aa0a188ac8bda2702000000001976a9145a0ef60784137d03e7868d063b05424f2f43799f88ac40420f00000000001976a9145c7b8d623fba952d2387703d051d8e931a6aa0a188ac2fcc0e00",
+            "txHex": "01000000000101f7e6430096cd2790bac115aaab22c0a50fb0a1794305302e1a399e81d8d354f40200000000feffffff0340420f00000000001600145c7b8d623fba952d2387703d051d8e931a6aa0a18bda2702000000001976a9145a0ef60784137d03e7868d063b05424f2f43799f88ac40420f00000000001976a9145c7b8d623fba952d2387703d051d8e931a6aa0a188ac0247304402205793a862d193264afc32713e2e14541e1ff9ebb647dd7e7e6a0051d0faa87de302205216653741ecbbed573ea2fc053209dd6980616701c27be5b958a159fc97f45a012103e877e7deb32d19250dcfe534ea82c99ad739800295cd5429a7f69e2896c36fcd2fcc0e00",
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2wpkh",
                 "keyPair": "cQ6483mDWwoG8o4tn6nU9Jg52RKMjPUWXSY1vycAyPRXQJ1Pn2Rq",
                 "throws": true,
                 "value": 22500000000
@@ -2007,9 +2077,11 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               },
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "throws": true
               }
@@ -2033,6 +2105,7 @@
             "prevTxScript": "OP_0 15a71ffa7b5bb70cddefcf364494071022efe390",
             "signs": [
               {
+                "prevOutScriptType": "p2wpkh",
                 "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
                 "value": 10000,
                 "throws": true
@@ -2057,6 +2130,7 @@
             "prevTxScript": "OP_0 5339df4de3854c4208376443ed075014ad996aa349ad6b5abf6c4d20f604d348",
             "signs": [
               {
+                "prevOutScriptType": "p2wsh-p2pk",
                 "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
                 "witnessScript": "04f56d09b32cefc818735150bf8560eefdaf30d2edb3fe557bf27682aedaed81bf9aaff7eeb496e088058ec548826c12b521dbb566a862d9b67677910c2b421e06 OP_CHECKSIG",
                 "value": 80000,
@@ -2082,6 +2156,7 @@
             "prevTxScript": "OP_HASH160 5afe12b2827e3eac05fe3f17c59406ef262aa177 OP_EQUAL",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2wsh-p2pk",
                 "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
                 "redeemScript": "OP_0 5339df4de3854c4208376443ed075014ad996aa349ad6b5abf6c4d20f604d348",
                 "witnessScript": "04f56d09b32cefc818735150bf8560eefdaf30d2edb3fe557bf27682aedaed81bf9aaff7eeb496e088058ec548826c12b521dbb566a862d9b67677910c2b421e06 OP_CHECKSIG",
@@ -2106,6 +2181,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pk",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "redeemScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
                 "throws": true
@@ -2121,7 +2197,7 @@
         ]
       },
       {
-        "exception": "PrevOutScript is scripthash, requires redeemScript",
+        "exception": "p2sh-p2pkh requires redeemScript",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -2129,6 +2205,7 @@
             "prevTxScript": "OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "throws": true
               }
@@ -2143,7 +2220,7 @@
         ]
       },
       {
-        "exception": "PrevOutScript is witnessscripthash, requires witnessScript",
+        "exception": "p2wsh-p2pk requires witnessScript",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -2151,6 +2228,7 @@
             "prevTxScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
             "signs": [
               {
+                "prevOutScriptType": "p2wsh-p2pk",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "throws": true
               }
@@ -2173,10 +2251,12 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
                 "throws": true
@@ -2201,9 +2281,9 @@
             "prevTxScript": "OP_HASH160 ffffffffffffffffffffffffffffffffffffffff OP_EQUAL",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pkh",
                 "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
                 "redeemScript": "OP_1",
-                "value": 10000,
                 "throws": true
               }
             ]
@@ -2226,6 +2306,7 @@
             "prevTxScript": "OP_0 ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "signs": [
               {
+                "prevOutScriptType": "p2wsh-p2pkh",
                 "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
                 "witnessScript": "OP_1",
                 "value": 10000,
@@ -2249,6 +2330,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "redeemScript": "OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL",
                 "throws": true
@@ -2264,7 +2346,7 @@
         ]
       },
       {
-        "exception": "PrevOutScript must be P2SH",
+        "exception": "input #0 is not of type p2sh-p2pkh: pubkeyhash",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -2272,6 +2354,7 @@
             "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
                 "throws": true
@@ -2295,11 +2378,14 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf",
                 "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG"
               },
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
                 "throws": true
               }
             ]
@@ -2322,6 +2408,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "network": "testnet",
                 "throws": true
@@ -2345,6 +2432,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2sh-p2ms",
                 "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
                 "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
                 "throws": true
@@ -2360,7 +2448,7 @@
         ]
       },
       {
-        "exception": "nulldata not supported",
+        "exception": "input #0 is not of type p2pkh: nulldata",
         "inputs": [
           {
             "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -2368,6 +2456,7 @@
             "prevTxScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
                 "throws": true
               }
@@ -2382,6 +2471,190 @@
         ]
       },
       {
+        "exception": "input #0 is not of type p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2wpkh: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2ms: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2wpkh: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wpkh",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2wsh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2wsh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "Unknown prevOutScriptType \"notvalidtype\"",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "notvalidtype",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
         "description": "Transaction w/ no outputs (but 1 SIGHASH_NONE)",
         "exception": "Transaction needs outputs",
         "inputs": [
@@ -2390,6 +2663,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "hashType": 2
               }
@@ -2400,6 +2674,7 @@
             "vout": 1,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "throws": true
               }
@@ -2417,6 +2692,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
                 "throws": true
               }

@@ -1,3 +1,69 @@
+# 5.1.7
+__fixed__
+- Fixed Transaction class Output interface typing for TypeScript (#1506)
+- Add `weight()` to Block class, add optional includeWitness arg to Transaction byteLength method (#1515)
+- Match the old TransactionBuilder behavior of allowing for multiple instances of the same pubkey to be in a p2ms script for PSBT (#1519)
+
+__added__
+- Allow the API consumer to pass in the finalizer functions to allow for any type of transaction to be finalized. It places the most crucial part of transaction construction on the consumer, and should be used with caution. (#1491)
+
+# 5.1.6
+__fixed__
+- `PsbtOutputExtended` did not support using the address attribute properly. It is now fixed.
+
+# 5.1.5
+__added__
+- `Psbt` now has `getFee(): number` for use when all inputs are finalized. It returns the satoshi fee of the transaction. Calling getFee, getFeeRate, or extractTransaction will cache these values so if you call one after the other, the second call will return immediately.
+
+# 5.1.4
+__changed__
+- `Psbt` inputs using segwit scripts can now work with nonWitnessUtxo as well as the original witnessUtxo. The reasoning for this is that nonWitnessUtxo has all the information contained in the witnessUtxo, so rejecting signing even though we have all the info we need is unnecessary. Trying to sign a non-segwit script with a witnessUtxo will still throw an Error as it should.
+
+# 5.1.3
+__changed__
+- TypeScript types: Made Signer and SignerAsync use any for network since we only check for equivalence. (#1448)
+- TypeScript types: Made the args for addInput and addOutput for Psbt actually accept updateInput and updateOutput parameters. (#1449)
+
+# 5.1.2
+__added__
+- `ECPair` and `bip32` objects now have a lowR boolean attribute defaulted to false. You may set it to true to ensure that the sign method uses low R values (#1442) (This is to enable low R usage in Psbt, since we decided not to give the low R flag to the Psbt class, since it makes more sense to be an attribute of the Signer interface)
+
+# 5.1.1
+__changed__
+- Name inconsistencies for Psbt class. (Quick fix)
+
+# 5.1.0
+__added__
+- A new `Psbt` class for creating, distributing, combining, signing, and compiling Transactions (#1425)
+- A `name` attribute to the Payment interface. P2SH and P2WSH are nested with `'-'` as separator, and p2ms is in the format of `'p2ms(m of n)''` all others are just hard coded. (#1433)
+
+__changed__
+- `TransactionBuilder`: Migrate to stricter type checks during sign by switching to a single object parameter (#1416)
+- `tests`: Use regtest-client as separate library (#1421)
+
+# 5.0.5
+__added__
+- Added `ECPairInterface` `Stack` and `StackElement` interfaces to the main index.ts export (TypeScript only affected)
+
+# 5.0.4
+__added__
+- low R value support for ECPair, bip32, and TransactionBuilder (default off) via `txb.setLowR()` (#1385)
+
+__fixed__
+- Fixed Various TypeScript types that have been pushed out since v5.0.0 (#1388)
+
+# 5.0.0
+__added__
+- TypeScript support (#1319)
+- `Block.prototype.checkTxRoots` will check the merkleRoot and witnessCommit if it exists against the transactions array. (e52abec) (0426c66)
+
+__changed__
+- `Transaction.prototype.getHash` now has `forWitness?: boolean` which when true returns the hash for wtxid (a652d04)
+- `Block.calculateMerkleRoot` now has `forWitness?: boolean` which when true returns the witness commit (a652d04)
+
+__removed__
+- `Block.prototype.checkMerkleRoot` was removed, please use `checkTxRoots` (0426c66)
+
 # 4.0.5
 __fixed__
 - Fixed bug where Angular apps break due to lack of crypto at build time. Reverted #1373 and added (6bead5d).

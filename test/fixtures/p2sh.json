@@ -7,6 +7,7 @@
       },
       "options": {},
       "expected": {
+        "name": "p2sh",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
         "redeem": null,
@@ -20,6 +21,7 @@
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086"
       },
       "expected": {
+        "name": "p2sh",
         "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
         "redeem": null,
@@ -33,6 +35,7 @@
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL"
       },
       "expected": {
+        "name": "p2sh",
         "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "redeem": null,
@@ -49,6 +52,7 @@
         }
       },
       "expected": {
+        "name": "p2sh-p2pkh",
         "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
@@ -65,6 +69,7 @@
         }
       },
       "expected": {
+        "name": "p2sh-p2wpkh",
         "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
         "hash": "0432515d8fe8de31be8207987fc6d67b29d5e7cc",
         "output": "OP_HASH160 0432515d8fe8de31be8207987fc6d67b29d5e7cc OP_EQUAL",
@@ -81,6 +86,7 @@
         }
       },
       "expected": {
+        "name": "p2sh-p2pk",
         "address": "36TibC8RrPB9WrBdPoGXhHqDHJosyFVtVQ",
         "hash": "3454c084887afe854e80221c69d6282926f809c4",
         "output": "OP_HASH160 3454c084887afe854e80221c69d6282926f809c4 OP_EQUAL",
@@ -97,6 +103,7 @@
         }
       },
       "expected": {
+        "name": "p2sh-p2pkh",
         "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
@@ -117,6 +124,7 @@
         }
       },
       "expected": {
+        "name": "p2sh-p2wpkh",
         "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
         "hash": "0432515d8fe8de31be8207987fc6d67b29d5e7cc",
         "output": "OP_HASH160 0432515d8fe8de31be8207987fc6d67b29d5e7cc OP_EQUAL",
@@ -133,6 +141,7 @@
         "input": "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501 2103e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058ac"
       },
       "expected": {
+        "name": "p2sh-p2pk",
         "address": "36TibC8RrPB9WrBdPoGXhHqDHJosyFVtVQ",
         "hash": "3454c084887afe854e80221c69d6282926f809c4",
         "output": "OP_HASH160 3454c084887afe854e80221c69d6282926f809c4 OP_EQUAL",
@@ -154,6 +163,7 @@
         ]
       },
       "expected": {
+        "name": "p2sh-p2wpkh",
         "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
         "hash": "0432515d8fe8de31be8207987fc6d67b29d5e7cc",
         "output": "OP_HASH160 0432515d8fe8de31be8207987fc6d67b29d5e7cc OP_EQUAL",
@@ -177,6 +187,7 @@
         }
       },
       "expected": {
+        "name": "p2sh-p2pkh",
         "address": "2N7nfc7zeWuADtpdR4MrR7Wq3dzr7LxTCgS",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
