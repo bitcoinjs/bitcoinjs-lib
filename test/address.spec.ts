@@ -33,7 +33,7 @@ describe('address', () => {
       });
     });
 
-    fixtures.invalid.fromBase58GrsCheck.forEach(f => {
+    fixtures.invalid.frombase58check.forEach(f => {
       it('throws on ' + f.exception, () => {
         assert.throws(() => {
           baddress.fromBase58GrsCheck(f.address);
