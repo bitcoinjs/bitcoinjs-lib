@@ -4,42 +4,42 @@
       "network": "bitcoin",
       "version": 0,
       "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
-      "base58grscheck": "1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH",
+      "base58check": "1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH",
       "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
     },
     {
       "network": "bitcoin",
       "version": 5,
       "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
-      "base58grscheck": "3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr",
+      "base58check": "3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr",
       "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
     },
     {
       "network": "litecoin",
       "version": 50,
       "hash": "332bdfb31f688c0be0137c7c038a6d0fea0de0b6",
-      "base58grscheck": "MCZjFcwYJwwYqXAbd3bbnxaCVGs81cp43Z",
+      "base58check": "MCZjFcwYJwwYqXAbd3bbnxaCVGs81cp43Z",
       "script": "OP_HASH160 332bdfb31f688c0be0137c7c038a6d0fea0de0b6 OP_EQUAL"
     },
     {
       "network": "litecoin",
       "version": 48,
       "hash": "6ac624143d19a3c91d2ac5605f0aebdfeac5b826",
-      "base58grscheck": "LUxXFcwXFPpRZdMv4aYu6bDwPdC2skQ5YW",
+      "base58check": "LUxXFcwXFPpRZdMv4aYu6bDwPdC2skQ5YW",
       "script": "OP_DUP OP_HASH160 6ac624143d19a3c91d2ac5605f0aebdfeac5b826 OP_EQUALVERIFY OP_CHECKSIG"
     },
     {
       "network": "testnet",
       "version": 111,
       "hash": "751e76e8199196d454941c45d1b3a323f1433bd6",
-      "base58grscheck": "mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r",
+      "base58check": "mrCDrCybB6J1vRfbwM5hemdJz73FwDBC8r",
       "script": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
     },
     {
       "network": "testnet",
       "version": 196,
       "hash": "cd7b44d0b03f2d026d1e586d7ae18903b0d385f6",
-      "base58grscheck": "2NByiBUaEXrhmqAsg7BbLpcQSAQs1EDwt5w",
+      "base58check": "2NByiBUaEXrhmqAsg7BbLpcQSAQs1EDwt5w",
       "script": "OP_HASH160 cd7b44d0b03f2d026d1e586d7ae18903b0d385f6 OP_EQUAL"
     },
     {
@@ -122,7 +122,7 @@
         "exception": "Non-zero padding"
       }
     ],
-    "fromBase58GrsCheck": [
+    "frombase58check": [
       {
         "address": "7SeEnXWPaCCALbVrTnszCVGfRU8cGfx",
         "exception": "is too short"
