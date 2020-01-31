@@ -34,8 +34,7 @@ function hash256(buffer) {
   return sha256(sha256(buffer));
 }
 exports.hash256 = hash256;
-
-exports.groestl = groestl;
 function groestl(buffer) {
-  return Buffer(groestlhash.groestl_2(buffer, 1, 1));
+  return new Buffer(groestlhash.groestl_2(buffer, 1, 1));
 }
+exports.groestl = groestl;
