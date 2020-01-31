@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import * as bip32 from 'bip32';
+import * as bip32 from 'bip32grs';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';

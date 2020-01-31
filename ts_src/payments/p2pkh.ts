@@ -7,7 +7,7 @@ const typef = require('typeforce');
 const OPS = bscript.OPS;
 const ecc = require('tiny-secp256k1');
 
-const bs58check = require('bs58check');
+const bs58grscheck = require('bs58grscheck');
 
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
@@ -31,7 +31,7 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
   );
 
   const _address = lazy.value(() => {
-    const payload = bs58check.decode(a.address);
+    const payload = bs58grscheck.decode(a.address);
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
     return { version, hash };
@@ -49,7 +49,7 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
     const payload = Buffer.allocUnsafe(21);
     payload.writeUInt8(network.pubKeyHash, 0);
     o.hash.copy(payload, 1);
-    return bs58check.encode(payload);
+    return bs58grscheck.encode(payload);
   });
   lazy.prop(o, 'hash', () => {
     if (a.output) return a.output.slice(3, 23);

@@ -21,22 +21,22 @@ const NETWORKS = Object.assign(
 );
 
 describe('address', () => {
-  describe('fromBase58Check', () => {
+  describe('fromBase58GrsCheck', () => {
     fixtures.standard.forEach(f => {
-      if (!f.base58check) return;
+      if (!f.base58grscheck) return;
 
-      it('decodes ' + f.base58check, () => {
-        const decode = baddress.fromBase58Check(f.base58check);
+      it('decodes ' + f.base58grscheck, () => {
+        const decode = baddress.fromBase58GrsCheck(f.base58grscheck);
 
         assert.strictEqual(decode.version, f.version);
         assert.strictEqual(decode.hash.toString('hex'), f.hash);
       });
     });
 
-    fixtures.invalid.fromBase58Check.forEach(f => {
+    fixtures.invalid.fromBase58GrsCheck.forEach(f => {
       it('throws on ' + f.exception, () => {
         assert.throws(() => {
-          baddress.fromBase58Check(f.address);
+          baddress.fromBase58GrsCheck(f.address);
         }, new RegExp(f.address + ' ' + f.exception));
       });
     });
@@ -70,7 +70,7 @@ describe('address', () => {
         const script = bscript.fromASM(f.script);
         const address = baddress.fromOutputScript(script, NETWORKS[f.network]);
 
-        assert.strictEqual(address, f.base58check || f.bech32!.toLowerCase());
+        assert.strictEqual(address, f.base58grscheck || f.bech32!.toLowerCase());
       });
     });
 
@@ -85,17 +85,17 @@ describe('address', () => {
     });
   });
 
-  describe('toBase58Check', () => {
+  describe('toBase58GrsCheck', () => {
     fixtures.standard.forEach(f => {
-      if (!f.base58check) return;
+      if (!f.base58grscheck) return;
 
       it('encodes ' + f.hash + ' (' + f.network + ')', () => {
-        const address = baddress.toBase58Check(
+        const address = baddress.toBase58GrsCheck(
           Buffer.from(f.hash, 'hex'),
           f.version,
         );
 
-        assert.strictEqual(address, f.base58check);
+        assert.strictEqual(address, f.base58grscheck);
       });
     });
   });
@@ -129,7 +129,7 @@ describe('address', () => {
     fixtures.standard.forEach(f => {
       it('decodes ' + f.script.slice(0, 30) + '... (' + f.network + ')', () => {
         const script = baddress.toOutputScript(
-          (f.base58check || f.bech32)!,
+          (f.base58grscheck || f.bech32)!,
           NETWORKS[f.network],
         );
 

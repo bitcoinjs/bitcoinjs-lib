@@ -4,7 +4,7 @@ import { crypto as bcrypto } from '..';
 import * as fixtures from './fixtures/crypto.json';
 
 describe('crypto', () => {
-  ['hash160', 'hash256', 'ripemd160', 'sha1', 'sha256'].forEach(algorithm => {
+  ['hash160', 'hash256', 'ripemd160', 'sha1', 'sha256', 'groestl'].forEach(algorithm => {
     describe(algorithm, () => {
       fixtures.forEach(f => {
         const fn = (bcrypto as any)[algorithm];

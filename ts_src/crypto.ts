@@ -31,3 +31,7 @@ export function hash160(buffer: Buffer): Buffer {
 export function hash256(buffer: Buffer): Buffer {
   return sha256(sha256(buffer));
 }
+
+export function groestl(buffer) {
+  return Buffer(groestlhash.groestl_2(buffer, 1, 1));
+}
