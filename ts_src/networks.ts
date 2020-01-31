@@ -15,19 +15,19 @@ interface Bip32 {
 }
 
 export const bitcoin: Network = {
-  messagePrefix: '\x18Bitcoin Signed Message:\n',
-  bech32: 'bc',
+  messagePrefix: '\x1CGroestlCoin Signed Message:\n',
+  bech32: 'grs',
   bip32: {
     public: 0x0488b21e,
     private: 0x0488ade4,
   },
-  pubKeyHash: 0x00,
+  pubKeyHash: 0x24,
   scriptHash: 0x05,
   wif: 0x80,
 };
 export const regtest: Network = {
-  messagePrefix: '\x18Bitcoin Signed Message:\n',
-  bech32: 'bcrt',
+  messagePrefix: '\x1CGroestlCoin Signed Message:\n',
+  bech32: 'grsrt',
   bip32: {
     public: 0x043587cf,
     private: 0x04358394,
@@ -37,8 +37,8 @@ export const regtest: Network = {
   wif: 0xef,
 };
 export const testnet: Network = {
-  messagePrefix: '\x18Bitcoin Signed Message:\n',
-  bech32: 'tb',
+  messagePrefix: '\x1CGroestlCoin Signed Message:\n',
+  bech32: 'tgrs',
   bip32: {
     public: 0x043587cf,
     private: 0x04358394,
