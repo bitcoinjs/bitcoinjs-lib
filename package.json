@@ -31,10 +31,10 @@
   ],
   "dependencies": {
     "bech32": "^1.1.2",
-    "bip32grs": "https://github.com/Groestlcoin/bip32grs#v1.0.4",
+    "bip32grs": "^1.0.4",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
-    "bs58grscheck": "https://github.com/Groestlcoin/bs58grscheck.git",
+    "bs58grscheck": "^2.1.2",
     "create-hash": "^1.1.0",
     "create-hmac": "^1.1.3",
     "merkle-lib": "^2.0.10",
@@ -44,8 +44,8 @@
     "tiny-secp256k1": "^1.0.0",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.0.4",
-    "groestl-hash-js": "https://github.com/Groestlcoin/groestl-hash-js.git",
-    "wifgrs": "https://github.com/Groestlcoin/wifgrs"
+    "groestl-hash-js": "^1.0.0",
+    "wifgrs": "^2.0.6"
   },
   "devDependencies": {
     "bip39": "^2.3.0",
