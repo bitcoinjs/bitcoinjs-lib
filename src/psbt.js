@@ -522,7 +522,37 @@ class Psbt {
     this.data.clearFinalizedInput(inputIndex);
     return this;
   }
+
+  /** CUSTOM FUNCTIONS - START**/
+  getSignable(params, options = {}) {
+    const { index } = params;
+    const {
+      sighashType = transaction_1.Transaction.SIGHASH_ALL,
+      forkId = false,
+    } = options;
+    const input = utils_1.checkForInput(this.data.inputs, index);
+    const { hash } = getHashForSig(index, input, this.__CACHE, options);
+
+    return hash;
+  }
+
+  addSignature(params, options) {
+    const { index, pubKey: pubkey, signature } = params;
+    const { sighashType = transaction_1.Transaction.SIGHASH_ALL } = options;
+
+    const input = utils_1.checkForInput(this.data.inputs, index);
+    const partialSig = [
+      {
+        pubkey,
+        signature: bscript.signature.encode(signature, sighashType),
+      },
+    ];
+    this.data.updateInput(index, { partialSig });
+    return this;
+  }
 }
+/** CUSTOM FUNCTIONS - END**/
+
 exports.Psbt = Psbt;
 /**
  * This function is needed to pass to the bip174 base class's fromBuffer.
@@ -829,7 +859,7 @@ function getHashAndSighashType(
     inputIndex,
     input,
     cache,
-    sighashTypes,
+    { sighashTypes },
   );
   checkScriptForPubkey(pubkey, script, 'sign');
   return {
@@ -837,10 +867,13 @@ function getHashAndSighashType(
     sighashType,
   };
 }
-function getHashForSig(inputIndex, input, cache, sighashTypes) {
+function getHashForSig(inputIndex, input, cache, options = {}) {
+  const { sighashTypes, sighashType: givenSighashType, forkId } = options;
   const unsignedTx = cache.__TX;
   const sighashType =
-    input.sighashType || transaction_1.Transaction.SIGHASH_ALL;
+    givenSighashType ||
+    input.sighashType ||
+    transaction_1.Transaction.SIGHASH_ALL;
   if (sighashTypes && sighashTypes.indexOf(sighashType) < 0) {
     const str = sighashTypeToString(sighashType);
     throw new Error(
@@ -873,7 +906,14 @@ function getHashForSig(inputIndex, input, cache, sighashTypes) {
     } else {
       script = prevout.script;
     }
-    if (isP2WSHScript(script)) {
+    if (forkId) {
+      hash = unsignedTx.hashForForkId(
+        inputIndex,
+        script,
+        prevout.value,
+        sighashType,
+      );
+    } else if (isP2WSHScript(script)) {
       if (!input.witnessScript)
         throw new Error('Segwit input needs witnessScript if not P2WPKH');
       checkWitnessScript(inputIndex, script, input.witnessScript);
