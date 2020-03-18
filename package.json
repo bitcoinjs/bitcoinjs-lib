@@ -78,14 +78,14 @@
     "dhttp": "^3.0.0",
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
-    "mocha": "^6.2.0",
+    "mocha": "^7.1.1",
     "nyc": "^15.0.0",
     "prettier": "1.16.4",
     "proxyquire": "^2.0.1",
     "regtest-client": "0.2.0",
     "rimraf": "^2.6.3",
     "ts-node": "^8.3.0",
-    "tslint": "^5.16.0",
+    "tslint": "^5.20.1",
     "typescript": "3.2.2"
   },
   "license": "MIT"
