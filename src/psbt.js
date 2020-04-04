@@ -599,7 +599,7 @@ class PsbtTransaction {
       output.script === undefined ||
       output.value === undefined ||
       !Buffer.isBuffer(output.script) ||
-      typeof output.value !== 'number'
+      (typeof output.value !== 'number' && typeof output.value !== 'string')
     ) {
       throw new Error('Error adding output.');
     }

@@ -232,6 +232,7 @@ class Transaction {
       return {
         script: txOut.script,
         value: txOut.value,
+        valueBuffer: txOut.valueBuffer,
       };
     });
     return newTx;
@@ -358,7 +359,7 @@ class Transaction {
       tbuffer = Buffer.allocUnsafe(txOutsSize);
       toffset = 0;
       this.outs.forEach(out => {
-        writeUInt64(out.value);
+        out.valueBuffer ? writeSlice(out.valueBuffer) : writeUInt64(out.value);
         writeVarSlice(out.script);
       });
       hashOutputs = bcrypto.hash256(tbuffer);
@@ -487,11 +488,9 @@ class Transaction {
     });
     writeVarInt(this.outs.length);
     this.outs.forEach(txOut => {
-      if (isOutput(txOut)) {
-        writeUInt64(txOut.value);
-      } else {
-        writeSlice(txOut.valueBuffer);
-      }
+      txOut.valueBuffer
+        ? writeSlice(txOut.valueBuffer)
+        : writeUInt64(txOut.value);
       writeVarSlice(txOut.script);
     });
     if (hasWitnesses) {
