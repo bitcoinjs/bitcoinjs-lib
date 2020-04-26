@@ -129,15 +129,15 @@ export class Psbt {
     return this.data.inputs.length;
   }
 
-  get txVersion(): number {
+  get version(): number {
     return this.__CACHE.__TX.version;
   }
 
-  get txLocktime(): number {
+  get locktime(): number {
     return this.__CACHE.__TX.locktime;
   }
 
-  get txInputs(): Input[] {
+  get inputs(): Input[] {
     return this.__CACHE.__TX.ins.map(input => {
       return {
         hash: cloneBuffer(input.hash),
@@ -149,7 +149,7 @@ export class Psbt {
     });
   }
 
-  get txOutputs(): Output[] {
+  get outputs(): Output[] {
     return this.__CACHE.__TX.outs.map(output => {
       return {
         script: cloneBuffer(output.script),

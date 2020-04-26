@@ -97,13 +97,13 @@ class Psbt {
   get inputCount() {
     return this.data.inputs.length;
   }
-  get txVersion() {
+  get version() {
     return this.__CACHE.__TX.version;
   }
-  get txLocktime() {
+  get locktime() {
     return this.__CACHE.__TX.locktime;
   }
-  get txInputs() {
+  get inputs() {
     return this.__CACHE.__TX.ins.map(input => {
       return {
         hash: bufferutils_1.cloneBuffer(input.hash),
@@ -114,7 +114,7 @@ class Psbt {
       };
     });
   }
-  get txOutputs() {
+  get outputs() {
     return this.__CACHE.__TX.outs.map(output => {
       return {
         script: bufferutils_1.cloneBuffer(output.script),

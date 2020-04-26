@@ -523,9 +523,9 @@ describe(`Psbt`, () => {
       });
 
       assert.strictEqual(psbt.inputCount, 1);
-      assert.strictEqual(psbt.txInputs[0].sequence, 0xffffffff);
+      assert.strictEqual(psbt.inputs[0].sequence, 0xffffffff);
       psbt.setInputSequence(0, 0);
-      assert.strictEqual(psbt.txInputs[0].sequence, 0);
+      assert.strictEqual(psbt.inputs[0].sequence, 0);
     });
 
     it('throws if input index is too high', () => {
