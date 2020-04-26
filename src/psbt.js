@@ -104,23 +104,19 @@ class Psbt {
     return this.__CACHE.__TX.locktime;
   }
   get inputs() {
-    return this.__CACHE.__TX.ins.map(input => {
-      return {
-        hash: bufferutils_1.cloneBuffer(input.hash),
-        index: input.index,
-        script: bufferutils_1.cloneBuffer(input.script),
-        sequence: input.sequence,
-        witness: input.witness.map(buffer => bufferutils_1.cloneBuffer(buffer)),
-      };
-    });
+    return this.__CACHE.__TX.ins.map(input => ({
+      hash: bufferutils_1.cloneBuffer(input.hash),
+      index: input.index,
+      script: bufferutils_1.cloneBuffer(input.script),
+      sequence: input.sequence,
+      witness: input.witness.map(buffer => bufferutils_1.cloneBuffer(buffer)),
+    }));
   }
   get outputs() {
-    return this.__CACHE.__TX.outs.map(output => {
-      return {
-        script: bufferutils_1.cloneBuffer(output.script),
-        value: output.value,
-      };
-    });
+    return this.__CACHE.__TX.outs.map(output => ({
+      script: bufferutils_1.cloneBuffer(output.script),
+      value: output.value,
+    }));
   }
   combine(...those) {
     this.data.combine(...those.map(o => o.data));

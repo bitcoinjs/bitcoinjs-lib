@@ -138,24 +138,20 @@ export class Psbt {
   }
 
   get inputs(): Input[] {
-    return this.__CACHE.__TX.ins.map(input => {
-      return {
-        hash: cloneBuffer(input.hash),
-        index: input.index,
-        script: cloneBuffer(input.script),
-        sequence: input.sequence,
-        witness: input.witness.map(buffer => cloneBuffer(buffer)),
-      };
-    });
+    return this.__CACHE.__TX.ins.map(input => ({
+      hash: cloneBuffer(input.hash),
+      index: input.index,
+      script: cloneBuffer(input.script),
+      sequence: input.sequence,
+      witness: input.witness.map(buffer => cloneBuffer(buffer)),
+    }));
   }
 
   get outputs(): Output[] {
-    return this.__CACHE.__TX.outs.map(output => {
-      return {
-        script: cloneBuffer(output.script),
-        value: output.value,
-      };
-    });
+    return this.__CACHE.__TX.outs.map(output => ({
+      script: cloneBuffer(output.script),
+      value: output.value,
+    }));
   }
 
   combine(...those: Psbt[]): this {
