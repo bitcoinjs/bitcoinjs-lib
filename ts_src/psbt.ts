@@ -129,6 +129,22 @@ export class Psbt {
     return this.data.inputs.length;
   }
 
+  get txVersion(): number {
+    return this.__CACHE.__TX.version;
+  }
+
+  get txLocktime(): number {
+    return this.__CACHE.__TX.locktime;
+  }
+
+  get txInputs(): TransactionInput[] {
+    return deepClone(this.__CACHE.__TX.ins);
+  }
+
+  get txOutputs(): TransactionInput[] {
+    return deepClone(this.__CACHE.__TX.outs);
+  }
+
   combine(...those: Psbt[]): this {
     this.data.combine(...those.map(o => o.data));
     return this;
@@ -755,6 +771,12 @@ class PsbtTransaction implements ITransaction {
   toBuffer(): Buffer {
     return this.tx.toBuffer();
   }
+}
+
+function deepClone(obj: any): any {
+  return JSON.parse(JSON.stringify(obj), (_, value) =>
+    value.type === 'Buffer' ? Buffer.from(value.data) : value,
+  );
 }
 
 function canFinalize(

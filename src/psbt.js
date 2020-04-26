@@ -97,6 +97,18 @@ class Psbt {
   get inputCount() {
     return this.data.inputs.length;
   }
+  get txVersion() {
+    return this.__CACHE.__TX.version;
+  }
+  get txLocktime() {
+    return this.__CACHE.__TX.locktime;
+  }
+  get txInputs() {
+    return deepClone(this.__CACHE.__TX.ins);
+  }
+  get txOutputs() {
+    return deepClone(this.__CACHE.__TX.outs);
+  }
   combine(...those) {
     this.data.combine(...those.map(o => o.data));
     return this;
@@ -578,6 +590,11 @@ class PsbtTransaction {
   toBuffer() {
     return this.tx.toBuffer();
   }
+}
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj), (_, value) =>
+    value.type === 'Buffer' ? Buffer.from(value.data) : value,
+  );
 }
 function canFinalize(input, script, scriptType) {
   switch (scriptType) {

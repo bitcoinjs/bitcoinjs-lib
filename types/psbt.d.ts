@@ -44,6 +44,10 @@ export declare class Psbt {
     private opts;
     constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
     readonly inputCount: number;
+    readonly txVersion: number;
+    readonly txLocktime: number;
+    readonly txInputs: TransactionInput[];
+    readonly txOutputs: TransactionInput[];
     combine(...those: Psbt[]): this;
     clone(): Psbt;
     setMaximumFeeRate(satoshiPerByte: number): void;
