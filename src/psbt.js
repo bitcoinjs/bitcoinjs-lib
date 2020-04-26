@@ -100,8 +100,14 @@ class Psbt {
   get version() {
     return this.__CACHE.__TX.version;
   }
+  set version(version) {
+    this.setVersion(version);
+  }
   get locktime() {
     return this.__CACHE.__TX.locktime;
+  }
+  set locktime(locktime) {
+    this.setLocktime(locktime);
   }
   get inputs() {
     return this.__CACHE.__TX.ins.map(input => ({

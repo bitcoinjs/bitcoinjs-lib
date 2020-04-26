@@ -44,8 +44,8 @@ export declare class Psbt {
     private opts;
     constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
     readonly inputCount: number;
-    readonly version: number;
-    readonly locktime: number;
+    version: number;
+    locktime: number;
     readonly inputs: Input[];
     readonly outputs: Output[];
     combine(...those: Psbt[]): this;

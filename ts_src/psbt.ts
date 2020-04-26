@@ -133,8 +133,16 @@ export class Psbt {
     return this.__CACHE.__TX.version;
   }
 
+  set version(version: number) {
+    this.setVersion(version);
+  }
+
   get locktime(): number {
     return this.__CACHE.__TX.locktime;
+  }
+
+  set locktime(locktime: number) {
+    this.setLocktime(locktime);
   }
 
   get inputs(): Input[] {
