@@ -1,6 +1,7 @@
 export declare function readUInt64LE(buffer: Buffer, offset: number): number;
 export declare function writeUInt64LE(buffer: Buffer, value: number, offset: number): number;
 export declare function reverseBuffer(buffer: Buffer): Buffer;
+export declare function cloneBuffer(buffer: Buffer): Buffer;
 /**
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */

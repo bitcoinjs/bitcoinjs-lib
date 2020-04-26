@@ -14,7 +14,7 @@ import {
 } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
 import { toOutputScript } from './address';
-import { reverseBuffer } from './bufferutils';
+import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
 import {
   fromPublicKey as ecPairFromPublicKey,
@@ -24,7 +24,7 @@ import {
 import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
-import { Output, Transaction } from './transaction';
+import { Input, Output, Transaction } from './transaction';
 
 /**
  * These are the default arguments for a Psbt instance.
@@ -137,12 +137,25 @@ export class Psbt {
     return this.__CACHE.__TX.locktime;
   }
 
-  get txInputs(): TransactionInput[] {
-    return deepClone(this.__CACHE.__TX.ins);
+  get txInputs(): Input[] {
+    return this.__CACHE.__TX.ins.map(input => {
+      return {
+        hash: cloneBuffer(input.hash),
+        index: input.index,
+        script: cloneBuffer(input.script),
+        sequence: input.sequence,
+        witness: input.witness.map(buffer => cloneBuffer(buffer)),
+      };
+    });
   }
 
-  get txOutputs(): TransactionInput[] {
-    return deepClone(this.__CACHE.__TX.outs);
+  get txOutputs(): Output[] {
+    return this.__CACHE.__TX.outs.map(output => {
+      return {
+        script: cloneBuffer(output.script),
+        value: output.value,
+      };
+    });
   }
 
   combine(...those: Psbt[]): this {
@@ -771,12 +784,6 @@ class PsbtTransaction implements ITransaction {
   toBuffer(): Buffer {
     return this.tx.toBuffer();
   }
-}
-
-function deepClone(obj: any): any {
-  return JSON.parse(JSON.stringify(obj), (_, value) =>
-    value.type === 'Buffer' ? Buffer.from(value.data) : value,
-  );
 }
 
 function canFinalize(

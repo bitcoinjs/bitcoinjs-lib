@@ -2,7 +2,7 @@ import { Psbt as PsbtBase } from 'bip174';
 import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
-import { Transaction } from './transaction';
+import { Input, Output, Transaction } from './transaction';
 /**
  * Psbt class can parse and generate a PSBT binary based off of the BIP174.
  * There are 6 roles that this class fulfills. (Explained in BIP174)
@@ -46,8 +46,8 @@ export declare class Psbt {
     readonly inputCount: number;
     readonly txVersion: number;
     readonly txLocktime: number;
-    readonly txInputs: TransactionInput[];
-    readonly txOutputs: TransactionInput[];
+    readonly txInputs: Input[];
+    readonly txOutputs: Output[];
     combine(...those: Psbt[]): this;
     clone(): Psbt;
     setMaximumFeeRate(satoshiPerByte: number): void;

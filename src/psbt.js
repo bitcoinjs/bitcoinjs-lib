@@ -104,10 +104,23 @@ class Psbt {
     return this.__CACHE.__TX.locktime;
   }
   get txInputs() {
-    return deepClone(this.__CACHE.__TX.ins);
+    return this.__CACHE.__TX.ins.map(input => {
+      return {
+        hash: bufferutils_1.cloneBuffer(input.hash),
+        index: input.index,
+        script: bufferutils_1.cloneBuffer(input.script),
+        sequence: input.sequence,
+        witness: input.witness.map(buffer => bufferutils_1.cloneBuffer(buffer)),
+      };
+    });
   }
   get txOutputs() {
-    return deepClone(this.__CACHE.__TX.outs);
+    return this.__CACHE.__TX.outs.map(output => {
+      return {
+        script: bufferutils_1.cloneBuffer(output.script),
+        value: output.value,
+      };
+    });
   }
   combine(...those) {
     this.data.combine(...those.map(o => o.data));
@@ -590,11 +603,6 @@ class PsbtTransaction {
   toBuffer() {
     return this.tx.toBuffer();
   }
-}
-function deepClone(obj) {
-  return JSON.parse(JSON.stringify(obj), (_, value) =>
-    value.type === 'Buffer' ? Buffer.from(value.data) : value,
-  );
 }
 function canFinalize(input, script, scriptType) {
   switch (scriptType) {
