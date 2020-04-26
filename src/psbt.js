@@ -122,6 +122,7 @@ class Psbt {
     return this.__CACHE.__TX.outs.map(output => ({
       script: bufferutils_1.cloneBuffer(output.script),
       value: output.value,
+      address: address_1.fromOutputScript(output.script, this.opts.network),
     }));
   }
   combine(...those) {

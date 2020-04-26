@@ -13,7 +13,7 @@ import {
   TransactionInput,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
-import { toOutputScript } from './address';
+import { fromOutputScript, toOutputScript } from './address';
 import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
 import {
@@ -159,6 +159,7 @@ export class Psbt {
     return this.__CACHE.__TX.outs.map(output => ({
       script: cloneBuffer(output.script),
       value: output.value,
+      address: fromOutputScript(output.script, this.opts.network),
     }));
   }
 
