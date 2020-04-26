@@ -115,7 +115,6 @@ class Psbt {
       index: input.index,
       script: bufferutils_1.cloneBuffer(input.script),
       sequence: input.sequence,
-      witness: input.witness.map(buffer => bufferutils_1.cloneBuffer(buffer)),
     }));
   }
   get txOutputs() {
