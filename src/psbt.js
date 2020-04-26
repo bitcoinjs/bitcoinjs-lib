@@ -109,7 +109,7 @@ class Psbt {
   set locktime(locktime) {
     this.setLocktime(locktime);
   }
-  get inputs() {
+  get txInputs() {
     return this.__CACHE.__TX.ins.map(input => ({
       hash: bufferutils_1.cloneBuffer(input.hash),
       index: input.index,
@@ -118,7 +118,7 @@ class Psbt {
       witness: input.witness.map(buffer => bufferutils_1.cloneBuffer(buffer)),
     }));
   }
-  get outputs() {
+  get txOutputs() {
     return this.__CACHE.__TX.outs.map(output => ({
       script: bufferutils_1.cloneBuffer(output.script),
       value: output.value,

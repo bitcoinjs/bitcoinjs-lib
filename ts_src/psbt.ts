@@ -145,7 +145,7 @@ export class Psbt {
     this.setLocktime(locktime);
   }
 
-  get inputs(): Input[] {
+  get txInputs(): Input[] {
     return this.__CACHE.__TX.ins.map(input => ({
       hash: cloneBuffer(input.hash),
       index: input.index,
@@ -155,7 +155,7 @@ export class Psbt {
     }));
   }
 
-  get outputs(): Output[] {
+  get txOutputs(): Output[] {
     return this.__CACHE.__TX.outs.map(output => ({
       script: cloneBuffer(output.script),
       value: output.value,

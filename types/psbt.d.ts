@@ -46,8 +46,8 @@ export declare class Psbt {
     readonly inputCount: number;
     version: number;
     locktime: number;
-    readonly inputs: Input[];
-    readonly outputs: Output[];
+    readonly txInputs: Input[];
+    readonly txOutputs: Output[];
     combine(...those: Psbt[]): this;
     clone(): Psbt;
     setMaximumFeeRate(satoshiPerByte: number): void;
