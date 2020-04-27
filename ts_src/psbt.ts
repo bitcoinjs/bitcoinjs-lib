@@ -11,7 +11,6 @@ import {
   Transaction as ITransaction,
   TransactionFromBuffer,
   TransactionInput,
-  TransactionOutput,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
 import { fromOutputScript, toOutputScript } from './address';
@@ -26,6 +25,14 @@ import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
+
+export interface PsbtTxInput extends TransactionInput {
+  hash: Buffer;
+}
+
+export interface PsbtTxOutput extends Output {
+  address: string;
+}
 
 /**
  * These are the default arguments for a Psbt instance.
@@ -146,7 +153,7 @@ export class Psbt {
     this.setLocktime(locktime);
   }
 
-  get txInputs(): TransactionInput[] {
+  get txInputs(): PsbtTxInput[] {
     return this.__CACHE.__TX.ins.map(input => ({
       hash: cloneBuffer(input.hash),
       index: input.index,
@@ -154,7 +161,7 @@ export class Psbt {
     }));
   }
 
-  get txOutputs(): TransactionOutput[] {
+  get txOutputs(): PsbtTxOutput[] {
     return this.__CACHE.__TX.outs.map(output => ({
       script: cloneBuffer(output.script),
       value: output.value,
