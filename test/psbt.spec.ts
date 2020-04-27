@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
 
-import { bip32, ECPair, networks as NETWORKS, Psbt } from '..';
+import { bip32, ECPair, networks as NETWORKS, Psbt, payments } from '..';
 
 import * as preFixtures from './fixtures/psbt.json';
 
@@ -542,6 +542,143 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('inputHasPubkey', () => {
+    it('should throw', () => {
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash:
+          '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0,
+      });
+
+      assert.throws(() => {
+        psbt.inputHasPubkey(0, Buffer.from([]));
+      }, new RegExp("Can't find pubkey in input without Utxo data"));
+
+      psbt.updateInput(0, {
+        witnessUtxo: {
+          value: 1337,
+          script: payments.p2sh({
+            redeem: { output: Buffer.from([0x51]) },
+          }).output!,
+        },
+      });
+
+      assert.throws(() => {
+        psbt.inputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('Incomplete script information'));
+
+      delete psbt.data.inputs[0].witnessUtxo;
+
+      psbt.updateInput(0, {
+        witnessUtxo: {
+          value: 1337,
+          script: payments.p2wsh({
+            redeem: { output: Buffer.from([0x51]) },
+          }).output!,
+        },
+      });
+
+      assert.throws(() => {
+        psbt.inputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('Incomplete script information'));
+
+      delete psbt.data.inputs[0].witnessUtxo;
+
+      psbt.updateInput(0, {
+        witnessUtxo: {
+          value: 1337,
+          script: payments.p2sh({
+            redeem: payments.p2wsh({
+              redeem: { output: Buffer.from([0x51]) },
+            }),
+          }).output!,
+        },
+        redeemScript: payments.p2wsh({
+          redeem: { output: Buffer.from([0x51]) },
+        }).output!,
+      });
+
+      assert.throws(() => {
+        psbt.inputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('Incomplete script information'));
+
+      psbt.updateInput(0, {
+        witnessScript: Buffer.from([0x51]),
+      });
+
+      assert.doesNotThrow(() => {
+        psbt.inputHasPubkey(0, Buffer.from([0x51]));
+      });
+    });
+  });
+
+  describe('outputHasPubkey', () => {
+    it('should throw', () => {
+      const psbt = new Psbt();
+      psbt
+        .addInput({
+          hash:
+            '0000000000000000000000000000000000000000000000000000000000000000',
+          index: 0,
+        })
+        .addOutput({
+          script: payments.p2sh({
+            redeem: { output: Buffer.from([0x51]) },
+          }).output!,
+          value: 1337,
+        });
+
+      assert.throws(() => {
+        psbt.outputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('Incomplete script information'));
+
+      (psbt as any).__CACHE.__TX.outs[0].script = payments.p2wsh({
+        redeem: { output: Buffer.from([0x51]) },
+      }).output!;
+
+      assert.throws(() => {
+        psbt.outputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('Incomplete script information'));
+
+      (psbt as any).__CACHE.__TX.outs[0].script = payments.p2sh({
+        redeem: payments.p2wsh({
+          redeem: { output: Buffer.from([0x51]) },
+        }),
+      }).output!;
+
+      psbt.updateOutput(0, {
+        redeemScript: payments.p2wsh({
+          redeem: { output: Buffer.from([0x51]) },
+        }).output!,
+      });
+
+      assert.throws(() => {
+        psbt.outputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('Incomplete script information'));
+
+      delete psbt.data.outputs[0].redeemScript;
+
+      psbt.updateOutput(0, {
+        witnessScript: Buffer.from([0x51]),
+      });
+
+      assert.throws(() => {
+        psbt.outputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('Incomplete script information'));
+
+      psbt.updateOutput(0, {
+        redeemScript: payments.p2wsh({
+          redeem: { output: Buffer.from([0x51]) },
+        }).output!,
+      });
+
+      assert.doesNotThrow(() => {
+        psbt.outputHasPubkey(0, Buffer.from([0x51]));
+      });
+    });
+  });
+
   describe('clone', () => {
     it('Should clone a psbt exactly with no reference', () => {
       const f = fixtures.clone;
@@ -643,6 +780,8 @@ describe(`Psbt`, () => {
     assert.throws(() => {
       psbt.setVersion(3);
     }, new RegExp('Can not modify transaction, signatures exist.'));
+    assert.strictEqual(psbt.inputHasPubkey(0, alice.publicKey), true);
+    assert.strictEqual(psbt.outputHasPubkey(0, alice.publicKey), false);
     assert.strictEqual(
       psbt.extractTransaction().toHex(),
       '02000000013ebc8203037dda39d482bf41ff3be955996c50d9d4f7cfc3d2097a694a7' +

@@ -13,7 +13,7 @@ import {
   TransactionInput,
   TransactionOutput,
 } from 'bip174/src/lib/interfaces';
-import { checkForInput } from 'bip174/src/lib/utils';
+import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
 import { fromOutputScript, toOutputScript } from './address';
 import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
@@ -338,6 +338,16 @@ export class Psbt {
 
     this.data.clearFinalizedInput(inputIndex);
     return this;
+  }
+
+  inputHasPubkey(inputIndex: number, pubkey: Buffer): boolean {
+    const input = checkForInput(this.data.inputs, inputIndex);
+    return pubkeyInInput(pubkey, input, inputIndex, this.__CACHE);
+  }
+
+  outputHasPubkey(outputIndex: number, pubkey: Buffer): boolean {
+    const output = checkForOutput(this.data.outputs, outputIndex);
+    return pubkeyInOutput(pubkey, output, outputIndex, this.__CACHE);
   }
 
   validateSignaturesOfAllInputs(): boolean {
@@ -849,6 +859,7 @@ const isP2PK = isPaymentFactory(payments.p2pk);
 const isP2PKH = isPaymentFactory(payments.p2pkh);
 const isP2WPKH = isPaymentFactory(payments.p2wpkh);
 const isP2WSHScript = isPaymentFactory(payments.p2wsh);
+const isP2SHScript = isPaymentFactory(payments.p2sh);
 
 function check32Bit(num: number): void {
   if (
@@ -927,17 +938,7 @@ function checkScriptForPubkey(
   script: Buffer,
   action: string,
 ): void {
-  const pubkeyHash = hash160(pubkey);
-
-  const decompiled = bscript.decompile(script);
-  if (decompiled === null) throw new Error('Unknown script error');
-
-  const hasKey = decompiled.some(element => {
-    if (typeof element === 'number') return false;
-    return element.equals(pubkey) || element.equals(pubkeyHash);
-  });
-
-  if (!hasKey) {
+  if (!pubkeyInScript(pubkey, script)) {
     throw new Error(
       `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
     );
@@ -1558,6 +1559,108 @@ function nonWitnessUtxoTxFromCache(
     addNonWitnessTxCache(cache, input, inputIndex);
   }
   return c[inputIndex];
+}
+
+function pubkeyInInput(
+  pubkey: Buffer,
+  input: PsbtInput,
+  inputIndex: number,
+  cache: PsbtCache,
+): boolean {
+  let script: Buffer;
+  if (input.witnessUtxo !== undefined) {
+    script = input.witnessUtxo.script;
+  } else if (input.nonWitnessUtxo !== undefined) {
+    const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
+      cache,
+      input,
+      inputIndex,
+    );
+    script = nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index].script;
+  } else {
+    throw new Error("Can't find pubkey in input without Utxo data");
+  }
+  const meaningfulScript = checkScripts(
+    script,
+    input.redeemScript,
+    input.witnessScript,
+  );
+  return pubkeyInScript(pubkey, meaningfulScript);
+}
+
+function pubkeyInOutput(
+  pubkey: Buffer,
+  output: PsbtOutput,
+  outputIndex: number,
+  cache: PsbtCache,
+): boolean {
+  const script = cache.__TX.outs[outputIndex].script;
+  const meaningfulScript = checkScripts(
+    script,
+    output.redeemScript,
+    output.witnessScript,
+  );
+  return pubkeyInScript(pubkey, meaningfulScript);
+}
+
+function checkScripts(
+  script: Buffer,
+  redeemScript?: Buffer,
+  witnessScript?: Buffer,
+): Buffer {
+  let fail = false;
+  if (isP2SHScript(script)) {
+    if (redeemScript === undefined) {
+      fail = true;
+    } else if (isP2WSHScript(redeemScript)) {
+      if (witnessScript === undefined) {
+        fail = true;
+      } else {
+        fail = !payments
+          .p2sh({
+            redeem: payments.p2wsh({
+              redeem: { output: witnessScript },
+            }),
+          })
+          .output!.equals(script);
+        if (!fail) return witnessScript;
+      }
+    } else {
+      fail = !payments
+        .p2sh({
+          redeem: { output: redeemScript },
+        })
+        .output!.equals(script);
+      if (!fail) return redeemScript;
+    }
+  } else if (isP2WSHScript(script)) {
+    if (witnessScript === undefined) {
+      fail = true;
+    } else {
+      fail = !payments
+        .p2wsh({
+          redeem: { output: witnessScript },
+        })
+        .output!.equals(script);
+      if (!fail) return witnessScript;
+    }
+  }
+  if (fail) {
+    throw new Error('Incomplete script information');
+  }
+  return script;
+}
+
+function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean {
+  const pubkeyHash = hash160(pubkey);
+
+  const decompiled = bscript.decompile(script);
+  if (decompiled === null) throw new Error('Unknown script error');
+
+  return decompiled.some(element => {
+    if (typeof element === 'number') return false;
+    return element.equals(pubkey) || element.equals(pubkeyHash);
+  });
 }
 
 function classifyScript(script: Buffer): string {

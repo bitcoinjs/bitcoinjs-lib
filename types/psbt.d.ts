@@ -63,6 +63,8 @@ export declare class Psbt {
     getFee(): number;
     finalizeAllInputs(): this;
     finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this;
+    inputHasPubkey(inputIndex: number, pubkey: Buffer): boolean;
+    outputHasPubkey(outputIndex: number, pubkey: Buffer): boolean;
     validateSignaturesOfAllInputs(): boolean;
     validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;

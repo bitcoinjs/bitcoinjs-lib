@@ -277,6 +277,14 @@ class Psbt {
     this.data.clearFinalizedInput(inputIndex);
     return this;
   }
+  inputHasPubkey(inputIndex, pubkey) {
+    const input = utils_1.checkForInput(this.data.inputs, inputIndex);
+    return pubkeyInInput(pubkey, input, inputIndex, this.__CACHE);
+  }
+  outputHasPubkey(outputIndex, pubkey) {
+    const output = utils_1.checkForOutput(this.data.outputs, outputIndex);
+    return pubkeyInOutput(pubkey, output, outputIndex, this.__CACHE);
+  }
   validateSignaturesOfAllInputs() {
     utils_1.checkForInput(this.data.inputs, 0); // making sure we have at least one
     const results = range(this.data.inputs.length).map(idx =>
@@ -653,6 +661,7 @@ const isP2PK = isPaymentFactory(payments.p2pk);
 const isP2PKH = isPaymentFactory(payments.p2pkh);
 const isP2WPKH = isPaymentFactory(payments.p2wpkh);
 const isP2WSHScript = isPaymentFactory(payments.p2wsh);
+const isP2SHScript = isPaymentFactory(payments.p2sh);
 function check32Bit(num) {
   if (
     typeof num !== 'number' ||
@@ -723,14 +732,7 @@ function checkPartialSigSighashes(input) {
   });
 }
 function checkScriptForPubkey(pubkey, script, action) {
-  const pubkeyHash = crypto_1.hash160(pubkey);
-  const decompiled = bscript.decompile(script);
-  if (decompiled === null) throw new Error('Unknown script error');
-  const hasKey = decompiled.some(element => {
-    if (typeof element === 'number') return false;
-    return element.equals(pubkey) || element.equals(pubkeyHash);
-  });
-  if (!hasKey) {
+  if (!pubkeyInScript(pubkey, script)) {
     throw new Error(
       `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
     );
@@ -1218,6 +1220,88 @@ function nonWitnessUtxoTxFromCache(cache, input, inputIndex) {
     addNonWitnessTxCache(cache, input, inputIndex);
   }
   return c[inputIndex];
+}
+function pubkeyInInput(pubkey, input, inputIndex, cache) {
+  let script;
+  if (input.witnessUtxo !== undefined) {
+    script = input.witnessUtxo.script;
+  } else if (input.nonWitnessUtxo !== undefined) {
+    const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
+      cache,
+      input,
+      inputIndex,
+    );
+    script = nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index].script;
+  } else {
+    throw new Error("Can't find pubkey in input without Utxo data");
+  }
+  const meaningfulScript = checkScripts(
+    script,
+    input.redeemScript,
+    input.witnessScript,
+  );
+  return pubkeyInScript(pubkey, meaningfulScript);
+}
+function pubkeyInOutput(pubkey, output, outputIndex, cache) {
+  const script = cache.__TX.outs[outputIndex].script;
+  const meaningfulScript = checkScripts(
+    script,
+    output.redeemScript,
+    output.witnessScript,
+  );
+  return pubkeyInScript(pubkey, meaningfulScript);
+}
+function checkScripts(script, redeemScript, witnessScript) {
+  let fail = false;
+  if (isP2SHScript(script)) {
+    if (redeemScript === undefined) {
+      fail = true;
+    } else if (isP2WSHScript(redeemScript)) {
+      if (witnessScript === undefined) {
+        fail = true;
+      } else {
+        fail = !payments
+          .p2sh({
+            redeem: payments.p2wsh({
+              redeem: { output: witnessScript },
+            }),
+          })
+          .output.equals(script);
+        if (!fail) return witnessScript;
+      }
+    } else {
+      fail = !payments
+        .p2sh({
+          redeem: { output: redeemScript },
+        })
+        .output.equals(script);
+      if (!fail) return redeemScript;
+    }
+  } else if (isP2WSHScript(script)) {
+    if (witnessScript === undefined) {
+      fail = true;
+    } else {
+      fail = !payments
+        .p2wsh({
+          redeem: { output: witnessScript },
+        })
+        .output.equals(script);
+      if (!fail) return witnessScript;
+    }
+  }
+  if (fail) {
+    throw new Error('Incomplete script information');
+  }
+  return script;
+}
+function pubkeyInScript(pubkey, script) {
+  const pubkeyHash = crypto_1.hash160(pubkey);
+  const decompiled = bscript.decompile(script);
+  if (decompiled === null) throw new Error('Unknown script error');
+  return decompiled.some(element => {
+    if (typeof element === 'number') return false;
+    return element.equals(pubkey) || element.equals(pubkeyHash);
+  });
 }
 function classifyScript(script) {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
