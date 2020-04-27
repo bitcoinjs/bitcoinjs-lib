@@ -97,6 +97,32 @@ class Psbt {
   get inputCount() {
     return this.data.inputs.length;
   }
+  get version() {
+    return this.__CACHE.__TX.version;
+  }
+  set version(version) {
+    this.setVersion(version);
+  }
+  get locktime() {
+    return this.__CACHE.__TX.locktime;
+  }
+  set locktime(locktime) {
+    this.setLocktime(locktime);
+  }
+  get txInputs() {
+    return this.__CACHE.__TX.ins.map(input => ({
+      hash: bufferutils_1.cloneBuffer(input.hash),
+      index: input.index,
+      sequence: input.sequence,
+    }));
+  }
+  get txOutputs() {
+    return this.__CACHE.__TX.outs.map(output => ({
+      script: bufferutils_1.cloneBuffer(output.script),
+      value: output.value,
+      address: address_1.fromOutputScript(output.script, this.opts.network),
+    }));
+  }
   combine(...those) {
     this.data.combine(...those.map(o => o.data));
     return this;
