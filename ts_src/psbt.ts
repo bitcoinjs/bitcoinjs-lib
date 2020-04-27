@@ -150,7 +150,6 @@ export class Psbt {
     return this.__CACHE.__TX.ins.map(input => ({
       hash: cloneBuffer(input.hash),
       index: input.index,
-      script: cloneBuffer(input.script),
       sequence: input.sequence,
     }));
   }

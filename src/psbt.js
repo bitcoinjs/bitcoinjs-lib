@@ -113,7 +113,6 @@ class Psbt {
     return this.__CACHE.__TX.ins.map(input => ({
       hash: bufferutils_1.cloneBuffer(input.hash),
       index: input.index,
-      script: bufferutils_1.cloneBuffer(input.script),
       sequence: input.sequence,
     }));
   }
