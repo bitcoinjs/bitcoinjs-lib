@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
 
-import { bip32, ECPair, networks as NETWORKS, Psbt, payments } from '..';
+import { bip32, ECPair, networks as NETWORKS, payments, Psbt } from '..';
 
 import * as preFixtures from './fixtures/psbt.json';
 
