@@ -846,4 +846,71 @@ describe(`Psbt`, () => {
       assert.ok((psbt as any).data.inputs[index].nonWitnessUtxo.equals(value));
     });
   });
+
+  describe('Transaction properties', () => {
+    it('.version is exposed and is settable', () => {
+      const psbt = new Psbt();
+
+      assert.strictEqual(psbt.version, 2);
+      assert.strictEqual(psbt.version, (psbt as any).__CACHE.__TX.version);
+
+      psbt.version = 1;
+      assert.strictEqual(psbt.version, 1);
+      assert.strictEqual(psbt.version, (psbt as any).__CACHE.__TX.version);
+    });
+
+    it('.locktime is exposed and is settable', () => {
+      const psbt = new Psbt();
+
+      assert.strictEqual(psbt.locktime, 0);
+      assert.strictEqual(psbt.locktime, (psbt as any).__CACHE.__TX.locktime);
+
+      psbt.locktime = 123;
+      assert.strictEqual(psbt.locktime, 123);
+      assert.strictEqual(psbt.locktime, (psbt as any).__CACHE.__TX.locktime);
+    });
+
+    it('.txInputs is exposed as a readonly clone', () => {
+      const psbt = new Psbt();
+      const hash = Buffer.alloc(32);
+      const index = 0;
+      psbt.addInput({ hash, index });
+
+      const input = psbt.txInputs[0];
+      const internalInput = (psbt as any).__CACHE.__TX.ins[0];
+
+      assert.ok(input.hash.equals(internalInput.hash));
+      assert.strictEqual(input.index, internalInput.index);
+      assert.strictEqual(input.sequence, internalInput.sequence);
+
+      input.hash[0] = 123;
+      input.index = 123;
+      input.sequence = 123;
+
+      assert.ok(!input.hash.equals(internalInput.hash));
+      assert.notEqual(input.index, internalInput.index);
+      assert.notEqual(input.sequence, internalInput.sequence);
+    });
+
+    it('.txOutputs is exposed as a readonly clone', () => {
+      const psbt = new Psbt();
+      const address = '1LukeQU5jwebXbMLDVydeH4vFSobRV9rkj';
+      const value = 100000;
+      psbt.addOutput({ address, value });
+
+      const output = psbt.txOutputs[0];
+      const internalInput = (psbt as any).__CACHE.__TX.outs[0];
+
+      assert.strictEqual(output.address, address);
+
+      assert.ok(output.script.equals(internalInput.script));
+      assert.strictEqual(output.value, internalInput.value);
+
+      output.script[0] = 123;
+      output.value = 123;
+
+      assert.ok(!output.script.equals(internalInput.script));
+      assert.notEqual(output.value, internalInput.value);
+    });
+  });
 });
