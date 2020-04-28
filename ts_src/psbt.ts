@@ -984,11 +984,12 @@ function checkTxInputCache(
 function scriptCheckerFactory(
   payment: any,
   paymentScriptName: string,
-): (idx: number, spk: Buffer, rs: Buffer) => void {
+): (idx: number, spk: Buffer, rs: Buffer, ioType: 'input' | 'output') => void {
   return (
     inputIndex: number,
     scriptPubKey: Buffer,
     redeemScript: Buffer,
+    ioType: 'input' | 'output',
   ): void => {
     const redeemScriptOutput = payment({
       redeem: { output: redeemScript },
@@ -996,7 +997,7 @@ function scriptCheckerFactory(
 
     if (!scriptPubKey.equals(redeemScriptOutput)) {
       throw new Error(
-        `${paymentScriptName} for input #${inputIndex} doesn't match the scriptPubKey in the prevout`,
+        `${paymentScriptName} for ${ioType} #${inputIndex} doesn't match the scriptPubKey in the prevout`,
       );
     }
   };
@@ -1158,7 +1159,7 @@ function getHashForSig(
     );
   }
   let hash: Buffer;
-  let script: Buffer;
+  let prevout: Output;
 
   if (input.nonWitnessUtxo) {
     const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
@@ -1178,85 +1179,54 @@ function getHashForSig(
     }
 
     const prevoutIndex = unsignedTx.ins[inputIndex].index;
-    const prevout = nonWitnessUtxoTx.outs[prevoutIndex] as Output;
-
-    if (input.redeemScript) {
-      // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
-      checkRedeemScript(inputIndex, prevout.script, input.redeemScript);
-      script = input.redeemScript;
-    } else {
-      script = prevout.script;
-    }
-
-    if (isP2WSHScript(script)) {
-      if (!input.witnessScript)
-        throw new Error('Segwit input needs witnessScript if not P2WPKH');
-      checkWitnessScript(inputIndex, script, input.witnessScript);
-      hash = unsignedTx.hashForWitnessV0(
-        inputIndex,
-        input.witnessScript,
-        prevout.value,
-        sighashType,
-      );
-      script = input.witnessScript;
-    } else if (isP2WPKH(script)) {
-      // P2WPKH uses the P2PKH template for prevoutScript when signing
-      const signingScript = payments.p2pkh({ hash: script.slice(2) }).output!;
-      hash = unsignedTx.hashForWitnessV0(
-        inputIndex,
-        signingScript,
-        prevout.value,
-        sighashType,
-      );
-    } else {
-      hash = unsignedTx.hashForSignature(inputIndex, script, sighashType);
-    }
+    prevout = nonWitnessUtxoTx.outs[prevoutIndex] as Output;
   } else if (input.witnessUtxo) {
-    let _script: Buffer; // so we don't shadow the `let script` above
-    if (input.redeemScript) {
-      // If a redeemScript is provided, the scriptPubKey must be for that redeemScript
-      checkRedeemScript(
-        inputIndex,
-        input.witnessUtxo.script,
-        input.redeemScript,
-      );
-      _script = input.redeemScript;
-    } else {
-      _script = input.witnessUtxo.script;
-    }
-    if (isP2WPKH(_script)) {
-      // P2WPKH uses the P2PKH template for prevoutScript when signing
-      const signingScript = payments.p2pkh({ hash: _script.slice(2) }).output!;
-      hash = unsignedTx.hashForWitnessV0(
-        inputIndex,
-        signingScript,
-        input.witnessUtxo.value,
-        sighashType,
-      );
-      script = _script;
-    } else if (isP2WSHScript(_script)) {
-      if (!input.witnessScript)
-        throw new Error('Segwit input needs witnessScript if not P2WPKH');
-      checkWitnessScript(inputIndex, _script, input.witnessScript);
-      hash = unsignedTx.hashForWitnessV0(
-        inputIndex,
-        input.witnessScript,
-        input.witnessUtxo.value,
-        sighashType,
-      );
-      // want to make sure the script we return is the actual meaningful script
-      script = input.witnessScript;
-    } else {
-      throw new Error(
-        `Input #${inputIndex} has witnessUtxo but non-segwit script: ` +
-          `${_script.toString('hex')}`,
-      );
-    }
+    prevout = input.witnessUtxo;
   } else {
     throw new Error('Need a Utxo input item for signing');
   }
+
+  const { meaningfulScript, type } = getMeaningfulScript(
+    prevout.script,
+    inputIndex,
+    'input',
+    input.redeemScript,
+    input.witnessScript,
+  );
+
+  if (['p2shp2wsh', 'p2wsh'].indexOf(type) >= 0) {
+    hash = unsignedTx.hashForWitnessV0(
+      inputIndex,
+      meaningfulScript,
+      prevout.value,
+      sighashType,
+    );
+  } else if (isP2WPKH(meaningfulScript)) {
+    // P2WPKH uses the P2PKH template for prevoutScript when signing
+    const signingScript = payments.p2pkh({ hash: meaningfulScript.slice(2) })
+      .output!;
+    hash = unsignedTx.hashForWitnessV0(
+      inputIndex,
+      signingScript,
+      prevout.value,
+      sighashType,
+    );
+  } else {
+    // non-segwit
+    if (input.nonWitnessUtxo === undefined)
+      throw new Error(
+        `Input #${inputIndex} has witnessUtxo but non-segwit script: ` +
+          `${meaningfulScript.toString('hex')}`,
+      );
+    hash = unsignedTx.hashForSignature(
+      inputIndex,
+      meaningfulScript,
+      sighashType,
+    );
+  }
+
   return {
-    script,
+    script: meaningfulScript,
     sighashType,
     hash,
   };
@@ -1587,8 +1557,10 @@ function pubkeyInInput(
   } else {
     throw new Error("Can't find pubkey in input without Utxo data");
   }
-  const meaningfulScript = getMeaningfulScript(
+  const { meaningfulScript } = getMeaningfulScript(
     script,
+    inputIndex,
+    'input',
     input.redeemScript,
     input.witnessScript,
   );
@@ -1602,8 +1574,10 @@ function pubkeyInOutput(
   cache: PsbtCache,
 ): boolean {
   const script = cache.__TX.outs[outputIndex].script;
-  const meaningfulScript = getMeaningfulScript(
+  const { meaningfulScript } = getMeaningfulScript(
     script,
+    outputIndex,
+    'output',
     output.redeemScript,
     output.witnessScript,
   );
@@ -1612,10 +1586,14 @@ function pubkeyInOutput(
 
 function getMeaningfulScript(
   script: Buffer,
+  index: number,
+  ioType: 'input' | 'output',
   redeemScript?: Buffer,
   witnessScript?: Buffer,
-): Buffer {
-  const { p2sh, p2wsh } = payments;
+): {
+  meaningfulScript: Buffer;
+  type: 'p2sh' | 'p2wsh' | 'p2shp2wsh' | 'raw';
+} {
   const isP2SH = isP2SHScript(script);
   const isP2SHP2WSH = isP2SH && redeemScript && isP2WSHScript(redeemScript);
   const isP2WSH = isP2WSHScript(script);
@@ -1627,32 +1605,31 @@ function getMeaningfulScript(
       'scriptPubkey or redeemScript is P2WSH but witnessScript missing',
     );
 
-  let payment: payments.Payment;
   let meaningfulScript: Buffer;
 
   if (isP2SHP2WSH) {
     meaningfulScript = witnessScript!;
-    payment = p2sh({ redeem: p2wsh({ redeem: { output: meaningfulScript } }) });
-    if (!payment.redeem!.output!.equals(redeemScript!))
-      throw new Error('P2SHP2WSH witnessScript and redeemScript do not match');
-    if (!payment.output!.equals(script!))
-      throw new Error(
-        'P2SHP2WSH witnessScript+redeemScript and scriptPubkey do not match',
-      );
+    checkRedeemScript(index, script, redeemScript!, ioType);
+    checkWitnessScript(index, redeemScript!, witnessScript!, ioType);
   } else if (isP2WSH) {
     meaningfulScript = witnessScript!;
-    payment = p2wsh({ redeem: { output: meaningfulScript } });
-    if (!payment.output!.equals(script!))
-      throw new Error('P2WSH witnessScript and scriptPubkey do not match');
+    checkWitnessScript(index, script, witnessScript!, ioType);
   } else if (isP2SH) {
     meaningfulScript = redeemScript!;
-    payment = p2sh({ redeem: { output: meaningfulScript } });
-    if (!payment.output!.equals(script!))
-      throw new Error('P2SH redeemScript and scriptPubkey do not match');
+    checkRedeemScript(index, script, redeemScript!, ioType);
   } else {
     meaningfulScript = script;
   }
-  return meaningfulScript;
+  return {
+    meaningfulScript,
+    type: isP2SHP2WSH
+      ? 'p2shp2wsh'
+      : isP2SH
+      ? 'p2sh'
+      : isP2WSH
+      ? 'p2wsh'
+      : 'raw',
+  };
 }
 
 function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean {
