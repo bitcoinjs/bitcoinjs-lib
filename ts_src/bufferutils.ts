@@ -49,7 +49,7 @@ export function reverseBuffer(buffer: Buffer): Buffer {
 }
 
 export function cloneBuffer(buffer: Buffer): Buffer {
-  const clone = Buffer.alloc(buffer.length);
+  const clone = Buffer.allocUnsafe(buffer.length);
   buffer.copy(clone);
   return clone;
 }

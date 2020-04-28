@@ -42,7 +42,7 @@ function reverseBuffer(buffer) {
 }
 exports.reverseBuffer = reverseBuffer;
 function cloneBuffer(buffer) {
-  const clone = Buffer.alloc(buffer.length);
+  const clone = Buffer.allocUnsafe(buffer.length);
   buffer.copy(clone);
   return clone;
 }
