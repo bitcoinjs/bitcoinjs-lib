@@ -115,6 +115,14 @@ export class Psbt {
       __NON_WITNESS_UTXO_BUF_CACHE: [],
       __TX_IN_CACHE: {},
       __TX: (this.data.globalMap.unsignedTx as PsbtTransaction).tx,
+      // Old TransactionBuilder behavior was to not confirm input values
+      // before signing. Even though we highly encourage people to get
+      // the full parent transaction to verify values, the ability to
+      // sign non-segwit inputs without the full transaction was often
+      // requested. So the only way to activate is to use @ts-ignore.
+      // We will disable exporting the Psbt when unsafe sign is active.
+      // because it is not BIP174 compliant.
+      __UNSAFE_SIGN_NONSEGWIT: false,
     };
     if (this.data.inputs.length === 0) this.setVersion(2);
 
@@ -386,6 +394,7 @@ export class Psbt {
               inputIndex,
               Object.assign({}, input, { sighashType: sig.hashType }),
               this.__CACHE,
+              true,
             )
           : { hash: hashCache!, script: scriptCache! };
       sighashCache = sig.hashType;
@@ -619,14 +628,17 @@ export class Psbt {
   }
 
   toBuffer(): Buffer {
+    checkCache(this.__CACHE);
     return this.data.toBuffer();
   }
 
   toHex(): string {
+    checkCache(this.__CACHE);
     return this.data.toHex();
   }
 
   toBase64(): string {
+    checkCache(this.__CACHE);
     return this.data.toBase64();
   }
 
@@ -681,6 +693,7 @@ interface PsbtCache {
   __FEE_RATE?: number;
   __FEE?: number;
   __EXTRACTED_TX?: Transaction;
+  __UNSAFE_SIGN_NONSEGWIT: boolean;
 }
 
 interface PsbtOptsOptional {
@@ -822,6 +835,12 @@ function canFinalize(
       return hasSigs(p2ms.m!, input.partialSig, p2ms.pubkeys);
     default:
       return false;
+  }
+}
+
+function checkCache(cache: PsbtCache): void {
+  if (cache.__UNSAFE_SIGN_NONSEGWIT !== false) {
+    throw new Error('Not BIP174 compliant, can not export');
   }
 }
 
@@ -1130,6 +1149,7 @@ function getHashAndSighashType(
     inputIndex,
     input,
     cache,
+    false,
     sighashTypes,
   );
   checkScriptForPubkey(pubkey, script, 'sign');
@@ -1143,6 +1163,7 @@ function getHashForSig(
   inputIndex: number,
   input: PsbtInput,
   cache: PsbtCache,
+  forValidate: boolean,
   sighashTypes?: number[],
 ): {
   script: Buffer;
@@ -1213,10 +1234,23 @@ function getHashForSig(
     );
   } else {
     // non-segwit
-    if (input.nonWitnessUtxo === undefined)
+    if (
+      input.nonWitnessUtxo === undefined &&
+      cache.__UNSAFE_SIGN_NONSEGWIT === false
+    )
       throw new Error(
         `Input #${inputIndex} has witnessUtxo but non-segwit script: ` +
           `${meaningfulScript.toString('hex')}`,
+      );
+    if (!forValidate && cache.__UNSAFE_SIGN_NONSEGWIT !== false)
+      console.warn(
+        'Warning: Signing non-segwit inputs without the full parent transaction ' +
+          'means there is a chance that a miner could feed you incorrect information ' +
+          'to trick you into paying large fees. This behavior is the same as the old ' +
+          'TransactionBuilder class when signing non-segwit scripts. You are not ' +
+          'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
+          'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
+          '*********************',
       );
     hash = unsignedTx.hashForSignature(
       inputIndex,
