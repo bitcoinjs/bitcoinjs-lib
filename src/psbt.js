@@ -1235,7 +1235,7 @@ function pubkeyInInput(pubkey, input, inputIndex, cache) {
   } else {
     throw new Error("Can't find pubkey in input without Utxo data");
   }
-  const meaningfulScript = checkScripts(
+  const meaningfulScript = getMeaningfulScript(
     script,
     input.redeemScript,
     input.witnessScript,
@@ -1244,55 +1244,49 @@ function pubkeyInInput(pubkey, input, inputIndex, cache) {
 }
 function pubkeyInOutput(pubkey, output, outputIndex, cache) {
   const script = cache.__TX.outs[outputIndex].script;
-  const meaningfulScript = checkScripts(
+  const meaningfulScript = getMeaningfulScript(
     script,
     output.redeemScript,
     output.witnessScript,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
-function checkScripts(script, redeemScript, witnessScript) {
-  let fail = false;
-  if (isP2SHScript(script)) {
-    if (redeemScript === undefined) {
-      fail = true;
-    } else if (isP2WSHScript(redeemScript)) {
-      if (witnessScript === undefined) {
-        fail = true;
-      } else {
-        fail = !payments
-          .p2sh({
-            redeem: payments.p2wsh({
-              redeem: { output: witnessScript },
-            }),
-          })
-          .output.equals(script);
-        if (!fail) return witnessScript;
-      }
-    } else {
-      fail = !payments
-        .p2sh({
-          redeem: { output: redeemScript },
-        })
-        .output.equals(script);
-      if (!fail) return redeemScript;
-    }
-  } else if (isP2WSHScript(script)) {
-    if (witnessScript === undefined) {
-      fail = true;
-    } else {
-      fail = !payments
-        .p2wsh({
-          redeem: { output: witnessScript },
-        })
-        .output.equals(script);
-      if (!fail) return witnessScript;
-    }
+function getMeaningfulScript(script, redeemScript, witnessScript) {
+  const { p2sh, p2wsh } = payments;
+  const isP2SH = isP2SHScript(script);
+  const isP2SHP2WSH = isP2SH && redeemScript && isP2WSHScript(redeemScript);
+  const isP2WSH = isP2WSHScript(script);
+  if (isP2SH && redeemScript === undefined)
+    throw new Error('scriptPubkey is P2SH but redeemScript missing');
+  if ((isP2WSH || isP2SHP2WSH) && witnessScript === undefined)
+    throw new Error(
+      'scriptPubkey or redeemScript is P2WSH but witnessScript missing',
+    );
+  let payment;
+  let meaningfulScript;
+  if (isP2SHP2WSH) {
+    meaningfulScript = witnessScript;
+    payment = p2sh({ redeem: p2wsh({ redeem: { output: meaningfulScript } }) });
+    if (!payment.redeem.output.equals(redeemScript))
+      throw new Error('P2SHP2WSH witnessScript and redeemScript do not match');
+    if (!payment.output.equals(script))
+      throw new Error(
+        'P2SHP2WSH witnessScript+redeemScript and scriptPubkey do not match',
+      );
+  } else if (isP2WSH) {
+    meaningfulScript = witnessScript;
+    payment = p2wsh({ redeem: { output: meaningfulScript } });
+    if (!payment.output.equals(script))
+      throw new Error('P2WSH witnessScript and scriptPubkey do not match');
+  } else if (isP2SH) {
+    meaningfulScript = redeemScript;
+    payment = p2sh({ redeem: { output: meaningfulScript } });
+    if (!payment.output.equals(script))
+      throw new Error('P2SH redeemScript and scriptPubkey do not match');
+  } else {
+    meaningfulScript = script;
   }
-  if (fail) {
-    throw new Error('Incomplete script information');
-  }
-  return script;
+  return meaningfulScript;
 }
 function pubkeyInScript(pubkey, script) {
   const pubkeyHash = crypto_1.hash160(pubkey);

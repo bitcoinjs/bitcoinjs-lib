@@ -566,7 +566,7 @@ describe(`Psbt`, () => {
 
       assert.throws(() => {
         psbt.inputHasPubkey(0, Buffer.from([]));
-      }, new RegExp('Incomplete script information'));
+      }, new RegExp('scriptPubkey is P2SH but redeemScript missing'));
 
       delete psbt.data.inputs[0].witnessUtxo;
 
@@ -581,7 +581,7 @@ describe(`Psbt`, () => {
 
       assert.throws(() => {
         psbt.inputHasPubkey(0, Buffer.from([]));
-      }, new RegExp('Incomplete script information'));
+      }, new RegExp('scriptPubkey or redeemScript is P2WSH but witnessScript missing'));
 
       delete psbt.data.inputs[0].witnessUtxo;
 
@@ -601,7 +601,7 @@ describe(`Psbt`, () => {
 
       assert.throws(() => {
         psbt.inputHasPubkey(0, Buffer.from([]));
-      }, new RegExp('Incomplete script information'));
+      }, new RegExp('scriptPubkey or redeemScript is P2WSH but witnessScript missing'));
 
       psbt.updateInput(0, {
         witnessScript: Buffer.from([0x51]),
@@ -631,7 +631,7 @@ describe(`Psbt`, () => {
 
       assert.throws(() => {
         psbt.outputHasPubkey(0, Buffer.from([]));
-      }, new RegExp('Incomplete script information'));
+      }, new RegExp('scriptPubkey is P2SH but redeemScript missing'));
 
       (psbt as any).__CACHE.__TX.outs[0].script = payments.p2wsh({
         redeem: { output: Buffer.from([0x51]) },
@@ -639,7 +639,7 @@ describe(`Psbt`, () => {
 
       assert.throws(() => {
         psbt.outputHasPubkey(0, Buffer.from([]));
-      }, new RegExp('Incomplete script information'));
+      }, new RegExp('scriptPubkey or redeemScript is P2WSH but witnessScript missing'));
 
       (psbt as any).__CACHE.__TX.outs[0].script = payments.p2sh({
         redeem: payments.p2wsh({
@@ -655,7 +655,7 @@ describe(`Psbt`, () => {
 
       assert.throws(() => {
         psbt.outputHasPubkey(0, Buffer.from([]));
-      }, new RegExp('Incomplete script information'));
+      }, new RegExp('scriptPubkey or redeemScript is P2WSH but witnessScript missing'));
 
       delete psbt.data.outputs[0].redeemScript;
 
@@ -665,7 +665,7 @@ describe(`Psbt`, () => {
 
       assert.throws(() => {
         psbt.outputHasPubkey(0, Buffer.from([]));
-      }, new RegExp('Incomplete script information'));
+      }, new RegExp('scriptPubkey is P2SH but redeemScript missing'));
 
       psbt.updateOutput(0, {
         redeemScript: payments.p2wsh({
