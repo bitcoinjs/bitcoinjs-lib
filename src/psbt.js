@@ -189,6 +189,7 @@ class Psbt {
       );
     }
     checkInputsForPartialSig(this.data.inputs, 'addInput');
+    if (inputData.witnessScript) checkInvalidP2WSH(inputData.witnessScript);
     const c = this.__CACHE;
     this.data.addInput(inputData);
     const txIn = c.__TX.ins[c.__TX.ins.length - 1];
@@ -284,6 +285,20 @@ class Psbt {
       throw new Error(`Unknown error finalizing input #${inputIndex}`);
     this.data.clearFinalizedInput(inputIndex);
     return this;
+  }
+  getInputType(inputIndex) {
+    const input = utils_1.checkForInput(this.data.inputs, inputIndex);
+    const script = getScriptFromUtxo(inputIndex, input, this.__CACHE);
+    const result = getMeaningfulScript(
+      script,
+      inputIndex,
+      'input',
+      input.redeemScript,
+      input.witnessScript,
+    );
+    const type = result.type === 'raw' ? '' : result.type + '-';
+    const mainType = classifyScript(result.meaningfulScript);
+    return type + mainType;
   }
   inputHasPubkey(inputIndex, pubkey) {
     const input = utils_1.checkForInput(this.data.inputs, inputIndex);
@@ -538,6 +553,7 @@ class Psbt {
     return this;
   }
   updateInput(inputIndex, updateData) {
+    if (updateData.witnessScript) checkInvalidP2WSH(updateData.witnessScript);
     this.data.updateInput(inputIndex, updateData);
     if (updateData.nonWitnessUtxo) {
       addNonWitnessTxCache(
@@ -924,7 +940,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
     input.redeemScript,
     input.witnessScript,
   );
-  if (['p2shp2wsh', 'p2wsh'].indexOf(type) >= 0) {
+  if (['p2sh-p2wsh', 'p2wsh'].indexOf(type) >= 0) {
     hash = unsignedTx.hashForWitnessV0(
       inputIndex,
       meaningfulScript,
@@ -1220,20 +1236,22 @@ function nonWitnessUtxoTxFromCache(cache, input, inputIndex) {
   }
   return c[inputIndex];
 }
-function pubkeyInInput(pubkey, input, inputIndex, cache) {
-  let script;
+function getScriptFromUtxo(inputIndex, input, cache) {
   if (input.witnessUtxo !== undefined) {
-    script = input.witnessUtxo.script;
+    return input.witnessUtxo.script;
   } else if (input.nonWitnessUtxo !== undefined) {
     const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
       cache,
       input,
       inputIndex,
     );
-    script = nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index].script;
+    return nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index].script;
   } else {
     throw new Error("Can't find pubkey in input without Utxo data");
   }
+}
+function pubkeyInInput(pubkey, input, inputIndex, cache) {
+  const script = getScriptFromUtxo(inputIndex, input, cache);
   const { meaningfulScript } = getMeaningfulScript(
     script,
     inputIndex,
@@ -1275,9 +1293,11 @@ function getMeaningfulScript(
     meaningfulScript = witnessScript;
     checkRedeemScript(index, script, redeemScript, ioType);
     checkWitnessScript(index, redeemScript, witnessScript, ioType);
+    checkInvalidP2WSH(meaningfulScript);
   } else if (isP2WSH) {
     meaningfulScript = witnessScript;
     checkWitnessScript(index, script, witnessScript, ioType);
+    checkInvalidP2WSH(meaningfulScript);
   } else if (isP2SH) {
     meaningfulScript = redeemScript;
     checkRedeemScript(index, script, redeemScript, ioType);
@@ -1287,13 +1307,18 @@ function getMeaningfulScript(
   return {
     meaningfulScript,
     type: isP2SHP2WSH
-      ? 'p2shp2wsh'
+      ? 'p2sh-p2wsh'
       : isP2SH
       ? 'p2sh'
       : isP2WSH
       ? 'p2wsh'
       : 'raw',
   };
+}
+function checkInvalidP2WSH(script) {
+  if (isP2WPKH(script) || isP2SHScript(script)) {
+    throw new Error('P2WPKH or P2SH can not be contained within P2WSH');
+  }
 }
 function pubkeyInScript(pubkey, script) {
   const pubkeyHash = crypto_1.hash160(pubkey);

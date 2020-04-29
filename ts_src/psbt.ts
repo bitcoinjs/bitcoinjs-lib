@@ -242,6 +242,7 @@ export class Psbt {
       );
     }
     checkInputsForPartialSig(this.data.inputs, 'addInput');
+    if (inputData.witnessScript) checkInvalidP2WSH(inputData.witnessScript);
     const c = this.__CACHE;
     this.data.addInput(inputData);
     const txIn = c.__TX.ins[c.__TX.ins.length - 1];
@@ -353,6 +354,21 @@ export class Psbt {
 
     this.data.clearFinalizedInput(inputIndex);
     return this;
+  }
+
+  getInputType(inputIndex: number): AllScriptType {
+    const input = checkForInput(this.data.inputs, inputIndex);
+    const script = getScriptFromUtxo(inputIndex, input, this.__CACHE);
+    const result = getMeaningfulScript(
+      script,
+      inputIndex,
+      'input',
+      input.redeemScript,
+      input.witnessScript,
+    );
+    const type = result.type === 'raw' ? '' : result.type + '-';
+    const mainType = classifyScript(result.meaningfulScript);
+    return (type + mainType) as AllScriptType;
   }
 
   inputHasPubkey(inputIndex: number, pubkey: Buffer): boolean {
@@ -648,6 +664,7 @@ export class Psbt {
   }
 
   updateInput(inputIndex: number, updateData: PsbtInputUpdate): this {
+    if (updateData.witnessScript) checkInvalidP2WSH(updateData.witnessScript);
     this.data.updateInput(inputIndex, updateData);
     if (updateData.nonWitnessUtxo) {
       addNonWitnessTxCache(
@@ -1215,7 +1232,7 @@ function getHashForSig(
     input.witnessScript,
   );
 
-  if (['p2shp2wsh', 'p2wsh'].indexOf(type) >= 0) {
+  if (['p2sh-p2wsh', 'p2wsh'].indexOf(type) >= 0) {
     hash = unsignedTx.hashForWitnessV0(
       inputIndex,
       meaningfulScript,
@@ -1572,25 +1589,32 @@ function nonWitnessUtxoTxFromCache(
   return c[inputIndex];
 }
 
-function pubkeyInInput(
-  pubkey: Buffer,
-  input: PsbtInput,
+function getScriptFromUtxo(
   inputIndex: number,
+  input: PsbtInput,
   cache: PsbtCache,
-): boolean {
-  let script: Buffer;
+): Buffer {
   if (input.witnessUtxo !== undefined) {
-    script = input.witnessUtxo.script;
+    return input.witnessUtxo.script;
   } else if (input.nonWitnessUtxo !== undefined) {
     const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
       cache,
       input,
       inputIndex,
     );
-    script = nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index].script;
+    return nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index].script;
   } else {
     throw new Error("Can't find pubkey in input without Utxo data");
   }
+}
+
+function pubkeyInInput(
+  pubkey: Buffer,
+  input: PsbtInput,
+  inputIndex: number,
+  cache: PsbtCache,
+): boolean {
+  const script = getScriptFromUtxo(inputIndex, input, cache);
   const { meaningfulScript } = getMeaningfulScript(
     script,
     inputIndex,
@@ -1626,7 +1650,7 @@ function getMeaningfulScript(
   witnessScript?: Buffer,
 ): {
   meaningfulScript: Buffer;
-  type: 'p2sh' | 'p2wsh' | 'p2shp2wsh' | 'raw';
+  type: 'p2sh' | 'p2wsh' | 'p2sh-p2wsh' | 'raw';
 } {
   const isP2SH = isP2SHScript(script);
   const isP2SHP2WSH = isP2SH && redeemScript && isP2WSHScript(redeemScript);
@@ -1645,9 +1669,11 @@ function getMeaningfulScript(
     meaningfulScript = witnessScript!;
     checkRedeemScript(index, script, redeemScript!, ioType);
     checkWitnessScript(index, redeemScript!, witnessScript!, ioType);
+    checkInvalidP2WSH(meaningfulScript);
   } else if (isP2WSH) {
     meaningfulScript = witnessScript!;
     checkWitnessScript(index, script, witnessScript!, ioType);
+    checkInvalidP2WSH(meaningfulScript);
   } else if (isP2SH) {
     meaningfulScript = redeemScript!;
     checkRedeemScript(index, script, redeemScript!, ioType);
@@ -1657,13 +1683,19 @@ function getMeaningfulScript(
   return {
     meaningfulScript,
     type: isP2SHP2WSH
-      ? 'p2shp2wsh'
+      ? 'p2sh-p2wsh'
       : isP2SH
       ? 'p2sh'
       : isP2WSH
       ? 'p2wsh'
       : 'raw',
   };
+}
+
+function checkInvalidP2WSH(script: Buffer): void {
+  if (isP2WPKH(script) || isP2SHScript(script)) {
+    throw new Error('P2WPKH or P2SH can not be contained within P2WSH');
+  }
 }
 
 function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean {
@@ -1678,7 +1710,32 @@ function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean {
   });
 }
 
-function classifyScript(script: Buffer): string {
+type AllScriptType =
+  | 'witnesspubkeyhash'
+  | 'pubkeyhash'
+  | 'multisig'
+  | 'pubkey'
+  | 'nonstandard'
+  | 'p2sh-witnesspubkeyhash'
+  | 'p2sh-pubkeyhash'
+  | 'p2sh-multisig'
+  | 'p2sh-pubkey'
+  | 'p2sh-nonstandard'
+  | 'p2wsh-pubkeyhash'
+  | 'p2wsh-multisig'
+  | 'p2wsh-pubkey'
+  | 'p2wsh-nonstandard'
+  | 'p2sh-p2wsh-pubkeyhash'
+  | 'p2sh-p2wsh-multisig'
+  | 'p2sh-p2wsh-pubkey'
+  | 'p2sh-p2wsh-nonstandard';
+type ScriptType =
+  | 'witnesspubkeyhash'
+  | 'pubkeyhash'
+  | 'multisig'
+  | 'pubkey'
+  | 'nonstandard';
+function classifyScript(script: Buffer): ScriptType {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
   if (isP2PKH(script)) return 'pubkeyhash';
   if (isP2MS(script)) return 'multisig';

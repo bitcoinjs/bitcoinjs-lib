@@ -542,6 +542,95 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('getInputType', () => {
+    const { publicKey } = ECPair.makeRandom();
+    const p2wpkhPub = (pubkey: Buffer): Buffer =>
+      payments.p2wpkh({
+        pubkey,
+      }).output!;
+    const p2pkhPub = (pubkey: Buffer): Buffer =>
+      payments.p2pkh({
+        pubkey,
+      }).output!;
+    const p2shOut = (output: Buffer): Buffer =>
+      payments.p2sh({
+        redeem: { output },
+      }).output!;
+    const p2wshOut = (output: Buffer): Buffer =>
+      payments.p2wsh({
+        redeem: { output },
+      }).output!;
+    const p2shp2wshOut = (output: Buffer): Buffer => p2shOut(p2wshOut(output));
+    const noOuter = (output: Buffer): Buffer => output;
+
+    function getInputTypeTest({
+      innerScript,
+      outerScript,
+      redeemGetter,
+      witnessGetter,
+      expectedType,
+    }: any): void {
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash:
+          '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0,
+        witnessUtxo: {
+          script: outerScript(innerScript(publicKey)),
+          value: 2e3,
+        },
+        ...(redeemGetter ? { redeemScript: redeemGetter(publicKey) } : {}),
+        ...(witnessGetter ? { witnessScript: witnessGetter(publicKey) } : {}),
+      });
+      const type = psbt.getInputType(0);
+      assert.strictEqual(type, expectedType, 'incorrect input type');
+    }
+    [
+      {
+        innerScript: p2pkhPub,
+        outerScript: noOuter,
+        redeemGetter: null,
+        witnessGetter: null,
+        expectedType: 'pubkeyhash',
+      },
+      {
+        innerScript: p2wpkhPub,
+        outerScript: noOuter,
+        redeemGetter: null,
+        witnessGetter: null,
+        expectedType: 'witnesspubkeyhash',
+      },
+      {
+        innerScript: p2pkhPub,
+        outerScript: p2shOut,
+        redeemGetter: p2pkhPub,
+        witnessGetter: null,
+        expectedType: 'p2sh-pubkeyhash',
+      },
+      {
+        innerScript: p2wpkhPub,
+        outerScript: p2shOut,
+        redeemGetter: p2wpkhPub,
+        witnessGetter: null,
+        expectedType: 'p2sh-witnesspubkeyhash',
+      },
+      {
+        innerScript: p2pkhPub,
+        outerScript: p2wshOut,
+        redeemGetter: null,
+        witnessGetter: p2pkhPub,
+        expectedType: 'p2wsh-pubkeyhash',
+      },
+      {
+        innerScript: p2pkhPub,
+        outerScript: p2shp2wshOut,
+        redeemGetter: (pk: Buffer): Buffer => p2wshOut(p2pkhPub(pk)),
+        witnessGetter: p2pkhPub,
+        expectedType: 'p2sh-p2wsh-pubkeyhash',
+      },
+    ].forEach(getInputTypeTest);
+  });
+
   describe('inputHasPubkey', () => {
     it('should throw', () => {
       const psbt = new Psbt();
