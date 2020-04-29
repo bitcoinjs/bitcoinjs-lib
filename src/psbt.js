@@ -293,8 +293,9 @@ class Psbt {
       script,
       inputIndex,
       'input',
-      input.redeemScript,
-      input.witnessScript,
+      input.redeemScript || redeemFromFinalScriptSig(input.finalScriptSig),
+      input.witnessScript ||
+        redeemFromFinalWitnessScript(input.finalScriptWitness),
     );
     const type = result.type === 'raw' ? '' : result.type + '-';
     const mainType = classifyScript(result.meaningfulScript);
@@ -1271,6 +1272,36 @@ function pubkeyInOutput(pubkey, output, outputIndex, cache) {
     output.witnessScript,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
+}
+function redeemFromFinalScriptSig(finalScript) {
+  if (!finalScript) return;
+  const decomp = bscript.decompile(finalScript);
+  if (!decomp) return;
+  const lastItem = decomp[decomp.length - 1];
+  if (
+    !Buffer.isBuffer(lastItem) ||
+    isPubkeyLike(lastItem) ||
+    isSigLike(lastItem)
+  )
+    return;
+  const sDecomp = bscript.decompile(lastItem);
+  if (!sDecomp) return;
+  return lastItem;
+}
+function redeemFromFinalWitnessScript(finalScript) {
+  if (!finalScript) return;
+  const decomp = scriptWitnessToWitnessStack(finalScript);
+  const lastItem = decomp[decomp.length - 1];
+  if (isPubkeyLike(lastItem)) return;
+  const sDecomp = bscript.decompile(lastItem);
+  if (!sDecomp) return;
+  return lastItem;
+}
+function isPubkeyLike(buf) {
+  return buf.length === 33 && bscript.isCanonicalPubKey(buf);
+}
+function isSigLike(buf) {
+  return bscript.isCanonicalScriptSignature(buf);
 }
 function getMeaningfulScript(
   script,

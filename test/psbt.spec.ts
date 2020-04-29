@@ -543,7 +543,8 @@ describe(`Psbt`, () => {
   });
 
   describe('getInputType', () => {
-    const { publicKey } = ECPair.makeRandom();
+    const key = ECPair.makeRandom();
+    const { publicKey } = key;
     const p2wpkhPub = (pubkey: Buffer): Buffer =>
       payments.p2wpkh({
         pubkey,
@@ -569,19 +570,26 @@ describe(`Psbt`, () => {
       redeemGetter,
       witnessGetter,
       expectedType,
+      finalize,
     }: any): void {
       const psbt = new Psbt();
-      psbt.addInput({
-        hash:
-          '0000000000000000000000000000000000000000000000000000000000000000',
-        index: 0,
-        witnessUtxo: {
-          script: outerScript(innerScript(publicKey)),
-          value: 2e3,
-        },
-        ...(redeemGetter ? { redeemScript: redeemGetter(publicKey) } : {}),
-        ...(witnessGetter ? { witnessScript: witnessGetter(publicKey) } : {}),
-      });
+      psbt
+        .addInput({
+          hash:
+            '0000000000000000000000000000000000000000000000000000000000000000',
+          index: 0,
+          witnessUtxo: {
+            script: outerScript(innerScript(publicKey)),
+            value: 2e3,
+          },
+          ...(redeemGetter ? { redeemScript: redeemGetter(publicKey) } : {}),
+          ...(witnessGetter ? { witnessScript: witnessGetter(publicKey) } : {}),
+        })
+        .addOutput({
+          script: Buffer.from('0014d85c2b71d0060b09c9886aeb815e50991dda124d'),
+          value: 1800,
+        });
+      if (finalize) psbt.signInput(0, key).finalizeInput(0);
       const type = psbt.getInputType(0);
       assert.strictEqual(type, expectedType, 'incorrect input type');
     }
@@ -613,6 +621,7 @@ describe(`Psbt`, () => {
         redeemGetter: p2wpkhPub,
         witnessGetter: null,
         expectedType: 'p2sh-witnesspubkeyhash',
+        finalize: true,
       },
       {
         innerScript: p2pkhPub,
@@ -620,6 +629,7 @@ describe(`Psbt`, () => {
         redeemGetter: null,
         witnessGetter: p2pkhPub,
         expectedType: 'p2wsh-pubkeyhash',
+        finalize: true,
       },
       {
         innerScript: p2pkhPub,
