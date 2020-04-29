@@ -305,9 +305,23 @@ class Psbt {
     const input = utils_1.checkForInput(this.data.inputs, inputIndex);
     return pubkeyInInput(pubkey, input, inputIndex, this.__CACHE);
   }
+  inputHasHDKey(inputIndex, root) {
+    const input = utils_1.checkForInput(this.data.inputs, inputIndex);
+    const derivationIsMine = bip32DerivationIsMine(root);
+    return (
+      !!input.bip32Derivation && input.bip32Derivation.some(derivationIsMine)
+    );
+  }
   outputHasPubkey(outputIndex, pubkey) {
     const output = utils_1.checkForOutput(this.data.outputs, outputIndex);
     return pubkeyInOutput(pubkey, output, outputIndex, this.__CACHE);
+  }
+  outputHasHDKey(outputIndex, root) {
+    const output = utils_1.checkForOutput(this.data.outputs, outputIndex);
+    const derivationIsMine = bip32DerivationIsMine(root);
+    return (
+      !!output.bip32Derivation && output.bip32Derivation.some(derivationIsMine)
+    );
   }
   validateSignaturesOfAllInputs() {
     utils_1.checkForInput(this.data.inputs, 0); // making sure we have at least one
@@ -696,6 +710,13 @@ const isP2PKH = isPaymentFactory(payments.p2pkh);
 const isP2WPKH = isPaymentFactory(payments.p2wpkh);
 const isP2WSHScript = isPaymentFactory(payments.p2wsh);
 const isP2SHScript = isPaymentFactory(payments.p2sh);
+function bip32DerivationIsMine(root) {
+  return d => {
+    if (!d.masterFingerprint.equals(root.fingerprint)) return false;
+    if (!root.derivePath(d.path).publicKey.equals(d.pubkey)) return false;
+    return true;
+  };
+}
 function check32Bit(num) {
   if (
     typeof num !== 'number' ||

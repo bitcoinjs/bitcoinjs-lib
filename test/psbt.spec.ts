@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import * as crypto from 'crypto';
 import { describe, it } from 'mocha';
 
 import { bip32, ECPair, networks as NETWORKS, payments, Psbt } from '..';
@@ -641,6 +642,29 @@ describe(`Psbt`, () => {
     ].forEach(getInputTypeTest);
   });
 
+  describe('inputHasHDKey', () => {
+    it('should return true if HD key is present', () => {
+      const root = bip32.fromSeed(crypto.randomBytes(32));
+      const root2 = bip32.fromSeed(crypto.randomBytes(32));
+      const path = "m/0'/0";
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash:
+          '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0,
+        bip32Derivation: [
+          {
+            masterFingerprint: root.fingerprint,
+            path,
+            pubkey: root.derivePath(path).publicKey,
+          },
+        ],
+      });
+      assert.strictEqual(psbt.inputHasHDKey(0, root), true);
+      assert.strictEqual(psbt.inputHasHDKey(0, root2), false);
+    });
+  });
+
   describe('inputHasPubkey', () => {
     it('should throw', () => {
       const psbt = new Psbt();
@@ -709,6 +733,37 @@ describe(`Psbt`, () => {
       assert.doesNotThrow(() => {
         psbt.inputHasPubkey(0, Buffer.from([0x51]));
       });
+    });
+  });
+
+  describe('outputHasHDKey', () => {
+    it('should return true if HD key is present', () => {
+      const root = bip32.fromSeed(crypto.randomBytes(32));
+      const root2 = bip32.fromSeed(crypto.randomBytes(32));
+      const path = "m/0'/0";
+      const psbt = new Psbt();
+      psbt
+        .addInput({
+          hash:
+            '0000000000000000000000000000000000000000000000000000000000000000',
+          index: 0,
+        })
+        .addOutput({
+          script: Buffer.from(
+            '0014000102030405060708090a0b0c0d0e0f00010203',
+            'hex',
+          ),
+          value: 2000,
+          bip32Derivation: [
+            {
+              masterFingerprint: root.fingerprint,
+              path,
+              pubkey: root.derivePath(path).publicKey,
+            },
+          ],
+        });
+      assert.strictEqual(psbt.outputHasHDKey(0, root), true);
+      assert.strictEqual(psbt.outputHasHDKey(0, root2), false);
     });
   });
 

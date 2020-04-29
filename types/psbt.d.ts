@@ -71,7 +71,9 @@ export declare class Psbt {
     finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this;
     getInputType(inputIndex: number): AllScriptType;
     inputHasPubkey(inputIndex: number, pubkey: Buffer): boolean;
+    inputHasHDKey(inputIndex: number, root: HDSigner): boolean;
     outputHasPubkey(outputIndex: number, pubkey: Buffer): boolean;
+    outputHasHDKey(outputIndex: number, root: HDSigner): boolean;
     validateSignaturesOfAllInputs(): boolean;
     validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
