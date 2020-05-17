@@ -11,10 +11,11 @@ import {
   Transaction as ITransaction,
   TransactionFromBuffer,
   TransactionInput,
+  TransactionOutput,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput } from 'bip174/src/lib/utils';
-import { toOutputScript } from './address';
-import { reverseBuffer } from './bufferutils';
+import { fromOutputScript, toOutputScript } from './address';
+import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
 import {
   fromPublicKey as ecPairFromPublicKey,
@@ -127,6 +128,38 @@ export class Psbt {
 
   get inputCount(): number {
     return this.data.inputs.length;
+  }
+
+  get version(): number {
+    return this.__CACHE.__TX.version;
+  }
+
+  set version(version: number) {
+    this.setVersion(version);
+  }
+
+  get locktime(): number {
+    return this.__CACHE.__TX.locktime;
+  }
+
+  set locktime(locktime: number) {
+    this.setLocktime(locktime);
+  }
+
+  get txInputs(): TransactionInput[] {
+    return this.__CACHE.__TX.ins.map(input => ({
+      hash: cloneBuffer(input.hash),
+      index: input.index,
+      sequence: input.sequence,
+    }));
+  }
+
+  get txOutputs(): TransactionOutput[] {
+    return this.__CACHE.__TX.outs.map(output => ({
+      script: cloneBuffer(output.script),
+      value: output.value,
+      address: fromOutputScript(output.script, this.opts.network),
+    }));
   }
 
   combine(...those: Psbt[]): this {

@@ -48,6 +48,12 @@ export function reverseBuffer(buffer: Buffer): Buffer {
   return buffer;
 }
 
+export function cloneBuffer(buffer: Buffer): Buffer {
+  const clone = Buffer.alloc(buffer.length);
+  buffer.copy(clone);
+  return buffer;
+}
+
 /**
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
