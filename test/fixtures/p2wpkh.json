@@ -114,6 +114,23 @@
       }
     },
     {
+      "exception": "Invalid pubkey for p2wpkh",
+      "description": "Uncompressed pubkey in pubkey",
+      "arguments": {
+        "pubkey": "049fa211b0fca342589ca381cc96520c3d0e3924832158d9f29891936cac091e80687acdca51868ee1f89a3bb36bb16f186262938e1f94c1e7692924935b9b1457"
+      }
+    },
+    {
+      "exception": "Witness has invalid pubkey",
+      "description": "Uncompressed pubkey in witness",
+      "arguments": {
+        "witness": [
+          "300602010002010001",
+          "049fa211b0fca342589ca381cc96520c3d0e3924832158d9f29891936cac091e80687acdca51868ee1f89a3bb36bb16f186262938e1f94c1e7692924935b9b1457"
+        ]
+      }
+    },
+    {
       "exception": "Pubkey mismatch",
       "options": {},
       "arguments": {

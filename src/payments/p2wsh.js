@@ -6,6 +6,7 @@ const bscript = require('../script');
 const lazy = require('./lazy');
 const typef = require('typeforce');
 const OPS = bscript.OPS;
+const ecc = require('tiny-secp256k1');
 const bech32 = require('bech32');
 const EMPTY_BUFFER = Buffer.alloc(0);
 function stacksEqual(a, b) {
@@ -13,6 +14,14 @@ function stacksEqual(a, b) {
   return a.every((x, i) => {
     return x.equals(b[i]);
   });
+}
+function chunkHasUncompressedPubkey(chunk) {
+  if (Buffer.isBuffer(chunk) && chunk.length === 65) {
+    if (ecc.isPoint(chunk)) return true;
+    else return false;
+  } else {
+    return false;
+  }
 }
 // input: <>
 // witness: [redeemScriptSig ...] {redeemScript}
@@ -50,6 +59,9 @@ function p2wsh(a, opts) {
   });
   const _rchunks = lazy.value(() => {
     return bscript.decompile(a.redeem.input);
+  });
+  const _rochunks = lazy.value(() => {
+    return bscript.decompile(a.redeem.output);
   });
   let network = a.network;
   if (!network) {
@@ -166,14 +178,24 @@ function p2wsh(a, opts) {
         !stacksEqual(a.witness, a.redeem.witness)
       )
         throw new TypeError('Witness and redeem.witness mismatch');
-    }
-    if (a.witness) {
       if (
-        a.redeem &&
-        a.redeem.output &&
-        !a.redeem.output.equals(a.witness[a.witness.length - 1])
-      )
+        (a.redeem.input && _rchunks().some(chunkHasUncompressedPubkey)) ||
+        (a.redeem.output && _rochunks().some(chunkHasUncompressedPubkey))
+      ) {
+        throw new TypeError(
+          'redeem.input or redeem.output contains uncompressed pubkey',
+        );
+      }
+    }
+    if (a.witness && a.witness.length > 0) {
+      const wScript = a.witness[a.witness.length - 1];
+      if (a.redeem && a.redeem.output && !a.redeem.output.equals(wScript))
         throw new TypeError('Witness and redeem.output mismatch');
+      if (
+        a.witness.some(chunkHasUncompressedPubkey) ||
+        (bscript.decompile(wScript) || []).some(chunkHasUncompressedPubkey)
+      )
+        throw new TypeError('Witness contains uncompressed pubkey');
     }
   }
   return Object.assign(o, a);
