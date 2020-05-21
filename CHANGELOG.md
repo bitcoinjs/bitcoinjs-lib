@@ -1,21 +1,21 @@
 # 5.1.8
 __fixed__
-- Throw errors when p2wsh or p2wpkh contain uncompressed pubkeys (#1573)
+- Throw errors when p2wsh or p2wpkh contain uncompressed pubkeys ([#1573](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1573))
 
 __added__
-- Add txInputs and txOutputs for Psbt (#1561)
+- Add txInputs and txOutputs for Psbt ([#1561](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1561))
 
 __changed__
-- (Not exposed) Added BufferWriter to help ease maintenance of certain forks of this library (#1533)
+- (Not exposed) Added BufferWriter to help ease maintenance of certain forks of this library ([#1533](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1533))
 
 # 5.1.7
 __fixed__
-- Fixed Transaction class Output interface typing for TypeScript (#1506)
-- Add `weight()` to Block class, add optional includeWitness arg to Transaction byteLength method (#1515)
-- Match the old TransactionBuilder behavior of allowing for multiple instances of the same pubkey to be in a p2ms script for PSBT (#1519)
+- Fixed Transaction class Output interface typing for TypeScript ([#1506](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1506))
+- Add `weight()` to Block class, add optional includeWitness arg to Transaction byteLength method ([#1515](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1515))
+- Match the old TransactionBuilder behavior of allowing for multiple instances of the same pubkey to be in a p2ms script for PSBT ([#1519](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1519))
 
 __added__
-- Allow the API consumer to pass in the finalizer functions to allow for any type of transaction to be finalized. It places the most crucial part of transaction construction on the consumer, and should be used with caution. (#1491)
+- Allow the API consumer to pass in the finalizer functions to allow for any type of transaction to be finalized. It places the most crucial part of transaction construction on the consumer, and should be used with caution. ([#1491](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1491))
 
 # 5.1.6
 __fixed__
@@ -31,12 +31,12 @@ __changed__
 
 # 5.1.3
 __changed__
-- TypeScript types: Made Signer and SignerAsync use any for network since we only check for equivalence. (#1448)
-- TypeScript types: Made the args for addInput and addOutput for Psbt actually accept updateInput and updateOutput parameters. (#1449)
+- TypeScript types: Made Signer and SignerAsync use any for network since we only check for equivalence. ([#1448](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1448))
+- TypeScript types: Made the args for addInput and addOutput for Psbt actually accept updateInput and updateOutput parameters. ([#1449](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1449))
 
 # 5.1.2
 __added__
-- `ECPair` and `bip32` objects now have a lowR boolean attribute defaulted to false. You may set it to true to ensure that the sign method uses low R values (#1442) (This is to enable low R usage in Psbt, since we decided not to give the low R flag to the Psbt class, since it makes more sense to be an attribute of the Signer interface)
+- `ECPair` and `bip32` objects now have a lowR boolean attribute defaulted to false. You may set it to true to ensure that the sign method uses low R values ([#1442](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1442)) (This is to enable low R usage in Psbt, since we decided not to give the low R flag to the Psbt class, since it makes more sense to be an attribute of the Signer interface)
 
 # 5.1.1
 __changed__
@@ -44,12 +44,12 @@ __changed__
 
 # 5.1.0
 __added__
-- A new `Psbt` class for creating, distributing, combining, signing, and compiling Transactions (#1425)
-- A `name` attribute to the Payment interface. P2SH and P2WSH are nested with `'-'` as separator, and p2ms is in the format of `'p2ms(m of n)''` all others are just hard coded. (#1433)
+- A new `Psbt` class for creating, distributing, combining, signing, and compiling Transactions ([#1425](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1425))
+- A `name` attribute to the Payment interface. P2SH and P2WSH are nested with `'-'` as separator, and p2ms is in the format of `'p2ms(m of n)''` all others are just hard coded. ([#1433](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1433))
 
 __changed__
-- `TransactionBuilder`: Migrate to stricter type checks during sign by switching to a single object parameter (#1416)
-- `tests`: Use regtest-client as separate library (#1421)
+- `TransactionBuilder`: Migrate to stricter type checks during sign by switching to a single object parameter ([#1416](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1416))
+- `tests`: Use regtest-client as separate library ([#1421](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1421))
 
 # 5.0.5
 __added__
@@ -57,186 +57,186 @@ __added__
 
 # 5.0.4
 __added__
-- low R value support for ECPair, bip32, and TransactionBuilder (default off) via `txb.setLowR()` (#1385)
+- low R value support for ECPair, bip32, and TransactionBuilder (default off) via `txb.setLowR()` ([#1385](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1385))
 
 __fixed__
-- Fixed Various TypeScript types that have been pushed out since v5.0.0 (#1388)
+- Fixed Various TypeScript types that have been pushed out since v5.0.0 ([#1388](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1388))
 
 # 5.0.0
 __added__
-- TypeScript support (#1319)
-- `Block.prototype.checkTxRoots` will check the merkleRoot and witnessCommit if it exists against the transactions array. (e52abec) (0426c66)
+- TypeScript support ([#1319](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1319))
+- `Block.prototype.checkTxRoots` will check the merkleRoot and witnessCommit if it exists against the transactions array. ([e52abec](https://github.com/bitcoinjs/bitcoinjs-lib/commit/e52abec)) ([0426c66](https://github.com/bitcoinjs/bitcoinjs-lib/commit/0426c66))
 
 __changed__
-- `Transaction.prototype.getHash` now has `forWitness?: boolean` which when true returns the hash for wtxid (a652d04)
-- `Block.calculateMerkleRoot` now has `forWitness?: boolean` which when true returns the witness commit (a652d04)
+- `Transaction.prototype.getHash` now has `forWitness?: boolean` which when true returns the hash for wtxid ([a652d04](https://github.com/bitcoinjs/bitcoinjs-lib/commit/a652d04))
+- `Block.calculateMerkleRoot` now has `forWitness?: boolean` which when true returns the witness commit ([a652d04](https://github.com/bitcoinjs/bitcoinjs-lib/commit/a652d04))
 
 __removed__
-- `Block.prototype.checkMerkleRoot` was removed, please use `checkTxRoots` (0426c66)
+- `Block.prototype.checkMerkleRoot` was removed, please use `checkTxRoots` ([0426c66](https://github.com/bitcoinjs/bitcoinjs-lib/commit/0426c66))
 
 # 4.0.5
 __fixed__
-- Fixed bug where Angular apps break due to lack of crypto at build time. Reverted #1373 and added (6bead5d).
+- Fixed bug where Angular apps break due to lack of crypto at build time. Reverted [#1373](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1373) and added ([6bead5d](https://github.com/bitcoinjs/bitcoinjs-lib/commit/6bead5d)).
 
 # 4.0.4
 __fixed__
-- Fixed bug where Electron v4 breaks due to lack of `'rmd160'` alias for ripemd160 hash. (#1373)
+- Fixed bug where Electron v4 breaks due to lack of `'rmd160'` alias for ripemd160 hash. ([#1373](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1373))
 
 # 4.0.3
 __fixed__
-- Fixed `TransactionBuilder` to require that the Transaction has outputs before signing (#1151)
-- Fixed `payments.p2sh`, which now takes the network from the redeem attribute if one is not given in the object argument (#1232)
-- Fixed `Block.calculateTarget` to allow for exponents up to 29 (#1285)
-- Fixed some low priority rarely occurring bugs with multisig payments and `TransactionBuilder` multisig processing (#1307)
+- Fixed `TransactionBuilder` to require that the Transaction has outputs before signing ([#1151](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1151))
+- Fixed `payments.p2sh`, which now takes the network from the redeem attribute if one is not given in the object argument ([#1232](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1232))
+- Fixed `Block.calculateTarget` to allow for exponents up to 29 ([#1285](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1285))
+- Fixed some low priority rarely occurring bugs with multisig payments and `TransactionBuilder` multisig processing ([#1307](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1307))
 
 __added__
-- Regtest network object to `networks` (#1261)
+- Regtest network object to `networks` ([#1261](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1261))
 
 # 4.0.2
 __fixed__
-- Fixed `TransactionBuilder` not throwing when payment type validation should fail (#1195)
+- Fixed `TransactionBuilder` not throwing when payment type validation should fail ([#1195](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1195))
 
 __removed__
-- Removed rogue `package.json` from `src/payments` (#1216)
+- Removed rogue `package.json` from `src/payments` ([#1216](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1216))
 
 # 4.0.1
 __fixed__
-- Fixed `tiny-secp256k1` dependency version (used `ecurve`) (#1139)
-- Fixed `TransactionBuilder` throwing when trying to sign `P2WSH(P2WPKH)` (#1135)
+- Fixed `tiny-secp256k1` dependency version (used `ecurve`) ([#1139](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1139))
+- Fixed `TransactionBuilder` throwing when trying to sign `P2WSH(P2WPKH)` ([#1135](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1135))
 
 # 4.0.0
 __added__
-- Added [`bip32`](https://github.com/bitcoinjs/bip32) dependency as a primary export (#1073)
-- Added `ECPair.fromPrivateKey` (#1070)
-- Added `payments` export, with support for `p2pkh`, `p2pk`, `p2ms`, `p2sh`, `p2wpkh`, `p2wsh` and `embed` payment types (#1096, #1119)
-- Added `script.signature.encode/decode` for script signatures (#459)
+- Added [`bip32`](https://github.com/bitcoinjs/bip32) dependency as a primary export ([#1073](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1073))
+- Added `ECPair.fromPrivateKey` ([#1070](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1070))
+- Added `payments` export, with support for `p2pkh`, `p2pk`, `p2ms`, `p2sh`, `p2wpkh`, `p2wsh` and `embed` payment types ([#1096](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1096), [#1119](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1119))
+- Added `script.signature.encode/decode` for script signatures ([#459](https://github.com/bitcoinjs/bitcoinjs-lib/pull/459))
 
 __changed__
-- `ECPair.prototype.sign` now returns a 64-byte signature `Buffer`, not an `ECSignature` object (#1084)
-- `ECPair` (and all ECDSA code) now uses [`tiny-secp256k1`](https://github.com/bitcoinjs/tiny-secp256k1), which uses the [`libsecp256k1` library](https://github.com/bitcoin-core/secp256k1) (#1070)
-- `TransactionBuilder` internal variables are now `__` prefixed to discourage public usage (#1038)
-- `TransactionBuilder` now defaults to version 2 transaction versions (#1036)
-- `script.decompile` now returns `[Buffer]` or `null`, if decompilation failed (#1039)
+- `ECPair.prototype.sign` now returns a 64-byte signature `Buffer`, not an `ECSignature` object ([#1084](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1084))
+- `ECPair` (and all ECDSA code) now uses [`tiny-secp256k1`](https://github.com/bitcoinjs/tiny-secp256k1), which uses the [`libsecp256k1` library](https://github.com/bitcoin-core/secp256k1) ([#1070](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1070))
+- `TransactionBuilder` internal variables are now `__` prefixed to discourage public usage ([#1038](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1038))
+- `TransactionBuilder` now defaults to version 2 transaction versions ([#1036](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1036))
+- `script.decompile` now returns `[Buffer]` or `null`, if decompilation failed ([#1039](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1039))
 
 __fixed__
-- Fixed `TransactionBuilder` rejecting uncompressed public keys to comply with BIP143 (#987)
+- Fixed `TransactionBuilder` rejecting uncompressed public keys to comply with BIP143 ([#987](https://github.com/bitcoinjs/bitcoinjs-lib/pull/987))
 
 __removed__
-- Removed Node 4/5 LTS support (#1080)
-- Removed `ECPair.fromPublicKeyBuffer`, use `ECPair.fromPublicKey` (#1070)
-- Removed `ECPair.prototype.getAddress`, use `payments.p2pkh` instead (#1085)
-- Removed `ECPair.prototype.getPrivateKey`, use `ECPair.prototype.privateKey` property (#1070)
-- Removed `ECPair.prototype.getPublicKey`, use `ECPair.prototype.publicKey` property (#1070)
-- Removed `ECPair.prototype.getNetwork`, use `ECPair.prototype.network` property (#1070)
-- Removed `ECSignature`, use `script.signature.encode/decode` instead (#459)
-- Removed `HDNode`, use `bip32` export instead (#1073)
-- Removed `bufferutils` (#1035)
-- Removed `networks.litecoin`, BYO non-Bitcoin networks instead (#1095)
-- Removed `script.isCanonicalSignature`, use `script.isCanonicalScriptSignature` instead (#1094)
-- Removed `script.*.input/output/check` functions (`templates`), use `payments.*` instead (`templates` previously added in #681, #682) (#1119)
-- Removed dependency `bigi`, uses `bn.js` internally now (via `tiny-secp256k1`) (#1070, #1112)
-- Removed public access to `ECPair` constructor, use exported functions `ECPair.fromPrivateKey`, `ECPair.fromWIF`, `ECPair.makeRandom`, or `ECPair.fromPublicKey` (#1070)
+- Removed Node 4/5 LTS support ([#1080](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1080))
+- Removed `ECPair.fromPublicKeyBuffer`, use `ECPair.fromPublicKey` ([#1070](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1070))
+- Removed `ECPair.prototype.getAddress`, use `payments.p2pkh` instead ([#1085](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1085))
+- Removed `ECPair.prototype.getPrivateKey`, use `ECPair.prototype.privateKey` property ([#1070](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1070))
+- Removed `ECPair.prototype.getPublicKey`, use `ECPair.prototype.publicKey` property ([#1070](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1070))
+- Removed `ECPair.prototype.getNetwork`, use `ECPair.prototype.network` property ([#1070](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1070))
+- Removed `ECSignature`, use `script.signature.encode/decode` instead ([#459](https://github.com/bitcoinjs/bitcoinjs-lib/pull/459))
+- Removed `HDNode`, use `bip32` export instead ([#1073](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1073))
+- Removed `bufferutils` ([#1035](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1035))
+- Removed `networks.litecoin`, BYO non-Bitcoin networks instead ([#1095](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1095))
+- Removed `script.isCanonicalSignature`, use `script.isCanonicalScriptSignature` instead ([#1094](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1094))
+- Removed `script.*.input/output/check` functions (`templates`), use `payments.*` instead (`templates` previously added in [#681](https://github.com/bitcoinjs/bitcoinjs-lib/pull/681), [#682](https://github.com/bitcoinjs/bitcoinjs-lib/pull/682)) ([#1119](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1119))
+- Removed dependency `bigi`, uses `bn.js` internally now (via `tiny-secp256k1`) ([#1070](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1070), [#1112](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1112))
+- Removed public access to `ECPair` constructor, use exported functions `ECPair.fromPrivateKey`, `ECPair.fromWIF`, `ECPair.makeRandom`, or `ECPair.fromPublicKey` ([#1070](https://github.com/bitcoinjs/bitcoinjs-lib/pull/1070))
 
 # 3.3.2
 __fixed__
-- Fixed `decodeStack` arbitrarily supporting non-Array arguments (#942)
+- Fixed `decodeStack` arbitrarily supporting non-Array arguments ([#942](https://github.com/bitcoinjs/bitcoinjs-lib/pull/942))
 
 # 3.3.1
 __changed__
-- Increased the `TransactionBuilder` `maximumFeeRate` from 1000 to 2500 satoshis/byte. (#931)
+- Increased the `TransactionBuilder` `maximumFeeRate` from 1000 to 2500 satoshis/byte. ([#931](https://github.com/bitcoinjs/bitcoinjs-lib/pull/931))
 
 # 3.3.0
 __added__
-- Added `ECSignature.prototype.toRSBuffer`/`ECSignature.fromRSBuffer` (#915)
-- Added support to `TransactionBuilder` for 64-byte signatures via `.sign` (#915)
-- Added support to `TransactionBuilder` for the `.publicKey` standard as an alternative to `.getPublicKey()` (#915)
+- Added `ECSignature.prototype.toRSBuffer`/`ECSignature.fromRSBuffer` ([#915](https://github.com/bitcoinjs/bitcoinjs-lib/pull/915))
+- Added support to `TransactionBuilder` for 64-byte signatures via `.sign` ([#915](https://github.com/bitcoinjs/bitcoinjs-lib/pull/915))
+- Added support to `TransactionBuilder` for the `.publicKey` standard as an alternative to `.getPublicKey()` ([#915](https://github.com/bitcoinjs/bitcoinjs-lib/pull/915))
 
 # 3.2.1
 __fixed__
-- Fixed `script.scripthash.input.check` recursion (#898)
-- Fixed `TransactionBuilder` sometimes ignoring witness value (#901)
-- Fixed `script.witnessScriptHash.input` implementation (previously used the P2SH impl.) (#911)
+- Fixed `script.scripthash.input.check` recursion ([#898](https://github.com/bitcoinjs/bitcoinjs-lib/pull/898))
+- Fixed `TransactionBuilder` sometimes ignoring witness value ([#901](https://github.com/bitcoinjs/bitcoinjs-lib/pull/901))
+- Fixed `script.witnessScriptHash.input` implementation (previously used the P2SH impl.) ([#911](https://github.com/bitcoinjs/bitcoinjs-lib/pull/911))
 
 # 3.2.0
 __added__
-- Added `address.fromBech32/toBech32` (#846)
+- Added `address.fromBech32/toBech32` ([#846](https://github.com/bitcoinjs/bitcoinjs-lib/pull/846))
 
 # 3.1.0
 __added__
-- Added `Transaction.prototype.virtualSize` (#811)
-- Added `Transaction.prototype.weight` (#811)
+- Added `Transaction.prototype.virtualSize` ([#811](https://github.com/bitcoinjs/bitcoinjs-lib/pull/811))
+- Added `Transaction.prototype.weight` ([#811](https://github.com/bitcoinjs/bitcoinjs-lib/pull/811))
 
 # 3.0.0
 From this release users can expect out-of-the-box Segregated Witness support.
 The majority of breaking changes have been in how `script` encoding/decoding occurs,  with the introduction of witness stacks.
 
 __added__
-- Added `script.types` enums (#679)
-- Added `script.*.*.{check,encode,decode[,encodeStack,decodeStack]}` functions (#681, #682)
-- Added minimal `TransactionBuilder.prototype.build` absurd fee-safety (#696)
-- Added `script.(decompile/compile)PushOnly` and `script.toStack` functions (#700)
-- Added `Transaction.prototype.toBuffer` Segregated Witness serialization support (#684, #701)
-- Added `Transaction.prototype.hasWitnesses` (#718)
+- Added `script.types` enums ([#679](https://github.com/bitcoinjs/bitcoinjs-lib/pull/679))
+- Added `script.*.*.{check,encode,decode[,encodeStack,decodeStack]}` functions ([#681](https://github.com/bitcoinjs/bitcoinjs-lib/pull/681), [#682](https://github.com/bitcoinjs/bitcoinjs-lib/pull/682))
+- Added minimal `TransactionBuilder.prototype.build` absurd fee-safety ([#696](https://github.com/bitcoinjs/bitcoinjs-lib/pull/696))
+- Added `script.(decompile/compile)PushOnly` and `script.toStack` functions ([#700](https://github.com/bitcoinjs/bitcoinjs-lib/pull/700))
+- Added `Transaction.prototype.toBuffer` Segregated Witness serialization support ([#684](https://github.com/bitcoinjs/bitcoinjs-lib/pull/684), [#701](https://github.com/bitcoinjs/bitcoinjs-lib/pull/701))
+- Added `Transaction.prototype.hasWitnesses` ([#718](https://github.com/bitcoinjs/bitcoinjs-lib/pull/718))
 - Added `script.witnessCommitment.*` template
 - Added `TransactionBuilder.prototype.sign` now has two additional parameters, `witnessValue`, and `witnessScript`
-- Added `Transaction.hashForWitnessV0` and `Transaction.setWitness` (5c2fdb60436714f18440dc709f0be065928c1e49)
+- Added `Transaction.hashForWitnessV0` and `Transaction.setWitness` ([5c2fdb60436714f18440dc709f0be065928c1e49](https://github.com/bitcoinjs/bitcoinjs-lib/commit/5c2fdb60436714f18440dc709f0be065928c1e49))
 
 __fixed__
-- Fixed `script` must compile minimally (#638)
-- Fixed `Transaction` and `Block` versions should be Int32, signed integers (#662)
+- Fixed `script` must compile minimally ([#638](https://github.com/bitcoinjs/bitcoinjs-lib/pull/638))
+- Fixed `Transaction` and `Block` versions should be Int32, signed integers ([#662](https://github.com/bitcoinjs/bitcoinjs-lib/pull/662))
 
 __removed__
-- Removed `ecdsa.calcPubKeyRecoveryParam`, `ecdsa.recoverPubKey` (#456)
-- Removed `buffer-equals`/`buffer-compare` dependencies (#650)
-- Removed `HDNode.prototype.toString` (#665)
-- Removed `dogecoin` network (#675)
-- Removed `message` export, moved to [`bitcoinjs-message`](https://github.com/bitcoinjs/bitcoinjs-message) (#456)
+- Removed `ecdsa.calcPubKeyRecoveryParam`, `ecdsa.recoverPubKey` ([#456](https://github.com/bitcoinjs/bitcoinjs-lib/pull/456))
+- Removed `buffer-equals`/`buffer-compare` dependencies ([#650](https://github.com/bitcoinjs/bitcoinjs-lib/pull/650))
+- Removed `HDNode.prototype.toString` ([#665](https://github.com/bitcoinjs/bitcoinjs-lib/pull/665))
+- Removed `dogecoin` network ([#675](https://github.com/bitcoinjs/bitcoinjs-lib/pull/675))
+- Removed `message` export, moved to [`bitcoinjs-message`](https://github.com/bitcoinjs/bitcoinjs-message) ([#456](https://github.com/bitcoinjs/bitcoinjs-lib/pull/456))
 
 __renamed__
-- Removed `script.*` functions in favour of `bitcoin.script.*.(input/output).(encode/decode/check)` style (#682)
+- Removed `script.*` functions in favour of `bitcoin.script.*.(input/output).(encode/decode/check)` style ([#682](https://github.com/bitcoinjs/bitcoinjs-lib/pull/682))
 
 # 2.3.0
 __added__
-- Added `HDNode.prototype.isNeutered` (#536)
-- Added `HDNode.prototype.derivePath` (#538)
-- Added typeforce checking for `HDNode.prototype.derive*` (#539)
-- Added `Transaction.prototype.isCoinbase` (#578)
-- Added `Block.prototype.checkMerkleRoot` (#580)
-- Added `Block.calculateMerkleRoot` (#580)
-- Added `TransactionBuilder.prototype.setVersion` (#599)
-- Added `script.isWitnessPubKeyHashOutput` (#602)
-- Added `script.isWitnessScriptHashOutput` (#602)
-- Added `script.witnessPubKeyHashOutput` (#602)
-- Added `script.witnessScriptHashOutput` (#602)
-- Added `script.witnessScriptHashInput` (#602)
+- Added `HDNode.prototype.isNeutered` ([#536](https://github.com/bitcoinjs/bitcoinjs-lib/pull/536))
+- Added `HDNode.prototype.derivePath` ([#538](https://github.com/bitcoinjs/bitcoinjs-lib/pull/538))
+- Added typeforce checking for `HDNode.prototype.derive*` ([#539](https://github.com/bitcoinjs/bitcoinjs-lib/pull/539))
+- Added `Transaction.prototype.isCoinbase` ([#578](https://github.com/bitcoinjs/bitcoinjs-lib/pull/578))
+- Added `Block.prototype.checkMerkleRoot` ([#580](https://github.com/bitcoinjs/bitcoinjs-lib/pull/580))
+- Added `Block.calculateMerkleRoot` ([#580](https://github.com/bitcoinjs/bitcoinjs-lib/pull/580))
+- Added `TransactionBuilder.prototype.setVersion` ([#599](https://github.com/bitcoinjs/bitcoinjs-lib/pull/599))
+- Added `script.isWitnessPubKeyHashOutput` ([#602](https://github.com/bitcoinjs/bitcoinjs-lib/pull/602))
+- Added `script.isWitnessScriptHashOutput` ([#602](https://github.com/bitcoinjs/bitcoinjs-lib/pull/602))
+- Added `script.witnessPubKeyHashOutput` ([#602](https://github.com/bitcoinjs/bitcoinjs-lib/pull/602))
+- Added `script.witnessScriptHashOutput` ([#602](https://github.com/bitcoinjs/bitcoinjs-lib/pull/602))
+- Added `script.witnessScriptHashInput` ([#602](https://github.com/bitcoinjs/bitcoinjs-lib/pull/602))
 
 __fixed__
-- Fixed "BIP32 is undefined" when network list given to `HDNode` but no compatible version found (#550)
-- Fixed `writePushDataInt` output to adhere to minimal data push policy (#617)
+- Fixed "BIP32 is undefined" when network list given to `HDNode` but no compatible version found ([#550](https://github.com/bitcoinjs/bitcoinjs-lib/pull/550))
+- Fixed `writePushDataInt` output to adhere to minimal data push policy ([#617](https://github.com/bitcoinjs/bitcoinjs-lib/pull/617))
 
 
 # 2.2.0
 __added__
-- Added `Block.calculateTarget` for difficulty calculations (#509)
-- Added `Block.prototype.checkProofOfWork` (#509)
-- Added `opcodes.OP_CHECKLOCKTIMEVERIFY` alias for `OP_NOP2` (#511)
-- Added `script.number.[encode/decode]` for CScriptNum-encoded `Buffer`s (#516)
-- Added `TransactionBuilder.prototype.setLockTime` (#507)
+- Added `Block.calculateTarget` for difficulty calculations ([#509](https://github.com/bitcoinjs/bitcoinjs-lib/pull/509))
+- Added `Block.prototype.checkProofOfWork` ([#509](https://github.com/bitcoinjs/bitcoinjs-lib/pull/509))
+- Added `opcodes.OP_CHECKLOCKTIMEVERIFY` alias for `OP_NOP2` ([#511](https://github.com/bitcoinjs/bitcoinjs-lib/pull/511))
+- Added `script.number.[encode/decode]` for CScriptNum-encoded `Buffer`s ([#516](https://github.com/bitcoinjs/bitcoinjs-lib/pull/516))
+- Added `TransactionBuilder.prototype.setLockTime` ([#507](https://github.com/bitcoinjs/bitcoinjs-lib/pull/507))
 
 __fixed__
-- Bumped `typeforce` version to fix erroneous error message from `types.Hash*bit` types (#534)
+- Bumped `typeforce` version to fix erroneous error message from `types.Hash*bit` types ([#534](https://github.com/bitcoinjs/bitcoinjs-lib/pull/534))
 
 
 # 2.1.4
 __fixed__
-- script.isPubKeyHashOutput and script.isScriptHashOutput no longer allow for non-minimal data pushes (per bitcoin/bitcoin `IsStandard` policy) (#499)
-- TransactionBuilder.addOutput now allows for SIGHASH_SINGLE, throwing if the contract is violated (#504)
-- remove use of `const`, use ES5 only (#502)
+- script.isPubKeyHashOutput and script.isScriptHashOutput no longer allow for non-minimal data pushes (per bitcoin/bitcoin `IsStandard` policy) ([#499](https://github.com/bitcoinjs/bitcoinjs-lib/pull/499))
+- TransactionBuilder.addOutput now allows for SIGHASH_SINGLE, throwing if the contract is violated ([#504](https://github.com/bitcoinjs/bitcoinjs-lib/pull/504))
+- remove use of `const`, use ES5 only ([#502](https://github.com/bitcoinjs/bitcoinjs-lib/pull/502))
 
 
 # 2.1.3
 __fixed__
-- Bumped typeforce to 1.5.5 (see #493)
+- Bumped typeforce to 1.5.5 (see [#493](https://github.com/bitcoinjs/bitcoinjs-lib/pull/493))
 
 
 # 2.1.2
@@ -246,11 +246,11 @@ __fixed__
 
 # 2.1.1
 __changed__
-- removed use of `buffer-reverse`, dependency only kept for `bufferutils.reverse`, to be deprecated (#478)
+- removed use of `buffer-reverse`, dependency only kept for `bufferutils.reverse`, to be deprecated ([#478](https://github.com/bitcoinjs/bitcoinjs-lib/pull/478))
 
 __fixed__
-- `isMultisigOutput` no longer allows data chunks for `m`/`n` (#482)
-- `isMultisigOutput`'s `n` value must now match the number of public keys (as per bitcoin/bitcoin) (#484)
+- `isMultisigOutput` no longer allows data chunks for `m`/`n` ([#482](https://github.com/bitcoinjs/bitcoinjs-lib/pull/482))
+- `isMultisigOutput`'s `n` value must now match the number of public keys (as per bitcoin/bitcoin) ([#484](https://github.com/bitcoinjs/bitcoinjs-lib/pull/484))
 
 
 # 2.1.0
@@ -276,14 +276,14 @@ Several other cumbersome modules have been removed,  with their new independent 
 Backward incompatible changes:
 
 __added__
-- export `address`, for `address` based [utility functions](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/address.js), most compatible, just without `Address` instantiation, see #401, #444
-- export `script`, for `script` based [utility functions](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/script.js), mostly compatible, just without `Script` instantiation, see #438, #444
+- export `address`, for `address` based [utility functions](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/address.js), most compatible, just without `Address` instantiation, see [#401](https://github.com/bitcoinjs/bitcoinjs-lib/pull/401), [#444](https://github.com/bitcoinjs/bitcoinjs-lib/pull/444)
+- export `script`, for `script` based [utility functions](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/script.js), mostly compatible, just without `Script` instantiation, see [#438](https://github.com/bitcoinjs/bitcoinjs-lib/pull/438), [#444](https://github.com/bitcoinjs/bitcoinjs-lib/pull/444)
 - export `ECPair`, a merged replacement for `ECKey`/`ECPubKey`, invalid types will throw via `typeforce`
 
 __changed__
 - `address.toOutputScript`, `ECPair.prototype.fromWIF` and `HDNode.prototype.fromBase58` no longer automatically detect the network, `networks.bitcoin` is always assumed unless given.
 - `assert` was used for type checking, now replaced by `typeforce`
-- `BIP66` compliant strict DER signature validation was added to `ECSignature.fromDER`, changing the exact exception messages slightly, see #448.
+- `BIP66` compliant strict DER signature validation was added to `ECSignature.fromDER`, changing the exact exception messages slightly, see [#448](https://github.com/bitcoinjs/bitcoinjs-lib/pull/448).
 
 - `new HDNode(d/Q, chainCode, network)` -> `new HDNode(keyPair, chainCode)`, now uses `ECPair`
 - `HDNode.prototype.toBase58(false)` -> `HDNode.prototype.neutered().toBase58()` for exporting an extended public key
@@ -301,7 +301,7 @@ __removed__
 - export `ECKey`, use new export `ECPair` instead
 - export `ECPubKey`, use new export `ECPair` instead
 - export `Wallet`, see README.md#complementing-libraries instead
-- export `Script`, use new utility export `script` instead (#438 for more information)
+- export `Script`, use new utility export `script` instead ([#438](https://github.com/bitcoinjs/bitcoinjs-lib/pull/438) for more information)
 
 - `crypto.HmacSHA256 `, use [node crypto](https://nodejs.org/api/crypto.html) instead
 - `crypto.HmacSHA512 `, use [node crypto](https://nodejs.org/api/crypto.html) instead
@@ -316,7 +316,7 @@ __removed__
 - `HDNode.toHex`, use `HDNode.prototype.toBase58` instead
 
 - `networks.*.magic`, see the comment [here](https://github.com/bitcoinjs/bitcoinjs-lib/pull/432/files#r36715792)
-- `networks.[viacoin|viacointestnet|gamerscoin|jumbucks|zetacoin]`, import these yourself (see #383/a0e6ee7)
+- `networks.[viacoin|viacointestnet|gamerscoin|jumbucks|zetacoin]`, import these yourself (see [#383](https://github.com/bitcoinjs/bitcoinjs-lib/pull/383)/[a0e6ee7](https://github.com/bitcoinjs/bitcoinjs-lib/commit/a0e6ee7))
 - `networks.*.estimateFee`, out-dated
 
 __renamed__
