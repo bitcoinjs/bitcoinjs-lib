@@ -118,13 +118,15 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
       if (hash.length > 0 && !hash.equals(pkh))
         throw new TypeError('Hash mismatch');
       else hash = pkh;
+      if (!ecc.isPoint(a.pubkey) || a.pubkey.length !== 33)
+        throw new TypeError('Invalid pubkey for p2wpkh');
     }
 
     if (a.witness) {
       if (a.witness.length !== 2) throw new TypeError('Witness is invalid');
       if (!bscript.isCanonicalScriptSignature(a.witness[0]))
         throw new TypeError('Witness has invalid signature');
-      if (!ecc.isPoint(a.witness[1]))
+      if (!ecc.isPoint(a.witness[1]) || a.witness[1].length !== 33)
         throw new TypeError('Witness has invalid pubkey');
 
       if (a.signature && !a.signature.equals(a.witness[0]))

@@ -1,10 +1,11 @@
 import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { Payment, PaymentOpts, StackFunction } from './index';
+import { Payment, PaymentOpts, StackElement, StackFunction } from './index';
 import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
+const ecc = require('tiny-secp256k1');
 
 const bech32 = require('bech32');
 
@@ -16,6 +17,19 @@ function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
   return a.every((x, i) => {
     return x.equals(b[i]);
   });
+}
+
+function chunkHasUncompressedPubkey(chunk: StackElement): boolean {
+  if (
+    Buffer.isBuffer(chunk) &&
+    chunk.length === 65 &&
+    chunk[0] === 0x04 &&
+    ecc.isPoint(chunk)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 // input: <>
@@ -187,15 +201,28 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
         !stacksEqual(a.witness, a.redeem.witness)
       )
         throw new TypeError('Witness and redeem.witness mismatch');
+      if (
+        (a.redeem.input && _rchunks().some(chunkHasUncompressedPubkey)) ||
+        (a.redeem.output &&
+          (bscript.decompile(a.redeem.output) || []).some(
+            chunkHasUncompressedPubkey,
+          ))
+      ) {
+        throw new TypeError(
+          'redeem.input or redeem.output contains uncompressed pubkey',
+        );
+      }
     }
 
-    if (a.witness) {
-      if (
-        a.redeem &&
-        a.redeem.output &&
-        !a.redeem.output.equals(a.witness[a.witness.length - 1])
-      )
+    if (a.witness && a.witness.length > 0) {
+      const wScript = a.witness[a.witness.length - 1];
+      if (a.redeem && a.redeem.output && !a.redeem.output.equals(wScript))
         throw new TypeError('Witness and redeem.output mismatch');
+      if (
+        a.witness.some(chunkHasUncompressedPubkey) ||
+        (bscript.decompile(wScript) || []).some(chunkHasUncompressedPubkey)
+      )
+        throw new TypeError('Witness contains uncompressed pubkey');
     }
   }
 

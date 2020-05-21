@@ -2122,7 +2122,7 @@
       },
       {
         "description": "Transaction w/ P2WSH(P2PK), signing with uncompressed public key",
-        "exception": "BIP143 rejects uncompressed public keys in P2WPKH or P2WSH",
+        "exception": "redeem.input or redeem.output contains uncompressed pubkey",
         "inputs": [
           {
             "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
@@ -2148,7 +2148,7 @@
       },
       {
         "description": "Transaction w/ P2SH(P2WSH(P2PK)), signing with uncompressed public key",
-        "exception": "BIP143 rejects uncompressed public keys in P2WPKH or P2WSH",
+        "exception": "redeem.input or redeem.output contains uncompressed pubkey",
         "inputs": [
           {
             "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
