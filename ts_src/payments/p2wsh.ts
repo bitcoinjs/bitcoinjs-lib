@@ -20,9 +20,13 @@ function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
 }
 
 function chunkHasUncompressedPubkey(chunk: StackElement): boolean {
-  if (Buffer.isBuffer(chunk) && chunk.length === 65) {
-    if (ecc.isPoint(chunk)) return true;
-    else return false;
+  if (
+    Buffer.isBuffer(chunk) &&
+    chunk.length === 65 &&
+    chunk[0] === 0x04 &&
+    ecc.isPoint(chunk)
+  ) {
+    return true;
   } else {
     return false;
   }
@@ -68,9 +72,6 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
   });
   const _rchunks = lazy.value(() => {
     return bscript.decompile(a.redeem!.input!);
-  }) as StackFunction;
-  const _rochunks = lazy.value(() => {
-    return bscript.decompile(a.redeem!.output!);
   }) as StackFunction;
 
   let network = a.network;
@@ -202,7 +203,10 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
         throw new TypeError('Witness and redeem.witness mismatch');
       if (
         (a.redeem.input && _rchunks().some(chunkHasUncompressedPubkey)) ||
-        (a.redeem.output && _rochunks().some(chunkHasUncompressedPubkey))
+        (a.redeem.output &&
+          (bscript.decompile(a.redeem.output) || []).some(
+            chunkHasUncompressedPubkey,
+          ))
       ) {
         throw new TypeError(
           'redeem.input or redeem.output contains uncompressed pubkey',
