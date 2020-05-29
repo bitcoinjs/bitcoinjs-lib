@@ -1,3 +1,7 @@
+# 5.1.9
+__fixed__
+- Fixed errors for psbt.txOutputs getter (#1578)
+
 # 5.1.8
 __fixed__
 - Throw errors when p2wsh or p2wpkh contain uncompressed pubkeys (#1573)

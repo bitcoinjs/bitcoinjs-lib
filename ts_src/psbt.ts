@@ -155,11 +155,17 @@ export class Psbt {
   }
 
   get txOutputs(): TransactionOutput[] {
-    return this.__CACHE.__TX.outs.map(output => ({
-      script: cloneBuffer(output.script),
-      value: output.value,
-      address: fromOutputScript(output.script, this.opts.network),
-    }));
+    return this.__CACHE.__TX.outs.map(output => {
+      let address;
+      try {
+        address = fromOutputScript(output.script, this.opts.network);
+      } catch (_) {}
+      return {
+        script: cloneBuffer(output.script),
+        value: output.value,
+        address,
+      };
+    });
   }
 
   combine(...those: Psbt[]): this {
