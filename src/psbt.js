@@ -117,11 +117,17 @@ class Psbt {
     }));
   }
   get txOutputs() {
-    return this.__CACHE.__TX.outs.map(output => ({
-      script: bufferutils_1.cloneBuffer(output.script),
-      value: output.value,
-      address: address_1.fromOutputScript(output.script, this.opts.network),
-    }));
+    return this.__CACHE.__TX.outs.map(output => {
+      let address;
+      try {
+        address = address_1.fromOutputScript(output.script, this.opts.network);
+      } catch (_) {}
+      return {
+        script: bufferutils_1.cloneBuffer(output.script),
+        value: output.value,
+        address,
+      };
+    });
   }
   combine(...those) {
     this.data.combine(...those.map(o => o.data));
