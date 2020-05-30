@@ -580,31 +580,36 @@ export class Psbt {
     keyPair: Signer | SignerAsync,
     sighashTypes: number[] = [Transaction.SIGHASH_ALL],
   ): Promise<void> {
-    return new Promise(
-      (resolve, reject): void => {
-        if (!keyPair || !keyPair.publicKey)
-          return reject(new Error('Need Signer to sign input'));
-        const { hash, sighashType } = getHashAndSighashType(
-          this.data.inputs,
-          inputIndex,
-          keyPair.publicKey,
-          this.__CACHE,
-          sighashTypes,
-        );
+    if (!keyPair || !keyPair.publicKey)
+      return Promise.reject(new Error('Need Signer to sign input'));
 
-        Promise.resolve(keyPair.sign(hash)).then(signature => {
-          const partialSig = [
-            {
-              pubkey: keyPair.publicKey,
-              signature: bscript.signature.encode(signature, sighashType),
-            },
-          ];
+    let r: Buffer | Promise<Buffer>;
+    let hashAndType: { hash: Buffer; sighashType: number };
+    try {
+      hashAndType = getHashAndSighashType(
+        this.data.inputs,
+        inputIndex,
+        keyPair.publicKey,
+        this.__CACHE,
+        sighashTypes,
+      );
+      r = keyPair.sign(hashAndType.hash);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+    return Promise.resolve(r).then(signature => {
+      const partialSig = [
+        {
+          pubkey: keyPair.publicKey,
+          signature: bscript.signature.encode(
+            signature,
+            hashAndType.sighashType,
+          ),
+        },
+      ];
 
-          this.data.updateInput(inputIndex, { partialSig });
-          resolve();
-        });
-      },
-    );
+      this.data.updateInput(inputIndex, { partialSig });
+    });
   }
 
   toBuffer(): Buffer {
