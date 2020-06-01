@@ -488,9 +488,9 @@ class Psbt {
     keyPair,
     sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
   ) {
-    return new Promise((resolve, reject) => {
+    return Promise.resolve().then(() => {
       if (!keyPair || !keyPair.publicKey)
-        return reject(new Error('Need Signer to sign input'));
+        throw new Error('Need Signer to sign input');
       const { hash, sighashType } = getHashAndSighashType(
         this.data.inputs,
         inputIndex,
@@ -498,7 +498,7 @@ class Psbt {
         this.__CACHE,
         sighashTypes,
       );
-      Promise.resolve(keyPair.sign(hash)).then(signature => {
+      return Promise.resolve(keyPair.sign(hash)).then(signature => {
         const partialSig = [
           {
             pubkey: keyPair.publicKey,
@@ -506,7 +506,6 @@ class Psbt {
           },
         ];
         this.data.updateInput(inputIndex, { partialSig });
-        resolve();
       });
     });
   }
