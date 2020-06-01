@@ -1,3 +1,7 @@
+# 5.1.10
+__fixed__
+- Fixed psbt.signInputAsync (and consequentially all Async signing methods) not handling rejection of keypair.sign properly (#1582)
+
 # 5.1.9
 __fixed__
 - Fixed errors for psbt.txOutputs getter (#1578)
