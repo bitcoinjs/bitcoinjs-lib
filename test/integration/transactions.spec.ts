@@ -649,7 +649,7 @@ function createPayment(_type: string, myKeys?: any[], network?: any): any {
     if (type.slice(0, 4) === 'p2ms') {
       payment = bitcoin.payments.p2ms({
         m,
-        pubkeys: keys.map(key => key.publicKey).sort(),
+        pubkeys: keys.map(key => key.publicKey).sort((a, b) => a.compare(b)),
         network,
       });
     } else if (['p2sh', 'p2wsh'].indexOf(type) > -1) {

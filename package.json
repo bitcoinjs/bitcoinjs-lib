@@ -1,6 +1,6 @@
 {
   "name": "groestlcoinjs-lib",
-  "version": "5.1.8",
+  "version": "5.1.10",
   "description": "Client-side Groestlcoin JavaScript library",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
