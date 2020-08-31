@@ -71,6 +71,32 @@
         "hex": "0100000000002000",
         "dec": 9007199254740993
       }
+    ],
+    "writeUInt64LE": [
+      {
+        "description": "n === 2^53",
+        "exception": "RangeError: value out of range",
+        "hex": "0000000000002000",
+        "dec": 9007199254740992
+      },
+      {
+        "description": "n > 2^53",
+        "exception": "RangeError: value out of range",
+        "hex": "0100000000002000",
+        "dec": 9007199254740993
+      },
+      {
+        "description": "n < 0",
+        "exception": "specified a negative value for writing an unsigned value",
+        "hex": "",
+        "dec": -1
+      },
+      {
+        "description": "0 < n < 1",
+        "exception": "value has a fractional component",
+        "hex": "",
+        "dec": 0.1
+      }
     ]
   }
 }
