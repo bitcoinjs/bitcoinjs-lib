@@ -68,7 +68,7 @@ describe('types', () => {
       assert.strictEqual(types.UInt31(-UINT31_MAX), false);
     });
 
-    it('return false for values > UINT31_MAX', () => {
+    it(`return false for value > ${UINT31_MAX}`, () => {
       assert.strictEqual(types.UInt31(UINT31_MAX + 1), false);
     });
   });
