@@ -142,6 +142,16 @@
       }
     },
     {
+      "exception": "Signature mismatch",
+      "arguments": {
+        "signature": "300602010002010002",
+        "witness": [
+          "300602010002010001",
+          "030000000000000000000000000000000000000000000000000000000000000001"
+        ]
+      }
+    },
+    {
       "exception": "Invalid prefix or Network mismatch",
       "arguments": {
         "address": "foo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs30dvv"
