@@ -1,3 +1,4 @@
+import * as classify from '../classify';
 import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
@@ -132,7 +133,11 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
   });
   lazy.prop(o, 'name', () => {
     const nameParts = ['p2wsh'];
-    if (o.redeem !== undefined) nameParts.push(o.redeem.name!);
+    if (o.redeem !== undefined)
+      if (o.redeem.name !== undefined) nameParts.push(o.redeem.name);
+      else if (o.redeem.output !== undefined) {
+        nameParts.push(classify.output(o.redeem.output));
+      }
     return nameParts.join('-');
   });
 

@@ -81,6 +81,7 @@ export function equate(a: any, b: any, args?: any): void {
   if (b.signature === null) b.signature = undefined;
   if (b.signatures === null) b.signatures = undefined;
   if ('address' in b) t.strictEqual(a.address, b.address, 'Inequal *.address');
+  if ('name' in b) t.strictEqual(a.name, b.name, 'Inequal *.name');
   if ('hash' in b)
     t.strictEqual(tryHex(a.hash), tryHex(b.hash), 'Inequal *.hash');
   if ('pubkey' in b)

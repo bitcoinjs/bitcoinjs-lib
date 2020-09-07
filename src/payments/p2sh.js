@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+const classify = require('../classify');
 const bcrypto = require('../crypto');
 const networks_1 = require('../networks');
 const bscript = require('../script');
@@ -95,7 +96,11 @@ function p2sh(a, opts) {
   });
   lazy.prop(o, 'name', () => {
     const nameParts = ['p2sh'];
-    if (o.redeem !== undefined) nameParts.push(o.redeem.name);
+    if (o.redeem !== undefined)
+      if (o.redeem.name !== undefined) nameParts.push(o.redeem.name);
+      else if (o.redeem.output !== undefined) {
+        nameParts.push(classify.output(o.redeem.output));
+      }
     return nameParts.join('-');
   });
   if (opts.validate) {

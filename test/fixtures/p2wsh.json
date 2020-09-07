@@ -44,7 +44,7 @@
       }
     },
     {
-      "description": "p2wsh-p2pkh, out (from redeem)",
+      "description": "p2wsh-pubkeyhash, out (from redeem)",
       "arguments": {
         "redeem": {
           "address": "this is P2PKH context, unknown and ignored by p2wsh",
@@ -52,7 +52,7 @@
         }
       },
       "expected": {
-        "name": "p2wsh-p2pkh",
+        "name": "p2wsh-pubkeyhash",
         "address": "bc1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss2cq5ar",
         "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
@@ -61,7 +61,7 @@
       }
     },
     {
-      "description": "p2wsh-p2wpkh, out (from redeem)",
+      "description": "p2wsh-witnesspubkeyhash, out (from redeem)",
       "arguments": {
         "redeem": {
           "hash": "this is P2WPKH context, unknown and ignored by p2wsh",
@@ -69,7 +69,7 @@
         }
       },
       "expected": {
-        "name": "p2wsh-p2wpkh",
+        "name": "p2wsh-witnesspubkeyhash",
         "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
         "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
@@ -78,7 +78,7 @@
       }
     },
     {
-      "description": "p2wsh-p2pk, out (from redeem)",
+      "description": "p2wsh-pubkey, out (from redeem)",
       "arguments": {
         "redeem": {
           "output": "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058 OP_CHECKSIG",
@@ -86,7 +86,7 @@
         }
       },
       "expected": {
-        "name": "p2wsh-p2pk",
+        "name": "p2wsh-pubkey",
         "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
         "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
@@ -95,7 +95,7 @@
       }
     },
     {
-      "description": "p2wsh-p2pkh, in and out (from redeem, transformed to witness)",
+      "description": "p2wsh-pubkeyhash, in and out (from redeem, transformed to witness)",
       "arguments": {
         "redeem": {
           "output": "OP_DUP OP_HASH160 c30afa58ae0673b00a45b5c17dff4633780f1400 OP_EQUALVERIFY OP_CHECKSIG",
@@ -103,7 +103,7 @@
         }
       },
       "expected": {
-        "name": "p2wsh-p2pkh",
+        "name": "p2wsh-pubkeyhash",
         "address": "bc1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss2cq5ar",
         "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
@@ -119,7 +119,7 @@
       }
     },
     {
-      "description": "p2wsh-p2wpkh, in and out (from redeem w/ witness)",
+      "description": "p2wsh-witnesspubkeyhash, in and out (from redeem w/ witness)",
       "arguments": {
         "redeem": {
           "output": "OP_0 c30afa58ae0673b00a45b5c17dff4633780f1400",
@@ -131,7 +131,7 @@
         }
       },
       "expected": {
-        "name": "p2wsh-p2wpkh",
+        "name": "p2wsh-witnesspubkeyhash",
         "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
         "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
@@ -144,7 +144,7 @@
       }
     },
     {
-      "description": "p2wsh-p2pk, in and out (from witness)",
+      "description": "p2wsh-pubkey, in and out (from witness)",
       "arguments": {
         "witness": [
           "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
@@ -152,7 +152,7 @@
         ]
       },
       "expected": {
-        "name": "p2wsh-p2pk",
+        "name": "p2wsh-pubkey",
         "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
         "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
@@ -167,7 +167,7 @@
       }
     },
     {
-      "description": "p2wsh-p2wpkh, in and out (from witness)",
+      "description": "p2wsh-witnesspubkeyhash, in and out (from witness)",
       "arguments": {
         "witness": [
           "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501",
@@ -176,7 +176,7 @@
         ]
       },
       "expected": {
-        "name": "p2wsh-p2wpkh",
+        "name": "p2wsh-witnesspubkeyhash",
         "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
         "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
@@ -191,7 +191,7 @@
       }
     },
     {
-      "description": "p2wsh-p2pkh, out (network derived from redeem)",
+      "description": "p2wsh-pubkeyhash, out (network derived from redeem)",
       "arguments": {
         "redeem": {
           "address": "this is P2PKH context, unknown and ignored by p2wsh",
@@ -200,7 +200,7 @@
         }
       },
       "expected": {
-        "name": "p2wsh-p2pkh",
+        "name": "p2wsh-pubkeyhash",
         "address": "tb1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ssaskm8v",
         "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
@@ -399,7 +399,7 @@
     },
     "details": [
       {
-        "description": "p2wsh-p2pkh",
+        "description": "p2wsh-pubkeyhash",
         "disabled": [
           "redeem.input"
         ],
@@ -419,7 +419,7 @@
         ]
       },
       {
-        "description": "p2wsh-p2wpkh",
+        "description": "p2wsh-witnesspubkeyhash",
         "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
         "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
