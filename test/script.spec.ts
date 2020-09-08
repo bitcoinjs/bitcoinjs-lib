@@ -41,6 +41,21 @@ describe('script', () => {
     });
   });
 
+  describe('toASM', () => {
+    const OP_RETURN = bscript.OPS.OP_RETURN;
+    it('encodes empty buffer as OP_0', () => {
+      const chunks = [OP_RETURN, Buffer.from([])];
+      assert.strictEqual(bscript.toASM(chunks), 'OP_RETURN OP_0');
+    });
+
+    for (let i = 1; i <= 16; i++) {
+      it(`encodes one byte buffer [${i}] as OP_${i}`, () => {
+        const chunks = [OP_RETURN, Buffer.from([i])];
+        assert.strictEqual(bscript.toASM(chunks), 'OP_RETURN OP_' + i);
+      });
+    }
+  });
+
   describe('fromASM/toASM (templates)', () => {
     fixtures2.valid.forEach(f => {
       if (f.inputHex) {

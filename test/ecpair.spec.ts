@@ -146,6 +146,13 @@ describe('ECPair', () => {
         assert.strictEqual(result, f.WIF);
       });
     });
+    it('throws if no private key is found', () => {
+      assert.throws(() => {
+        const keyPair = ECPair.makeRandom();
+        delete (keyPair as any).__D;
+        keyPair.toWIF();
+      }, /Missing private key/);
+    });
   });
 
   describe('makeRandom', () => {
