@@ -1,10 +1,12 @@
 import * as assert from 'assert';
+import * as crypto from 'crypto';
 import { describe, it } from 'mocha';
 
 import {
   bip32,
   ECPair,
   networks as NETWORKS,
+  payments,
   Psbt,
   Signer,
   SignerAsync,
@@ -597,6 +599,296 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('getInputType', () => {
+    const key = ECPair.makeRandom();
+    const { publicKey } = key;
+    const p2wpkhPub = (pubkey: Buffer): Buffer =>
+      payments.p2wpkh({
+        pubkey,
+      }).output!;
+    const p2pkhPub = (pubkey: Buffer): Buffer =>
+      payments.p2pkh({
+        pubkey,
+      }).output!;
+    const p2shOut = (output: Buffer): Buffer =>
+      payments.p2sh({
+        redeem: { output },
+      }).output!;
+    const p2wshOut = (output: Buffer): Buffer =>
+      payments.p2wsh({
+        redeem: { output },
+      }).output!;
+    const p2shp2wshOut = (output: Buffer): Buffer => p2shOut(p2wshOut(output));
+    const noOuter = (output: Buffer): Buffer => output;
+
+    function getInputTypeTest({
+      innerScript,
+      outerScript,
+      redeemGetter,
+      witnessGetter,
+      expectedType,
+      finalize,
+    }: any): void {
+      const psbt = new Psbt();
+      psbt
+        .addInput({
+          hash:
+            '0000000000000000000000000000000000000000000000000000000000000000',
+          index: 0,
+          witnessUtxo: {
+            script: outerScript(innerScript(publicKey)),
+            value: 2e3,
+          },
+          ...(redeemGetter ? { redeemScript: redeemGetter(publicKey) } : {}),
+          ...(witnessGetter ? { witnessScript: witnessGetter(publicKey) } : {}),
+        })
+        .addOutput({
+          script: Buffer.from('0014d85c2b71d0060b09c9886aeb815e50991dda124d'),
+          value: 1800,
+        });
+      if (finalize) psbt.signInput(0, key).finalizeInput(0);
+      const type = psbt.getInputType(0);
+      assert.strictEqual(type, expectedType, 'incorrect input type');
+    }
+    [
+      {
+        innerScript: p2pkhPub,
+        outerScript: noOuter,
+        redeemGetter: null,
+        witnessGetter: null,
+        expectedType: 'pubkeyhash',
+      },
+      {
+        innerScript: p2wpkhPub,
+        outerScript: noOuter,
+        redeemGetter: null,
+        witnessGetter: null,
+        expectedType: 'witnesspubkeyhash',
+      },
+      {
+        innerScript: p2pkhPub,
+        outerScript: p2shOut,
+        redeemGetter: p2pkhPub,
+        witnessGetter: null,
+        expectedType: 'p2sh-pubkeyhash',
+      },
+      {
+        innerScript: p2wpkhPub,
+        outerScript: p2shOut,
+        redeemGetter: p2wpkhPub,
+        witnessGetter: null,
+        expectedType: 'p2sh-witnesspubkeyhash',
+        finalize: true,
+      },
+      {
+        innerScript: p2pkhPub,
+        outerScript: p2wshOut,
+        redeemGetter: null,
+        witnessGetter: p2pkhPub,
+        expectedType: 'p2wsh-pubkeyhash',
+        finalize: true,
+      },
+      {
+        innerScript: p2pkhPub,
+        outerScript: p2shp2wshOut,
+        redeemGetter: (pk: Buffer): Buffer => p2wshOut(p2pkhPub(pk)),
+        witnessGetter: p2pkhPub,
+        expectedType: 'p2sh-p2wsh-pubkeyhash',
+      },
+    ].forEach(getInputTypeTest);
+  });
+
+  describe('inputHasHDKey', () => {
+    it('should return true if HD key is present', () => {
+      const root = bip32.fromSeed(crypto.randomBytes(32));
+      const root2 = bip32.fromSeed(crypto.randomBytes(32));
+      const path = "m/0'/0";
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash:
+          '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0,
+        bip32Derivation: [
+          {
+            masterFingerprint: root.fingerprint,
+            path,
+            pubkey: root.derivePath(path).publicKey,
+          },
+        ],
+      });
+      assert.strictEqual(psbt.inputHasHDKey(0, root), true);
+      assert.strictEqual(psbt.inputHasHDKey(0, root2), false);
+    });
+  });
+
+  describe('inputHasPubkey', () => {
+    it('should throw', () => {
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash:
+          '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0,
+      });
+
+      assert.throws(() => {
+        psbt.inputHasPubkey(0, Buffer.from([]));
+      }, new RegExp("Can't find pubkey in input without Utxo data"));
+
+      psbt.updateInput(0, {
+        witnessUtxo: {
+          value: 1337,
+          script: payments.p2sh({
+            redeem: { output: Buffer.from([0x51]) },
+          }).output!,
+        },
+      });
+
+      assert.throws(() => {
+        psbt.inputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('scriptPubkey is P2SH but redeemScript missing'));
+
+      delete psbt.data.inputs[0].witnessUtxo;
+
+      psbt.updateInput(0, {
+        witnessUtxo: {
+          value: 1337,
+          script: payments.p2wsh({
+            redeem: { output: Buffer.from([0x51]) },
+          }).output!,
+        },
+      });
+
+      assert.throws(() => {
+        psbt.inputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('scriptPubkey or redeemScript is P2WSH but witnessScript missing'));
+
+      delete psbt.data.inputs[0].witnessUtxo;
+
+      psbt.updateInput(0, {
+        witnessUtxo: {
+          value: 1337,
+          script: payments.p2sh({
+            redeem: payments.p2wsh({
+              redeem: { output: Buffer.from([0x51]) },
+            }),
+          }).output!,
+        },
+        redeemScript: payments.p2wsh({
+          redeem: { output: Buffer.from([0x51]) },
+        }).output!,
+      });
+
+      assert.throws(() => {
+        psbt.inputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('scriptPubkey or redeemScript is P2WSH but witnessScript missing'));
+
+      psbt.updateInput(0, {
+        witnessScript: Buffer.from([0x51]),
+      });
+
+      assert.doesNotThrow(() => {
+        psbt.inputHasPubkey(0, Buffer.from([0x51]));
+      });
+    });
+  });
+
+  describe('outputHasHDKey', () => {
+    it('should return true if HD key is present', () => {
+      const root = bip32.fromSeed(crypto.randomBytes(32));
+      const root2 = bip32.fromSeed(crypto.randomBytes(32));
+      const path = "m/0'/0";
+      const psbt = new Psbt();
+      psbt
+        .addInput({
+          hash:
+            '0000000000000000000000000000000000000000000000000000000000000000',
+          index: 0,
+        })
+        .addOutput({
+          script: Buffer.from(
+            '0014000102030405060708090a0b0c0d0e0f00010203',
+            'hex',
+          ),
+          value: 2000,
+          bip32Derivation: [
+            {
+              masterFingerprint: root.fingerprint,
+              path,
+              pubkey: root.derivePath(path).publicKey,
+            },
+          ],
+        });
+      assert.strictEqual(psbt.outputHasHDKey(0, root), true);
+      assert.strictEqual(psbt.outputHasHDKey(0, root2), false);
+    });
+  });
+
+  describe('outputHasPubkey', () => {
+    it('should throw', () => {
+      const psbt = new Psbt();
+      psbt
+        .addInput({
+          hash:
+            '0000000000000000000000000000000000000000000000000000000000000000',
+          index: 0,
+        })
+        .addOutput({
+          script: payments.p2sh({
+            redeem: { output: Buffer.from([0x51]) },
+          }).output!,
+          value: 1337,
+        });
+
+      assert.throws(() => {
+        psbt.outputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('scriptPubkey is P2SH but redeemScript missing'));
+
+      (psbt as any).__CACHE.__TX.outs[0].script = payments.p2wsh({
+        redeem: { output: Buffer.from([0x51]) },
+      }).output!;
+
+      assert.throws(() => {
+        psbt.outputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('scriptPubkey or redeemScript is P2WSH but witnessScript missing'));
+
+      (psbt as any).__CACHE.__TX.outs[0].script = payments.p2sh({
+        redeem: payments.p2wsh({
+          redeem: { output: Buffer.from([0x51]) },
+        }),
+      }).output!;
+
+      psbt.updateOutput(0, {
+        redeemScript: payments.p2wsh({
+          redeem: { output: Buffer.from([0x51]) },
+        }).output!,
+      });
+
+      assert.throws(() => {
+        psbt.outputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('scriptPubkey or redeemScript is P2WSH but witnessScript missing'));
+
+      delete psbt.data.outputs[0].redeemScript;
+
+      psbt.updateOutput(0, {
+        witnessScript: Buffer.from([0x51]),
+      });
+
+      assert.throws(() => {
+        psbt.outputHasPubkey(0, Buffer.from([]));
+      }, new RegExp('scriptPubkey is P2SH but redeemScript missing'));
+
+      psbt.updateOutput(0, {
+        redeemScript: payments.p2wsh({
+          redeem: { output: Buffer.from([0x51]) },
+        }).output!,
+      });
+
+      assert.doesNotThrow(() => {
+        psbt.outputHasPubkey(0, Buffer.from([0x51]));
+      });
+    });
+  });
+
   describe('clone', () => {
     it('Should clone a psbt exactly with no reference', () => {
       const f = fixtures.clone;
@@ -698,6 +990,8 @@ describe(`Psbt`, () => {
     assert.throws(() => {
       psbt.setVersion(3);
     }, new RegExp('Can not modify transaction, signatures exist.'));
+    assert.strictEqual(psbt.inputHasPubkey(0, alice.publicKey), true);
+    assert.strictEqual(psbt.outputHasPubkey(0, alice.publicKey), false);
     assert.strictEqual(
       psbt.extractTransaction().toHex(),
       '02000000013ebc8203037dda39d482bf41ff3be955996c50d9d4f7cfc3d2097a694a7' +
@@ -760,6 +1054,73 @@ describe(`Psbt`, () => {
       psbt.data.inputs[index].nonWitnessUtxo = Buffer.from([1, 2, 3]);
       (psbt as any).__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index] = undefined;
       assert.ok((psbt as any).data.inputs[index].nonWitnessUtxo.equals(value));
+    });
+  });
+
+  describe('Transaction properties', () => {
+    it('.version is exposed and is settable', () => {
+      const psbt = new Psbt();
+
+      assert.strictEqual(psbt.version, 2);
+      assert.strictEqual(psbt.version, (psbt as any).__CACHE.__TX.version);
+
+      psbt.version = 1;
+      assert.strictEqual(psbt.version, 1);
+      assert.strictEqual(psbt.version, (psbt as any).__CACHE.__TX.version);
+    });
+
+    it('.locktime is exposed and is settable', () => {
+      const psbt = new Psbt();
+
+      assert.strictEqual(psbt.locktime, 0);
+      assert.strictEqual(psbt.locktime, (psbt as any).__CACHE.__TX.locktime);
+
+      psbt.locktime = 123;
+      assert.strictEqual(psbt.locktime, 123);
+      assert.strictEqual(psbt.locktime, (psbt as any).__CACHE.__TX.locktime);
+    });
+
+    it('.txInputs is exposed as a readonly clone', () => {
+      const psbt = new Psbt();
+      const hash = Buffer.alloc(32);
+      const index = 0;
+      psbt.addInput({ hash, index });
+
+      const input = psbt.txInputs[0];
+      const internalInput = (psbt as any).__CACHE.__TX.ins[0];
+
+      assert.ok(input.hash.equals(internalInput.hash));
+      assert.strictEqual(input.index, internalInput.index);
+      assert.strictEqual(input.sequence, internalInput.sequence);
+
+      input.hash[0] = 123;
+      input.index = 123;
+      input.sequence = 123;
+
+      assert.ok(!input.hash.equals(internalInput.hash));
+      assert.notEqual(input.index, internalInput.index);
+      assert.notEqual(input.sequence, internalInput.sequence);
+    });
+
+    it('.txOutputs is exposed as a readonly clone', () => {
+      const psbt = new Psbt();
+      const address = '1LukeQU5jwebXbMLDVydeH4vFSobRV9rkj';
+      const value = 100000;
+      psbt.addOutput({ address, value });
+
+      const output = psbt.txOutputs[0];
+      const internalInput = (psbt as any).__CACHE.__TX.outs[0];
+
+      assert.strictEqual(output.address, address);
+
+      assert.ok(output.script.equals(internalInput.script));
+      assert.strictEqual(output.value, internalInput.value);
+
+      output.script[0] = 123;
+      output.value = 123;
+
+      assert.ok(!output.script.equals(internalInput.script));
+      assert.notEqual(output.value, internalInput.value);
     });
   });
 });

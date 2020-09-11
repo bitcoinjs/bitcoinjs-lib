@@ -314,6 +314,24 @@
         "exception": "Invalid arguments for Psbt\\.addInput\\. Requires single object with at least \\[hash\\] and \\[index\\]"
       },
       {
+        "description": "checks for invalid p2wsh witnessScript",
+        "inputData": {
+          "hash": "Buffer.from('000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f', 'hex')",
+          "index": 0,
+          "witnessScript": "Buffer.from('0014000102030405060708090a0b0c0d0e0f00010203', 'hex')"
+        },
+        "exception": "P2WPKH or P2SH can not be contained within P2WSH"
+      },
+      {
+        "description": "checks for invalid p2wsh witnessScript",
+        "inputData": {
+          "hash": "Buffer.from('000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f', 'hex')",
+          "index": 0,
+          "witnessScript": "Buffer.from('a914000102030405060708090a0b0c0d0e0f0001020387', 'hex')"
+        },
+        "exception": "P2WPKH or P2SH can not be contained within P2WSH"
+      },
+      {
         "description": "should be equal",
         "inputData": {
           "hash": "Buffer.from('000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f', 'hex')",

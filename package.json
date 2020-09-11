@@ -1,6 +1,6 @@
 {
   "name": "bitcoinjs-lib",
-  "version": "5.1.10",
+  "version": "5.2.0",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
@@ -50,7 +50,7 @@
   ],
   "dependencies": {
     "bech32": "^1.1.2",
-    "bip174": "^1.0.1",
+    "bip174": "^2.0.1",
     "bip32": "^2.0.4",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
