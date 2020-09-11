@@ -324,6 +324,26 @@
       }
     },
     {
+      "exception": "Input and witness provided",
+      "arguments": {
+        "redeem": {
+          "input": "OP_0",
+          "witness": [
+            "030000000000000000000000000000000000000000000000000000000000000001"
+          ]
+        }
+      }
+    },
+    {
+      "exception": "Non push-only scriptSig",
+      "arguments": {
+        "redeem": {
+          "input": "OP_RETURN",
+          "output": "OP_1"
+        }
+      }
+    },
+    {
       "exception": "Redeem.output too short",
       "arguments": {
         "inputHex": "021000"

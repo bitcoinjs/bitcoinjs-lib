@@ -2,7 +2,15 @@ import * as assert from 'assert';
 import * as crypto from 'crypto';
 import { describe, it } from 'mocha';
 
-import { bip32, ECPair, networks as NETWORKS, payments, Psbt } from '..';
+import {
+  bip32,
+  ECPair,
+  networks as NETWORKS,
+  payments,
+  Psbt,
+  Signer,
+  SignerAsync,
+} from '..';
 
 import * as preFixtures from './fixtures/psbt.json';
 
@@ -23,6 +31,40 @@ const fixtures = initBuffers(preFixtures);
 const upperCaseFirstLetter = (str: string): string =>
   str.replace(/^./, s => s.toUpperCase());
 
+const toAsyncSigner = (signer: Signer): SignerAsync => {
+  const ret: SignerAsync = {
+    publicKey: signer.publicKey,
+    sign: (hash: Buffer, lowerR: boolean | undefined): Promise<Buffer> => {
+      return new Promise(
+        (resolve, rejects): void => {
+          setTimeout(() => {
+            try {
+              const r = signer.sign(hash, lowerR);
+              resolve(r);
+            } catch (e) {
+              rejects(e);
+            }
+          }, 10);
+        },
+      );
+    },
+  };
+  return ret;
+};
+const failedAsyncSigner = (publicKey: Buffer): SignerAsync => {
+  return {
+    publicKey,
+    sign: (__: Buffer): Promise<Buffer> => {
+      return new Promise(
+        (_, reject): void => {
+          setTimeout(() => {
+            reject(new Error('sign failed'));
+          }, 10);
+        },
+      );
+    },
+  };
+};
 // const b = (hex: string) => Buffer.from(hex, 'hex');
 
 describe(`Psbt`, () => {
@@ -165,25 +207,39 @@ describe(`Psbt`, () => {
       it(f.description, async () => {
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt);
-          assert.doesNotReject(async () => {
+          await assert.doesNotReject(async () => {
             await psbtThatShouldsign.signInputAsync(
               f.shouldSign.inputToCheck,
               ECPair.fromWIF(f.shouldSign.WIF),
               f.shouldSign.sighashTypes || undefined,
             );
           });
+          await assert.rejects(async () => {
+            await psbtThatShouldsign.signInputAsync(
+              f.shouldSign.inputToCheck,
+              failedAsyncSigner(ECPair.fromWIF(f.shouldSign.WIF).publicKey),
+              f.shouldSign.sighashTypes || undefined,
+            );
+          }, /sign failed/);
         }
 
         if (f.shouldThrow) {
           const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt);
-          assert.rejects(async () => {
+          await assert.rejects(async () => {
             await psbtThatShouldThrow.signInputAsync(
               f.shouldThrow.inputToCheck,
               ECPair.fromWIF(f.shouldThrow.WIF),
               (f.shouldThrow as any).sighashTypes || undefined,
             );
           }, new RegExp(f.shouldThrow.errorMessage));
-          assert.rejects(async () => {
+          await assert.rejects(async () => {
+            await psbtThatShouldThrow.signInputAsync(
+              f.shouldThrow.inputToCheck,
+              toAsyncSigner(ECPair.fromWIF(f.shouldThrow.WIF)),
+              (f.shouldThrow as any).sighashTypes || undefined,
+            );
+          }, new RegExp(f.shouldThrow.errorMessage));
+          await assert.rejects(async () => {
             await (psbtThatShouldThrow.signInputAsync as any)(
               f.shouldThrow.inputToCheck,
             );
@@ -230,7 +286,7 @@ describe(`Psbt`, () => {
       it(f.description, async () => {
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt);
-          assert.doesNotReject(async () => {
+          await assert.doesNotReject(async () => {
             await psbtThatShouldsign.signAllInputsAsync(
               ECPair.fromWIF(f.shouldSign.WIF),
               f.shouldSign.sighashTypes || undefined,
@@ -240,13 +296,13 @@ describe(`Psbt`, () => {
 
         if (f.shouldThrow) {
           const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt);
-          assert.rejects(async () => {
+          await assert.rejects(async () => {
             await psbtThatShouldThrow.signAllInputsAsync(
               ECPair.fromWIF(f.shouldThrow.WIF),
               (f.shouldThrow as any).sighashTypes || undefined,
             );
           }, new RegExp('No inputs were signed'));
-          assert.rejects(async () => {
+          await assert.rejects(async () => {
             await (psbtThatShouldThrow.signAllInputsAsync as any)();
           }, new RegExp('Need Signer to sign input'));
         }
@@ -289,7 +345,7 @@ describe(`Psbt`, () => {
       it(f.description, async () => {
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt);
-          assert.doesNotReject(async () => {
+          await assert.doesNotReject(async () => {
             await psbtThatShouldsign.signInputHDAsync(
               f.shouldSign.inputToCheck,
               bip32.fromBase58(f.shouldSign.xprv),
@@ -300,14 +356,14 @@ describe(`Psbt`, () => {
 
         if (f.shouldThrow) {
           const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt);
-          assert.rejects(async () => {
+          await assert.rejects(async () => {
             await psbtThatShouldThrow.signInputHDAsync(
               f.shouldThrow.inputToCheck,
               bip32.fromBase58(f.shouldThrow.xprv),
               (f.shouldThrow as any).sighashTypes || undefined,
             );
           }, new RegExp(f.shouldThrow.errorMessage));
-          assert.rejects(async () => {
+          await assert.rejects(async () => {
             await (psbtThatShouldThrow.signInputHDAsync as any)(
               f.shouldThrow.inputToCheck,
             );
@@ -355,7 +411,7 @@ describe(`Psbt`, () => {
       it(f.description, async () => {
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt);
-          assert.doesNotReject(async () => {
+          await assert.doesNotReject(async () => {
             await psbtThatShouldsign.signAllInputsHDAsync(
               bip32.fromBase58(f.shouldSign.xprv),
               (f.shouldSign as any).sighashTypes || undefined,
@@ -365,13 +421,13 @@ describe(`Psbt`, () => {
 
         if (f.shouldThrow) {
           const psbtThatShouldThrow = Psbt.fromBase64(f.shouldThrow.psbt);
-          assert.rejects(async () => {
+          await assert.rejects(async () => {
             await psbtThatShouldThrow.signAllInputsHDAsync(
               bip32.fromBase58(f.shouldThrow.xprv),
               (f.shouldThrow as any).sighashTypes || undefined,
             );
           }, new RegExp('No inputs were signed'));
-          assert.rejects(async () => {
+          await assert.rejects(async () => {
             await (psbtThatShouldThrow.signAllInputsHDAsync as any)();
           }, new RegExp('Need HDSigner to sign input'));
         }

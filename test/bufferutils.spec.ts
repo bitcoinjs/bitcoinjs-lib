@@ -42,7 +42,7 @@ describe('bufferutils', () => {
       });
     });
 
-    fixtures.invalid.readUInt64LE.forEach(f => {
+    fixtures.invalid.writeUInt64LE.forEach(f => {
       it('throws on ' + f.description, () => {
         const buffer = Buffer.alloc(8, 0);
 

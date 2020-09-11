@@ -345,6 +345,30 @@
       }
     },
     {
+      "exception": "redeem.input or redeem.output contains uncompressed pubkey",
+      "arguments": {
+        "redeem": {
+          "output": "049fa211b0fca342589ca381cc96520c3d0e3924832158d9f29891936cac091e80687acdca51868ee1f89a3bb36bb16f186262938e1f94c1e7692924935b9b1457 OP_CHECKSIG"
+        }
+      }
+    },
+    {
+      "exception": "redeem.input or redeem.output contains uncompressed pubkey",
+      "arguments": {
+        "redeem": {
+          "input": "049fa211b0fca342589ca381cc96520c3d0e3924832158d9f29891936cac091e80687acdca51868ee1f89a3bb36bb16f186262938e1f94c1e7692924935b9b1457"
+        }
+      }
+    },
+    {
+      "exception": "Witness contains uncompressed pubkey",
+      "arguments": {
+        "witness": [
+          "049fa211b0fca342589ca381cc96520c3d0e3924832158d9f29891936cac091e80687acdca51868ee1f89a3bb36bb16f186262938e1f94c1e7692924935b9b1457"
+        ]
+      }
+    },
+    {
       "exception": "Invalid prefix or Network mismatch",
       "arguments": {
         "address": "foo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs30dvv"

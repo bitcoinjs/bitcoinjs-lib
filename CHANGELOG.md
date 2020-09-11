@@ -1,3 +1,21 @@
+# 5.1.10
+__fixed__
+- Fixed psbt.signInputAsync (and consequentially all Async signing methods) not handling rejection of keypair.sign properly (#1582)
+
+# 5.1.9
+__fixed__
+- Fixed errors for psbt.txOutputs getter (#1578)
+
+# 5.1.8
+__fixed__
+- Throw errors when p2wsh or p2wpkh contain uncompressed pubkeys (#1573)
+
+__added__
+- Add txInputs and txOutputs for Psbt (#1561)
+
+__changed__
+- (Not exposed) Added BufferWriter to help ease maintenance of certain forks of this library (#1533)
+
 # 5.1.7
 __fixed__
 - Fixed Transaction class Output interface typing for TypeScript (#1506)

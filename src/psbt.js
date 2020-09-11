@@ -125,11 +125,17 @@ class Psbt {
     }));
   }
   get txOutputs() {
-    return this.__CACHE.__TX.outs.map(output => ({
-      script: bufferutils_1.cloneBuffer(output.script),
-      value: output.value,
-      address: address_1.fromOutputScript(output.script, this.opts.network),
-    }));
+    return this.__CACHE.__TX.outs.map(output => {
+      let address;
+      try {
+        address = address_1.fromOutputScript(output.script, this.opts.network);
+      } catch (_) {}
+      return {
+        script: bufferutils_1.cloneBuffer(output.script),
+        value: output.value,
+        address,
+      };
+    });
   }
   combine(...those) {
     this.data.combine(...those.map(o => o.data));
@@ -529,9 +535,9 @@ class Psbt {
     keyPair,
     sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
   ) {
-    return new Promise((resolve, reject) => {
+    return Promise.resolve().then(() => {
       if (!keyPair || !keyPair.publicKey)
-        return reject(new Error('Need Signer to sign input'));
+        throw new Error('Need Signer to sign input');
       const { hash, sighashType } = getHashAndSighashType(
         this.data.inputs,
         inputIndex,
@@ -539,7 +545,7 @@ class Psbt {
         this.__CACHE,
         sighashTypes,
       );
-      Promise.resolve(keyPair.sign(hash)).then(signature => {
+      return Promise.resolve(keyPair.sign(hash)).then(signature => {
         const partialSig = [
           {
             pubkey: keyPair.publicKey,
@@ -547,7 +553,6 @@ class Psbt {
           },
         ];
         this.data.updateInput(inputIndex, { partialSig });
-        resolve();
       });
     });
   }

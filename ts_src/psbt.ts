@@ -12,6 +12,7 @@ import {
   Transaction as ITransaction,
   TransactionFromBuffer,
   TransactionInput,
+  TransactionOutput,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
 import { fromOutputScript, toOutputScript } from './address';
@@ -170,12 +171,18 @@ export class Psbt {
     }));
   }
 
-  get txOutputs(): PsbtTxOutput[] {
-    return this.__CACHE.__TX.outs.map(output => ({
-      script: cloneBuffer(output.script),
-      value: output.value,
-      address: fromOutputScript(output.script, this.opts.network),
-    }));
+  get txOutputs(): TransactionOutput[] {
+    return this.__CACHE.__TX.outs.map(output => {
+      let address;
+      try {
+        address = fromOutputScript(output.script, this.opts.network);
+      } catch (_) {}
+      return {
+        script: cloneBuffer(output.script),
+        value: output.value,
+        address,
+      };
+    });
   }
 
   combine(...those: Psbt[]): this {
@@ -634,31 +641,28 @@ export class Psbt {
     keyPair: Signer | SignerAsync,
     sighashTypes: number[] = [Transaction.SIGHASH_ALL],
   ): Promise<void> {
-    return new Promise(
-      (resolve, reject): void => {
-        if (!keyPair || !keyPair.publicKey)
-          return reject(new Error('Need Signer to sign input'));
-        const { hash, sighashType } = getHashAndSighashType(
-          this.data.inputs,
-          inputIndex,
-          keyPair.publicKey,
-          this.__CACHE,
-          sighashTypes,
-        );
+    return Promise.resolve().then(() => {
+      if (!keyPair || !keyPair.publicKey)
+        throw new Error('Need Signer to sign input');
+      const { hash, sighashType } = getHashAndSighashType(
+        this.data.inputs,
+        inputIndex,
+        keyPair.publicKey,
+        this.__CACHE,
+        sighashTypes,
+      );
 
-        Promise.resolve(keyPair.sign(hash)).then(signature => {
-          const partialSig = [
-            {
-              pubkey: keyPair.publicKey,
-              signature: bscript.signature.encode(signature, sighashType),
-            },
-          ];
+      return Promise.resolve(keyPair.sign(hash)).then(signature => {
+        const partialSig = [
+          {
+            pubkey: keyPair.publicKey,
+            signature: bscript.signature.encode(signature, sighashType),
+          },
+        ];
 
-          this.data.updateInput(inputIndex, { partialSig });
-          resolve();
-        });
-      },
-    );
+        this.data.updateInput(inputIndex, { partialSig });
+      });
+    });
   }
 
   toBuffer(): Buffer {
