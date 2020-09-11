@@ -32,8 +32,8 @@ export interface PsbtTxInput extends TransactionInput {
   hash: Buffer;
 }
 
-export interface PsbtTxOutput extends Output {
-  address: string;
+export interface PsbtTxOutput extends TransactionOutput {
+  address: string | undefined;
 }
 
 /**
@@ -171,7 +171,7 @@ export class Psbt {
     }));
   }
 
-  get txOutputs(): TransactionOutput[] {
+  get txOutputs(): PsbtTxOutput[] {
     return this.__CACHE.__TX.outs.map(output => {
       let address;
       try {

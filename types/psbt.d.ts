@@ -1,13 +1,13 @@
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput } from 'bip174/src/lib/interfaces';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
-import { Output, Transaction } from './transaction';
+import { Transaction } from './transaction';
 export interface PsbtTxInput extends TransactionInput {
     hash: Buffer;
 }
-export interface PsbtTxOutput extends Output {
-    address: string;
+export interface PsbtTxOutput extends TransactionOutput {
+    address: string | undefined;
 }
 /**
  * Psbt class can parse and generate a PSBT binary based off of the BIP174.
