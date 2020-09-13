@@ -1,3 +1,10 @@
+# 5.2.0
+__changed__
+- Updated PSBT to allow for witnessUtxo and nonWitnessUtxo simultaneously (Re: segwit psbt bug) (#1563)
+
+__added__
+- PSBT methods `getInputType`, `inputHasPubkey`, `inputHasHDKey`, `outputHasPubkey`, `outputHasHDKey` (#1563)
+
 # 5.1.10
 __fixed__
 - Fixed psbt.signInputAsync (and consequentially all Async signing methods) not handling rejection of keypair.sign properly (#1582)

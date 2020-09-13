@@ -189,6 +189,14 @@
       {
         "exception": "has no matching Script",
         "address": "BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "bc1qqqqqqqqqqv9qus"
       }
     ]
   }
