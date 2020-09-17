@@ -59,7 +59,7 @@ describe('BlockGold', () => {
       });
 
       it('exports ' + f.description, () => {
-        var size = block.byteLength(true);
+        const size = block.byteLength(true);
         assert.strictEqual(block.toHex(true), f.hex.slice(0, size * 2));
         assert.strictEqual(block.toHex(), f.hex);
       });

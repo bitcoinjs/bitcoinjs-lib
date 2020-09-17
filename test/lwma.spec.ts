@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { BlockGold, networks, lwma } from '..';
+import { BlockGold, lwma, networks } from '..';
 
 import * as fixtures from './fixtures/lwma.json';
 
@@ -7,10 +7,10 @@ const networkMap: { [name: string]: networks.Network } = {
   bitcoingoldtestnet: networks.bitcoingoldtestnet,
 };
 
-describe('lwma', function() {
-  describe('calcNextBits', function() {
-    fixtures.valid.forEach(function(f) {
-      it('imports ' + f.description, function() {
+describe('lwma', () => {
+  describe('calcNextBits', () => {
+    fixtures.valid.forEach(f => {
+      it('imports ' + f.description, () => {
         const block = BlockGold.fromHex(f.hex);
         const prevBlocks: BlockGold[] = [];
         const network = networkMap[f.network];
@@ -24,8 +24,8 @@ describe('lwma', function() {
       });
     });
 
-    fixtures.invalid.forEach(function(f) {
-      it('imports ' + f.description, function() {
+    fixtures.invalid.forEach(f => {
+      it('imports ' + f.description, () => {
         const block = BlockGold.fromHex(f.hex);
         const prevBlocks: BlockGold[] = [];
         const network = networkMap[f.network];

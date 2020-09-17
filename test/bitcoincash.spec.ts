@@ -1,18 +1,17 @@
-import { describe, it } from 'mocha';
 import * as assert from 'assert';
-// import * as bscript from '../src/script';
-import '../src/payments/p2pk';
-import * as bscript from '../src/script';
+import { describe, it } from 'mocha';
 import {
   ECPair,
   networks as NETWORKS,
   Transaction,
   TransactionBuilder,
 } from '..';
+import '../src/payments/p2pk';
+import * as bscript from '../src/script';
 
-describe('TransactionBuilder', function() {
-  const network = NETWORKS['testnet'];
-  it('cashtestcase3', function() {
+describe('TransactionBuilder', () => {
+  const network = NETWORKS.testnet;
+  it('cashtestcase3', () => {
     const value = 50 * 1e8;
     const txid =
       '40c8a218923f23df3692530fa8e475251c50c7d630dccbdfbd92ba8092f4aa13';
