@@ -12,6 +12,7 @@ export interface Network {
     equihash?: eq.Network;
     equihashLegacy?: eq.Network;
     lwma?: LwmaConfig;
+    forkId?: number;
 }
 interface Bip32 {
     public: number;

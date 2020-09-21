@@ -4,6 +4,7 @@ import { describe, it } from 'mocha';
 import {
   ECPair,
   networks as NETWORKS,
+  Psbt,
   Transaction,
   TransactionBuilder,
 } from '..';
@@ -11,9 +12,9 @@ import * as bcrypto from '../src/crypto';
 import * as bscript from '../src/script';
 
 const OPS = bscript.OPS;
+const network = NETWORKS.bitcoingold;
 
 describe('TransactionBuilder', () => {
-  const network = NETWORKS.bitcoingold;
   it('goldtestcase', () => {
     const value = 50 * 1e8;
     const txid =
@@ -97,5 +98,43 @@ describe('TransactionBuilder', () => {
 
     const hex = txb.build().toHex();
     assert.strictEqual(txHex, hex);
+  });
+});
+
+describe('PsbtBitcoinGold', () => {
+  it('goldtestcase', () => {
+    const txHex =
+      '02000000019a6f4afcc1adcb2c363ae9e70a3233081cc6e53535b1218ca98bfdc10d2c0d6d00000000484730440220688494e278cfd7d9a69ed16315a6acadee3843153d3e503028002f17c270bfc5022004cfa9289239527b4277f9908f1b9d09713963f14300020c980d883ca19e011f41fdffffff0239300000000000001976a914a6f10b0d663f9714cca7ff555f6badd153df6f4088ac626112000000000017a9144d93014ad2f317fbd77dc4c18e81e731e48bf62487d2070000';
+    const txid =
+      '1363a4e5c806350bc80205c8d692e8c9df3820570ea94a1bceb0cada6730ea4a';
+    const vout = 0;
+
+    const wif = 'cRQcrfrCVadS3zGA2SF5DzDKhPD9YccP2upsY46VNxfUTeeua3iQ';
+    const keyPair = ECPair.fromWIF(wif, NETWORKS.bitcoingoldregtest);
+
+    const psbt = new Psbt({ network: NETWORKS.bitcoingoldregtest });
+    psbt.addInput({
+      hash: txid,
+      index: vout,
+      nonWitnessUtxo: Buffer.from(txHex, 'hex'),
+      sighashType: Transaction.SIGHASH_ALL | Transaction.SIGHASH_FORKID,
+    });
+    psbt.addOutput({
+      address: 'msUVLJqc6r3rgCgpZnhia1wdKwrmWiXw66',
+      value: 10000,
+    });
+    psbt.signInput(0, keyPair, [
+      Transaction.SIGHASH_ALL | Transaction.SIGHASH_FORKID,
+    ]);
+    const ok = psbt.validateSignaturesOfAllInputs();
+    assert.ok(ok, 'Must be valid');
+    psbt.finalizeAllInputs();
+    const finalizedTx = psbt.extractTransaction().toHex();
+    console.log('finalized', psbt.toBase64());
+
+    assert.strictEqual(
+      '02000000014aea3067dacab0ce1b4aa90e572038dfc9e892d6c80502c80b3506c8e5a46313000000006a4730440220442bd6638017730120390d15ceb12b0baaea38e3a168c707591ac4f2a44bbaf3022058fbe379aaaf18d3ded08e5aa9c363e044c86281fa67685318eaf89047ffd8b9412103eca050ae8c28884be591c20d7370dfcf846f0f56ce40dfe463204df35bbac15effffffff0110270000000000001976a914832a2be4f27f39c4b04cde1511f2791f6f0534a088ac00000000',
+      finalizedTx,
+    );
   });
 });

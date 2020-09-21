@@ -61,6 +61,7 @@ exports.bitcoingold = {
     powLimit:
       '14134776517815698497336078495404605830980533548759267698564454644503805952',
   },
+  forkId: 0x4f,
 };
 exports.bitcoingoldtestnet = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
@@ -88,6 +89,7 @@ exports.bitcoingoldtestnet = {
     powLimit:
       '14134776517815698497336078495404605830980533548759267698564454644503805952',
   },
+  forkId: 0x4f,
 };
 exports.bitcoingoldregtest = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
@@ -113,4 +115,5 @@ exports.bitcoingoldregtest = {
     powLimit:
       '57896044618658097711785492504343953926634992332820282019728792003956564819967',
   },
+  forkId: 0x4f,
 };

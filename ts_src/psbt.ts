@@ -436,6 +436,8 @@ export class Psbt {
               Object.assign({}, input, { sighashType: sig.hashType }),
               this.__CACHE,
               true,
+              undefined,
+              this.opts.network.forkId,
             )
           : { hash: hashCache!, script: scriptCache! };
       sighashCache = sig.hashType;
@@ -623,6 +625,7 @@ export class Psbt {
       keyPair.publicKey,
       this.__CACHE,
       sighashTypes,
+      this.opts.network.forkId,
     );
 
     const partialSig = [
@@ -650,6 +653,7 @@ export class Psbt {
         keyPair.publicKey,
         this.__CACHE,
         sighashTypes,
+        this.opts.network.forkId,
       );
 
       return Promise.resolve(keyPair.sign(hash)).then(signature => {
@@ -1189,6 +1193,7 @@ function getHashAndSighashType(
   pubkey: Buffer,
   cache: PsbtCache,
   sighashTypes: number[],
+  forkId?: number,
 ): {
   hash: Buffer;
   sighashType: number;
@@ -1200,6 +1205,7 @@ function getHashAndSighashType(
     cache,
     false,
     sighashTypes,
+    forkId,
   );
   checkScriptForPubkey(pubkey, script, 'sign');
   return {
@@ -1214,6 +1220,7 @@ function getHashForSig(
   cache: PsbtCache,
   forValidate: boolean,
   sighashTypes?: number[],
+  forkId?: number,
 ): {
   script: Buffer;
   hash: Buffer;
@@ -1264,12 +1271,16 @@ function getHashForSig(
     input.witnessScript,
   );
 
+  const useForkId = !!(sighashType & Transaction.SIGHASH_FORKID);
+  const sighashTypeWithForkId = useForkId
+    ? sighashType | ((forkId || 0) << 8)
+    : sighashType;
   if (['p2sh-p2wsh', 'p2wsh'].indexOf(type) >= 0) {
     hash = unsignedTx.hashForWitnessV0(
       inputIndex,
       meaningfulScript,
       prevout.value,
-      sighashType,
+      sighashTypeWithForkId,
     );
   } else if (isP2WPKH(meaningfulScript)) {
     // P2WPKH uses the P2PKH template for prevoutScript when signing
@@ -1279,7 +1290,7 @@ function getHashForSig(
       inputIndex,
       signingScript,
       prevout.value,
-      sighashType,
+      sighashTypeWithForkId,
     );
   } else {
     // non-segwit
@@ -1301,11 +1312,20 @@ function getHashForSig(
           'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
           '*********************',
       );
-    hash = unsignedTx.hashForSignature(
-      inputIndex,
-      meaningfulScript,
-      sighashType,
-    );
+    if (useForkId) {
+      hash = unsignedTx.hashForWitnessV0(
+        inputIndex,
+        meaningfulScript,
+        prevout.value,
+        sighashTypeWithForkId,
+      );
+    } else {
+      hash = unsignedTx.hashForSignature(
+        inputIndex,
+        meaningfulScript,
+        sighashType,
+      );
+    }
   }
 
   return {
@@ -1490,23 +1510,26 @@ function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
 }
 
 function sighashTypeToString(sighashType: number): string {
-  let text =
-    sighashType & Transaction.SIGHASH_ANYONECANPAY
-      ? 'SIGHASH_ANYONECANPAY | '
-      : '';
+  const components = [];
+  if (sighashType & Transaction.SIGHASH_ANYONECANPAY) {
+    components.push('SIGHASH_ANYONECANPAY');
+  }
   const sigMod = sighashType & 0x1f;
   switch (sigMod) {
     case Transaction.SIGHASH_ALL:
-      text += 'SIGHASH_ALL';
+      components.push('SIGHASH_ALL');
       break;
     case Transaction.SIGHASH_SINGLE:
-      text += 'SIGHASH_SINGLE';
+      components.push('SIGHASH_SINGLE');
       break;
     case Transaction.SIGHASH_NONE:
-      text += 'SIGHASH_NONE';
+      components.push('SIGHASH_NONE');
       break;
   }
-  return text;
+  if (sighashType & Transaction.SIGHASH_FORKID) {
+    components.push('SIGHASH_FORKID');
+  }
+  return components.join(' | ');
 }
 
 function witnessStackToScriptWitness(witness: Buffer[]): Buffer {

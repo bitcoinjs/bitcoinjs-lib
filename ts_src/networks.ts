@@ -16,6 +16,7 @@ export interface Network {
   equihash?: eq.Network;
   equihashLegacy?: eq.Network;
   lwma?: LwmaConfig;
+  forkId?: number;
 }
 
 interface Bip32 {
@@ -82,6 +83,7 @@ export const bitcoingold: Network = {
     powLimit:
       '14134776517815698497336078495404605830980533548759267698564454644503805952',
   },
+  forkId: 0x4f,
 };
 export const bitcoingoldtestnet: Network = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
@@ -109,6 +111,7 @@ export const bitcoingoldtestnet: Network = {
     powLimit:
       '14134776517815698497336078495404605830980533548759267698564454644503805952',
   },
+  forkId: 0x4f,
 };
 export const bitcoingoldregtest: Network = {
   messagePrefix: '\x1DBitcoin Gold Signed Message:\n',
@@ -134,4 +137,5 @@ export const bitcoingoldregtest: Network = {
     powLimit:
       '57896044618658097711785492504343953926634992332820282019728792003956564819967',
   },
+  forkId: 0x4f,
 };
