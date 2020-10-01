@@ -118,7 +118,8 @@ function p2wsh(a, opts) {
   });
   lazy.prop(o, 'name', () => {
     const nameParts = ['p2wsh'];
-    if (o.redeem !== undefined) nameParts.push(o.redeem.name);
+    if (o.redeem !== undefined && o.redeem.name !== undefined)
+      nameParts.push(o.redeem.name);
     return nameParts.join('-');
   });
   // extended validation
