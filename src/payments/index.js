@@ -2,6 +2,8 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const embed_1 = require('./embed');
 exports.embed = embed_1.p2data;
+const p2cltvms_1 = require('./p2cltvms');
+exports.p2cltvms = p2cltvms_1.p2cltvms;
 const p2ms_1 = require('./p2ms');
 exports.p2ms = p2ms_1.p2ms;
 const p2pk_1 = require('./p2pk');

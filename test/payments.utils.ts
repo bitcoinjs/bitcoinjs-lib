@@ -93,6 +93,8 @@ export function equate(a: any, b: any, args?: any): void {
     );
   if ('m' in b) t.strictEqual(a.m, b.m, 'Inequal *.m');
   if ('n' in b) t.strictEqual(a.n, b.n, 'Inequal *.n');
+  if ('locktime' in b)
+    t.strictEqual(a.locktime, b.locktime, 'Inequal *.locktime');
   if ('pubkeys' in b)
     t.deepStrictEqual(
       tryHex(a.pubkeys),

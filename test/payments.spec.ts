@@ -2,7 +2,16 @@ import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import { PaymentCreator } from '../src/payments';
 import * as u from './payments.utils';
-['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(p => {
+[
+  'embed',
+  'p2cltvms',
+  'p2ms',
+  'p2pk',
+  'p2pkh',
+  'p2sh',
+  'p2wpkh',
+  'p2wsh',
+].forEach(p => {
   describe(p, () => {
     let fn: PaymentCreator;
     const payment = require('../src/payments/' + p);
