@@ -65,10 +65,21 @@ class TransactionBuilder {
         'files as well.',
     );
   }
+  setPresentBlockHash(blockHash) {
+    if (typeof blockHash === 'string') {
+      // block hashs's are displayed in reverse order, un-reverse it
+      blockHash = Buffer.from(blockHash, 'hex').reverse()
+    }
+    typeforce(types.Hash256bit, blockHash)
+    this.__tx.persentBlockHash = blockHash
+  }
   static fromTransaction(transaction, network) {
     const txb = new TransactionBuilder(network);
     // Copy transaction fields
     txb.setVersion(transaction.version);
+    if (transaction.version === 12) {
+      txb.setPresentBlockHash(transaction.persentBlockHash)
+    }
     txb.setLockTime(transaction.locktime);
     // Copy outputs (done first to avoid signature invalidation)
     transaction.outs.forEach(txOut => {

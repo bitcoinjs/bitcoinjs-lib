@@ -44,11 +44,15 @@ class Transaction {
     this.locktime = 0;
     this.ins = [];
     this.outs = [];
+    this.persentBlockHash = null;
   }
   static fromBuffer(buffer, _NO_STRICT) {
     const bufferReader = new bufferutils_1.BufferReader(buffer);
     const tx = new Transaction();
     tx.version = bufferReader.readInt32();
+    if (tx.version === 12) {
+      tx.persentBlockHash = readSlice(32)
+    }
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
     let hasWitnesses = false;
@@ -155,8 +159,11 @@ class Transaction {
   }
   byteLength(_ALLOW_WITNESS = true) {
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
+    const hasPreBlockHash = ((this.version === 12) && (this.persentBlockHash != null))
+
     return (
       (hasWitnesses ? 10 : 8) +
+      (hasPreBlockHash ? 32 : 0) +
       varuint.encodingLength(this.ins.length) +
       varuint.encodingLength(this.outs.length) +
       this.ins.reduce((sum, input) => {
@@ -175,6 +182,9 @@ class Transaction {
   clone() {
     const newTx = new Transaction();
     newTx.version = this.version;
+    if (this.version === 12) {
+      newTx.persentBlockHash = this.persentBlockHash
+    }
     newTx.locktime = this.locktime;
     newTx.ins = this.ins.map(txIn => {
       return {
@@ -317,6 +327,9 @@ class Transaction {
     bufferWriter = new bufferutils_1.BufferWriter(tbuffer, 0);
     const input = this.ins[inIndex];
     bufferWriter.writeUInt32(this.version);
+    if (this.version === 12) {
+      bufferWriter.writeSlice(this.persentBlockHash)
+    }
     bufferWriter.writeSlice(hashPrevouts);
     bufferWriter.writeSlice(hashSequence);
     bufferWriter.writeSlice(input.hash);
@@ -359,6 +372,9 @@ class Transaction {
       initialOffset || 0,
     );
     bufferWriter.writeInt32(this.version);
+    if (this.version === 12) {
+      bufferWriter.writeSlice(this.persentBlockHash)
+    }
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
     if (hasWitnesses) {
       bufferWriter.writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER);
