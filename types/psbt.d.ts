@@ -1,10 +1,19 @@
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
+export interface TransactionInput {
+    hash: string | Buffer;
+    index: number;
+    sequence?: number;
+}
 export interface PsbtTxInput extends TransactionInput {
     hash: Buffer;
+}
+export interface TransactionOutput {
+    script: Buffer;
+    value: number;
 }
 export interface PsbtTxOutput extends TransactionOutput {
     address: string | undefined;
