@@ -118,7 +118,8 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
   });
   lazy.prop(o, 'name', () => {
     const nameParts = ['p2sh'];
-    if (o.redeem !== undefined) nameParts.push(o.redeem.name!);
+    if (o.redeem !== undefined && o.redeem.name !== undefined)
+      nameParts.push(o.redeem.name!);
     return nameParts.join('-');
   });
 

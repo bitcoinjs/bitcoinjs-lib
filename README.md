@@ -23,7 +23,7 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 
 
 ## Documentation
-Presently,  we do not have any formal documentation other than our [examples](#examples), please [ask for help](https://github.com/groestlcoin/groeslcoinjs-lib/issues/new) if our examples aren't enough to guide you.
+Presently,  we do not have any formal documentation other than our [examples](#examples), please [ask for help](https://github.com/groestlcoin/groestlcoinjs-lib/issues/new) if our examples aren't enough to guide you.
 
 ## Installation
 ``` bash
