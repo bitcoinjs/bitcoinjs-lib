@@ -77,23 +77,58 @@
       "bech32": "bcrt1qqqqqqqqqqqqqqahrwf6d62emdxmpq8gu3xe9au9fjwc9sxxn4k2qujfh7u",
       "data": "000000000000000076e37274dd2b3b69b6101d1c89b25ef0a993b05818d3ad94",
       "script": "OP_0 000000000000000076e37274dd2b3b69b6101d1c89b25ef0a993b05818d3ad94"
+    },
+    {
+      "network": "bitcoin",
+      "bech32": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kt5nd6y",
+      "version": 1,
+      "data": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6",
+      "script": "OP_1 751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"
+    },
+    {
+      "network": "bitcoin",
+      "bech32": "BC1SW50QGDZ25J",
+      "version": 16,
+      "data": "751e",
+      "script": "OP_16 751e"
+    },
+    {
+      "network": "bitcoin",
+      "bech32": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
+      "version": 2,
+      "data": "751e76e8199196d454941c45d1b3a323",
+      "script": "OP_2 751e76e8199196d454941c45d1b3a323" 
+    },
+    {
+      "network": "testnet",
+      "bech32": "tb1pqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesf3hn0c",
+      "version": 1,
+      "data": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433",
+      "script": "OP_1 000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433" 
+    },
+    {
+      "network": "bitcoin",
+      "bech32": "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0",
+      "version": 1,
+      "data": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+      "script": "OP_1 79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798" 
     }
   ],
   "bech32": [
     {
-      "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx",
+      "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kt5nd6y",
       "version": 1,
       "prefix": "bc",
       "data": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"
     },
     {
-      "address": "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj",
+      "address": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
       "version": 2,
       "prefix": "bc",
       "data": "751e76e8199196d454941c45d1b3a323"
     },
     {
-      "address": "BC1SW50QA3JX3S",
+      "address": "BC1SW50QGDZ25J",
       "version": 16,
       "prefix": "bc",
       "data": "751e"
@@ -110,16 +145,24 @@
         "exception": "Mixed-case string"
       },
       {
-        "address": "tb1pw508d6qejxtdg4y5r3zarqfsj6c3",
+        "address": "tb1pw508d6qejxtdg4y5r3zarquvzkan",
         "exception": "Excess padding"
       },
       {
-        "address": "bc1zw508d6qejxtdg4y5r3zarvaryvqyzf3du",
+        "address": "bc1zw508d6qejxtdg4y5r3zarvaryvq37eag7",
         "exception": "Excess padding"
       },
       {
         "address": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv",
         "exception": "Non-zero padding"
+      },
+      {
+        "address": "bc1zw508d6qejxtdg4y5r3zarvaryvqyzf3du",
+        "exception": "uses wrong encoding"
+      },
+      {
+        "address": "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqh2y7hd",
+        "exception": "uses wrong encoding"
       }
     ],
     "fromBase58Check": [
@@ -161,7 +204,7 @@
       },
       {
         "exception": "has an invalid prefix",
-        "address": "BC1SW50QA3JX3S",
+        "address": "BC1SW50QGDZ25J",
         "network": {
           "bech32": "foo"
         }
@@ -172,23 +215,88 @@
       },
       {
         "exception": "has no matching Script",
-        "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx"
-      },
-      {
-        "exception": "has no matching Script",
-        "address": "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj"
-      },
-      {
-        "exception": "has no matching Script",
-        "address": "BC1SW50QA3JX3S"
-      },
-      {
-        "exception": "has no matching Script",
         "address": "bc10w508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw5rljs90"
       },
       {
         "exception": "has no matching Script",
         "address": "BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5"
+      },
+      {
+        "exception": "has no matching Script",
+        "address": "bc1qqqqqqqqqqv9qus"
+      },
+      {
+        "address": "tc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vq5zuyut",
+        "exception": "has an invalid prefix"
+      },
+      {
+        "address": "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqh2y7hd",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "tb1z0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqglt7rf",
+        "exception": "has no matching Script",
+        "network": {
+          "bech32": "tb"
+        }
+      },
+      {
+        "address": "BC1S0XLXVLHEMJA6C4DQV22UAPCTQUPFHLXM9H8Z3K2E72Q4K9HCZ7VQ54WELL",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kemeawh",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "tb1q0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vq24jc47",
+        "exception": "has no matching Script",
+        "network": {
+          "bech32": "tb"
+        }
+      },
+      {
+        "address": "bc1p38j9r5y49hruaue7wxjce0updqjuyyx0kh56v8s25huc6995vvpql3jow4",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "BC130XLXVLHEMJA6C4DQV22UAPCTQUPFHLXM9H8Z3K2E72Q4K9HCZ7VQ7ZWS8R",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "bc1pw5dgrnzv",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v8n0nx0muaewav253zgeav",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "BC1QR508D6QEJXTDG4Y5R3ZARVARYV98GJ9P",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "tb1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vq47Zagq",
+        "exception": "has no matching Script",
+        "network": {
+          "bech32": "tb"
+        }
+      },
+      {
+        "address": "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v07qwwzcrf",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "tb1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vpggkg4j",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "bc1gmk9yu",
+        "exception": "has no matching Script"
       }
     ]
   }
