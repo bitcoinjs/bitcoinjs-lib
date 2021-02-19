@@ -1,11 +1,31 @@
 const Buffer = require('safe-buffer').Buffer
-const bech32 = require('bech32')
+const { bech32 } = require('bech32')
 const bs58check = require('bs58check')
 const bscript = require('./script')
 const networks = require('./networks')
 const typeforce = require('typeforce')
 const types = require('./types')
 const payments = require('./payments')
+
+const FUTURE_SEGWIT_MAX_SIZE = 40
+const FUTURE_SEGWIT_MIN_SIZE = 2
+const FUTURE_SEGWIT_MAX_VERSION = 16
+const FUTURE_SEGWIT_MIN_VERSION = 1
+const FUTURE_SEGWIT_VERSION_DIFF = 0x50
+function _toFutureSegwitAddress (output, network) {
+  const data = output.slice(2)
+  if (
+    data.length < FUTURE_SEGWIT_MIN_SIZE ||
+    data.length > FUTURE_SEGWIT_MAX_SIZE
+  ) { throw new TypeError('Invalid program length for segwit address') }
+  const version = output[0] - FUTURE_SEGWIT_VERSION_DIFF
+  if (
+    version < FUTURE_SEGWIT_MIN_VERSION ||
+    version > FUTURE_SEGWIT_MAX_VERSION
+  ) { throw new TypeError('Invalid version for segwit address') }
+  if (output[1] !== data.length) { throw new TypeError('Invalid script for segwit address') }
+  return toBech32(data, version, network.bech32)
+}
 
 function fromBase58Check (address) {
   const payload = bs58check.decode(address)

@@ -2,7 +2,7 @@ const lazy = require('./lazy')
 const typef = require('typeforce')
 const OPS = require('bitcoin-ops')
 
-const bech32 = require('bech32')
+const { bech32 } = require('bech32')
 const bcrypto = require('../crypto')
 const bscript = require('../script')
 const BITCOIN_NETWORK = require('../networks').bitcoin

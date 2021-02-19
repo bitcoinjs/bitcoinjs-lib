@@ -4,7 +4,7 @@ const OPS = require('bitcoin-ops')
 const ecc = require('tiny-secp256k1')
 
 const bcrypto = require('../crypto')
-const bech32 = require('bech32')
+const { bech32 } = require('bech32')
 const bscript = require('../script')
 const BITCOIN_NETWORK = require('../networks').bitcoin
 
