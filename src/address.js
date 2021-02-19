@@ -1,5 +1,5 @@
 const Buffer = require('safe-buffer').Buffer
-const { bech32 } = require('bech32')
+const { bech32, bech32m } = require('bech32')
 const bs58check = require('bs58check')
 const bscript = require('./script')
 const networks = require('./networks')
@@ -41,11 +41,23 @@ function fromBase58Check (address) {
 }
 
 function fromBech32 (address) {
-  const result = bech32.decode(address)
+  let result
+  let version
+  try {
+    result = bech32.decode(address)
+  } catch (e) {}
+  if (result) {
+    version = result.words[0]
+    if (version !== 0) throw new TypeError(address + ' uses wrong encoding')
+  } else {
+    result = bech32m.decode(address)
+    version = result.words[0]
+    if (version === 0) throw new TypeError(address + ' uses wrong encoding')
+  }
   const data = bech32.fromWords(result.words.slice(1))
 
   return {
-    version: result.words[0],
+    version,
     prefix: result.prefix,
     data: Buffer.from(data)
   }
@@ -65,7 +77,9 @@ function toBech32 (data, version, prefix) {
   const words = bech32.toWords(data)
   words.unshift(version)
 
-  return bech32.encode(prefix, words)
+  return version === 0
+    ? bech32.encode(prefix, words)
+    : bech32m.encode(prefix, words)
 }
 
 function fromOutputScript (output, network) {
@@ -75,6 +89,7 @@ function fromOutputScript (output, network) {
   try { return payments.p2sh({ output, network }).address } catch (e) {}
   try { return payments.p2wpkh({ output, network }).address } catch (e) {}
   try { return payments.p2wsh({ output, network }).address } catch (e) {}
+  try { return _toFutureSegwitAddress(output, network) } catch (e) {}
 
   throw new Error(bscript.toASM(output) + ' has no matching Address')
 }
@@ -100,6 +115,16 @@ function toOutputScript (address, network) {
       if (decode.version === 0) {
         if (decode.data.length === 20) return payments.p2wpkh({ hash: decode.data }).output
         if (decode.data.length === 32) return payments.p2wsh({ hash: decode.data }).output
+      } else if (
+        decode.version >= FUTURE_SEGWIT_MIN_VERSION &&
+        decode.version <= FUTURE_SEGWIT_MAX_VERSION &&
+        decode.data.length >= FUTURE_SEGWIT_MIN_SIZE &&
+        decode.data.length <= FUTURE_SEGWIT_MAX_SIZE
+      ) {
+        return bscript.compile([
+          decode.version + FUTURE_SEGWIT_VERSION_DIFF,
+          decode.data
+        ])
       }
     }
   }
