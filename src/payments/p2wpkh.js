@@ -7,7 +7,7 @@ const lazy = require('./lazy');
 const typef = require('typeforce');
 const OPS = bscript.OPS;
 const ecc = require('tiny-secp256k1');
-const bech32 = require('bech32');
+const { bech32 } = require('bech32');
 const EMPTY_BUFFER = Buffer.alloc(0);
 // witness: {signature} {pubKey}
 // input: <>

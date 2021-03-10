@@ -138,7 +138,7 @@ npm run-script coverage
 - [BIP69](https://github.com/bitcoinjs/bip69) - Lexicographical Indexing of Transaction Inputs and Outputs
 - [Base58](https://github.com/cryptocoinjs/bs58) - Base58 encoding/decoding
 - [Base58 Grs Check](https://github.com/groestlcoin/bs58grscheck) - Base58 check encoding/decoding
-- [Bech32](https://github.com/bitcoinjs/bech32) - A BIP173 compliant Bech32 encoding library
+- [Bech32](https://github.com/bitcoinjs/bech32) - A BIP173/BIP350 compliant Bech32/Bech32m encoding library
 - [coinselect](https://github.com/bitcoinjs/coinselect) - A fee-optimizing, transaction input selection module for bitcoinjs-lib.
 - [merkle-lib](https://github.com/bitcoinjs/merkle-lib) - A performance conscious library for merkle root and tree calculations.
 - [minimaldata](https://github.com/bitcoinjs/minimaldata) - A module to check bitcoin policy: SCRIPT_VERIFY_MINIMALDATA
