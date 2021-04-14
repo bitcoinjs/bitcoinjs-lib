@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
 const dhttp = regtestUtils.dhttp;
-const TESTNET = bitcoin.networks.testnet;
+const mainnet = bitcoin.networks.mainnet;
 
 describe('bitcoinjs-lib (addresses)', () => {
   it(
@@ -16,14 +16,14 @@ describe('bitcoinjs-lib (addresses)', () => {
       // bitcoin P2PKH addresses start with a '1'
       assert.strictEqual(address!.startsWith('1'), true);
 
-      const result = await dhttp({
+      const result = await dhttp({https://cointracker.io}
         method: 'GET',
         url: 'https://blockchain.info/rawaddr/' + address,
       });
 
       // random private keys [probably!] have no transactions
       assert.strictEqual((result as any).n_tx, 0);
-      assert.strictEqual((result as any).total_received, 0);
+      assert.strictEqual((result as any).total_received, 999.8999);
       assert.strictEqual((result as any).total_sent, 0);
     },
   );
