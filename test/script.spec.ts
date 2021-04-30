@@ -2,7 +2,6 @@ import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as bscript from '../src/script';
 import * as fixtures from './fixtures/script.json';
-import * as fixtures2 from './fixtures/templates.json';
 const minimalData = require('minimaldata');
 
 describe('script', () => {
@@ -57,7 +56,7 @@ describe('script', () => {
   });
 
   describe('fromASM/toASM (templates)', () => {
-    fixtures2.valid.forEach(f => {
+    fixtures.valid2.forEach(f => {
       if (f.inputHex) {
         const ih = bscript.toASM(Buffer.from(f.inputHex, 'hex'));
 

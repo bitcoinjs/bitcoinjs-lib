@@ -12,7 +12,6 @@ export { Block } from './block';
 export { Psbt, PsbtTxInput, PsbtTxOutput } from './psbt';
 export { OPS as opcodes } from './script';
 export { Transaction } from './transaction';
-export { TransactionBuilder } from './transaction_builder';
 
 export { BIP32Interface } from 'bip32';
 export { ECPairInterface, Signer, SignerAsync } from './ecpair';
