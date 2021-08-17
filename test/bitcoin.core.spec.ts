@@ -214,6 +214,16 @@ describe('Bitcoin-core', () => {
             (hash.reverse() as Buffer).toString('hex'),
             expectedHash,
           );
+
+          assert.doesNotThrow(() =>
+            transaction.hashForWitnessV0(
+              inIndex,
+              script,
+              0,
+              // convert to UInt32
+              hashType < 0 ? 0x100000000 + hashType : hashType,
+            ),
+          );
         },
       );
     });
