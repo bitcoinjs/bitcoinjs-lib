@@ -416,7 +416,7 @@ export class Transaction {
     bufferWriter = new BufferWriter(tbuffer, 0);
 
     const input = this.ins[inIndex];
-    bufferWriter.writeUInt32(this.version);
+    bufferWriter.writeInt32(this.version);
     bufferWriter.writeSlice(hashPrevouts);
     bufferWriter.writeSlice(hashSequence);
     bufferWriter.writeSlice(input.hash);
