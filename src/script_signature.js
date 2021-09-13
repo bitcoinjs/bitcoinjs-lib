@@ -22,7 +22,7 @@ function fromDER(x) {
 // BIP62: 1 byte hashType flag (only 0x01, 0x02, 0x03, 0x81, 0x82 and 0x83 are allowed)
 function decode(buffer) {
   const hashType = buffer.readUInt8(buffer.length - 1);
-  const hashTypeMod = hashType & ~0x80;
+  const hashTypeMod = hashType & ~0xc0;
   if (hashTypeMod <= 0 || hashTypeMod >= 4)
     throw new Error('Invalid hashType ' + hashType);
   const decoded = bip66.decode(buffer.slice(0, -1));
@@ -40,7 +40,7 @@ function encode(signature, hashType) {
     },
     { signature, hashType },
   );
-  const hashTypeMod = hashType & ~0x80;
+  const hashTypeMod = hashType & ~0xc0;
   if (hashTypeMod <= 0 || hashTypeMod >= 4)
     throw new Error('Invalid hashType ' + hashType);
   const hashTypeBuffer = Buffer.allocUnsafe(1);
