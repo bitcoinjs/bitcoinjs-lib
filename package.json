@@ -1,6 +1,6 @@
 {
   "name": "@bitgo/bitcoinjs-lib",
-  "version": "5.2.0",
+  "version": "6.0.0",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
