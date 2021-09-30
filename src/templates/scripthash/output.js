@@ -1,6 +1,7 @@
 'use strict';
 // OP_HASH160 {scriptHash} OP_EQUAL
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.check = void 0;
 const bscript = require('../../script');
 const script_1 = require('../../script');
 function check(script) {

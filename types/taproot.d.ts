@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /**
  * Trims the leading 02/03 byte from an ECDSA pub key to get a 32 byte schnorr
  * pub key with x-only coordinates.

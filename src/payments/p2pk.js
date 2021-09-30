@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.p2pk = void 0;
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const lazy = require('./lazy');

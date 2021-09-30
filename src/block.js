@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.Block = void 0;
 const bufferutils_1 = require('./bufferutils');
 const bcrypto = require('./crypto');
 const transaction_1 = require('./transaction');
@@ -125,7 +126,7 @@ class Block {
     return bcrypto.hash256(this.toBuffer(true));
   }
   getId() {
-    return bufferutils_1.reverseBuffer(this.getHash()).toString('hex');
+    return (0, bufferutils_1.reverseBuffer)(this.getHash()).toString('hex');
   }
   getUTCDate() {
     const date = new Date(0); // epoch
@@ -166,7 +167,7 @@ class Block {
     );
   }
   checkProofOfWork() {
-    const hash = bufferutils_1.reverseBuffer(this.getHash());
+    const hash = (0, bufferutils_1.reverseBuffer)(this.getHash());
     const target = Block.calculateTarget(this.bits);
     return hash.compare(target) <= 0;
   }

@@ -1,6 +1,7 @@
 'use strict';
 // OP_RETURN {aa21a9ed} {commitment}
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.decode = exports.encode = exports.check = void 0;
 const bscript = require('../../script');
 const script_1 = require('../../script');
 const types = require('../../types');

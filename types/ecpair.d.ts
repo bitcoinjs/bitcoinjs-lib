@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { Network } from './networks';
 interface ECPairOptions {
     compressed?: boolean;
@@ -31,8 +32,8 @@ declare class ECPair implements ECPairInterface {
     network: Network;
     lowR: boolean;
     constructor(__D?: Buffer | undefined, __Q?: Buffer | undefined, options?: ECPairOptions);
-    readonly privateKey: Buffer | undefined;
-    readonly publicKey: Buffer;
+    get privateKey(): Buffer | undefined;
+    get publicKey(): Buffer;
     toWIF(): string;
     sign(hash: Buffer, lowR?: boolean): Buffer;
     verify(hash: Buffer, signature: Buffer): boolean;

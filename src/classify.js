@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.types = exports.witness = exports.output = exports.input = void 0;
 const script_1 = require('./script');
 const multisig = require('./templates/multisig');
 const nullData = require('./templates/nulldata');
@@ -27,7 +28,7 @@ function classifyOutput(script) {
   if (pubKeyHash.output.check(script)) return types.P2PKH;
   if (scriptHash.output.check(script)) return types.P2SH;
   // XXX: optimization, below functions .decompile before use
-  const chunks = script_1.decompile(script);
+  const chunks = (0, script_1.decompile)(script);
   if (!chunks) throw new TypeError('Invalid script');
   if (multisig.output.check(chunks)) return types.P2MS;
   if (pubKey.output.check(chunks)) return types.P2PK;
@@ -38,7 +39,7 @@ function classifyOutput(script) {
 exports.output = classifyOutput;
 function classifyInput(script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
-  const chunks = script_1.decompile(script);
+  const chunks = (0, script_1.decompile)(script);
   if (!chunks) throw new TypeError('Invalid script');
   if (pubKeyHash.input.check(chunks)) return types.P2PKH;
   if (scriptHash.input.check(chunks, allowIncomplete)) return types.P2SH;
@@ -49,7 +50,7 @@ function classifyInput(script, allowIncomplete) {
 exports.input = classifyInput;
 function classifyWitness(script, allowIncomplete) {
   // XXX: optimization, below functions .decompile before use
-  const chunks = script_1.decompile(script);
+  const chunks = (0, script_1.decompile)(script);
   if (!chunks) throw new TypeError('Invalid script');
   if (witnessPubKeyHash.input.check(chunks)) return types.P2WPKH;
   if (witnessScriptHash.input.check(chunks, allowIncomplete))

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { Stack } from './payments';
 import * as scriptNumber from './script_number';
 import * as scriptSignature from './script_signature';

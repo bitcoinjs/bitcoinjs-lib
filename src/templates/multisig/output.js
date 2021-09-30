@@ -1,6 +1,7 @@
 'use strict';
 // m [pubKeys ...] n OP_CHECKMULTISIG
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.check = void 0;
 const bscript = require('../../script');
 const script_1 = require('../../script');
 const types = require('../../types');

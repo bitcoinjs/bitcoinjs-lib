@@ -2,6 +2,7 @@
 // SegWit version 1 P2TR output type for Taproot defined in
 // https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.p2tr = void 0;
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const taproot = require('../taproot');

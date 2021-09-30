@@ -16,39 +16,21 @@ const ecc = require('tiny-secp256k1');
 const EVEN_Y_COORD_PREFIX = new Uint8Array([0x02]);
 const INITIAL_TAPSCRIPT_VERSION = new Uint8Array([0xc0]);
 
-const TAPLEAF_TAGGED_HASH_PREFIX = bcrypto.sha256(Buffer.from('TapLeaf'));
-const TAPBRANCH_TAGGED_HASH_PREFIX = bcrypto.sha256(Buffer.from('TapBranch'));
-const TAPTWEAK_TAGGED_HASH_PREFIX = bcrypto.sha256(Buffer.from('TapTweak'));
-const KEYAGG_LIST_TAGGED_HASH_PREFIX = bcrypto.sha256(
-  Buffer.from('KeyAgg list'),
-);
-const KEYAGG_COEFFICIENT_TAGGED_HASH_PREFIX = bcrypto.sha256(
-  Buffer.from('KeyAgg coefficient'),
-);
-
-const TAGGED_HASH_PREFIXES = {
-  TapLeaf: Buffer.concat([
-    TAPLEAF_TAGGED_HASH_PREFIX,
-    TAPLEAF_TAGGED_HASH_PREFIX,
-  ]),
-  TapBranch: Buffer.concat([
-    TAPBRANCH_TAGGED_HASH_PREFIX,
-    TAPBRANCH_TAGGED_HASH_PREFIX,
-  ]),
-  TapTweak: Buffer.concat([
-    TAPTWEAK_TAGGED_HASH_PREFIX,
-    TAPTWEAK_TAGGED_HASH_PREFIX,
-  ]),
-  'KeyAgg list': Buffer.concat([
-    KEYAGG_LIST_TAGGED_HASH_PREFIX,
-    KEYAGG_LIST_TAGGED_HASH_PREFIX,
-  ]),
-  'KeyAgg coefficient': Buffer.concat([
-    KEYAGG_COEFFICIENT_TAGGED_HASH_PREFIX,
-    KEYAGG_COEFFICIENT_TAGGED_HASH_PREFIX,
-  ]),
-};
-type TaggedHashPrefix = keyof (typeof TAGGED_HASH_PREFIXES);
+const TAGS = [
+  'TapLeaf',
+  'TapBranch',
+  'TapTweak',
+  'KeyAgg list',
+  'KeyAgg coefficient',
+] as const;
+type TaggedHashPrefix = typeof TAGS[number];
+/** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
+const TAGGED_HASH_PREFIXES = Object.fromEntries(
+  TAGS.map(tag => {
+    const tagHash = bcrypto.sha256(Buffer.from(tag));
+    return [tag, Buffer.concat([tagHash, tagHash])];
+  }),
+) as { [k in TaggedHashPrefix]: Buffer };
 
 function taggedHash(prefix: TaggedHashPrefix, data: Buffer): Buffer {
   return bcrypto.sha256(Buffer.concat([TAGGED_HASH_PREFIXES[prefix], data]));

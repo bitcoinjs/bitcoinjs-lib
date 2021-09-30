@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.TransactionBuilder = void 0;
 const baddress = require('./address');
 const bufferutils_1 = require('./bufferutils');
 const classify = require('./classify');
@@ -122,7 +123,7 @@ class TransactionBuilder {
     // is it a hex string?
     if (txIsString(txHash)) {
       // transaction hashs's are displayed in reverse order, un-reverse it
-      txHash = bufferutils_1.reverseBuffer(Buffer.from(txHash, 'hex'));
+      txHash = (0, bufferutils_1.reverseBuffer)(Buffer.from(txHash, 'hex'));
       // is it a Transaction object?
     } else if (txIsTransaction(txHash)) {
       const txOut = txHash.outs[vout];
