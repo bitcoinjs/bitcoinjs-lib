@@ -1,3 +1,4 @@
+/// <reference types="node" />
 declare const types: {
     P2MS: string;
     NONSTANDARD: string;

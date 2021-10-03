@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export interface Output {
     script: Buffer;
     value: number;

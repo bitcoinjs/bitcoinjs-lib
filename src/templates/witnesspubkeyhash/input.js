@@ -1,6 +1,7 @@
 'use strict';
 // {signature} {pubKey}
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.check = void 0;
 const bscript = require('../../script');
 function isCompressedCanonicalPubKey(pubKey) {
   return bscript.isCanonicalPubKey(pubKey) && pubKey.length === 33;

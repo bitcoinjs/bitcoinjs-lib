@@ -1,6 +1,7 @@
 'use strict';
 // <scriptSig> {serialized scriptPubKey script}
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.check = void 0;
 const bscript = require('../../script');
 const typeforce = require('typeforce');
 const p2ms = require('../multisig');

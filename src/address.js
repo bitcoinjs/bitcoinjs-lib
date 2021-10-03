@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.toOutputScript = exports.fromOutputScript = exports.toBech32 = exports.toBase58Check = exports.fromBech32 = exports.fromBase58Check = void 0;
 const networks = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
@@ -91,6 +92,9 @@ function fromOutputScript(output, network) {
   } catch (e) {}
   try {
     return payments.p2wsh({ output, network }).address;
+  } catch (e) {}
+  try {
+    return payments.p2tr({ output, network }).address;
   } catch (e) {}
   try {
     return _toFutureSegwitAddress(output, network);

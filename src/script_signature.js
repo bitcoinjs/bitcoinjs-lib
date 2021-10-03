@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.encode = exports.decode = void 0;
 const types = require('./types');
 const bip66 = require('bip66');
 const typeforce = require('typeforce');

@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.fromWIF = exports.fromPublicKey = exports.fromPrivateKey = exports.makeRandom = void 0;
 const NETWORKS = require('./networks');
 const types = require('./types');
 const ecc = require('tiny-secp256k1');

@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.output = exports.check = void 0;
 // OP_RETURN {data}
 const bscript = require('../script');
 const OPS = bscript.OPS;

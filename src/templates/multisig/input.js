@@ -1,6 +1,7 @@
 'use strict';
 // OP_0 [signatures ...]
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.check = void 0;
 const bscript = require('../../script');
 const script_1 = require('../../script');
 function partialSignature(value) {

@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.testnet = exports.regtest = exports.bitcoin = void 0;
 exports.bitcoin = {
   messagePrefix: '\x18Bitcoin Signed Message:\n',
   bech32: 'bc',
