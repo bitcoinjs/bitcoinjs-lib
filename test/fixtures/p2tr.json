@@ -64,6 +64,18 @@
         "name": "p2tr",
         "address": "tb1p6h5fuzmnvpdthf5shf0qqjzwy7wsqc5rhmgq2ks9xrak4ry6mtrscsqvzp"
       }
+    },
+    {
+      "description": "p2tr, output from address",
+      "arguments": {
+        "address": "bcrt1pvxx5zs9mlxqfw6s0f5hlnwc95emjse5yqacy2tl5q52ghpe0phyqzwzvwu",
+        "network": "regtest"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "output": "OP_1 618d4140bbf980976a0f4d2ff9bb05a6772866840770452ff405148b872f0dc8"
+      }
     }
   ],
   "invalid": []

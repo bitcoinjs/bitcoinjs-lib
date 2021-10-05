@@ -41,6 +41,16 @@ function p2tr(a, opts) {
     },
     a,
   );
+  const _address = lazy.value(() => {
+    const result = bech32m.decode(a.address);
+    const version = result.words.shift();
+    const data = bech32m.fromWords(result.words);
+    return {
+      version,
+      prefix: result.prefix,
+      data: Buffer.from(data),
+    };
+  });
   const network = a.network || networks_1.bitcoin;
   const o = { network };
   lazy.prop(o, 'address', () => {
@@ -52,6 +62,10 @@ function p2tr(a, opts) {
     return bech32m.encode(network.bech32, words);
   });
   lazy.prop(o, 'output', () => {
+    if (a.address) {
+      const { data } = _address();
+      return bscript.compile([OPS.OP_1, data]);
+    }
     let internalPubkey;
     if (a.pubkey) {
       // single pubkey
@@ -59,7 +73,6 @@ function p2tr(a, opts) {
     } else if (a.pubkeys && a.pubkeys.length) {
       // multiple pubkeys
       internalPubkey = taproot.aggregateMuSigPubkeys(a.pubkeys);
-      console.error('internal ' + internalPubkey.toString('hex'));
     } else {
       // no key path
       if (!a.scripts) return; // must have either scripts or pubkey(s)
