@@ -4,6 +4,7 @@ import * as nullData from './templates/nulldata';
 import * as pubKey from './templates/pubkey';
 import * as pubKeyHash from './templates/pubkeyhash';
 import * as scriptHash from './templates/scripthash';
+import * as taproot from './templates/taproot';
 import * as witnessCommitment from './templates/witnesscommitment';
 import * as witnessPubKeyHash from './templates/witnesspubkeyhash';
 import * as witnessScriptHash from './templates/witnessscripthash';
@@ -17,12 +18,14 @@ const types = {
   P2SH: 'scripthash' as string,
   P2WPKH: 'witnesspubkeyhash' as string,
   P2WSH: 'witnessscripthash' as string,
+  P2TR: 'taproot',
   WITNESS_COMMITMENT: 'witnesscommitment' as string,
 };
 
 function classifyOutput(script: Buffer): string {
   if (witnessPubKeyHash.output.check(script)) return types.P2WPKH;
   if (witnessScriptHash.output.check(script)) return types.P2WSH;
+  if (taproot.output.check(script)) return types.P2TR;
   if (pubKeyHash.output.check(script)) return types.P2PKH;
   if (scriptHash.output.check(script)) return types.P2SH;
 
@@ -59,6 +62,7 @@ function classifyWitness(script: Buffer[], allowIncomplete?: boolean): string {
   if (witnessPubKeyHash.input.check(chunks)) return types.P2WPKH;
   if (witnessScriptHash.input.check(chunks as Buffer[], allowIncomplete))
     return types.P2WSH;
+  if (taproot.input.check(chunks as Buffer[])) return types.P2TR;
 
   return types.NONSTANDARD;
 }
