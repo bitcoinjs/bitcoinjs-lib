@@ -65,6 +65,26 @@ describe('classify', () => {
       });
     });
   });
+
+  describe('classifyWitness', () => {
+    fixtures.valid.forEach(f => {
+      if (!f.witnessData) return;
+
+      it('classifies ' + f.witnessData + ' as ' + f.type, () => {
+        const chunks = f.witnessData.map(chunkStr =>
+          Buffer.from(chunkStr, 'hex'),
+        );
+        if (f.witnessScript) {
+          const witnessScript = bscript.fromASM(f.witnessScript);
+          chunks.push(witnessScript);
+        }
+        const type = classify.witness(chunks);
+
+        assert.strictEqual(type, f.type);
+      });
+    });
+  });
+
   [
     'pubKey',
     'pubKeyHash',
