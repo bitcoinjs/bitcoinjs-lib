@@ -10,6 +10,7 @@ import * as nullData from '../src/templates/nulldata';
 import * as pubKey from '../src/templates/pubkey';
 import * as pubKeyHash from '../src/templates/pubkeyhash';
 import * as scriptHash from '../src/templates/scripthash';
+import * as taproot from '../src/templates/taproot';
 import * as witnessCommitment from '../src/templates/witnesscommitment';
 import * as witnessPubKeyHash from '../src/templates/witnesspubkeyhash';
 import * as witnessScriptHash from '../src/templates/witnessscripthash';
@@ -20,6 +21,7 @@ const tmap = {
   scriptHash,
   witnessPubKeyHash,
   witnessScriptHash,
+  taproot,
   multisig,
   nullData,
   witnessCommitment,
@@ -69,6 +71,7 @@ describe('classify', () => {
     'scriptHash',
     'witnessPubKeyHash',
     'witnessScriptHash',
+    'taproot',
     'multisig',
     'nullData',
     'witnessCommitment',
