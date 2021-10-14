@@ -7,6 +7,7 @@ const nullData = require('./templates/nulldata');
 const pubKey = require('./templates/pubkey');
 const pubKeyHash = require('./templates/pubkeyhash');
 const scriptHash = require('./templates/scripthash');
+const taproot = require('./templates/taproot');
 const witnessCommitment = require('./templates/witnesscommitment');
 const witnessPubKeyHash = require('./templates/witnesspubkeyhash');
 const witnessScriptHash = require('./templates/witnessscripthash');
@@ -19,12 +20,14 @@ const types = {
   P2SH: 'scripthash',
   P2WPKH: 'witnesspubkeyhash',
   P2WSH: 'witnessscripthash',
+  P2TR: 'taproot',
   WITNESS_COMMITMENT: 'witnesscommitment',
 };
 exports.types = types;
 function classifyOutput(script) {
   if (witnessPubKeyHash.output.check(script)) return types.P2WPKH;
   if (witnessScriptHash.output.check(script)) return types.P2WSH;
+  if (taproot.output.check(script)) return types.P2TR;
   if (pubKeyHash.output.check(script)) return types.P2PKH;
   if (scriptHash.output.check(script)) return types.P2SH;
   // XXX: optimization, below functions .decompile before use
@@ -55,6 +58,7 @@ function classifyWitness(script, allowIncomplete) {
   if (witnessPubKeyHash.input.check(chunks)) return types.P2WPKH;
   if (witnessScriptHash.input.check(chunks, allowIncomplete))
     return types.P2WSH;
+  if (taproot.input.check(chunks)) return types.P2TR;
   return types.NONSTANDARD;
 }
 exports.witness = classifyWitness;

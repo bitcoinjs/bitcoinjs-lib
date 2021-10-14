@@ -10,6 +10,7 @@ import * as nullData from '../src/templates/nulldata';
 import * as pubKey from '../src/templates/pubkey';
 import * as pubKeyHash from '../src/templates/pubkeyhash';
 import * as scriptHash from '../src/templates/scripthash';
+import * as taproot from '../src/templates/taproot';
 import * as witnessCommitment from '../src/templates/witnesscommitment';
 import * as witnessPubKeyHash from '../src/templates/witnesspubkeyhash';
 import * as witnessScriptHash from '../src/templates/witnessscripthash';
@@ -20,6 +21,7 @@ const tmap = {
   scriptHash,
   witnessPubKeyHash,
   witnessScriptHash,
+  taproot,
   multisig,
   nullData,
   witnessCommitment,
@@ -63,12 +65,33 @@ describe('classify', () => {
       });
     });
   });
+
+  describe('classifyWitness', () => {
+    fixtures.valid.forEach(f => {
+      if (!f.witnessData) return;
+
+      it('classifies ' + f.witnessData + ' as ' + f.type, () => {
+        const chunks = f.witnessData.map(chunkStr =>
+          Buffer.from(chunkStr, 'hex'),
+        );
+        if (f.witnessScript) {
+          const witnessScript = bscript.fromASM(f.witnessScript);
+          chunks.push(witnessScript);
+        }
+        const type = classify.witness(chunks);
+
+        assert.strictEqual(type, f.type);
+      });
+    });
+  });
+
   [
     'pubKey',
     'pubKeyHash',
     'scriptHash',
     'witnessPubKeyHash',
     'witnessScriptHash',
+    'taproot',
     'multisig',
     'nullData',
     'witnessCommitment',

@@ -1,6 +1,7 @@
 import { Stack } from './payments';
 import * as scriptNumber from './script_number';
 import * as scriptSignature from './script_signature';
+import { Transaction } from './transaction';
 import * as types from './types';
 const bip66 = require('bip66');
 const ecc = require('tiny-secp256k1');
@@ -209,6 +210,26 @@ export function isCanonicalScriptSignature(buffer: Buffer): boolean {
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false;
 
   return bip66.check(buffer.slice(0, -1));
+}
+
+export function isCanonicalSchnorrSignature(buffer: Buffer): boolean {
+  if (!Buffer.isBuffer(buffer)) return false;
+  if (buffer.length === 64) return true; // implied SIGHASH_DEFAULT
+  if (
+    buffer.length === 65 &&
+    [
+      Transaction.SIGHASH_ALL,
+      Transaction.SIGHASH_NONE,
+      Transaction.SIGHASH_SINGLE,
+      Transaction.SIGHASH_ALL | Transaction.SIGHASH_ANYONECANPAY, // 0x81
+      Transaction.SIGHASH_NONE | Transaction.SIGHASH_ANYONECANPAY, // 0x82
+      Transaction.SIGHASH_SINGLE | Transaction.SIGHASH_ANYONECANPAY, // 0x83
+    ].includes(buffer[64])
+  ) {
+    return true; // explicit SIGHASH trailing byte
+  }
+
+  return false;
 }
 
 // tslint:disable-next-line variable-name

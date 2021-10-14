@@ -112,6 +112,22 @@
       ]
     },
     {
+      "type": "taproot",
+      "witnessData": [
+        "97eb6f082dfe1433aa5b4f332b869422fcbbeec0c6efd644b44380b4bc9ecd45f2b133917a9ab5a036c5cfb05dad2400c627480588060c64cc8bd3fe927af7a9"
+      ],
+      "output": "OP_1 a60d70cfba37177d8239d018185d864b2bdd0caf5e175fd4454cc006fd2d75ac",
+      "outputHex": "5120a60d70cfba37177d8239d018185d864b2bdd0caf5e175fd4454cc006fd2d75ac"
+    },
+    {
+      "type": "taproot",
+      "witnessData": [
+        "f3738f9c5d6c06c5473f887d0ed6880798ff4741726fa3115fcb41cdc3202a37ac299728d6ff4c582221b97c957cc7695e5771dbf0e3d63ec0bb76f84a87a66301"
+      ],
+      "output": "OP_1 d8f4f1d18996db61bb1caf5423de25d8a1eee9c950d37e6ffa023012d5e62e0d",
+      "outputHex": "5120d8f4f1d18996db61bb1caf5423de25d8a1eee9c950d37e6ffa023012d5e62e0d"
+    },
+    {
       "type": "nulldata",
       "data": [
         "06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474"
