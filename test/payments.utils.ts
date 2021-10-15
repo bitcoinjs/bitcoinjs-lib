@@ -136,17 +136,11 @@ export function preform(x: any): any {
       return Number.isFinite(y) ? y : Buffer.from(y, 'hex');
     });
   if (x.redeem) {
-    x.redeem = Object.assign({}, x.redeem);
-    if (typeof x.redeem.input === 'string')
-      x.redeem.input = asmToBuffer(x.redeem.input);
-    if (typeof x.redeem.output === 'string')
-      x.redeem.output = asmToBuffer(x.redeem.output);
-    if (Array.isArray(x.redeem.witness))
-      x.redeem.witness = x.redeem.witness.map(fromHex);
-    if (x.redeem.network)
-      x.redeem.network = (BNETWORKS as any)[x.redeem.network];
+    x.redeem = preform(x.redeem);
   }
-  if (x.scripts) x.scripts = x.scripts.map(fromHex);
+  if (x.redeems) {
+    x.redeems = x.redeems.map(preform);
+  }
 
   return x;
 }

@@ -4,7 +4,7 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import * as taproot from '../taproot';
-import { Payment, PaymentOpts } from './index';
+import { Payment, PaymentOpts, StackFunction } from './index';
 import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
@@ -20,12 +20,18 @@ const H = Buffer.from(
   '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0',
   'hex',
 );
+const EMPTY_BUFFER = Buffer.alloc(0);
 
 // output: OP_1 {witnessProgram}
 export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
-  if (!a.address && !a.pubkey && !a.pubkeys && !a.scripts && !a.output)
+  if (!a.address && !a.pubkey && !a.pubkeys && !a.redeems && !a.output)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
+
+  const isXOnlyPoint = (pubkey: any): boolean => {
+    if (!Buffer.isBuffer(pubkey)) return false;
+    return ecc.isPoint(Buffer.concat([taproot.EVEN_Y_COORD_PREFIX, pubkey]));
+  };
 
   typef(
     {
@@ -37,12 +43,19 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       // the next 32 bytes, followed by the 32 byte witness program
       output: typef.maybe(typef.BufferN(34)),
       // a single pubkey
-      pubkey: typef.maybe(ecc.isPoint),
+      pubkey: typef.maybe(isXOnlyPoint),
       // the pub keys used for aggregate musig signing
-      pubkeys: typef.maybe(typef.arrayOf(ecc.isPoint)),
+      pubkeys: typef.maybe(typef.arrayOf(isXOnlyPoint)),
 
-      scripts: typef.maybe(typef.arrayOf(typef.Buffer)),
-      weights: typef.maybe(typef.arrayOf(typef.Number)),
+      redeems: typef.maybe(
+        typef.arrayOf({
+          network: typef.maybe(typef.Object),
+          output: typef.maybe(typef.Buffer),
+          weight: typef.maybe(typef.Number),
+          witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+        }),
+      ),
+      redeemIndex: typef.maybe(typef.Number), // Selects the redeem to spend
     },
     a,
   );
@@ -56,6 +69,52 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       prefix: result.prefix,
       data: Buffer.from(data),
     };
+  });
+
+  const _rchunks = lazy.value(() => {
+    const chosen = a.redeems![a.redeemIndex!]; // These not-nulls are enforced at the call site.
+    return bscript.decompile(chosen.input!);
+  }) as StackFunction;
+
+  const _taptree = lazy.value(() => {
+    if (!a.redeems) return;
+    const outputs: Array<Buffer | undefined> = a.redeems.map(
+      ({ output }) => output,
+    );
+    if (!outputs.every(output => output)) return;
+    return taproot.getHuffmanTaptree(
+      outputs as Buffer[],
+      a.redeems.map(({ weight }) => weight),
+    );
+  });
+  const _internalPubkey = lazy.value(() => {
+    if (a.pubkey) {
+      // single pubkey
+      return a.pubkey;
+    } else if (a.pubkeys && a.pubkeys.length) {
+      // multiple pubkeys
+      return taproot.aggregateMuSigPubkeys(a.pubkeys);
+    } else {
+      // no key path
+      if (!a.redeems) return; // must have either redeems or pubkey(s)
+
+      // If there is no key path spending condition, we use an internal key with unknown secret key.
+      // TODO: In order to avoid leaking the information that key path spending is not possible it
+      // is recommended to pick a fresh integer r in the range 0...n-1 uniformly at random and use
+      // H + rG as internal key. It is possible to prove that this internal key does not have a
+      // known discrete logarithm with respect to G by revealing r to a verifier who can then
+      // reconstruct how the internal key was created.
+      return H;
+    }
+  });
+  const _taprootPubkey = lazy.value(() => {
+    const internalPubkey = _internalPubkey();
+    if (!internalPubkey) return;
+    const taptree = _taptree();
+    return taproot.tapTweakPubkey(
+      internalPubkey,
+      taptree ? taptree.root : undefined,
+    );
   });
 
   const network = a.network || BITCOIN_NETWORK;
@@ -77,34 +136,51 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       return bscript.compile([OPS.OP_1, data]);
     }
 
-    let internalPubkey: Buffer;
-    if (a.pubkey) {
-      // single pubkey
-      internalPubkey = a.pubkey;
-    } else if (a.pubkeys && a.pubkeys.length) {
-      // multiple pubkeys
-      internalPubkey = taproot.aggregateMuSigPubkeys(a.pubkeys);
-    } else {
-      // no key path
-      if (!a.scripts) return; // must have either scripts or pubkey(s)
-
-      // If there is no key path spending condition, we use an internal key with unknown secret key.
-      // TODO: In order to avoid leaking the information that key path spending is not possible it
-      // is recommended to pick a fresh integer r in the range 0...n-1 uniformly at random and use
-      // H + rG as internal key. It is possible to prove that this internal key does not have a
-      // known discrete logarithm with respect to G by revealing r to a verifier who can then
-      // reconstruct how the internal key was created.
-      internalPubkey = H;
-    }
-
-    let tapTreeRoot: Buffer | undefined;
-    if (a.scripts) {
-      tapTreeRoot = taproot.getHuffmanTaptreeRoot(a.scripts, a.weights);
-    }
-    const taprootPubkey = taproot.tapTweakPubkey(internalPubkey, tapTreeRoot);
+    const taprootPubkey = _taprootPubkey();
+    if (!taprootPubkey) return;
 
     // OP_1 indicates segwit version 1
-    return bscript.compile([OPS.OP_1, taprootPubkey]);
+    return bscript.compile([OPS.OP_1, taprootPubkey.pubkey]);
+  });
+  lazy.prop(o, 'witness', () => {
+    if (!a.redeems || a.redeemIndex === undefined) return; // No chosen redeem script, can't make witness
+
+    const chosen = a.redeems[a.redeemIndex];
+    if (!chosen) return;
+
+    // transform redeem input to witness stack?
+    if (
+      chosen.input &&
+      chosen.input.length > 0 &&
+      chosen.output &&
+      chosen.output.length > 0
+    ) {
+      const stack = bscript.toStack(_rchunks());
+
+      // assign, and blank the existing input
+      o.redeems![a.redeemIndex] = Object.assign({ witness: stack }, chosen);
+      o.redeems![a.redeemIndex].input = EMPTY_BUFFER;
+      return stack.concat(
+        chosen.output,
+        taproot.getControlBlock(
+          _taprootPubkey()!.parity,
+          _internalPubkey()!,
+          _taptree()!.paths[a.redeemIndex],
+        ),
+      );
+    }
+
+    if (!chosen.output) return;
+    if (!chosen.witness) return;
+
+    return chosen.witness.concat([
+      chosen.output,
+      taproot.getControlBlock(
+        _taprootPubkey()!.parity,
+        _internalPubkey()!,
+        _taptree()!.paths[a.redeemIndex],
+      ),
+    ]);
   });
   lazy.prop(o, 'name', () => {
     const nameParts = ['p2tr'];
@@ -117,6 +193,18 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     if (a.output) {
       if (a.output[0] !== OPS.OP_1 || a.output[1] !== 0x20)
         throw new TypeError('Output is invalid');
+    }
+    if (a.redeems) {
+      a.redeems.forEach(redeem => {
+        if (redeem.network && redeem.network !== network)
+          throw new TypeError('Network mismatch');
+      });
+    }
+    if (a.redeemIndex !== undefined && a.redeems) {
+      if (a.redeemIndex < 0 || a.redeemIndex >= a.redeems.length)
+        throw new TypeError(
+          'Redeem index must be 0 <= redeemIndex < redeems.length',
+        );
     }
   }
 

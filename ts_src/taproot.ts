@@ -13,7 +13,7 @@ const ecc = require('tiny-secp256k1');
  * The 0x02 prefix indicating an even Y coordinate which is implicitly assumed
  * on all 32 byte x-only pub keys as defined in BIP340.
  */
-const EVEN_Y_COORD_PREFIX = new Uint8Array([0x02]);
+export const EVEN_Y_COORD_PREFIX = new Uint8Array([0x02]);
 const INITIAL_TAPSCRIPT_VERSION = new Uint8Array([0xc0]);
 
 const TAGS = [
@@ -37,17 +37,6 @@ function taggedHash(prefix: TaggedHashPrefix, data: Buffer): Buffer {
 }
 
 /**
- * Trims the leading 02/03 byte from an ECDSA pub key to get a 32 byte schnorr
- * pub key with x-only coordinates.
- * @param pubkey A 33 byte pubkey representing an EC point
- * @returns a 32 byte x-only coordinate
- */
-export function trimFirstByte(pubkey: Buffer): Buffer {
-  assert.strictEqual(pubkey.length, 33);
-  return pubkey.slice(1, 33);
-}
-
-/**
  * Aggregates a list of public keys into a single MuSig2* public key
  * according to the MuSig2 paper.
  * @param pubkeys The list of pub keys to aggregate
@@ -62,7 +51,7 @@ export function aggregateMuSigPubkeys(pubkeys: Buffer[]): Buffer {
 
   // Trim the 0x02/0x03 leading byte from each key and sort in ascending order
   // to convert to 32 byte x-coordinates with implicit even Y coordinates.
-  const trimmedPubkeys = pubkeys.map(trimFirstByte).sort(Buffer.compare);
+  pubkeys.sort(Buffer.compare);
 
   // In MuSig all signers contribute key material to a single signing key,
   // using the equation
@@ -75,35 +64,27 @@ export function aggregateMuSigPubkeys(pubkeys: Buffer[]): Buffer {
   // L = H(P_1 || P_2 || ... || P_n)
   // µ_i = H(L || P_i)
 
-  const L = taggedHash('KeyAgg list', Buffer.concat(trimmedPubkeys));
+  const L = taggedHash('KeyAgg list', Buffer.concat(pubkeys));
 
-  const tweakedPubkeys: Buffer[] = trimmedPubkeys.map(
-    (trimmedPubkey, index) => {
-      const pubkey = Buffer.concat([EVEN_Y_COORD_PREFIX, trimmedPubkey]);
+  const tweakedPubkeys: Buffer[] = pubkeys.map((pubkey, index) => {
+    const xyPubkey = Buffer.concat([EVEN_Y_COORD_PREFIX, pubkey]);
 
-      if (index === 1) {
-        // The second unique key in the pubkey list gets the constant KeyAgg
-        // coefficient 1 which saves an exponentiation. See the MuSig2*
-        // appendix in the MuSig2 paper for details.
-        return pubkey;
-      }
+    if (index === 1) {
+      // The second unique key in the pubkey list gets the constant KeyAgg
+      // coefficient 1 which saves an exponentiation. See the MuSig2*
+      // appendix in the MuSig2 paper for details.
+      return xyPubkey;
+    }
 
-      const c = taggedHash(
-        'KeyAgg coefficient',
-        Buffer.concat([L, trimmedPubkey]),
-      );
-      return ecc.pointMultiply(pubkey, c);
-    },
-  );
+    const c = taggedHash('KeyAgg coefficient', Buffer.concat([L, pubkey]));
+
+    return ecc.pointMultiply(xyPubkey, c);
+  });
   const aggregatePubkey = tweakedPubkeys.reduce((prev, curr) =>
     ecc.pointAdd(prev, curr),
   );
 
-  // The aggregate key must be a point with an even y coordinate, so we manually
-  // set the leading byte to 0x02 in case it isn't already.
-  aggregatePubkey[0] = EVEN_Y_COORD_PREFIX[0];
-
-  return aggregatePubkey;
+  return aggregatePubkey.slice(1);
 }
 
 /**
@@ -142,20 +123,24 @@ export function hashTapBranch(child1: Buffer, child2: Buffer): Buffer {
   return taggedHash('TapBranch', Buffer.concat(sortedChildren));
 }
 
+export interface TweakedPubkey {
+  parity: 0 | 1;
+  pubkey: Buffer;
+}
+
 /**
  * Tweaks an internal pubkey using the tagged hash of a taptree root.
  * @param pubkey the internal pubkey to tweak
  * @param tapTreeRoot the taptree root tagged hash
  * @returns the tweaked pubkey
  */
-export function tapTweakPubkey(pubkey: Buffer, tapTreeRoot?: Buffer): Buffer {
+export function tapTweakPubkey(
+  pubkey: Buffer,
+  tapTreeRoot?: Buffer,
+): TweakedPubkey {
   let tapTweak: Buffer;
   if (tapTreeRoot) {
-    const trimmedPubkey = trimFirstByte(pubkey);
-    tapTweak = taggedHash(
-      'TapTweak',
-      Buffer.concat([trimmedPubkey, tapTreeRoot]),
-    );
+    tapTweak = taggedHash('TapTweak', Buffer.concat([pubkey, tapTreeRoot]));
   } else {
     // If the spending conditions do not require a script path, the output key should commit to an
     // unspendable script path instead of having no script path.
@@ -163,14 +148,28 @@ export function tapTweakPubkey(pubkey: Buffer, tapTreeRoot?: Buffer): Buffer {
     tapTweak = taggedHash('TapTweak', pubkey);
   }
 
-  const tweakedPubkey = ecc.pointAddScalar(pubkey, tapTweak);
-  return trimFirstByte(tweakedPubkey);
+  const tweakedPubkey = ecc.pointAddScalar(
+    Buffer.concat([EVEN_Y_COORD_PREFIX, pubkey]),
+    tapTweak,
+  );
+  return {
+    parity: tweakedPubkey[0] === EVEN_Y_COORD_PREFIX[0] ? 0 : 1,
+    pubkey: tweakedPubkey.slice(1),
+  };
+}
+
+export interface Taptree {
+  root: Buffer;
+  paths: Buffer[][];
 }
 
 interface WeightedTapScript {
   /** A TapLeaf or TapBranch tagged hash */
   taggedHash: Buffer;
   weight: number;
+  paths: {
+    [index: number]: Buffer[];
+  };
 }
 
 /**
@@ -180,10 +179,10 @@ interface WeightedTapScript {
  * @param weights
  * @returns the tagged hash of the taptree root
  */
-export function getHuffmanTaptreeRoot(
+export function getHuffmanTaptree(
   scripts: Buffer[],
-  weights?: number[],
-): Buffer {
+  weights: Array<number | undefined>,
+): Taptree {
   assert(
     scripts.length > 0,
     'at least one script is required to construct a tap tree',
@@ -197,15 +196,14 @@ export function getHuffmanTaptreeRoot(
     },
   );
   scripts.forEach((script, index) => {
-    const weight = weights ? weights[index] || 1 : 1;
+    const weight = weights[index] || 1;
     assert(weight > 0, 'script weight must be a positive value');
 
-    const weightedScript = {
+    queue.add({
       weight,
       taggedHash: hashTapLeaf(script),
-    };
-
-    queue.add(weightedScript);
+      paths: { [index]: [] },
+    });
   });
 
   // Now that we have a queue of weighted scripts, we begin a loop whereby we
@@ -238,19 +236,33 @@ export function getHuffmanTaptreeRoot(
     const child1 = queue.poll()!;
     const child2 = queue.poll()!;
 
-    const branchHash = hashTapBranch(child1.taggedHash, child2.taggedHash);
+    Object.values(child1.paths).forEach(path => path.push(child2.taggedHash));
+    Object.values(child2.paths).forEach(path => path.push(child1.taggedHash));
+
     queue.add({
-      taggedHash: branchHash,
+      taggedHash: hashTapBranch(child1.taggedHash, child2.taggedHash),
       weight: child1.weight + child2.weight,
+      paths: { ...child1.paths, ...child2.paths },
     });
   }
 
   // After the while loop above completes we should have exactly one element
   // remaining in the queue, which we can safely extract below.
-  const tapTreeHash = queue.poll()!.taggedHash;
+  const rootNode = queue.poll()!;
 
-  // TODO: Preserve the structure & internal nodes of the tap tree constructed
-  // above, likely with taproot descriptors, to allow for merkle proof
-  // constructions needed for script path spends
-  return tapTreeHash;
+  const paths = Object.entries(rootNode.paths).reduce((acc, [index, path]) => {
+    acc[Number(index)] = path; // TODO: Why doesn't TS know it's a number?
+    return acc;
+  }, Array(scripts.length));
+  return { root: rootNode.taggedHash, paths };
+}
+
+export function getControlBlock(
+  parity: 0 | 1,
+  pubkey: Buffer,
+  path: Buffer[],
+): Buffer {
+  const parityVersion = INITIAL_TAPSCRIPT_VERSION[0] + parity;
+
+  return Buffer.concat([new Uint8Array([parityVersion]), pubkey, ...path]);
 }

@@ -23,9 +23,10 @@ export interface Payment {
   address?: string;
   hash?: Buffer;
   redeem?: Payment;
+  redeems?: Payment[];
+  redeemIndex?: number;
   witness?: Buffer[];
-  scripts?: Buffer[];
-  weights?: number[];
+  weight?: number;
 }
 
 export type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;
