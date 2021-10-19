@@ -1,11 +1,9 @@
 /// <reference types="node" />
 /**
- * Trims the leading 02/03 byte from an ECDSA pub key to get a 32 byte schnorr
- * pub key with x-only coordinates.
- * @param pubkey A 33 byte pubkey representing an EC point
- * @returns a 32 byte x-only coordinate
+ * The 0x02 prefix indicating an even Y coordinate which is implicitly assumed
+ * on all 32 byte x-only pub keys as defined in BIP340.
  */
-export declare function trimFirstByte(pubkey: Buffer): Buffer;
+export declare const EVEN_Y_COORD_PREFIX: Uint8Array;
 /**
  * Aggregates a list of public keys into a single MuSig2* public key
  * according to the MuSig2 paper.
@@ -33,13 +31,21 @@ export declare function hashTapLeaf(script: Buffer): Buffer;
  * @returns the tagged tapbranch hash
  */
 export declare function hashTapBranch(child1: Buffer, child2: Buffer): Buffer;
+export interface TweakedPubkey {
+    parity: 0 | 1;
+    pubkey: Buffer;
+}
 /**
  * Tweaks an internal pubkey using the tagged hash of a taptree root.
  * @param pubkey the internal pubkey to tweak
  * @param tapTreeRoot the taptree root tagged hash
  * @returns the tweaked pubkey
  */
-export declare function tapTweakPubkey(pubkey: Buffer, tapTreeRoot?: Buffer): Buffer;
+export declare function tapTweakPubkey(pubkey: Buffer, tapTreeRoot?: Buffer): TweakedPubkey;
+export interface Taptree {
+    root: Buffer;
+    paths: Buffer[][];
+}
 /**
  * Gets the root hash of a taptree using a weighted Huffman construction from a
  * list of scripts and corresponding weights.
@@ -47,4 +53,5 @@ export declare function tapTweakPubkey(pubkey: Buffer, tapTreeRoot?: Buffer): Bu
  * @param weights
  * @returns the tagged hash of the taptree root
  */
-export declare function getHuffmanTaptreeRoot(scripts: Buffer[], weights?: number[]): Buffer;
+export declare function getHuffmanTaptree(scripts: Buffer[], weights: Array<number | undefined>): Taptree;
+export declare function getControlBlock(parity: 0 | 1, pubkey: Buffer, path: Buffer[]): Buffer;

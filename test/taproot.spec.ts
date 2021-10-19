@@ -11,17 +11,17 @@ describe('taproot utils', () => {
     it('aggregates 2 pubkeys', () => {
       const aggregatePubkey = taproot.aggregateMuSigPubkeys([
         Buffer.from(
-          '02b2eea3c2431bdda9003b30e385f6a59a74fddb39f4aa927f95ad7a6c147c9f6c',
+          'b2eea3c2431bdda9003b30e385f6a59a74fddb39f4aa927f95ad7a6c147c9f6c',
           'hex',
         ),
         Buffer.from(
-          '02d37c98a14d3a749e45a15bcc6836552a7458632f5bc46dca197011e031d6014f',
+          'd37c98a14d3a749e45a15bcc6836552a7458632f5bc46dca197011e031d6014f',
           'hex',
         ),
       ]);
 
       assert.strictEqual(
-        taproot.trimFirstByte(aggregatePubkey).toString('hex'),
+        aggregatePubkey.toString('hex'),
         '0ae195f849375eb836fa9f11dd8a44643f424e2671df6e63a2ad9becb853a9fe',
       );
     });
@@ -29,21 +29,21 @@ describe('taproot utils', () => {
     it('aggregates 3 unsorted pubkeys', () => {
       const aggregatePubkey = taproot.aggregateMuSigPubkeys([
         Buffer.from(
-          '02c03b14ebd188344d78ed45a0e4857fc65c7e25f50e0c0d84938220ef37da63d6',
+          'c03b14ebd188344d78ed45a0e4857fc65c7e25f50e0c0d84938220ef37da63d6',
           'hex',
         ),
         Buffer.from(
-          '028f3bb821cf276d78199fc26f5b7d912e30326a2d21f856ee1c653a896f4e5334',
+          '8f3bb821cf276d78199fc26f5b7d912e30326a2d21f856ee1c653a896f4e5334',
           'hex',
         ),
         Buffer.from(
-          '0295f6fd0d52f4be09a076a99b77e34dc005eec62bb7cec50ade968dd2f597fc52',
+          '95f6fd0d52f4be09a076a99b77e34dc005eec62bb7cec50ade968dd2f597fc52',
           'hex',
         ),
       ]);
 
       assert.strictEqual(
-        taproot.trimFirstByte(aggregatePubkey).toString('hex'),
+        aggregatePubkey.toString('hex'),
         '349740502d79dd7a1253235da3b203de6e7717f487a8d1807e683bdfe7bd17ec',
       );
     });
@@ -65,7 +65,7 @@ describe('taproot utils', () => {
     // https://github.com/bitcoinops/taproot-workshop
 
     const internalPubkey = Buffer.from(
-      '03af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e3',
+      'af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e3',
       'hex',
     );
 
@@ -130,8 +130,8 @@ describe('taproot utils', () => {
       const taprootPubkey = taproot.tapTweakPubkey(internalPubkey, tapTreeRoot);
 
       assert.strictEqual(
-        taprootPubkey.toString('hex'),
-        '8634eebf6c81c7df86185eb16415674174dcdceb8e0a5f435eeb7941639fe7b9',
+        taprootPubkey.pubkey.toString('hex'),
+        'b23960be1cb56ed0f9044ded73d758f466493cf9e2a6ce139a04fac8d630a601',
       );
     });
 
@@ -149,16 +149,17 @@ describe('taproot utils', () => {
         'hex',
       );
 
-      const tapTreeRoot = taproot.getHuffmanTaptreeRoot(
+      const tapTree = taproot.getHuffmanTaptree(
         [scriptA, scriptB, scriptC],
         [1, 1, 2],
       );
+      const tapTreeRoot = tapTree.root;
 
       const taprootPubkey = taproot.tapTweakPubkey(internalPubkey, tapTreeRoot);
 
       assert.strictEqual(
-        taprootPubkey.toString('hex'),
-        'd32c6fd13ddc1544528fd60e5c0d7a1ad0ea914fb0423b05bbb72cdc5e5dd220',
+        taprootPubkey.pubkey.toString('hex'),
+        '4c537b89b6763b2c415dee24f75a4c80b48bea926361fbf7636cbf9025c46128',
       );
     });
   });
