@@ -1,8 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.Transaction = exports.opcodes = exports.Psbt = exports.Block = exports.script = exports.payments = exports.networks = exports.crypto = exports.bip32 = exports.address = void 0;
-const bip32 = require('bip32');
-exports.bip32 = bip32;
+exports.Transaction = exports.opcodes = exports.Psbt = exports.Block = exports.script = exports.payments = exports.networks = exports.crypto = exports.address = void 0;
 const address = require('./address');
 exports.address = address;
 const crypto = require('./crypto');

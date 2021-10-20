@@ -1,16 +1,10 @@
 import * as assert from 'assert';
+import * as bip32 from 'bip32';
 import * as crypto from 'crypto';
 import { ECPair } from 'ecpair';
 import { describe, it } from 'mocha';
 
-import {
-  bip32,
-  networks as NETWORKS,
-  payments,
-  Psbt,
-  Signer,
-  SignerAsync,
-} from '..';
+import { networks as NETWORKS, payments, Psbt, Signer, SignerAsync } from '..';
 
 import * as preFixtures from './fixtures/psbt.json';
 
