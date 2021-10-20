@@ -4,10 +4,10 @@
 
 import assert = require('assert');
 import FastPriorityQueue = require('fastpriorityqueue');
-import * as bcrypto from './crypto';
 const varuint = require('varuint-bitcoin');
-
 const ecc = require('tiny-secp256k1');
+
+import { taggedHash } from './taggedHash';
 
 /**
  * The 0x02 prefix indicating an even Y coordinate which is implicitly assumed
@@ -15,26 +15,6 @@ const ecc = require('tiny-secp256k1');
  */
 export const EVEN_Y_COORD_PREFIX = new Uint8Array([0x02]);
 const INITIAL_TAPSCRIPT_VERSION = new Uint8Array([0xc0]);
-
-const TAGS = [
-  'TapLeaf',
-  'TapBranch',
-  'TapTweak',
-  'KeyAgg list',
-  'KeyAgg coefficient',
-] as const;
-type TaggedHashPrefix = typeof TAGS[number];
-/** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
-const TAGGED_HASH_PREFIXES = Object.fromEntries(
-  TAGS.map(tag => {
-    const tagHash = bcrypto.sha256(Buffer.from(tag));
-    return [tag, Buffer.concat([tagHash, tagHash])];
-  }),
-) as { [k in TaggedHashPrefix]: Buffer };
-
-function taggedHash(prefix: TaggedHashPrefix, data: Buffer): Buffer {
-  return bcrypto.sha256(Buffer.concat([TAGGED_HASH_PREFIXES[prefix], data]));
-}
 
 /**
  * Aggregates a list of public keys into a single MuSig2* public key
