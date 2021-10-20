@@ -38,51 +38,67 @@ function getFixtures(): Fixture[] {
 }
 
 describe('Schnorr', function() {
-  it('isPoint', function() {
+  function testFixtures(
+    callback: (f: Fixture) => void,
+    ignoreExceptions: string[],
+  ) {
     getFixtures().forEach(f => {
-      let expectedIsPoint = true;
-      if (f.exception === 'Expected Point') {
-        expectedIsPoint = false;
+      try {
+        callback(f);
+      } catch (e) {
+        if (
+          f.exception !== undefined &&
+          ignoreExceptions.includes(f.exception)
+        ) {
+          return;
+        }
+        throw e;
       }
-      assert.strictEqual(schnorr.isXOnlyPoint(f.Q), expectedIsPoint);
     });
+  }
+  it('isPoint', function() {
+    testFixtures(f => assert.strictEqual(schnorr.isXOnlyPoint(f.Q), true), [
+      'Expected Point',
+    ]);
   });
 
   it('verifySchnorr', function() {
-    getFixtures().forEach(f => {
-      try {
-        schnorr.verifySchnorr(f.m, f.Q, f.s);
-      } catch (e) {
-        assert.strictEqual(undefined, f.v);
-
-        if (f.exception === 'Expected Point') {
-          return;
-        }
-
-        if (f.exception === 'Expected Signature') {
-          return;
-        }
-
-        throw e;
-      }
-    });
+    testFixtures(
+      f => assert.strictEqual(schnorr.verifySchnorr(f.m, f.Q, f.s), f.v),
+      ['Expected Point', 'Expected Signature'],
+    );
   });
 
   it('signSchnorr', function() {
-    getFixtures().forEach(f => {
-      if (!f.d) {
-        return;
-      }
-      try {
-        const sig = schnorr.signSchnorr(f.m, f.d, f.e);
-        assert.strictEqual(sig.toString('hex'), f.s.toString('hex'));
-      } catch (e) {
-        if (f.exception === 'Expected Private') {
+    testFixtures(
+      f => {
+        if (!f.d) {
           return;
         }
+        const sig = schnorr.signSchnorr(f.m, f.d, f.e);
+        assert.strictEqual(sig.toString('hex'), f.s.toString('hex'));
+        assert.strictEqual(schnorr.verifySchnorr(f.m, f.Q, sig), true);
+      },
+      ['Expected Private'],
+    );
+  });
 
-        throw e;
-      }
-    });
+  it('signSchnorrWithoutExtraData', function() {
+    testFixtures(
+      f => {
+        if (!f.d) {
+          return;
+        }
+        assert.strictEqual(
+          schnorr.verifySchnorr(
+            f.m,
+            f.Q,
+            schnorr.signSchnorrWithoutExtraData(f.m, f.d),
+          ),
+          true,
+        );
+      },
+      ['Expected Private'],
+    );
   });
 });
