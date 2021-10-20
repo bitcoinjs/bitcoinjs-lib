@@ -1,6 +1,7 @@
 /**
  * This file contains a plain javascript implementation of some basic schnorr
- * signing and verification methods.
+ * signing and verification methods as defined in bip-0340:
+ * https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki
  *
  * These methods are not intended for production use.
  *
