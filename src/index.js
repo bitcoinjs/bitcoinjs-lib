@@ -22,5 +22,3 @@ var script_1 = require('./script');
 exports.opcodes = script_1.OPS;
 var transaction_1 = require('./transaction');
 exports.Transaction = transaction_1.Transaction;
-var transaction_builder_1 = require('./transaction_builder');
-exports.TransactionBuilder = transaction_builder_1.TransactionBuilder;
