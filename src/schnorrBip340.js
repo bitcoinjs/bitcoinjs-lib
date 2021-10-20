@@ -89,6 +89,10 @@ function hasEvenY(P) {
       .isZero()
   );
 }
+/**
+ * @param x - Buffer
+ * @return {Boolean} - true iff x is a valid 32-byte x-only public key buffer
+ */
 function isXOnlyPoint(x) {
   try {
     decodeXOnlyPoint(x);
@@ -106,6 +110,13 @@ function isSignature(value) {
   const s = value.slice(32, 64);
   return r.compare(EC_GROUP_ORDER) < 0 && s.compare(EC_GROUP_ORDER) < 0;
 }
+/**
+ * @param hash - message hash
+ * @param q - public key buffer (x-only format, 32 byte)
+ * @param signature - schnorr signature (64 bytes)
+ * @throws {TypeError} - if any of the arguments is invalid
+ * @return {Boolean} - true iff the signature is valid
+ */
 function verifySchnorr(hash, q, signature) {
   // See https://github.com/bitcoin/bips/blob/a79eb556f37fdac96364db546864cbb9ba0cc634/bip-0340/reference.py#L124
   // for reference.
@@ -172,10 +183,46 @@ function __signSchnorr(hash, d, extraData) {
   }
   return sig;
 }
+/**
+ * Create signature with extraData
+ *
+ * Quote BIP0340:
+ * ```
+ * The auxiliary random data should be set to fresh randomness generated at
+ * signing time, resulting in what is called a synthetic nonce.
+ * Using 32 bytes of randomness is optimal.
+ * ...
+ * Note that while this means the resulting nonce is not deterministic,
+ * the randomness is only supplemental to security.
+ * ```
+ *
+ * @param hash - the message hash
+ * @param d - the private key buffer
+ * @param extraData - aka auxiliary random data
+ * @return {Buffer} - signature
+ */
 function signSchnorr(hash, d, extraData) {
   return __signSchnorr(hash, d, extraData);
 }
 exports.signSchnorr = signSchnorr;
+/**
+ * Create signature without external randomness.
+ * This slightly reduces security.
+ * Use only if no external randomness is available.
+ * Quote from BIP0340:
+ *
+ * ```
+ * Using any non-repeating value increases protection against fault injection
+ * attacks. Using unpredictable randomness additionally increases protection
+ * against other side-channel attacks, and is recommended whenever available.
+ * Note that while this means the resulting nonce is not deterministic,
+ * the randomness is only supplemental to security.
+ * ```
+ *
+ * @param hash - the message hash
+ * @param d - the private key buffer
+ * @return {Buffer} - signature
+ */
 function signSchnorrWithoutExtraData(hash, d) {
   return __signSchnorr(hash, d);
 }
