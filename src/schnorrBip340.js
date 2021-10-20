@@ -16,7 +16,7 @@
  * https://github.com/bitcoinjs/tiny-secp256k1/blob/v1.1.6/js.js
  */
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.signSchnorrWithEntropy = exports.signSchnorr = exports.verifySchnorr = exports.isXOnlyPoint = void 0;
+exports.signSchnorrWithoutExtraData = exports.signSchnorr = exports.verifySchnorr = exports.isXOnlyPoint = void 0;
 const BN = require('bn.js');
 const elliptic_1 = require('elliptic');
 const { createHash } = require('crypto');
@@ -130,13 +130,17 @@ function __signSchnorr(hash, d, extraData) {
   // for reference.
   if (!isScalar(hash)) throw new TypeError(THROW_BAD_HASH);
   if (!isPrivate(d)) throw new TypeError(THROW_BAD_PRIVATE);
-  if (!Buffer.isBuffer(extraData) || extraData.length !== 32) {
-    throw new TypeError(THROW_BAD_EXTRA_DATA);
+  if (extraData !== undefined) {
+    if (!Buffer.isBuffer(extraData) || extraData.length !== 32) {
+      throw new TypeError(THROW_BAD_EXTRA_DATA);
+    }
   }
   let dd = fromBuffer(d);
   const P = G.mul(dd);
   dd = hasEvenY(P) ? dd : n.sub(dd);
-  const t = dd.xor(fromBuffer(taggedHash('BIP0340/aux', extraData)));
+  const t = extraData
+    ? dd.xor(fromBuffer(taggedHash('BIP0340/aux', extraData)))
+    : dd;
   const k0 = fromBuffer(
     taggedHash(
       'BIP0340/nonce',
@@ -168,11 +172,11 @@ function __signSchnorr(hash, d, extraData) {
   }
   return sig;
 }
-function signSchnorr(hash, d) {
-  return __signSchnorr(hash, d, Buffer.alloc(32));
+function signSchnorr(hash, d, extraData) {
+  return __signSchnorr(hash, d, extraData);
 }
 exports.signSchnorr = signSchnorr;
-function signSchnorrWithEntropy(hash, d, auxRand) {
-  return __signSchnorr(hash, d, auxRand);
+function signSchnorrWithoutExtraData(hash, d) {
+  return __signSchnorr(hash, d);
 }
-exports.signSchnorrWithEntropy = signSchnorrWithEntropy;
+exports.signSchnorrWithoutExtraData = signSchnorrWithoutExtraData;

@@ -17,5 +17,5 @@
 /// <reference types="node" />
 export declare function isXOnlyPoint(x: Buffer): boolean;
 export declare function verifySchnorr(hash: Buffer, q: Buffer, signature: Buffer): boolean;
-export declare function signSchnorr(hash: Buffer, d: Buffer): Buffer;
-export declare function signSchnorrWithEntropy(hash: Buffer, d: Buffer, auxRand: Buffer): Buffer;
+export declare function signSchnorr(hash: Buffer, d: Buffer, extraData: Buffer): Buffer;
+export declare function signSchnorrWithoutExtraData(hash: Buffer, d: Buffer): Buffer;

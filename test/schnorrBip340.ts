@@ -74,7 +74,7 @@ describe('Schnorr', function() {
         return;
       }
       try {
-        const sig = schnorr.signSchnorrWithEntropy(f.m, f.d, f.e);
+        const sig = schnorr.signSchnorr(f.m, f.d, f.e);
         assert.strictEqual(sig.toString('hex'), f.s.toString('hex'));
       } catch (e) {
         if (f.exception === 'Expected Private') {

@@ -141,18 +141,22 @@ export function verifySchnorr(
   return !R.isInfinity() && hasEvenY(R) && R.getX().eq(r);
 }
 
-function __signSchnorr(hash: Buffer, d: Buffer, extraData: Buffer): Buffer {
+function __signSchnorr(hash: Buffer, d: Buffer, extraData?: Buffer): Buffer {
   // See https://github.com/bitcoin/bips/blob/a79eb556f37fdac96364db546864cbb9ba0cc634/bip-0340/reference.py#L99
   // for reference.
   if (!isScalar(hash)) throw new TypeError(THROW_BAD_HASH);
   if (!isPrivate(d)) throw new TypeError(THROW_BAD_PRIVATE);
-  if (!Buffer.isBuffer(extraData) || extraData.length !== 32) {
-    throw new TypeError(THROW_BAD_EXTRA_DATA);
+  if (extraData !== undefined) {
+    if (!Buffer.isBuffer(extraData) || extraData.length !== 32) {
+      throw new TypeError(THROW_BAD_EXTRA_DATA);
+    }
   }
   let dd = fromBuffer(d);
   const P = G.mul(dd);
   dd = hasEvenY(P) ? dd : n.sub(dd);
-  const t = dd.xor(fromBuffer(taggedHash('BIP0340/aux', extraData)));
+  const t = extraData
+    ? dd.xor(fromBuffer(taggedHash('BIP0340/aux', extraData)))
+    : dd;
   const k0 = fromBuffer(
     taggedHash(
       'BIP0340/nonce',
@@ -185,14 +189,14 @@ function __signSchnorr(hash: Buffer, d: Buffer, extraData: Buffer): Buffer {
   return sig;
 }
 
-export function signSchnorr(hash: Buffer, d: Buffer): Buffer {
-  return __signSchnorr(hash, d, Buffer.alloc(32));
-}
-
-export function signSchnorrWithEntropy(
+export function signSchnorr(
   hash: Buffer,
   d: Buffer,
-  auxRand: Buffer,
+  extraData: Buffer,
 ): Buffer {
-  return __signSchnorr(hash, d, auxRand);
+  return __signSchnorr(hash, d, extraData);
+}
+
+export function signSchnorrWithoutExtraData(hash: Buffer, d: Buffer): Buffer {
+  return __signSchnorr(hash, d);
 }
