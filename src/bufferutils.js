@@ -1,8 +1,10 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.BufferReader = exports.BufferWriter = exports.cloneBuffer = exports.reverseBuffer = exports.writeUInt64LE = exports.readUInt64LE = exports.varuint = void 0;
 const types = require('./types');
-const typeforce = require('typeforce');
+const { typeforce } = types;
 const varuint = require('varuint-bitcoin');
+exports.varuint = varuint;
 // https://github.com/feross/buffer/blob/master/index.js#L1127
 function verifuint(value, max) {
   if (typeof value !== 'number')
@@ -51,6 +53,8 @@ exports.cloneBuffer = cloneBuffer;
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
 class BufferWriter {
+  buffer;
+  offset;
   constructor(buffer, offset = 0) {
     this.buffer = buffer;
     this.offset = offset;
@@ -92,6 +96,8 @@ exports.BufferWriter = BufferWriter;
  * Helper class for reading of bitcoin data types from a buffer.
  */
 class BufferReader {
+  buffer;
+  offset;
   constructor(buffer, offset = 0) {
     this.buffer = buffer;
     this.offset = offset;

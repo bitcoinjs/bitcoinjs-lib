@@ -1,13 +1,12 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.Transaction = exports.opcodes = exports.Psbt = exports.Block = exports.script = exports.payments = exports.networks = exports.crypto = exports.bip32 = exports.address = void 0;
 const bip32 = require('bip32');
 exports.bip32 = bip32;
 const address = require('./address');
 exports.address = address;
 const crypto = require('./crypto');
 exports.crypto = crypto;
-const ECPair = require('./ecpair');
-exports.ECPair = ECPair;
 const networks = require('./networks');
 exports.networks = networks;
 const payments = require('./payments');
@@ -15,10 +14,30 @@ exports.payments = payments;
 const script = require('./script');
 exports.script = script;
 var block_1 = require('./block');
-exports.Block = block_1.Block;
+Object.defineProperty(exports, 'Block', {
+  enumerable: true,
+  get: function() {
+    return block_1.Block;
+  },
+});
 var psbt_1 = require('./psbt');
-exports.Psbt = psbt_1.Psbt;
-var script_1 = require('./script');
-exports.opcodes = script_1.OPS;
+Object.defineProperty(exports, 'Psbt', {
+  enumerable: true,
+  get: function() {
+    return psbt_1.Psbt;
+  },
+});
+var ops_1 = require('./ops');
+Object.defineProperty(exports, 'opcodes', {
+  enumerable: true,
+  get: function() {
+    return ops_1.OPS;
+  },
+});
 var transaction_1 = require('./transaction');
-exports.Transaction = transaction_1.Transaction;
+Object.defineProperty(exports, 'Transaction', {
+  enumerable: true,
+  get: function() {
+    return transaction_1.Transaction;
+  },
+});

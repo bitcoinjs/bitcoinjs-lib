@@ -1,4 +1,4 @@
-const createHash = require('create-hash');
+import * as createHash from 'create-hash';
 
 export function ripemd160(buffer: Buffer): Buffer {
   try {

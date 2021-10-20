@@ -1,6 +1,7 @@
 import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
+import { typeforce as typef } from '../types';
 import {
   Payment,
   PaymentFunction,
@@ -9,10 +10,8 @@ import {
   StackFunction,
 } from './index';
 import * as lazy from './lazy';
-const typef = require('typeforce');
+import * as bs58check from 'bs58check';
 const OPS = bscript.OPS;
-
-const bs58check = require('bs58check');
 
 function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
   if (a.length !== b.length) return false;
@@ -58,7 +57,7 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
   const o: Payment = { network };
 
   const _address = lazy.value(() => {
-    const payload = bs58check.decode(a.address);
+    const payload = bs58check.decode(a.address!);
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
     return { version, hash };

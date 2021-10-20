@@ -1,12 +1,13 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.toOutputScript = exports.fromOutputScript = exports.toBech32 = exports.toBase58Check = exports.fromBech32 = exports.fromBase58Check = void 0;
 const networks = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
 const types = require('./types');
-const { bech32, bech32m } = require('bech32');
+const bech32_1 = require('bech32');
 const bs58check = require('bs58check');
-const typeforce = require('typeforce');
+const { typeforce } = types;
 const FUTURE_SEGWIT_MAX_SIZE = 40;
 const FUTURE_SEGWIT_MIN_SIZE = 2;
 const FUTURE_SEGWIT_MAX_VERSION = 16;
@@ -43,17 +44,17 @@ function fromBech32(address) {
   let result;
   let version;
   try {
-    result = bech32.decode(address);
+    result = bech32_1.bech32.decode(address);
   } catch (e) {}
   if (result) {
     version = result.words[0];
     if (version !== 0) throw new TypeError(address + ' uses wrong encoding');
   } else {
-    result = bech32m.decode(address);
+    result = bech32_1.bech32m.decode(address);
     version = result.words[0];
     if (version === 0) throw new TypeError(address + ' uses wrong encoding');
   }
-  const data = bech32.fromWords(result.words.slice(1));
+  const data = bech32_1.bech32.fromWords(result.words.slice(1));
   return {
     version,
     prefix: result.prefix,
@@ -70,11 +71,11 @@ function toBase58Check(hash, version) {
 }
 exports.toBase58Check = toBase58Check;
 function toBech32(data, version, prefix) {
-  const words = bech32.toWords(data);
+  const words = bech32_1.bech32.toWords(data);
   words.unshift(version);
   return version === 0
-    ? bech32.encode(prefix, words)
-    : bech32m.encode(prefix, words);
+    ? bech32_1.bech32.encode(prefix, words)
+    : bech32_1.bech32m.encode(prefix, words);
 }
 exports.toBech32 = toBech32;
 function fromOutputScript(output, network) {

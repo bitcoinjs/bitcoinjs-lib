@@ -1,20 +1,20 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.Transaction = void 0;
 const bufferutils_1 = require('./bufferutils');
 const bcrypto = require('./crypto');
 const bscript = require('./script');
 const script_1 = require('./script');
 const types = require('./types');
-const typeforce = require('typeforce');
-const varuint = require('varuint-bitcoin');
+const { typeforce } = types;
 function varSliceSize(someScript) {
   const length = someScript.length;
-  return varuint.encodingLength(length) + length;
+  return bufferutils_1.varuint.encodingLength(length) + length;
 }
 function vectorSize(someVector) {
   const length = someVector.length;
   return (
-    varuint.encodingLength(length) +
+    bufferutils_1.varuint.encodingLength(length) +
     someVector.reduce((sum, witness) => {
       return sum + varSliceSize(witness);
     }, 0)
@@ -39,12 +39,13 @@ function isOutput(out) {
   return out.value !== undefined;
 }
 class Transaction {
-  constructor() {
-    this.version = 1;
-    this.locktime = 0;
-    this.ins = [];
-    this.outs = [];
-  }
+  static DEFAULT_SEQUENCE = 0xffffffff;
+  static SIGHASH_ALL = 0x01;
+  static SIGHASH_NONE = 0x02;
+  static SIGHASH_SINGLE = 0x03;
+  static SIGHASH_ANYONECANPAY = 0x80;
+  static ADVANCED_TRANSACTION_MARKER = 0x00;
+  static ADVANCED_TRANSACTION_FLAG = 0x01;
   static fromBuffer(buffer, _NO_STRICT) {
     const bufferReader = new bufferutils_1.BufferReader(buffer);
     const tx = new Transaction();
@@ -101,6 +102,10 @@ class Transaction {
     }
     return true;
   }
+  version = 1;
+  locktime = 0;
+  ins = [];
+  outs = [];
   isCoinbase() {
     return (
       this.ins.length === 1 && Transaction.isCoinbaseHash(this.ins[0].hash)
@@ -157,8 +162,8 @@ class Transaction {
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
     return (
       (hasWitnesses ? 10 : 8) +
-      varuint.encodingLength(this.ins.length) +
-      varuint.encodingLength(this.outs.length) +
+      bufferutils_1.varuint.encodingLength(this.ins.length) +
+      bufferutils_1.varuint.encodingLength(this.outs.length) +
       this.ins.reduce((sum, input) => {
         return sum + 40 + varSliceSize(input.script);
       }, 0) +
@@ -336,7 +341,9 @@ class Transaction {
   }
   getId() {
     // transaction hash's are displayed in reverse order
-    return bufferutils_1.reverseBuffer(this.getHash(false)).toString('hex');
+    return (0, bufferutils_1.reverseBuffer)(this.getHash(false)).toString(
+      'hex',
+    );
   }
   toBuffer(buffer, initialOffset) {
     return this.__toBuffer(buffer, initialOffset, true);
@@ -392,11 +399,4 @@ class Transaction {
     return buffer;
   }
 }
-Transaction.DEFAULT_SEQUENCE = 0xffffffff;
-Transaction.SIGHASH_ALL = 0x01;
-Transaction.SIGHASH_NONE = 0x02;
-Transaction.SIGHASH_SINGLE = 0x03;
-Transaction.SIGHASH_ANYONECANPAY = 0x80;
-Transaction.ADVANCED_TRANSACTION_MARKER = 0x00;
-Transaction.ADVANCED_TRANSACTION_FLAG = 0x01;
 exports.Transaction = Transaction;

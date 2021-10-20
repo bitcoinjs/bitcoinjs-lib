@@ -2,7 +2,8 @@
   "defaultSeverity": "error",
   "extends": ["tslint:recommended"],
   "rules": {
-    "arrow-parens": [true, "ban-single-arg-parens"],
+    "array-type": false,
+    "arrow-parens": false,
     "curly": false,
     "indent": [
       true,
@@ -25,7 +26,6 @@
     "typedef": [
       true,
       "call-signature",
-      "arrow-call-signature",
       "property-declaration"
     ],
     "variable-name": [

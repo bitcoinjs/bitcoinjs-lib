@@ -1,17 +1,14 @@
+import * as bip66 from './bip66';
+import { OPS, REVERSE_OPS } from './ops';
 import { Stack } from './payments';
+import * as pushdata from './push_data';
 import * as scriptNumber from './script_number';
 import * as scriptSignature from './script_signature';
 import * as types from './types';
-const bip66 = require('bip66');
-const ecc = require('tiny-secp256k1');
-const pushdata = require('pushdata-bitcoin');
-const typeforce = require('typeforce');
+const { typeforce } = types;
 
-export type OpCode = number;
-export const OPS = require('bitcoin-ops') as { [index: string]: OpCode };
-
-const REVERSE_OPS = require('bitcoin-ops/map') as { [index: number]: string };
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
+export { OPS };
 
 function isOPInt(value: number): boolean {
   return (
@@ -194,7 +191,7 @@ export function toStack(chunks: Buffer | Array<number | Buffer>): Buffer[] {
 }
 
 export function isCanonicalPubKey(buffer: Buffer): boolean {
-  return ecc.isPoint(buffer);
+  return types.isPoint(buffer);
 }
 
 export function isDefinedHashType(hashType: number): boolean {

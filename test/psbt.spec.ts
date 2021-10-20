@@ -1,10 +1,10 @@
 import * as assert from 'assert';
 import * as crypto from 'crypto';
+import { ECPair } from 'ecpair';
 import { describe, it } from 'mocha';
 
 import {
   bip32,
-  ECPair,
   networks as NETWORKS,
   payments,
   Psbt,
@@ -13,6 +13,12 @@ import {
 } from '..';
 
 import * as preFixtures from './fixtures/psbt.json';
+
+const validator = (
+  pubkey: Buffer,
+  msghash: Buffer,
+  signature: Buffer,
+): boolean => ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 const initBuffers = (object: any): typeof preFixtures =>
   JSON.parse(JSON.stringify(object), (_, value) => {
@@ -896,7 +902,7 @@ describe(`Psbt`, () => {
       const notAClone = Object.assign(new Psbt(), psbt); // references still active
       const clone = psbt.clone();
 
-      assert.strictEqual(psbt.validateSignaturesOfAllInputs(), true);
+      assert.strictEqual(psbt.validateSignaturesOfAllInputs(validator), true);
 
       assert.strictEqual(clone.toBase64(), psbt.toBase64());
       assert.strictEqual(clone.toBase64(), notAClone.toBase64());
@@ -923,20 +929,27 @@ describe(`Psbt`, () => {
     it('Correctly validates a signature', () => {
       const psbt = Psbt.fromBase64(f.psbt);
 
-      assert.strictEqual(psbt.validateSignaturesOfInput(f.index), true);
+      assert.strictEqual(
+        psbt.validateSignaturesOfInput(f.index, validator),
+        true,
+      );
       assert.throws(() => {
-        psbt.validateSignaturesOfInput(f.nonExistantIndex);
+        psbt.validateSignaturesOfInput(f.nonExistantIndex, validator);
       }, new RegExp('No signatures to validate'));
     });
 
     it('Correctly validates a signature against a pubkey', () => {
       const psbt = Psbt.fromBase64(f.psbt);
       assert.strictEqual(
-        psbt.validateSignaturesOfInput(f.index, f.pubkey as any),
+        psbt.validateSignaturesOfInput(f.index, validator, f.pubkey as any),
         true,
       );
       assert.throws(() => {
-        psbt.validateSignaturesOfInput(f.index, f.incorrectPubkey as any);
+        psbt.validateSignaturesOfInput(
+          f.index,
+          validator,
+          f.incorrectPubkey as any,
+        );
       }, new RegExp('No signatures for this pubkey'));
     });
   });
@@ -985,7 +998,7 @@ describe(`Psbt`, () => {
     assert.throws(() => {
       psbt.setVersion(3);
     }, new RegExp('Can not modify transaction, signatures exist.'));
-    psbt.validateSignaturesOfInput(0);
+    psbt.validateSignaturesOfInput(0, validator);
     psbt.finalizeAllInputs();
     assert.throws(() => {
       psbt.setVersion(3);

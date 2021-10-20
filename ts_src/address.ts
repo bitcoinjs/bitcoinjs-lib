@@ -3,10 +3,9 @@ import * as networks from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import * as types from './types';
-
-const { bech32, bech32m } = require('bech32');
-const bs58check = require('bs58check');
-const typeforce = require('typeforce');
+import { bech32, bech32m } from 'bech32';
+import * as bs58check from 'bs58check';
+const { typeforce } = types;
 
 export interface Base58CheckResult {
   hash: Buffer;
