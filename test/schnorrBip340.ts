@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as schnorr from '../ts_src/schnorrBip340';
 const fixtures = require('./fixtures/schnorr.json');
 
-type Fixture = {
+interface Fixture {
   d?: Buffer;
   e: Buffer;
   Q: Buffer;
@@ -11,7 +11,7 @@ type Fixture = {
   v?: boolean;
   exception?: string;
   comment: string;
-};
+}
 
 function getFixtures(): Fixture[] {
   return fixtures.bip340testvectors.map((f: Record<string, unknown>) =>
@@ -37,11 +37,11 @@ function getFixtures(): Fixture[] {
   );
 }
 
-describe('Schnorr', function() {
+describe('Schnorr', () => {
   function testFixtures(
     callback: (f: Fixture) => void,
     ignoreExceptions: string[],
-  ) {
+  ): void {
     getFixtures().forEach(f => {
       try {
         callback(f);
@@ -56,20 +56,20 @@ describe('Schnorr', function() {
       }
     });
   }
-  it('isPoint', function() {
+  it('isPoint', () => {
     testFixtures(f => assert.strictEqual(schnorr.isXOnlyPoint(f.Q), true), [
       'Expected Point',
     ]);
   });
 
-  it('verifySchnorr', function() {
+  it('verifySchnorr', () => {
     testFixtures(
       f => assert.strictEqual(schnorr.verifySchnorr(f.m, f.Q, f.s), f.v),
       ['Expected Point', 'Expected Signature'],
     );
   });
 
-  it('signSchnorr', function() {
+  it('signSchnorr', () => {
     testFixtures(
       f => {
         if (!f.d) {
@@ -83,7 +83,7 @@ describe('Schnorr', function() {
     );
   });
 
-  it('signSchnorrWithoutExtraData', function() {
+  it('signSchnorrWithoutExtraData', () => {
     testFixtures(
       f => {
         if (!f.d) {
