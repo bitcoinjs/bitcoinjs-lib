@@ -144,11 +144,13 @@ function __signSchnorr(hash, d, extraData) {
     ),
   );
   if (k0.isZero()) {
-    throw new Error(`Failure. This happens only with negligible probability.`);
+    throw new Error(
+      `Failure (k0===0). This happens only with negligible probability.`,
+    );
   }
   const R = G.mul(k0);
   if (R.isInfinity()) {
-    throw new Error();
+    throw new Error(`R at Infinity`);
   }
   const k = hasEvenY(R) ? k0 : n.sub(k0);
   const e = fromBuffer(
