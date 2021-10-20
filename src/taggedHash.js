@@ -3,6 +3,9 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.taggedHash = void 0;
 const bcrypto = require('./crypto');
 const TAGS = [
+  'BIP0340/challenge',
+  'BIP0340/aux',
+  'BIP0340/nonce',
   'TapLeaf',
   'TapBranch',
   'TapTweak',

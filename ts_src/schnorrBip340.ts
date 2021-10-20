@@ -17,7 +17,7 @@
 
 import * as BN from 'bn.js';
 import { curve, ec as EC } from 'elliptic';
-const { createHash } = require('crypto');
+import { taggedHash } from './taggedHash';
 const secp256k1 = new EC('secp256k1');
 
 const ZERO32 = Buffer.alloc(32, 0);
@@ -58,24 +58,6 @@ function isPrivate(x: Buffer): boolean {
 }
 
 const TWO = new BN(2);
-
-function sha256(message: Buffer): Buffer {
-  return createHash('sha256')
-    .update(message)
-    .digest();
-}
-
-// TODO(BG-37835): consolidate with taggedHash in `p2tr.ts`
-function taggedHash(tagString: string, msg: Buffer): Buffer {
-  if (typeof tagString !== 'string') {
-    throw new TypeError('invalid argument');
-  }
-  if (!Buffer.isBuffer(msg)) {
-    throw new TypeError('invalid argument');
-  }
-  const tagHash = sha256(Buffer.from(tagString, 'utf8'));
-  return sha256(Buffer.concat([tagHash, tagHash, msg]));
-}
 
 function decodeXOnlyPoint(bytes: Buffer): curve.base.BasePoint {
   if (!Buffer.isBuffer(bytes) || bytes.length !== 32) {

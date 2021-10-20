@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import * as schnorr from '../ts_src/schnorrBip340';
+import * as schnorr from '../src/schnorrBip340';
 const fixtures = require('./fixtures/schnorr.json');
 
 interface Fixture {
