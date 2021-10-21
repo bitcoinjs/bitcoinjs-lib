@@ -133,7 +133,7 @@ function verifySchnorr(hash, q, signature) {
   const e = fromBuffer(
     taggedHash('BIP0340/challenge', Buffer.concat([rBuf, q, hash])),
   ).mod(n);
-  const R = G.mul(s).add(P.mul(n.sub(e)));
+  const R = G.mul(s).add(P.mul(e).neg());
   return !R.isInfinity() && hasEvenY(R) && R.getX().eq(r);
 }
 exports.verifySchnorr = verifySchnorr;
