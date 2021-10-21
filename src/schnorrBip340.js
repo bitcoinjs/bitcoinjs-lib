@@ -103,14 +103,6 @@ function isXOnlyPoint(x) {
   }
 }
 exports.isXOnlyPoint = isXOnlyPoint;
-function isSignature(value) {
-  if (!Buffer.isBuffer(value) || value.length !== 64) {
-    return false;
-  }
-  const r = value.slice(0, 32);
-  const s = value.slice(32, 64);
-  return r.compare(EC_GROUP_ORDER) < 0 && s.compare(EC_GROUP_ORDER) < 0;
-}
 /**
  * @param hash - message hash
  * @param q - public key buffer (x-only format, 32 byte)
@@ -121,18 +113,25 @@ function isSignature(value) {
 function verifySchnorr(hash, q, signature) {
   // See https://github.com/bitcoin/bips/blob/a79eb556f37fdac96364db546864cbb9ba0cc634/bip-0340/reference.py#L124
   // for reference.
-  if (!Buffer.isBuffer(hash) || hash.length !== 32)
+  if (!Buffer.isBuffer(hash) || hash.length !== 32) {
     throw new TypeError(THROW_BAD_HASH);
-  if (!isXOnlyPoint(q)) throw new TypeError(THROW_BAD_POINT);
-  if (!isSignature(signature)) throw new TypeError(THROW_BAD_SIGNATURE);
+  }
+  if (!isXOnlyPoint(q)) {
+    throw new TypeError(THROW_BAD_POINT);
+  }
   const P = decodeXOnlyPoint(q);
-  const r = fromBuffer(signature.slice(0, 32));
-  const s = fromBuffer(signature.slice(32, 64));
+  if (!Buffer.isBuffer(signature) || signature.length !== 64) {
+    throw new TypeError(THROW_BAD_SIGNATURE);
+  }
+  const rBuf = signature.slice(0, 32);
+  const sBuf = signature.slice(32, 64);
+  if (rBuf.compare(EC_P) >= 0 || sBuf.compare(EC_GROUP_ORDER) >= 0) {
+    throw new TypeError(THROW_BAD_SIGNATURE);
+  }
+  const r = fromBuffer(rBuf);
+  const s = fromBuffer(sBuf);
   const e = fromBuffer(
-    taggedHash(
-      'BIP0340/challenge',
-      Buffer.concat([signature.slice(0, 32), q, hash]),
-    ),
+    taggedHash('BIP0340/challenge', Buffer.concat([rBuf, q, hash])),
   ).mod(n);
   const R = G.mul(s).add(P.mul(n.sub(e)));
   return !R.isInfinity() && hasEvenY(R) && R.getX().eq(r);
