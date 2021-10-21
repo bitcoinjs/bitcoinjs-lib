@@ -57,6 +57,7 @@
     "bs58check": "^2.0.0",
     "create-hash": "^1.1.0",
     "create-hmac": "^1.1.3",
+    "elliptic": "^6.5.4",
     "fastpriorityqueue": "^0.7.1",
     "merkle-lib": "^2.0.10",
     "pushdata-bitcoin": "^1.0.1",
@@ -67,7 +68,9 @@
     "wif": "^2.0.1"
   },
   "devDependencies": {
+    "@types/bn.js": "^5.1.0",
     "@types/bs58": "^4.0.0",
+    "@types/elliptic": "^6.4.13",
     "@types/mocha": "^5.2.7",
     "@types/node": "12.7.5",
     "@types/proxyquire": "^1.3.28",
