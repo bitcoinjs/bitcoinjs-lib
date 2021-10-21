@@ -45,15 +45,15 @@ function toBuffer(d: BN): Buffer {
 const n = secp256k1.curve.n;
 const G = secp256k1.curve.g;
 
-function isScalar(x: Buffer): boolean {
-  return Buffer.isBuffer(x) && x.length === 32;
-}
-
 function isPrivate(x: Buffer): boolean {
-  if (!isScalar(x)) return false;
   return (
-    x.compare(ZERO32) > 0 && x.compare(EC_GROUP_ORDER) < 0 // > 0
-  ); // < G
+    Buffer.isBuffer(x) &&
+    x.length === 32 &&
+    // > 0
+    x.compare(ZERO32) > 0 &&
+    // < G
+    x.compare(EC_GROUP_ORDER) < 0
+  );
 }
 
 const TWO = new BN(2);
@@ -135,7 +135,8 @@ export function verifySchnorr(
 ): boolean {
   // See https://github.com/bitcoin/bips/blob/a79eb556f37fdac96364db546864cbb9ba0cc634/bip-0340/reference.py#L124
   // for reference.
-  if (!isScalar(hash)) throw new TypeError(THROW_BAD_HASH);
+  if (!Buffer.isBuffer(hash) || hash.length !== 32)
+    throw new TypeError(THROW_BAD_HASH);
   if (!isXOnlyPoint(q)) throw new TypeError(THROW_BAD_POINT);
   if (!isSignature(signature)) throw new TypeError(THROW_BAD_SIGNATURE);
 
@@ -155,7 +156,8 @@ export function verifySchnorr(
 function __signSchnorr(hash: Buffer, d: Buffer, extraData?: Buffer): Buffer {
   // See https://github.com/bitcoin/bips/blob/a79eb556f37fdac96364db546864cbb9ba0cc634/bip-0340/reference.py#L99
   // for reference.
-  if (!isScalar(hash)) throw new TypeError(THROW_BAD_HASH);
+  if (!Buffer.isBuffer(hash) || hash.length !== 32)
+    throw new TypeError(THROW_BAD_HASH);
   if (!isPrivate(d)) throw new TypeError(THROW_BAD_PRIVATE);
   if (extraData !== undefined) {
     if (!Buffer.isBuffer(extraData) || extraData.length !== 32) {
