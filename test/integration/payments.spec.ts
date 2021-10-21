@@ -1,10 +1,11 @@
+import { ECPair } from 'ecpair';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
 const NETWORK = regtestUtils.network;
 const keyPairs = [
-  bitcoin.ECPair.makeRandom({ network: NETWORK }),
-  bitcoin.ECPair.makeRandom({ network: NETWORK }),
+  ECPair.makeRandom({ network: NETWORK }),
+  ECPair.makeRandom({ network: NETWORK }),
 ];
 
 async function buildAndSign(

@@ -1,11 +1,14 @@
-import { BufferReader, BufferWriter, reverseBuffer } from './bufferutils';
+import {
+  BufferReader,
+  BufferWriter,
+  reverseBuffer,
+  varuint,
+} from './bufferutils';
 import * as bcrypto from './crypto';
 import * as bscript from './script';
 import { OPS as opcodes } from './script';
 import * as types from './types';
-
-const typeforce = require('typeforce');
-const varuint = require('varuint-bitcoin');
+const { typeforce } = types;
 
 function varSliceSize(someScript: Buffer): number {
   const length = someScript.length;

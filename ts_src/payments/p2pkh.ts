@@ -1,13 +1,11 @@
 import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
+import { isPoint, typeforce as typef } from '../types';
 import { Payment, PaymentOpts, StackFunction } from './index';
 import * as lazy from './lazy';
-const typef = require('typeforce');
+import * as bs58check from 'bs58check';
 const OPS = bscript.OPS;
-const ecc = require('tiny-secp256k1');
-
-const bs58check = require('bs58check');
 
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
@@ -23,7 +21,7 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
       hash: typef.maybe(typef.BufferN(20)),
       output: typef.maybe(typef.BufferN(25)),
 
-      pubkey: typef.maybe(ecc.isPoint),
+      pubkey: typef.maybe(isPoint),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       input: typef.maybe(typef.Buffer),
     },
@@ -31,7 +29,7 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
   );
 
   const _address = lazy.value(() => {
-    const payload = bs58check.decode(a.address);
+    const payload = bs58check.decode(a.address!);
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
     return { version, hash };
@@ -129,8 +127,7 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
       if (chunks.length !== 2) throw new TypeError('Input is invalid');
       if (!bscript.isCanonicalScriptSignature(chunks[0] as Buffer))
         throw new TypeError('Input has invalid signature');
-      if (!ecc.isPoint(chunks[1]))
-        throw new TypeError('Input has invalid pubkey');
+      if (!isPoint(chunks[1])) throw new TypeError('Input has invalid pubkey');
 
       if (a.signature && !a.signature.equals(chunks[0] as Buffer))
         throw new TypeError('Signature mismatch');

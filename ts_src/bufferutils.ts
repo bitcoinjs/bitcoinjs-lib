@@ -1,7 +1,7 @@
 import * as types from './types';
-
-const typeforce = require('typeforce');
-const varuint = require('varuint-bitcoin');
+const { typeforce } = types;
+import * as varuint from 'varuint-bitcoin';
+export { varuint };
 
 // https://github.com/feross/buffer/blob/master/index.js#L1127
 function verifuint(value: number, max: number): void {

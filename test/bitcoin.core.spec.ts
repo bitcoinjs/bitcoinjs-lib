@@ -88,49 +88,6 @@ describe('Bitcoin-core', () => {
     });
   });
 
-  // base58KeysValid
-  describe('ECPair', () => {
-    base58KeysValid.forEach(f => {
-      const strng = f[0] as string;
-      const hex = f[1];
-      const params = f[2] as any;
-
-      if (!params.isPrivkey) return;
-
-      const network = params.isTestnet
-        ? bitcoin.networks.testnet
-        : bitcoin.networks.bitcoin;
-      const keyPair = bitcoin.ECPair.fromWIF(strng, network);
-
-      it('fromWIF imports ' + strng, () => {
-        assert.strictEqual(keyPair.privateKey!.toString('hex'), hex);
-        assert.strictEqual(keyPair.compressed, params.isCompressed);
-      });
-
-      it('toWIF exports ' + hex + ' to ' + strng, () => {
-        assert.strictEqual(keyPair.toWIF(), strng);
-      });
-    });
-  });
-
-  // base58KeysInvalid
-  describe('ECPair.fromWIF', () => {
-    const allowedNetworks = [
-      bitcoin.networks.bitcoin,
-      bitcoin.networks.testnet,
-    ];
-
-    base58KeysInvalid.forEach(f => {
-      const strng = f[0];
-
-      it('throws on ' + strng, () => {
-        assert.throws(() => {
-          bitcoin.ECPair.fromWIF(strng, allowedNetworks);
-        }, /(Invalid|Unknown) (checksum|compression flag|network version|WIF length)/);
-      });
-    });
-  });
-
   describe('Block.fromHex', () => {
     blocksValid.forEach(f => {
       it('can parse ' + f.id, () => {

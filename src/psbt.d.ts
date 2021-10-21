@@ -1,6 +1,6 @@
+/// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
 import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
-import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
 export interface TransactionInput {
@@ -18,6 +18,7 @@ export interface TransactionOutput {
 export interface PsbtTxOutput extends TransactionOutput {
     address: string | undefined;
 }
+export declare type ValidateSigFunction = (pubkey: Buffer, msghash: Buffer, signature: Buffer) => boolean;
 /**
  * Psbt class can parse and generate a PSBT binary based off of the BIP174.
  * There are 6 roles that this class fulfills. (Explained in BIP174)
@@ -58,11 +59,13 @@ export declare class Psbt {
     private __CACHE;
     private opts;
     constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
-    readonly inputCount: number;
-    version: number;
-    locktime: number;
-    readonly txInputs: PsbtTxInput[];
-    readonly txOutputs: PsbtTxOutput[];
+    get inputCount(): number;
+    get version(): number;
+    set version(version: number);
+    get locktime(): number;
+    set locktime(locktime: number);
+    get txInputs(): PsbtTxInput[];
+    get txOutputs(): PsbtTxOutput[];
     combine(...those: Psbt[]): this;
     clone(): Psbt;
     setMaximumFeeRate(satoshiPerByte: number): void;
@@ -83,8 +86,8 @@ export declare class Psbt {
     inputHasHDKey(inputIndex: number, root: HDSigner): boolean;
     outputHasPubkey(outputIndex: number, pubkey: Buffer): boolean;
     outputHasHDKey(outputIndex: number, root: HDSigner): boolean;
-    validateSignaturesOfAllInputs(): boolean;
-    validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
+    validateSignaturesOfAllInputs(validator: ValidateSigFunction): boolean;
+    validateSignaturesOfInput(inputIndex: number, validator: ValidateSigFunction, pubkey?: Buffer): boolean;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
     signAllInputsHDAsync(hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
     signInputHD(inputIndex: number, hdKeyPair: HDSigner, sighashTypes?: number[]): this;
@@ -129,7 +132,7 @@ interface HDSignerBase {
      */
     fingerprint: Buffer;
 }
-interface HDSigner extends HDSignerBase {
+export interface HDSigner extends HDSignerBase {
     /**
      * The path string must match /^m(\/\d+'?)+$/
      * ex. m/44'/0'/0'/1/23 levels with ' must be hard derivations
@@ -144,9 +147,21 @@ interface HDSigner extends HDSignerBase {
 /**
  * Same as above but with async sign method
  */
-interface HDSignerAsync extends HDSignerBase {
+export interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Buffer): Promise<Buffer>;
+}
+export interface Signer {
+    publicKey: Buffer;
+    network?: any;
+    sign(hash: Buffer, lowR?: boolean): Buffer;
+    getPublicKey?(): Buffer;
+}
+export interface SignerAsync {
+    publicKey: Buffer;
+    network?: any;
+    sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
+    getPublicKey?(): Buffer;
 }
 /**
  * This function must do two things:

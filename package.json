@@ -3,7 +3,7 @@
   "version": "5.2.0",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
-  "types": "./types/index.d.ts",
+  "types": "./src/index.d.ts",
   "engines": {
     "node": ">=8.0.0"
   },
@@ -18,7 +18,7 @@
     "audit": "NPM_AUDIT_IGNORE_DEV=1 NPM_AUDIT_IGNORE_LEVEL=low npm-audit-whitelister .npm-audit-whitelister.json",
     "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
     "build:tests": "npm run clean:jstests && tsc -p ./test/tsconfig.json",
-    "clean": "rimraf src types",
+    "clean": "rimraf src",
     "clean:jstests": "rimraf 'test/**/!(ts-node-register)*.js'",
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
@@ -46,37 +46,34 @@
     "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
   },
   "files": [
-    "src",
-    "types"
+    "src"
   ],
   "dependencies": {
     "bech32": "^2.0.0",
     "bip174": "^2.0.1",
-    "bip32": "^2.0.4",
-    "bip66": "^1.1.0",
-    "bitcoin-ops": "^1.4.0",
-    "bs58check": "^2.0.0",
+    "bs58check": "^2.1.2",
     "create-hash": "^1.1.0",
-    "create-hmac": "^1.1.3",
-    "merkle-lib": "^2.0.10",
-    "pushdata-bitcoin": "^1.0.1",
-    "randombytes": "^2.0.1",
-    "tiny-secp256k1": "^1.1.6",
     "typeforce": "^1.11.3",
-    "varuint-bitcoin": "^1.0.4",
+    "varuint-bitcoin": "^1.1.2",
     "wif": "^2.0.1"
   },
   "devDependencies": {
     "@types/bs58": "^4.0.0",
+    "@types/bs58check": "^2.1.0",
+    "@types/create-hash": "^1.2.2",
     "@types/mocha": "^5.2.7",
-    "@types/node": "12.7.5",
+    "@types/node": "^16.11.1",
     "@types/proxyquire": "^1.3.28",
+    "@types/randombytes": "^2.0.0",
+    "@types/wif": "^2.0.2",
+    "bip32": "^2.0.6",
     "bip39": "^3.0.2",
     "bip65": "^1.0.1",
     "bip68": "^1.0.3",
     "bn.js": "^4.11.8",
     "bs58": "^4.0.0",
     "dhttp": "^3.0.0",
+    "ecpair": "^1.0.0",
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^7.1.1",
@@ -84,11 +81,12 @@
     "nyc": "^15.1.0",
     "prettier": "1.16.4",
     "proxyquire": "^2.0.1",
+    "randombytes": "^2.1.0",
     "regtest-client": "0.2.0",
     "rimraf": "^2.6.3",
     "ts-node": "^8.3.0",
-    "tslint": "^5.20.1",
-    "typescript": "3.2.2"
+    "tslint": "^6.1.3",
+    "typescript": "^4.4.4"
   },
   "license": "MIT"
 }

@@ -1,12 +1,12 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.Block = void 0;
 const bufferutils_1 = require('./bufferutils');
 const bcrypto = require('./crypto');
+const merkle_1 = require('./merkle');
 const transaction_1 = require('./transaction');
 const types = require('./types');
-const fastMerkleRoot = require('merkle-lib/fastRoot');
-const typeforce = require('typeforce');
-const varuint = require('varuint-bitcoin');
+const { typeforce } = types;
 const errorMerkleNoTxes = new TypeError(
   'Cannot compute merkle root for zero transactions',
 );
@@ -72,7 +72,7 @@ class Block {
     const hashes = transactions.map(transaction =>
       transaction.getHash(forWitness),
     );
-    const rootHash = fastMerkleRoot(hashes, bcrypto.hash256);
+    const rootHash = (0, merkle_1.fastMerkleRoot)(hashes, bcrypto.hash256);
     return forWitness
       ? bcrypto.hash256(
           Buffer.concat([rootHash, transactions[0].ins[0].witness[0]]),
@@ -117,7 +117,7 @@ class Block {
     if (headersOnly || !this.transactions) return 80;
     return (
       80 +
-      varuint.encodingLength(this.transactions.length) +
+      bufferutils_1.varuint.encodingLength(this.transactions.length) +
       this.transactions.reduce((a, x) => a + x.byteLength(allowWitness), 0)
     );
   }
@@ -125,7 +125,7 @@ class Block {
     return bcrypto.hash256(this.toBuffer(true));
   }
   getId() {
-    return bufferutils_1.reverseBuffer(this.getHash()).toString('hex');
+    return (0, bufferutils_1.reverseBuffer)(this.getHash()).toString('hex');
   }
   getUTCDate() {
     const date = new Date(0); // epoch
@@ -143,8 +143,12 @@ class Block {
     bufferWriter.writeUInt32(this.bits);
     bufferWriter.writeUInt32(this.nonce);
     if (headersOnly || !this.transactions) return buffer;
-    varuint.encode(this.transactions.length, buffer, bufferWriter.offset);
-    bufferWriter.offset += varuint.encode.bytes;
+    bufferutils_1.varuint.encode(
+      this.transactions.length,
+      buffer,
+      bufferWriter.offset,
+    );
+    bufferWriter.offset += bufferutils_1.varuint.encode.bytes;
     this.transactions.forEach(tx => {
       const txSize = tx.byteLength(); // TODO: extract from toBuffer?
       tx.toBuffer(buffer, bufferWriter.offset);
@@ -166,7 +170,7 @@ class Block {
     );
   }
   checkProofOfWork() {
-    const hash = bufferutils_1.reverseBuffer(this.getHash());
+    const hash = (0, bufferutils_1.reverseBuffer)(this.getHash());
     const target = Block.calculateTarget(this.bits);
     return hash.compare(target) <= 0;
   }

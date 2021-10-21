@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.encode = exports.decode = void 0;
 function decode(buffer, maxLength, minimal) {
   maxLength = maxLength || 4;
   minimal = minimal === undefined ? true : minimal;

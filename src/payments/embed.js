@@ -1,9 +1,10 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.p2data = void 0;
 const networks_1 = require('../networks');
 const bscript = require('../script');
+const types_1 = require('../types');
 const lazy = require('./lazy');
-const typef = require('typeforce');
 const OPS = bscript.OPS;
 function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
@@ -15,11 +16,13 @@ function stacksEqual(a, b) {
 function p2data(a, opts) {
   if (!a.data && !a.output) throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  typef(
+  (0, types_1.typeforce)(
     {
-      network: typef.maybe(typef.Object),
-      output: typef.maybe(typef.Buffer),
-      data: typef.maybe(typef.arrayOf(typef.Buffer)),
+      network: types_1.typeforce.maybe(types_1.typeforce.Object),
+      output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
+      data: types_1.typeforce.maybe(
+        types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
+      ),
     },
     a,
   );
@@ -38,7 +41,7 @@ function p2data(a, opts) {
     if (a.output) {
       const chunks = bscript.decompile(a.output);
       if (chunks[0] !== OPS.OP_RETURN) throw new TypeError('Output is invalid');
-      if (!chunks.slice(1).every(typef.Buffer))
+      if (!chunks.slice(1).every(types_1.typeforce.Buffer))
         throw new TypeError('Output is invalid');
       if (a.data && !stacksEqual(a.data, o.data))
         throw new TypeError('Data mismatch');

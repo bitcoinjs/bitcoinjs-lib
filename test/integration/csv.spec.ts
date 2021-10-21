@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { ECPair } from 'ecpair';
 import { before, describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
@@ -15,19 +16,19 @@ function idToHash(txid: string): Buffer {
   return Buffer.from(txid, 'hex').reverse();
 }
 
-const alice = bitcoin.ECPair.fromWIF(
+const alice = ECPair.fromWIF(
   'cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe',
   regtest,
 );
-const bob = bitcoin.ECPair.fromWIF(
+const bob = ECPair.fromWIF(
   'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x',
   regtest,
 );
-const charles = bitcoin.ECPair.fromWIF(
+const charles = ECPair.fromWIF(
   'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMSb4Ubnf',
   regtest,
 );
-const dave = bitcoin.ECPair.fromWIF(
+const dave = ECPair.fromWIF(
   'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMwS4pqnx',
   regtest,
 );

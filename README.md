@@ -35,10 +35,18 @@ You can find a [Web UI](https://bitcoincore.tech/apps/bitcoinjs-ui/index.html) t
 ## Installation
 ``` bash
 npm install bitcoinjs-lib
+# optionally, install a key derivation library as well
+npm install ecpair bip32
+# ecpair is the ECPair class for single keys
+# bip32 is for generating HD keys
 ```
 
-Typically we support the [Node Maintenance LTS version](https://github.com/nodejs/Release).
-If in doubt, see the [.travis.yml](.travis.yml) for what versions are used by our continuous integration tests.
+Previous versions of the library included classes for key management (ECPair, HDNode(->"bip32")) but now these have been separated into different libraries. This lowers the bundle size significantly if you don't need to perform any crypto functions (converting private to public keys and deriving HD keys).
+
+Typically we support the [Node Maintenance LTS version](https://github.com/nodejs/Release). TypeScript target will be set
+to the ECMAScript version in which all features are fully supported by current Active Node LTS.
+However, depending on adoption among other environments (browsers etc.) we may keep the target back a year or two.
+If in doubt, see the [main_ci.yml](.github/workflows/main_ci.yml) for what versions are used by our continuous integration tests.
 
 **WARNING**: We presently don't provide any tooling to verify that the release on `npm` matches GitHub.  As such, you should verify anything downloaded by `npm` against your own verified copy.
 

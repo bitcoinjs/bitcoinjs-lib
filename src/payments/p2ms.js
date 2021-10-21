@@ -1,11 +1,11 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.p2ms = void 0;
 const networks_1 = require('../networks');
 const bscript = require('../script');
+const types_1 = require('../types');
 const lazy = require('./lazy');
 const OPS = bscript.OPS;
-const typef = require('typeforce');
-const ecc = require('tiny-secp256k1');
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
@@ -30,15 +30,19 @@ function p2ms(a, opts) {
       (opts.allowIncomplete && x === OPS.OP_0) !== undefined
     );
   }
-  typef(
+  (0, types_1.typeforce)(
     {
-      network: typef.maybe(typef.Object),
-      m: typef.maybe(typef.Number),
-      n: typef.maybe(typef.Number),
-      output: typef.maybe(typef.Buffer),
-      pubkeys: typef.maybe(typef.arrayOf(ecc.isPoint)),
-      signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
-      input: typef.maybe(typef.Buffer),
+      network: types_1.typeforce.maybe(types_1.typeforce.Object),
+      m: types_1.typeforce.maybe(types_1.typeforce.Number),
+      n: types_1.typeforce.maybe(types_1.typeforce.Number),
+      output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
+      pubkeys: types_1.typeforce.maybe(
+        types_1.typeforce.arrayOf(types_1.isPoint),
+      ),
+      signatures: types_1.typeforce.maybe(
+        types_1.typeforce.arrayOf(isAcceptableSignature),
+      ),
+      input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
     },
     a,
   );
@@ -101,14 +105,15 @@ function p2ms(a, opts) {
   if (opts.validate) {
     if (a.output) {
       decode(a.output);
-      if (!typef.Number(chunks[0])) throw new TypeError('Output is invalid');
-      if (!typef.Number(chunks[chunks.length - 2]))
+      if (!types_1.typeforce.Number(chunks[0]))
+        throw new TypeError('Output is invalid');
+      if (!types_1.typeforce.Number(chunks[chunks.length - 2]))
         throw new TypeError('Output is invalid');
       if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG)
         throw new TypeError('Output is invalid');
       if (o.m <= 0 || o.n > 16 || o.m > o.n || o.n !== chunks.length - 3)
         throw new TypeError('Output is invalid');
-      if (!o.pubkeys.every(x => ecc.isPoint(x)))
+      if (!o.pubkeys.every(x => (0, types_1.isPoint)(x)))
         throw new TypeError('Output is invalid');
       if (a.m !== undefined && a.m !== o.m) throw new TypeError('m mismatch');
       if (a.n !== undefined && a.n !== o.n) throw new TypeError('n mismatch');

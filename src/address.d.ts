@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { Network } from './networks';
 export interface Base58CheckResult {
     hash: Buffer;

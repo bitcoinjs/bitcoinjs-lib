@@ -1,11 +1,14 @@
-import { BufferReader, BufferWriter, reverseBuffer } from './bufferutils';
+import {
+  BufferReader,
+  BufferWriter,
+  reverseBuffer,
+  varuint,
+} from './bufferutils';
 import * as bcrypto from './crypto';
+import { fastMerkleRoot } from './merkle';
 import { Transaction } from './transaction';
 import * as types from './types';
-
-const fastMerkleRoot = require('merkle-lib/fastRoot');
-const typeforce = require('typeforce');
-const varuint = require('varuint-bitcoin');
+const { typeforce } = types;
 
 const errorMerkleNoTxes = new TypeError(
   'Cannot compute merkle root for zero transactions',
