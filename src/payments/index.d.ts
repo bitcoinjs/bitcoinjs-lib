@@ -17,11 +17,13 @@ export interface Payment {
     pubkeys?: Buffer[];
     input?: Buffer;
     signatures?: Buffer[];
+    internalPubkey?: Buffer;
     pubkey?: Buffer;
     signature?: Buffer;
     address?: string;
     hash?: Buffer;
     redeem?: Payment;
+    redeems?: Payment;
     witness?: Buffer[];
 }
 export declare type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;

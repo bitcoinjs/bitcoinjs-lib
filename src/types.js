@@ -1,7 +1,9 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.isPoint = exports.typeforce = void 0;
+exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.liftX = exports.isPoint = exports.typeforce = void 0;
 const buffer_1 = require('buffer');
+// todo, use import?
+const BN = require('bn.js');
 exports.typeforce = require('typeforce');
 const ZERO32 = buffer_1.Buffer.alloc(32, 0);
 const EC_P = buffer_1.Buffer.from(
@@ -25,6 +27,36 @@ function isPoint(p) {
   return false;
 }
 exports.isPoint = isPoint;
+// todo review. Do not add dependcy to BN?
+const EC_P_BN = new BN(EC_P);
+const EC_P_REDUCTION = BN.red(EC_P_BN);
+const EC_P_QUADRATIC_RESIDUE = EC_P_BN.addn(1).divn(4);
+const BN_2 = new BN(2);
+const BN_3 = new BN(3);
+const BN_7 = new BN(7);
+function liftX(buffer) {
+  if (!buffer_1.Buffer.isBuffer(buffer)) return null;
+  if (buffer.length !== 32) return null;
+  if (buffer.compare(ZERO32) === 0) return null;
+  if (buffer.compare(EC_P) >= 0) return null;
+  const x = new BN(buffer);
+  const x1 = x.toRed(EC_P_REDUCTION);
+  const ySq = x1
+    .redPow(BN_3)
+    .add(BN_7)
+    .mod(EC_P_BN);
+  const y = ySq.redPow(EC_P_QUADRATIC_RESIDUE);
+  if (!ySq.eq(y.redPow(BN_2))) {
+    return null;
+  }
+  const y1 = y.isEven() ? y : EC_P_BN.sub(y);
+  return buffer_1.Buffer.concat([
+    buffer_1.Buffer.from([0x04]),
+    buffer_1.Buffer.from(x1.toBuffer('be', 32)),
+    buffer_1.Buffer.from(y1.toBuffer('be', 32)),
+  ]);
+}
+exports.liftX = liftX;
 const UINT31_MAX = Math.pow(2, 31) - 1;
 function UInt31(value) {
   return exports.typeforce.UInt32(value) && value <= UINT31_MAX;
