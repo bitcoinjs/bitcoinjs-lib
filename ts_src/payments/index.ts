@@ -10,18 +10,20 @@ import { p2wsh } from './p2wsh';
 export interface Payment {
   name?: string;
   network?: Network;
-  output?: Buffer;
+  output?: Buffer; // the full scriptPubKey
   data?: Buffer[];
   m?: number;
   n?: number;
   pubkeys?: Buffer[];
   input?: Buffer;
   signatures?: Buffer[];
-  pubkey?: Buffer;
+  internalPubkey?: Buffer; // taproot: output key
+  pubkey?: Buffer; // taproot: output key
   signature?: Buffer;
-  address?: string;
-  hash?: Buffer;
-  redeem?: Payment;
+  address?: string; // taproot: betch32m
+  hash?: Buffer; // taproot: MAST root
+  redeem?: Payment; // taproot: when script path spending is used spending
+  redeems?: Payment; // taproot can have more than one redeem script
   witness?: Buffer[];
 }
 
