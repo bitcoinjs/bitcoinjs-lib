@@ -1,4 +1,7 @@
 import { Buffer as NBuffer } from 'buffer';
+// todo, use import?
+const BN = require('bn.js');
+
 export const typeforce = require('typeforce');
 
 const ZERO32 = NBuffer.alloc(32, 0);
@@ -6,6 +9,7 @@ const EC_P = NBuffer.from(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
   'hex',
 );
+
 export function isPoint(p: Buffer | number | undefined | null): boolean {
   if (!NBuffer.isBuffer(p)) return false;
   if (p.length < 33) return false;
@@ -23,6 +27,43 @@ export function isPoint(p: Buffer | number | undefined | null): boolean {
   if (y.compare(EC_P) >= 0) return false;
   if (t === 0x04 && p.length === 65) return true;
   return false;
+}
+
+// todo review. Do not add dependcy to BN?
+const EC_P_BN = new BN(EC_P)
+const EC_P_REDUCTION = BN.red(EC_P_BN);
+const EC_P_QUADRATIC_RESIDUE = EC_P_BN.addn(1).divn(4);
+const BN_2 = new BN(2);
+const BN_3 = new BN(3);
+const BN_7 = new BN(7);
+
+export function liftX(buffer: Buffer): Buffer | null {
+  if (!NBuffer.isBuffer(buffer)) return null;
+  if (buffer.length !== 32) return null;
+
+  if (buffer.compare(ZERO32) === 0) return null;
+  if (buffer.compare(EC_P) >= 0) return null;
+
+  const x = new BN(buffer);
+
+  const x1 = x.toRed(EC_P_REDUCTION);
+  const ySq = x1
+    .redPow(BN_3)
+    .add(BN_7)
+    .mod(EC_P_BN);
+
+  const y = ySq.redPow(EC_P_QUADRATIC_RESIDUE);
+
+  if (!ySq.eq(y.redPow(BN_2))) {
+    return null;
+  }
+  const y1 = y.isEven() ? y : EC_P_BN.sub(y);
+
+  return NBuffer.concat([
+    NBuffer.from([0x04]),
+    NBuffer.from(x1.toBuffer('be', 32)),
+    NBuffer.from(y1.toBuffer('be', 32)),
+  ]);
 }
 
 const UINT31_MAX: number = Math.pow(2, 31) - 1;
