@@ -1,0 +1,169 @@
+{
+  "valid": [
+    {
+      "description": "output and pubkey from address",
+      "arguments": {
+        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "address and pubkey from output",
+      "arguments": {
+        "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5"
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx",
+        "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "address and output from pubkey",
+      "arguments": {
+        "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5"
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx",
+        "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "address, output and witness from pubkey and signature",
+      "arguments": {
+        "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "signature": "300602010002010001"
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx",
+        "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "input": null,
+        "witness": [
+          "300602010002010001"
+        ]
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "exception": "Not enough data",
+      "arguments": {}
+    },
+    {
+      "exception": "Not enough data",
+      "arguments": {
+        "signature": "300602010002010001"
+      }
+    },
+    {
+      "description": "Incorrect Witness Version",
+      "exception": "Output is invalid",
+      "arguments": {
+        "output": "OP_0 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5"
+      }
+    },
+    {
+      "description": "Invalid x coordinate for pubkey in pubkey",
+      "exception": "Invalid pubkey for p2tr",
+      "arguments": {
+        "pubkey": "f136e956540197c21ff3c075d32a6e3c82f1ee1e646cc0f08f51b0b5edafa762"
+      }
+    },
+    {
+      "description": "Invalid x coordinate for pubkey in output",
+      "exception": "Invalid pubkey for p2tr",
+      "arguments": {
+        "output": "OP_1 f136e956540197c21ff3c075d32a6e3c82f1ee1e646cc0f08f51b0b5edafa762"
+      }
+    },
+    {
+      "description": "Invalid x coordinate for pubkey in address",
+      "exception": "Invalid pubkey for p2tr",
+      "arguments": {
+        "address": "bc1p7ymwj4j5qxtuy8lncp6ax2nw8jp0rms7v3kvpuy02xcttmd05a3qmwlnez"
+      }
+    },
+    {
+      "description": "Pubkey mismatch between pubkey and output",
+      "exception": "Pubkey mismatch",
+      "options": {},
+      "arguments": {
+        "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "output": "OP_1 12d7dac98d69a086a50b30959a3537950f356ffc6f50a263ab75c8a3ec9d44c1"
+      }
+    },
+    {
+      "description": "Pubkey mismatch between pubkey and address",
+      "exception": "Pubkey mismatch",
+      "options": {},
+      "arguments": {
+        "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "address": "bc1pztta4jvddxsgdfgtxz2e5dfhj58n2mludag2ycatwhy28myagnqsnl7mv7"
+      }
+    },
+    {
+      "description": "Pubkey mismatch between output and address",
+      "exception": "Pubkey mismatch",
+      "options": {},
+      "arguments": {
+        "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "address": "bc1pztta4jvddxsgdfgtxz2e5dfhj58n2mludag2ycatwhy28myagnqsnl7mv7"
+      }
+    },
+    {
+      "exception": "Signature mismatch",
+      "arguments": {
+        "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
+        "signature": "300602010002010002",
+        "witness": [
+          "300602010002010001"
+        ]
+      }
+    },
+    {
+      "exception": "Invalid prefix or Network mismatch",
+      "arguments": {
+        "address": "bcrt1prhepe49mpmhclwcqmkzpaz43revunykc7fc0f9az6pq08sn4qe7sxtrd8y"
+      }
+    },
+    {
+      "exception": "Invalid address version",
+      "arguments": {
+        "address": "bc1z4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6s6rxhwd"
+      }
+    },
+    {
+      "exception": "Invalid address data",
+      "arguments": {
+        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82qh3d2w3"
+      }
+    },
+    {
+      "exception": "Witness is invalid",
+      "arguments": {
+        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx",
+        "witness": []
+      }
+    }
+  ],
+  "dynamic": {
+    "depends": {},
+    "details": []
+  }
+}
