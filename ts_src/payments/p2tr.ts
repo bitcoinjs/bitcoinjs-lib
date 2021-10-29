@@ -73,7 +73,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       const tweakedKey = tweakPublicKey(a.internalPubkey, o.hash)
       if (tweakedKey) return tweakedKey.x
     }
-    return null
   });
   lazy.prop(o, 'signature', () => {
     if (a.witness?.length !== 1) return;

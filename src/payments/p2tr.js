@@ -67,7 +67,6 @@ function p2tr(a, opts) {
       const tweakedKey = (0, types_1.tweakPublicKey)(a.internalPubkey, o.hash);
       if (tweakedKey) return tweakedKey.x;
     }
-    return null;
   });
   lazy.prop(o, 'signature', () => {
     if (a.witness?.length !== 1) return;
