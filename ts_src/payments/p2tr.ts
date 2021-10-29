@@ -1,7 +1,6 @@
-// import * as bcrypto from '../../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { liftX, typeforce as typef } from '../types';
+import { liftX, tweakPublicKey, typeforce as typef } from '../types';
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';
@@ -13,18 +12,18 @@ const TAPROOT_VERSION = 0x01;
 // input: <>
 // output: OP_1 {pubKey}
 export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
-  if (!a.address && !a.output && !a.pubkey && !a.output)
+  if (!a.address && !a.output && !a.pubkey && !a.output && !a.internalPubkey)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
 
   typef(
     {
-      // todo: revisit
       address: typef.maybe(typef.String),
-      hash: typef.maybe(typef.BufferN(20)),
       input: typef.maybe(typef.BufferN(0)),
       network: typef.maybe(typef.Object),
       output: typef.maybe(typef.BufferN(34)),
+      internalPubkey: typef.maybe(typef.BufferN(32)),
+      hash: typef.maybe(typef.BufferN(32)),
       pubkey: typef.maybe(typef.BufferN(32)),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
@@ -58,7 +57,9 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
 
 
   lazy.prop(o, 'hash', () => {
-    // compute from MAST
+    if (a.hash) return a.hash;
+    // todo: if (a.redeems?.length) compute from MAST root from redeems
+    return null
   });
   lazy.prop(o, 'output', () => {
     if (!o.pubkey) return;
@@ -67,8 +68,12 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;
     if (a.output) return a.output.slice(2)
-    if (!a.address) return;
-    return _address().data;
+    if (a.address) return _address().data;
+    if (a.internalPubkey) {
+      const tweakedKey = tweakPublicKey(a.internalPubkey, o.hash)
+      if (tweakedKey) return tweakedKey.x
+    }
+    return null
   });
   lazy.prop(o, 'signature', () => {
     if (a.witness?.length !== 1) return;
@@ -113,7 +118,16 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       else pubkey = a.output.slice(2);
     }
 
-    if (pubkey) {
+    // todo: optimze o.hash?
+    if (a.internalPubkey) {
+      const tweakedKey = tweakPublicKey(a.internalPubkey, o.hash)
+      if (tweakedKey === null)  throw new TypeError('Invalid internalPubkey for p2tr');
+      if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
+        throw new TypeError('Pubkey mismatch');
+      else pubkey = tweakedKey.x;
+    }
+
+    if (pubkey?.length) {
       if (liftX(pubkey) === null)
         throw new TypeError('Invalid pubkey for p2tr');
     }

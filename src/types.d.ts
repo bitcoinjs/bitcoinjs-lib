@@ -2,6 +2,7 @@
 export declare const typeforce: any;
 export declare function isPoint(p: Buffer | number | undefined | null): boolean;
 export declare function liftX(buffer: Buffer): Buffer | null;
+export declare function tweakPublicKey(pubKey: Buffer, h: Buffer | undefined): TweakedPublicKey | null;
 export declare function UInt31(value: number): boolean;
 export declare function BIP32Path(value: string): boolean;
 export declare namespace BIP32Path {
@@ -11,6 +12,10 @@ export declare function Signer(obj: any): boolean;
 export declare function Satoshi(value: number): boolean;
 export declare const ECPoint: any;
 export declare const Network: any;
+export interface TweakedPublicKey {
+    isOdd: boolean;
+    x: Buffer;
+}
 export declare const Buffer256bit: any;
 export declare const Hash160bit: any;
 export declare const Hash256bit: any;

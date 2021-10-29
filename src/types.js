@@ -1,7 +1,11 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.liftX = exports.isPoint = exports.typeforce = void 0;
+exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.tweakPublicKey = exports.liftX = exports.isPoint = exports.typeforce = void 0;
 const buffer_1 = require('buffer');
+const bcrypto = require('./crypto');
+// Temp, to be replaced
+// Only works because bip32 has it as dependecy. Linting will fail.
+const ecc = require('tiny-secp256k1');
 // todo, use import?
 const BN = require('bn.js');
 exports.typeforce = require('typeforce');
@@ -57,6 +61,38 @@ function liftX(buffer) {
   ]);
 }
 exports.liftX = liftX;
+const TAP_TWEAK_TAG = buffer_1.Buffer.from('TapTweak', 'utf8');
+const GROUP_ORDER = new BN(
+  buffer_1.Buffer.from(
+    'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
+    'hex',
+  ),
+);
+function tweakPublicKey(pubKey, h) {
+  if (!buffer_1.Buffer.isBuffer(pubKey)) return null;
+  if (pubKey.length !== 32) return null;
+  if (h && h.length !== 32) return null;
+  const tweakHash = bcrypto.taggedHash(
+    TAP_TWEAK_TAG,
+    buffer_1.Buffer.concat(h ? [pubKey, h] : [pubKey]),
+  );
+  const t = new BN(tweakHash);
+  if (t.gte(GROUP_ORDER)) {
+    throw new Error('Tweak value over the SECP256K1 Order');
+  }
+  const P = liftX(pubKey);
+  if (P === null) return null;
+  const Q = pointAddScalar(P, tweakHash);
+  return {
+    isOdd: Q[64] % 2 === 1,
+    x: Q.slice(1, 33),
+  };
+}
+exports.tweakPublicKey = tweakPublicKey;
+// todo: do not use ecc
+function pointAddScalar(P, h) {
+  return ecc.pointAddScalar(P, h);
+}
 const UINT31_MAX = Math.pow(2, 31) - 1;
 function UInt31(value) {
   return exports.typeforce.UInt32(value) && value <= UINT31_MAX;

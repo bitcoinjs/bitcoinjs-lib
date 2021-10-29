@@ -58,6 +58,21 @@
           "300602010002010001"
         ]
       }
+    },
+    {
+      "description": "address, pubkey and output from internalPubkey",
+      "arguments": {
+        "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7"
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1prs7pxymu7jhsptzjlwlqnk8jyg5qmq4sdlc3rwcy7pd3ydz92xjq5ap2sg",
+        "pubkey": "1c3c13137cf4af00ac52fbbe09d8f222280d82b06ff111bb04f05b12344551a4",
+        "output": "OP_1 1c3c13137cf4af00ac52fbbe09d8f222280d82b06ff111bb04f05b12344551a4",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
     }
   ],
   "invalid": [
@@ -124,6 +139,15 @@
       "arguments": {
         "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
         "address": "bc1pztta4jvddxsgdfgtxz2e5dfhj58n2mludag2ycatwhy28myagnqsnl7mv7"
+      }
+    },
+    {
+      "description": "Pubkey mismatch between internalPubkey and pubkey",
+      "exception": "Pubkey mismatch",
+      "options": {},
+      "arguments": {
+        "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
+        "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5"
       }
     },
     {

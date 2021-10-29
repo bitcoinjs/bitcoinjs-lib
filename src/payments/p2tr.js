@@ -1,7 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.p2tr = void 0;
-// import * as bcrypto from '../../crypto';
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const types_1 = require('../types');
@@ -13,17 +12,17 @@ const TAPROOT_VERSION = 0x01;
 // input: <>
 // output: OP_1 {pubKey}
 function p2tr(a, opts) {
-  if (!a.address && !a.output && !a.pubkey && !a.output)
+  if (!a.address && !a.output && !a.pubkey && !a.output && !a.internalPubkey)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
   (0, types_1.typeforce)(
     {
-      // todo: revisit
       address: types_1.typeforce.maybe(types_1.typeforce.String),
-      hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(20)),
       input: types_1.typeforce.maybe(types_1.typeforce.BufferN(0)),
       network: types_1.typeforce.maybe(types_1.typeforce.Object),
       output: types_1.typeforce.maybe(types_1.typeforce.BufferN(34)),
+      internalPubkey: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
+      hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
       pubkey: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
       signature: types_1.typeforce.maybe(bscript.isCanonicalScriptSignature),
       witness: types_1.typeforce.maybe(
@@ -52,7 +51,9 @@ function p2tr(a, opts) {
     return bech32_1.bech32m.encode(network.bech32, words);
   });
   lazy.prop(o, 'hash', () => {
-    // compute from MAST
+    if (a.hash) return a.hash;
+    // todo: if (a.redeems?.length) compute from MAST root from redeems
+    return null;
   });
   lazy.prop(o, 'output', () => {
     if (!o.pubkey) return;
@@ -61,8 +62,12 @@ function p2tr(a, opts) {
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;
     if (a.output) return a.output.slice(2);
-    if (!a.address) return;
-    return _address().data;
+    if (a.address) return _address().data;
+    if (a.internalPubkey) {
+      const tweakedKey = (0, types_1.tweakPublicKey)(a.internalPubkey, o.hash);
+      if (tweakedKey) return tweakedKey.x;
+    }
+    return null;
   });
   lazy.prop(o, 'signature', () => {
     if (a.witness?.length !== 1) return;
@@ -103,7 +108,16 @@ function p2tr(a, opts) {
         throw new TypeError('Pubkey mismatch');
       else pubkey = a.output.slice(2);
     }
-    if (pubkey) {
+    // todo: optimze o.hash?
+    if (a.internalPubkey) {
+      const tweakedKey = (0, types_1.tweakPublicKey)(a.internalPubkey, o.hash);
+      if (tweakedKey === null)
+        throw new TypeError('Invalid internalPubkey for p2tr');
+      if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
+        throw new TypeError('Pubkey mismatch');
+      else pubkey = tweakedKey.x;
+    }
+    if (pubkey?.length) {
       if ((0, types_1.liftX)(pubkey) === null)
         throw new TypeError('Invalid pubkey for p2tr');
     }

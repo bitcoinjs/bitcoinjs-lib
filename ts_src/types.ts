@@ -1,4 +1,9 @@
 import { Buffer as NBuffer } from 'buffer';
+import * as bcrypto from './crypto';
+
+// Temp, to be replaced
+// Only works because bip32 has it as dependecy. Linting will fail.
+const ecc = require('tiny-secp256k1');
 // todo, use import?
 const BN = require('bn.js');
 
@@ -30,7 +35,7 @@ export function isPoint(p: Buffer | number | undefined | null): boolean {
 }
 
 // todo review. Do not add dependcy to BN?
-const EC_P_BN = new BN(EC_P)
+const EC_P_BN = new BN(EC_P);
 const EC_P_REDUCTION = BN.red(EC_P_BN);
 const EC_P_QUADRATIC_RESIDUE = EC_P_BN.addn(1).divn(4);
 const BN_2 = new BN(2);
@@ -64,6 +69,46 @@ export function liftX(buffer: Buffer): Buffer | null {
     NBuffer.from(x1.toBuffer('be', 32)),
     NBuffer.from(y1.toBuffer('be', 32)),
   ]);
+}
+
+const TAP_TWEAK_TAG = NBuffer.from('TapTweak', 'utf8');
+const GROUP_ORDER = new BN(
+  NBuffer.from(
+    'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
+    'hex',
+  ),
+);
+
+export function tweakPublicKey(
+  pubKey: Buffer,
+  h: Buffer | undefined,
+): TweakedPublicKey | null {
+  if (!NBuffer.isBuffer(pubKey)) return null;
+  if (pubKey.length !== 32) return null;
+  if (h && h.length !== 32) return null;
+
+  const tweakHash = bcrypto.taggedHash(
+    TAP_TWEAK_TAG,
+    NBuffer.concat(h ? [pubKey, h] : [pubKey]),
+  );
+  const t = new BN(tweakHash);
+  if (t.gte(GROUP_ORDER)) {
+    throw new Error('Tweak value over the SECP256K1 Order');
+  }
+
+  const P = liftX(pubKey);
+  if (P === null) return null;
+
+  const Q = pointAddScalar(P, tweakHash);
+  return {
+    isOdd: Q[64] % 2 === 1,
+    x: Q.slice(1, 33),
+  };
+}
+
+// todo: do not use ecc
+function pointAddScalar(P: Buffer, h: Buffer): Buffer {
+  return ecc.pointAddScalar(P, h);
 }
 
 const UINT31_MAX: number = Math.pow(2, 31) - 1;
@@ -106,6 +151,10 @@ export const Network = typeforce.compile({
   wif: typeforce.UInt8,
 });
 
+export interface TweakedPublicKey {
+  isOdd: boolean;
+  x: Buffer;
+}
 export const Buffer256bit = typeforce.BufferN(32);
 export const Hash160bit = typeforce.BufferN(20);
 export const Hash256bit = typeforce.BufferN(32);
