@@ -92,6 +92,212 @@
         "input": null,
         "witness": null
       }
+    },
+    {
+      "description": "address, pubkey, output and hash from internalPubkey and a script tree with one leaf",
+      "arguments": {
+        "internalPubkey": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "scriptsTree": [
+          {
+            "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
+          }
+        ]
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1pjegs09vkeder9m4sw3ycjf2rnpa8nljdqmuleunk9eshu8cq3xysvhgp2u",
+        "pubkey": "9651079596cb7232eeb07449892543987a79fe4d06f9fcf2762e617e1f008989",
+        "output": "OP_1 9651079596cb7232eeb07449892543987a79fe4d06f9fcf2762e617e1f008989",
+        "hash": "16e3f3b8b9c1e453c56b547785cdd25259d65823a2064f30783acc58ef012633",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "address, pubkey, output and hash from internalPubkey and a script tree with two leafs",
+      "arguments": {
+        "internalPubkey": "2258b1c3160be0864a541854eec9164a572f094f7562628281a8073bb89173a7",
+        "scriptsTree": [
+          {
+            "output": "d826a0a53abb6ffc60df25b9c152870578faef4b2eb5a09bdd672bbe32cdd79b OP_CHECKSIG"
+          },
+          {
+            "output": "d826a0a53abb6ffc60df25b9c152870578faef4b2eb5a09bdd672bbe32cdd79b OP_CHECKSIG"
+          }
+        ]
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1ptj0v8rwcj6s36p4r26ws6htx0fct43n0mxdvdeh9043whlxlq3kq9965ke",
+        "pubkey": "5c9ec38dd896a11d06a3569d0d5d667a70bac66fd99ac6e6e57d62ebfcdf046c",
+        "output": "OP_1 5c9ec38dd896a11d06a3569d0d5d667a70bac66fd99ac6e6e57d62ebfcdf046c",
+        "hash": "ce00198cd4667abae1f94aa5862d089e2967af5aec20715c692db74e3d66bb73",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "address, pubkey, output and hash from internalPubkey and a script tree with three leafs",
+      "arguments": {
+        "internalPubkey": "7631cacec3343052d87ef4d0065f61dde82d7d2db0c1cc02ef61ef3c982ea763",
+        "scriptsTree": [
+          {
+            "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+          },
+          [
+            {
+              "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+            },
+            {
+              "output": "9b4d495b74887815a1ff623c055c6eac6b6b2e07d2a016d6526ebac71dd99744 OP_CHECKSIG"
+            }
+          ]
+        ]
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1pkq0t8nkmqswn3qjg9uy6ux2hsyyz4as25v8unfjc9s8q2e4c00sqku9lxh",
+        "pubkey": "b01eb3cedb041d3882482f09ae195781082af60aa30fc9a6582c0e0566b87be0",
+        "output": "OP_1 b01eb3cedb041d3882482f09ae195781082af60aa30fc9a6582c0e0566b87be0",
+        "hash": "7ae0cc2057b1a7bf0e09c787e1d7b6b2355ac112a7b80380a5c1e942155b0c0f",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "address, pubkey, output and hash from internalPubkey and a script tree with four leafs",
+      "arguments": {
+        "internalPubkey": "d0c19def28bb1b39451c1a814737615983967780d223b79969ba692182c6006b",
+        "scriptsTree": [
+          [
+            {
+              "output": "9b4d495b74887815a1ff623c055c6eac6b6b2e07d2a016d6526ebac71dd99744 OP_CHECKSIG"
+            },
+            {
+              "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+            }
+          ],
+          [
+            {
+              "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+            },
+            {
+              "output": "9b4d495b74887815a1ff623c055c6eac6b6b2e07d2a016d6526ebac71dd99744 OP_CHECKSIG"
+            }
+          ]
+        ]
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1pstdzevc40j059s0473rghhv9e05l9f5xv7l6dtlavvq22rzfna3syjvjut",
+        "pubkey": "82da2cb3157c9f42c1f5f4468bdd85cbe9f2a68667bfa6affd6300a50c499f63",
+        "output": "OP_1 82da2cb3157c9f42c1f5f4468bdd85cbe9f2a68667bfa6affd6300a50c499f63",
+        "hash": "d673e784eac9b70289130a0bd359023a0fbdde51dc069b9efb4157c2cdce3ea5",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "address, pubkey, output and hash from internalPubkey and a script tree with seven leafs",
+      "arguments": {
+        "internalPubkey": "f95886b02a84928c5c15bdca32784993105f73de27fa6ad8c1a60389b999267c",
+        "scriptsTree": [
+          [
+            {
+              "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+            },
+            [
+              {
+                "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+              },
+              {
+                "output": "2258b1c3160be0864a541854eec9164a572f094f7562628281a8073bb89173a7 OP_CHECKSIG"
+              }
+            ]
+          ],
+          [
+            {
+              "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+            },
+            [
+              {
+                "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+              },
+              [
+                {
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                },
+                {
+                  "output": "03a669ea926f381582ec4a000b9472ba8a17347f5fb159eddd4a07036a6718eb OP_CHECKSIG"
+                }
+              ]
+            ]
+          ]
+        ]
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1pfas4r5s5208puwzj20hvwg2dw2kanc06yxczzdd66729z63pk43q7zwlu6",
+        "pubkey": "4f6151d21453ce1e385253eec7214d72add9e1fa21b02135bad794516a21b562",
+        "output": "OP_1 4f6151d21453ce1e385253eec7214d72add9e1fa21b02135bad794516a21b562",
+        "hash": "16fb2e99bdf86f67ee6980d0418658f15df7e19476053b58f45a89df2e219b1b",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "address, pubkey, output and hash from internalPubkey and a script tree with seven leafs (2)",
+      "arguments": {
+        "internalPubkey": "aba457d16a8d59151c387f24d1eb887efbe24644c1ee64b261282e7baebdb247",
+        "scriptsTree": [
+          {
+            "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d3 OP_CHECKSIG"
+          },
+          [
+            [
+              {
+                "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d3 OP_CHECKSIG"
+              },
+              [
+                {
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                },
+                {
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                },
+                {
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                }
+              ],
+              {
+                "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d3 OP_CHECKSIG"
+              }
+            ]
+          ]
+        ]
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1pmu8qwr9zljs9anger0d6q3uyr43yzjetmjmzf8p93ltycrwj28lsee3e0n",
+        "pubkey": "df0e070ca2fca05ecd191bdba047841d62414b2bdcb6249c258fd64c0dd251ff",
+        "output": "OP_1 df0e070ca2fca05ecd191bdba047841d62414b2bdcb6249c258fd64c0dd251ff",
+        "hash": "027391d0aac8d94725e4fcec4b07214d7c8a14bcdca2b1c08e4bc786308bdae5",
+        "signature": null,
+        "input": null,
+        "witness": null
+      }
     }
   ],
   "invalid": [
