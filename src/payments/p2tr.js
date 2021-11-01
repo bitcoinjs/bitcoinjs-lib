@@ -4,6 +4,7 @@ exports.p2tr = void 0;
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const types_1 = require('../types');
+const merkle_1 = require('../merkle');
 const lazy = require('./lazy');
 const bech32_1 = require('bech32');
 const OPS = bscript.OPS;
@@ -28,6 +29,7 @@ function p2tr(a, opts) {
       witness: types_1.typeforce.maybe(
         types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
       ),
+      // scriptsTree: typef.maybe(typef.TaprootNode), // use merkel.isMast ?
     },
     a,
   );
@@ -52,7 +54,7 @@ function p2tr(a, opts) {
   });
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    // todo: if (a.redeems?.length) compute from MAST root from redeems
+    if (a.scriptsTree) return (0, merkle_1.computeMastRoot)(a.scriptsTree);
     return null;
   });
   lazy.prop(o, 'output', () => {

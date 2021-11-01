@@ -1,6 +1,7 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { liftX, tweakPublicKey, typeforce as typef } from '../types';
+import { computeMastRoot } from '../merkle';
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';
@@ -27,6 +28,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       pubkey: typef.maybe(typef.BufferN(32)),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+      // scriptsTree: typef.maybe(typef.TaprootNode), // use merkel.isMast ?
     },
     a,
   );
@@ -58,7 +60,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
 
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    // todo: if (a.redeems?.length) compute from MAST root from redeems
+    if (a.scriptsTree) return computeMastRoot(a.scriptsTree)
     return null
   });
   lazy.prop(o, 'output', () => {
