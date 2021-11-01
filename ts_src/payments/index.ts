@@ -6,6 +6,7 @@ import { p2pkh } from './p2pkh';
 import { p2sh } from './p2sh';
 import { p2wpkh } from './p2wpkh';
 import { p2wsh } from './p2wsh';
+import { p2tr } from './p2tr';
 
 export interface Payment {
   name?: string;
@@ -23,7 +24,7 @@ export interface Payment {
   address?: string; // taproot: betch32m
   hash?: Buffer; // taproot: MAST root
   redeem?: Payment; // taproot: when script path spending is used spending
-  redeems?: Payment; // taproot can have more than one redeem script
+  scriptsTree?: any // todo: solve
   witness?: Buffer[];
 }
 
@@ -40,7 +41,7 @@ export type StackElement = Buffer | number;
 export type Stack = StackElement[];
 export type StackFunction = () => Stack;
 
-export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh };
+export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, p2tr };
 
 // TODO
 // witness commitment

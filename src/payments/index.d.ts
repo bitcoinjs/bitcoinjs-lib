@@ -7,6 +7,7 @@ import { p2pkh } from './p2pkh';
 import { p2sh } from './p2sh';
 import { p2wpkh } from './p2wpkh';
 import { p2wsh } from './p2wsh';
+import { p2tr } from './p2tr';
 export interface Payment {
     name?: string;
     network?: Network;
@@ -23,7 +24,7 @@ export interface Payment {
     address?: string;
     hash?: Buffer;
     redeem?: Payment;
-    redeems?: Payment;
+    scriptsTree?: any;
     witness?: Buffer[];
 }
 export declare type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;
@@ -35,4 +36,4 @@ export interface PaymentOpts {
 export declare type StackElement = Buffer | number;
 export declare type Stack = StackElement[];
 export declare type StackFunction = () => Stack;
-export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh };
+export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, p2tr };
