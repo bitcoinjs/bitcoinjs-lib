@@ -147,7 +147,8 @@ export function preform(x: any): any {
     if (x.redeem.network)
       x.redeem.network = (BNETWORKS as any)[x.redeem.network];
   }
-
+  if (x.scriptsTree)
+    x.scriptsTree = convertScriptsTree(x.scriptsTree)
   return x;
 }
 
@@ -169,4 +170,16 @@ export function from(path: string, object: any, result?: any): any {
   });
 
   return result;
+}
+
+// todo: solve any type
+function convertScriptsTree(scriptsTree: any): any {
+  if (Array.isArray(scriptsTree))
+    return scriptsTree.map(convertScriptsTree)
+
+
+  const script = Object.assign({}, scriptsTree);
+  if ((typeof script.output === 'string'))
+    script.output = asmToBuffer(scriptsTree.output)
+  return script
 }
