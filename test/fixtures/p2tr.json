@@ -376,6 +376,20 @@
       }
     },
     {
+      "description": "Hash mismatch between scriptsTree and hash",
+      "exception": "Hash mismatch",
+      "options": {},
+      "arguments": {
+        "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
+        "scriptsTree": [
+          {
+            "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
+          }
+        ],
+        "hash": "b76077013c8e303085e300000000000000000000000000000000000000000000"
+      }
+    },
+    {
       "exception": "Invalid internalPubkey for p2t",
       "options": {},
       "arguments": {

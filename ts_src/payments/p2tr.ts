@@ -133,6 +133,12 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         throw new TypeError('Invalid pubkey for p2tr');
     }
 
+    if (a.hash && a.scriptsTree) {
+      const hash = computeMastRoot(a.scriptsTree)
+      if (!a.hash.equals(hash))
+        throw new TypeError('Hash mismatch');
+    }
+
     if (a.witness) {
       if (a.witness.length !== 1) throw new TypeError('Witness is invalid');
 

@@ -122,6 +122,10 @@ function p2tr(a, opts) {
       if ((0, types_1.liftX)(pubkey) === null)
         throw new TypeError('Invalid pubkey for p2tr');
     }
+    if (a.hash && a.scriptsTree) {
+      const hash = (0, merkle_1.computeMastRoot)(a.scriptsTree);
+      if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
+    }
     if (a.witness) {
       if (a.witness.length !== 1) throw new TypeError('Witness is invalid');
       // todo: recheck
