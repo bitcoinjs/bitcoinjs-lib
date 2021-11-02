@@ -1,8 +1,9 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.TaprootNode = exports.TaprootLeaf = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.tweakPublicKey = exports.liftX = exports.isPoint = exports.typeforce = void 0;
+exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.TaprootNode = exports.TaprootLeaf = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.computeTweakFromScriptPath = exports.tweakPublicKey = exports.liftX = exports.isPoint = exports.typeforce = void 0;
 const buffer_1 = require('buffer');
 const bcrypto = require('./crypto');
+const varuint = require('bip174/src/lib/converter/varint');
 // Temp, to be replaced
 // Only works because bip32 has it as dependecy. Linting will fail.
 const ecc = require('tiny-secp256k1');
@@ -62,12 +63,12 @@ function liftX(buffer) {
 }
 exports.liftX = liftX;
 const TAP_TWEAK_TAG = buffer_1.Buffer.from('TapTweak', 'utf8');
-const GROUP_ORDER = new BN(
-  buffer_1.Buffer.from(
-    'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
-    'hex',
-  ),
+const GROUP_ORDER = buffer_1.Buffer.from(
+  'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
+  'hex',
 );
+// todo: compare buffers dirrectly
+const GROUP_ORDER_BN = new BN(GROUP_ORDER);
 function tweakPublicKey(pubKey, h) {
   if (!buffer_1.Buffer.isBuffer(pubKey)) return null;
   if (pubKey.length !== 32) return null;
@@ -77,7 +78,8 @@ function tweakPublicKey(pubKey, h) {
     buffer_1.Buffer.concat(h ? [pubKey, h] : [pubKey]),
   );
   const t = new BN(tweakHash);
-  if (t.gte(GROUP_ORDER)) {
+  if (t.gte(GROUP_ORDER_BN)) {
+    // todo: add test for this case
     throw new Error('Tweak value over the SECP256K1 Order');
   }
   const P = liftX(pubKey);
@@ -89,6 +91,53 @@ function tweakPublicKey(pubKey, h) {
   };
 }
 exports.tweakPublicKey = tweakPublicKey;
+const TAP_LEAF_TAG = buffer_1.Buffer.from('TapLeaf', 'utf8');
+const TAP_BRANCH_TAG = buffer_1.Buffer.from('TapBranch', 'utf8');
+function computeTweakFromScriptPath(
+  controlBlock,
+  script,
+  internalPubkey,
+  m,
+  v,
+) {
+  const k = [];
+  const e = [];
+  const tapLeafMsg = buffer_1.Buffer.concat([
+    buffer_1.Buffer.from([v]),
+    serializeScript(script),
+  ]);
+  k[0] = bcrypto.taggedHash(TAP_LEAF_TAG, tapLeafMsg);
+  for (let j = 0; j < m; j++) {
+    e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
+    if (k[j].compare(e[j]) < 0) {
+      k[j + 1] = bcrypto.taggedHash(
+        TAP_BRANCH_TAG,
+        buffer_1.Buffer.concat([k[j], e[j]]),
+      );
+    } else {
+      k[j + 1] = bcrypto.taggedHash(
+        TAP_BRANCH_TAG,
+        buffer_1.Buffer.concat([e[j], k[j]]),
+      );
+    }
+  }
+  const t = bcrypto.taggedHash(
+    TAP_TWEAK_TAG,
+    buffer_1.Buffer.concat([internalPubkey, k[m]]),
+  );
+  if (t.compare(GROUP_ORDER) >= 0) {
+    throw new Error('Over the order of secp256k1');
+  }
+  return t;
+}
+exports.computeTweakFromScriptPath = computeTweakFromScriptPath;
+// todo: move out
+function serializeScript(s) {
+  const varintLen = varuint.encodingLength(s.length);
+  const buffer = buffer_1.Buffer.allocUnsafe(varintLen); // better
+  varuint.encode(s.length, buffer);
+  return buffer_1.Buffer.concat([buffer, s]);
+}
 // todo: do not use ecc
 function pointAddScalar(P, h) {
   return ecc.pointAddScalar(P, h);

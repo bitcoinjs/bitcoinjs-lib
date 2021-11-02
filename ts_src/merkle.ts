@@ -4,6 +4,7 @@ import * as bcrypto from './crypto';
 import * as varuint from 'bip174/src/lib/converter/varint';
 
 
+// todo: find better place for these consts
 const TAP_LEAF_TAG = NBuffer.from('TapLeaf', 'utf8');
 const TAP_BRANCH_TAG = NBuffer.from('TapBranch', 'utf8');
 const LEAF_VERSION_TAPSCRIPT = 0xc0

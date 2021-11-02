@@ -5,6 +5,7 @@ const buffer_1 = require('buffer');
 const bcrypto = require('./crypto');
 // todo: use varuint-bitcoin??
 const varuint = require('bip174/src/lib/converter/varint');
+// todo: find better place for these consts
 const TAP_LEAF_TAG = buffer_1.Buffer.from('TapLeaf', 'utf8');
 const TAP_BRANCH_TAG = buffer_1.Buffer.from('TapBranch', 'utf8');
 const LEAF_VERSION_TAPSCRIPT = 0xc0;

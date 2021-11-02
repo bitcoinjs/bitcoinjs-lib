@@ -1,5 +1,6 @@
 import { Buffer as NBuffer } from 'buffer';
 import * as bcrypto from './crypto';
+import * as varuint from 'bip174/src/lib/converter/varint';
 
 // Temp, to be replaced
 // Only works because bip32 has it as dependecy. Linting will fail.
@@ -72,12 +73,10 @@ export function liftX(buffer: Buffer): Buffer | null {
 }
 
 const TAP_TWEAK_TAG = NBuffer.from('TapTweak', 'utf8');
-const GROUP_ORDER = new BN(
-  NBuffer.from(
-    'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
-    'hex',
-  ),
-);
+
+const GROUP_ORDER = NBuffer.from('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141', 'hex');
+// todo: compare buffers dirrectly
+const GROUP_ORDER_BN = new BN(GROUP_ORDER);
 
 export function tweakPublicKey(
   pubKey: Buffer,
@@ -92,7 +91,8 @@ export function tweakPublicKey(
     NBuffer.concat(h ? [pubKey, h] : [pubKey]),
   );
   const t = new BN(tweakHash);
-  if (t.gte(GROUP_ORDER)) {
+  if (t.gte(GROUP_ORDER_BN)) {
+    // todo: add test for this case
     throw new Error('Tweak value over the SECP256K1 Order');
   }
 
@@ -104,6 +104,42 @@ export function tweakPublicKey(
     isOdd: Q[64] % 2 === 1,
     x: Q.slice(1, 33),
   };
+}
+
+const TAP_LEAF_TAG = NBuffer.from('TapLeaf', 'utf8');
+const TAP_BRANCH_TAG = NBuffer.from('TapBranch', 'utf8');
+
+export function computeTweakFromScriptPath(controlBlock: Buffer, script: Buffer, internalPubkey: Buffer, m: number, v: number) {
+  const k = [];
+  const e = [];
+
+  const tapLeafMsg = NBuffer.concat([NBuffer.from([v]), serializeScript(script)]);
+  k[0] = bcrypto.taggedHash(TAP_LEAF_TAG, tapLeafMsg);
+
+
+  for (let j = 0; j < m; j++) {
+    e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
+    if (k[j].compare(e[j]) < 0) {
+      k[j + 1] = bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([k[j], e[j]]));
+    } else {
+      k[j + 1] = bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([e[j], k[j]]));
+    }
+  }
+
+  const t = bcrypto.taggedHash(TAP_TWEAK_TAG, NBuffer.concat([internalPubkey, k[m]]));
+  if (t.compare(GROUP_ORDER) >= 0) {
+    throw new Error('Over the order of secp256k1')
+  }
+
+  return t
+}
+
+// todo: move out
+function serializeScript(s: Buffer) {
+  const varintLen = varuint.encodingLength(s.length);
+  const buffer = NBuffer.allocUnsafe(varintLen); // better
+  varuint.encode(s.length, buffer);
+  return NBuffer.concat([buffer, s])
 }
 
 // todo: do not use ecc

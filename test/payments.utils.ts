@@ -86,6 +86,8 @@ export function equate(a: any, b: any, args?: any): void {
     t.strictEqual(tryHex(a.hash), tryHex(b.hash), 'Inequal *.hash');
   if ('pubkey' in b)
     t.strictEqual(tryHex(a.pubkey), tryHex(b.pubkey), 'Inequal *.pubkey');
+  if ('internalPubkey' in b)
+    t.strictEqual(tryHex(a.internalPubkey), tryHex(b.internalPubkey), 'Inequal *.internalPubkey');
   if ('signature' in b)
     t.strictEqual(
       tryHex(a.signature),
