@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.TaprootNode = exports.TaprootLeaf = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.computeTweakFromScriptPath = exports.tweakPublicKey = exports.liftX = exports.isPoint = exports.typeforce = void 0;
+exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.TaprootNode = exports.TaprootLeaf = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.rootHash = exports.leafHash = exports.tweakKey = exports.liftX = exports.isPoint = exports.typeforce = void 0;
 const buffer_1 = require('buffer');
 const bcrypto = require('./crypto');
 const varuint = require('bip174/src/lib/converter/varint');
@@ -69,7 +69,7 @@ const GROUP_ORDER = buffer_1.Buffer.from(
 );
 // todo: compare buffers dirrectly
 const GROUP_ORDER_BN = new BN(GROUP_ORDER);
-function tweakPublicKey(pubKey, h) {
+function tweakKey(pubKey, h) {
   if (!buffer_1.Buffer.isBuffer(pubKey)) return null;
   if (pubKey.length !== 32) return null;
   if (h && h.length !== 32) return null;
@@ -90,22 +90,20 @@ function tweakPublicKey(pubKey, h) {
     x: Q.slice(1, 33),
   };
 }
-exports.tweakPublicKey = tweakPublicKey;
+exports.tweakKey = tweakKey;
 const TAP_LEAF_TAG = buffer_1.Buffer.from('TapLeaf', 'utf8');
 const TAP_BRANCH_TAG = buffer_1.Buffer.from('TapBranch', 'utf8');
-function computeTweakFromScriptPath(
-  controlBlock,
-  script,
-  internalPubkey,
-  m,
-  v,
-) {
-  const k = [];
-  const e = [];
-  const tapLeafMsg = buffer_1.Buffer.concat([
-    buffer_1.Buffer.from([v]),
+function leafHash(script, version) {
+  return buffer_1.Buffer.concat([
+    buffer_1.Buffer.from([version]),
     serializeScript(script),
   ]);
+}
+exports.leafHash = leafHash;
+function rootHash(controlBlock, tapLeafMsg) {
+  const k = [];
+  const e = [];
+  const m = (controlBlock.length - 33) / 32;
   k[0] = bcrypto.taggedHash(TAP_LEAF_TAG, tapLeafMsg);
   for (let j = 0; j < m; j++) {
     e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
@@ -121,16 +119,9 @@ function computeTweakFromScriptPath(
       );
     }
   }
-  const t = bcrypto.taggedHash(
-    TAP_TWEAK_TAG,
-    buffer_1.Buffer.concat([internalPubkey, k[m]]),
-  );
-  if (t.compare(GROUP_ORDER) >= 0) {
-    throw new Error('Over the order of secp256k1');
-  }
-  return t;
+  return k[m];
 }
-exports.computeTweakFromScriptPath = computeTweakFromScriptPath;
+exports.rootHash = rootHash;
 // todo: move out
 function serializeScript(s) {
   const varintLen = varuint.encodingLength(s.length);

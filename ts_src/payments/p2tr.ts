@@ -1,6 +1,6 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { liftX, tweakPublicKey, computeTweakFromScriptPath, typeforce as typef } from '../types';
+import { liftX, leafHash, rootHash, tweakKey, typeforce as typef } from '../types';
 import { computeMastRoot } from '../merkle';
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
@@ -81,7 +81,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     if (a.output) return a.output.slice(2)
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = tweakPublicKey(o.internalPubkey, o.hash)
+      const tweakedKey = tweakKey(o.internalPubkey, o.hash)
       if (tweakedKey) return tweakedKey.x
     }
   });
@@ -136,7 +136,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     }
 
     if (a.internalPubkey) {
-      const tweakedKey = tweakPublicKey(a.internalPubkey, o.hash)
+      const tweakedKey = tweakKey(a.internalPubkey, o.hash)
       if (tweakedKey === null) throw new TypeError('Invalid internalPubkey for p2tr');
       if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
         throw new TypeError('Pubkey mismatch');
@@ -189,9 +189,11 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
 
         const leafVersion = controlBlock[0] & 0b11111110;
         const script = witness[witness.length - 2];
-        const tweak = computeTweakFromScriptPath(controlBlock, script, internalPubkey, m, leafVersion)
+        
+        const tapLeafHash = leafHash(script, leafVersion)
+        const hash = rootHash(controlBlock, tapLeafHash)
 
-        const outputKey = tweakPublicKey(internalPubkey, tweak)
+        const outputKey = tweakKey(internalPubkey, hash)
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');

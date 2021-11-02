@@ -1,10 +1,10 @@
 /// <reference types="node" />
-import { Buffer as NBuffer } from 'buffer';
 export declare const typeforce: any;
 export declare function isPoint(p: Buffer | number | undefined | null): boolean;
 export declare function liftX(buffer: Buffer): Buffer | null;
-export declare function tweakPublicKey(pubKey: Buffer, h: Buffer | undefined): TweakedPublicKey | null;
-export declare function computeTweakFromScriptPath(controlBlock: Buffer, script: Buffer, internalPubkey: Buffer, m: number, v: number): NBuffer;
+export declare function tweakKey(pubKey: Buffer, h: Buffer | undefined): TweakedPublicKey | null;
+export declare function leafHash(script: Buffer, version: number): Buffer;
+export declare function rootHash(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer;
 export declare function UInt31(value: number): boolean;
 export declare function BIP32Path(value: string): boolean;
 export declare namespace BIP32Path {

@@ -78,7 +78,7 @@ const GROUP_ORDER = NBuffer.from('fffffffffffffffffffffffffffffffebaaedce6af48a0
 // todo: compare buffers dirrectly
 const GROUP_ORDER_BN = new BN(GROUP_ORDER);
 
-export function tweakPublicKey(
+export function tweakKey(
   pubKey: Buffer,
   h: Buffer | undefined,
 ): TweakedPublicKey | null {
@@ -109,13 +109,17 @@ export function tweakPublicKey(
 const TAP_LEAF_TAG = NBuffer.from('TapLeaf', 'utf8');
 const TAP_BRANCH_TAG = NBuffer.from('TapBranch', 'utf8');
 
-export function computeTweakFromScriptPath(controlBlock: Buffer, script: Buffer, internalPubkey: Buffer, m: number, v: number) {
+
+export function leafHash(script: Buffer, version: number): Buffer {
+  return NBuffer.concat([NBuffer.from([version]), serializeScript(script)]);
+}
+
+export function rootHash(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer {
   const k = [];
   const e = [];
 
-  const tapLeafMsg = NBuffer.concat([NBuffer.from([v]), serializeScript(script)]);
+  const m = (controlBlock.length - 33) / 32;
   k[0] = bcrypto.taggedHash(TAP_LEAF_TAG, tapLeafMsg);
-
 
   for (let j = 0; j < m; j++) {
     e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
@@ -126,12 +130,7 @@ export function computeTweakFromScriptPath(controlBlock: Buffer, script: Buffer,
     }
   }
 
-  const t = bcrypto.taggedHash(TAP_TWEAK_TAG, NBuffer.concat([internalPubkey, k[m]]));
-  if (t.compare(GROUP_ORDER) >= 0) {
-    throw new Error('Over the order of secp256k1')
-  }
-
-  return t
+  return k[m]
 }
 
 // todo: move out

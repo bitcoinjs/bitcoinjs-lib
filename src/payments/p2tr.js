@@ -85,7 +85,7 @@ function p2tr(a, opts) {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = (0, types_1.tweakPublicKey)(o.internalPubkey, o.hash);
+      const tweakedKey = (0, types_1.tweakKey)(o.internalPubkey, o.hash);
       if (tweakedKey) return tweakedKey.x;
     }
   });
@@ -136,7 +136,7 @@ function p2tr(a, opts) {
       else pubkey = a.output.slice(2);
     }
     if (a.internalPubkey) {
-      const tweakedKey = (0, types_1.tweakPublicKey)(a.internalPubkey, o.hash);
+      const tweakedKey = (0, types_1.tweakKey)(a.internalPubkey, o.hash);
       if (tweakedKey === null)
         throw new TypeError('Invalid internalPubkey for p2tr');
       if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
@@ -187,14 +187,9 @@ function p2tr(a, opts) {
           throw new TypeError('Invalid internalPubkey for p2tr witness');
         const leafVersion = controlBlock[0] & 0b11111110;
         const script = witness[witness.length - 2];
-        const tweak = (0, types_1.computeTweakFromScriptPath)(
-          controlBlock,
-          script,
-          internalPubkey,
-          m,
-          leafVersion,
-        );
-        const outputKey = (0, types_1.tweakPublicKey)(internalPubkey, tweak);
+        const tapLeafHash = (0, types_1.leafHash)(script, leafVersion);
+        const hash = (0, types_1.rootHash)(controlBlock, tapLeafHash);
+        const outputKey = (0, types_1.tweakKey)(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');
