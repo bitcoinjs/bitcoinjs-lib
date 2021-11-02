@@ -13,12 +13,6 @@ const LEAF_VERSION_TAPSCRIPT = 0xc0;
 const TAP_LEAF_TAG = buffer_1.Buffer.from('TapLeaf', 'utf8');
 const TAP_BRANCH_TAG = buffer_1.Buffer.from('TapBranch', 'utf8');
 const TAP_TWEAK_TAG = buffer_1.Buffer.from('TapTweak', 'utf8');
-// todo: compare buffers dirrectly
-const GROUP_ORDER = buffer_1.Buffer.from(
-  'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
-  'hex',
-);
-const GROUP_ORDER_BN = new BN(GROUP_ORDER);
 const EC_P_BN = new BN(types_1.EC_P);
 const EC_P_REDUCTION = BN.red(EC_P_BN);
 const EC_P_QUADRATIC_RESIDUE = EC_P_BN.addn(1).divn(4);
@@ -56,8 +50,7 @@ function tweakKey(pubKey, h) {
     TAP_TWEAK_TAG,
     buffer_1.Buffer.concat(h ? [pubKey, h] : [pubKey]),
   );
-  const t = new BN(tweakHash);
-  if (t.gte(GROUP_ORDER_BN)) {
+  if (tweakHash.compare(types_1.GROUP_ORDER) >= 0) {
     // todo: add test for this case
     throw new Error('Tweak value over the SECP256K1 Order');
   }
