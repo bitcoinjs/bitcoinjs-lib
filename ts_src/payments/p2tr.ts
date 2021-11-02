@@ -1,7 +1,13 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { typeforce as typef } from '../types';
-import { computeMastRoot, leafHash, rootHash, tweakKey, liftX } from '../taproot';
+import {
+  computeMastRoot,
+  leafHash,
+  rootHash,
+  tweakKey,
+  liftX,
+} from '../taproot';
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';
@@ -14,7 +20,14 @@ const ANNEX_PREFIX = 0x50;
 // input: <>
 // output: OP_1 {pubKey}
 export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
-  if (!a.address && !a.output && !a.pubkey && !a.output && !a.internalPubkey && !(a.witness && a.witness.length > 1))
+  if (
+    !a.address &&
+    !a.output &&
+    !a.pubkey &&
+    !a.output &&
+    !a.internalPubkey &&
+    !(a.witness && a.witness.length > 1)
+  )
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
 
@@ -46,13 +59,16 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   });
 
   const _witness = lazy.value(() => {
-    if (!a.witness || !a.witness.length) return
-    if (a.witness.length >= 2 && (a.witness[a.witness.length - 1][0] === ANNEX_PREFIX)) {
+    if (!a.witness || !a.witness.length) return;
+    if (
+      a.witness.length >= 2 &&
+      a.witness[a.witness.length - 1][0] === ANNEX_PREFIX
+    ) {
       // remove annex, ignored by taproot
       return a.witness.slice(0, -1);
     }
-    return a.witness.slice()
-  })
+    return a.witness.slice();
+  });
 
   const network = a.network || BITCOIN_NETWORK;
   const o: Payment = { name: 'p2tr', network };
@@ -65,19 +81,18 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     return bech32m.encode(network.bech32, words);
   });
 
-
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    if (a.scriptsTree) return computeMastRoot(a.scriptsTree)
-    const w = _witness()
+    if (a.scriptsTree) return computeMastRoot(a.scriptsTree);
+    const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & 0b11111110;
       const script = w[w.length - 2];
-      const tapLeafHash = leafHash(script, leafVersion)
-      return rootHash(controlBlock, tapLeafHash)
+      const tapLeafHash = leafHash(script, leafVersion);
+      return rootHash(controlBlock, tapLeafHash);
     }
-    return null
+    return null;
   });
   lazy.prop(o, 'output', () => {
     if (!o.pubkey) return;
@@ -85,28 +100,28 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   });
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;
-    if (a.output) return a.output.slice(2)
+    if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = tweakKey(o.internalPubkey, o.hash)
-      if (tweakedKey) return tweakedKey.x
+      const tweakedKey = tweakKey(o.internalPubkey, o.hash);
+      if (tweakedKey) return tweakedKey.x;
     }
   });
   lazy.prop(o, 'internalPubkey', () => {
     if (a.internalPubkey) return a.internalPubkey;
-    const witness = _witness()
+    const witness = _witness();
     if (witness && witness.length > 1)
       return witness[witness.length - 1].slice(1, 33);
   });
   lazy.prop(o, 'signature', () => {
-    if (a.witness?.length !== 1) return;
+    if (!a.witness || a.witness.length !== 1) return;
     return a.witness[0];
   });
   lazy.prop(o, 'input', () => {
     // todo: not sure
   });
   lazy.prop(o, 'witness', () => {
-    if (a.witness) return a.witness
+    if (a.witness) return a.witness;
     if (!a.signature) return;
     return [a.signature];
   });
@@ -143,26 +158,26 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     }
 
     if (a.internalPubkey) {
-      const tweakedKey = tweakKey(a.internalPubkey, o.hash)
-      if (tweakedKey === null) throw new TypeError('Invalid internalPubkey for p2tr');
+      const tweakedKey = tweakKey(a.internalPubkey, o.hash);
+      if (tweakedKey === null)
+        throw new TypeError('Invalid internalPubkey for p2tr');
       if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
         throw new TypeError('Pubkey mismatch');
       else pubkey = tweakedKey.x;
     }
 
-    if (pubkey?.length) {
+    if (pubkey && pubkey.length) {
       if (liftX(pubkey) === null)
         throw new TypeError('Invalid pubkey for p2tr');
     }
 
     if (a.hash && a.scriptsTree) {
-      const hash = computeMastRoot(a.scriptsTree)
-      if (!a.hash.equals(hash))
-        throw new TypeError('Hash mismatch');
+      const hash = computeMastRoot(a.scriptsTree);
+      if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
 
     // todo: review cache
-    const witness = _witness()
+    const witness = _witness();
 
     if (witness && witness.length) {
       if (witness.length === 1) {
@@ -176,14 +191,22 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         // script path spending
         const controlBlock = witness[witness.length - 1];
         if (controlBlock.length < 33)
-          throw new TypeError(`The control-block length is too small. Got ${controlBlock.length}, expected min 33.`);
+          throw new TypeError(
+            `The control-block length is too small. Got ${
+              controlBlock.length
+            }, expected min 33.`,
+          );
 
         if ((controlBlock.length - 33) % 32 !== 0)
-          throw new TypeError(`The control-block length of ${controlBlock.length} is incorrect!`);
+          throw new TypeError(
+            `The control-block length of ${controlBlock.length} is incorrect!`,
+          );
 
         const m = (controlBlock.length - 33) / 32;
         if (m > 128)
-          throw new TypeError(`The script path is too long. Got ${m}, expected max 128.`);
+          throw new TypeError(
+            `The script path is too long. Got ${m}, expected max 128.`,
+          );
 
         const internalPubkey = controlBlock.slice(1, 33);
         if (a.internalPubkey && !a.internalPubkey.equals(internalPubkey))
@@ -196,10 +219,10 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         const leafVersion = controlBlock[0] & 0b11111110;
         const script = witness[witness.length - 2];
 
-        const tapLeafHash = leafHash(script, leafVersion)
-        const hash = rootHash(controlBlock, tapLeafHash)
+        const tapLeafHash = leafHash(script, leafVersion);
+        const hash = rootHash(controlBlock, tapLeafHash);
 
-        const outputKey = tweakKey(internalPubkey, hash)
+        const outputKey = tweakKey(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');
@@ -207,12 +230,10 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         if (pubkey.length && !pubkey.equals(outputKey.x))
           throw new TypeError('Pubkey mismatch for p2tr witness');
 
-        const controlBlockOddParity = (controlBlock[0] & 1) === 1
+        const controlBlockOddParity = (controlBlock[0] & 1) === 1;
         if (outputKey.isOdd !== controlBlockOddParity)
-          throw new Error('Incorrect parity')
-
+          throw new Error('Incorrect parity');
       }
-
     }
   }
 

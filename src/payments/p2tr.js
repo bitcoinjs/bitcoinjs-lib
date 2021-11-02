@@ -103,7 +103,7 @@ function p2tr(a, opts) {
       return witness[witness.length - 1].slice(1, 33);
   });
   lazy.prop(o, 'signature', () => {
-    if (a.witness?.length !== 1) return;
+    if (!a.witness || a.witness.length !== 1) return;
     return a.witness[0];
   });
   lazy.prop(o, 'input', () => {
@@ -150,7 +150,7 @@ function p2tr(a, opts) {
         throw new TypeError('Pubkey mismatch');
       else pubkey = tweakedKey.x;
     }
-    if (pubkey?.length) {
+    if (pubkey && pubkey.length) {
       if ((0, taproot_1.liftX)(pubkey) === null)
         throw new TypeError('Invalid pubkey for p2tr');
     }

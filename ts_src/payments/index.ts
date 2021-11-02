@@ -24,7 +24,7 @@ export interface Payment {
   address?: string; // taproot: betch32m
   hash?: Buffer; // taproot: MAST root
   redeem?: Payment; // taproot: when script path spending is used spending
-  scriptsTree?: any // todo: solve
+  scriptsTree?: any; // todo: solve
   witness?: Buffer[];
 }
 
