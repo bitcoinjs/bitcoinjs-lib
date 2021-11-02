@@ -1,7 +1,7 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { liftX, leafHash, rootHash, tweakKey, typeforce as typef } from '../types';
-import { computeMastRoot } from '../merkle';
+import { typeforce as typef } from '../types';
+import { computeMastRoot, leafHash, rootHash, tweakKey, liftX } from '../taproot';
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';

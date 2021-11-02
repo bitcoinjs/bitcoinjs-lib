@@ -4,7 +4,7 @@ exports.p2tr = void 0;
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const types_1 = require('../types');
-const merkle_1 = require('../merkle');
+const taproot_1 = require('../taproot');
 const lazy = require('./lazy');
 const bech32_1 = require('bech32');
 const OPS = bscript.OPS;
@@ -72,14 +72,14 @@ function p2tr(a, opts) {
   });
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    if (a.scriptsTree) return (0, merkle_1.computeMastRoot)(a.scriptsTree);
+    if (a.scriptsTree) return (0, taproot_1.computeMastRoot)(a.scriptsTree);
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & 0b11111110;
       const script = w[w.length - 2];
-      const tapLeafHash = (0, types_1.leafHash)(script, leafVersion);
-      return (0, types_1.rootHash)(controlBlock, tapLeafHash);
+      const tapLeafHash = (0, taproot_1.leafHash)(script, leafVersion);
+      return (0, taproot_1.rootHash)(controlBlock, tapLeafHash);
     }
     return null;
   });
@@ -92,7 +92,7 @@ function p2tr(a, opts) {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = (0, types_1.tweakKey)(o.internalPubkey, o.hash);
+      const tweakedKey = (0, taproot_1.tweakKey)(o.internalPubkey, o.hash);
       if (tweakedKey) return tweakedKey.x;
     }
   });
@@ -143,7 +143,7 @@ function p2tr(a, opts) {
       else pubkey = a.output.slice(2);
     }
     if (a.internalPubkey) {
-      const tweakedKey = (0, types_1.tweakKey)(a.internalPubkey, o.hash);
+      const tweakedKey = (0, taproot_1.tweakKey)(a.internalPubkey, o.hash);
       if (tweakedKey === null)
         throw new TypeError('Invalid internalPubkey for p2tr');
       if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
@@ -151,11 +151,11 @@ function p2tr(a, opts) {
       else pubkey = tweakedKey.x;
     }
     if (pubkey?.length) {
-      if ((0, types_1.liftX)(pubkey) === null)
+      if ((0, taproot_1.liftX)(pubkey) === null)
         throw new TypeError('Invalid pubkey for p2tr');
     }
     if (a.hash && a.scriptsTree) {
-      const hash = (0, merkle_1.computeMastRoot)(a.scriptsTree);
+      const hash = (0, taproot_1.computeMastRoot)(a.scriptsTree);
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
     // todo: review cache
@@ -189,14 +189,14 @@ function p2tr(a, opts) {
         const internalPubkey = controlBlock.slice(1, 33);
         if (a.internalPubkey && !a.internalPubkey.equals(internalPubkey))
           throw new TypeError('Internal pubkey mismatch');
-        const internalPubkeyPoint = (0, types_1.liftX)(internalPubkey);
+        const internalPubkeyPoint = (0, taproot_1.liftX)(internalPubkey);
         if (!internalPubkeyPoint)
           throw new TypeError('Invalid internalPubkey for p2tr witness');
         const leafVersion = controlBlock[0] & 0b11111110;
         const script = witness[witness.length - 2];
-        const tapLeafHash = (0, types_1.leafHash)(script, leafVersion);
-        const hash = (0, types_1.rootHash)(controlBlock, tapLeafHash);
-        const outputKey = (0, types_1.tweakKey)(internalPubkey, hash);
+        const tapLeafHash = (0, taproot_1.leafHash)(script, leafVersion);
+        const hash = (0, taproot_1.rootHash)(controlBlock, tapLeafHash);
+        const outputKey = (0, taproot_1.tweakKey)(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');
