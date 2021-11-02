@@ -73,7 +73,14 @@ function p2tr(a, opts) {
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
     if (a.scriptsTree) return (0, merkle_1.computeMastRoot)(a.scriptsTree);
-    // todo: compute from witness
+    const w = _witness();
+    if (w && w.length > 1) {
+      const controlBlock = w[w.length - 1];
+      const leafVersion = controlBlock[0] & 0b11111110;
+      const script = w[w.length - 2];
+      const tapLeafHash = (0, types_1.leafHash)(script, leafVersion);
+      return (0, types_1.rootHash)(controlBlock, tapLeafHash);
+    }
     return null;
   });
   lazy.prop(o, 'output', () => {

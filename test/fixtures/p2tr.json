@@ -106,9 +106,10 @@
       "expected": {
         "name": "p2tr",
         "internalPubkey": "a7957acbaaf7b444c53d9e0c9436e8a8a3247fd515095d66ddf6201918b40a36",
-        "pubkey": "a44784d6b2d0159ca57f52e3e6023a4f1960d22c089d019f3656d9e23926dcc9",
-        "address": "bc1p53rcf44j6q2eeftl2t37vq36fuvkp53vpzwsr8ek2mv7ywfxmnysdul78t",
-        "output": "OP_1 a44784d6b2d0159ca57f52e3e6023a4f1960d22c089d019f3656d9e23926dcc9",
+        "pubkey": "1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
+        "hash": "c5c62d7fc595ba5fbe61602eb1a29e2e4763408fe1e2b161beb7cb3c71ebcad9",
+        "address": "bc1pr6lghypk80gf025lx5kgkgv3fcvgd0qfl608psylx0hj624a7j7qay80rv",
+        "output": "OP_1 1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
         "signature": null,
         "input": null,
         "witness": [
@@ -133,9 +134,10 @@
       "expected": {
         "name": "p2tr",
         "internalPubkey": "a7957acbaaf7b444c53d9e0c9436e8a8a3247fd515095d66ddf6201918b40a36",
-        "pubkey": "a44784d6b2d0159ca57f52e3e6023a4f1960d22c089d019f3656d9e23926dcc9",
-        "address": "bc1p53rcf44j6q2eeftl2t37vq36fuvkp53vpzwsr8ek2mv7ywfxmnysdul78t",
-        "output": "OP_1 a44784d6b2d0159ca57f52e3e6023a4f1960d22c089d019f3656d9e23926dcc9",
+        "pubkey": "1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
+        "hash": "c5c62d7fc595ba5fbe61602eb1a29e2e4763408fe1e2b161beb7cb3c71ebcad9",
+        "address": "bc1pr6lghypk80gf025lx5kgkgv3fcvgd0qfl608psylx0hj624a7j7qay80rv",
+        "output": "OP_1 1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
         "signature": null,
         "input": null,
         "witness": [

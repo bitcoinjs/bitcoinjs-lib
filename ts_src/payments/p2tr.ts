@@ -69,7 +69,14 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
     if (a.scriptsTree) return computeMastRoot(a.scriptsTree)
-    // todo: compute from witness
+    const w = _witness()
+    if (w && w.length > 1) {
+      const controlBlock = w[w.length - 1];
+      const leafVersion = controlBlock[0] & 0b11111110;
+      const script = w[w.length - 2];
+      const tapLeafHash = leafHash(script, leafVersion)
+      return rootHash(controlBlock, tapLeafHash)
+    }
     return null
   });
   lazy.prop(o, 'output', () => {
@@ -186,10 +193,9 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         if (!internalPubkeyPoint)
           throw new TypeError('Invalid internalPubkey for p2tr witness');
 
-
         const leafVersion = controlBlock[0] & 0b11111110;
         const script = witness[witness.length - 2];
-        
+
         const tapLeafHash = leafHash(script, leafVersion)
         const hash = rootHash(controlBlock, tapLeafHash)
 
