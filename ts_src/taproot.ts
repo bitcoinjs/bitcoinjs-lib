@@ -78,10 +78,6 @@ export function tweakKey(
   };
 }
 
-export function leafHash(script: Buffer, version: number): Buffer {
-  return bcrypto.taggedHash(TAP_LEAF_TAG, NBuffer.concat([NBuffer.from([version]), serializeScript(script)]));
-}
-
 export function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer {
   const k = [tapLeafMsg];
   const e = [];
@@ -91,15 +87,9 @@ export function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buff
   for (let j = 0; j < m; j++) {
     e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
     if (k[j].compare(e[j]) < 0) {
-      k[j + 1] = bcrypto.taggedHash(
-        TAP_BRANCH_TAG,
-        NBuffer.concat([k[j], e[j]]),
-      );
+      k[j + 1] = tapBranchHash(k[j], e[j]);
     } else {
-      k[j + 1] = bcrypto.taggedHash(
-        TAP_BRANCH_TAG,
-        NBuffer.concat([e[j], k[j]]),
-      );
+      k[j + 1] = tapBranchHash(e[j], k[j]);
     }
   }
 
@@ -115,7 +105,7 @@ export function rootHashFromTree(scripts: TaprootLeaf[]): Buffer {
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
     if ((script.version & 1) !== 0) throw new TypeError('Invalid script version');
 
-    return leafHash(script.output, script.version);
+    return tapLeafHash(script.output, script.version);
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);
@@ -124,10 +114,16 @@ export function rootHashFromTree(scripts: TaprootLeaf[]): Buffer {
 
   if (leftHash.compare(rightHash) === 1)
     [leftHash, rightHash] = [rightHash, leftHash];
-  return bcrypto.taggedHash(
-    TAP_BRANCH_TAG,
-    NBuffer.concat([leftHash, rightHash]),
-  );
+  return tapBranchHash(leftHash, rightHash);
+}
+
+// todo: rename to tapLeafHash
+export function tapLeafHash(script: Buffer, version: number): Buffer {
+  return bcrypto.taggedHash(TAP_LEAF_TAG, NBuffer.concat([NBuffer.from([version]), serializeScript(script)]));
+}
+
+function tapBranchHash(a: Buffer, b: Buffer): Buffer {
+  return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]), );
 }
 
 function serializeScript(s: Buffer): Buffer {

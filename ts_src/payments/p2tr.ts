@@ -4,7 +4,7 @@ import { typeforce as typef } from '../types';
 import {
   rootHashFromTree,
   rootHashFromPath,
-  leafHash,
+  tapLeafHash,
   tweakKey,
   liftX,
 } from '../taproot';
@@ -94,8 +94,8 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & 0b11111110;
       const script = w[w.length - 2];
-      const tapLeafHash = leafHash(script, leafVersion);
-      return rootHashFromPath(controlBlock, tapLeafHash);
+      const leafHash = tapLeafHash(script, leafVersion);
+      return rootHashFromPath(controlBlock, leafHash);
     }
     return null;
   });
@@ -226,8 +226,8 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         const leafVersion = controlBlock[0] & 0b11111110;
         const script = witness[witness.length - 2];
 
-        const tapLeafHash = leafHash(script, leafVersion);
-        const hash = rootHashFromPath(controlBlock, tapLeafHash);
+        const leafHash = tapLeafHash(script, leafVersion);
+        const hash = rootHashFromPath(controlBlock, leafHash);
 
         const outputKey = tweakKey(internalPubkey, hash);
         if (!outputKey)

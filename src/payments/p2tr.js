@@ -82,8 +82,8 @@ function p2tr(a, opts) {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & 0b11111110;
       const script = w[w.length - 2];
-      const tapLeafHash = (0, taproot_1.leafHash)(script, leafVersion);
-      return (0, taproot_1.rootHashFromPath)(controlBlock, tapLeafHash);
+      const leafHash = (0, taproot_1.tapLeafHash)(script, leafVersion);
+      return (0, taproot_1.rootHashFromPath)(controlBlock, leafHash);
     }
     return null;
   });
@@ -200,8 +200,8 @@ function p2tr(a, opts) {
           throw new TypeError('Invalid internalPubkey for p2tr witness');
         const leafVersion = controlBlock[0] & 0b11111110;
         const script = witness[witness.length - 2];
-        const tapLeafHash = (0, taproot_1.leafHash)(script, leafVersion);
-        const hash = (0, taproot_1.rootHashFromPath)(controlBlock, tapLeafHash);
+        const leafHash = (0, taproot_1.tapLeafHash)(script, leafVersion);
+        const hash = (0, taproot_1.rootHashFromPath)(controlBlock, leafHash);
         const outputKey = (0, taproot_1.tweakKey)(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data

@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.rootHashFromTree = exports.rootHashFromPath = exports.leafHash = exports.tweakKey = exports.liftX = void 0;
+exports.tapLeafHash = exports.rootHashFromTree = exports.rootHashFromPath = exports.tweakKey = exports.liftX = void 0;
 const buffer_1 = require('buffer');
 const BN = require('bn.js');
 const bcrypto = require('./crypto');
@@ -63,16 +63,6 @@ function tweakKey(pubKey, h) {
   };
 }
 exports.tweakKey = tweakKey;
-function leafHash(script, version) {
-  return bcrypto.taggedHash(
-    TAP_LEAF_TAG,
-    buffer_1.Buffer.concat([
-      buffer_1.Buffer.from([version]),
-      serializeScript(script),
-    ]),
-  );
-}
-exports.leafHash = leafHash;
 function rootHashFromPath(controlBlock, tapLeafMsg) {
   const k = [tapLeafMsg];
   const e = [];
@@ -80,15 +70,9 @@ function rootHashFromPath(controlBlock, tapLeafMsg) {
   for (let j = 0; j < m; j++) {
     e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
     if (k[j].compare(e[j]) < 0) {
-      k[j + 1] = bcrypto.taggedHash(
-        TAP_BRANCH_TAG,
-        buffer_1.Buffer.concat([k[j], e[j]]),
-      );
+      k[j + 1] = tapBranchHash(k[j], e[j]);
     } else {
-      k[j + 1] = bcrypto.taggedHash(
-        TAP_BRANCH_TAG,
-        buffer_1.Buffer.concat([e[j], k[j]]),
-      );
+      k[j + 1] = tapBranchHash(e[j], k[j]);
     }
   }
   return k[m];
@@ -103,7 +87,7 @@ function rootHashFromTree(scripts) {
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
     if ((script.version & 1) !== 0)
       throw new TypeError('Invalid script version');
-    return leafHash(script.output, script.version);
+    return tapLeafHash(script.output, script.version);
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);
@@ -111,12 +95,23 @@ function rootHashFromTree(scripts) {
   let rightHash = rootHashFromTree(scripts.slice(half));
   if (leftHash.compare(rightHash) === 1)
     [leftHash, rightHash] = [rightHash, leftHash];
-  return bcrypto.taggedHash(
-    TAP_BRANCH_TAG,
-    buffer_1.Buffer.concat([leftHash, rightHash]),
-  );
+  return tapBranchHash(leftHash, rightHash);
 }
 exports.rootHashFromTree = rootHashFromTree;
+// todo: rename to tapLeafHash
+function tapLeafHash(script, version) {
+  return bcrypto.taggedHash(
+    TAP_LEAF_TAG,
+    buffer_1.Buffer.concat([
+      buffer_1.Buffer.from([version]),
+      serializeScript(script),
+    ]),
+  );
+}
+exports.tapLeafHash = tapLeafHash;
+function tapBranchHash(a, b) {
+  return bcrypto.taggedHash(TAP_BRANCH_TAG, buffer_1.Buffer.concat([a, b]));
+}
 function serializeScript(s) {
   const varintLen = varuint.encodingLength(s.length);
   const buffer = buffer_1.Buffer.allocUnsafe(varintLen); // better
