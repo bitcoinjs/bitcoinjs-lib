@@ -73,7 +73,7 @@ export function tweakKey(
 
   const Q = pointAddScalar(P, tweakHash);
   return {
-    isOdd: Q[64] % 2 === 1,
+    parity: Q[64] % 2,
     x: Q.slice(1, 33),
   };
 }
@@ -96,34 +96,72 @@ export function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buff
   return k[m];
 }
 
-export function rootHashFromTree(scripts: TaprootLeaf[]): Buffer {
+export interface HashTree {
+  hash: Buffer
+  left?: HashTree
+  right?: HashTree
+}
+
+
+export function toHashTree(scripts: TaprootLeaf[]): HashTree {
   if (scripts.length === 1) {
     const script = scripts[0];
     if (Array.isArray(script)) {
-      return rootHashFromTree(script);
+      return toHashTree(script);
     }
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
     if ((script.version & 1) !== 0) throw new TypeError('Invalid script version');
 
-    return tapLeafHash(script.output, script.version);
+    return {
+      hash: tapLeafHash(script.output, script.version)
+    }
+
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);
-  let leftHash = rootHashFromTree(scripts.slice(0, half));
-  let rightHash = rootHashFromTree(scripts.slice(half));
+  const left = toHashTree(scripts.slice(0, half));
+  const right = toHashTree(scripts.slice(half));
+
+  let leftHash = left.hash;
+  let rightHash = right.hash;
 
   if (leftHash.compare(rightHash) === 1)
     [leftHash, rightHash] = [rightHash, leftHash];
-  return tapBranchHash(leftHash, rightHash);
+  return {
+    hash: tapBranchHash(leftHash, rightHash),
+    left,
+    right
+  }
 }
 
-// todo: rename to tapLeafHash
-export function tapLeafHash(script: Buffer, version: number): Buffer {
+export function findScriptPath(node: HashTree, hash: Buffer): Buffer[] {
+  if (node.left) {
+    if (node.left.hash.equals(hash))
+      return node.right ? [node.right.hash] : []
+    const leftPath = findScriptPath(node.left, hash)
+    if (leftPath.length)
+      return node.right ? [node.right.hash].concat(leftPath) : leftPath
+  }
+
+  if (node.right) {
+    if (node.right.hash.equals(hash))
+      return node.left ? [node.left.hash] : []
+    const rightPath = findScriptPath(node.right, hash)
+    if (rightPath.length) {}
+      return node.left ? [node.left.hash].concat(rightPath) : rightPath
+  }
+
+  return []
+
+}
+
+export function tapLeafHash(script: Buffer, version?: number): Buffer {
+  version = version || LEAF_VERSION_TAPSCRIPT
   return bcrypto.taggedHash(TAP_LEAF_TAG, NBuffer.concat([NBuffer.from([version]), serializeScript(script)]));
 }
 
 function tapBranchHash(a: Buffer, b: Buffer): Buffer {
-  return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]), );
+  return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]),);
 }
 
 function serializeScript(s: Buffer): Buffer {

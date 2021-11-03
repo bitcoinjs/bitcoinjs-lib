@@ -1,9 +1,11 @@
+import { Buffer as NBuffer } from 'buffer';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { typeforce as typef } from '../types';
 import {
-  rootHashFromTree,
+  toHashTree,
   rootHashFromPath,
+  findScriptPath,
   tapLeafHash,
   tweakKey,
   liftX,
@@ -59,7 +61,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     return {
       version,
       prefix: result.prefix,
-      data: Buffer.from(data),
+      data: NBuffer.from(data),
     };
   });
 
@@ -88,7 +90,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
 
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    if (a.scriptsTree) return rootHashFromTree(a.scriptsTree);
+    if (a.scriptsTree) return toHashTree(a.scriptsTree).hash;
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
@@ -105,7 +107,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   });
   lazy.prop(o, 'scriptLeaf', () => {
     if (!a.scriptLeaf) return a.scriptLeaf;
-    
   });
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;
@@ -131,13 +132,23 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   });
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
-    if (!a.signature) return;
-    return [a.signature];
+    if (a.scriptsTree && a.scriptLeaf && a.internalPubkey) {
+      // todo: optimize/cache
+      const hashTree = toHashTree(a.scriptsTree)
+      const leafHash = tapLeafHash(a.scriptLeaf.output, a.scriptLeaf.version)
+      const path = findScriptPath(hashTree, leafHash)
+      const outputKey = tweakKey(a.internalPubkey, hashTree.hash);
+      if (!outputKey) return
+      const version = a.scriptLeaf.version || 0xc0
+      const controlBock = NBuffer.concat([NBuffer.from([version | outputKey.parity]), a.internalPubkey].concat(path.reverse()))
+      return [a.scriptLeaf.output, controlBock]
+    }
+    if (a.signature) return [a.signature];
   });
 
   // extended validation
   if (opts.validate) {
-    let pubkey: Buffer = Buffer.from([]);
+    let pubkey: Buffer = NBuffer.from([]);
     if (a.address) {
       if (network && network.bech32 !== _address().prefix)
         throw new TypeError('Invalid prefix or Network mismatch');
@@ -181,7 +192,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     }
 
     if (a.hash && a.scriptsTree) {
-      const hash = rootHashFromTree(a.scriptsTree);
+      const hash = toHashTree(a.scriptsTree).hash;
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
 
@@ -237,8 +248,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         if (pubkey.length && !pubkey.equals(outputKey.x))
           throw new TypeError('Pubkey mismatch for p2tr witness');
 
-        const controlBlockOddParity = (controlBlock[0] & 1) === 1;
-        if (outputKey.isOdd !== controlBlockOddParity)
+        if (outputKey.parity !== (controlBlock[0] & 1))
           throw new Error('Incorrect parity');
       }
     }

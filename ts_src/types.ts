@@ -72,7 +72,7 @@ export const Network = typeforce.compile({
 });
 
 export interface TweakedPublicKey {
-  isOdd: boolean;
+  parity: number;
   x: Buffer;
 }
 

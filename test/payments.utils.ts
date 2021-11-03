@@ -153,6 +153,11 @@ export function preform(x: any): any {
     if (x.redeem.network)
       x.redeem.network = (BNETWORKS as any)[x.redeem.network];
   }
+  if (x.scriptLeaf) {
+    x.scriptLeaf = Object.assign({}, x.scriptLeaf);
+    if (typeof x.scriptLeaf.output === 'string')
+      x.scriptLeaf.output = asmToBuffer(x.scriptLeaf.output);
+  }
   if (x.scriptsTree) x.scriptsTree = convertScriptsTree(x.scriptsTree);
   return x;
 }

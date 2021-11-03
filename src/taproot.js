@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tapLeafHash = exports.rootHashFromTree = exports.rootHashFromPath = exports.tweakKey = exports.liftX = void 0;
+exports.tapLeafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = exports.tweakKey = exports.liftX = void 0;
 const buffer_1 = require('buffer');
 const BN = require('bn.js');
 const bcrypto = require('./crypto');
@@ -58,7 +58,7 @@ function tweakKey(pubKey, h) {
   if (P === null) return null;
   const Q = pointAddScalar(P, tweakHash);
   return {
-    isOdd: Q[64] % 2 === 1,
+    parity: Q[64] % 2,
     x: Q.slice(1, 33),
   };
 }
@@ -78,28 +78,53 @@ function rootHashFromPath(controlBlock, tapLeafMsg) {
   return k[m];
 }
 exports.rootHashFromPath = rootHashFromPath;
-function rootHashFromTree(scripts) {
+function toHashTree(scripts) {
   if (scripts.length === 1) {
     const script = scripts[0];
     if (Array.isArray(script)) {
-      return rootHashFromTree(script);
+      return toHashTree(script);
     }
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
     if ((script.version & 1) !== 0)
       throw new TypeError('Invalid script version');
-    return tapLeafHash(script.output, script.version);
+    return {
+      hash: tapLeafHash(script.output, script.version),
+    };
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);
-  let leftHash = rootHashFromTree(scripts.slice(0, half));
-  let rightHash = rootHashFromTree(scripts.slice(half));
+  const left = toHashTree(scripts.slice(0, half));
+  const right = toHashTree(scripts.slice(half));
+  let leftHash = left.hash;
+  let rightHash = right.hash;
   if (leftHash.compare(rightHash) === 1)
     [leftHash, rightHash] = [rightHash, leftHash];
-  return tapBranchHash(leftHash, rightHash);
+  return {
+    hash: tapBranchHash(leftHash, rightHash),
+    left,
+    right,
+  };
 }
-exports.rootHashFromTree = rootHashFromTree;
-// todo: rename to tapLeafHash
+exports.toHashTree = toHashTree;
+function findScriptPath(node, hash) {
+  if (node.left) {
+    if (node.left.hash.equals(hash)) return node.right ? [node.right.hash] : [];
+    const leftPath = findScriptPath(node.left, hash);
+    if (leftPath.length)
+      return node.right ? [node.right.hash].concat(leftPath) : leftPath;
+  }
+  if (node.right) {
+    if (node.right.hash.equals(hash)) return node.left ? [node.left.hash] : [];
+    const rightPath = findScriptPath(node.right, hash);
+    if (rightPath.length) {
+    }
+    return node.left ? [node.left.hash].concat(rightPath) : rightPath;
+  }
+  return [];
+}
+exports.findScriptPath = findScriptPath;
 function tapLeafHash(script, version) {
+  version = version || LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
     TAP_LEAF_TAG,
     buffer_1.Buffer.concat([

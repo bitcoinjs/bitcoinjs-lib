@@ -1,6 +1,7 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.p2tr = void 0;
+const buffer_1 = require('buffer');
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const types_1 = require('../types');
@@ -52,7 +53,7 @@ function p2tr(a, opts) {
     return {
       version,
       prefix: result.prefix,
-      data: Buffer.from(data),
+      data: buffer_1.Buffer.from(data),
     };
   });
   const _witness = lazy.value(() => {
@@ -76,7 +77,7 @@ function p2tr(a, opts) {
   });
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    if (a.scriptsTree) return (0, taproot_1.rootHashFromTree)(a.scriptsTree);
+    if (a.scriptsTree) return (0, taproot_1.toHashTree)(a.scriptsTree).hash;
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
@@ -118,12 +119,32 @@ function p2tr(a, opts) {
   });
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
-    if (!a.signature) return;
-    return [a.signature];
+    if (a.scriptsTree && a.scriptLeaf && a.internalPubkey) {
+      const hashTree = (0, taproot_1.toHashTree)(a.scriptsTree);
+      const leafHash = (0, taproot_1.tapLeafHash)(
+        a.scriptLeaf.output,
+        a.scriptLeaf.version,
+      );
+      const path = (0, taproot_1.findScriptPath)(hashTree, leafHash);
+      const outputKey = (0, taproot_1.tweakKey)(
+        a.internalPubkey,
+        hashTree.hash,
+      );
+      if (!outputKey) return;
+      const version = a.scriptLeaf.version || 0xc0;
+      const controlBock = buffer_1.Buffer.concat(
+        [
+          buffer_1.Buffer.from([version | outputKey.parity]),
+          a.internalPubkey,
+        ].concat(path.reverse()),
+      );
+      return [a.scriptLeaf.output, controlBock];
+    }
+    if (a.signature) return [a.signature];
   });
   // extended validation
   if (opts.validate) {
-    let pubkey = Buffer.from([]);
+    let pubkey = buffer_1.Buffer.from([]);
     if (a.address) {
       if (network && network.bech32 !== _address().prefix)
         throw new TypeError('Invalid prefix or Network mismatch');
@@ -162,7 +183,7 @@ function p2tr(a, opts) {
         throw new TypeError('Invalid pubkey for p2tr');
     }
     if (a.hash && a.scriptsTree) {
-      const hash = (0, taproot_1.rootHashFromTree)(a.scriptsTree);
+      const hash = (0, taproot_1.toHashTree)(a.scriptsTree).hash;
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
     const witness = _witness();
@@ -208,8 +229,7 @@ function p2tr(a, opts) {
           throw new TypeError('Invalid outputKey for p2tr witness');
         if (pubkey.length && !pubkey.equals(outputKey.x))
           throw new TypeError('Pubkey mismatch for p2tr witness');
-        const controlBlockOddParity = (controlBlock[0] & 1) === 1;
-        if (outputKey.isOdd !== controlBlockOddParity)
+        if (outputKey.parity !== (controlBlock[0] & 1))
           throw new Error('Incorrect parity');
       }
     }

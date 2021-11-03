@@ -15,7 +15,7 @@ export declare function Satoshi(value: number): boolean;
 export declare const ECPoint: any;
 export declare const Network: any;
 export interface TweakedPublicKey {
-    isOdd: boolean;
+    parity: number;
     x: Buffer;
 }
 export interface TaprootLeaf {
