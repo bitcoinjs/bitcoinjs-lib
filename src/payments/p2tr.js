@@ -72,14 +72,14 @@ function p2tr(a, opts) {
   });
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    if (a.scriptsTree) return (0, taproot_1.computeMastRoot)(a.scriptsTree);
+    if (a.scriptsTree) return (0, taproot_1.rootHashFromTree)(a.scriptsTree);
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & 0b11111110;
       const script = w[w.length - 2];
       const tapLeafHash = (0, taproot_1.leafHash)(script, leafVersion);
-      return (0, taproot_1.rootHash)(controlBlock, tapLeafHash);
+      return (0, taproot_1.rootHashFromPath)(controlBlock, tapLeafHash);
     }
     return null;
   });
@@ -155,7 +155,7 @@ function p2tr(a, opts) {
         throw new TypeError('Invalid pubkey for p2tr');
     }
     if (a.hash && a.scriptsTree) {
-      const hash = (0, taproot_1.computeMastRoot)(a.scriptsTree);
+      const hash = (0, taproot_1.rootHashFromTree)(a.scriptsTree);
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
     // todo: review cache
@@ -195,7 +195,7 @@ function p2tr(a, opts) {
         const leafVersion = controlBlock[0] & 0b11111110;
         const script = witness[witness.length - 2];
         const tapLeafHash = (0, taproot_1.leafHash)(script, leafVersion);
-        const hash = (0, taproot_1.rootHash)(controlBlock, tapLeafHash);
+        const hash = (0, taproot_1.rootHashFromPath)(controlBlock, tapLeafHash);
         const outputKey = (0, taproot_1.tweakKey)(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data

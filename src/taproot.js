@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.computeMastRoot = exports.rootHash = exports.leafHash = exports.tweakKey = exports.liftX = void 0;
+exports.rootHashFromTree = exports.rootHashFromPath = exports.leafHash = exports.tweakKey = exports.liftX = void 0;
 const buffer_1 = require('buffer');
 const BN = require('bn.js');
 const bcrypto = require('./crypto');
@@ -70,7 +70,7 @@ function leafHash(script, version) {
   ]);
 }
 exports.leafHash = leafHash;
-function rootHash(controlBlock, tapLeafMsg) {
+function rootHashFromPath(controlBlock, tapLeafMsg) {
   const k = [];
   const e = [];
   const m = (controlBlock.length - 33) / 32;
@@ -91,13 +91,13 @@ function rootHash(controlBlock, tapLeafMsg) {
   }
   return k[m];
 }
-exports.rootHash = rootHash;
+exports.rootHashFromPath = rootHashFromPath;
 // todo: solve any[]
-function computeMastRoot(scripts) {
+function rootHashFromTree(scripts) {
   if (scripts.length === 1) {
     const script = scripts[0];
     if (Array.isArray(script)) {
-      return computeMastRoot(script);
+      return rootHashFromTree(script);
     }
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
     if ((script.version & 1) !== 0) throw new Error('Invalid script version'); // todo typedef error
@@ -113,8 +113,8 @@ function computeMastRoot(scripts) {
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);
-  let leftHash = computeMastRoot(scripts.slice(0, half));
-  let rightHash = computeMastRoot(scripts.slice(half));
+  let leftHash = rootHashFromTree(scripts.slice(0, half));
+  let rightHash = rootHashFromTree(scripts.slice(half));
   if (leftHash.compare(rightHash) === 1)
     [leftHash, rightHash] = [rightHash, leftHash];
   return bcrypto.taggedHash(
@@ -122,7 +122,7 @@ function computeMastRoot(scripts) {
     buffer_1.Buffer.concat([leftHash, rightHash]),
   );
 }
-exports.computeMastRoot = computeMastRoot;
+exports.rootHashFromTree = rootHashFromTree;
 function serializeScript(s) {
   const varintLen = varuint.encodingLength(s.length);
   const buffer = buffer_1.Buffer.allocUnsafe(varintLen); // better

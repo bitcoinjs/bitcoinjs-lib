@@ -82,7 +82,7 @@ export function leafHash(script: Buffer, version: number): Buffer {
   return NBuffer.concat([NBuffer.from([version]), serializeScript(script)]);
 }
 
-export function rootHash(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer {
+export function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer {
   const k = [];
   const e = [];
 
@@ -108,11 +108,11 @@ export function rootHash(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer {
 }
 
 // todo: solve any[]
-export function computeMastRoot(scripts: any): Buffer {
+export function rootHashFromTree(scripts: any): Buffer {
   if (scripts.length === 1) {
     const script = scripts[0];
     if (Array.isArray(script)) {
-      return computeMastRoot(script);
+      return rootHashFromTree(script);
     }
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
     if ((script.version & 1) !== 0) throw new Error('Invalid script version'); // todo typedef error
@@ -128,8 +128,8 @@ export function computeMastRoot(scripts: any): Buffer {
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);
-  let leftHash = computeMastRoot(scripts.slice(0, half));
-  let rightHash = computeMastRoot(scripts.slice(half));
+  let leftHash = rootHashFromTree(scripts.slice(0, half));
+  let rightHash = rootHashFromTree(scripts.slice(half));
 
   if (leftHash.compare(rightHash) === 1)
     [leftHash, rightHash] = [rightHash, leftHash];

@@ -2,9 +2,9 @@ import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { typeforce as typef } from '../types';
 import {
-  computeMastRoot,
+  rootHashFromTree, 
+  rootHashFromPath,
   leafHash,
-  rootHash,
   tweakKey,
   liftX,
 } from '../taproot';
@@ -83,14 +83,14 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
 
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    if (a.scriptsTree) return computeMastRoot(a.scriptsTree);
+    if (a.scriptsTree) return rootHashFromTree(a.scriptsTree);
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & 0b11111110;
       const script = w[w.length - 2];
       const tapLeafHash = leafHash(script, leafVersion);
-      return rootHash(controlBlock, tapLeafHash);
+      return rootHashFromPath(controlBlock, tapLeafHash);
     }
     return null;
   });
@@ -172,11 +172,10 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     }
 
     if (a.hash && a.scriptsTree) {
-      const hash = computeMastRoot(a.scriptsTree);
+      const hash = rootHashFromTree(a.scriptsTree);
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
 
-    // todo: review cache
     const witness = _witness();
 
     if (witness && witness.length) {
@@ -220,7 +219,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         const script = witness[witness.length - 2];
 
         const tapLeafHash = leafHash(script, leafVersion);
-        const hash = rootHash(controlBlock, tapLeafHash);
+        const hash = rootHashFromPath(controlBlock, tapLeafHash);
 
         const outputKey = tweakKey(internalPubkey, hash);
         if (!outputKey)
