@@ -18,9 +18,6 @@ const OPS = bscript.OPS;
 const TAPROOT_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
 
-// witness: {signature}
-// input: <>
-// output: OP_1 {pubKey}
 export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.address &&
@@ -105,7 +102,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     return bscript.compile([OPS.OP_1, o.pubkey]);
   });
   lazy.prop(o, 'scriptLeaf', () => {
-    if (!a.scriptLeaf) return a.scriptLeaf;
+    if (a.scriptLeaf) return a.scriptLeaf;
   });
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;

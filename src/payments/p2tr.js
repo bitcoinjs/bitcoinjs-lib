@@ -11,9 +11,6 @@ const bech32_1 = require('bech32');
 const OPS = bscript.OPS;
 const TAPROOT_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
-// witness: {signature}
-// input: <>
-// output: OP_1 {pubKey}
 function p2tr(a, opts) {
   if (
     !a.address &&
@@ -93,7 +90,7 @@ function p2tr(a, opts) {
     return bscript.compile([OPS.OP_1, o.pubkey]);
   });
   lazy.prop(o, 'scriptLeaf', () => {
-    if (!a.scriptLeaf) return a.scriptLeaf;
+    if (a.scriptLeaf) return a.scriptLeaf;
   });
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;

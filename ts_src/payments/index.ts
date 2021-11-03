@@ -12,18 +12,18 @@ import { p2tr } from './p2tr';
 export interface Payment {
   name?: string;
   network?: Network;
-  output?: Buffer; // the full scriptPubKey
+  output?: Buffer;
   data?: Buffer[];
   m?: number;
   n?: number;
   pubkeys?: Buffer[];
   input?: Buffer;
   signatures?: Buffer[];
-  internalPubkey?: Buffer; // taproot: output key
-  pubkey?: Buffer; // taproot: output key
+  internalPubkey?: Buffer;
+  pubkey?: Buffer;
   signature?: Buffer;
-  address?: string; // taproot: betch32m
-  hash?: Buffer; // taproot: MAST root
+  address?: string;
+  hash?: Buffer;
   redeem?: Payment;
   scriptsTree?: any; // todo: solve
   scriptLeaf?: TaprootLeaf;
