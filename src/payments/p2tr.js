@@ -120,6 +120,7 @@ function p2tr(a, opts) {
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
     if (a.scriptsTree && a.scriptLeaf && a.internalPubkey) {
+      // todo: optimize/cache
       const hashTree = (0, taproot_1.toHashTree)(a.scriptsTree);
       const leafHash = (0, taproot_1.tapLeafHash)(
         a.scriptLeaf.output,

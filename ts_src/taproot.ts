@@ -4,7 +4,13 @@ const BN = require('bn.js');
 import * as bcrypto from './crypto';
 // todo: use varuint-bitcoin??
 import * as varuint from 'bip174/src/lib/converter/varint';
-import { TweakedPublicKey, TaprootLeaf, ZERO32, EC_P, GROUP_ORDER } from './types';
+import {
+  TweakedPublicKey,
+  TaprootLeaf,
+  ZERO32,
+  EC_P,
+  GROUP_ORDER,
+} from './types';
 
 // todo: !!!Temp, to be replaced. Only works because bip32 has it as dependecy. Linting will fail.
 const ecc = require('tiny-secp256k1');
@@ -78,7 +84,10 @@ export function tweakKey(
   };
 }
 
-export function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer {
+export function rootHashFromPath(
+  controlBlock: Buffer,
+  tapLeafMsg: Buffer,
+): Buffer {
   const k = [tapLeafMsg];
   const e = [];
 
@@ -97,11 +106,10 @@ export function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buff
 }
 
 export interface HashTree {
-  hash: Buffer
-  left?: HashTree
-  right?: HashTree
+  hash: Buffer;
+  left?: HashTree;
+  right?: HashTree;
 }
-
 
 export function toHashTree(scripts: TaprootLeaf[]): HashTree {
   if (scripts.length === 1) {
@@ -110,12 +118,12 @@ export function toHashTree(scripts: TaprootLeaf[]): HashTree {
       return toHashTree(script);
     }
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
-    if ((script.version & 1) !== 0) throw new TypeError('Invalid script version');
+    if ((script.version & 1) !== 0)
+      throw new TypeError('Invalid script version');
 
     return {
-      hash: tapLeafHash(script.output, script.version)
-    }
-
+      hash: tapLeafHash(script.output, script.version),
+    };
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);
@@ -130,38 +138,38 @@ export function toHashTree(scripts: TaprootLeaf[]): HashTree {
   return {
     hash: tapBranchHash(leftHash, rightHash),
     left,
-    right
-  }
+    right,
+  };
 }
 
 export function findScriptPath(node: HashTree, hash: Buffer): Buffer[] {
   if (node.left) {
-    if (node.left.hash.equals(hash))
-      return node.right ? [node.right.hash] : []
-    const leftPath = findScriptPath(node.left, hash)
+    if (node.left.hash.equals(hash)) return node.right ? [node.right.hash] : [];
+    const leftPath = findScriptPath(node.left, hash);
     if (leftPath.length)
-      return node.right ? [node.right.hash].concat(leftPath) : leftPath
+      return node.right ? [node.right.hash].concat(leftPath) : leftPath;
   }
 
   if (node.right) {
-    if (node.right.hash.equals(hash))
-      return node.left ? [node.left.hash] : []
-    const rightPath = findScriptPath(node.right, hash)
-    if (rightPath.length) {}
-      return node.left ? [node.left.hash].concat(rightPath) : rightPath
+    if (node.right.hash.equals(hash)) return node.left ? [node.left.hash] : [];
+    const rightPath = findScriptPath(node.right, hash);
+    if (rightPath.length)
+      return node.left ? [node.left.hash].concat(rightPath) : rightPath;
   }
 
-  return []
-
+  return [];
 }
 
 export function tapLeafHash(script: Buffer, version?: number): Buffer {
-  version = version || LEAF_VERSION_TAPSCRIPT
-  return bcrypto.taggedHash(TAP_LEAF_TAG, NBuffer.concat([NBuffer.from([version]), serializeScript(script)]));
+  version = version || LEAF_VERSION_TAPSCRIPT;
+  return bcrypto.taggedHash(
+    TAP_LEAF_TAG,
+    NBuffer.concat([NBuffer.from([version]), serializeScript(script)]),
+  );
 }
 
 function tapBranchHash(a: Buffer, b: Buffer): Buffer {
-  return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]),);
+  return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]));
 }
 
 function serializeScript(s: Buffer): Buffer {

@@ -44,7 +44,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       pubkey: typef.maybe(typef.BufferN(32)),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
-      
       // scriptsTree: typef.maybe(typef.TaprootNode), // use merkel.isMast ?
       scriptLeaf: typef.maybe({
         version: typef.maybe(typef.Number),
@@ -134,14 +133,18 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     if (a.witness) return a.witness;
     if (a.scriptsTree && a.scriptLeaf && a.internalPubkey) {
       // todo: optimize/cache
-      const hashTree = toHashTree(a.scriptsTree)
-      const leafHash = tapLeafHash(a.scriptLeaf.output, a.scriptLeaf.version)
-      const path = findScriptPath(hashTree, leafHash)
+      const hashTree = toHashTree(a.scriptsTree);
+      const leafHash = tapLeafHash(a.scriptLeaf.output, a.scriptLeaf.version);
+      const path = findScriptPath(hashTree, leafHash);
       const outputKey = tweakKey(a.internalPubkey, hashTree.hash);
-      if (!outputKey) return
-      const version = a.scriptLeaf.version || 0xc0
-      const controlBock = NBuffer.concat([NBuffer.from([version | outputKey.parity]), a.internalPubkey].concat(path.reverse()))
-      return [a.scriptLeaf.output, controlBock]
+      if (!outputKey) return;
+      const version = a.scriptLeaf.version || 0xc0;
+      const controlBock = NBuffer.concat(
+        [NBuffer.from([version | outputKey.parity]), a.internalPubkey].concat(
+          path.reverse(),
+        ),
+      );
+      return [a.scriptLeaf.output, controlBock];
     }
     if (a.signature) return [a.signature];
   });
@@ -211,7 +214,8 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         const controlBlock = witness[witness.length - 1];
         if (controlBlock.length < 33)
           throw new TypeError(
-            `The control-block length is too small. Got ${controlBlock.length
+            `The control-block length is too small. Got ${
+              controlBlock.length
             }, expected min 33.`,
           );
 

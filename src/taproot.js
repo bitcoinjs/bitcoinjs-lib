@@ -116,9 +116,8 @@ function findScriptPath(node, hash) {
   if (node.right) {
     if (node.right.hash.equals(hash)) return node.left ? [node.left.hash] : [];
     const rightPath = findScriptPath(node.right, hash);
-    if (rightPath.length) {
-    }
-    return node.left ? [node.left.hash].concat(rightPath) : rightPath;
+    if (rightPath.length)
+      return node.left ? [node.left.hash].concat(rightPath) : rightPath;
   }
   return [];
 }

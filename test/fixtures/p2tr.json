@@ -470,7 +470,7 @@
       "arguments": {
         "internalPubkey": "ee4fe085983462a184015d1f782d6a5f8b9c2b60130aff050ce221ecf3786592",
         "scriptLeaf": {
-          "output": "424950333431 OP_CHECKSIG",
+          "output": "424950333431",
           "version": 152
         },
         "scriptsTree": [
@@ -492,7 +492,7 @@
         "address": "bc1ppa3u5trk8xumkjlqgewvp237u79qwcd6ta0h6mlca2e5puya54ssw9zq0y",
         "hash": "f3004d6c183e038105d436db1424f321613366cbb7b05939bf05d763a9ebb962",
         "witness": [
-          "06424950333431ac",
+          "06424950333431",
           "98ee4fe085983462a184015d1f782d6a5f8b9c2b60130aff050ce221ecf37865928ad69ec7cf41c2a4001fd1f738bf1e505ce2277acdcaa63fe4765192497f47a7"
         ],
         "signature": null,
