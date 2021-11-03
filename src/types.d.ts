@@ -18,8 +18,10 @@ export interface TweakedPublicKey {
     isOdd: boolean;
     x: Buffer;
 }
-export declare const TaprootLeaf: any;
-export declare const TaprootNode: any;
+export interface TaprootLeaf {
+    output: Buffer;
+    version?: number;
+}
 export declare const Buffer256bit: any;
 export declare const Hash160bit: any;
 export declare const Hash256bit: any;

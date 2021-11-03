@@ -52,7 +52,7 @@ function tweakKey(pubKey, h) {
   );
   if (tweakHash.compare(types_1.GROUP_ORDER) >= 0) {
     // todo: add test for this case
-    throw new Error('Tweak value over the SECP256K1 Order');
+    throw new TypeError('Tweak value over the SECP256K1 Order');
   }
   const P = liftX(pubKey);
   if (P === null) return null;
@@ -64,17 +64,19 @@ function tweakKey(pubKey, h) {
 }
 exports.tweakKey = tweakKey;
 function leafHash(script, version) {
-  return buffer_1.Buffer.concat([
-    buffer_1.Buffer.from([version]),
-    serializeScript(script),
-  ]);
+  return bcrypto.taggedHash(
+    TAP_LEAF_TAG,
+    buffer_1.Buffer.concat([
+      buffer_1.Buffer.from([version]),
+      serializeScript(script),
+    ]),
+  );
 }
 exports.leafHash = leafHash;
 function rootHashFromPath(controlBlock, tapLeafMsg) {
-  const k = [];
+  const k = [tapLeafMsg];
   const e = [];
   const m = (controlBlock.length - 33) / 32;
-  k[0] = bcrypto.taggedHash(TAP_LEAF_TAG, tapLeafMsg);
   for (let j = 0; j < m; j++) {
     e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
     if (k[j].compare(e[j]) < 0) {
@@ -92,7 +94,6 @@ function rootHashFromPath(controlBlock, tapLeafMsg) {
   return k[m];
 }
 exports.rootHashFromPath = rootHashFromPath;
-// todo: solve any[]
 function rootHashFromTree(scripts) {
   if (scripts.length === 1) {
     const script = scripts[0];
@@ -100,16 +101,9 @@ function rootHashFromTree(scripts) {
       return rootHashFromTree(script);
     }
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
-    if ((script.version & 1) !== 0) throw new Error('Invalid script version'); // todo typedef error
-    // todo: if (script.output)scheck is bytes
-    const scriptOutput = buffer_1.Buffer.from(script.output, 'hex');
-    return bcrypto.taggedHash(
-      TAP_LEAF_TAG,
-      buffer_1.Buffer.concat([
-        buffer_1.Buffer.from([script.version]),
-        serializeScript(scriptOutput),
-      ]),
-    );
+    if ((script.version & 1) !== 0)
+      throw new TypeError('Invalid script version');
+    return leafHash(script.output, script.version);
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);

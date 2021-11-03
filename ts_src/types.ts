@@ -76,15 +76,10 @@ export interface TweakedPublicKey {
   x: Buffer;
 }
 
-export const TaprootLeaf = typeforce.compile({
-  output: typeforce.BufferN(34),
-  version: typeforce.maybe(typeforce.UInt8), // todo: recheck
-});
-
-// / todo: revisit
-export const TaprootNode = typeforce.arrayOf(
-  typeforce.oneOf(TaprootLeaf, typeforce.arrayOf(TaprootLeaf)),
-);
+export interface TaprootLeaf {
+  output: Buffer;
+  version?: number;
+}
 
 export const Buffer256bit = typeforce.BufferN(32);
 export const Hash160bit = typeforce.BufferN(20);

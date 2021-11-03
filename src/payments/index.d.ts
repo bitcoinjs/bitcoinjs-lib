@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { Network } from '../networks';
+import { TaprootLeaf } from '../types';
 import { p2data as embed } from './embed';
 import { p2ms } from './p2ms';
 import { p2pk } from './p2pk';
@@ -25,6 +26,7 @@ export interface Payment {
     hash?: Buffer;
     redeem?: Payment;
     scriptsTree?: any;
+    scriptLeaf?: TaprootLeaf;
     witness?: Buffer[];
 }
 export declare type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;

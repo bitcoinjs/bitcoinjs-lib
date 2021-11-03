@@ -38,6 +38,10 @@ function p2tr(a, opts) {
         types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
       ),
       // scriptsTree: typef.maybe(typef.TaprootNode), // use merkel.isMast ?
+      scriptLeaf: types_1.typeforce.maybe({
+        version: types_1.typeforce.maybe(types_1.typeforce.Number),
+        output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
+      }),
     },
     a,
   );
@@ -87,6 +91,9 @@ function p2tr(a, opts) {
     if (!o.pubkey) return;
     return bscript.compile([OPS.OP_1, o.pubkey]);
   });
+  lazy.prop(o, 'scriptLeaf', () => {
+    if (!a.scriptLeaf) return a.scriptLeaf;
+  });
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;
     if (a.output) return a.output.slice(2);
@@ -107,7 +114,7 @@ function p2tr(a, opts) {
     return a.witness[0];
   });
   lazy.prop(o, 'input', () => {
-    // todo: not sure
+    // todo
   });
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
@@ -158,7 +165,6 @@ function p2tr(a, opts) {
       const hash = (0, taproot_1.rootHashFromTree)(a.scriptsTree);
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
-    // todo: review cache
     const witness = _witness();
     if (witness && witness.length) {
       if (witness.length === 1) {

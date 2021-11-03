@@ -1,4 +1,5 @@
 import { Network } from '../networks';
+import { TaprootLeaf } from '../types';
 import { p2data as embed } from './embed';
 import { p2ms } from './p2ms';
 import { p2pk } from './p2pk';
@@ -23,8 +24,9 @@ export interface Payment {
   signature?: Buffer;
   address?: string; // taproot: betch32m
   hash?: Buffer; // taproot: MAST root
-  redeem?: Payment; // taproot: when script path spending is used spending
+  redeem?: Payment;
   scriptsTree?: any; // todo: solve
+  scriptLeaf?: TaprootLeaf;
   witness?: Buffer[];
 }
 

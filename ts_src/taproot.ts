@@ -4,7 +4,7 @@ const BN = require('bn.js');
 import * as bcrypto from './crypto';
 // todo: use varuint-bitcoin??
 import * as varuint from 'bip174/src/lib/converter/varint';
-import { TweakedPublicKey, ZERO32, EC_P, GROUP_ORDER } from './types';
+import { TweakedPublicKey, TaprootLeaf, ZERO32, EC_P, GROUP_ORDER } from './types';
 
 // todo: !!!Temp, to be replaced. Only works because bip32 has it as dependecy. Linting will fail.
 const ecc = require('tiny-secp256k1');
@@ -65,7 +65,7 @@ export function tweakKey(
 
   if (tweakHash.compare(GROUP_ORDER) >= 0) {
     // todo: add test for this case
-    throw new Error('Tweak value over the SECP256K1 Order');
+    throw new TypeError('Tweak value over the SECP256K1 Order');
   }
 
   const P = liftX(pubKey);
@@ -79,15 +79,14 @@ export function tweakKey(
 }
 
 export function leafHash(script: Buffer, version: number): Buffer {
-  return NBuffer.concat([NBuffer.from([version]), serializeScript(script)]);
+  return bcrypto.taggedHash(TAP_LEAF_TAG, NBuffer.concat([NBuffer.from([version]), serializeScript(script)]));
 }
 
 export function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer {
-  const k = [];
+  const k = [tapLeafMsg];
   const e = [];
 
   const m = (controlBlock.length - 33) / 32;
-  k[0] = bcrypto.taggedHash(TAP_LEAF_TAG, tapLeafMsg);
 
   for (let j = 0; j < m; j++) {
     e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
@@ -107,24 +106,16 @@ export function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buff
   return k[m];
 }
 
-// todo: solve any[]
-export function rootHashFromTree(scripts: any): Buffer {
+export function rootHashFromTree(scripts: TaprootLeaf[]): Buffer {
   if (scripts.length === 1) {
     const script = scripts[0];
     if (Array.isArray(script)) {
       return rootHashFromTree(script);
     }
     script.version = script.version || LEAF_VERSION_TAPSCRIPT;
-    if ((script.version & 1) !== 0) throw new Error('Invalid script version'); // todo typedef error
-    // todo: if (script.output)scheck is bytes
-    const scriptOutput = NBuffer.from(script.output, 'hex');
-    return bcrypto.taggedHash(
-      TAP_LEAF_TAG,
-      NBuffer.concat([
-        NBuffer.from([script.version]),
-        serializeScript(scriptOutput),
-      ]),
-    );
+    if ((script.version & 1) !== 0) throw new TypeError('Invalid script version');
+
+    return leafHash(script.output, script.version);
   }
   // todo: this is a binary tree, use zero an one index
   const half = Math.trunc(scripts.length / 2);

@@ -2,7 +2,7 @@ import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import { typeforce as typef } from '../types';
 import {
-  rootHashFromTree, 
+  rootHashFromTree,
   rootHashFromPath,
   leafHash,
   tweakKey,
@@ -42,7 +42,12 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       pubkey: typef.maybe(typef.BufferN(32)),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+      
       // scriptsTree: typef.maybe(typef.TaprootNode), // use merkel.isMast ?
+      scriptLeaf: typef.maybe({
+        version: typef.maybe(typef.Number),
+        output: typef.maybe(typef.Buffer),
+      }),
     },
     a,
   );
@@ -98,6 +103,10 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     if (!o.pubkey) return;
     return bscript.compile([OPS.OP_1, o.pubkey]);
   });
+  lazy.prop(o, 'scriptLeaf', () => {
+    if (!a.scriptLeaf) return a.scriptLeaf;
+    
+  });
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;
     if (a.output) return a.output.slice(2);
@@ -118,7 +127,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     return a.witness[0];
   });
   lazy.prop(o, 'input', () => {
-    // todo: not sure
+    // todo
   });
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
@@ -191,8 +200,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         const controlBlock = witness[witness.length - 1];
         if (controlBlock.length < 33)
           throw new TypeError(
-            `The control-block length is too small. Got ${
-              controlBlock.length
+            `The control-block length is too small. Got ${controlBlock.length
             }, expected min 33.`,
           );
 

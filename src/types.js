@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.TaprootNode = exports.TaprootLeaf = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.isPoint = exports.GROUP_ORDER = exports.EC_P = exports.ZERO32 = exports.typeforce = void 0;
+exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.isPoint = exports.GROUP_ORDER = exports.EC_P = exports.ZERO32 = exports.typeforce = void 0;
 const buffer_1 = require('buffer');
 exports.typeforce = require('typeforce');
 exports.ZERO32 = buffer_1.Buffer.alloc(32, 0);
@@ -72,17 +72,6 @@ exports.Network = exports.typeforce.compile({
   scriptHash: exports.typeforce.UInt8,
   wif: exports.typeforce.UInt8,
 });
-exports.TaprootLeaf = exports.typeforce.compile({
-  output: exports.typeforce.BufferN(34),
-  version: exports.typeforce.maybe(exports.typeforce.UInt8), // todo: recheck
-});
-// / todo: revisit
-exports.TaprootNode = exports.typeforce.arrayOf(
-  exports.typeforce.oneOf(
-    exports.TaprootLeaf,
-    exports.typeforce.arrayOf(exports.TaprootLeaf),
-  ),
-);
 exports.Buffer256bit = exports.typeforce.BufferN(32);
 exports.Hash160bit = exports.typeforce.BufferN(20);
 exports.Hash256bit = exports.typeforce.BufferN(32);
