@@ -219,7 +219,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
       await regtestUtils.broadcast(tx.toHex()).catch(err => {
         assert.throws(() => {
           if (err) throw err;
-        }, /Error: non-BIP68-final \(code 64\)/);
+        }, /Error: non-BIP68-final/);
       });
     },
   );
