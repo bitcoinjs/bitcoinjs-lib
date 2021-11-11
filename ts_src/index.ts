@@ -7,6 +7,7 @@ import * as script from './script';
 export { address, crypto, networks, payments, script };
 
 export { Block } from './block';
+export { TaggedHashPrefix } from './crypto';
 export {
   Psbt,
   PsbtTxInput,

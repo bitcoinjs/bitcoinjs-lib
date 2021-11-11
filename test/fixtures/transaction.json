@@ -808,6 +808,87 @@
       "value": 987654321
     }
   ],
+  "taprootSigning": [
+    {
+      "description": "P2TR key path",
+      "utxos": [
+        {
+          "scriptHex": "512053a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343",
+          "value": 420000000
+        },
+        {
+          "scriptHex": "5120147c9c57132f6e7ecddba9800bb0c4449251c92a1e60371ee77557b6620f3ea3",
+          "value": 462000000
+        },
+        {
+          "scriptHex": "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac",
+          "value": 294000000
+        },
+        {
+          "scriptHex": "5120e4d810fd50586274face62b8a807eb9719cef49c04177cc6b76a9a4251d5450e",
+          "value": 504000000
+        },
+        {
+          "scriptHex": "512091b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605",
+          "value": 630000000
+        },
+        {
+          "scriptHex": "00147dd65592d0ab2fe0d0257d571abf032cd9db93dc",
+          "value": 378000000
+        },
+        {
+          "scriptHex": "512075169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831",
+          "value": 672000000
+        },
+        {
+          "scriptHex": "51200f63ca2c7639b9bb4be0465cc0aa3ee78a0761ba5f5f7d6ff8eab340f09da561",
+          "value": 546000000
+        },
+        {
+          "scriptHex": "5120053690babeabbb7850c32eead0acf8df990ced79f7a31e358fabf2658b4bc587",
+          "value": 588000000
+        }
+      ],
+      "txHex": "02000000097de20cbff686da83a54981d2b9bab3586f4ca7e48f57f5b55963115f3b334e9c010000000000000000d7b7cab57b1393ace2d064f4d4a2cb8af6def61273e127517d44759b6dafdd990000000000fffffffff8e1f583384333689228c5d28eac13366be082dc57441760d957275419a418420000000000fffffffff0689180aa63b30cb162a73c6d2a38b7eeda2a83ece74310fda0843ad604853b0100000000feffffff0c638ca38362001f5e128a01ae2b379288eb22cfaf903652b2ec1c88588f487a0000000000feffffff956149bdc66faa968eb2be2d2faa29718acbfe3941215893a2a3446d32acd05000000000000000000081efa267f1f0e46e054ecec01773de7c844721e010c2db5d5864a6a6b53e013a010000000000000000a690669c3c4a62507d93609810c6de3f99d1a6e311fe39dd23683d695c07bdee0000000000ffffffff727ab5f877438496f8613ca84002ff38e8292f7bd11f0a9b9b83ebd16779669e0100000000ffffffff0200ca9a3b000000001976a91406afd46bcdfd22ef94ac122aa11f241244a37ecc88ac807840cb0000000020ac9a87f5594be208f8532db38cff670c450ed2fea8fcdefcc9a663f78bab962b0065cd1d",
+      "cases": [
+        {
+          "vin": 0,
+          "typeHex": "03",
+          "hash": "7e584883b084ace0469c6962a9a7d2a9060e1f3c218ab40d32c77651482122bc"
+        },
+        {
+          "vin": 1,
+          "typeHex": "83",
+          "hash": "325a644af47e8a5a2591cda0ab0723978537318f10e6a63d4eed783b96a71a4d"
+        },
+        {
+          "vin": 3,
+          "typeHex": "01",
+          "hash": "6ffd256e108685b41831385f57eebf2fca041bc6b5e607ea11b3e03d4cf9d9ba"
+        },
+        {
+          "vin": 4,
+          "typeHex": "00",
+          "hash": "9f90136737540ccc18707e1fd398ad222a1a7e4dd65cbfd22dbe4660191efa58"
+        },
+        {
+          "vin": 6,
+          "typeHex": "02",
+          "hash": "835c9ab6084ed9a8ae9b7cda21e0aa797aca3b76a54bd1e3c7db093f6c57e23f"
+        },
+        {
+          "vin": 7,
+          "typeHex": "82",
+          "hash": "df1cca638283c667084b8ffe6bf6e116cc5a53cf7ae1202c5fee45a9085f1ba5"
+        },
+        {
+          "vin": 8,
+          "typeHex": "81",
+          "hash": "30319859ca79ea1b7a9782e9daebc46e4ca4ca2bc04c9c53b2ec87fa83a526bd"
+        }
+      ]
+    }
+  ],
   "invalid": {
     "addInput": [
       {
