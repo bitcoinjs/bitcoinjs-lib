@@ -10,9 +10,9 @@ const types_1 = require('./types');
 // todo: !!!Temp, to be replaced. Only works because bip32 has it as dependecy. Linting will fail.
 const ecc = require('tiny-secp256k1');
 const LEAF_VERSION_TAPSCRIPT = 0xc0;
-const TAP_LEAF_TAG = buffer_1.Buffer.from('TapLeaf', 'utf8');
-const TAP_BRANCH_TAG = buffer_1.Buffer.from('TapBranch', 'utf8');
-const TAP_TWEAK_TAG = buffer_1.Buffer.from('TapTweak', 'utf8');
+const TAP_LEAF_TAG = 'TapLeaf';
+const TAP_BRANCH_TAG = 'TapBranch';
+const TAP_TWEAK_TAG = 'TapTweak';
 const EC_P_BN = new BN(types_1.EC_P);
 const EC_P_REDUCTION = BN.red(EC_P_BN);
 const EC_P_QUADRATIC_RESIDUE = EC_P_BN.addn(1).divn(4);

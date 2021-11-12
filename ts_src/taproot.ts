@@ -16,9 +16,9 @@ import {
 const ecc = require('tiny-secp256k1');
 
 const LEAF_VERSION_TAPSCRIPT = 0xc0;
-const TAP_LEAF_TAG = NBuffer.from('TapLeaf', 'utf8');
-const TAP_BRANCH_TAG = NBuffer.from('TapBranch', 'utf8');
-const TAP_TWEAK_TAG = NBuffer.from('TapTweak', 'utf8');
+const TAP_LEAF_TAG ='TapLeaf';
+const TAP_BRANCH_TAG ='TapBranch';
+const TAP_TWEAK_TAG ='TapTweak';
 
 const EC_P_BN = new BN(EC_P);
 const EC_P_REDUCTION = BN.red(EC_P_BN);
