@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       regtest:
-        image: junderw/bitcoinjs-regtest-server@sha256:a46ec1a651ca5b1a5408f2b2526ea5f435421dd2bc2f28fae3bc33e1fd614552
+        image: junderw/bitcoinjs-regtest-server@sha256:5b69cf95d9edf6d5b3a00504665d6b3c382a6aa3728fe8ce897974c519061463
         ports:
           - 8080:8080
     steps:
