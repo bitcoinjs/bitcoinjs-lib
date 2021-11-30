@@ -1,16 +1,18 @@
+'use strict';
 // OP_HASH160 {scriptHash} OP_EQUAL
-
-const bscript = require('../../script')
-const OPS = require('bitcoin-ops')
-
-function check (script) {
-  const buffer = bscript.compile(script)
-
-  return buffer.length === 23 &&
-    buffer[0] === OPS.OP_HASH160 &&
+Object.defineProperty(exports, '__esModule', { value: true });
+const bscript = require('../../script');
+const script_1 = require('../../script');
+function check(script) {
+  const buffer = bscript.compile(script);
+  return (
+    buffer.length === 23 &&
+    buffer[0] === script_1.OPS.OP_HASH160 &&
     buffer[1] === 0x14 &&
-    buffer[22] === OPS.OP_EQUAL
+    buffer[22] === script_1.OPS.OP_EQUAL
+  );
 }
-check.toJSON = function () { return 'scriptHash output' }
-
-module.exports = { check }
+exports.check = check;
+check.toJSON = () => {
+  return 'scriptHash output';
+};

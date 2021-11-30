@@ -1,0 +1,2712 @@
+{
+  "valid": {
+    "build": [
+      {
+        "description": "Transaction w/ P2PKH -> P2PKH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2PK -> P2PKH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000494830450221009833abb3ab49d7004c06bcc79eafd6905ada3eee91f3376ad388548034acd9a702202e84dda6ef2678c82256afcfc459aaa68e179b2bb0e6b2dc3f1410e132c5e6c301ffffffff0100f90295000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 OP_CHECKSIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2pk",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 2500000000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2PKH) -> P2PKH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000085483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f817981976a914751e76e8199196d454941c45d1b3a323f1433bd688acffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2MS 2/2) -> P2PKH",
+        "network": "testnet",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000fd1b0100483045022100b7a9bab60c4307349de9571ce0bd26ebb9d68d4e9ab3f9173e1f736f1390a04a022020931ff70e87033cdd94bdf434e865993b2258065c5c222a53f29d077bcfa4480147304402206d79ad83f1ab12fc9feee9e66412de842fcbf8de0632beb4433d469f24f0fb4e022079e6df186582f2686a3292bde8e50dac36cb9bec3991995fe331e1daef7df8a4014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 faf1d99bf040ea9c7f8cc9f14ac6733ad75ce246 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2MS 2/2 -> P2PKH",
+        "network": "testnet",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000009200483045022100b7a9bab60c4307349de9571ce0bd26ebb9d68d4e9ab3f9173e1f736f1390a04a022020931ff70e87033cdd94bdf434e865993b2258065c5c222a53f29d077bcfa4480147304402206d79ad83f1ab12fc9feee9e66412de842fcbf8de0632beb4433d469f24f0fb4e022079e6df186582f2686a3292bde8e50dac36cb9bec3991995fe331e1daef7df8a401ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
+              },
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 faf1d99bf040ea9c7f8cc9f14ac6733ad75ce246 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2MS 2/3 -> P2PKH",
+        "network": "testnet",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000910047304402206b2fc7d3182e2853cab5bcffb85c3ef5470d2d05c496295538c9947af3bfd0ec0220300aa705a985c74f76c26c6d68da9b61b5c4cd5432e8c6a54623f376c8bf8cde01473044022031059c4dd6a97d84e3a4eb1ca21a9870bd1762fbd5db7c1932d75e56da78794502200f22d85be3c5f7035e89a147ee2619a066df19aff14a62e6bb3f649b6da19edf01ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
+              },
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 faf1d99bf040ea9c7f8cc9f14ac6733ad75ce246 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2MS 2/2 (reverse order) -> P2PKH",
+        "network": "testnet",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000009200483045022100b7a9bab60c4307349de9571ce0bd26ebb9d68d4e9ab3f9173e1f736f1390a04a022020931ff70e87033cdd94bdf434e865993b2258065c5c222a53f29d077bcfa4480147304402206d79ad83f1ab12fc9feee9e66412de842fcbf8de0632beb4433d469f24f0fb4e022079e6df186582f2686a3292bde8e50dac36cb9bec3991995fe331e1daef7df8a401ffffffff0110270000000000001976a914faf1d99bf040ea9c7f8cc9f14ac6733ad75ce24688ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT"
+              },
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 faf1d99bf040ea9c7f8cc9f14ac6733ad75ce246 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2MS 2/3)",
+        "network": "testnet",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000fd5e0100483045022100eec19e061cad41610f9b42d2b06638b6b0fec3da0de9c6858e7f8c06053979900220622936dd47e202b2ad17639cda680e52334d407149252959936bb1f38e4acc52014830450221009aac215157a74a18234fd06be27448dccee809986bbf93be457a9262f0c69a9402203ff41d7c757f0e8951e4471f205087ecff499f986400ab18210eaad9a628e33c014cc952410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2MS 2/3), different hash types",
+        "network": "testnet",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000fd5e0100483045022100eec19e061cad41610f9b42d2b06638b6b0fec3da0de9c6858e7f8c06053979900220622936dd47e202b2ad17639cda680e52334d407149252959936bb1f38e4acc5201483045022100d404fb6de6cf42efb9d7948d2e8fb6618f8eba55ecd25907d18d576d9aa6f39d02205ec2e7fa7c5f8a9793732ca9d2f9aba3b2bb04ca6d467ba36940e0f695e48de5024cc952410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+                "hashType": 1
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+                "hashType": 2
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2PK) -> P2PKH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006c47304402201115644b134932c8a7a8e925769d130a801288d477130e2bf6fadda20b33754d02202ecefbf63844d7cb2d5868539c39f973fe019f72e5c31a707836c0d61ef317db012321033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70facffffffff0100f90295000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_HASH160 e89677d91455e541630d62c63718bef738b478b1 OP_EQUAL",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pk",
+                "keyPair": "KxLDMPtVM7sLSu2v5n1LybDibw6P9FFbL4pUwJ51UDm7rp5AmXWW",
+                "redeemScript": "033e29aea1168a835d5e386c292082db7b7807172a10ec634ad34226f36d79e70f OP_CHECKSIG"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 2500000000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ non-zero vin inputs",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff010000006a47304402205c80bbb5125b35d5e5a8324b1336832d29a6fc004859c8a9ff6bef47ba7fc348022018612216e57a521b2c4543f1f4fd738a76814c37c074e88adfe12464fff31cf901210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ non-default input sequence numbers, version and locktime",
+        "txHex": "0400000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff020000006a47304402200e7c0330f39c04e3c1b9e3daf71d106c7129c095f6ebb494d06f0ef8013b74ea022003fc0fe05e71a2a4f8434feb0632cdb6883676d0ccb9b19d7a8a9e5fc02a616401210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798b9c220000110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac09990400",
+        "version": 4,
+        "locktime": 301321,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 2,
+            "sequence": 2147001,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ nLockTime, P2PKH -> P2PKH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006b483045022100e31ef1bcc6f060cb6a53675a11606b9180f4f8b1ec823113fb4c0bf1c5b99b8e02204234690c19cd89e544002d26dbcbd49bf9d1b4cfc5a617fd8ab2607acfd869b001210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588acffff0000",
+        "version": 1,
+        "locktime": 65535,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ 1 P2PKH transaction input (Issue #644)",
+        "network": "testnet",
+        "txHex": "010000000132595835c74fccf097db4ccae9dc2de621e58e0d3f697a27b469b61c7a223b39000000006a47304402202fd41f18f1d7915bc811610236e1d708f9cd3515734abd5db7ac607f030728af02206bee7d163f04c470ce55561523824eb8b3abce80c214aabf7dfb78a073ea4a70012103f29374a4c2c218a4077db9ba0b9d674cde3719560460af4eb3190d512dd5de92ffffffff01808d5b00000000001976a914ff99e06c1a4ac394b4e1cb3d3a4b2b47749e339a88ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txHex": "0100000001f7e6430096cd2790bac115aaab22c0a50fb0a1794305302e1a399e81d8d354f4020000006a47304402205793a862d193264afc32713e2e14541e1ff9ebb647dd7e7e6a0051d0faa87de302205216653741ecbbed573ea2fc053209dd6980616701c27be5b958a159fc97f45a012103e877e7deb32d19250dcfe534ea82c99ad739800295cd5429a7f69e2896c36fcdfeffffff0340420f00000000001976a9145c7b8d623fba952d2387703d051d8e931a6aa0a188ac8bda2702000000001976a9145a0ef60784137d03e7868d063b05424f2f43799f88ac40420f00000000001976a9145c7b8d623fba952d2387703d051d8e931a6aa0a188ac2fcc0e00",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "cQ6483mDWwoG8o4tn6nU9Jg52RKMjPUWXSY1vycAyPRXQJ1Pn2Rq"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 ff99e06c1a4ac394b4e1cb3d3a4b2b47749e339a OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 6000000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2PKH -> P2WPKH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006b4830450221009a524a3257b8bd0c77ba4cba65fc00954f2030243f2eb16571838a3b951c8c07022008f5af9de672b365fd257377db1cf6da4da1b49b9637ceb651ac0eb4181dc3ca01210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c500000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2PKH -> P2WSH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006a473044022056c99ba23eb15b3e666b188f87b04d5ef23eeda5298939cdaec35a3bddf3835602205887a5a460f299819b0c93948fafab8b2d64d8c051934431e3bb9acebef5d1b001210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01102700000000000022002032447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b8000000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 32447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b80",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "P2WPKH -> P2WPKH",
+        "txHex": "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c502483045022100a8fc5e4c6d7073474eff2af5d756966e75be0cdfbba299518526080ce8b584be02200f26d41082764df89e3c815b8eaf51034a3b68a25f1be51208f54222c1bb6c1601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179800000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "value": 10000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2WSH(P2PK) -> P2PKH",
+        "txHex": "010000000001014533a3bc1e039bd787656068e135aaee10aee95a64776bfc047ee6a7c1ebdd2f0000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac02473044022039725bb7291a14dd182dafdeaf3ea0d5c05c34f4617ccbaa46522ca913995c4e02203b170d072ed2e489e7424ad96d8fa888deb530be2d4c5d9aaddf111a7efdb2d3012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
+            "vout": 0,
+            "prevTxScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pk",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
+                "value": 80000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 60000
+          }
+        ]
+      },
+      {
+        "description": "SIGHASH SINGLE (random)",
+        "txHex": "01000000012ffb29d53528ad30c37c267fbbeda3c6fce08f5f6f5d3b1eab22193599a3612a010000006b483045022100f963f1d9564075a934d7c3cfa333bd1378859b84cba947e149926fc9ec89b5ae02202b5b912e507bae65002aff972f9752e2aeb2e22c5fdbaaad672090378184df37032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff0260a62f01000000001976a9140de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b888ac80969800000000001976a91454d0e925d5ee0ee26768a237067dee793d01a70688ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "2a61a399351922ab1e3b5d6f5f8fe0fcc6a3edbb7f267cc330ad2835d529fb2f",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 3
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 19900000,
+            "script": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 10000000,
+            "script": "OP_DUP OP_HASH160 54d0e925d5ee0ee26768a237067dee793d01a706 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ]
+      },
+      {
+        "description": "SIGHASH ALL",
+        "txHex": "01000000037db7f0b2a345ded6ddf28da3211a7d7a95a2943e9a879493d6481b7d69613f04010000006a47304402206abb0622b8b6ca83f1f4de84830cf38bf4615dc9e47a7dcdcc489905f26aa9cb02201d2d8a7815242b88e4cd66390ca46da802238f9b1395e0d118213d30dad38184012102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff652c491e5a781a6a3c547fa8d980741acbe4623ae52907278f10e1f064f67e05000000006b483045022100de13b42804f87a09bb46def12ab4608108d8c2db41db4bc09064f9c46fcf493102205e5c759ab7b2895c9b0447e56029f6895ff7bb20e0847c564a88a3cfcf080c4f012102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffffb9fa270fa3e4dd8c79f9cbfe5f1953cba071ed081f7c277a49c33466c695db35000000006b4830450221009100a3f5b30182d1cb0172792af6947b6d8d42badb0539f2c209aece5a0628f002200ae91702ca63347e344c85fcb536f30ee97b75cdf4900de534ed5e040e71a548012102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff03204e0000000000001976a9149ed1f577c60e4be1dbf35318ec12f51d25e8577388ac30750000000000001976a914fb407e88c48921d5547d899e18a7c0a36919f54d88ac50c30000000000001976a91404ccb4eed8cfa9f6e394e945178960f5ccddb38788ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "043f61697d1b48d69394879a3e94a2957a7d1a21a38df2ddd6de45a3b2f0b77d",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 1
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "057ef664f0e1108f270729e53a62e4cb1a7480d9a87f543c6a1a785a1e492c65",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 1
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "35db95c66634c3497a277c1f08ed71a0cb53195ffecbf9798cdde4a30f27fab9",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 1
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 20000,
+            "script": "OP_DUP OP_HASH160 9ed1f577c60e4be1dbf35318ec12f51d25e85773 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 30000,
+            "script": "OP_DUP OP_HASH160 fb407e88c48921d5547d899e18a7c0a36919f54d OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 50000,
+            "script": "OP_DUP OP_HASH160 04ccb4eed8cfa9f6e394e945178960f5ccddb387 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ]
+      },
+      {
+        "description": "SIGHASH ALL | ANYONECANPAY",
+        "txHex": "01000000037db7f0b2a345ded6ddf28da3211a7d7a95a2943e9a879493d6481b7d69613f04010000006b483045022100bd2829550e9b3a081747281029b5f5a96bbd83bb6a92fa2f8310f1bd0d53abc90220071b469417c55cdb3b04171fd7900d2768981b7ab011553d84d24ea85d277079812102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff652c491e5a781a6a3c547fa8d980741acbe4623ae52907278f10e1f064f67e05000000006a47304402206295e17c45c6356ffb20365b696bcbb869db7e8697f4b8a684098ee2bff85feb02202905c441abe39ec9c480749236b84fdd3ebd91ecd25b559136370aacfcf2815c812102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffffb9fa270fa3e4dd8c79f9cbfe5f1953cba071ed081f7c277a49c33466c695db35000000006b483045022100f58e7c98ac8412944d575bcdece0e5966d4018f05988b5b60b6f46b8cb7a543102201c5854d3361e29b58123f34218cec2c722f5ec7a08235ebd007ec637b07c193a812102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff03204e0000000000001976a9149ed1f577c60e4be1dbf35318ec12f51d25e8577388ac30750000000000001976a914fb407e88c48921d5547d899e18a7c0a36919f54d88ac50c30000000000001976a91404ccb4eed8cfa9f6e394e945178960f5ccddb38788ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "043f61697d1b48d69394879a3e94a2957a7d1a21a38df2ddd6de45a3b2f0b77d",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 129
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "057ef664f0e1108f270729e53a62e4cb1a7480d9a87f543c6a1a785a1e492c65",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 129
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "35db95c66634c3497a277c1f08ed71a0cb53195ffecbf9798cdde4a30f27fab9",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 129
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 20000,
+            "script": "OP_DUP OP_HASH160 9ed1f577c60e4be1dbf35318ec12f51d25e85773 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 30000,
+            "script": "OP_DUP OP_HASH160 fb407e88c48921d5547d899e18a7c0a36919f54d OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 50000,
+            "script": "OP_DUP OP_HASH160 04ccb4eed8cfa9f6e394e945178960f5ccddb387 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ]
+      },
+      {
+        "description": "SIGHASH SINGLE",
+        "txHex": "01000000037db7f0b2a345ded6ddf28da3211a7d7a95a2943e9a879493d6481b7d69613f04010000006b483045022100e822f152bb15a1d623b91913cd0fb915e9f85a8dc6c26d51948208bbc0218e800220255f78549d9614c88eac9551429bc00224f22cdcb41a3af70d52138f7e98d333032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff652c491e5a781a6a3c547fa8d980741acbe4623ae52907278f10e1f064f67e05000000006a47304402206f37f79adeb86e0e2da679f79ff5c3ba206c6d35cd9a21433f0de34ee83ddbc00220118cabbac5d83b3aa4c2dc01b061e4b2fe83750d85a72ae6a1752300ee5d9aff032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffffb9fa270fa3e4dd8c79f9cbfe5f1953cba071ed081f7c277a49c33466c695db35000000006a473044022042ac843d220a56b3de05f24c85a63e71efa7e5fc7c2ec766a2ffae82a88572b0022051a816b317313ea8d90010a77c3e02d41da4a500e67e6a5347674f836f528d82032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff03204e0000000000001976a9149ed1f577c60e4be1dbf35318ec12f51d25e8577388ac30750000000000001976a914fb407e88c48921d5547d899e18a7c0a36919f54d88ac50c30000000000001976a91404ccb4eed8cfa9f6e394e945178960f5ccddb38788ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "043f61697d1b48d69394879a3e94a2957a7d1a21a38df2ddd6de45a3b2f0b77d",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 3
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "057ef664f0e1108f270729e53a62e4cb1a7480d9a87f543c6a1a785a1e492c65",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 3
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "35db95c66634c3497a277c1f08ed71a0cb53195ffecbf9798cdde4a30f27fab9",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 3
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 20000,
+            "script": "OP_DUP OP_HASH160 9ed1f577c60e4be1dbf35318ec12f51d25e85773 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 30000,
+            "script": "OP_DUP OP_HASH160 fb407e88c48921d5547d899e18a7c0a36919f54d OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 50000,
+            "script": "OP_DUP OP_HASH160 04ccb4eed8cfa9f6e394e945178960f5ccddb387 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ]
+      },
+      {
+        "description": "SIGHASH SINGLE|ANYONECANPAY",
+        "txHex": "01000000037db7f0b2a345ded6ddf28da3211a7d7a95a2943e9a879493d6481b7d69613f04010000006b483045022100d05a3b6cf2f0301000b0e45c09054f2c61570ce8798ebf571eef72da3b1c94a1022016d7ef3c133fa703bae2c75158ea08d335ac698506f99b3c369c37a9e8fc4beb832102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff652c491e5a781a6a3c547fa8d980741acbe4623ae52907278f10e1f064f67e05000000006b483045022100ee6bf07b051001dcbfa062692a40adddd070303286b714825b3fb4693dd8fcdb022056610885e5053e5d47f2be3433051305abe7978ead8f7cf2d0368947aff6b307832102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffffb9fa270fa3e4dd8c79f9cbfe5f1953cba071ed081f7c277a49c33466c695db35000000006b483045022100cfc930d5b5272d0220d9da98fabec97b9e66306f735efa837f43f6adc675cad902202f9dff76b8b9ec8f613d46094f17f64d875804292d8804aa59fd295b6fc1416b832102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff03204e0000000000001976a9149ed1f577c60e4be1dbf35318ec12f51d25e8577388ac30750000000000001976a914fb407e88c48921d5547d899e18a7c0a36919f54d88ac50c30000000000001976a91404ccb4eed8cfa9f6e394e945178960f5ccddb38788ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "043f61697d1b48d69394879a3e94a2957a7d1a21a38df2ddd6de45a3b2f0b77d",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 131
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "057ef664f0e1108f270729e53a62e4cb1a7480d9a87f543c6a1a785a1e492c65",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 131
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "35db95c66634c3497a277c1f08ed71a0cb53195ffecbf9798cdde4a30f27fab9",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 131
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 20000,
+            "script": "OP_DUP OP_HASH160 9ed1f577c60e4be1dbf35318ec12f51d25e85773 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 30000,
+            "script": "OP_DUP OP_HASH160 fb407e88c48921d5547d899e18a7c0a36919f54d OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 50000,
+            "script": "OP_DUP OP_HASH160 04ccb4eed8cfa9f6e394e945178960f5ccddb387 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ]
+      },
+      {
+        "description": "SIGHASH NONE",
+        "txHex": "01000000037db7f0b2a345ded6ddf28da3211a7d7a95a2943e9a879493d6481b7d69613f04010000006b483045022100e7f0a1ddd2c0b81e093e029b8a503afa27fe43549b0668d2141abf35eb3a63be022037f12d12cd50fc94a135f933406a8937557de9b9566a8841ff1548c1b6984531022102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff652c491e5a781a6a3c547fa8d980741acbe4623ae52907278f10e1f064f67e05000000006a473044022008451123ec2535dab545ade9d697519e63b28df5e311ea05e0ce28d39877a7c8022061ce5dbfb7ab478dd9e05b0acfd959ac3eb2641f61958f5d352f37621073d7c0022102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffffb9fa270fa3e4dd8c79f9cbfe5f1953cba071ed081f7c277a49c33466c695db35000000006a47304402205c001bcdfb35c70d8aa3bdbc75399afb72eb7cf1926ca7c1dfcddcb4d4d3e0f8022028992fffdcd4e9f34ab726f97c24157917641c2ef99361f588e3d4147d46eea5022102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff03204e0000000000001976a9149ed1f577c60e4be1dbf35318ec12f51d25e8577388ac30750000000000001976a914fb407e88c48921d5547d899e18a7c0a36919f54d88ac50c30000000000001976a91404ccb4eed8cfa9f6e394e945178960f5ccddb38788ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "043f61697d1b48d69394879a3e94a2957a7d1a21a38df2ddd6de45a3b2f0b77d",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 2
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "057ef664f0e1108f270729e53a62e4cb1a7480d9a87f543c6a1a785a1e492c65",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 2
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "35db95c66634c3497a277c1f08ed71a0cb53195ffecbf9798cdde4a30f27fab9",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 2
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 20000,
+            "script": "OP_DUP OP_HASH160 9ed1f577c60e4be1dbf35318ec12f51d25e85773 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 30000,
+            "script": "OP_DUP OP_HASH160 fb407e88c48921d5547d899e18a7c0a36919f54d OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 50000,
+            "script": "OP_DUP OP_HASH160 04ccb4eed8cfa9f6e394e945178960f5ccddb387 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ]
+      },
+      {
+        "description": "SIGHASH NONE | ANYONECANPAY",
+        "txHex": "01000000037db7f0b2a345ded6ddf28da3211a7d7a95a2943e9a879493d6481b7d69613f04010000006a47304402204ed272952177aaa5a1b171c2ca5a7a3d300ffcd7e04b040c0baaa4e3561862a502207e65a5b8f99c8a632b186c8a60496a12bf3116f51909b7497413aefdc3be7bf6822102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff652c491e5a781a6a3c547fa8d980741acbe4623ae52907278f10e1f064f67e05000000006a47304402203ec365300cc67602f4cc5be027959d3667b48db34c6c87d267c94a7e210d5c1f02204843350311c0a9711cad1960b17ce9e323a1ce6f37deefc3ffe63082d480be92822102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffffb9fa270fa3e4dd8c79f9cbfe5f1953cba071ed081f7c277a49c33466c695db35000000006b48304502210084f86f905c36372eff9c54ccd509a519a3325bcace8abfeed7ed3f0d579979e902201ff330dd2402e5ca9989a8a294fa36d6cf3a093edb18d29c9d9644186a3efeb4822102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff03204e0000000000001976a9149ed1f577c60e4be1dbf35318ec12f51d25e8577388ac30750000000000001976a914fb407e88c48921d5547d899e18a7c0a36919f54d88ac50c30000000000001976a91404ccb4eed8cfa9f6e394e945178960f5ccddb38788ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "043f61697d1b48d69394879a3e94a2957a7d1a21a38df2ddd6de45a3b2f0b77d",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 130
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "057ef664f0e1108f270729e53a62e4cb1a7480d9a87f543c6a1a785a1e492c65",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 130
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "txId": "35db95c66634c3497a277c1f08ed71a0cb53195ffecbf9798cdde4a30f27fab9",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzRGFiqhXB7SyX6idHQkt77B8mX7adnujdg3VG47jdVK2x4wbUYg",
+                "hashType": 130
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 0de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b8 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 20000,
+            "script": "OP_DUP OP_HASH160 9ed1f577c60e4be1dbf35318ec12f51d25e85773 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 30000,
+            "script": "OP_DUP OP_HASH160 fb407e88c48921d5547d899e18a7c0a36919f54d OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 50000,
+            "script": "OP_DUP OP_HASH160 04ccb4eed8cfa9f6e394e945178960f5ccddb387 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ]
+      },
+      {
+        "description": "SIGHASH V0+V1, (P2PKH, P2WPKH) -> 2x P2PKH",
+        "txHex": "01000000000102fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f00000000484730440220691a19d365c8d75f921346c70271506bde136f13a4b566dd796902c262e2ec6d02202b00c4aa030eedf294552bdfc163936d2f4e91c59e7798c4471250cf07cb859501eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff0230f45e13000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac00e9a435000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac0002483045022100fddd014889f18d489b5400bfa8cb0a32301a768d934b1a0e2b55398119f26cab02207676c64c16ffa7ffaaf8e16b3b74e916687eebdfdb36b9b7997e838384d464640121025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee635711000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pk",
+                "keyPair": "L3Wh2WPg21MWqzMFYsVC7PeBXcq1ow32KRccRihnTUnAhJaZUvg1",
+                "hashType": 1
+              }
+            ],
+            "sequence": 4294967278,
+            "prevTxScript": "03c9f4836b9a4f77fc0d81f7bcb01b7f1b35916864b9476c241ce9fc198bd25432 OP_CHECKSIG"
+          },
+          {
+            "txId": "8ac60eb9575db5b2d987e29f301b5b819ea83a5c6579d282d189cc04b8e151ef",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "KzVTBhbMaKrAYagJ11VdTaBrb6yzLykLGyuMBkf9sCFPDxdT8shL",
+                "hashType": 1,
+                "value": 600000000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_0 1d0f172a0ecb48aee1be1f2687d2963ae33f71a1"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 324990000,
+            "script": "OP_DUP OP_HASH160 8280b37df378db99f66f85c95a783a76ac7a6d59 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 900000000,
+            "script": "OP_DUP OP_HASH160 3bde42dbee7e4dbe6a21b2d50ce2f0167faa8159 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 17
+      },
+      {
+        "description": "SIGHASH V0+V1, P2SH(P2WPKH) -> P2PKH",
+        "txHex": "01000000000101db6b1b20aa0fd7b23880be2ecbd4a98130974cf4748fb66092ac4d3ceb1a5477010000001716001479091972186c449eb1ded22b78e40d009bdf0089feffffff02b8b4eb0b000000001976a914a457b684d7f0d539a46a45bbc043f35b59d0d96388ac0008af2f000000001976a914fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c88ac02473044022047ac8e878352d3ebbde1c94ce3a10d057c24175747116f8288e5d794d12d482f0220217f36a485cae903c713331d877c1f64677e3622ad4010726870540656fe9dcb012103ad1d8e89212f0b92c74d23bb710c00662ad1470198ac48c43f7d6f93a2a2687392040000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "77541aeb3c4dac9260b68f74f44c973081a9d4cb2ebe8038b2d70faa201b6bdb",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wpkh",
+                "keyPair": "L57KYn5isHFThD4cohjJgLTZA2vaxnMMKWngnzbttF159yH9dARf",
+                "hashType": 1,
+                "redeemScript": "OP_0 79091972186c449eb1ded22b78e40d009bdf0089",
+                "value": 1000000000
+              }
+            ],
+            "sequence": 4294967294,
+            "prevTxScript": "OP_HASH160 4733f37cf4db86fbc2efed2500b4f4e49f312023 OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 199996600,
+            "script": "OP_DUP OP_HASH160 a457b684d7f0d539a46a45bbc043f35b59d0d963 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 800000000,
+            "script": "OP_DUP OP_HASH160 fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 1170
+      },
+      {
+        "description": "Sighash V1: P2SH(P2WSH(P2MS 6/6))",
+        "txHex": "0100000000010136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000023220020a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54ffffffff02e6312761010000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688ac583e0f00000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac0800483045022100f902f491c4df15199e584790ae8c7202569a977accac0a09fa3f4f3b6ec3517602205961a951c4a12fa966da67b6fd75975b9de156b9895f8ab5f289ecaee12b9b3501473044022068c7946a43232757cbdf9176f009a928e1cd9a1a8c212f15c1e11ac9f2925d9002205b75f937ff2f9f3c1246e547e54f62e027f64eefa2695578cc6432cdabce271502483045022100bd5294e145d729e9593f49079b74e6e4b8aeba63440408595ce0949d5c6450a702207f9c9fb45907fe0180d3f4bee499006007bb90894b5f824a26dfa5d3afec543303483045022100febf9409d7f3c091ddc4d296a483aae7b3d2a91d38f6ea2a153f7ff085fe7766022078d11972c74cd78f816152463a5e1a5d986dfb94b55cf5f7242e4f6d5df000ff81483045022100a5263ea0553ba89221984bd7f0b13613db16e7a70c549a86de0cc0444141a407022005c360ef0ae5a5d4f9f2f87a56c1546cc8268cab08c73501d6b3be2e1e1a8a088247304402201a0e125aed6a700e45d6c86017d5a9d2264c8079319d868f3f163f5d63cb5bfe02200887608f2322ca0d82df67316275371028b0b21750417d594117963fe23b67ec83cf56210307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba32103b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b21034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a21033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f42103a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac162102d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b56ae00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "6eb98797a21c6c10aa74edf29d618be109f48a8e94c694f3701e08ca69186436",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "L15NqbRvcqso8ZCqD8aFaZV3CTypw6svjk8oCWsAfMmNViahS2Mw",
+                "hashType": 1,
+                "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54",
+                "value": 987654321
+              },
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "Kwpf3fycToLH1ymZUkezFrYwTjhKaucHD861Ft5A4Tih855LBxVx",
+                "hashType": 2,
+                "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54",
+                "value": 987654321
+              },
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "L1EV111k2WzNTapY2etd1TaB2aWbjUgouko9YyipS2S8H8WdGkQi",
+                "hashType": 3,
+                "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54",
+                "value": 987654321
+              },
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "KwuvEmpBtJaw8SQLnpi3CoEHZJvv33EnYBHn13VcDuwprJqmkfSH",
+                "hashType": 129,
+                "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54",
+                "value": 987654321
+              },
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "L5kdM8eWyfj8pdRDWA8j5SmBwAQt2yyhqjb2ZZQxtRGJfCquC6TB",
+                "hashType": 130,
+                "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54",
+                "value": 987654321
+              },
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "KyT4JbJVRy5FZ6ZEZhkaocP2JSBXiF7X3Cx6DBAGLrydR9fiXQUK",
+                "hashType": 131,
+                "witnessScript": "OP_6 0307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba3 03b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b 034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a 033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f4 03a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac16 02d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b OP_6 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54",
+                "value": 987654321
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_HASH160 9993a429037b5d912407a71c252019287b8d27a5 OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 5924925926,
+            "script": "OP_DUP OP_HASH160 389ffce9cd9ae88dcc0631e88a821ffdbe9bfe26 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 999000,
+            "script": "OP_DUP OP_HASH160 7480a33f950689af511e6e84c138dbbd3c3ee415 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2PK",
+        "txHex": "010000000193aef40ae141694895e99e18e49d0181b086dd7c011c0241175c6eaf320099970000000049483045022100e57eba5380dcc8a7bdb5370b423dadd43070e1ca268f94bc97b2ded55ca45e9502206a43151c8af03a00f0ac86526d07981e303fc0daea8c6ed435abe8961533046d01ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "97990032af6e5c1741021c017cdd86b081019de4189ee995486941e10af4ae93",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pk",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2SH(P2PK)",
+        "txHex": "0100000001a30e865fa60f6c25a8b218bb5a6b9acc7cf3f1db2f2e3a7114b51af5d6ae811f000000006c473044022026d2b56b6cb0269bf4e80dd655b9e917019e2ccef57f4b858d03bb45a2da59d9022010519a7f327f03e7c9613e0694f929544af29d3682e7ec8f19147e7a86651ecd012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bacffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "1f81aed6f51ab514713a2e2fdbf1f37ccc9a6b5abb18b2a8256c0fa65f860ea3",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pk",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "redeemScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG"
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_HASH160 c99d9ebb5a4828e4e1b606dd6a51a2babebbdc09 OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2WSH(P2PK)",
+        "txHex": "010000000001014533a3bc1e039bd787656068e135aaee10aee95a64776bfc047ee6a7c1ebdd2f0000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac02473044022039725bb7291a14dd182dafdeaf3ea0d5c05c34f4617ccbaa46522ca913995c4e02203b170d072ed2e489e7424ad96d8fa888deb530be2d4c5d9aaddf111a7efdb2d3012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pk",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
+                "value": 80000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2SH(P2WSH(P2PK))",
+        "txHex": "01000000000101e0779d448aaa203a96b3de14d0482e26dd75a4278ae5bb6d7cc18e6874f3866000000000232200200f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac024730440220014207a5f0601ed7b3c3f9d82309b32e8f76dd6776a55cb5f8684b9ff029e0850220693afd7b69471b51d9354cc1a956b68b8d48e32f6b0ad7a19bb5dd3e4499179a012321038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "6086f374688ec17c6dbbe58a27a475dd262e48d014deb3963a20aa8a449d77e0",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2pk",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "redeemScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
+                "witnessScript": "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_CHECKSIG",
+                "value": 80000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_HASH160 6d185c7042d01ea8276dc6be6603101dc441d8a4 OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2PKH",
+        "txHex": "010000000176d7b05b96e69d9760bacf14e496ea01085eff32be8f4e08b299eb92057826e5000000006b4830450221009bd6ff2561437155913c289923175d3f114cca1c0e2bc5989315d5261502c2c902201b71ad90dce076a5eb872330ed729e7c2c4bc2d0513efff099dbefb3b62eab4f0121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2bffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "e526780592eb99b2084e8fbe32ff5e0801ea96e414cfba60979de6965bb0d776",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2SH(P2PKH)",
+        "txHex": "01000000014b9ffc17c3cce03ee66980bf32d36aaa13462980c3af9d9d29ec6b97ab1c91650000000084473044022003d738d855d0c54a419ac62ebe1a1c0bf2dc6993c9585adb9a8666736658107002204d57ff62ee7efae6df73430bba62494faeba8c125a4abcf2488757a4f8877dd50121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b1976a914851a33a5ef0d4279bd5854949174e2c65b1d450088acffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "65911cab976bec299d9dafc380294613aa6ad332bf8069e63ee0ccc317fc9f4b",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pkh",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "redeemScript": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_HASH160 2162ff7c23d47a0c331f95c67d7c3e22abb12a02 OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2WSH(P2PKH)",
+        "txHex": "0100000000010123539877e39a273819006de1c433e09f9e9af201fc178dd0f2cf2eaa5ad53b480000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac03483045022100f02a82b0a94a5d5dc4d2127ac34be62cb066713d71d56bdf5ef7810ab57a157302205f24abdde1dab554a02edcf378e98828024e57272e5e474a5b04accdca080a030121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b1976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "483bd55aaa2ecff2d08d17fc01f29a9e9fe033c4e16d001938279ae377985323",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pkh",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "witnessScript": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+                "value": 80000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_0 578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2SH(P2WSH(P2PKH))",
+        "txHex": "01000000000101363dfbfe2566db77e3b1195bedf1d0daeb9ce526cd7611ba81759b2654ce415c0000000023220020578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac03483045022100c8bd5ebb26ba6719158650c3e7c5e80be4c886ba025c44cc41f5149b3114705a02203ac6e1f38f6c081d506f28f1b5e38ebec9e0f0fa911d0e3f68d48d8b0e77b34b0121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b1976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "5c41ce54269b7581ba1176cd26e59cebdad0f1ed5b19b1e377db6625fefb3d36",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2pkh",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "witnessScript": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+                "redeemScript": "OP_0 578db4b54a6961060b71385c17d3280379a557224c52b11b19a3a1c1eef606a0",
+                "value": 80000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_HASH160 44a641c4e06eb6118c99e5ed29954b705b50fb6a OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2MS 1/1",
+        "txHex": "010000000179310ec46e734b3490ee839c5ae4a09d28561ee9fff2d051f733d201f958d6d2000000004a00483045022100d269531f120f377ed2f94f42bef893ff2fe6544ac97fb477fa291bc6cfb7647e02200983f6a5bbd4ce6cf97f571995634805a7324cc5d8353ed954fa62477b0fcd0901ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "d2d658f901d233f751d0f2ffe91e56289da0e45a9c83ee90344b736ec40e3179",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_1 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_1 OP_CHECKMULTISIG"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2SH(P2MS)",
+        "txHex": "010000000152882c661c49dd2f53bd9ced7e9f44b184888ad2fe7d86737f0efaa7aecdced1000000006f00473044022025f2e161f0a97888df948f4dcc7c04fe502510b8d8260ca9920f38d55e4d17720220271b6843224b3a34542a4df31781d048da56ee46b8c5fb99043e30abd527b2d801255121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51aeffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "d1cecdaea7fa0e7f73867dfed28a8884b1449f7eed9cbd532fdd491c662c8852",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "redeemScript": "OP_1 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_1 OP_CHECKMULTISIG"
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_HASH160 38c064c6387d1071eeb5c3d90350054aea0b3fc1 OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2WSH(P2MS)",
+        "txHex": "01000000000101c1eced6216de0889d4629ff64a8af8e8ec6d0b414de0c57b46c02cc303d321fe0000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac0300483045022100d4c0cbdb45915b8a3162362fa5f74556de919aeda5337fc44a7fb000e833460d022017742c37d7a061e2ae3a086c7c585c9c85e5d31af468d3e00045c0f35b8f8eb601255121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "fe21d303c32cc0467bc5e04d410b6dece8f88a4af69f62d48908de1662edecc1",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2ms",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "witnessScript": "OP_1 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_1 OP_CHECKMULTISIG",
+                "value": 80000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_0 1b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2SH(P2WSH(P2MS))",
+        "txHex": "010000000001013a5a2ab0223d3b504b52af76d650329750666fbf1be13d4cb08d0d9fc550a47d00000000232200201b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac0300483045022100c97a5e205ce0023d3d44f846abf1f0e21b6f2646bd2496bbe92e4333fe4401be02201247e047d669f713582713e35d2eba430abc3d75a924bb500362bf47d6234ed501255121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b51ae00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "7da450c59f0d8db04c3de11bbf6f6650973250d676af524b503b3d22b02a5a3a",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "witnessScript": "OP_1 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b OP_1 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 1b8c0c2878c5634c3ce738cdc568c592e99783dbd28ff4c6cb5b7b4675d9ee99",
+                "value": 80000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_HASH160 cc6ea17c33de7996471e40892acdd6e5f61b9b6f OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2WPKH -> P2PKH",
+        "txHex": "0100000000010133defbe3e28860007ff3e21222774c220cb35d554fa3e3796d25bf8ee983e1080000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac0248304502210097c3006f0b390982eb47f762b2853773c6cedf83668a22d710f4c13c4fd6b15502205e26ef16a81fc818a37f3a34fc6d0700e61100ea6c6773907c9c046042c440340121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "08e183e98ebf256d79e3a34f555db30c224c772212e2f37f006088e2e3fbde33",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "value": 80000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_0 851a33a5ef0d4279bd5854949174e2c65b1d4500"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2SH(P2WPKH) -> P2PKH",
+        "txHex": "010000000001015df9a0b9ade2d835881704e0f53b51a4b19ecfc794ea1f3555783dd7f68659ce0000000017160014851a33a5ef0d4279bd5854949174e2c65b1d4500ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac02483045022100cb3929c128fec5108071b662e5af58e39ac8708882753a421455ca80462956f6022030c0f4738dd1a13fc7a34393002d25c6e8a6399f29c7db4b98f53a9475d94ca20121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ce5986f6d73d7855351fea94c7cf9eb1a4513bf5e004178835d8e2adb9a0f95d",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wpkh",
+                "keyPair": "L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN",
+                "hashType": 1,
+                "redeemScript": "OP_0 851a33a5ef0d4279bd5854949174e2c65b1d4500",
+                "value": 80000
+              }
+            ],
+            "sequence": 4294967295,
+            "prevTxScript": "OP_HASH160 0d061ae2c8ad224a81142a2e02181f5173b576b3 OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "Defaults to version 2",
+        "txHex": "0200000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006b483045022100d090736fce4387d25f9d7ba85270a3859947dbd0a19f347467c3a596e06c132402204b14c29d128f824bee953bdaf2ed4e16c7cff0b24bddb4add94b4b6c42773d8801210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": null,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ],
+        "locktime": 0
+      },
+      {
+        "description": "P2SH(P2WSH(P2MS 2/2)), incomplete",
+        "network": "testnet",
+        "txHex": "010000000001012915794541ffa77ca795ec7c23ee989a63ccd1a71fab73e1c27ed20c4b6c69a4010000002322002024376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5afffffffff01b8820100000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac040047304402203b334650f1f13574a1c2edc76421867f7252950968bf0293c8b3ed086ab89e3d0220565cafab0a5044617e94756b948241525b2483a52504e1064d29f641fb18129e010047522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea1952ae00000000",
+        "version": 1,
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS",
+                "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
+                "value": 100000
+              }
+            ],
+            "prevTxScript": "OP_HASH160 b64f1a3eacc1c8515592a6f10457e8ff90e4db6a OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 99000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2WSH(P2MS 2/2))",
+        "network": "testnet",
+        "txHex": "010000000001012915794541ffa77ca795ec7c23ee989a63ccd1a71fab73e1c27ed20c4b6c69a4010000002322002024376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5afffffffff01b8820100000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac040047304402203b334650f1f13574a1c2edc76421867f7252950968bf0293c8b3ed086ab89e3d0220565cafab0a5044617e94756b948241525b2483a52504e1064d29f641fb18129e0148304502210096e859827fb629b6547658c613f7c8298de151513d74b224560aa8608d521d600220736fb5564322237716ec940de44c67c428198adf5dedfda183c17aa77cd28d640147522102bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e22102d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea1952ae00000000",
+        "version": 1,
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "a4696c4b0cd27ec2e173ab1fa7d1cc639a98ee237cec95a77ca7ff4145791529",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "cRAwuVuVSBZMPu7hdrYvMCZ8eevzmkExjFbaBLhqnDdrezxN3nTS",
+                "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
+                "value": 100000
+              },
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "cTUFsNeVd8TKU4yREN8nMdViNnHyNvCCYVRmRUmkMLgomiMWTiii",
+                "witnessScript": "OP_2 02bbbd6eb01efcbe4bd9664b886f26f69de5afcb2e479d72596c8bf21929e352e2 02d9c3f7180ef13ec5267723c9c2ffab56a4215241f837502ea8977c8532b9ea19 OP_2 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 24376a0a9abab599d0e028248d48ebe817bc899efcffa1cd2984d67289daf5af",
+                "value": 100000
+              }
+            ],
+            "prevTxScript": "OP_HASH160 b64f1a3eacc1c8515592a6f10457e8ff90e4db6a OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 99000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2WSH(P2MS 2/3)) -> P2PKH",
+        "network": "testnet",
+        "txHex": "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000232200201b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701ffffffff01f07e0e00000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac0400473044022036c9ecb03cb04c09be1f52766725dcfe9a815973bd2f34ce19a345f2d925a45502207b90737852d2508db104ad17612de473687e67928c045555a1ed8d495c0570d901483045022100aec0e58e4e597b35ca5a727702a0da3d4f2ef4759914da7fc80aecb3c479a6d902201ec27ea8dcca4b73ee81e4b627f52f9e627c3497f61e4beeb98f86e02979640a0169522103c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc5787721020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b02102d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc914953ae00000000",
+        "version": 1,
+        "stages":  [
+          "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000232200201b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701ffffffff01f07e0e00000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac0500473044022036c9ecb03cb04c09be1f52766725dcfe9a815973bd2f34ce19a345f2d925a45502207b90737852d2508db104ad17612de473687e67928c045555a1ed8d495c0570d901000069522103c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc5787721020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b02102d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc914953ae00000000"
+        ],
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "cUxccFVBdJRq6HnyxiFMd8Z15GLThXaNLcnPBgoXLEv9iX6wuV2b",
+                "witnessScript": "OP_2 03c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc57877 020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b0 02d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc9149 OP_3 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 1b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701",
+                "value": 1000000,
+                "stage": true
+              },
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2ms",
+                "keyPair": "cVSNe9ZdZRsRvEBL8YRR7YiZmH4cLsf5FthgERWkZezJVrGseaXy",
+                "witnessScript": "OP_2 03c411cf39aca4395c81c35921dc832a0d1585d652ab1b52ccc619ff9fbbc57877 020636d944458a4663b75a912c37dc1cd59b11f9a00106783a65ba230d929b96b0 02d1448cbf19528a1a27e5958ba73d930b5b3facdbe5c30c7094951a287fcc9149 OP_3 OP_CHECKMULTISIG",
+                "redeemScript": "OP_0 1b48bf145648b9492ecd6d76754ea3def4b90e22e4ef7aee9ca291b2de455701",
+                "value": 1000000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 950000
+          }
+        ]
+      }
+    ],
+    "fromTransaction": [
+      {
+        "description": "Transaction w/ P2SH(P2MS 2/2) -> OP_RETURN | 1 OP_0 fixes to 2 OP_0, no signatures",
+        "network": "testnet",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2MS 2/2) -> OP_RETURN | missing OP_0, 1 signature",
+        "network": "testnet",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 OP_0 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2MS 2/2) -> OP_RETURN | no OP_0, 2 signatures",
+        "network": "testnet",
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae",
+            "scriptSigAfter": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      }
+    ],
+    "fromTransactionSequential": [
+      {
+        "description": "Transaction w/ P2SH(P2MS 2/3) -> ?",
+        "network": "testnet",
+        "txHex": "0100000001b033b2214568b49fda417371aba0634b0303a2b6a19884c25d03d0b91bdbe231000000006f000000004c6952210258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a9121038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f2103b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d953aeffffffff0200e1f5050000000017a914a9974100aeee974a20cda9a2f545704a0ab54fdc87c72831010000000017a9149f57a6712ef023f85ffac631ed4263b977b2d0678700000000",
+        "txHexAfter": "0100000001b033b2214568b49fda417371aba0634b0303a2b6a19884c25d03d0b91bdbe23100000000b60000004730440220793d87f2a8afeb856816efa38984418c692c15170e99ca371f547454079c0dd3022074ae95e438fee1f37619fabe0ce1083c3be0d65c3defb5337833d50fdc694b13014c6952210258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a9121038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f2103b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d953aeffffffff0200e1f5050000000017a914a9974100aeee974a20cda9a2f545704a0ab54fdc87c72831010000000017a9149f57a6712ef023f85ffac631ed4263b977b2d0678700000000",
+        "incomplete": true,
+        "inputs": [
+          {
+            "vout": 0,
+            "scriptSig": "OP_0 OP_0 OP_0 OP_0 52210258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a9121038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f2103b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d953ae",
+            "scriptSigAfter": "OP_0 OP_0 OP_0 30440220793d87f2a8afeb856816efa38984418c692c15170e99ca371f547454079c0dd3022074ae95e438fee1f37619fabe0ce1083c3be0d65c3defb5337833d50fdc694b1301 52210258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a9121038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f2103b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d953ae",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "cTkcnMZoFYH1UgumzCFHv2veLMNN1PaJyHHUxFT127zhNGBqqEZ2",
+                "redeemScript": "OP_2 0258db1bb3801f1ecde47602143beaeb9cac93251724b8e589fae5c08c1a399a91 038e803e3d84cfc821cc8bf46233a9c2bb359d529db0bcdd3f1a4f38678dd02d7f 03b83e59d848407d7f62a82c99905f5ca3e8e8f5d6400eb78a0b4b067aea0720d9 OP_3 OP_CHECKMULTISIG"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "classification": {
+      "hex": "01000000059c06fb641a8cd69be81ca91e68d8a115cb698396876ecd77120ec1e4ab9002279f000000b500483045022100d58f828ab39cfac592f89fe372fb520992975218698c683a893f29e39cf0080302207cc0485dab5ce621089bdd15e1f15db0ecbde8dd4bb661bcf0e3af6ecab075e6014c6952210327e023a353d111808f61d554c2e1934721eaf87f33b7a771e807006908a493722103251670bb6a179a0d43b75476c7e580c0ba274378a18077e8de0832c870e5381f2102cca7f9a64425a0466d26d5c7e9eb3ad6b64cd48ea89edb38bc08f58a792dde4753aeffffffff0821dc00213d2b7993f8f2a1553800c6f2f31106da176505d0ade467b68401d795000000b400473044022028e937a7bba888fe3428f442f6e22d92ce2ddba01548c38780d40890fa6cc305022043204d0bcfb1150b045d54cf9b13462e44e2ef47fee03d3cea08e84a8060fc30014c6952210327e023a353d111808f61d554c2e1934721eaf87f33b7a771e807006908a493722103251670bb6a179a0d43b75476c7e580c0ba274378a18077e8de0832c870e5381f2102cca7f9a64425a0466d26d5c7e9eb3ad6b64cd48ea89edb38bc08f58a792dde4753aeffffffffaa997ac385dc666af1f5947ef615431024eb314cac2308d5e1b903e28ca466f499000000b50048304502210093efc26facedc5f51e304aa270a7b4f1a911b2d912c3674e5c6e2ad4ac7a410402201cf0b62c240461902f9f16d8a0bc3a210b7bfcd2c06523dd4b4b63be22e85252014c6952210327e023a353d111808f61d554c2e1934721eaf87f33b7a771e807006908a493722103251670bb6a179a0d43b75476c7e580c0ba274378a18077e8de0832c870e5381f2102cca7f9a64425a0466d26d5c7e9eb3ad6b64cd48ea89edb38bc08f58a792dde4753aeffffffffd9f61bf98a021ee144f33ba5a6b04274de8fcb5c05f1ff7c12367fb7a608b2dd9e000000b4004730440220456e1201c1fa727288cba7fa0054dc02d8dd6c7418cae1e97006ef0652891c9202201192d0fbf3a9c00afb99a415f2bf515509e1150805acd8de95c496c27cb6570f014c6952210327e023a353d111808f61d554c2e1934721eaf87f33b7a771e807006908a493722103251670bb6a179a0d43b75476c7e580c0ba274378a18077e8de0832c870e5381f2102cca7f9a64425a0466d26d5c7e9eb3ad6b64cd48ea89edb38bc08f58a792dde4753aeffffffff1f8119e3bc7c2f451feaa79f42ec5a63502afb425c253c935e43d217d5c29bdea1000000b500483045022100f669004f770490093eba4ac4903cb7581f7d18ea9245c538585ef5367e520e4702205485fafe0be178563a599d41e0cc172bb01314ed65d0e48df19a5258f17bdbc4014c6952210327e023a353d111808f61d554c2e1934721eaf87f33b7a771e807006908a493722103251670bb6a179a0d43b75476c7e580c0ba274378a18077e8de0832c870e5381f2102cca7f9a64425a0466d26d5c7e9eb3ad6b64cd48ea89edb38bc08f58a792dde4753aeffffffff0380f0fa02000000001976a91439692085cf9d27e8c1cf63e76bd32d9bd15cab8b88ac50c300000000000017a9147204bb26950ce1595255897f63d205779f033f3e875b5409000000000017a9142538893d984a4b5695e4bfde1a90a9f02fabf8e38700000000"
+    },
+    "multisig": [
+      {
+        "description": "P2SH(P2MS 2/2), signed in correct order",
+        "network": "testnet",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd1c0100483045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001483045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b06576014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 0,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 1,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
+                "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2MS 2/2), signed in shuffled order",
+        "network": "testnet",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd1c0100483045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001483045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b06576014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 1,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
+                "scriptSig": "OP_0 OP_0 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 0,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2MS 2/2), manually messed up order of signatures",
+        "network": "testnet",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd1c0100483045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001483045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b06576014c8752410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 0,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 1,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
+                "scriptSig": "OP_0 3045022100e37e33a4fe5fccfb87afb0e951e83fcea4820d73b327d21edc1adec3b916c437022061c5786908b674e323a1863cc2feeb60e1679f1892c10ee08ac21e51fd50ba9001 3045022100aa0c323bc639d3d71591be98ccaf7b8cb8c86aa95f060aef5e36fc3f04c4d029022010e2b18de17e307a12ae7e0e88518fe814f18a0ca1ee4510ba23a65628b0657601 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a52ae"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2MS 2/3), signed by key 1 and 2",
+        "network": "testnet",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd5e0100483045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01483045022100ae06d8269b79b5cfa0297d1d88261b0061e52fc2814948c3aa05fa78ee76894302206e0c79a5c90569d8c72a542ef9a06471cbbcd2c651b312339983dfba4f8ff463014cc952410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 0,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 1,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
+                "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 3045022100ae06d8269b79b5cfa0297d1d88261b0061e52fc2814948c3aa05fa78ee76894302206e0c79a5c90569d8c72a542ef9a06471cbbcd2c651b312339983dfba4f8ff46301 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2MS 2/3), signed by key 1 and 3",
+        "network": "testnet",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd5e0100483045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01483045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af0014cc952410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 0,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 2,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
+                "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2MS 2/3), signed by key 3 and 1",
+        "network": "testnet",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd5e0100483045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01483045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af0014cc952410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 2,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
+                "scriptSig": "OP_0 OP_0 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 0,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2MS 2/3), signed by key 1 and 3, manually messed up order of signatures",
+        "network": "testnet",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd5e0100483045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01483045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af0014cc952410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 0,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 OP_0 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 2,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
+                "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "P2SH(P2MS 2/3), signed by key 3 and 1, manually removing OP_0s",
+        "network": "testnet",
+        "txHex": "0100000001cff58855426469d0ef16442ee9c644c4fb13832467bcbc3173168a7916f0714900000000fd5e0100483045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01483045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af0014cc952410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253aeffffffff01e8030000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "4971f016798a167331bcbc67248313fbc444c6e92e4416efd06964425588f5cf",
+            "vout": 0,
+            "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 2,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgx3cTMqe",
+                "scriptSig": "OP_0 OP_0 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "pubKeyIndex": 0,
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "scriptSigBefore": "OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae",
+                "scriptSig": "OP_0 3045022100daf0f4f3339d9fbab42b098045c1e4958ee3b308f4ae17be80b63808558d0adb02202f07e3d1f79dc8da285ae0d7f68083d769c11f5621ebd9691d6b48c0d4283d7d01 OP_0 3045022100a346c61738304eac5e7702188764d19cdf68f4466196729db096d6c87ce18cdd022018c0e8ad03054b0e7e235cda6bedecf35881d7aa7d94ff425a8ace7220f38af001 52410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b84104c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a4104f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e67253ae"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      }
+    ]
+  },
+  "invalid": {
+    "build": [
+      {
+        "exception": "Transaction has no inputs",
+        "inputs": [],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "Transaction has no outputs",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0
+          }
+        ],
+        "outputs": []
+      },
+      {
+        "exception": "Transaction has absurd fees",
+        "inputs": [
+          {
+            "txRaw": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "address": "1C5XhB1UkFuyCV1CG9dmXaXGu3xDL4nAjv",
+                  "value": 1000000000
+                }
+              ],
+              "incomplete": true
+            },
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzBQVXYUGDAvqG7VeU3C7ZMRYiwtsxSVVFcYGzKU9E4aUVDUquZU"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 ff99e06c1a4ac394b4e1cb3d3a4b2b47749e339a OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 200000
+          }
+        ]
+      },
+      {
+        "description": "Incomplete transaction, nothing assumed",
+        "exception": "Transaction is not complete",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Incomplete transaction, known prevTxScript, thereby throws for missing signatures",
+        "exception": "Not enough information",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          },
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Incomplete Transaction P2SH(P2MS 2/3), missing signature",
+        "exception": "Not enough signatures provided",
+        "network": "testnet",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a 04f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672 OP_3 OP_CHECKMULTISIG"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Duplicate transaction outs",
+        "exception": "Duplicate TxOut: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff:0",
+        "incomplete": true,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0
+          },
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ invalid scripts",
+        "exception": "Invalid script",
+        "incomplete": true,
+        "txHex": "010000000100000000171a0000e028f2000000000050178500000000000d0000000e000000000000002009f691b2263260e71f363d1db51ff3100d285956a40cc0e4f8c8c2c4a80559b1ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
+      },
+      {
+        "description": "Complete transaction w/ non-standard inputs",
+        "exception": "Unknown input type",
+        "txHex": "010000000100000000171a0000e028f2000000000050178500000000000d0000000e00000000000000201ff691b2263260e71f363d1db51ff3100d285956a40cc0e4f8c8c2c4a80559b1ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
+      }
+    ],
+    "sign": [
+      {
+        "description": "Transaction w/ witness value mismatch",
+        "exception": "Input did not match witnessValue",
+        "network": "testnet",
+        "inputs": [
+          {
+            "txHex": "01000000000101f7e6430096cd2790bac115aaab22c0a50fb0a1794305302e1a399e81d8d354f40200000000feffffff0340420f00000000001600145c7b8d623fba952d2387703d051d8e931a6aa0a18bda2702000000001976a9145a0ef60784137d03e7868d063b05424f2f43799f88ac40420f00000000001976a9145c7b8d623fba952d2387703d051d8e931a6aa0a188ac0247304402205793a862d193264afc32713e2e14541e1ff9ebb647dd7e7e6a0051d0faa87de302205216653741ecbbed573ea2fc053209dd6980616701c27be5b958a159fc97f45a012103e877e7deb32d19250dcfe534ea82c99ad739800295cd5429a7f69e2896c36fcd2fcc0e00",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "cQ6483mDWwoG8o4tn6nU9Jg52RKMjPUWXSY1vycAyPRXQJ1Pn2Rq",
+                "throws": true,
+                "value": 22500000000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 ff99e06c1a4ac394b4e1cb3d3a4b2b47749e339a OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 6000000
+          }
+        ]
+      },
+      {
+        "description": "Too many signatures - P2PKH",
+        "exception": "Signature already exists",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              },
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2WPKH, signing with uncompressed public key",
+        "exception": "BIP143 rejects uncompressed public keys in P2WPKH or P2WSH",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_0 15a71ffa7b5bb70cddefcf364494071022efe390",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "value": 10000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2WSH(P2PK), signing with uncompressed public key",
+        "exception": "redeem.input or redeem.output contains uncompressed pubkey",
+        "inputs": [
+          {
+            "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
+            "vout": 0,
+            "prevTxScript": "OP_0 5339df4de3854c4208376443ed075014ad996aa349ad6b5abf6c4d20f604d348",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pk",
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "witnessScript": "04f56d09b32cefc818735150bf8560eefdaf30d2edb3fe557bf27682aedaed81bf9aaff7eeb496e088058ec548826c12b521dbb566a862d9b67677910c2b421e06 OP_CHECKSIG",
+                "value": 80000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 60000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ P2SH(P2WSH(P2PK)), signing with uncompressed public key",
+        "exception": "redeem.input or redeem.output contains uncompressed pubkey",
+        "inputs": [
+          {
+            "txId": "2fddebc1a7e67e04fc6b77645ae9ae10eeaa35e168606587d79b031ebca33345",
+            "vout": 0,
+            "prevTxScript": "OP_HASH160 5afe12b2827e3eac05fe3f17c59406ef262aa177 OP_EQUAL",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2pk",
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "redeemScript": "OP_0 5339df4de3854c4208376443ed075014ad996aa349ad6b5abf6c4d20f604d348",
+                "witnessScript": "04f56d09b32cefc818735150bf8560eefdaf30d2edb3fe557bf27682aedaed81bf9aaff7eeb496e088058ec548826c12b521dbb566a862d9b67677910c2b421e06 OP_CHECKSIG",
+                "value": 80000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 60000
+          }
+        ]
+      },
+      {
+        "exception": "nulldata not supported as redeemScript \\(OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474\\)",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pk",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "p2sh-p2pkh requires redeemScript",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "prevTxScript": "OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "p2wsh-p2pk requires witnessScript",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "prevTxScript": "OP_0 0f9ea7bae7166c980169059e39443ed13324495b0d6678ce716262e879591210",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pk",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "Inconsistent redeemScript",
+        "network": "testnet",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "redeemScript": "OP_2 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a OP_2 OP_CHECKMULTISIG",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Inconsistent RedeemScript hash",
+        "exception": "Redeem script inconsistent with prevOutScript",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_HASH160 ffffffffffffffffffffffffffffffffffffffff OP_EQUAL",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pkh",
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "redeemScript": "OP_1",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "Inconsistent WitnessScript hash",
+        "exception": "Witness script inconsistent with prevOutScript",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_0 ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pkh",
+                "keyPair": "5JiHJJjdufSiMxbvnyNcKtQNLYH6SvUpQnRv9yZENFDWTQKQkzC",
+                "witnessScript": "OP_1",
+                "value": 10000,
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "exception": "scripthash not supported as redeemScript \\(OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL\\)",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_HASH160 7f67f0521934a57d3039f77f9f32cf313f3ac74b OP_EQUAL",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2pkh: pubkeyhash",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "prevTxScript": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Too many signatures - P2SH(P2MS 1/1)",
+        "exception": "Signature already exists",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG"
+              },
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Wrong network for keyPair",
+        "exception": "Inconsistent network",
+        "network": "bitcoin",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
+                "network": "testnet",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Wrong key pair for P2MS redeemScript",
+        "exception": "Key pair cannot sign for this input",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2ms",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "redeemScript": "OP_1 0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8 OP_1 OP_CHECKMULTISIG",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2pkh: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2wpkh: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2ms: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2ms",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2wpkh: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wpkh",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2wsh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wsh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "input #0 is not of type p2sh-p2wsh-p2pk: nulldata",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wsh-p2pk",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "exception": "Unknown prevOutScriptType \"notvalidtype\"",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_RETURN deadbeef",
+            "signs": [
+              {
+                "prevOutScriptType": "notvalidtype",
+                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_RETURN deadbeef",
+            "value": 1000
+          }
+        ]
+      },
+      {
+        "description": "Transaction w/ no outputs (but 1 SIGHASH_NONE)",
+        "exception": "Transaction needs outputs",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "hashType": 2
+              }
+            ]
+          },
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": []
+      },
+      {
+        "description": "Transaction w/ no outputs",
+        "exception": "Transaction needs outputs",
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "throws": true
+              }
+            ]
+          }
+        ],
+        "outputs": []
+      }
+    ],
+    "fromTransaction": [
+      {
+        "exception": "coinbase inputs not supported",
+        "txHex": "01000000010000000000000000000000000000000000000000000000000000000000000000000000006b483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
+      }
+    ]
+  }
+}

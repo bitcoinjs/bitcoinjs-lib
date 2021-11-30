@@ -1,5 +1,7 @@
+coverage
 node_modules
-.idea
-package-lock.json
-package-test.json
-tests
+.nyc_output
+npm-debug.log
+test/*.js
+test/integration/*.js
+!test/ts-node-register.js

@@ -1,0 +1,29 @@
+sudo: false
+language: node_js
+services:
+  - docker
+before_install:
+  - if [ $TEST_SUITE = "integration" ]; then
+      docker pull junderw/bitcoinjs-regtest-server &&
+      docker run -d -p 127.0.0.1:8080:8080 junderw/bitcoinjs-regtest-server &&
+      docker ps -a;
+    fi
+node_js:
+  - "8"
+  - "lts/*"
+matrix:
+  include:
+    - node_js: "lts/*"
+      env: TEST_SUITE=format:ci
+    - node_js: "lts/*"
+      env: TEST_SUITE=gitdiff:ci
+    - node_js: "lts/*"
+      env: TEST_SUITE=lint
+    - node_js: "lts/*"
+      env: TEST_SUITE=lint:tests
+    - node_js: "lts/*"
+      env: TEST_SUITE=coverage
+env:
+  - TEST_SUITE=unit
+  - TEST_SUITE=integration APIURL=http://127.0.0.1:8080/1
+script: npm run-script $TEST_SUITE
