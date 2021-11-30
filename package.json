@@ -75,10 +75,10 @@
   ],
   "license": "MIT",
   "main": "./src/index.js",
-  "name": "bitcoinjs-lib",
+  "name": "btcujs-lib",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bitcoinjs/bitcoinjs-lib.git"
+    "url": "git+https://github.com/bitcoin-ultimatum/btcujs-lib.git"
   },
   "scripts": {
     "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
