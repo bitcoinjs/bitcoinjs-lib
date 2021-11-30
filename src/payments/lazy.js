@@ -1,32 +1,30 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.value = exports.prop = void 0;
-function prop(object, name, f) {
+function prop (object, name, f) {
   Object.defineProperty(object, name, {
     configurable: true,
     enumerable: true,
-    get() {
-      const _value = f.call(this);
-      this[name] = _value;
-      return _value;
+    get: function () {
+      let value = f.call(this)
+      this[name] = value
+      return value
     },
-    set(_value) {
+    set: function (value) {
       Object.defineProperty(this, name, {
         configurable: true,
         enumerable: true,
-        value: _value,
-        writable: true,
-      });
-    },
-  });
+        value: value,
+        writable: true
+      })
+    }
+  })
 }
-exports.prop = prop;
-function value(f) {
-  let _value;
-  return () => {
-    if (_value !== undefined) return _value;
-    _value = f();
-    return _value;
-  };
+
+function value (f) {
+  let value
+  return function () {
+    if (value !== undefined) return value
+    value = f()
+    return value
+  }
 }
-exports.value = value;
+
+module.exports = { prop, value }
