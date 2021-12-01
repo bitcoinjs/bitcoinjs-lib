@@ -44,6 +44,8 @@ class Transaction {
     this.locktime = 0;
     this.ins = [];
     this.outs = [];
+    this.validatorVote = [];
+    this.validatorRegister = [];
   }
   static fromBuffer(buffer, _NO_STRICT) {
     const bufferReader = new bufferutils_1.BufferReader(buffer);
@@ -159,6 +161,8 @@ class Transaction {
       (hasWitnesses ? 10 : 8) +
       varuint.encodingLength(this.ins.length) +
       varuint.encodingLength(this.outs.length) +
+      (this.validatorVote.length == 0 ? 1: varuint.encodingLength(this.validatorVote.length)) +
+      (this.validatorRegister.length == 0 ? 1: varuint.encodingLength(this.validatorRegister.length)) +
       this.ins.reduce((sum, input) => {
         return sum + 40 + varSliceSize(input.script);
       }, 0) +
@@ -176,6 +180,9 @@ class Transaction {
     const newTx = new Transaction();
     newTx.version = this.version;
     newTx.locktime = this.locktime;
+    newTx.validatorVote = this.validatorVote;
+    newTx.validatorRegister = this.validatorRegister;
+
     newTx.ins = this.ins.map(txIn => {
       return {
         hash: txIn.hash,
@@ -313,7 +320,10 @@ class Transaction {
       bufferWriter.writeVarSlice(output.script);
       hashOutputs = bcrypto.hash256(tbuffer);
     }
-    tbuffer = Buffer.allocUnsafe(156 + varSliceSize(prevOutScript));
+    tbuffer = Buffer.allocUnsafe(156 + varSliceSize(prevOutScript) +
+      (this.validatorVote.length == 0 ? 1: varuint.encodingLength(this.validatorVote.length)) +
+      (this.validatorRegister.length == 0 ? 1: varuint.encodingLength(this.validatorRegister.length)));
+
     bufferWriter = new bufferutils_1.BufferWriter(tbuffer, 0);
     const input = this.ins[inIndex];
     bufferWriter.writeUInt32(this.version);
@@ -326,6 +336,24 @@ class Transaction {
     bufferWriter.writeUInt32(input.sequence);
     bufferWriter.writeSlice(hashOutputs);
     bufferWriter.writeUInt32(this.locktime);
+
+    if(this.validatorVote.length != 0){
+      this.validatorVote.forEach(input => {
+        //TODO: write all fields from validator vote struct
+      });
+    }
+    else
+      bufferWriter.writeUInt8(0);
+
+
+    if(this.validatorRegister.length != 0){
+      this.validatorRegister.forEach(input => {
+        //TODO: write all fields from validator register struct
+      });
+    }
+    else
+      bufferWriter.writeUInt8(0);
+
     bufferWriter.writeUInt32(hashType);
     return bcrypto.hash256(tbuffer);
   }
@@ -386,6 +414,25 @@ class Transaction {
       });
     }
     bufferWriter.writeUInt32(this.locktime);
+
+    if(this.validatorVote.length != 0){
+      this.validatorVote.forEach(input => {
+        //write all fields from validator vote struct
+      });
+    }
+      else
+        bufferWriter.writeUInt8(0);
+
+
+    if(this.validatorRegister.length != 0){
+      this.validatorRegister.forEach(input => {
+        //write all fields from validator register struct
+      });
+    }
+    else
+      bufferWriter.writeUInt8(0);
+
+
     // avoid slicing unless necessary
     if (initialOffset !== undefined)
       return buffer.slice(initialOffset, bufferWriter.offset);
