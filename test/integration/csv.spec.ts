@@ -1,9 +1,12 @@
 import * as assert from 'assert';
 import { PsbtInput } from 'bip174/src/lib/interfaces';
-import { ECPair } from 'ecpair';
+import ECPairFactory from 'ecpair';
+import * as ecc from 'tiny-secp256k1';
 import { before, describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
+
+const ECPair = ECPairFactory(ecc);
 const regtest = regtestUtils.network;
 const bip68 = require('bip68');
 const varuint = require('varuint-bitcoin');

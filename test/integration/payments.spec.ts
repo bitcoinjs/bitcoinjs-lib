@@ -1,7 +1,10 @@
-import { ECPair } from 'ecpair';
+import ECPairFactory from 'ecpair';
+import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
+
+const ECPair = ECPairFactory(ecc);
 const NETWORK = regtestUtils.network;
 const keyPairs = [
   ECPair.makeRandom({ network: NETWORK }),
