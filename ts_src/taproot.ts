@@ -181,5 +181,5 @@ function serializeScript(s: Buffer): Buffer {
 
 // todo: do not use ecc
 function pointAddScalar(P: Buffer, h: Buffer): Buffer {
-  return ecc.pointAddScalar(P, h);
+  return NBuffer.from(ecc.pointAddScalar(P, h));
 }
