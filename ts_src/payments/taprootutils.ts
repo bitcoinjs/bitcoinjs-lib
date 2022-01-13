@@ -36,9 +36,17 @@ export interface HashTree {
   right?: HashTree;
 }
 
-export function toHashTree(scripts: TaprootLeaf[]): HashTree {
-  if (scripts.length === 1) {
-    const script = scripts[0];
+/**
+ * Build the hash tree from the scripts binary tree.
+ * The binary tree can be balanced or not.
+ * @param scriptsTree - is a list representing a binary tree where an element can be:
+ *  - a taproot leaf [(output, version)], or
+ *  - a pair of two taproot leafs [(output, version), (output, version)], or
+ *  - one taproot leaf and a list of elements
+ */
+export function toHashTree(scriptsTree: TaprootLeaf[]): HashTree {
+  if (scriptsTree.length === 1) {
+    const script = scriptsTree[0];
     if (Array.isArray(script)) {
       return toHashTree(script);
     }
@@ -50,10 +58,9 @@ export function toHashTree(scripts: TaprootLeaf[]): HashTree {
       hash: tapLeafHash(script.output, script.version),
     };
   }
-  // todo: this is a binary tree, use zero an one index
-  const half = Math.trunc(scripts.length / 2);
-  const left = toHashTree(scripts.slice(0, half));
-  const right = toHashTree(scripts.slice(half));
+
+  const left = toHashTree([scriptsTree[0]]);
+  const right = toHashTree([scriptsTree[1]]);
 
   let leftHash = left.hash;
   let rightHash = right.hash;
@@ -67,6 +74,12 @@ export function toHashTree(scripts: TaprootLeaf[]): HashTree {
   };
 }
 
+/**
+ * Given a MAST tree, it finds the path of a particular hash.
+ * @param node - the root of the tree
+ * @param hash - the hash to search for
+ * @returns - and array of hashes representing the path, or an empty array if no pat is found
+ */
 export function findScriptPath(node: HashTree, hash: Buffer): Buffer[] {
   if (node.left) {
     if (node.left.hash.equals(hash)) return node.right ? [node.right.hash] : [];
