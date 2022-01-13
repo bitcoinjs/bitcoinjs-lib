@@ -2,13 +2,9 @@ import { Buffer as NBuffer } from 'buffer';
 
 export const typeforce = require('typeforce');
 
-export const ZERO32 = NBuffer.alloc(32, 0);
-export const EC_P = NBuffer.from(
+const ZERO32 = NBuffer.alloc(32, 0);
+const EC_P = NBuffer.from(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
-  'hex',
-);
-export const GROUP_ORDER = NBuffer.from(
-  'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
   'hex',
 );
 

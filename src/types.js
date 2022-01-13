@@ -1,15 +1,11 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.isPoint = exports.GROUP_ORDER = exports.EC_P = exports.ZERO32 = exports.typeforce = void 0;
+exports.oneOf = exports.Null = exports.BufferN = exports.Function = exports.UInt32 = exports.UInt8 = exports.tuple = exports.maybe = exports.Hex = exports.Buffer = exports.String = exports.Boolean = exports.Array = exports.Number = exports.Hash256bit = exports.Hash160bit = exports.Buffer256bit = exports.Network = exports.ECPoint = exports.Satoshi = exports.Signer = exports.BIP32Path = exports.UInt31 = exports.isPoint = exports.typeforce = void 0;
 const buffer_1 = require('buffer');
 exports.typeforce = require('typeforce');
-exports.ZERO32 = buffer_1.Buffer.alloc(32, 0);
-exports.EC_P = buffer_1.Buffer.from(
+const ZERO32 = buffer_1.Buffer.alloc(32, 0);
+const EC_P = buffer_1.Buffer.from(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
-  'hex',
-);
-exports.GROUP_ORDER = buffer_1.Buffer.from(
-  'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
   'hex',
 );
 function isPoint(p) {
@@ -17,14 +13,14 @@ function isPoint(p) {
   if (p.length < 33) return false;
   const t = p[0];
   const x = p.slice(1, 33);
-  if (x.compare(exports.ZERO32) === 0) return false;
-  if (x.compare(exports.EC_P) >= 0) return false;
+  if (x.compare(ZERO32) === 0) return false;
+  if (x.compare(EC_P) >= 0) return false;
   if ((t === 0x02 || t === 0x03) && p.length === 33) {
     return true;
   }
   const y = p.slice(33);
-  if (y.compare(exports.ZERO32) === 0) return false;
-  if (y.compare(exports.EC_P) >= 0) return false;
+  if (y.compare(ZERO32) === 0) return false;
+  if (y.compare(EC_P) >= 0) return false;
   if (t === 0x04 && p.length === 65) return true;
   return false;
 }

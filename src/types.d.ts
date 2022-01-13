@@ -1,9 +1,5 @@
 /// <reference types="node" />
-import { Buffer as NBuffer } from 'buffer';
 export declare const typeforce: any;
-export declare const ZERO32: NBuffer;
-export declare const EC_P: NBuffer;
-export declare const GROUP_ORDER: NBuffer;
 export declare function isPoint(p: Buffer | number | undefined | null): boolean;
 export declare function UInt31(value: number): boolean;
 export declare function BIP32Path(value: string): boolean;
