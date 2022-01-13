@@ -1,5 +1,5 @@
 import { Network } from '../networks';
-import { TaprootLeaf } from '../types';
+import { TaprootLeaf, TinySecp256k1Interface } from '../types';
 import { p2data as embed } from './embed';
 import { p2ms } from './p2ms';
 import { p2pk } from './p2pk';
@@ -8,6 +8,7 @@ import { p2sh } from './p2sh';
 import { p2wpkh } from './p2wpkh';
 import { p2wsh } from './p2wsh';
 import { p2tr } from './p2tr';
+import { testEcc } from './testecc';
 
 export interface Payment {
   name?: string;
@@ -39,11 +40,30 @@ export interface PaymentOpts {
   allowIncomplete?: boolean;
 }
 
+export interface PaymentAPI {
+  embed: PaymentCreator;
+  p2ms: PaymentCreator;
+  p2pk: PaymentCreator;
+  p2pkh: PaymentCreator;
+  p2sh: PaymentCreator;
+  p2wpkh: PaymentCreator;
+  p2wsh: PaymentCreator;
+  p2tr: PaymentCreator;
+}
+
 export type StackElement = Buffer | number;
 export type Stack = StackElement[];
 export type StackFunction = () => Stack;
 
-export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, p2tr };
+export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, PaymentFactory };
+
+export default function PaymentFactory(
+  ecc: TinySecp256k1Interface,
+): PaymentAPI {
+  testEcc(ecc);
+
+  return { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, p2tr: p2tr(ecc) };
+}
 
 // TODO
 // witness commitment

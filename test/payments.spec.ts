@@ -1,16 +1,15 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import { PaymentCreator } from '../src/payments';
+import * as ecc from 'tiny-secp256k1';
+import { PaymentCreator, PaymentFactory } from '../src/payments';
 import * as u from './payments.utils';
+
+const payments = PaymentFactory(ecc);
 ['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh', 'p2tr'].forEach(p => {
   describe(p, () => {
-    let fn: PaymentCreator;
-    const payment = require('../src/payments/' + p);
-    if (p === 'embed') {
-      fn = payment.p2data;
-    } else {
-      fn = payment[p];
-    }
+    //@ts-ignore
+    const fn: PaymentCreator = payments[p];
+
     const fixtures = require('./fixtures/' + p);
 
     fixtures.valid.forEach((f: any) => {

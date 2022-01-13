@@ -1,88 +1,17 @@
 import { Buffer as NBuffer } from 'buffer';
-const BN = require('bn.js');
-
 import * as bcrypto from './crypto';
+
 // todo: use varuint-bitcoin??
 import * as varuint from 'bip174/src/lib/converter/varint';
-import {
-  TweakedPublicKey,
-  TaprootLeaf,
-  ZERO32,
-  EC_P,
-  GROUP_ORDER,
-} from './types';
+import { TaprootLeaf } from './types';
 
 // todo: !!!Temp, to be replaced. Only works because bip32 has it as dependecy. Linting will fail.
-const ecc = require('tiny-secp256k1');
+// const ecc = require('tiny-secp256k1');
 
 const LEAF_VERSION_TAPSCRIPT = 0xc0;
-const TAP_LEAF_TAG ='TapLeaf';
-const TAP_BRANCH_TAG ='TapBranch';
-const TAP_TWEAK_TAG ='TapTweak';
-
-const EC_P_BN = new BN(EC_P);
-const EC_P_REDUCTION = BN.red(EC_P_BN);
-const EC_P_QUADRATIC_RESIDUE = EC_P_BN.addn(1).divn(4);
-const BN_2 = new BN(2);
-const BN_3 = new BN(3);
-const BN_7 = new BN(7);
-
-export function liftX(buffer: Buffer): Buffer | null {
-  if (!NBuffer.isBuffer(buffer)) return null;
-  if (buffer.length !== 32) return null;
-
-  if (buffer.compare(ZERO32) === 0) return null;
-  if (buffer.compare(EC_P) >= 0) return null;
-
-  const x = new BN(buffer);
-
-  const x1 = x.toRed(EC_P_REDUCTION);
-  const ySq = x1
-    .redPow(BN_3)
-    .add(BN_7)
-    .mod(EC_P_BN);
-
-  const y = ySq.redPow(EC_P_QUADRATIC_RESIDUE);
-
-  if (!ySq.eq(y.redPow(BN_2))) {
-    return null;
-  }
-  const y1 = y.isEven() ? y : EC_P_BN.sub(y);
-
-  return NBuffer.concat([
-    NBuffer.from([0x04]),
-    NBuffer.from(x1.toBuffer('be', 32)),
-    NBuffer.from(y1.toBuffer('be', 32)),
-  ]);
-}
-
-export function tweakKey(
-  pubKey: Buffer,
-  h: Buffer | undefined,
-): TweakedPublicKey | null {
-  if (!NBuffer.isBuffer(pubKey)) return null;
-  if (pubKey.length !== 32) return null;
-  if (h && h.length !== 32) return null;
-
-  const tweakHash = bcrypto.taggedHash(
-    TAP_TWEAK_TAG,
-    NBuffer.concat(h ? [pubKey, h] : [pubKey]),
-  );
-
-  if (tweakHash.compare(GROUP_ORDER) >= 0) {
-    // todo: add test for this case
-    throw new TypeError('Tweak value over the SECP256K1 Order');
-  }
-
-  const P = liftX(pubKey);
-  if (P === null) return null;
-
-  const Q = pointAddScalar(P, tweakHash);
-  return {
-    parity: Q[64] % 2,
-    x: Q.slice(1, 33),
-  };
-}
+const TAP_LEAF_TAG = 'TapLeaf';
+const TAP_BRANCH_TAG = 'TapBranch';
+const TAP_TWEAK_TAG = 'TapTweak';
 
 export function rootHashFromPath(
   controlBlock: Buffer,
@@ -172,14 +101,16 @@ function tapBranchHash(a: Buffer, b: Buffer): Buffer {
   return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]));
 }
 
+export function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer {
+  return bcrypto.taggedHash(
+    TAP_TWEAK_TAG,
+    NBuffer.concat(h ? [pubKey, h] : [pubKey]),
+  );
+}
+
 function serializeScript(s: Buffer): Buffer {
   const varintLen = varuint.encodingLength(s.length);
   const buffer = NBuffer.allocUnsafe(varintLen); // better
   varuint.encode(s.length, buffer);
   return NBuffer.concat([buffer, s]);
-}
-
-// todo: do not use ecc
-function pointAddScalar(P: Buffer, h: Buffer): Buffer {
-  return NBuffer.from(ecc.pointAddScalar(P, h));
 }

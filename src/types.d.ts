@@ -14,13 +14,17 @@ export declare function Signer(obj: any): boolean;
 export declare function Satoshi(value: number): boolean;
 export declare const ECPoint: any;
 export declare const Network: any;
-export interface TweakedPublicKey {
-    parity: number;
-    x: Buffer;
+export interface XOnlyPointAddTweakResult {
+    parity: 1 | 0;
+    xOnlyPubkey: Uint8Array;
 }
 export interface TaprootLeaf {
     output: Buffer;
     version?: number;
+}
+export interface TinySecp256k1Interface {
+    isXOnlyPoint(p: Uint8Array): boolean;
+    xOnlyPointAddTweak(p: Uint8Array, tweak: Uint8Array): XOnlyPointAddTweakResult | null;
 }
 export declare const Buffer256bit: any;
 export declare const Hash160bit: any;

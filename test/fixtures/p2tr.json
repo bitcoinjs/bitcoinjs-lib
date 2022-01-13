@@ -898,7 +898,7 @@
       }
     },
     {
-      "exception": "Invalid internalPubkey for p2t",
+      "exception": "Expected Point",
       "options": {},
       "arguments": {
         "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f8"

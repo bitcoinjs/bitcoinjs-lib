@@ -71,14 +71,21 @@ export const Network = typeforce.compile({
   wif: typeforce.UInt8,
 });
 
-export interface TweakedPublicKey {
-  parity: number;
-  x: Buffer;
+export interface XOnlyPointAddTweakResult {
+  parity: 1 | 0;
+  xOnlyPubkey: Uint8Array;
 }
 
 export interface TaprootLeaf {
   output: Buffer;
   version?: number;
+}
+export interface TinySecp256k1Interface {
+  isXOnlyPoint(p: Uint8Array): boolean;
+  xOnlyPointAddTweak(
+    p: Uint8Array,
+    tweak: Uint8Array,
+  ): XOnlyPointAddTweakResult | null;
 }
 
 export const Buffer256bit = typeforce.BufferN(32);
