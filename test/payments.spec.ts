@@ -8,7 +8,7 @@ const payments = PaymentFactory(ecc);
 ['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh', 'p2tr'].forEach(
   p => {
     describe(p, () => {
-      //@ts-ignore
+      // @ts-ignore
       const fn: PaymentCreator = payments[p];
 
       const fixtures = require('./fixtures/' + p);

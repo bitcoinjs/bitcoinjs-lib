@@ -78,9 +78,6 @@ function tapLeafHash(script, version) {
   );
 }
 exports.tapLeafHash = tapLeafHash;
-function tapBranchHash(a, b) {
-  return bcrypto.taggedHash(TAP_BRANCH_TAG, buffer_1.Buffer.concat([a, b]));
-}
 function tapTweakHash(pubKey, h) {
   return bcrypto.taggedHash(
     TAP_TWEAK_TAG,
@@ -88,6 +85,9 @@ function tapTweakHash(pubKey, h) {
   );
 }
 exports.tapTweakHash = tapTweakHash;
+function tapBranchHash(a, b) {
+  return bcrypto.taggedHash(TAP_BRANCH_TAG, buffer_1.Buffer.concat([a, b]));
+}
 function serializeScript(s) {
   const varintLen = bufferutils_1.varuint.encodingLength(s.length);
   const buffer = buffer_1.Buffer.allocUnsafe(varintLen); // better
