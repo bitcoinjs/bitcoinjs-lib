@@ -51,7 +51,6 @@
   "dependencies": {
     "bech32": "^2.0.0",
     "bip174": "^2.0.1",
-    "bn.js": "^5.2.0",
     "bs58check": "^2.1.2",
     "create-hash": "^1.1.0",
     "ripemd160": "^2.0.2",
