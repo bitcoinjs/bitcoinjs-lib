@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { TaprootLeaf } from './types';
+import { TaprootLeaf } from '../types';
 export declare function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer;
 export interface HashTree {
     hash: Buffer;

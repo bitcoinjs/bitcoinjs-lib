@@ -8,12 +8,12 @@ import {
   findScriptPath,
   tapLeafHash,
   tapTweakHash,
-} from '../taproot';
+} from './taprootutils';
 import { Payment, PaymentOpts, PaymentCreator } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';
-const OPS = bscript.OPS;
 
+const OPS = bscript.OPS;
 const TAPROOT_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
 
