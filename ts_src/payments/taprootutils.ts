@@ -93,15 +93,15 @@ export function tapLeafHash(script: Buffer, version?: number): Buffer {
   );
 }
 
-function tapBranchHash(a: Buffer, b: Buffer): Buffer {
-  return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]));
-}
-
 export function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer {
   return bcrypto.taggedHash(
     TAP_TWEAK_TAG,
     NBuffer.concat(h ? [pubKey, h] : [pubKey]),
   );
+}
+
+function tapBranchHash(a: Buffer, b: Buffer): Buffer {
+  return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]));
 }
 
 function serializeScript(s: Buffer): Buffer {
