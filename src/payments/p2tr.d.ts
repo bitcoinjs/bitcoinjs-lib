@@ -1,3 +1,3 @@
 import { TinySecp256k1Interface } from '../types';
-import { PaymentCreator } from './index';
-export declare function p2tr(ecc: TinySecp256k1Interface): PaymentCreator;
+import { Payment, PaymentOpts } from './index';
+export declare function p2tr(a: Payment, opts?: PaymentOpts, eccLib?: TinySecp256k1Interface): Payment;
