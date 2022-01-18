@@ -41,6 +41,7 @@ export type PaymentFunction = () => Payment;
 export interface PaymentOpts {
   validate?: boolean;
   allowIncomplete?: boolean;
+  eccLib?: TinySecp256k1Interface;
 }
 
 export type StackElement = Buffer | number;

@@ -21,9 +21,10 @@ import { TinySecp256k1Interface } from '../src/types';
       const fixtures = require('./fixtures/' + p);
 
       fixtures.valid.forEach((f: any) => {
+        const options = Object.assign({ eccLib }, f.options || {});
         it(f.description + ' as expected', () => {
           const args = u.preform(f.arguments);
-          const actual = fn(args, f.options, eccLib);
+          const actual = fn(args, options, eccLib);
 
           u.equate(actual, f.expected, f.arguments);
         });
@@ -32,7 +33,7 @@ import { TinySecp256k1Interface } from '../src/types';
           const args = u.preform(f.arguments);
           const actual = fn(
             args,
-            Object.assign({}, f.options, {
+            Object.assign({}, options, {
               validate: false,
             }),
             eccLib,
@@ -43,6 +44,7 @@ import { TinySecp256k1Interface } from '../src/types';
       });
 
       fixtures.invalid.forEach((f: any) => {
+        const options = Object.assign({ eccLib }, f.options || {});
         it(
           'throws ' +
             f.exception +
@@ -51,7 +53,7 @@ import { TinySecp256k1Interface } from '../src/types';
             const args = u.preform(f.arguments);
 
             assert.throws(() => {
-              fn(args, f.options, eccLib);
+              fn(args, options, eccLib);
             }, new RegExp(f.exception));
           },
         );

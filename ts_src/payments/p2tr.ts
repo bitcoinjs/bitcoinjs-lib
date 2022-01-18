@@ -18,11 +18,7 @@ const OPS = bscript.OPS;
 const TAPROOT_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
 
-export function p2tr(
-  a: Payment,
-  opts?: PaymentOpts,
-  eccLib?: TinySecp256k1Interface,
-): Payment {
+export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.address &&
     !a.output &&
@@ -36,10 +32,10 @@ export function p2tr(
   opts = Object.assign({ validate: true }, opts || {});
 
   const _ecc = lazy.value(() => {
-    if (!eccLib) throw new Error('ECC Library is missing for p2tr.');
+    if (!opts!.eccLib) throw new Error('ECC Library is missing for p2tr.');
 
-    testEcc(eccLib);
-    return eccLib;
+    testEcc(opts!.eccLib);
+    return opts!.eccLib;
   });
 
   typef(

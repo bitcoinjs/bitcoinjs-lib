@@ -12,7 +12,7 @@ const testecc_1 = require('./testecc');
 const OPS = bscript.OPS;
 const TAPROOT_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
-function p2tr(a, opts, eccLib) {
+function p2tr(a, opts) {
   if (
     !a.address &&
     !a.output &&
@@ -24,9 +24,9 @@ function p2tr(a, opts, eccLib) {
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
   const _ecc = lazy.value(() => {
-    if (!eccLib) throw new Error('ECC Library is missing for p2tr.');
-    (0, testecc_1.testEcc)(eccLib);
-    return eccLib;
+    if (!opts.eccLib) throw new Error('ECC Library is missing for p2tr.');
+    (0, testecc_1.testEcc)(opts.eccLib);
+    return opts.eccLib;
   });
   (0, types_1.typeforce)(
     {
