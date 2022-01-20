@@ -29,7 +29,7 @@ export interface Payment {
     scriptLeaf?: TaprootLeaf;
     witness?: Buffer[];
 }
-export declare type PaymentCreator = (a: Payment, opts?: PaymentOpts, eccLib?: TinySecp256k1Interface) => Payment;
+export declare type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;
 export declare type PaymentFunction = () => Payment;
 export interface PaymentOpts {
     validate?: boolean;

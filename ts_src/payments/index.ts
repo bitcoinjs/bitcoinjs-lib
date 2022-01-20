@@ -30,11 +30,7 @@ export interface Payment {
   witness?: Buffer[];
 }
 
-export type PaymentCreator = (
-  a: Payment,
-  opts?: PaymentOpts,
-  eccLib?: TinySecp256k1Interface,
-) => Payment;
+export type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;
 
 export type PaymentFunction = () => Payment;
 

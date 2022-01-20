@@ -24,7 +24,7 @@ import { TinySecp256k1Interface } from '../src/types';
         const options = Object.assign({ eccLib }, f.options || {});
         it(f.description + ' as expected', () => {
           const args = u.preform(f.arguments);
-          const actual = fn(args, options, eccLib);
+          const actual = fn(args, options);
 
           u.equate(actual, f.expected, f.arguments);
         });
@@ -36,7 +36,6 @@ import { TinySecp256k1Interface } from '../src/types';
             Object.assign({}, options, {
               validate: false,
             }),
-            eccLib,
           );
 
           u.equate(actual, f.expected, f.arguments);
@@ -53,7 +52,7 @@ import { TinySecp256k1Interface } from '../src/types';
             const args = u.preform(f.arguments);
 
             assert.throws(() => {
-              fn(args, options, eccLib);
+              fn(args, options);
             }, new RegExp(f.exception));
           },
         );
