@@ -1,3 +1,6 @@
+import * as ecc from 'tiny-secp256k1'; // TODO: extract
+import { ECPairFactory } from 'ecpair';
+
 import { Psbt as PsbtBase } from 'bip174';
 import * as varuint from 'bip174/src/lib/converter/varint';
 import {
@@ -20,6 +23,7 @@ import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
+import { tapTweakHash } from './payments/taprootutils';
 
 export interface TransactionInput {
   hash: string | Buffer;
@@ -112,6 +116,39 @@ export class Psbt {
     const psbt = new Psbt(opts, psbtBase);
     checkTxForDupeIns(psbt.__CACHE.__TX, psbt.__CACHE);
     return psbt;
+  }
+
+  /**
+   * Helper method for converting a normal Signer into a Taproot Signer.
+   * Note that this helper method requires the Private Key of the Signer to be present.
+   * Steps:
+   *  - if the Y coordinate of the Signer Public Key is odd then negate the Private Key
+   *  - tweak the private key with the provided hash (should be empty for key-path spending)
+   * @param signer - a taproot signer object, the Private Key must be present
+   * @param opts - tweak options
+   * @returns a Signer having the Private and Public keys tweaked
+   */
+  static tweakSigner(signer: Signer, opts: TaprootSignerOpts = {}): Signer {
+    let privateKey: Uint8Array | undefined = signer.privateKey;
+    if (!privateKey) {
+      throw new Error('Private key is required for tweaking signer!');
+    }
+    if (signer.publicKey[0] === 3) {
+      privateKey = ecc.privateNegate(privateKey!);
+    }
+
+    const tweakedPrivateKey = ecc.privateAdd(
+      privateKey,
+      tapTweakHash(signer.publicKey.slice(1, 33), opts.tweakHash),
+    );
+    if (!tweakedPrivateKey) {
+      throw new Error('Invalid tweaked private key!');
+    }
+
+    const ECPair = ECPairFactory(ecc);
+    return ECPair.fromPrivateKey(Buffer.from(tweakedPrivateKey), {
+      network: opts.network,
+    });
   }
 
   private __CACHE: PsbtCache;
@@ -378,7 +415,11 @@ export class Psbt {
 
   getInputType(inputIndex: number): AllScriptType {
     const input = checkForInput(this.data.inputs, inputIndex);
-    const script = getScriptFromUtxo(inputIndex, input, this.__CACHE);
+    const { script } = getScriptAndAmountFromUtxo(
+      inputIndex,
+      input,
+      this.__CACHE,
+    );
     const result = getMeaningfulScript(
       script,
       inputIndex,
@@ -445,13 +486,23 @@ export class Psbt {
     let hashCache: Buffer;
     let scriptCache: Buffer;
     let sighashCache: number;
+    const scriptType = this.getInputType(inputIndex);
+
     for (const pSig of mySigs) {
-      const sig = bscript.signature.decode(pSig.signature);
+      const sig =
+        scriptType === 'taproot'
+          ? {
+              signature: pSig.signature,
+              hashType: Transaction.SIGHASH_DEFAULT,
+            }
+          : bscript.signature.decode(pSig.signature);
+
       const { hash, script } =
         sighashCache! !== sig.hashType
           ? getHashForSig(
               inputIndex,
               Object.assign({}, input, { sighashType: sig.hashType }),
+              this.data.inputs,
               this.__CACHE,
               true,
             )
@@ -642,14 +693,32 @@ export class Psbt {
       sighashTypes,
     );
 
-    const partialSig = [
-      {
-        pubkey: keyPair.publicKey,
-        signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
-      },
-    ];
+    const scriptType = this.getInputType(inputIndex);
 
-    this.data.updateInput(inputIndex, { partialSig });
+    if (scriptType === 'taproot') {
+      if (!keyPair.signSchnorr) {
+        throw new Error(
+          `Need Schnorr Signer to sign taproot input #${inputIndex}.`,
+        );
+      }
+      const partialSig = [
+        {
+          pubkey: keyPair.publicKey,
+          signature: keyPair.signSchnorr!(hash),
+        },
+      ];
+      // must be changed to use the `updateInput()` public API
+      this.data.inputs[inputIndex].partialSig = partialSig;
+    } else {
+      const partialSig = [
+        {
+          pubkey: keyPair.publicKey,
+          signature: bscript.signature.encode(keyPair.sign(hash), sighashType),
+        },
+      ];
+      this.data.updateInput(inputIndex, { partialSig });
+    }
+
     return this;
   }
 
@@ -798,6 +867,7 @@ export interface HDSigner extends HDSignerBase {
    * Return a 64 byte signature (32 byte r and 32 byte s in that order)
    */
   sign(hash: Buffer): Buffer;
+  signSchnorr?(hash: Buffer): Buffer;
 }
 
 /**
@@ -806,19 +876,37 @@ export interface HDSigner extends HDSignerBase {
 export interface HDSignerAsync extends HDSignerBase {
   derivePath(path: string): HDSignerAsync;
   sign(hash: Buffer): Promise<Buffer>;
+  signSchnorr?(hash: Buffer): Promise<Buffer>;
 }
 
 export interface Signer {
   publicKey: Buffer;
+  /**
+   * Private Key is optional, it is required only if the signer must be tweaked.
+   * See the `tweakSigner()` method.
+   */
+  privateKey?: Buffer;
   network?: any;
   sign(hash: Buffer, lowR?: boolean): Buffer;
+  signSchnorr?(hash: Buffer): Buffer;
   getPublicKey?(): Buffer;
+}
+/**
+ * Options for tweaking a Signer into a valid Taproot Signer
+ */
+export interface TaprootSignerOpts {
+  network?: Network;
+  // TODO: revisit.
+  eccLib?: any;
+  /** The hash used to tweak the Signer */
+  tweakHash?: Buffer;
 }
 
 export interface SignerAsync {
   publicKey: Buffer;
   network?: any;
   sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
+  signSchnorr?(hash: Buffer): Promise<Buffer>;
   getPublicKey?(): Buffer;
 }
 
@@ -899,6 +987,7 @@ function canFinalize(
     case 'pubkey':
     case 'pubkeyhash':
     case 'witnesspubkeyhash':
+    case 'taproot':
       return hasSigs(1, input.partialSig);
     case 'multisig':
       const p2ms = payments.p2ms({ output: script });
@@ -939,10 +1028,12 @@ function isFinalized(input: PsbtInput): boolean {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }
 
-function isPaymentFactory(payment: any): (script: Buffer) => boolean {
-  return (script: Buffer): boolean => {
+function isPaymentFactory(
+  payment: any,
+): (script: Buffer, eccLib?: any) => boolean {
+  return (script: Buffer, eccLib?: any): boolean => {
     try {
-      payment({ output: script });
+      payment({ output: script }, { eccLib });
       return true;
     } catch (err) {
       return false;
@@ -955,6 +1046,7 @@ const isP2PKH = isPaymentFactory(payments.p2pkh);
 const isP2WPKH = isPaymentFactory(payments.p2wpkh);
 const isP2WSHScript = isPaymentFactory(payments.p2wsh);
 const isP2SHScript = isPaymentFactory(payments.p2sh);
+const isP2TR = isPaymentFactory(payments.p2tr);
 
 function bip32DerivationIsMine(
   root: HDSigner,
@@ -1227,6 +1319,7 @@ function getHashAndSighashType(
   const { hash, sighashType, script } = getHashForSig(
     inputIndex,
     input,
+    inputs,
     cache,
     false,
     sighashTypes,
@@ -1241,6 +1334,7 @@ function getHashAndSighashType(
 function getHashForSig(
   inputIndex: number,
   input: PsbtInput,
+  inputs: PsbtInput[],
   cache: PsbtCache,
   forValidate: boolean,
   sighashTypes?: number[],
@@ -1311,6 +1405,19 @@ function getHashForSig(
       prevout.value,
       sighashType,
     );
+  } else if (isP2TR(meaningfulScript, ecc)) {
+    const prevOuts: Output[] = inputs.map((i, index) =>
+      getScriptAndAmountFromUtxo(index, i, cache),
+    );
+    const signingScripts: any = prevOuts.map(o => o.script);
+    const values: any = prevOuts.map(o => o.value);
+
+    hash = unsignedTx.hashForWitnessV1(
+      inputIndex,
+      signingScripts,
+      values,
+      Transaction.SIGHASH_DEFAULT,
+    );
   } else {
     // non-segwit
     if (
@@ -1379,6 +1486,15 @@ function getPayment(
         signature: partialSig[0].signature,
       });
       break;
+    case 'taproot':
+      payment = payments.p2tr(
+        {
+          output: script,
+          signature: partialSig[0].signature,
+        },
+        { eccLib: ecc },
+      );
+      break;
   }
   return payment!;
 }
@@ -1435,7 +1551,12 @@ function getScriptFromInput(
       res.script = input.witnessUtxo.script;
     }
   }
-  if (input.witnessScript || isP2WPKH(res.script!)) {
+
+  if (
+    input.witnessScript ||
+    isP2WPKH(res.script!) ||
+    isP2TR(res.script!, ecc)
+  ) {
     res.isSegwit = true;
   }
   return res;
@@ -1651,20 +1772,24 @@ function nonWitnessUtxoTxFromCache(
   return c[inputIndex];
 }
 
-function getScriptFromUtxo(
+function getScriptAndAmountFromUtxo(
   inputIndex: number,
   input: PsbtInput,
   cache: PsbtCache,
-): Buffer {
+): { script: Buffer; value: number } {
   if (input.witnessUtxo !== undefined) {
-    return input.witnessUtxo.script;
+    return {
+      script: input.witnessUtxo.script,
+      value: input.witnessUtxo.value,
+    };
   } else if (input.nonWitnessUtxo !== undefined) {
     const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
       cache,
       input,
       inputIndex,
     );
-    return nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index].script;
+    const o = nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index];
+    return { script: o.script, value: o.value };
   } else {
     throw new Error("Can't find pubkey in input without Utxo data");
   }
@@ -1676,7 +1801,7 @@ function pubkeyInInput(
   inputIndex: number,
   cache: PsbtCache,
 ): boolean {
-  const script = getScriptFromUtxo(inputIndex, input, cache);
+  const { script } = getScriptAndAmountFromUtxo(inputIndex, input, cache);
   const { meaningfulScript } = getMeaningfulScript(
     script,
     inputIndex,
@@ -1810,13 +1935,18 @@ function checkInvalidP2WSH(script: Buffer): void {
 
 function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean {
   const pubkeyHash = hash160(pubkey);
+  const pubkeyXOnly = pubkey.slice(1, 33);
 
   const decompiled = bscript.decompile(script);
   if (decompiled === null) throw new Error('Unknown script error');
 
   return decompiled.some(element => {
     if (typeof element === 'number') return false;
-    return element.equals(pubkey) || element.equals(pubkeyHash);
+    return (
+      element.equals(pubkey) ||
+      element.equals(pubkeyHash) ||
+      element.equals(pubkeyXOnly)
+    );
   });
 }
 
@@ -1825,6 +1955,7 @@ type AllScriptType =
   | 'pubkeyhash'
   | 'multisig'
   | 'pubkey'
+  | 'taproot'
   | 'nonstandard'
   | 'p2sh-witnesspubkeyhash'
   | 'p2sh-pubkeyhash'
@@ -1844,12 +1975,14 @@ type ScriptType =
   | 'pubkeyhash'
   | 'multisig'
   | 'pubkey'
+  | 'taproot'
   | 'nonstandard';
 function classifyScript(script: Buffer): ScriptType {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
   if (isP2PKH(script)) return 'pubkeyhash';
   if (isP2MS(script)) return 'multisig';
   if (isP2PK(script)) return 'pubkey';
+  if (isP2TR(script, ecc)) return 'taproot';
   return 'nonstandard';
 }
 

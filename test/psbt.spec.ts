@@ -18,6 +18,12 @@ const validator = (
   signature: Buffer,
 ): boolean => ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
+const schnorrValidator = (
+  pubkey: Buffer,
+  msghash: Buffer,
+  signature: Buffer,
+): boolean => ECPair.fromPublicKey(pubkey).verifySchnorr(msghash, signature);
+
 const initBuffers = (object: any): typeof preFixtures =>
   JSON.parse(JSON.stringify(object), (_, value) => {
     const regex = new RegExp(/^Buffer.from\(['"](.*)['"], ['"](.*)['"]\)$/);
@@ -952,6 +958,36 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('validateSignaturesOfTaprootInput', () => {
+    const f = fixtures.validateSignaturesOfTaprootInput;
+    it('Correctly validates a signature', () => {
+      const psbt = Psbt.fromBase64(f.psbt);
+      assert.strictEqual(
+        psbt.validateSignaturesOfInput(f.index, schnorrValidator),
+        true,
+      );
+    });
+
+    it('Correctly validates a signature against a pubkey', () => {
+      const psbt = Psbt.fromBase64(f.psbt);
+      assert.strictEqual(
+        psbt.validateSignaturesOfInput(
+          f.index,
+          schnorrValidator,
+          f.pubkey as any,
+        ),
+        true,
+      );
+      assert.throws(() => {
+        psbt.validateSignaturesOfInput(
+          f.index,
+          schnorrValidator,
+          f.incorrectPubkey as any,
+        );
+      }, new RegExp('No signatures for this pubkey'));
+    });
+  });
+
   describe('getFeeRate', () => {
     it('Throws error if called before inputs are finalized', () => {
       const f = fixtures.getFeeRate;
@@ -966,6 +1002,35 @@ describe(`Psbt`, () => {
       assert.strictEqual(psbt.getFeeRate(), f.fee);
       (psbt as any).__CACHE.__FEE_RATE = undefined;
       assert.strictEqual(psbt.getFeeRate(), f.fee);
+    });
+  });
+
+  describe('tweakSigner', () => {
+    it('Throws error if signer is missing private key', () => {
+      const keyPair = Object.assign({}, ECPair.makeRandom(), {
+        privateKey: null,
+      });
+      assert.throws(() => {
+        Psbt.tweakSigner(keyPair);
+      }, new RegExp('Private key is required for tweaking signer!'));
+    });
+
+    it('Correctly creates tweaked signer', () => {
+      const keyPair = ECPair.fromPrivateKey(
+        Buffer.from(
+          'accaf12e04e11b08fc28f5fe75b47ea663843b698981e31f1cafa2224d6e28c0',
+          'hex',
+        ),
+      );
+      const tweakedSigner: Signer = Psbt.tweakSigner(keyPair);
+      assert.strictEqual(
+        '029421e734b0f9d2c467ea7dd197c61acb4467cdcbc9f4cb0c571f8b63a5c40cae',
+        tweakedSigner.publicKey.toString('hex'),
+      );
+      assert.strictEqual(
+        '1853f5034982ec659e015873a0a958a73eac785850f425fd3444b12430d58692',
+        tweakedSigner.privateKey!.toString('hex'),
+      );
     });
   });
 

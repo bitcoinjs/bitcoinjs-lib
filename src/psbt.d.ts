@@ -56,6 +56,17 @@ export declare class Psbt {
     static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromBuffer(buffer: Buffer, opts?: PsbtOptsOptional): Psbt;
+    /**
+     * Helper method for converting a normal Signer into a Taproot Signer.
+     * Note that this helper method requires the Private Key of the Signer to be present.
+     * Steps:
+     *  - if the Y coordinate of the Signer Public Key is odd then negate the Private Key
+     *  - tweak the private key with the provided hash (should be empty for key-path spending)
+     * @param signer - a taproot signer object, the Private Key must be present
+     * @param opts - tweak options
+     * @returns a Signer having the Private and Public keys tweaked
+     */
+    static tweakSigner(signer: Signer, opts?: TaprootSignerOpts): Signer;
     private __CACHE;
     private opts;
     constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
@@ -143,6 +154,7 @@ export interface HDSigner extends HDSignerBase {
      * Return a 64 byte signature (32 byte r and 32 byte s in that order)
      */
     sign(hash: Buffer): Buffer;
+    signSchnorr?(hash: Buffer): Buffer;
 }
 /**
  * Same as above but with async sign method
@@ -150,17 +162,34 @@ export interface HDSigner extends HDSignerBase {
 export interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Buffer): Promise<Buffer>;
+    signSchnorr?(hash: Buffer): Promise<Buffer>;
 }
 export interface Signer {
     publicKey: Buffer;
+    /**
+     * Private Key is optional, it is required only if the signer must be tweaked.
+     * See the `tweakSigner()` method.
+     */
+    privateKey?: Buffer;
     network?: any;
     sign(hash: Buffer, lowR?: boolean): Buffer;
+    signSchnorr?(hash: Buffer): Buffer;
     getPublicKey?(): Buffer;
+}
+/**
+ * Options for tweaking a Signer into a valid Taproot Signer
+ */
+export interface TaprootSignerOpts {
+    network?: Network;
+    eccLib?: any;
+    /** The hash used to tweak the Signer */
+    tweakHash?: Buffer;
 }
 export interface SignerAsync {
     publicKey: Buffer;
     network?: any;
     sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
+    signSchnorr?(hash: Buffer): Promise<Buffer>;
     getPublicKey?(): Buffer;
 }
 /**
@@ -178,5 +207,5 @@ isP2WSH: boolean) => {
     finalScriptSig: Buffer | undefined;
     finalScriptWitness: Buffer | undefined;
 };
-declare type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
+declare type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'taproot' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
 export {};
