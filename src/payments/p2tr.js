@@ -37,7 +37,7 @@ function p2tr(a, opts) {
       internalPubkey: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
       hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
       pubkey: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
-      signature: types_1.typeforce.maybe(bscript.isCanonicalScriptSignature),
+      signature: types_1.typeforce.maybe(types_1.typeforce.BufferN(64)),
       witness: types_1.typeforce.maybe(
         types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
       ),

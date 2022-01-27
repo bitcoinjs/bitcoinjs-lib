@@ -47,7 +47,7 @@
       "description": "address, output and witness from pubkey and signature",
       "arguments": {
         "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
-        "signature": "300602010002010001"
+        "signature": "a251221c339a7129dd0b769698aca40d8d9da9570ab796a1820b91ab7dbf5acbea21c88ba8f1e9308a21729baf080734beaf97023882d972f75e380d480fd704"
       },
       "expected": {
         "name": "p2tr",
@@ -55,7 +55,7 @@
         "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
         "input": null,
         "witness": [
-          "300602010002010001"
+          "a251221c339a7129dd0b769698aca40d8d9da9570ab796a1820b91ab7dbf5acbea21c88ba8f1e9308a21729baf080734beaf97023882d972f75e380d480fd704"
         ]
       }
     },
@@ -908,9 +908,9 @@
       "exception": "Signature mismatch",
       "arguments": {
         "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
-        "signature": "300602010002010002",
+        "signature": "a251221c339a7129dd0b769698aca40d8d9da9570ab796a1820b91ab7dbf5acbea21c88ba8f1e9308a21729baf080734beaf97023882d972f75e380d480fd704",
         "witness": [
-          "300602010002010001"
+          "607b8b5b5c8614757736e3d5811790636d2a8e2ea14418f8cff66b2e898b3b7536a49b7c4bc8b3227953194bf5d0548e13e3526fdb36beeefadda1ec834a0db2"
         ]
       }
     },

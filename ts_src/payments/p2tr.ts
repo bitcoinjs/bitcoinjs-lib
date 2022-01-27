@@ -47,7 +47,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       internalPubkey: typef.maybe(typef.BufferN(32)),
       hash: typef.maybe(typef.BufferN(32)),
       pubkey: typef.maybe(typef.BufferN(32)),
-      signature: typef.maybe(bscript.isCanonicalScriptSignature),
+      signature: typef.maybe(typef.BufferN(64)),
       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
       // scriptsTree: typef.maybe(typef.TaprootNode), // use merkel.isMast ?
       scriptLeaf: typef.maybe({
