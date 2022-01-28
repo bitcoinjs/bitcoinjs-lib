@@ -1,4 +1,3 @@
-import * as ecc from 'tiny-secp256k1'; // TODO: extract
 import { ECPairFactory } from 'ecpair';
 
 import { Psbt as PsbtBase } from 'bip174';
@@ -16,6 +15,8 @@ import {
   TransactionFromBuffer,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
+import { TinySecp256k1Interface as ECPairTinySecp256k1Interface } from 'ecpair';
+
 import { fromOutputScript, toOutputScript } from './address';
 import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
@@ -24,6 +25,7 @@ import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
 import { tapTweakHash } from './payments/taprootutils';
+import { TinySecp256k1Interface } from './types';
 
 export interface TransactionInput {
   hash: string | Buffer;
@@ -118,39 +120,6 @@ export class Psbt {
     return psbt;
   }
 
-  /**
-   * Helper method for converting a normal Signer into a Taproot Signer.
-   * Note that this helper method requires the Private Key of the Signer to be present.
-   * Steps:
-   *  - if the Y coordinate of the Signer Public Key is odd then negate the Private Key
-   *  - tweak the private key with the provided hash (should be empty for key-path spending)
-   * @param signer - a taproot signer object, the Private Key must be present
-   * @param opts - tweak options
-   * @returns a Signer having the Private and Public keys tweaked
-   */
-  static tweakSigner(signer: Signer, opts: TaprootSignerOpts = {}): Signer {
-    let privateKey: Uint8Array | undefined = signer.privateKey;
-    if (!privateKey) {
-      throw new Error('Private key is required for tweaking signer!');
-    }
-    if (signer.publicKey[0] === 3) {
-      privateKey = ecc.privateNegate(privateKey!);
-    }
-
-    const tweakedPrivateKey = ecc.privateAdd(
-      privateKey,
-      tapTweakHash(signer.publicKey.slice(1, 33), opts.tweakHash),
-    );
-    if (!tweakedPrivateKey) {
-      throw new Error('Invalid tweaked private key!');
-    }
-
-    const ECPair = ECPairFactory(ecc);
-    return ECPair.fromPrivateKey(Buffer.from(tweakedPrivateKey), {
-      network: opts.network,
-    });
-  }
-
   private __CACHE: PsbtCache;
   private opts: PsbtOpts;
 
@@ -174,6 +143,7 @@ export class Psbt {
       // We will disable exporting the Psbt when unsafe sign is active.
       // because it is not BIP174 compliant.
       __UNSAFE_SIGN_NONSEGWIT: false,
+      __EC_LIB: opts.eccLib,
     };
     if (this.data.inputs.length === 0) this.setVersion(2);
 
@@ -380,10 +350,7 @@ export class Psbt {
     return this;
   }
 
-  finalizeInput(
-    inputIndex: number,
-    finalScriptsFunc: FinalScriptsFunc = getFinalScripts,
-  ): this {
+  finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this {
     const input = checkForInput(this.data.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
@@ -394,13 +361,15 @@ export class Psbt {
 
     checkPartialSigSighashes(input);
 
-    const { finalScriptSig, finalScriptWitness } = finalScriptsFunc(
+    const fn = finalScriptsFunc || getFinalScripts;
+    const { finalScriptSig, finalScriptWitness } = fn(
       inputIndex,
       input,
       script,
       isSegwit,
       isP2SH,
       isP2WSH,
+      this.__CACHE.__EC_LIB,
     );
 
     if (finalScriptSig) this.data.updateInput(inputIndex, { finalScriptSig });
@@ -429,7 +398,10 @@ export class Psbt {
         redeemFromFinalWitnessScript(input.finalScriptWitness),
     );
     const type = result.type === 'raw' ? '' : result.type + '-';
-    const mainType = classifyScript(result.meaningfulScript);
+    const mainType = classifyScript(
+      result.meaningfulScript,
+      this.__CACHE.__EC_LIB,
+    );
     return (type + mainType) as AllScriptType;
   }
 
@@ -810,6 +782,40 @@ export class Psbt {
   }
 }
 
+/**
+ * Helper method for converting a normal Signer into a Taproot Signer.
+ * Note that this helper method requires the Private Key of the Signer to be present.
+ * Steps:
+ *  - if the Y coordinate of the Signer Public Key is odd then negate the Private Key
+ *  - tweak the private key with the provided hash (should be empty for key-path spending)
+ * @param signer - a taproot signer object, the Private Key must be present
+ * @param opts - tweak options
+ * @returns a Signer having the Private and Public keys tweaked
+ */
+export function tweakSigner(signer: Signer, opts: TaprootSignerOpts): Signer {
+  // todo: test ecc??
+  let privateKey: Uint8Array | undefined = signer.privateKey;
+  if (!privateKey) {
+    throw new Error('Private key is required for tweaking signer!');
+  }
+  if (signer.publicKey[0] === 3) {
+    privateKey = opts.eccLib.privateNegate(privateKey!);
+  }
+
+  const tweakedPrivateKey = opts.eccLib.privateAdd(
+    privateKey,
+    tapTweakHash(signer.publicKey.slice(1, 33), opts.tweakHash),
+  );
+  if (!tweakedPrivateKey) {
+    throw new Error('Invalid tweaked private key!');
+  }
+
+  const ECPair = ECPairFactory(opts.eccLib);
+  return ECPair.fromPrivateKey(Buffer.from(tweakedPrivateKey), {
+    network: opts.network,
+  });
+}
+
 interface PsbtCache {
   __NON_WITNESS_UTXO_TX_CACHE: Transaction[];
   __NON_WITNESS_UTXO_BUF_CACHE: Buffer[];
@@ -819,11 +825,13 @@ interface PsbtCache {
   __FEE?: number;
   __EXTRACTED_TX?: Transaction;
   __UNSAFE_SIGN_NONSEGWIT: boolean;
+  __EC_LIB?: TinySecp256k1Interface;
 }
 
 interface PsbtOptsOptional {
   network?: Network;
   maximumFeeRate?: number;
+  eccLib?: TinySecp256k1Interface;
 }
 
 interface PsbtOpts {
@@ -896,8 +904,7 @@ export interface Signer {
  */
 export interface TaprootSignerOpts {
   network?: Network;
-  // TODO: revisit.
-  eccLib?: any;
+  eccLib: TinySecp256k1Interface & ECPairTinySecp256k1Interface;
   /** The hash used to tweak the Signer */
   tweakHash?: Buffer;
 }
@@ -1247,11 +1254,12 @@ function getFinalScripts(
   isSegwit: boolean,
   isP2SH: boolean,
   isP2WSH: boolean,
+  eccLib?: TinySecp256k1Interface,
 ): {
   finalScriptSig: Buffer | undefined;
   finalScriptWitness: Buffer | undefined;
 } {
-  const scriptType = classifyScript(script);
+  const scriptType = classifyScript(script, eccLib);
   if (!canFinalize(input, script, scriptType))
     throw new Error(`Can not finalize input #${inputIndex}`);
   return prepareFinalScripts(
@@ -1405,7 +1413,7 @@ function getHashForSig(
       prevout.value,
       sighashType,
     );
-  } else if (isP2TR(meaningfulScript, ecc)) {
+  } else if (isP2TR(meaningfulScript, cache.__EC_LIB)) {
     const prevOuts: Output[] = inputs.map((i, index) =>
       getScriptAndAmountFromUtxo(index, i, cache),
     );
@@ -1492,7 +1500,7 @@ function getPayment(
           output: script,
           signature: partialSig[0].signature,
         },
-        { eccLib: ecc },
+        { validate: false }, // skip validation (for now)
       );
       break;
   }
@@ -1555,7 +1563,7 @@ function getScriptFromInput(
   if (
     input.witnessScript ||
     isP2WPKH(res.script!) ||
-    isP2TR(res.script!, ecc)
+    isP2TR(res.script!, cache.__EC_LIB)
   ) {
     res.isSegwit = true;
   }
@@ -1977,12 +1985,15 @@ type ScriptType =
   | 'pubkey'
   | 'taproot'
   | 'nonstandard';
-function classifyScript(script: Buffer): ScriptType {
+function classifyScript(
+  script: Buffer,
+  eccLib?: TinySecp256k1Interface,
+): ScriptType {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
   if (isP2PKH(script)) return 'pubkeyhash';
   if (isP2MS(script)) return 'multisig';
   if (isP2PK(script)) return 'pubkey';
-  if (isP2TR(script, ecc)) return 'taproot';
+  if (isP2TR(script, eccLib)) return 'taproot';
   return 'nonstandard';
 }
 

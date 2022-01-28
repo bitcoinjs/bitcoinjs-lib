@@ -8,7 +8,14 @@ import { describe, it } from 'mocha';
 const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
-import { networks as NETWORKS, payments, Psbt, Signer, SignerAsync } from '..';
+import {
+  networks as NETWORKS,
+  payments,
+  Psbt,
+  Signer,
+  SignerAsync,
+  tweakSigner,
+} from '..';
 
 import * as preFixtures from './fixtures/psbt.json';
 
@@ -139,7 +146,8 @@ describe(`Psbt`, () => {
 
     fixtures.bip174.signer.forEach(f => {
       it('Signs PSBT to the expected result', () => {
-        const psbt = Psbt.fromBase64(f.psbt);
+        const opts = f.isTaproot ? { eccLib: ecc } : {};
+        const psbt = Psbt.fromBase64(f.psbt, opts);
 
         f.keys.forEach(({ inputToSign, WIF }) => {
           const keyPair = ECPair.fromWIF(WIF, NETWORKS.testnet);
@@ -961,7 +969,7 @@ describe(`Psbt`, () => {
   describe('validateSignaturesOfTaprootInput', () => {
     const f = fixtures.validateSignaturesOfTaprootInput;
     it('Correctly validates a signature', () => {
-      const psbt = Psbt.fromBase64(f.psbt);
+      const psbt = Psbt.fromBase64(f.psbt, { eccLib: ecc });
       assert.strictEqual(
         psbt.validateSignaturesOfInput(f.index, schnorrValidator),
         true,
@@ -969,7 +977,7 @@ describe(`Psbt`, () => {
     });
 
     it('Correctly validates a signature against a pubkey', () => {
-      const psbt = Psbt.fromBase64(f.psbt);
+      const psbt = Psbt.fromBase64(f.psbt, { eccLib: ecc });
       assert.strictEqual(
         psbt.validateSignaturesOfInput(
           f.index,
@@ -1011,7 +1019,7 @@ describe(`Psbt`, () => {
         privateKey: null,
       });
       assert.throws(() => {
-        Psbt.tweakSigner(keyPair);
+        tweakSigner(keyPair, { eccLib: ecc });
       }, new RegExp('Private key is required for tweaking signer!'));
     });
 
@@ -1022,7 +1030,7 @@ describe(`Psbt`, () => {
           'hex',
         ),
       );
-      const tweakedSigner: Signer = Psbt.tweakSigner(keyPair);
+      const tweakedSigner: Signer = tweakSigner(keyPair, { eccLib: ecc });
       assert.strictEqual(
         '029421e734b0f9d2c467ea7dd197c61acb4467cdcbc9f4cb0c571f8b63a5c40cae',
         tweakedSigner.publicKey.toString('hex'),

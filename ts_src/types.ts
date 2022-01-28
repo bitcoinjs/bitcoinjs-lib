@@ -82,6 +82,8 @@ export interface TinySecp256k1Interface {
     p: Uint8Array,
     tweak: Uint8Array,
   ): XOnlyPointAddTweakResult | null;
+  privateAdd(d: Uint8Array, tweak: Uint8Array): Uint8Array | null;
+  privateNegate(d: Uint8Array): Uint8Array;
 }
 
 export const Buffer256bit = typeforce.BufferN(32);

@@ -17,7 +17,6 @@ function p2tr(a, opts) {
     !a.address &&
     !a.output &&
     !a.pubkey &&
-    !a.output &&
     !a.internalPubkey &&
     !(a.witness && a.witness.length > 1)
   )
@@ -115,6 +114,7 @@ function p2tr(a, opts) {
       return witness[witness.length - 1].slice(1, 33);
   });
   lazy.prop(o, 'signature', () => {
+    if (a.signature) return a.signature;
     if (!a.witness || a.witness.length !== 1) return;
     return a.witness[0];
   });
@@ -192,9 +192,6 @@ function p2tr(a, opts) {
         // key spending
         if (a.signature && !a.signature.equals(witness[0]))
           throw new TypeError('Signature mismatch');
-        // todo: recheck
-        // if (!bscript.isSchnorSignature(a.pubkey, a.witness[0]))
-        // throw new TypeError('Witness has invalid signature');
       } else {
         // script path spending
         const controlBlock = witness[witness.length - 1];
