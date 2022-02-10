@@ -1,5 +1,3 @@
-import { ECPairFactory } from 'ecpair';
-
 import { Psbt as PsbtBase } from 'bip174';
 import * as varuint from 'bip174/src/lib/converter/varint';
 import {
@@ -15,7 +13,6 @@ import {
   TransactionFromBuffer,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
-import { TinySecp256k1Interface as ECPairTinySecp256k1Interface } from 'ecpair';
 
 import { fromOutputScript, toOutputScript } from './address';
 import { cloneBuffer, reverseBuffer } from './bufferutils';
@@ -24,7 +21,6 @@ import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
-import { tapTweakHash } from './payments/taprootutils';
 import { TinySecp256k1Interface } from './types';
 
 export interface TransactionInput {
@@ -782,40 +778,6 @@ export class Psbt {
   }
 }
 
-/**
- * Helper method for converting a normal Signer into a Taproot Signer.
- * Note that this helper method requires the Private Key of the Signer to be present.
- * Steps:
- *  - if the Y coordinate of the Signer Public Key is odd then negate the Private Key
- *  - tweak the private key with the provided hash (should be empty for key-path spending)
- * @param signer - a taproot signer object, the Private Key must be present
- * @param opts - tweak options
- * @returns a Signer having the Private and Public keys tweaked
- */
-export function tweakSigner(signer: Signer, opts: TaprootSignerOpts): Signer {
-  // todo: test ecc??
-  let privateKey: Uint8Array | undefined = signer.privateKey;
-  if (!privateKey) {
-    throw new Error('Private key is required for tweaking signer!');
-  }
-  if (signer.publicKey[0] === 3) {
-    privateKey = opts.eccLib.privateNegate(privateKey!);
-  }
-
-  const tweakedPrivateKey = opts.eccLib.privateAdd(
-    privateKey,
-    tapTweakHash(signer.publicKey.slice(1, 33), opts.tweakHash),
-  );
-  if (!tweakedPrivateKey) {
-    throw new Error('Invalid tweaked private key!');
-  }
-
-  const ECPair = ECPairFactory(opts.eccLib);
-  return ECPair.fromPrivateKey(Buffer.from(tweakedPrivateKey), {
-    network: opts.network,
-  });
-}
-
 interface PsbtCache {
   __NON_WITNESS_UTXO_TX_CACHE: Transaction[];
   __NON_WITNESS_UTXO_BUF_CACHE: Buffer[];
@@ -889,24 +851,10 @@ export interface HDSignerAsync extends HDSignerBase {
 
 export interface Signer {
   publicKey: Buffer;
-  /**
-   * Private Key is optional, it is required only if the signer must be tweaked.
-   * See the `tweakSigner()` method.
-   */
-  privateKey?: Buffer;
   network?: any;
   sign(hash: Buffer, lowR?: boolean): Buffer;
   signSchnorr?(hash: Buffer): Buffer;
   getPublicKey?(): Buffer;
-}
-/**
- * Options for tweaking a Signer into a valid Taproot Signer
- */
-export interface TaprootSignerOpts {
-  network?: Network;
-  eccLib: TinySecp256k1Interface & ECPairTinySecp256k1Interface;
-  /** The hash used to tweak the Signer */
-  tweakHash?: Buffer;
 }
 
 export interface SignerAsync {

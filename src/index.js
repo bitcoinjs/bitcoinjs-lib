@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.Transaction = exports.opcodes = exports.tweakSigner = exports.Psbt = exports.Block = exports.script = exports.payments = exports.networks = exports.crypto = exports.address = void 0;
+exports.Transaction = exports.opcodes = exports.Psbt = exports.Block = exports.script = exports.payments = exports.networks = exports.crypto = exports.address = void 0;
 const address = require('./address');
 exports.address = address;
 const crypto = require('./crypto');
@@ -23,12 +23,6 @@ Object.defineProperty(exports, 'Psbt', {
   enumerable: true,
   get: function() {
     return psbt_1.Psbt;
-  },
-});
-Object.defineProperty(exports, 'tweakSigner', {
-  enumerable: true,
-  get: function() {
-    return psbt_1.tweakSigner;
   },
 });
 var ops_1 = require('./ops');

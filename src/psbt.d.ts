@@ -1,7 +1,6 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
 import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
-import { TinySecp256k1Interface as ECPairTinySecp256k1Interface } from 'ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
 import { TinySecp256k1Interface } from './types';
@@ -109,17 +108,6 @@ export declare class Psbt {
     addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;
     clearFinalizedInput(inputIndex: number): this;
 }
-/**
- * Helper method for converting a normal Signer into a Taproot Signer.
- * Note that this helper method requires the Private Key of the Signer to be present.
- * Steps:
- *  - if the Y coordinate of the Signer Public Key is odd then negate the Private Key
- *  - tweak the private key with the provided hash (should be empty for key-path spending)
- * @param signer - a taproot signer object, the Private Key must be present
- * @param opts - tweak options
- * @returns a Signer having the Private and Public keys tweaked
- */
-export declare function tweakSigner(signer: Signer, opts: TaprootSignerOpts): Signer;
 interface PsbtOptsOptional {
     network?: Network;
     maximumFeeRate?: number;
@@ -169,24 +157,10 @@ export interface HDSignerAsync extends HDSignerBase {
 }
 export interface Signer {
     publicKey: Buffer;
-    /**
-     * Private Key is optional, it is required only if the signer must be tweaked.
-     * See the `tweakSigner()` method.
-     */
-    privateKey?: Buffer;
     network?: any;
     sign(hash: Buffer, lowR?: boolean): Buffer;
     signSchnorr?(hash: Buffer): Buffer;
     getPublicKey?(): Buffer;
-}
-/**
- * Options for tweaking a Signer into a valid Taproot Signer
- */
-export interface TaprootSignerOpts {
-    network?: Network;
-    eccLib: TinySecp256k1Interface & ECPairTinySecp256k1Interface;
-    /** The hash used to tweak the Signer */
-    tweakHash?: Buffer;
 }
 export interface SignerAsync {
     publicKey: Buffer;

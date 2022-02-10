@@ -1,7 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tweakSigner = exports.Psbt = void 0;
-const ecpair_1 = require('ecpair');
+exports.Psbt = void 0;
 const bip174_1 = require('bip174');
 const varuint = require('bip174/src/lib/converter/varint');
 const utils_1 = require('bip174/src/lib/utils');
@@ -12,7 +11,6 @@ const networks_1 = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
-const taprootutils_1 = require('./payments/taprootutils');
 /**
  * These are the default arguments for a Psbt instance.
  */
@@ -648,41 +646,6 @@ class Psbt {
   }
 }
 exports.Psbt = Psbt;
-/**
- * Helper method for converting a normal Signer into a Taproot Signer.
- * Note that this helper method requires the Private Key of the Signer to be present.
- * Steps:
- *  - if the Y coordinate of the Signer Public Key is odd then negate the Private Key
- *  - tweak the private key with the provided hash (should be empty for key-path spending)
- * @param signer - a taproot signer object, the Private Key must be present
- * @param opts - tweak options
- * @returns a Signer having the Private and Public keys tweaked
- */
-function tweakSigner(signer, opts) {
-  // todo: test ecc??
-  let privateKey = signer.privateKey;
-  if (!privateKey) {
-    throw new Error('Private key is required for tweaking signer!');
-  }
-  if (signer.publicKey[0] === 3) {
-    privateKey = opts.eccLib.privateNegate(privateKey);
-  }
-  const tweakedPrivateKey = opts.eccLib.privateAdd(
-    privateKey,
-    (0, taprootutils_1.tapTweakHash)(
-      signer.publicKey.slice(1, 33),
-      opts.tweakHash,
-    ),
-  );
-  if (!tweakedPrivateKey) {
-    throw new Error('Invalid tweaked private key!');
-  }
-  const ECPair = (0, ecpair_1.ECPairFactory)(opts.eccLib);
-  return ECPair.fromPrivateKey(Buffer.from(tweakedPrivateKey), {
-    network: opts.network,
-  });
-}
-exports.tweakSigner = tweakSigner;
 /**
  * This function is needed to pass to the bip174 base class's fromBuffer.
  * It takes the "transaction buffer" portion of the psbt buffer and returns a

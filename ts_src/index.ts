@@ -16,7 +16,6 @@ export {
   SignerAsync,
   HDSigner,
   HDSignerAsync,
-  tweakSigner,
 } from './psbt';
 export { OPS as opcodes } from './ops';
 export { Transaction } from './transaction';

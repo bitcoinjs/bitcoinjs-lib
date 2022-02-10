@@ -8,14 +8,7 @@ import { describe, it } from 'mocha';
 const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
-import {
-  networks as NETWORKS,
-  payments,
-  Psbt,
-  Signer,
-  SignerAsync,
-  tweakSigner,
-} from '..';
+import { networks as NETWORKS, payments, Psbt, Signer, SignerAsync } from '..';
 
 import * as preFixtures from './fixtures/psbt.json';
 
@@ -1010,35 +1003,6 @@ describe(`Psbt`, () => {
       assert.strictEqual(psbt.getFeeRate(), f.fee);
       (psbt as any).__CACHE.__FEE_RATE = undefined;
       assert.strictEqual(psbt.getFeeRate(), f.fee);
-    });
-  });
-
-  describe('tweakSigner', () => {
-    it('Throws error if signer is missing private key', () => {
-      const keyPair = Object.assign({}, ECPair.makeRandom(), {
-        privateKey: null,
-      });
-      assert.throws(() => {
-        tweakSigner(keyPair, { eccLib: ecc });
-      }, new RegExp('Private key is required for tweaking signer!'));
-    });
-
-    it('Correctly creates tweaked signer', () => {
-      const keyPair = ECPair.fromPrivateKey(
-        Buffer.from(
-          'accaf12e04e11b08fc28f5fe75b47ea663843b698981e31f1cafa2224d6e28c0',
-          'hex',
-        ),
-      );
-      const tweakedSigner: Signer = tweakSigner(keyPair, { eccLib: ecc });
-      assert.strictEqual(
-        '029421e734b0f9d2c467ea7dd197c61acb4467cdcbc9f4cb0c571f8b63a5c40cae',
-        tweakedSigner.publicKey.toString('hex'),
-      );
-      assert.strictEqual(
-        '1853f5034982ec659e015873a0a958a73eac785850f425fd3444b12430d58692',
-        tweakedSigner.privateKey!.toString('hex'),
-      );
     });
   });
 
