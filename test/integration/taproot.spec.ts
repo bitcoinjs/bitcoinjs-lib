@@ -12,7 +12,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     const myKey = bip32.fromSeed(rng(64), regtest);
 
     const output = createKeySpendOutput(myKey.publicKey);
-    const address = bitcoin.address.fromOutputScript(output, regtest);
+    const address = bitcoin.address.fromOutputScript(output, regtest, ecc);
     // amount from faucet
     const amount = 42e4;
     // amount to send
