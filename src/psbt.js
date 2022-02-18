@@ -585,6 +585,24 @@ class Psbt {
         this.__CACHE,
         sighashTypes,
       );
+      const scriptType = this.getInputType(inputIndex);
+      if (scriptType === 'taproot') {
+        if (!keyPair.signSchnorr) {
+          throw new Error(
+            `Need Schnorr Signer to sign taproot input #${inputIndex}.`,
+          );
+        }
+        return Promise.resolve(keyPair.signSchnorr(hash)).then(signature => {
+          const partialSig = [
+            {
+              pubkey: keyPair.publicKey,
+              signature,
+            },
+          ];
+          // must be changed to use the `updateInput()` public API
+          this.data.inputs[inputIndex].partialSig = partialSig;
+        });
+      }
       return Promise.resolve(keyPair.sign(hash)).then(signature => {
         const partialSig = [
           {
