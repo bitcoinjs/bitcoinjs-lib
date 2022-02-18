@@ -4,14 +4,13 @@ exports.toOutputScript = exports.fromOutputScript = exports.toBech32 = exports.t
 const networks = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
-const types = require('./types');
+const types_1 = require('./types');
 const bech32_1 = require('bech32');
 const bs58check = require('bs58check');
-const { typeforce } = types;
 const FUTURE_SEGWIT_MAX_SIZE = 40;
 const FUTURE_SEGWIT_MIN_SIZE = 2;
 const FUTURE_SEGWIT_MAX_VERSION = 16;
-const FUTURE_SEGWIT_MIN_VERSION = 1;
+const FUTURE_SEGWIT_MIN_VERSION = 2;
 const FUTURE_SEGWIT_VERSION_DIFF = 0x50;
 const FUTURE_SEGWIT_VERSION_WARNING =
   'WARNING: Sending to a future segwit version address can lead to loss of funds. ' +
@@ -69,7 +68,10 @@ function fromBech32(address) {
 }
 exports.fromBech32 = fromBech32;
 function toBase58Check(hash, version) {
-  typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments);
+  (0, types_1.typeforce)(
+    (0, types_1.tuple)(types_1.Hash160bit, types_1.UInt8),
+    arguments,
+  );
   const payload = Buffer.allocUnsafe(21);
   payload.writeUInt8(version, 0);
   hash.copy(payload, 1);
@@ -84,7 +86,7 @@ function toBech32(data, version, prefix) {
     : bech32_1.bech32m.encode(prefix, words);
 }
 exports.toBech32 = toBech32;
-function fromOutputScript(output, network) {
+function fromOutputScript(output, network, eccLib) {
   // TODO: Network
   network = network || networks.bitcoin;
   try {
@@ -100,12 +102,15 @@ function fromOutputScript(output, network) {
     return payments.p2wsh({ output, network }).address;
   } catch (e) {}
   try {
+    if (eccLib) return payments.p2tr({ output, network }, { eccLib }).address;
+  } catch (e) {}
+  try {
     return _toFutureSegwitAddress(output, network);
   } catch (e) {}
   throw new Error(bscript.toASM(output) + ' has no matching Address');
 }
 exports.fromOutputScript = fromOutputScript;
-function toOutputScript(address, network) {
+function toOutputScript(address, network, eccLib) {
   network = network || networks.bitcoin;
   let decodeBase58;
   let decodeBech32;
@@ -129,6 +134,10 @@ function toOutputScript(address, network) {
           return payments.p2wpkh({ hash: decodeBech32.data }).output;
         if (decodeBech32.data.length === 32)
           return payments.p2wsh({ hash: decodeBech32.data }).output;
+      } else if (decodeBech32.version === 1) {
+        if (decodeBech32.data.length === 32 && eccLib)
+          return payments.p2tr({ pubkey: decodeBech32.data }, { eccLib })
+            .output;
       } else if (
         decodeBech32.version >= FUTURE_SEGWIT_MIN_VERSION &&
         decodeBech32.version <= FUTURE_SEGWIT_MAX_VERSION &&

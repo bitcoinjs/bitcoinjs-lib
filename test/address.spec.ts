@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
+import * as ecc from 'tiny-secp256k1';
 import * as baddress from '../src/address';
 import * as bscript from '../src/script';
 import * as fixtures from './fixtures/address.json';
@@ -68,7 +69,11 @@ describe('address', () => {
     fixtures.standard.forEach(f => {
       it('encodes ' + f.script.slice(0, 30) + '... (' + f.network + ')', () => {
         const script = bscript.fromASM(f.script);
-        const address = baddress.fromOutputScript(script, NETWORKS[f.network]);
+        const address = baddress.fromOutputScript(
+          script,
+          NETWORKS[f.network],
+          ecc,
+        );
 
         assert.strictEqual(address, f.base58check || f.bech32!.toLowerCase());
       });
@@ -79,7 +84,7 @@ describe('address', () => {
         const script = bscript.fromASM(f.script);
 
         assert.throws(() => {
-          baddress.fromOutputScript(script);
+          baddress.fromOutputScript(script, undefined, ecc);
         }, new RegExp(f.exception));
       });
     });
@@ -131,6 +136,7 @@ describe('address', () => {
         const script = baddress.toOutputScript(
           (f.base58check || f.bech32)!,
           NETWORKS[f.network],
+          ecc,
         );
 
         assert.strictEqual(bscript.toASM(script), f.script);
@@ -138,10 +144,11 @@ describe('address', () => {
     });
 
     fixtures.invalid.toOutputScript.forEach(f => {
-      it('throws when ' + f.exception, () => {
+      it('throws when ' + (f.exception || f.paymentException), () => {
+        const exception = f.paymentException || `${f.address} ${f.exception}`;
         assert.throws(() => {
-          baddress.toOutputScript(f.address, f.network as any);
-        }, new RegExp(f.address + ' ' + f.exception));
+          baddress.toOutputScript(f.address, f.network as any, ecc);
+        }, new RegExp(exception));
       });
     });
   });
