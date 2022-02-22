@@ -190,7 +190,11 @@ export class Psbt {
     return this.__CACHE.__TX.outs.map(output => {
       let address;
       try {
-        address = fromOutputScript(output.script, this.opts.network);
+        address = fromOutputScript(
+          output.script,
+          this.opts.network,
+          this.__CACHE.__EC_LIB,
+        );
       } catch (_) {}
       return {
         script: cloneBuffer(output.script),
@@ -304,7 +308,7 @@ export class Psbt {
     const { address } = outputData as any;
     if (typeof address === 'string') {
       const { network } = this.opts;
-      const script = toOutputScript(address, network);
+      const script = toOutputScript(address, network, this.__CACHE.__EC_LIB);
       outputData = Object.assign(outputData, { script });
     }
     const c = this.__CACHE;

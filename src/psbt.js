@@ -133,6 +133,7 @@ class Psbt {
         address = (0, address_1.fromOutputScript)(
           output.script,
           this.opts.network,
+          this.__CACHE.__EC_LIB,
         );
       } catch (_) {}
       return {
@@ -235,7 +236,11 @@ class Psbt {
     const { address } = outputData;
     if (typeof address === 'string') {
       const { network } = this.opts;
-      const script = (0, address_1.toOutputScript)(address, network);
+      const script = (0, address_1.toOutputScript)(
+        address,
+        network,
+        this.__CACHE.__EC_LIB,
+      );
       outputData = Object.assign(outputData, { script });
     }
     const c = this.__CACHE;
