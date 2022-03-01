@@ -1,0 +1,486 @@
+{
+  "valid": [
+    {
+      "description": "p2tr, out (from scripts & key)",
+      "arguments": {
+        "pubkey": "af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e3",
+        "redeems": [
+          {
+            "output": "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+            "weight": 1
+          },
+          {
+            "output": "07c7c32d159a27ba1824798b3b1d11e1b85f4dbc9e9fe63d95440a30737496de OP_CHECKSIG",
+            "weight": 1
+          },
+          {
+            "output": "4d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4 OP_CHECKSIG",
+            "inputHex": "20deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+            "weight": 2
+          }
+        ],
+        "network": "regtest",
+        "redeemIndex": 2
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "output": "OP_1 7cdb1fd083166c9265493f105d93dd1e30b7a20208c495177bbb69f03e2168e9",
+        "address": "bcrt1p0nd3l5yrzekfye2f8ug9my7arcct0gszprzf29mmhd5lq03pdr5sm6n5zf",
+        "witness": [
+          "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+          "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "c1af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e325bd7bf1b8362353bd7ef3924ac5c2ce6486f8a3df01e1af0cae9d010a1a17e9"
+        ]
+      }
+    },
+    {
+      "description": "p2tr, out (from scripts & key)",
+      "arguments": {
+        "pubkey": "af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e3",
+        "redeems": [
+          {
+            "output": "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+            "weight": 1
+          },
+          {
+            "output": "07c7c32d159a27ba1824798b3b1d11e1b85f4dbc9e9fe63d95440a30737496de OP_CHECKSIG",
+            "weight": 1
+          },
+          {
+            "output": "4d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4 OP_CHECKSIG",
+            "inputHex": "20deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+            "weight": 2
+          }
+        ],
+        "network": "regtest"
+      },
+      "options": { },
+      "expected": {
+        "name": "p2tr",
+        "output": "OP_1 7cdb1fd083166c9265493f105d93dd1e30b7a20208c495177bbb69f03e2168e9",
+        "address": "bcrt1p0nd3l5yrzekfye2f8ug9my7arcct0gszprzf29mmhd5lq03pdr5sm6n5zf"
+      }
+    },
+    {
+      "description": "p2tr, out (from scripts & key)",
+      "arguments": {
+        "pubkey": "af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e3",
+        "redeems": [
+          {
+            "output": "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+            "weight": 1
+          },
+          {
+            "output": "07c7c32d159a27ba1824798b3b1d11e1b85f4dbc9e9fe63d95440a30737496de OP_CHECKSIG",
+            "weight": 1
+          },
+          {
+            "output": "4d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4 OP_CHECKSIG",
+            "witness": [ "deadbeef" ],
+            "weight": 2
+          }
+        ],
+        "network": "regtest",
+        "redeemIndex": 2
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "output": "OP_1 7cdb1fd083166c9265493f105d93dd1e30b7a20208c495177bbb69f03e2168e9",
+        "address": "bcrt1p0nd3l5yrzekfye2f8ug9my7arcct0gszprzf29mmhd5lq03pdr5sm6n5zf",
+        "witness": [
+          "deadbeef",
+          "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "c1af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e325bd7bf1b8362353bd7ef3924ac5c2ce6486f8a3df01e1af0cae9d010a1a17e9"
+        ]
+      }
+    },
+    {
+      "description": "p2tr, out (from scripts & aggregate key)",
+      "arguments": {
+        "pubkeys": [
+          "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3",
+          "d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55e"
+        ],
+        "redeems": [
+          {
+            "outputHex": "2020040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3ad20d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55ead",
+            "weight": 1
+          },
+          {
+            "outputHex": "20d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55ead200dcd7e6035f7ff5c860b78cfdd2bd80b4b160ca99a71654796afde11457e11e7ad",
+            "weight": 1
+          },
+          {
+            "outputHex": "200dcd7e6035f7ff5c860b78cfdd2bd80b4b160ca99a71654796afde11457e11e7ad2020040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3ad",
+            "witness": [ "deadbeef", "deadbeef" ],
+            "weight": 2
+          }
+        ],
+        "network": "regtest",
+        "redeemIndex": 2
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "output": "OP_1 e899def99239f5781302b78a1a817bf9864dff92bb27492288487d3b29a3c761",
+        "address": "bcrt1pazvaa7vj886hsyczk79p4qtmlxrymlujhvn5jg5gfp7nk2drcassmkyfy0",
+        "witness": [
+          "deadbeef",
+          "deadbeef",
+          "200dcd7e6035f7ff5c860b78cfdd2bd80b4b160ca99a71654796afde11457e11e7ad2020040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3ad",
+          "c0e6ab475afcbcf1b7a5610ba154ad811c483af6c3df81b97bf3410f8c32a8e1d88e853cedc9ad14fb2dfdb0f77364aa07514a835fa75d6da1ed5ab6fa1d4b86a3"
+        ]
+      }
+    },
+    {
+      "description": "p2tr, address from output",
+      "arguments": {
+        "output": "OP_1 618d4140bbf980976a0f4d2ff9bb05a6772866840770452ff405148b872f0dc8",
+        "network": "regtest"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "address": "bcrt1pvxx5zs9mlxqfw6s0f5hlnwc95emjse5yqacy2tl5q52ghpe0phyqzwzvwu"
+      }
+    },
+    {
+      "description": "p2tr, testnet address from output",
+      "arguments": {
+        "output": "OP_1 d5e89e0b73605abba690ba5e00484e279d006283bed0055a0530fb6a8c9adac7",
+        "network": "testnet"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "address": "tb1p6h5fuzmnvpdthf5shf0qqjzwy7wsqc5rhmgq2ks9xrak4ry6mtrscsqvzp"
+      }
+    },
+    {
+      "description": "p2tr, output from address",
+      "arguments": {
+        "address": "bcrt1pvxx5zs9mlxqfw6s0f5hlnwc95emjse5yqacy2tl5q52ghpe0phyqzwzvwu",
+        "network": "regtest"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "output": "OP_1 618d4140bbf980976a0f4d2ff9bb05a6772866840770452ff405148b872f0dc8"
+      }
+    },
+    {
+      "description": "p2tr keypath from witness",
+      "arguments": {
+        "witness": ["e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101"],
+        "output": "OP_1 3d3e6d002d642acf8653bcf26b81dbe656df5bf88b6d54221b2606bc78f3d4e6",
+        "network": "testnet"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "signature": "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101"
+      }
+    },
+    {
+      "description": "p2tr OP_CHECKSIG script path spend",
+      "arguments": {
+        "witness": [
+          "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+          "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
+          "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+          "50abcd"
+        ],
+        "output": "OP_1 3d3e6d002d642acf8653bcf26b81dbe656df5bf88b6d54221b2606bc78f3d4e6",
+        "network": "testnet"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "redeem": {
+          "witness": ["e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101"],
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+        },
+        "controlBlock": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "annex": "50abcd"
+      }
+    },
+    {
+      "description": "p2tr with annex",
+      "arguments": {
+        "redeems": [{
+          "witness": ["e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101"],
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+        }],
+        "controlBlock": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "annex": "50abcd",
+        "output": "OP_1 3d3e6d002d642acf8653bcf26b81dbe656df5bf88b6d54221b2606bc78f3d4e6",
+        "redeemIndex": 0,
+        "network": "testnet"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr",
+        "witness": [
+          "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+          "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
+          "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+          "50abcd"
+        ]
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "description": "p2tr from key path witness/control block",
+      "arguments": {
+        "witness": ["e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101"],
+        "controlBlock": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "unexpected control block for key path"
+    },
+    {
+      "description": "p2tr not enough data",
+      "arguments": {
+        "controlBlock": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Not enough data"
+    },
+    {
+      "description": "p2tr invalid output",
+      "arguments": {
+        "outputHex": "0020618d4140bbf980976a0f4d2ff9bb05a6772866840770452ff405148b872f0dc8",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Output is invalid"
+    },
+    {
+      "description": "p2tr invalid output",
+      "arguments": {
+        "outputHex": "0121618d4140bbf980976a0f4d2ff9bb05a6772866840770452ff405148b872f0dc8ff",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Expected property \"output\" of type Buffer\\(Length: 34\\), got Buffer\\(Length: 35\\)"
+    },
+    {
+      "description": "p2tr invalid signature",
+      "arguments": {
+        "signature": "ffe81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c71ff",
+        "output": "OP_1 618d4140bbf980976a0f4d2ff9bb05a6772866840770452ff405148b872f0dc8",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Expected property \"signature\" of type \\?isCanonicalSchnorrSignature, got Buffer"
+    },
+    {
+      "description": "p2tr invalid pubkey",
+      "arguments": {
+        "pubkey": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Expected property \"pubkey\" of type \\?isXOnlyPoint"
+    },
+    {
+      "description": "p2tr invalid pubkeys",
+      "arguments": {
+        "pubkeys": [
+          "4d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4",
+          "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        ],
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Expected property \"pubkeys\\.1\" of type isXOnlyPoint"
+    },
+    {
+      "description": "p2tr internal pubkey mismatch",
+      "arguments": {
+        "pubkey": "4d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4",
+        "witness": [
+          "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+          "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0"
+        ],
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Internal pubkey mismatch"
+    },
+    {
+      "description": "p2tr from key path witness/signature mismatch",
+      "arguments": {
+        "witness": ["f6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101"],
+        "signature": "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "mismatch between witness & signature"
+    },
+    {
+      "description": "p2tr from witness/output, script missing from tap tree",
+      "arguments": {
+        "witness": [
+          "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+          "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0"
+        ],
+        "output": "OP_1 3d3e6d002d642acf8653bcf26b81dbe656df5bf88b6d54221b2606bc78f3d4e6",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "mismatch between output and taproot pubkey"
+    },
+    {
+      "description": "negative redeemIndex",
+      "arguments": {
+        "redeemIndex": -1,
+        "redeems": [{
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+        }],
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "invalid redeem index"
+    },
+    {
+      "description": "high redeemIndex",
+      "arguments": {
+        "redeemIndex": 2,
+        "redeems": [{
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+        }],
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "invalid redeem index"
+    },
+    {
+      "description": "network mismatch",
+      "arguments": {
+        "redeems": [{
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
+          "network": "bitcoin"
+        }],
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Network mismatch"
+    },
+    {
+      "description": "p2tr from witness/redeem, mismatch",
+      "arguments": {
+        "redeems": [{
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+        }],
+        "witness": [
+          "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+          "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "c050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0"
+        ],
+        "redeemIndex": 0,
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "tapscript mismatch"
+    },
+    {
+      "description": "p2tr from witness/annex, mismatch",
+      "arguments": {
+        "witness": [
+          "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+          "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "c050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+          "5002abcd"
+        ],
+        "annex": "5002abdc",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "annex mismatch"
+    },
+    {
+      "description": "p2tr from script path witness/signature",
+      "arguments": {
+        "signature": "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+        "witness": [
+          "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+          "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "c050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0"
+        ],
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "unexpected signature with script path witness"
+    },
+    {
+      "description": "p2tr from witness/control block, mismatch",
+      "arguments": {
+        "witness": [
+          "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
+          "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0"
+        ],
+        "controlBlock": "c050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "control block mismatch"
+    },
+    {
+      "description": "p2tr from redeem/control block/output, script missing from tap tree",
+      "arguments": {
+        "redeems": [{
+          "outputHex": "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac"
+        }],
+        "controlBlockHex": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "output": "OP_1 3d3e6d002d642acf8653bcf26b81dbe656df5bf88b6d54221b2606bc78f3d4e6",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "mismatch between output and taproot pubkey"
+    },
+    {
+      "description": "p2tr from redeem/control block/address, script missing from tap tree",
+      "arguments": {
+        "redeems": [{
+          "outputHex": "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac"
+        }],
+        "controlBlockHex": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "address": "tb1p85lx6qpdvs4vlpjnhnexhqwmuetd7klc3dk4ggsmycrtc78n6nnqakvcc9",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "mismatch between address and taproot pubkey"
+    },
+    {
+      "description": "p2tr, testnet address with mismatched output",
+      "arguments": {
+        "address": "tb1p6h5fuzmnvpdthf5shf0qqjzwy7wsqc5rhmgq2ks9xrak4ry6mtrscsqvzp",
+        "output": "OP_1 618d4140bbf980976a0f4d2ff9bb05a6772866840770452ff405148b872f0dc8",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "mismatch between address & output"
+    },
+    {
+      "description": "parity mismatch",
+      "arguments": {
+        "redeems": [{
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+        }],
+        "controlBlock": "c050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
+        "network": "testnet"
+      },
+      "options": {},
+      "exception": "Parity mismatch"
+    }
+  ]
+}

@@ -108,6 +108,14 @@ export function equate(a: any, b: any, args?: any): void {
     );
   if ('data' in b)
     t.deepStrictEqual(tryHex(a.data), tryHex(b.data), 'Inequal *.data');
+  if ('controlBlock' in b)
+    t.strictEqual(
+      tryHex(a.controlBlock),
+      tryHex(b.controlBlock),
+      'Inequal control block',
+    );
+  if ('annex' in b)
+    t.strictEqual(tryHex(a.annex), tryHex(b.annex), 'Inequal annex');
 }
 
 export function preform(x: any): any {
@@ -130,21 +138,18 @@ export function preform(x: any): any {
   if (x.hash) x.hash = Buffer.from(x.hash, 'hex');
   if (x.pubkey) x.pubkey = Buffer.from(x.pubkey, 'hex');
   if (x.signature) x.signature = Buffer.from(x.signature, 'hex');
+  if (x.controlBlock) x.controlBlock = Buffer.from(x.controlBlock, 'hex');
+  if (x.annex) x.annex = Buffer.from(x.annex, 'hex');
   if (x.pubkeys) x.pubkeys = x.pubkeys.map(fromHex);
   if (x.signatures)
     x.signatures = x.signatures.map((y: any) => {
       return Number.isFinite(y) ? y : Buffer.from(y, 'hex');
     });
   if (x.redeem) {
-    x.redeem = Object.assign({}, x.redeem);
-    if (typeof x.redeem.input === 'string')
-      x.redeem.input = asmToBuffer(x.redeem.input);
-    if (typeof x.redeem.output === 'string')
-      x.redeem.output = asmToBuffer(x.redeem.output);
-    if (Array.isArray(x.redeem.witness))
-      x.redeem.witness = x.redeem.witness.map(fromHex);
-    if (x.redeem.network)
-      x.redeem.network = (BNETWORKS as any)[x.redeem.network];
+    x.redeem = preform(x.redeem);
+  }
+  if (x.redeems) {
+    x.redeems = x.redeems.map(preform);
   }
 
   return x;

@@ -1,0 +1,218 @@
+{
+  "valid": [
+    {
+      "description": "p2tr_ns(1), pubkey, in (from out, sigs)",
+      "arguments": {
+        "output": "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+        "signatures": [
+          "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+        ],
+        "network": "regtest"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr_ns(1)",
+        "n": 1,
+        "pubkeys": ["8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717"],
+        "input": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+      }
+    },
+    {
+      "description": "p2tr_ns(1), pubkey, in (from out, sigs) incomplete",
+      "arguments": {
+        "output": "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+        "signatures": [
+          0
+        ],
+        "network": "regtest"
+      },
+      "options": { "allowIncomplete": true },
+      "expected": {
+        "name": "p2tr_ns(1)",
+        "n": 1,
+        "pubkeys": ["8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717"],
+        "input": "OP_0"
+      }
+    },
+    {
+      "description": "p2tr_ns(1), out, sigs (from key, in)",
+      "arguments": {
+        "pubkeys": ["af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e3"],
+        "input": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        "network": "regtest"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr_ns(1)",
+        "n": 1,
+        "output": "af455f4989d122e9185f8c351dbaecd13adca3eef8a9d38ef8ffed6867e342e3 OP_CHECKSIG",
+        "signatures": [
+          "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+        ]
+      }
+    },
+    {
+      "description": "p2tr_ns(2), out, in (from keys, out, sigs)",
+      "arguments": {
+        "pubkeys": [
+          "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3",
+          "d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55e"
+        ],
+        "output": "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55e OP_CHECKSIG",
+        "signatures": [
+          "beefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdead",
+          "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+        ],
+        "network": "regtest"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr_ns(2)",
+        "n": 2,
+        "outputHex": "2020040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3ad20d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55ead",
+        "input": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef beefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdead"
+      }
+    },
+    {
+      "description": "p2tr_ns(2), out, in (from keys, sigs)",
+      "arguments": {
+        "pubkeys": [
+          "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3",
+          "d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55e"
+        ],
+        "signatures": [
+          "beefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdead",
+          "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+        ],
+        "network": "regtest"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2tr_ns(2)",
+        "n": 2,
+        "outputHex": "2020040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3ad20d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55ead",
+        "input": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef beefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdead"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "description": "p2tr_ns(2), mismatched keys/sigs",
+      "arguments": {
+        "pubkeys": [
+          "d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55e"
+        ],
+        "signatures": [
+          "beefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdead",
+          "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+        ],
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(2), mismatched keys/sigs",
+      "arguments": {
+        "pubkeys": [
+          "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3",
+          "d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55e"
+        ],
+        "signatures": [
+          "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+        ],
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(2), mismatched sigs/input",
+      "arguments": {
+        "pubkeys": [
+          "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3",
+          "d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55e"
+        ],
+        "input": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        "signatures": [
+          "beefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdead",
+          "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+        ],
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(2), mismatched keys/input",
+      "arguments": {
+        "pubkeys": [
+          "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3",
+          "d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55e"
+        ],
+        "input": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(1) no data",
+      "arguments": {
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(1), bad sig",
+      "arguments": {
+        "pubkeys": [
+          "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3"
+        ],
+        "input": "deadbeef",
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(2) swapped opcodes",
+      "arguments": {
+        "output": "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIG 8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIGVERIFY",
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(2) wrong internal opcode",
+      "arguments": {
+        "output": "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIG 8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(2) too many pubkeys",
+      "arguments": {
+        "output": "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(2) pubkey mismatch",
+      "arguments": {
+        "output": "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3 OP_CHECKSIGVERIFY 8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+        "pubkeys": [
+          "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717",
+          "20040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3"
+        ],
+        "network": "regtest"
+      },
+      "options": {}
+    },
+    {
+      "description": "p2tr_ns(2) bad pubkey",
+      "arguments": {
+        "output": "ff20040c8338b34cb9c06c6b1d38095eafa8f9b72398a1084fdb67473d8dfda3 OP_CHECKSIGVERIFY 8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
+        "network": "regtest"
+      },
+      "options": {}
+    }
+  ]
+}
