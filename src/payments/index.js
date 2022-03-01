@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.p2wsh = exports.p2wpkh = exports.p2sh = exports.p2pkh = exports.p2pk = exports.p2ms = exports.embed = void 0;
+exports.p2wsh = exports.p2wpkh = exports.p2tr_ns = exports.p2tr = exports.p2sh = exports.p2pkh = exports.p2pk = exports.p2ms = exports.embed = void 0;
 const embed_1 = require('./embed');
 Object.defineProperty(exports, 'embed', {
   enumerable: true,
@@ -34,6 +34,20 @@ Object.defineProperty(exports, 'p2sh', {
   enumerable: true,
   get: function() {
     return p2sh_1.p2sh;
+  },
+});
+const p2tr_1 = require('./p2tr');
+Object.defineProperty(exports, 'p2tr', {
+  enumerable: true,
+  get: function() {
+    return p2tr_1.p2tr;
+  },
+});
+const p2tr_ns_1 = require('./p2tr_ns');
+Object.defineProperty(exports, 'p2tr_ns', {
+  enumerable: true,
+  get: function() {
+    return p2tr_ns_1.p2tr_ns;
   },
 });
 const p2wpkh_1 = require('./p2wpkh');

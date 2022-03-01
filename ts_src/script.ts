@@ -4,6 +4,7 @@ import { Stack } from './payments';
 import * as pushdata from './push_data';
 import * as scriptNumber from './script_number';
 import * as scriptSignature from './script_signature';
+import { Transaction } from './transaction';
 import * as types from './types';
 const { typeforce } = types;
 

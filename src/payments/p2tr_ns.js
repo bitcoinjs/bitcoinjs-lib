@@ -1,21 +1,20 @@
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
-import * as bscript from '../script';
-import { Payment, PaymentOpts, Stack } from './index';
-import * as lazy from './lazy';
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.p2tr_ns = void 0;
+const networks_1 = require('../networks');
+const bscript = require('../script');
+const lazy = require('./lazy');
 const OPS = bscript.OPS;
 const typef = require('typeforce');
-
-function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
+function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
-
   return a.every((x, i) => {
     return x.equals(b[i]);
   });
 }
-
 // input: [signatures ...]
 // output: [pubKeys[0:n-1] OP_CHECKSIGVERIFY] pubKeys[n-1] OP_CHECKSIG
-export function p2tr_ns(a: Payment, opts?: PaymentOpts): Payment {
+function p2tr_ns(a, opts) {
   if (
     !a.input &&
     !a.output &&
@@ -24,11 +23,9 @@ export function p2tr_ns(a: Payment, opts?: PaymentOpts): Payment {
   )
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-
   if (!opts.eccLib) throw new Error('ECC Library is required for p2tr_ns.');
   const ecc = opts.eccLib;
-
-  function isAcceptableSignature(x: Buffer | number): boolean {
+  function isAcceptableSignature(x) {
     if (Buffer.isBuffer(x))
       return (
         // empty signatures may be represented as empty buffers
@@ -37,31 +34,26 @@ export function p2tr_ns(a: Payment, opts?: PaymentOpts): Payment {
       );
     return !!(opts && opts.allowIncomplete && x === OPS.OP_0);
   }
-
   typef(
     {
       network: typef.maybe(typef.Object),
       output: typef.maybe(typef.Buffer),
       pubkeys: typef.maybe(typef.arrayOf(ecc.isXOnlyPoint)),
-
       signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
       input: typef.maybe(typef.Buffer),
     },
     a,
   );
-
-  const network = a.network || BITCOIN_NETWORK;
-  const o: Payment = { network };
-
+  const network = a.network || networks_1.bitcoin;
+  const o = { network };
   const _chunks = lazy.value(() => {
     if (!a.output) return;
-    return bscript.decompile(a.output) as Stack;
+    return bscript.decompile(a.output);
   });
-
   lazy.prop(o, 'output', () => {
     if (!a.pubkeys) return;
     return bscript.compile(
-      ([] as Stack).concat(
+      [].concat(
         ...a.pubkeys.map((pk, i, pks) => [
           pk,
           i === pks.length - 1 ? OPS.OP_CHECKSIG : OPS.OP_CHECKSIGVERIFY,
@@ -76,11 +68,11 @@ export function p2tr_ns(a: Payment, opts?: PaymentOpts): Payment {
   lazy.prop(o, 'pubkeys', () => {
     const chunks = _chunks();
     if (!chunks) return;
-    return chunks.filter((_, index) => index % 2 === 0) as Buffer[];
+    return chunks.filter((_, index) => index % 2 === 0);
   });
   lazy.prop(o, 'signatures', () => {
     if (!a.input) return;
-    return bscript.decompile(a.input)!.reverse();
+    return bscript.decompile(a.input).reverse();
   });
   lazy.prop(o, 'input', () => {
     if (!a.signatures) return;
@@ -94,7 +86,6 @@ export function p2tr_ns(a: Payment, opts?: PaymentOpts): Payment {
     if (!o.n) return;
     return `p2tr_ns(${o.n})`;
   });
-
   // extended validation
   if (opts.validate) {
     const chunks = _chunks();
@@ -108,40 +99,35 @@ export function p2tr_ns(a: Payment, opts?: PaymentOpts): Payment {
           .some(op => op !== OPS.OP_CHECKSIGVERIFY)
       )
         throw new TypeError('Output contains unexpected opcode');
-      if (o.n! > 16 || o.n !== chunks.length / 2)
+      if (o.n > 16 || o.n !== chunks.length / 2)
         throw new TypeError('Output contains too many pubkeys');
-      if (o.pubkeys!.some(x => !ecc.isXOnlyPoint(x)))
+      if (o.pubkeys.some(x => !ecc.isXOnlyPoint(x)))
         throw new TypeError('Output contains invalid pubkey(s)');
-
-      if (a.pubkeys && !stacksEqual(a.pubkeys, o.pubkeys!))
+      if (a.pubkeys && !stacksEqual(a.pubkeys, o.pubkeys))
         throw new TypeError('Pubkeys mismatch');
     }
-
     if (a.pubkeys && a.pubkeys.length) {
       o.n = a.pubkeys.length;
     }
-
     if (a.signatures) {
-      if (a.signatures.length < o.n!)
+      if (a.signatures.length < o.n)
         throw new TypeError('Not enough signatures provided');
-      if (a.signatures.length > o.n!)
+      if (a.signatures.length > o.n)
         throw new TypeError('Too many signatures provided');
     }
-
     if (a.input) {
-      if (!o.signatures!.every(isAcceptableSignature))
+      if (!o.signatures.every(isAcceptableSignature))
         throw new TypeError('Input has invalid signature(s)');
-
-      if (a.signatures && !stacksEqual(a.signatures, o.signatures!))
+      if (a.signatures && !stacksEqual(a.signatures, o.signatures))
         throw new TypeError('Signature mismatch');
-      if (o.n !== o.signatures!.length)
+      if (o.n !== o.signatures.length)
         throw new TypeError(
           `Signature count mismatch (n: ${o.n}, signatures.length: ${
-            o.signatures!.length
+            o.signatures.length
           }`,
         );
     }
   }
-
   return Object.assign(o, a);
 }
+exports.p2tr_ns = p2tr_ns;

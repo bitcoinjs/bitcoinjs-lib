@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.Transaction = exports.opcodes = exports.Psbt = exports.Block = exports.script = exports.payments = exports.networks = exports.crypto = exports.address = void 0;
+exports.Transaction = exports.opcodes = exports.Psbt = exports.Block = exports.taproot = exports.script = exports.payments = exports.networks = exports.crypto = exports.address = void 0;
 const address = require('./address');
 exports.address = address;
 const crypto = require('./crypto');
@@ -11,6 +11,8 @@ const payments = require('./payments');
 exports.payments = payments;
 const script = require('./script');
 exports.script = script;
+const taproot = require('./taproot');
+exports.taproot = taproot;
 var block_1 = require('./block');
 Object.defineProperty(exports, 'Block', {
   enumerable: true,

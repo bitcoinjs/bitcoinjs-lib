@@ -1,6 +1,9 @@
 import * as assert from 'assert';
-import { ECPair } from '..';
+import { ECPairAPI, ECPairFactory } from 'ecpair';
+import * as ecc from 'tiny-secp256k1';
 import * as taproot from '../src/taproot';
+
+const ECPair: ECPairAPI = ECPairFactory(ecc);
 
 describe('taproot utils', () => {
   describe('musig key aggregation', () => {
@@ -9,7 +12,7 @@ describe('taproot utils', () => {
     // https://github.com/jonasnick/secp256k1-zkp/blob/musig2/src/modules/musig/example.c
 
     it('aggregates 2 pubkeys', () => {
-      const aggregatePubkey = taproot.aggregateMuSigPubkeys([
+      const aggregatePubkey = taproot.aggregateMuSigPubkeys(ecc, [
         Buffer.from(
           'b2eea3c2431bdda9003b30e385f6a59a74fddb39f4aa927f95ad7a6c147c9f6c',
           'hex',
@@ -21,13 +24,13 @@ describe('taproot utils', () => {
       ]);
 
       assert.strictEqual(
-        aggregatePubkey.toString('hex'),
+        Buffer.from(aggregatePubkey).toString('hex'),
         '0ae195f849375eb836fa9f11dd8a44643f424e2671df6e63a2ad9becb853a9fe',
       );
     });
 
     it('aggregates 3 unsorted pubkeys', () => {
-      const aggregatePubkey = taproot.aggregateMuSigPubkeys([
+      const aggregatePubkey = taproot.aggregateMuSigPubkeys(ecc, [
         Buffer.from(
           'c03b14ebd188344d78ed45a0e4857fc65c7e25f50e0c0d84938220ef37da63d6',
           'hex',
@@ -43,18 +46,18 @@ describe('taproot utils', () => {
       ]);
 
       assert.strictEqual(
-        aggregatePubkey.toString('hex'),
+        Buffer.from(aggregatePubkey).toString('hex'),
         '349740502d79dd7a1253235da3b203de6e7717f487a8d1807e683bdfe7bd17ec',
       );
     });
 
     it('throws an error if no keys are provided', () => {
-      assert.throws(() => taproot.aggregateMuSigPubkeys([]));
+      assert.throws(() => taproot.aggregateMuSigPubkeys(ecc, []));
     });
 
     it('throws an error if a single key is provided', () => {
       assert.throws(() =>
-        taproot.aggregateMuSigPubkeys([ECPair.makeRandom().publicKey]),
+        taproot.aggregateMuSigPubkeys(ecc, [ECPair.makeRandom().publicKey]),
       );
     });
   });
@@ -127,10 +130,14 @@ describe('taproot utils', () => {
         'hex',
       );
 
-      const taprootPubkey = taproot.tapTweakPubkey(internalPubkey, tapTreeRoot);
+      const taprootPubkey = taproot.tapTweakPubkey(
+        ecc,
+        internalPubkey,
+        tapTreeRoot,
+      );
 
       assert.strictEqual(
-        taprootPubkey.pubkey.toString('hex'),
+        Buffer.from(taprootPubkey.xOnlyPubkey).toString('hex'),
         'b23960be1cb56ed0f9044ded73d758f466493cf9e2a6ce139a04fac8d630a601',
       );
     });
@@ -155,10 +162,14 @@ describe('taproot utils', () => {
       );
       const tapTreeRoot = tapTree.root;
 
-      const taprootPubkey = taproot.tapTweakPubkey(internalPubkey, tapTreeRoot);
+      const taprootPubkey = taproot.tapTweakPubkey(
+        ecc,
+        internalPubkey,
+        tapTreeRoot,
+      );
 
       assert.strictEqual(
-        taprootPubkey.pubkey.toString('hex'),
+        Buffer.from(taprootPubkey.xOnlyPubkey).toString('hex'),
         '4c537b89b6763b2c415dee24f75a4c80b48bea926361fbf7636cbf9025c46128',
       );
     });

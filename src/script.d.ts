@@ -13,5 +13,6 @@ export declare function toStack(chunks: Buffer | Array<number | Buffer>): Buffer
 export declare function isCanonicalPubKey(buffer: Buffer): boolean;
 export declare function isDefinedHashType(hashType: number): boolean;
 export declare function isCanonicalScriptSignature(buffer: Buffer): boolean;
+export declare function isCanonicalSchnorrSignature(buffer: Buffer): boolean;
 export declare const number: typeof scriptNumber;
 export declare const signature: typeof scriptSignature;

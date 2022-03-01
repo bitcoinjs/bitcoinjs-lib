@@ -100,6 +100,9 @@ function fromOutputScript(output, network) {
     return payments.p2wsh({ output, network }).address;
   } catch (e) {}
   try {
+    return payments.p2tr({ output, network }).address;
+  } catch (e) {}
+  try {
     return _toFutureSegwitAddress(output, network);
   } catch (e) {}
   throw new Error(bscript.toASM(output) + ' has no matching Address');

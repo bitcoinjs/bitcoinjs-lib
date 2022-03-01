@@ -53,6 +53,7 @@
     "bip174": "^2.0.1",
     "bs58check": "^2.1.2",
     "create-hash": "^1.1.0",
+    "fastpriorityqueue": "^0.7.1",
     "ripemd160": "^2.0.2",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.1.2",
@@ -86,7 +87,7 @@
     "randombytes": "^2.1.0",
     "regtest-client": "0.2.0",
     "rimraf": "^2.6.3",
-    "tiny-secp256k1": "^2.1.2",
+    "tiny-secp256k1": "^2.2.0",
     "ts-node": "^8.3.0",
     "tslint": "^6.1.3",
     "typescript": "^4.4.4"

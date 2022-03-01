@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
+    "lib": ["ES2019.Object"],
     "outDir": "./src",
     "declaration": true,
     "rootDir": "./ts_src",

@@ -10,6 +10,19 @@ export declare function Signer(obj: any): boolean;
 export declare function Satoshi(value: number): boolean;
 export declare const ECPoint: any;
 export declare const Network: any;
+export interface XOnlyPointAddTweakResult {
+    parity: 1 | 0;
+    xOnlyPubkey: Uint8Array;
+}
+export interface TinySecp256k1Interface {
+    isXOnlyPoint(p: Uint8Array): boolean;
+    xOnlyPointAddTweak(p: Uint8Array, tweak: Uint8Array): XOnlyPointAddTweakResult | null;
+    pointFromScalar(sk: Uint8Array, compressed?: boolean): Uint8Array | null;
+    pointMultiply(a: Uint8Array, b: Uint8Array): Uint8Array | null;
+    pointAdd(a: Uint8Array, b: Uint8Array): Uint8Array | null;
+    privateAdd(d: Uint8Array, tweak: Uint8Array): Uint8Array | null;
+    privateNegate(d: Uint8Array): Uint8Array;
+}
 export declare const Buffer256bit: any;
 export declare const Hash160bit: any;
 export declare const Hash256bit: any;

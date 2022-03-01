@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.signature = exports.number = exports.isCanonicalScriptSignature = exports.isDefinedHashType = exports.isCanonicalPubKey = exports.toStack = exports.fromASM = exports.toASM = exports.decompile = exports.compile = exports.isPushOnly = exports.OPS = void 0;
+exports.signature = exports.number = exports.isCanonicalSchnorrSignature = exports.isCanonicalScriptSignature = exports.isDefinedHashType = exports.isCanonicalPubKey = exports.toStack = exports.fromASM = exports.toASM = exports.decompile = exports.compile = exports.isPushOnly = exports.OPS = void 0;
 const bip66 = require('./bip66');
 const ops_1 = require('./ops');
 Object.defineProperty(exports, 'OPS', {
@@ -12,6 +12,7 @@ Object.defineProperty(exports, 'OPS', {
 const pushdata = require('./push_data');
 const scriptNumber = require('./script_number');
 const scriptSignature = require('./script_signature');
+const transaction_1 = require('./transaction');
 const types = require('./types');
 const { typeforce } = types;
 const OP_INT_BASE = ops_1.OPS.OP_RESERVED; // OP_1 - 1
@@ -177,6 +178,28 @@ function isCanonicalScriptSignature(buffer) {
   return bip66.check(buffer.slice(0, -1));
 }
 exports.isCanonicalScriptSignature = isCanonicalScriptSignature;
+function isCanonicalSchnorrSignature(buffer) {
+  if (!Buffer.isBuffer(buffer)) return false;
+  if (buffer.length === 64) return true; // implied SIGHASH_DEFAULT
+  if (
+    buffer.length === 65 &&
+    [
+      transaction_1.Transaction.SIGHASH_ALL,
+      transaction_1.Transaction.SIGHASH_NONE,
+      transaction_1.Transaction.SIGHASH_SINGLE,
+      transaction_1.Transaction.SIGHASH_ALL |
+        transaction_1.Transaction.SIGHASH_ANYONECANPAY,
+      transaction_1.Transaction.SIGHASH_NONE |
+        transaction_1.Transaction.SIGHASH_ANYONECANPAY,
+      transaction_1.Transaction.SIGHASH_SINGLE |
+        transaction_1.Transaction.SIGHASH_ANYONECANPAY, // 0x83
+    ].includes(buffer[64])
+  ) {
+    return true; // explicit SIGHASH trailing byte
+  }
+  return false;
+}
+exports.isCanonicalSchnorrSignature = isCanonicalSchnorrSignature;
 // tslint:disable-next-line variable-name
 exports.number = scriptNumber;
 exports.signature = scriptSignature;

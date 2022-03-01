@@ -1,16 +1,15 @@
+'use strict';
 // SegWit version 1 P2TR output type for Taproot defined in
 // https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki
-
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
-import * as bscript from '../script';
-import * as taproot from '../taproot';
-import { Payment, PaymentOpts } from './index';
-import * as lazy from './lazy';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.p2tr = void 0;
+const networks_1 = require('../networks');
+const bscript = require('../script');
+const taproot = require('../taproot');
+const lazy = require('./lazy');
 const typef = require('typeforce');
 const OPS = bscript.OPS;
-
 const { bech32m } = require('bech32');
-
 /**
  * A secp256k1 x coordinate with unknown discrete logarithm used for eliminating
  * keypath spends, equal to SHA256(uncompressedDER(SECP256K1_GENERATOR_POINT)).
@@ -20,9 +19,8 @@ const H = Buffer.from(
   'hex',
 );
 const EMPTY_BUFFER = Buffer.alloc(0);
-
 // output: OP_1 {witnessProgram}
-export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
+function p2tr(a, opts) {
   if (
     !a.address &&
     !a.pubkey &&
@@ -33,14 +31,11 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   )
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-
   if (!opts.eccLib) throw new Error('ECC Library is required for p2tr.');
   const ecc = opts.eccLib;
-
   typef(
     {
       network: typef.maybe(typef.Object),
-
       address: typef.maybe(typef.String),
       // the output script should be a fixed 34 bytes.
       // 1 byte for OP_1 indicating segwit version 1, one byte for 0x20 to push
@@ -51,7 +46,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       // the pub key(s) used for keypath signing.
       // aggregated with MuSig2* if > 1
       pubkeys: typef.maybe(typef.arrayOf(ecc.isXOnlyPoint)),
-
       redeems: typef.maybe(
         typef.arrayOf({
           network: typef.maybe(typef.Object),
@@ -60,18 +54,15 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
           witness: typef.maybe(typef.arrayOf(typef.Buffer)),
         }),
       ),
-      redeemIndex: typef.maybe(typef.Number), // Selects the redeem to spend
-
+      redeemIndex: typef.maybe(typef.Number),
       signature: typef.maybe(bscript.isCanonicalSchnorrSignature),
       controlBlock: typef.maybe(typef.Buffer),
       annex: typef.maybe(typef.Buffer),
     },
     a,
   );
-
   const _address = lazy.value(() => {
     if (!a.address) return undefined;
-
     const result = bech32m.decode(a.address);
     const version = result.words.shift();
     const data = bech32m.fromWords(result.words);
@@ -88,12 +79,10 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   });
   const _taptree = lazy.value(() => {
     if (!a.redeems) return;
-    const outputs: Array<Buffer | undefined> = a.redeems.map(
-      ({ output }) => output,
-    );
+    const outputs = a.redeems.map(({ output }) => output);
     if (!outputs.every(output => output)) return;
     return taproot.getHuffmanTaptree(
-      outputs as Buffer[],
+      outputs,
       a.redeems.map(({ weight }) => weight),
     );
   });
@@ -118,7 +107,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       // multiple pubkeys
       return taproot.aggregateMuSigPubkeys(ecc, a.pubkeys);
     } else if (_parsedControlBlock()) {
-      return _parsedControlBlock()!.internalPubkey;
+      return _parsedControlBlock().internalPubkey;
     } else {
       // If there is no key path spending condition, we use an internal key with unknown secret key.
       // TODO: In order to avoid leaking the information that key path spending is not possible it
@@ -157,18 +146,14 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
           tapscript,
         );
     }
-    if (!taptreeRoot && _taptree()) taptreeRoot = _taptree()!.root;
-
+    if (!taptreeRoot && _taptree()) taptreeRoot = _taptree().root;
     return taproot.tapTweakPubkey(ecc, _internalPubkey(), taptreeRoot);
   });
-
-  const network = a.network || BITCOIN_NETWORK;
-
-  const o: Payment = { network };
-
+  const network = a.network || networks_1.bitcoin;
+  const o = { network };
   lazy.prop(o, 'address', () => {
     const pubkey =
-      _outputPubkey() || (_taprootPubkey() && _taprootPubkey()!.xOnlyPubkey);
+      _outputPubkey() || (_taprootPubkey() && _taprootPubkey().xOnlyPubkey);
     // only encode the 32 byte witness program as bech32m
     const words = bech32m.toWords(pubkey);
     words.unshift(0x01);
@@ -194,17 +179,15 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   });
   lazy.prop(o, 'annex', () => {
     if (!_parsedWitness()) return;
-    return _parsedWitness()!.annex;
+    return _parsedWitness().annex;
   });
   lazy.prop(o, 'output', () => {
     if (a.address) {
-      const { data } = _address()!;
+      const { data } = _address();
       return bscript.compile([OPS.OP_1, data]);
     }
-
     const taprootPubkey = _taprootPubkey();
     if (!taprootPubkey) return;
-
     // OP_1 indicates segwit version 1
     return bscript.compile([OPS.OP_1, Buffer.from(taprootPubkey.xOnlyPubkey)]);
   });
@@ -217,7 +200,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     } else if (!o.controlBlock) {
       return;
     }
-
     let redeemWitness;
     // some callers may provide witness elements in the input script
     if (
@@ -227,10 +209,9 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       o.redeem.output.length > 0
     ) {
       // transform redeem input to witness stack
-      redeemWitness = bscript.toStack(bscript.decompile(o.redeem.input)!);
-
+      redeemWitness = bscript.toStack(bscript.decompile(o.redeem.input));
       // assigns a new object to o.redeem
-      o.redeems![a.redeemIndex!] = Object.assign(
+      o.redeems[a.redeemIndex] = Object.assign(
         { witness: redeemWitness },
         o.redeem,
       );
@@ -245,13 +226,10 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     } else {
       return;
     }
-
     const witness = [...redeemWitness, o.redeem.output, o.controlBlock];
-
     if (a.annex) {
       witness.push(a.annex);
     }
-
     return witness;
   });
   lazy.prop(o, 'name', () => {
@@ -270,27 +248,21 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         output: parsedWitness.tapscript,
       };
   });
-
   // extended validation
   if (opts.validate) {
     const taprootPubkey = _taprootPubkey();
-
     if (a.output) {
       if (a.output[0] !== OPS.OP_1 || a.output[1] !== 0x20)
         throw new TypeError('Output is invalid');
-
       // if we're passed both an output script and an address, ensure they match
-      if (a.address && !_outputPubkey()!.equals(_address()!.data))
+      if (a.address && !_outputPubkey().equals(_address().data))
         throw new TypeError('mismatch between address & output');
-
-      if (taprootPubkey && !_outputPubkey()!.equals(taprootPubkey.xOnlyPubkey))
+      if (taprootPubkey && !_outputPubkey().equals(taprootPubkey.xOnlyPubkey))
         throw new TypeError('mismatch between output and taproot pubkey');
     }
-
     if (a.address)
-      if (taprootPubkey && !_address()!.data.equals(taprootPubkey.xOnlyPubkey))
+      if (taprootPubkey && !_address().data.equals(taprootPubkey.xOnlyPubkey))
         throw new TypeError('mismatch between address and taproot pubkey');
-
     const parsedControlBlock = _parsedControlBlock();
     if (parsedControlBlock) {
       if (!parsedControlBlock.internalPubkey.equals(_internalPubkey()))
@@ -298,7 +270,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       if (taprootPubkey && parsedControlBlock.parity !== taprootPubkey.parity)
         throw new TypeError('Parity mismatch');
     }
-
     if (a.redeems) {
       if (!a.redeems.length) throw new TypeError('Empty redeems');
       if (
@@ -312,32 +283,26 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
           throw new TypeError('Network mismatch');
       });
     }
-
     const chosenRedeem =
       a.redeems && a.redeemIndex !== undefined && a.redeems[a.redeemIndex];
-
     const parsedWitness = _parsedWitness();
     if (parsedWitness && parsedWitness.spendType === 'Key') {
       if (a.controlBlock)
         throw new TypeError('unexpected control block for key path');
-
       if (a.signature && !a.signature.equals(parsedWitness.signature))
         throw new TypeError('mismatch between witness & signature');
     }
     if (parsedWitness && parsedWitness.spendType === 'Script') {
       if (a.signature)
         throw new TypeError('unexpected signature with script path witness');
-
       if (a.controlBlock && !a.controlBlock.equals(parsedWitness.controlBlock))
         throw new TypeError('control block mismatch');
-
       if (
         a.annex &&
         parsedWitness.annex &&
         !a.annex.equals(parsedWitness.annex)
       )
         throw new TypeError('annex mismatch');
-
       if (
         chosenRedeem &&
         chosenRedeem.output &&
@@ -346,6 +311,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         throw new TypeError('tapscript mismatch');
     }
   }
-
   return Object.assign(o, a);
 }
+exports.p2tr = p2tr;
