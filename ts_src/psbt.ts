@@ -372,9 +372,9 @@ export class Psbt {
       input,
       script,
       isSegwit,
-      isTapscript,
       isP2SH,
       isP2WSH,
+      isTapscript,
       this.__CACHE.__EC_LIB,
     );
 
@@ -1236,9 +1236,9 @@ function getFinalScripts(
   input: PsbtInput,
   script: Buffer,
   isSegwit: boolean,
-  isTapscript: boolean,
   isP2SH: boolean,
   isP2WSH: boolean,
+  isTapscript: boolean = false,
   eccLib?: TinySecp256k1Interface,
 ): {
   finalScriptSig: Buffer | undefined;

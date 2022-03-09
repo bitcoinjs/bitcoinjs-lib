@@ -439,7 +439,6 @@ function csvGetFinalScripts(
   input: PsbtInput,
   script: Buffer,
   isSegwit: boolean,
-  _isTapscript: boolean,
   isP2SH: boolean,
   isP2WSH: boolean,
 ): {

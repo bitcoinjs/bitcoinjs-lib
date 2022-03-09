@@ -294,9 +294,9 @@ class Psbt {
       input,
       script,
       isSegwit,
-      isTapscript,
       isP2SH,
       isP2WSH,
+      isTapscript,
       this.__CACHE.__EC_LIB,
     );
     if (finalScriptSig) this.data.updateInput(inputIndex, { finalScriptSig });
@@ -932,9 +932,9 @@ function getFinalScripts(
   input,
   script,
   isSegwit,
-  isTapscript,
   isP2SH,
   isP2WSH,
+  isTapscript = false,
   eccLib,
 ) {
   const scriptType = classifyScript(script, eccLib);
