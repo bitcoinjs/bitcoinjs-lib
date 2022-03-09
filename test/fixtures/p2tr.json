@@ -94,7 +94,7 @@
       }
     },
     {
-      "description": "address, pubkey, internalPubkey and output from witness",
+      "description": "address, pubkey, internalPubkey, redeeem and output from witness",
       "arguments": {
         "witness": [
           "9675a9982c6398ea9d441cb7a943bcd6ff033cc3a2e01a0178a7d3be4575be863871c6bf3eef5ecd34721c784259385ca9101c3a313e010ac942c99de05aaaa602",
@@ -112,6 +112,14 @@
         "output": "OP_1 1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
         "signature": null,
         "input": null,
+        "redeem" : {
+          "output": "OP_DROP c7b5db9562078049719228db2ac80cb9643ec96c8055aa3b29c2c03d4d99edb0 OP_CHECKSIG",
+          "redeemVersion": 192,
+          "witness": [
+            "9675a9982c6398ea9d441cb7a943bcd6ff033cc3a2e01a0178a7d3be4575be863871c6bf3eef5ecd34721c784259385ca9101c3a313e010ac942c99de05aaaa602",
+            "5799cf4b193b730fb99580b186f7477c2cca4d28957326f6f1a5d14116438530e7ec0ce1cd465ad96968ae8a6a09d4d37a060a115919f56fcfebe7b2277cc2df5cc08fb6cda9105ee2512b2e22635aba"
+          ]
+        },
         "witness": [
           "9675a9982c6398ea9d441cb7a943bcd6ff033cc3a2e01a0178a7d3be4575be863871c6bf3eef5ecd34721c784259385ca9101c3a313e010ac942c99de05aaaa602",
           "5799cf4b193b730fb99580b186f7477c2cca4d28957326f6f1a5d14116438530e7ec0ce1cd465ad96968ae8a6a09d4d37a060a115919f56fcfebe7b2277cc2df5cc08fb6cda9105ee2512b2e22635aba",
@@ -153,7 +161,7 @@
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with one leaf",
       "arguments": {
         "internalPubkey": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
           }
@@ -174,7 +182,7 @@
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with two leafs",
       "arguments": {
         "internalPubkey": "2258b1c3160be0864a541854eec9164a572f094f7562628281a8073bb89173a7",
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "d826a0a53abb6ffc60df25b9c152870578faef4b2eb5a09bdd672bbe32cdd79b OP_CHECKSIG"
           },
@@ -198,7 +206,7 @@
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with three leafs",
       "arguments": {
         "internalPubkey": "7631cacec3343052d87ef4d0065f61dde82d7d2db0c1cc02ef61ef3c982ea763",
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
           },
@@ -227,7 +235,7 @@
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with four leafs",
       "arguments": {
         "internalPubkey": "d0c19def28bb1b39451c1a814737615983967780d223b79969ba692182c6006b",
-        "scriptsTree": [
+        "scriptTree": [
           [
             {
               "output": "9b4d495b74887815a1ff623c055c6eac6b6b2e07d2a016d6526ebac71dd99744 OP_CHECKSIG"
@@ -261,7 +269,7 @@
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with seven leafs",
       "arguments": {
         "internalPubkey": "f95886b02a84928c5c15bdca32784993105f73de27fa6ad8c1a60389b999267c",
-        "scriptsTree": [
+        "scriptTree": [
           [
             {
               "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
@@ -310,7 +318,7 @@
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with seven leafs (2)",
       "arguments": {
         "internalPubkey": "aba457d16a8d59151c387f24d1eb887efbe24644c1ee64b261282e7baebdb247",
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d3 OP_CHECKSIG"
           },
@@ -375,11 +383,11 @@
       "description": "BIP341 Test case 2",
       "arguments": {
         "internalPubkey": "187791b6f712a8ea41c8ecdd0ee77fab3e85263b37e1ec18a3651926b3a6cf27",
-        "scriptLeaf": {
+        "redeem": {
           "output": "d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8 OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8 OP_CHECKSIG",
             "version": 192
@@ -397,6 +405,10 @@
           "20d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8ac",
           "c1187791b6f712a8ea41c8ecdd0ee77fab3e85263b37e1ec18a3651926b3a6cf27"
         ],
+        "redeem": {
+          "output": "d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8 OP_CHECKSIG",
+          "redeemVersion": 192
+        },
         "signature": null,
         "input": null
       }
@@ -405,11 +417,11 @@
       "description": "BIP341 Test case 3",
       "arguments": {
         "internalPubkey": "93478e9488f956df2396be2ce6c5cced75f900dfa18e7dabd2428aae78451820",
-        "scriptLeaf": {
+        "redeem": {
           "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
             "version": 192
@@ -435,11 +447,11 @@
       "description": "BIP341 Test case 4 - spend leaf 0",
       "arguments": {
         "internalPubkey": "ee4fe085983462a184015d1f782d6a5f8b9c2b60130aff050ce221ecf3786592",
-        "scriptLeaf": {
+        "redeem": {
           "output": "387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48 OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48 OP_CHECKSIG",
             "version": 192
@@ -469,11 +481,11 @@
       "description": "BIP341 Test case 4 - spend leaf 1",
       "arguments": {
         "internalPubkey": "ee4fe085983462a184015d1f782d6a5f8b9c2b60130aff050ce221ecf3786592",
-        "scriptLeaf": {
+        "redeem": {
           "output": "424950333431",
-          "version": 152
+          "redeemVersion": 152
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48 OP_CHECKSIG",
             "version": 192
@@ -503,11 +515,11 @@
       "description": "BIP341 Test case 5 - spend leaf 0",
       "arguments": {
         "internalPubkey": "f9f400803e683727b14f463836e1e78e1c64417638aa066919291a225f0e8dd8",
-        "scriptLeaf": {
+        "redeem": {
           "output": "44b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fd OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "44b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fd OP_CHECKSIG",
             "version": 192
@@ -537,11 +549,11 @@
       "description": "BIP341 Test case 5 - spend leaf 1",
       "arguments": {
         "internalPubkey": "f9f400803e683727b14f463836e1e78e1c64417638aa066919291a225f0e8dd8",
-        "scriptLeaf": {
+        "redeem": {
           "output": "546170726f6f74",
-          "version": 82
+          "redeemVersion": 82
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "44b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fd OP_CHECKSIG",
             "version": 192
@@ -571,11 +583,11 @@
       "description": "BIP341 Test case 6 - spend leaf 0",
       "arguments": {
         "internalPubkey": "e0dfe2300b0dd746a3f8674dfd4525623639042569d829c7f0eed9602d263e6f",
-        "scriptLeaf": {
+        "redeem": {
           "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
             "version": 192
@@ -611,11 +623,11 @@
       "description": "BIP341 Test case 6 - spend leaf 1",
       "arguments": {
         "internalPubkey": "e0dfe2300b0dd746a3f8674dfd4525623639042569d829c7f0eed9602d263e6f",
-        "scriptLeaf": {
+        "redeem": {
           "output": "2352d137f2f3ab38d1eaa976758873377fa5ebb817372c71e2c542313d4abda8 OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
             "version": 192
@@ -651,11 +663,11 @@
       "description": "BIP341 Test case 6 - spend leaf 2",
       "arguments": {
         "internalPubkey": "e0dfe2300b0dd746a3f8674dfd4525623639042569d829c7f0eed9602d263e6f",
-        "scriptLeaf": {
+        "redeem": {
           "output": "7337c0dd4253cb86f2c43a2351aadd82cccb12a172cd120452b9bb8324f2186a OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
             "version": 192
@@ -691,11 +703,10 @@
       "description": "BIP341 Test case 7 - spend leaf 0",
       "arguments": {
         "internalPubkey": "55adf4e8967fbd2e29f20ac896e60c3b0f1d5b0efa9d34941b5958c7b0a0312d",
-        "scriptLeaf": {
-          "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
-          "version": 192
+        "redeem": {
+          "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG"
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
             "version": 192
@@ -731,11 +742,11 @@
       "description": "BIP341 Test case 7 - spend leaf 1",
       "arguments": {
         "internalPubkey": "55adf4e8967fbd2e29f20ac896e60c3b0f1d5b0efa9d34941b5958c7b0a0312d",
-        "scriptLeaf": {
+        "redeem": {
           "output": "d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748 OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
             "version": 192
@@ -771,11 +782,11 @@
       "description": "BIP341 Test case 7 - spend leaf 2",
       "arguments": {
         "internalPubkey": "55adf4e8967fbd2e29f20ac896e60c3b0f1d5b0efa9d34941b5958c7b0a0312d",
-        "scriptLeaf": {
+        "redeem": {
           "output": "c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4c OP_CHECKSIG",
-          "version": 192
+          "redeemVersion": 192
         },
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
             "version": 192
@@ -884,12 +895,12 @@
       }
     },
     {
-      "description": "Hash mismatch between scriptsTree and hash",
+      "description": "Hash mismatch between scriptTree and hash",
       "exception": "Hash mismatch",
       "options": {},
       "arguments": {
         "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
-        "scriptsTree": [
+        "scriptTree": [
           {
             "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
           }
@@ -1016,6 +1027,133 @@
           "7520c7b5db9562078049719228db2ac80cb9643ec96c8055aa3b29c2c03d4d99edb0ac",
           "c0a7957acbaaf7b444c53d9e0c9436e8a8a3247fd515095d66ddf6201918b40a3668f9a4ccdffcf778da624dca2dda0b08e763ec52fd4ad403ec7563a3504d0cc168b9a77a410029e01dac89567c9b2e6cd726e840351df3f2f58fefe976200a19244150d04153909f660184d656ee95fa7bf8e1d4ec83da1fca34f64bc279b76d257ec623e08baba2cfa4ea9e99646e88f1eb1668c00c0f15b7443c8ab83481611cc3ae85eb89a7bfc40067eb1d2e6354a32426d0ce710e88bc4cc0718b99c325509c9d02a6a980d675a8969be10ee9bef82cafee2fc913475667ccda37b1bc7f13f64e56c449c532658ba8481631c02ead979754c809584a875951619cec8fb040c33f06468ae0266cd8693d6a64cea5912be32d8de95a6da6300b0c50fdcd6001ea41126e7b7e5280d455054a816560028f5ca53c9a50ee52f10e15c5337315bad1f5277acb109a1418649dc6ead2fe14699742fee7182f2f15e54279c7d932ed2799d01d73c97e68bbc94d6f7f56ee0a80efd7c76e3169e10d1a1ba3b5f1eb02369dc43af687461c7a2a3344d13eb5485dca29a67f16b4cb988923060fd3b65d0f0352bb634bcc44f2fe668836dcd0f604150049835135dc4b4fbf90fb334b3938a1f137eb32f047c65b85e6c1173b890b6d0162b48b186d1f1af8521945924ac8ac8efec321bf34f1d4b3d4a304a10313052c652d53f6ecb8a55586614e8950cde9ab6fe8e22802e93b3b9139112250b80ebc589aba231af535bb20f7eeec2e412f698c17f3fdc0a2e20924a5e38b21a628a9e3b2a61e35958e60c7f5087c"
         ]
+      }
+    },
+    {
+      "description": "Script Tree is not a binary tree (has tree leafs)",
+      "exception": "property \"scriptTree\" of type \\?isTapTree, got Array",
+      "options": {},
+      "arguments": {
+        "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
+        "scriptTree": [
+          {
+            "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4c OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4c OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ],
+        "hash": "b76077013c8e303085e300000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "description": "Script Tree is not a TapTree tree (leaf has no script)",
+      "exception": "property \"scriptTree\" of type \\?isTapTree, got Array",
+      "options": {},
+      "arguments": {
+        "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
+        "scriptTree": [
+          {
+            "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            [
+              [
+                [
+                  {
+                    "output": "d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748 OP_CHECKSIG",
+                    "version": 192
+                  },
+                  {
+                    "version": 192
+                  }
+                ]
+              ]
+            ]
+          ]
+        ],
+        "hash": "b76077013c8e303085e300000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "description": "Incorrect redeem version",
+      "exception": "Redeem.redeemVersion and witness mismatch",
+      "arguments": {
+        "witness": [
+          "20d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8ac",
+          "c1187791b6f712a8ea41c8ecdd0ee77fab3e85263b37e1ec18a3651926b3a6cf27"
+        ],
+        "redeem": {
+          "output": "d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8 OP_CHECKSIG",
+          "redeemVersion": 111
+        }
+      }
+    },
+    {
+      "description": "Incorrect redeem output",
+      "exception": "Redeem.output and witness mismatch",
+      "arguments": {
+        "witness": [
+          "20d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8ac",
+          "c1187791b6f712a8ea41c8ecdd0ee77fab3e85263b37e1ec18a3651926b3a6cf27"
+        ],
+        "redeem": {
+          "output": "d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e0000000000 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      }
+    },
+    {
+      "description": "Incorrect redeem witness",
+      "exception": "Redeem.witness and witness mismatch",
+      "arguments": {
+        "witness": [
+          "9675a9982c6398ea9d441cb7a943bcd6ff033cc3a2e01a0178a7d3be4575be863871c6bf3eef5ecd34721c784259385ca9101c3a313e010ac942c99de05aaaa602",
+          "5799cf4b193b730fb99580b186f7477c2cca4d28957326f6f1a5d14116438530e7ec0ce1cd465ad96968ae8a6a09d4d37a060a115919f56fcfebe7b2277cc2df5cc08fb6cda9105ee2512b2e22635aba",
+          "7520c7b5db9562078049719228db2ac80cb9643ec96c8055aa3b29c2c03d4d99edb0ac",
+          "c1a7957acbaaf7b444c53d9e0c9436e8a8a3247fd515095d66ddf6201918b40a3668f9a4ccdffcf778da624dca2dda0b08e763ec52fd4ad403ec7563a3504d0cc168b9a77a410029e01dac89567c9b2e6cd726e840351df3f2f58fefe976200a19244150d04153909f660184d656ee95fa7bf8e1d4ec83da1fca34f64bc279b76d257ec623e08baba2cfa4ea9e99646e88f1eb1668c00c0f15b7443c8ab83481611cc3ae85eb89a7bfc40067eb1d2e6354a32426d0ce710e88bc4cc0718b99c325509c9d02a6a980d675a8969be10ee9bef82cafee2fc913475667ccda37b1bc7f13f64e56c449c532658ba8481631c02ead979754c809584a875951619cec8fb040c33f06468ae0266cd8693d6a64cea5912be32d8de95a6da6300b0c50fdcd6001ea41126e7b7e5280d455054a816560028f5ca53c9a50ee52f10e15c5337315bad1f5277acb109a1418649dc6ead2fe14699742fee7182f2f15e54279c7d932ed2799d01d73c97e68bbc94d6f7f56ee0a80efd7c76e3169e10d1a1ba3b5f1eb02369dc43af687461c7a2a3344d13eb5485dca29a67f16b4cb988923060fd3b65d0f0352bb634bcc44f2fe668836dcd0f604150049835135dc4b4fbf90fb334b3938a1f137eb32f047c65b85e6c1173b890b6d0162b48b186d1f1af8521945924ac8ac8efec321bf34f1d4b3d4a304a10313052c652d53f6ecb8a55586614e8950cde9ab6fe8e22802e93b3b9139112250b80ebc589aba231af535bb20f7eeec2e412f698c17f3fdc0a2e20924a5e38b21a628a9e3b2a61e35958e60c7f5087c"
+        ],
+        "redeem" : {
+          "output": "OP_DROP c7b5db9562078049719228db2ac80cb9643ec96c8055aa3b29c2c03d4d99edb0 OP_CHECKSIG",
+          "redeemVersion": 192,
+          "witness": [
+            "9675a9982c6398ea9d441cb7a943bcd6ff033cc3a2e01a0178a7d3be4575be863871c6bf3eef5ecd34721c784259385ca9101c3a313e0100000000000000000000",
+            "5799cf4b193b730fb99580b186f7477c2cca4d28957326f6f1a5d14116438530e7ec0ce1cd465ad96968ae8a6a09d4d37a060a115919f56fcfebe7b2277cc2df5cc08fb6cda9105ee2512b2e22635aba"
+          ]
+        }
+      }
+    },
+    {
+      "description": "Incorrect redeem output ASM",
+      "exception": "Redeem.output is invalid",
+      "arguments": {
+        "witness": [
+          "9675a9982c6398ea9d441cb7a943bcd6ff033cc3a2e01a0178a7d3be4575be863871c6bf3eef5ecd34721c784259385ca9101c3a313e010ac942c99de05aaaa602",
+          "5799cf4b193b730fb99580b186f7477c2cca4d28957326f6f1a5d14116438530e7ec0ce1cd465ad96968ae8a6a09d4d37a060a115919f56fcfebe7b2277cc2df5cc08fb6cda9105ee2512b2e22635aba",
+          "7520c7b5db9562078049719228db2ac80cb9643ec96c8055aa3b29c2c03d4d99edb0ac",
+          "c1a7957acbaaf7b444c53d9e0c9436e8a8a3247fd515095d66ddf6201918b40a3668f9a4ccdffcf778da624dca2dda0b08e763ec52fd4ad403ec7563a3504d0cc168b9a77a410029e01dac89567c9b2e6cd726e840351df3f2f58fefe976200a19244150d04153909f660184d656ee95fa7bf8e1d4ec83da1fca34f64bc279b76d257ec623e08baba2cfa4ea9e99646e88f1eb1668c00c0f15b7443c8ab83481611cc3ae85eb89a7bfc40067eb1d2e6354a32426d0ce710e88bc4cc0718b99c325509c9d02a6a980d675a8969be10ee9bef82cafee2fc913475667ccda37b1bc7f13f64e56c449c532658ba8481631c02ead979754c809584a875951619cec8fb040c33f06468ae0266cd8693d6a64cea5912be32d8de95a6da6300b0c50fdcd6001ea41126e7b7e5280d455054a816560028f5ca53c9a50ee52f10e15c5337315bad1f5277acb109a1418649dc6ead2fe14699742fee7182f2f15e54279c7d932ed2799d01d73c97e68bbc94d6f7f56ee0a80efd7c76e3169e10d1a1ba3b5f1eb02369dc43af687461c7a2a3344d13eb5485dca29a67f16b4cb988923060fd3b65d0f0352bb634bcc44f2fe668836dcd0f604150049835135dc4b4fbf90fb334b3938a1f137eb32f047c65b85e6c1173b890b6d0162b48b186d1f1af8521945924ac8ac8efec321bf34f1d4b3d4a304a10313052c652d53f6ecb8a55586614e8950cde9ab6fe8e22802e93b3b9139112250b80ebc589aba231af535bb20f7eeec2e412f698c17f3fdc0a2e20924a5e38b21a628a9e3b2a61e35958e60c7f5087c"
+        ],
+        "redeem" : {
+          "output": "",
+          "redeemVersion": 192,
+          "witness": [
+            "9675a9982c6398ea9d441cb7a943bcd6ff033cc3a2e01a0178a7d3be4575be863871c6bf3eef5ecd34721c784259385ca9101c3a313e0100000000000000000000",
+            "5799cf4b193b730fb99580b186f7477c2cca4d28957326f6f1a5d14116438530e7ec0ce1cd465ad96968ae8a6a09d4d37a060a115919f56fcfebe7b2277cc2df5cc08fb6cda9105ee2512b2e22635aba"
+          ]
+        }
       }
     }
   ],

@@ -10,8 +10,9 @@ const lazy = require('./lazy');
 const bech32_1 = require('bech32');
 const testecc_1 = require('./testecc');
 const OPS = bscript.OPS;
-const TAPROOT_VERSION = 0x01;
+const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
+const LEAF_VERSION_MASK = 0b11111110;
 function p2tr(a, opts) {
   if (
     !a.address &&
@@ -40,11 +41,15 @@ function p2tr(a, opts) {
       witness: types_1.typeforce.maybe(
         types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
       ),
-      // scriptsTree: typef.maybe(typef.TaprootNode), // use merkel.isMast ?
-      scriptLeaf: types_1.typeforce.maybe({
-        version: types_1.typeforce.maybe(types_1.typeforce.Number),
+      scriptTree: types_1.typeforce.maybe(taprootutils_1.isTapTree),
+      redeem: types_1.typeforce.maybe({
         output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
+        redeemVersion: types_1.typeforce.maybe(types_1.typeforce.Number),
+        witness: types_1.typeforce.maybe(
+          types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
+        ),
       }),
+      redeemVersion: types_1.typeforce.maybe(types_1.typeforce.Number),
     },
     a,
   );
@@ -58,13 +63,13 @@ function p2tr(a, opts) {
       data: buffer_1.Buffer.from(data),
     };
   });
+  // remove annex if present, ignored by taproot
   const _witness = lazy.value(() => {
     if (!a.witness || !a.witness.length) return;
     if (
       a.witness.length >= 2 &&
       a.witness[a.witness.length - 1][0] === ANNEX_PREFIX
     ) {
-      // remove annex, ignored by taproot
       return a.witness.slice(0, -1);
     }
     return a.witness.slice();
@@ -74,17 +79,16 @@ function p2tr(a, opts) {
   lazy.prop(o, 'address', () => {
     if (!o.pubkey) return;
     const words = bech32_1.bech32m.toWords(o.pubkey);
-    words.unshift(TAPROOT_VERSION);
+    words.unshift(TAPROOT_WITNESS_VERSION);
     return bech32_1.bech32m.encode(network.bech32, words);
   });
   lazy.prop(o, 'hash', () => {
     if (a.hash) return a.hash;
-    if (a.scriptsTree)
-      return (0, taprootutils_1.toHashTree)(a.scriptsTree).hash;
+    if (a.scriptTree) return (0, taprootutils_1.toHashTree)(a.scriptTree).hash;
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
-      const leafVersion = controlBlock[0] & 0b11111110;
+      const leafVersion = controlBlock[0] & LEAF_VERSION_MASK;
       const script = w[w.length - 2];
       const leafHash = (0, taprootutils_1.tapLeafHash)(script, leafVersion);
       return (0, taprootutils_1.rootHashFromPath)(controlBlock, leafHash);
@@ -95,8 +99,25 @@ function p2tr(a, opts) {
     if (!o.pubkey) return;
     return bscript.compile([OPS.OP_1, o.pubkey]);
   });
-  lazy.prop(o, 'scriptLeaf', () => {
-    if (a.scriptLeaf) return a.scriptLeaf;
+  lazy.prop(o, 'redeemVersion', () => {
+    if (a.redeemVersion) return a.redeemVersion;
+    if (
+      a.redeem &&
+      a.redeem.redeemVersion !== undefined &&
+      a.redeem.redeemVersion !== null
+    ) {
+      return a.redeem.redeemVersion;
+    }
+    return taprootutils_1.LEAF_VERSION_TAPSCRIPT;
+  });
+  lazy.prop(o, 'redeem', () => {
+    const witness = _witness(); // witness without annex
+    if (!witness || witness.length < 2) return;
+    return {
+      output: witness[witness.length - 2],
+      witness: witness.slice(0, -2),
+      redeemVersion: witness[witness.length - 1][0] & LEAF_VERSION_MASK,
+    };
   });
   lazy.prop(o, 'pubkey', () => {
     if (a.pubkey) return a.pubkey;
@@ -118,29 +139,25 @@ function p2tr(a, opts) {
     if (!a.witness || a.witness.length !== 1) return;
     return a.witness[0];
   });
-  lazy.prop(o, 'input', () => {
-    // todo
-  });
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
-    if (a.scriptsTree && a.scriptLeaf && a.internalPubkey) {
+    if (a.scriptTree && a.redeem && a.redeem.output && a.internalPubkey) {
       // todo: optimize/cache
-      const hashTree = (0, taprootutils_1.toHashTree)(a.scriptsTree);
+      const hashTree = (0, taprootutils_1.toHashTree)(a.scriptTree);
       const leafHash = (0, taprootutils_1.tapLeafHash)(
-        a.scriptLeaf.output,
-        a.scriptLeaf.version,
+        a.redeem.output,
+        o.redeemVersion,
       );
       const path = (0, taprootutils_1.findScriptPath)(hashTree, leafHash);
       const outputKey = tweakKey(a.internalPubkey, hashTree.hash, _ecc());
       if (!outputKey) return;
-      const version = a.scriptLeaf.version || 0xc0;
       const controlBock = buffer_1.Buffer.concat(
         [
-          buffer_1.Buffer.from([version | outputKey.parity]),
+          buffer_1.Buffer.from([o.redeemVersion | outputKey.parity]),
           a.internalPubkey,
         ].concat(path.reverse()),
       );
-      return [a.scriptLeaf.output, controlBock];
+      return [a.redeem.output, controlBock];
     }
     if (a.signature) return [a.signature];
   });
@@ -150,7 +167,7 @@ function p2tr(a, opts) {
     if (a.address) {
       if (network && network.bech32 !== _address().prefix)
         throw new TypeError('Invalid prefix or Network mismatch');
-      if (_address().version !== TAPROOT_VERSION)
+      if (_address().version !== TAPROOT_WITNESS_VERSION)
         throw new TypeError('Invalid address version');
       if (_address().data.length !== 32)
         throw new TypeError('Invalid address data');
@@ -182,11 +199,32 @@ function p2tr(a, opts) {
       if (!_ecc().isXOnlyPoint(pubkey))
         throw new TypeError('Invalid pubkey for p2tr');
     }
-    if (a.hash && a.scriptsTree) {
-      const hash = (0, taprootutils_1.toHashTree)(a.scriptsTree).hash;
+    if (a.hash && a.scriptTree) {
+      const hash = (0, taprootutils_1.toHashTree)(a.scriptTree).hash;
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
     const witness = _witness();
+    // compare the provided redeem data with the one computed from witness
+    if (a.redeem && o.redeem) {
+      if (a.redeem.redeemVersion) {
+        if (a.redeem.redeemVersion !== o.redeem.redeemVersion)
+          throw new TypeError('Redeem.redeemVersion and witness mismatch');
+      }
+      if (a.redeem.output) {
+        if (bscript.decompile(a.redeem.output).length === 0)
+          throw new TypeError('Redeem.output is invalid');
+        // output redeem is constructed from the witness
+        if (o.redeem.output && !a.redeem.output.equals(o.redeem.output))
+          throw new TypeError('Redeem.output and witness mismatch');
+      }
+      if (a.redeem.witness) {
+        if (
+          o.redeem.witness &&
+          !stacksEqual(a.redeem.witness, o.redeem.witness)
+        )
+          throw new TypeError('Redeem.witness and witness mismatch');
+      }
+    }
     if (witness && witness.length) {
       if (witness.length === 1) {
         // key spending
@@ -215,7 +253,7 @@ function p2tr(a, opts) {
           throw new TypeError('Internal pubkey mismatch');
         if (!_ecc().isXOnlyPoint(internalPubkey))
           throw new TypeError('Invalid internalPubkey for p2tr witness');
-        const leafVersion = controlBlock[0] & 0b11111110;
+        const leafVersion = controlBlock[0] & LEAF_VERSION_MASK;
         const script = witness[witness.length - 2];
         const leafHash = (0, taprootutils_1.tapLeafHash)(script, leafVersion);
         const hash = (0, taprootutils_1.rootHashFromPath)(
@@ -247,4 +285,10 @@ function tweakKey(pubKey, h, eccLib) {
     parity: res.parity,
     x: buffer_1.Buffer.from(res.xOnlyPubkey),
   };
+}
+function stacksEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((x, i) => {
+    return x.equals(b[i]);
+  });
 }

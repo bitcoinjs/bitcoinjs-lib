@@ -9,6 +9,7 @@ const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
 import { networks as NETWORKS, payments, Psbt, Signer, SignerAsync } from '..';
+import { buildTapscriptFinalizer } from './psbt.utils';
 
 import * as preFixtures from './fixtures/psbt.json';
 
@@ -167,7 +168,8 @@ describe(`Psbt`, () => {
 
     fixtures.bip174.finalizer.forEach(f => {
       it('Finalizes inputs and gives the expected PSBT', () => {
-        const psbt = Psbt.fromBase64(f.psbt);
+        const opts = f.isTaproot ? { eccLib: ecc } : {};
+        const psbt = Psbt.fromBase64(f.psbt, opts);
 
         psbt.finalizeAllInputs();
 
@@ -986,6 +988,20 @@ describe(`Psbt`, () => {
           f.incorrectPubkey as any,
         );
       }, new RegExp('No signatures for this pubkey'));
+    });
+  });
+
+  describe('finalizeTaprootInput', () => {
+    it('Correctly finalizes a taproot script-path spend', () => {
+      const f = fixtures.finalizeTaprootScriptPathSpendInput;
+      const psbt = Psbt.fromBase64(f.psbt, { eccLib: ecc });
+      const tapscriptFinalizer = buildTapscriptFinalizer(
+        f.internalPublicKey as any,
+        f.scriptTree,
+        NETWORKS.testnet,
+      );
+      psbt.finalizeInput(0, tapscriptFinalizer);
+      assert.strictEqual(psbt.toBase64(), f.result);
     });
   });
 

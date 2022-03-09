@@ -1,13 +1,13 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tapTweakHash = exports.tapLeafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = void 0;
+exports.tapTweakHash = exports.tapLeafHash = exports.findScriptPath = exports.isTapTree = exports.toHashTree = exports.rootHashFromPath = exports.LEAF_VERSION_TAPSCRIPT = void 0;
 const buffer_1 = require('buffer');
 const bcrypto = require('../crypto');
 const bufferutils_1 = require('../bufferutils');
-const LEAF_VERSION_TAPSCRIPT = 0xc0;
 const TAP_LEAF_TAG = 'TapLeaf';
 const TAP_BRANCH_TAG = 'TapBranch';
 const TAP_TWEAK_TAG = 'TapTweak';
+exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
 function rootHashFromPath(controlBlock, tapLeafMsg) {
   const k = [tapLeafMsg];
   const e = [];
@@ -26,26 +26,26 @@ exports.rootHashFromPath = rootHashFromPath;
 /**
  * Build the hash tree from the scripts binary tree.
  * The binary tree can be balanced or not.
- * @param scriptsTree - is a list representing a binary tree where an element can be:
+ * @param scriptTree - is a list representing a binary tree where an element can be:
  *  - a taproot leaf [(output, version)], or
  *  - a pair of two taproot leafs [(output, version), (output, version)], or
  *  - one taproot leaf and a list of elements
  */
-function toHashTree(scriptsTree) {
-  if (scriptsTree.length === 1) {
-    const script = scriptsTree[0];
+function toHashTree(scriptTree) {
+  if (scriptTree.length === 1) {
+    const script = scriptTree[0];
     if (Array.isArray(script)) {
       return toHashTree(script);
     }
-    script.version = script.version || LEAF_VERSION_TAPSCRIPT;
+    script.version = script.version || exports.LEAF_VERSION_TAPSCRIPT;
     if ((script.version & 1) !== 0)
       throw new TypeError('Invalid script version');
     return {
       hash: tapLeafHash(script.output, script.version),
     };
   }
-  const left = toHashTree([scriptsTree[0]]);
-  const right = toHashTree([scriptsTree[1]]);
+  const left = toHashTree([scriptTree[0]]);
+  const right = toHashTree([scriptTree[1]]);
   let leftHash = left.hash;
   let rightHash = right.hash;
   if (leftHash.compare(rightHash) === 1)
@@ -57,6 +57,26 @@ function toHashTree(scriptsTree) {
   };
 }
 exports.toHashTree = toHashTree;
+/**
+ * Check if the tree is a binary tree with leafs of type TaprootLeaf
+ */
+function isTapTree(scriptTree) {
+  if (scriptTree.length > 2) return false;
+  if (scriptTree.length === 1) {
+    const script = scriptTree[0];
+    if (Array.isArray(script)) {
+      return isTapTree(script);
+    }
+    if (!script.output) return false;
+    script.version = script.version || exports.LEAF_VERSION_TAPSCRIPT;
+    if ((script.version & 1) !== 0) return false;
+    return true;
+  }
+  if (!isTapTree([scriptTree[0]])) return false;
+  if (!isTapTree([scriptTree[1]])) return false;
+  return true;
+}
+exports.isTapTree = isTapTree;
 /**
  * Given a MAST tree, it finds the path of a particular hash.
  * @param node - the root of the tree
@@ -80,7 +100,7 @@ function findScriptPath(node, hash) {
 }
 exports.findScriptPath = findScriptPath;
 function tapLeafHash(script, version) {
-  version = version || LEAF_VERSION_TAPSCRIPT;
+  version = version || exports.LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
     TAP_LEAF_TAG,
     buffer_1.Buffer.concat([

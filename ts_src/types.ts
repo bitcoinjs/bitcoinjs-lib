@@ -76,6 +76,7 @@ export interface TaprootLeaf {
   output: Buffer;
   version?: number;
 }
+
 export interface TinySecp256k1Interface {
   isXOnlyPoint(p: Uint8Array): boolean;
   xOnlyPointAddTweak(

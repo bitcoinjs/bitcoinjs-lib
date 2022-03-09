@@ -4,10 +4,11 @@ import * as bcrypto from '../crypto';
 import { varuint } from '../bufferutils';
 import { TaprootLeaf } from '../types';
 
-const LEAF_VERSION_TAPSCRIPT = 0xc0;
 const TAP_LEAF_TAG = 'TapLeaf';
 const TAP_BRANCH_TAG = 'TapBranch';
 const TAP_TWEAK_TAG = 'TapTweak';
+
+export const LEAF_VERSION_TAPSCRIPT = 0xc0;
 
 export function rootHashFromPath(
   controlBlock: Buffer,
@@ -39,14 +40,14 @@ export interface HashTree {
 /**
  * Build the hash tree from the scripts binary tree.
  * The binary tree can be balanced or not.
- * @param scriptsTree - is a list representing a binary tree where an element can be:
+ * @param scriptTree - is a list representing a binary tree where an element can be:
  *  - a taproot leaf [(output, version)], or
  *  - a pair of two taproot leafs [(output, version), (output, version)], or
  *  - one taproot leaf and a list of elements
  */
-export function toHashTree(scriptsTree: TaprootLeaf[]): HashTree {
-  if (scriptsTree.length === 1) {
-    const script = scriptsTree[0];
+export function toHashTree(scriptTree: TaprootLeaf[]): HashTree {
+  if (scriptTree.length === 1) {
+    const script = scriptTree[0];
     if (Array.isArray(script)) {
       return toHashTree(script);
     }
@@ -59,8 +60,8 @@ export function toHashTree(scriptsTree: TaprootLeaf[]): HashTree {
     };
   }
 
-  const left = toHashTree([scriptsTree[0]]);
-  const right = toHashTree([scriptsTree[1]]);
+  const left = toHashTree([scriptTree[0]]);
+  const right = toHashTree([scriptTree[1]]);
 
   let leftHash = left.hash;
   let rightHash = right.hash;
@@ -72,6 +73,28 @@ export function toHashTree(scriptsTree: TaprootLeaf[]): HashTree {
     left,
     right,
   };
+}
+/**
+ * Check if the tree is a binary tree with leafs of type TaprootLeaf
+ */
+export function isTapTree(scriptTree: TaprootLeaf[]): boolean {
+  if (scriptTree.length > 2) return false;
+  if (scriptTree.length === 1) {
+    const script = scriptTree[0];
+    if (Array.isArray(script)) {
+      return isTapTree(script);
+    }
+    if (!script.output) return false;
+    script.version = script.version || LEAF_VERSION_TAPSCRIPT;
+    if ((script.version & 1) !== 0) return false;
+
+    return true;
+  }
+
+  if (!isTapTree([scriptTree[0]])) return false;
+  if (!isTapTree([scriptTree[1]])) return false;
+
+  return true;
 }
 
 /**

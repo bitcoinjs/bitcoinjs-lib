@@ -52,6 +52,12 @@ function equateBase(a: any, b: any, context: string): void {
       tryHex(b.witness),
       `Inequal ${context}witness`,
     );
+  if ('redeemVersion' in b)
+    t.strictEqual(
+      a.redeemVersion,
+      b.redeemVersion,
+      `Inequal ${context}redeemVersion`,
+    );
 }
 
 export function equate(a: any, b: any, args?: any): void {
@@ -62,10 +68,12 @@ export function equate(a: any, b: any, args?: any): void {
   if (b.input === null) b.input = undefined;
   if (b.output === null) b.output = undefined;
   if (b.witness === null) b.witness = undefined;
+  if (b.redeemVersion === null) b.redeemVersion = undefined;
   if (b.redeem) {
     if (b.redeem.input === null) b.redeem.input = undefined;
     if (b.redeem.output === null) b.redeem.output = undefined;
     if (b.redeem.witness === null) b.redeem.witness = undefined;
+    if (b.redeem.redeemVersion === null) b.redeem.redeemVersion = undefined;
   }
 
   equateBase(a, b, '');
@@ -153,12 +161,8 @@ export function preform(x: any): any {
     if (x.redeem.network)
       x.redeem.network = (BNETWORKS as any)[x.redeem.network];
   }
-  if (x.scriptLeaf) {
-    x.scriptLeaf = Object.assign({}, x.scriptLeaf);
-    if (typeof x.scriptLeaf.output === 'string')
-      x.scriptLeaf.output = asmToBuffer(x.scriptLeaf.output);
-  }
-  if (x.scriptsTree) x.scriptsTree = convertScriptsTree(x.scriptsTree);
+
+  if (x.scriptTree) x.scriptTree = convertScriptTree(x.scriptTree);
   return x;
 }
 
@@ -182,12 +186,11 @@ export function from(path: string, object: any, result?: any): any {
   return result;
 }
 
-// todo: solve any type
-function convertScriptsTree(scriptsTree: any): any {
-  if (Array.isArray(scriptsTree)) return scriptsTree.map(convertScriptsTree);
+function convertScriptTree(scriptTree: any): any {
+  if (Array.isArray(scriptTree)) return scriptTree.map(convertScriptTree);
 
-  const script = Object.assign({}, scriptsTree);
+  const script = Object.assign({}, scriptTree);
   if (typeof script.output === 'string')
-    script.output = asmToBuffer(scriptsTree.output);
+    script.output = asmToBuffer(scriptTree.output);
   return script;
 }

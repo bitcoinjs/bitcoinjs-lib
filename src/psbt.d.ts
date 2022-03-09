@@ -180,9 +180,10 @@ input: PsbtInput, // The PSBT input contents
 script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
 isSegwit: boolean, // Is it segwit?
 isP2SH: boolean, // Is it P2SH?
-isP2WSH: boolean) => {
+isP2WSH: boolean, // Is it P2WSH?
+eccLib?: TinySecp256k1Interface) => {
     finalScriptSig: Buffer | undefined;
-    finalScriptWitness: Buffer | undefined;
+    finalScriptWitness: Buffer | Buffer[] | undefined;
 };
-declare type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'taproot' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
+declare type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'taproot' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard' | 'p2tr-pubkey' | 'p2tr-nonstandard';
 export {};
