@@ -289,16 +289,13 @@ class Psbt {
     } = getScriptFromInput(inputIndex, input, this.__CACHE);
     if (!script) throw new Error(`No script found for input #${inputIndex}`);
     checkPartialSigSighashes(input);
-    if (isTapscript && !finalScriptsFunc)
-      throw new Error(
-        `Taproot script-path finalizer required for input #${inputIndex}`,
-      );
     const fn = finalScriptsFunc || getFinalScripts;
     const { finalScriptSig, finalScriptWitness } = fn(
       inputIndex,
       input,
       script,
       isSegwit,
+      isTapscript,
       isP2SH,
       isP2WSH,
       this.__CACHE.__EC_LIB,
@@ -936,12 +933,13 @@ function getFinalScripts(
   input,
   script,
   isSegwit,
+  isTapscript,
   isP2SH,
   isP2WSH,
   eccLib,
 ) {
   const scriptType = classifyScript(script, eccLib);
-  if (!canFinalize(input, script, scriptType))
+  if (isTapscript || !canFinalize(input, script, scriptType))
     throw new Error(`Can not finalize input #${inputIndex}`);
   return prepareFinalScripts(
     script,

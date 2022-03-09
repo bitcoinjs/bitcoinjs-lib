@@ -179,6 +179,7 @@ declare type FinalScriptsFunc = (inputIndex: number, // Which input is it?
 input: PsbtInput, // The PSBT input contents
 script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
 isSegwit: boolean, // Is it segwit?
+isTapscript: boolean, // Is taproot script path?
 isP2SH: boolean, // Is it P2SH?
 isP2WSH: boolean, // Is it P2WSH?
 eccLib?: TinySecp256k1Interface) => {

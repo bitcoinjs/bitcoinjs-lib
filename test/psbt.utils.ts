@@ -17,6 +17,7 @@ const buildTapscriptFinalizer = (
     input: PsbtInput,
     script: Buffer,
     _isSegwit: boolean,
+    _isTapscript: boolean,
     _isP2SH: boolean,
     _isP2WSH: boolean,
     eccLib?: TinySecp256k1Interface,

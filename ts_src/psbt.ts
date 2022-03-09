@@ -364,17 +364,13 @@ export class Psbt {
 
     checkPartialSigSighashes(input);
 
-    if (isTapscript && !finalScriptsFunc)
-      throw new Error(
-        `Taproot script-path finalizer required for input #${inputIndex}`,
-      );
-
     const fn = finalScriptsFunc || getFinalScripts;
     const { finalScriptSig, finalScriptWitness } = fn(
       inputIndex,
       input,
       script,
       isSegwit,
+      isTapscript,
       isP2SH,
       isP2WSH,
       this.__CACHE.__EC_LIB,
@@ -1224,6 +1220,7 @@ type FinalScriptsFunc = (
   input: PsbtInput, // The PSBT input contents
   script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
   isSegwit: boolean, // Is it segwit?
+  isTapscript: boolean, // Is taproot script path?
   isP2SH: boolean, // Is it P2SH?
   isP2WSH: boolean, // Is it P2WSH?
   eccLib?: TinySecp256k1Interface, // optional lib for checking taproot validity
@@ -1237,6 +1234,7 @@ function getFinalScripts(
   input: PsbtInput,
   script: Buffer,
   isSegwit: boolean,
+  isTapscript: boolean,
   isP2SH: boolean,
   isP2WSH: boolean,
   eccLib?: TinySecp256k1Interface,
@@ -1245,7 +1243,7 @@ function getFinalScripts(
   finalScriptWitness: Buffer | undefined;
 } {
   const scriptType = classifyScript(script, eccLib);
-  if (!canFinalize(input, script, scriptType))
+  if (isTapscript || !canFinalize(input, script, scriptType))
     throw new Error(`Can not finalize input #${inputIndex}`);
   return prepareFinalScripts(
     script,

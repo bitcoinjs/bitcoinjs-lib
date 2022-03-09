@@ -1003,6 +1003,15 @@ describe(`Psbt`, () => {
       psbt.finalizeInput(0, tapscriptFinalizer);
       assert.strictEqual(psbt.toBase64(), f.result);
     });
+
+    it('Failes to finalize a taproot script-path spend when a finalizer is not provided', () => {
+      const f = fixtures.finalizeTaprootScriptPathSpendInput;
+      const psbt = Psbt.fromBase64(f.psbt, { eccLib: ecc });
+
+      assert.throws(() => {
+        psbt.finalizeInput(0);
+      }, new RegExp('Can not finalize input #0'));
+    });
   });
 
   describe('getFeeRate', () => {
