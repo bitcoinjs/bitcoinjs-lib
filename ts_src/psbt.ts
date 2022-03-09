@@ -351,7 +351,10 @@ export class Psbt {
     return this;
   }
 
-  finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this {
+  finalizeInput(
+    inputIndex: number,
+    finalScriptsFunc: FinalScriptsFunc = getFinalScripts,
+  ): this {
     const input = checkForInput(this.data.inputs, inputIndex);
     const {
       script,
@@ -364,8 +367,7 @@ export class Psbt {
 
     checkPartialSigSighashes(input);
 
-    const fn = finalScriptsFunc || getFinalScripts;
-    const { finalScriptSig, finalScriptWitness } = fn(
+    const { finalScriptSig, finalScriptWitness } = finalScriptsFunc(
       inputIndex,
       input,
       script,

@@ -278,7 +278,7 @@ class Psbt {
     range(this.data.inputs.length).forEach(idx => this.finalizeInput(idx));
     return this;
   }
-  finalizeInput(inputIndex, finalScriptsFunc) {
+  finalizeInput(inputIndex, finalScriptsFunc = getFinalScripts) {
     const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
     const {
       script,
@@ -289,8 +289,7 @@ class Psbt {
     } = getScriptFromInput(inputIndex, input, this.__CACHE);
     if (!script) throw new Error(`No script found for input #${inputIndex}`);
     checkPartialSigSighashes(input);
-    const fn = finalScriptsFunc || getFinalScripts;
-    const { finalScriptSig, finalScriptWitness } = fn(
+    const { finalScriptSig, finalScriptWitness } = finalScriptsFunc(
       inputIndex,
       input,
       script,
