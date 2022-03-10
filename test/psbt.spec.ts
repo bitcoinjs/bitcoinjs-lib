@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import BIP32Factory from 'bip32';
+import BIP32Factory from 'bip32grs';
 import * as ecc from 'tiny-secp256k1';
 import * as crypto from 'crypto';
 import ECPairFactory from 'ecpair';

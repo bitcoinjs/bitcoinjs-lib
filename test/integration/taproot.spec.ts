@@ -1,4 +1,4 @@
-import BIP32Factory from 'bip32';
+import BIP32Factory from 'bip32grs';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
@@ -7,7 +7,7 @@ const rng = require('randombytes');
 const regtest = regtestUtils.network;
 const bip32 = BIP32Factory(ecc);
 
-describe('bitcoinjs-lib (transaction with taproot)', () => {
+describe('groestlcoinjs-lib (transaction with taproot)', () => {
   it('can create (and broadcast via 3PBP) a taproot keyspend Transaction', async () => {
     const myKey = bip32.fromSeed(rng(64), regtest);
 

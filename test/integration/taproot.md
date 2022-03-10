@@ -16,8 +16,8 @@ A simple keyspend example that is possible with the current API is below.
 
 ### Requirements
 - npm dependencies
-  - bitcoinjs-lib v6.x.x
-  - bip32 v3.x.x
+  - groestlcoinjs-lib v6.x.x
+  - bip32grs v3.x.x
   - tiny-secp256k1 v2.x.x
   - regtest-client vx.x.x
 - local regtest-server docker container running
@@ -43,9 +43,9 @@ const ONE = Buffer.from(
 
 const crypto = require('crypto');
 // bitcoinjs-lib v6
-const bitcoin = require('bitcoinjs-lib');
+const bitcoin = require('groestlcoinjs-lib');
 // bip32 v3 wraps tiny-secp256k1
-const BIP32Wrapper = require('bip32').default;
+const BIP32Wrapper = require('bip32grs').default;
 const RegtestUtils = require('regtest-client').RegtestUtils;
 // tiny-secp256k1 v2 is an ESM module, so we can't "require", and must import async
 const ecc = await import('tiny-secp256k1');
