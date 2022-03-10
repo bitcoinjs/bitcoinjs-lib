@@ -318,6 +318,9 @@
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with seven leafs (2)",
       "arguments": {
         "internalPubkey": "aba457d16a8d59151c387f24d1eb887efbe24644c1ee64b261282e7baebdb247",
+        "redeem": {
+          "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac4 OP_CHECKSIG"
+        },
         "scriptTree": [
           {
             "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d3 OP_CHECKSIG"
@@ -325,28 +328,28 @@
           [
             [
               {
-                "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d3 OP_CHECKSIG"
+                "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d4 OP_CHECKSIG"
               },
               [
                 {
-                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac1 OP_CHECKSIG"
                 },
                 {
-                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac2 OP_CHECKSIG"
                 }
               ]
             ],
             [
               [
                 {
-                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac3 OP_CHECKSIG"
                 },
                 {
-                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG"
+                  "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac4 OP_CHECKSIG"
                 }
               ],
               {
-                "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d3 OP_CHECKSIG"
+                "output": "00a9da96087a72258f83b338ef7f0ea8cbbe05da5f18f091eb397d1ecbf7c3d5 OP_CHECKSIG"
               }
             ]
           ]
@@ -354,13 +357,16 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1pmu8qwr9zljs9anger0d6q3uyr43yzjetmjmzf8p93ltycrwj28lsee3e0n",
-        "pubkey": "df0e070ca2fca05ecd191bdba047841d62414b2bdcb6249c258fd64c0dd251ff",
-        "output": "OP_1 df0e070ca2fca05ecd191bdba047841d62414b2bdcb6249c258fd64c0dd251ff",
-        "hash": "027391d0aac8d94725e4fcec4b07214d7c8a14bcdca2b1c08e4bc786308bdae5",
+        "address": "bc1pd2llmtym6c5hyecf5zqsyjz9q0jlxaaksw9j0atx8lc8a0e0vrmsw9ewly",
+        "pubkey": "6abffdac9bd629726709a08102484503e5f377b6838b27f5663ff07ebf2f60f7",
+        "output": "OP_1 6abffdac9bd629726709a08102484503e5f377b6838b27f5663ff07ebf2f60f7",
+        "hash": "88b7e3b495a84aa2bc12780b1773f130ce5eb747b0c28dc4840b7c9280f7326d",
         "signature": null,
         "input": null,
-        "witness": null
+        "witness": [
+          "2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac4ac",
+           "c0aba457d16a8d59151c387f24d1eb887efbe24644c1ee64b261282e7baebdb247dac795766bbda1eaeaa45e5bfa0a950fdd5f4c4aada5b1f3082edc9689b9fd0a315fb34a7a93dcaed5e26cf7468be5bd377dda7a4d29128f7dd98db6da9bf04325fff3aa86365bac7534dcb6495867109941ec444dd35294e0706e29e051066d73e0d427bd3249bb921fa78c04fb76511f583ff48c97210d17c2d9dcfbb95023"
+          ]
       }
     },
     {

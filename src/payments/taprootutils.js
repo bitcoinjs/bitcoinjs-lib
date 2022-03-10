@@ -44,14 +44,11 @@ function toHashTree(scriptTree) {
       hash: tapLeafHash(script.output, script.version),
     };
   }
-  const left = toHashTree([scriptTree[0]]);
-  const right = toHashTree([scriptTree[1]]);
-  let leftHash = left.hash;
-  let rightHash = right.hash;
-  if (leftHash.compare(rightHash) === 1)
-    [leftHash, rightHash] = [rightHash, leftHash];
+  let left = toHashTree([scriptTree[0]]);
+  let right = toHashTree([scriptTree[1]]);
+  if (left.hash.compare(right.hash) === 1) [left, right] = [right, left];
   return {
-    hash: tapBranchHash(leftHash, rightHash),
+    hash: tapBranchHash(left.hash, right.hash),
     left,
     right,
   };
