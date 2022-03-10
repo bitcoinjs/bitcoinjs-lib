@@ -1,16 +1,27 @@
 import * as assert from 'assert';
-import * as bip32 from 'bip32grs';
+import BIP32Factory from 'bip32grs';
+import * as ecc from 'tiny-secp256k1';
+import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
+
+const ECPair = ECPairFactory(ecc);
 const rng = require('randombytes');
 const regtest = regtestUtils.network;
+const bip32 = BIP32Factory(ecc);
+
+const validator = (
+  pubkey: Buffer,
+  msghash: Buffer,
+  signature: Buffer,
+): boolean => ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 // See bottom of file for some helper functions used to make the payment objects needed.
 
 describe('bitcoinjs-lib (transactions with psbt)', () => {
   it('can create a 1-to-1 Transaction', () => {
-    const alice = bitcoin.ECPair.fromWIF(
+    const alice = ECPair.fromWIF(
       'L2uPYXe17xSTqbCjZvL2DsyXPCbXspvcu5mHLDYUgzdUbZGSKrSr',
     );
     const psbt = new bitcoin.Psbt();
@@ -59,7 +70,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       value: 80000,
     });
     psbt.signInput(0, alice);
-    psbt.validateSignaturesOfInput(0);
+    psbt.validateSignaturesOfInput(0, validator);
     psbt.finalizeAllInputs();
     assert.strictEqual(
       psbt.extractTransaction().toHex(),
@@ -147,8 +158,8 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     // Finalizer wants to check all signatures are valid before finalizing.
     // If the finalizer wants to check for specific pubkeys, the second arg
     // can be passed. See the first multisig example below.
-    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
-    assert.strictEqual(psbt.validateSignaturesOfInput(1), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0, validator), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(1, validator), true);
 
     // This step it new. Since we separate the signing operation and
     // the creation of the scriptSig and witness stack, we are able to
@@ -183,7 +194,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       })
       .signInput(0, alice1.keys[0]);
 
-    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0, validator), true);
     psbt.finalizeAllInputs();
 
     // build and broadcast to the RegTest network
@@ -215,13 +226,13 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .signInput(0, multisig.keys[0])
       .signInput(0, multisig.keys[2]);
 
-    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0, validator), true);
     assert.strictEqual(
-      psbt.validateSignaturesOfInput(0, multisig.keys[0].publicKey),
+      psbt.validateSignaturesOfInput(0, validator, multisig.keys[0].publicKey),
       true,
     );
     assert.throws(() => {
-      psbt.validateSignaturesOfInput(0, multisig.keys[3].publicKey);
+      psbt.validateSignaturesOfInput(0, validator, multisig.keys[3].publicKey);
     }, new RegExp('No signatures for this pubkey'));
     psbt.finalizeAllInputs();
 
@@ -330,7 +341,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       })
       .signInput(0, p2wpkh.keys[0]);
 
-    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0, validator), true);
     psbt.finalizeAllInputs();
 
     const tx = psbt.extractTransaction();
@@ -398,7 +409,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       })
       .signInput(0, p2wsh.keys[0]);
 
-    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0, validator), true);
     psbt.finalizeAllInputs();
 
     const tx = psbt.extractTransaction();
@@ -472,13 +483,13 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
         .signInput(0, p2sh.keys[2])
         .signInput(0, p2sh.keys[3]);
 
-      assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
+      assert.strictEqual(psbt.validateSignaturesOfInput(0, validator), true);
       assert.strictEqual(
-        psbt.validateSignaturesOfInput(0, p2sh.keys[3].publicKey),
+        psbt.validateSignaturesOfInput(0, validator, p2sh.keys[3].publicKey),
         true,
       );
       assert.throws(() => {
-        psbt.validateSignaturesOfInput(0, p2sh.keys[1].publicKey);
+        psbt.validateSignaturesOfInput(0, validator, p2sh.keys[1].publicKey);
       }, new RegExp('No signatures for this pubkey'));
       psbt.finalizeAllInputs();
 
@@ -534,10 +545,10 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     'can create (and broadcast via 3PBP) a Transaction, w/ a ' +
       'P2SH(P2MS(2 of 2)) input with nonWitnessUtxo',
     async () => {
-      const myKey = bitcoin.ECPair.makeRandom({ network: regtest });
+      const myKey = ECPair.makeRandom({ network: regtest });
       const myKeys = [
         myKey,
-        bitcoin.ECPair.fromPrivateKey(myKey.privateKey!, { network: regtest }),
+        ECPair.fromPrivateKey(myKey.privateKey!, { network: regtest }),
       ];
       const p2sh = createPayment('p2sh-p2ms(2 of 2)', myKeys);
       const inputData = await getInputData(5e4, p2sh.payment, false, 'p2sh');
@@ -603,9 +614,9 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       })
       .signInputHD(0, hdRoot); // must sign with root!!!
 
-    assert.strictEqual(psbt.validateSignaturesOfInput(0), true);
+    assert.strictEqual(psbt.validateSignaturesOfInput(0, validator), true);
     assert.strictEqual(
-      psbt.validateSignaturesOfInput(0, childNode.publicKey),
+      psbt.validateSignaturesOfInput(0, validator, childNode.publicKey),
       true,
     );
     psbt.finalizeAllInputs();
@@ -638,11 +649,11 @@ function createPayment(_type: string, myKeys?: any[], network?: any): any {
       throw new Error('Need n keys for multisig');
     }
     while (!myKeys && n > 1) {
-      keys.push(bitcoin.ECPair.makeRandom({ network }));
+      keys.push(ECPair.makeRandom({ network }));
       n--;
     }
   }
-  if (!myKeys) keys.push(bitcoin.ECPair.makeRandom({ network }));
+  if (!myKeys) keys.push(ECPair.makeRandom({ network }));
 
   let payment: any;
   splitType.forEach(type => {

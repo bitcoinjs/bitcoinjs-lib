@@ -1,4 +1,4 @@
-const createHash = require('create-hash');
+import * as createHash from 'create-hash';
 const groestlhash = require('groestl-hash-js');
 
 export function ripemd160(buffer: Buffer): Buffer {
@@ -35,4 +35,28 @@ export function hash256(buffer: Buffer): Buffer {
 
 export function groestl(buffer: Buffer): Buffer {
   return new Buffer(groestlhash.groestl_2(buffer, 1, 1));
+}
+
+const TAGS = [
+  'BIP0340/challenge',
+  'BIP0340/aux',
+  'BIP0340/nonce',
+  'TapLeaf',
+  'TapBranch',
+  'TapSighash',
+  'TapTweak',
+  'KeyAgg list',
+  'KeyAgg coefficient',
+] as const;
+export type TaggedHashPrefix = typeof TAGS[number];
+/** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
+const TAGGED_HASH_PREFIXES = Object.fromEntries(
+  TAGS.map(tag => {
+    const tagHash = sha256(Buffer.from(tag));
+    return [tag, Buffer.concat([tagHash, tagHash])];
+  }),
+) as { [k in TaggedHashPrefix]: Buffer };
+
+export function taggedHash(prefix: TaggedHashPrefix, data: Buffer): Buffer {
+  return sha256(Buffer.concat([TAGGED_HASH_PREFIXES[prefix], data]));
 }

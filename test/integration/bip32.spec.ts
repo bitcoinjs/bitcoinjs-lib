@@ -1,8 +1,11 @@
 import * as assert from 'assert';
-import * as bip32 from 'bip32grs';
+import BIP32Factory from 'bip32grs';
+import * as ecc from 'tiny-secp256k1';
 import * as bip39 from 'bip39';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
+
+const bip32 = BIP32Factory(ecc);
 
 function getAddress(node: any, network?: any): string {
   return bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address!;

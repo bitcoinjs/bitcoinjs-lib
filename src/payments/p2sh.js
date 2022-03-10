@@ -1,12 +1,13 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.p2sh = void 0;
 const bcrypto = require('../crypto');
 const networks_1 = require('../networks');
 const bscript = require('../script');
+const types_1 = require('../types');
 const lazy = require('./lazy');
-const typef = require('typeforce');
-const OPS = bscript.OPS;
 const bs58grscheck = require('bs58grscheck');
+const OPS = bscript.OPS;
 function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
   return a.every((x, i) => {
@@ -20,20 +21,24 @@ function p2sh(a, opts) {
   if (!a.address && !a.hash && !a.output && !a.redeem && !a.input)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  typef(
+  (0, types_1.typeforce)(
     {
-      network: typef.maybe(typef.Object),
-      address: typef.maybe(typef.String),
-      hash: typef.maybe(typef.BufferN(20)),
-      output: typef.maybe(typef.BufferN(23)),
-      redeem: typef.maybe({
-        network: typef.maybe(typef.Object),
-        output: typef.maybe(typef.Buffer),
-        input: typef.maybe(typef.Buffer),
-        witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+      network: types_1.typeforce.maybe(types_1.typeforce.Object),
+      address: types_1.typeforce.maybe(types_1.typeforce.String),
+      hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(20)),
+      output: types_1.typeforce.maybe(types_1.typeforce.BufferN(23)),
+      redeem: types_1.typeforce.maybe({
+        network: types_1.typeforce.maybe(types_1.typeforce.Object),
+        output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
+        input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
+        witness: types_1.typeforce.maybe(
+          types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
+        ),
       }),
-      input: typef.maybe(typef.Buffer),
-      witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+      input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
+      witness: types_1.typeforce.maybe(
+        types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
+      ),
     },
     a,
   );

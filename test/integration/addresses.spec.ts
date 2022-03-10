@@ -1,7 +1,11 @@
 import * as assert from 'assert';
+import ECPairFactory from 'ecpair';
+import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
+
+const ECPair = ECPairFactory(ecc);
 const dhttp = regtestUtils.dhttp;
 const TESTNET = bitcoin.networks.testnet;
 
@@ -10,7 +14,7 @@ describe('bitcoinjs-lib (addresses)', () => {
     'can generate a random address [and support the retrieval of ' +
       'transactions for that address (via 3PBP)]',
     async () => {
-      const keyPair = bitcoin.ECPair.makeRandom();
+      const keyPair = ECPair.makeRandom();
       const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
 
       // bitcoin P2PKH addresses start with a '1'
@@ -29,7 +33,7 @@ describe('bitcoinjs-lib (addresses)', () => {
   );
 
   it('can import an address via WIF', () => {
-    const keyPair = bitcoin.ECPair.fromWIF(
+    const keyPair = ECPair.fromWIF(
       'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn',
     );
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
@@ -51,7 +55,7 @@ describe('bitcoinjs-lib (addresses)', () => {
   });
 
   it('can generate a SegWit address', () => {
-    const keyPair = bitcoin.ECPair.fromWIF(
+    const keyPair = ECPair.fromWIF(
       'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn',
     );
     const { address } = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey });
@@ -60,7 +64,7 @@ describe('bitcoinjs-lib (addresses)', () => {
   });
 
   it('can generate a SegWit address (via P2SH)', () => {
-    const keyPair = bitcoin.ECPair.fromWIF(
+    const keyPair = ECPair.fromWIF(
       'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn',
     );
     const { address } = bitcoin.payments.p2sh({
@@ -103,7 +107,7 @@ describe('bitcoinjs-lib (addresses)', () => {
 
   // examples using other network information
   it('can generate a Testnet address', () => {
-    const keyPair = bitcoin.ECPair.makeRandom({ network: TESTNET });
+    const keyPair = ECPair.makeRandom({ network: TESTNET });
     const { address } = bitcoin.payments.p2pkh({
       pubkey: keyPair.publicKey,
       network: TESTNET,
@@ -130,7 +134,7 @@ describe('bitcoinjs-lib (addresses)', () => {
       wif: 0xb0,
     };
 
-    const keyPair = bitcoin.ECPair.makeRandom({ network: LITECOIN });
+    const keyPair = ECPair.makeRandom({ network: LITECOIN });
     const { address } = bitcoin.payments.p2pkh({
       pubkey: keyPair.publicKey,
       network: LITECOIN,

@@ -1,7 +1,7 @@
 import * as types from './types';
-
-const typeforce = require('typeforce');
-const varuint = require('varuint-bitcoin');
+const { typeforce } = types;
+import * as varuint from 'varuint-bitcoin';
+export { varuint };
 
 // https://github.com/feross/buffer/blob/master/index.js#L1127
 function verifuint(value: number, max: number): void {
@@ -58,6 +58,10 @@ export function cloneBuffer(buffer: Buffer): Buffer {
  * Helper class for serialization of bitcoin data types into a pre-allocated buffer.
  */
 export class BufferWriter {
+  static withCapacity(size: number): BufferWriter {
+    return new BufferWriter(Buffer.alloc(size));
+  }
+
   constructor(public buffer: Buffer, public offset: number = 0) {
     typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
   }
@@ -98,6 +102,13 @@ export class BufferWriter {
   writeVector(vector: Buffer[]): void {
     this.writeVarInt(vector.length);
     vector.forEach((buf: Buffer) => this.writeVarSlice(buf));
+  }
+
+  end(): Buffer {
+    if (this.buffer.length === this.offset) {
+      return this.buffer;
+    }
+    throw new Error(`buffer size ${this.buffer.length}, offset ${this.offset}`);
   }
 }
 

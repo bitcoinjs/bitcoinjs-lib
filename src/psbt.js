@@ -1,12 +1,12 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.Psbt = void 0;
 const bip174_1 = require('bip174');
 const varuint = require('bip174/src/lib/converter/varint');
 const utils_1 = require('bip174/src/lib/utils');
 const address_1 = require('./address');
 const bufferutils_1 = require('./bufferutils');
 const crypto_1 = require('./crypto');
-const ecpair_1 = require('./ecpair');
 const networks_1 = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
@@ -25,7 +25,7 @@ const DEFAULT_OPTS = {
    * THIS IS NOT TO BE RELIED ON.
    * It is only here as a last ditch effort to prevent sending a 500 BTC fee etc.
    */
-  maximumFeeRate: 5000,
+  maximumFeeRate: 5000, // satoshi per byte
 };
 /**
  * Psbt class can parse and generate a PSBT binary based off of the BIP174.
@@ -69,8 +69,9 @@ class Psbt {
       __NON_WITNESS_UTXO_BUF_CACHE: [],
       __TX_IN_CACHE: {},
       __TX: this.data.globalMap.unsignedTx.tx,
-      // Old TransactionBuilder behavior was to not confirm input values
-      // before signing. Even though we highly encourage people to get
+      // Psbt's predecesor (TransactionBuilder - now removed) behavior
+      // was to not confirm input values  before signing.
+      // Even though we highly encourage people to get
       // the full parent transaction to verify values, the ability to
       // sign non-segwit inputs without the full transaction was often
       // requested. So the only way to activate is to use @ts-ignore.
@@ -119,7 +120,7 @@ class Psbt {
   }
   get txInputs() {
     return this.__CACHE.__TX.ins.map(input => ({
-      hash: bufferutils_1.cloneBuffer(input.hash),
+      hash: (0, bufferutils_1.cloneBuffer)(input.hash),
       index: input.index,
       sequence: input.sequence,
     }));
@@ -128,10 +129,13 @@ class Psbt {
     return this.__CACHE.__TX.outs.map(output => {
       let address;
       try {
-        address = address_1.fromOutputScript(output.script, this.opts.network);
+        address = (0, address_1.fromOutputScript)(
+          output.script,
+          this.opts.network,
+        );
       } catch (_) {}
       return {
-        script: bufferutils_1.cloneBuffer(output.script),
+        script: (0, bufferutils_1.cloneBuffer)(output.script),
         value: output.value,
         address,
       };
@@ -230,7 +234,7 @@ class Psbt {
     const { address } = outputData;
     if (typeof address === 'string') {
       const { network } = this.opts;
-      const script = address_1.toOutputScript(address, network);
+      const script = (0, address_1.toOutputScript)(address, network);
       outputData = Object.assign(outputData, { script });
     }
     const c = this.__CACHE;
@@ -263,12 +267,12 @@ class Psbt {
     return getTxCacheValue('__FEE', 'fee', this.data.inputs, this.__CACHE);
   }
   finalizeAllInputs() {
-    utils_1.checkForInput(this.data.inputs, 0); // making sure we have at least one
+    (0, utils_1.checkForInput)(this.data.inputs, 0); // making sure we have at least one
     range(this.data.inputs.length).forEach(idx => this.finalizeInput(idx));
     return this;
   }
   finalizeInput(inputIndex, finalScriptsFunc = getFinalScripts) {
-    const input = utils_1.checkForInput(this.data.inputs, inputIndex);
+    const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
     const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
       inputIndex,
       input,
@@ -293,7 +297,7 @@ class Psbt {
     return this;
   }
   getInputType(inputIndex) {
-    const input = utils_1.checkForInput(this.data.inputs, inputIndex);
+    const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
     const script = getScriptFromUtxo(inputIndex, input, this.__CACHE);
     const result = getMeaningfulScript(
       script,
@@ -308,39 +312,41 @@ class Psbt {
     return type + mainType;
   }
   inputHasPubkey(inputIndex, pubkey) {
-    const input = utils_1.checkForInput(this.data.inputs, inputIndex);
+    const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
     return pubkeyInInput(pubkey, input, inputIndex, this.__CACHE);
   }
   inputHasHDKey(inputIndex, root) {
-    const input = utils_1.checkForInput(this.data.inputs, inputIndex);
+    const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
     const derivationIsMine = bip32DerivationIsMine(root);
     return (
       !!input.bip32Derivation && input.bip32Derivation.some(derivationIsMine)
     );
   }
   outputHasPubkey(outputIndex, pubkey) {
-    const output = utils_1.checkForOutput(this.data.outputs, outputIndex);
+    const output = (0, utils_1.checkForOutput)(this.data.outputs, outputIndex);
     return pubkeyInOutput(pubkey, output, outputIndex, this.__CACHE);
   }
   outputHasHDKey(outputIndex, root) {
-    const output = utils_1.checkForOutput(this.data.outputs, outputIndex);
+    const output = (0, utils_1.checkForOutput)(this.data.outputs, outputIndex);
     const derivationIsMine = bip32DerivationIsMine(root);
     return (
       !!output.bip32Derivation && output.bip32Derivation.some(derivationIsMine)
     );
   }
-  validateSignaturesOfAllInputs() {
-    utils_1.checkForInput(this.data.inputs, 0); // making sure we have at least one
+  validateSignaturesOfAllInputs(validator) {
+    (0, utils_1.checkForInput)(this.data.inputs, 0); // making sure we have at least one
     const results = range(this.data.inputs.length).map(idx =>
-      this.validateSignaturesOfInput(idx),
+      this.validateSignaturesOfInput(idx, validator),
     );
     return results.reduce((final, res) => res === true && final, true);
   }
-  validateSignaturesOfInput(inputIndex, pubkey) {
+  validateSignaturesOfInput(inputIndex, validator, pubkey) {
     const input = this.data.inputs[inputIndex];
     const partialSig = (input || {}).partialSig;
     if (!input || !partialSig || partialSig.length < 1)
       throw new Error('No signatures to validate');
+    if (typeof validator !== 'function')
+      throw new Error('Need validator function to validate signatures');
     const mySigs = pubkey
       ? partialSig.filter(sig => sig.pubkey.equals(pubkey))
       : partialSig;
@@ -364,8 +370,7 @@ class Psbt {
       hashCache = hash;
       scriptCache = script;
       checkScriptForPubkey(pSig.pubkey, script, 'verify');
-      const keypair = ecpair_1.fromPublicKey(pSig.pubkey);
-      results.push(keypair.verify(hash, sig.signature));
+      results.push(validator(pSig.pubkey, hash, sig.signature));
     }
     return results.every(res => res === true);
   }
@@ -642,7 +647,7 @@ class PsbtTransaction {
     }
     const hash =
       typeof input.hash === 'string'
-        ? bufferutils_1.reverseBuffer(Buffer.from(input.hash, 'hex'))
+        ? (0, bufferutils_1.reverseBuffer)(Buffer.from(input.hash, 'hex'))
         : input.hash;
     this.tx.addInput(hash, input.index, input.sequence);
   }
@@ -685,8 +690,7 @@ function hasSigs(neededSigs, partialSig, pubkeys) {
   if (pubkeys) {
     sigs = pubkeys
       .map(pkey => {
-        const pubkey = ecpair_1.fromPublicKey(pkey, { compressed: true })
-          .publicKey;
+        const pubkey = compressPubkey(pkey);
         return partialSig.find(pSig => pSig.pubkey.equals(pubkey));
       })
       .filter(v => !!v);
@@ -817,7 +821,7 @@ function checkTxForDupeIns(tx, cache) {
 }
 function checkTxInputCache(cache, input) {
   const key =
-    bufferutils_1.reverseBuffer(Buffer.from(input.hash)).toString('hex') +
+    (0, bufferutils_1.reverseBuffer)(Buffer.from(input.hash)).toString('hex') +
     ':' +
     input.index;
   if (cache.__TX_IN_CACHE[key]) throw new Error('Duplicate input detected.');
@@ -912,7 +916,7 @@ function getHashAndSighashType(
   cache,
   sighashTypes,
 ) {
-  const input = utils_1.checkForInput(inputs, inputIndex);
+  const input = (0, utils_1.checkForInput)(inputs, inputIndex);
   const { hash, sighashType, script } = getHashForSig(
     inputIndex,
     input,
@@ -998,8 +1002,8 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
       console.warn(
         'Warning: Signing non-segwit inputs without the full parent transaction ' +
           'means there is a chance that a miner could feed you incorrect information ' +
-          'to trick you into paying large fees. This behavior is the same as the old ' +
-          'TransactionBuilder class when signing non-segwit scripts. You are not ' +
+          "to trick you into paying large fees. This behavior is the same as Psbt's predecesor " +
+          '(TransactionBuilder - now removed) when signing non-segwit scripts. You are not ' +
           'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
           'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
           '*********************',
@@ -1096,7 +1100,7 @@ function getScriptFromInput(inputIndex, input, cache) {
   return res;
 }
 function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
-  const input = utils_1.checkForInput(inputs, inputIndex);
+  const input = (0, utils_1.checkForInput)(inputs, inputIndex);
   if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
     throw new Error('Need bip32Derivation to sign with HD');
   }
@@ -1323,6 +1327,15 @@ function redeemFromFinalWitnessScript(finalScript) {
   if (!sDecomp) return;
   return lastItem;
 }
+function compressPubkey(pubkey) {
+  if (pubkey.length === 65) {
+    const parity = pubkey[64] & 1;
+    const newKey = pubkey.slice(0, 33);
+    newKey[0] = 2 | parity;
+    return newKey;
+  }
+  return pubkey.slice();
+}
 function isPubkeyLike(buf) {
   return buf.length === 33 && bscript.isCanonicalPubKey(buf);
 }
@@ -1378,7 +1391,7 @@ function checkInvalidP2WSH(script) {
   }
 }
 function pubkeyInScript(pubkey, script) {
-  const pubkeyHash = crypto_1.hash160(pubkey);
+  const pubkeyHash = (0, crypto_1.hash160)(pubkey);
   const decompiled = bscript.decompile(script);
   if (decompiled === null) throw new Error('Unknown script error');
   return decompiled.some(element => {

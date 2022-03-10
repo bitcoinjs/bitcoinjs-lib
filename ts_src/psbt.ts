@@ -16,11 +16,6 @@ import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
 import { fromOutputScript, toOutputScript } from './address';
 import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
-import {
-  fromPublicKey as ecPairFromPublicKey,
-  Signer,
-  SignerAsync,
-} from './ecpair';
 import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
@@ -44,6 +39,13 @@ export interface TransactionOutput {
 export interface PsbtTxOutput extends TransactionOutput {
   address: string | undefined;
 }
+
+// msghash is 32 byte hash of preimage, signature is 64 byte compact signature (r,s 32 bytes each)
+export type ValidateSigFunction = (
+  pubkey: Buffer,
+  msghash: Buffer,
+  signature: Buffer,
+) => boolean;
 
 /**
  * These are the default arguments for a Psbt instance.
@@ -126,8 +128,9 @@ export class Psbt {
       __NON_WITNESS_UTXO_BUF_CACHE: [],
       __TX_IN_CACHE: {},
       __TX: (this.data.globalMap.unsignedTx as PsbtTransaction).tx,
-      // Old TransactionBuilder behavior was to not confirm input values
-      // before signing. Even though we highly encourage people to get
+      // Psbt's predecesor (TransactionBuilder - now removed) behavior
+      // was to not confirm input values  before signing.
+      // Even though we highly encourage people to get
       // the full parent transaction to verify values, the ability to
       // sign non-segwit inputs without the full transaction was often
       // requested. So the only way to activate is to use @ts-ignore.
@@ -415,19 +418,25 @@ export class Psbt {
     );
   }
 
-  validateSignaturesOfAllInputs(): boolean {
+  validateSignaturesOfAllInputs(validator: ValidateSigFunction): boolean {
     checkForInput(this.data.inputs, 0); // making sure we have at least one
     const results = range(this.data.inputs.length).map(idx =>
-      this.validateSignaturesOfInput(idx),
+      this.validateSignaturesOfInput(idx, validator),
     );
     return results.reduce((final, res) => res === true && final, true);
   }
 
-  validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean {
+  validateSignaturesOfInput(
+    inputIndex: number,
+    validator: ValidateSigFunction,
+    pubkey?: Buffer,
+  ): boolean {
     const input = this.data.inputs[inputIndex];
     const partialSig = (input || {}).partialSig;
     if (!input || !partialSig || partialSig.length < 1)
       throw new Error('No signatures to validate');
+    if (typeof validator !== 'function')
+      throw new Error('Need validator function to validate signatures');
     const mySigs = pubkey
       ? partialSig.filter(sig => sig.pubkey.equals(pubkey))
       : partialSig;
@@ -451,8 +460,7 @@ export class Psbt {
       hashCache = hash;
       scriptCache = script;
       checkScriptForPubkey(pSig.pubkey, script, 'verify');
-      const keypair = ecPairFromPublicKey(pSig.pubkey);
-      results.push(keypair.verify(hash, sig.signature));
+      results.push(validator(pSig.pubkey, hash, sig.signature));
     }
     return results.every(res => res === true);
   }
@@ -779,7 +787,7 @@ interface HDSignerBase {
   fingerprint: Buffer;
 }
 
-interface HDSigner extends HDSignerBase {
+export interface HDSigner extends HDSignerBase {
   /**
    * The path string must match /^m(\/\d+'?)+$/
    * ex. m/44'/0'/0'/1/23 levels with ' must be hard derivations
@@ -795,9 +803,23 @@ interface HDSigner extends HDSignerBase {
 /**
  * Same as above but with async sign method
  */
-interface HDSignerAsync extends HDSignerBase {
+export interface HDSignerAsync extends HDSignerBase {
   derivePath(path: string): HDSignerAsync;
   sign(hash: Buffer): Promise<Buffer>;
+}
+
+export interface Signer {
+  publicKey: Buffer;
+  network?: any;
+  sign(hash: Buffer, lowR?: boolean): Buffer;
+  getPublicKey?(): Buffer;
+}
+
+export interface SignerAsync {
+  publicKey: Buffer;
+  network?: any;
+  sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
+  getPublicKey?(): Buffer;
 }
 
 /**
@@ -902,8 +924,7 @@ function hasSigs(
   if (pubkeys) {
     sigs = pubkeys
       .map(pkey => {
-        const pubkey = ecPairFromPublicKey(pkey, { compressed: true })
-          .publicKey;
+        const pubkey = compressPubkey(pkey);
         return partialSig.find(pSig => pSig.pubkey.equals(pubkey));
       })
       .filter(v => !!v);
@@ -1304,8 +1325,8 @@ function getHashForSig(
       console.warn(
         'Warning: Signing non-segwit inputs without the full parent transaction ' +
           'means there is a chance that a miner could feed you incorrect information ' +
-          'to trick you into paying large fees. This behavior is the same as the old ' +
-          'TransactionBuilder class when signing non-segwit scripts. You are not ' +
+          "to trick you into paying large fees. This behavior is the same as Psbt's predecesor " +
+          '(TransactionBuilder - now removed) when signing non-segwit scripts. You are not ' +
           'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
           'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
           '*********************',
@@ -1711,6 +1732,16 @@ function redeemFromFinalWitnessScript(
   const sDecomp = bscript.decompile(lastItem);
   if (!sDecomp) return;
   return lastItem;
+}
+
+function compressPubkey(pubkey: Buffer): Buffer {
+  if (pubkey.length === 65) {
+    const parity = pubkey[64] & 1;
+    const newKey = pubkey.slice(0, 33);
+    newKey[0] = 2 | parity;
+    return newKey;
+  }
+  return pubkey.slice();
 }
 
 function isPubkeyLike(buf: Buffer): boolean {

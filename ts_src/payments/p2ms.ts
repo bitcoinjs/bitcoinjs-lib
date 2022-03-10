@@ -1,10 +1,9 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
+import { isPoint, typeforce as typef } from '../types';
 import { Payment, PaymentOpts, Stack } from './index';
 import * as lazy from './lazy';
 const OPS = bscript.OPS;
-const typef = require('typeforce');
-const ecc = require('tiny-secp256k1');
 
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 
@@ -41,7 +40,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
       m: typef.maybe(typef.Number),
       n: typef.maybe(typef.Number),
       output: typef.maybe(typef.Buffer),
-      pubkeys: typef.maybe(typef.arrayOf(ecc.isPoint)),
+      pubkeys: typef.maybe(typef.arrayOf(isPoint)),
 
       signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
       input: typef.maybe(typef.Buffer),
@@ -119,7 +118,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
 
       if (o.m! <= 0 || o.n! > 16 || o.m! > o.n! || o.n !== chunks.length - 3)
         throw new TypeError('Output is invalid');
-      if (!o.pubkeys!.every(x => ecc.isPoint(x)))
+      if (!o.pubkeys!.every(x => isPoint(x)))
         throw new TypeError('Output is invalid');
 
       if (a.m !== undefined && a.m !== o.m) throw new TypeError('m mismatch');

@@ -1,28 +1,28 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.p2pkh = void 0;
 const bcrypto = require('../crypto');
 const networks_1 = require('../networks');
 const bscript = require('../script');
+const types_1 = require('../types');
 const lazy = require('./lazy');
-const typef = require('typeforce');
-const OPS = bscript.OPS;
-const ecc = require('tiny-secp256k1');
 const bs58grscheck = require('bs58grscheck');
+const OPS = bscript.OPS;
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
 function p2pkh(a, opts) {
   if (!a.address && !a.hash && !a.output && !a.pubkey && !a.input)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  typef(
+  (0, types_1.typeforce)(
     {
-      network: typef.maybe(typef.Object),
-      address: typef.maybe(typef.String),
-      hash: typef.maybe(typef.BufferN(20)),
-      output: typef.maybe(typef.BufferN(25)),
-      pubkey: typef.maybe(ecc.isPoint),
-      signature: typef.maybe(bscript.isCanonicalScriptSignature),
-      input: typef.maybe(typef.Buffer),
+      network: types_1.typeforce.maybe(types_1.typeforce.Object),
+      address: types_1.typeforce.maybe(types_1.typeforce.String),
+      hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(20)),
+      output: types_1.typeforce.maybe(types_1.typeforce.BufferN(25)),
+      pubkey: types_1.typeforce.maybe(types_1.isPoint),
+      signature: types_1.typeforce.maybe(bscript.isCanonicalScriptSignature),
+      input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
     },
     a,
   );
@@ -116,7 +116,7 @@ function p2pkh(a, opts) {
       if (chunks.length !== 2) throw new TypeError('Input is invalid');
       if (!bscript.isCanonicalScriptSignature(chunks[0]))
         throw new TypeError('Input has invalid signature');
-      if (!ecc.isPoint(chunks[1]))
+      if (!(0, types_1.isPoint)(chunks[1]))
         throw new TypeError('Input has invalid pubkey');
       if (a.signature && !a.signature.equals(chunks[0]))
         throw new TypeError('Signature mismatch');

@@ -5,7 +5,7 @@ Released under the terms of the [MIT LICENSE](LICENSE).
 
 ## Should I use this in production?
 If you are thinking of using the *master* branch of this library in production, **stop**.
-Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/groestlcoin/bitcoinjs-lib/tags).
+Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/groestlcoin/groestlcoinjs-lib/tags).
 
 
 ## Can I trust this code?
@@ -28,10 +28,18 @@ Presently,  we do not have any formal documentation other than our [examples](#e
 ## Installation
 ``` bash
 npm install groestlcoinjs-lib
+# optionally, install a key derivation library as well
+npm install ecpair bip32grs
+# ecpair is the ECPair class for single keys
+# bip32grs is for generating HD keys
 ```
 
-Typically we support the [Node Maintenance LTS version](https://github.com/nodejs/Release).
-If in doubt, see the [.travis.yml](.travis.yml) for what versions are used by our continuous integration tests.
+Previous versions of the library included classes for key management (ECPair, HDNode(->"bip32grs")) but now these have been separated into different libraries. This lowers the bundle size significantly if you don't need to perform any crypto functions (converting private to public keys and deriving HD keys).
+
+Typically we support the [Node Maintenance LTS version](https://github.com/nodejs/Release). TypeScript target will be set
+to the ECMAScript version in which all features are fully supported by current Active Node LTS.
+However, depending on adoption among other environments (browsers etc.) we may keep the target back a year or two.
+If in doubt, see the [main_ci.yml](.github/workflows/main_ci.yml) for what versions are used by our continuous integration tests.
 
 **WARNING**: We presently don't provide any tooling to verify that the release on `npm` matches GitHub.  As such, you should verify anything downloaded by `npm` against your own verified copy.
 
@@ -48,7 +56,7 @@ Unfortunately, this isn't a silver bullet.
 Often, Javascript itself is working against us by bypassing these counter-measures.
 
 Problems in [`Buffer (UInt8Array)`](https://github.com/feross/buffer), for example, can trivially result in **catastrophic fund loss** without any warning.
-It can do this through undermining your random number generation, accidentally producing a [duplicate `k` value](https://www.nilsschneider.net/2013/01/28/recovering-bitcoin-private-keys.html), sending Bitcoin to a malformed output script, or any of a million different ways.
+It can do this through undermining your random number generation, accidentally producing a [duplicate `k` value](https://www.nilsschneider.net/2013/01/28/recovering-bitcoin-private-keys.html), sending Groestlcoin to a malformed output script, or any of a million different ways.
 Running tests in your target environment is important and a recommended step to verify continuously.
 
 Finally, **adhere to best practice**.
@@ -68,7 +76,7 @@ If you're familiar with how to use browserify, ignore this and carry on, otherwi
 
 **NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](https://babeljs.io/docs/plugins/preset-es2015/) preset).
 
-**WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use atleast [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
+**WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use at least [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
 
 ### Typescript or VSCode users
 Type declarations for Typescript are included in this library. Normal installation should include all the needed type information.
@@ -78,43 +86,45 @@ The below examples are implemented as integration tests, they should be very eas
 Otherwise, pull requests are appreciated.
 Some examples interact (via HTTPS) with a 3rd Party Blockchain Provider (3PBP).
 
-- [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a 2-of-3 P2SH multisig address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a SegWit address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a SegWit P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a SegWit 3-of-4 multisig address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a SegWit 2-of-2 P2SH multisig address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Support the retrieval of transactions for an address (3rd party blockchain)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a Testnet address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a Litecoin address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Create a 1-to-1 Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a typical Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with an OP\_RETURN output](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a 2-of-4 P2SH(multisig) input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2SH(P2WPKH) input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2WPKH input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2PK input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit 3-of-4 P2SH(P2WSH(multisig)) input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction and sign with an HDSigner interface (bip32)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Import a BIP32 testnet xpriv and export to WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Export a BIP32 xpriv, then import it](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Export a BIP32 xpub](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create a BIP32, bitcoin, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create a BIP44, bitcoin, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create a BIP49, bitcoin testnet, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Use BIP39 to generate BIP32 addresses](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future) (simple CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry (simple CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Bob and Charles can send (complex CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) can send after 5 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
+- [Taproot Key Spend](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/taproot.md)
 
-If you have a use case that you feel could be listed here, please [ask for it](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new)!
+- [Generate a random address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Import an address via WIF](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a 2-of-3 P2SH multisig address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a SegWit address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a SegWit P2SH address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a SegWit 3-of-4 multisig address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a SegWit 2-of-2 P2SH multisig address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Support the retrieval of transactions for an address (3rd party blockchain)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a Testnet address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a Litecoin address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
+- [Create a 1-to-1 Transaction](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a typical Transaction](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with an OP\_RETURN output](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a 2-of-4 P2SH(multisig) input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2SH(P2WPKH) input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2WPKH input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2PK input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a SegWit 3-of-4 P2SH(P2WSH(multisig)) input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction and sign with an HDSigner interface (bip32)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
+- [Import a BIP32 testnet xpriv and export to WIF](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
+- [Export a BIP32 xpriv, then import it](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
+- [Export a BIP32 xpub](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
+- [Create a BIP32, groestlcoin, account 0, external address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
+- [Create a BIP44, groestlcoin, account 0, external address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
+- [Create a BIP49, groestlcoin testnet, account 0, external address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
+- [Use BIP39 to generate BIP32 addresses](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
+- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future) (simple CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
+- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry (simple CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Bob and Charles can send (complex CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) can send after 5 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
+
+If you have a use case that you feel could be listed here, please [ask for it](https://github.com/Groestlcoin/groestlcoinjs-lib/issues/new)!
 
 
 ## Contributing
@@ -129,23 +139,23 @@ npm run-script coverage
 ```
 
 ## Complementing Libraries
-- [BIP21](https://github.com/bitcoinjs/bip21) - A BIP21 compatible URL encoding library
+- [BIP21GRS](https://github.com/Groestlcoin/bip21grs) - A BIP21 compatible URL encoding library
 - [BIP38](https://github.com/bitcoinjs/bip38) - Passphrase-protected private keys
 - [BIP39](https://github.com/bitcoinjs/bip39) - Mnemonic generation for deterministic keys
-- [BIP32-Utils](https://github.com/bitcoinjs/bip32-utils) - A set of utilities for working with BIP32
+- [BIP32GRS-Utils](https://github.com/Groestlcoin/bip32grs-utils) - A set of utilities for working with BIP32
 - [BIP66](https://github.com/bitcoinjs/bip66) - Strict DER signature decoding
 - [BIP68](https://github.com/bitcoinjs/bip68) - Relative lock-time encoding library
 - [BIP69](https://github.com/bitcoinjs/bip69) - Lexicographical Indexing of Transaction Inputs and Outputs
 - [Base58](https://github.com/cryptocoinjs/bs58) - Base58 encoding/decoding
 - [Base58 Grs Check](https://github.com/groestlcoin/bs58grscheck) - Base58 check encoding/decoding
 - [Bech32](https://github.com/bitcoinjs/bech32) - A BIP173/BIP350 compliant Bech32/Bech32m encoding library
-- [coinselect](https://github.com/bitcoinjs/coinselect) - A fee-optimizing, transaction input selection module for bitcoinjs-lib.
+- [coinselect](https://github.com/bitcoinjs/coinselect) - A fee-optimizing, transaction input selection module for groestlcoinjs-lib.
 - [merkle-lib](https://github.com/bitcoinjs/merkle-lib) - A performance conscious library for merkle root and tree calculations.
-- [minimaldata](https://github.com/bitcoinjs/minimaldata) - A module to check bitcoin policy: SCRIPT_VERIFY_MINIMALDATA
+- [minimaldata](https://github.com/bitcoinjs/minimaldata) - A module to check groestlcoin policy: SCRIPT_VERIFY_MINIMALDATA
 
 
 ## Alternatives
-- [Bitcore](https://github.com/groestlcoin/groestlcore)
+- [Groestlcore](https://github.com/groestlcoin/groestlcore)
 
 
 ## LICENSE [MIT](LICENSE)

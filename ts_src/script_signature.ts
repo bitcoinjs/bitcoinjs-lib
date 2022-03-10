@@ -1,7 +1,6 @@
+import * as bip66 from './bip66';
 import * as types from './types';
-const bip66 = require('bip66');
-
-const typeforce = require('typeforce');
+const { typeforce } = types;
 
 const ZERO = Buffer.alloc(1, 0);
 function toDER(x: Buffer): Buffer {

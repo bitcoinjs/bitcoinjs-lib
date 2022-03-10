@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
+exports.value = exports.prop = void 0;
 function prop(object, name, f) {
   Object.defineProperty(object, name, {
     configurable: true,

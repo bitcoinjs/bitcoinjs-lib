@@ -1,9 +1,9 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
+import { typeforce as typef } from '../types';
 import { Payment, PaymentOpts, Stack } from './index';
 import * as lazy from './lazy';
 
-const typef = require('typeforce');
 const OPS = bscript.OPS;
 
 function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
