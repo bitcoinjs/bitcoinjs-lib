@@ -8,7 +8,7 @@ const types_1 = require('../types');
 const taprootutils_1 = require('./taprootutils');
 const lazy = require('./lazy');
 const bech32_1 = require('bech32');
-const testecc_1 = require('./testecc');
+const verifyecc_1 = require('./verifyecc');
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
@@ -25,7 +25,7 @@ function p2tr(a, opts) {
   opts = Object.assign({ validate: true }, opts || {});
   const _ecc = lazy.value(() => {
     if (!opts.eccLib) throw new Error('ECC Library is missing for p2tr.');
-    (0, testecc_1.testEcc)(opts.eccLib);
+    (0, verifyecc_1.verifyEcc)(opts.eccLib);
     return opts.eccLib;
   });
   (0, types_1.typeforce)(

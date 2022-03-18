@@ -2,7 +2,7 @@ import { TinySecp256k1Interface } from '../types';
 
 const h = (hex: string): Buffer => Buffer.from(hex, 'hex');
 
-export function testEcc(ecc: TinySecp256k1Interface): void {
+export function verifyEcc(ecc: TinySecp256k1Interface): void {
   assert(typeof ecc.isXOnlyPoint === 'function');
   assert(
     ecc.isXOnlyPoint(

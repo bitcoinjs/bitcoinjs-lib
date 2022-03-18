@@ -14,7 +14,7 @@ import {
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';
-import { testEcc } from './testecc';
+import { verifyEcc } from './verifyecc';
 
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
@@ -36,7 +36,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   const _ecc = lazy.value(() => {
     if (!opts!.eccLib) throw new Error('ECC Library is missing for p2tr.');
 
-    testEcc(opts!.eccLib);
+    verifyEcc(opts!.eccLib);
     return opts!.eccLib;
   });
 

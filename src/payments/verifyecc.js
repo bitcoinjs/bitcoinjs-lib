@@ -1,8 +1,8 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.testEcc = void 0;
+exports.verifyEcc = void 0;
 const h = hex => Buffer.from(hex, 'hex');
-function testEcc(ecc) {
+function verifyEcc(ecc) {
   assert(typeof ecc.isXOnlyPoint === 'function');
   assert(
     ecc.isXOnlyPoint(
@@ -46,7 +46,7 @@ function testEcc(ecc) {
     }
   });
 }
-exports.testEcc = testEcc;
+exports.verifyEcc = verifyEcc;
 function assert(bool) {
   if (!bool) throw new Error('ecc library invalid');
 }
