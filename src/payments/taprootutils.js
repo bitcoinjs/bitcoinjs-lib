@@ -5,9 +5,6 @@ const buffer_1 = require('buffer');
 const bcrypto = require('../crypto');
 const bufferutils_1 = require('../bufferutils');
 const types_1 = require('../types');
-const TAP_LEAF_TAG = 'TapLeaf';
-const TAP_BRANCH_TAG = 'TapBranch';
-const TAP_TWEAK_TAG = 'TapTweak';
 exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
 function rootHashFromPath(controlBlock, tapleafMsg) {
   const k = [tapleafMsg];
@@ -70,7 +67,7 @@ exports.findScriptPath = findScriptPath;
 function tapleafHash(leaf) {
   const version = leaf.version || exports.LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
-    TAP_LEAF_TAG,
+    'TapLeaf',
     buffer_1.Buffer.concat([
       buffer_1.Buffer.from([version]),
       serializeScript(leaf.output),
@@ -80,13 +77,13 @@ function tapleafHash(leaf) {
 exports.tapleafHash = tapleafHash;
 function tapTweakHash(pubKey, h) {
   return bcrypto.taggedHash(
-    TAP_TWEAK_TAG,
+    'TapTweak',
     buffer_1.Buffer.concat(h ? [pubKey, h] : [pubKey]),
   );
 }
 exports.tapTweakHash = tapTweakHash;
 function tapBranchHash(a, b) {
-  return bcrypto.taggedHash(TAP_BRANCH_TAG, buffer_1.Buffer.concat([a, b]));
+  return bcrypto.taggedHash('TapBranch', buffer_1.Buffer.concat([a, b]));
 }
 function serializeScript(s) {
   const varintLen = bufferutils_1.varuint.encodingLength(s.length);

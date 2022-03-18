@@ -4,10 +4,6 @@ import * as bcrypto from '../crypto';
 import { varuint } from '../bufferutils';
 import { Tapleaf, Taptree, isTapleaf } from '../types';
 
-const TAP_LEAF_TAG = 'TapLeaf';
-const TAP_BRANCH_TAG = 'TapBranch';
-const TAP_TWEAK_TAG = 'TapTweak';
-
 export const LEAF_VERSION_TAPSCRIPT = 0xc0;
 
 export function rootHashFromPath(
@@ -86,20 +82,20 @@ export function findScriptPath(node: HashTree, hash: Buffer): Buffer[] {
 export function tapleafHash(leaf: Tapleaf): Buffer {
   const version = leaf.version || LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
-    TAP_LEAF_TAG,
+    'TapLeaf',
     NBuffer.concat([NBuffer.from([version]), serializeScript(leaf.output)]),
   );
 }
 
 export function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer {
   return bcrypto.taggedHash(
-    TAP_TWEAK_TAG,
+    'TapTweak',
     NBuffer.concat(h ? [pubKey, h] : [pubKey]),
   );
 }
 
 function tapBranchHash(a: Buffer, b: Buffer): Buffer {
-  return bcrypto.taggedHash(TAP_BRANCH_TAG, NBuffer.concat([a, b]));
+  return bcrypto.taggedHash('TapBranch', NBuffer.concat([a, b]));
 }
 
 function serializeScript(s: Buffer): Buffer {
