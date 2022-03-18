@@ -7,18 +7,17 @@ const bufferutils_1 = require('../bufferutils');
 const types_1 = require('../types');
 exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
 function rootHashFromPath(controlBlock, tapleafMsg) {
-  const k = [tapleafMsg];
-  const e = [];
   const m = (controlBlock.length - 33) / 32;
+  let kj = tapleafMsg;
   for (let j = 0; j < m; j++) {
-    e[j] = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
-    if (k[j].compare(e[j]) < 0) {
-      k[j + 1] = tapBranchHash(k[j], e[j]);
+    const ej = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
+    if (kj.compare(ej) < 0) {
+      kj = tapBranchHash(kj, ej);
     } else {
-      k[j + 1] = tapBranchHash(e[j], k[j]);
+      kj = tapBranchHash(ej, kj);
     }
   }
-  return k[m];
+  return kj;
 }
 exports.rootHashFromPath = rootHashFromPath;
 const isHashBranch = ht => 'left' in ht && 'right' in ht;
