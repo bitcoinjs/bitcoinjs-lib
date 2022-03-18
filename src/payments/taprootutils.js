@@ -55,7 +55,7 @@ function toHashTree(scriptTree) {
 }
 exports.toHashTree = toHashTree;
 /**
- * Check if the tree is a binary tree with leafs of type TaprootLeaf
+ * Check if the tree is a binary tree with leafs of type Tapleaf
  */
 function isTapTree(scriptTree) {
   if (scriptTree.length > 2) return false;

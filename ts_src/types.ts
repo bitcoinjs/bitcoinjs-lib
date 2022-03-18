@@ -72,10 +72,12 @@ export interface XOnlyPointAddTweakResult {
   xOnlyPubkey: Uint8Array;
 }
 
-export interface TaprootLeaf {
+export interface Tapleaf {
   output: Buffer;
   version?: number;
 }
+
+export type Taptree = Array<[Tapleaf, Tapleaf] | Tapleaf>;
 
 export interface TinySecp256k1Interface {
   isXOnlyPoint(p: Uint8Array): boolean;

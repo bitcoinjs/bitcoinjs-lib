@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Network } from '../networks';
-import { TinySecp256k1Interface, TaprootLeaf } from '../types';
+import { TinySecp256k1Interface, Taptree } from '../types';
 import { p2data as embed } from './embed';
 import { p2ms } from './p2ms';
 import { p2pk } from './p2pk';
@@ -26,7 +26,7 @@ export interface Payment {
     hash?: Buffer;
     redeem?: Payment;
     redeemVersion?: number;
-    scriptTree?: TaprootLeaf[];
+    scriptTree?: Taptree;
     witness?: Buffer[];
 }
 export declare type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;

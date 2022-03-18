@@ -2,7 +2,7 @@ import { Buffer as NBuffer } from 'buffer';
 import * as bcrypto from '../crypto';
 
 import { varuint } from '../bufferutils';
-import { TaprootLeaf } from '../types';
+import { Taptree } from '../types';
 
 const TAP_LEAF_TAG = 'TapLeaf';
 const TAP_BRANCH_TAG = 'TapBranch';
@@ -45,7 +45,7 @@ export interface HashTree {
  *  - a pair of two taproot leafs [(output, version), (output, version)], or
  *  - one taproot leaf and a list of elements
  */
-export function toHashTree(scriptTree: TaprootLeaf[]): HashTree {
+export function toHashTree(scriptTree: Taptree): HashTree {
   if (scriptTree.length === 1) {
     const script = scriptTree[0];
     if (Array.isArray(script)) {
@@ -71,9 +71,9 @@ export function toHashTree(scriptTree: TaprootLeaf[]): HashTree {
   };
 }
 /**
- * Check if the tree is a binary tree with leafs of type TaprootLeaf
+ * Check if the tree is a binary tree with leafs of type Tapleaf
  */
-export function isTapTree(scriptTree: TaprootLeaf[]): boolean {
+export function isTapTree(scriptTree: Taptree): boolean {
   if (scriptTree.length > 2) return false;
   if (scriptTree.length === 1) {
     const script = scriptTree[0];

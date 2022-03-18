@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { TaprootLeaf } from '../types';
+import { Taptree } from '../types';
 export declare const LEAF_VERSION_TAPSCRIPT = 192;
 export declare function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer;
 export interface HashTree {
@@ -15,11 +15,11 @@ export interface HashTree {
  *  - a pair of two taproot leafs [(output, version), (output, version)], or
  *  - one taproot leaf and a list of elements
  */
-export declare function toHashTree(scriptTree: TaprootLeaf[]): HashTree;
+export declare function toHashTree(scriptTree: Taptree): HashTree;
 /**
- * Check if the tree is a binary tree with leafs of type TaprootLeaf
+ * Check if the tree is a binary tree with leafs of type Tapleaf
  */
-export declare function isTapTree(scriptTree: TaprootLeaf[]): boolean;
+export declare function isTapTree(scriptTree: Taptree): boolean;
 /**
  * Given a MAST tree, it finds the path of a particular hash.
  * @param node - the root of the tree
