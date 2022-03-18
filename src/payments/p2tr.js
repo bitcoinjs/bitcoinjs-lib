@@ -12,7 +12,6 @@ const verifyecc_1 = require('./verifyecc');
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
-const LEAF_VERSION_MASK = 0xfe;
 function p2tr(a, opts) {
   if (
     !a.address &&
@@ -41,7 +40,7 @@ function p2tr(a, opts) {
       witness: types_1.typeforce.maybe(
         types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
       ),
-      scriptTree: types_1.typeforce.maybe(taprootutils_1.isTapTree),
+      scriptTree: types_1.typeforce.maybe(types_1.isTaptree),
       redeem: types_1.typeforce.maybe({
         output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
         redeemVersion: types_1.typeforce.maybe(types_1.typeforce.Number),
@@ -88,9 +87,12 @@ function p2tr(a, opts) {
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
-      const leafVersion = controlBlock[0] & LEAF_VERSION_MASK;
+      const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
       const script = w[w.length - 2];
-      const leafHash = (0, taprootutils_1.tapLeafHash)(script, leafVersion);
+      const leafHash = (0, taprootutils_1.tapLeafHash)({
+        output: script,
+        version: leafVersion,
+      });
       return (0, taprootutils_1.rootHashFromPath)(controlBlock, leafHash);
     }
     return null;
@@ -116,7 +118,8 @@ function p2tr(a, opts) {
     return {
       output: witness[witness.length - 2],
       witness: witness.slice(0, -2),
-      redeemVersion: witness[witness.length - 1][0] & LEAF_VERSION_MASK,
+      redeemVersion:
+        witness[witness.length - 1][0] & types_1.TAPLEAF_VERSION_MASK,
     };
   });
   lazy.prop(o, 'pubkey', () => {
@@ -144,10 +147,10 @@ function p2tr(a, opts) {
     if (a.scriptTree && a.redeem && a.redeem.output && a.internalPubkey) {
       // todo: optimize/cache
       const hashTree = (0, taprootutils_1.toHashTree)(a.scriptTree);
-      const leafHash = (0, taprootutils_1.tapLeafHash)(
-        a.redeem.output,
-        o.redeemVersion,
-      );
+      const leafHash = (0, taprootutils_1.tapLeafHash)({
+        output: a.redeem.output,
+        version: o.redeemVersion,
+      });
       const path = (0, taprootutils_1.findScriptPath)(hashTree, leafHash);
       const outputKey = tweakKey(a.internalPubkey, hashTree.hash, _ecc());
       if (!outputKey) return;
@@ -253,9 +256,12 @@ function p2tr(a, opts) {
           throw new TypeError('Internal pubkey mismatch');
         if (!_ecc().isXOnlyPoint(internalPubkey))
           throw new TypeError('Invalid internalPubkey for p2tr witness');
-        const leafVersion = controlBlock[0] & LEAF_VERSION_MASK;
+        const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
         const script = witness[witness.length - 2];
-        const leafHash = (0, taprootutils_1.tapLeafHash)(script, leafVersion);
+        const leafHash = (0, taprootutils_1.tapLeafHash)({
+          output: script,
+          version: leafVersion,
+        });
         const hash = (0, taprootutils_1.rootHashFromPath)(
           controlBlock,
           leafHash,

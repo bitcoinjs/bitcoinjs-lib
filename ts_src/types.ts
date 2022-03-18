@@ -77,7 +77,22 @@ export interface Tapleaf {
   version?: number;
 }
 
-export type Taptree = Array<[Tapleaf, Tapleaf] | Tapleaf>;
+export const TAPLEAF_VERSION_MASK = 0xfe;
+export function isTapleaf(o: any): o is Tapleaf {
+  if (!('output' in o)) return false;
+  if (!NBuffer.isBuffer(o.output)) return false;
+  if (o.version !== undefined)
+    return (o.version & TAPLEAF_VERSION_MASK) === o.version;
+  return true;
+}
+
+export type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
+
+export function isTaptree(scriptTree: any): scriptTree is Taptree {
+  if (!Array(scriptTree)) return isTapleaf(scriptTree);
+  if (scriptTree.length !== 2) return false;
+  return scriptTree.every((t: any) => isTaptree(t));
+}
 
 export interface TinySecp256k1Interface {
   isXOnlyPoint(p: Uint8Array): boolean;

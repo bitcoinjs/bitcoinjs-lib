@@ -2,7 +2,7 @@ import { Buffer as NBuffer } from 'buffer';
 import * as bcrypto from '../crypto';
 
 import { varuint } from '../bufferutils';
-import { Taptree } from '../types';
+import { Tapleaf, Taptree, isTapleaf } from '../types';
 
 const TAP_LEAF_TAG = 'TapLeaf';
 const TAP_BRANCH_TAG = 'TapBranch';
@@ -46,51 +46,17 @@ export interface HashTree {
  *  - one taproot leaf and a list of elements
  */
 export function toHashTree(scriptTree: Taptree): HashTree {
-  if (scriptTree.length === 1) {
-    const script = scriptTree[0];
-    if (Array.isArray(script)) {
-      return toHashTree(script);
-    }
-    script.version = script.version || LEAF_VERSION_TAPSCRIPT;
-    if ((script.version & 1) !== 0)
-      throw new TypeError('Invalid script version');
+  if (isTapleaf(scriptTree)) return { hash: tapLeafHash(scriptTree) };
 
-    return {
-      hash: tapLeafHash(script.output, script.version),
-    };
-  }
+  const hashes = [toHashTree(scriptTree[0]), toHashTree(scriptTree[1])];
+  hashes.sort((a, b) => a.hash.compare(b.hash));
+  const [left, right] = hashes;
 
-  let left = toHashTree([scriptTree[0]]);
-  let right = toHashTree([scriptTree[1]]);
-
-  if (left.hash.compare(right.hash) === 1) [left, right] = [right, left];
   return {
     hash: tapBranchHash(left.hash, right.hash),
     left,
     right,
   };
-}
-/**
- * Check if the tree is a binary tree with leafs of type Tapleaf
- */
-export function isTapTree(scriptTree: Taptree): boolean {
-  if (scriptTree.length > 2) return false;
-  if (scriptTree.length === 1) {
-    const script = scriptTree[0];
-    if (Array.isArray(script)) {
-      return isTapTree(script);
-    }
-    if (!script.output) return false;
-    script.version = script.version || LEAF_VERSION_TAPSCRIPT;
-    if ((script.version & 1) !== 0) return false;
-
-    return true;
-  }
-
-  if (!isTapTree([scriptTree[0]])) return false;
-  if (!isTapTree([scriptTree[1]])) return false;
-
-  return true;
 }
 
 /**
@@ -117,11 +83,11 @@ export function findScriptPath(node: HashTree, hash: Buffer): Buffer[] {
   return [];
 }
 
-export function tapLeafHash(script: Buffer, version?: number): Buffer {
-  version = version || LEAF_VERSION_TAPSCRIPT;
+export function tapLeafHash(leaf: Tapleaf): Buffer {
+  const version = leaf.version || LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
     TAP_LEAF_TAG,
-    NBuffer.concat([NBuffer.from([version]), serializeScript(script)]),
+    NBuffer.concat([NBuffer.from([version]), serializeScript(leaf.output)]),
   );
 }
 

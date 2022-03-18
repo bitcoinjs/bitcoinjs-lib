@@ -18,7 +18,10 @@ export interface Tapleaf {
     output: Buffer;
     version?: number;
 }
-export declare type Taptree = Array<[Tapleaf, Tapleaf] | Tapleaf>;
+export declare const TAPLEAF_VERSION_MASK = 254;
+export declare function isTapleaf(o: any): o is Tapleaf;
+export declare type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
+export declare function isTaptree(scriptTree: any): scriptTree is Taptree;
 export interface TinySecp256k1Interface {
     isXOnlyPoint(p: Uint8Array): boolean;
     xOnlyPointAddTweak(p: Uint8Array, tweak: Uint8Array): XOnlyPointAddTweakResult | null;

@@ -4,6 +4,7 @@ import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import { regtestUtils } from './_regtest';
 import * as bitcoin from '../..';
+import { Taptree } from '../../src/types';
 import { buildTapscriptFinalizer, toXOnly } from '../psbt.utils';
 
 const rng = require('randombytes');
@@ -97,11 +98,9 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     )} OP_CHECKSIG`;
     const leafScript = bitcoin.script.fromASM(leafScriptAsm);
 
-    const scriptTree = [
-      {
-        output: leafScript,
-      },
-    ];
+    const scriptTree = {
+      output: leafScript,
+    };
 
     const { output, address, hash } = bitcoin.payments.p2tr(
       {
@@ -157,7 +156,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     )} OP_CHECKSIG`;
     const leafScript = bitcoin.script.fromASM(leafScriptAsm);
 
-    const scriptTree: any[] = [
+    const scriptTree: Taptree = [
       [
         {
           output: bitcoin.script.fromASM(
@@ -262,7 +261,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     const leafScriptAsm = `OP_10 OP_CHECKSEQUENCEVERIFY OP_DROP ${leafPubkey} OP_CHECKSIG`;
     const leafScript = bitcoin.script.fromASM(leafScriptAsm);
 
-    const scriptTree: any[] = [
+    const scriptTree: Taptree = [
       {
         output: bitcoin.script.fromASM(
           '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG',
@@ -361,7 +360,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
 
     const leafScript = bitcoin.script.fromASM(leafScriptAsm);
 
-    const scriptTree: any[] = [
+    const scriptTree: Taptree = [
       {
         output: bitcoin.script.fromASM(
           '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG',

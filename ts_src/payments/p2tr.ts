@@ -1,14 +1,18 @@
 import { Buffer as NBuffer } from 'buffer';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { typeforce as typef, TinySecp256k1Interface } from '../types';
+import {
+  typeforce as typef,
+  isTaptree,
+  TinySecp256k1Interface,
+  TAPLEAF_VERSION_MASK,
+} from '../types';
 import {
   toHashTree,
   rootHashFromPath,
   findScriptPath,
   tapLeafHash,
   tapTweakHash,
-  isTapTree,
   LEAF_VERSION_TAPSCRIPT,
 } from './taprootutils';
 import { Payment, PaymentOpts } from './index';
@@ -19,7 +23,6 @@ import { verifyEcc } from './verifyecc';
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
-const LEAF_VERSION_MASK = 0xfe;
 
 export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   if (
@@ -51,7 +54,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       pubkey: typef.maybe(typef.BufferN(32)), // tweaked with `hash` from `internalPubkey`
       signature: typef.maybe(typef.BufferN(64)),
       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
-      scriptTree: typef.maybe(isTapTree),
+      scriptTree: typef.maybe(isTaptree),
       redeem: typef.maybe({
         output: typef.maybe(typef.Buffer), // tapleaf script
         redeemVersion: typef.maybe(typef.Number), // tapleaf version
@@ -102,9 +105,9 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
-      const leafVersion = controlBlock[0] & LEAF_VERSION_MASK;
+      const leafVersion = controlBlock[0] & TAPLEAF_VERSION_MASK;
       const script = w[w.length - 2];
-      const leafHash = tapLeafHash(script, leafVersion);
+      const leafHash = tapLeafHash({ output: script, version: leafVersion });
       return rootHashFromPath(controlBlock, leafHash);
     }
     return null;
@@ -132,7 +135,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     return {
       output: witness[witness.length - 2],
       witness: witness.slice(0, -2),
-      redeemVersion: witness[witness.length - 1][0] & LEAF_VERSION_MASK,
+      redeemVersion: witness[witness.length - 1][0] & TAPLEAF_VERSION_MASK,
     };
   });
   lazy.prop(o, 'pubkey', () => {
@@ -161,7 +164,10 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     if (a.scriptTree && a.redeem && a.redeem.output && a.internalPubkey) {
       // todo: optimize/cache
       const hashTree = toHashTree(a.scriptTree);
-      const leafHash = tapLeafHash(a.redeem.output, o.redeemVersion);
+      const leafHash = tapLeafHash({
+        output: a.redeem.output,
+        version: o.redeemVersion,
+      });
       const path = findScriptPath(hashTree, leafHash);
       const outputKey = tweakKey(a.internalPubkey, hashTree.hash, _ecc());
       if (!outputKey) return;
@@ -283,10 +289,10 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         if (!_ecc().isXOnlyPoint(internalPubkey))
           throw new TypeError('Invalid internalPubkey for p2tr witness');
 
-        const leafVersion = controlBlock[0] & LEAF_VERSION_MASK;
+        const leafVersion = controlBlock[0] & TAPLEAF_VERSION_MASK;
         const script = witness[witness.length - 2];
 
-        const leafHash = tapLeafHash(script, leafVersion);
+        const leafHash = tapLeafHash({ output: script, version: leafVersion });
         const hash = rootHashFromPath(controlBlock, leafHash);
 
         const outputKey = tweakKey(internalPubkey, hash, _ecc());

@@ -161,11 +161,9 @@
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with one leaf",
       "arguments": {
         "internalPubkey": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
-        "scriptTree": [
-          {
-            "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
-          }
-        ]
+        "scriptTree": {
+          "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
+        }
       },
       "expected": {
         "name": "p2tr",
@@ -393,12 +391,10 @@
           "output": "d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8 OP_CHECKSIG",
           "redeemVersion": 192
         },
-        "scriptTree": [
-          {
-            "output": "d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8 OP_CHECKSIG",
-            "version": 192
-          }
-        ]
+        "scriptTree": {
+          "output": "d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8 OP_CHECKSIG",
+          "version": 192
+        }
       },
       "options": {},
       "expected": {
@@ -427,12 +423,10 @@
           "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
           "redeemVersion": 192
         },
-        "scriptTree": [
-          {
-            "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
-            "version": 192
-          }
-        ]
+        "scriptTree": {
+          "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
+          "version": 192
+        }
       },
       "options": {},
       "expected": {
@@ -906,11 +900,9 @@
       "options": {},
       "arguments": {
         "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
-        "scriptTree": [
-          {
-            "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
-          }
-        ],
+        "scriptTree": {
+          "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
+        },
         "hash": "b76077013c8e303085e300000000000000000000000000000000000000000000"
       }
     },
@@ -1037,7 +1029,7 @@
     },
     {
       "description": "Script Tree is not a binary tree (has tree leafs)",
-      "exception": "property \"scriptTree\" of type \\?isTapTree, got Array",
+      "exception": "property \"scriptTree\" of type \\?isTaptree, got Array",
       "options": {},
       "arguments": {
         "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
@@ -1066,7 +1058,7 @@
     },
     {
       "description": "Script Tree is not a TapTree tree (leaf has no script)",
-      "exception": "property \"scriptTree\" of type \\?isTapTree, got Array",
+      "exception": "property \"scriptTree\" of type \\?isTaptree, got Array",
       "options": {},
       "arguments": {
         "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",

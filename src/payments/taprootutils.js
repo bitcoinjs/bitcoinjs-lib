@@ -1,9 +1,10 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tapTweakHash = exports.tapLeafHash = exports.findScriptPath = exports.isTapTree = exports.toHashTree = exports.rootHashFromPath = exports.LEAF_VERSION_TAPSCRIPT = void 0;
+exports.tapTweakHash = exports.tapLeafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = exports.LEAF_VERSION_TAPSCRIPT = void 0;
 const buffer_1 = require('buffer');
 const bcrypto = require('../crypto');
 const bufferutils_1 = require('../bufferutils');
+const types_1 = require('../types');
 const TAP_LEAF_TAG = 'TapLeaf';
 const TAP_BRANCH_TAG = 'TapBranch';
 const TAP_TWEAK_TAG = 'TapTweak';
@@ -32,21 +33,11 @@ exports.rootHashFromPath = rootHashFromPath;
  *  - one taproot leaf and a list of elements
  */
 function toHashTree(scriptTree) {
-  if (scriptTree.length === 1) {
-    const script = scriptTree[0];
-    if (Array.isArray(script)) {
-      return toHashTree(script);
-    }
-    script.version = script.version || exports.LEAF_VERSION_TAPSCRIPT;
-    if ((script.version & 1) !== 0)
-      throw new TypeError('Invalid script version');
-    return {
-      hash: tapLeafHash(script.output, script.version),
-    };
-  }
-  let left = toHashTree([scriptTree[0]]);
-  let right = toHashTree([scriptTree[1]]);
-  if (left.hash.compare(right.hash) === 1) [left, right] = [right, left];
+  if ((0, types_1.isTapleaf)(scriptTree))
+    return { hash: tapLeafHash(scriptTree) };
+  const hashes = [toHashTree(scriptTree[0]), toHashTree(scriptTree[1])];
+  hashes.sort((a, b) => a.hash.compare(b.hash));
+  const [left, right] = hashes;
   return {
     hash: tapBranchHash(left.hash, right.hash),
     left,
@@ -54,26 +45,6 @@ function toHashTree(scriptTree) {
   };
 }
 exports.toHashTree = toHashTree;
-/**
- * Check if the tree is a binary tree with leafs of type Tapleaf
- */
-function isTapTree(scriptTree) {
-  if (scriptTree.length > 2) return false;
-  if (scriptTree.length === 1) {
-    const script = scriptTree[0];
-    if (Array.isArray(script)) {
-      return isTapTree(script);
-    }
-    if (!script.output) return false;
-    script.version = script.version || exports.LEAF_VERSION_TAPSCRIPT;
-    if ((script.version & 1) !== 0) return false;
-    return true;
-  }
-  if (!isTapTree([scriptTree[0]])) return false;
-  if (!isTapTree([scriptTree[1]])) return false;
-  return true;
-}
-exports.isTapTree = isTapTree;
 /**
  * Given a MAST tree, it finds the path of a particular hash.
  * @param node - the root of the tree
@@ -96,13 +67,13 @@ function findScriptPath(node, hash) {
   return [];
 }
 exports.findScriptPath = findScriptPath;
-function tapLeafHash(script, version) {
-  version = version || exports.LEAF_VERSION_TAPSCRIPT;
+function tapLeafHash(leaf) {
+  const version = leaf.version || exports.LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
     TAP_LEAF_TAG,
     buffer_1.Buffer.concat([
       buffer_1.Buffer.from([version]),
-      serializeScript(script),
+      serializeScript(leaf.output),
     ]),
   );
 }
