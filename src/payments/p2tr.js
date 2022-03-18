@@ -12,7 +12,7 @@ const verifyecc_1 = require('./verifyecc');
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
-const LEAF_VERSION_MASK = 0b11111110;
+const LEAF_VERSION_MASK = 0xfe;
 function p2tr(a, opts) {
   if (
     !a.address &&
