@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tapTweakHash = exports.tapLeafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = exports.LEAF_VERSION_TAPSCRIPT = void 0;
+exports.tapTweakHash = exports.tapleafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = exports.LEAF_VERSION_TAPSCRIPT = void 0;
 const buffer_1 = require('buffer');
 const bcrypto = require('../crypto');
 const bufferutils_1 = require('../bufferutils');
@@ -9,8 +9,8 @@ const TAP_LEAF_TAG = 'TapLeaf';
 const TAP_BRANCH_TAG = 'TapBranch';
 const TAP_TWEAK_TAG = 'TapTweak';
 exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
-function rootHashFromPath(controlBlock, tapLeafMsg) {
-  const k = [tapLeafMsg];
+function rootHashFromPath(controlBlock, tapleafMsg) {
+  const k = [tapleafMsg];
   const e = [];
   const m = (controlBlock.length - 33) / 32;
   for (let j = 0; j < m; j++) {
@@ -34,7 +34,7 @@ exports.rootHashFromPath = rootHashFromPath;
  */
 function toHashTree(scriptTree) {
   if ((0, types_1.isTapleaf)(scriptTree))
-    return { hash: tapLeafHash(scriptTree) };
+    return { hash: tapleafHash(scriptTree) };
   const hashes = [toHashTree(scriptTree[0]), toHashTree(scriptTree[1])];
   hashes.sort((a, b) => a.hash.compare(b.hash));
   const [left, right] = hashes;
@@ -67,7 +67,7 @@ function findScriptPath(node, hash) {
   return [];
 }
 exports.findScriptPath = findScriptPath;
-function tapLeafHash(leaf) {
+function tapleafHash(leaf) {
   const version = leaf.version || exports.LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
     TAP_LEAF_TAG,
@@ -77,7 +77,7 @@ function tapLeafHash(leaf) {
     ]),
   );
 }
-exports.tapLeafHash = tapLeafHash;
+exports.tapleafHash = tapleafHash;
 function tapTweakHash(pubKey, h) {
   return bcrypto.taggedHash(
     TAP_TWEAK_TAG,

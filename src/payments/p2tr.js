@@ -89,7 +89,7 @@ function p2tr(a, opts) {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
       const script = w[w.length - 2];
-      const leafHash = (0, taprootutils_1.tapLeafHash)({
+      const leafHash = (0, taprootutils_1.tapleafHash)({
         output: script,
         version: leafVersion,
       });
@@ -147,7 +147,7 @@ function p2tr(a, opts) {
     if (a.scriptTree && a.redeem && a.redeem.output && a.internalPubkey) {
       // todo: optimize/cache
       const hashTree = (0, taprootutils_1.toHashTree)(a.scriptTree);
-      const leafHash = (0, taprootutils_1.tapLeafHash)({
+      const leafHash = (0, taprootutils_1.tapleafHash)({
         output: a.redeem.output,
         version: o.redeemVersion,
       });
@@ -258,7 +258,7 @@ function p2tr(a, opts) {
           throw new TypeError('Invalid internalPubkey for p2tr witness');
         const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
         const script = witness[witness.length - 2];
-        const leafHash = (0, taprootutils_1.tapLeafHash)({
+        const leafHash = (0, taprootutils_1.tapleafHash)({
           output: script,
           version: leafVersion,
         });

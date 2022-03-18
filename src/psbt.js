@@ -1079,7 +1079,7 @@ function getHashForSig(
     const signingScripts = prevOuts.map(o => o.script);
     const values = prevOuts.map(o => o.value);
     const leafHash = input.witnessScript
-      ? (0, taprootutils_1.tapLeafHash)({ output: input.witnessScript })
+      ? (0, taprootutils_1.tapleafHash)({ output: input.witnessScript })
       : undefined;
     hash = unsignedTx.hashForWitnessV1(
       inputIndex,

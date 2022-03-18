@@ -12,9 +12,9 @@ export const LEAF_VERSION_TAPSCRIPT = 0xc0;
 
 export function rootHashFromPath(
   controlBlock: Buffer,
-  tapLeafMsg: Buffer,
+  tapleafMsg: Buffer,
 ): Buffer {
-  const k = [tapLeafMsg];
+  const k = [tapleafMsg];
   const e = [];
 
   const m = (controlBlock.length - 33) / 32;
@@ -46,7 +46,7 @@ export interface HashTree {
  *  - one taproot leaf and a list of elements
  */
 export function toHashTree(scriptTree: Taptree): HashTree {
-  if (isTapleaf(scriptTree)) return { hash: tapLeafHash(scriptTree) };
+  if (isTapleaf(scriptTree)) return { hash: tapleafHash(scriptTree) };
 
   const hashes = [toHashTree(scriptTree[0]), toHashTree(scriptTree[1])];
   hashes.sort((a, b) => a.hash.compare(b.hash));
@@ -83,7 +83,7 @@ export function findScriptPath(node: HashTree, hash: Buffer): Buffer[] {
   return [];
 }
 
-export function tapLeafHash(leaf: Tapleaf): Buffer {
+export function tapleafHash(leaf: Tapleaf): Buffer {
   const version = leaf.version || LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
     TAP_LEAF_TAG,

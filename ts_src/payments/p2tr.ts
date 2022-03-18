@@ -11,7 +11,7 @@ import {
   toHashTree,
   rootHashFromPath,
   findScriptPath,
-  tapLeafHash,
+  tapleafHash,
   tapTweakHash,
   LEAF_VERSION_TAPSCRIPT,
 } from './taprootutils';
@@ -107,7 +107,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & TAPLEAF_VERSION_MASK;
       const script = w[w.length - 2];
-      const leafHash = tapLeafHash({ output: script, version: leafVersion });
+      const leafHash = tapleafHash({ output: script, version: leafVersion });
       return rootHashFromPath(controlBlock, leafHash);
     }
     return null;
@@ -164,7 +164,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     if (a.scriptTree && a.redeem && a.redeem.output && a.internalPubkey) {
       // todo: optimize/cache
       const hashTree = toHashTree(a.scriptTree);
-      const leafHash = tapLeafHash({
+      const leafHash = tapleafHash({
         output: a.redeem.output,
         version: o.redeemVersion,
       });
@@ -292,7 +292,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         const leafVersion = controlBlock[0] & TAPLEAF_VERSION_MASK;
         const script = witness[witness.length - 2];
 
-        const leafHash = tapLeafHash({ output: script, version: leafVersion });
+        const leafHash = tapleafHash({ output: script, version: leafVersion });
         const hash = rootHashFromPath(controlBlock, leafHash);
 
         const outputKey = tweakKey(internalPubkey, hash, _ecc());

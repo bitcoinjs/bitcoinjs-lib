@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Tapleaf, Taptree } from '../types';
 export declare const LEAF_VERSION_TAPSCRIPT = 192;
-export declare function rootHashFromPath(controlBlock: Buffer, tapLeafMsg: Buffer): Buffer;
+export declare function rootHashFromPath(controlBlock: Buffer, tapleafMsg: Buffer): Buffer;
 export interface HashTree {
     hash: Buffer;
     left?: HashTree;
@@ -23,5 +23,5 @@ export declare function toHashTree(scriptTree: Taptree): HashTree;
  * @returns - and array of hashes representing the path, or an empty array if no pat is found
  */
 export declare function findScriptPath(node: HashTree, hash: Buffer): Buffer[];
-export declare function tapLeafHash(leaf: Tapleaf): Buffer;
+export declare function tapleafHash(leaf: Tapleaf): Buffer;
 export declare function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer;

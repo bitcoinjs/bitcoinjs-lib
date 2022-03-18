@@ -21,7 +21,7 @@ import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
-import { tapLeafHash } from './payments/taprootutils';
+import { tapleafHash } from './payments/taprootutils';
 import { TinySecp256k1Interface } from './types';
 
 export interface TransactionInput {
@@ -1406,7 +1406,7 @@ function getHashForSig(
     const signingScripts: any = prevOuts.map(o => o.script);
     const values: any = prevOuts.map(o => o.value);
     const leafHash = input.witnessScript
-      ? tapLeafHash({ output: input.witnessScript })
+      ? tapleafHash({ output: input.witnessScript })
       : undefined;
 
     hash = unsignedTx.hashForWitnessV1(
