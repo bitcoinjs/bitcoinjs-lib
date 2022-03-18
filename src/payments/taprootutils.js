@@ -6,9 +6,9 @@ const bcrypto = require('../crypto');
 const bufferutils_1 = require('../bufferutils');
 const types_1 = require('../types');
 exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
-function rootHashFromPath(controlBlock, tapleafMsg) {
+function rootHashFromPath(controlBlock, leafHash) {
   const m = (controlBlock.length - 33) / 32;
-  let kj = tapleafMsg;
+  let kj = leafHash;
   for (let j = 0; j < m; j++) {
     const ej = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
     if (kj.compare(ej) < 0) {

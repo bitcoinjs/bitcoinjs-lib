@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Tapleaf, Taptree } from '../types';
 export declare const LEAF_VERSION_TAPSCRIPT = 192;
-export declare function rootHashFromPath(controlBlock: Buffer, tapleafMsg: Buffer): Buffer;
+export declare function rootHashFromPath(controlBlock: Buffer, leafHash: Buffer): Buffer;
 interface HashLeaf {
     hash: Buffer;
 }

@@ -8,11 +8,11 @@ export const LEAF_VERSION_TAPSCRIPT = 0xc0;
 
 export function rootHashFromPath(
   controlBlock: Buffer,
-  tapleafMsg: Buffer,
+  leafHash: Buffer,
 ): Buffer {
   const m = (controlBlock.length - 33) / 32;
 
-  let kj = tapleafMsg;
+  let kj = leafHash;
   for (let j = 0; j < m; j++) {
     const ej = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
     if (kj.compare(ej) < 0) {
