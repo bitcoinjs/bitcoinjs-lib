@@ -73,6 +73,11 @@ function p2tr(a, opts) {
     }
     return a.witness.slice();
   });
+  const _hashTree = lazy.value(() => {
+    if (a.scriptTree) return (0, taprootutils_1.toHashTree)(a.scriptTree);
+    if (a.hash) return { hash: a.hash };
+    return;
+  });
   const network = a.network || networks_1.bitcoin;
   const o = { name: 'p2tr', network };
   lazy.prop(o, 'address', () => {
@@ -82,8 +87,8 @@ function p2tr(a, opts) {
     return bech32_1.bech32m.encode(network.bech32, words);
   });
   lazy.prop(o, 'hash', () => {
-    if (a.hash) return a.hash;
-    if (a.scriptTree) return (0, taprootutils_1.toHashTree)(a.scriptTree).hash;
+    const hashTree = _hashTree();
+    if (hashTree) return hashTree.hash;
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
@@ -144,9 +149,8 @@ function p2tr(a, opts) {
   });
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
-    if (a.scriptTree && a.redeem && a.redeem.output && a.internalPubkey) {
-      // todo: optimize/cache
-      const hashTree = (0, taprootutils_1.toHashTree)(a.scriptTree);
+    const hashTree = _hashTree();
+    if (hashTree && a.redeem && a.redeem.output && a.internalPubkey) {
       const leafHash = (0, taprootutils_1.tapleafHash)({
         output: a.redeem.output,
         version: o.redeemVersion,
@@ -204,7 +208,7 @@ function p2tr(a, opts) {
         throw new TypeError('Invalid pubkey for p2tr');
     }
     if (a.hash && a.scriptTree) {
-      const hash = (0, taprootutils_1.toHashTree)(a.scriptTree).hash;
+      const hash = _hashTree().hash;
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
     const witness = _witness();

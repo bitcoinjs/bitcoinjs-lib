@@ -313,6 +313,28 @@
       }
     },
     {
+      "description": "address, pubkey, and output from internalPubkey redeem, and hash (one leaf, no tree)",
+      "arguments": {
+        "internalPubkey": "aba457d16a8d59151c387f24d1eb887efbe24644c1ee64b261282e7baebdb247",
+        "redeem": {
+          "output": "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac4 OP_CHECKSIG"
+        },
+        "hash": "b424dea09f840b932a00373cdcdbd25650b8c3acfe54a9f4a641a286721b8d26"
+      },
+      "expected": {
+        "name": "p2tr",
+        "address": "bc1pnxyp0ahcg53jzgrzj57hnlgdtqtzn7qqhmgjgczk8hzhcltq974qazepzf",
+        "pubkey": "998817f6f84523212062953d79fd0d581629f800bed12460563dc57c7d602faa",
+        "output": "OP_1 998817f6f84523212062953d79fd0d581629f800bed12460563dc57c7d602faa",
+        "signature": null,
+        "input": null,
+        "witness": [
+          "2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac4ac",
+          "c0aba457d16a8d59151c387f24d1eb887efbe24644c1ee64b261282e7baebdb247"
+        ]
+      }
+    },
+    {
       "description": "address, pubkey, output and hash from internalPubkey and a script tree with seven leafs (2)",
       "arguments": {
         "internalPubkey": "aba457d16a8d59151c387f24d1eb887efbe24644c1ee64b261282e7baebdb247",

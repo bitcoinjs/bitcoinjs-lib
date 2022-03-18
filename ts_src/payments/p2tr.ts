@@ -88,6 +88,12 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     return a.witness.slice();
   });
 
+  const _hashTree = lazy.value(() => {
+    if (a.scriptTree) return toHashTree(a.scriptTree);
+    if (a.hash) return { hash: a.hash };
+    return;
+  });
+
   const network = a.network || BITCOIN_NETWORK;
   const o: Payment = { name: 'p2tr', network };
 
@@ -100,8 +106,8 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   });
 
   lazy.prop(o, 'hash', () => {
-    if (a.hash) return a.hash;
-    if (a.scriptTree) return toHashTree(a.scriptTree).hash;
+    const hashTree = _hashTree();
+    if (hashTree) return hashTree.hash;
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
@@ -161,9 +167,8 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
 
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
-    if (a.scriptTree && a.redeem && a.redeem.output && a.internalPubkey) {
-      // todo: optimize/cache
-      const hashTree = toHashTree(a.scriptTree);
+    const hashTree = _hashTree();
+    if (hashTree && a.redeem && a.redeem.output && a.internalPubkey) {
       const leafHash = tapleafHash({
         output: a.redeem.output,
         version: o.redeemVersion,
@@ -227,7 +232,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     }
 
     if (a.hash && a.scriptTree) {
-      const hash = toHashTree(a.scriptTree).hash;
+      const hash = _hashTree()!.hash;
       if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
     }
 
