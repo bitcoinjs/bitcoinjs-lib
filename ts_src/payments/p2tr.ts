@@ -169,6 +169,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         version: o.redeemVersion,
       });
       const path = findScriptPath(hashTree, leafHash);
+      if (!path) return;
       const outputKey = tweakKey(a.internalPubkey, hashTree.hash, _ecc());
       if (!outputKey) return;
       const controlBock = NBuffer.concat(

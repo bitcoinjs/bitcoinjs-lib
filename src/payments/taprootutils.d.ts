@@ -2,11 +2,15 @@
 import { Tapleaf, Taptree } from '../types';
 export declare const LEAF_VERSION_TAPSCRIPT = 192;
 export declare function rootHashFromPath(controlBlock: Buffer, tapleafMsg: Buffer): Buffer;
-export interface HashTree {
+interface HashLeaf {
     hash: Buffer;
-    left?: HashTree;
-    right?: HashTree;
 }
+interface HashBranch {
+    hash: Buffer;
+    left: HashTree;
+    right: HashTree;
+}
+export declare type HashTree = HashLeaf | HashBranch;
 /**
  * Build the hash tree from the scripts binary tree.
  * The binary tree can be balanced or not.
@@ -20,8 +24,9 @@ export declare function toHashTree(scriptTree: Taptree): HashTree;
  * Given a MAST tree, it finds the path of a particular hash.
  * @param node - the root of the tree
  * @param hash - the hash to search for
- * @returns - and array of hashes representing the path, or an empty array if no pat is found
+ * @returns - and array of hashes representing the path, undefined if no path is found
  */
-export declare function findScriptPath(node: HashTree, hash: Buffer): Buffer[];
+export declare function findScriptPath(node: HashTree, hash: Buffer): Buffer[] | undefined;
 export declare function tapleafHash(leaf: Tapleaf): Buffer;
 export declare function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer;
+export {};

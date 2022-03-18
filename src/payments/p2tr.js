@@ -152,6 +152,7 @@ function p2tr(a, opts) {
         version: o.redeemVersion,
       });
       const path = (0, taprootutils_1.findScriptPath)(hashTree, leafHash);
+      if (!path) return;
       const outputKey = tweakKey(a.internalPubkey, hashTree.hash, _ecc());
       if (!outputKey) return;
       const controlBock = buffer_1.Buffer.concat(

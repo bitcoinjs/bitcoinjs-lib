@@ -27,11 +27,20 @@ export function rootHashFromPath(
   return k[m];
 }
 
-export interface HashTree {
+interface HashLeaf {
   hash: Buffer;
-  left?: HashTree;
-  right?: HashTree;
 }
+
+interface HashBranch {
+  hash: Buffer;
+  left: HashTree;
+  right: HashTree;
+}
+
+const isHashBranch = (ht: HashTree): ht is HashBranch =>
+  'left' in ht && 'right' in ht;
+
+export type HashTree = HashLeaf | HashBranch;
 
 /**
  * Build the hash tree from the scripts binary tree.
@@ -59,24 +68,27 @@ export function toHashTree(scriptTree: Taptree): HashTree {
  * Given a MAST tree, it finds the path of a particular hash.
  * @param node - the root of the tree
  * @param hash - the hash to search for
- * @returns - and array of hashes representing the path, or an empty array if no pat is found
+ * @returns - and array of hashes representing the path, undefined if no path is found
  */
-export function findScriptPath(node: HashTree, hash: Buffer): Buffer[] {
-  if (node.left) {
-    if (node.left.hash.equals(hash)) return node.right ? [node.right.hash] : [];
-    const leftPath = findScriptPath(node.left, hash);
-    if (leftPath.length)
-      return node.right ? [node.right.hash].concat(leftPath) : leftPath;
+export function findScriptPath(
+  node: HashTree,
+  hash: Buffer,
+): Buffer[] | undefined {
+  if (!isHashBranch(node)) {
+    if (node.hash.equals(hash)) {
+      return [];
+    } else {
+      return undefined;
+    }
   }
 
-  if (node.right) {
-    if (node.right.hash.equals(hash)) return node.left ? [node.left.hash] : [];
-    const rightPath = findScriptPath(node.right, hash);
-    if (rightPath.length)
-      return node.left ? [node.left.hash].concat(rightPath) : rightPath;
-  }
+  const leftPath = findScriptPath(node.left, hash);
+  if (leftPath !== undefined) return [node.right.hash, ...leftPath];
 
-  return [];
+  const rightPath = findScriptPath(node.right, hash);
+  if (rightPath !== undefined) return [node.left.hash, ...rightPath];
+
+  return undefined;
 }
 
 export function tapleafHash(leaf: Tapleaf): Buffer {

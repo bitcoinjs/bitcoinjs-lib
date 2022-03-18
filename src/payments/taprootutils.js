@@ -21,6 +21,7 @@ function rootHashFromPath(controlBlock, tapleafMsg) {
   return k[m];
 }
 exports.rootHashFromPath = rootHashFromPath;
+const isHashBranch = ht => 'left' in ht && 'right' in ht;
 /**
  * Build the hash tree from the scripts binary tree.
  * The binary tree can be balanced or not.
@@ -46,22 +47,21 @@ exports.toHashTree = toHashTree;
  * Given a MAST tree, it finds the path of a particular hash.
  * @param node - the root of the tree
  * @param hash - the hash to search for
- * @returns - and array of hashes representing the path, or an empty array if no pat is found
+ * @returns - and array of hashes representing the path, undefined if no path is found
  */
 function findScriptPath(node, hash) {
-  if (node.left) {
-    if (node.left.hash.equals(hash)) return node.right ? [node.right.hash] : [];
-    const leftPath = findScriptPath(node.left, hash);
-    if (leftPath.length)
-      return node.right ? [node.right.hash].concat(leftPath) : leftPath;
+  if (!isHashBranch(node)) {
+    if (node.hash.equals(hash)) {
+      return [];
+    } else {
+      return undefined;
+    }
   }
-  if (node.right) {
-    if (node.right.hash.equals(hash)) return node.left ? [node.left.hash] : [];
-    const rightPath = findScriptPath(node.right, hash);
-    if (rightPath.length)
-      return node.left ? [node.left.hash].concat(rightPath) : rightPath;
-  }
-  return [];
+  const leftPath = findScriptPath(node.left, hash);
+  if (leftPath !== undefined) return [node.right.hash, ...leftPath];
+  const rightPath = findScriptPath(node.right, hash);
+  if (rightPath !== undefined) return [node.left.hash, ...rightPath];
+  return undefined;
 }
 exports.findScriptPath = findScriptPath;
 function tapleafHash(leaf) {
