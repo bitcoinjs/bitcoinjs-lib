@@ -163,7 +163,7 @@ function p2tr(a, opts) {
         [
           buffer_1.Buffer.from([o.redeemVersion | outputKey.parity]),
           a.internalPubkey,
-        ].concat(path.reverse()),
+        ].concat(path),
       );
       return [a.redeem.output, controlBock];
     }

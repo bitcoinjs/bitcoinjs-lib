@@ -38,15 +38,17 @@ interface HashBranch {
 const isHashBranch = (ht: HashTree): ht is HashBranch =>
   'left' in ht && 'right' in ht;
 
+/**
+ * Binary tree representing leaf, branch, and root node hashes of a Taptree.
+ * Each node contains a hash, and potentially left and right branch hashes.
+ * This tree is used for 2 purposes: Providing the root hash for tweaking,
+ * and calculating merkle inclusion proofs when constructing a control block.
+ */
 export type HashTree = HashLeaf | HashBranch;
 
 /**
- * Build the hash tree from the scripts binary tree.
- * The binary tree can be balanced or not.
- * @param scriptTree - is a list representing a binary tree where an element can be:
- *  - a taproot leaf [(output, version)], or
- *  - a pair of two taproot leafs [(output, version), (output, version)], or
- *  - one taproot leaf and a list of elements
+ * Build a hash tree of merkle nodes from the scripts binary tree.
+ * @param scriptTree - the tree of scripts to pairwise hash.
  */
 export function toHashTree(scriptTree: Taptree): HashTree {
   if (isTapleaf(scriptTree)) return { hash: tapleafHash(scriptTree) };
@@ -63,28 +65,26 @@ export function toHashTree(scriptTree: Taptree): HashTree {
 }
 
 /**
- * Given a MAST tree, it finds the path of a particular hash.
+ * Given a HashTree, finds the path from a particular hash to the root.
  * @param node - the root of the tree
  * @param hash - the hash to search for
- * @returns - and array of hashes representing the path, undefined if no path is found
+ * @returns - array of sibling hashes, from leaf (inclusive) to root
+ * (exclusive) needed to prove inclusion of the specified hash. undefined if no
+ * path is found
  */
 export function findScriptPath(
   node: HashTree,
   hash: Buffer,
 ): Buffer[] | undefined {
-  if (!isHashBranch(node)) {
-    if (node.hash.equals(hash)) {
-      return [];
-    } else {
-      return undefined;
-    }
+  if (isHashBranch(node)) {
+    const leftPath = findScriptPath(node.left, hash);
+    if (leftPath !== undefined) return [...leftPath, node.right.hash];
+
+    const rightPath = findScriptPath(node.right, hash);
+    if (rightPath !== undefined) return [...rightPath, node.left.hash];
+  } else if (node.hash.equals(hash)) {
+    return [];
   }
-
-  const leftPath = findScriptPath(node.left, hash);
-  if (leftPath !== undefined) return [node.right.hash, ...leftPath];
-
-  const rightPath = findScriptPath(node.right, hash);
-  if (rightPath !== undefined) return [node.left.hash, ...rightPath];
 
   return undefined;
 }

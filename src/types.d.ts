@@ -20,6 +20,11 @@ export interface Tapleaf {
 }
 export declare const TAPLEAF_VERSION_MASK = 254;
 export declare function isTapleaf(o: any): o is Tapleaf;
+/**
+ * Binary tree repsenting script path spends for a Taproot input.
+ * Each node is either a single Tapleaf, or a pair of Tapleaf | Taptree.
+ * The tree has no balancing requirements.
+ */
 export declare type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
 export declare function isTaptree(scriptTree: any): scriptTree is Taptree;
 export interface TinySecp256k1Interface {

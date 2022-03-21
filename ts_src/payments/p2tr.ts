@@ -181,7 +181,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         [
           NBuffer.from([o.redeemVersion! | outputKey.parity]),
           a.internalPubkey,
-        ].concat(path.reverse()),
+        ].concat(path),
       );
       return [a.redeem.output, controlBock];
     }
