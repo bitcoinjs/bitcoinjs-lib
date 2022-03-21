@@ -207,9 +207,17 @@ function p2tr(a, opts) {
       if (!_ecc().isXOnlyPoint(pubkey))
         throw new TypeError('Invalid pubkey for p2tr');
     }
-    if (a.hash && a.scriptTree) {
-      const hash = _hashTree().hash;
-      if (!a.hash.equals(hash)) throw new TypeError('Hash mismatch');
+    const hashTree = _hashTree();
+    if (a.hash && hashTree) {
+      if (!a.hash.equals(hashTree.hash)) throw new TypeError('Hash mismatch');
+    }
+    if (a.redeem && a.redeem.output && hashTree) {
+      const leafHash = (0, taprootutils_1.tapleafHash)({
+        output: a.redeem.output,
+        version: o.redeemVersion,
+      });
+      if (!(0, taprootutils_1.findScriptPath)(hashTree, leafHash))
+        throw new TypeError('Redeem script not in tree');
     }
     const witness = _witness();
     // compare the provided redeem data with the one computed from witness

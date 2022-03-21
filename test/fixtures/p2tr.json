@@ -1175,6 +1175,20 @@
           ]
         }
       }
+    },
+    {
+      "description": "Redeem script not in tree",
+      "exception": "Redeem script not in tree",
+      "options": {},
+      "arguments": {
+        "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
+        "scriptTree": {
+          "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c18 OP_CHECKSIG"
+        },
+        "redeem": {
+          "output": "83d8ee77a0f3a32a5cea96fd1624d623b836c1e5d1ac2dcde46814b619320c19 OP_CHECKSIG"
+        }
+      }
     }
   ],
   "dynamic": {
