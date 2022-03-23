@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as types from '../src/types';
 const typeforce = require('typeforce');
+import * as fixtures from './fixtures/types.json';
 
 describe('types', () => {
   describe('Buffer Hash160/Hash256', () => {
@@ -89,6 +90,34 @@ describe('types', () => {
     it('return "BIP32 derivation path" for JSON.strigify()', () => {
       const toJsonValue = JSON.stringify(types.BIP32Path);
       assert.equal(toJsonValue, '"BIP32 derivation path"');
+    });
+  });
+
+  describe('isPoint (uncompressed)', () => {
+    fixtures.isPoint.forEach(f => {
+      it(`returns ${f.expected} for isPoint(${f.hex})`, () => {
+        const bytes = Buffer.from(f.hex, 'hex');
+        assert.strictEqual(types.isPoint(bytes), f.expected);
+      });
+    });
+  });
+
+  describe('isPoint (compressed) + isXOnlyPoint', () => {
+    fixtures.isXOnlyPoint.forEach(f => {
+      it(`returns ${f.expected} for isPoint(02${f.hex})`, () => {
+        const bytes = Buffer.from(`02${f.hex}`, 'hex');
+        assert.strictEqual(types.isPoint(bytes), f.expected);
+      });
+
+      it(`returns ${f.expected} for isPoint(03${f.hex})`, () => {
+        const bytes = Buffer.from(`03${f.hex}`, 'hex');
+        assert.strictEqual(types.isPoint(bytes), f.expected);
+      });
+
+      it(`returns ${f.expected} for isXOnlyPoint(${f.hex})`, () => {
+        const bytes = Buffer.from(f.hex, 'hex');
+        assert.strictEqual(types.isXOnlyPoint(bytes), f.expected);
+      });
     });
   });
 });

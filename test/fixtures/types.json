@@ -1,0 +1,58 @@
+{
+  "isPoint": [
+    {
+      "hex": "0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "expected": false
+    },
+    {
+      "hex": "04ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "expected": false
+    },
+    {
+      "hex": "044289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34cec320a0565fb7caf11b1ca2f445f9b7b012dda5718b3cface369ee3a034ded6",
+      "expected": true
+    },
+    {
+      "hex": "044289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34cec320a0565fb7caf11b1ca2f445f9b7b012dda5718b3cface369ee3a034ded0",
+      "expected": false
+    },
+    {
+      "hex": "04ff",
+      "expected": false
+    }
+  ],
+  "isXOnlyPoint": [
+    {
+      "hex": "ff",
+      "expected": false
+    },
+    {
+      "hex": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179800",
+      "expected": false
+    },
+    {
+      "hex": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+      "expected": true
+    },
+    {
+      "hex": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffeeffffc2e",
+      "expected": true
+    },
+    {
+      "hex": "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+      "expected": true
+    },
+    {
+      "hex": "0000000000000000000000000000000000000000000000000000000000000001",
+      "expected": true
+    },
+    {
+      "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expected": false
+    },
+    {
+      "hex": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
+      "expected": false
+    }
+  ]
+}
