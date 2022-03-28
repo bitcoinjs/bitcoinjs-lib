@@ -86,7 +86,7 @@ function toBech32(data, version, prefix) {
     : bech32_1.bech32m.encode(prefix, words);
 }
 exports.toBech32 = toBech32;
-function fromOutputScript(output, network, eccLib) {
+function fromOutputScript(output, network) {
   // TODO: Network
   network = network || networks.bitcoin;
   try {
@@ -102,7 +102,7 @@ function fromOutputScript(output, network, eccLib) {
     return payments.p2wsh({ output, network }).address;
   } catch (e) {}
   try {
-    if (eccLib) return payments.p2tr({ output, network }, { eccLib }).address;
+    return payments.p2tr({ output, network }).address;
   } catch (e) {}
   try {
     return _toFutureSegwitAddress(output, network);
@@ -110,7 +110,7 @@ function fromOutputScript(output, network, eccLib) {
   throw new Error(bscript.toASM(output) + ' has no matching Address');
 }
 exports.fromOutputScript = fromOutputScript;
-function toOutputScript(address, network, eccLib) {
+function toOutputScript(address, network) {
   network = network || networks.bitcoin;
   let decodeBase58;
   let decodeBech32;
@@ -135,9 +135,8 @@ function toOutputScript(address, network, eccLib) {
         if (decodeBech32.data.length === 32)
           return payments.p2wsh({ hash: decodeBech32.data }).output;
       } else if (decodeBech32.version === 1) {
-        if (decodeBech32.data.length === 32 && eccLib)
-          return payments.p2tr({ pubkey: decodeBech32.data }, { eccLib })
-            .output;
+        if (decodeBech32.data.length === 32)
+          return payments.p2tr({ pubkey: decodeBech32.data }).output;
       } else if (
         decodeBech32.version >= FUTURE_SEGWIT_MIN_VERSION &&
         decodeBech32.version <= FUTURE_SEGWIT_MAX_VERSION &&

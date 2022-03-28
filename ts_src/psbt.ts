@@ -22,7 +22,6 @@ import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
 import { tapleafHash } from './payments/taprootutils';
-import { TinySecp256k1Interface } from './types';
 
 export interface TransactionInput {
   hash: string | Buffer;
@@ -140,7 +139,6 @@ export class Psbt {
       // We will disable exporting the Psbt when unsafe sign is active.
       // because it is not BIP174 compliant.
       __UNSAFE_SIGN_NONSEGWIT: false,
-      __EC_LIB: opts.eccLib,
     };
     if (this.data.inputs.length === 0) this.setVersion(2);
 
@@ -191,11 +189,7 @@ export class Psbt {
     return this.__CACHE.__TX.outs.map(output => {
       let address;
       try {
-        address = fromOutputScript(
-          output.script,
-          this.opts.network,
-          this.__CACHE.__EC_LIB,
-        );
+        address = fromOutputScript(output.script, this.opts.network);
       } catch (_) {}
       return {
         script: cloneBuffer(output.script),
@@ -309,7 +303,7 @@ export class Psbt {
     const { address } = outputData as any;
     if (typeof address === 'string') {
       const { network } = this.opts;
-      const script = toOutputScript(address, network, this.__CACHE.__EC_LIB);
+      const script = toOutputScript(address, network);
       outputData = Object.assign(outputData, { script });
     }
     const c = this.__CACHE;
@@ -375,7 +369,6 @@ export class Psbt {
       isP2SH,
       isP2WSH,
       isTapscript,
-      this.__CACHE.__EC_LIB,
     );
 
     if (finalScriptSig) this.data.updateInput(inputIndex, { finalScriptSig });
@@ -407,13 +400,9 @@ export class Psbt {
       input.redeemScript || redeemFromFinalScriptSig(input.finalScriptSig),
       input.witnessScript ||
         redeemFromFinalWitnessScript(input.finalScriptWitness),
-      this.__CACHE,
     );
     const type = result.type === 'raw' ? '' : result.type + '-';
-    const mainType = classifyScript(
-      result.meaningfulScript,
-      this.__CACHE.__EC_LIB,
-    );
+    const mainType = classifyScript(result.meaningfulScript);
     return (type + mainType) as AllScriptType;
   }
 
@@ -821,13 +810,11 @@ interface PsbtCache {
   __FEE?: number;
   __EXTRACTED_TX?: Transaction;
   __UNSAFE_SIGN_NONSEGWIT: boolean;
-  __EC_LIB?: TinySecp256k1Interface;
 }
 
 interface PsbtOptsOptional {
   network?: Network;
   maximumFeeRate?: number;
-  eccLib?: TinySecp256k1Interface;
 }
 
 interface PsbtOpts {
@@ -1017,12 +1004,10 @@ function isFinalized(input: PsbtInput): boolean {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }
 
-function isPaymentFactory(
-  payment: any,
-): (script: Buffer, eccLib?: any) => boolean {
-  return (script: Buffer, eccLib?: any): boolean => {
+function isPaymentFactory(payment: any): (script: Buffer) => boolean {
+  return (script: Buffer): boolean => {
     try {
-      payment({ output: script }, { eccLib });
+      payment({ output: script });
       return true;
     } catch (err) {
       return false;
@@ -1225,7 +1210,6 @@ type FinalScriptsFunc = (
   isTapscript: boolean, // Is taproot script path?
   isP2SH: boolean, // Is it P2SH?
   isP2WSH: boolean, // Is it P2WSH?
-  eccLib?: TinySecp256k1Interface, // optional lib for checking taproot validity
 ) => {
   finalScriptSig: Buffer | undefined;
   finalScriptWitness: Buffer | Buffer[] | undefined;
@@ -1239,12 +1223,11 @@ function getFinalScripts(
   isP2SH: boolean,
   isP2WSH: boolean,
   isTapscript: boolean = false,
-  eccLib?: TinySecp256k1Interface,
 ): {
   finalScriptSig: Buffer | undefined;
   finalScriptWitness: Buffer | undefined;
 } {
-  const scriptType = classifyScript(script, eccLib);
+  const scriptType = classifyScript(script);
   if (isTapscript || !canFinalize(input, script, scriptType))
     throw new Error(`Can not finalize input #${inputIndex}`);
   return prepareFinalScripts(
@@ -1379,7 +1362,6 @@ function getHashForSig(
     'input',
     input.redeemScript,
     input.witnessScript,
-    cache,
   );
 
   if (['p2sh-p2wsh', 'p2wsh'].indexOf(type) >= 0) {
@@ -1399,7 +1381,7 @@ function getHashForSig(
       prevout.value,
       sighashType,
     );
-  } else if (isP2TR(prevout.script, cache.__EC_LIB)) {
+  } else if (isP2TR(prevout.script)) {
     const prevOuts: Output[] = inputs.map((i, index) =>
       getScriptAndAmountFromUtxo(index, i, cache),
     );
@@ -1553,7 +1535,7 @@ function getScriptFromInput(
     res.script = utxoScript;
   }
 
-  const isTaproot = utxoScript && isP2TR(utxoScript, cache.__EC_LIB);
+  const isTaproot = utxoScript && isP2TR(utxoScript);
 
   // Segregated Witness versions 0 or 1
   if (input.witnessScript || isP2WPKH(res.script!) || isTaproot) {
@@ -1816,7 +1798,6 @@ function pubkeyInInput(
     'input',
     input.redeemScript,
     input.witnessScript,
-    cache,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
@@ -1834,7 +1815,6 @@ function pubkeyInOutput(
     'output',
     output.redeemScript,
     output.witnessScript,
-    cache,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
@@ -1893,7 +1873,6 @@ function getMeaningfulScript(
   ioType: 'input' | 'output',
   redeemScript?: Buffer,
   witnessScript?: Buffer,
-  cache?: PsbtCache,
 ): {
   meaningfulScript: Buffer;
   type: 'p2sh' | 'p2wsh' | 'p2sh-p2wsh' | 'p2tr' | 'raw';
@@ -1901,7 +1880,7 @@ function getMeaningfulScript(
   const isP2SH = isP2SHScript(script);
   const isP2SHP2WSH = isP2SH && redeemScript && isP2WSHScript(redeemScript);
   const isP2WSH = isP2WSHScript(script);
-  const isP2TRScript = isP2TR(script, cache && cache.__EC_LIB);
+  const isP2TRScript = isP2TR(script);
 
   if (isP2SH && redeemScript === undefined)
     throw new Error('scriptPubkey is P2SH but redeemScript missing');
@@ -2002,15 +1981,12 @@ type ScriptType =
   | 'pubkey'
   | 'taproot'
   | 'nonstandard';
-function classifyScript(
-  script: Buffer,
-  eccLib?: TinySecp256k1Interface,
-): ScriptType {
+function classifyScript(script: Buffer): ScriptType {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
   if (isP2PKH(script)) return 'pubkeyhash';
   if (isP2MS(script)) return 'multisig';
   if (isP2PK(script)) return 'pubkey';
-  if (isP2TR(script, eccLib)) return 'taproot';
+  if (isP2TR(script)) return 'taproot';
   return 'nonstandard';
 }
 

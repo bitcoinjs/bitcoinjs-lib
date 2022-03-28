@@ -3,7 +3,6 @@ import { Psbt as PsbtBase } from 'bip174';
 import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
 import { Network } from './networks';
 import { Transaction } from './transaction';
-import { TinySecp256k1Interface } from './types';
 export interface TransactionInput {
     hash: string | Buffer;
     index: number;
@@ -111,7 +110,6 @@ export declare class Psbt {
 interface PsbtOptsOptional {
     network?: Network;
     maximumFeeRate?: number;
-    eccLib?: TinySecp256k1Interface;
 }
 interface PsbtInputExtended extends PsbtInput, TransactionInput {
 }
@@ -181,8 +179,7 @@ script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH
 isSegwit: boolean, // Is it segwit?
 isTapscript: boolean, // Is taproot script path?
 isP2SH: boolean, // Is it P2SH?
-isP2WSH: boolean, // Is it P2WSH?
-eccLib?: TinySecp256k1Interface) => {
+isP2WSH: boolean) => {
     finalScriptSig: Buffer | undefined;
     finalScriptWitness: Buffer | Buffer[] | undefined;
 };

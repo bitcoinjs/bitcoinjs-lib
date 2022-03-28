@@ -1,6 +1,5 @@
 import { PsbtInput } from 'bip174/src/lib/interfaces';
 import * as bitcoin from './..';
-import { TinySecp256k1Interface } from '../src/types';
 
 /**
  * Build finalizer function for Tapscript.
@@ -20,7 +19,6 @@ const buildTapscriptFinalizer = (
     _isP2SH: boolean,
     _isP2WSH: boolean,
     _isTapscript: boolean,
-    eccLib?: TinySecp256k1Interface,
   ): {
     finalScriptSig: Buffer | undefined;
     finalScriptWitness: Buffer | Buffer[] | undefined;
@@ -29,15 +27,12 @@ const buildTapscriptFinalizer = (
       throw new Error(`Can not finalize taproot input #${inputIndex}`);
 
     try {
-      const tapscriptSpend = bitcoin.payments.p2tr(
-        {
-          internalPubkey: toXOnly(internalPubkey),
-          scriptTree,
-          redeem: { output: script },
-          network,
-        },
-        { eccLib },
-      );
+      const tapscriptSpend = bitcoin.payments.p2tr({
+        internalPubkey: toXOnly(internalPubkey),
+        scriptTree,
+        redeem: { output: script },
+        network,
+      });
       const sigs = (input.partialSig || []).map(ps => ps.signature) as Buffer[];
       const finalScriptWitness = sigs.concat(
         tapscriptSpend.witness as Buffer[],

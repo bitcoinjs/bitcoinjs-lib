@@ -1,12 +1,8 @@
 import { Buffer as NBuffer } from 'buffer';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import {
-  typeforce as typef,
-  isTaptree,
-  TinySecp256k1Interface,
-  TAPLEAF_VERSION_MASK,
-} from '../types';
+import { typeforce as typef, isTaptree, TAPLEAF_VERSION_MASK } from '../types';
+import { getEccLib } from '../ecc_lib';
 import {
   toHashTree,
   rootHashFromPath,
@@ -18,7 +14,6 @@ import {
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';
-import { verifyEcc } from './verifyecc';
 
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
@@ -35,13 +30,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     throw new TypeError('Not enough data');
 
   opts = Object.assign({ validate: true }, opts || {});
-
-  const _ecc = lazy.value(() => {
-    if (!opts!.eccLib) throw new Error('ECC Library is missing for p2tr.');
-
-    verifyEcc(opts!.eccLib);
-    return opts!.eccLib;
-  });
 
   typef(
     {
@@ -149,7 +137,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = tweakKey(o.internalPubkey, o.hash, _ecc());
+      const tweakedKey = tweakKey(o.internalPubkey, o.hash);
       if (tweakedKey) return tweakedKey.x;
     }
   });
@@ -175,7 +163,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       });
       const path = findScriptPath(hashTree, leafHash);
       if (!path) return;
-      const outputKey = tweakKey(a.internalPubkey, hashTree.hash, _ecc());
+      const outputKey = tweakKey(a.internalPubkey, hashTree.hash);
       if (!outputKey) return;
       const controlBock = NBuffer.concat(
         [
@@ -220,14 +208,14 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
     }
 
     if (a.internalPubkey) {
-      const tweakedKey = tweakKey(a.internalPubkey, o.hash, _ecc());
+      const tweakedKey = tweakKey(a.internalPubkey, o.hash);
       if (pubkey.length > 0 && !pubkey.equals(tweakedKey!.x))
         throw new TypeError('Pubkey mismatch');
       else pubkey = tweakedKey!.x;
     }
 
     if (pubkey && pubkey.length) {
-      if (!_ecc().isXOnlyPoint(pubkey))
+      if (!getEccLib().isXOnlyPoint(pubkey))
         throw new TypeError('Invalid pubkey for p2tr');
     }
 
@@ -302,7 +290,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         if (a.internalPubkey && !a.internalPubkey.equals(internalPubkey))
           throw new TypeError('Internal pubkey mismatch');
 
-        if (!_ecc().isXOnlyPoint(internalPubkey))
+        if (!getEccLib().isXOnlyPoint(internalPubkey))
           throw new TypeError('Invalid internalPubkey for p2tr witness');
 
         const leafVersion = controlBlock[0] & TAPLEAF_VERSION_MASK;
@@ -311,7 +299,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
         const leafHash = tapleafHash({ output: script, version: leafVersion });
         const hash = rootHashFromPath(controlBlock, leafHash);
 
-        const outputKey = tweakKey(internalPubkey, hash, _ecc());
+        const outputKey = tweakKey(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');
@@ -336,7 +324,6 @@ interface TweakedPublicKey {
 function tweakKey(
   pubKey: Buffer,
   h: Buffer | undefined,
-  eccLib: TinySecp256k1Interface,
 ): TweakedPublicKey | null {
   if (!NBuffer.isBuffer(pubKey)) return null;
   if (pubKey.length !== 32) return null;
@@ -344,7 +331,7 @@ function tweakKey(
 
   const tweakHash = tapTweakHash(pubKey, h);
 
-  const res = eccLib.xOnlyPointAddTweak(pubKey, tweakHash);
+  const res = getEccLib().xOnlyPointAddTweak(pubKey, tweakHash);
   if (!res || res.xOnlyPubkey === null) return null;
 
   return {

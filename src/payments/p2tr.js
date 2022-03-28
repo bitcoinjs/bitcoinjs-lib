@@ -5,10 +5,10 @@ const buffer_1 = require('buffer');
 const networks_1 = require('../networks');
 const bscript = require('../script');
 const types_1 = require('../types');
+const ecc_lib_1 = require('../ecc_lib');
 const taprootutils_1 = require('./taprootutils');
 const lazy = require('./lazy');
 const bech32_1 = require('bech32');
-const verifyecc_1 = require('./verifyecc');
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
@@ -22,11 +22,6 @@ function p2tr(a, opts) {
   )
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  const _ecc = lazy.value(() => {
-    if (!opts.eccLib) throw new Error('ECC Library is missing for p2tr.');
-    (0, verifyecc_1.verifyEcc)(opts.eccLib);
-    return opts.eccLib;
-  });
   (0, types_1.typeforce)(
     {
       address: types_1.typeforce.maybe(types_1.typeforce.String),
@@ -132,7 +127,7 @@ function p2tr(a, opts) {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = tweakKey(o.internalPubkey, o.hash, _ecc());
+      const tweakedKey = tweakKey(o.internalPubkey, o.hash);
       if (tweakedKey) return tweakedKey.x;
     }
   });
@@ -157,7 +152,7 @@ function p2tr(a, opts) {
       });
       const path = (0, taprootutils_1.findScriptPath)(hashTree, leafHash);
       if (!path) return;
-      const outputKey = tweakKey(a.internalPubkey, hashTree.hash, _ecc());
+      const outputKey = tweakKey(a.internalPubkey, hashTree.hash);
       if (!outputKey) return;
       const controlBock = buffer_1.Buffer.concat(
         [
@@ -198,13 +193,13 @@ function p2tr(a, opts) {
       else pubkey = a.output.slice(2);
     }
     if (a.internalPubkey) {
-      const tweakedKey = tweakKey(a.internalPubkey, o.hash, _ecc());
+      const tweakedKey = tweakKey(a.internalPubkey, o.hash);
       if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
         throw new TypeError('Pubkey mismatch');
       else pubkey = tweakedKey.x;
     }
     if (pubkey && pubkey.length) {
-      if (!_ecc().isXOnlyPoint(pubkey))
+      if (!(0, ecc_lib_1.getEccLib)().isXOnlyPoint(pubkey))
         throw new TypeError('Invalid pubkey for p2tr');
     }
     const hashTree = _hashTree();
@@ -267,7 +262,7 @@ function p2tr(a, opts) {
         const internalPubkey = controlBlock.slice(1, 33);
         if (a.internalPubkey && !a.internalPubkey.equals(internalPubkey))
           throw new TypeError('Internal pubkey mismatch');
-        if (!_ecc().isXOnlyPoint(internalPubkey))
+        if (!(0, ecc_lib_1.getEccLib)().isXOnlyPoint(internalPubkey))
           throw new TypeError('Invalid internalPubkey for p2tr witness');
         const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
         const script = witness[witness.length - 2];
@@ -279,7 +274,7 @@ function p2tr(a, opts) {
           controlBlock,
           leafHash,
         );
-        const outputKey = tweakKey(internalPubkey, hash, _ecc());
+        const outputKey = tweakKey(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');
@@ -293,12 +288,12 @@ function p2tr(a, opts) {
   return Object.assign(o, a);
 }
 exports.p2tr = p2tr;
-function tweakKey(pubKey, h, eccLib) {
+function tweakKey(pubKey, h) {
   if (!buffer_1.Buffer.isBuffer(pubKey)) return null;
   if (pubKey.length !== 32) return null;
   if (h && h.length !== 32) return null;
   const tweakHash = (0, taprootutils_1.tapTweakHash)(pubKey, h);
-  const res = eccLib.xOnlyPointAddTweak(pubKey, tweakHash);
+  const res = (0, ecc_lib_1.getEccLib)().xOnlyPointAddTweak(pubKey, tweakHash);
   if (!res || res.xOnlyPubkey === null) return null;
   return {
     parity: res.parity,

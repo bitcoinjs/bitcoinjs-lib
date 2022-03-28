@@ -79,7 +79,6 @@ class Psbt {
       // We will disable exporting the Psbt when unsafe sign is active.
       // because it is not BIP174 compliant.
       __UNSAFE_SIGN_NONSEGWIT: false,
-      __EC_LIB: opts.eccLib,
     };
     if (this.data.inputs.length === 0) this.setVersion(2);
     // Make data hidden when enumerating
@@ -134,7 +133,6 @@ class Psbt {
         address = (0, address_1.fromOutputScript)(
           output.script,
           this.opts.network,
-          this.__CACHE.__EC_LIB,
         );
       } catch (_) {}
       return {
@@ -237,11 +235,7 @@ class Psbt {
     const { address } = outputData;
     if (typeof address === 'string') {
       const { network } = this.opts;
-      const script = (0, address_1.toOutputScript)(
-        address,
-        network,
-        this.__CACHE.__EC_LIB,
-      );
+      const script = (0, address_1.toOutputScript)(address, network);
       outputData = Object.assign(outputData, { script });
     }
     const c = this.__CACHE;
@@ -297,7 +291,6 @@ class Psbt {
       isP2SH,
       isP2WSH,
       isTapscript,
-      this.__CACHE.__EC_LIB,
     );
     if (finalScriptSig) this.data.updateInput(inputIndex, { finalScriptSig });
     if (finalScriptWitness) {
@@ -326,13 +319,9 @@ class Psbt {
       input.redeemScript || redeemFromFinalScriptSig(input.finalScriptSig),
       input.witnessScript ||
         redeemFromFinalWitnessScript(input.finalScriptWitness),
-      this.__CACHE,
     );
     const type = result.type === 'raw' ? '' : result.type + '-';
-    const mainType = classifyScript(
-      result.meaningfulScript,
-      this.__CACHE.__EC_LIB,
-    );
+    const mainType = classifyScript(result.meaningfulScript);
     return type + mainType;
   }
   inputHasPubkey(inputIndex, pubkey) {
@@ -769,9 +758,9 @@ function isFinalized(input) {
   return !!input.finalScriptSig || !!input.finalScriptWitness;
 }
 function isPaymentFactory(payment) {
-  return (script, eccLib) => {
+  return script => {
     try {
-      payment({ output: script }, { eccLib });
+      payment({ output: script });
       return true;
     } catch (err) {
       return false;
@@ -935,9 +924,8 @@ function getFinalScripts(
   isP2SH,
   isP2WSH,
   isTapscript = false,
-  eccLib,
 ) {
-  const scriptType = classifyScript(script, eccLib);
+  const scriptType = classifyScript(script);
   if (isTapscript || !canFinalize(input, script, scriptType))
     throw new Error(`Can not finalize input #${inputIndex}`);
   return prepareFinalScripts(
@@ -1053,7 +1041,6 @@ function getHashForSig(
     'input',
     input.redeemScript,
     input.witnessScript,
-    cache,
   );
   if (['p2sh-p2wsh', 'p2wsh'].indexOf(type) >= 0) {
     hash = unsignedTx.hashForWitnessV0(
@@ -1072,7 +1059,7 @@ function getHashForSig(
       prevout.value,
       sighashType,
     );
-  } else if (isP2TR(prevout.script, cache.__EC_LIB)) {
+  } else if (isP2TR(prevout.script)) {
     const prevOuts = inputs.map((i, index) =>
       getScriptAndAmountFromUtxo(index, i, cache),
     );
@@ -1204,7 +1191,7 @@ function getScriptFromInput(inputIndex, input, cache) {
   } else {
     res.script = utxoScript;
   }
-  const isTaproot = utxoScript && isP2TR(utxoScript, cache.__EC_LIB);
+  const isTaproot = utxoScript && isP2TR(utxoScript);
   // Segregated Witness versions 0 or 1
   if (input.witnessScript || isP2WPKH(res.script) || isTaproot) {
     res.isSegwit = true;
@@ -1410,7 +1397,6 @@ function pubkeyInInput(pubkey, input, inputIndex, cache) {
     'input',
     input.redeemScript,
     input.witnessScript,
-    cache,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
@@ -1422,7 +1408,6 @@ function pubkeyInOutput(pubkey, output, outputIndex, cache) {
     'output',
     output.redeemScript,
     output.witnessScript,
-    cache,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
@@ -1471,12 +1456,11 @@ function getMeaningfulScript(
   ioType,
   redeemScript,
   witnessScript,
-  cache,
 ) {
   const isP2SH = isP2SHScript(script);
   const isP2SHP2WSH = isP2SH && redeemScript && isP2WSHScript(redeemScript);
   const isP2WSH = isP2WSHScript(script);
-  const isP2TRScript = isP2TR(script, cache && cache.__EC_LIB);
+  const isP2TRScript = isP2TR(script);
   if (isP2SH && redeemScript === undefined)
     throw new Error('scriptPubkey is P2SH but redeemScript missing');
   if ((isP2WSH || isP2SHP2WSH) && witnessScript === undefined)
@@ -1539,12 +1523,12 @@ function isTaprootSpend(scriptType) {
     !!scriptType && (scriptType === 'taproot' || scriptType.startsWith('p2tr-'))
   );
 }
-function classifyScript(script, eccLib) {
+function classifyScript(script) {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
   if (isP2PKH(script)) return 'pubkeyhash';
   if (isP2MS(script)) return 'multisig';
   if (isP2PK(script)) return 'pubkey';
-  if (isP2TR(script, eccLib)) return 'taproot';
+  if (isP2TR(script)) return 'taproot';
   return 'nonstandard';
 }
 function range(n) {

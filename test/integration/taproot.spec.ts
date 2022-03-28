@@ -9,6 +9,7 @@ import { buildTapscriptFinalizer, toXOnly } from '../psbt.utils';
 
 const rng = require('randombytes');
 const regtest = regtestUtils.network;
+bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
@@ -17,7 +18,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     const myKey = bip32.fromSeed(rng(64), regtest);
 
     const output = createKeySpendOutput(myKey.publicKey);
-    const address = bitcoin.address.fromOutputScript(output, regtest, ecc);
+    const address = bitcoin.address.fromOutputScript(output, regtest);
     // amount from faucet
     const amount = 42e4;
     // amount to send
@@ -51,10 +52,10 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
   it('can create (and broadcast via 3PBP) a taproot key-path spend Transaction', async () => {
     const internalKey = bip32.fromSeed(rng(64), regtest);
 
-    const { output, address } = bitcoin.payments.p2tr(
-      { internalPubkey: toXOnly(internalKey.publicKey), network: regtest },
-      { eccLib: ecc },
-    );
+    const { output, address } = bitcoin.payments.p2tr({
+      internalPubkey: toXOnly(internalKey.publicKey),
+      network: regtest,
+    });
 
     // amount from faucet
     const amount = 42e4;
@@ -63,7 +64,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     // get faucet
     const unspent = await regtestUtils.faucetComplex(output!, amount);
 
-    const psbt = new bitcoin.Psbt({ eccLib: ecc, network: regtest });
+    const psbt = new bitcoin.Psbt({ network: regtest });
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
@@ -102,14 +103,11 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       output: leafScript,
     };
 
-    const { output, address, hash } = bitcoin.payments.p2tr(
-      {
-        internalPubkey: toXOnly(internalKey.publicKey),
-        scriptTree,
-        network: regtest,
-      },
-      { eccLib: ecc },
-    );
+    const { output, address, hash } = bitcoin.payments.p2tr({
+      internalPubkey: toXOnly(internalKey.publicKey),
+      scriptTree,
+      network: regtest,
+    });
 
     // amount from faucet
     const amount = 42e4;
@@ -118,7 +116,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     // get faucet
     const unspent = await regtestUtils.faucetComplex(output!, amount);
 
-    const psbt = new bitcoin.Psbt({ eccLib: ecc, network: regtest });
+    const psbt = new bitcoin.Psbt({ network: regtest });
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
@@ -206,15 +204,12 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       redeemVersion: 192,
     };
 
-    const { output, address } = bitcoin.payments.p2tr(
-      {
-        internalPubkey: toXOnly(internalKey.publicKey),
-        scriptTree,
-        redeem,
-        network: regtest,
-      },
-      { eccLib: ecc },
-    );
+    const { output, address } = bitcoin.payments.p2tr({
+      internalPubkey: toXOnly(internalKey.publicKey),
+      scriptTree,
+      redeem,
+      network: regtest,
+    });
 
     // amount from faucet
     const amount = 42e4;
@@ -223,7 +218,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     // get faucet
     const unspent = await regtestUtils.faucetComplex(output!, amount);
 
-    const psbt = new bitcoin.Psbt({ eccLib: ecc, network: regtest });
+    const psbt = new bitcoin.Psbt({ network: regtest });
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
@@ -283,15 +278,12 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       redeemVersion: 192,
     };
 
-    const { output, address } = bitcoin.payments.p2tr(
-      {
-        internalPubkey: toXOnly(internalKey.publicKey),
-        scriptTree,
-        redeem,
-        network: regtest,
-      },
-      { eccLib: ecc },
-    );
+    const { output, address } = bitcoin.payments.p2tr({
+      internalPubkey: toXOnly(internalKey.publicKey),
+      scriptTree,
+      redeem,
+      network: regtest,
+    });
 
     // amount from faucet
     const amount = 42e4;
@@ -300,7 +292,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     // get faucet
     const unspent = await regtestUtils.faucetComplex(output!, amount);
 
-    const psbt = new bitcoin.Psbt({ eccLib: ecc, network: regtest });
+    const psbt = new bitcoin.Psbt({ network: regtest });
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
@@ -382,15 +374,12 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       redeemVersion: 192,
     };
 
-    const { output, address } = bitcoin.payments.p2tr(
-      {
-        internalPubkey: toXOnly(internalKey.publicKey),
-        scriptTree,
-        redeem,
-        network: regtest,
-      },
-      { eccLib: ecc },
-    );
+    const { output, address } = bitcoin.payments.p2tr({
+      internalPubkey: toXOnly(internalKey.publicKey),
+      scriptTree,
+      redeem,
+      network: regtest,
+    });
 
     // amount from faucet
     const amount = 42e4;
@@ -399,7 +388,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     // get faucet
     const unspent = await regtestUtils.faucetComplex(output!, amount);
 
-    const psbt = new bitcoin.Psbt({ eccLib: ecc, network: regtest });
+    const psbt = new bitcoin.Psbt({ network: regtest });
     psbt.addInput({
       hash: unspent.txId,
       index: 0,

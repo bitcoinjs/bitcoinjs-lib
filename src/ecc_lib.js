@@ -1,8 +1,28 @@
-import { TinySecp256k1Interface } from '../types';
-
-const h = (hex: string): Buffer => Buffer.from(hex, 'hex');
-
-export function verifyEcc(ecc: TinySecp256k1Interface): void {
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.getEccLib = exports.initEccLib = void 0;
+const _ECCLIB_CACHE = {};
+function initEccLib(eccLib) {
+  if (!eccLib) {
+    // allow clearing the library
+    _ECCLIB_CACHE.eccLib = eccLib;
+  } else if (eccLib !== _ECCLIB_CACHE.eccLib) {
+    // new instance, verify it
+    verifyEcc(eccLib);
+    _ECCLIB_CACHE.eccLib = eccLib;
+  }
+}
+exports.initEccLib = initEccLib;
+function getEccLib() {
+  if (!_ECCLIB_CACHE.eccLib)
+    throw new Error(
+      'No ECC Library provided. You must call initEccLib() with a valid TinySecp256k1Interface instance',
+    );
+  return _ECCLIB_CACHE.eccLib;
+}
+exports.getEccLib = getEccLib;
+const h = hex => Buffer.from(hex, 'hex');
+function verifyEcc(ecc) {
   assert(typeof ecc.isXOnlyPoint === 'function');
   assert(
     ecc.isXOnlyPoint(
@@ -34,7 +54,6 @@ export function verifyEcc(ecc: TinySecp256k1Interface): void {
       h('fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f'),
     ),
   );
-
   assert(typeof ecc.xOnlyPointAddTweak === 'function');
   tweakAddVectors.forEach(t => {
     const r = ecc.xOnlyPointAddTweak(h(t.pubkey), h(t.tweak));
@@ -42,16 +61,14 @@ export function verifyEcc(ecc: TinySecp256k1Interface): void {
       assert(r === null);
     } else {
       assert(r !== null);
-      assert(r!.parity === t.parity);
-      assert(Buffer.from(r!.xOnlyPubkey).equals(h(t.result)));
+      assert(r.parity === t.parity);
+      assert(Buffer.from(r.xOnlyPubkey).equals(h(t.result)));
     }
   });
 }
-
-function assert(bool: boolean): void {
+function assert(bool) {
   if (!bool) throw new Error('ecc library invalid');
 }
-
 const tweakAddVectors = [
   {
     pubkey: '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798',
