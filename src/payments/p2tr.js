@@ -139,8 +139,9 @@ function p2tr(a, opts) {
   });
   lazy.prop(o, 'signature', () => {
     if (a.signature) return a.signature;
-    if (!a.witness || a.witness.length !== 1) return;
-    return a.witness[0];
+    const witness = _witness(); // witness without annex
+    if (!witness || witness.length !== 1) return;
+    return witness[0];
   });
   lazy.prop(o, 'witness', () => {
     if (a.witness) return a.witness;
