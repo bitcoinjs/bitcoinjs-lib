@@ -1,10 +1,37 @@
 import { Buffer as NBuffer } from 'buffer';
+import { getEccLib } from '../ecc_lib';
 import * as bcrypto from '../crypto';
 
 import { varuint } from '../bufferutils';
 import { Tapleaf, Taptree, isTapleaf } from '../types';
 
 export const LEAF_VERSION_TAPSCRIPT = 0xc0;
+
+interface HashLeaf {
+  hash: Buffer;
+}
+
+interface HashBranch {
+  hash: Buffer;
+  left: HashTree;
+  right: HashTree;
+}
+
+interface TweakedPublicKey {
+  parity: number;
+  x: Buffer;
+}
+
+const isHashBranch = (ht: HashTree): ht is HashBranch =>
+  'left' in ht && 'right' in ht;
+
+/**
+ * Binary tree representing leaf, branch, and root node hashes of a Taptree.
+ * Each node contains a hash, and potentially left and right branch hashes.
+ * This tree is used for 2 purposes: Providing the root hash for tweaking,
+ * and calculating merkle inclusion proofs when constructing a control block.
+ */
+export type HashTree = HashLeaf | HashBranch;
 
 export function rootHashFromPath(
   controlBlock: Buffer,
@@ -24,27 +51,6 @@ export function rootHashFromPath(
 
   return kj;
 }
-
-interface HashLeaf {
-  hash: Buffer;
-}
-
-interface HashBranch {
-  hash: Buffer;
-  left: HashTree;
-  right: HashTree;
-}
-
-const isHashBranch = (ht: HashTree): ht is HashBranch =>
-  'left' in ht && 'right' in ht;
-
-/**
- * Binary tree representing leaf, branch, and root node hashes of a Taptree.
- * Each node contains a hash, and potentially left and right branch hashes.
- * This tree is used for 2 purposes: Providing the root hash for tweaking,
- * and calculating merkle inclusion proofs when constructing a control block.
- */
-export type HashTree = HashLeaf | HashBranch;
 
 /**
  * Build a hash tree of merkle nodes from the scripts binary tree.
@@ -102,6 +108,25 @@ export function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer {
     'TapTweak',
     NBuffer.concat(h ? [pubKey, h] : [pubKey]),
   );
+}
+
+export function tweakKey(
+  pubKey: Buffer,
+  h: Buffer | undefined,
+): TweakedPublicKey | null {
+  if (!NBuffer.isBuffer(pubKey)) return null;
+  if (pubKey.length !== 32) return null;
+  if (h && h.length !== 32) return null;
+
+  const tweakHash = tapTweakHash(pubKey, h);
+
+  const res = getEccLib().xOnlyPointAddTweak(pubKey, tweakHash);
+  if (!res || res.xOnlyPubkey === null) return null;
+
+  return {
+    parity: res.parity,
+    x: NBuffer.from(res.xOnlyPubkey),
+  };
 }
 
 function tapBranchHash(a: Buffer, b: Buffer): Buffer {

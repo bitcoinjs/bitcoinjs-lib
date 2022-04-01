@@ -8,7 +8,7 @@ import {
   rootHashFromPath,
   findScriptPath,
   tapleafHash,
-  tapTweakHash,
+  tweakKey,
   LEAF_VERSION_TAPSCRIPT,
 } from './taprootutils';
 import { Payment, PaymentOpts } from './index';
@@ -314,30 +314,6 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   }
 
   return Object.assign(o, a);
-}
-
-interface TweakedPublicKey {
-  parity: number;
-  x: Buffer;
-}
-
-function tweakKey(
-  pubKey: Buffer,
-  h: Buffer | undefined,
-): TweakedPublicKey | null {
-  if (!NBuffer.isBuffer(pubKey)) return null;
-  if (pubKey.length !== 32) return null;
-  if (h && h.length !== 32) return null;
-
-  const tweakHash = tapTweakHash(pubKey, h);
-
-  const res = getEccLib().xOnlyPointAddTweak(pubKey, tweakHash);
-  if (!res || res.xOnlyPubkey === null) return null;
-
-  return {
-    parity: res.parity,
-    x: NBuffer.from(res.xOnlyPubkey),
-  };
 }
 
 function stacksEqual(a: Buffer[], b: Buffer[]): boolean {

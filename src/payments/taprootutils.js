@@ -1,11 +1,13 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tapTweakHash = exports.tapleafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = exports.LEAF_VERSION_TAPSCRIPT = void 0;
+exports.tweakKey = exports.tapTweakHash = exports.tapleafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = exports.LEAF_VERSION_TAPSCRIPT = void 0;
 const buffer_1 = require('buffer');
+const ecc_lib_1 = require('../ecc_lib');
 const bcrypto = require('../crypto');
 const bufferutils_1 = require('../bufferutils');
 const types_1 = require('../types');
 exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
+const isHashBranch = ht => 'left' in ht && 'right' in ht;
 function rootHashFromPath(controlBlock, leafHash) {
   const m = (controlBlock.length - 33) / 32;
   let kj = leafHash;
@@ -20,7 +22,6 @@ function rootHashFromPath(controlBlock, leafHash) {
   return kj;
 }
 exports.rootHashFromPath = rootHashFromPath;
-const isHashBranch = ht => 'left' in ht && 'right' in ht;
 /**
  * Build a hash tree of merkle nodes from the scripts binary tree.
  * @param scriptTree - the tree of scripts to pairwise hash.
@@ -76,6 +77,19 @@ function tapTweakHash(pubKey, h) {
   );
 }
 exports.tapTweakHash = tapTweakHash;
+function tweakKey(pubKey, h) {
+  if (!buffer_1.Buffer.isBuffer(pubKey)) return null;
+  if (pubKey.length !== 32) return null;
+  if (h && h.length !== 32) return null;
+  const tweakHash = tapTweakHash(pubKey, h);
+  const res = (0, ecc_lib_1.getEccLib)().xOnlyPointAddTweak(pubKey, tweakHash);
+  if (!res || res.xOnlyPubkey === null) return null;
+  return {
+    parity: res.parity,
+    x: buffer_1.Buffer.from(res.xOnlyPubkey),
+  };
+}
+exports.tweakKey = tweakKey;
 function tapBranchHash(a, b) {
   return bcrypto.taggedHash('TapBranch', buffer_1.Buffer.concat([a, b]));
 }

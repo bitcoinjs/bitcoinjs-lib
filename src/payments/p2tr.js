@@ -127,7 +127,7 @@ function p2tr(a, opts) {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = tweakKey(o.internalPubkey, o.hash);
+      const tweakedKey = (0, taprootutils_1.tweakKey)(o.internalPubkey, o.hash);
       if (tweakedKey) return tweakedKey.x;
     }
   });
@@ -152,7 +152,10 @@ function p2tr(a, opts) {
       });
       const path = (0, taprootutils_1.findScriptPath)(hashTree, leafHash);
       if (!path) return;
-      const outputKey = tweakKey(a.internalPubkey, hashTree.hash);
+      const outputKey = (0, taprootutils_1.tweakKey)(
+        a.internalPubkey,
+        hashTree.hash,
+      );
       if (!outputKey) return;
       const controlBock = buffer_1.Buffer.concat(
         [
@@ -193,7 +196,7 @@ function p2tr(a, opts) {
       else pubkey = a.output.slice(2);
     }
     if (a.internalPubkey) {
-      const tweakedKey = tweakKey(a.internalPubkey, o.hash);
+      const tweakedKey = (0, taprootutils_1.tweakKey)(a.internalPubkey, o.hash);
       if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
         throw new TypeError('Pubkey mismatch');
       else pubkey = tweakedKey.x;
@@ -274,7 +277,7 @@ function p2tr(a, opts) {
           controlBlock,
           leafHash,
         );
-        const outputKey = tweakKey(internalPubkey, hash);
+        const outputKey = (0, taprootutils_1.tweakKey)(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');
@@ -288,18 +291,6 @@ function p2tr(a, opts) {
   return Object.assign(o, a);
 }
 exports.p2tr = p2tr;
-function tweakKey(pubKey, h) {
-  if (!buffer_1.Buffer.isBuffer(pubKey)) return null;
-  if (pubKey.length !== 32) return null;
-  if (h && h.length !== 32) return null;
-  const tweakHash = (0, taprootutils_1.tapTweakHash)(pubKey, h);
-  const res = (0, ecc_lib_1.getEccLib)().xOnlyPointAddTweak(pubKey, tweakHash);
-  if (!res || res.xOnlyPubkey === null) return null;
-  return {
-    parity: res.parity,
-    x: buffer_1.Buffer.from(res.xOnlyPubkey),
-  };
-}
 function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
   return a.every((x, i) => {
