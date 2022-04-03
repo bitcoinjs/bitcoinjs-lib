@@ -1,4 +1,4 @@
-import ECPairFactory from 'ecpair';
+import ECPairFactory from 'ecpairgrs';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
@@ -62,13 +62,13 @@ async function buildAndSign(
   const { output } = fn(base);
   if (!output) throw new TypeError('Missing output');
 
-  describe('bitcoinjs-lib (payments - ' + k + ')', () => {
-    it('can broadcast as an output, and be spent as an input', async () => {
+  describe('groestlcoinjs-lib (payments - ' + k + ')', () => {
+    it.skip('can broadcast as an output, and be spent as an input', async () => {
       Object.assign(depends, { prevOutScriptType: k });
       await buildAndSign(depends, output, undefined, undefined);
     });
 
-    it(
+    it.skip(
       'can (as P2SH(' +
         k +
         ')) broadcast as an output, and be spent as an input',
@@ -90,7 +90,7 @@ async function buildAndSign(
     // NOTE: P2WPKH cannot be wrapped in P2WSH, consensus fail
     if (k === 'p2wpkh') return;
 
-    it(
+    it.skip(
       'can (as P2WSH(' +
         k +
         ')) broadcast as an output, and be spent as an input',
@@ -109,7 +109,7 @@ async function buildAndSign(
       },
     );
 
-    it(
+    it.skip(
       'can (as P2SH(P2WSH(' +
         k +
         '))) broadcast as an output, and be spent as an input',

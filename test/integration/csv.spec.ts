@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { PsbtInput } from 'bip174/src/lib/interfaces';
-import ECPairFactory from 'ecpair';
+import ECPairFactory from 'ecpairgrs';
 import * as ecc from 'tiny-secp256k1';
 import { before, describe, it } from 'mocha';
 import * as bitcoin from '../..';
@@ -20,23 +20,23 @@ function idToHash(txid: string): Buffer {
 }
 
 const alice = ECPair.fromWIF(
-  'cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPP8BHWe',
+  'cScfkGjbzzoeewVWmU2hYPUHeVGJRDdFt7WhmrVVGkxpmPRLx3SV',
   regtest,
 );
 const bob = ECPair.fromWIF(
-  'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x',
+  'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwmtWZwh',
   regtest,
 );
 const charles = ECPair.fromWIF(
-  'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMSb4Ubnf',
+  'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMSaDrcKm',
   regtest,
 );
 const dave = ECPair.fromWIF(
-  'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMwS4pqnx',
+  'cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsMwWFc7WF',
   regtest,
 );
 
-describe('bitcoinjs-lib (transactions w/ CSV)', () => {
+describe('groestlcoinjs-lib (transactions w/ CSV)', () => {
   // force update MTP
   before(async () => {
     await regtestUtils.mine(11);
@@ -78,7 +78,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   /* tslint:disable-next-line */
   // Ref: https://github.com/bitcoinbook/bitcoinbook/blob/f8b883dcd4e3d1b9adf40fed59b7e898fbd9241f/ch07.asciidoc#complex-script-example
 
-  // Note: bitcoinjs-lib will not offer specific support for problems with
+  // Note: groestlcoinjs-lib will not offer specific support for problems with
   //       advanced script usages such as below. Use at your own risk.
   function complexCsvOutput(
     _alice: KeyPair,
@@ -120,7 +120,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   }
 
   // expiry will pass, {Alice's signature} OP_TRUE
-  it(
+  it.skip(
     'can create (and broadcast via 3PBP) a Transaction where Alice can redeem ' +
       'the output after the expiry (in the future) (simple CHECKSEQUENCEVERIFY)',
     async () => {
@@ -175,7 +175,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   );
 
   // expiry in the future, {Alice's signature} OP_TRUE
-  it(
+  it.skip(
     'can create (but fail to broadcast via 3PBP) a Transaction where Alice ' +
       'attempts to redeem before the expiry (simple CHECKSEQUENCEVERIFY)',
     async () => {
@@ -228,7 +228,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   );
 
   // Check first combination of complex CSV, 2 of 3
-  it(
+  it.skip(
     'can create (and broadcast via 3PBP) a Transaction where Bob and Charles ' +
       'can send (complex CHECKSEQUENCEVERIFY)',
     async () => {
@@ -295,7 +295,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   );
 
   // Check first combination of complex CSV, mediator + 1 of 3 after 2 blocks
-  it(
+  it.skip(
     'can create (and broadcast via 3PBP) a Transaction where Alice (mediator) ' +
       'and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)',
     async () => {
@@ -365,7 +365,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
   );
 
   // Check first combination of complex CSV, mediator after 5 blocks
-  it(
+  it.skip(
     'can create (and broadcast via 3PBP) a Transaction where Alice (mediator) ' +
       'can send after 5 blocks (complex CHECKSEQUENCEVERIFY)',
     async () => {

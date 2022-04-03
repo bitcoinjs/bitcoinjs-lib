@@ -251,11 +251,11 @@
         "keys": [
           {
             "inputToSign": 0,
-            "WIF": "cP53pDbR5WtAD8dYAW9hhTjuvvTVaEiQBdrz9XPrgLBeRFiyCbQr"
+            "WIF": "cP53pDbR5WtAD8dYAW9hhTjuvvTVaEiQBdrz9XPrgLBeRFgayxDZ"
           },
           {
             "inputToSign": 1,
-            "WIF": "cR6SXDoyfQrcp4piaiHE97Rsgta9mNhGTen9XeonVgwsh4iSgw6d"
+            "WIF": "cR6SXDoyfQrcp4piaiHE97Rsgta9mNhGTen9XeonVgwsh4gAWqaJ"
           }
         ],
         "result": "cHNidP8BAJoCAAAAAljoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////g40EJ9DsZQpoqka7CwmK6kQiwHGyyng1Kgd5WdB86h0BAAAAAP////8CcKrwCAAAAAAWABTYXCtx0AYLCcmIauuBXlCZHdoSTQDh9QUAAAAAFgAUAK6pouXw+HaliN9VRuh0LR2HAI8AAAAAAAEAuwIAAAABqtc5MQGL0l+ErkALaISL4J23BurCrBgpi6vucatlb4sAAAAASEcwRAIgWPb8fGoz4bMVSNSByCbAFb0wE1qtQs1neQ2rZtKtJDsCIEoc7SYExnNbY5PltBaR3XiwDwxZQvufdRhW+qk4FX26Af7///8CgPD6AgAAAAAXqRQPuUY0IWlrgsgzryQceMF9295JNIfQ8gonAQAAABepFCnKdPigj4GZlCgYXJe12FLkBj9hh2UAAAAiAgKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgf0cwRAIgdAGK1BgAl7hzMjwAFXILNoTMgSOJEEjn282bVa1nnJkCIHPTabdA4+tT3O+jOCPIBwUUylWn3ZVE8VfBZ5EyYRGMAQEDBAEAAAABBEdSIQKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgfyEC2rYf9JoU22p9ArDNH7t4/EsYMStbTlTa5Nui+/71NtdSriIGApWDvzmuCmCXR60Zmt3WNPphCFWdbFzTm0whg/GrluB/ENkMak8AAACAAAAAgAAAAIAiBgLath/0mhTban0CsM0fu3j8SxgxK1tOVNrk26L7/vU21xDZDGpPAAAAgAAAAIABAACAAAEBIADC6wsAAAAAF6kUt/X69A49QKWkWbHbNTXyty+pIeiHIgIDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtxHMEQCIGLrelVhB6fHP0WsSrWh3d9vcHX7EnWWmn84Pv/3hLyyAiAMBdu3Rw2/LwhVfdNWxzJcHtMJE+mWzThAlF2xIijaXwEBAwQBAAAAAQQiACCMI1MXN0O1ld+0oHtyuo5C43l9p06H/n2ddJfjsgKJAwEFR1IhAwidwQx6xttU+RMpr2FzM9s4jOrQwjH3IzedG5kDCwLcIQI63ZBPPW3PWd25BrDe4jUpt/+57VDl6GFRkmhgIh8Oc1KuIgYCOt2QTz1tz1nduQaw3uI1Kbf/ue1Q5ehhUZJoYCIfDnMQ2QxqTwAAAIAAAACAAwAAgCIGAwidwQx6xttU+RMpr2FzM9s4jOrQwjH3IzedG5kDCwLcENkMak8AAACAAAAAgAIAAIAAIgIDqaTDf1mW06ol26xrVwrwZQOUSSlCRgs1R1Ptnuylh3EQ2QxqTwAAAIAAAACABAAAgAAiAgJ/Y5l1fS7/VaE2rQLGhLGDi2VW5fG2s0KCqUtrUAUQlhDZDGpPAAAAgAAAAIAFAACAAA=="
@@ -265,11 +265,11 @@
         "keys": [
           {
             "inputToSign": 0,
-            "WIF": "cT7J9YpCwY3AVRFSjN6ukeEeWY6mhpbJPxRaDaP5QTdygQRxP9Au"
+            "WIF": "cT7J9YpCwY3AVRFSjN6ukeEeWY6mhpbJPxRaDaP5QTdygQUqDVab"
           },
           {
             "inputToSign": 1,
-            "WIF": "cNBc3SWUip9PPm1GjRoLEJT6T41iNzCYtD7qro84FMnM5zEqeJsE"
+            "WIF": "cNBc3SWUip9PPm1GjRoLEJT6T41iNzCYtD7qro84FMnM5zKGNpnn"
           }
         ],
         "result": "cHNidP8BAJoCAAAAAljoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////g40EJ9DsZQpoqka7CwmK6kQiwHGyyng1Kgd5WdB86h0BAAAAAP////8CcKrwCAAAAAAWABTYXCtx0AYLCcmIauuBXlCZHdoSTQDh9QUAAAAAFgAUAK6pouXw+HaliN9VRuh0LR2HAI8AAAAAAAEAuwIAAAABqtc5MQGL0l+ErkALaISL4J23BurCrBgpi6vucatlb4sAAAAASEcwRAIgWPb8fGoz4bMVSNSByCbAFb0wE1qtQs1neQ2rZtKtJDsCIEoc7SYExnNbY5PltBaR3XiwDwxZQvufdRhW+qk4FX26Af7///8CgPD6AgAAAAAXqRQPuUY0IWlrgsgzryQceMF9295JNIfQ8gonAQAAABepFCnKdPigj4GZlCgYXJe12FLkBj9hh2UAAAAiAgLath/0mhTban0CsM0fu3j8SxgxK1tOVNrk26L7/vU210gwRQIhAPYQOLMI3B2oZaNIUnRvAVdyk0IIxtJEVDk82ZvfIhd3AiAFbmdaZ1ptCgK4WxTl4pB02KJam1dgvqKBb2YZEKAG6gEBAwQBAAAAAQRHUiEClYO/Oa4KYJdHrRma3dY0+mEIVZ1sXNObTCGD8auW4H8hAtq2H/SaFNtqfQKwzR+7ePxLGDErW05U2uTbovv+9TbXUq4iBgKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgfxDZDGpPAAAAgAAAAIAAAACAIgYC2rYf9JoU22p9ArDNH7t4/EsYMStbTlTa5Nui+/71NtcQ2QxqTwAAAIAAAACAAQAAgAABASAAwusLAAAAABepFLf1+vQOPUClpFmx2zU18rcvqSHohyICAjrdkE89bc9Z3bkGsN7iNSm3/7ntUOXoYVGSaGAiHw5zRzBEAiBl9FulmYtZon/+GnvtAWrx8fkNVLOqj3RQql9WolEDvQIgf3JHA60e25ZoCyhLVtT/y4j3+3Weq74IqjDym4UTg9IBAQMEAQAAAAEEIgAgjCNTFzdDtZXftKB7crqOQuN5fadOh/59nXSX47ICiQMBBUdSIQMIncEMesbbVPkTKa9hczPbOIzq0MIx9yM3nRuZAwsC3CECOt2QTz1tz1nduQaw3uI1Kbf/ue1Q5ehhUZJoYCIfDnNSriIGAjrdkE89bc9Z3bkGsN7iNSm3/7ntUOXoYVGSaGAiHw5zENkMak8AAACAAAAAgAMAAIAiBgMIncEMesbbVPkTKa9hczPbOIzq0MIx9yM3nRuZAwsC3BDZDGpPAAAAgAAAAIACAACAACICA6mkw39ZltOqJdusa1cK8GUDlEkpQkYLNUdT7Z7spYdxENkMak8AAACAAAAAgAQAAIAAIgICf2OZdX0u/1WhNq0CxoSxg4tlVuXxtrNCgqlLa1AFEJYQ2QxqTwAAAIAAAACABQAAgAA="
@@ -346,7 +346,7 @@
       {
         "description": "Checks value is number",
         "outputData": {
-          "address": "1P2NFEBp32V2arRwZNww6tgXEV58FG94mr",
+          "address": "FsC5h8vBbXAa2TT4SUwQZQUqteM5o8k99J",
           "value": "xyz"
         },
         "exception": "Error adding output."
@@ -354,7 +354,7 @@
       {
         "description": "Adds output normally",
         "outputData": {
-          "address": "1P2NFEBp32V2arRwZNww6tgXEV58FG94mr",
+          "address": "FsC5h8vBbXAa2TT4SUwQZQUqteM5o8k99J",
           "value": 42
         }
       }
@@ -367,13 +367,13 @@
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         },
         "shouldThrow": {
           "errorMessage": "No input #1",
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
           "inputToCheck": 1,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         }
       },
       {
@@ -381,13 +381,13 @@
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         },
         "shouldThrow": {
           "errorMessage": "Need a Utxo input item for signing",
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAAA=",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         }
       },
       {
@@ -395,27 +395,13 @@
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         },
         "shouldThrow": {
           "errorMessage": "Can not sign for this input with the key 02e717fee6be913148f9fd676c0876b7e4574118542c6758b4a9fb9f38f171842b",
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
           "inputToCheck": 0,
-          "WIF": "Kz4mjzErKCH5eQ97RXNQd3Wv7WsLA83BjynfQk4N7BB8J5xuUjAv"
-        }
-      },
-      {
-        "description": "checks non-witness UTXO matches the hash specified in the prevout",
-        "shouldSign": {
-          "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
-          "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
-        },
-        "shouldThrow": {
-          "errorMessage": "Non-witness UTXO hash for input #0 doesn't match the hash specified in the prevout",
-          "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQD4AQAAAAABAbD7u8z1SxTjfvhwmkQQvdbbWA+n3GKBBmGecSIAaM5jBQAAABcWABS0SqIhdn2LbW4TAJc3GVh7SnD/eP////8CNg8AAAAAAAAWABSmNm8WWVF+wq+QAeRo9d763jEXhRAnAAAAAAAAGXapFNpkc+03Pgj0bdgAP8p7py++nFVeiKwCRzBEAiB/u0BLwdeerqWf0JH33wwMv8Nn3sKblFvj+CntdC4B9gIgKVVHBH1c9ewnzkuyW6dnz1YARujBJnle1eBNSBAJD9IBIQOmYxHmd2Yz53FpC9+nv+pKdM+5OyEAW3BAN2cccQ0LkgAAAAAAAA==",
-          "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "Kz4mjzErKCH5eQ97RXNQd3Wv7WsLA83BjynfQk4N7BB8J5vZm1eN"
         }
       },
       {
@@ -423,13 +409,13 @@
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAR2dq8JwBaxnbWHZGw0HdxuUGFcg6dvx3pgjWMm+Pzf2AAAAAAD/////AAAAAAAAAQC9AgAAAAH//////////////////////////////////////////wAAAABqRzBEAiAf7N+IK1uuxTxvEOoVGabNsiT7jMlfSDCd0VYxv+sQTQIgQVYM7ig9TIx1LzrX2RXgw2zW2fMKuRs/bT9eZx6jmYwBIQJpKKFOB6PrPJhRAtaQ+cHHryY5QYIi5dxZtkMwCtuFYf////8BAOH1BQAAAAAXqRRdh8wk5NRiF7VGQ4Zb4i8Vl1YFMocAAAAAAQRpUiECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWEhAgHGF3SgP82qhvqMptNluTLHhLtzDsmc0pNWEDETNj/rIQIFIl+T3Z90vBFGN8uYJHCrUO4DvrOGVWkVDsBeEzBUi1OuAAA=",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         },
         "shouldThrow": {
           "errorMessage": "Redeem script for input #0 doesn't match the scriptPubKey in the prevout",
           "psbt": "cHNidP8BADMBAAAAAR2dq8JwBaxnbWHZGw0HdxuUGFcg6dvx3pgjWMm+Pzf2AAAAAAD/////AAAAAAAAAQC9AgAAAAH//////////////////////////////////////////wAAAABqRzBEAiAf7N+IK1uuxTxvEOoVGabNsiT7jMlfSDCd0VYxv+sQTQIgQVYM7ig9TIx1LzrX2RXgw2zW2fMKuRs/bT9eZx6jmYwBIQJpKKFOB6PrPJhRAtaQ+cHHryY5QYIi5dxZtkMwCtuFYf////8BAOH1BQAAAAAXqRRdh8wk5NRiF7VGQ4Zb4i8Vl1YFMocAAAAAAQRpUiEDGMZFrWWJBIIu33FdV9Q+Zit0fcoBOdgS7ooA2h2QlbAhAuAzQeDZh730hBbfTPzlaXJgCh2Jyui/ufS0k8wqJ55FIQKMg6lgEnyRnGIZ90eP4MmuRdT3EcO4+irJEm5yTCiko1OuAAA=",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         }
       },
       {
@@ -437,13 +423,13 @@
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAYaq+PdOUY2PnV9kZKa82XlqrPByOqwH2TRg2+LQdqs2AAAAAAD/////AAAAAAAAAQEgAOH1BQAAAAAXqRSTNeWHqa9INvSnQ120SZeJc+6JSocBBBYAFC8spHIOpiw9giaEPd5RGkMYvXRHAAA=",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         },
         "shouldThrow": {
           "errorMessage": "Redeem script for input #0 doesn't match the scriptPubKey in the prevout",
           "psbt": "cHNidP8BADMBAAAAAYaq+PdOUY2PnV9kZKa82XlqrPByOqwH2TRg2+LQdqs2AAAAAAD/////AAAAAAAAAQEgAOH1BQAAAAAXqRSTNeWHqa9INvSnQ120SZeJc+6JSocBBBYAFA3zpl6FMnlgCviVJgbcnBj01iLgAAA=",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         }
       },
       {
@@ -452,7 +438,7 @@
           "errorMessage": "Sighash type is not allowed. Retry the sign method passing the sighashTypes array of whitelisted types. Sighash type: SIGHASH_ANYONECANPAY | SIGHASH_ALL",
           "psbt": "cHNidP8BADMBAAAAAYaq+PdOUY2PnV9kZKa82XlqrPByOqwH2TRg2+LQdqs2AAAAAAD/////AAAAAAAAAQEgAOH1BQAAAAAXqRSTNeWHqa9INvSnQ120SZeJc+6JSocBAwSBAAAAAQQWABQvLKRyDqYsPYImhD3eURpDGL10RwAA",
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         }
       },
       {
@@ -461,7 +447,7 @@
           "psbt": "cHNidP8BADMBAAAAAYaq+PdOUY2PnV9kZKa82XlqrPByOqwH2TRg2+LQdqs2AAAAAAD/////AAAAAAAAAQEgAOH1BQAAAAAXqRSTNeWHqa9INvSnQ120SZeJc+6JSocBAwSBAAAAAQQWABQvLKRyDqYsPYImhD3eURpDGL10RwAA",
           "sighashTypes": [129],
           "inputToCheck": 0,
-          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+          "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRYdgqY"
         }
       }
     ]
@@ -473,13 +459,13 @@
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYDn85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kYBCppsiwAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
           "inputToCheck": 0,
-          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13XwnuSg"
         },
         "shouldThrow": {
           "errorMessage": "Need bip32Derivation to sign with HD",
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
           "inputToCheck": 0,
-          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13XwnuSg"
         }
       },
       {
@@ -487,13 +473,13 @@
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYDn85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kYBCppsiwAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
           "inputToCheck": 0,
-          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13XwnuSg"
         },
         "shouldThrow": {
           "errorMessage": "Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint",
           "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYD/85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kY/////ywAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
           "inputToCheck": 0,
-          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13XwnuSg"
         }
       },
       {
@@ -501,13 +487,13 @@
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYDn85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kYBCppsiwAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
           "inputToCheck": 0,
-          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13XwnuSg"
         },
         "shouldThrow": {
           "errorMessage": "pubkey did not match bip32Derivation",
           "psbt": "cHNidP8BADMBAAAAARtEptsZNydT9Bh9A5ptwIZz87yH8NXwzr1bjJorAZEAAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFJWXNY2Vp7E5pNOey64rnhhgUlohiKwAAAAAIgYD/85vSg5rlR25fd4MOU2ANsFoO+q828zuOI/5b8tj89kYBCppsiwAAIAAAACAAAAAgAAAAAAAAAAAAAA=",
           "inputToCheck": 0,
-          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
+          "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13XwnuSg"
         }
       }
     ]

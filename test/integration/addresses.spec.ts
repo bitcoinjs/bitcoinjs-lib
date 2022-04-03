@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import ECPairFactory from 'ecpair';
+import ECPairFactory from 'ecpairgrs';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
@@ -10,15 +10,15 @@ const dhttp = regtestUtils.dhttp;
 const TESTNET = bitcoin.networks.testnet;
 
 describe('groestlcoinjs-lib (addresses)', () => {
-  it(
+  it.skip(
     'can generate a random address [and support the retrieval of ' +
       'transactions for that address (via 3PBP)]',
     async () => {
       const keyPair = ECPair.makeRandom();
       const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
 
-      // bitcoin P2PKH addresses start with a '1'
-      assert.strictEqual(address!.startsWith('1'), true);
+      // bitcoin P2PKH addresses start with a 'F'
+      assert.strictEqual(address!.startsWith('F'), true);
 
       const result = await dhttp({
         method: 'GET',
@@ -34,11 +34,11 @@ describe('groestlcoinjs-lib (addresses)', () => {
 
   it('can import an address via WIF', () => {
     const keyPair = ECPair.fromWIF(
-      'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn',
+      'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sX6ptSt',
     );
     const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
 
-    assert.strictEqual(address, '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH');
+    assert.strictEqual(address, 'Ffqz14cyvZYJavD76t6oHNDJnGiWcZMVxR');
   });
 
   it('can generate a P2SH, pay-to-multisig (2-of-3) address', () => {
@@ -51,27 +51,27 @@ describe('groestlcoinjs-lib (addresses)', () => {
       redeem: bitcoin.payments.p2ms({ m: 2, pubkeys }),
     });
 
-    assert.strictEqual(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt91Yvfu7');
+    assert.strictEqual(address, '36NUkt6FWUi3LAWBqWRdDmdTWbt94yx2nc');
   });
 
   it('can generate a SegWit address', () => {
     const keyPair = ECPair.fromWIF(
-      'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn',
+      'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sX6ptSt',
     );
     const { address } = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey });
 
-    assert.strictEqual(address, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4');
+    assert.strictEqual(address, 'grs1qw508d6qejxtdg4y5r3zarvary0c5xw7k3k4sj5');
   });
 
   it('can generate a SegWit address (via P2SH)', () => {
     const keyPair = ECPair.fromWIF(
-      'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn',
+      'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sX6ptSt',
     );
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey }),
     });
 
-    assert.strictEqual(address, '3JvL6Ymt8MVWiCNHC7oWU6nLeHNJKLZGLN');
+    assert.strictEqual(address, '3JvL6Ymt8MVWiCNHC7oWU6nLeHNJFpSXbA');
   });
 
   it('can generate a P2WSH (SegWit), pay-to-multisig (3-of-4) address', () => {
@@ -87,7 +87,7 @@ describe('groestlcoinjs-lib (addresses)', () => {
 
     assert.strictEqual(
       address,
-      'bc1q75f6dv4q8ug7zhujrsp5t0hzf33lllnr3fe7e2pra3v24mzl8rrqtp3qul',
+      'grs1q75f6dv4q8ug7zhujrsp5t0hzf33lllnr3fe7e2pra3v24mzl8rrqy6wvnm',
     );
   });
 
@@ -102,7 +102,7 @@ describe('groestlcoinjs-lib (addresses)', () => {
       }),
     });
 
-    assert.strictEqual(address, '3P4mrxQfmExfhxqjLnR2Ah4WES5EB1KBrN');
+    assert.strictEqual(address, '3P4mrxQfmExfhxqjLnR2Ah4WES5EAdsKEo');
   });
 
   // examples using other network information

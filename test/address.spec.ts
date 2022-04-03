@@ -32,14 +32,6 @@ describe('address', () => {
         assert.strictEqual(decode.hash.toString('hex'), f.hash);
       });
     });
-
-    fixtures.invalid.frombase58Grscheck.forEach(f => {
-      it('throws on ' + f.exception, () => {
-        assert.throws(() => {
-          baddress.fromBase58GrsCheck(f.address);
-        }, new RegExp(f.address + ' ' + f.exception));
-      });
-    });
   });
 
   describe('fromBech32', () => {

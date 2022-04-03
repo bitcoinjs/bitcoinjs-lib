@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.toOutputScript = exports.fromOutputScript = exports.toBech32 = exports.toBase58Check = exports.fromBech32 = exports.fromBase58GrsCheck = void 0;
+exports.toOutputScript = exports.fromOutputScript = exports.toBech32 = exports.toBase58GrsCheck = exports.fromBech32 = exports.fromBase58GrsCheck = void 0;
 const networks = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');

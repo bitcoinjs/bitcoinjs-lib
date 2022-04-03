@@ -8,7 +8,7 @@ const regtest = regtestUtils.network;
 const bip32 = BIP32Factory(ecc);
 
 describe('groestlcoinjs-lib (transaction with taproot)', () => {
-  it('can create (and broadcast via 3PBP) a taproot keyspend Transaction', async () => {
+  it.skip('can create (and broadcast via 3PBP) a taproot keyspend Transaction', async () => {
     const myKey = bip32.fromSeed(rng(64), regtest);
 
     const output = createKeySpendOutput(myKey.publicKey);

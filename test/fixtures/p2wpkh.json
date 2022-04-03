@@ -3,7 +3,7 @@
     {
       "description": "output from address",
       "arguments": {
-        "address": "bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d"
+        "address": "grs1qafk4yhqvj4wep57m62dgrmutldusqde8quttkv"
       },
       "options": {},
       "expected": {
@@ -22,7 +22,7 @@
       },
       "expected": {
         "name": "p2wpkh",
-        "address": "bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d",
+        "address": "grs1qafk4yhqvj4wep57m62dgrmutldusqde8quttkv",
         "output": "OP_0 ea6d525c0c955d90d3dbd29a81ef8bfb79003727",
         "signature": null,
         "input": null,
@@ -36,7 +36,7 @@
       },
       "expected": {
         "name": "p2wpkh",
-        "address": "bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d",
+        "address": "grs1qafk4yhqvj4wep57m62dgrmutldusqde8quttkv",
         "hash": "ea6d525c0c955d90d3dbd29a81ef8bfb79003727",
         "signature": null,
         "input": null,
@@ -50,7 +50,7 @@
       },
       "expected": {
         "name": "p2wpkh",
-        "address": "bc1qz69ej270c3q9qvgt822t6pm3zdksk2x35j2jlm",
+        "address": "grs1qz69ej270c3q9qvgt822t6pm3zdksk2x3frknx6",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_0 168b992bcfc44050310b3a94bd0771136d0b28d1",
         "signature": null,
@@ -66,7 +66,7 @@
       },
       "expected": {
         "name": "p2wpkh",
-        "address": "bc1qz69ej270c3q9qvgt822t6pm3zdksk2x35j2jlm",
+        "address": "grs1qz69ej270c3q9qvgt822t6pm3zdksk2x3frknx6",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_0 168b992bcfc44050310b3a94bd0771136d0b28d1",
         "input": "",
@@ -86,7 +86,7 @@
       },
       "expected": {
         "name": "p2wpkh",
-        "address": "bc1qz69ej270c3q9qvgt822t6pm3zdksk2x35j2jlm",
+        "address": "grs1qz69ej270c3q9qvgt822t6pm3zdksk2x3frknx6",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_0 168b992bcfc44050310b3a94bd0771136d0b28d1",
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
@@ -158,18 +158,6 @@
       }
     },
     {
-      "exception": "Invalid address version",
-      "arguments": {
-        "address": "bc1pqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq5us4ke"
-      }
-    },
-    {
-      "exception": "Invalid address data",
-      "arguments": {
-        "address": "bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8"
-      }
-    },
-    {
       "exception": "Hash mismatch",
       "arguments": {
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
@@ -179,7 +167,7 @@
     {
       "exception": "Hash mismatch",
       "arguments": {
-        "address": "bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d",
+        "address": "grs1qafk4yhqvj4wep57m62dgrmutldusqde8quttkv",
         "hash": "ffffffffffffffffffffffffffffffffffffffff"
       }
     },
@@ -245,7 +233,7 @@
     "details": [
       {
         "description": "p2wpkh",
-        "address": "bc1qz69ej270c3q9qvgt822t6pm3zdksk2x35j2jlm",
+        "address": "grs1qz69ej270c3q9qvgt822t6pm3zdksk2x3frknx6",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_0 168b992bcfc44050310b3a94bd0771136d0b28d1",
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",

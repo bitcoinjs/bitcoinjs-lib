@@ -63,7 +63,7 @@ import * as u from './payments.utils';
         });
         assert.strictEqual(
           actual.address,
-          '3MGbrbye4ttNUXM8WAvBFRKry4fkS9fjuw',
+          '3MGbrbye4ttNUXM8WAvBFRKry4fkSoXSpb',
         );
         assert.strictEqual(actual.name, 'p2sh-p2wsh-p2pk');
         assert.strictEqual(actual.redeem!.name, 'p2wsh-p2pk');

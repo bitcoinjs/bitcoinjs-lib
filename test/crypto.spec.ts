@@ -4,7 +4,7 @@ import { crypto as bcrypto, TaggedHashPrefix } from '..';
 import * as fixtures from './fixtures/crypto.json';
 
 describe('crypto', () => {
-  ['hash160', 'hash256', 'ripemd160', 'sha1', 'sha256', 'groestl'].forEach(algorithm => {
+  ['groestl', 'hash160', 'hash256', 'ripemd160', 'sha1', 'sha256'].forEach(algorithm => {
     describe(algorithm, () => {
       fixtures.hashes.forEach(f => {
         const fn = (bcrypto as any)[algorithm];
@@ -15,7 +15,6 @@ describe('crypto', () => {
             const actual = fn(data).toString('hex');
 
             assert.strictEqual(actual, expected);
-          });
         });
       });
     });

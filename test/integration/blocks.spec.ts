@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 
-describe('bitcoinjs-lib (blocks)', () => {
+describe('groestlcoinjs-lib (blocks)', () => {
   it('can extract a height from a CoinBase transaction', () => {
     // from 00000000000000000097669cdca131f24d40c4cc7d80eaa65967a2d09acf6ce6
     const txHex =

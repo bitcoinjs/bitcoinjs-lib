@@ -130,8 +130,8 @@
       ]
     },
     {
-      "asm": "OP_HASH256 6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000 OP_EQUAL",
-      "script": "aa206fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d619000000000087"
+      "asm": "OP_HASH256 7de45878e75f01ee550c667f4f25eee3cc147bc837484eedd36b1cc7a138414a OP_EQUAL",
+      "script": "aa207de45878e75f01ee550c667f4f25eee3cc147bc837484eedd36b1cc7a138414a87"
     },
     {
       "asm": "OP_0 OP_0 OP_0 OP_CHECKMULTISIG",
@@ -389,8 +389,8 @@
     },
     {
       "type": "nonstandard",
-      "output": "OP_HASH256 6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000 OP_EQUAL",
-      "outputHex": "aa206fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d619000000000087"
+      "output": "OP_HASH256 7de45878e75f01ee550c667f4f25eee3cc147bc837484eedd36b1cc7a138414a OP_EQUAL",
+      "outputHex": "aa207de45878e75f01ee550c667f4f25eee3cc147bc837484eedd36b1cc7a138414a87"
     },
     {
       "type": "nonstandard",

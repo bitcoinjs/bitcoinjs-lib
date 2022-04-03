@@ -29,8 +29,8 @@ Presently,  we do not have any formal documentation other than our [examples](#e
 ``` bash
 npm install groestlcoinjs-lib
 # optionally, install a key derivation library as well
-npm install ecpair bip32grs
-# ecpair is the ECPair class for single keys
+npm install ecpairgrs bip32grs
+# ecpairgrs is the ECPair class for single keys
 # bip32grs is for generating HD keys
 ```
 
@@ -84,7 +84,6 @@ Type declarations for Typescript are included in this library. Normal installati
 ## Examples
 The below examples are implemented as integration tests, they should be very easy to understand.
 Otherwise, pull requests are appreciated.
-Some examples interact (via HTTPS) with a 3rd Party Blockchain Provider (3PBP).
 
 - [Taproot Key Spend](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/taproot.md)
 
@@ -97,16 +96,7 @@ Some examples interact (via HTTPS) with a 3rd Party Blockchain Provider (3PBP).
 - [Generate a SegWit 2-of-2 P2SH multisig address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
 - [Support the retrieval of transactions for an address (3rd party blockchain)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
 - [Generate a Testnet address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a Litecoin address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
 - [Create a 1-to-1 Transaction](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a typical Transaction](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with an OP\_RETURN output](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a 2-of-4 P2SH(multisig) input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2SH(P2WPKH) input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2WPKH input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2PK input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit 3-of-4 P2SH(P2WSH(multisig)) input](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction and sign with an HDSigner interface (bip32)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
 - [Import a BIP32 testnet xpriv and export to WIF](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
 - [Export a BIP32 xpriv, then import it](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
 - [Export a BIP32 xpub](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
@@ -114,15 +104,6 @@ Some examples interact (via HTTPS) with a 3rd Party Blockchain Provider (3PBP).
 - [Create a BIP44, groestlcoin, account 0, external address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
 - [Create a BIP49, groestlcoin testnet, account 0, external address](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
 - [Use BIP39 to generate BIP32 addresses](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future) (simple CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry (simple CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Bob and Charles can send (complex CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) can send after 5 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/Groestlcoin/groestlcoinjs-lib/blob/master/test/integration/csv.spec.ts)
 
 If you have a use case that you feel could be listed here, please [ask for it](https://github.com/Groestlcoin/groestlcoinjs-lib/issues/new)!
 

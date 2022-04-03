@@ -3,7 +3,7 @@
     {
       "description": "output from address",
       "arguments": {
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh"
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG"
       },
       "options": {},
       "expected": {
@@ -22,7 +22,7 @@
       },
       "expected": {
         "name": "p2pkh",
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG",
         "output": "OP_DUP OP_HASH160 168b992bcfc44050310b3a94bd0771136d0b28d1 OP_EQUALVERIFY OP_CHECKSIG",
         "signature": null,
         "input": null,
@@ -36,7 +36,7 @@
       },
       "expected": {
         "name": "p2pkh",
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "signature": null,
         "input": null,
@@ -50,7 +50,7 @@
       },
       "expected": {
         "name": "p2pkh",
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_DUP OP_HASH160 168b992bcfc44050310b3a94bd0771136d0b28d1 OP_EQUALVERIFY OP_CHECKSIG",
         "signature": null,
@@ -66,7 +66,7 @@
       },
       "expected": {
         "name": "p2pkh",
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_DUP OP_HASH160 168b992bcfc44050310b3a94bd0771136d0b28d1 OP_EQUALVERIFY OP_CHECKSIG",
         "input": "300602010002010001 030000000000000000000000000000000000000000000000000000000000000001",
@@ -80,7 +80,7 @@
       },
       "expected": {
         "name": "p2pkh",
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_DUP OP_HASH160 168b992bcfc44050310b3a94bd0771136d0b28d1 OP_EQUALVERIFY OP_CHECKSIG",
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
@@ -132,19 +132,7 @@
     {
       "exception": "Invalid version or Network mismatch",
       "arguments": {
-        "address": "3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr"
-      }
-    },
-    {
-      "exception": "Invalid address",
-      "arguments": {
-        "address": "111111111111111111117K4nzc"
-      }
-    },
-    {
-      "exception": "Invalid address",
-      "arguments": {
-        "address": "111111111111111111111111133izVn"
+        "address": "3LRW7jeCvQCRdPF8S3yUCfRAx4eqS1HUYL"
       }
     },
     {
@@ -185,7 +173,7 @@
       "description": "address.hash != H",
       "exception": "Hash mismatch",
       "arguments": {
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG",
         "hash": "ffffffffffffffffffffffffffffffffffffffff"
       }
     },
@@ -193,7 +181,7 @@
       "description": "address.hash != output.hash",
       "exception": "Hash mismatch",
       "arguments": {
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG",
         "output": "OP_DUP OP_HASH160 ffffffffffffffffffffffffffffffffffffffff OP_EQUALVERIFY OP_CHECKSIG"
       }
     },
@@ -234,7 +222,7 @@
     "details": [
       {
         "description": "p2pkh",
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG",
         "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
         "output": "OP_DUP OP_HASH160 168b992bcfc44050310b3a94bd0771136d0b28d1 OP_EQUALVERIFY OP_CHECKSIG",
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",

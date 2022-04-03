@@ -3,7 +3,7 @@
     {
       "description": "p2sh-*, out (from address)",
       "arguments": {
-        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT"
+        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwbZiHjU"
       },
       "options": {},
       "expected": {
@@ -22,7 +22,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
+        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwbZiHjU",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
         "redeem": null,
         "input": null,
@@ -36,7 +36,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
+        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwbZiHjU",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "redeem": null,
         "input": null,
@@ -53,7 +53,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
+        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwbZiHjU",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
         "input": null,
@@ -70,7 +70,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
+        "address": "325CuTNSYmvurXaBmhNFer5zDkKnFuVN9u",
         "hash": "0432515d8fe8de31be8207987fc6d67b29d5e7cc",
         "output": "OP_HASH160 0432515d8fe8de31be8207987fc6d67b29d5e7cc OP_EQUAL",
         "input": null,
@@ -87,7 +87,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "36TibC8RrPB9WrBdPoGXhHqDHJosyFVtVQ",
+        "address": "36TibC8RrPB9WrBdPoGXhHqDHJosyqhzad",
         "hash": "3454c084887afe854e80221c69d6282926f809c4",
         "output": "OP_HASH160 3454c084887afe854e80221c69d6282926f809c4 OP_EQUAL",
         "input": null,
@@ -104,7 +104,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
+        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwbZiHjU",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
         "input": "3045022100e4fce9ec72b609a2df1dc050c20dcf101d27faefb3e686b7a4cb067becdd5e8e022071287fced53806b08cf39b5ad58bbe614775b3776e98a9f8760af0d4d1d47a9501 03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058 76a914c30afa58ae0673b00a45b5c17dff4633780f140088ac",
@@ -125,7 +125,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
+        "address": "325CuTNSYmvurXaBmhNFer5zDkKnFuVN9u",
         "hash": "0432515d8fe8de31be8207987fc6d67b29d5e7cc",
         "output": "OP_HASH160 0432515d8fe8de31be8207987fc6d67b29d5e7cc OP_EQUAL",
         "input": "0014c30afa58ae0673b00a45b5c17dff4633780f1400",
@@ -142,7 +142,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "36TibC8RrPB9WrBdPoGXhHqDHJosyFVtVQ",
+        "address": "36TibC8RrPB9WrBdPoGXhHqDHJosyqhzad",
         "hash": "3454c084887afe854e80221c69d6282926f809c4",
         "output": "OP_HASH160 3454c084887afe854e80221c69d6282926f809c4 OP_EQUAL",
         "redeem": {
@@ -164,7 +164,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
+        "address": "325CuTNSYmvurXaBmhNFer5zDkKnFuVN9u",
         "hash": "0432515d8fe8de31be8207987fc6d67b29d5e7cc",
         "output": "OP_HASH160 0432515d8fe8de31be8207987fc6d67b29d5e7cc OP_EQUAL",
         "redeem": {
@@ -188,7 +188,7 @@
       },
       "expected": {
         "name": "p2sh",
-        "address": "2N7nfc7zeWuADtpdR4MrR7Wq3dzr7LxTCgS",
+        "address": "2N7nfc7zeWuADtpdR4MrR7Wq3dzr7RYaTAf",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
         "input": null,
@@ -228,7 +228,7 @@
       "description": "address.hash != H",
       "exception": "Hash mismatch",
       "arguments": {
-        "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
+        "address": "325CuTNSYmvurXaBmhNFer5zDkKnFuVN9u",
         "hash": "ffffffffffffffffffffffffffffffffffffffff"
       }
     },
@@ -236,7 +236,7 @@
       "description": "address.hash != output.hash",
       "exception": "Hash mismatch",
       "arguments": {
-        "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
+        "address": "325CuTNSYmvurXaBmhNFer5zDkKnFuVN9u",
         "output": "OP_HASH160 ffffffffffffffffffffffffffffffffffffffff OP_EQUAL"
       }
     },
@@ -261,19 +261,7 @@
     {
       "exception": "Invalid version or Network mismatch",
       "arguments": {
-        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh"
-      }
-    },
-    {
-      "exception": "Invalid address",
-      "arguments": {
-        "address": "TYPjCiGbKiwP6r12cdkmVjySbQr7mb3r"
-      }
-    },
-    {
-      "exception": "Invalid address",
-      "arguments": {
-        "address": "EDaBpuERpLssFzbCV1kgy8tKJsHrcwmzY7HDMF2"
+        "address": "FXDvYbHLgiYxXN5AtCBGEBxmZWTnwDeviG"
       }
     },
     {
@@ -413,7 +401,7 @@
     "details": [
       {
         "description": "p2sh-p2pkh",
-        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwe4FwUT",
+        "address": "3GETYP4cuSesh2zsPEEYVZqnRedwbZiHjU",
         "hash": "9f840a5fc02407ef0ad499c2ec0eb0b942fb0086",
         "output": "OP_HASH160 9f840a5fc02407ef0ad499c2ec0eb0b942fb0086 OP_EQUAL",
         "redeem": {
@@ -426,7 +414,7 @@
       },
       {
         "description": "p2sh-p2wpkh",
-        "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
+        "address": "325CuTNSYmvurXaBmhNFer5zDkKnFuVN9u",
         "hash": "0432515d8fe8de31be8207987fc6d67b29d5e7cc",
         "output": "OP_HASH160 0432515d8fe8de31be8207987fc6d67b29d5e7cc OP_EQUAL",
         "redeem": {

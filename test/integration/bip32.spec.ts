@@ -11,15 +11,15 @@ function getAddress(node: any, network?: any): string {
   return bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address!;
 }
 
-describe('bitcoinjs-lib (BIP32)', () => {
+describe('groestlcoinjs-lib (BIP32)', () => {
   it('can import a BIP32 testnet xpriv and export to WIF', () => {
     const xpriv =
-      'tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK';
+      'tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWzcfJHa';
     const node = bip32.fromBase58(xpriv, bitcoin.networks.testnet);
 
     assert.strictEqual(
       node.toWIF(),
-      'cQfoY67cetFNunmBUX5wJiw3VNoYx3gG9U9CAofKE6BfiV1fSRw7',
+      'cQfoY67cetFNunmBUX5wJiw3VNoYx3gG9U9CAofKE6BfiV74UKj4',
     );
   });
 
@@ -44,7 +44,7 @@ describe('bitcoinjs-lib (BIP32)', () => {
 
     assert.strictEqual(
       strng,
-      'xpub661MyMwAqRbcGhVeaVfEBA25e3cP9DsJQZoE8iep5fZSxy3TnPBNBgWnMZx56oreNc48ZoTkQfatNJ9VWnQ7ZcLZcVStpaXLTeG8bGrzX3n',
+      'xpub661MyMwAqRbcGhVeaVfEBA25e3cP9DsJQZoE8iep5fZSxy3TnPBNBgWnMZx56oreNc48ZoTkQfatNJ9VWnQ7ZcLZcVStpaXLTeG8bK8i4rc',
     );
   });
 
@@ -67,11 +67,11 @@ describe('bitcoinjs-lib (BIP32)', () => {
 
     assert.strictEqual(
       getAddress(child1),
-      '1JHyB1oPXufr4FXkfitsjgNB5yRY9jAaa7',
+      'FnTgcvXm6QMPVrYsYptMCCAVk8hVnEzS4Y',
     );
     assert.strictEqual(
       getAddress(child1b),
-      '1JHyB1oPXufr4FXkfitsjgNB5yRY9jAaa7',
+      'FnTgcvXm6QMPVrYsYptMCCAVk8hVnEzS4Y',
     );
   });
 
@@ -95,11 +95,11 @@ describe('bitcoinjs-lib (BIP32)', () => {
 
     assert.strictEqual(
       getAddress(child1),
-      '12Tyvr1U8A3ped6zwMEU5M8cx3G38sP5Au',
+      'FWdhNkjqgejN6E87pTDwXrvwcCXzkN8RTM',
     );
     assert.strictEqual(
       getAddress(child1b),
-      '12Tyvr1U8A3ped6zwMEU5M8cx3G38sP5Au',
+      'FWdhNkjqgejN6E87pTDwXrvwcCXzkN8RTM',
     );
   });
 
@@ -119,7 +119,7 @@ describe('bitcoinjs-lib (BIP32)', () => {
       }),
       network: bitcoin.networks.testnet,
     });
-    assert.strictEqual(address, '2Mww8dCYPUpKHofjgcXcBCEGmniw9CoaiD2');
+    assert.strictEqual(address, '2Mww8dCYPUpKHofjgcXcBCEGmniw9E6pgYR');
   });
 
   it('can use BIP39 to generate BIP32 addresses', () => {
@@ -134,21 +134,21 @@ describe('bitcoinjs-lib (BIP32)', () => {
     // receive addresses
     assert.strictEqual(
       getAddress(root.derivePath("m/0'/0/0")),
-      '1AVQHbGuES57wD68AJi7Gcobc3RZrfYWTC',
+      'Fef7jW1GnvkfNp7F3Qhaj8bvGChXSoUswW',
     );
     assert.strictEqual(
       getAddress(root.derivePath("m/0'/0/1")),
-      '1Ad6nsmqDzbQo5a822C9bkvAfrYv9mc1JL',
+      'FenpEnWCnVGxEgbEu8Bd4GiVL1psohgiNG',
     );
 
     // change addresses
     assert.strictEqual(
       getAddress(root.derivePath("m/0'/1/0")),
-      '1349KVc5NgedaK7DvuD4xDFxL86QN1Hvdn',
+      'FXDrmQLSwBLB1v8Lp1CYQj4GzHNMwgbQfV',
     );
     assert.strictEqual(
       getAddress(root.derivePath("m/0'/1/1")),
-      '1EAvj4edpsWcSer3duybAd4KiR4bCJW5J6',
+      'FiLeAyP1PNC9tFsAX1y4d8reNaLYrvVQmS',
     );
   });
 });

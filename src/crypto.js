@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.taggedHash = exports.hash256 = exports.hash160 = exports.sha256 = exports.sha1 = exports.ripemd160 = void 0;
+exports.taggedHash = exports.groestl = exports.hash256 = exports.hash160 = exports.sha256 = exports.sha1 = exports.ripemd160 = void 0;
 const createHash = require('create-hash');
 const groestlhash = require('groestl-hash-js');
 function ripemd160(buffer) {
@@ -39,7 +39,6 @@ function groestl(buffer) {
   return new Buffer(groestlhash.groestl_2(buffer, 1, 1));
 }
 exports.groestl = groestl;
-
 const TAGS = [
   'BIP0340/challenge',
   'BIP0340/aux',

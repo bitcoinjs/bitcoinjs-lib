@@ -42,7 +42,7 @@ const ONE = Buffer.from(
 );
 
 const crypto = require('crypto');
-// bitcoinjs-lib v6
+// groestlcoinjs-lib v6
 const bitcoin = require('groestlcoinjs-lib');
 // bip32 v3 wraps tiny-secp256k1
 const BIP32Wrapper = require('bip32grs').default;

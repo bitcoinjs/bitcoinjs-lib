@@ -3,7 +3,7 @@
     {
       "description": "p2wsh-*, out (from address)",
       "arguments": {
-        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q"
+        "address": "grs1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqzls89y"
       },
       "options": {},
       "expected": {
@@ -22,7 +22,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
+        "address": "grs1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqzls89y",
         "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "redeem": null,
         "input": null,
@@ -36,7 +36,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
+        "address": "grs1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqzls89y",
         "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "redeem": null,
         "input": null,
@@ -53,7 +53,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss2cq5ar",
+        "address": "grs1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss9rlcj8",
         "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "input": null,
@@ -70,7 +70,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "address": "grs1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7serph7a",
         "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "input": null,
@@ -87,7 +87,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
+        "address": "grs1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqzls89y",
         "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "input": null,
@@ -104,7 +104,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss2cq5ar",
+        "address": "grs1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss9rlcj8",
         "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "redeem": {
@@ -132,7 +132,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "address": "grs1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7serph7a",
         "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "input": "",
@@ -153,7 +153,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqdy0t2q",
+        "address": "grs1q6rgl33d3s9dugudw7n68yrryajkr3ha9q8q24j20zs62se4q9tsqzls89y",
         "hash": "d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "output": "OP_0 d0d1f8c5b1815bc471aef4f4720c64ecac38dfa501c0aac94f1434a866a02ae0",
         "redeem": {
@@ -177,7 +177,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "address": "grs1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7serph7a",
         "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "redeem": {
@@ -201,7 +201,7 @@
       },
       "expected": {
         "name": "p2wsh",
-        "address": "tb1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ssaskm8v",
+        "address": "tgrs1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892sswvmxdj",
         "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "input": null,
@@ -219,7 +219,7 @@
       "description": "address.hash != H",
       "exception": "Hash mismatch",
       "arguments": {
-        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "address": "grs1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7serph7a",
         "hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       }
     },
@@ -227,7 +227,7 @@
       "description": "address.hash != output.hash",
       "exception": "Hash mismatch",
       "arguments": {
-        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "address": "grs1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7serph7a",
         "output": "OP_0 ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       }
     },
@@ -373,18 +373,6 @@
       "arguments": {
         "address": "foo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs30dvv"
       }
-    },
-    {
-      "exception": "Invalid address version",
-      "arguments": {
-        "address": "bc1pqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq5us4ke"
-      }
-    },
-    {
-      "exception": "Invalid address data",
-      "arguments": {
-        "address": "bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8"
-      }
     }
   ],
   "dynamic": {
@@ -403,7 +391,7 @@
         "disabled": [
           "redeem.input"
         ],
-        "address": "bc1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss2cq5ar",
+        "address": "grs1qusxlgq9quu27ucxs7a2fg8nv0pycdzvxsjk9npyupupxw3y892ss9rlcj8",
         "hash": "e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "output": "OP_0 e40df400a0e715ee60d0f754941e6c784986898684ac59849c0f026744872aa1",
         "redeem": {
@@ -420,7 +408,7 @@
       },
       {
         "description": "p2wsh-p2wpkh",
-        "address": "bc1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7skc7m3e",
+        "address": "grs1qpsl7el8wcx22f3fpdt3lm2wmzug7yyx2q3n8wzgtf37kps9tqy7serph7a",
         "hash": "0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "output": "OP_0 0c3fecfceec194a4c5216ae3fda9db1711e210ca046677090b4c7d60c0ab013d",
         "redeem": {
