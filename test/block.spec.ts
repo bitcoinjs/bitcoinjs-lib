@@ -163,7 +163,7 @@ describe('Block', () => {
     });
   });
 
-  describe('checkProofOfWork', () => {
+  describe.skip('checkProofOfWork', () => {
     fixtures.valid.forEach(f => {
       let block: Block;
 
