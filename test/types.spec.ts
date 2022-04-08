@@ -40,14 +40,16 @@ describe('types', () => {
     });
   });
 
-  describe.skip('Satoshi', () => {
+  describe('Satoshi', () => {
     [
       { value: -1, result: false },
       { value: 0, result: true },
       { value: 1, result: true },
-      { value: 104999999 * 1e8, result: true },
-      { value: 105000000 * 1e8, result: true },
-      { value: 105000001 * 1e8, result: false },
+      // 9007199254740991 the biggest number you can have in JS
+      // The MAX_SAFE_INTEGER constant has a value of 9007199254740991 (9,007,199,254,740,991 or ~9 quadrillion).
+      // The reasoning behind that number is that JavaScript uses double-precision floating-point format numbers as specified in IEEE 754 and can only safely represent integers between -(2^53 - 1) and 2^53 - 1
+      { value: 90071991 * 1e8, result: true },
+      { value: 90071992 * 1e8, result: true },
     ].forEach(f => {
       it('returns ' + f.result + ' for valid for ' + f.value, () => {
         assert.strictEqual(types.Satoshi(f.value), f.result);
