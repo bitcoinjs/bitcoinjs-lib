@@ -74,7 +74,7 @@
     "bn.js": "^4.11.8",
     "bs58": "^4.0.0",
     "dhttp": "^3.0.0",
-    "ecpairgrs": "git+https://github.com/Groestlcoin/ecpairgrs.git",
+    "ecpairgrs": "^2.0.1",
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^7.1.1",
