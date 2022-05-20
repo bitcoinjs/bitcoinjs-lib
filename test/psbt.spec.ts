@@ -11,7 +11,6 @@ const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
 import { networks as NETWORKS, payments, Psbt, Signer, SignerAsync } from '..';
-import { buildTapscriptFinalizer } from './psbt.utils';
 
 import * as preFixtures from './fixtures/psbt.json';
 
@@ -25,7 +24,7 @@ const schnorrValidator = (
   pubkey: Buffer,
   msghash: Buffer,
   signature: Buffer,
-): boolean => ECPair.fromPublicKey(pubkey).verifySchnorr(msghash, signature);
+): boolean => ecc.verifySchnorr(msghash, pubkey, signature);
 
 const initBuffers = (object: any): typeof preFixtures =>
   JSON.parse(JSON.stringify(object), (_, value) => {
@@ -149,9 +148,16 @@ describe(`Psbt`, () => {
         if (f.isTaproot) initEccLib(ecc);
         const psbt = Psbt.fromBase64(f.psbt);
 
-        f.keys.forEach(({ inputToSign, WIF }) => {
+        // @ts-ignore // cannot find tapLeafHashToSign
+        f.keys.forEach(({ inputToSign, tapLeafHashToSign, WIF }) => {
           const keyPair = ECPair.fromWIF(WIF, NETWORKS.testnet);
-          psbt.signInput(inputToSign, keyPair);
+          if (tapLeafHashToSign)
+            psbt.signTaprootInput(
+              inputToSign,
+              keyPair,
+              Buffer.from(tapLeafHashToSign, 'hex'),
+            );
+          else psbt.signInput(inputToSign, keyPair);
         });
 
         assert.strictEqual(psbt.toBase64(), f.result);
@@ -224,6 +230,7 @@ describe(`Psbt`, () => {
   describe('signInputAsync', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, async () => {
+        if (f.isTaproot) initEccLib(ecc);
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt);
           await assert.doesNotReject(async () => {
@@ -232,14 +239,22 @@ describe(`Psbt`, () => {
               ECPair.fromWIF(f.shouldSign.WIF),
               f.shouldSign.sighashTypes || undefined,
             );
+            if (f.shouldSign.result)
+              assert.strictEqual(
+                psbtThatShouldsign.toBase64(),
+                f.shouldSign.result,
+              );
           });
+          const failMessage = f.isTaproot
+            ? /Need Schnorr Signer to sign taproot input #0./
+            : /sign failed/;
           await assert.rejects(async () => {
             await psbtThatShouldsign.signInputAsync(
               f.shouldSign.inputToCheck,
               failedAsyncSigner(ECPair.fromWIF(f.shouldSign.WIF).publicKey),
               f.shouldSign.sighashTypes || undefined,
             );
-          }, /sign failed/);
+          }, failMessage);
         }
 
         if (f.shouldThrow) {
@@ -271,6 +286,7 @@ describe(`Psbt`, () => {
   describe('signInput', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, () => {
+        if (f.isTaproot) initEccLib(ecc);
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt);
           assert.doesNotThrow(() => {
@@ -303,6 +319,7 @@ describe(`Psbt`, () => {
     fixtures.signInput.checks.forEach(f => {
       if (f.description === 'checks the input exists') return;
       it(f.description, async () => {
+        if (f.isTaproot) initEccLib(ecc);
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt);
           await assert.doesNotReject(async () => {
@@ -333,6 +350,7 @@ describe(`Psbt`, () => {
     fixtures.signInput.checks.forEach(f => {
       if (f.description === 'checks the input exists') return;
       it(f.description, () => {
+        if (f.isTaproot) initEccLib(ecc);
         if (f.shouldSign) {
           const psbtThatShouldsign = Psbt.fromBase64(f.shouldSign.psbt);
           assert.doesNotThrow(() => {
@@ -483,6 +501,42 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('finalizeInput', () => {
+    it(`Finalizes tapleaf by hash`, () => {
+      const f = fixtures.finalizeInput.finalizeTapleafByHash;
+      const psbt = Psbt.fromBase64(f.psbt);
+
+      psbt.finalizeTaprootInput(f.index, Buffer.from(f.leafHash, 'hex'));
+
+      assert.strictEqual(psbt.toBase64(), f.result);
+    });
+
+    it(`fails if tapleaf hash not found`, () => {
+      const f = fixtures.finalizeInput.finalizeTapleafByHash;
+      const psbt = Psbt.fromBase64(f.psbt);
+
+      assert.throws(() => {
+        psbt.finalizeTaprootInput(
+          f.index,
+          Buffer.from(f.leafHash, 'hex').reverse(),
+        );
+      }, new RegExp('Can not finalize taproot input #0. Signature for tapleaf script not found.'));
+    });
+
+    it(`fails if trying to finalzie non-taproot input`, () => {
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash:
+          '0000000000000000000000000000000000000000000000000000000000000000',
+        index: 0,
+      });
+
+      assert.throws(() => {
+        psbt.finalizeTaprootInput(0);
+      }, new RegExp('Cannot finalize input #0. Not Taproot.'));
+    });
+  });
+
   describe('finalizeAllInputs', () => {
     fixtures.finalizeAllInputs.forEach(f => {
       it(`Finalizes inputs of type "${f.type}"`, () => {
@@ -540,6 +594,20 @@ describe(`Psbt`, () => {
           assert.throws(() => {
             psbt.addInput(f.inputData as any);
           }, new RegExp('Duplicate input detected.'));
+        }
+      });
+    });
+  });
+
+  describe('updateInput', () => {
+    fixtures.updateInput.checks.forEach(f => {
+      it(f.description, () => {
+        const psbt = Psbt.fromBase64(f.psbt);
+
+        if (f.exception) {
+          assert.throws(() => {
+            psbt.updateInput(f.index, f.inputData as any);
+          }, new RegExp(f.exception));
         }
       });
     });
@@ -967,9 +1035,9 @@ describe(`Psbt`, () => {
     });
   });
 
-  describe('validateSignaturesOfTaprootInput', () => {
-    const f = fixtures.validateSignaturesOfTaprootInput;
-    it('Correctly validates a signature', () => {
+  describe('validateSignaturesOfTapKeyInput', () => {
+    const f = fixtures.validateSignaturesOfTapKeyInput;
+    it('Correctly validates all signatures', () => {
       initEccLib(ecc);
       const psbt = Psbt.fromBase64(f.psbt);
       assert.strictEqual(
@@ -999,28 +1067,35 @@ describe(`Psbt`, () => {
     });
   });
 
-  describe('finalizeTaprootInput', () => {
-    it('Correctly finalizes a taproot script-path spend', () => {
+  describe('validateSignaturesOfTapScriptInput', () => {
+    const f = fixtures.validateSignaturesOfTapScriptInput;
+    it('Correctly validates all signatures', () => {
       initEccLib(ecc);
-      const f = fixtures.finalizeTaprootScriptPathSpendInput;
       const psbt = Psbt.fromBase64(f.psbt);
-      const tapscriptFinalizer = buildTapscriptFinalizer(
-        f.internalPublicKey as any,
-        f.scriptTree,
-        NETWORKS.testnet,
+      assert.strictEqual(
+        psbt.validateSignaturesOfInput(f.index, schnorrValidator),
+        true,
       );
-      psbt.finalizeInput(0, tapscriptFinalizer);
-      assert.strictEqual(psbt.toBase64(), f.result);
     });
 
-    it('Failes to finalize a taproot script-path spend when a finalizer is not provided', () => {
+    it('Correctly validates a signature against a pubkey', () => {
       initEccLib(ecc);
-      const f = fixtures.finalizeTaprootScriptPathSpendInput;
       const psbt = Psbt.fromBase64(f.psbt);
-
+      assert.strictEqual(
+        psbt.validateSignaturesOfInput(
+          f.index,
+          schnorrValidator,
+          f.pubkey as any,
+        ),
+        true,
+      );
       assert.throws(() => {
-        psbt.finalizeInput(0);
-      }, new RegExp('Can not finalize input #0'));
+        psbt.validateSignaturesOfInput(
+          f.index,
+          schnorrValidator,
+          f.incorrectPubkey as any,
+        );
+      }, new RegExp('No signatures for this pubkey'));
     });
   });
 

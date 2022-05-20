@@ -80,7 +80,10 @@ export declare class Psbt {
     getFeeRate(): number;
     getFee(): number;
     finalizeAllInputs(): this;
-    finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this;
+    finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc | FinalTaprootScriptsFunc): this;
+    finalizeTaprootInput(inputIndex: number, tapLeafHashToFinalize?: Buffer, finalScriptsFunc?: FinalTaprootScriptsFunc): this;
+    private _finalizeInput;
+    private _finalizeTaprootInput;
     getInputType(inputIndex: number): AllScriptType;
     inputHasPubkey(inputIndex: number, pubkey: Buffer): boolean;
     inputHasHDKey(inputIndex: number, root: HDSigner): boolean;
@@ -88,6 +91,8 @@ export declare class Psbt {
     outputHasHDKey(outputIndex: number, root: HDSigner): boolean;
     validateSignaturesOfAllInputs(validator: ValidateSigFunction): boolean;
     validateSignaturesOfInput(inputIndex: number, validator: ValidateSigFunction, pubkey?: Buffer): boolean;
+    private _validateSignaturesOfInput;
+    private validateSignaturesOfTaprootInput;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
     signAllInputsHDAsync(hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
     signInputHD(inputIndex: number, hdKeyPair: HDSigner, sighashTypes?: number[]): this;
@@ -95,7 +100,14 @@ export declare class Psbt {
     signAllInputs(keyPair: Signer, sighashTypes?: number[]): this;
     signAllInputsAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
+    signTaprootInput(inputIndex: number, keyPair: Signer, tapLeafHashToSign?: Buffer, sighashTypes?: number[]): this;
+    private _signInput;
+    private _signTaprootInput;
     signInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
+    signTaprootInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, tapLeafHash?: Buffer, sighashTypes?: number[]): Promise<void>;
+    private _signInputAsync;
+    private _signTaprootInputAsync;
+    private checkTaprootHashesForSig;
     toBuffer(): Buffer;
     toHex(): string;
     toBase64(): string;
@@ -143,7 +155,6 @@ export interface HDSigner extends HDSignerBase {
      * Return a 64 byte signature (32 byte r and 32 byte s in that order)
      */
     sign(hash: Buffer): Buffer;
-    signSchnorr?(hash: Buffer): Buffer;
 }
 /**
  * Same as above but with async sign method
@@ -151,7 +162,6 @@ export interface HDSigner extends HDSignerBase {
 export interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Buffer): Promise<Buffer>;
-    signSchnorr?(hash: Buffer): Promise<Buffer>;
 }
 export interface Signer {
     publicKey: Buffer;
@@ -177,11 +187,15 @@ declare type FinalScriptsFunc = (inputIndex: number, // Which input is it?
 input: PsbtInput, // The PSBT input contents
 script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
 isSegwit: boolean, // Is it segwit?
-isTapscript: boolean, // Is taproot script path?
 isP2SH: boolean, // Is it P2SH?
 isP2WSH: boolean) => {
     finalScriptSig: Buffer | undefined;
-    finalScriptWitness: Buffer | Buffer[] | undefined;
+    finalScriptWitness: Buffer | undefined;
 };
-declare type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'taproot' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard' | 'p2tr-pubkey' | 'p2tr-nonstandard';
+declare type FinalTaprootScriptsFunc = (inputIndex: number, // Which input is it?
+input: PsbtInput, // The PSBT input contents
+tapLeafHashToFinalize?: Buffer) => {
+    finalScriptWitness: Buffer | undefined;
+};
+declare type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
 export {};
