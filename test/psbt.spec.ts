@@ -5,6 +5,10 @@ import * as crypto from 'crypto';
 import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
 
+import { convertScriptTree } from './payments.utils';
+import { LEAF_VERSION_TAPSCRIPT } from '../src/payments/taprootutils';
+import { tapTreeToList, tapTreeFromList } from '../src/psbt/bip371';
+import { Taptree } from '../src/types';
 import { initEccLib } from '../src';
 
 const bip32 = BIP32Factory(ecc);
@@ -13,6 +17,7 @@ const ECPair = ECPairFactory(ecc);
 import { networks as NETWORKS, payments, Psbt, Signer, SignerAsync } from '..';
 
 import * as preFixtures from './fixtures/psbt.json';
+import * as taprootFixtures from './fixtures/p2tr.json';
 
 const validator = (
   pubkey: Buffer,
@@ -1096,6 +1101,67 @@ describe(`Psbt`, () => {
           f.incorrectPubkey as any,
         );
       }, new RegExp('No signatures for this pubkey'));
+    });
+  });
+
+  describe('tapTreeToList/tapTreeFromList', () => {
+    it('Correctly converts a Taptree to a Tapleaf list and back', () => {
+      taprootFixtures.valid
+        .filter(f => f.arguments.scriptTree)
+        .map(f => f.arguments.scriptTree)
+        .forEach(scriptTree => {
+          const originalTree = convertScriptTree(
+            scriptTree,
+            LEAF_VERSION_TAPSCRIPT,
+          );
+          const list = tapTreeToList(originalTree);
+          const treeFromList = tapTreeFromList(list);
+
+          assert.deepStrictEqual(treeFromList, originalTree);
+        });
+    });
+    it('Throws if too many leaves on a given level', () => {
+      const list = Array.from({ length: 5 }).map(() => ({
+        depth: 2,
+        leafVersion: LEAF_VERSION_TAPSCRIPT,
+        script: Buffer.from([]),
+      }));
+      assert.throws(() => {
+        tapTreeFromList(list);
+      }, new RegExp('No room left to insert tapleaf in tree'));
+    });
+    it('Throws if taptree depth is exceeded', () => {
+      let tree: Taptree = [
+        { output: Buffer.from([]) },
+        { output: Buffer.from([]) },
+      ];
+      Array.from({ length: 129 }).forEach(
+        () => (tree = [tree, { output: Buffer.from([]) }]),
+      );
+      assert.throws(() => {
+        tapTreeToList(tree as Taptree);
+      }, new RegExp('Max taptree depth exceeded.'));
+    });
+    it('Throws if tapleaf depth is to high', () => {
+      const list = [
+        {
+          depth: 129,
+          leafVersion: LEAF_VERSION_TAPSCRIPT,
+          script: Buffer.from([]),
+        },
+      ];
+      assert.throws(() => {
+        tapTreeFromList(list);
+      }, new RegExp('Max taptree depth exceeded.'));
+    });
+    it('Throws if not a valid taptree structure', () => {
+      const tree = Array.from({ length: 3 }).map(() => ({
+        output: Buffer.from([]),
+      }));
+
+      assert.throws(() => {
+        tapTreeToList(tree as Taptree);
+      }, new RegExp('Cannot convert taptree to tapleaf list. Expecting a tapree structure.'));
     });
   });
 

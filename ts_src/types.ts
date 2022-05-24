@@ -79,7 +79,7 @@ export interface Tapleaf {
 
 export const TAPLEAF_VERSION_MASK = 0xfe;
 export function isTapleaf(o: any): o is Tapleaf {
-  if (!('output' in o)) return false;
+  if (!o || !('output' in o)) return false;
   if (!NBuffer.isBuffer(o.output)) return false;
   if (o.version !== undefined)
     return (o.version & TAPLEAF_VERSION_MASK) === o.version;

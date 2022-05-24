@@ -186,11 +186,14 @@ export function from(path: string, object: any, result?: any): any {
   return result;
 }
 
-function convertScriptTree(scriptTree: any): any {
-  if (Array.isArray(scriptTree)) return scriptTree.map(convertScriptTree);
+export function convertScriptTree(scriptTree: any, leafVersion?: number): any {
+  if (Array.isArray(scriptTree))
+    return scriptTree.map(t => convertScriptTree(t, leafVersion));
 
   const script = Object.assign({}, scriptTree);
-  if (typeof script.output === 'string')
+  if (typeof script.output === 'string') {
     script.output = asmToBuffer(scriptTree.output);
+    script.version = script.version || leafVersion;
+  }
   return script;
 }

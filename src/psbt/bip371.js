@@ -79,6 +79,10 @@ exports.tweakInternalPubKey = tweakInternalPubKey;
  * @returns a list of BIP 371 tapleaves
  */
 function tapTreeToList(tree) {
+  if (!(0, types_1.isTaptree)(tree))
+    throw new Error(
+      'Cannot convert taptree to tapleaf list. Expecting a tapree structure.',
+    );
   return _tapTreeToList(tree);
 }
 exports.tapTreeToList = tapTreeToList;

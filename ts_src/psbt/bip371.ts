@@ -1,4 +1,4 @@
-import { Taptree, Tapleaf, isTapleaf } from '../types';
+import { Taptree, Tapleaf, isTapleaf, isTaptree } from '../types';
 import {
   PsbtInput,
   TapLeafScript,
@@ -111,6 +111,10 @@ export function tweakInternalPubKey(
  * @returns a list of BIP 371 tapleaves
  */
 export function tapTreeToList(tree: Taptree): TapLeaf[] {
+  if (!isTaptree(tree))
+    throw new Error(
+      'Cannot convert taptree to tapleaf list. Expecting a tapree structure.',
+    );
   return _tapTreeToList(tree);
 }
 

@@ -70,7 +70,7 @@ exports.Network = exports.typeforce.compile({
 });
 exports.TAPLEAF_VERSION_MASK = 0xfe;
 function isTapleaf(o) {
-  if (!('output' in o)) return false;
+  if (!o || !('output' in o)) return false;
   if (!buffer_1.Buffer.isBuffer(o.output)) return false;
   if (o.version !== undefined)
     return (o.version & exports.TAPLEAF_VERSION_MASK) === o.version;
