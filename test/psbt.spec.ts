@@ -1120,6 +1120,7 @@ describe(`Psbt`, () => {
           assert.deepStrictEqual(treeFromList, originalTree);
         });
     });
+
     it('Throws if too many leaves on a given level', () => {
       const list = Array.from({ length: 5 }).map(() => ({
         depth: 2,
@@ -1130,6 +1131,7 @@ describe(`Psbt`, () => {
         tapTreeFromList(list);
       }, new RegExp('No room left to insert tapleaf in tree'));
     });
+
     it('Throws if taptree depth is exceeded', () => {
       let tree: Taptree = [
         { output: Buffer.from([]) },
@@ -1142,6 +1144,7 @@ describe(`Psbt`, () => {
         tapTreeToList(tree as Taptree);
       }, new RegExp('Max taptree depth exceeded.'));
     });
+
     it('Throws if tapleaf depth is to high', () => {
       const list = [
         {
@@ -1154,6 +1157,7 @@ describe(`Psbt`, () => {
         tapTreeFromList(list);
       }, new RegExp('Max taptree depth exceeded.'));
     });
+
     it('Throws if not a valid taptree structure', () => {
       const tree = Array.from({ length: 3 }).map(() => ({
         output: Buffer.from([]),
