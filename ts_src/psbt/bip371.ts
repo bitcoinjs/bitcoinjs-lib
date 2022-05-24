@@ -1,7 +1,9 @@
+import { Taptree, Tapleaf, isTapleaf } from '../types';
 import {
   PsbtInput,
   TapLeafScript,
   TapScriptSig,
+  TapLeaf,
 } from 'bip174/src/lib/interfaces';
 
 import {
@@ -13,6 +15,8 @@ import {
   tweakKey,
   tapleafHash,
   rootHashFromPath,
+  LEAF_VERSION_TAPSCRIPT,
+  MAX_TAPTREE_DEPTH,
 } from '../payments/taprootutils';
 
 export const toXOnly = (pubKey: Buffer) =>
@@ -96,6 +100,94 @@ export function tweakInternalPubKey(
         tapInternalKey.toString('hex')}`,
     );
   return outputKey.x;
+}
+
+/**
+ * Convert a binary tree to a BIP371 type list. Each element of the list is (according to BIP371):
+ * One or more tuples representing the depth, leaf version, and script for a leaf in the Taproot tree,
+ * allowing the entire tree to be reconstructed. The tuples must be in depth first search order so that
+ * the tree is correctly reconstructed.
+ * @param tree the binary tap tree
+ * @returns a list of BIP 371 tapleaves
+ */
+export function tapTreeToList(tree: Taptree): TapLeaf[] {
+  return _tapTreeToList(tree);
+}
+
+/**
+ * Convert a BIP371 TapLeaf list to a TapTree (binary).
+ * @param leaves a list of tapleaves where each element of the list is (according to BIP371):
+ * One or more tuples representing the depth, leaf version, and script for a leaf in the Taproot tree,
+ * allowing the entire tree to be reconstructed. The tuples must be in depth first search order so that
+ * the tree is correctly reconstructed.
+ * @returns the corresponding taptree, or throws an exception if the tree cannot be reconstructed
+ */
+export function tapTreeFromList(leaves: TapLeaf[] = []): Taptree {
+  if (leaves.length === 1 && leaves[0].depth === 0)
+    return {
+      output: leaves[0].script,
+      version: leaves[0].leafVersion,
+    };
+
+  return instertLeavesInTree(leaves);
+}
+
+function _tapTreeToList(
+  tree: Taptree,
+  leaves: TapLeaf[] = [],
+  depth = 0,
+): TapLeaf[] {
+  if (depth > MAX_TAPTREE_DEPTH) throw new Error('Max taptree depth exceeded.');
+  if (!tree) return [];
+  if (isTapleaf(tree)) {
+    leaves.push({
+      depth,
+      leafVersion: tree.version || LEAF_VERSION_TAPSCRIPT,
+      script: tree.output,
+    });
+    return leaves;
+  }
+  if (tree[0]) _tapTreeToList(tree[0], leaves, depth + 1);
+  if (tree[1]) _tapTreeToList(tree[1], leaves, depth + 1);
+  return leaves;
+}
+
+// Just like Taptree, but it accepts empty branches
+type PartialTaptree =
+  | [PartialTaptree | Tapleaf, PartialTaptree | Tapleaf]
+  | Tapleaf
+  | undefined;
+function instertLeavesInTree(leaves: TapLeaf[]): Taptree {
+  let tree: PartialTaptree;
+  for (const leaf of leaves) {
+    tree = instertLeafInTree(leaf, tree);
+    if (!tree) throw new Error(`No room left to insert tapleaf in tree`);
+  }
+
+  return tree as Taptree;
+}
+
+function instertLeafInTree(
+  leaf: TapLeaf,
+  tree?: PartialTaptree,
+  depth = 0,
+): PartialTaptree {
+  if (depth > MAX_TAPTREE_DEPTH) throw new Error('Max taptree depth exceeded.');
+  if (leaf.depth === depth) {
+    if (!tree)
+      return {
+        output: leaf.script,
+        version: leaf.leafVersion,
+      };
+    return;
+  }
+
+  if (isTapleaf(tree)) return;
+  const leftSide = instertLeafInTree(leaf, tree && tree[0], depth + 1);
+  if (leftSide) return [leftSide, tree && tree[1]];
+
+  const rightSide = instertLeafInTree(leaf, tree && tree[1], depth + 1);
+  if (rightSide) return [tree && tree[0], rightSide];
 }
 
 function checkMixedTaprootAndNonTaprootFields(

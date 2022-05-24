@@ -6,6 +6,7 @@ import { varuint } from '../bufferutils';
 import { Tapleaf, Taptree, isTapleaf } from '../types';
 
 export const LEAF_VERSION_TAPSCRIPT = 0xc0;
+export const MAX_TAPTREE_DEPTH = 128;
 
 interface HashLeaf {
   hash: Buffer;

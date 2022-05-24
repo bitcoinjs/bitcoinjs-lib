@@ -1,5 +1,6 @@
 /// <reference types="node" />
-import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { Taptree } from '../types';
+import { PsbtInput, TapLeaf } from 'bip174/src/lib/interfaces';
 export declare const toXOnly: (pubKey: Buffer) => Buffer;
 /**
  * Default tapscript finalizer. It searches for the `tapLeafHashToFinalize` if provided.
@@ -17,3 +18,21 @@ export declare function serializeTaprootSignature(sig: Buffer, sighashType?: num
 export declare function isTaprootInput(input: PsbtInput): boolean;
 export declare function checkTaprootInputFields(inputData: PsbtInput, newInputData: PsbtInput, action: string): void;
 export declare function tweakInternalPubKey(inputIndex: number, input: PsbtInput): Buffer;
+/**
+ * Convert a binary tree to a BIP371 type list. Each element of the list is (according to BIP371):
+ * One or more tuples representing the depth, leaf version, and script for a leaf in the Taproot tree,
+ * allowing the entire tree to be reconstructed. The tuples must be in depth first search order so that
+ * the tree is correctly reconstructed.
+ * @param tree the binary tap tree
+ * @returns a list of BIP 371 tapleaves
+ */
+export declare function tapTreeToList(tree: Taptree): TapLeaf[];
+/**
+ * Convert a BIP371 TapLeaf list to a TapTree (binary).
+ * @param leaves a list of tapleaves where each element of the list is (according to BIP371):
+ * One or more tuples representing the depth, leaf version, and script for a leaf in the Taproot tree,
+ * allowing the entire tree to be reconstructed. The tuples must be in depth first search order so that
+ * the tree is correctly reconstructed.
+ * @returns the corresponding taptree, or throws an exception if the tree cannot be reconstructed
+ */
+export declare function tapTreeFromList(leaves?: TapLeaf[]): Taptree;

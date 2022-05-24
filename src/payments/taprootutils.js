@@ -1,12 +1,13 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tweakKey = exports.tapTweakHash = exports.tapleafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = exports.LEAF_VERSION_TAPSCRIPT = void 0;
+exports.tweakKey = exports.tapTweakHash = exports.tapleafHash = exports.findScriptPath = exports.toHashTree = exports.rootHashFromPath = exports.MAX_TAPTREE_DEPTH = exports.LEAF_VERSION_TAPSCRIPT = void 0;
 const buffer_1 = require('buffer');
 const ecc_lib_1 = require('../ecc_lib');
 const bcrypto = require('../crypto');
 const bufferutils_1 = require('../bufferutils');
 const types_1 = require('../types');
 exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
+exports.MAX_TAPTREE_DEPTH = 128;
 const isHashBranch = ht => 'left' in ht && 'right' in ht;
 function rootHashFromPath(controlBlock, leafHash) {
   const m = (controlBlock.length - 33) / 32;

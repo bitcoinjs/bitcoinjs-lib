@@ -1,6 +1,7 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tweakInternalPubKey = exports.checkTaprootInputFields = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
+exports.tapTreeFromList = exports.tapTreeToList = exports.tweakInternalPubKey = exports.checkTaprootInputFields = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
+const types_1 = require('../types');
 const psbtutils_1 = require('./psbtutils');
 const taprootutils_1 = require('../payments/taprootutils');
 const toXOnly = pubKey => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
@@ -69,6 +70,76 @@ function tweakInternalPubKey(inputIndex, input) {
   return outputKey.x;
 }
 exports.tweakInternalPubKey = tweakInternalPubKey;
+/**
+ * Convert a binary tree to a BIP371 type list. Each element of the list is (according to BIP371):
+ * One or more tuples representing the depth, leaf version, and script for a leaf in the Taproot tree,
+ * allowing the entire tree to be reconstructed. The tuples must be in depth first search order so that
+ * the tree is correctly reconstructed.
+ * @param tree the binary tap tree
+ * @returns a list of BIP 371 tapleaves
+ */
+function tapTreeToList(tree) {
+  return _tapTreeToList(tree);
+}
+exports.tapTreeToList = tapTreeToList;
+/**
+ * Convert a BIP371 TapLeaf list to a TapTree (binary).
+ * @param leaves a list of tapleaves where each element of the list is (according to BIP371):
+ * One or more tuples representing the depth, leaf version, and script for a leaf in the Taproot tree,
+ * allowing the entire tree to be reconstructed. The tuples must be in depth first search order so that
+ * the tree is correctly reconstructed.
+ * @returns the corresponding taptree, or throws an exception if the tree cannot be reconstructed
+ */
+function tapTreeFromList(leaves = []) {
+  if (leaves.length === 1 && leaves[0].depth === 0)
+    return {
+      output: leaves[0].script,
+      version: leaves[0].leafVersion,
+    };
+  return instertLeavesInTree(leaves);
+}
+exports.tapTreeFromList = tapTreeFromList;
+function _tapTreeToList(tree, leaves = [], depth = 0) {
+  if (depth > taprootutils_1.MAX_TAPTREE_DEPTH)
+    throw new Error('Max taptree depth exceeded.');
+  if (!tree) return [];
+  if ((0, types_1.isTapleaf)(tree)) {
+    leaves.push({
+      depth,
+      leafVersion: tree.version || taprootutils_1.LEAF_VERSION_TAPSCRIPT,
+      script: tree.output,
+    });
+    return leaves;
+  }
+  if (tree[0]) _tapTreeToList(tree[0], leaves, depth + 1);
+  if (tree[1]) _tapTreeToList(tree[1], leaves, depth + 1);
+  return leaves;
+}
+function instertLeavesInTree(leaves) {
+  let tree;
+  for (const leaf of leaves) {
+    tree = instertLeafInTree(leaf, tree);
+    if (!tree) throw new Error(`No room left to insert tapleaf in tree`);
+  }
+  return tree;
+}
+function instertLeafInTree(leaf, tree, depth = 0) {
+  if (depth > taprootutils_1.MAX_TAPTREE_DEPTH)
+    throw new Error('Max taptree depth exceeded.');
+  if (leaf.depth === depth) {
+    if (!tree)
+      return {
+        output: leaf.script,
+        version: leaf.leafVersion,
+      };
+    return;
+  }
+  if ((0, types_1.isTapleaf)(tree)) return;
+  const leftSide = instertLeafInTree(leaf, tree && tree[0], depth + 1);
+  if (leftSide) return [leftSide, tree && tree[1]];
+  const rightSide = instertLeafInTree(leaf, tree && tree[1], depth + 1);
+  if (rightSide) return [tree && tree[0], rightSide];
+}
 function checkMixedTaprootAndNonTaprootFields(inputData, newInputData, action) {
   const isBadTaprootUpdate =
     isTaprootInput(inputData) && hasNonTaprootInputFields(newInputData);
