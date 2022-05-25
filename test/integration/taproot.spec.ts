@@ -53,7 +53,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     const internalKey = bip32.fromSeed(rng(64), regtest);
     const p2pkhKey = bip32.fromSeed(rng(64), regtest);
 
-    const { output, address } = bitcoin.payments.p2tr({
+    const { output } = bitcoin.payments.p2tr({
       internalPubkey: toXOnly(internalKey.publicKey),
       network: regtest,
     });
@@ -84,7 +84,17 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     });
     psbt.addInput({ index: 0, hash: p2pkhUnspent.txId, nonWitnessUtxo });
 
-    psbt.addOutput({ value: sendAmount, address: address! });
+    const sendInternalKey = bip32.fromSeed(rng(64), regtest);
+    const sendPubKey = toXOnly(sendInternalKey.publicKey);
+    const { address: sendAddress } = bitcoin.payments.p2tr({
+      internalPubkey: sendPubKey,
+      network: regtest,
+    });
+
+    psbt.addOutput({
+      value: sendAmount,
+      tapInternalKey: sendPubKey,
+    });
 
     const tweakedSigner = tweakSigner(internalKey!, { network: regtest });
     await psbt.signInputAsync(0, tweakedSigner);
@@ -99,7 +109,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     await regtestUtils.broadcast(hex);
     await regtestUtils.verify({
       txId: tx.getId(),
-      address: address!,
+      address: sendAddress!,
       vout: 0,
       value: sendAmount,
     });
