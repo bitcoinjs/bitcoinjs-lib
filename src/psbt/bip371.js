@@ -1,9 +1,10 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tapTreeFromList = exports.tapTreeToList = exports.tweakInternalPubKey = exports.checkTaprootInputFields = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
+exports.tapTreeFromList = exports.tapTreeToList = exports.tweakInternalPubKey = exports.getNewTaprootScriptAndAddress = exports.checkTaprootOutputFields = exports.checkTaprootInputFields = exports.isTaprootOutput = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
 const types_1 = require('../types');
 const psbtutils_1 = require('./psbtutils');
 const taprootutils_1 = require('../payments/taprootutils');
+const payments_1 = require('../payments');
 const toXOnly = pubKey => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 exports.toXOnly = toXOnly;
 /**
@@ -52,11 +53,54 @@ function isTaprootInput(input) {
   );
 }
 exports.isTaprootInput = isTaprootInput;
+function isTaprootOutput(output, script) {
+  return (
+    output &&
+    !!(
+      output.tapInternalKey ||
+      output.tapTree ||
+      (output.tapBip32Derivation && output.tapBip32Derivation.length) ||
+      (script && (0, psbtutils_1.isP2TR)(script))
+    )
+  );
+}
+exports.isTaprootOutput = isTaprootOutput;
 function checkTaprootInputFields(inputData, newInputData, action) {
-  checkMixedTaprootAndNonTaprootFields(inputData, newInputData, action);
+  checkMixedTaprootAndNonTaprootInputFields(inputData, newInputData, action);
   checkIfTapLeafInTree(inputData, newInputData, action);
 }
 exports.checkTaprootInputFields = checkTaprootInputFields;
+function checkTaprootOutputFields(outputData, newOutputData, action) {
+  checkMixedTaprootAndNonTaprootOutputFields(outputData, newOutputData, action);
+}
+exports.checkTaprootOutputFields = checkTaprootOutputFields;
+function getNewTaprootScriptAndAddress(outputData, newOutputData, network) {
+  if (!newOutputData.tapTree && !newOutputData.tapInternalKey) return;
+  const tapInternalKey =
+    newOutputData.tapInternalKey || outputData.tapInternalKey;
+  const tapTree = newOutputData.tapTree || outputData.tapTree;
+  if (tapInternalKey) {
+    const { script, address } = getTaprootScriptAndAddress(
+      tapInternalKey,
+      tapTree,
+      network,
+    );
+    const { script: newScript } = newOutputData;
+    if (newScript && !newScript.equals(script))
+      throw new Error('Error adding output. Script or address missmatch.');
+    return { script, address };
+  }
+}
+exports.getNewTaprootScriptAndAddress = getNewTaprootScriptAndAddress;
+function getTaprootScriptAndAddress(tapInternalKey, tapTree, network) {
+  const scriptTree = tapTree && tapTreeFromList(tapTree.leaves);
+  const { output, address } = (0, payments_1.p2tr)({
+    internalPubkey: tapInternalKey,
+    scriptTree,
+    network,
+  });
+  return { script: output, address: address };
+}
 function tweakInternalPubKey(inputIndex, input) {
   const tapInternalKey = input.tapInternalKey;
   const outputKey =
@@ -144,14 +188,36 @@ function instertLeafInTree(leaf, tree, depth = 0) {
   const rightSide = instertLeafInTree(leaf, tree && tree[1], depth + 1);
   if (rightSide) return [tree && tree[0], rightSide];
 }
-function checkMixedTaprootAndNonTaprootFields(inputData, newInputData, action) {
+function checkMixedTaprootAndNonTaprootInputFields(
+  inputData,
+  newInputData,
+  action,
+) {
   const isBadTaprootUpdate =
-    isTaprootInput(inputData) && hasNonTaprootInputFields(newInputData);
+    isTaprootInput(inputData) && hasNonTaprootFields(newInputData);
   const isBadNonTaprootUpdate =
-    hasNonTaprootInputFields(inputData) && isTaprootInput(newInputData);
+    hasNonTaprootFields(inputData) && isTaprootInput(newInputData);
   const hasMixedFields =
     inputData === newInputData &&
-    (isTaprootInput(newInputData) && hasNonTaprootInputFields(newInputData));
+    (isTaprootInput(newInputData) && hasNonTaprootFields(newInputData)); // todo: bad? use !===
+  if (isBadTaprootUpdate || isBadNonTaprootUpdate || hasMixedFields)
+    throw new Error(
+      `Invalid arguments for Psbt.${action}. ` +
+        `Cannot use both taproot and non-taproot fields.`,
+    );
+}
+function checkMixedTaprootAndNonTaprootOutputFields(
+  inputData,
+  newInputData,
+  action,
+) {
+  const isBadTaprootUpdate =
+    isTaprootOutput(inputData) && hasNonTaprootFields(newInputData);
+  const isBadNonTaprootUpdate =
+    hasNonTaprootFields(inputData) && isTaprootOutput(newInputData);
+  const hasMixedFields =
+    inputData === newInputData &&
+    (isTaprootOutput(newInputData) && hasNonTaprootFields(newInputData));
   if (isBadTaprootUpdate || isBadNonTaprootUpdate || hasMixedFields)
     throw new Error(
       `Invalid arguments for Psbt.${action}. ` +
@@ -244,13 +310,13 @@ function canFinalizeLeaf(leaf, tapScriptSig, hash) {
     tapScriptSig.find(tss => tss.leafHash.equals(leafHash)) !== undefined
   );
 }
-function hasNonTaprootInputFields(input) {
+function hasNonTaprootFields(io) {
   return (
-    input &&
+    io &&
     !!(
-      input.redeemScript ||
-      input.witnessScript ||
-      (input.bip32Derivation && input.bip32Derivation.length)
+      io.redeemScript ||
+      io.witnessScript ||
+      (io.bip32Derivation && io.bip32Derivation.length)
     )
   );
 }

@@ -5,7 +5,7 @@ import { describe, it } from 'mocha';
 import { regtestUtils } from './_regtest';
 import * as bitcoin from '../..';
 import { Taptree } from '../../src/types';
-import { toXOnly } from '../../src/psbt/bip371';
+import { toXOnly, tapTreeToList } from '../../src/psbt/bip371';
 
 const rng = require('randombytes');
 const regtest = regtestUtils.network;
@@ -231,7 +231,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       redeemVersion: 192,
     };
 
-    const { output, address, witness } = bitcoin.payments.p2tr({
+    const { output, witness } = bitcoin.payments.p2tr({
       internalPubkey: toXOnly(internalKey.publicKey),
       scriptTree,
       redeem,
@@ -261,7 +261,19 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       ],
     });
 
-    psbt.addOutput({ value: sendAmount, address: address! });
+    const sendInternalKey = bip32.fromSeed(rng(64), regtest);
+    const sendPubKey = toXOnly(sendInternalKey.publicKey);
+    const { address: sendAddress } = bitcoin.payments.p2tr({
+      internalPubkey: sendPubKey,
+      scriptTree: scriptTree,
+      network: regtest,
+    });
+
+    psbt.addOutput({
+      value: sendAmount,
+      tapInternalKey: sendPubKey,
+      tapTree: { leaves: tapTreeToList(scriptTree) },
+    });
 
     psbt.signInput(0, leafKey);
     psbt.finalizeInput(0);
@@ -272,7 +284,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     await regtestUtils.broadcast(hex);
     await regtestUtils.verify({
       txId: tx.getId(),
-      address: address!,
+      address: sendAddress!,
       vout: 0,
       value: sendAmount,
     });

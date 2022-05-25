@@ -621,7 +621,8 @@ describe(`Psbt`, () => {
   describe('addOutput', () => {
     fixtures.addOutput.checks.forEach(f => {
       it(f.description, () => {
-        const psbt = new Psbt();
+        if (f.isTaproot) initEccLib(ecc);
+        const psbt = f.psbt ? Psbt.fromBase64(f.psbt) : new Psbt();
 
         if (f.exception) {
           assert.throws(() => {
@@ -634,6 +635,9 @@ describe(`Psbt`, () => {
           assert.doesNotThrow(() => {
             psbt.addOutput(f.outputData as any);
           });
+          if (f.result) {
+            assert.strictEqual(psbt.toBase64(), f.result);
+          }
           assert.doesNotThrow(() => {
             psbt.addOutputs([f.outputData as any]);
           });

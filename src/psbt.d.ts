@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, TapInternalKey, TapTree } from 'bip174/src/lib/interfaces';
 import { Network } from './networks';
 import { Transaction } from './transaction';
 export interface TransactionInput {
@@ -125,13 +125,19 @@ interface PsbtOptsOptional {
 }
 interface PsbtInputExtended extends PsbtInput, TransactionInput {
 }
-declare type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
+declare type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript | PsbtOutputExtendedTaproot;
 interface PsbtOutputExtendedAddress extends PsbtOutput {
     address: string;
     value: number;
 }
 interface PsbtOutputExtendedScript extends PsbtOutput {
     script: Buffer;
+    value: number;
+}
+interface PsbtOutputExtendedTaproot extends PsbtOutput {
+    tapInternalKey: TapInternalKey;
+    tapTree?: TapTree;
+    script?: Buffer;
     value: number;
 }
 interface HDSignerBase {

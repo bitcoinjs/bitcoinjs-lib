@@ -13,6 +13,8 @@ import {
   TransactionFromBuffer,
   TapKeySig,
   TapScriptSig,
+  TapInternalKey,
+  TapTree,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
 import { fromOutputScript, toOutputScript } from './address';
@@ -27,8 +29,11 @@ import {
   tapScriptFinalizer,
   serializeTaprootSignature,
   isTaprootInput,
+  isTaprootOutput,
   checkTaprootInputFields,
+  checkTaprootOutputFields,
   tweakInternalPubKey,
+  getNewTaprootScriptAndAddress,
 } from './psbt/bip371';
 import {
   witnessStackToScriptWitness,
@@ -311,11 +316,12 @@ export class Psbt {
       !outputData ||
       outputData.value === undefined ||
       ((outputData as any).address === undefined &&
-        (outputData as any).script === undefined)
+        (outputData as any).script === undefined &&
+        (outputData as any).tapInternalKey === undefined)
     ) {
       throw new Error(
         `Invalid arguments for Psbt.addOutput. ` +
-          `Requires single object with at least [script or address] and [value]`,
+          `Requires single object with at least [script, address or tapInternalKey] and [value]`,
       );
     }
     checkInputsForPartialSig(this.data.inputs, 'addOutput');
@@ -325,6 +331,18 @@ export class Psbt {
       const script = toOutputScript(address, network);
       outputData = Object.assign(outputData, { script });
     }
+
+    if (isTaprootOutput(outputData)) {
+      checkTaprootOutputFields(outputData, outputData, 'addOutput');
+      const scriptAndAddress = getNewTaprootScriptAndAddress(
+        outputData,
+        outputData,
+        this.opts.network,
+      );
+      if (scriptAndAddress)
+        outputData = Object.assign(outputData, scriptAndAddress);
+    }
+
     const c = this.__CACHE;
     this.data.addOutput(outputData);
     c.__FEE = undefined;
@@ -1147,7 +1165,10 @@ interface PsbtOpts {
 
 interface PsbtInputExtended extends PsbtInput, TransactionInput {}
 
-type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
+type PsbtOutputExtended =
+  | PsbtOutputExtendedAddress
+  | PsbtOutputExtendedScript
+  | PsbtOutputExtendedTaproot;
 
 interface PsbtOutputExtendedAddress extends PsbtOutput {
   address: string;
@@ -1156,6 +1177,13 @@ interface PsbtOutputExtendedAddress extends PsbtOutput {
 
 interface PsbtOutputExtendedScript extends PsbtOutput {
   script: Buffer;
+  value: number;
+}
+
+interface PsbtOutputExtendedTaproot extends PsbtOutput {
+  tapInternalKey: TapInternalKey;
+  tapTree?: TapTree;
+  script?: Buffer;
   value: number;
 }
 
@@ -1361,6 +1389,7 @@ function checkFees(psbt: Psbt, cache: PsbtCache, opts: PsbtOpts): void {
 }
 
 function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
+  // todo: add for taproot
   inputs.forEach(input => {
     let throws = false;
     let pSigs: PartialSig[] = [];
