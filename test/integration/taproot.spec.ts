@@ -322,7 +322,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       redeemVersion: 192,
     };
 
-    const { output, address, witness } = bitcoin.payments.p2tr({
+    const { output, witness } = bitcoin.payments.p2tr({
       internalPubkey: toXOnly(internalKey.publicKey),
       scriptTree,
       redeem,
@@ -352,7 +352,21 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
         },
       ],
     });
-    psbt.addOutput({ value: sendAmount, address: address! });
+
+    const sendInternalKey = bip32.fromSeed(rng(64), regtest);
+    const sendPubKey = toXOnly(sendInternalKey.publicKey);
+    const { address: sendAddress } = bitcoin.payments.p2tr({
+      internalPubkey: sendPubKey,
+      scriptTree: scriptTree,
+      network: regtest,
+    });
+
+    psbt.addOutput({ value: sendAmount, address: sendAddress! });
+    // just to test that updateOutput works as expected
+    psbt.updateOutput(0, {
+      tapInternalKey: sendPubKey,
+      tapTree: { leaves: tapTreeToList(scriptTree) },
+    });
 
     await psbt.signInputAsync(0, leafKey);
 
@@ -376,7 +390,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     await regtestUtils.broadcast(hex);
     await regtestUtils.verify({
       txId: tx.getId(),
-      address: address!,
+      address: sendAddress!,
       vout: 0,
       value: sendAmount,
     });

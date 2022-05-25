@@ -884,8 +884,12 @@ class Psbt {
     return this;
   }
   updateOutput(outputIndex, updateData) {
-    // const outputData = this.data.outputs[outputIndex];
-    // checkTaprootOutputFields(outputData, updateData, 'updateOutput');
+    const outputData = this.data.outputs[outputIndex];
+    (0, bip371_1.checkTaprootOutputFields)(
+      outputData,
+      updateData,
+      'updateOutput',
+    );
     this.data.updateOutput(outputIndex, updateData);
     return this;
   }

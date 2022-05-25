@@ -132,6 +132,7 @@ describe(`Psbt`, () => {
 
     fixtures.bip174.updater.forEach(f => {
       it('Updates PSBT to the expected result', () => {
+        if (f.isTaproot) initEccLib(ecc);
         const psbt = Psbt.fromBase64(f.psbt);
 
         for (const inputOrOutput of ['input', 'output']) {

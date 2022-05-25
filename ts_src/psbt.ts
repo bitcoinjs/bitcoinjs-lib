@@ -1102,8 +1102,8 @@ export class Psbt {
   }
 
   updateOutput(outputIndex: number, updateData: PsbtOutputUpdate): this {
-    // const outputData = this.data.outputs[outputIndex];
-    // checkTaprootOutputFields(outputData, updateData, 'updateOutput');
+    const outputData = this.data.outputs[outputIndex];
+    checkTaprootOutputFields(outputData, updateData, 'updateOutput');
 
     this.data.updateOutput(outputIndex, updateData);
     return this;
