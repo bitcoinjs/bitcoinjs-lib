@@ -22,7 +22,6 @@ import {
   MAX_TAPTREE_DEPTH,
 } from '../payments/taprootutils';
 import { p2tr } from '../payments';
-import { Network } from '../networks';
 
 export const toXOnly = (pubKey: Buffer) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
@@ -109,42 +108,37 @@ export function checkTaprootOutputFields(
   action: string,
 ): void {
   checkMixedTaprootAndNonTaprootOutputFields(outputData, newOutputData, action);
+  checkTaprootScriptPubkey(outputData, newOutputData);
 }
 
-export function getNewTaprootScriptAndAddress(
+function checkTaprootScriptPubkey(
   outputData: PsbtOutput,
   newOutputData: PsbtOutput,
-  network?: Network,
-): { script: Buffer; address: string } | undefined {
+): void {
   if (!newOutputData.tapTree && !newOutputData.tapInternalKey) return;
+
   const tapInternalKey =
     newOutputData.tapInternalKey || outputData.tapInternalKey;
   const tapTree = newOutputData.tapTree || outputData.tapTree;
+
   if (tapInternalKey) {
-    const { script, address } = getTaprootScriptAndAddress(
-      tapInternalKey,
-      tapTree,
-      network,
-    );
-    const { script: newScript } = newOutputData as any;
-    if (newScript && !newScript.equals(script))
+    const { script: scriptPubkey } = outputData as any;
+    const script = getTaprootScripPubkey(tapInternalKey, tapTree);
+    if (scriptPubkey && !scriptPubkey.equals(script))
       throw new Error('Error adding output. Script or address missmatch.');
-    return { script, address };
   }
 }
 
-function getTaprootScriptAndAddress(
+function getTaprootScripPubkey(
   tapInternalKey: TapInternalKey,
   tapTree?: TapTree,
-  network?: Network,
-): { script: Buffer; address: string } {
+): Buffer {
   const scriptTree = tapTree && tapTreeFromList(tapTree.leaves);
-  const { output, address } = p2tr({
+  const { output } = p2tr({
     internalPubkey: tapInternalKey,
     scriptTree,
-    network,
   });
-  return { script: output!, address: address! };
+  return output!;
 }
 
 export function tweakInternalPubKey(

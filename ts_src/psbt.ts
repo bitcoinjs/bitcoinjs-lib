@@ -13,8 +13,6 @@ import {
   TransactionFromBuffer,
   TapKeySig,
   TapScriptSig,
-  TapInternalKey,
-  TapTree,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
 import { fromOutputScript, toOutputScript } from './address';
@@ -29,11 +27,9 @@ import {
   tapScriptFinalizer,
   serializeTaprootSignature,
   isTaprootInput,
-  isTaprootOutput,
   checkTaprootInputFields,
   checkTaprootOutputFields,
   tweakInternalPubKey,
-  getNewTaprootScriptAndAddress,
 } from './psbt/bip371';
 import {
   witnessStackToScriptWitness,
@@ -316,12 +312,11 @@ export class Psbt {
       !outputData ||
       outputData.value === undefined ||
       ((outputData as any).address === undefined &&
-        (outputData as any).script === undefined &&
-        (outputData as any).tapInternalKey === undefined)
+        (outputData as any).script === undefined)
     ) {
       throw new Error(
         `Invalid arguments for Psbt.addOutput. ` +
-          `Requires single object with at least [script, address or tapInternalKey] and [value]`,
+          `Requires single object with at least [script or address] and [value]`,
       );
     }
     checkInputsForPartialSig(this.data.inputs, 'addOutput');
@@ -331,17 +326,7 @@ export class Psbt {
       const script = toOutputScript(address, network);
       outputData = Object.assign(outputData, { script });
     }
-
-    if (isTaprootOutput(outputData)) {
-      checkTaprootOutputFields(outputData, outputData, 'addOutput');
-      const scriptAndAddress = getNewTaprootScriptAndAddress(
-        outputData,
-        outputData,
-        this.opts.network,
-      );
-      if (scriptAndAddress)
-        outputData = Object.assign(outputData, scriptAndAddress);
-    }
+    checkTaprootOutputFields(outputData, outputData, 'addOutput');
 
     const c = this.__CACHE;
     this.data.addOutput(outputData);
@@ -1117,6 +1102,9 @@ export class Psbt {
   }
 
   updateOutput(outputIndex: number, updateData: PsbtOutputUpdate): this {
+    // const outputData = this.data.outputs[outputIndex];
+    // checkTaprootOutputFields(outputData, updateData, 'updateOutput');
+
     this.data.updateOutput(outputIndex, updateData);
     return this;
   }
@@ -1165,10 +1153,7 @@ interface PsbtOpts {
 
 interface PsbtInputExtended extends PsbtInput, TransactionInput {}
 
-type PsbtOutputExtended =
-  | PsbtOutputExtendedAddress
-  | PsbtOutputExtendedScript
-  | PsbtOutputExtendedTaproot;
+type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
 
 interface PsbtOutputExtendedAddress extends PsbtOutput {
   address: string;
@@ -1177,13 +1162,6 @@ interface PsbtOutputExtendedAddress extends PsbtOutput {
 
 interface PsbtOutputExtendedScript extends PsbtOutput {
   script: Buffer;
-  value: number;
-}
-
-interface PsbtOutputExtendedTaproot extends PsbtOutput {
-  tapInternalKey: TapInternalKey;
-  tapTree?: TapTree;
-  script?: Buffer;
   value: number;
 }
 

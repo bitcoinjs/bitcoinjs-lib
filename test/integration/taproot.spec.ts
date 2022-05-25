@@ -93,6 +93,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
 
     psbt.addOutput({
       value: sendAmount,
+      address: sendAddress!,
       tapInternalKey: sendPubKey,
     });
 
@@ -271,6 +272,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
 
     psbt.addOutput({
       value: sendAmount,
+      address: sendAddress!,
       tapInternalKey: sendPubKey,
       tapTree: { leaves: tapTreeToList(scriptTree) },
     });

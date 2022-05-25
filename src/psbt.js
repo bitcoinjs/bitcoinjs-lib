@@ -226,13 +226,11 @@ class Psbt {
       arguments.length > 1 ||
       !outputData ||
       outputData.value === undefined ||
-      (outputData.address === undefined &&
-        outputData.script === undefined &&
-        outputData.tapInternalKey === undefined)
+      (outputData.address === undefined && outputData.script === undefined)
     ) {
       throw new Error(
         `Invalid arguments for Psbt.addOutput. ` +
-          `Requires single object with at least [script, address or tapInternalKey] and [value]`,
+          `Requires single object with at least [script or address] and [value]`,
       );
     }
     checkInputsForPartialSig(this.data.inputs, 'addOutput');
@@ -242,20 +240,7 @@ class Psbt {
       const script = (0, address_1.toOutputScript)(address, network);
       outputData = Object.assign(outputData, { script });
     }
-    if ((0, bip371_1.isTaprootOutput)(outputData)) {
-      (0, bip371_1.checkTaprootOutputFields)(
-        outputData,
-        outputData,
-        'addOutput',
-      );
-      const scriptAndAddress = (0, bip371_1.getNewTaprootScriptAndAddress)(
-        outputData,
-        outputData,
-        this.opts.network,
-      );
-      if (scriptAndAddress)
-        outputData = Object.assign(outputData, scriptAndAddress);
-    }
+    (0, bip371_1.checkTaprootOutputFields)(outputData, outputData, 'addOutput');
     const c = this.__CACHE;
     this.data.addOutput(outputData);
     c.__FEE = undefined;
@@ -899,6 +884,8 @@ class Psbt {
     return this;
   }
   updateOutput(outputIndex, updateData) {
+    // const outputData = this.data.outputs[outputIndex];
+    // checkTaprootOutputFields(outputData, updateData, 'updateOutput');
     this.data.updateOutput(outputIndex, updateData);
     return this;
   }

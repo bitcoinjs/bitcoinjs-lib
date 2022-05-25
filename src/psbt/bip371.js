@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tapTreeFromList = exports.tapTreeToList = exports.tweakInternalPubKey = exports.getNewTaprootScriptAndAddress = exports.checkTaprootOutputFields = exports.checkTaprootInputFields = exports.isTaprootOutput = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
+exports.tapTreeFromList = exports.tapTreeToList = exports.tweakInternalPubKey = exports.checkTaprootOutputFields = exports.checkTaprootInputFields = exports.isTaprootOutput = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
 const types_1 = require('../types');
 const psbtutils_1 = require('./psbtutils');
 const taprootutils_1 = require('../payments/taprootutils');
@@ -72,34 +72,28 @@ function checkTaprootInputFields(inputData, newInputData, action) {
 exports.checkTaprootInputFields = checkTaprootInputFields;
 function checkTaprootOutputFields(outputData, newOutputData, action) {
   checkMixedTaprootAndNonTaprootOutputFields(outputData, newOutputData, action);
+  checkTaprootScriptPubkey(outputData, newOutputData);
 }
 exports.checkTaprootOutputFields = checkTaprootOutputFields;
-function getNewTaprootScriptAndAddress(outputData, newOutputData, network) {
+function checkTaprootScriptPubkey(outputData, newOutputData) {
   if (!newOutputData.tapTree && !newOutputData.tapInternalKey) return;
   const tapInternalKey =
     newOutputData.tapInternalKey || outputData.tapInternalKey;
   const tapTree = newOutputData.tapTree || outputData.tapTree;
   if (tapInternalKey) {
-    const { script, address } = getTaprootScriptAndAddress(
-      tapInternalKey,
-      tapTree,
-      network,
-    );
-    const { script: newScript } = newOutputData;
-    if (newScript && !newScript.equals(script))
+    const { script: scriptPubkey } = outputData;
+    const script = getTaprootScripPubkey(tapInternalKey, tapTree);
+    if (scriptPubkey && !scriptPubkey.equals(script))
       throw new Error('Error adding output. Script or address missmatch.');
-    return { script, address };
   }
 }
-exports.getNewTaprootScriptAndAddress = getNewTaprootScriptAndAddress;
-function getTaprootScriptAndAddress(tapInternalKey, tapTree, network) {
+function getTaprootScripPubkey(tapInternalKey, tapTree) {
   const scriptTree = tapTree && tapTreeFromList(tapTree.leaves);
-  const { output, address } = (0, payments_1.p2tr)({
+  const { output } = (0, payments_1.p2tr)({
     internalPubkey: tapInternalKey,
     scriptTree,
-    network,
   });
-  return { script: output, address: address };
+  return output;
 }
 function tweakInternalPubKey(inputIndex, input) {
   const tapInternalKey = input.tapInternalKey;
