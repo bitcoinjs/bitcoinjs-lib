@@ -188,7 +188,7 @@ export function from(path: string, object: any, result?: any): any {
 
 export function convertScriptTree(scriptTree: any, leafVersion?: number): any {
   if (Array.isArray(scriptTree))
-    return scriptTree.map(t => convertScriptTree(t, leafVersion));
+    return scriptTree.map(tr => convertScriptTree(tr, leafVersion));
 
   const script = Object.assign({}, scriptTree);
   if (typeof script.output === 'string') {

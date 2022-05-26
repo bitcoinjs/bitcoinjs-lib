@@ -269,7 +269,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     const sendPubKey = toXOnly(sendInternalKey.publicKey);
     const { address: sendAddress } = bitcoin.payments.p2tr({
       internalPubkey: sendPubKey,
-      scriptTree: scriptTree,
+      scriptTree,
       network: regtest,
     });
 
@@ -360,7 +360,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     const sendPubKey = toXOnly(sendInternalKey.publicKey);
     const { address: sendAddress } = bitcoin.payments.p2tr({
       internalPubkey: sendPubKey,
-      scriptTree: scriptTree,
+      scriptTree,
       network: regtest,
     });
 
@@ -566,7 +566,13 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
 function buildLeafIndexFinalizer(
   tapLeafScript: TapLeafScript,
   leafIndex: number,
-) {
+): (
+  inputIndex: number,
+  _input: PsbtInput,
+  _tapLeafHashToFinalize?: Buffer,
+) => {
+  finalScriptWitness: Buffer | undefined;
+} {
   return (
     inputIndex: number,
     _input: PsbtInput,
