@@ -576,7 +576,8 @@ function buildLeafIndexFinalizer(
   } => {
     try {
       const scriptSolution = [
-        bitcoin.script.fromASM(`OP_${leafIndex} OP_${leafIndex}`),
+        Buffer.from([leafIndex]),
+        Buffer.from([leafIndex]),
       ];
       const witness = scriptSolution
         .concat(tapLeafScript.script)
