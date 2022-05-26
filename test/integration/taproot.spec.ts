@@ -2,10 +2,13 @@ import BIP32Factory from 'bip32';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
+import { PsbtInput, TapLeafScript } from 'bip174/src/lib/interfaces';
 import { regtestUtils } from './_regtest';
 import * as bitcoin from '../..';
 import { Taptree } from '../../src/types';
-import { toXOnly, tapTreeToList } from '../../src/psbt/bip371';
+import { toXOnly, tapTreeToList, tapTreeFromList } from '../../src/psbt/bip371';
+import { witnessStackToScriptWitness } from '../../src/psbt/psbtutils';
+import { TapLeaf } from 'bip174/src/lib/interfaces';
 
 const rng = require('randombytes');
 const regtest = regtestUtils.network;
@@ -485,7 +488,111 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       value: sendAmount,
     });
   });
+
+  it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - custom finalizer', async () => {
+   
+
+    const leafCount = 8;
+    const leaves = Array.from({ length: leafCount }).map(
+      (_, index) =>
+        ({
+          depth: 3,
+          leafVersion: 192,
+          script: bitcoin.script.fromASM(`OP_ADD OP_${index * 2} OP_EQUAL`),
+        } as TapLeaf),
+    );
+    const scriptTree = tapTreeFromList(leaves);
+
+    for (let leafIndex = 1; leafIndex < leafCount; leafIndex++) {
+      const redeem = {
+        output: bitcoin.script.fromASM(`OP_ADD OP_${leafIndex * 2} OP_EQUAL`),
+        redeemVersion: 192,
+      };
+
+      const internalKey = bip32.fromSeed(rng(64), regtest);
+      const { output, witness } = bitcoin.payments.p2tr({
+        internalPubkey: toXOnly(internalKey.publicKey),
+        scriptTree,
+        redeem,
+        network: regtest,
+      });
+
+
+      // amount from faucet
+      const amount = 42e4;
+      // amount to send
+      const sendAmount = amount - 1e4;
+      // get faucet
+      const unspent = await regtestUtils.faucetComplex(output!, amount);
+
+      const psbt = new bitcoin.Psbt({ network: regtest });
+      psbt.addInput({
+        hash: unspent.txId,
+        index: 0,
+        witnessUtxo: { value: amount, script: output! },
+      });
+
+      const tapLeafScript: TapLeafScript = {
+        leafVersion: redeem.redeemVersion,
+        script: redeem.output,
+        controlBlock: witness![witness!.length - 1],
+      };
+      psbt.updateInput(0, { tapLeafScript: [tapLeafScript] });
+
+      const sendAddress =
+        'bcrt1pqknex3jwpsaatu5e5dcjw70nac3fr5k5y3hcxr4hgg6rljzp59nqs6a0vh';
+      psbt.addOutput({
+        value: sendAmount,
+        address: sendAddress,
+      });
+
+      const leafIndexFinalizerFn = buildLeafIndexFinalizer(
+        tapLeafScript,
+        leafIndex,
+      );
+      psbt.finalizeInput(0, leafIndexFinalizerFn);
+      console.log('### psbt finalized', psbt.toBase64());
+      const tx = psbt.extractTransaction();
+      const rawTx = tx.toBuffer();
+      const hex = rawTx.toString('hex');
+
+      console.log('### hex', hex)
+      await regtestUtils.broadcast(hex);
+      console.log('### verify')
+      await regtestUtils.verify({
+        txId: tx.getId(),
+        address: sendAddress!,
+        vout: 0,
+        value: sendAmount,
+      });
+    }
+  });
 });
+
+function buildLeafIndexFinalizer(
+  tapLeafScript: TapLeafScript,
+  leafIndex: number,
+) {
+  return (
+    inputIndex: number,
+    _input: PsbtInput,
+    _tapLeafHashToFinalize?: Buffer,
+  ): {
+    finalScriptWitness: Buffer | undefined;
+  } => {
+    try {
+      const scriptSolution = [
+        bitcoin.script.fromASM(`OP_${leafIndex} OP_${leafIndex}`),
+      ];
+      const witness = scriptSolution
+        .concat(tapLeafScript.script)
+        .concat(tapLeafScript.controlBlock);
+      return { finalScriptWitness: witnessStackToScriptWitness(witness) };
+    } catch (err) {
+      throw new Error(`Can not finalize taproot input #${inputIndex}: ${err}`);
+    }
+  };
+}
 
 // Order of the curve (N) - 1
 const N_LESS_1 = Buffer.from(
