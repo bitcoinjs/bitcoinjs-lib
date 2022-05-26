@@ -628,6 +628,36 @@
           "redeemScript": "Buffer.from('5221029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f2102dab61ff49a14db6a7d02b0cd1fbb78fc4b18312b5b4e54dae4dba2fbfef536d752ae', 'hex')"
         },
         "exception": "Invalid arguments for Psbt.addOutput. Cannot use both taproot and non-taproot fields."
+      },
+      {
+        "description": "Adds output after tapkey signature has been added",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAIcCAAAAAvz6EyMK2VQ0DFKWZyIyGZLZCnaIDtG5RI55OrGVs6u7AAAAAAD/////oB9A2l2NN5WPNjBDaRsz9Nmla1WdM3jl96ElSV5WWHMAAAAAAP////8BkEEGAAAAAAAiUSCnucwjGG2x9zGqP+E0PwxTkptd/9AYMW12ch7ffaogBAAAAAAAAQEroGgGAAAAAAAiUSDbRhL5phuWYLyqKbSqVb/Pic2mpPL46idVKQur9i06ugETQOPidQWL9dHDxd819Pn5QNNGyH0fmDv58pexSJVDalZ0W/HPVliPFZy7s//0TfTbvFce87/nKXcrwz5YuItIY6cBFyAOgJIoTQyYcpAqNfsK9CutgWckFE3mBMgpL50lKXb7oQABAL8CAAAAAcdkwPNWdYy1O8QM1xRkrJjas72QGQPEanYEpv6iT3PXAAAAAGpHMEQCIFpl6Nx8hoZA1o5Huo958RS/Hndy+DloLhp0nvRyBzN8AiB9jEbitThSs6TZ1XVBHZebj4nZbLMg3CCtss8WSZpv7QEhA+VxIxwCWeqoeDMYcEw3EC0ZPxIkOqt0YSK9Y3hAKTd1/////wGgaAYAAAAAABl2qRS9gA7n636cw49cUBJWm7IDJPKuuoisAAAAACICAknGKVC7w5Ek4l3IK5XCUwLNCeU4DD+76cdMAYDB72g3RzBEAiAjekFbBddaHY/LZidwKd3sBbifjmbEpka2Ps0B2Crg+wIgUoN4BhGCwMRTDaHbAX+0MXSGYA9nSlqeQJXpWQRCBfQBAAEFIE6DvlLK0f4BrtpMgez01WQYKLUQZ8HtbfuDPD52hmSvAA==",
+        "outputData": {
+          "address": "bc1px4ssshedlz4jc56ses3lftz462a06jwy8my4pwpx6twx30vvv6nsgwcpu3",
+          "value": 410000
+        },
+        "exception": "Can not modify transaction, signatures exist."
+      },
+      {
+        "description": "Adds output after tapkey spend input has been finalized",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAF4CAAAAAfyhtBTm+3OPYBuMHvdPMf9jqniZDY925hbmnt8hxbA6AAAAAAD/////AZBBBgAAAAAAIlEgV6CyzSs5a6Tc8A+TYOiozWnh6FRH9E/VWFanhMAEbLEAAAAAAAEBK6BoBgAAAAAAIlEgV6CyzSs5a6Tc8A+TYOiozWnh6FRH9E/VWFanhMAEbLEBCEIBQOAqWBD/2jhPWzQvesT8sjkN2Cowphp3QvmlWbHiLx753ChcUovvWyBlWiCq77Kk+lZGEhC4vjClSjc26br+dc8AAA==",
+        "outputData": {
+          "address": "bc1px4ssshedlz4jc56ses3lftz462a06jwy8my4pwpx6twx30vvv6nsgwcpu3",
+          "value": 410000
+        },
+        "exception": "Can not modify transaction, signatures exist."
+      },
+      {
+        "description": "Adds output after tapscript signatures have been added",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAF4CAAAAAa/0mhnSBXdEBKbbMC+2hm6AZZtCLBxBeubd1sjtau5dAAAAAAD/////AZBBBgAAAAAAIlEgISRIfamb9rCYzad52ikfoUUuFlvyTcImZMavR0jEaUQAAAAAAAEBK6BoBgAAAAAAIlEgISRIfamb9rCYzad52ikfoUUuFlvyTcImZMavR0jEaURBFBnEcOpwiHjNYPtWJOrQ8Pgc9bxBKyZh/i2D837Z1rC8BibL1C4Z/5e6dKzWfkzpsIbE5WEVn1bYpAAjrqIKMHlAKkl3w3Gfpkl9b0yDVbTlZd4yCEL9V2DJs6zpPrEmn3wiohBy8wwE6EZ0FxQdrCupnHKXhHBjpcHVwfJRQfcy9EEULx1ijisiHgGb/9/hBNhsIOv1ZyWsfmi/Ql+oz7AOuqAGJsvULhn/l7p0rNZ+TOmwhsTlYRWfVtikACOuogoweUBKNkxBf6vT8m7ISt1WikLWW9udCP7OQLXztr1IPalJT5z+esAWmgeLS7QoLgzTu8AnYp/rHxsgZ6CgiV8tlkciQRRXE7VxCk67h7Ee6CbSgNyotChx7CgwNTfxdJkyvCS0DgYmy9QuGf+XunSs1n5M6bCGxOVhFZ9W2KQAI66iCjB5QFN6DGtLlSIFBjZbdh3rbKBtBcEDSiEcuVxnSPpdM1RnQRmw5Ujo+/76wZfmGBMFzV0IA7vnHzzXN73jT6O8/wJiFcDBdB6IhNxYUBYgZT1K7FG5SblQ3S6nQMKRLc2vPcA0BhpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdZpIFcTtXEKTruHsR7oJtKA3Ki0KHHsKDA1N/F0mTK8JLQOrCAvHWKOKyIeAZv/3+EE2Gwg6/VnJax+aL9CX6jPsA66oLogGcRw6nCIeM1g+1Yk6tDw+Bz1vEErJmH+LYPzftnWsLy6U5zAAAA=",
+        "outputData": {
+          "address": "bc1px4ssshedlz4jc56ses3lftz462a06jwy8my4pwpx6twx30vvv6nsgwcpu3",
+          "value": 410000
+        },
+        "exception": "Can not modify transaction, signatures exist."
       }
     ]
   },

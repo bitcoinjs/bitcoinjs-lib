@@ -1035,40 +1035,80 @@ function checkFees(psbt, cache, opts) {
   }
 }
 function checkInputsForPartialSig(inputs, action) {
-  // todo: add for taproot
   inputs.forEach(input => {
-    let throws = false;
-    let pSigs = [];
-    if ((input.partialSig || []).length === 0) {
-      if (!input.finalScriptSig && !input.finalScriptWitness) return;
-      pSigs = getPsigsFromInputFinalScripts(input);
-    } else {
-      pSigs = input.partialSig;
-    }
-    pSigs.forEach(pSig => {
-      const { hashType } = bscript.signature.decode(pSig.signature);
-      const whitelist = [];
-      const isAnyoneCanPay =
-        hashType & transaction_1.Transaction.SIGHASH_ANYONECANPAY;
-      if (isAnyoneCanPay) whitelist.push('addInput');
-      const hashMod = hashType & 0x1f;
-      switch (hashMod) {
-        case transaction_1.Transaction.SIGHASH_ALL:
-          break;
-        case transaction_1.Transaction.SIGHASH_SINGLE:
-        case transaction_1.Transaction.SIGHASH_NONE:
-          whitelist.push('addOutput');
-          whitelist.push('setInputSequence');
-          break;
-      }
-      if (whitelist.indexOf(action) === -1) {
-        throws = true;
-      }
-    });
-    if (throws) {
+    const throws = (0, bip371_1.isTaprootInput)(input)
+      ? checkTaprootInputForSigs(input, action)
+      : checkInputForSig(input, action);
+    if (throws)
       throw new Error('Can not modify transaction, signatures exist.');
-    }
   });
+}
+function checkInputForSig(input, action) {
+  const pSigs = extractPartialSigs(input);
+  return pSigs.some(pSig =>
+    signatureBlocksAction(pSig, bscript.signature.decode, action),
+  );
+}
+function checkTaprootInputForSigs(input, action) {
+  const sigs = extractTaprootSigs(input);
+  return sigs.some(sig =>
+    signatureBlocksAction(sig, decodeSchnorSignature, action),
+  );
+}
+function decodeSchnorSignature(signature) {
+  return {
+    signature: signature.slice(0, 64),
+    hashType:
+      signature.slice(64)[0] || transaction_1.Transaction.SIGHASH_DEFAULT,
+  };
+}
+function extractTaprootSigs(input) {
+  const sigs = [];
+  if (input.tapKeySig) sigs.push(input.tapKeySig);
+  if (input.tapScriptSig)
+    sigs.push(...input.tapScriptSig.map(s => s.signature));
+  if (!sigs.length) {
+    const finalTapKeySig = getTapKeySigFromWithness(input.finalScriptWitness);
+    if (finalTapKeySig) sigs.push(finalTapKeySig);
+  }
+  return sigs;
+}
+function getTapKeySigFromWithness(finalScriptWitness) {
+  if (!finalScriptWitness) return;
+  const witness = finalScriptWitness.slice(2);
+  // todo: add schnor signature validation
+  if (witness.length === 64 || witness.length === 65) return witness;
+}
+function extractPartialSigs(input) {
+  let pSigs = [];
+  if ((input.partialSig || []).length === 0) {
+    if (!input.finalScriptSig && !input.finalScriptWitness) return [];
+    pSigs = getPsigsFromInputFinalScripts(input);
+  } else {
+    pSigs = input.partialSig;
+  }
+  return pSigs.map(p => p.signature);
+}
+function signatureBlocksAction(signature, signatureDecodeFn, action) {
+  const { hashType } = signatureDecodeFn(signature);
+  const whitelist = [];
+  const isAnyoneCanPay =
+    hashType & transaction_1.Transaction.SIGHASH_ANYONECANPAY;
+  if (isAnyoneCanPay) whitelist.push('addInput');
+  const hashMod = hashType & 0x1f;
+  switch (hashMod) {
+    case transaction_1.Transaction.SIGHASH_ALL:
+      break;
+    case transaction_1.Transaction.SIGHASH_SINGLE:
+    case transaction_1.Transaction.SIGHASH_NONE:
+      whitelist.push('addOutput');
+      whitelist.push('setInputSequence');
+      break;
+  }
+  if (whitelist.indexOf(action) === -1) {
+    return true;
+  }
+  return false;
 }
 function checkPartialSigSighashes(input) {
   if (!input.sighashType || !input.partialSig) return;
