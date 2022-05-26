@@ -30,9 +30,11 @@ import {
   checkTaprootInputFields,
   checkTaprootOutputFields,
   tweakInternalPubKey,
+  checkTaprootInputForSigs,
 } from './psbt/bip371';
 import {
   witnessStackToScriptWitness,
+  checkInputForSig,
   pubkeyInScript,
   isP2MS,
   isP2PK,
@@ -1376,96 +1378,6 @@ function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
   });
 }
 
-function checkInputForSig(input: PsbtInput, action: string): boolean {
-  const pSigs = extractPartialSigs(input);
-  return pSigs.some(pSig =>
-    signatureBlocksAction(pSig, bscript.signature.decode, action),
-  );
-}
-
-function checkTaprootInputForSigs(input: PsbtInput, action: string): boolean {
-  const sigs = extractTaprootSigs(input);
-  return sigs.some(sig =>
-    signatureBlocksAction(sig, decodeSchnorSignature, action),
-  );
-}
-
-function decodeSchnorSignature(
-  signature: Buffer,
-): {
-  signature: Buffer;
-  hashType: number;
-} {
-  return {
-    signature: signature.slice(0, 64),
-    hashType: signature.slice(64)[0] || Transaction.SIGHASH_DEFAULT,
-  };
-}
-
-function extractTaprootSigs(input: PsbtInput): Buffer[] {
-  const sigs: Buffer[] = [];
-  if (input.tapKeySig) sigs.push(input.tapKeySig);
-  if (input.tapScriptSig)
-    sigs.push(...input.tapScriptSig.map(s => s.signature));
-  if (!sigs.length) {
-    const finalTapKeySig = getTapKeySigFromWithness(input.finalScriptWitness);
-    if (finalTapKeySig) sigs.push(finalTapKeySig);
-  }
-
-  return sigs;
-}
-
-function getTapKeySigFromWithness(
-  finalScriptWitness?: Buffer,
-): Buffer | undefined {
-  if (!finalScriptWitness) return;
-  const witness = finalScriptWitness.slice(2);
-  // todo: add schnor signature validation
-  if (witness.length === 64 || witness.length === 65) return witness;
-}
-
-function extractPartialSigs(input: PsbtInput): Buffer[] {
-  let pSigs: PartialSig[] = [];
-  if ((input.partialSig || []).length === 0) {
-    if (!input.finalScriptSig && !input.finalScriptWitness) return [];
-    pSigs = getPsigsFromInputFinalScripts(input);
-  } else {
-    pSigs = input.partialSig!;
-  }
-  return pSigs.map(p => p.signature);
-}
-
-type SignatureDecodeFunc = (
-  buffer: Buffer,
-) => {
-  signature: Buffer;
-  hashType: number;
-};
-function signatureBlocksAction(
-  signature: Buffer,
-  signatureDecodeFn: SignatureDecodeFunc,
-  action: string,
-): boolean {
-  const { hashType } = signatureDecodeFn(signature);
-  const whitelist: string[] = [];
-  const isAnyoneCanPay = hashType & Transaction.SIGHASH_ANYONECANPAY;
-  if (isAnyoneCanPay) whitelist.push('addInput');
-  const hashMod = hashType & 0x1f;
-  switch (hashMod) {
-    case Transaction.SIGHASH_ALL:
-      break;
-    case Transaction.SIGHASH_SINGLE:
-    case Transaction.SIGHASH_NONE:
-      whitelist.push('addOutput');
-      whitelist.push('setInputSequence');
-      break;
-  }
-  if (whitelist.indexOf(action) === -1) {
-    return true;
-  }
-  return false;
-}
-
 function checkPartialSigSighashes(input: PsbtInput): void {
   if (!input.sighashType || !input.partialSig) return;
   const { partialSig, sighashType } = input;
@@ -1924,21 +1836,6 @@ function getPayment(
       break;
   }
   return payment!;
-}
-
-function getPsigsFromInputFinalScripts(input: PsbtInput): PartialSig[] {
-  const scriptItems = !input.finalScriptSig
-    ? []
-    : bscript.decompile(input.finalScriptSig) || [];
-  const witnessItems = !input.finalScriptWitness
-    ? []
-    : bscript.decompile(input.finalScriptWitness) || [];
-  return scriptItems
-    .concat(witnessItems)
-    .filter(item => {
-      return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
-    })
-    .map(sig => ({ signature: sig })) as PartialSig[];
 }
 
 interface GetScriptReturn {

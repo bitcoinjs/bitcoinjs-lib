@@ -1,5 +1,7 @@
 import * as varuint from 'bip174/src/lib/converter/varint';
+import { PartialSig, PsbtInput } from 'bip174/src/lib/interfaces';
 import * as bscript from '../script';
+import { Transaction } from '../transaction';
 import { hash160 } from '../crypto';
 import * as payments from '../payments';
 
@@ -70,4 +72,68 @@ export function pubkeyPositionInScript(pubkey: Buffer, script: Buffer): number {
 
 export function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean {
   return pubkeyPositionInScript(pubkey, script) !== -1;
+}
+
+export function checkInputForSig(input: PsbtInput, action: string): boolean {
+  const pSigs = extractPartialSigs(input);
+  return pSigs.some(pSig =>
+    signatureBlocksAction(pSig, bscript.signature.decode, action),
+  );
+}
+
+type SignatureDecodeFunc = (
+  buffer: Buffer,
+) => {
+  signature: Buffer;
+  hashType: number;
+};
+export function signatureBlocksAction(
+  signature: Buffer,
+  signatureDecodeFn: SignatureDecodeFunc,
+  action: string,
+): boolean {
+  const { hashType } = signatureDecodeFn(signature);
+  const whitelist: string[] = [];
+  const isAnyoneCanPay = hashType & Transaction.SIGHASH_ANYONECANPAY;
+  if (isAnyoneCanPay) whitelist.push('addInput');
+  const hashMod = hashType & 0x1f;
+  switch (hashMod) {
+    case Transaction.SIGHASH_ALL:
+      break;
+    case Transaction.SIGHASH_SINGLE:
+    case Transaction.SIGHASH_NONE:
+      whitelist.push('addOutput');
+      whitelist.push('setInputSequence');
+      break;
+  }
+  if (whitelist.indexOf(action) === -1) {
+    return true;
+  }
+  return false;
+}
+
+function extractPartialSigs(input: PsbtInput): Buffer[] {
+  let pSigs: PartialSig[] = [];
+  if ((input.partialSig || []).length === 0) {
+    if (!input.finalScriptSig && !input.finalScriptWitness) return [];
+    pSigs = getPsigsFromInputFinalScripts(input);
+  } else {
+    pSigs = input.partialSig!;
+  }
+  return pSigs.map(p => p.signature);
+}
+
+function getPsigsFromInputFinalScripts(input: PsbtInput): PartialSig[] {
+  const scriptItems = !input.finalScriptSig
+    ? []
+    : bscript.decompile(input.finalScriptSig) || [];
+  const witnessItems = !input.finalScriptWitness
+    ? []
+    : bscript.decompile(input.finalScriptWitness) || [];
+  return scriptItems
+    .concat(witnessItems)
+    .filter(item => {
+      return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
+    })
+    .map(sig => ({ signature: sig })) as PartialSig[];
 }

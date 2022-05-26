@@ -1,8 +1,9 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.pubkeyInScript = exports.pubkeyPositionInScript = exports.witnessStackToScriptWitness = exports.isP2TR = exports.isP2SHScript = exports.isP2WSHScript = exports.isP2WPKH = exports.isP2PKH = exports.isP2PK = exports.isP2MS = void 0;
+exports.signatureBlocksAction = exports.checkInputForSig = exports.pubkeyInScript = exports.pubkeyPositionInScript = exports.witnessStackToScriptWitness = exports.isP2TR = exports.isP2SHScript = exports.isP2WSHScript = exports.isP2WPKH = exports.isP2PKH = exports.isP2PK = exports.isP2MS = void 0;
 const varuint = require('bip174/src/lib/converter/varint');
 const bscript = require('../script');
+const transaction_1 = require('../transaction');
 const crypto_1 = require('../crypto');
 const payments = require('../payments');
 function isPaymentFactory(payment) {
@@ -64,3 +65,56 @@ function pubkeyInScript(pubkey, script) {
   return pubkeyPositionInScript(pubkey, script) !== -1;
 }
 exports.pubkeyInScript = pubkeyInScript;
+function checkInputForSig(input, action) {
+  const pSigs = extractPartialSigs(input);
+  return pSigs.some(pSig =>
+    signatureBlocksAction(pSig, bscript.signature.decode, action),
+  );
+}
+exports.checkInputForSig = checkInputForSig;
+function signatureBlocksAction(signature, signatureDecodeFn, action) {
+  const { hashType } = signatureDecodeFn(signature);
+  const whitelist = [];
+  const isAnyoneCanPay =
+    hashType & transaction_1.Transaction.SIGHASH_ANYONECANPAY;
+  if (isAnyoneCanPay) whitelist.push('addInput');
+  const hashMod = hashType & 0x1f;
+  switch (hashMod) {
+    case transaction_1.Transaction.SIGHASH_ALL:
+      break;
+    case transaction_1.Transaction.SIGHASH_SINGLE:
+    case transaction_1.Transaction.SIGHASH_NONE:
+      whitelist.push('addOutput');
+      whitelist.push('setInputSequence');
+      break;
+  }
+  if (whitelist.indexOf(action) === -1) {
+    return true;
+  }
+  return false;
+}
+exports.signatureBlocksAction = signatureBlocksAction;
+function extractPartialSigs(input) {
+  let pSigs = [];
+  if ((input.partialSig || []).length === 0) {
+    if (!input.finalScriptSig && !input.finalScriptWitness) return [];
+    pSigs = getPsigsFromInputFinalScripts(input);
+  } else {
+    pSigs = input.partialSig;
+  }
+  return pSigs.map(p => p.signature);
+}
+function getPsigsFromInputFinalScripts(input) {
+  const scriptItems = !input.finalScriptSig
+    ? []
+    : bscript.decompile(input.finalScriptSig) || [];
+  const witnessItems = !input.finalScriptWitness
+    ? []
+    : bscript.decompile(input.finalScriptWitness) || [];
+  return scriptItems
+    .concat(witnessItems)
+    .filter(item => {
+      return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
+    })
+    .map(sig => ({ signature: sig }));
+}

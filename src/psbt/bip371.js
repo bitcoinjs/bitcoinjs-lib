@@ -1,10 +1,12 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.tapTreeFromList = exports.tapTreeToList = exports.tweakInternalPubKey = exports.checkTaprootOutputFields = exports.checkTaprootInputFields = exports.isTaprootOutput = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
+exports.checkTaprootInputForSigs = exports.tapTreeFromList = exports.tapTreeToList = exports.tweakInternalPubKey = exports.checkTaprootOutputFields = exports.checkTaprootInputFields = exports.isTaprootOutput = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
 const types_1 = require('../types');
+const transaction_1 = require('../transaction');
 const psbtutils_1 = require('./psbtutils');
 const taprootutils_1 = require('../payments/taprootutils');
 const payments_1 = require('../payments');
+const psbtutils_2 = require('./psbtutils');
 const toXOnly = pubKey => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 exports.toXOnly = toXOnly;
 /**
@@ -141,6 +143,37 @@ function tapTreeFromList(leaves = []) {
   return instertLeavesInTree(leaves);
 }
 exports.tapTreeFromList = tapTreeFromList;
+function checkTaprootInputForSigs(input, action) {
+  const sigs = extractTaprootSigs(input);
+  return sigs.some(sig =>
+    (0, psbtutils_2.signatureBlocksAction)(sig, decodeSchnorSignature, action),
+  );
+}
+exports.checkTaprootInputForSigs = checkTaprootInputForSigs;
+function decodeSchnorSignature(signature) {
+  return {
+    signature: signature.slice(0, 64),
+    hashType:
+      signature.slice(64)[0] || transaction_1.Transaction.SIGHASH_DEFAULT,
+  };
+}
+function extractTaprootSigs(input) {
+  const sigs = [];
+  if (input.tapKeySig) sigs.push(input.tapKeySig);
+  if (input.tapScriptSig)
+    sigs.push(...input.tapScriptSig.map(s => s.signature));
+  if (!sigs.length) {
+    const finalTapKeySig = getTapKeySigFromWithness(input.finalScriptWitness);
+    if (finalTapKeySig) sigs.push(finalTapKeySig);
+  }
+  return sigs;
+}
+function getTapKeySigFromWithness(finalScriptWitness) {
+  if (!finalScriptWitness) return;
+  const witness = finalScriptWitness.slice(2);
+  // todo: add schnor signature validation
+  if (witness.length === 64 || witness.length === 65) return witness;
+}
 function _tapTreeToList(tree, leaves = [], depth = 0) {
   if (depth > taprootutils_1.MAX_TAPTREE_DEPTH)
     throw new Error('Max taptree depth exceeded.');

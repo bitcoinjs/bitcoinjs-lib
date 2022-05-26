@@ -9,6 +9,8 @@ import {
   TapInternalKey,
 } from 'bip174/src/lib/interfaces';
 
+import { Transaction } from '../transaction';
+
 import {
   witnessStackToScriptWitness,
   pubkeyPositionInScript,
@@ -22,6 +24,8 @@ import {
   MAX_TAPTREE_DEPTH,
 } from '../payments/taprootutils';
 import { p2tr } from '../payments';
+
+import { signatureBlocksAction } from './psbtutils';
 
 export const toXOnly = (pubKey: Buffer) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
@@ -189,6 +193,50 @@ export function tapTreeFromList(leaves: TapLeaf[] = []): Taptree {
     };
 
   return instertLeavesInTree(leaves);
+}
+
+export function checkTaprootInputForSigs(
+  input: PsbtInput,
+  action: string,
+): boolean {
+  const sigs = extractTaprootSigs(input);
+  return sigs.some(sig =>
+    signatureBlocksAction(sig, decodeSchnorSignature, action),
+  );
+}
+
+function decodeSchnorSignature(
+  signature: Buffer,
+): {
+  signature: Buffer;
+  hashType: number;
+} {
+  return {
+    signature: signature.slice(0, 64),
+    hashType: signature.slice(64)[0] || Transaction.SIGHASH_DEFAULT,
+  };
+}
+
+function extractTaprootSigs(input: PsbtInput): Buffer[] {
+  const sigs: Buffer[] = [];
+  if (input.tapKeySig) sigs.push(input.tapKeySig);
+  if (input.tapScriptSig)
+    sigs.push(...input.tapScriptSig.map(s => s.signature));
+  if (!sigs.length) {
+    const finalTapKeySig = getTapKeySigFromWithness(input.finalScriptWitness);
+    if (finalTapKeySig) sigs.push(finalTapKeySig);
+  }
+
+  return sigs;
+}
+
+function getTapKeySigFromWithness(
+  finalScriptWitness?: Buffer,
+): Buffer | undefined {
+  if (!finalScriptWitness) return;
+  const witness = finalScriptWitness.slice(2);
+  // todo: add schnor signature validation
+  if (witness.length === 64 || witness.length === 65) return witness;
 }
 
 function _tapTreeToList(

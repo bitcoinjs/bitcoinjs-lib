@@ -38,3 +38,4 @@ export declare function tapTreeToList(tree: Taptree): TapLeaf[];
  * @returns the corresponding taptree, or throws an exception if the tree cannot be reconstructed
  */
 export declare function tapTreeFromList(leaves?: TapLeaf[]): Taptree;
+export declare function checkTaprootInputForSigs(input: PsbtInput, action: string): boolean;
