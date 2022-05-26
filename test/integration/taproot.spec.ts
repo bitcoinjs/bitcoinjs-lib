@@ -490,8 +490,6 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
   });
 
   it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - custom finalizer', async () => {
-   
-
     const leafCount = 8;
     const leaves = Array.from({ length: leafCount }).map(
       (_, index) =>
@@ -516,7 +514,6 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
         redeem,
         network: regtest,
       });
-
 
       // amount from faucet
       const amount = 42e4;
@@ -551,14 +548,11 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
         leafIndex,
       );
       psbt.finalizeInput(0, leafIndexFinalizerFn);
-      console.log('### psbt finalized', psbt.toBase64());
       const tx = psbt.extractTransaction();
       const rawTx = tx.toBuffer();
       const hex = rawTx.toString('hex');
 
-      console.log('### hex', hex)
       await regtestUtils.broadcast(hex);
-      console.log('### verify')
       await regtestUtils.verify({
         txId: tx.getId(),
         address: sendAddress!,

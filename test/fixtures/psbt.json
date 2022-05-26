@@ -532,7 +532,7 @@
         "exception": "Error adding output."
       },
       {
-        "description": "Checks that the output script can be computed",
+        "description": "Checks the mandatory values for adding an output",
         "outputData": {
           "value": 1000
         },
@@ -546,7 +546,7 @@
         }
       },
       {
-        "description": "Adds taproot output with internal key and tap tree",
+        "description": "Adds taproot output with internal tap key and tap tree",
         "isTaproot": true,
         "psbt": "cHNidP8BADMCAAAAAcbgSGx76du9GXsr4c6Yk7DFglfHi7M2jdCNUXwc+Q+EAAAAAAD/////AAAAAAAAAQEroGgGAAAAAAAiUSClLxmVQ6aZXLEwkYA/WGZuIE91BHT7xP7DIEAvz/NITaIVwd2NnolThxX+QCpgFksj8u93bzuZy6olaHxJNHaArwK1tCTeoJ+EC5MqADc83NvSVlC4w6z+VKn0pkGihnIbjSbax5V2a72h6uqkXlv6CpUP3V9MSq2lsfMILtyWibn9Cu4oo7gsSuy+vTeBJ9yI3Rnh6pPtunont1ThyIHTCIdKesRIlUS3uEDQRVmeyUFa5xzLCQwsRlwFyfoF9Bx6BtUjIFX368Cp2d6uXSbyrn23vC4KMjRRlEssuTTh7ThM6bXQrMAAAA==",
         "outputData": {
@@ -596,7 +596,7 @@
         "result": "cHNidP8BAF4CAAAAAcbgSGx76du9GXsr4c6Yk7DFglfHi7M2jdCNUXwc+Q+EAAAAAAD/////AZBBBgAAAAAAIlEgNWEIXy34qyxTUMwj9KxV0rr9ScQ+yVC4JtLcaL2MZqcAAAAAAAEBK6BoBgAAAAAAIlEgpS8ZlUOmmVyxMJGAP1hmbiBPdQR0+8T+wyBAL8/zSE2iFcHdjZ6JU4cV/kAqYBZLI/Lvd287mcuqJWh8STR2gK8CtbQk3qCfhAuTKgA3PNzb0lZQuMOs/lSp9KZBooZyG40m2seVdmu9oerqpF5b+gqVD91fTEqtpbHzCC7clom5/QruKKO4LErsvr03gSfciN0Z4eqT7bp6J7dU4ciB0wiHSnrESJVEt7hA0EVZnslBWuccywkMLEZcBcn6BfQcegbVIyBV9+vAqdnerl0m8q59t7wuCjI0UZRLLLk04e04TOm10KzAAAEFIPbUzhMkRN5/DjodK+mzjO7HmM+adu7qxYWGlEWDDrFnAQb9AwECwCIgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsCsA8AiIFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrBrAPAIiAiWLHDFgvghkpUGFTuyRZKVy8JT3ViYoKBqAc7uJFzp6wCwCIgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsKsA8AiIFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrDrATAIiBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6xKwEwCIgVffrwKnZ3q5dJvKufbe8LgoyNFGUSyy5NOHtOEzptdCsAA=="
       },
       {
-        "description": "Adds taproot output with internal key only and correct address",
+        "description": "Adds taproot output with internal tap key and correct address",
         "isTaproot": true,
         "psbt": "cHNidP8BAFwCAAAAAk9Ve2845C8v//JR71uKzf70FjeNfx7SvB4l3A+Q44UKAAAAAAD/////FIp10hu+RPgTSFGPmjwb01Tf/a5UkcPFUpOw/X6UEPYAAAAAAP////8AAAAAAAABASugaAYAAAAAACJRINqadqaDhePTT29qdKQScUmyJxEeDw12HLjkMYMVSlnkARcgDN4bJzix3HdE8+FUM6UgA1lEKpgpIImVUePmAGYh7yYAAQDAAgAAAAFbIoaAJqDd/f4mZppgYV4UR9bgU8lT9pTH4/aDJdFUWgAAAABrSDBFAiEA6JS0xMdSQhG+9gAPSxGs6HazyauyNUBMwrmF386IAxwCIGiyH9QHCzKOBTtg+VsISF4nUi9NfAtJAtC02J03+I07ASEDu1tkEI8W1bd6qrPZ3uLaHvE90BDUvRCwvTTzPYPXzwf/////AaBoBgAAAAAAGXapFL5QEf51k4TA7Mp5d18IM2ddq79oiKwAAAAAAAA=",
         "outputData": {
@@ -607,7 +607,7 @@
         "result": "cHNidP8BAIcCAAAAAk9Ve2845C8v//JR71uKzf70FjeNfx7SvB4l3A+Q44UKAAAAAAD/////FIp10hu+RPgTSFGPmjwb01Tf/a5UkcPFUpOw/X6UEPYAAAAAAP////8BkEEGAAAAAAAiUSD1RJYlvhzbiZ/sFzOK3lWwglnOTOhYaiULBDKBC1TV7wAAAAAAAQEroGgGAAAAAAAiUSDamnamg4Xj009vanSkEnFJsicRHg8Ndhy45DGDFUpZ5AEXIAzeGyc4sdx3RPPhVDOlIANZRCqYKSCJlVHj5gBmIe8mAAEAwAIAAAABWyKGgCag3f3+JmaaYGFeFEfW4FPJU/aUx+P2gyXRVFoAAAAAa0gwRQIhAOiUtMTHUkIRvvYAD0sRrOh2s8mrsjVATMK5hd/OiAMcAiBosh/UBwsyjgU7YPlbCEheJ1IvTXwLSQLQtNidN/iNOwEhA7tbZBCPFtW3eqqz2d7i2h7xPdAQ1L0QsL008z2D188H/////wGgaAYAAAAAABl2qRS+UBH+dZOEwOzKeXdfCDNnXau/aIisAAAAAAABBSCITZaUOd7O0h0atx7NnvmmqHlSFViM5+/0rV78kD5A7AA="
       },
       {
-        "description": "Adds taproot output with internal key and bad address",
+        "description": "Adds taproot output with internal tap key and bad address",
         "isTaproot": true,
         "psbt": "cHNidP8BAFwCAAAAAk9Ve2845C8v//JR71uKzf70FjeNfx7SvB4l3A+Q44UKAAAAAAD/////FIp10hu+RPgTSFGPmjwb01Tf/a5UkcPFUpOw/X6UEPYAAAAAAP////8AAAAAAAABASugaAYAAAAAACJRINqadqaDhePTT29qdKQScUmyJxEeDw12HLjkMYMVSlnkARcgDN4bJzix3HdE8+FUM6UgA1lEKpgpIImVUePmAGYh7yYAAQDAAgAAAAFbIoaAJqDd/f4mZppgYV4UR9bgU8lT9pTH4/aDJdFUWgAAAABrSDBFAiEA6JS0xMdSQhG+9gAPSxGs6HazyauyNUBMwrmF386IAxwCIGiyH9QHCzKOBTtg+VsISF4nUi9NfAtJAtC02J03+I07ASEDu1tkEI8W1bd6qrPZ3uLaHvE90BDUvRCwvTTzPYPXzwf/////AaBoBgAAAAAAGXapFL5QEf51k4TA7Mp5d18IM2ddq79oiKwAAAAAAAA=",
         "outputData": {
@@ -640,7 +640,7 @@
         "exception": "Can not modify transaction, signatures exist."
       },
       {
-        "description": "Adds output after tapkey spend input has been finalized",
+        "description": "Adds output after tap key input has been finalized",
         "isTaproot": true,
         "psbt": "cHNidP8BAF4CAAAAAfyhtBTm+3OPYBuMHvdPMf9jqniZDY925hbmnt8hxbA6AAAAAAD/////AZBBBgAAAAAAIlEgV6CyzSs5a6Tc8A+TYOiozWnh6FRH9E/VWFanhMAEbLEAAAAAAAEBK6BoBgAAAAAAIlEgV6CyzSs5a6Tc8A+TYOiozWnh6FRH9E/VWFanhMAEbLEBCEIBQOAqWBD/2jhPWzQvesT8sjkN2Cowphp3QvmlWbHiLx753ChcUovvWyBlWiCq77Kk+lZGEhC4vjClSjc26br+dc8AAA==",
         "outputData": {
