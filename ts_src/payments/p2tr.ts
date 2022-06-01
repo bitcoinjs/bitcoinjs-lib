@@ -10,7 +10,7 @@ import {
   tapleafHash,
   tweakKey,
   LEAF_VERSION_TAPSCRIPT,
-} from './taprootutils';
+} from './bip341';
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';

@@ -6,7 +6,7 @@ import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
 
 import { convertScriptTree } from './payments.utils';
-import { LEAF_VERSION_TAPSCRIPT } from '../src/payments/taprootutils';
+import { LEAF_VERSION_TAPSCRIPT } from '../src/payments/bip341';
 import { tapTreeToList, tapTreeFromList } from '../src/psbt/bip371';
 import { Taptree } from '../src/types';
 import { initEccLib } from '../src';

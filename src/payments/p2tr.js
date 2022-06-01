@@ -6,7 +6,7 @@ const networks_1 = require('../networks');
 const bscript = require('../script');
 const types_1 = require('../types');
 const ecc_lib_1 = require('../ecc_lib');
-const taprootutils_1 = require('./taprootutils');
+const bip341_1 = require('./bip341');
 const lazy = require('./lazy');
 const bech32_1 = require('bech32');
 const OPS = bscript.OPS;
@@ -69,7 +69,7 @@ function p2tr(a, opts) {
     return a.witness.slice();
   });
   const _hashTree = lazy.value(() => {
-    if (a.scriptTree) return (0, taprootutils_1.toHashTree)(a.scriptTree);
+    if (a.scriptTree) return (0, bip341_1.toHashTree)(a.scriptTree);
     if (a.hash) return { hash: a.hash };
     return;
   });
@@ -89,11 +89,11 @@ function p2tr(a, opts) {
       const controlBlock = w[w.length - 1];
       const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
       const script = w[w.length - 2];
-      const leafHash = (0, taprootutils_1.tapleafHash)({
+      const leafHash = (0, bip341_1.tapleafHash)({
         output: script,
         version: leafVersion,
       });
-      return (0, taprootutils_1.rootHashFromPath)(controlBlock, leafHash);
+      return (0, bip341_1.rootHashFromPath)(controlBlock, leafHash);
     }
     return null;
   });
@@ -110,7 +110,7 @@ function p2tr(a, opts) {
     ) {
       return a.redeem.redeemVersion;
     }
-    return taprootutils_1.LEAF_VERSION_TAPSCRIPT;
+    return bip341_1.LEAF_VERSION_TAPSCRIPT;
   });
   lazy.prop(o, 'redeem', () => {
     const witness = _witness(); // witness without annex
@@ -127,7 +127,7 @@ function p2tr(a, opts) {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = (0, taprootutils_1.tweakKey)(o.internalPubkey, o.hash);
+      const tweakedKey = (0, bip341_1.tweakKey)(o.internalPubkey, o.hash);
       if (tweakedKey) return tweakedKey.x;
     }
   });
@@ -147,16 +147,13 @@ function p2tr(a, opts) {
     if (a.witness) return a.witness;
     const hashTree = _hashTree();
     if (hashTree && a.redeem && a.redeem.output && a.internalPubkey) {
-      const leafHash = (0, taprootutils_1.tapleafHash)({
+      const leafHash = (0, bip341_1.tapleafHash)({
         output: a.redeem.output,
         version: o.redeemVersion,
       });
-      const path = (0, taprootutils_1.findScriptPath)(hashTree, leafHash);
+      const path = (0, bip341_1.findScriptPath)(hashTree, leafHash);
       if (!path) return;
-      const outputKey = (0, taprootutils_1.tweakKey)(
-        a.internalPubkey,
-        hashTree.hash,
-      );
+      const outputKey = (0, bip341_1.tweakKey)(a.internalPubkey, hashTree.hash);
       if (!outputKey) return;
       const controlBock = buffer_1.Buffer.concat(
         [
@@ -197,7 +194,7 @@ function p2tr(a, opts) {
       else pubkey = a.output.slice(2);
     }
     if (a.internalPubkey) {
-      const tweakedKey = (0, taprootutils_1.tweakKey)(a.internalPubkey, o.hash);
+      const tweakedKey = (0, bip341_1.tweakKey)(a.internalPubkey, o.hash);
       if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
         throw new TypeError('Pubkey mismatch');
       else pubkey = tweakedKey.x;
@@ -211,11 +208,11 @@ function p2tr(a, opts) {
       if (!a.hash.equals(hashTree.hash)) throw new TypeError('Hash mismatch');
     }
     if (a.redeem && a.redeem.output && hashTree) {
-      const leafHash = (0, taprootutils_1.tapleafHash)({
+      const leafHash = (0, bip341_1.tapleafHash)({
         output: a.redeem.output,
         version: o.redeemVersion,
       });
-      if (!(0, taprootutils_1.findScriptPath)(hashTree, leafHash))
+      if (!(0, bip341_1.findScriptPath)(hashTree, leafHash))
         throw new TypeError('Redeem script not in tree');
     }
     const witness = _witness();
@@ -270,15 +267,12 @@ function p2tr(a, opts) {
           throw new TypeError('Invalid internalPubkey for p2tr witness');
         const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
         const script = witness[witness.length - 2];
-        const leafHash = (0, taprootutils_1.tapleafHash)({
+        const leafHash = (0, bip341_1.tapleafHash)({
           output: script,
           version: leafVersion,
         });
-        const hash = (0, taprootutils_1.rootHashFromPath)(
-          controlBlock,
-          leafHash,
-        );
-        const outputKey = (0, taprootutils_1.tweakKey)(internalPubkey, hash);
+        const hash = (0, bip341_1.rootHashFromPath)(controlBlock, leafHash);
+        const outputKey = (0, bip341_1.tweakKey)(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');

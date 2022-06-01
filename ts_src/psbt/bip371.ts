@@ -22,7 +22,7 @@ import {
   rootHashFromPath,
   LEAF_VERSION_TAPSCRIPT,
   MAX_TAPTREE_DEPTH,
-} from '../payments/taprootutils';
+} from '../payments/bip341';
 import { p2tr } from '../payments';
 
 import { signatureBlocksAction } from './psbtutils';

@@ -19,7 +19,7 @@ import { fromOutputScript, toOutputScript } from './address';
 import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
-import { tapleafHash } from './payments/taprootutils';
+import { tapleafHash } from './payments/bip341';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
 import {

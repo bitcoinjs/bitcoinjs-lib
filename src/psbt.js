@@ -8,7 +8,7 @@ const address_1 = require('./address');
 const bufferutils_1 = require('./bufferutils');
 const networks_1 = require('./networks');
 const payments = require('./payments');
-const taprootutils_1 = require('./payments/taprootutils');
+const bip341_1 = require('./payments/bip341');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
 const bip371_1 = require('./psbt/bip371');
@@ -1325,7 +1325,7 @@ function getTaprootHashesForSig(
   const tapLeafHashes = (input.tapLeafScript || [])
     .filter(tapLeaf => (0, psbtutils_1.pubkeyInScript)(pubkey, tapLeaf.script))
     .map(tapLeaf => {
-      const hash = (0, taprootutils_1.tapleafHash)({
+      const hash = (0, bip341_1.tapleafHash)({
         output: tapLeaf.script,
         version: tapLeaf.leafVersion,
       });

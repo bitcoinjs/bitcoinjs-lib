@@ -4,7 +4,7 @@ exports.checkTaprootInputForSigs = exports.tapTreeFromList = exports.tapTreeToLi
 const types_1 = require('../types');
 const transaction_1 = require('../transaction');
 const psbtutils_1 = require('./psbtutils');
-const taprootutils_1 = require('../payments/taprootutils');
+const bip341_1 = require('../payments/bip341');
 const payments_1 = require('../payments');
 const psbtutils_2 = require('./psbtutils');
 const toXOnly = pubKey => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
@@ -101,7 +101,7 @@ function tweakInternalPubKey(inputIndex, input) {
   const tapInternalKey = input.tapInternalKey;
   const outputKey =
     tapInternalKey &&
-    (0, taprootutils_1.tweakKey)(tapInternalKey, input.tapMerkleRoot);
+    (0, bip341_1.tweakKey)(tapInternalKey, input.tapMerkleRoot);
   if (!outputKey)
     throw new Error(
       `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${tapInternalKey &&
@@ -175,13 +175,13 @@ function getTapKeySigFromWithness(finalScriptWitness) {
   if (witness.length === 64 || witness.length === 65) return witness;
 }
 function _tapTreeToList(tree, leaves = [], depth = 0) {
-  if (depth > taprootutils_1.MAX_TAPTREE_DEPTH)
+  if (depth > bip341_1.MAX_TAPTREE_DEPTH)
     throw new Error('Max taptree depth exceeded.');
   if (!tree) return [];
   if ((0, types_1.isTapleaf)(tree)) {
     leaves.push({
       depth,
-      leafVersion: tree.version || taprootutils_1.LEAF_VERSION_TAPSCRIPT,
+      leafVersion: tree.version || bip341_1.LEAF_VERSION_TAPSCRIPT,
       script: tree.output,
     });
     return leaves;
@@ -199,7 +199,7 @@ function instertLeavesInTree(leaves) {
   return tree;
 }
 function instertLeafInTree(leaf, tree, depth = 0) {
-  if (depth > taprootutils_1.MAX_TAPTREE_DEPTH)
+  if (depth > bip341_1.MAX_TAPTREE_DEPTH)
     throw new Error('Max taptree depth exceeded.');
   if (leaf.depth === depth) {
     if (!tree)
@@ -275,18 +275,18 @@ function checkIfTapLeafInTree(inputData, newInputData, action) {
 }
 function isTapLeafInTree(tapLeaf, merkleRoot) {
   if (!merkleRoot) return true;
-  const leafHash = (0, taprootutils_1.tapleafHash)({
+  const leafHash = (0, bip341_1.tapleafHash)({
     output: tapLeaf.script,
     version: tapLeaf.leafVersion,
   });
-  const rootHash = (0, taprootutils_1.rootHashFromPath)(
+  const rootHash = (0, bip341_1.rootHashFromPath)(
     tapLeaf.controlBlock,
     leafHash,
   );
   return rootHash.equals(merkleRoot);
 }
 function sortSignatures(input, tapLeaf) {
-  const leafHash = (0, taprootutils_1.tapleafHash)({
+  const leafHash = (0, bip341_1.tapleafHash)({
     output: tapLeaf.script,
     version: tapLeaf.leafVersion,
   });
@@ -327,7 +327,7 @@ function findTapLeafToFinalize(input, inputIndex, leafHashToFinalize) {
   return tapLeaf;
 }
 function canFinalizeLeaf(leaf, tapScriptSig, hash) {
-  const leafHash = (0, taprootutils_1.tapleafHash)({
+  const leafHash = (0, bip341_1.tapleafHash)({
     output: leaf.script,
     version: leaf.leafVersion,
   });
