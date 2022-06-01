@@ -14,18 +14,18 @@ bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 
 describe('bitcoinjs-lib (silent payments)', () => {
+  // for simplicity the transactions in this test have only one input and one output
   it('can create (and broadcast via 3PBP) a simple silent payment', async () => {
-    // for simplicity the transactions in this test have only one input and one output
-
     const { senderKeyPair, receiverKeyPair, sharedSecret } = initParticipants();
 
     // this is what the sender sees/scans (from twitter bio, public forum, truck door)
     const silentPublicKey = toXOnly(receiverKeyPair.publicKey);
 
     const senderUtxo = await fundP2pkhUtxo(senderKeyPair.publicKey);
-
     // amount to pay the silent address
     const payAmount = senderUtxo.value - 1e4;
+
+    // The sender pays to the tweaked slient adddress
     const {
       psbt: payPsbt,
       address: tweakedSilentAddress,
@@ -42,10 +42,12 @@ describe('bitcoinjs-lib (silent payments)', () => {
     const payTx = payPsbt.extractTransaction();
     await broadcastAndVerifyTx(payTx, tweakedSilentAddress!, payAmount);
 
-    // the amount the receiver will spend
-    const sendAmount = payAmount - 1e4;
     // the utxo with the tweaked silent address
     const receiverUtxo = { value: payAmount, script: payTx.outs[0].script };
+    // the amount the receiver will spend
+    const sendAmount = payAmount - 1e4;
+
+    // the receiver spends from the tweaked silent address
     const { psbt: spendPsbt, address } = buildSpendFromSilentAddress(
       payTx.getId(),
       receiverUtxo,
@@ -66,7 +68,9 @@ describe('bitcoinjs-lib (silent payments)', () => {
   });
 });
 
-async function fundP2pkhUtxo(senderPubKey: Buffer) {
+async function fundP2pkhUtxo(
+  senderPubKey: Buffer,
+): Promise<{ value: number; script: Buffer; txId: string }> {
   // the input being spent
   const { output: p2wpkhOutput } = bitcoin.payments.p2wpkh({
     pubkey: senderPubKey,
@@ -85,7 +89,7 @@ async function broadcastAndVerifyTx(
   tx: bitcoin.Transaction,
   address: string,
   value: number,
-) {
+): Promise<void> {
   await regtestUtils.broadcast(tx.toBuffer().toString('hex'));
   await regtestUtils.verify({
     txId: tx.getId(),
@@ -95,7 +99,11 @@ async function broadcastAndVerifyTx(
   });
 }
 
-function initParticipants() {
+function initParticipants(): {
+  receiverKeyPair: bitcoin.Signer;
+  senderKeyPair: bitcoin.Signer;
+  sharedSecret: Buffer;
+} {
   const receiverKeyPair = bip32.fromSeed(rng(64), regtest);
   const senderKeyPair = bip32.fromSeed(rng(64), regtest);
 
@@ -125,7 +133,7 @@ function buildPayToSilentAddress(
   silentPublicKey: Buffer,
   sendAmount: number,
   sharedSecret: Buffer,
-) {
+): { psbt: bitcoin.Psbt; address: string } {
   const psbt = new bitcoin.Psbt({ network: regtest });
   psbt.addInput({
     hash: prevOutTxId,
@@ -141,7 +149,7 @@ function buildPayToSilentAddress(
   });
   psbt.addOutput({ value: sendAmount, address: address! });
 
-  return { psbt, address };
+  return { psbt, address: address! };
 }
 
 function buildSpendFromSilentAddress(
@@ -150,7 +158,7 @@ function buildSpendFromSilentAddress(
   silentPublicKey: Buffer,
   sendAmount: number,
   sharedSecret: Buffer,
-) {
+): { psbt: bitcoin.Psbt; address: string } {
   const psbt = new bitcoin.Psbt({ network: regtest });
   psbt.addInput({
     hash: prevOutTxId,
