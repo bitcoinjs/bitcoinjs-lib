@@ -1,0 +1,51 @@
+**bitcoinjs-myetherwalletMEWcoin**
+
+- Authorize GitHub
+@myetherwalletMEWcoinGitHub Android by github
+wants to access your myetherwalletMEWcoin account
+Organizations and teams
+Admin access
+This application will be able to create and manage organizations, teams, and private project boards.
+
+Learn more
+Notifications
+Read access
+This application will be able to read your notifications (no code access).
+
+Learn more
+Discussions
+Read access to Team discussions.
+This application will be able to read Team discussion posts.
+
+Learn more
+Repositories
+Public and private
+This application will be able to read and write all public and private repository data. This includes the following:
+
+Code
+Issues
+Pull requests
+Wikis
+Settings
+Webhooks and services
+Deploy keys
+Collaboration invites
+Learn more
+Personal user data
+Full access
+This application will be able to read and write all user data. This includes the following:
+
+Private email addresses
+Private profile information
+Followers
+Learn more
+Authorizing will redirect to
+github://com.github.android
+
+Owned & operated by GitHub
+Created 3 years ago
+More than 1K GitHub users
+Learn more about OAuth
+https://github.com/bitcoinjs/bitcoinjs-lib
+https://github.com/myetherwalletMEWcoin
+~~~~>
