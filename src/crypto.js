@@ -2,15 +2,20 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.taggedHash = exports.hash256 = exports.hash160 = exports.sha256 = exports.sha1 = exports.ripemd160 = void 0;
 const createHash = require('create-hash');
+const RipeMd160 = require('ripemd160');
 function ripemd160(buffer) {
   try {
     return createHash('rmd160')
       .update(buffer)
       .digest();
   } catch (err) {
-    return createHash('ripemd160')
-      .update(buffer)
-      .digest();
+    try {
+      return createHash('ripemd160')
+        .update(buffer)
+        .digest();
+    } catch (err2) {
+      return new RipeMd160().update(buffer).digest();
+    }
   }
 }
 exports.ripemd160 = ripemd160;
