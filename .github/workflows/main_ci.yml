@@ -10,20 +10,13 @@ permissions:
   contents: read
 
 jobs:
-  audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
-      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
-        with:
-          node-version: 'lts/*'
-          registry-url: https://registry.npmjs.org/
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run audit
+  ##################
+  # Jobs with matrix
+  ##################
   unit:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node-version: [14, 'lts/*']
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
@@ -37,20 +30,10 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run unit
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
-      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
-        with:
-          node-version: 'lts/*'
-          registry-url: https://registry.npmjs.org/
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run coverage
   integration:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node-version: [14, 'lts/*']
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
@@ -69,6 +52,34 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: APIURL=http://127.0.0.1:8080/1 npm run integration
+
+
+
+  #####################
+  # Jobs without matrix
+  #####################
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
+        with:
+          node-version: 'lts/*'
+          registry-url: https://registry.npmjs.org/
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run audit
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
+        with:
+          node-version: 'lts/*'
+          registry-url: https://registry.npmjs.org/
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run coverage
   format:
     runs-on: ubuntu-latest
     steps:
@@ -93,32 +104,22 @@ jobs:
       - run: npm run gitdiff:ci
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14, 'lts/*']
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 'lts/*'
           registry-url: https://registry.npmjs.org/
           cache: 'npm'
       - run: npm ci
       - run: npm run lint
   lint-tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14, 'lts/*']
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 'lts/*'
           registry-url: https://registry.npmjs.org/
           cache: 'npm'
       - run: npm ci
