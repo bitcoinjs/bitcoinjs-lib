@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [14, 'lts/*']
+        node-version: [16, 'lts/*']
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [14, 'lts/*']
+        node-version: [16, 'lts/*']
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     services:
       regtest:
