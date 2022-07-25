@@ -81,7 +81,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
       const unspent = await regtestUtils.faucet(address!, 1e5);
       const tx = new bitcoin.Transaction();
       tx.locktime = lockTime;
-      // Note: nSequence MUST be <= 0xfffffffe otherwise LockTime is ignored, and is immediately spendable.
+      // Note: nSequence MUST be <= 0xfffffffe otherwise OP_CHECKLOCKTIMEVERIFY will fail.
       tx.addInput(idToHash(unspent.txId), unspent.vout, 0xfffffffe);
       tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 7e4);
 
