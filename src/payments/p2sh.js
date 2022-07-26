@@ -58,9 +58,10 @@ function p2sh(a, opts) {
   });
   const _redeem = lazy.value(() => {
     const chunks = _chunks();
+    const lastChunk = chunks[chunks.length - 1];
     return {
       network,
-      output: chunks[chunks.length - 1],
+      output: lastChunk === OPS.OP_FALSE ? Buffer.from([]) : lastChunk,
       input: bscript.compile(chunks.slice(0, -1)),
       witness: a.witness || [],
     };
