@@ -53,6 +53,7 @@
     "bip174": "^2.0.1",
     "bs58check": "^2.1.2",
     "create-hash": "^1.1.0",
+    "ripemd160": "^2.0.2",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.1.2",
     "wif": "^2.0.1"
@@ -65,6 +66,7 @@
     "@types/node": "^16.11.7",
     "@types/proxyquire": "^1.3.28",
     "@types/randombytes": "^2.0.0",
+    "@types/ripemd160": "^2.0.0",
     "@types/wif": "^2.0.2",
     "better-npm-audit": "^3.7.3",
     "bip32": "^3.0.1",
