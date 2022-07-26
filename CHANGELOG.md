@@ -1,3 +1,11 @@
+# 6.0.2
+__fixed__
+- p2sh payment now uses empty Buffer for redeem.output when redeemScript is OP_FALSE (#1802)
+- Fix ripemd160 hashing fallback issue (#1812)
+
+# 6.0.1
+- No changes to public API
+
 # 6.0.0
 __removed__
 - bip32: Removed the re-export. Please add as dependency to your app instead.
