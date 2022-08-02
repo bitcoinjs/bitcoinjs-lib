@@ -277,9 +277,15 @@
       }
     },
     {
-      "exception": "Input is invalid",
+      "exception": "Redeem.output too short",
       "arguments": {
         "input": "OP_0 OP_0"
+      }
+    },
+    {
+      "exception": "Input is invalid",
+      "arguments": {
+        "input": "OP_0 OP_3"
       }
     },
     {

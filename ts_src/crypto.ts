@@ -1,5 +1,6 @@
 import * as createHash from 'create-hash';
 const groestlhash = require('groestl-hash-js');
+import * as RipeMd160 from 'ripemd160';
 
 export function ripemd160(buffer: Buffer): Buffer {
   try {
@@ -7,9 +8,13 @@ export function ripemd160(buffer: Buffer): Buffer {
       .update(buffer)
       .digest();
   } catch (err) {
-    return createHash('ripemd160')
-      .update(buffer)
-      .digest();
+    try {
+      return createHash('ripemd160')
+        .update(buffer)
+        .digest();
+    } catch (err2) {
+      return new RipeMd160().update(buffer).digest();
+    }
   }
 }
 
