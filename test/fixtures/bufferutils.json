@@ -57,6 +57,20 @@
       "hex": "ffffffffffff1f00"
     }
   ],
+  "validBigInt": [
+    {
+      "dec": "9223372036854775808",
+      "hex": "0000000000000080"
+    },
+    {
+      "dec": "1000000000000000000",
+      "hex": "000064a7b3b6e00d"
+    },
+    {
+      "dec": "18446744073709551615",
+      "hex": "ffffffffffffffff"
+    }
+  ],
   "invalid": {
     "readUInt64LE": [
       {
@@ -96,6 +110,26 @@
         "exception": "value has a fractional component",
         "hex": "",
         "dec": 0.1
+      }
+    ],
+    "writeUInt64BigIntLE": [
+      {
+        "description": "n === 2^64",
+        "exception": "RangeError: value out of range",
+        "hex": "000000000000000001",
+        "dec": "18446744073709551616"
+      },
+      {
+        "description": "n > 2^64",
+        "exception": "RangeError: value out of range",
+        "hex": "ff0000000000000001",
+        "dec": "18446744073709551871"
+      },
+      {
+        "description": "n < 0",
+        "exception": "specified a negative value for writing an unsigned value",
+        "hex": "",
+        "dec": "-1"
       }
     ]
   }

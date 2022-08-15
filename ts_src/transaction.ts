@@ -43,13 +43,15 @@ const BLANK_OUTPUT = {
   valueBuffer: VALUE_UINT64_MAX,
 };
 
-function isOutput(out: Output): boolean {
+function isOutput<TNumber extends number | bigint = number>(
+  out: Output<TNumber>,
+): boolean {
   return out.value !== undefined;
 }
 
-export interface Output {
+export interface Output<TNumber extends number | bigint = number> {
   script: Buffer;
-  value: number;
+  value: TNumber;
 }
 
 export interface Input {
@@ -60,7 +62,7 @@ export interface Input {
   witness: Buffer[];
 }
 
-export class Transaction {
+export class Transaction<TNumber extends number | bigint = number> {
   static readonly DEFAULT_SEQUENCE = 0xffffffff;
   static readonly SIGHASH_DEFAULT = 0x00;
   static readonly SIGHASH_ALL = 0x01;
@@ -72,10 +74,14 @@ export class Transaction {
   static readonly ADVANCED_TRANSACTION_MARKER = 0x00;
   static readonly ADVANCED_TRANSACTION_FLAG = 0x01;
 
-  static fromBuffer(buffer: Buffer, _NO_STRICT?: boolean): Transaction {
+  static fromBuffer<TNumber extends number | bigint = number>(
+    buffer: Buffer,
+    _NO_STRICT?: boolean,
+    amountType: 'number' | 'bigint' = 'number',
+  ): Transaction<TNumber> {
     const bufferReader = new BufferReader(buffer);
 
-    const tx = new Transaction();
+    const tx = new Transaction<TNumber>();
     tx.version = bufferReader.readInt32();
 
     const marker = bufferReader.readUInt8();
@@ -105,7 +111,9 @@ export class Transaction {
     const voutLen = bufferReader.readVarInt();
     for (let i = 0; i < voutLen; ++i) {
       tx.outs.push({
-        value: bufferReader.readUInt64(),
+        value: (amountType === 'number'
+          ? bufferReader.readUInt64()
+          : bufferReader.readUInt64BigInt()) as TNumber,
         script: bufferReader.readVarSlice(),
       });
     }
@@ -129,8 +137,15 @@ export class Transaction {
     return tx;
   }
 
-  static fromHex(hex: string): Transaction {
-    return Transaction.fromBuffer(Buffer.from(hex, 'hex'), false);
+  static fromHex<TNumber extends number | bigint = number>(
+    hex: string,
+    amountType: 'number' | 'bigint' = 'number',
+  ): Transaction<TNumber> {
+    return Transaction.fromBuffer<TNumber>(
+      Buffer.from(hex, 'hex'),
+      false,
+      amountType,
+    );
   }
 
   static isCoinbaseHash(buffer: Buffer): boolean {
@@ -144,7 +159,7 @@ export class Transaction {
   version: number = 1;
   locktime: number = 0;
   ins: Input[] = [];
-  outs: Output[] = [];
+  outs: Array<Output<TNumber>> = [];
 
   isCoinbase(): boolean {
     return (
@@ -184,7 +199,7 @@ export class Transaction {
     );
   }
 
-  addOutput(scriptPubKey: Buffer, value: number): number {
+  addOutput(scriptPubKey: Buffer, value: TNumber): number {
     typeforce(types.tuple(types.Buffer, types.Satoshi), arguments);
 
     // Add the output and return the output's index
@@ -233,8 +248,8 @@ export class Transaction {
     );
   }
 
-  clone(): Transaction {
-    const newTx = new Transaction();
+  clone(): Transaction<TNumber> {
+    const newTx = new Transaction<TNumber>();
     newTx.version = this.version;
     newTx.locktime = this.locktime;
 
@@ -345,7 +360,7 @@ export class Transaction {
   hashForWitnessV1(
     inIndex: number,
     prevOutScripts: Buffer[],
-    values: number[],
+    values: TNumber[],
     hashType: number,
     leafHash?: Buffer,
     annex?: Buffer,
@@ -497,7 +512,7 @@ export class Transaction {
   hashForWitnessV0(
     inIndex: number,
     prevOutScript: Buffer,
-    value: number,
+    value: TNumber,
     hashType: number,
   ): Buffer {
     typeforce(

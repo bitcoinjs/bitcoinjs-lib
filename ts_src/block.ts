@@ -17,13 +17,16 @@ const errorWitnessNotSegwit = new TypeError(
   'Cannot compute witness commit for non-segwit block',
 );
 
-export class Block {
-  static fromBuffer(buffer: Buffer): Block {
+export class Block<TNumber extends number | bigint = number> {
+  static fromBuffer<TNumber extends number | bigint = number>(
+    buffer: Buffer,
+    amountType: 'number' | 'bigint' = 'number',
+  ): Block<TNumber> {
     if (buffer.length < 80) throw new Error('Buffer too small (< 80 bytes)');
 
     const bufferReader = new BufferReader(buffer);
 
-    const block = new Block();
+    const block = new Block<TNumber>();
     block.version = bufferReader.readInt32();
     block.prevHash = bufferReader.readSlice(32);
     block.merkleRoot = bufferReader.readSlice(32);
@@ -34,9 +37,10 @@ export class Block {
     if (buffer.length === 80) return block;
 
     const readTransaction = (): any => {
-      const tx = Transaction.fromBuffer(
+      const tx = Transaction.fromBuffer<TNumber>(
         bufferReader.buffer.slice(bufferReader.offset),
         true,
+        amountType,
       );
       bufferReader.offset += tx.byteLength();
       return tx;
@@ -57,8 +61,11 @@ export class Block {
     return block;
   }
 
-  static fromHex(hex: string): Block {
-    return Block.fromBuffer(Buffer.from(hex, 'hex'));
+  static fromHex<TNumber extends number | bigint = number>(
+    hex: string,
+    amountType: 'number' | 'bigint' = 'number',
+  ): Block<TNumber> {
+    return Block.fromBuffer<TNumber>(Buffer.from(hex, 'hex'), amountType);
   }
 
   static calculateTarget(bits: number): Buffer {
@@ -69,8 +76,8 @@ export class Block {
     return target;
   }
 
-  static calculateMerkleRoot(
-    transactions: Transaction[],
+  static calculateMerkleRoot<TNumber extends number | bigint = number>(
+    transactions: Array<Transaction<TNumber>>,
     forWitness?: boolean,
   ): Buffer {
     typeforce([{ getHash: types.Function }], transactions);
@@ -98,7 +105,7 @@ export class Block {
   witnessCommit?: Buffer = undefined;
   bits: number = 0;
   nonce: number = 0;
-  transactions?: Transaction[] = undefined;
+  transactions?: Array<Transaction<TNumber>> = undefined;
 
   getWitnessCommit(): Buffer | null {
     if (!txesHaveWitnessCommit(this.transactions!)) return null;
@@ -231,7 +238,9 @@ export class Block {
   }
 }
 
-function txesHaveWitnessCommit(transactions: Transaction[]): boolean {
+function txesHaveWitnessCommit<TNumber extends number | bigint = number>(
+  transactions: Array<Transaction<TNumber>>,
+): boolean {
   return (
     transactions instanceof Array &&
     transactions[0] &&
@@ -244,7 +253,9 @@ function txesHaveWitnessCommit(transactions: Transaction[]): boolean {
   );
 }
 
-function anyTxHasWitness(transactions: Transaction[]): boolean {
+function anyTxHasWitness<TNumber extends number | bigint = number>(
+  transactions: Array<Transaction<TNumber>>,
+): boolean {
   return (
     transactions instanceof Array &&
     transactions.some(

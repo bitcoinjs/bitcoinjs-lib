@@ -48,6 +48,12 @@ describe('types', () => {
       { value: 20999999 * 1e8, result: true },
       { value: 21000000 * 1e8, result: true },
       { value: 21000001 * 1e8, result: false },
+      { value: BigInt(-1), result: false },
+      { value: BigInt(0), result: true },
+      { value: BigInt(1), result: true },
+      { value: BigInt('999999999999999999'), result: true },
+      { value: BigInt('1000000000000000000'), result: true },
+      { value: BigInt('1000000000000000001'), result: false },
     ].forEach(f => {
       it('returns ' + f.result + ' for valid for ' + f.value, () => {
         assert.strictEqual(types.Satoshi(f.value), f.result);
