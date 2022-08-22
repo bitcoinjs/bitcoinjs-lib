@@ -1,3 +1,12 @@
+# 7.0.0
+
+Note: This is a BitGo specific version that generally runs 1 major ahead of
+the upstream version
+
+__added__
+- BitGo specific Taproot script support (Also in BitGo 6.X)
+- bigint support for Doge and similar coins (Also in BitGo 6.X)
+
 # 6.0.2
 __fixed__
 - p2sh payment now uses empty Buffer for redeem.output when redeemScript is OP_FALSE (#1802)
