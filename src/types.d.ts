@@ -7,7 +7,7 @@ export declare namespace BIP32Path {
     var toJSON: () => string;
 }
 export declare function Signer(obj: any): boolean;
-export declare function Satoshi(value: number): boolean;
+export declare function Satoshi(value: number | bigint): boolean;
 export declare const ECPoint: any;
 export declare const Network: any;
 export interface XOnlyPointAddTweakResult {

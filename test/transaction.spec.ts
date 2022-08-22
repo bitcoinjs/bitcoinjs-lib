@@ -3,10 +3,31 @@ import { beforeEach, describe, it } from 'mocha';
 import { Transaction } from '..';
 import * as bscript from '../src/script';
 import * as fixtures from './fixtures/transaction.json';
+import * as fixtures_bigint from './fixtures/transaction_bigint.json';
 
-describe('Transaction', () => {
-  function fromRaw(raw: any, noWitness?: boolean): Transaction {
-    const tx = new Transaction();
+function runTest<TNumber extends number | bigint>(
+  fixture: any,
+  amountType: 'number' | 'bigint',
+): void {
+  if (amountType !== 'number' && amountType !== 'bigint') {
+    throw new Error();
+  }
+
+  function toTNumber(v: any | undefined): TNumber {
+    if (v === undefined) {
+      return v;
+    }
+    if (amountType === 'number') {
+      return Number(v) as TNumber;
+    }
+    if (amountType === 'bigint') {
+      return BigInt(v) as TNumber;
+    }
+    throw new Error();
+  }
+
+  function fromRaw(raw: any, noWitness?: boolean): Transaction<TNumber> {
+    const tx = new Transaction<TNumber>();
     tx.version = raw.version;
     tx.locktime = raw.locktime;
 
@@ -40,7 +61,7 @@ describe('Transaction', () => {
         script = bscript.fromASM(txOut.script);
       }
 
-      tx.addOutput(script!, txOut.value);
+      tx.addOutput(script!, toTNumber(txOut.value));
     });
 
     return tx;
@@ -52,42 +73,42 @@ describe('Transaction', () => {
       const txHex = f.hex || f.txHex;
 
       it('imports ' + f.description + ' (' + id + ')', () => {
-        const actual = Transaction.fromHex(txHex);
+        const actual = Transaction.fromHex<TNumber>(txHex, amountType);
 
         assert.strictEqual(actual.toHex(), txHex);
       });
 
       if (f.whex) {
         it('imports ' + f.description + ' (' + id + ') as witness', () => {
-          const actual = Transaction.fromHex(f.whex);
+          const actual = Transaction.fromHex<TNumber>(f.whex, amountType);
 
           assert.strictEqual(actual.toHex(), f.whex);
         });
       }
     }
 
-    fixtures.valid.forEach(importExport);
-    fixtures.hashForSignature.forEach(importExport);
-    fixtures.hashForWitnessV0.forEach(importExport);
+    fixture.valid.forEach(importExport);
+    fixture.hashForSignature.forEach(importExport);
+    fixture.hashForWitnessV0.forEach(importExport);
 
-    fixtures.invalid.fromBuffer.forEach(f => {
+    fixture.invalid.fromBuffer.forEach((f: any) => {
       it('throws on ' + f.exception, () => {
         assert.throws(() => {
-          Transaction.fromHex(f.hex);
+          Transaction.fromHex<TNumber>(f.hex, amountType);
         }, new RegExp(f.exception));
       });
     });
 
     it('.version should be interpreted as an int32le', () => {
       const txHex = 'ffffffff0000ffffffff';
-      const tx = Transaction.fromHex(txHex);
+      const tx = Transaction.fromHex<TNumber>(txHex, amountType);
       assert.strictEqual(-1, tx.version);
       assert.strictEqual(0xffffffff, tx.locktime);
     });
   });
 
   describe('toBuffer/toHex', () => {
-    fixtures.valid.forEach(f => {
+    fixture.valid.forEach((f: any) => {
       it('exports ' + f.description + ' (' + f.id + ')', () => {
         const actual = fromRaw(f.raw, true);
         assert.strictEqual(actual.toHex(), f.hex);
@@ -102,7 +123,7 @@ describe('Transaction', () => {
     });
 
     it('accepts target Buffer and offset parameters', () => {
-      const f = fixtures.valid[0];
+      const f = fixture.valid[0];
       const actual = fromRaw(f.raw);
       const byteLength = actual.byteLength();
 
@@ -121,13 +142,16 @@ describe('Transaction', () => {
   });
 
   describe('hasWitnesses', () => {
-    fixtures.valid.forEach(f => {
+    fixture.valid.forEach((f: any) => {
       it(
         'detects if the transaction has witnesses: ' +
           (f.whex ? 'true' : 'false'),
         () => {
           assert.strictEqual(
-            Transaction.fromHex(f.whex ? f.whex : f.hex).hasWitnesses(),
+            Transaction.fromHex<TNumber>(
+              f.whex ? f.whex : f.hex,
+              amountType,
+            ).hasWitnesses(),
             !!f.whex,
           );
         },
@@ -137,16 +161,22 @@ describe('Transaction', () => {
 
   describe('weight/virtualSize', () => {
     it('computes virtual size', () => {
-      fixtures.valid.forEach(f => {
-        const transaction = Transaction.fromHex(f.whex ? f.whex : f.hex);
+      fixture.valid.forEach((f: any) => {
+        const transaction = Transaction.fromHex<TNumber>(
+          f.whex ? f.whex : f.hex,
+          amountType,
+        );
 
         assert.strictEqual(transaction.virtualSize(), f.virtualSize);
       });
     });
 
     it('computes weight', () => {
-      fixtures.valid.forEach(f => {
-        const transaction = Transaction.fromHex(f.whex ? f.whex : f.hex);
+      fixture.valid.forEach((f: any) => {
+        const transaction = Transaction.fromHex<TNumber>(
+          f.whex ? f.whex : f.hex,
+          amountType,
+        );
 
         assert.strictEqual(transaction.weight(), f.weight);
       });
@@ -163,13 +193,13 @@ describe('Transaction', () => {
     });
 
     it('returns an index', () => {
-      const tx = new Transaction();
+      const tx = new Transaction<TNumber>();
       assert.strictEqual(tx.addInput(prevTxHash, 0), 0);
       assert.strictEqual(tx.addInput(prevTxHash, 0), 1);
     });
 
     it('defaults to empty script, witness and 0xffffffff SEQUENCE number', () => {
-      const tx = new Transaction();
+      const tx = new Transaction<TNumber>();
       tx.addInput(prevTxHash, 0);
 
       assert.strictEqual(tx.ins[0].script.length, 0);
@@ -177,9 +207,9 @@ describe('Transaction', () => {
       assert.strictEqual(tx.ins[0].sequence, 0xffffffff);
     });
 
-    fixtures.invalid.addInput.forEach(f => {
+    fixture.invalid.addInput.forEach((f: any) => {
       it('throws on ' + f.exception, () => {
-        const tx = new Transaction();
+        const tx = new Transaction<TNumber>();
         const hash = Buffer.from(f.hash, 'hex');
 
         assert.throws(() => {
@@ -191,19 +221,19 @@ describe('Transaction', () => {
 
   describe('addOutput', () => {
     it('returns an index', () => {
-      const tx = new Transaction();
-      assert.strictEqual(tx.addOutput(Buffer.alloc(0), 0), 0);
-      assert.strictEqual(tx.addOutput(Buffer.alloc(0), 0), 1);
+      const tx = new Transaction<TNumber>();
+      assert.strictEqual(tx.addOutput(Buffer.alloc(0), toTNumber(0)), 0);
+      assert.strictEqual(tx.addOutput(Buffer.alloc(0), toTNumber(0)), 1);
     });
   });
 
   describe('clone', () => {
-    fixtures.valid.forEach(f => {
-      let actual: Transaction;
-      let expected: Transaction;
+    fixture.valid.forEach((f: any) => {
+      let actual: Transaction<TNumber>;
+      let expected: Transaction<TNumber>;
 
       beforeEach(() => {
-        expected = Transaction.fromHex(f.hex);
+        expected = Transaction.fromHex<TNumber>(f.hex, amountType);
         actual = expected.clone();
       });
 
@@ -220,14 +250,14 @@ describe('Transaction', () => {
   describe('getHash/getId', () => {
     function verify(f: any): void {
       it('should return the id for ' + f.id + '(' + f.description + ')', () => {
-        const tx = Transaction.fromHex(f.whex || f.hex);
+        const tx = Transaction.fromHex<TNumber>(f.whex || f.hex, amountType);
 
         assert.strictEqual(tx.getHash().toString('hex'), f.hash);
         assert.strictEqual(tx.getId(), f.id);
       });
     }
 
-    fixtures.valid.forEach(verify);
+    fixture.valid.forEach(verify);
   });
 
   describe('isCoinbase', () => {
@@ -241,21 +271,21 @@ describe('Transaction', () => {
           f.description +
           ')',
         () => {
-          const tx = Transaction.fromHex(f.hex);
+          const tx = Transaction.fromHex<TNumber>(f.hex, amountType);
 
           assert.strictEqual(tx.isCoinbase(), f.coinbase);
         },
       );
     }
 
-    fixtures.valid.forEach(verify);
+    fixture.valid.forEach(verify);
   });
 
   describe('hashForSignature', () => {
     it('does not use Witness serialization', () => {
       const randScript = Buffer.from('6a', 'hex');
 
-      const tx = new Transaction();
+      const tx = new Transaction<TNumber>();
       tx.addInput(
         Buffer.from(
           '0000000000000000000000000000000000000000000000000000000000000000',
@@ -263,11 +293,11 @@ describe('Transaction', () => {
         ),
         0,
       );
-      tx.addOutput(randScript, 5000000000);
+      tx.addOutput(randScript, toTNumber(5000000000));
 
       const original = (tx as any).__toBuffer;
       (tx as any).__toBuffer = function(
-        this: Transaction,
+        this: Transaction<TNumber>,
         a: any,
         b: any,
         c: any,
@@ -287,14 +317,14 @@ describe('Transaction', () => {
       });
     });
 
-    fixtures.hashForSignature.forEach(f => {
+    fixture.hashForSignature.forEach((f: any) => {
       it(
         'should return ' +
           f.hash +
           ' for ' +
           (f.description ? 'case "' + f.description + '"' : f.script),
         () => {
-          const tx = Transaction.fromHex(f.txHex);
+          const tx = Transaction.fromHex<TNumber>(f.txHex, amountType);
           const script = bscript.fromASM(f.script);
 
           assert.strictEqual(
@@ -307,19 +337,19 @@ describe('Transaction', () => {
   });
 
   describe('hashForWitnessV0', () => {
-    fixtures.hashForWitnessV0.forEach(f => {
+    fixture.hashForWitnessV0.forEach((f: any) => {
       it(
         'should return ' +
           f.hash +
           ' for ' +
           (f.description ? 'case "' + f.description + '"' : ''),
         () => {
-          const tx = Transaction.fromHex(f.txHex);
+          const tx = Transaction.fromHex<TNumber>(f.txHex, amountType);
           const script = bscript.fromASM(f.script);
 
           assert.strictEqual(
             tx
-              .hashForWitnessV0(f.inIndex, script, f.value, f.type)
+              .hashForWitnessV0(f.inIndex, script, toTNumber(f.value), f.type)
               .toString('hex'),
             f.hash,
           );
@@ -329,14 +359,16 @@ describe('Transaction', () => {
   });
 
   describe('taprootSigning', () => {
-    fixtures.taprootSigning.forEach(f => {
-      const tx = Transaction.fromHex(f.txHex);
-      const prevOutScripts = f.utxos.map(({ scriptHex }) =>
-        Buffer.from(scriptHex, 'hex'),
+    fixture.taprootSigning.forEach((f: any) => {
+      const tx = Transaction.fromHex<TNumber>(f.txHex, amountType);
+      const prevOutScripts = f.utxos.map(
+        ({ scriptHex }: { scriptHex: string }) => Buffer.from(scriptHex, 'hex'),
       );
-      const values = f.utxos.map(({ value }) => value);
+      const values = f.utxos.map(({ value }: { value: number | string }) =>
+        toTNumber(value),
+      );
 
-      f.cases.forEach(c => {
+      f.cases.forEach((c: { vin: number; typeHex: string; hash: string }) => {
         let hash: Buffer;
 
         it(`should hash to ${c.hash} for ${f.description}:${c.vin}`, () => {
@@ -352,8 +384,20 @@ describe('Transaction', () => {
   describe('setWitness', () => {
     it('only accepts a a witness stack (Array of Buffers)', () => {
       assert.throws(() => {
-        (new Transaction().setWitness as any)(0, 'foobar');
+        (new Transaction<TNumber>().setWitness as any)(0, 'foobar');
       }, /Expected property "1" of type \[Buffer], got String "foobar"/);
     });
   });
+}
+
+describe('Transaction amountType === number, testFixture === transaction.json', () => {
+  runTest<number>(fixtures, 'number');
+});
+
+describe('Transaction amountType === bigint, testFixture === transaction.json', () => {
+  runTest<bigint>(fixtures, 'bigint');
+});
+
+describe('Transaction amountType === bigint, testFixture === transaction_bigint.json', () => {
+  runTest<bigint>(fixtures_bigint, 'bigint');
 });

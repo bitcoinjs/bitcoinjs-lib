@@ -46,8 +46,12 @@ export function Signer(obj: any): boolean {
 }
 
 const SATOSHI_MAX: number = 21 * 1e14;
-export function Satoshi(value: number): boolean {
-  return typeforce.UInt53(value) && value <= SATOSHI_MAX;
+const BIG_SATOSHI_MAX: bigint = BigInt('1000000000000000000');
+export function Satoshi(value: number | bigint): boolean {
+  return (
+    (typeforce.UInt53(value) && value <= SATOSHI_MAX) ||
+    (typeof value === 'bigint' && value >= 0 && value <= BIG_SATOSHI_MAX)
+  );
 }
 
 // external dependent types

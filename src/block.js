@@ -24,7 +24,7 @@ class Block {
     this.nonce = 0;
     this.transactions = undefined;
   }
-  static fromBuffer(buffer) {
+  static fromBuffer(buffer, amountType = 'number') {
     if (buffer.length < 80) throw new Error('Buffer too small (< 80 bytes)');
     const bufferReader = new bufferutils_1.BufferReader(buffer);
     const block = new Block();
@@ -39,6 +39,7 @@ class Block {
       const tx = transaction_1.Transaction.fromBuffer(
         bufferReader.buffer.slice(bufferReader.offset),
         true,
+        amountType,
       );
       bufferReader.offset += tx.byteLength();
       return tx;
@@ -54,8 +55,8 @@ class Block {
     if (witnessCommit) block.witnessCommit = witnessCommit;
     return block;
   }
-  static fromHex(hex) {
-    return Block.fromBuffer(Buffer.from(hex, 'hex'));
+  static fromHex(hex, amountType = 'number') {
+    return Block.fromBuffer(Buffer.from(hex, 'hex'), amountType);
   }
   static calculateTarget(bits) {
     const exponent = ((bits & 0xff000000) >> 24) - 3;

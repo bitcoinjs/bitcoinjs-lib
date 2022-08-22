@@ -1,7 +1,7 @@
 /// <reference types="node" />
-export interface Output {
+export interface Output<TNumber extends number | bigint = number> {
     script: Buffer;
-    value: number;
+    value: TNumber;
 }
 export interface Input {
     hash: Buffer;
@@ -10,7 +10,7 @@ export interface Input {
     sequence: number;
     witness: Buffer[];
 }
-export declare class Transaction {
+export declare class Transaction<TNumber extends number | bigint = number> {
     static readonly DEFAULT_SEQUENCE = 4294967295;
     static readonly SIGHASH_DEFAULT = 0;
     static readonly SIGHASH_ALL = 1;
@@ -21,21 +21,21 @@ export declare class Transaction {
     static readonly SIGHASH_INPUT_MASK = 128;
     static readonly ADVANCED_TRANSACTION_MARKER = 0;
     static readonly ADVANCED_TRANSACTION_FLAG = 1;
-    static fromBuffer(buffer: Buffer, _NO_STRICT?: boolean): Transaction;
-    static fromHex(hex: string): Transaction;
+    static fromBuffer<TNumber extends number | bigint = number>(buffer: Buffer, _NO_STRICT?: boolean, amountType?: 'number' | 'bigint'): Transaction<TNumber>;
+    static fromHex<TNumber extends number | bigint = number>(hex: string, amountType?: 'number' | 'bigint'): Transaction<TNumber>;
     static isCoinbaseHash(buffer: Buffer): boolean;
     version: number;
     locktime: number;
     ins: Input[];
-    outs: Output[];
+    outs: Array<Output<TNumber>>;
     isCoinbase(): boolean;
     addInput(hash: Buffer, index: number, sequence?: number, scriptSig?: Buffer): number;
-    addOutput(scriptPubKey: Buffer, value: number): number;
+    addOutput(scriptPubKey: Buffer, value: TNumber): number;
     hasWitnesses(): boolean;
     weight(): number;
     virtualSize(): number;
     byteLength(_ALLOW_WITNESS?: boolean): number;
-    clone(): Transaction;
+    clone(): Transaction<TNumber>;
     /**
      * Hash transaction for signing a specific input.
      *
@@ -45,8 +45,8 @@ export declare class Transaction {
      * This hash can then be used to sign the provided transaction input.
      */
     hashForSignature(inIndex: number, prevOutScript: Buffer, hashType: number): Buffer;
-    hashForWitnessV1(inIndex: number, prevOutScripts: Buffer[], values: number[], hashType: number, leafHash?: Buffer, annex?: Buffer): Buffer;
-    hashForWitnessV0(inIndex: number, prevOutScript: Buffer, value: number, hashType: number): Buffer;
+    hashForWitnessV1(inIndex: number, prevOutScripts: Buffer[], values: TNumber[], hashType: number, leafHash?: Buffer, annex?: Buffer): Buffer;
+    hashForWitnessV0(inIndex: number, prevOutScript: Buffer, value: TNumber, hashType: number): Buffer;
     getHash(forWitness?: boolean): Buffer;
     getId(): string;
     toBuffer(buffer?: Buffer, initialOffset?: number): Buffer;
