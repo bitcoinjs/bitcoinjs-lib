@@ -45,12 +45,16 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
   const network = a.network || BITCOIN_NETWORK;
   const o: Payment = { name: 'p2wpkh', network };
 
+  if (!network.bech32) {
+    throw new TypeError("Network doesn't support native segwit");
+  }
+
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
 
     const words = bech32.toWords(o.hash);
     words.unshift(0x00);
-    return bech32.encode(network.bech32, words);
+    return bech32.encode(network.bech32!, words);
   });
   lazy.prop(o, 'hash', () => {
     if (a.output) return a.output.slice(2, 22);

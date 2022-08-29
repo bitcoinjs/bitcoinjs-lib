@@ -34,6 +34,9 @@ function _toFutureSegwitAddress(output, network) {
   if (output[1] !== data.length)
     throw new TypeError('Invalid script for segwit address');
   console.warn(FUTURE_SEGWIT_VERSION_WARNING);
+  if (!network.bech32) {
+    throw new TypeError("Network doesn't support native segwit");
+  }
   return toBech32(data, version, network.bech32);
 }
 function fromBase58Check(address) {

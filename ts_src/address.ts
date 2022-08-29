@@ -51,6 +51,10 @@ function _toFutureSegwitAddress(output: Buffer, network: Network): string {
 
   console.warn(FUTURE_SEGWIT_VERSION_WARNING);
 
+  if (!network.bech32) {
+    throw new TypeError("Network doesn't support native segwit");
+  }
+
   return toBech32(data, version, network.bech32);
 }
 
