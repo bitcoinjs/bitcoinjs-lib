@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate, Transaction as ITransaction } from 'bip174/src/lib/interfaces';
 import { Network } from './networks';
 import { Transaction } from './transaction';
 export interface TransactionInput {
@@ -162,6 +162,24 @@ export interface SignerAsync {
     network?: any;
     sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
     getPublicKey?(): Buffer;
+}
+/**
+ * This class implements the Transaction interface from bip174 library.
+ * It contains a bitcoinjs-lib Transaction object.
+ */
+export declare class PsbtTransaction implements ITransaction {
+    tx: Transaction<bigint>;
+    constructor({ tx, buffer, }?: {
+        tx?: Transaction<bigint>;
+        buffer?: Buffer;
+    });
+    getInputOutputCounts(): {
+        inputCount: number;
+        outputCount: number;
+    };
+    addInput(input: any): void;
+    addOutput(output: any): void;
+    toBuffer(): Buffer;
 }
 /**
  * This function must do two things:

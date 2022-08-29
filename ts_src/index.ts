@@ -20,6 +20,7 @@ export { Block } from './block';
 export { TaggedHashPrefix } from './crypto';
 export {
   Psbt,
+  PsbtTransaction,
   PsbtTxInput,
   PsbtTxOutput,
   Signer,

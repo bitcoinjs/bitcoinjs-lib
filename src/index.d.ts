@@ -8,7 +8,7 @@ import * as ScriptSignature from './script_signature';
 export { ScriptSignature, address, crypto, networks, payments, script, taproot, };
 export { Block } from './block';
 export { TaggedHashPrefix } from './crypto';
-export { Psbt, PsbtTxInput, PsbtTxOutput, Signer, SignerAsync, HDSigner, HDSignerAsync, } from './psbt';
+export { Psbt, PsbtTransaction, PsbtTxInput, PsbtTxOutput, Signer, SignerAsync, HDSigner, HDSignerAsync, } from './psbt';
 export { OPS as opcodes } from './ops';
 export { Transaction } from './transaction';
 export { Network } from './networks';
