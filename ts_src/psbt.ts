@@ -33,7 +33,7 @@ export interface PsbtTxInput extends TransactionInput {
 
 export interface TransactionOutput {
   script: Buffer;
-  value: number;
+  value: bigint;
 }
 
 export interface PsbtTxOutput extends TransactionOutput {
@@ -312,7 +312,7 @@ export class Psbt {
     return this;
   }
 
-  extractTransaction(disableFeeCheck?: boolean): Transaction {
+  extractTransaction(disableFeeCheck?: boolean): Transaction<bigint> {
     if (!this.data.inputs.every(isFinalized)) throw new Error('Not finalized');
     const c = this.__CACHE;
     if (!disableFeeCheck) {
@@ -325,15 +325,17 @@ export class Psbt {
   }
 
   getFeeRate(): number {
-    return getTxCacheValue(
-      '__FEE_RATE',
-      'fee rate',
-      this.data.inputs,
-      this.__CACHE,
-    )!;
+    return Number(
+      getTxCacheValue(
+        '__FEE_RATE',
+        'fee rate',
+        this.data.inputs,
+        this.__CACHE,
+      )!,
+    );
   }
 
-  getFee(): number {
+  getFee(): bigint {
     return getTxCacheValue('__FEE', 'fee', this.data.inputs, this.__CACHE)!;
   }
 
@@ -742,13 +744,13 @@ export class Psbt {
 }
 
 interface PsbtCache {
-  __NON_WITNESS_UTXO_TX_CACHE: Transaction[];
+  __NON_WITNESS_UTXO_TX_CACHE: Transaction<bigint>[];
   __NON_WITNESS_UTXO_BUF_CACHE: Buffer[];
   __TX_IN_CACHE: { [index: string]: number };
-  __TX: Transaction;
-  __FEE_RATE?: number;
-  __FEE?: number;
-  __EXTRACTED_TX?: Transaction;
+  __TX: Transaction<bigint>;
+  __FEE_RATE?: bigint;
+  __FEE?: bigint;
+  __EXTRACTED_TX?: Transaction<bigint>;
   __UNSAFE_SIGN_NONSEGWIT: boolean;
 }
 
@@ -768,12 +770,12 @@ type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
 
 interface PsbtOutputExtendedAddress extends PsbtOutput {
   address: string;
-  value: number;
+  value: bigint;
 }
 
 interface PsbtOutputExtendedScript extends PsbtOutput {
   script: Buffer;
-  value: number;
+  value: bigint;
 }
 
 interface HDSignerBase {
@@ -836,9 +838,9 @@ const transactionFromBuffer: TransactionFromBuffer = (
  * It contains a bitcoinjs-lib Transaction object.
  */
 class PsbtTransaction implements ITransaction {
-  tx: Transaction;
+  tx: Transaction<bigint>;
   constructor(buffer: Buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
-    this.tx = Transaction.fromBuffer(buffer);
+    this.tx = Transaction.fromBuffer<bigint>(buffer, undefined, 'bigint');
     checkTxEmpty(this.tx);
     Object.defineProperty(this, 'tx', {
       enumerable: false,
@@ -878,7 +880,7 @@ class PsbtTransaction implements ITransaction {
       (output as any).script === undefined ||
       (output as any).value === undefined ||
       !Buffer.isBuffer((output as any).script) ||
-      typeof (output as any).value !== 'number'
+      typeof (output as any).value !== 'bigint'
     ) {
       throw new Error('Error adding output.');
     }
@@ -978,12 +980,15 @@ function check32Bit(num: number): void {
 }
 
 function checkFees(psbt: Psbt, cache: PsbtCache, opts: PsbtOpts): void {
-  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
+  const feeRate = Number(cache.__FEE_RATE) || psbt.getFeeRate();
   const vsize = cache.__EXTRACTED_TX!.virtualSize();
-  const satoshis = feeRate * vsize;
-  if (feeRate >= opts.maximumFeeRate) {
+  const satoshis = BigInt(feeRate) * BigInt(vsize);
+  if (Number(feeRate) >= opts.maximumFeeRate) {
+    const satoshisPerCoin = BigInt(1e8);
+    const coinString = (satoshis / satoshisPerCoin).toString();
+    const satsString = (satoshis % satoshisPerCoin).toString().padStart(8, '0');
     throw new Error(
-      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
+      `Warning: You are paying around ${coinString}.${satsString} in ` +
         `fees, which is ${feeRate} satoshi per byte for a transaction ` +
         `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
         `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
@@ -1050,7 +1055,7 @@ function checkScriptForPubkey(
   }
 }
 
-function checkTxEmpty(tx: Transaction): void {
+function checkTxEmpty(tx: Transaction<bigint>): void {
   const isEmpty = tx.ins.every(
     input =>
       input.script &&
@@ -1063,7 +1068,7 @@ function checkTxEmpty(tx: Transaction): void {
   }
 }
 
-function checkTxForDupeIns(tx: Transaction, cache: PsbtCache): void {
+function checkTxForDupeIns(tx: Transaction<bigint>, cache: PsbtCache): void {
   tx.ins.forEach(input => {
     checkTxInputCache(cache, input);
   });
@@ -1112,12 +1117,12 @@ function getTxCacheValue(
   name: string,
   inputs: PsbtInput[],
   c: PsbtCache,
-): number | undefined {
+): bigint | undefined {
   if (!inputs.every(isFinalized))
     throw new Error(`PSBT must be finalized to calculate ${name}`);
   if (key === '__FEE_RATE' && c.__FEE_RATE) return c.__FEE_RATE;
   if (key === '__FEE' && c.__FEE) return c.__FEE;
-  let tx: Transaction;
+  let tx: Transaction<bigint>;
   let mustFinalize = true;
   if (c.__EXTRACTED_TX) {
     tx = c.__EXTRACTED_TX;
@@ -1259,7 +1264,7 @@ function getHashForSig(
     );
   }
   let hash: Buffer;
-  let prevout: Output;
+  let prevout: Output<bigint>;
 
   if (input.nonWitnessUtxo) {
     const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
@@ -1279,7 +1284,7 @@ function getHashForSig(
     }
 
     const prevoutIndex = unsignedTx.ins[inputIndex].index;
-    prevout = nonWitnessUtxoTx.outs[prevoutIndex] as Output;
+    prevout = nonWitnessUtxoTx.outs[prevoutIndex] as Output<bigint>;
   } else if (input.witnessUtxo) {
     prevout = input.witnessUtxo;
   } else {
@@ -1576,7 +1581,11 @@ function addNonWitnessTxCache(
 ): void {
   cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo!;
 
-  const tx = Transaction.fromBuffer(input.nonWitnessUtxo!);
+  const tx = Transaction.fromBuffer<bigint>(
+    input.nonWitnessUtxo!,
+    undefined,
+    'bigint',
+  );
   cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
 
   const self = cache;
@@ -1603,11 +1612,11 @@ function addNonWitnessTxCache(
 
 function inputFinalizeGetAmts(
   inputs: PsbtInput[],
-  tx: Transaction,
+  tx: Transaction<bigint>,
   cache: PsbtCache,
   mustFinalize: boolean,
 ): void {
-  let inputAmount = 0;
+  let inputAmount = BigInt(0);
   inputs.forEach((input, idx) => {
     if (mustFinalize && input.finalScriptSig)
       tx.ins[idx].script = input.finalScriptSig;
@@ -1621,13 +1630,13 @@ function inputFinalizeGetAmts(
     } else if (input.nonWitnessUtxo) {
       const nwTx = nonWitnessUtxoTxFromCache(cache, input, idx);
       const vout = tx.ins[idx].index;
-      const out = nwTx.outs[vout] as Output;
+      const out = nwTx.outs[vout] as Output<bigint>;
       inputAmount += out.value;
     }
   });
-  const outputAmount = (tx.outs as Output[]).reduce(
+  const outputAmount = (tx.outs as Output<bigint>[]).reduce(
     (total, o) => total + o.value,
-    0,
+    BigInt(0),
   );
   const fee = inputAmount - outputAmount;
   if (fee < 0) {
@@ -1636,14 +1645,14 @@ function inputFinalizeGetAmts(
   const bytes = tx.virtualSize();
   cache.__FEE = fee;
   cache.__EXTRACTED_TX = tx;
-  cache.__FEE_RATE = Math.floor(fee / bytes);
+  cache.__FEE_RATE = fee / BigInt(bytes);
 }
 
 function nonWitnessUtxoTxFromCache(
   cache: PsbtCache,
   input: PsbtInput,
   inputIndex: number,
-): Transaction {
+): Transaction<bigint> {
   const c = cache.__NON_WITNESS_UTXO_TX_CACHE;
   if (!c[inputIndex]) {
     addNonWitnessTxCache(cache, input, inputIndex);

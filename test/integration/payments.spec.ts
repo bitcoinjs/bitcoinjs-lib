@@ -30,7 +30,7 @@ async function buildAndSign(
     })
     .addOutput({
       address: regtestUtils.RANDOM_ADDRESS,
-      value: 2e4,
+      value: BigInt(2e4),
     });
 
   if (depends.signatures) {
