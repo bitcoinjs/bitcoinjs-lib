@@ -13,7 +13,7 @@ export interface PsbtTxInput extends TransactionInput {
 }
 export interface TransactionOutput {
     script: Buffer;
-    value: number;
+    value: bigint;
 }
 export interface PsbtTxOutput extends TransactionOutput {
     address: string | undefined;
@@ -76,9 +76,9 @@ export declare class Psbt {
     addInput(inputData: PsbtInputExtended): this;
     addOutputs(outputDatas: PsbtOutputExtended[]): this;
     addOutput(outputData: PsbtOutputExtended): this;
-    extractTransaction(disableFeeCheck?: boolean): Transaction;
+    extractTransaction(disableFeeCheck?: boolean): Transaction<bigint>;
     getFeeRate(): number;
-    getFee(): number;
+    getFee(): bigint;
     finalizeAllInputs(): this;
     finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this;
     getInputType(inputIndex: number): AllScriptType;
@@ -116,11 +116,11 @@ interface PsbtInputExtended extends PsbtInput, TransactionInput {
 declare type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
 interface PsbtOutputExtendedAddress extends PsbtOutput {
     address: string;
-    value: number;
+    value: bigint;
 }
 interface PsbtOutputExtendedScript extends PsbtOutput {
     script: Buffer;
-    value: number;
+    value: bigint;
 }
 interface HDSignerBase {
     /**

@@ -152,7 +152,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
         })
         .addOutput({
           address: regtestUtils.RANDOM_ADDRESS,
-          value: 7e4,
+          value: BigInt(7e4),
         })
         .signInput(0, alice)
         .finalizeInput(0, csvGetFinalScripts) // See csvGetFinalScripts below

@@ -50,7 +50,7 @@
   ],
   "dependencies": {
     "bech32": "^2.0.0",
-    "bip174": "^2.0.1",
+    "bip174": "git+https://github.com/brandonblack/bip174#c2ca5fa9ccdb6244b9617b1d78d77c82c2403185",
     "bs58check": "^2.1.2",
     "create-hash": "^1.1.0",
     "fastpriorityqueue": "^0.7.1",

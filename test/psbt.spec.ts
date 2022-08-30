@@ -10,27 +10,13 @@ const ECPair = ECPairFactory(ecc);
 
 import { networks as NETWORKS, payments, Psbt, Signer, SignerAsync } from '..';
 
-import * as preFixtures from './fixtures/psbt.json';
+import { fixtures } from './fixtures/psbt';
 
 const validator = (
   pubkey: Buffer,
   msghash: Buffer,
   signature: Buffer,
 ): boolean => ECPair.fromPublicKey(pubkey).verify(msghash, signature);
-
-const initBuffers = (object: any): typeof preFixtures =>
-  JSON.parse(JSON.stringify(object), (_, value) => {
-    const regex = new RegExp(/^Buffer.from\(['"](.*)['"], ['"](.*)['"]\)$/);
-    const result = regex.exec(value);
-    if (!result) return value;
-
-    const data = result[1];
-    const encoding = result[2];
-
-    return Buffer.from(data, encoding as BufferEncoding);
-  });
-
-const fixtures = initBuffers(preFixtures);
 
 const upperCaseFirstLetter = (str: string): string =>
   str.replace(/^./, s => s.toUpperCase());
@@ -494,7 +480,7 @@ describe(`Psbt`, () => {
             '0014d85c2b71d0060b09c9886aeb815e50991dda124d',
             'hex',
           ),
-          value: 2e5,
+          value: BigInt(2e5),
         },
       });
       assert.throws(() => {
@@ -641,14 +627,14 @@ describe(`Psbt`, () => {
           index: 0,
           witnessUtxo: {
             script: outerScript(innerScript(publicKey)),
-            value: 2e3,
+            value: BigInt(2e3),
           },
           ...(redeemGetter ? { redeemScript: redeemGetter(publicKey) } : {}),
           ...(witnessGetter ? { witnessScript: witnessGetter(publicKey) } : {}),
         })
         .addOutput({
           script: Buffer.from('0014d85c2b71d0060b09c9886aeb815e50991dda124d'),
-          value: 1800,
+          value: BigInt(1800),
         });
       if (finalize) psbt.signInput(0, key).finalizeInput(0);
       const type = psbt.getInputType(0);
@@ -740,7 +726,7 @@ describe(`Psbt`, () => {
 
       psbt.updateInput(0, {
         witnessUtxo: {
-          value: 1337,
+          value: BigInt(1337),
           script: payments.p2sh({
             redeem: { output: Buffer.from([0x51]) },
           }).output!,
@@ -755,7 +741,7 @@ describe(`Psbt`, () => {
 
       psbt.updateInput(0, {
         witnessUtxo: {
-          value: 1337,
+          value: BigInt(1337),
           script: payments.p2wsh({
             redeem: { output: Buffer.from([0x51]) },
           }).output!,
@@ -770,7 +756,7 @@ describe(`Psbt`, () => {
 
       psbt.updateInput(0, {
         witnessUtxo: {
-          value: 1337,
+          value: BigInt(1337),
           script: payments.p2sh({
             redeem: payments.p2wsh({
               redeem: { output: Buffer.from([0x51]) },
@@ -813,7 +799,7 @@ describe(`Psbt`, () => {
             '0014000102030405060708090a0b0c0d0e0f00010203',
             'hex',
           ),
-          value: 2000,
+          value: BigInt(2000),
           bip32Derivation: [
             {
               masterFingerprint: root.fingerprint,
@@ -840,7 +826,7 @@ describe(`Psbt`, () => {
           script: payments.p2sh({
             redeem: { output: Buffer.from([0x51]) },
           }).output!,
-          value: 1337,
+          value: BigInt(1337),
         });
 
       assert.throws(() => {
@@ -990,7 +976,7 @@ describe(`Psbt`, () => {
     });
     psbt.addOutput({
       address: '1KRMKfeZcmosxALVYESdPNez1AP1mEtywp',
-      value: 80000,
+      value: BigInt(80000),
     });
     psbt.signInput(0, alice);
     assert.throws(() => {
@@ -1116,7 +1102,7 @@ describe(`Psbt`, () => {
     it('.txOutputs is exposed as a readonly clone', () => {
       const psbt = new Psbt();
       const address = '1LukeQU5jwebXbMLDVydeH4vFSobRV9rkj';
-      const value = 100000;
+      const value = BigInt(100000);
       psbt.addOutput({ address, value });
 
       const output = psbt.txOutputs[0];
@@ -1128,7 +1114,7 @@ describe(`Psbt`, () => {
       assert.strictEqual(output.value, internalInput.value);
 
       output.script[0] = 123;
-      output.value = 123;
+      output.value = BigInt(123);
 
       assert.ok(!output.script.equals(internalInput.script));
       assert.notEqual(output.value, internalInput.value);

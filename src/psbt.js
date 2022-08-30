@@ -256,11 +256,8 @@ class Psbt {
     return tx;
   }
   getFeeRate() {
-    return getTxCacheValue(
-      '__FEE_RATE',
-      'fee rate',
-      this.data.inputs,
-      this.__CACHE,
+    return Number(
+      getTxCacheValue('__FEE_RATE', 'fee rate', this.data.inputs, this.__CACHE),
     );
   }
   getFee() {
@@ -623,7 +620,7 @@ const transactionFromBuffer = buffer => new PsbtTransaction(buffer);
  */
 class PsbtTransaction {
   constructor(buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
-    this.tx = transaction_1.Transaction.fromBuffer(buffer);
+    this.tx = transaction_1.Transaction.fromBuffer(buffer, undefined, 'bigint');
     checkTxEmpty(this.tx);
     Object.defineProperty(this, 'tx', {
       enumerable: false,
@@ -656,7 +653,7 @@ class PsbtTransaction {
       output.script === undefined ||
       output.value === undefined ||
       !Buffer.isBuffer(output.script) ||
-      typeof output.value !== 'number'
+      typeof output.value !== 'bigint'
     ) {
       throw new Error('Error adding output.');
     }
@@ -737,12 +734,15 @@ function check32Bit(num) {
   }
 }
 function checkFees(psbt, cache, opts) {
-  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
+  const feeRate = Number(cache.__FEE_RATE) || psbt.getFeeRate();
   const vsize = cache.__EXTRACTED_TX.virtualSize();
-  const satoshis = feeRate * vsize;
-  if (feeRate >= opts.maximumFeeRate) {
+  const satoshis = BigInt(feeRate) * BigInt(vsize);
+  if (Number(feeRate) >= opts.maximumFeeRate) {
+    const satoshisPerCoin = BigInt(1e8);
+    const coinString = (satoshis / satoshisPerCoin).toString();
+    const satsString = (satoshis % satoshisPerCoin).toString().padStart(8, '0');
     throw new Error(
-      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
+      `Warning: You are paying around ${coinString}.${satsString} in ` +
         `fees, which is ${feeRate} satoshi per byte for a transaction ` +
         `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
         `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
@@ -1208,7 +1208,11 @@ function witnessStackToScriptWitness(witness) {
 }
 function addNonWitnessTxCache(cache, input, inputIndex) {
   cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo;
-  const tx = transaction_1.Transaction.fromBuffer(input.nonWitnessUtxo);
+  const tx = transaction_1.Transaction.fromBuffer(
+    input.nonWitnessUtxo,
+    undefined,
+    'bigint',
+  );
   cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
   const self = cache;
   const selfIndex = inputIndex;
@@ -1232,7 +1236,7 @@ function addNonWitnessTxCache(cache, input, inputIndex) {
   });
 }
 function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize) {
-  let inputAmount = 0;
+  let inputAmount = BigInt(0);
   inputs.forEach((input, idx) => {
     if (mustFinalize && input.finalScriptSig)
       tx.ins[idx].script = input.finalScriptSig;
@@ -1250,7 +1254,7 @@ function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize) {
       inputAmount += out.value;
     }
   });
-  const outputAmount = tx.outs.reduce((total, o) => total + o.value, 0);
+  const outputAmount = tx.outs.reduce((total, o) => total + o.value, BigInt(0));
   const fee = inputAmount - outputAmount;
   if (fee < 0) {
     throw new Error('Outputs are spending more than Inputs');
@@ -1258,7 +1262,7 @@ function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize) {
   const bytes = tx.virtualSize();
   cache.__FEE = fee;
   cache.__EXTRACTED_TX = tx;
-  cache.__FEE_RATE = Math.floor(fee / bytes);
+  cache.__FEE_RATE = fee / BigInt(bytes);
 }
 function nonWitnessUtxoTxFromCache(cache, input, inputIndex) {
   const c = cache.__NON_WITNESS_UTXO_TX_CACHE;
