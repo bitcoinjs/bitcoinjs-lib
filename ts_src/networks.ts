@@ -2,7 +2,7 @@
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
 export interface Network {
   messagePrefix: string;
-  bech32: string;
+  bech32?: string;
   bip32: Bip32;
   pubKeyHash: number;
   scriptHash: number;

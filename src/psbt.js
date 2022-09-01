@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.Psbt = void 0;
+exports.PsbtTransaction = exports.Psbt = void 0;
 const bip174_1 = require('bip174');
 const varuint = require('bip174/src/lib/converter/varint');
 const utils_1 = require('bip174/src/lib/utils');
@@ -613,14 +613,23 @@ exports.Psbt = Psbt;
  * It takes the "transaction buffer" portion of the psbt buffer and returns a
  * Transaction (From the bip174 library) interface.
  */
-const transactionFromBuffer = buffer => new PsbtTransaction(buffer);
+const transactionFromBuffer = buffer => new PsbtTransaction({ buffer });
 /**
  * This class implements the Transaction interface from bip174 library.
  * It contains a bitcoinjs-lib Transaction object.
  */
 class PsbtTransaction {
-  constructor(buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
-    this.tx = transaction_1.Transaction.fromBuffer(buffer, undefined, 'bigint');
+  constructor({ tx, buffer } = {}) {
+    if (tx !== undefined) {
+      this.tx = tx;
+    } else {
+      buffer = buffer || Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+      this.tx = transaction_1.Transaction.fromBuffer(
+        buffer,
+        undefined,
+        'bigint',
+      );
+    }
     checkTxEmpty(this.tx);
     Object.defineProperty(this, 'tx', {
       enumerable: false,
@@ -663,6 +672,7 @@ class PsbtTransaction {
     return this.tx.toBuffer();
   }
 }
+exports.PsbtTransaction = PsbtTransaction;
 function canFinalize(input, script, scriptType) {
   switch (scriptType) {
     case 'pubkey':

@@ -72,6 +72,9 @@ function p2wsh(a, opts) {
   if (!network) {
     network = (a.redeem && a.redeem.network) || networks_1.bitcoin;
   }
+  if (!network.bech32) {
+    throw new TypeError("Network doesn't support native segwit");
+  }
   const o = { network };
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;

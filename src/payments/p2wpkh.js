@@ -43,6 +43,9 @@ function p2wpkh(a, opts) {
   });
   const network = a.network || networks_1.bitcoin;
   const o = { name: 'p2wpkh', network };
+  if (!network.bech32) {
+    throw new TypeError("Network doesn't support native segwit");
+  }
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
     const words = bech32_1.bech32.toWords(o.hash);

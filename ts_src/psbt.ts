@@ -831,16 +831,24 @@ export interface SignerAsync {
  */
 const transactionFromBuffer: TransactionFromBuffer = (
   buffer: Buffer,
-): ITransaction => new PsbtTransaction(buffer);
+): ITransaction => new PsbtTransaction({ buffer });
 
 /**
  * This class implements the Transaction interface from bip174 library.
  * It contains a bitcoinjs-lib Transaction object.
  */
-class PsbtTransaction implements ITransaction {
+export class PsbtTransaction implements ITransaction {
   tx: Transaction<bigint>;
-  constructor(buffer: Buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
-    this.tx = Transaction.fromBuffer<bigint>(buffer, undefined, 'bigint');
+  constructor({
+    tx,
+    buffer,
+  }: { tx?: Transaction<bigint>; buffer?: Buffer } = {}) {
+    if (tx !== undefined) {
+      this.tx = tx;
+    } else {
+      buffer = buffer || Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+      this.tx = Transaction.fromBuffer<bigint>(buffer, undefined, 'bigint');
+    }
     checkTxEmpty(this.tx);
     Object.defineProperty(this, 'tx', {
       enumerable: false,
