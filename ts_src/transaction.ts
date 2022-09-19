@@ -285,6 +285,8 @@ export class Transaction<TNumber extends number | bigint = number> {
     inIndex: number,
     prevOutScript: Buffer,
     hashType: number,
+    // @ts-expect-error Optional for override in forks
+    prevOutValue?: TNumber,
   ): Buffer {
     typeforce(
       types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number),

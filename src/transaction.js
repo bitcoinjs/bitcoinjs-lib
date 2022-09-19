@@ -204,7 +204,13 @@ class Transaction {
    * hashType, and then hashes the result.
    * This hash can then be used to sign the provided transaction input.
    */
-  hashForSignature(inIndex, prevOutScript, hashType) {
+  hashForSignature(
+    inIndex,
+    prevOutScript,
+    hashType,
+    // @ts-expect-error Optional for override in forks
+    prevOutValue,
+  ) {
     typeforce(
       types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number),
       arguments,

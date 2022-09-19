@@ -1022,6 +1022,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
       inputIndex,
       meaningfulScript,
       sighashType,
+      prevout.value,
     );
   }
   return {

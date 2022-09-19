@@ -44,7 +44,7 @@ export declare class Transaction<TNumber extends number | bigint = number> {
      * hashType, and then hashes the result.
      * This hash can then be used to sign the provided transaction input.
      */
-    hashForSignature(inIndex: number, prevOutScript: Buffer, hashType: number): Buffer;
+    hashForSignature(inIndex: number, prevOutScript: Buffer, hashType: number, prevOutValue?: TNumber): Buffer;
     hashForWitnessV1(inIndex: number, prevOutScripts: Buffer[], values: TNumber[], hashType: number, leafHash?: Buffer, annex?: Buffer): Buffer;
     hashForWitnessV0(inIndex: number, prevOutScript: Buffer, value: TNumber, hashType: number): Buffer;
     getHash(forWitness?: boolean): Buffer;
