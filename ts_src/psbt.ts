@@ -1348,6 +1348,7 @@ function getHashForSig(
       inputIndex,
       meaningfulScript,
       sighashType,
+      prevout.value,
     );
   }
 
