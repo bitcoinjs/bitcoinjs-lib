@@ -5,6 +5,7 @@ import { TinySecp256k1Interface, XOnlyPointAddTweakResult } from './types';
  * on all 32 byte x-only pub keys as defined in BIP340.
  */
 export declare const EVEN_Y_COORD_PREFIX: Buffer;
+export declare const INITIAL_TAPSCRIPT_VERSION = 192;
 /**
  * Aggregates a list of public keys into a single MuSig2* public key
  * according to the MuSig2 paper.
@@ -24,7 +25,7 @@ export declare function serializeScriptSize(script: Buffer): Buffer;
  * @param script
  * @returns
  */
-export declare function hashTapLeaf(script: Buffer): Buffer;
+export declare function hashTapLeaf(script: Buffer, leafVersion?: number): Buffer;
 /**
  * Creates a lexicographically sorted tapbranch from two child taptree nodes
  * and returns its tagged hash.
@@ -62,7 +63,7 @@ export interface Taptree {
  * @returns {Taptree} the tree, represented by its root hash, and the paths to that root from each of the input scripts
  */
 export declare function getHuffmanTaptree(scripts: Buffer[], weights: Array<number | undefined>): Taptree;
-export declare function getControlBlock(parity: 0 | 1, pubkey: Uint8Array, path: Buffer[]): Buffer;
+export declare function getControlBlock(parity: 0 | 1, pubkey: Uint8Array, path: Buffer[], leafVersion?: number): Buffer;
 export interface KeyPathWitness {
     spendType: 'Key';
     signature: Buffer;

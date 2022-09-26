@@ -14,7 +14,7 @@ const varuint = require('varuint-bitcoin');
  * on all 32 byte x-only pub keys as defined in BIP340.
  */
 export const EVEN_Y_COORD_PREFIX = Buffer.of(0x02);
-const INITIAL_TAPSCRIPT_VERSION = Buffer.of(0xc0);
+export const INITIAL_TAPSCRIPT_VERSION = 0xc0;
 
 /**
  * Aggregates a list of public keys into a single MuSig2* public key
@@ -95,11 +95,11 @@ export function serializeScriptSize(script: Buffer): Buffer {
  * @param script
  * @returns
  */
-export function hashTapLeaf(script: Buffer): Buffer {
+export function hashTapLeaf(script: Buffer, leafVersion = INITIAL_TAPSCRIPT_VERSION): Buffer {
   const size = serializeScriptSize(script);
   return bcrypto.taggedHash(
     'TapLeaf',
-    Buffer.concat([INITIAL_TAPSCRIPT_VERSION, size, script]),
+    Buffer.concat([Buffer.of(leafVersion), size, script]),
   );
 }
 
@@ -275,8 +275,9 @@ export function getControlBlock(
   parity: 0 | 1,
   pubkey: Uint8Array,
   path: Buffer[],
+  leafVersion = INITIAL_TAPSCRIPT_VERSION,
 ): Buffer {
-  const parityVersion = INITIAL_TAPSCRIPT_VERSION[0] + parity;
+  const parityVersion = leafVersion + parity;
 
   return Buffer.concat([Buffer.of(parityVersion), pubkey, ...path]);
 }
