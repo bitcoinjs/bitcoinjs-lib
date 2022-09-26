@@ -103,7 +103,7 @@ function p2tr(a, opts) {
     if (parsedWitness && parsedWitness.spendType === 'Script')
       return taproot.parseControlBlock(ecc, parsedWitness.controlBlock);
   });
-  const _internalPubkey = lazy.value(() => {
+  lazy.prop(o, 'internalPubkey', () => {
     if (a.pubkey) {
       // single pubkey
       return a.pubkey;
@@ -111,7 +111,7 @@ function p2tr(a, opts) {
       return a.pubkeys[0];
     } else if (a.pubkeys && a.pubkeys.length > 1) {
       // multiple pubkeys
-      return taproot.aggregateMuSigPubkeys(ecc, a.pubkeys);
+      return Buffer.from(taproot.aggregateMuSigPubkeys(ecc, a.pubkeys));
     } else if (_parsedControlBlock()) {
       return _parsedControlBlock().internalPubkey;
     } else {
@@ -153,7 +153,7 @@ function p2tr(a, opts) {
         );
     }
     if (!taptreeRoot && _taprootPaths()) taptreeRoot = _taprootPaths().root;
-    return taproot.tapTweakPubkey(ecc, _internalPubkey(), taptreeRoot);
+    return taproot.tapTweakPubkey(ecc, o.internalPubkey, taptreeRoot);
   });
   lazy.prop(o, 'tapTree', () => {
     if (!a.redeems) return;
@@ -192,7 +192,7 @@ function p2tr(a, opts) {
     if (!taprootPaths || !taprootPubkey || a.redeemIndex === undefined) return;
     return taproot.getControlBlock(
       taprootPubkey.parity,
-      _internalPubkey(),
+      o.internalPubkey,
       taprootPaths.paths[a.redeemIndex],
     );
   });
@@ -289,7 +289,7 @@ function p2tr(a, opts) {
         throw new TypeError('mismatch between address and taproot pubkey');
     const parsedControlBlock = _parsedControlBlock();
     if (parsedControlBlock) {
-      if (!parsedControlBlock.internalPubkey.equals(_internalPubkey()))
+      if (!parsedControlBlock.internalPubkey.equals(o.internalPubkey))
         throw new TypeError('Internal pubkey mismatch');
       if (taprootPubkey && parsedControlBlock.parity !== taprootPubkey.parity)
         throw new TypeError('Parity mismatch');

@@ -22,6 +22,7 @@ export interface Payment {
     input?: Buffer;
     signatures?: Buffer[];
     pubkey?: Buffer;
+    internalPubkey?: Buffer;
     signature?: Buffer;
     address?: string;
     hash?: Buffer;
