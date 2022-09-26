@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { TapTree as PsbtTapTree } from 'bip174/src/lib/interfaces';
 import { TinySecp256k1Interface, XOnlyPointAddTweakResult } from './types';
 /**
  * The 0x02 prefix indicating an even Y coordinate which is implicitly assumed
@@ -55,6 +56,14 @@ export interface Taptree {
     root: Buffer;
     paths: Buffer[][];
 }
+/**
+ * Gets the root hash and hash-paths of a taptree from the depth-first
+ * construction used in BIP-0371 PSBTs
+ * @param tree
+ * @returns {Taptree} the tree, represented by its root hash, and the paths to
+ * that root from each of the input scripts
+ */
+export declare function getDepthFirstTaptree(tree: PsbtTapTree): Taptree;
 /**
  * Gets the root hash of a taptree using a weighted Huffman construction from a
  * list of scripts and corresponding weights.

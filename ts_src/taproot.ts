@@ -2,6 +2,10 @@
 // https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki
 // https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki
 
+import {
+  TapTree as PsbtTapTree,
+  TapLeaf as PsbtTapLeaf,
+} from 'bip174/src/lib/interfaces';
 import assert = require('assert');
 import FastPriorityQueue = require('fastpriorityqueue');
 import * as bcrypto from './crypto';
@@ -95,7 +99,10 @@ export function serializeScriptSize(script: Buffer): Buffer {
  * @param script
  * @returns
  */
-export function hashTapLeaf(script: Buffer, leafVersion = INITIAL_TAPSCRIPT_VERSION): Buffer {
+export function hashTapLeaf(
+  script: Buffer,
+  leafVersion = INITIAL_TAPSCRIPT_VERSION,
+): Buffer {
   const size = serializeScriptSize(script);
   return bcrypto.taggedHash(
     'TapLeaf',
@@ -184,6 +191,43 @@ interface WeightedTapScript {
   paths: {
     [index: number]: Buffer[];
   };
+}
+
+function recurseTaptree(
+  leaves: Iterator<[number, PsbtTapLeaf]>,
+  targetDepth = 0,
+): Taptree {
+  const { value, done } = leaves.next();
+  assert(!done, 'insufficient leaves to reconstruct tap tree');
+  const [index, leaf] = value;
+  const tree: Taptree = {
+    root: hashTapLeaf(leaf.script, leaf.leafVersion),
+    paths: [],
+  };
+  tree.paths[index] = [];
+  for (let depth = leaf.depth; depth > targetDepth; depth--) {
+    const sibling = recurseTaptree(leaves, depth);
+    tree.paths.forEach(path => path.push(sibling.root));
+    sibling.paths.forEach(path => path.push(tree.root));
+    tree.root = hashTapBranch(tree.root, sibling.root);
+    // Merge disjoint sparse arrays of paths into tree.paths
+    Object.assign(tree.paths, sibling.paths);
+  }
+  return tree;
+}
+
+/**
+ * Gets the root hash and hash-paths of a taptree from the depth-first
+ * construction used in BIP-0371 PSBTs
+ * @param tree
+ * @returns {Taptree} the tree, represented by its root hash, and the paths to
+ * that root from each of the input scripts
+ */
+export function getDepthFirstTaptree(tree: PsbtTapTree): Taptree {
+  const iter = tree.leaves.entries();
+  const ret = recurseTaptree(iter);
+  assert(iter.next().done, 'invalid tap tree, no path to some leaves');
+  return ret;
 }
 
 /**
