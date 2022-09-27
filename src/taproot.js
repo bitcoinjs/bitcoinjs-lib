@@ -3,7 +3,7 @@
 // https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki
 // https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.getTaptreeRoot = exports.getTapleafHash = exports.parseControlBlock = exports.parseTaprootWitness = exports.getControlBlock = exports.getHuffmanTaptree = exports.tapTweakPubkey = exports.tapTweakPrivkey = exports.hashTapBranch = exports.hashTapLeaf = exports.serializeScriptSize = exports.aggregateMuSigPubkeys = exports.EVEN_Y_COORD_PREFIX = void 0;
+exports.getTaptreeRoot = exports.getTapleafHash = exports.parseControlBlock = exports.parseTaprootWitness = exports.getControlBlock = exports.getHuffmanTaptree = exports.getDepthFirstTaptree = exports.tapTweakPubkey = exports.tapTweakPrivkey = exports.hashTapBranch = exports.hashTapLeaf = exports.serializeScriptSize = exports.aggregateMuSigPubkeys = exports.INITIAL_TAPSCRIPT_VERSION = exports.EVEN_Y_COORD_PREFIX = void 0;
 const assert = require('assert');
 const FastPriorityQueue = require('fastpriorityqueue');
 const bcrypto = require('./crypto');
@@ -14,7 +14,7 @@ const varuint = require('varuint-bitcoin');
  * on all 32 byte x-only pub keys as defined in BIP340.
  */
 exports.EVEN_Y_COORD_PREFIX = Buffer.of(0x02);
-const INITIAL_TAPSCRIPT_VERSION = Buffer.of(0xc0);
+exports.INITIAL_TAPSCRIPT_VERSION = 0xc0;
 /**
  * Aggregates a list of public keys into a single MuSig2* public key
  * according to the MuSig2 paper.
@@ -82,11 +82,11 @@ exports.serializeScriptSize = serializeScriptSize;
  * @param script
  * @returns
  */
-function hashTapLeaf(script) {
+function hashTapLeaf(script, leafVersion = exports.INITIAL_TAPSCRIPT_VERSION) {
   const size = serializeScriptSize(script);
   return bcrypto.taggedHash(
     'TapLeaf',
-    Buffer.concat([INITIAL_TAPSCRIPT_VERSION, size, script]),
+    Buffer.concat([Buffer.of(leafVersion), size, script]),
   );
 }
 exports.hashTapLeaf = hashTapLeaf;
@@ -144,6 +144,39 @@ function tapTweakPubkey(ecc, pubkey, taptreeRoot) {
   return result;
 }
 exports.tapTweakPubkey = tapTweakPubkey;
+function recurseTaptree(leaves, targetDepth = 0) {
+  const { value, done } = leaves.next();
+  assert(!done, 'insufficient leaves to reconstruct tap tree');
+  const [index, leaf] = value;
+  const tree = {
+    root: hashTapLeaf(leaf.script, leaf.leafVersion),
+    paths: [],
+  };
+  tree.paths[index] = [];
+  for (let depth = leaf.depth; depth > targetDepth; depth--) {
+    const sibling = recurseTaptree(leaves, depth);
+    tree.paths.forEach(path => path.push(sibling.root));
+    sibling.paths.forEach(path => path.push(tree.root));
+    tree.root = hashTapBranch(tree.root, sibling.root);
+    // Merge disjoint sparse arrays of paths into tree.paths
+    Object.assign(tree.paths, sibling.paths);
+  }
+  return tree;
+}
+/**
+ * Gets the root hash and hash-paths of a taptree from the depth-first
+ * construction used in BIP-0371 PSBTs
+ * @param tree
+ * @returns {Taptree} the tree, represented by its root hash, and the paths to
+ * that root from each of the input scripts
+ */
+function getDepthFirstTaptree(tree) {
+  const iter = tree.leaves.entries();
+  const ret = recurseTaptree(iter);
+  assert(iter.next().done, 'invalid tap tree, no path to some leaves');
+  return ret;
+}
+exports.getDepthFirstTaptree = getDepthFirstTaptree;
 /**
  * Gets the root hash of a taptree using a weighted Huffman construction from a
  * list of scripts and corresponding weights.
@@ -217,8 +250,13 @@ function getHuffmanTaptree(scripts, weights) {
   return { root: rootNode.taggedHash, paths };
 }
 exports.getHuffmanTaptree = getHuffmanTaptree;
-function getControlBlock(parity, pubkey, path) {
-  const parityVersion = INITIAL_TAPSCRIPT_VERSION[0] + parity;
+function getControlBlock(
+  parity,
+  pubkey,
+  path,
+  leafVersion = exports.INITIAL_TAPSCRIPT_VERSION,
+) {
+  const parityVersion = leafVersion + parity;
   return Buffer.concat([Buffer.of(parityVersion), pubkey, ...path]);
 }
 exports.getControlBlock = getControlBlock;

@@ -7,16 +7,16 @@
         "redeems": [
           {
             "output": "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
-            "weight": 1
+            "depth": 2
           },
           {
             "output": "07c7c32d159a27ba1824798b3b1d11e1b85f4dbc9e9fe63d95440a30737496de OP_CHECKSIG",
-            "weight": 1
+            "depth": 2
           },
           {
             "output": "4d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4 OP_CHECKSIG",
             "inputHex": "20deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-            "weight": 2
+            "depth": 1
           }
         ],
         "network": "regtest",
@@ -41,16 +41,16 @@
         "redeems": [
           {
             "output": "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
-            "weight": 1
+            "depth": 2
           },
           {
             "output": "07c7c32d159a27ba1824798b3b1d11e1b85f4dbc9e9fe63d95440a30737496de OP_CHECKSIG",
-            "weight": 1
+            "depth": 2
           },
           {
             "output": "4d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4 OP_CHECKSIG",
             "inputHex": "20deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-            "weight": 2
+            "depth": 1
           }
         ],
         "network": "regtest"
@@ -69,16 +69,16 @@
         "redeems": [
           {
             "output": "8f5173bc367914e1574aceb3c7232a178a764fb6f14730b6b20bd36394c6c717 OP_CHECKSIG",
-            "weight": 1
+            "depth": 2
           },
           {
             "output": "07c7c32d159a27ba1824798b3b1d11e1b85f4dbc9e9fe63d95440a30737496de OP_CHECKSIG",
-            "weight": 1
+            "depth": 2
           },
           {
             "output": "4d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4 OP_CHECKSIG",
             "witness": [ "deadbeef" ],
-            "weight": 2
+            "depth": 1
           }
         ],
         "network": "regtest",
@@ -106,16 +106,16 @@
         "redeems": [
           {
             "outputHex": "2020040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3ad20d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55ead",
-            "weight": 1
+            "depth": 2
           },
           {
             "outputHex": "20d806a63b6e2d83f11f22f9a11ba7a49ac451e8acf57591ec058e422eb997d55ead200dcd7e6035f7ff5c860b78cfdd2bd80b4b160ca99a71654796afde11457e11e7ad",
-            "weight": 1
+            "depth": 2
           },
           {
             "outputHex": "200dcd7e6035f7ff5c860b78cfdd2bd80b4b160ca99a71654796afde11457e11e7ad2020040c8338b34cb9c06c6b1bd38095eafa8f9b72398a1084fdb67473d82dfda3ad",
             "witness": [ "deadbeef", "deadbeef" ],
-            "weight": 2
+            "depth": 1
           }
         ],
         "network": "regtest",
@@ -211,7 +211,8 @@
       "arguments": {
         "redeems": [{
           "witness": ["e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101"],
-          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
+          "depth": 0
         }],
         "controlBlock": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
         "annex": "50abcd",
@@ -343,7 +344,8 @@
       "arguments": {
         "redeemIndex": -1,
         "redeems": [{
-          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
+          "depth": 0
         }],
         "network": "testnet"
       },
@@ -355,7 +357,8 @@
       "arguments": {
         "redeemIndex": 2,
         "redeems": [{
-          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
+          "depth": 0
         }],
         "network": "testnet"
       },
@@ -367,7 +370,8 @@
       "arguments": {
         "redeems": [{
           "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
-          "network": "bitcoin"
+          "network": "bitcoin",
+          "depth": 0
         }],
         "network": "testnet"
       },
@@ -378,7 +382,8 @@
       "description": "p2tr from witness/redeem, mismatch",
       "arguments": {
         "redeems": [{
-          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
+          "depth": 0
         }],
         "witness": [
           "e6e81bea57db6bed922afbc5fab65c61f546b6f467b8c3570b5478ba21851e57b00bef791cd06d58afebb883770d956afaf2a9a796fb594a85d124b6837a4c7101",
@@ -438,7 +443,8 @@
       "description": "p2tr from redeem/control block/output, script missing from tap tree",
       "arguments": {
         "redeems": [{
-          "outputHex": "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac"
+          "outputHex": "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "depth": 0
         }],
         "controlBlockHex": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
         "output": "OP_1 3d3e6d002d642acf8653bcf26b81dbe656df5bf88b6d54221b2606bc78f3d4e6",
@@ -451,7 +457,8 @@
       "description": "p2tr from redeem/control block/address, script missing from tap tree",
       "arguments": {
         "redeems": [{
-          "outputHex": "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac"
+          "outputHex": "204d4b27ab455a6e2b03af29a141ef47fc579c8435f563c065bf0dd12e6180ccd4ac",
+          "depth": 0
         }],
         "controlBlockHex": "c150929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
         "address": "tb1p85lx6qpdvs4vlpjnhnexhqwmuetd7klc3dk4ggsmycrtc78n6nnqakvcc9",
@@ -474,7 +481,8 @@
       "description": "parity mismatch",
       "arguments": {
         "redeems": [{
-          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac"
+          "outputHex": "20dcd9a3fdad900e39ff367823f5d683135238d04425ac8dce19d0220e5791c700ac",
+          "depth": 0
         }],
         "controlBlock": "c050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0",
         "network": "testnet"
