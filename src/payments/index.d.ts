@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { Network } from '../networks';
+import { TapTree } from 'bip174/src/lib/interfaces';
 import { TinySecp256k1Interface } from '../types';
 import { p2data as embed } from './embed';
 import { p2ms } from './p2ms';
@@ -21,6 +22,7 @@ export interface Payment {
     input?: Buffer;
     signatures?: Buffer[];
     pubkey?: Buffer;
+    internalPubkey?: Buffer;
     signature?: Buffer;
     address?: string;
     hash?: Buffer;
@@ -29,7 +31,9 @@ export interface Payment {
     redeemIndex?: number;
     witness?: Buffer[];
     weight?: number;
+    depth?: number;
     controlBlock?: Buffer;
+    tapTree?: TapTree;
     annex?: Buffer;
 }
 export declare type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;

@@ -51,6 +51,7 @@ function p2tr(a, opts) {
           network: typef.maybe(typef.Object),
           output: typef.maybe(typef.Buffer),
           weight: typef.maybe(typef.Number),
+          depth: typef.maybe(typef.Number),
           witness: typef.maybe(typef.arrayOf(typef.Buffer)),
         }),
       ),
@@ -77,8 +78,13 @@ function p2tr(a, opts) {
     // extract the 32 byte taproot pubkey (aka witness program)
     return a.output && a.output.slice(2);
   });
-  const _taptree = lazy.value(() => {
+  const network = a.network || networks_1.bitcoin;
+  const o = { network };
+  const _taprootPaths = lazy.value(() => {
     if (!a.redeems) return;
+    if (o.tapTree) {
+      return taproot.getDepthFirstTaptree(o.tapTree);
+    }
     const outputs = a.redeems.map(({ output }) => output);
     if (!outputs.every(output => output)) return;
     return taproot.getHuffmanTaptree(
@@ -97,7 +103,7 @@ function p2tr(a, opts) {
     if (parsedWitness && parsedWitness.spendType === 'Script')
       return taproot.parseControlBlock(ecc, parsedWitness.controlBlock);
   });
-  const _internalPubkey = lazy.value(() => {
+  lazy.prop(o, 'internalPubkey', () => {
     if (a.pubkey) {
       // single pubkey
       return a.pubkey;
@@ -105,7 +111,7 @@ function p2tr(a, opts) {
       return a.pubkeys[0];
     } else if (a.pubkeys && a.pubkeys.length > 1) {
       // multiple pubkeys
-      return taproot.aggregateMuSigPubkeys(ecc, a.pubkeys);
+      return Buffer.from(taproot.aggregateMuSigPubkeys(ecc, a.pubkeys));
     } else if (_parsedControlBlock()) {
       return _parsedControlBlock().internalPubkey;
     } else {
@@ -146,11 +152,29 @@ function p2tr(a, opts) {
           tapscript,
         );
     }
-    if (!taptreeRoot && _taptree()) taptreeRoot = _taptree().root;
-    return taproot.tapTweakPubkey(ecc, _internalPubkey(), taptreeRoot);
+    if (!taptreeRoot && _taprootPaths()) taptreeRoot = _taprootPaths().root;
+    return taproot.tapTweakPubkey(ecc, o.internalPubkey, taptreeRoot);
   });
-  const network = a.network || networks_1.bitcoin;
-  const o = { network };
+  lazy.prop(o, 'tapTree', () => {
+    if (!a.redeems) return;
+    if (a.redeems.find(({ depth }) => depth === undefined)) {
+      console.warn(
+        'Deprecation Warning: Weight-based tap tree construction will be removed in the future. ' +
+          'Please use depth-first coding as specified in BIP-0371.',
+      );
+      return;
+    }
+    if (!a.redeems.every(({ output }) => output)) return;
+    return {
+      leaves: a.redeems.map(({ output, depth }) => {
+        return {
+          script: output,
+          leafVersion: taproot.INITIAL_TAPSCRIPT_VERSION,
+          depth,
+        };
+      }),
+    };
+  });
   lazy.prop(o, 'address', () => {
     const pubkey =
       _outputPubkey() || (_taprootPubkey() && _taprootPubkey().xOnlyPubkey);
@@ -164,12 +188,12 @@ function p2tr(a, opts) {
     if (parsedWitness && parsedWitness.spendType === 'Script')
       return parsedWitness.controlBlock;
     const taprootPubkey = _taprootPubkey();
-    const taptree = _taptree();
-    if (!taptree || !taprootPubkey || a.redeemIndex === undefined) return;
+    const taprootPaths = _taprootPaths();
+    if (!taprootPaths || !taprootPubkey || a.redeemIndex === undefined) return;
     return taproot.getControlBlock(
       taprootPubkey.parity,
-      _internalPubkey(),
-      taptree.paths[a.redeemIndex],
+      o.internalPubkey,
+      taprootPaths.paths[a.redeemIndex],
     );
   });
   lazy.prop(o, 'signature', () => {
@@ -265,7 +289,7 @@ function p2tr(a, opts) {
         throw new TypeError('mismatch between address and taproot pubkey');
     const parsedControlBlock = _parsedControlBlock();
     if (parsedControlBlock) {
-      if (!parsedControlBlock.internalPubkey.equals(_internalPubkey()))
+      if (!parsedControlBlock.internalPubkey.equals(o.internalPubkey))
         throw new TypeError('Internal pubkey mismatch');
       if (taprootPubkey && parsedControlBlock.parity !== taprootPubkey.parity)
         throw new TypeError('Parity mismatch');
