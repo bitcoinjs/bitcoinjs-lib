@@ -41,6 +41,7 @@ describe('types', () => {
   });
 
   describe('Satoshi', () => {
+    const BIG_SATOSHI_MAX = (1n << 63n) - 1n;
     [
       { value: -1, result: false },
       { value: 0, result: true },
@@ -51,9 +52,9 @@ describe('types', () => {
       { value: BigInt(-1), result: false },
       { value: BigInt(0), result: true },
       { value: BigInt(1), result: true },
-      { value: BigInt('999999999999999999'), result: true },
-      { value: BigInt('1000000000000000000'), result: true },
-      { value: BigInt('1000000000000000001'), result: false },
+      { value: BIG_SATOSHI_MAX - 1n, result: true },
+      { value: BIG_SATOSHI_MAX, result: true },
+      { value: BIG_SATOSHI_MAX + 1n, result: false },
     ].forEach(f => {
       it('returns ' + f.result + ' for valid for ' + f.value, () => {
         assert.strictEqual(types.Satoshi(f.value), f.result);
