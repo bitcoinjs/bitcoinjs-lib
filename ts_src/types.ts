@@ -46,7 +46,8 @@ export function Signer(obj: any): boolean {
 }
 
 const SATOSHI_MAX: number = 21 * 1e14;
-const BIG_SATOSHI_MAX: bigint = BigInt('1000000000000000000');
+// Value 2^63 - 1 is the maximum value stored in mongodb long type
+const BIG_SATOSHI_MAX: bigint = (1n << 63n) - 1n;
 export function Satoshi(value: number | bigint): boolean {
   return (
     (typeforce.UInt53(value) && value <= SATOSHI_MAX) ||
