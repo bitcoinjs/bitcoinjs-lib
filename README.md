@@ -60,9 +60,9 @@ It can do this through undermining your random number generation, accidentally p
 Running tests in your target environment is important and a recommended step to verify continuously.
 
 Finally, **adhere to best practice**.
-We are not an authorative source of best practice, but, at the very least:
+We are not an authoritative source of best practice, but, at the very least:
 
-* [Don't re-use addresses](https://en.bitcoin.it/wiki/Address_reuse).
+* [Don't reuse addresses](https://en.bitcoin.it/wiki/Address_reuse).
 * Don't share BIP32 extended public keys ('xpubs'). [They are a liability](https://bitcoin.stackexchange.com/questions/56916/derivation-of-parent-private-key-from-non-hardened-child), and it only takes 1 misplaced private key (or a buggy implementation!) and you are vulnerable to **catastrophic fund loss**.
 * [Don't use `Math.random`](https://security.stackexchange.com/questions/181580/why-is-math-random-not-designed-to-be-cryptographically-secure) - in any way - don't.
 * Enforce that users always verify (manually) a freshly-decoded human-readable version of their intended transaction before broadcast.
