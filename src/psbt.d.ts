@@ -56,6 +56,7 @@ export declare class Psbt {
     static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromBuffer(buffer: Buffer, opts?: PsbtOptsOptional): Psbt;
+    protected static transactionFromBuffer(buffer: Buffer, _network: Network): Transaction<bigint>;
     private __CACHE;
     private opts;
     constructor(opts?: PsbtOptsOptional, data?: PsbtBase);

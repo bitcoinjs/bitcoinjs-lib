@@ -78,6 +78,8 @@ class Psbt {
       // We will disable exporting the Psbt when unsafe sign is active.
       // because it is not BIP174 compliant.
       __UNSAFE_SIGN_NONSEGWIT: false,
+      __TX_FROM_BUFFER: buf =>
+        this.constructor.transactionFromBuffer(buf, this.opts.network),
     };
     if (this.data.inputs.length === 0) this.setVersion(2);
     // Make data hidden when enumerating
@@ -102,6 +104,9 @@ class Psbt {
     const psbt = new Psbt(opts, psbtBase);
     checkTxForDupeIns(psbt.__CACHE.__TX, psbt.__CACHE);
     return psbt;
+  }
+  static transactionFromBuffer(buffer, _network) {
+    return transaction_1.Transaction.fromBuffer(buffer, undefined, 'bigint');
   }
   get inputCount() {
     return this.data.inputs.length;
@@ -1219,11 +1224,7 @@ function witnessStackToScriptWitness(witness) {
 }
 function addNonWitnessTxCache(cache, input, inputIndex) {
   cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo;
-  const tx = transaction_1.Transaction.fromBuffer(
-    input.nonWitnessUtxo,
-    undefined,
-    'bigint',
-  );
+  const tx = cache.__TX_FROM_BUFFER(input.nonWitnessUtxo);
   cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
   const self = cache;
   const selfIndex = inputIndex;
