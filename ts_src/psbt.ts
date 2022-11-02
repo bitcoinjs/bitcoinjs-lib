@@ -114,6 +114,13 @@ export class Psbt {
     return psbt;
   }
 
+  protected static transactionFromBuffer(
+    buffer: Buffer,
+    _network: Network,
+  ): Transaction<bigint> {
+    return Transaction.fromBuffer<bigint>(buffer, undefined, 'bigint');
+  }
+
   private __CACHE: PsbtCache;
   private opts: PsbtOpts;
 
@@ -137,6 +144,11 @@ export class Psbt {
       // We will disable exporting the Psbt when unsafe sign is active.
       // because it is not BIP174 compliant.
       __UNSAFE_SIGN_NONSEGWIT: false,
+      __TX_FROM_BUFFER: buf =>
+        (this.constructor as typeof Psbt).transactionFromBuffer(
+          buf,
+          this.opts.network,
+        ),
     };
     if (this.data.inputs.length === 0) this.setVersion(2);
 
@@ -752,6 +764,7 @@ interface PsbtCache {
   __FEE?: bigint;
   __EXTRACTED_TX?: Transaction<bigint>;
   __UNSAFE_SIGN_NONSEGWIT: boolean;
+  __TX_FROM_BUFFER: (buf: Buffer) => Transaction<bigint>;
 }
 
 interface PsbtOptsOptional {
@@ -1590,11 +1603,7 @@ function addNonWitnessTxCache(
 ): void {
   cache.__NON_WITNESS_UTXO_BUF_CACHE[inputIndex] = input.nonWitnessUtxo!;
 
-  const tx = Transaction.fromBuffer<bigint>(
-    input.nonWitnessUtxo!,
-    undefined,
-    'bigint',
-  );
+  const tx = cache.__TX_FROM_BUFFER(input.nonWitnessUtxo!);
   cache.__NON_WITNESS_UTXO_TX_CACHE[inputIndex] = tx;
 
   const self = cache;
