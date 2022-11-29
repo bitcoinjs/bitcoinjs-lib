@@ -76,8 +76,20 @@ We are not an authoritative source of best practice, but, at the very least:
 
 
 ### Browser
-The recommended method of using `bitcoinjs-lib` in your browser is through [Browserify](https://github.com/substack/node-browserify).
-If you're familiar with how to use browserify, ignore this and carry on, otherwise, it is recommended to read the tutorial at https://browserify.org/.
+The recommended method of using `bitcoinjs-lib` in your browser is through [browserify](http://browserify.org/).
+
+If you'd like to use a different (more modern) build tool than `browserify`, you can compile just this library and its dependencies into a single JavaScript file:
+
+```sh
+$ npm install bitcoinjs-lib browserify
+$ npx browserify --standalone bitcoin - -o bitcoinjs-lib.js <<<"module.exports = require('bitcoinjs-lib');"
+```
+
+Which you can then import as an ESM module:
+
+```javascript
+<script type="module">import "/scripts/bitcoinjs-lib.js"</script>
+````
 
 **NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](https://babeljs.io/docs/plugins/preset-es2015/) preset).
 
