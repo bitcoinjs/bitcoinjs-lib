@@ -146,11 +146,11 @@ exports.tapTreeFromList = tapTreeFromList;
 function checkTaprootInputForSigs(input, action) {
   const sigs = extractTaprootSigs(input);
   return sigs.some(sig =>
-    (0, psbtutils_2.signatureBlocksAction)(sig, decodeSchnorSignature, action),
+    (0, psbtutils_2.signatureBlocksAction)(sig, decodeSchnorrSignature, action),
   );
 }
 exports.checkTaprootInputForSigs = checkTaprootInputForSigs;
-function decodeSchnorSignature(signature) {
+function decodeSchnorrSignature(signature) {
   return {
     signature: signature.slice(0, 64),
     hashType:

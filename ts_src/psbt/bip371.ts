@@ -201,11 +201,11 @@ export function checkTaprootInputForSigs(
 ): boolean {
   const sigs = extractTaprootSigs(input);
   return sigs.some(sig =>
-    signatureBlocksAction(sig, decodeSchnorSignature, action),
+    signatureBlocksAction(sig, decodeSchnorrSignature, action),
   );
 }
 
-function decodeSchnorSignature(
+function decodeSchnorrSignature(
   signature: Buffer,
 ): {
   signature: Buffer;
