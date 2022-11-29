@@ -235,7 +235,7 @@ function getTapKeySigFromWithness(
 ): Buffer | undefined {
   if (!finalScriptWitness) return;
   const witness = finalScriptWitness.slice(2);
-  // todo: add schnor signature validation
+  // todo: add schnorr signature validation
   if (witness.length === 64 || witness.length === 65) return witness;
 }
 
