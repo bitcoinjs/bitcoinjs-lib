@@ -995,7 +995,9 @@ export class Psbt {
       sighashTypes,
     );
 
-    const signaturePromises: Promise<any>[] = [];
+    const signaturePromises: Promise<
+      { tapKeySig: Buffer } | { tapScriptSig: TapScriptSig[] }
+    >[] = [];
     const tapKeyHash = hashesForSig.filter(h => !h.leafHash)[0];
     if (tapKeyHash) {
       const tapKeySigPromise = Promise.resolve(
