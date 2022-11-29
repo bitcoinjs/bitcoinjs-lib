@@ -127,6 +127,8 @@ const OPS: { [key: string]: number } = {
   OP_NOP9: 184,
   OP_NOP10: 185,
 
+  OP_CHECKSIGADD: 186,
+
   OP_PUBKEYHASH: 253,
   OP_PUBKEY: 254,
   OP_INVALIDOPCODE: 255,

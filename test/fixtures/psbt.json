@@ -116,6 +116,10 @@
       {
         "description": "PSBT with unknown types in the inputs.",
         "psbt": "cHNidP8BAD8CAAAAAf//////////////////////////////////////////AAAAAAD/////AQAAAAAAAAAAA2oBAAAAAAAACg8BAgMEBQYHCAkPAQIDBAUGBwgJCgsMDQ4PAAA="
+      },
+      {
+        "description": "PSBT with one P2TR input and one P2TR output.",
+        "psbt": "cHNidP8BAF4CAAAAAWbQAKi9hNXynJhqPu8bqkvp0kHihVShkWGh3yLy15+LAAAAAAD/////Aej9AAAAAAAAIlEgRvZJfLLxnVDD6emCqVDcyGIUsB/M5DekIGHHvbEjDTMAAAAAAAEBK7gFAQAAAAAAIlEglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4AAA=="
       }
     ],
     "failSignChecks": [
@@ -243,6 +247,36 @@
           }
         ],
         "result": "cHNidP8BAJoCAAAAAljoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////g40EJ9DsZQpoqka7CwmK6kQiwHGyyng1Kgd5WdB86h0BAAAAAP////8CcKrwCAAAAAAWABTYXCtx0AYLCcmIauuBXlCZHdoSTQDh9QUAAAAAFgAUAK6pouXw+HaliN9VRuh0LR2HAI8AAAAAAAEAuwIAAAABqtc5MQGL0l+ErkALaISL4J23BurCrBgpi6vucatlb4sAAAAASEcwRAIgWPb8fGoz4bMVSNSByCbAFb0wE1qtQs1neQ2rZtKtJDsCIEoc7SYExnNbY5PltBaR3XiwDwxZQvufdRhW+qk4FX26Af7///8CgPD6AgAAAAAXqRQPuUY0IWlrgsgzryQceMF9295JNIfQ8gonAQAAABepFCnKdPigj4GZlCgYXJe12FLkBj9hh2UAAAABAwQBAAAAAQRHUiEClYO/Oa4KYJdHrRma3dY0+mEIVZ1sXNObTCGD8auW4H8hAtq2H/SaFNtqfQKwzR+7ePxLGDErW05U2uTbovv+9TbXUq4iBgKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgfxDZDGpPAAAAgAAAAIAAAACAIgYC2rYf9JoU22p9ArDNH7t4/EsYMStbTlTa5Nui+/71NtcQ2QxqTwAAAIAAAACAAQAAgAABASAAwusLAAAAABepFLf1+vQOPUClpFmx2zU18rcvqSHohwEDBAEAAAABBCIAIIwjUxc3Q7WV37Sge3K6jkLjeX2nTof+fZ10l+OyAokDAQVHUiEDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtwhAjrdkE89bc9Z3bkGsN7iNSm3/7ntUOXoYVGSaGAiHw5zUq4iBgI63ZBPPW3PWd25BrDe4jUpt/+57VDl6GFRkmhgIh8OcxDZDGpPAAAAgAAAAIADAACAIgYDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtwQ2QxqTwAAAIAAAACAAgAAgAAiAgOppMN/WZbTqiXbrGtXCvBlA5RJKUJGCzVHU+2e7KWHcRDZDGpPAAAAgAAAAIAEAACAACICAn9jmXV9Lv9VoTatAsaEsYOLZVbl8bazQoKpS2tQBRCWENkMak8AAACAAAAAgAUAAIAA"
+      },
+      {
+        "description": "Update taproot output",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAF4CAAAAAbc48X2AGPRzFoMvXHqldFViBB89ZrPfTH6yxr42pJsWAAAAAAAKAAAAAZBBBgAAAAAAIlEgwjn5jxVDmCN6B+wTPt4zCjlF+5KOEDapZ4S9Y3HZxdwAAAAAAAEBK6BoBgAAAAAAIlEgOJumKbXWO2VGchS5k1l1NzOsAyg8aBVQbDNJ88BPtH5iFcF6ESg3Xx4VxbYhRfEEyJc6dumg3zlxfNO8piELt1JMShpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdYmWrJ1IAOmFFKDvSwulomGXZP6LYOYOGBHzSRnrh2w9cb0vzIGrMAAAA==",
+        "outputData": [
+          {
+            "tapInternalKey": "Buffer.from('b3310106b13af5def8fc341fe7120e844ab73d4437649aefcadd306d974c9958', 'hex')",
+            "tapTree": {
+              "leaves": [
+                {
+                  "depth": 1,
+                  "leafVersion": 192,
+                  "script": "Buffer.from('2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0ac', 'hex')"
+                },
+                {
+                  "depth": 2,
+                  "leafVersion": 192,
+                  "script": "Buffer.from('2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0ac', 'hex')"
+                },
+                {
+                  "depth": 2,
+                  "leafVersion": 192,
+                  "script": "Buffer.from('5ab2752003a6145283bd2c2e9689865d93fa2d8398386047cd2467ae1db0f5c6f4bf3206ac', 'hex')"
+                }
+              ]
+            }
+          }
+        ],
+        "result": "cHNidP8BAF4CAAAAAbc48X2AGPRzFoMvXHqldFViBB89ZrPfTH6yxr42pJsWAAAAAAAKAAAAAZBBBgAAAAAAIlEgwjn5jxVDmCN6B+wTPt4zCjlF+5KOEDapZ4S9Y3HZxdwAAAAAAAEBK6BoBgAAAAAAIlEgOJumKbXWO2VGchS5k1l1NzOsAyg8aBVQbDNJ88BPtH5iFcF6ESg3Xx4VxbYhRfEEyJc6dumg3zlxfNO8piELt1JMShpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdYmWrJ1IAOmFFKDvSwulomGXZP6LYOYOGBHzSRnrh2w9cb0vzIGrMAAAQUgszEBBrE69d74/DQf5xIOhEq3PUQ3ZJrvyt0wbZdMmVgBBnIBwCIgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsCsAsAiIFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrArALAJVqydSADphRSg70sLpaJhl2T+i2DmDhgR80kZ64dsPXG9L8yBqwA"
       }
     ],
     "signer": [
@@ -273,6 +307,71 @@
           }
         ],
         "result": "cHNidP8BAJoCAAAAAljoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////g40EJ9DsZQpoqka7CwmK6kQiwHGyyng1Kgd5WdB86h0BAAAAAP////8CcKrwCAAAAAAWABTYXCtx0AYLCcmIauuBXlCZHdoSTQDh9QUAAAAAFgAUAK6pouXw+HaliN9VRuh0LR2HAI8AAAAAAAEAuwIAAAABqtc5MQGL0l+ErkALaISL4J23BurCrBgpi6vucatlb4sAAAAASEcwRAIgWPb8fGoz4bMVSNSByCbAFb0wE1qtQs1neQ2rZtKtJDsCIEoc7SYExnNbY5PltBaR3XiwDwxZQvufdRhW+qk4FX26Af7///8CgPD6AgAAAAAXqRQPuUY0IWlrgsgzryQceMF9295JNIfQ8gonAQAAABepFCnKdPigj4GZlCgYXJe12FLkBj9hh2UAAAAiAgLath/0mhTban0CsM0fu3j8SxgxK1tOVNrk26L7/vU210gwRQIhAPYQOLMI3B2oZaNIUnRvAVdyk0IIxtJEVDk82ZvfIhd3AiAFbmdaZ1ptCgK4WxTl4pB02KJam1dgvqKBb2YZEKAG6gEBAwQBAAAAAQRHUiEClYO/Oa4KYJdHrRma3dY0+mEIVZ1sXNObTCGD8auW4H8hAtq2H/SaFNtqfQKwzR+7ePxLGDErW05U2uTbovv+9TbXUq4iBgKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgfxDZDGpPAAAAgAAAAIAAAACAIgYC2rYf9JoU22p9ArDNH7t4/EsYMStbTlTa5Nui+/71NtcQ2QxqTwAAAIAAAACAAQAAgAABASAAwusLAAAAABepFLf1+vQOPUClpFmx2zU18rcvqSHohyICAjrdkE89bc9Z3bkGsN7iNSm3/7ntUOXoYVGSaGAiHw5zRzBEAiBl9FulmYtZon/+GnvtAWrx8fkNVLOqj3RQql9WolEDvQIgf3JHA60e25ZoCyhLVtT/y4j3+3Weq74IqjDym4UTg9IBAQMEAQAAAAEEIgAgjCNTFzdDtZXftKB7crqOQuN5fadOh/59nXSX47ICiQMBBUdSIQMIncEMesbbVPkTKa9hczPbOIzq0MIx9yM3nRuZAwsC3CECOt2QTz1tz1nduQaw3uI1Kbf/ue1Q5ehhUZJoYCIfDnNSriIGAjrdkE89bc9Z3bkGsN7iNSm3/7ntUOXoYVGSaGAiHw5zENkMak8AAACAAAAAgAMAAIAiBgMIncEMesbbVPkTKa9hczPbOIzq0MIx9yM3nRuZAwsC3BDZDGpPAAAAgAAAAIACAACAACICA6mkw39ZltOqJdusa1cK8GUDlEkpQkYLNUdT7Z7spYdxENkMak8AAACAAAAAgAQAAIAAIgICf2OZdX0u/1WhNq0CxoSxg4tlVuXxtrNCgqlLa1AFEJYQ2QxqTwAAAIAAAACABQAAgAA="
+      },
+      {
+        "description": "Sign PSBT with 3 inputs [P2PKH, P2TR (key-path), P2WPKH] and two outputs [P2TR, P2WPKH]",
+        "psbt": "cHNidP8BAM8CAAAAAwPzd9k+uLSN1rgF01xY1TIA/8N+YytNZ4VP9gKFP4MyAAAAAAD/////ZtAAqL2E1fKcmGo+7xuqS+nSQeKFVKGRYaHfIvLXn4sAAAAAAP////9+h+SlCwIx1MUDT7Bek0NrWXS7xnSPi5LbYbDc9sxYIgAAAAAA/////wIgKRsAAAAAACJRIEb2SXyy8Z1Qw+npgqlQ3MhiFLAfzOQ3pCBhx72xIw0zuAUBAAAAAAAWABTJijE0v48z5ZmmfEAADXdCBcG0FAAAAAAAAQDiAgAAAAABAUfY2D1t0dyMeEH39C1yOdIxigpqm7XJNqHVT3Lc+FkiAAAAAAD+////AhIsGwAAAAAAGXapFJ5+8XZ3ZP80oFldvEwrcNsBftBmiKyYdK6xAAAAABepFLDBn59UffGbX7u/olyFDG0eG1UJhwJHMEQCIDAd3s05C61flXVFqOtov0NoHRGr8KFcOpH6R/81F46EAiBt+j9hHyvT2hYEyf8fdYsM9IgbnybtPV+kRTHDa6Rj0AEhAmmZfwmoHsmCkEOn9AfRTh+863mURelmE8hSqL4MG1EydJwgAAABASu4BQEAAAAAACJRIJQh5zSw+dLEZ+p90ZfGGstEZ83LyfTLDFcfi2OlxAyuARcglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4AAQEfECcAAAAAAAAWABRPoqyhKLb53uUwnE9wBR5Jxl/XMgAAAA==",
+        "isTaproot": true,
+        "keys": [
+          {
+            "inputToSign": 0,
+            "WIF": "cRyKzLXVgTReWe7wgfEiXktTa9tf4e5DK1STha274d7BBbnucTaR"
+          },
+          {
+            "inputToSign": 1,
+            "WIF": "cR62L1G154fjHFrBCJMxJxbk1rcxhT2xcTh7WstvFdFDsZ9uFiVj"
+          },
+          {
+            "inputToSign": 2,
+            "WIF": "cPPRdCmAMZMjPdHfRmTCmzYVruZHJ8GbM1FqN2W6DnmEPWDg29aL"
+          }
+        ],
+        "result": "cHNidP8BAM8CAAAAAwPzd9k+uLSN1rgF01xY1TIA/8N+YytNZ4VP9gKFP4MyAAAAAAD/////ZtAAqL2E1fKcmGo+7xuqS+nSQeKFVKGRYaHfIvLXn4sAAAAAAP////9+h+SlCwIx1MUDT7Bek0NrWXS7xnSPi5LbYbDc9sxYIgAAAAAA/////wIgKRsAAAAAACJRIEb2SXyy8Z1Qw+npgqlQ3MhiFLAfzOQ3pCBhx72xIw0zuAUBAAAAAAAWABTJijE0v48z5ZmmfEAADXdCBcG0FAAAAAAAAQDiAgAAAAABAUfY2D1t0dyMeEH39C1yOdIxigpqm7XJNqHVT3Lc+FkiAAAAAAD+////AhIsGwAAAAAAGXapFJ5+8XZ3ZP80oFldvEwrcNsBftBmiKyYdK6xAAAAABepFLDBn59UffGbX7u/olyFDG0eG1UJhwJHMEQCIDAd3s05C61flXVFqOtov0NoHRGr8KFcOpH6R/81F46EAiBt+j9hHyvT2hYEyf8fdYsM9IgbnybtPV+kRTHDa6Rj0AEhAmmZfwmoHsmCkEOn9AfRTh+863mURelmE8hSqL4MG1EydJwgACICAi5ovBH1xLoGxPqtFh48wUEpnM+St1SbPzRwO7kBNKOQRzBEAiBpWClBybtHveXkhAgTiE8QSczMJs8MGuH4LOSNRA6s/AIgWlbB3xJOtJIsszj1qZ/whA5jK9wnTzeZzDlVs/ivq2cBAAEBK7gFAQAAAAAAIlEglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4BE0Cd7/ny+QreV7urBWKNroQWCvnZczwkU0kLZiKsJQjtftKHWXMknftjt1d4K6aPYH7cBXzhlrUF+2GovjYLccZeARcglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4AAQEfECcAAAAAAAAWABRPoqyhKLb53uUwnE9wBR5Jxl/XMiICA6VOpEBbPJM/xYsqO2euttYFpgec9vcxggyTyoklK660SDBFAiEAoCIktghL55iuMAmkzwYJzb+h+qmNewZXxAx/06ObxIQCIELCsBz/wd2wPlnJb27OluxMkTPnCyHA2C+SxHiX/FvPAQAAAA=="
+      },
+      {
+        "description": "Sign PSBT with 1 input [P2TR] (script-path, 3-of-3) and one output [P2TR]",
+        "psbt": "cHNidP8BAF4CAAAAAQU2GLj/HTOEN804Hc6JRNTLM7EmDlIBdjG2G1aUw266AAAAAAD/////AYAaBgAAAAAAIlEg35sLGepBXUbR93XfxDJcYBCHqNVjw/jogOgPVdic1UgAAAAAAAEBK6BoBgAAAAAAIlEgVZx4+tHeORcb0jDJnOytrOnNOGL1uS0MdMUg1GQeS15iFcFmuQP4s1ds7KJtMOh4fTw1QCgxkWUA3FUAuUzKHzjDvhpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdZpII+JGq8uLXsUYXjFSofirt3Z0daGaSJXko5nzwgXT/N1rCA5X4Ep3WO0pcLxISTqoFt6ftMPcOUfuTMF3uzFQuf567ogqKs3vBYJ2DTDkTs1ONrRyE1/m2qDX/wXV3eRWjeuNXK6U5zAAAA=",
+        "isTaproot": true,
+        "keys": [
+          {
+            "inputToSign": 0,
+            "WIF": "cRXSy63fXDve59e8cvqozVFfqXJB6YL6cPzoRewmEsux81SgPrfj"
+          },
+          {
+            "inputToSign": 0,
+            "WIF": "cQQXUJocNBS6oZCCtyhCsdN5ammK6WoJWpx44ANKxZSN2A3WDDEN"
+          },
+          {
+            "inputToSign": 0,
+            "WIF": "cTrPNrN2EQo4ppBHcFNxyLBFq2WLjZoNKY5nQbPwAGdhQqqsRKSu"
+          }
+        ],
+        "result": "cHNidP8BAF4CAAAAAQU2GLj/HTOEN804Hc6JRNTLM7EmDlIBdjG2G1aUw266AAAAAAD/////AYAaBgAAAAAAIlEg35sLGepBXUbR93XfxDJcYBCHqNVjw/jogOgPVdic1UgAAAAAAAEBK6BoBgAAAAAAIlEgVZx4+tHeORcb0jDJnOytrOnNOGL1uS0MdMUg1GQeS15BFDlfgSndY7SlwvEhJOqgW3p+0w9w5R+5MwXe7MVC5/nrrqI0FdZdKILLLZgRVK8L9Bn2ijU6IcoqqyImKIWt3MtAA3alBoU7IBCkBk9OHD1wE8fJI4y+lbnTRj48e8AAwRM77q3Rml679qCzGvEAKAs99UNMaXHQIhgGfRP11AMlJkEUj4kary4texRheMVKh+Ku3dnR1oZpIleSjmfPCBdP83WuojQV1l0ogsstmBFUrwv0GfaKNTohyiqrIiYoha3cy0DYJZ6Lv7FZPIBRZFfVgF5v3gcRiQnT8aM82Q5IPkwkzZrGo4ThZblvunG/+hu8ZPuJrUU+uXb+s9rcwSH+BihIQRSoqze8FgnYNMOROzU42tHITX+baoNf/BdXd5FaN641cq6iNBXWXSiCyy2YEVSvC/QZ9oo1OiHKKqsiJiiFrdzLQEfQ5UkAg4lTbhJxjMzB7hu6ad1fywYxHCXjFXHHrm5PJTOFJLg2oTnwuQToz/Z2AW/UET7Op+WSoHZvW4tzzLhiFcFmuQP4s1ds7KJtMOh4fTw1QCgxkWUA3FUAuUzKHzjDvhpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdZpII+JGq8uLXsUYXjFSofirt3Z0daGaSJXko5nzwgXT/N1rCA5X4Ep3WO0pcLxISTqoFt6ftMPcOUfuTMF3uzFQuf567ogqKs3vBYJ2DTDkTs1ONrRyE1/m2qDX/wXV3eRWjeuNXK6U5zAAAA="
+      },
+      {
+        "description": "Sign PSBT with 1 input [P2TR]. Signer pubkey found in two tapleaf scripts (both get signed)",
+        "psbt": "cHNidP8BAF4CAAAAATNOP+fCPDCsZrgGIptDVbwY/yrkM2xaFfLe05BSLulZAAAAAAD/////AZBBBgAAAAAAIlEgo6glLro4LvJCjIXCj+2xYC8NQ5BB/tvaXLukmWNHDaQAAAAAAAEBK6BoBgAAAAAAIlEgo6glLro4LvJCjIXCj+2xYC8NQ5BB/tvaXLukmWNHDaRiFcDXgjtX0c88beKd6Y8zRYbANZXEc8dDhlup8v3SCiX0bBpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWWeEQK6JF8Ev4E8Yg25gvDzbizKAO6m6JD082gFjsWNVpIP1IuUG/pcYMyG7KOHraqMXMKKOJb5eIpnjGt7LrvcsWrCDxKlbBaB54iRPj/r6t5N9DtBFItV8uoHfEwGboXpVsHLogt01J+NwSsj7PM7m6QbLDiXLdoYzn9pHNA4kAGF1pL3+6U5zAQhXA14I7V9HPPG3inemPM0WGwDWVxHPHQ4ZbqfL90gol9Gx4Lk64Mk5QMzz2Xo97sRZFcGH0TduAOb6H0hHOB/0CrCMg/Ui5Qb+lxgzIbso4etqoxcwoo4lvl4imeMa3suu9yxaswAAA",
+        "isTaproot": true,
+        "keys": [
+          {
+            "inputToSign": 0,
+            "WIF": "cSu5bjn9TsAEeqZxEFKy5of3FKfHha6FT56KvfAGmu6rMmPNJTrV"
+          }
+        ],
+        "result": "cHNidP8BAF4CAAAAATNOP+fCPDCsZrgGIptDVbwY/yrkM2xaFfLe05BSLulZAAAAAAD/////AZBBBgAAAAAAIlEgo6glLro4LvJCjIXCj+2xYC8NQ5BB/tvaXLukmWNHDaQAAAAAAAEBK6BoBgAAAAAAIlEgo6glLro4LvJCjIXCj+2xYC8NQ5BB/tvaXLukmWNHDaRBFP1IuUG/pcYMyG7KOHraqMXMKKOJb5eIpnjGt7LrvcsWIjJncH2zqZGpUloPoJZipi/NkKmjWthVrvnedXPOOOdABNUCXyGRAy4nthiGpE8dXioP2P50J+fU5gojlqunTwPKRPvqWcCzOoaJGvUEF+oxpMXZ1+FZWHRppoeoZFParUEU/Ui5Qb+lxgzIbso4etqoxcwoo4lvl4imeMa3suu9yxZZ4RArokXwS/gTxiDbmC8PNuLMoA7qbokPTzaAWOxY1UAF3RzlWz+5cWYG1EqfZTT/CO7O3hGYvMMjlJV5rluR916WCgGYO2hHj9fiEH0rxD3BRbzR78PShCen+beqDncSYhXA14I7V9HPPG3inemPM0WGwDWVxHPHQ4ZbqfL90gol9GwaUpyfs81+d21htiJbbGEOiQb7j6psWaxcPpW1+C0p1lnhECuiRfBL+BPGINuYLw824sygDupuiQ9PNoBY7FjVaSD9SLlBv6XGDMhuyjh62qjFzCijiW+XiKZ4xrey673LFqwg8SpWwWgeeIkT4/6+reTfQ7QRSLVfLqB3xMBm6F6VbBy6ILdNSfjcErI+zzO5ukGyw4ly3aGM5/aRzQOJABhdaS9/ulOcwEIVwNeCO1fRzzxt4p3pjzNFhsA1lcRzx0OGW6ny/dIKJfRseC5OuDJOUDM89l6Pe7EWRXBh9E3bgDm+h9IRzgf9AqwjIP1IuUG/pcYMyG7KOHraqMXMKKOJb5eIpnjGt7LrvcsWrMAAAA=="
+      },
+      {
+        "description": "Sign PSBT with 1 input [P2TR]. Signer pubkey found in two tapleaf scripts (sign only the matching tapleaf hash)",
+        "psbt": "cHNidP8BAF4CAAAAAdXMkUOLeYvgm981k3T7Pmdf5Dr31jOxvpFHiXiU9D2gAAAAAAD/////AZBBBgAAAAAAIlEgD31MIAvwCaanOsAzyBoQ4o/WozgFiqVQTEqGJE18XqwAAAAAAAEBK6BoBgAAAAAAIlEgD31MIAvwCaanOsAzyBoQ4o/WozgFiqVQTEqGJE18XqxiFcAI1JOUM3VATBJC28HI1B5zKQNd5N4/c4g7M1CYhZWnWhpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWk4qTbS/aPOMicn4cednnrKiVhdggWbZxsQhaXXg5/EtpICo/Wsfk0hSOCy21lUyn+vXnc1SG1lNVWHlnXCh3xegqrCCcumXmHlTmveMSBLOPSfb6H3laX97tZtF4gqmxzV+gbLogXBeUvuJ0b/mMOa3539xiz0/Nf9RQCWGZXXoCNcFUYde6U5zAQhXACNSTlDN1QEwSQtvByNQecykDXeTeP3OIOzNQmIWVp1pfFb/yNVlibfG8oN35ON4kJ+kBZQ4LphUz16+7jituPiMgKj9ax+TSFI4LLbWVTKf69edzVIbWU1VYeWdcKHfF6CqswAAA",
+        "isTaproot": true,
+        "keys": [
+          {
+            "inputToSign": 0,
+            "tapLeafHashToSign": "f2d9fd9a2f80e0e7abeac881398fc37198f46e5c802ec00c95152aa6f703e71e",
+            "WIF": "cP76Rzf6bVcmFbnJ3DigWvyNvki2bZeXxoq3B5pcZ8zVRnT4fKdx"
+          }
+        ],
+        "result": "cHNidP8BAF4CAAAAAdXMkUOLeYvgm981k3T7Pmdf5Dr31jOxvpFHiXiU9D2gAAAAAAD/////AZBBBgAAAAAAIlEgD31MIAvwCaanOsAzyBoQ4o/WozgFiqVQTEqGJE18XqwAAAAAAAEBK6BoBgAAAAAAIlEgD31MIAvwCaanOsAzyBoQ4o/WozgFiqVQTEqGJE18XqxBFCo/Wsfk0hSOCy21lUyn+vXnc1SG1lNVWHlnXCh3xegq8tn9mi+A4Oer6siBOY/DcZj0blyALsAMlRUqpvcD5x5Aa7X0m4UCLaHA/Vnjkl+if6rVeiBbIlbHXHLh7RqJyB8Wgs66p6/ZnwSW/HD6o7rMHffIva+jgJgYWf6MvzrfTWIVwAjUk5QzdUBMEkLbwcjUHnMpA13k3j9ziDszUJiFladaGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdaTipNtL9o84yJyfhx52eesqJWF2CBZtnGxCFpdeDn8S2kgKj9ax+TSFI4LLbWVTKf69edzVIbWU1VYeWdcKHfF6CqsIJy6ZeYeVOa94xIEs49J9vofeVpf3u1m0XiCqbHNX6BsuiBcF5S+4nRv+Yw5rfnf3GLPT81/1FAJYZldegI1wVRh17pTnMBCFcAI1JOUM3VATBJC28HI1B5zKQNd5N4/c4g7M1CYhZWnWl8Vv/I1WWJt8byg3fk43iQn6QFlDgumFTPXr7uOK24+IyAqP1rH5NIUjgsttZVMp/r153NUhtZTVVh5Z1wod8XoKqzAAAA="
       }
     ],
     "combiner": [
@@ -295,6 +394,42 @@
       {
         "psbt": "cHNidP8BAJoCAAAAAljoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////g40EJ9DsZQpoqka7CwmK6kQiwHGyyng1Kgd5WdB86h0BAAAAAP////8CcKrwCAAAAAAWABTYXCtx0AYLCcmIauuBXlCZHdoSTQDh9QUAAAAAFgAUAK6pouXw+HaliN9VRuh0LR2HAI8AAAAAAAEAuwIAAAABqtc5MQGL0l+ErkALaISL4J23BurCrBgpi6vucatlb4sAAAAASEcwRAIgWPb8fGoz4bMVSNSByCbAFb0wE1qtQs1neQ2rZtKtJDsCIEoc7SYExnNbY5PltBaR3XiwDwxZQvufdRhW+qk4FX26Af7///8CgPD6AgAAAAAXqRQPuUY0IWlrgsgzryQceMF9295JNIfQ8gonAQAAABepFCnKdPigj4GZlCgYXJe12FLkBj9hh2UAAAAiAgKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgf0cwRAIgdAGK1BgAl7hzMjwAFXILNoTMgSOJEEjn282bVa1nnJkCIHPTabdA4+tT3O+jOCPIBwUUylWn3ZVE8VfBZ5EyYRGMASICAtq2H/SaFNtqfQKwzR+7ePxLGDErW05U2uTbovv+9TbXSDBFAiEA9hA4swjcHahlo0hSdG8BV3KTQgjG0kRUOTzZm98iF3cCIAVuZ1pnWm0KArhbFOXikHTYolqbV2C+ooFvZhkQoAbqAQEDBAEAAAABBEdSIQKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgfyEC2rYf9JoU22p9ArDNH7t4/EsYMStbTlTa5Nui+/71NtdSriIGApWDvzmuCmCXR60Zmt3WNPphCFWdbFzTm0whg/GrluB/ENkMak8AAACAAAAAgAAAAIAiBgLath/0mhTban0CsM0fu3j8SxgxK1tOVNrk26L7/vU21xDZDGpPAAAAgAAAAIABAACAAAEBIADC6wsAAAAAF6kUt/X69A49QKWkWbHbNTXyty+pIeiHIgIDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtxHMEQCIGLrelVhB6fHP0WsSrWh3d9vcHX7EnWWmn84Pv/3hLyyAiAMBdu3Rw2/LwhVfdNWxzJcHtMJE+mWzThAlF2xIijaXwEiAgI63ZBPPW3PWd25BrDe4jUpt/+57VDl6GFRkmhgIh8Oc0cwRAIgZfRbpZmLWaJ//hp77QFq8fH5DVSzqo90UKpfVqJRA70CIH9yRwOtHtuWaAsoS1bU/8uI9/t1nqu+CKow8puFE4PSAQEDBAEAAAABBCIAIIwjUxc3Q7WV37Sge3K6jkLjeX2nTof+fZ10l+OyAokDAQVHUiEDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtwhAjrdkE89bc9Z3bkGsN7iNSm3/7ntUOXoYVGSaGAiHw5zUq4iBgI63ZBPPW3PWd25BrDe4jUpt/+57VDl6GFRkmhgIh8OcxDZDGpPAAAAgAAAAIADAACAIgYDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtwQ2QxqTwAAAIAAAACAAgAAgAAiAgOppMN/WZbTqiXbrGtXCvBlA5RJKUJGCzVHU+2e7KWHcRDZDGpPAAAAgAAAAIAEAACAACICAn9jmXV9Lv9VoTatAsaEsYOLZVbl8bazQoKpS2tQBRCWENkMak8AAACAAAAAgAUAAIAA",
         "result": "cHNidP8BAJoCAAAAAljoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////g40EJ9DsZQpoqka7CwmK6kQiwHGyyng1Kgd5WdB86h0BAAAAAP////8CcKrwCAAAAAAWABTYXCtx0AYLCcmIauuBXlCZHdoSTQDh9QUAAAAAFgAUAK6pouXw+HaliN9VRuh0LR2HAI8AAAAAAAEAuwIAAAABqtc5MQGL0l+ErkALaISL4J23BurCrBgpi6vucatlb4sAAAAASEcwRAIgWPb8fGoz4bMVSNSByCbAFb0wE1qtQs1neQ2rZtKtJDsCIEoc7SYExnNbY5PltBaR3XiwDwxZQvufdRhW+qk4FX26Af7///8CgPD6AgAAAAAXqRQPuUY0IWlrgsgzryQceMF9295JNIfQ8gonAQAAABepFCnKdPigj4GZlCgYXJe12FLkBj9hh2UAAAABB9oARzBEAiB0AYrUGACXuHMyPAAVcgs2hMyBI4kQSOfbzZtVrWecmQIgc9Npt0Dj61Pc76M4I8gHBRTKVafdlUTxV8FnkTJhEYwBSDBFAiEA9hA4swjcHahlo0hSdG8BV3KTQgjG0kRUOTzZm98iF3cCIAVuZ1pnWm0KArhbFOXikHTYolqbV2C+ooFvZhkQoAbqAUdSIQKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgfyEC2rYf9JoU22p9ArDNH7t4/EsYMStbTlTa5Nui+/71NtdSrgABASAAwusLAAAAABepFLf1+vQOPUClpFmx2zU18rcvqSHohwEHIyIAIIwjUxc3Q7WV37Sge3K6jkLjeX2nTof+fZ10l+OyAokDAQjaBABHMEQCIGLrelVhB6fHP0WsSrWh3d9vcHX7EnWWmn84Pv/3hLyyAiAMBdu3Rw2/LwhVfdNWxzJcHtMJE+mWzThAlF2xIijaXwFHMEQCIGX0W6WZi1mif/4ae+0BavHx+Q1Us6qPdFCqX1aiUQO9AiB/ckcDrR7blmgLKEtW1P/LiPf7dZ6rvgiqMPKbhROD0gFHUiEDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtwhAjrdkE89bc9Z3bkGsN7iNSm3/7ntUOXoYVGSaGAiHw5zUq4AIgIDqaTDf1mW06ol26xrVwrwZQOUSSlCRgs1R1Ptnuylh3EQ2QxqTwAAAIAAAACABAAAgAAiAgJ/Y5l1fS7/VaE2rQLGhLGDi2VW5fG2s0KCqUtrUAUQlhDZDGpPAAAAgAAAAIAFAACAAA=="
+      },
+      {
+        "description": "Finalze taproot key-path",
+        "psbt": "cHNidP8BAM8CAAAAAwPzd9k+uLSN1rgF01xY1TIA/8N+YytNZ4VP9gKFP4MyAAAAAAD/////ZtAAqL2E1fKcmGo+7xuqS+nSQeKFVKGRYaHfIvLXn4sAAAAAAP////9+h+SlCwIx1MUDT7Bek0NrWXS7xnSPi5LbYbDc9sxYIgAAAAAA/////wIgKRsAAAAAACJRIEb2SXyy8Z1Qw+npgqlQ3MhiFLAfzOQ3pCBhx72xIw0zuAUBAAAAAAAWABTJijE0v48z5ZmmfEAADXdCBcG0FAAAAAAAAQDiAgAAAAABAUfY2D1t0dyMeEH39C1yOdIxigpqm7XJNqHVT3Lc+FkiAAAAAAD+////AhIsGwAAAAAAGXapFJ5+8XZ3ZP80oFldvEwrcNsBftBmiKyYdK6xAAAAABepFLDBn59UffGbX7u/olyFDG0eG1UJhwJHMEQCIDAd3s05C61flXVFqOtov0NoHRGr8KFcOpH6R/81F46EAiBt+j9hHyvT2hYEyf8fdYsM9IgbnybtPV+kRTHDa6Rj0AEhAmmZfwmoHsmCkEOn9AfRTh+863mURelmE8hSqL4MG1EydJwgACICAi5ovBH1xLoGxPqtFh48wUEpnM+St1SbPzRwO7kBNKOQRzBEAiBpWClBybtHveXkhAgTiE8QSczMJs8MGuH4LOSNRA6s/AIgWlbB3xJOtJIsszj1qZ/whA5jK9wnTzeZzDlVs/ivq2cBAAEBK7gFAQAAAAAAIlEglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4BE0Cd7/ny+QreV7urBWKNroQWCvnZczwkU0kLZiKsJQjtftKHWXMknftjt1d4K6aPYH7cBXzhlrUF+2GovjYLccZeARcglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4AAQEfECcAAAAAAAAWABRPoqyhKLb53uUwnE9wBR5Jxl/XMiICA6VOpEBbPJM/xYsqO2euttYFpgec9vcxggyTyoklK660SDBFAiEAoCIktghL55iuMAmkzwYJzb+h+qmNewZXxAx/06ObxIQCIELCsBz/wd2wPlnJb27OluxMkTPnCyHA2C+SxHiX/FvPAQAAAA==",
+        "result": "cHNidP8BAM8CAAAAAwPzd9k+uLSN1rgF01xY1TIA/8N+YytNZ4VP9gKFP4MyAAAAAAD/////ZtAAqL2E1fKcmGo+7xuqS+nSQeKFVKGRYaHfIvLXn4sAAAAAAP////9+h+SlCwIx1MUDT7Bek0NrWXS7xnSPi5LbYbDc9sxYIgAAAAAA/////wIgKRsAAAAAACJRIEb2SXyy8Z1Qw+npgqlQ3MhiFLAfzOQ3pCBhx72xIw0zuAUBAAAAAAAWABTJijE0v48z5ZmmfEAADXdCBcG0FAAAAAAAAQDiAgAAAAABAUfY2D1t0dyMeEH39C1yOdIxigpqm7XJNqHVT3Lc+FkiAAAAAAD+////AhIsGwAAAAAAGXapFJ5+8XZ3ZP80oFldvEwrcNsBftBmiKyYdK6xAAAAABepFLDBn59UffGbX7u/olyFDG0eG1UJhwJHMEQCIDAd3s05C61flXVFqOtov0NoHRGr8KFcOpH6R/81F46EAiBt+j9hHyvT2hYEyf8fdYsM9IgbnybtPV+kRTHDa6Rj0AEhAmmZfwmoHsmCkEOn9AfRTh+863mURelmE8hSqL4MG1EydJwgAAEHakcwRAIgaVgpQcm7R73l5IQIE4hPEEnMzCbPDBrh+CzkjUQOrPwCIFpWwd8STrSSLLM49amf8IQOYyvcJ083mcw5VbP4r6tnASECLmi8EfXEugbE+q0WHjzBQSmcz5K3VJs/NHA7uQE0o5AAAQEruAUBAAAAAAAiUSCUIec0sPnSxGfqfdGXxhrLRGfNy8n0ywxXH4tjpcQMrgEIQgFAne/58vkK3le7qwVija6EFgr52XM8JFNJC2YirCUI7X7Sh1lzJJ37Y7dXeCumj2B+3AV84Za1BfthqL42C3HGXgABAR8QJwAAAAAAABYAFE+irKEotvne5TCcT3AFHknGX9cyAQhsAkgwRQIhAKAiJLYIS+eYrjAJpM8GCc2/ofqpjXsGV8QMf9Ojm8SEAiBCwrAc/8HdsD5ZyW9uzpbsTJEz5wshwNgvksR4l/xbzwEhA6VOpEBbPJM/xYsqO2euttYFpgec9vcxggyTyoklK660AAAA",
+        "isTaproot": true
+      },
+      {
+        "description": "Finalze taproot script-path",
+        "psbt": "cHNidP8BAF4CAAAAAQU2GLj/HTOEN804Hc6JRNTLM7EmDlIBdjG2G1aUw266AAAAAAD/////AYAaBgAAAAAAIlEg35sLGepBXUbR93XfxDJcYBCHqNVjw/jogOgPVdic1UgAAAAAAAEBK6BoBgAAAAAAIlEgVZx4+tHeORcb0jDJnOytrOnNOGL1uS0MdMUg1GQeS15BFDlfgSndY7SlwvEhJOqgW3p+0w9w5R+5MwXe7MVC5/nrrqI0FdZdKILLLZgRVK8L9Bn2ijU6IcoqqyImKIWt3MtAA3alBoU7IBCkBk9OHD1wE8fJI4y+lbnTRj48e8AAwRM77q3Rml679qCzGvEAKAs99UNMaXHQIhgGfRP11AMlJkEUj4kary4texRheMVKh+Ku3dnR1oZpIleSjmfPCBdP83WuojQV1l0ogsstmBFUrwv0GfaKNTohyiqrIiYoha3cy0DYJZ6Lv7FZPIBRZFfVgF5v3gcRiQnT8aM82Q5IPkwkzZrGo4ThZblvunG/+hu8ZPuJrUU+uXb+s9rcwSH+BihIQRSoqze8FgnYNMOROzU42tHITX+baoNf/BdXd5FaN641cq6iNBXWXSiCyy2YEVSvC/QZ9oo1OiHKKqsiJiiFrdzLQEfQ5UkAg4lTbhJxjMzB7hu6ad1fywYxHCXjFXHHrm5PJTOFJLg2oTnwuQToz/Z2AW/UET7Op+WSoHZvW4tzzLhiFcFmuQP4s1ds7KJtMOh4fTw1QCgxkWUA3FUAuUzKHzjDvhpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdZpII+JGq8uLXsUYXjFSofirt3Z0daGaSJXko5nzwgXT/N1rCA5X4Ep3WO0pcLxISTqoFt6ftMPcOUfuTMF3uzFQuf567ogqKs3vBYJ2DTDkTs1ONrRyE1/m2qDX/wXV3eRWjeuNXK6U5zAAAA=",
+        "result": "cHNidP8BAF4CAAAAAQU2GLj/HTOEN804Hc6JRNTLM7EmDlIBdjG2G1aUw266AAAAAAD/////AYAaBgAAAAAAIlEg35sLGepBXUbR93XfxDJcYBCHqNVjw/jogOgPVdic1UgAAAAAAAEBK6BoBgAAAAAAIlEgVZx4+tHeORcb0jDJnOytrOnNOGL1uS0MdMUg1GQeS14BCP2PAQVAR9DlSQCDiVNuEnGMzMHuG7pp3V/LBjEcJeMVcceubk8lM4UkuDahOfC5BOjP9nYBb9QRPs6n5ZKgdm9bi3PMuEADdqUGhTsgEKQGT04cPXATx8kjjL6VudNGPjx7wADBEzvurdGaXrv2oLMa8QAoCz31Q0xpcdAiGAZ9E/XUAyUmQNglnou/sVk8gFFkV9WAXm/eBxGJCdPxozzZDkg+TCTNmsajhOFluW+6cb/6G7xk+4mtRT65dv6z2tzBIf4GKEhoII+JGq8uLXsUYXjFSofirt3Z0daGaSJXko5nzwgXT/N1rCA5X4Ep3WO0pcLxISTqoFt6ftMPcOUfuTMF3uzFQuf567ogqKs3vBYJ2DTDkTs1ONrRyE1/m2qDX/wXV3eRWjeuNXK6U5xhwWa5A/izV2zsom0w6Hh9PDVAKDGRZQDcVQC5TMofOMO+GlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdYaUpyfs81+d21htiJbbGEOiQb7j6psWaxcPpW1+C0p1gAA",
+        "isTaproot": true
+      },
+      {
+        "description": "Finalze taproot script-path (3-of-3)",
+        "psbt": "cHNidP8BAM8CAAAAAwPzd9k+uLSN1rgF01xY1TIA/8N+YytNZ4VP9gKFP4MyAAAAAAD/////ZtAAqL2E1fKcmGo+7xuqS+nSQeKFVKGRYaHfIvLXn4sAAAAAAP////9+h+SlCwIx1MUDT7Bek0NrWXS7xnSPi5LbYbDc9sxYIgAAAAAA/////wIgKRsAAAAAACJRIEb2SXyy8Z1Qw+npgqlQ3MhiFLAfzOQ3pCBhx72xIw0zuAUBAAAAAAAWABTJijE0v48z5ZmmfEAADXdCBcG0FAAAAAAAAQDiAgAAAAABAUfY2D1t0dyMeEH39C1yOdIxigpqm7XJNqHVT3Lc+FkiAAAAAAD+////AhIsGwAAAAAAGXapFJ5+8XZ3ZP80oFldvEwrcNsBftBmiKyYdK6xAAAAABepFLDBn59UffGbX7u/olyFDG0eG1UJhwJHMEQCIDAd3s05C61flXVFqOtov0NoHRGr8KFcOpH6R/81F46EAiBt+j9hHyvT2hYEyf8fdYsM9IgbnybtPV+kRTHDa6Rj0AEhAmmZfwmoHsmCkEOn9AfRTh+863mURelmE8hSqL4MG1EydJwgACICAi5ovBH1xLoGxPqtFh48wUEpnM+St1SbPzRwO7kBNKOQRzBEAiBpWClBybtHveXkhAgTiE8QSczMJs8MGuH4LOSNRA6s/AIgWlbB3xJOtJIsszj1qZ/whA5jK9wnTzeZzDlVs/ivq2cBAAEBK7gFAQAAAAAAIlEglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4BE0ADaUubfpFFrzbU+vL8qCzZE/FO+9unzylfpIgQZ4HTy2qPUtLvbyH59GApdz0SiUZGl8K6Crvt9YIfI/5FxbOLARcglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4AAQEfECcAAAAAAAAWABRPoqyhKLb53uUwnE9wBR5Jxl/XMiICA6VOpEBbPJM/xYsqO2euttYFpgec9vcxggyTyoklK660SDBFAiEAoCIktghL55iuMAmkzwYJzb+h+qmNewZXxAx/06ObxIQCIELCsBz/wd2wPlnJb27OluxMkTPnCyHA2C+SxHiX/FvPAQAAAA==",
+        "result": "cHNidP8BAM8CAAAAAwPzd9k+uLSN1rgF01xY1TIA/8N+YytNZ4VP9gKFP4MyAAAAAAD/////ZtAAqL2E1fKcmGo+7xuqS+nSQeKFVKGRYaHfIvLXn4sAAAAAAP////9+h+SlCwIx1MUDT7Bek0NrWXS7xnSPi5LbYbDc9sxYIgAAAAAA/////wIgKRsAAAAAACJRIEb2SXyy8Z1Qw+npgqlQ3MhiFLAfzOQ3pCBhx72xIw0zuAUBAAAAAAAWABTJijE0v48z5ZmmfEAADXdCBcG0FAAAAAAAAQDiAgAAAAABAUfY2D1t0dyMeEH39C1yOdIxigpqm7XJNqHVT3Lc+FkiAAAAAAD+////AhIsGwAAAAAAGXapFJ5+8XZ3ZP80oFldvEwrcNsBftBmiKyYdK6xAAAAABepFLDBn59UffGbX7u/olyFDG0eG1UJhwJHMEQCIDAd3s05C61flXVFqOtov0NoHRGr8KFcOpH6R/81F46EAiBt+j9hHyvT2hYEyf8fdYsM9IgbnybtPV+kRTHDa6Rj0AEhAmmZfwmoHsmCkEOn9AfRTh+863mURelmE8hSqL4MG1EydJwgAAEHakcwRAIgaVgpQcm7R73l5IQIE4hPEEnMzCbPDBrh+CzkjUQOrPwCIFpWwd8STrSSLLM49amf8IQOYyvcJ083mcw5VbP4r6tnASECLmi8EfXEugbE+q0WHjzBQSmcz5K3VJs/NHA7uQE0o5AAAQEruAUBAAAAAAAiUSCUIec0sPnSxGfqfdGXxhrLRGfNy8n0ywxXH4tjpcQMrgEIQgFAA2lLm36RRa821Pry/Kgs2RPxTvvbp88pX6SIEGeB08tqj1LS728h+fRgKXc9EolGRpfCugq77fWCHyP+RcWziwABAR8QJwAAAAAAABYAFE+irKEotvne5TCcT3AFHknGX9cyAQhsAkgwRQIhAKAiJLYIS+eYrjAJpM8GCc2/ofqpjXsGV8QMf9Ojm8SEAiBCwrAc/8HdsD5ZyW9uzpbsTJEz5wshwNgvksR4l/xbzwEhA6VOpEBbPJM/xYsqO2euttYFpgec9vcxggyTyoklK660AAAA",
+        "isTaproot": true
+      },
+      {
+        "description": "Finalze taproot with tapkey sig and tapscript sigs (choose tapkey)",
+        "psbt": "cHNidP8BAF4CAAAAAQrtX/VtEfTwY2iXi+s8lzx2JZbV7w9a8q6lONJ4SBm1AAAAAAD/////AZBBBgAAAAAAIlEgp+9JIlFbn3ZwqTz8p4UU73qJfQl4FvNDuyBa51FMm/kAAAAAAAEBK6BoBgAAAAAAIlEgp+9JIlFbn3ZwqTz8p4UU73qJfQl4FvNDuyBa51FMm/kBE0DqpLv0n1NC7N2okYWhHwP+mCqaDGOmNGCobgPw54CAtJdHPKY2i/ioNzq/m2Muh0hUYcLlOcU5U4xF7W+6gvRuQRQGAr5sFRVLM9rtDJmH/nCNJu0u72GXSA2wf9k4GEnXrossGVn91s+ghIb0v5fVWfWjsqU6wRJBundeShgEvDIVQNduanOw6c03gjyLWLim7b/7yet7XRp1uNrtwrMklOMSujYI/h2o+TSqS7eNwCkNddW3R6v03L6S9hWHTUYprclBFDhs6fMvKmERoTq2yrBafaRMmYoKkSuw9D4o3xjiC403iywZWf3Wz6CEhvS/l9VZ9aOypTrBEkG6d15KGAS8MhVAMKZJmsPn+pjmlWzj5oPGOj8XSs0uCMnDL1jjnosEuO7G0y9Y46GlGnfOM54w/0n2qKkdDWHpXX14F9gNesiP5EEUfKybjQL7rXdJwSP1Fb15LaJyYFrW3yJnkN+aP9IdhTOGRF1EGo0fkg5hbe3o7iwS+jTgqmGOQDsHExHbJgmL90A8hHY8WzI+xJsFXMzi5ztkZS8pXf07iNlfDnLKZYyk9ZRBkAsJ9oYsvC19Irrq27l918aqfQc6sZBiskZyMs5wQRR8rJuNAvutd0nBI/UVvXktonJgWtbfImeQ35o/0h2FM4ssGVn91s+ghIb0v5fVWfWjsqU6wRJBundeShgEvDIVQFeVntO1MSRANCT3fpEWhijVJAbF6SVBdPlNAaRKc1sn3Gz+/HTfD+f9sqRlSIsF4D+ouhv6URBtAZUCuKHW6vxiFcFB6oQ4lfHrNv47TKgSz/MUn2hgozxlIgmi2demetlGgxpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWhkRdRBqNH5IOYW3t6O4sEvo04KphjkA7BxMR2yYJi/dpIHysm40C+613ScEj9RW9eS2icmBa1t8iZ5Dfmj/SHYUzrCAGAr5sFRVLM9rtDJmH/nCNJu0u72GXSA2wf9k4GEnXrrogOGzp8y8qYRGhOrbKsFp9pEyZigqRK7D0PijfGOILjTe6U5zAQhXBQeqEOJXx6zb+O0yoEs/zFJ9oYKM8ZSIJotnXpnrZRoMvbQYwKuRcSf7lDrRMU3H56Gh6NeGkogAw4hpvAn/mgCMgfKybjQL7rXdJwSP1Fb15LaJyYFrW3yJnkN+aP9IdhTOswAEXIEHqhDiV8es2/jtMqBLP8xSfaGCjPGUiCaLZ16Z62UaDARggNhmyJFW2/EeankNIJjRP9QFlju4/j/nEEcMAnlXe+XcAAA==",
+        "result": "cHNidP8BAF4CAAAAAQrtX/VtEfTwY2iXi+s8lzx2JZbV7w9a8q6lONJ4SBm1AAAAAAD/////AZBBBgAAAAAAIlEgp+9JIlFbn3ZwqTz8p4UU73qJfQl4FvNDuyBa51FMm/kAAAAAAAEBK6BoBgAAAAAAIlEgp+9JIlFbn3ZwqTz8p4UU73qJfQl4FvNDuyBa51FMm/kBCEIBQOqku/SfU0Ls3aiRhaEfA/6YKpoMY6Y0YKhuA/DngIC0l0c8pjaL+Kg3Or+bYy6HSFRhwuU5xTlTjEXtb7qC9G4AAA==",
+        "isTaproot": true
+      },
+      {
+        "description": "Finalze taproot script-path with two tapleafs signed (chooses the one with the shortest path)",
+        "psbt": "cHNidP8BAF4CAAAAAZsypn8thOjCXwg39Z1pAQCp7ndI8Jrw/8SGSmhgRiJpAAAAAAD/////AZBBBgAAAAAAIlEgFa11cf11Y+PGzl0UxS5788pld5zElAl9YY0OtTHhHzQAAAAAAAEBK6BoBgAAAAAAIlEgFa11cf11Y+PGzl0UxS5788pld5zElAl9YY0OtTHhHzRBFAUf68vx5rAfWwxMqZNce2OVVqlduXONBcm2JEPAT2Fc2gpbUnze59ZSHmflF7erkp8eUGBfJBmAcUZG5WBbC/pAJihlaGGDKsSd04fSyIk5WDACUedUvDE1C4zD80ubbX5qFzgxizY7pGG5zrrGAoW0KOEJ8TW4WEmh/WsE0erDxEEUIKvXw9clC9dJYjC2Woo/TrIhnRP9powDMmB/GF4rBRsRCNvHrz3TPp4Id2O6W4qhmerk87mqanTdLIapgqEamkDnpOB240Ce+yZlOPO3sxZDmpXhmsxtIl6a/R6TS2ekf2VCdZXg4Dqy3OpjzxQ/jDMbXbzETL2mdHlsgQnBnUcoYhXBr6rSntatZCCpyXS0zh+WAkLdMI4XHA0rVYAbFyHRzrqYKqOqTjCjec9FzSPuoLS+tXB4VvMgzUTs3kZS/bDfqlRY6TCnm2dtB3ED1fA6rlsUAqbWuurDp2W9ONMZj7NiIyAFH+vL8eawH1sMTKmTXHtjlVapXblzjQXJtiRDwE9hXKzAohXBr6rSntatZCCpyXS0zh+WAkLdMI4XHA0rVYAbFyHRzrq0JN6gn4QLkyoANzzc29JWULjDrP5UqfSmQaKGchuNJtrHlXZrvaHq6qReW/oKlQ/dX0xKraWx8wgu3JaJuf0K7iijuCxK7L69N4En3IjdGeHqk+26eie3VOHIgdMIh0q9q7FEmRK2sbmE7NhWpbGiU/lLBm6XT+D9HvPO+T63rSMgIKvXw9clC9dJYjC2Woo/TrIhnRP9powDMmB/GF4rBRuswAAA",
+        "result": "cHNidP8BAF4CAAAAAZsypn8thOjCXwg39Z1pAQCp7ndI8Jrw/8SGSmhgRiJpAAAAAAD/////AZBBBgAAAAAAIlEgFa11cf11Y+PGzl0UxS5788pld5zElAl9YY0OtTHhHzQAAAAAAAEBK6BoBgAAAAAAIlEgFa11cf11Y+PGzl0UxS5788pld5zElAl9YY0OtTHhHzQBCMcDQCYoZWhhgyrEndOH0siJOVgwAlHnVLwxNQuMw/NLm21+ahc4MYs2O6Rhuc66xgKFtCjhCfE1uFhJof1rBNHqw8QiIAUf68vx5rAfWwxMqZNce2OVVqlduXONBcm2JEPAT2FcrGHBr6rSntatZCCpyXS0zh+WAkLdMI4XHA0rVYAbFyHRzrqYKqOqTjCjec9FzSPuoLS+tXB4VvMgzUTs3kZS/bDfqlRY6TCnm2dtB3ED1fA6rlsUAqbWuurDp2W9ONMZj7NiAAA=",
+        "isTaproot": true
+      },
+      {
+        "description": "Finalze taproot script-path with two tapleafs signed (explicitly choose leaf)",
+        "psbt": "cHNidP8BAF4CAAAAAZsypn8thOjCXwg39Z1pAQCp7ndI8Jrw/8SGSmhgRiJpAAAAAAD/////AZBBBgAAAAAAIlEgFa11cf11Y+PGzl0UxS5788pld5zElAl9YY0OtTHhHzQAAAAAAAEBK6BoBgAAAAAAIlEgFa11cf11Y+PGzl0UxS5788pld5zElAl9YY0OtTHhHzRBFAUf68vx5rAfWwxMqZNce2OVVqlduXONBcm2JEPAT2Fc2gpbUnze59ZSHmflF7erkp8eUGBfJBmAcUZG5WBbC/pAJihlaGGDKsSd04fSyIk5WDACUedUvDE1C4zD80ubbX5qFzgxizY7pGG5zrrGAoW0KOEJ8TW4WEmh/WsE0erDxEEUIKvXw9clC9dJYjC2Woo/TrIhnRP9powDMmB/GF4rBRsRCNvHrz3TPp4Id2O6W4qhmerk87mqanTdLIapgqEamkDnpOB240Ce+yZlOPO3sxZDmpXhmsxtIl6a/R6TS2ekf2VCdZXg4Dqy3OpjzxQ/jDMbXbzETL2mdHlsgQnBnUcoYhXBr6rSntatZCCpyXS0zh+WAkLdMI4XHA0rVYAbFyHRzrqYKqOqTjCjec9FzSPuoLS+tXB4VvMgzUTs3kZS/bDfqlRY6TCnm2dtB3ED1fA6rlsUAqbWuurDp2W9ONMZj7NiIyAFH+vL8eawH1sMTKmTXHtjlVapXblzjQXJtiRDwE9hXKzAohXBr6rSntatZCCpyXS0zh+WAkLdMI4XHA0rVYAbFyHRzrq0JN6gn4QLkyoANzzc29JWULjDrP5UqfSmQaKGchuNJtrHlXZrvaHq6qReW/oKlQ/dX0xKraWx8wgu3JaJuf0K7iijuCxK7L69N4En3IjdGeHqk+26eie3VOHIgdMIh0q9q7FEmRK2sbmE7NhWpbGiU/lLBm6XT+D9HvPO+T63rSMgIKvXw9clC9dJYjC2Woo/TrIhnRP9powDMmB/GF4rBRuswAAA",
+        "result": "cHNidP8BAF4CAAAAAZsypn8thOjCXwg39Z1pAQCp7ndI8Jrw/8SGSmhgRiJpAAAAAAD/////AZBBBgAAAAAAIlEgFa11cf11Y+PGzl0UxS5788pld5zElAl9YY0OtTHhHzQAAAAAAAEBK6BoBgAAAAAAIlEgFa11cf11Y+PGzl0UxS5788pld5zElAl9YY0OtTHhHzQBCMcDQCYoZWhhgyrEndOH0siJOVgwAlHnVLwxNQuMw/NLm21+ahc4MYs2O6Rhuc66xgKFtCjhCfE1uFhJof1rBNHqw8QiIAUf68vx5rAfWwxMqZNce2OVVqlduXONBcm2JEPAT2FcrGHBr6rSntatZCCpyXS0zh+WAkLdMI4XHA0rVYAbFyHRzrqYKqOqTjCjec9FzSPuoLS+tXB4VvMgzUTs3kZS/bDfqlRY6TCnm2dtB3ED1fA6rlsUAqbWuurDp2W9ONMZj7NiAAA=",
+        "isTaproot": true
       }
     ],
     "extractor": [
@@ -338,6 +473,51 @@
           "index": 2
         },
         "equals": "cHNidP8BADMCAAAAAQABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4PAgAAAAD/////AAAAAAAAAAA="
+      },
+      {
+        "description": "checks for mixed taproot and non-taproot fields",
+        "inputData": {
+          "hash": "Buffer.from('000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f', 'hex')",
+          "index": 0,
+          "redeemScript": "Buffer.from('0014000102030405060708090a0b0c0d0e0f00010000', 'hex')",
+          "tapInternalKey": "Buffer.from('000102030405060708090a0b0c0d0e0f00010203040506070000000000000000', 'hex')"
+        },
+        "exception": "Invalid arguments for Psbt.addInput. Cannot use both taproot and non-taproot fields."
+      },
+      {
+        "description": "checks for tapleaf in taptree",
+        "inputData": {
+          "hash": "Buffer.from('000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f', 'hex')",
+          "index": 0,
+          "tapMerkleRoot": "Buffer.from('5cf5873456b400364b18bdc9a1a233870fa622a6010deef1d4e08474f3a103b4', 'hex')",
+          "tapLeafScript": [
+            {
+              "leafVersion": 192,
+              "script": "Buffer.from('20d5e347235eba74ae0cec686b668d5a9432f45a555d6ab22cebf5974bde9dc4f3ac', 'hex')",
+              "controlBlock": "Buffer.from('c0720768b9946ac22371653d92cc343bf109b8a3f819e231159fd4f2b1328944ecb424dea09f840b932a00373cdcdbd25650b8c3acfe54a9f4a641a286721b8d26dac795766bbda1eaeaa45e5bfa0a950fdd5f4c4aada5b1f3082edc9689b9fd0aee28a3b82c4aecbebd378127dc88dd19e1ea93edba7a27b754e1c881d308874a7ac4489544b7b840d045599ec9415ae71ccb090c2c465c05c9fa05f41c7a06d5', 'hex')"
+            }
+          ]
+        },
+        "exception": "Invalid arguments for Psbt.addInput. Tapleaf not part of taptree."
+      }
+    ]
+  },
+  "updateInput": {
+    "checks": [
+      {
+        "description": "checks for new tapleaf in taptree",
+        "psbt": "cHNidP8BADMCAAAAAQ1YzlMrOEvTUad+B8zippgoNUwrXhwvsHMMGwZb6S7LAAAAAAD/////AAAAAAAAAQEroGgGAAAAAAAiUSD3Vv2gTbCrHTNlF18uY/YKLdATh0ph4pwrCyUHkhtZngEYIHsGySMEjYsxl3fCSP6Ap7tG06AUPLXA8nGnwzSEH70VAAA=",
+        "index": 0,
+        "inputData": {
+          "tapLeafScript": [
+            {
+              "leafVersion": 192,
+              "script": "Buffer.from('20d5e347235eba74ae0cec686b668d5a9432f45a555d6ab22cebf5974bde9dc4f3ac', 'hex')",
+              "controlBlock": "Buffer.from('c0720768b9946ac22371653d92cc343bf109b8a3f819e231159fd4f2b1328944ecb424dea09f840b932a00373cdcdbd25650b8c3acfe54a9f4a641a286721b8d26dac795766bbda1eaeaa45e5bfa0a950fdd5f4c4aada5b1f3082edc9689b9fd0aee28a3b82c4aecbebd378127dc88dd19e1ea93edba7a27b754e1c881d308874a7ac4489544b7b840d045599ec9415ae71ccb090c2c465c05c9fa05f41c7a06d5', 'hex')"
+            }
+          ]
+        },
+        "exception": "Invalid arguments for Psbt.updateInput. Tapleaf not part of taptree."
       }
     ]
   },
@@ -352,11 +532,132 @@
         "exception": "Error adding output."
       },
       {
+        "description": "Checks the mandatory values for adding an output",
+        "outputData": {
+          "value": 1000
+        },
+        "exception": "Invalid arguments for Psbt\\.addOutput. Requires single object with at least \\[script or address\\] and \\[value\\]"
+      },
+      {
         "description": "Adds output normally",
         "outputData": {
           "address": "1P2NFEBp32V2arRwZNww6tgXEV58FG94mr",
           "value": 42
         }
+      },
+      {
+        "description": "Adds taproot output with internal tap key and tap tree",
+        "isTaproot": true,
+        "psbt": "cHNidP8BADMCAAAAAcbgSGx76du9GXsr4c6Yk7DFglfHi7M2jdCNUXwc+Q+EAAAAAAD/////AAAAAAAAAQEroGgGAAAAAAAiUSClLxmVQ6aZXLEwkYA/WGZuIE91BHT7xP7DIEAvz/NITaIVwd2NnolThxX+QCpgFksj8u93bzuZy6olaHxJNHaArwK1tCTeoJ+EC5MqADc83NvSVlC4w6z+VKn0pkGihnIbjSbax5V2a72h6uqkXlv6CpUP3V9MSq2lsfMILtyWibn9Cu4oo7gsSuy+vTeBJ9yI3Rnh6pPtunont1ThyIHTCIdKesRIlUS3uEDQRVmeyUFa5xzLCQwsRlwFyfoF9Bx6BtUjIFX368Cp2d6uXSbyrn23vC4KMjRRlEssuTTh7ThM6bXQrMAAAA==",
+        "outputData": {
+          "address": "bc1px4ssshedlz4jc56ses3lftz462a06jwy8my4pwpx6twx30vvv6nsgwcpu3",
+          "value": 410000,
+          "tapInternalKey": "Buffer.from('f6d4ce132444de7f0e3a1d2be9b38ceec798cf9a76eeeac585869445830eb167', 'hex')",
+          "tapTree": {
+            "leaves": [
+              {
+                "depth": 2,
+                "leafVersion": 192,
+                "script": "Buffer.from('2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0ac', 'hex')"
+              },
+              {
+                "depth": 3,
+                "leafVersion": 192,
+                "script": "Buffer.from('2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac1ac', 'hex')"
+              },
+              {
+                "depth": 3,
+                "leafVersion": 192,
+                "script": "Buffer.from('202258b1c3160be0864a541854eec9164a572f094f7562628281a8073bb89173a7ac', 'hex')"
+              },
+              {
+                "depth": 2,
+                "leafVersion": 192,
+                "script": "Buffer.from('2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac2ac', 'hex')"
+              },
+              {
+                "depth": 3,
+                "leafVersion": 192,
+                "script": "Buffer.from('2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac3ac', 'hex')"
+              },
+              {
+                "depth": 4,
+                "leafVersion": 192,
+                "script": "Buffer.from('2050929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac4ac', 'hex')"
+              },
+              {
+                "depth": 4,
+                "leafVersion": 192,
+                "script": "Buffer.from('2055f7ebc0a9d9deae5d26f2ae7db7bc2e0a323451944b2cb934e1ed384ce9b5d0ac', 'hex')"
+              }
+            ]
+          }
+        },
+        "result": "cHNidP8BAF4CAAAAAcbgSGx76du9GXsr4c6Yk7DFglfHi7M2jdCNUXwc+Q+EAAAAAAD/////AZBBBgAAAAAAIlEgNWEIXy34qyxTUMwj9KxV0rr9ScQ+yVC4JtLcaL2MZqcAAAAAAAEBK6BoBgAAAAAAIlEgpS8ZlUOmmVyxMJGAP1hmbiBPdQR0+8T+wyBAL8/zSE2iFcHdjZ6JU4cV/kAqYBZLI/Lvd287mcuqJWh8STR2gK8CtbQk3qCfhAuTKgA3PNzb0lZQuMOs/lSp9KZBooZyG40m2seVdmu9oerqpF5b+gqVD91fTEqtpbHzCC7clom5/QruKKO4LErsvr03gSfciN0Z4eqT7bp6J7dU4ciB0wiHSnrESJVEt7hA0EVZnslBWuccywkMLEZcBcn6BfQcegbVIyBV9+vAqdnerl0m8q59t7wuCjI0UZRLLLk04e04TOm10KzAAAEFIPbUzhMkRN5/DjodK+mzjO7HmM+adu7qxYWGlEWDDrFnAQb9AwECwCIgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsCsA8AiIFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrBrAPAIiAiWLHDFgvghkpUGFTuyRZKVy8JT3ViYoKBqAc7uJFzp6wCwCIgUJKbdMGgSVS3i0tgNel6XgeKWg8o7JbVR7/ums6AOsKsA8AiIFCSm3TBoElUt4tLYDXpel4HiloPKOyW1Ue/7prOgDrDrATAIiBQkpt0waBJVLeLS2A16XpeB4paDyjsltVHv+6azoA6xKwEwCIgVffrwKnZ3q5dJvKufbe8LgoyNFGUSyy5NOHtOEzptdCsAA=="
+      },
+      {
+        "description": "Adds taproot output with internal tap key and correct address",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAFwCAAAAAk9Ve2845C8v//JR71uKzf70FjeNfx7SvB4l3A+Q44UKAAAAAAD/////FIp10hu+RPgTSFGPmjwb01Tf/a5UkcPFUpOw/X6UEPYAAAAAAP////8AAAAAAAABASugaAYAAAAAACJRINqadqaDhePTT29qdKQScUmyJxEeDw12HLjkMYMVSlnkARcgDN4bJzix3HdE8+FUM6UgA1lEKpgpIImVUePmAGYh7yYAAQDAAgAAAAFbIoaAJqDd/f4mZppgYV4UR9bgU8lT9pTH4/aDJdFUWgAAAABrSDBFAiEA6JS0xMdSQhG+9gAPSxGs6HazyauyNUBMwrmF386IAxwCIGiyH9QHCzKOBTtg+VsISF4nUi9NfAtJAtC02J03+I07ASEDu1tkEI8W1bd6qrPZ3uLaHvE90BDUvRCwvTTzPYPXzwf/////AaBoBgAAAAAAGXapFL5QEf51k4TA7Mp5d18IM2ddq79oiKwAAAAAAAA=",
+        "outputData": {
+          "tapInternalKey": "Buffer.from('884d969439deced21d1ab71ecd9ef9a6a8795215588ce7eff4ad5efc903e40ec', 'hex')",
+          "address": "bc1p74zfvfd7rndcn8lvzuec4hj4kzp9nnjvapvx5fgtqsegzz656hhsee8kwu",
+          "value": 410000
+        },
+        "result": "cHNidP8BAIcCAAAAAk9Ve2845C8v//JR71uKzf70FjeNfx7SvB4l3A+Q44UKAAAAAAD/////FIp10hu+RPgTSFGPmjwb01Tf/a5UkcPFUpOw/X6UEPYAAAAAAP////8BkEEGAAAAAAAiUSD1RJYlvhzbiZ/sFzOK3lWwglnOTOhYaiULBDKBC1TV7wAAAAAAAQEroGgGAAAAAAAiUSDamnamg4Xj009vanSkEnFJsicRHg8Ndhy45DGDFUpZ5AEXIAzeGyc4sdx3RPPhVDOlIANZRCqYKSCJlVHj5gBmIe8mAAEAwAIAAAABWyKGgCag3f3+JmaaYGFeFEfW4FPJU/aUx+P2gyXRVFoAAAAAa0gwRQIhAOiUtMTHUkIRvvYAD0sRrOh2s8mrsjVATMK5hd/OiAMcAiBosh/UBwsyjgU7YPlbCEheJ1IvTXwLSQLQtNidN/iNOwEhA7tbZBCPFtW3eqqz2d7i2h7xPdAQ1L0QsL008z2D188H/////wGgaAYAAAAAABl2qRS+UBH+dZOEwOzKeXdfCDNnXau/aIisAAAAAAABBSCITZaUOd7O0h0atx7NnvmmqHlSFViM5+/0rV78kD5A7AA="
+      },
+      {
+        "description": "Adds taproot output with internal tap key and bad address",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAFwCAAAAAk9Ve2845C8v//JR71uKzf70FjeNfx7SvB4l3A+Q44UKAAAAAAD/////FIp10hu+RPgTSFGPmjwb01Tf/a5UkcPFUpOw/X6UEPYAAAAAAP////8AAAAAAAABASugaAYAAAAAACJRINqadqaDhePTT29qdKQScUmyJxEeDw12HLjkMYMVSlnkARcgDN4bJzix3HdE8+FUM6UgA1lEKpgpIImVUePmAGYh7yYAAQDAAgAAAAFbIoaAJqDd/f4mZppgYV4UR9bgU8lT9pTH4/aDJdFUWgAAAABrSDBFAiEA6JS0xMdSQhG+9gAPSxGs6HazyauyNUBMwrmF386IAxwCIGiyH9QHCzKOBTtg+VsISF4nUi9NfAtJAtC02J03+I07ASEDu1tkEI8W1bd6qrPZ3uLaHvE90BDUvRCwvTTzPYPXzwf/////AaBoBgAAAAAAGXapFL5QEf51k4TA7Mp5d18IM2ddq79oiKwAAAAAAAA=",
+        "outputData": {
+          "tapInternalKey": "Buffer.from('884d969439deced21d1ab71ecd9ef9a6a8795215588ce7eff4ad5efc903e40ec', 'hex')",
+          "address": "bc1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntslthf6w",
+          "value": 410000
+        },
+        "exception": "Error adding output. Script or address missmatch."
+      },
+      {
+        "description": "Adds taproot output with both taproot and non-taproot fields",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAFwCAAAAAk9Ve2845C8v//JR71uKzf70FjeNfx7SvB4l3A+Q44UKAAAAAAD/////FIp10hu+RPgTSFGPmjwb01Tf/a5UkcPFUpOw/X6UEPYAAAAAAP////8AAAAAAAABASugaAYAAAAAACJRINqadqaDhePTT29qdKQScUmyJxEeDw12HLjkMYMVSlnkARcgDN4bJzix3HdE8+FUM6UgA1lEKpgpIImVUePmAGYh7yYAAQDAAgAAAAFbIoaAJqDd/f4mZppgYV4UR9bgU8lT9pTH4/aDJdFUWgAAAABrSDBFAiEA6JS0xMdSQhG+9gAPSxGs6HazyauyNUBMwrmF386IAxwCIGiyH9QHCzKOBTtg+VsISF4nUi9NfAtJAtC02J03+I07ASEDu1tkEI8W1bd6qrPZ3uLaHvE90BDUvRCwvTTzPYPXzwf/////AaBoBgAAAAAAGXapFL5QEf51k4TA7Mp5d18IM2ddq79oiKwAAAAAAAA=",
+        "outputData": {
+          "address": "bc1px4ssshedlz4jc56ses3lftz462a06jwy8my4pwpx6twx30vvv6nsgwcpu3",
+          "value": 410000,
+          "tapInternalKey": "Buffer.from('884d969439deced21d1ab71ecd9ef9a6a8795215588ce7eff4ad5efc903e40ec', 'hex')",
+          "redeemScript": "Buffer.from('5221029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f2102dab61ff49a14db6a7d02b0cd1fbb78fc4b18312b5b4e54dae4dba2fbfef536d752ae', 'hex')"
+        },
+        "exception": "Invalid arguments for Psbt.addOutput. Cannot use both taproot and non-taproot fields."
+      },
+      {
+        "description": "Adds output after tapkey signature has been added",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAIcCAAAAAvz6EyMK2VQ0DFKWZyIyGZLZCnaIDtG5RI55OrGVs6u7AAAAAAD/////oB9A2l2NN5WPNjBDaRsz9Nmla1WdM3jl96ElSV5WWHMAAAAAAP////8BkEEGAAAAAAAiUSCnucwjGG2x9zGqP+E0PwxTkptd/9AYMW12ch7ffaogBAAAAAAAAQEroGgGAAAAAAAiUSDbRhL5phuWYLyqKbSqVb/Pic2mpPL46idVKQur9i06ugETQOPidQWL9dHDxd819Pn5QNNGyH0fmDv58pexSJVDalZ0W/HPVliPFZy7s//0TfTbvFce87/nKXcrwz5YuItIY6cBFyAOgJIoTQyYcpAqNfsK9CutgWckFE3mBMgpL50lKXb7oQABAL8CAAAAAcdkwPNWdYy1O8QM1xRkrJjas72QGQPEanYEpv6iT3PXAAAAAGpHMEQCIFpl6Nx8hoZA1o5Huo958RS/Hndy+DloLhp0nvRyBzN8AiB9jEbitThSs6TZ1XVBHZebj4nZbLMg3CCtss8WSZpv7QEhA+VxIxwCWeqoeDMYcEw3EC0ZPxIkOqt0YSK9Y3hAKTd1/////wGgaAYAAAAAABl2qRS9gA7n636cw49cUBJWm7IDJPKuuoisAAAAACICAknGKVC7w5Ek4l3IK5XCUwLNCeU4DD+76cdMAYDB72g3RzBEAiAjekFbBddaHY/LZidwKd3sBbifjmbEpka2Ps0B2Crg+wIgUoN4BhGCwMRTDaHbAX+0MXSGYA9nSlqeQJXpWQRCBfQBAAEFIE6DvlLK0f4BrtpMgez01WQYKLUQZ8HtbfuDPD52hmSvAA==",
+        "outputData": {
+          "address": "bc1px4ssshedlz4jc56ses3lftz462a06jwy8my4pwpx6twx30vvv6nsgwcpu3",
+          "value": 410000
+        },
+        "exception": "Can not modify transaction, signatures exist."
+      },
+      {
+        "description": "Adds output after tap key input has been finalized",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAF4CAAAAAfyhtBTm+3OPYBuMHvdPMf9jqniZDY925hbmnt8hxbA6AAAAAAD/////AZBBBgAAAAAAIlEgV6CyzSs5a6Tc8A+TYOiozWnh6FRH9E/VWFanhMAEbLEAAAAAAAEBK6BoBgAAAAAAIlEgV6CyzSs5a6Tc8A+TYOiozWnh6FRH9E/VWFanhMAEbLEBCEIBQOAqWBD/2jhPWzQvesT8sjkN2Cowphp3QvmlWbHiLx753ChcUovvWyBlWiCq77Kk+lZGEhC4vjClSjc26br+dc8AAA==",
+        "outputData": {
+          "address": "bc1px4ssshedlz4jc56ses3lftz462a06jwy8my4pwpx6twx30vvv6nsgwcpu3",
+          "value": 410000
+        },
+        "exception": "Can not modify transaction, signatures exist."
+      },
+      {
+        "description": "Adds output after tapscript signatures have been added",
+        "isTaproot": true,
+        "psbt": "cHNidP8BAF4CAAAAAa/0mhnSBXdEBKbbMC+2hm6AZZtCLBxBeubd1sjtau5dAAAAAAD/////AZBBBgAAAAAAIlEgISRIfamb9rCYzad52ikfoUUuFlvyTcImZMavR0jEaUQAAAAAAAEBK6BoBgAAAAAAIlEgISRIfamb9rCYzad52ikfoUUuFlvyTcImZMavR0jEaURBFBnEcOpwiHjNYPtWJOrQ8Pgc9bxBKyZh/i2D837Z1rC8BibL1C4Z/5e6dKzWfkzpsIbE5WEVn1bYpAAjrqIKMHlAKkl3w3Gfpkl9b0yDVbTlZd4yCEL9V2DJs6zpPrEmn3wiohBy8wwE6EZ0FxQdrCupnHKXhHBjpcHVwfJRQfcy9EEULx1ijisiHgGb/9/hBNhsIOv1ZyWsfmi/Ql+oz7AOuqAGJsvULhn/l7p0rNZ+TOmwhsTlYRWfVtikACOuogoweUBKNkxBf6vT8m7ISt1WikLWW9udCP7OQLXztr1IPalJT5z+esAWmgeLS7QoLgzTu8AnYp/rHxsgZ6CgiV8tlkciQRRXE7VxCk67h7Ee6CbSgNyotChx7CgwNTfxdJkyvCS0DgYmy9QuGf+XunSs1n5M6bCGxOVhFZ9W2KQAI66iCjB5QFN6DGtLlSIFBjZbdh3rbKBtBcEDSiEcuVxnSPpdM1RnQRmw5Ujo+/76wZfmGBMFzV0IA7vnHzzXN73jT6O8/wJiFcDBdB6IhNxYUBYgZT1K7FG5SblQ3S6nQMKRLc2vPcA0BhpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdZpIFcTtXEKTruHsR7oJtKA3Ki0KHHsKDA1N/F0mTK8JLQOrCAvHWKOKyIeAZv/3+EE2Gwg6/VnJax+aL9CX6jPsA66oLogGcRw6nCIeM1g+1Yk6tDw+Bz1vEErJmH+LYPzftnWsLy6U5zAAAA=",
+        "outputData": {
+          "address": "bc1px4ssshedlz4jc56ses3lftz462a06jwy8my4pwpx6twx30vvv6nsgwcpu3",
+          "value": 410000
+        },
+        "exception": "Can not modify transaction, signatures exist."
       }
     ]
   },
@@ -459,9 +760,31 @@
         "description": "allows signing non-whitelisted sighashtype when explicitly passed in",
         "shouldSign": {
           "psbt": "cHNidP8BADMBAAAAAYaq+PdOUY2PnV9kZKa82XlqrPByOqwH2TRg2+LQdqs2AAAAAAD/////AAAAAAAAAQEgAOH1BQAAAAAXqRSTNeWHqa9INvSnQ120SZeJc+6JSocBAwSBAAAAAQQWABQvLKRyDqYsPYImhD3eURpDGL10RwAA",
-          "sighashTypes": [129],
+          "sighashTypes": [
+            129
+          ],
           "inputToCheck": 0,
           "WIF": "KxnAnQh6UJBxLF8Weup77yn8tWhLHhDhnXeyJuzmmcZA5aRdMJni"
+        }
+      },
+      {
+        "description": "checks taproot key-path signer (tweaked key) matches internal tap key",
+        "isTaproot": true,
+        "shouldSign": {
+          "psbt": "cHNidP8BAF4CAAAAAf17fGksrz9eKGx1nSU3RX4vcwr7bfNdQzPZ9dSEkWBcAAAAAAD/////AZBBBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQAAAAAAAEBK6BoBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQBFyBbMLiqcPfsndZoMRtk9GKEFd0jSA3rwEa60nKQNwdHrAEYIOUOtfVyfPBm+ZzIsEfwzo2JL2WTslXAznzBllU7Oa4zAAA=",
+          "inputToCheck": 0,
+          "WIF": "KypUz2y1jdgzM8HGDUx9DYLmyzd8EWhruvLX2J5iSL7MiAcc7dBG",
+          "result": "cHNidP8BAF4CAAAAAf17fGksrz9eKGx1nSU3RX4vcwr7bfNdQzPZ9dSEkWBcAAAAAAD/////AZBBBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQAAAAAAAEBK6BoBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQBE0AAqkKg+dq3eThMoqzjh214urhgUoGTgwHlNyyMQ2RwhfeRIhAp+m9mZwQoXOxK7p2ILjf2G5j28F9KMhMzH7bXARcgWzC4qnD37J3WaDEbZPRihBXdI0gN68BGutJykDcHR6wBGCDlDrX1cnzwZvmcyLBH8M6NiS9lk7JVwM58wZZVOzmuMwAA"
+        }
+      },
+      {
+        "description": "check taproot script-path signer found for the input",
+        "isTaproot": true,
+        "shouldSign": {
+          "psbt": "cHNidP8BAF4CAAAAAUYAJ/rjwsScVTFXg1in8cNdaBDtwLAsQ6l1O8sWijmlAAAAAAD/////AZBBBgAAAAAAIlEgFlrANpbJgyRLzVMhozrVHKr6rGrz7e2bQ+3TyITRhB4AAAAAAAEBK6BoBgAAAAAAIlEgFlrANpbJgyRLzVMhozrVHKr6rGrz7e2bQ+3TyITRhB5BFNs7WfGuA1DZ7ZorvaC77E4rn/I2hbVtogxHpEnxKZ3DGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdZAbjBxWKodWLnyqPP18sLAjhTc/OXtHVtk+Abc/e8SoTIxaOORlmqOegbCKAUyL4+NFdAlgtcUyHUCxWaxJ3ykxGIVwOpmBmLM44rn+zwtvl1cyWYheMCVYuX2agqeiHOvsrXIGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdYaUpyfs81+d21htiJbbGEOiQb7j6psWaxcPpW1+C0p1mkgq1snxZRfWXi8CMjFSaobG3elbWWeL9QqflyaQtTYEG2sINs7WfGuA1DZ7ZorvaC77E4rn/I2hbVtogxHpEnxKZ3DuiB8Z8sVUSbQp0q8mQiD5n5coMrRzQAASnO9NspgIk9pZ7pTnMAAAA==",
+          "inputToCheck": 0,
+          "WIF": "L2wCzcNaJwG1W9djnumJnPQZTCpfeCkR2wgwfupphmThSrwTMCR6",
+          "result": "cHNidP8BAF4CAAAAAUYAJ/rjwsScVTFXg1in8cNdaBDtwLAsQ6l1O8sWijmlAAAAAAD/////AZBBBgAAAAAAIlEgFlrANpbJgyRLzVMhozrVHKr6rGrz7e2bQ+3TyITRhB4AAAAAAAEBK6BoBgAAAAAAIlEgFlrANpbJgyRLzVMhozrVHKr6rGrz7e2bQ+3TyITRhB5BFKtbJ8WUX1l4vAjIxUmqGxt3pW1lni/UKn5cmkLU2BBtT3q/MbhvStFL2jaKZM6N8TeYvCUfSVytPrzfjkXWQbdAoS5lV4a+yP0Y4nTr7ltbsrwMo+U3TNcC/ebE6U6xk/4er9bXfdvZNvgR+TgqrO/iZjNNI6QcGaudPObgsgYKTEEU2ztZ8a4DUNntmiu9oLvsTiuf8jaFtW2iDEekSfEpncMaUpyfs81+d21htiJbbGEOiQb7j6psWaxcPpW1+C0p1kBuMHFYqh1YufKo8/XywsCOFNz85e0dW2T4Btz97xKhMjFo45GWao56BsIoBTIvj40V0CWC1xTIdQLFZrEnfKTEYhXA6mYGYszjiuf7PC2+XVzJZiF4wJVi5fZqCp6Ic6+ytcgaUpyfs81+d21htiJbbGEOiQb7j6psWaxcPpW1+C0p1hpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWaSCrWyfFlF9ZeLwIyMVJqhsbd6VtZZ4v1Cp+XJpC1NgQbawg2ztZ8a4DUNntmiu9oLvsTiuf8jaFtW2iDEekSfEpncO6IHxnyxVRJtCnSryZCIPmflygytHNAABKc702ymAiT2lnulOcwAAA"
         }
       }
     ]
@@ -512,6 +835,14 @@
       }
     ]
   },
+  "finalizeInput": {
+    "finalizeTapleafByHash": {
+      "psbt": "cHNidP8BAF4CAAAAAXbYuDMSrbXuy1CXHZaiA8jjI+wcNkkCOL2dJD2dNf3kAAAAAAD/////AZBBBgAAAAAAIlEgcJi/YJDTvc6x6mRTIYgQG/+fEmLs2RjsO/FHW5okOEsAAAAAAAEBK6BoBgAAAAAAIlEgcJi/YJDTvc6x6mRTIYgQG/+fEmLs2RjsO/FHW5okOEtBFG78QHu9pQ+jR/B1+dz9XQtU0jFgoC5AFXcvibFi1jFAEkntiZ6MdFzn0seJJapRqACzEKXd0ZlMa34/iq0HnrVAfYaCk2E35rtXsMfbr/Hrbk/BtLF2VLepE0vIIB3UOWZEUF8akmlnL4Kh0xwMn4Cp99QivnI0B3XOsYfEznfDHUEUesul6blPS+qc/rm41L9nGaAck9KDAZAutbDsNLSZuXXMWh7785JCWLEpzsZRkM/9RJ+EaLYT/0O2sg4cHNHo1EBHFn/xRZno2fX/vLc1l2qHqZGB2vbLkZDj5KsVfqeJd78uIc5b6uAG0K+BBtq2H6HUvl+8RWd2GWmVoMTYppVNYhXAjGyV+gMPwhuPgQ05yTUt2dmE2xJLdkeHBaiap2ej2SuYKqOqTjCjec9FzSPuoLS+tXB4VvMgzUTs3kZS/bDfqvuLvWTUb+e6sUIP9JrqDAHAjkYMd3K3PTfk+B6aMTv4IyB6y6XpuU9L6pz+ubjUv2cZoByT0oMBkC61sOw0tJm5dazAohXAjGyV+gMPwhuPgQ05yTUt2dmE2xJLdkeHBaiap2ej2Su0JN6gn4QLkyoANzzc29JWULjDrP5UqfSmQaKGchuNJtrHlXZrvaHq6qReW/oKlQ/dX0xKraWx8wgu3JaJuf0K7iijuCxK7L69N4En3IjdGeHqk+26eie3VOHIgdMIh0q48S7pX3ESdKuEJ4Jo9s+PwRFNvGdokOHBSefrgpE1JCMgbvxAe72lD6NH8HX53P1dC1TSMWCgLkAVdy+JsWLWMUCswAAA",
+      "index": 0,
+      "leafHash": "1249ed899e8c745ce7d2c78925aa51a800b310a5ddd1994c6b7e3f8aad079eb5",
+      "result": "cHNidP8BAF4CAAAAAXbYuDMSrbXuy1CXHZaiA8jjI+wcNkkCOL2dJD2dNf3kAAAAAAD/////AZBBBgAAAAAAIlEgcJi/YJDTvc6x6mRTIYgQG/+fEmLs2RjsO/FHW5okOEsAAAAAAAEBK6BoBgAAAAAAIlEgcJi/YJDTvc6x6mRTIYgQG/+fEmLs2RjsO/FHW5okOEsBCP0HAQNAfYaCk2E35rtXsMfbr/Hrbk/BtLF2VLepE0vIIB3UOWZEUF8akmlnL4Kh0xwMn4Cp99QivnI0B3XOsYfEznfDHSIgbvxAe72lD6NH8HX53P1dC1TSMWCgLkAVdy+JsWLWMUCsocCMbJX6Aw/CG4+BDTnJNS3Z2YTbEkt2R4cFqJqnZ6PZK7Qk3qCfhAuTKgA3PNzb0lZQuMOs/lSp9KZBooZyG40m2seVdmu9oerqpF5b+gqVD91fTEqtpbHzCC7clom5/QruKKO4LErsvr03gSfciN0Z4eqT7bp6J7dU4ciB0wiHSrjxLulfcRJ0q4Qngmj2z4/BEU28Z2iQ4cFJ5+uCkTUkAAA="
+    }
+  },
   "finalizeAllInputs": [
     {
       "type": "P2PK",
@@ -550,6 +881,18 @@
     "pubkey": "Buffer.from('029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f', 'hex')",
     "incorrectPubkey": "Buffer.from('029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e02a', 'hex')",
     "nonExistantIndex": 42
+  },
+  "validateSignaturesOfTapKeyInput": {
+    "psbt": "cHNidP8BAM8CAAAAAwPzd9k+uLSN1rgF01xY1TIA/8N+YytNZ4VP9gKFP4MyAAAAAAD/////ZtAAqL2E1fKcmGo+7xuqS+nSQeKFVKGRYaHfIvLXn4sAAAAAAP////9+h+SlCwIx1MUDT7Bek0NrWXS7xnSPi5LbYbDc9sxYIgAAAAAA/////wIgKRsAAAAAACJRIEb2SXyy8Z1Qw+npgqlQ3MhiFLAfzOQ3pCBhx72xIw0zuAUBAAAAAAAWABTJijE0v48z5ZmmfEAADXdCBcG0FAAAAAAAAQDiAgAAAAABAUfY2D1t0dyMeEH39C1yOdIxigpqm7XJNqHVT3Lc+FkiAAAAAAD+////AhIsGwAAAAAAGXapFJ5+8XZ3ZP80oFldvEwrcNsBftBmiKyYdK6xAAAAABepFLDBn59UffGbX7u/olyFDG0eG1UJhwJHMEQCIDAd3s05C61flXVFqOtov0NoHRGr8KFcOpH6R/81F46EAiBt+j9hHyvT2hYEyf8fdYsM9IgbnybtPV+kRTHDa6Rj0AEhAmmZfwmoHsmCkEOn9AfRTh+863mURelmE8hSqL4MG1EydJwgACICAi5ovBH1xLoGxPqtFh48wUEpnM+St1SbPzRwO7kBNKOQRzBEAiBpWClBybtHveXkhAgTiE8QSczMJs8MGuH4LOSNRA6s/AIgWlbB3xJOtJIsszj1qZ/whA5jK9wnTzeZzDlVs/ivq2cBAAEBK7gFAQAAAAAAIlEglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4BE0Cd7/ny+QreV7urBWKNroQWCvnZczwkU0kLZiKsJQjtftKHWXMknftjt1d4K6aPYH7cBXzhlrUF+2GovjYLccZeARcglCHnNLD50sRn6n3Rl8Yay0RnzcvJ9MsMVx+LY6XEDK4AAQEfECcAAAAAAAAWABRPoqyhKLb53uUwnE9wBR5Jxl/XMiICA6VOpEBbPJM/xYsqO2euttYFpgec9vcxggyTyoklK660SDBFAiEAoCIktghL55iuMAmkzwYJzb+h+qmNewZXxAx/06ObxIQCIELCsBz/wd2wPlnJb27OluxMkTPnCyHA2C+SxHiX/FvPAQAAAA==",
+    "index": 1,
+    "pubkey": "Buffer.from('024fef5c5163bea69a93e74a59672bbeb081837077cb94cfa6e481a5cf00d8ab18', 'hex')",
+    "incorrectPubkey": "Buffer.from('029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e02a', 'hex')"
+  },
+  "validateSignaturesOfTapScriptInput": {
+    "psbt": "cHNidP8BAF4CAAAAAQU2GLj/HTOEN804Hc6JRNTLM7EmDlIBdjG2G1aUw266AAAAAAD/////AYAaBgAAAAAAIlEg35sLGepBXUbR93XfxDJcYBCHqNVjw/jogOgPVdic1UgAAAAAAAEBK6BoBgAAAAAAIlEgVZx4+tHeORcb0jDJnOytrOnNOGL1uS0MdMUg1GQeS15BFDlfgSndY7SlwvEhJOqgW3p+0w9w5R+5MwXe7MVC5/nrrqI0FdZdKILLLZgRVK8L9Bn2ijU6IcoqqyImKIWt3MtAA3alBoU7IBCkBk9OHD1wE8fJI4y+lbnTRj48e8AAwRM77q3Rml679qCzGvEAKAs99UNMaXHQIhgGfRP11AMlJkEUj4kary4texRheMVKh+Ku3dnR1oZpIleSjmfPCBdP83WuojQV1l0ogsstmBFUrwv0GfaKNTohyiqrIiYoha3cy0DYJZ6Lv7FZPIBRZFfVgF5v3gcRiQnT8aM82Q5IPkwkzZrGo4ThZblvunG/+hu8ZPuJrUU+uXb+s9rcwSH+BihIQRSoqze8FgnYNMOROzU42tHITX+baoNf/BdXd5FaN641cq6iNBXWXSiCyy2YEVSvC/QZ9oo1OiHKKqsiJiiFrdzLQEfQ5UkAg4lTbhJxjMzB7hu6ad1fywYxHCXjFXHHrm5PJTOFJLg2oTnwuQToz/Z2AW/UET7Op+WSoHZvW4tzzLhiFcFmuQP4s1ds7KJtMOh4fTw1QCgxkWUA3FUAuUzKHzjDvhpSnJ+zzX53bWG2IltsYQ6JBvuPqmxZrFw+lbX4LSnWGlKcn7PNfndtYbYiW2xhDokG+4+qbFmsXD6VtfgtKdZpII+JGq8uLXsUYXjFSofirt3Z0daGaSJXko5nzwgXT/N1rCA5X4Ep3WO0pcLxISTqoFt6ftMPcOUfuTMF3uzFQuf567ogqKs3vBYJ2DTDkTs1ONrRyE1/m2qDX/wXV3eRWjeuNXK6U5zAAAA=",
+    "index": 0,
+    "pubkey": "Buffer.from('02395f8129dd63b4a5c2f12124eaa05b7a7ed30f70e51fb93305deecc542e7f9eb', 'hex')",
+    "incorrectPubkey": "Buffer.from('029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e02a', 'hex')"
   },
   "getFeeRate": {
     "psbt": "cHNidP8BAJoCAAAAAljoeiG1ba8MI76OcHBFbDNvfLqlyHV5JPVFiHuyq911AAAAAAD/////g40EJ9DsZQpoqka7CwmK6kQiwHGyyng1Kgd5WdB86h0BAAAAAP////8CcKrwCAAAAAAWABTYXCtx0AYLCcmIauuBXlCZHdoSTQDh9QUAAAAAFgAUAK6pouXw+HaliN9VRuh0LR2HAI8AAAAAAAEAuwIAAAABqtc5MQGL0l+ErkALaISL4J23BurCrBgpi6vucatlb4sAAAAASEcwRAIgWPb8fGoz4bMVSNSByCbAFb0wE1qtQs1neQ2rZtKtJDsCIEoc7SYExnNbY5PltBaR3XiwDwxZQvufdRhW+qk4FX26Af7///8CgPD6AgAAAAAXqRQPuUY0IWlrgsgzryQceMF9295JNIfQ8gonAQAAABepFCnKdPigj4GZlCgYXJe12FLkBj9hh2UAAAAiAgKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgf0cwRAIgdAGK1BgAl7hzMjwAFXILNoTMgSOJEEjn282bVa1nnJkCIHPTabdA4+tT3O+jOCPIBwUUylWn3ZVE8VfBZ5EyYRGMASICAtq2H/SaFNtqfQKwzR+7ePxLGDErW05U2uTbovv+9TbXSDBFAiEA9hA4swjcHahlo0hSdG8BV3KTQgjG0kRUOTzZm98iF3cCIAVuZ1pnWm0KArhbFOXikHTYolqbV2C+ooFvZhkQoAbqAQEDBAEAAAABBEdSIQKVg785rgpgl0etGZrd1jT6YQhVnWxc05tMIYPxq5bgfyEC2rYf9JoU22p9ArDNH7t4/EsYMStbTlTa5Nui+/71NtdSriIGApWDvzmuCmCXR60Zmt3WNPphCFWdbFzTm0whg/GrluB/ENkMak8AAACAAAAAgAAAAIAiBgLath/0mhTban0CsM0fu3j8SxgxK1tOVNrk26L7/vU21xDZDGpPAAAAgAAAAIABAACAAAEBIADC6wsAAAAAF6kUt/X69A49QKWkWbHbNTXyty+pIeiHIgIDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtxHMEQCIGLrelVhB6fHP0WsSrWh3d9vcHX7EnWWmn84Pv/3hLyyAiAMBdu3Rw2/LwhVfdNWxzJcHtMJE+mWzThAlF2xIijaXwEiAgI63ZBPPW3PWd25BrDe4jUpt/+57VDl6GFRkmhgIh8Oc0cwRAIgZfRbpZmLWaJ//hp77QFq8fH5DVSzqo90UKpfVqJRA70CIH9yRwOtHtuWaAsoS1bU/8uI9/t1nqu+CKow8puFE4PSAQEDBAEAAAABBCIAIIwjUxc3Q7WV37Sge3K6jkLjeX2nTof+fZ10l+OyAokDAQVHUiEDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtwhAjrdkE89bc9Z3bkGsN7iNSm3/7ntUOXoYVGSaGAiHw5zUq4iBgI63ZBPPW3PWd25BrDe4jUpt/+57VDl6GFRkmhgIh8OcxDZDGpPAAAAgAAAAIADAACAIgYDCJ3BDHrG21T5EymvYXMz2ziM6tDCMfcjN50bmQMLAtwQ2QxqTwAAAIAAAACAAgAAgAAiAgOppMN/WZbTqiXbrGtXCvBlA5RJKUJGCzVHU+2e7KWHcRDZDGpPAAAAgAAAAIAEAACAACICAn9jmXV9Lv9VoTatAsaEsYOLZVbl8bazQoKpS2tQBRCWENkMak8AAACAAAAAgAUAAIAA",

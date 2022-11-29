@@ -9,8 +9,9 @@ A simple keyspend example that is possible with the current API is below.
 
 ## TODO
 
-- [ ] p2tr payment API to make script spends easier
+- [x] p2tr payment API to make script spends easier
 - [ ] Support within the Psbt class
+   - partial support added
 
 ## Example
 

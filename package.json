@@ -1,6 +1,6 @@
 {
   "name": "bitcoinjs-lib",
-  "version": "6.0.2",
+  "version": "6.1.0-rc.0",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -50,7 +50,7 @@
   ],
   "dependencies": {
     "bech32": "^2.0.0",
-    "bip174": "^2.0.1",
+    "bip174": "^2.1.0",
     "bs58check": "^2.1.2",
     "create-hash": "^1.1.0",
     "ripemd160": "^2.0.2",
@@ -73,7 +73,6 @@
     "bip39": "^3.0.2",
     "bip65": "^1.0.1",
     "bip68": "^1.0.3",
-    "bn.js": "^4.11.8",
     "bs58": "^4.0.0",
     "dhttp": "^3.0.0",
     "ecpair": "^2.0.1",
@@ -86,7 +85,7 @@
     "randombytes": "^2.1.0",
     "regtest-client": "0.2.0",
     "rimraf": "^2.6.3",
-    "tiny-secp256k1": "^2.1.2",
+    "tiny-secp256k1": "^2.2.0",
     "ts-node": "^8.3.0",
     "tslint": "^6.1.3",
     "typescript": "^4.4.4"

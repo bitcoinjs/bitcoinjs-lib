@@ -2,11 +2,9 @@ import { Network } from './networks';
 import * as networks from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
-import * as types from './types';
+import { typeforce, tuple, Hash160bit, UInt8 } from './types';
 import { bech32, bech32m } from 'bech32';
 import * as bs58check from 'bs58check';
-const { typeforce } = types;
-
 export interface Base58CheckResult {
   hash: Buffer;
   version: number;
@@ -21,7 +19,7 @@ export interface Bech32Result {
 const FUTURE_SEGWIT_MAX_SIZE: number = 40;
 const FUTURE_SEGWIT_MIN_SIZE: number = 2;
 const FUTURE_SEGWIT_MAX_VERSION: number = 16;
-const FUTURE_SEGWIT_MIN_VERSION: number = 1;
+const FUTURE_SEGWIT_MIN_VERSION: number = 2;
 const FUTURE_SEGWIT_VERSION_DIFF: number = 0x50;
 const FUTURE_SEGWIT_VERSION_WARNING: string =
   'WARNING: Sending to a future segwit version address can lead to loss of funds. ' +
@@ -93,7 +91,7 @@ export function fromBech32(address: string): Bech32Result {
 }
 
 export function toBase58Check(hash: Buffer, version: number): string {
-  typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments);
+  typeforce(tuple(Hash160bit, UInt8), arguments);
 
   const payload = Buffer.allocUnsafe(21);
   payload.writeUInt8(version, 0);
@@ -132,6 +130,9 @@ export function fromOutputScript(output: Buffer, network?: Network): string {
     return payments.p2wsh({ output, network }).address as string;
   } catch (e) {}
   try {
+    return payments.p2tr({ output, network }).address as string;
+  } catch (e) {}
+  try {
     return _toFutureSegwitAddress(output, network);
   } catch (e) {}
 
@@ -165,6 +166,9 @@ export function toOutputScript(address: string, network?: Network): Buffer {
           return payments.p2wpkh({ hash: decodeBech32.data }).output as Buffer;
         if (decodeBech32.data.length === 32)
           return payments.p2wsh({ hash: decodeBech32.data }).output as Buffer;
+      } else if (decodeBech32.version === 1) {
+        if (decodeBech32.data.length === 32)
+          return payments.p2tr({ pubkey: decodeBech32.data }).output as Buffer;
       } else if (
         decodeBech32.version >= FUTURE_SEGWIT_MIN_VERSION &&
         decodeBech32.version <= FUTURE_SEGWIT_MAX_VERSION &&

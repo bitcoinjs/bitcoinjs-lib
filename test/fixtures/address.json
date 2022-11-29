@@ -80,10 +80,10 @@
     },
     {
       "network": "bitcoin",
-      "bech32": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kt5nd6y",
+      "bech32": "bc1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntslthf6w",
       "version": 1,
-      "data": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6",
-      "script": "OP_1 751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"
+      "data": "8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7",
+      "script": "OP_1 8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7"
     },
     {
       "network": "bitcoin",
@@ -116,10 +116,16 @@
   ],
   "bech32": [
     {
-      "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kt5nd6y",
+      "address": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
+      "version": 0,
+      "prefix": "tb",
+      "data": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"
+    },
+    {
+      "address": "bc1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntslthf6w",
       "version": 1,
       "prefix": "bc",
-      "data": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"
+      "data": "8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7"
     },
     {
       "address": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
@@ -195,6 +201,19 @@
       {
         "exception": "has no matching Address",
         "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd675"
+      },
+      {
+        "exception": "has no matching Address",
+        "script": "OP_1 75"
+      },
+      {
+        "exception": "has no matching Address",
+        "script": "OP_1 751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd675"
+      },
+      {
+        "description": "pubkey is not valid x coordinate",
+        "exception": "has no matching Address",
+        "script": "OP_1 fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
       }
     ],
     "toOutputScript": [
@@ -297,6 +316,14 @@
       {
         "address": "bc1gmk9yu",
         "exception": "has no matching Script"
+      },
+      {
+        "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw55h884v",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "bc1pllllllllllllllllllllllllllllllllllllllllllllallllshsdfvw2y",
+        "paymentException": "TypeError: Invalid pubkey for p2tr"
       }
     ]
   }

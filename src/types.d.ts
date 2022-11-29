@@ -10,6 +10,29 @@ export declare function Signer(obj: any): boolean;
 export declare function Satoshi(value: number): boolean;
 export declare const ECPoint: any;
 export declare const Network: any;
+export interface XOnlyPointAddTweakResult {
+    parity: 1 | 0;
+    xOnlyPubkey: Uint8Array;
+}
+export interface Tapleaf {
+    output: Buffer;
+    version?: number;
+}
+export declare const TAPLEAF_VERSION_MASK = 254;
+export declare function isTapleaf(o: any): o is Tapleaf;
+/**
+ * Binary tree repsenting script path spends for a Taproot input.
+ * Each node is either a single Tapleaf, or a pair of Tapleaf | Taptree.
+ * The tree has no balancing requirements.
+ */
+export declare type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
+export declare function isTaptree(scriptTree: any): scriptTree is Taptree;
+export interface TinySecp256k1Interface {
+    isXOnlyPoint(p: Uint8Array): boolean;
+    xOnlyPointAddTweak(p: Uint8Array, tweak: Uint8Array): XOnlyPointAddTweakResult | null;
+    privateAdd(d: Uint8Array, tweak: Uint8Array): Uint8Array | null;
+    privateNegate(d: Uint8Array): Uint8Array;
+}
 export declare const Buffer256bit: any;
 export declare const Hash160bit: any;
 export declare const Hash256bit: any;
