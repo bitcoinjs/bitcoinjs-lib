@@ -1739,8 +1739,8 @@ function getTaprootHashesForSig(
   const prevOuts: Output[] = inputs.map((i, index) =>
     getScriptAndAmountFromUtxo(index, i, cache),
   );
-  const signingScripts: any = prevOuts.map(o => o.script);
-  const values: any = prevOuts.map(o => o.value);
+  const signingScripts = prevOuts.map(o => o.script);
+  const values = prevOuts.map(o => o.value);
 
   const hashes = [];
   if (input.tapInternalKey && !tapLeafHashToSign) {
