@@ -38,6 +38,12 @@ export function rootHashFromPath(
   controlBlock: Buffer,
   leafHash: Buffer,
 ): Buffer {
+  if (controlBlock.length < 33)
+    throw new TypeError(
+      `The control-block length is too small. Got ${
+        controlBlock.length
+      }, expected min 33.`,
+    );
   const m = (controlBlock.length - 33) / 32;
 
   let kj = leafHash;

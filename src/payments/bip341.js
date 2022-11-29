@@ -10,6 +10,12 @@ exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
 exports.MAX_TAPTREE_DEPTH = 128;
 const isHashBranch = ht => 'left' in ht && 'right' in ht;
 function rootHashFromPath(controlBlock, leafHash) {
+  if (controlBlock.length < 33)
+    throw new TypeError(
+      `The control-block length is too small. Got ${
+        controlBlock.length
+      }, expected min 33.`,
+    );
   const m = (controlBlock.length - 33) / 32;
   let kj = leafHash;
   for (let j = 0; j < m; j++) {
