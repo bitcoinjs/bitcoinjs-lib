@@ -660,34 +660,32 @@ export class Psbt {
     hdKeyPair: HDSigner | HDSignerAsync,
     sighashTypes: number[] = [Transaction.SIGHASH_ALL],
   ): Promise<void> {
-    return new Promise(
-      (resolve, reject): any => {
-        if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
-          return reject(new Error('Need HDSigner to sign input'));
-        }
+    return new Promise((resolve, reject): any => {
+      if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
+        return reject(new Error('Need HDSigner to sign input'));
+      }
 
-        const results: boolean[] = [];
-        const promises: Array<Promise<void>> = [];
-        for (const i of range(this.data.inputs.length)) {
-          promises.push(
-            this.signInputHDAsync(i, hdKeyPair, sighashTypes).then(
-              () => {
-                results.push(true);
-              },
-              () => {
-                results.push(false);
-              },
-            ),
-          );
+      const results: boolean[] = [];
+      const promises: Array<Promise<void>> = [];
+      for (const i of range(this.data.inputs.length)) {
+        promises.push(
+          this.signInputHDAsync(i, hdKeyPair, sighashTypes).then(
+            () => {
+              results.push(true);
+            },
+            () => {
+              results.push(false);
+            },
+          ),
+        );
+      }
+      return Promise.all(promises).then(() => {
+        if (results.every(v => v === false)) {
+          return reject(new Error('No inputs were signed'));
         }
-        return Promise.all(promises).then(() => {
-          if (results.every(v => v === false)) {
-            return reject(new Error('No inputs were signed'));
-          }
-          resolve();
-        });
-      },
-    );
+        resolve();
+      });
+    });
   }
 
   signInputHD(
@@ -712,26 +710,20 @@ export class Psbt {
     hdKeyPair: HDSigner | HDSignerAsync,
     sighashTypes: number[] = [Transaction.SIGHASH_ALL],
   ): Promise<void> {
-    return new Promise(
-      (resolve, reject): any => {
-        if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
-          return reject(new Error('Need HDSigner to sign input'));
-        }
-        const signers = getSignersFromHD(
-          inputIndex,
-          this.data.inputs,
-          hdKeyPair,
-        );
-        const promises = signers.map(signer =>
-          this.signInputAsync(inputIndex, signer, sighashTypes),
-        );
-        return Promise.all(promises)
-          .then(() => {
-            resolve();
-          })
-          .catch(reject);
-      },
-    );
+    return new Promise((resolve, reject): any => {
+      if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
+        return reject(new Error('Need HDSigner to sign input'));
+      }
+      const signers = getSignersFromHD(inputIndex, this.data.inputs, hdKeyPair);
+      const promises = signers.map(signer =>
+        this.signInputAsync(inputIndex, signer, sighashTypes),
+      );
+      return Promise.all(promises)
+        .then(() => {
+          resolve();
+        })
+        .catch(reject);
+    });
   }
 
   signAllInputs(keyPair: Signer, sighashTypes?: number[]): this {
@@ -760,36 +752,34 @@ export class Psbt {
     keyPair: Signer | SignerAsync,
     sighashTypes?: number[],
   ): Promise<void> {
-    return new Promise(
-      (resolve, reject): any => {
-        if (!keyPair || !keyPair.publicKey)
-          return reject(new Error('Need Signer to sign input'));
+    return new Promise((resolve, reject): any => {
+      if (!keyPair || !keyPair.publicKey)
+        return reject(new Error('Need Signer to sign input'));
 
-        // TODO: Add a pubkey/pubkeyhash cache to each input
-        // as input information is added, then eventually
-        // optimize this method.
-        const results: boolean[] = [];
-        const promises: Array<Promise<void>> = [];
-        for (const [i] of this.data.inputs.entries()) {
-          promises.push(
-            this.signInputAsync(i, keyPair, sighashTypes).then(
-              () => {
-                results.push(true);
-              },
-              () => {
-                results.push(false);
-              },
-            ),
-          );
+      // TODO: Add a pubkey/pubkeyhash cache to each input
+      // as input information is added, then eventually
+      // optimize this method.
+      const results: boolean[] = [];
+      const promises: Array<Promise<void>> = [];
+      for (const [i] of this.data.inputs.entries()) {
+        promises.push(
+          this.signInputAsync(i, keyPair, sighashTypes).then(
+            () => {
+              results.push(true);
+            },
+            () => {
+              results.push(false);
+            },
+          ),
+        );
+      }
+      return Promise.all(promises).then(() => {
+        if (results.every(v => v === false)) {
+          return reject(new Error('No inputs were signed'));
         }
-        return Promise.all(promises).then(() => {
-          if (results.every(v => v === false)) {
-            return reject(new Error('No inputs were signed'));
-          }
-          resolve();
-        });
-      },
-    );
+        resolve();
+      });
+    });
   }
 
   signInput(

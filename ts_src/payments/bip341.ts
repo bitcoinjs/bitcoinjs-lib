@@ -40,9 +40,7 @@ export function rootHashFromPath(
 ): Buffer {
   if (controlBlock.length < 33)
     throw new TypeError(
-      `The control-block length is too small. Got ${
-        controlBlock.length
-      }, expected min 33.`,
+      `The control-block length is too small. Got ${controlBlock.length}, expected min 33.`,
     );
   const m = (controlBlock.length - 33) / 32;
 

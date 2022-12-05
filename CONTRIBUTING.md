@@ -50,7 +50,7 @@ Refer to the [Git manual](https://git-scm.com/doc) for any information about `gi
 
 
 ## Regarding TypeScript
-This library is written in TypeScript with tslint, prettier, and the tsc transpiler. These tools will help during testing to notice improper logic before committing and sending a pull request.
+This library is written in TypeScript with eslint, prettier, and the tsc transpiler. These tools will help during testing to notice improper logic before committing and sending a pull request.
 
 Some rules regarding TypeScript:
 

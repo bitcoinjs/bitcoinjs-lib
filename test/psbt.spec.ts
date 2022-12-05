@@ -52,18 +52,16 @@ const toAsyncSigner = (signer: Signer): SignerAsync => {
   const ret: SignerAsync = {
     publicKey: signer.publicKey,
     sign: (hash: Buffer, lowerR: boolean | undefined): Promise<Buffer> => {
-      return new Promise(
-        (resolve, rejects): void => {
-          setTimeout(() => {
-            try {
-              const r = signer.sign(hash, lowerR);
-              resolve(r);
-            } catch (e) {
-              rejects(e);
-            }
-          }, 10);
-        },
-      );
+      return new Promise((resolve, rejects): void => {
+        setTimeout(() => {
+          try {
+            const r = signer.sign(hash, lowerR);
+            resolve(r);
+          } catch (e) {
+            rejects(e);
+          }
+        }, 10);
+      });
     },
   };
   return ret;
@@ -72,13 +70,11 @@ const failedAsyncSigner = (publicKey: Buffer): SignerAsync => {
   return {
     publicKey,
     sign: (__: Buffer): Promise<Buffer> => {
-      return new Promise(
-        (_, reject): void => {
-          setTimeout(() => {
-            reject(new Error('sign failed'));
-          }, 10);
-        },
-      );
+      return new Promise((_, reject): void => {
+        setTimeout(() => {
+          reject(new Error('sign failed'));
+        }, 10);
+      });
     },
   };
 };
@@ -154,6 +150,7 @@ describe(`Psbt`, () => {
         if (f.isTaproot) initEccLib(ecc);
         const psbt = Psbt.fromBase64(f.psbt);
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore // cannot find tapLeafHashToSign
         f.keys.forEach(({ inputToSign, tapLeafHashToSign, WIF }) => {
           const keyPair = ECPair.fromWIF(WIF, NETWORKS.testnet);
@@ -532,8 +529,7 @@ describe(`Psbt`, () => {
     it(`fails if trying to finalzie non-taproot input`, () => {
       const psbt = new Psbt();
       psbt.addInput({
-        hash:
-          '0000000000000000000000000000000000000000000000000000000000000000',
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
         index: 0,
       });
 
@@ -556,8 +552,7 @@ describe(`Psbt`, () => {
     it('fails if no script found', () => {
       const psbt = new Psbt();
       psbt.addInput({
-        hash:
-          '0000000000000000000000000000000000000000000000000000000000000000',
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
         index: 0,
       });
       assert.throws(() => {
@@ -671,8 +666,7 @@ describe(`Psbt`, () => {
     it('Sets the sequence number for a given input', () => {
       const psbt = new Psbt();
       psbt.addInput({
-        hash:
-          '0000000000000000000000000000000000000000000000000000000000000000',
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
         index: 0,
       });
 
@@ -685,8 +679,7 @@ describe(`Psbt`, () => {
     it('throws if input index is too high', () => {
       const psbt = new Psbt();
       psbt.addInput({
-        hash:
-          '0000000000000000000000000000000000000000000000000000000000000000',
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
         index: 0,
       });
 
@@ -729,8 +722,7 @@ describe(`Psbt`, () => {
       const psbt = new Psbt();
       psbt
         .addInput({
-          hash:
-            '0000000000000000000000000000000000000000000000000000000000000000',
+          hash: '0000000000000000000000000000000000000000000000000000000000000000',
           index: 0,
           witnessUtxo: {
             script: outerScript(innerScript(publicKey)),
@@ -802,8 +794,7 @@ describe(`Psbt`, () => {
       const path = "m/0'/0";
       const psbt = new Psbt();
       psbt.addInput({
-        hash:
-          '0000000000000000000000000000000000000000000000000000000000000000',
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
         index: 0,
         bip32Derivation: [
           {
@@ -822,8 +813,7 @@ describe(`Psbt`, () => {
     it('should throw', () => {
       const psbt = new Psbt();
       psbt.addInput({
-        hash:
-          '0000000000000000000000000000000000000000000000000000000000000000',
+        hash: '0000000000000000000000000000000000000000000000000000000000000000',
         index: 0,
       });
 
@@ -897,8 +887,7 @@ describe(`Psbt`, () => {
       const psbt = new Psbt();
       psbt
         .addInput({
-          hash:
-            '0000000000000000000000000000000000000000000000000000000000000000',
+          hash: '0000000000000000000000000000000000000000000000000000000000000000',
           index: 0,
         })
         .addOutput({
@@ -925,8 +914,7 @@ describe(`Psbt`, () => {
       const psbt = new Psbt();
       psbt
         .addInput({
-          hash:
-            '0000000000000000000000000000000000000000000000000000000000000000',
+          hash: '0000000000000000000000000000000000000000000000000000000000000000',
           index: 0,
         })
         .addOutput({

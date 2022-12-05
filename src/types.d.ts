@@ -25,7 +25,7 @@ export declare function isTapleaf(o: any): o is Tapleaf;
  * Each node is either a single Tapleaf, or a pair of Tapleaf | Taptree.
  * The tree has no balancing requirements.
  */
-export declare type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
+export type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
 export declare function isTaptree(scriptTree: any): scriptTree is Taptree;
 export interface TinySecp256k1Interface {
     isXOnlyPoint(p: Uint8Array): boolean;

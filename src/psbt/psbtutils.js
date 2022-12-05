@@ -1,6 +1,18 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.signatureBlocksAction = exports.checkInputForSig = exports.pubkeyInScript = exports.pubkeyPositionInScript = exports.witnessStackToScriptWitness = exports.isP2TR = exports.isP2SHScript = exports.isP2WSHScript = exports.isP2WPKH = exports.isP2PKH = exports.isP2PK = exports.isP2MS = void 0;
+exports.signatureBlocksAction =
+  exports.checkInputForSig =
+  exports.pubkeyInScript =
+  exports.pubkeyPositionInScript =
+  exports.witnessStackToScriptWitness =
+  exports.isP2TR =
+  exports.isP2SHScript =
+  exports.isP2WSHScript =
+  exports.isP2WPKH =
+  exports.isP2PKH =
+  exports.isP2PK =
+  exports.isP2MS =
+    void 0;
 const varuint = require('bip174/src/lib/converter/varint');
 const bscript = require('../script');
 const transaction_1 = require('../transaction');

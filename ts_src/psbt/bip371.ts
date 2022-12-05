@@ -155,8 +155,9 @@ export function tweakInternalPubKey(
 
   if (!outputKey)
     throw new Error(
-      `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${tapInternalKey &&
-        tapInternalKey.toString('hex')}`,
+      `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${
+        tapInternalKey && tapInternalKey.toString('hex')
+      }`,
     );
   return outputKey.x;
 }
@@ -205,9 +206,7 @@ export function checkTaprootInputForSigs(
   );
 }
 
-function decodeSchnorrSignature(
-  signature: Buffer,
-): {
+function decodeSchnorrSignature(signature: Buffer): {
   signature: Buffer;
   hashType: number;
 } {
@@ -308,7 +307,8 @@ function checkMixedTaprootAndNonTaprootInputFields(
     hasNonTaprootFields(inputData) && isTaprootInput(newInputData);
   const hasMixedFields =
     inputData === newInputData &&
-    (isTaprootInput(newInputData) && hasNonTaprootFields(newInputData)); // todo: bad? use !===
+    isTaprootInput(newInputData) &&
+    hasNonTaprootFields(newInputData); // todo: bad? use !===
 
   if (isBadTaprootUpdate || isBadNonTaprootUpdate || hasMixedFields)
     throw new Error(
@@ -327,7 +327,8 @@ function checkMixedTaprootAndNonTaprootOutputFields(
     hasNonTaprootFields(inputData) && isTaprootOutput(newInputData);
   const hasMixedFields =
     inputData === newInputData &&
-    (isTaprootOutput(newInputData) && hasNonTaprootFields(newInputData));
+    isTaprootOutput(newInputData) &&
+    hasNonTaprootFields(newInputData);
 
   if (isBadTaprootUpdate || isBadNonTaprootUpdate || hasMixedFields)
     throw new Error(

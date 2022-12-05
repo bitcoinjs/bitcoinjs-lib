@@ -11,9 +11,7 @@ describe('Script Signatures', () => {
     );
   }
 
-  function toRaw(
-    signature: Buffer,
-  ): {
+  function toRaw(signature: Buffer): {
     r: string;
     s: string;
   } {

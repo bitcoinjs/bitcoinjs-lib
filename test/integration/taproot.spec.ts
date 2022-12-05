@@ -410,9 +410,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       leafPubkeys.push(toXOnly(leafKey.publicKey).toString('hex'));
     }
 
-    const leafScriptAsm = `${leafPubkeys[2]} OP_CHECKSIG ${
-      leafPubkeys[1]
-    } OP_CHECKSIGADD ${leafPubkeys[0]} OP_CHECKSIGADD OP_3 OP_NUMEQUAL`;
+    const leafScriptAsm = `${leafPubkeys[2]} OP_CHECKSIG ${leafPubkeys[1]} OP_CHECKSIGADD ${leafPubkeys[0]} OP_CHECKSIGADD OP_3 OP_NUMEQUAL`;
 
     const leafScript = bitcoin.script.fromASM(leafScriptAsm);
 
@@ -674,6 +672,7 @@ function createSigned(
 
 // This logic will be extracted to ecpair
 function tweakSigner(signer: bitcoin.Signer, opts: any = {}): bitcoin.Signer {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   let privateKey: Uint8Array | undefined = signer.privateKey!;
   if (!privateKey) {

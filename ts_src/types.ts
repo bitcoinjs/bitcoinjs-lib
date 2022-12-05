@@ -112,10 +112,10 @@ export interface TinySecp256k1Interface {
 export const Buffer256bit = typeforce.BufferN(32);
 export const Hash160bit = typeforce.BufferN(20);
 export const Hash256bit = typeforce.BufferN(32);
-export const Number = typeforce.Number; // tslint:disable-line variable-name
+export const Number = typeforce.Number;
 export const Array = typeforce.Array;
-export const Boolean = typeforce.Boolean; // tslint:disable-line variable-name
-export const String = typeforce.String; // tslint:disable-line variable-name
+export const Boolean = typeforce.Boolean;
+export const String = typeforce.String;
 export const Buffer = typeforce.Buffer;
 export const Hex = typeforce.Hex;
 export const maybe = typeforce.maybe;
