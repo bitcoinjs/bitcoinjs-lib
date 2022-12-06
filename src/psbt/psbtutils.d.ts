@@ -11,7 +11,7 @@ export declare function witnessStackToScriptWitness(witness: Buffer[]): Buffer;
 export declare function pubkeyPositionInScript(pubkey: Buffer, script: Buffer): number;
 export declare function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean;
 export declare function checkInputForSig(input: PsbtInput, action: string): boolean;
-declare type SignatureDecodeFunc = (buffer: Buffer) => {
+type SignatureDecodeFunc = (buffer: Buffer) => {
     signature: Buffer;
     hashType: number;
 };

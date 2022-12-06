@@ -1,6 +1,17 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.checkTaprootInputForSigs = exports.tapTreeFromList = exports.tapTreeToList = exports.tweakInternalPubKey = exports.checkTaprootOutputFields = exports.checkTaprootInputFields = exports.isTaprootOutput = exports.isTaprootInput = exports.serializeTaprootSignature = exports.tapScriptFinalizer = exports.toXOnly = void 0;
+exports.checkTaprootInputForSigs =
+  exports.tapTreeFromList =
+  exports.tapTreeToList =
+  exports.tweakInternalPubKey =
+  exports.checkTaprootOutputFields =
+  exports.checkTaprootInputFields =
+  exports.isTaprootOutput =
+  exports.isTaprootInput =
+  exports.serializeTaprootSignature =
+  exports.tapScriptFinalizer =
+  exports.toXOnly =
+    void 0;
 const types_1 = require('../types');
 const transaction_1 = require('../transaction');
 const psbtutils_1 = require('./psbtutils');
@@ -104,8 +115,9 @@ function tweakInternalPubKey(inputIndex, input) {
     (0, bip341_1.tweakKey)(tapInternalKey, input.tapMerkleRoot);
   if (!outputKey)
     throw new Error(
-      `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${tapInternalKey &&
-        tapInternalKey.toString('hex')}`,
+      `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${
+        tapInternalKey && tapInternalKey.toString('hex')
+      }`,
     );
   return outputKey.x;
 }
@@ -226,7 +238,8 @@ function checkMixedTaprootAndNonTaprootInputFields(
     hasNonTaprootFields(inputData) && isTaprootInput(newInputData);
   const hasMixedFields =
     inputData === newInputData &&
-    (isTaprootInput(newInputData) && hasNonTaprootFields(newInputData)); // todo: bad? use !===
+    isTaprootInput(newInputData) &&
+    hasNonTaprootFields(newInputData); // todo: bad? use !===
   if (isBadTaprootUpdate || isBadNonTaprootUpdate || hasMixedFields)
     throw new Error(
       `Invalid arguments for Psbt.${action}. ` +
@@ -244,7 +257,8 @@ function checkMixedTaprootAndNonTaprootOutputFields(
     hasNonTaprootFields(inputData) && isTaprootOutput(newInputData);
   const hasMixedFields =
     inputData === newInputData &&
-    (isTaprootOutput(newInputData) && hasNonTaprootFields(newInputData));
+    isTaprootOutput(newInputData) &&
+    hasNonTaprootFields(newInputData);
   if (isBadTaprootUpdate || isBadNonTaprootUpdate || hasMixedFields)
     throw new Error(
       `Invalid arguments for Psbt.${action}. ` +

@@ -42,10 +42,7 @@ async function buildAndSign(
   }
 
   return regtestUtils.broadcast(
-    psbt
-      .finalizeAllInputs()
-      .extractTransaction()
-      .toHex(),
+    psbt.finalizeAllInputs().extractTransaction().toHex(),
   );
 }
 

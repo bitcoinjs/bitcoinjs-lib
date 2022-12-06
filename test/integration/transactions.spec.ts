@@ -460,13 +460,8 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
         'p2sh-p2wsh',
       );
       {
-        const {
-          hash,
-          index,
-          witnessUtxo,
-          redeemScript,
-          witnessScript,
-        } = inputData;
+        const { hash, index, witnessUtxo, redeemScript, witnessScript } =
+          inputData;
         assert.deepStrictEqual(
           { hash, index, witnessUtxo, redeemScript, witnessScript },
           inputData,

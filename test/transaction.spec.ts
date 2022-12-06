@@ -266,7 +266,7 @@ describe('Transaction', () => {
       tx.addOutput(randScript, 5000000000);
 
       const original = (tx as any).__toBuffer;
-      (tx as any).__toBuffer = function(
+      (tx as any).__toBuffer = function (
         this: Transaction,
         a: any,
         b: any,

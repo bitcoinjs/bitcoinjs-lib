@@ -65,19 +65,17 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
   const _chunks = lazy.value(() => {
     return bscript.decompile(a.input!);
   }) as StackFunction;
-  const _redeem = lazy.value(
-    (): Payment => {
-      const chunks = _chunks();
-      const lastChunk = chunks[chunks.length - 1];
-      return {
-        network,
-        output:
-          lastChunk === OPS.OP_FALSE ? Buffer.from([]) : (lastChunk as Buffer),
-        input: bscript.compile(chunks.slice(0, -1)),
-        witness: a.witness || [],
-      };
-    },
-  ) as PaymentFunction;
+  const _redeem = lazy.value((): Payment => {
+    const chunks = _chunks();
+    const lastChunk = chunks[chunks.length - 1];
+    return {
+      network,
+      output:
+        lastChunk === OPS.OP_FALSE ? Buffer.from([]) : (lastChunk as Buffer),
+      input: bscript.compile(chunks.slice(0, -1)),
+      witness: a.witness || [],
+    };
+  }) as PaymentFunction;
 
   // output dependents
   lazy.prop(o, 'address', () => {

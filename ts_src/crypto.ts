@@ -3,14 +3,10 @@ import * as RipeMd160 from 'ripemd160';
 
 export function ripemd160(buffer: Buffer): Buffer {
   try {
-    return createHash('rmd160')
-      .update(buffer)
-      .digest();
+    return createHash('rmd160').update(buffer).digest();
   } catch (err) {
     try {
-      return createHash('ripemd160')
-        .update(buffer)
-        .digest();
+      return createHash('ripemd160').update(buffer).digest();
     } catch (err2) {
       return new RipeMd160().update(buffer).digest();
     }
@@ -18,15 +14,11 @@ export function ripemd160(buffer: Buffer): Buffer {
 }
 
 export function sha1(buffer: Buffer): Buffer {
-  return createHash('sha1')
-    .update(buffer)
-    .digest();
+  return createHash('sha1').update(buffer).digest();
 }
 
 export function sha256(buffer: Buffer): Buffer {
-  return createHash('sha256')
-    .update(buffer)
-    .digest();
+  return createHash('sha256').update(buffer).digest();
 }
 
 export function hash160(buffer: Buffer): Buffer {

@@ -20,7 +20,7 @@ interface TweakedPublicKey {
  * This tree is used for 2 purposes: Providing the root hash for tweaking,
  * and calculating merkle inclusion proofs when constructing a control block.
  */
-export declare type HashTree = HashLeaf | HashBranch;
+export type HashTree = HashLeaf | HashBranch;
 export declare function rootHashFromPath(controlBlock: Buffer, leafHash: Buffer): Buffer;
 /**
  * Build a hash tree of merkle nodes from the scripts binary tree.

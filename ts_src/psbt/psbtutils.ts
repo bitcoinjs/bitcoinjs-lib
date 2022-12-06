@@ -81,9 +81,7 @@ export function checkInputForSig(input: PsbtInput, action: string): boolean {
   );
 }
 
-type SignatureDecodeFunc = (
-  buffer: Buffer,
-) => {
+type SignatureDecodeFunc = (buffer: Buffer) => {
   signature: Buffer;
   hashType: number;
 };

@@ -60,10 +60,7 @@ describe('bitcoinjs-lib (BIP32)', () => {
     const child1 = root.derivePath(path);
 
     // option 2, manually
-    const child1b = root
-      .deriveHardened(0)
-      .derive(0)
-      .derive(0);
+    const child1b = root.deriveHardened(0).derive(0).derive(0);
 
     assert.strictEqual(
       getAddress(child1),

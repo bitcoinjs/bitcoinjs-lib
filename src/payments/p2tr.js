@@ -247,9 +247,7 @@ function p2tr(a, opts) {
         const controlBlock = witness[witness.length - 1];
         if (controlBlock.length < 33)
           throw new TypeError(
-            `The control-block length is too small. Got ${
-              controlBlock.length
-            }, expected min 33.`,
+            `The control-block length is too small. Got ${controlBlock.length}, expected min 33.`,
           );
         if ((controlBlock.length - 33) % 32 !== 0)
           throw new TypeError(

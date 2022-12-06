@@ -208,6 +208,5 @@ export function isCanonicalScriptSignature(buffer: Buffer): boolean {
   return bip66.check(buffer.slice(0, -1));
 }
 
-// tslint:disable-next-line variable-name
 export const number = scriptNumber;
 export const signature = scriptSignature;
