@@ -1,3 +1,7 @@
+# 6.1.0
+__added__
+- taproot support for payments (p2tr) and PSBT. See taproot.spec.ts integration test for examples. (#1742)
+
 # 6.0.2
 __fixed__
 - p2sh payment now uses empty Buffer for redeem.output when redeemScript is OP_FALSE (#1802)
