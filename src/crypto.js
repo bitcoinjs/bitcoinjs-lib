@@ -49,13 +49,16 @@ const TAGS = [
   'KeyAgg coefficient',
 ];
 /** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
-const TAGGED_HASH_PREFIXES = Object.fromEntries(
-  TAGS.map(tag => {
-    const tagHash = sha256(Buffer.from(tag));
-    return [tag, Buffer.concat([tagHash, tagHash])];
-  }),
-);
+let TAGGED_HASH_PREFIXES = undefined;
 function taggedHash(prefix, data) {
+  if (!TAGGED_HASH_PREFIXES) {
+    TAGGED_HASH_PREFIXES = Object.fromEntries(
+      TAGS.map(tag => {
+        const tagHash = sha256(Buffer.from(tag));
+        return [tag, Buffer.concat([tagHash, tagHash])];
+      }),
+    );
+  }
   return sha256(Buffer.concat([TAGGED_HASH_PREFIXES[prefix], data]));
 }
 exports.taggedHash = taggedHash;

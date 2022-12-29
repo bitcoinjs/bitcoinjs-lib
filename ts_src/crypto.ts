@@ -42,13 +42,18 @@ const TAGS = [
 ] as const;
 export type TaggedHashPrefix = typeof TAGS[number];
 /** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
-const TAGGED_HASH_PREFIXES = Object.fromEntries(
-  TAGS.map(tag => {
-    const tagHash = sha256(Buffer.from(tag));
-    return [tag, Buffer.concat([tagHash, tagHash])];
-  }),
-) as { [k in TaggedHashPrefix]: Buffer };
+let TAGGED_HASH_PREFIXES = undefined as
+  | { [k in TaggedHashPrefix]: Buffer }
+  | undefined;
 
 export function taggedHash(prefix: TaggedHashPrefix, data: Buffer): Buffer {
+  if (!TAGGED_HASH_PREFIXES) {
+    TAGGED_HASH_PREFIXES = Object.fromEntries(
+      TAGS.map(tag => {
+        const tagHash = sha256(Buffer.from(tag));
+        return [tag, Buffer.concat([tagHash, tagHash])];
+      }),
+    ) as { [k in TaggedHashPrefix]: Buffer };
+  }
   return sha256(Buffer.concat([TAGGED_HASH_PREFIXES[prefix], data]));
 }
