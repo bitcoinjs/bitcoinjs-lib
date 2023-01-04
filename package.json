@@ -54,6 +54,7 @@
     "bs58check": "^2.1.2",
     "create-hash": "^1.1.0",
     "fastpriorityqueue": "^0.7.1",
+    "json5": "^2.2.3",
     "ripemd160": "^2.0.2",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.1.2",
