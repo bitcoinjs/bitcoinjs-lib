@@ -9,6 +9,7 @@ exports.taggedHash =
     void 0;
 const createHash = require('create-hash');
 const RipeMd160 = require('ripemd160');
+const tagged_hash_prefixes_1 = require('./tagged-hash-prefixes');
 function ripemd160(buffer) {
   try {
     return createHash('rmd160').update(buffer).digest();
@@ -37,28 +38,14 @@ function hash256(buffer) {
   return sha256(sha256(buffer));
 }
 exports.hash256 = hash256;
-const TAGS = [
-  'BIP0340/challenge',
-  'BIP0340/aux',
-  'BIP0340/nonce',
-  'TapLeaf',
-  'TapBranch',
-  'TapSighash',
-  'TapTweak',
-  'KeyAgg list',
-  'KeyAgg coefficient',
-];
 /** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
-let TAGGED_HASH_PREFIXES = undefined;
+const TAGGED_HASH_PREFIXES = Object.fromEntries(
+  Object.keys(tagged_hash_prefixes_1.TAGGED_HASH_PREFIXES_HEX).map(tag => [
+    tag,
+    Buffer.from(tagged_hash_prefixes_1.TAGGED_HASH_PREFIXES_HEX[tag], 'hex'),
+  ]),
+);
 function taggedHash(prefix, data) {
-  if (!TAGGED_HASH_PREFIXES) {
-    TAGGED_HASH_PREFIXES = Object.fromEntries(
-      TAGS.map(tag => {
-        const tagHash = sha256(Buffer.from(tag));
-        return [tag, Buffer.concat([tagHash, tagHash])];
-      }),
-    );
-  }
   return sha256(Buffer.concat([TAGGED_HASH_PREFIXES[prefix], data]));
 }
 exports.taggedHash = taggedHash;

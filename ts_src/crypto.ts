@@ -1,6 +1,7 @@
 import * as createHash from 'create-hash';
 import * as RipeMd160 from 'ripemd160';
-
+import { TAGGED_HASH_PREFIXES_HEX } from './tagged-hash-prefixes';
+import { TAGS } from './tags';
 export function ripemd160(buffer: Buffer): Buffer {
   try {
     return createHash('rmd160').update(buffer).digest();
@@ -29,31 +30,17 @@ export function hash256(buffer: Buffer): Buffer {
   return sha256(sha256(buffer));
 }
 
-const TAGS = [
-  'BIP0340/challenge',
-  'BIP0340/aux',
-  'BIP0340/nonce',
-  'TapLeaf',
-  'TapBranch',
-  'TapSighash',
-  'TapTweak',
-  'KeyAgg list',
-  'KeyAgg coefficient',
-] as const;
 export type TaggedHashPrefix = typeof TAGS[number];
+
 /** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
-let TAGGED_HASH_PREFIXES = undefined as
-  | { [k in TaggedHashPrefix]: Buffer }
-  | undefined;
+
+const TAGGED_HASH_PREFIXES = Object.fromEntries(
+  Object.keys(TAGGED_HASH_PREFIXES_HEX).map((tag: string) => [
+    tag,
+    Buffer.from(TAGGED_HASH_PREFIXES_HEX[tag], 'hex'),
+  ]),
+) as { [k in TaggedHashPrefix]: Buffer };
 
 export function taggedHash(prefix: TaggedHashPrefix, data: Buffer): Buffer {
-  if (!TAGGED_HASH_PREFIXES) {
-    TAGGED_HASH_PREFIXES = Object.fromEntries(
-      TAGS.map(tag => {
-        const tagHash = sha256(Buffer.from(tag));
-        return [tag, Buffer.concat([tagHash, tagHash])];
-      }),
-    ) as { [k in TaggedHashPrefix]: Buffer };
-  }
   return sha256(Buffer.concat([TAGGED_HASH_PREFIXES[prefix], data]));
 }
