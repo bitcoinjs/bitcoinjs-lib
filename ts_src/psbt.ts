@@ -217,7 +217,7 @@ export class Psbt {
   clone(): Psbt {
     // TODO: more efficient cloning
     const res = (this.constructor as typeof Psbt).fromBuffer(
-      this.data.toBuffer(),
+      this.toBuffer(),
       this.opts,
     );
     res.opts = JSON.parse(JSON.stringify(this.opts));

@@ -896,6 +896,20 @@ describe(`Psbt`, () => {
       assert.notStrictEqual(clone.toBase64(), notAClone.toBase64());
       assert.strictEqual(psbt.toBase64(), notAClone.toBase64());
     });
+
+    it('Should use the proper toBuffer method when cloning', () => {
+      class PsbtSubclass extends Psbt {
+        toBuffer(): Buffer {
+          super.setLocktime(1000);
+          return super.toBuffer();
+        }
+      }
+      const psbt = new PsbtSubclass();
+      assert.strictEqual(psbt.extractTransaction().locktime, 0);
+
+      const clone = psbt.clone();
+      assert.strictEqual(clone.extractTransaction().locktime, 1000);
+    });
   });
 
   describe('setMaximumFeeRate', () => {
