@@ -152,7 +152,7 @@ class Psbt {
   }
   clone() {
     // TODO: more efficient cloning
-    const res = this.constructor.fromBuffer(this.data.toBuffer(), this.opts);
+    const res = this.constructor.fromBuffer(this.toBuffer(), this.opts);
     res.opts = JSON.parse(JSON.stringify(this.opts));
     return res;
   }
