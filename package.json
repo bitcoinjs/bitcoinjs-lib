@@ -29,7 +29,6 @@
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "integration": "npm run build && npm run nobuild:integration",
     "lint": "eslint ts_src/** src/**/*.js",
-    "lint:fix": "eslint --fix ts_src/** src/**/*.js",
     "lint:tests": "eslint test/**/*.spec.ts",
     "mocha:ts": "mocha --recursive --require test/ts-node-register",
     "nobuild:coverage-report": "nyc report --reporter=lcov",
@@ -40,8 +39,7 @@
     "prettier": "prettier \"ts_src/**/*.ts\" \"test/**/*.ts\" --ignore-path ./.prettierignore",
     "prettierjs": "prettier \"src/**/*.js\" --ignore-path ./.prettierignore",
     "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
-    "unit": "npm run build && npm run nobuild:unit",
-    "generate:prefixes": "node scripts/generate-tagged-hash-prefixes.js && yarn prettierjs && yarn lint:fix"
+    "unit": "npm run build && npm run nobuild:unit"
   },
   "repository": {
     "type": "git",
