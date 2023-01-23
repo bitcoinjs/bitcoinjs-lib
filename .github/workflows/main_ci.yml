@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - '!release-do-not-use'
   pull_request:
 
 permissions:
@@ -124,3 +125,27 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run lint:tests
+
+  release:
+    if: github.repository_owner == 'BitGo' && github.event_name == 'push' && github.ref_name == 'master'
+    runs-on: ubuntu-latest
+    needs:
+      - unit
+      - integration
+      - audit
+      - coverage
+      - format
+      - gitdiff
+      - lint
+      - lint-tests
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: npm ci
+      - run: ./node_modules/.bin/semantic-release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
