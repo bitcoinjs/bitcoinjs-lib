@@ -53,9 +53,9 @@ export declare type ValidateSigFunction = (pubkey: Buffer, msghash: Buffer, sign
  */
 export declare class Psbt {
     readonly data: PsbtBase;
-    static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
-    static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
-    static fromBuffer(buffer: Buffer, opts?: PsbtOptsOptional): Psbt;
+    static fromBase64(data: string, opts?: PsbtDeserializeOptsOptional): Psbt;
+    static fromHex(data: string, opts?: PsbtDeserializeOptsOptional): Psbt;
+    static fromBuffer(buffer: Buffer, opts?: PsbtDeserializeOptsOptional): Psbt;
     protected static transactionFromBuffer(buffer: Buffer, _network: Network): Transaction<bigint>;
     private __CACHE;
     private opts;
@@ -111,6 +111,9 @@ export declare class Psbt {
 interface PsbtOptsOptional {
     network?: Network;
     maximumFeeRate?: number;
+}
+interface PsbtDeserializeOptsOptional extends PsbtOptsOptional {
+    bip32PathsAbsolute?: boolean;
 }
 interface PsbtInputExtended extends PsbtInput, TransactionInput {
 }

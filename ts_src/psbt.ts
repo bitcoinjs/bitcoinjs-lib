@@ -97,18 +97,26 @@ const DEFAULT_OPTS: PsbtOpts = {
  *   Transaction object. Such as fee rate not being larger than maximumFeeRate etc.
  */
 export class Psbt {
-  static fromBase64(data: string, opts: PsbtOptsOptional = {}): Psbt {
+  static fromBase64(
+    data: string,
+    opts: PsbtDeserializeOptsOptional = {},
+  ): Psbt {
     const buffer = Buffer.from(data, 'base64');
     return this.fromBuffer(buffer, opts);
   }
 
-  static fromHex(data: string, opts: PsbtOptsOptional = {}): Psbt {
+  static fromHex(data: string, opts: PsbtDeserializeOptsOptional = {}): Psbt {
     const buffer = Buffer.from(data, 'hex');
     return this.fromBuffer(buffer, opts);
   }
 
-  static fromBuffer(buffer: Buffer, opts: PsbtOptsOptional = {}): Psbt {
-    const psbtBase = PsbtBase.fromBuffer(buffer, transactionFromBuffer);
+  static fromBuffer(
+    buffer: Buffer,
+    opts: PsbtDeserializeOptsOptional = {},
+  ): Psbt {
+    const psbtBase = PsbtBase.fromBuffer(buffer, transactionFromBuffer, {
+      bip32PathsAbsolute: opts.bip32PathsAbsolute,
+    });
     const psbt = new Psbt(opts, psbtBase);
     checkTxForDupeIns(psbt.__CACHE.__TX, psbt.__CACHE);
     return psbt;
@@ -773,6 +781,10 @@ interface PsbtCache {
 interface PsbtOptsOptional {
   network?: Network;
   maximumFeeRate?: number;
+}
+
+interface PsbtDeserializeOptsOptional extends PsbtOptsOptional {
+  bip32PathsAbsolute?: boolean;
 }
 
 interface PsbtOpts {
