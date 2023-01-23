@@ -10,6 +10,7 @@ exports.signature =
   exports.toASM =
   exports.decompile =
   exports.compile =
+  exports.countNonPushOnlyOPs =
   exports.isPushOnly =
   exports.OPS =
     void 0;
@@ -42,6 +43,10 @@ function isPushOnly(value) {
   return types.Array(value) && value.every(isPushOnlyChunk);
 }
 exports.isPushOnly = isPushOnly;
+function countNonPushOnlyOPs(value) {
+  return value.length - value.filter(isPushOnlyChunk).length;
+}
+exports.countNonPushOnlyOPs = countNonPushOnlyOPs;
 function asMinimalOP(buffer) {
   if (buffer.length === 0) return ops_1.OPS.OP_0;
   if (buffer.length !== 1) return;

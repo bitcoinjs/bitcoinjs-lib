@@ -138,6 +138,14 @@ function p2sh(a, opts) {
         const decompile = bscript.decompile(redeem.output);
         if (!decompile || decompile.length < 1)
           throw new TypeError('Redeem.output too short');
+        if (redeem.output.byteLength > 520)
+          throw new TypeError(
+            'Redeem.output unspendable if larger than 520 bytes',
+          );
+        if (bscript.countNonPushOnlyOPs(decompile) > 201)
+          throw new TypeError(
+            'Redeem.output unspendable with more than 201 non-push ops',
+          );
         // match hash against other sources
         const hash2 = bcrypto.hash160(redeem.output);
         if (hash.length > 0 && !hash.equals(hash2))

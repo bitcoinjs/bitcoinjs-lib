@@ -27,6 +27,10 @@ export function isPushOnly(value: Stack): boolean {
   return types.Array(value) && value.every(isPushOnlyChunk);
 }
 
+export function countNonPushOnlyOPs(value: Stack): number {
+  return value.length - value.filter(isPushOnlyChunk).length;
+}
+
 function asMinimalOP(buffer: Buffer): number | void {
   if (buffer.length === 0) return OPS.OP_0;
   if (buffer.length !== 1) return;
