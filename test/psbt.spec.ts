@@ -396,6 +396,30 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('deserialization', () => {
+    [true, false].forEach((bip32PathsAbsolute: boolean) => {
+      it(`bip32Derivation paths are ${
+        bip32PathsAbsolute ? '' : 'not'
+      } absolute`, async () => {
+        const psbt = Psbt.fromBase64(
+          fixtures.signInputHD.checks[0].shouldSign.psbt,
+          { bip32PathsAbsolute },
+        );
+        const input = psbt.data.inputs[0];
+        assert(input);
+        const bip32Derivations = input.bip32Derivation;
+        assert(bip32Derivations);
+        const bip32Derivation = bip32Derivations[0];
+        assert(bip32Derivation);
+        const pathString = bip32Derivation.path;
+        assert(pathString);
+        const path = pathString.split('/');
+        const bip32PathPrefix = bip32PathsAbsolute ? 'm' : `44'`;
+        assert(path[0] === bip32PathPrefix);
+      });
+    });
+  });
+
   describe('signAllInputsHDAsync', () => {
     fixtures.signInputHD.checks.forEach(f => {
       it(f.description, async () => {

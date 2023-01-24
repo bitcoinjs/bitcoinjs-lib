@@ -100,7 +100,9 @@ class Psbt {
     return this.fromBuffer(buffer, opts);
   }
   static fromBuffer(buffer, opts = {}) {
-    const psbtBase = bip174_1.Psbt.fromBuffer(buffer, transactionFromBuffer);
+    const psbtBase = bip174_1.Psbt.fromBuffer(buffer, transactionFromBuffer, {
+      bip32PathsAbsolute: opts.bip32PathsAbsolute,
+    });
     const psbt = new Psbt(opts, psbtBase);
     checkTxForDupeIns(psbt.__CACHE.__TX, psbt.__CACHE);
     return psbt;

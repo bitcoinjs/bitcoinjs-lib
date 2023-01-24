@@ -53,7 +53,7 @@
   ],
   "dependencies": {
     "bech32": "^2.0.0",
-    "bip174": "npm:@bitgo/bip174@3.0.0",
+    "bip174": "npm:@bitgo-forks/bip174@3.0.0-rc.1",
     "bs58check": "^2.1.2",
     "create-hash": "^1.1.0",
     "fastpriorityqueue": "^0.7.1",
