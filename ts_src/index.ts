@@ -38,5 +38,6 @@ export {
   PaymentOpts,
   Stack,
   StackElement,
+  lazy,
 } from './payments';
 export { Input as TxInput, Output as TxOutput } from './transaction';
