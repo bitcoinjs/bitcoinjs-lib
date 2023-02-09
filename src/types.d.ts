@@ -30,8 +30,6 @@ export declare function isTaptree(scriptTree: any): scriptTree is Taptree;
 export interface TinySecp256k1Interface {
     isXOnlyPoint(p: Uint8Array): boolean;
     xOnlyPointAddTweak(p: Uint8Array, tweak: Uint8Array): XOnlyPointAddTweakResult | null;
-    privateAdd(d: Uint8Array, tweak: Uint8Array): Uint8Array | null;
-    privateNegate(d: Uint8Array): Uint8Array;
 }
 export declare const Buffer256bit: any;
 export declare const Hash160bit: any;
