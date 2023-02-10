@@ -12,5 +12,5 @@ export { Psbt, PsbtTransaction, PsbtTxInput, PsbtTxOutput, Signer, SignerAsync, 
 export { OPS as opcodes } from './ops';
 export { Transaction } from './transaction';
 export { Network } from './networks';
-export { Payment, PaymentCreator, PaymentOpts, Stack, StackElement, } from './payments';
+export { Payment, PaymentCreator, PaymentOpts, Stack, StackElement, lazy, } from './payments';
 export { Input as TxInput, Output as TxOutput } from './transaction';

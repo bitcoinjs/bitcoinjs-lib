@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.Transaction = exports.opcodes = exports.PsbtTransaction = exports.Psbt = exports.Block = exports.taproot = exports.script = exports.payments = exports.networks = exports.crypto = exports.address = exports.ScriptSignature = void 0;
+exports.lazy = exports.Transaction = exports.opcodes = exports.PsbtTransaction = exports.Psbt = exports.Block = exports.taproot = exports.script = exports.payments = exports.networks = exports.crypto = exports.address = exports.ScriptSignature = void 0;
 const address = require('./address');
 exports.address = address;
 const crypto = require('./crypto');
@@ -47,5 +47,12 @@ Object.defineProperty(exports, 'Transaction', {
   enumerable: true,
   get: function() {
     return transaction_1.Transaction;
+  },
+});
+var payments_1 = require('./payments');
+Object.defineProperty(exports, 'lazy', {
+  enumerable: true,
+  get: function() {
+    return payments_1.lazy;
   },
 });
