@@ -142,7 +142,7 @@ jobs:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
       - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
         with:
-          node-version: 16
+          node-version: 18
           cache: 'npm'
       - run: npm ci
       - run: ./node_modules/.bin/semantic-release

@@ -18,7 +18,7 @@
     "access": "public"
   },
   "scripts": {
-    "audit": "better-npm-audit audit -l high",
+    "audit": "better-npm-audit audit -l high ",
     "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
     "build:tests": "npm run clean:jstests && tsc -p ./test/tsconfig.json",
     "clean": "rimraf src",
@@ -91,7 +91,7 @@
     "randombytes": "^2.1.0",
     "regtest-client": "0.2.0",
     "rimraf": "^2.6.3",
-    "semantic-release": "19.0.5",
+    "semantic-release": "20.1.0",
     "tiny-secp256k1": "^2.2.1",
     "ts-node": "^8.3.0",
     "tslint": "^6.1.3",
