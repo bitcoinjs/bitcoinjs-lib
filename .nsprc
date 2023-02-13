@@ -1,7 +1,7 @@
 {
   "GHSA-rc47-6667-2j5j": {
     "active": true,
-    "notes": "ignore until a fix is introduced to semantic-releases. See https://github.com/semantic-release/npm/issues/574",
+    "notes": "ignore until a fix is introduced to semantic-release. See https://github.com/semantic-release/npm/issues/574",
     "expiry": 1676926476000
   }
 }
