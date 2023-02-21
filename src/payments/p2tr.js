@@ -32,9 +32,10 @@ function p2tr(a, opts) {
       hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
       pubkey: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
       signature: types_1.typeforce.maybe(
-        types_1.typeforce.anyOf[
-          (types_1.typeforce.BufferN(64), types_1.typeforce.BufferN(65))
-        ],
+        types_1.typeforce.anyOf(
+          types_1.typeforce.BufferN(64),
+          types_1.typeforce.BufferN(65),
+        ),
       ),
       witness: types_1.typeforce.maybe(
         types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
