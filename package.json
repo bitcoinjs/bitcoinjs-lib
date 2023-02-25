@@ -54,8 +54,7 @@
     "bip174": "^2.1.0",
     "bs58check": "^3.0.1",
     "typeforce": "^1.11.3",
-    "varuint-bitcoin": "^1.1.2",
-    "wif": "^2.0.1"
+    "varuint-bitcoin": "^1.1.2"
   },
   "devDependencies": {
     "@types/bs58": "^4.0.0",
@@ -64,7 +63,6 @@
     "@types/node": "^16.11.7",
     "@types/proxyquire": "^1.3.28",
     "@types/randombytes": "^2.0.0",
-    "@types/wif": "^2.0.2",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "better-npm-audit": "^3.7.3",
