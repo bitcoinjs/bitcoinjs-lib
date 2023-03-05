@@ -9,34 +9,31 @@ exports.taggedHash =
   exports.sha1 =
   exports.ripemd160 =
     void 0;
-const createHash = require('create-hash');
-const RipeMd160 = require('ripemd160');
+const ripemd160_1 = require('@noble/hashes/ripemd160');
+const sha1_1 = require('@noble/hashes/sha1');
+const sha256_1 = require('@noble/hashes/sha256');
 function ripemd160(buffer) {
-  try {
-    return createHash('rmd160').update(buffer).digest();
-  } catch (err) {
-    try {
-      return createHash('ripemd160').update(buffer).digest();
-    } catch (err2) {
-      return new RipeMd160().update(buffer).digest();
-    }
-  }
+  return Buffer.from((0, ripemd160_1.ripemd160)(Uint8Array.from(buffer)));
 }
 exports.ripemd160 = ripemd160;
 function sha1(buffer) {
-  return createHash('sha1').update(buffer).digest();
+  return Buffer.from((0, sha1_1.sha1)(Uint8Array.from(buffer)));
 }
 exports.sha1 = sha1;
 function sha256(buffer) {
-  return createHash('sha256').update(buffer).digest();
+  return Buffer.from((0, sha256_1.sha256)(Uint8Array.from(buffer)));
 }
 exports.sha256 = sha256;
 function hash160(buffer) {
-  return ripemd160(sha256(buffer));
+  return Buffer.from(
+    (0, ripemd160_1.ripemd160)((0, sha256_1.sha256)(Uint8Array.from(buffer))),
+  );
 }
 exports.hash160 = hash160;
 function hash256(buffer) {
-  return sha256(sha256(buffer));
+  return Buffer.from(
+    (0, sha256_1.sha256)((0, sha256_1.sha256)(Uint8Array.from(buffer))),
+  );
 }
 exports.hash256 = hash256;
 exports.TAGS = [
