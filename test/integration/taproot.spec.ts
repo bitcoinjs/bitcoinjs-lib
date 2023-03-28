@@ -7,8 +7,13 @@ import { describe, it } from 'mocha';
 import { PsbtInput, TapLeafScript } from 'bip174/src/lib/interfaces';
 import { regtestUtils } from './_regtest';
 import * as bitcoin from '../..';
-import { Taptree } from '../../src/types';
-import { toXOnly, tapTreeToList, tapTreeFromList } from '../../src/psbt/bip371';
+import { Taptree, HuffmanTapTreeNode } from '../../src/types';
+import {
+  toXOnly,
+  tapTreeToList,
+  tapTreeFromList,
+  createTapTreeUsingHuffmanConstructor,
+} from '../../src/psbt/bip371';
 import { witnessStackToScriptWitness } from '../../src/psbt/psbtutils';
 import { TapLeaf } from 'bip174/src/lib/interfaces';
 
@@ -597,6 +602,139 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
         value: sendAmount,
       });
     }
+  });
+
+  it('can verify script-tree built using huffman constructor', async () => {
+    const internalKey = bip32.fromSeed(rng(64), regtest);
+    const leafKey = bip32.fromSeed(rng(64), regtest);
+
+    const leafScriptAsm = `${toXOnly(leafKey.publicKey).toString(
+      'hex',
+    )} OP_CHECKSIG`;
+    const leafScript = bitcoin.script.fromASM(leafScriptAsm);
+
+    const nodes: HuffmanTapTreeNode[] = [
+      {
+        weight: 5,
+        node: {
+          output: bitcoin.script.fromASM(
+            '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0 OP_CHECKSIG',
+          ),
+        },
+      },
+      {
+        weight: 5,
+        node: {
+          output: bitcoin.script.fromASM(
+            '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac1 OP_CHECKSIG',
+          ),
+        },
+      },
+      {
+        weight: 1,
+        node: {
+          output: bitcoin.script.fromASM(
+            '2258b1c3160be0864a541854eec9164a572f094f7562628281a8073bb89173a7 OP_CHECKSIG',
+          ),
+        },
+      },
+      {
+        weight: 1,
+        node: {
+          output: bitcoin.script.fromASM(
+            '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac2 OP_CHECKSIG',
+          ),
+        },
+      },
+      {
+        weight: 4,
+        node: {
+          output: bitcoin.script.fromASM(
+            '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac3 OP_CHECKSIG',
+          ),
+        },
+      },
+      {
+        weight: 4,
+        node: {
+          output: bitcoin.script.fromASM(
+            '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac4 OP_CHECKSIG',
+          ),
+        },
+      },
+      {
+        weight: 7,
+        node: {
+          output: leafScript,
+        },
+      },
+    ];
+
+    const scriptTree: Taptree = createTapTreeUsingHuffmanConstructor(nodes);
+
+    const redeem = {
+      output: leafScript,
+      redeemVersion: 192,
+    };
+
+    const { output, witness } = bitcoin.payments.p2tr({
+      internalPubkey: toXOnly(internalKey.publicKey),
+      scriptTree,
+      redeem,
+      network: regtest,
+    });
+
+    // amount from faucet
+    const amount = 42e4;
+    // amount to send
+    const sendAmount = amount - 1e4;
+    // get faucet
+    const unspent = await regtestUtils.faucetComplex(output!, amount);
+
+    const psbt = new bitcoin.Psbt({ network: regtest });
+    psbt.addInput({
+      hash: unspent.txId,
+      index: 0,
+      witnessUtxo: { value: amount, script: output! },
+    });
+    psbt.updateInput(0, {
+      tapLeafScript: [
+        {
+          leafVersion: redeem.redeemVersion,
+          script: redeem.output,
+          controlBlock: witness![witness!.length - 1],
+        },
+      ],
+    });
+
+    const sendInternalKey = bip32.fromSeed(rng(64), regtest);
+    const sendPubKey = toXOnly(sendInternalKey.publicKey);
+    const { address: sendAddress } = bitcoin.payments.p2tr({
+      internalPubkey: sendPubKey,
+      scriptTree,
+      network: regtest,
+    });
+
+    psbt.addOutput({
+      value: sendAmount,
+      address: sendAddress!,
+      tapInternalKey: sendPubKey,
+      tapTree: { leaves: tapTreeToList(scriptTree) },
+    });
+
+    psbt.signInput(0, leafKey);
+    psbt.finalizeInput(0);
+    const tx = psbt.extractTransaction();
+    const rawTx = tx.toBuffer();
+    const hex = rawTx.toString('hex');
+
+    await regtestUtils.broadcast(hex);
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: sendAddress!,
+      vout: 0,
+      value: sendAmount,
+    });
   });
 });
 
