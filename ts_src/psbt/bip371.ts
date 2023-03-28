@@ -1,4 +1,10 @@
-import { Taptree, Tapleaf, isTapleaf, isTaptree } from '../types';
+import {
+  Taptree,
+  Tapleaf,
+  isTapleaf,
+  isTaptree,
+  HuffmanTapTreeNode,
+} from '../types';
 import {
   PsbtInput,
   PsbtOutput,
@@ -26,6 +32,7 @@ import {
 import { p2tr } from '../payments';
 
 import { signatureBlocksAction } from './psbtutils';
+import { insertIntoSortedArray } from '../sortutils';
 
 export const toXOnly = (pubKey: Buffer) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
@@ -194,6 +201,40 @@ export function tapTreeFromList(leaves: TapLeaf[] = []): Taptree {
     };
 
   return instertLeavesInTree(leaves);
+}
+
+/**
+ * Construct a Taptree where the leaves with the highest likelihood of use are closer to the root.
+ * @param nodes A list of nodes where each element contains a weight (likelihood of use) and
+ * a node which could be a Tapleaf or a branch in a Taptree
+ */
+export function createTapTreeUsingHuffmanConstructor(
+  nodes: HuffmanTapTreeNode[],
+): Taptree {
+  if (nodes.length === 0)
+    throw new Error('Cannot create taptree from empty list.');
+
+  const compare = (a: HuffmanTapTreeNode, b: HuffmanTapTreeNode) =>
+    a.weight - b.weight;
+  const sortedNodes = [...nodes].sort(compare); // Sort array in ascending order of weight
+
+  let newNode: HuffmanTapTreeNode;
+  let nodeA: HuffmanTapTreeNode, nodeB: HuffmanTapTreeNode;
+  while (sortedNodes.length > 1) {
+    // Construct a new node from the two nodes with the least weight
+    nodeA = sortedNodes.shift()!; // There will always be an element to pop
+    nodeB = sortedNodes.shift()!; // because loop ends when length <= 1
+    newNode = {
+      weight: nodeA.weight + nodeB.weight,
+      node: [nodeA.node, nodeB.node],
+    };
+    // Place newNode back into array
+    insertIntoSortedArray(sortedNodes, newNode, compare);
+  }
+
+  // Last node is the root node
+  const root = sortedNodes.shift()!;
+  return root.node;
 }
 
 export function checkTaprootInputForSigs(

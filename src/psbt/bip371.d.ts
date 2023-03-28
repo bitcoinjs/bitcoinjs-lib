@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { Taptree } from '../types';
+import { Taptree, HuffmanTapTreeNode } from '../types';
 import { PsbtInput, PsbtOutput, TapLeaf } from 'bip174/src/lib/interfaces';
 export declare const toXOnly: (pubKey: Buffer) => Buffer;
 /**
@@ -38,4 +38,10 @@ export declare function tapTreeToList(tree: Taptree): TapLeaf[];
  * @returns the corresponding taptree, or throws an exception if the tree cannot be reconstructed
  */
 export declare function tapTreeFromList(leaves?: TapLeaf[]): Taptree;
+/**
+ * Construct a Taptree where the leaves with the highest likelihood of use are closer to the root.
+ * @param nodes A list of nodes where each element contains a weight (likelihood of use) and
+ * a node which could be a Tapleaf or a branch in a Taptree
+ */
+export declare function createTapTreeUsingHuffmanConstructor(nodes: HuffmanTapTreeNode[]): Taptree;
 export declare function checkTaprootInputForSigs(input: PsbtInput, action: string): boolean;
