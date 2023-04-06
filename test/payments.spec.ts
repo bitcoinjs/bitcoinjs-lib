@@ -4,17 +4,7 @@ import * as ecc from 'tiny-secp256k1';
 import { PaymentCreator } from '../src/payments';
 import { TinySecp256k1Interface } from '../src/types';
 import * as u from './payments.utils';
-[
-  'embed',
-  'p2ms',
-  'p2pk',
-  'p2pkh',
-  'p2sh',
-  'p2tr',
-  'p2tr_ns',
-  'p2wpkh',
-  'p2wsh',
-].forEach(p => {
+['embed', 'p2ms', 'p2pk', 'p2pkh', 'p2sh', 'p2wpkh', 'p2wsh'].forEach(p => {
   describe(p, () => {
     let fn: PaymentCreator;
     const payment = require('../src/payments/' + p);

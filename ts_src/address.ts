@@ -135,9 +135,9 @@ export function fromOutputScript(output: Buffer, network?: Network): string {
   try {
     return payments.p2wsh({ output, network }).address as string;
   } catch (e) {}
-  try {
-    return payments.p2tr({ output, network }).address as string;
-  } catch (e) {}
+  // try {
+  //   return payments.p2tr({ output, network }).address as string;
+  // } catch (e) {}
   try {
     return _toFutureSegwitAddress(output, network);
   } catch (e) {}

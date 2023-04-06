@@ -102,9 +102,9 @@ function fromOutputScript(output, network) {
   try {
     return payments.p2wsh({ output, network }).address;
   } catch (e) {}
-  try {
-    return payments.p2tr({ output, network }).address;
-  } catch (e) {}
+  // try {
+  //   return payments.p2tr({ output, network }).address as string;
+  // } catch (e) {}
   try {
     return _toFutureSegwitAddress(output, network);
   } catch (e) {}
