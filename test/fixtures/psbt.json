@@ -768,6 +768,15 @@
         }
       },
       {
+        "description": "checks taproot signing works when using custom signature type of 65 bytes",
+        "shouldSign": {
+          "psbt": "cHNidP8BAF4CAAAAAf17fGksrz9eKGx1nSU3RX4vcwr7bfNdQzPZ9dSEkWBcAAAAAAD/////AZBBBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQAAAAAAAEBK6BoBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQBAwSDAAAAARcgWzC4qnD37J3WaDEbZPRihBXdI0gN68BGutJykDcHR6wBGCDlDrX1cnzwZvmcyLBH8M6NiS9lk7JVwM58wZZVOzmuMwAA",
+          "inputToCheck": 0,
+          "WIF": "KypUz2y1jdgzM8HGDUx9DYLmyzd8EWhruvLX2J5iSL7MiAcc7dBG",
+          "result": "cHNidP8BAF4CAAAAAf17fGksrz9eKGx1nSU3RX4vcwr7bfNdQzPZ9dSEkWBcAAAAAAD/////AZBBBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQAAAAAAAEBK6BoBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQBAwSDAAAAARNBqgjqjSQVTf41zgZ1H9Lq3CKQt0nq1APST8FpwGifNjyUHMS0MbFnIxA70SXTEOoSJePyOXTW+u59fzLpxekL2oMBFyBbMLiqcPfsndZoMRtk9GKEFd0jSA3rwEa60nKQNwdHrAEYIOUOtfVyfPBm+ZzIsEfwzo2JL2WTslXAznzBllU7Oa4zAAA="
+        }
+      },
+      {
         "description": "checks taproot key-path signer (tweaked key) matches internal tap key",
         "isTaproot": true,
         "shouldSign": {
