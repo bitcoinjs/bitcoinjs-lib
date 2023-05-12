@@ -36,7 +36,7 @@ const dave = ECPair.fromWIF(
   regtest,
 );
 
-describe('bitcoinjs-lib (transactions w/ CSV)', () => {
+describe('nakamotojs-lib (transactions w/ CSV)', () => {
   // force update MTP
   before(async () => {
     await regtestUtils.mine(11);
@@ -77,7 +77,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
 
   // Ref: https://github.com/bitcoinbook/bitcoinbook/blob/f8b883dcd4e3d1b9adf40fed59b7e898fbd9241f/ch07.asciidoc#complex-script-example
 
-  // Note: bitcoinjs-lib will not offer specific support for problems with
+  // Note: nakamotojs-lib will not offer specific support for problems with
   //       advanced script usages such as below. Use at your own risk.
   function complexCsvOutput(
     _alice: KeyPair,
@@ -218,7 +218,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
       }).input;
       tx.setInputScript(0, redeemScriptSig!);
 
-      await regtestUtils.broadcast(tx.toHex()).catch(err => {
+      await regtestUtils.broadcast(tx.toHex()).catch((err: any) => {
         assert.throws(() => {
           if (err) throw err;
         }, /Error: non-BIP68-final/);

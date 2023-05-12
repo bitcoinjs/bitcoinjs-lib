@@ -1,7 +1,7 @@
 {
-  "name": "bitcoinjs-lib",
+  "name": "@bitcoin-computer/nakamotojs-lib",
   "version": "6.1.0",
-  "description": "Client-side Bitcoin JavaScript library",
+  "description": "Client-side Bitcoin and Litecoin JavaScript library",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "engines": {
@@ -10,9 +10,11 @@
   "keywords": [
     "bitcoinjs",
     "bitcoin",
-    "browserify",
-    "javascript",
-    "bitcoinjs"
+    "litecoinjs",
+    "litecoin",
+    "dogecoinjs",
+    "dogecoin",
+    "javascript"
   ],
   "scripts": {
     "audit": "better-npm-audit audit -l high",
@@ -43,7 +45,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
+    "url": "https://github.com/bitcoin-computer/nakamotojs-lib.git"
   },
   "files": [
     "src"
@@ -88,7 +90,7 @@
     "prettier": "^2.8.0",
     "proxyquire": "^2.0.1",
     "randombytes": "^2.1.0",
-    "regtest-client": "0.2.0",
+    "@bitcoin-computer/nakamotojs-client": "0.2.1",
     "rimraf": "^2.6.3",
     "tiny-secp256k1": "^2.2.0",
     "ts-node": "^8.3.0",

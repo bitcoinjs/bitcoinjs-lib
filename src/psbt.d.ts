@@ -66,6 +66,8 @@ export declare class Psbt {
     set locktime(locktime: number);
     get txInputs(): PsbtTxInput[];
     get txOutputs(): PsbtTxOutput[];
+    get outputsAmount(): number;
+    get inputsAmount(): number;
     combine(...those: Psbt[]): this;
     clone(): Psbt;
     setMaximumFeeRate(satoshiPerByte: number): void;
