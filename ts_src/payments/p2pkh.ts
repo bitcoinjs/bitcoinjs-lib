@@ -29,7 +29,7 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
   );
 
   const _address = lazy.value(() => {
-    const payload = bs58check.decode(a.address!);
+    const payload = Buffer.from(bs58check.decode(a.address!));
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
     return { version, hash };
