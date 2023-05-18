@@ -143,6 +143,23 @@ class Psbt {
       };
     });
   }
+  get outputsAmount() {
+    return this.txOutputs.reduce((total, o) => total + o.value, 0);
+  }
+  get inputsAmount() {
+    const inputsAmounts = this.data.inputs.map((input, index) => {
+      if (input.witnessUtxo) return input.witnessUtxo.value;
+      else if (input.nonWitnessUtxo) {
+        const txin = this.txInputs[index];
+        return transaction_1.Transaction.fromBuffer(input.nonWitnessUtxo).outs[
+          txin.index
+        ].value;
+      } else {
+        throw new Error('Could not get input of #' + index);
+      }
+    });
+    return inputsAmounts.reduce((total, amount) => total + amount, 0);
+  }
   combine(...those) {
     this.data.combine(...those.map(o => o.data));
     return this;
@@ -256,7 +273,13 @@ class Psbt {
     }
     if (c.__EXTRACTED_TX) return c.__EXTRACTED_TX;
     const tx = c.__TX.clone();
-    inputFinalizeGetAmts(this.data.inputs, tx, c, true);
+    inputFinalizeGetAmts(
+      this.data.inputs,
+      tx,
+      c,
+      true,
+      disableFeeCheck || false,
+    );
     return tx;
   }
   getFeeRate() {
@@ -1115,7 +1138,7 @@ function getTxCacheValue(key, name, inputs, c) {
   } else {
     tx = c.__TX.clone();
   }
-  inputFinalizeGetAmts(inputs, tx, c, mustFinalize);
+  inputFinalizeGetAmts(inputs, tx, c, mustFinalize, true);
   if (key === '__FEE_RATE') return c.__FEE_RATE;
   else if (key === '__FEE') return c.__FEE;
 }
@@ -1535,7 +1558,13 @@ function addNonWitnessTxCache(cache, input, inputIndex) {
     },
   });
 }
-function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize) {
+function inputFinalizeGetAmts(
+  inputs,
+  tx,
+  cache,
+  mustFinalize,
+  disableFeeCheck,
+) {
   let inputAmount = 0;
   inputs.forEach((input, idx) => {
     if (mustFinalize && input.finalScriptSig)
@@ -1556,7 +1585,7 @@ function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize) {
   });
   const outputAmount = tx.outs.reduce((total, o) => total + o.value, 0);
   const fee = inputAmount - outputAmount;
-  if (fee < 0) {
+  if (fee < 0 && !disableFeeCheck) {
     throw new Error('Outputs are spending more than Inputs');
   }
   const bytes = tx.virtualSize();

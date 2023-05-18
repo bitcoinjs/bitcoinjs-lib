@@ -26,7 +26,7 @@ const bob = ECPair.fromWIF(
   regtest,
 );
 
-describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
+describe('nakamotojs-lib (transactions w/ CLTV)', () => {
   // force update MTP
   before(async () => {
     await regtestUtils.mine(11);
@@ -250,7 +250,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
       }).input;
       tx.setInputScript(0, redeemScriptSig!);
 
-      await regtestUtils.broadcast(tx.toHex()).catch(err => {
+      await regtestUtils.broadcast(tx.toHex()).catch((err: any) => {
         assert.throws(() => {
           if (err) throw err;
         }, /Error: non-final/);

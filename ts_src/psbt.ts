@@ -219,7 +219,23 @@ export class Psbt {
       };
     });
   }
+  get outputsAmount(): number {
+    return this.txOutputs.reduce((total, o) => total + o.value, 0);
+  }
 
+  get inputsAmount(): number {
+    const inputsAmounts = this.data.inputs.map((input, index) => {
+      if (input.witnessUtxo) return input.witnessUtxo.value;
+      else if (input.nonWitnessUtxo) {
+        const txin = this.txInputs[index];
+        return Transaction.fromBuffer(input.nonWitnessUtxo).outs[txin.index]
+          .value;
+      } else {
+        throw new Error('Could not get input of #' + index);
+      }
+    });
+    return inputsAmounts.reduce((total, amount) => total + amount, 0) as number;
+  }
   combine(...those: Psbt[]): this {
     this.data.combine(...those.map(o => o.data));
     return this;
@@ -346,7 +362,13 @@ export class Psbt {
     }
     if (c.__EXTRACTED_TX) return c.__EXTRACTED_TX;
     const tx = c.__TX.clone();
-    inputFinalizeGetAmts(this.data.inputs, tx, c, true);
+    inputFinalizeGetAmts(
+      this.data.inputs,
+      tx,
+      c,
+      true,
+      disableFeeCheck || false,
+    );
     return tx;
   }
 
@@ -1468,7 +1490,7 @@ function getTxCacheValue(
   } else {
     tx = c.__TX.clone();
   }
-  inputFinalizeGetAmts(inputs, tx, c, mustFinalize);
+  inputFinalizeGetAmts(inputs, tx, c, mustFinalize, true);
   if (key === '__FEE_RATE') return c.__FEE_RATE!;
   else if (key === '__FEE') return c.__FEE!;
 }
@@ -2008,6 +2030,7 @@ function inputFinalizeGetAmts(
   tx: Transaction,
   cache: PsbtCache,
   mustFinalize: boolean,
+  disableFeeCheck: boolean,
 ): void {
   let inputAmount = 0;
   inputs.forEach((input, idx) => {
@@ -2032,7 +2055,7 @@ function inputFinalizeGetAmts(
     0,
   );
   const fee = inputAmount - outputAmount;
-  if (fee < 0) {
+  if (fee < 0 && !disableFeeCheck) {
     throw new Error('Outputs are spending more than Inputs');
   }
   const bytes = tx.virtualSize();

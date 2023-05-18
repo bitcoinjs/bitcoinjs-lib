@@ -1,10 +1,12 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.initEccLib =
+exports.bip371 =
+  exports.initEccLib =
   exports.Transaction =
   exports.opcodes =
   exports.Psbt =
   exports.Block =
+  exports.bufferUtils =
   exports.script =
   exports.payments =
   exports.networks =
@@ -21,6 +23,10 @@ const payments = require('./payments');
 exports.payments = payments;
 const script = require('./script');
 exports.script = script;
+const bip371 = require('./psbt/bip371');
+exports.bip371 = bip371;
+const bufferUtils = require('./bufferutils');
+exports.bufferUtils = bufferUtils;
 var block_1 = require('./block');
 Object.defineProperty(exports, 'Block', {
   enumerable: true,

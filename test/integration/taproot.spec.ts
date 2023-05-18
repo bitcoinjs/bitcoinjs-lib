@@ -5,20 +5,27 @@ import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import { PsbtInput, TapLeafScript } from 'bip174/src/lib/interfaces';
-import { regtestUtils } from './_regtest';
 import * as bitcoin from '../..';
 import { Taptree } from '../../src/types';
-import { toXOnly, tapTreeToList, tapTreeFromList } from '../../src/psbt/bip371';
+import { regtestUtils, regtestLitecoinUtils } from './_regtest';
 import { witnessStackToScriptWitness } from '../../src/psbt/psbtutils';
 import { TapLeaf } from 'bip174/src/lib/interfaces';
+const { toXOnly, tapTreeToList, tapTreeFromList } = bitcoin.bip371;
 
 const rng = require('randombytes');
-const regtest = regtestUtils.network;
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
+let regtest = regtestUtils.network;
 
-describe('bitcoinjs-lib (transaction with taproot)', () => {
+before(async () => {
+  regtest =
+    (await regtestUtils.chain()) === 'LTC'
+      ? regtestLitecoinUtils.network
+      : regtestUtils.network;
+});
+
+describe('nakamotojs-lib (transaction with taproot)', () => {
   it('can verify the BIP86 HD wallet vectors for taproot single sig (& sending example)', async () => {
     // Values taken from BIP86 document
     const mnemonic =
@@ -573,11 +580,17 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       };
       psbt.updateInput(0, { tapLeafScript: [tapLeafScript] });
 
-      const sendAddress =
-        'bcrt1pqknex3jwpsaatu5e5dcjw70nac3fr5k5y3hcxr4hgg6rljzp59nqs6a0vh';
+      const sendInternalKey = bip32.fromSeed(rng(64), regtest);
+      const sendPubKey = toXOnly(sendInternalKey.publicKey);
+      const { address: sendAddress } = bitcoin.payments.p2tr({
+        internalPubkey: sendPubKey,
+        scriptTree,
+        network: regtest,
+      });
+      assert(sendAddress, 'address should be defined');
       psbt.addOutput({
         value: sendAmount,
-        address: sendAddress,
+        address: sendAddress!,
       });
 
       const leafIndexFinalizerFn = buildLeafIndexFinalizer(
