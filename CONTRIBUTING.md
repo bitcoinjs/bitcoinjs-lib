@@ -1,6 +1,6 @@
 [//]: # 'This is partially derived from https://github.com/bitcoin/bitcoin/blob/6579d80572d2d33aceabbd3db45a6a9f809aa5e3/CONTRIBUTING.md'
 
-# Contributing to multicoinjs-lib
+# Contributing to nakamotojs-lib
 
 We are always accepting of pull requests, but we do adhere to specific standards in regards to coding style, test driven development and commit messages.
 
@@ -24,7 +24,7 @@ To contribute a patch, the workflow is as follows:
 1. Create topic branch
 1. Commit patches
 1. Push changes to your fork
-1. Submit a pull request to https://github.com/bitcoin-computer/multicoinjs-lib/pulls
+1. Submit a pull request to https://github.com/bitcoin-computer/nakamotojs-lib/pulls
 
 [Commits should be atomic](https://en.wikipedia.org/wiki/Atomic_commit#Atomic_commit_convention) and diffs easy to read.
 
