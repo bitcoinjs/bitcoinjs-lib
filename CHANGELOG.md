@@ -1,32 +1,25 @@
-# 6.1.0
-
-**fixed**
-
-- `inputFinalizeGetAmts` now includes an extra parameter to disable the fee check.
-
-**fixed**
-
-- `inputFinalizeGetAmts` now includes an extra parameter to disable the fee check. Now it is possible to use
+# 6.1.4
+__fixed__
+- ``inputFinalizeGetAmts`` now includes an extra parameter to disable the fee check.  
 - Add getters for input and output amounts of psbt transactions.
 
-**added**
+# 6.1.3
+__added__
+- ``bufferUtils``export. 
 
-- `bufferUtils`export.
+# 6.1.2
+__added__
+- ``bip371``export. 
 
-**added**
-
-- `bip371`export.
-
-**added**
-
+# 6.1.1
+__added__
 - Litecoin support.
 
-**changed**
+__changed__
+- Using from @bitcoin-computer/nakamotojs-client instead of regtest-client
 
-- Using from @bitcoin-computer/multicoinjs-client instead of regtest-client
-
-**added**
-
+# 6.1.0
+__added__
 - taproot support for payments (p2tr) and PSBT. See taproot.spec.ts integration test for examples. (#1742)
 
 # 6.0.2
