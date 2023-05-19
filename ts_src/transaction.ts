@@ -184,6 +184,38 @@ export class Transaction {
     );
   }
 
+  updateInput(
+    inputIndex: number,
+    hash?: Buffer,
+    outputIndex?: number,
+    sequence?: number,
+    scriptSig?: Buffer,
+  ): void {
+    typeforce(
+      types.tuple(
+        types.Number,
+        types.maybe(types.Hash256bit),
+        types.maybe(types.UInt32),
+        types.maybe(types.UInt32),
+        types.maybe(types.Buffer),
+      ),
+      arguments,
+    );
+
+    if (types.Null(sequence)) sequence = Transaction.DEFAULT_SEQUENCE;
+
+    if (typeof hash !== 'undefined') this.ins[inputIndex].hash = hash;
+
+    if (typeof outputIndex !== 'undefined')
+      this.ins[inputIndex].index = outputIndex;
+
+    if (typeof sequence !== 'undefined')
+      this.ins[inputIndex].sequence = sequence;
+
+    if (typeof scriptSig !== 'undefined')
+      this.ins[inputIndex].script = scriptSig;
+  }
+
   addOutput(scriptPubKey: Buffer, value: number): number {
     typeforce(types.tuple(types.Buffer, types.Satoshi), arguments);
 
@@ -194,6 +226,26 @@ export class Transaction {
         value,
       }) - 1
     );
+  }
+
+  updateOutput(
+    outputIndex: number,
+    scriptPubKey?: Buffer,
+    value?: number,
+  ): void {
+    typeforce(
+      types.tuple(
+        types.Number,
+        types.maybe(types.Buffer),
+        types.maybe(types.Satoshi),
+      ),
+      arguments,
+    );
+
+    if (typeof scriptPubKey !== 'undefined')
+      this.outs[outputIndex].script = scriptPubKey;
+
+    if (typeof value !== 'undefined') this.outs[outputIndex].value = value;
   }
 
   hasWitnesses(): boolean {

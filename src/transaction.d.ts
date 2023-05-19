@@ -30,7 +30,9 @@ export declare class Transaction {
     outs: Output[];
     isCoinbase(): boolean;
     addInput(hash: Buffer, index: number, sequence?: number, scriptSig?: Buffer): number;
+    updateInput(inputIndex: number, hash?: Buffer, outputIndex?: number, sequence?: number, scriptSig?: Buffer): void;
     addOutput(scriptPubKey: Buffer, value: number): number;
+    updateOutput(outputIndex: number, scriptPubKey?: Buffer, value?: number): void;
     hasWitnesses(): boolean;
     weight(): number;
     virtualSize(): number;

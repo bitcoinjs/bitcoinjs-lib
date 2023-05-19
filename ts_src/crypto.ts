@@ -33,7 +33,7 @@ export const TAGS = [
   'KeyAgg list',
   'KeyAgg coefficient',
 ] as const;
-export type TaggedHashPrefix = typeof TAGS[number];
+export type TaggedHashPrefix = (typeof TAGS)[number];
 type TaggedHashPrefixes = {
   [key in TaggedHashPrefix]: Buffer;
 };
