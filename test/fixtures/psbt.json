@@ -769,10 +769,11 @@
       },
       {
         "description": "checks taproot signing works when using custom signature type of 65 bytes",
+        "isTaproot": true,
         "shouldSign": {
           "psbt": "cHNidP8BAF4CAAAAAf17fGksrz9eKGx1nSU3RX4vcwr7bfNdQzPZ9dSEkWBcAAAAAAD/////AZBBBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQAAAAAAAEBK6BoBgAAAAAAIlEgPLBe/d3922lmXjTIt52b9NG1HFDC9jzPCTn111AG8TQBAwSDAAAAARcgWzC4qnD37J3WaDEbZPRihBXdI0gN68BGutJykDcHR6wBGCDlDrX1cnzwZvmcyLBH8M6NiS9lk7JVwM58wZZVOzmuMwAA",
           "sighashTypes": [
-            3, 128
+            131
           ],
           "inputToCheck": 0,
           "WIF": "KypUz2y1jdgzM8HGDUx9DYLmyzd8EWhruvLX2J5iSL7MiAcc7dBG",
