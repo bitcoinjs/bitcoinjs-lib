@@ -1,3 +1,19 @@
+# 6.1.1
+__added__
+- add example using BIP86 vector to verify the sending to and from a BIP86 generated taproot address
+
+__fixed__
+- support for 65 byte taproot signature
+- prevent the creation of unspendable scripts in bitcoinjs-lib by implementing checks for resource limitations
+- use `Buffer.from()` instead of `Buffer.of()`
+
+__changed__
+- performance: precompute the taproot hashes
+- performance: switch from `create-hash` and `ripemd160` to noble-hashes
+
+__removed__
+- types: removed unused methods `privateAdd` and `privateNegate` from `TinySecp256k1Interface`
+
 # 6.1.0
 __added__
 - taproot support for payments (p2tr) and PSBT. See taproot.spec.ts integration test for examples. (#1742)
