@@ -93,6 +93,14 @@ export function isTapleaf(o: any): o is Tapleaf {
  */
 export type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
 
+export interface HuffmanTapTreeNode {
+  /**
+   * weight is the sum of the weight of all children under this node
+   */
+  weight: number;
+  node: Taptree;
+}
+
 export function isTaptree(scriptTree: any): scriptTree is Taptree {
   if (!Array(scriptTree)) return isTapleaf(scriptTree);
   if (scriptTree.length !== 2) return false;

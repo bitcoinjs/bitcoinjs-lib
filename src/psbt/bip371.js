@@ -1,6 +1,7 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.checkTaprootInputForSigs =
+  exports.createTapTreeUsingHuffmanConstructor =
   exports.tapTreeFromList =
   exports.tapTreeToList =
   exports.tweakInternalPubKey =
@@ -18,6 +19,7 @@ const psbtutils_1 = require('./psbtutils');
 const bip341_1 = require('../payments/bip341');
 const payments_1 = require('../payments');
 const psbtutils_2 = require('./psbtutils');
+const sortutils_1 = require('../sortutils');
 const toXOnly = pubKey => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 exports.toXOnly = toXOnly;
 /**
@@ -155,6 +157,35 @@ function tapTreeFromList(leaves = []) {
   return instertLeavesInTree(leaves);
 }
 exports.tapTreeFromList = tapTreeFromList;
+/**
+ * Construct a Taptree where the leaves with the highest likelihood of use are closer to the root.
+ * @param nodes A list of nodes where each element contains a weight (likelihood of use) and
+ * a node which could be a Tapleaf or a branch in a Taptree
+ */
+function createTapTreeUsingHuffmanConstructor(nodes) {
+  if (nodes.length === 0)
+    throw new Error('Cannot create taptree from empty list.');
+  const compare = (a, b) => a.weight - b.weight;
+  const sortedNodes = [...nodes].sort(compare); // Sort array in ascending order of weight
+  let newNode;
+  let nodeA, nodeB;
+  while (sortedNodes.length > 1) {
+    // Construct a new node from the two nodes with the least weight
+    nodeA = sortedNodes.shift(); // There will always be an element to pop
+    nodeB = sortedNodes.shift(); // because loop ends when length <= 1
+    newNode = {
+      weight: nodeA.weight + nodeB.weight,
+      node: [nodeA.node, nodeB.node],
+    };
+    // Place newNode back into array
+    (0, sortutils_1.insertIntoSortedArray)(sortedNodes, newNode, compare);
+  }
+  // Last node is the root node
+  const root = sortedNodes.shift();
+  return root.node;
+}
+exports.createTapTreeUsingHuffmanConstructor =
+  createTapTreeUsingHuffmanConstructor;
 function checkTaprootInputForSigs(input, action) {
   const sigs = extractTaprootSigs(input);
   return sigs.some(sig =>

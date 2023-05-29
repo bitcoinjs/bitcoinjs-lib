@@ -26,6 +26,13 @@ export declare function isTapleaf(o: any): o is Tapleaf;
  * The tree has no balancing requirements.
  */
 export type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
+export interface HuffmanTapTreeNode {
+    /**
+     * weight is the sum of the weight of all children under this node
+     */
+    weight: number;
+    node: Taptree;
+}
 export declare function isTaptree(scriptTree: any): scriptTree is Taptree;
 export interface TinySecp256k1Interface {
     isXOnlyPoint(p: Uint8Array): boolean;
