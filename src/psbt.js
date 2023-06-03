@@ -468,14 +468,16 @@ class Psbt {
           this.__CACHE,
         );
     if (!allHashses.length) throw new Error('No signatures for this pubkey');
-    const tapKeyHash = allHashses.find(h => !!h.leafHash);
+    const tapKeyHash = allHashses.find(h => !h.leafHash);
+    let validationResultCount = 0;
     if (tapKeySig && tapKeyHash) {
       const isValidTapkeySig = validator(
         tapKeyHash.pubkey,
         tapKeyHash.hash,
-        tapKeySig,
+        trimTaprootSig(tapKeySig),
       );
       if (!isValidTapkeySig) return false;
+      validationResultCount++;
     }
     if (tapScriptSig) {
       for (const tapSig of tapScriptSig) {
@@ -484,13 +486,14 @@ class Psbt {
           const isValidTapScriptSig = validator(
             tapSig.pubkey,
             tapSigHash.hash,
-            tapSig.signature,
+            trimTaprootSig(tapSig.signature),
           );
           if (!isValidTapScriptSig) return false;
+          validationResultCount++;
         }
       }
     }
-    return true;
+    return validationResultCount > 0;
   }
   signAllInputsHD(
     hdKeyPair,
@@ -1291,6 +1294,9 @@ function getAllTaprootHashesForSig(inputIndex, input, inputs, cache) {
     getTaprootHashesForSig(inputIndex, input, inputs, pubicKey, cache),
   );
   return allHashes.flat();
+}
+function trimTaprootSig(signature) {
+  return signature.length === 64 ? signature : signature.subarray(1);
 }
 function getTaprootHashesForSig(
   inputIndex,
