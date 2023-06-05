@@ -1,3 +1,7 @@
+# 6.1.2
+__fixed__
+- validateSignaturesOfInput for taproot inputs returned true for invalid signatures in specific cases. (#1932)
+
 # 6.1.1
 __added__
 - add example using BIP86 vector to verify the sending to and from a BIP86 generated taproot address
