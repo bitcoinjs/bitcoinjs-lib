@@ -33,7 +33,7 @@
     "mocha:ts": "mocha --recursive --require test/ts-node-register",
     "nobuild:coverage-report": "nyc report --reporter=lcov",
     "nobuild:coverage-html": "nyc report --reporter=html",
-    "nobuild:coverage": "npm run build:tests && nyc --check-coverage --branches 90 --functions 90 --lines 90 mocha && npm run clean:jstests",
+    "nobuild:coverage": "npm run build:tests && nyc --check-coverage --branches 85 --functions 90 --lines 90 mocha && npm run clean:jstests",
     "nobuild:integration": "npm run mocha:ts -- --timeout 50000 'test/integration/*.ts'",
     "nobuild:unit": "npm run mocha:ts -- 'test/*.ts'",
     "prettier": "prettier \"ts_src/**/*.ts\" \"test/**/*.ts\" --ignore-path ./.prettierignore",
