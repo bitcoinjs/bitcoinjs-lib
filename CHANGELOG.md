@@ -1,3 +1,7 @@
+# 6.1.3
+__fixed__
+- validateSignaturesOfInput for taproot inputs returned false for valid signatures in specific cases. (#1934)
+
 # 6.1.2
 __fixed__
 - validateSignaturesOfInput for taproot inputs returned true for invalid signatures in specific cases. (#1932)
