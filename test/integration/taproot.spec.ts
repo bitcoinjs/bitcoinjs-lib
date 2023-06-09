@@ -629,6 +629,35 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       'Should fail validation',
     );
   });
+
+  it('should succeed validating valid signatures for taproot (See issue #1934)', () => {
+    const schnorrValidator = (
+      pubkey: Buffer,
+      msghash: Buffer,
+      signature: Buffer,
+    ) => {
+      return ecc.verifySchnorr(msghash, pubkey, signature);
+    };
+
+    const psbtBase64 =
+      `cHNidP8BAF4CAAAAAU6UzYPa7tES0HoS+obnRJuXX41Ob64Zs59qDEyKsu1ZAAAAAAD/////AYA
+      zAjsAAAAAIlEgIlIzfR+flIWYTyewD9v+1N84IubZ/7qg6oHlYLzv1aYAAAAAAAEAXgEAAAAB8f+
+      afEJBun7sRQLFE1Olc/gK9LBaduUpz3vB4fjXVF0AAAAAAP3///8BECcAAAAAAAAiUSAiUjN9H5+
+      UhZhPJ7AP2/7U3zgi5tn/uqDqgeVgvO/VpgAAAAABASsQJwAAAAAAACJRICJSM30fn5SFmE8nsA/
+      b/tTfOCLm2f+6oOqB5WC879WmAQMEgwAAAAETQWQwNOao3RMOBWPuAQ9Iph7Qzk47MvroTHbJR49
+      MxKJmQ6hfhZa5wVVrdKYea5BW/loqa7al2pYYZMlGvdS06wODARcgjuYXxIpyOMVTYEvl35gDidC
+      m/vUICZyuNNZKaPz9dxAAAQUgjuYXxIpyOMVTYEvl35gDidCm/vUICZyuNNZKaPz9dxAA`.replace(
+        /\s+/g,
+        '',
+      );
+
+    const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
+
+    assert(
+      psbt.validateSignaturesOfAllInputs(schnorrValidator),
+      'Should succeed validation',
+    );
+  });
 });
 
 function buildLeafIndexFinalizer(

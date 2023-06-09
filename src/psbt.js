@@ -1283,8 +1283,10 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
 function getAllTaprootHashesForSig(inputIndex, input, inputs, cache) {
   const allPublicKeys = [];
   if (input.tapInternalKey) {
-    const outputKey = (0, bip371_1.tweakInternalPubKey)(inputIndex, input);
-    allPublicKeys.push(outputKey);
+    const key = getPrevoutTaprootKey(inputIndex, input, cache);
+    if (key) {
+      allPublicKeys.push(key);
+    }
   }
   if (input.tapScriptSig) {
     const tapScriptPubkeys = input.tapScriptSig.map(tss => tss.pubkey);
@@ -1295,8 +1297,12 @@ function getAllTaprootHashesForSig(inputIndex, input, inputs, cache) {
   );
   return allHashes.flat();
 }
+function getPrevoutTaprootKey(inputIndex, input, cache) {
+  const { script } = getScriptAndAmountFromUtxo(inputIndex, input, cache);
+  return (0, psbtutils_1.isP2TR)(script) ? script.subarray(2, 34) : null;
+}
 function trimTaprootSig(signature) {
-  return signature.length === 64 ? signature : signature.subarray(1);
+  return signature.length === 64 ? signature : signature.subarray(0, 64);
 }
 function getTaprootHashesForSig(
   inputIndex,
@@ -1318,7 +1324,8 @@ function getTaprootHashesForSig(
   const values = prevOuts.map(o => o.value);
   const hashes = [];
   if (input.tapInternalKey && !tapLeafHashToSign) {
-    const outputKey = (0, bip371_1.tweakInternalPubKey)(inputIndex, input);
+    const outputKey =
+      getPrevoutTaprootKey(inputIndex, input, cache) || Buffer.from([]);
     if ((0, bip371_1.toXOnly)(pubkey).equals(outputKey)) {
       const tapKeyHash = unsignedTx.hashForWitnessV1(
         inputIndex,
