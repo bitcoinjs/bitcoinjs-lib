@@ -91,6 +91,9 @@ Which you can then import as an ESM module:
 <script type="module">import "/scripts/bitcoinjs-lib.js"</script>
 ````
 
+### Mobile
+For those who use this lib in mobile environment(react-native), please refer [this](https://github.com/bitcoinjs/bitcoinjs-lib/issues/1927) to integrate.
+
 **NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](https://babeljs.io/docs/plugins/preset-es2015/) preset).
 
 **WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use at least [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
