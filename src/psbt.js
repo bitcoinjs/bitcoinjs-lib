@@ -356,6 +356,91 @@ class Psbt {
     this.data.clearFinalizedInput(inputIndex);
     return this;
   }
+  finalizeInputAsync(inputIndex, finalScriptsAsyncFunc) {
+    const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
+    if ((0, bip371_1.isTaprootInput)(input))
+      return this._finalizeTaprootInputAsync(
+        inputIndex,
+        input,
+        undefined,
+        finalScriptsAsyncFunc,
+      );
+    return this._finalizeInputAsync(inputIndex, input, finalScriptsAsyncFunc);
+  }
+  finalizeTaprootInputAsync(
+    inputIndex,
+    tapLeafHashToFinalize,
+    finalScriptsAsyncFunc,
+  ) {
+    const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
+    if ((0, bip371_1.isTaprootInput)(input))
+      return this._finalizeTaprootInputAsync(
+        inputIndex,
+        input,
+        tapLeafHashToFinalize,
+        finalScriptsAsyncFunc,
+      );
+    throw new Error(`Cannot finalize input #${inputIndex}. Not Taproot.`);
+  }
+  _finalizeInputAsync(inputIndex, input, finalScriptsAsyncFunc) {
+    const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
+      inputIndex,
+      input,
+      this.__CACHE,
+    );
+    if (!script) throw new Error(`No script found for input #${inputIndex}`);
+    checkPartialSigSighashes(input);
+    return finalScriptsAsyncFunc(
+      inputIndex,
+      input,
+      script,
+      isSegwit,
+      isP2SH,
+      isP2WSH,
+    ).then(({ finalScriptSig, finalScriptWitness }) => {
+      if (finalScriptSig) this.data.updateInput(inputIndex, { finalScriptSig });
+      if (finalScriptWitness)
+        this.data.updateInput(inputIndex, { finalScriptWitness });
+      if (!finalScriptSig && !finalScriptWitness)
+        throw new Error(`Unknown error finalizing input #${inputIndex}`);
+      this.data.clearFinalizedInput(inputIndex);
+      return this;
+    });
+  }
+  _finalizeTaprootInputAsync(
+    inputIndex,
+    input,
+    tapLeafHashToFinalize,
+    finalScriptsAsyncFunc,
+  ) {
+    if (!input.witnessUtxo)
+      throw new Error(
+        `Cannot finalize input #${inputIndex}. Missing withness utxo.`,
+      );
+    // Check key spend first. Increased privacy and reduced block space.
+    if (input.tapKeySig) {
+      const payment = payments.p2tr({
+        output: input.witnessUtxo.script,
+        signature: input.tapKeySig,
+      });
+      const finalScriptWitness = (0, psbtutils_1.witnessStackToScriptWitness)(
+        payment.witness,
+      );
+      this.data.updateInput(inputIndex, { finalScriptWitness });
+      this.data.clearFinalizedInput(inputIndex);
+      return Promise.resolve(this);
+    } else {
+      return finalScriptsAsyncFunc(
+        inputIndex,
+        input,
+        tapLeafHashToFinalize,
+      ).then(({ finalScriptWitness }) => {
+        this.data.updateInput(inputIndex, { finalScriptWitness });
+        this.data.clearFinalizedInput(inputIndex);
+        return this;
+      });
+    }
+  }
   getInputType(inputIndex) {
     const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
     const script = getScriptFromUtxo(inputIndex, input, this.__CACHE);

@@ -12,7 +12,7 @@ export declare const toXOnly: (pubKey: Buffer) => Buffer;
  * @returns the finalScriptWitness or throws an exception if no tapleaf found.
  */
 export declare function tapScriptFinalizer(inputIndex: number, input: PsbtInput, tapLeafHashToFinalize?: Buffer): {
-    finalScriptWitness: Buffer | undefined;
+    finalScriptWitness: Buffer;
 };
 export declare function serializeTaprootSignature(sig: Buffer, sighashType?: number): Buffer;
 export declare function isTaprootInput(input: PsbtInput): boolean;

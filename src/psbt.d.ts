@@ -84,6 +84,10 @@ export declare class Psbt {
     finalizeTaprootInput(inputIndex: number, tapLeafHashToFinalize?: Buffer, finalScriptsFunc?: FinalTaprootScriptsFunc): this;
     private _finalizeInput;
     private _finalizeTaprootInput;
+    finalizeInputAsync(inputIndex: number, finalScriptsAsyncFunc: FinalScriptsAsyncFunc | FinalTaprootScriptsAsyncFunc): Promise<this>;
+    finalizeTaprootInputAsync(inputIndex: number, tapLeafHashToFinalize: Buffer | undefined, finalScriptsAsyncFunc: FinalTaprootScriptsAsyncFunc): Promise<this>;
+    private _finalizeInputAsync;
+    private _finalizeTaprootInputAsync;
     getInputType(inputIndex: number): AllScriptType;
     inputHasPubkey(inputIndex: number, pubkey: Buffer): boolean;
     inputHasHDKey(inputIndex: number, root: HDSigner): boolean;
@@ -189,13 +193,27 @@ script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH
 isSegwit: boolean, // Is it segwit?
 isP2SH: boolean, // Is it P2SH?
 isP2WSH: boolean) => {
-    finalScriptSig: Buffer | undefined;
-    finalScriptWitness: Buffer | undefined;
+    finalScriptSig?: Buffer;
+    finalScriptWitness?: Buffer;
 };
 type FinalTaprootScriptsFunc = (inputIndex: number, // Which input is it?
 input: PsbtInput, // The PSBT input contents
 tapLeafHashToFinalize?: Buffer) => {
-    finalScriptWitness: Buffer | undefined;
+    finalScriptWitness: Buffer;
 };
+type FinalScriptsAsyncFunc = (inputIndex: number, // Which input is it?
+input: PsbtInput, // The PSBT input contents
+script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
+isSegwit: boolean, // Is it segwit?
+isP2SH: boolean, // Is it P2SH?
+isP2WSH: boolean) => Promise<{
+    finalScriptSig?: Buffer;
+    finalScriptWitness?: Buffer;
+}>;
+type FinalTaprootScriptsAsyncFunc = (inputIndex: number, // Which input is it?
+input: PsbtInput, // The PSBT input contents
+tapLeafHashToFinalize?: Buffer) => Promise<{
+    finalScriptWitness: Buffer;
+}>;
 type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
 export {};

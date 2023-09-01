@@ -44,7 +44,7 @@ export function tapScriptFinalizer(
   input: PsbtInput,
   tapLeafHashToFinalize?: Buffer,
 ): {
-  finalScriptWitness: Buffer | undefined;
+  finalScriptWitness: Buffer;
 } {
   const tapLeaf = findTapLeafToFinalize(
     input,

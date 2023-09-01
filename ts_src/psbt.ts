@@ -441,7 +441,7 @@ export class Psbt {
     inputIndex: number,
     input: PsbtInput,
     tapLeafHashToFinalize?: Buffer,
-    finalScriptsFunc = tapScriptFinalizer,
+    finalScriptsFunc: FinalTaprootScriptsFunc = tapScriptFinalizer,
   ): this {
     if (!input.witnessUtxo)
       throw new Error(
@@ -468,6 +468,108 @@ export class Psbt {
     this.data.clearFinalizedInput(inputIndex);
 
     return this;
+  }
+
+  finalizeInputAsync(
+    inputIndex: number,
+    finalScriptsAsyncFunc: FinalScriptsAsyncFunc | FinalTaprootScriptsAsyncFunc,
+  ): Promise<this> {
+    const input = checkForInput(this.data.inputs, inputIndex);
+    if (isTaprootInput(input))
+      return this._finalizeTaprootInputAsync(
+        inputIndex,
+        input,
+        undefined,
+        finalScriptsAsyncFunc as FinalTaprootScriptsAsyncFunc,
+      );
+    return this._finalizeInputAsync(
+      inputIndex,
+      input,
+      finalScriptsAsyncFunc as FinalScriptsAsyncFunc,
+    );
+  }
+
+  finalizeTaprootInputAsync(
+    inputIndex: number,
+    tapLeafHashToFinalize: Buffer | undefined,
+    finalScriptsAsyncFunc: FinalTaprootScriptsAsyncFunc,
+  ): Promise<this> {
+    const input = checkForInput(this.data.inputs, inputIndex);
+    if (isTaprootInput(input))
+      return this._finalizeTaprootInputAsync(
+        inputIndex,
+        input,
+        tapLeafHashToFinalize,
+        finalScriptsAsyncFunc,
+      );
+    throw new Error(`Cannot finalize input #${inputIndex}. Not Taproot.`);
+  }
+
+  private _finalizeInputAsync(
+    inputIndex: number,
+    input: PsbtInput,
+    finalScriptsAsyncFunc: FinalScriptsAsyncFunc,
+  ): Promise<this> {
+    const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
+      inputIndex,
+      input,
+      this.__CACHE,
+    );
+    if (!script) throw new Error(`No script found for input #${inputIndex}`);
+
+    checkPartialSigSighashes(input);
+
+    return finalScriptsAsyncFunc(
+      inputIndex,
+      input,
+      script,
+      isSegwit,
+      isP2SH,
+      isP2WSH,
+    ).then(({ finalScriptSig, finalScriptWitness }) => {
+      if (finalScriptSig) this.data.updateInput(inputIndex, { finalScriptSig });
+      if (finalScriptWitness)
+        this.data.updateInput(inputIndex, { finalScriptWitness });
+      if (!finalScriptSig && !finalScriptWitness)
+        throw new Error(`Unknown error finalizing input #${inputIndex}`);
+
+      this.data.clearFinalizedInput(inputIndex);
+      return this;
+    });
+  }
+
+  private _finalizeTaprootInputAsync(
+    inputIndex: number,
+    input: PsbtInput,
+    tapLeafHashToFinalize: Buffer | undefined,
+    finalScriptsAsyncFunc: FinalTaprootScriptsAsyncFunc,
+  ): Promise<this> {
+    if (!input.witnessUtxo)
+      throw new Error(
+        `Cannot finalize input #${inputIndex}. Missing withness utxo.`,
+      );
+
+    // Check key spend first. Increased privacy and reduced block space.
+    if (input.tapKeySig) {
+      const payment = payments.p2tr({
+        output: input.witnessUtxo.script,
+        signature: input.tapKeySig,
+      });
+      const finalScriptWitness = witnessStackToScriptWitness(payment.witness!);
+      this.data.updateInput(inputIndex, { finalScriptWitness });
+      this.data.clearFinalizedInput(inputIndex);
+      return Promise.resolve(this);
+    } else {
+      return finalScriptsAsyncFunc(
+        inputIndex,
+        input,
+        tapLeafHashToFinalize,
+      ).then(({ finalScriptWitness }) => {
+        this.data.updateInput(inputIndex, { finalScriptWitness });
+        this.data.clearFinalizedInput(inputIndex);
+        return this;
+      });
+    }
   }
 
   getInputType(inputIndex: number): AllScriptType {
@@ -1490,16 +1592,35 @@ type FinalScriptsFunc = (
   isP2SH: boolean, // Is it P2SH?
   isP2WSH: boolean, // Is it P2WSH?
 ) => {
-  finalScriptSig: Buffer | undefined;
-  finalScriptWitness: Buffer | undefined;
+  finalScriptSig?: Buffer;
+  finalScriptWitness?: Buffer;
 };
 type FinalTaprootScriptsFunc = (
   inputIndex: number, // Which input is it?
   input: PsbtInput, // The PSBT input contents
   tapLeafHashToFinalize?: Buffer, // Only finalize this specific leaf
 ) => {
-  finalScriptWitness: Buffer | undefined;
+  finalScriptWitness: Buffer;
 };
+
+type FinalScriptsAsyncFunc = (
+  inputIndex: number, // Which input is it?
+  input: PsbtInput, // The PSBT input contents
+  script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
+  isSegwit: boolean, // Is it segwit?
+  isP2SH: boolean, // Is it P2SH?
+  isP2WSH: boolean, // Is it P2WSH?
+) => Promise<{
+  finalScriptSig?: Buffer;
+  finalScriptWitness?: Buffer;
+}>;
+type FinalTaprootScriptsAsyncFunc = (
+  inputIndex: number, // Which input is it?
+  input: PsbtInput, // The PSBT input contents
+  tapLeafHashToFinalize?: Buffer, // Only finalize this specific leaf
+) => Promise<{
+  finalScriptWitness: Buffer;
+}>;
 
 function getFinalScripts(
   inputIndex: number,
