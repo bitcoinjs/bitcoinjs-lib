@@ -51,7 +51,7 @@
   "dependencies": {
     "@noble/hashes": "^1.2.0",
     "bech32": "^2.0.0",
-    "bip174": "^2.1.0",
+    "bip174": "^2.1.1",
     "bs58check": "^3.0.1",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.1.2"
