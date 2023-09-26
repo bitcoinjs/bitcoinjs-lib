@@ -1,22 +1,20 @@
 import * as assert from 'assert';
 import BIP32Factory from 'bip32';
 import * as bip39 from 'bip39';
-import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
-import { PsbtInput, TapLeafScript } from 'bip174/src/lib/interfaces';
+import { PsbtInput, TapLeaf, TapLeafScript } from 'bip174/src/lib/interfaces';
 import { regtestUtils } from './_regtest';
 import * as bitcoin from '../..';
 import { Taptree } from '../../src/types';
+import { LEAF_VERSION_TAPSCRIPT } from '../../src/payments/bip341';
 import { toXOnly, tapTreeToList, tapTreeFromList } from '../../src/psbt/bip371';
 import { witnessStackToScriptWitness } from '../../src/psbt/psbtutils';
-import { TapLeaf } from 'bip174/src/lib/interfaces';
 
 const rng = require('randombytes');
 const regtest = regtestUtils.network;
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
-const ECPair = ECPairFactory(ecc);
 
 describe('bitcoinjs-lib (transaction with taproot)', () => {
   it('can verify the BIP86 HD wallet vectors for taproot single sig (& sending example)', async () => {
@@ -39,7 +37,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     assert.strictEqual(rootKey.toBase58(), xprv);
     const childNode = rootKey.derivePath(path);
     // Since internalKey is an xOnly pubkey, we drop the DER header byte
-    const childNodeXOnlyPubkey = childNode.publicKey.slice(1, 33);
+    const childNodeXOnlyPubkey = toXOnly(childNode.publicKey);
     assert.deepEqual(childNodeXOnlyPubkey, internalPubkey);
 
     // This is new for taproot
@@ -139,7 +137,9 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       tapInternalKey: sendPubKey,
     });
 
-    const tweakedSigner = tweakSigner(internalKey!, { network: regtest });
+    const tweakedSigner = internalKey.tweak(
+      bitcoin.crypto.taggedHash('TapTweak', toXOnly(internalKey.publicKey)),
+    );
     await psbt.signInputAsync(0, tweakedSigner);
     await psbt.signInputAsync(1, p2pkhKey);
 
@@ -194,10 +194,12 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     });
     psbt.addOutput({ value: sendAmount, address: address! });
 
-    const tweakedSigner = tweakSigner(internalKey!, {
-      tweakHash: hash,
-      network: regtest,
-    });
+    const tweakedSigner = internalKey.tweak(
+      bitcoin.crypto.taggedHash(
+        'TapTweak',
+        Buffer.concat([toXOnly(internalKey.publicKey), hash!]),
+      ),
+    );
     psbt.signInput(0, tweakedSigner);
 
     psbt.finalizeAllInputs();
@@ -271,7 +273,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     ];
     const redeem = {
       output: leafScript,
-      redeemVersion: 192,
+      redeemVersion: LEAF_VERSION_TAPSCRIPT,
     };
 
     const { output, witness } = bitcoin.payments.p2tr({
@@ -361,7 +363,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     ];
     const redeem = {
       output: leafScript,
-      redeemVersion: 192,
+      redeemVersion: LEAF_VERSION_TAPSCRIPT,
     };
 
     const { output, witness } = bitcoin.payments.p2tr({
@@ -472,7 +474,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     ];
     const redeem = {
       output: leafScript,
-      redeemVersion: 192,
+      redeemVersion: LEAF_VERSION_TAPSCRIPT,
     };
 
     const { output, address, witness } = bitcoin.payments.p2tr({
@@ -532,7 +534,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
       (_, index) =>
         ({
           depth: 3,
-          leafVersion: 192,
+          leafVersion: LEAF_VERSION_TAPSCRIPT,
           script: bitcoin.script.fromASM(`OP_ADD OP_${index * 2} OP_EQUAL`),
         } as TapLeaf),
     );
@@ -541,7 +543,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     for (let leafIndex = 1; leafIndex < leafCount; leafIndex++) {
       const redeem = {
         output: bitcoin.script.fromASM(`OP_ADD OP_${leafIndex * 2} OP_EQUAL`),
-        redeemVersion: 192,
+        redeemVersion: LEAF_VERSION_TAPSCRIPT,
       };
 
       const internalKey = bip32.fromSeed(rng(64), regtest);
@@ -690,36 +692,4 @@ function buildLeafIndexFinalizer(
       throw new Error(`Can not finalize taproot input #${inputIndex}: ${err}`);
     }
   };
-}
-
-// This logic will be extracted to ecpair
-function tweakSigner(signer: bitcoin.Signer, opts: any = {}): bitcoin.Signer {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  let privateKey: Uint8Array | undefined = signer.privateKey!;
-  if (!privateKey) {
-    throw new Error('Private key is required for tweaking signer!');
-  }
-  if (signer.publicKey[0] === 3) {
-    privateKey = ecc.privateNegate(privateKey);
-  }
-
-  const tweakedPrivateKey = ecc.privateAdd(
-    privateKey,
-    tapTweakHash(toXOnly(signer.publicKey), opts.tweakHash),
-  );
-  if (!tweakedPrivateKey) {
-    throw new Error('Invalid tweaked private key!');
-  }
-
-  return ECPair.fromPrivateKey(Buffer.from(tweakedPrivateKey), {
-    network: opts.network,
-  });
-}
-
-function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer {
-  return bitcoin.crypto.taggedHash(
-    'TapTweak',
-    Buffer.concat(h ? [pubKey, h] : [pubKey]),
-  );
 }
