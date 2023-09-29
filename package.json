@@ -39,7 +39,8 @@
     "prettier": "prettier \"ts_src/**/*.ts\" \"test/**/*.ts\" --ignore-path ./.prettierignore",
     "prettierjs": "prettier \"src/**/*.js\" --ignore-path ./.prettierignore",
     "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
-    "unit": "npm run build && npm run nobuild:unit"
+    "unit": "npm run build && npm run nobuild:unit",
+    "doc": "npx typedoc"
   },
   "repository": {
     "type": "git",
@@ -53,6 +54,7 @@
     "bech32": "^2.0.0",
     "bip174": "^2.1.1",
     "bs58check": "^3.0.1",
+    "typedoc": "^0.25.1",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.1.2"
   },
