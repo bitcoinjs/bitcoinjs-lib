@@ -23,6 +23,7 @@
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
     "coverage": "npm run build && npm run nobuild:coverage",
+    "doc": "typedoc",
     "format": "npm run prettier -- --write",
     "formatjs": "npm run prettierjs -- --write",
     "format:ci": "npm run prettier -- --check && npm run prettierjs -- --check",
@@ -39,8 +40,7 @@
     "prettier": "prettier \"ts_src/**/*.ts\" \"test/**/*.ts\" --ignore-path ./.prettierignore",
     "prettierjs": "prettier \"src/**/*.js\" --ignore-path ./.prettierignore",
     "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
-    "unit": "npm run build && npm run nobuild:unit",
-    "doc": "npx typedoc"
+    "unit": "npm run build && npm run nobuild:unit"
   },
   "repository": {
     "type": "git",
@@ -54,7 +54,6 @@
     "bech32": "^2.0.0",
     "bip174": "^2.1.1",
     "bs58check": "^3.0.1",
-    "typedoc": "^0.25.1",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.1.2"
   },
@@ -89,6 +88,7 @@
     "rimraf": "^2.6.3",
     "tiny-secp256k1": "^2.2.0",
     "ts-node": "^8.3.0",
+    "typedoc": "^0.25.1",
     "typescript": "^4.4.4"
   },
   "license": "MIT"
