@@ -1,7 +1,12 @@
 import { Buffer as NBuffer } from 'buffer';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { typeforce as typef, isTaptree, TAPLEAF_VERSION_MASK } from '../types';
+import {
+  typeforce as typef,
+  isTaptree,
+  TAPLEAF_VERSION_MASK,
+  stacksEqual,
+} from '../types';
 import { getEccLib } from '../ecc_lib';
 import {
   toHashTree,
@@ -14,6 +19,7 @@ import {
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32m } from 'bech32';
+import { fromBech32 } from '../address';
 
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
@@ -54,14 +60,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   );
 
   const _address = lazy.value(() => {
-    const result = bech32m.decode(a.address!);
-    const version = result.words.shift();
-    const data = bech32m.fromWords(result.words);
-    return {
-      version,
-      prefix: result.prefix,
-      data: NBuffer.from(data),
-    };
+    return fromBech32(a.address!);
   });
 
   // remove annex if present, ignored by taproot
@@ -313,12 +312,4 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   }
 
   return Object.assign(o, a);
-}
-
-function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
-  if (a.length !== b.length) return false;
-
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
 }

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.encode = exports.decode = void 0;
 const bip66 = require('./bip66');
+const script_1 = require('./script');
 const types = require('./types');
 const { typeforce } = types;
 const ZERO = Buffer.alloc(1, 0);
@@ -23,9 +24,9 @@ function fromDER(x) {
 // BIP62: 1 byte hashType flag (only 0x01, 0x02, 0x03, 0x81, 0x82 and 0x83 are allowed)
 function decode(buffer) {
   const hashType = buffer.readUInt8(buffer.length - 1);
-  const hashTypeMod = hashType & ~0x80;
-  if (hashTypeMod <= 0 || hashTypeMod >= 4)
+  if (!(0, script_1.isDefinedHashType)(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
+  }
   const decoded = bip66.decode(buffer.slice(0, -1));
   const r = fromDER(decoded.r);
   const s = fromDER(decoded.s);
@@ -41,9 +42,9 @@ function encode(signature, hashType) {
     },
     { signature, hashType },
   );
-  const hashTypeMod = hashType & ~0x80;
-  if (hashTypeMod <= 0 || hashTypeMod >= 4)
+  if (!(0, script_1.isDefinedHashType)(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
+  }
   const hashTypeBuffer = Buffer.allocUnsafe(1);
   hashTypeBuffer.writeUInt8(hashType, 0);
   const r = toDER(signature.slice(0, 32));
