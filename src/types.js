@@ -27,6 +27,7 @@ exports.oneOf =
   exports.BIP32Path =
   exports.UInt31 =
   exports.isPoint =
+  exports.stacksEqual =
   exports.typeforce =
     void 0;
 const buffer_1 = require('buffer');
@@ -36,6 +37,13 @@ const EC_P = buffer_1.Buffer.from(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
   'hex',
 );
+function stacksEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((x, i) => {
+    return x.equals(b[i]);
+  });
+}
+exports.stacksEqual = stacksEqual;
 function isPoint(p) {
   if (!buffer_1.Buffer.isBuffer(p)) return false;
   if (p.length < 33) return false;
