@@ -14,8 +14,8 @@ We are always accepting of pull requests, but we do adhere to specific standards
 GitHub is the preferred method of communication between members.
 
 Otherwise, in order of preference:
-* bitcoinjs.slack.com
-* #bitcoinjs-dev on Freenode IRC
+* #bitcoinjs-dev:matrix.org on Matrix (A part of the #bitcoinjs-space:matrix.org "Space")
+* #bitcoinjs on libera.chat IRC
 
 
 ## Workflow
