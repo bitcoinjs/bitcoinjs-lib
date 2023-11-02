@@ -17,6 +17,7 @@
   "scripts": {
     "audit": "better-npm-audit audit -l high",
     "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
+    "build:lib": "webpack build --config ./webpack.config.js",
     "build:tests": "npm run clean:jstests && tsc -p ./test/tsconfig.json",
     "clean": "rimraf src",
     "clean:jstests": "rimraf 'test/**/!(ts-node-register)*.js'",
@@ -72,6 +73,7 @@
     "bip65": "^1.0.1",
     "bip68": "^1.0.3",
     "bs58": "^4.0.0",
+    "buffer": "^6.0.3",
     "dhttp": "^3.0.0",
     "ecpair": "^2.0.1",
     "eslint": "^8.29.0",
@@ -89,7 +91,9 @@
     "tiny-secp256k1": "^2.2.0",
     "ts-node": "^8.3.0",
     "typedoc": "^0.25.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   },
   "license": "MIT"
 }
