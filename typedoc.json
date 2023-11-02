@@ -10,6 +10,7 @@
   "searchGroupBoosts": {
     "Classes": 1.5
   },
+  "plugin": ["typedoc-plugin-bitcoinjs-runcase"],
   "visibilityFilters": {},
   "hideGenerator": true,
   "excludePrivate": true,
