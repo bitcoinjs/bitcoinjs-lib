@@ -27,19 +27,12 @@ export interface Bech32Result {
 }
 /**
  * decode address with base58 specification,  return address version and address hash if valid
- * @example
+ * @case
  * ```ts
- * // valid case
- * fromBase58Check('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH')
- * // => {version: 0, hash: <Buffer 75 1e 76 e8 19 91 96 d4 54 94 1c 45 d1 b3 a3 23 f1 43 3b d6>}
- *
- * // invalid case: address is too short
- * fromBase58Check('7SeEnXWPaCCALbVrTnszCVGfRU8cGfx')
- * // => throw new TypeError('7SeEnXWPaCCALbVrTnszCVGfRU8cGfx is too short')
- *
- * // invalid case: address is too long
- * fromBase58Check('j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe')
- * // => throw new TypeError('j9ywUkWg2fTQrouxxh5rSZhRvrjMkEUfuiKe is too long')
+ * // You can test it here and find more case in test/address.spec.ts
+ * const result = address.fromBase58Check('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH')
+ * console.log(JSON.stringify(result))
+ * // => {"version":0,"hash":{"type":"Buffer","data":[117,30,118,232,25,145,150,212,84,148,28,69,209,179,163,35,241,67,59,214]}}
  * ```
  */
 export declare function fromBase58Check(address: string): Base58CheckResult;
