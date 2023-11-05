@@ -54,7 +54,6 @@
     "bech32": "^2.0.0",
     "bip174": "^2.1.1",
     "bs58check": "^3.0.1",
-    "typedoc-plugin-bitcoinjs-runcase": "^1.0.1",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.1.2"
   },
@@ -90,6 +89,7 @@
     "tiny-secp256k1": "^2.2.0",
     "ts-node": "^8.3.0",
     "typedoc": "^0.25.1",
+    "typedoc-plugin-bitcoinjs-runcase": "^1.0.1",
     "typescript": "^4.4.4"
   },
   "license": "MIT"
