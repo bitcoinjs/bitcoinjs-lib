@@ -24,10 +24,10 @@ function verifuint(value, max) {
 }
 function readUInt64LE(buffer, offset) {
   const a = buffer.readUInt32LE(offset);
-  let b = buffer.readUInt32LE(offset + 4);
-  b *= 0x100000000;
-  verifuint(b + a, 0x001fffffffffffff);
-  return b + a;
+  const b = buffer.readUInt32LE(offset + 4) * 0x100000000;
+  const sum = a + b;
+  verifuint(sum, 0x001fffffffffffff);
+  return sum;
 }
 exports.readUInt64LE = readUInt64LE;
 function writeUInt64LE(buffer, value, offset) {
@@ -39,13 +39,14 @@ function writeUInt64LE(buffer, value, offset) {
 exports.writeUInt64LE = writeUInt64LE;
 function reverseBuffer(buffer) {
   if (buffer.length < 1) return buffer;
-  let j = buffer.length - 1;
-  let tmp = 0;
-  for (let i = 0; i < buffer.length / 2; i++) {
+  for (
+    let i = 0, j = buffer.length - 1, tmp = 0;
+    i < buffer.length / 2;
+    i++, j--
+  ) {
     tmp = buffer[i];
     buffer[i] = buffer[j];
     buffer[j] = tmp;
-    j--;
   }
   return buffer;
 }
@@ -152,9 +153,8 @@ class BufferReader {
     return this.readSlice(this.readVarInt());
   }
   readVector() {
-    const count = this.readVarInt();
     const vector = [];
-    for (let i = 0; i < count; i++) vector.push(this.readVarSlice());
+    for (let i = 0, count = this.readVarInt(); i < count; i++) vector.push(this.readVarSlice());
     return vector;
   }
 }
