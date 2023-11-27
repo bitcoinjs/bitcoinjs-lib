@@ -26,10 +26,11 @@ function p2pkh(a, opts) {
     },
     a,
   );
+  const useUInt16 = a.network.pubKeyHash > 255
   const _address = lazy.value(() => {
     const payload = Buffer.from(bs58check.decode(a.address));
-    const version = payload.readUInt8(0);
-    const hash = payload.slice(1);
+    const version = (network.versionBytes === 2) ? payload.readUInt16BE(0) : payload.readUInt8(0)
+    const hash = payload.slice(network.versionBytes);
     return { version, hash };
   });
   const _chunks = lazy.value(() => {
@@ -39,9 +40,14 @@ function p2pkh(a, opts) {
   const o = { name: 'p2pkh', network };
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
-    const payload = Buffer.allocUnsafe(21);
-    payload.writeUInt8(network.pubKeyHash, 0);
-    o.hash.copy(payload, 1);
+
+    const payload = Buffer.allocUnsafe(network.bytes)
+    if (network.versionBytes === 1) {
+      payload.writeUInt8(network.pubKeyHash, 0)
+    } else if (network.versionBytes === 2) {
+      payload.writeUInt16BE(network.pubKeyHash, 0)
+    }
+    o.hash.copy(payload, network.versionBytes)
     return bs58check.encode(payload);
   });
   lazy.prop(o, 'hash', () => {
