@@ -1,8 +1,10 @@
 import { Network } from './networks';
 import * as networks from './networks';
+import { OPS } from './ops';
 import * as payments from './payments';
 import * as bscript from './script';
 import { typeforce, tuple, Hash160bit, UInt8 } from './types';
+import * as varuint from 'bip174/src/lib/converter/varint';
 import { bech32, bech32m } from 'bech32';
 import * as bs58check from 'bs58check';
 export interface Base58CheckResult {
@@ -137,6 +139,48 @@ export function fromOutputScript(output: Buffer, network?: Network): string {
   } catch (e) {}
 
   throw new Error(bscript.toASM(output) + ' has no matching Address');
+}
+
+/**
+ * This uses the logic from Bitcoin Core to decide what is the dust threshold for a given script.
+ *
+ * Ref: https://github.com/bitcoin/bitcoin/blob/160d23677ad799cf9b493eaa923b2ac080c3fb8e/src/policy/policy.cpp#L26-L63
+ *
+ * @param {Buffer} script - This is the script to evaluate a dust limit for.
+ * @param {number} [satPerVb=1] - This is to account for different MIN_RELAY_TX_FEE amounts. Bitcoin Core does not calculate
+ *                                dust based on the mempool ejection cutoff, but always by the MIN_RELAY_TX_FEE.
+ *                                This argument should be passed in as satoshi per vByte. Not satoshi per kvByte like Core.
+ */
+export function dustAmountFromOutputScript(
+  script: Buffer,
+  satPerVb: number = 1,
+): number {
+  if (isUnspendableCore(script)) {
+    return 0;
+  }
+
+  const inputBytes = isSegwit(script) ? 67 : 148;
+  const outputBytes = script.length + 8 + varuint.encodingLength(script.length);
+
+  return Math.ceil((inputBytes + outputBytes) * 3 * satPerVb);
+}
+
+function isUnspendableCore(script: Buffer): boolean {
+  const startsWithOpReturn = script.length > 0 && script[0] == OPS.OP_RETURN;
+  const MAX_SCRIPT_SIZE = 10000;
+  const greaterThanScriptSize = script.length > MAX_SCRIPT_SIZE;
+  // If unspendable, return 0
+  // https://github.com/bitcoin/bitcoin/blob/160d23677ad799cf9b493eaa923b2ac080c3fb8e/src/script/script.h#L554C16-L554C84
+  // (size() > 0 && *begin() == OP_RETURN) || (size() > MAX_SCRIPT_SIZE);
+  return startsWithOpReturn || greaterThanScriptSize;
+}
+
+function isSegwit(script: Buffer): boolean {
+  if (script.length < 4 || script.length > 42) return false;
+  if (script[0] !== OPS.OP_0 && (script[0] < OPS.OP_1 || script[0] > OPS.OP_16))
+    return false;
+  if (script[1] + 2 !== script.length) return false;
+  return true;
 }
 
 export function toOutputScript(address: string, network?: Network): Buffer {

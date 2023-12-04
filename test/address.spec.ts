@@ -150,4 +150,76 @@ describe('address', () => {
       });
     });
   });
+
+  describe('dustAmountFromOutputScript', () => {
+    it('gets correct values', () => {
+      const vectors = [
+        // OP_RETURN is always 0 regardless of size
+        [Buffer.from('6a04deadbeef', 'hex'), 1, 0],
+        [Buffer.from('6a08deadbeefdeadbeef', 'hex'), 1, 0],
+        // 3 byte non-segwit output is 3 + 1 + 8 + 148 = 160 * 3 = 480
+        [Buffer.from('020102', 'hex'), 1, 480],
+        // * 2 the feerate, * 2 the result
+        [Buffer.from('020102', 'hex'), 2, 960],
+        // P2PKH is 546 (well known)
+        [
+          Buffer.from(
+            '76a914b6211d1f14f26ea4aed0e4a55e56e82656c7233d88ac',
+            'hex',
+          ),
+          1,
+          546,
+        ],
+        // P2WPKH is 294 (mentioned in Core comments)
+        [
+          Buffer.from('00145f72106b919817aa740fc655cce1a59f2d804e16', 'hex'),
+          1,
+          294,
+        ],
+        // P2TR (and P2WSH) is 330
+        [
+          Buffer.from(
+            '51208215bbb39e58fc799515d72a76a29400c146f7044dcf44925877ed3219782963',
+            'hex',
+          ),
+          1,
+          330,
+        ],
+        // P2TR (and P2WSH) with OP_16 for some reason is still 330
+        [
+          Buffer.from(
+            '60208215bbb39e58fc799515d72a76a29400c146f7044dcf44925877ed3219782963',
+            'hex',
+          ),
+          1,
+          330,
+        ],
+        // P2TR (and P2WSH) with 0x61 instead of OP number for some reason is now 573
+        [
+          Buffer.from(
+            '61208215bbb39e58fc799515d72a76a29400c146f7044dcf44925877ed3219782963',
+            'hex',
+          ),
+          1,
+          573,
+        ],
+        // P2TR (and P2WSH) with 0x50 instead of OP 1-16 for some reason is now 573
+        [
+          Buffer.from(
+            '50208215bbb39e58fc799515d72a76a29400c146f7044dcf44925877ed3219782963',
+            'hex',
+          ),
+          1,
+          573,
+        ],
+      ] as const;
+
+      for (const [script, feeRatekvB, expected] of vectors) {
+        assert.strictEqual(
+          baddress.dustAmountFromOutputScript(script, feeRatekvB),
+          expected,
+        );
+      }
+    });
+  });
 });
