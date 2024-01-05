@@ -1,7 +1,7 @@
 import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { typeforce as typef } from '../types';
+import { typeforce as typef, stacksEqual } from '../types';
 import {
   Payment,
   PaymentFunction,
@@ -12,14 +12,6 @@ import {
 import * as lazy from './lazy';
 import * as bs58check from 'bs58check';
 const OPS = bscript.OPS;
-
-function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
-  if (a.length !== b.length) return false;
-
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}
 
 // input: [redeemScriptSig ...] {redeemScript}
 // witness: <?>

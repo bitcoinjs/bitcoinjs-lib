@@ -9,12 +9,6 @@ const lazy = require('./lazy');
 const bech32_1 = require('bech32');
 const OPS = bscript.OPS;
 const EMPTY_BUFFER = Buffer.alloc(0);
-function stacksEqual(a, b) {
-  if (a.length !== b.length) return false;
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}
 function chunkHasUncompressedPubkey(chunk) {
   if (
     Buffer.isBuffer(chunk) &&
@@ -190,7 +184,7 @@ function p2wsh(a, opts) {
       if (
         a.witness &&
         a.redeem.witness &&
-        !stacksEqual(a.witness, a.redeem.witness)
+        !(0, types_1.stacksEqual)(a.witness, a.redeem.witness)
       )
         throw new TypeError('Witness and redeem.witness mismatch');
       if (

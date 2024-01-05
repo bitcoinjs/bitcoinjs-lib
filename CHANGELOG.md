@@ -1,3 +1,11 @@
+# 6.1.5
+__fixed__
+- Updated bip174 dependency to fix issue with unknownKeyVals. (#1979)
+
+# 6.1.4
+__changed__
+- Changed internal usage of the Buffer API to match with newer broken bundlers that don't follow spec. The new usage is still compatible with older versions of Buffer, so there shouldn't be any breakage. The public API interface was not changed. (#1975)
+
 # 6.1.3
 __fixed__
 - validateSignaturesOfInput for taproot inputs returned false for valid signatures in specific cases. (#1934)
