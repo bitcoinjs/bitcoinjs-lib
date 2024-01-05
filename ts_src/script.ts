@@ -173,7 +173,8 @@ export function fromASM(asm: string): Buffer {
   return compile(
     asm.split(' ').map(chunkStr => {
       // opcode?
-      if (OPS[chunkStr] !== undefined) return OPS[chunkStr];
+      if (OPS[chunkStr as keyof typeof OPS] !== undefined)
+        return OPS[chunkStr as keyof typeof OPS];
       typeforce(types.Hex, chunkStr);
 
       // data!
