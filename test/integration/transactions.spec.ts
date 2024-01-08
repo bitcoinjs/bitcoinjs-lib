@@ -126,7 +126,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     // (in)(5e4 + 7e4) - (out)(8e4 + 1e4) = (fee)3e4 = 30000, this is the miner fee
 
     // Let's show a new feature with PSBT.
-    // We can have multiple signers sign in parrallel and combine them.
+    // We can have multiple signers sign in parallel and combine them.
     // (this is not necessary, but a nice feature)
 
     // encode to send out to the signers
