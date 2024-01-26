@@ -1,8 +1,8 @@
 import { ripemd160 as _ripemd160 } from 'hashes-grs/ripemd160';
 import { sha1 as _sha1 } from 'hashes-grs/sha1';
 import { sha256 as _sha256 } from 'hashes-grs/sha256';
-import { groestl512, groestl512 as _groest512 } from 'hashes-grs/groestl512';
-import { groestl256 as _groest256 } from 'hashes-grs/groestl256';
+import { groestl512 as _groestl512 } from 'hashes-grs/groestl512';
+import { groestl256 as _groestl256 } from 'hashes-grs/groestl256';
 
 export function ripemd160(buffer: Buffer): Buffer {
   return Buffer.from(_ripemd160(Uint8Array.from(buffer)));
@@ -25,7 +25,7 @@ export function hash256(buffer: Buffer): Buffer {
 }
 
 export function groestl(buffer: Buffer): Buffer {
-  return Buffer.from(_groest256(groestl512(buffer)));
+  return Buffer.from(_groestl256(_groestl512(buffer)));
 }
 
 export const TAGS = [

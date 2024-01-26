@@ -23,19 +23,6 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 ## Documentation
 Presently,  we do not have any formal documentation other than our [examples](#examples), please [ask for help](https://github.com/groestlcoin/groestlcoinjs-lib/issues/new) if our examples aren't enough to guide you.
 
-## How can I contact the developers outside of Github?
-**Most of the time, this is not appropriate. Creating issues and pull requests in the open will help others with similar issues, so please try to use public issues and pull requests for communication.**
-
-That said, sometimes developers might be open to taking things off the record (ie. You want to share code that you don't want public to get help with it). In that case, please negotiate on the public issues as to where you will contact.
-
-We have created public rooms on IRC (`#bitcoinjs` on `libera.chat`) and Matrix (`#bitcoinjs-dev:matrix.org`). These two channels have been joined together in a Matrix "Space" which has the Matrix room AND an IRC bridge room that can converse with the IRC room. The "Space" is `#bitcoinjs-space:matrix.org`.
-
-Matrix and IRC both have functions for direct messaging, but IRC is not end to end encrypted, so Matrix is recommended for most communication. The official Matrix client maintained by the Matrix core team is called "Element" and can be downloaded here: https://element.io/download (Account creation is free on the matrix.org server, which is the default setting for Element.)
-
-We used to have a Slack. It is dead. If you find it, no one will answer you most likely.
-
-No we will not make a Discord.
-
 ## Installation
 ``` bash
 npm install groestlcoinjs-lib
@@ -94,7 +81,7 @@ $ npx browserify --standalone groestlcoin - -o groestlcoinjs-lib.js <<<"module.e
 Which you can then import as an ESM module:
 
 ```javascript
-<script type="module">import "/scripts/bitcoinjs-lib.js"</script>
+<script type="module">import "/scripts/groestlcoinjs-lib.js"</script>
 ````
 
 **NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](https://babeljs.io/docs/plugins/preset-es2015/) preset).
