@@ -3,15 +3,18 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.taggedHash =
   exports.TAGGED_HASH_PREFIXES =
   exports.TAGS =
+  exports.groestl =
   exports.hash256 =
   exports.hash160 =
   exports.sha256 =
   exports.sha1 =
   exports.ripemd160 =
     void 0;
-const ripemd160_1 = require('@noble/hashes/ripemd160');
-const sha1_1 = require('@noble/hashes/sha1');
-const sha256_1 = require('@noble/hashes/sha256');
+const ripemd160_1 = require('hashes-grs/ripemd160');
+const sha1_1 = require('hashes-grs/sha1');
+const sha256_1 = require('hashes-grs/sha256');
+const groestl512_1 = require('hashes-grs/groestl512');
+const groestl256_1 = require('hashes-grs/groestl256');
 function ripemd160(buffer) {
   return Buffer.from((0, ripemd160_1.ripemd160)(Uint8Array.from(buffer)));
 }
@@ -36,6 +39,12 @@ function hash256(buffer) {
   );
 }
 exports.hash256 = hash256;
+function groestl(buffer) {
+  return Buffer.from(
+    (0, groestl256_1.groestl256)((0, groestl512_1.groestl512)(buffer)),
+  );
+}
+exports.groestl = groestl;
 exports.TAGS = [
   'BIP0340/challenge',
   'BIP0340/aux',
