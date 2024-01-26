@@ -3,7 +3,7 @@
     {
       "description": "output and pubkey from address",
       "arguments": {
-        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx"
+        "address": "grs1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sa9q50z"
       },
       "options": {},
       "expected": {
@@ -22,7 +22,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx",
+        "address": "grs1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sa9q50z",
         "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
         "signature": null,
         "input": null,
@@ -36,7 +36,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx",
+        "address": "grs1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sa9q50z",
         "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
         "signature": null,
         "input": null,
@@ -51,7 +51,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx",
+        "address": "grs1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sa9q50z",
         "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
         "input": null,
         "witness": [
@@ -69,7 +69,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx",
+        "address": "grs1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sa9q50z",
         "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
         "input": null,
         "signature": "300602010002010001",
@@ -85,7 +85,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1prs7pxymu7jhsptzjlwlqnk8jyg5qmq4sdlc3rwcy7pd3ydz92xjq5ap2sg",
+        "address": "grs1prs7pxymu7jhsptzjlwlqnk8jyg5qmq4sdlc3rwcy7pd3ydz92xjqmx7xlv",
         "pubkey": "1c3c13137cf4af00ac52fbbe09d8f222280d82b06ff111bb04f05b12344551a4",
         "output": "OP_1 1c3c13137cf4af00ac52fbbe09d8f222280d82b06ff111bb04f05b12344551a4",
         "signature": null,
@@ -108,7 +108,7 @@
         "internalPubkey": "a7957acbaaf7b444c53d9e0c9436e8a8a3247fd515095d66ddf6201918b40a36",
         "pubkey": "1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
         "hash": "c5c62d7fc595ba5fbe61602eb1a29e2e4763408fe1e2b161beb7cb3c71ebcad9",
-        "address": "bc1pr6lghypk80gf025lx5kgkgv3fcvgd0qfl608psylx0hj624a7j7qay80rv",
+        "address": "grs1pr6lghypk80gf025lx5kgkgv3fcvgd0qfl608psylx0hj624a7j7qjlcrvg",
         "output": "OP_1 1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
         "signature": null,
         "input": null,
@@ -144,7 +144,7 @@
         "internalPubkey": "a7957acbaaf7b444c53d9e0c9436e8a8a3247fd515095d66ddf6201918b40a36",
         "pubkey": "1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
         "hash": "c5c62d7fc595ba5fbe61602eb1a29e2e4763408fe1e2b161beb7cb3c71ebcad9",
-        "address": "bc1pr6lghypk80gf025lx5kgkgv3fcvgd0qfl608psylx0hj624a7j7qay80rv",
+        "address": "grs1pr6lghypk80gf025lx5kgkgv3fcvgd0qfl608psylx0hj624a7j7qjlcrvg",
         "output": "OP_1 1ebe8b90363bd097aa9f352c8b21914e1886bc09fe9e70c09f33ef2d2abdf4bc",
         "signature": null,
         "input": null,
@@ -167,7 +167,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1pjegs09vkeder9m4sw3ycjf2rnpa8nljdqmuleunk9eshu8cq3xysvhgp2u",
+        "address": "grs1pjegs09vkeder9m4sw3ycjf2rnpa8nljdqmuleunk9eshu8cq3xysrvhd9c",
         "pubkey": "9651079596cb7232eeb07449892543987a79fe4d06f9fcf2762e617e1f008989",
         "output": "OP_1 9651079596cb7232eeb07449892543987a79fe4d06f9fcf2762e617e1f008989",
         "hash": "16e3f3b8b9c1e453c56b547785cdd25259d65823a2064f30783acc58ef012633",
@@ -191,7 +191,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1ptj0v8rwcj6s36p4r26ws6htx0fct43n0mxdvdeh9043whlxlq3kq9965ke",
+        "address": "grs1ptj0v8rwcj6s36p4r26ws6htx0fct43n0mxdvdeh9043whlxlq3kq279cea",
         "pubkey": "5c9ec38dd896a11d06a3569d0d5d667a70bac66fd99ac6e6e57d62ebfcdf046c",
         "output": "OP_1 5c9ec38dd896a11d06a3569d0d5d667a70bac66fd99ac6e6e57d62ebfcdf046c",
         "hash": "ce00198cd4667abae1f94aa5862d089e2967af5aec20715c692db74e3d66bb73",
@@ -220,7 +220,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1pkq0t8nkmqswn3qjg9uy6ux2hsyyz4as25v8unfjc9s8q2e4c00sqku9lxh",
+        "address": "grs1pkq0t8nkmqswn3qjg9uy6ux2hsyyz4as25v8unfjc9s8q2e4c00sqe86nfn",
         "pubkey": "b01eb3cedb041d3882482f09ae195781082af60aa30fc9a6582c0e0566b87be0",
         "output": "OP_1 b01eb3cedb041d3882482f09ae195781082af60aa30fc9a6582c0e0566b87be0",
         "hash": "7ae0cc2057b1a7bf0e09c787e1d7b6b2355ac112a7b80380a5c1e942155b0c0f",
@@ -254,7 +254,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1pstdzevc40j059s0473rghhv9e05l9f5xv7l6dtlavvq22rzfna3syjvjut",
+        "address": "grs1pstdzevc40j059s0473rghhv9e05l9f5xv7l6dtlavvq22rzfna3stfn7n0",
         "pubkey": "82da2cb3157c9f42c1f5f4468bdd85cbe9f2a68667bfa6affd6300a50c499f63",
         "output": "OP_1 82da2cb3157c9f42c1f5f4468bdd85cbe9f2a68667bfa6affd6300a50c499f63",
         "hash": "d673e784eac9b70289130a0bd359023a0fbdde51dc069b9efb4157c2cdce3ea5",
@@ -303,7 +303,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1pfas4r5s5208puwzj20hvwg2dw2kanc06yxczzdd66729z63pk43q7zwlu6",
+        "address": "grs1pfas4r5s5208puwzj20hvwg2dw2kanc06yxczzdd66729z63pk43q3e3nn7",
         "pubkey": "4f6151d21453ce1e385253eec7214d72add9e1fa21b02135bad794516a21b562",
         "output": "OP_1 4f6151d21453ce1e385253eec7214d72add9e1fa21b02135bad794516a21b562",
         "hash": "16fb2e99bdf86f67ee6980d0418658f15df7e19476053b58f45a89df2e219b1b",
@@ -323,7 +323,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1pnxyp0ahcg53jzgrzj57hnlgdtqtzn7qqhmgjgczk8hzhcltq974qazepzf",
+        "address": "grs1pnxyp0ahcg53jzgrzj57hnlgdtqtzn7qqhmgjgczk8hzhcltq974qjexddd",
         "pubkey": "998817f6f84523212062953d79fd0d581629f800bed12460563dc57c7d602faa",
         "output": "OP_1 998817f6f84523212062953d79fd0d581629f800bed12460563dc57c7d602faa",
         "signature": null,
@@ -377,7 +377,7 @@
       },
       "expected": {
         "name": "p2tr",
-        "address": "bc1pd2llmtym6c5hyecf5zqsyjz9q0jlxaaksw9j0atx8lc8a0e0vrmsw9ewly",
+        "address": "grs1pd2llmtym6c5hyecf5zqsyjz9q0jlxaaksw9j0atx8lc8a0e0vrmsp7xzsq",
         "pubkey": "6abffdac9bd629726709a08102484503e5f377b6838b27f5663ff07ebf2f60f7",
         "output": "OP_1 6abffdac9bd629726709a08102484503e5f377b6838b27f5663ff07ebf2f60f7",
         "hash": "88b7e3b495a84aa2bc12780b1773f130ce5eb747b0c28dc4840b7c9280f7326d",
@@ -399,7 +399,7 @@
         "name": "p2tr",
         "output": "OP_1 53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343",
         "pubkey": "53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343",
-        "address": "bc1p2wsldez5mud2yam29q22wgfh9439spgduvct83k3pm50fcxa5dps59h4z5",
+        "address": "grs1p2wsldez5mud2yam29q22wgfh9439spgduvct83k3pm50fcxa5dpsm7geds",
         "signature": null,
         "input": null,
         "witness": null
@@ -423,7 +423,7 @@
         "name": "p2tr",
         "output": "OP_1 147c9c57132f6e7ecddba9800bb0c4449251c92a1e60371ee77557b6620f3ea3",
         "pubkey": "147c9c57132f6e7ecddba9800bb0c4449251c92a1e60371ee77557b6620f3ea3",
-        "address": "bc1pz37fc4cn9ah8anwm4xqqhvxygjf9rjf2resrw8h8w4tmvcs0863sa2e586",
+        "address": "grs1pz37fc4cn9ah8anwm4xqqhvxygjf9rjf2resrw8h8w4tmvcs0863sj3xcg7",
         "hash": "5b75adecf53548f3ec6ad7d78383bf84cc57b55a3127c72b9a2481752dd88b21",
         "witness": [
           "20d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8ac",
@@ -455,7 +455,7 @@
         "name": "p2tr",
         "output": "OP_1 e4d810fd50586274face62b8a807eb9719cef49c04177cc6b76a9a4251d5450e",
         "pubkey": "e4d810fd50586274face62b8a807eb9719cef49c04177cc6b76a9a4251d5450e",
-        "address": "bc1punvppl2stp38f7kwv2u2spltjuvuaayuqsthe34hd2dyy5w4g58qqfuag5",
+        "address": "grs1punvppl2stp38f7kwv2u2spltjuvuaayuqsthe34hd2dyy5w4g58q0jr38s",
         "hash": "c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
         "witness": [
           "20b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007ac",
@@ -489,7 +489,7 @@
         "name": "p2tr",
         "output": "OP_1 0f63ca2c7639b9bb4be0465cc0aa3ee78a0761ba5f5f7d6ff8eab340f09da561",
         "pubkey": "0f63ca2c7639b9bb4be0465cc0aa3ee78a0761ba5f5f7d6ff8eab340f09da561",
-        "address": "bc1ppa3u5trk8xumkjlqgewvp237u79qwcd6ta0h6mlca2e5puya54ssw9zq0y",
+        "address": "grs1ppa3u5trk8xumkjlqgewvp237u79qwcd6ta0h6mlca2e5puya54ssp7avqq",
         "hash": "f3004d6c183e038105d436db1424f321613366cbb7b05939bf05d763a9ebb962",
         "witness": [
           "20387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48ac",
@@ -523,7 +523,7 @@
         "name": "p2tr",
         "output": "OP_1 0f63ca2c7639b9bb4be0465cc0aa3ee78a0761ba5f5f7d6ff8eab340f09da561",
         "pubkey": "0f63ca2c7639b9bb4be0465cc0aa3ee78a0761ba5f5f7d6ff8eab340f09da561",
-        "address": "bc1ppa3u5trk8xumkjlqgewvp237u79qwcd6ta0h6mlca2e5puya54ssw9zq0y",
+        "address": "grs1ppa3u5trk8xumkjlqgewvp237u79qwcd6ta0h6mlca2e5puya54ssp7avqq",
         "hash": "f3004d6c183e038105d436db1424f321613366cbb7b05939bf05d763a9ebb962",
         "witness": [
           "06424950333431",
@@ -557,7 +557,7 @@
         "name": "p2tr",
         "output": "OP_1 053690babeabbb7850c32eead0acf8df990ced79f7a31e358fabf2658b4bc587",
         "pubkey": "053690babeabbb7850c32eead0acf8df990ced79f7a31e358fabf2658b4bc587",
-        "address": "bc1pq5mfpw474wahs5xr9m4dpt8cm7vsemte7733udv040extz6tckrs29g04c",
+        "address": "grs1pq5mfpw474wahs5xr9m4dpt8cm7vsemte7733udv040extz6tckrs97hr6u",
         "hash": "d9c2c32808b41c0301d876d49c0af72e1d98e84b99ca9b4bb67fea1a7424b755",
         "witness": [
           "2044b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fdac",
@@ -591,7 +591,7 @@
         "name": "p2tr",
         "output": "OP_1 053690babeabbb7850c32eead0acf8df990ced79f7a31e358fabf2658b4bc587",
         "pubkey": "053690babeabbb7850c32eead0acf8df990ced79f7a31e358fabf2658b4bc587",
-        "address": "bc1pq5mfpw474wahs5xr9m4dpt8cm7vsemte7733udv040extz6tckrs29g04c",
+        "address": "grs1pq5mfpw474wahs5xr9m4dpt8cm7vsemte7733udv040extz6tckrs97hr6u",
         "hash": "d9c2c32808b41c0301d876d49c0af72e1d98e84b99ca9b4bb67fea1a7424b755",
         "witness": [
           "07546170726f6f74",
@@ -631,7 +631,7 @@
         "name": "p2tr",
         "output": "OP_1 91b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605",
         "pubkey": "91b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605",
-        "address": "bc1pjxmy65eywgafs5tsunw95ruycpqcqnev6ynxp7jaasylcgtcxczs6n332e",
+        "address": "grs1pjxmy65eywgafs5tsunw95ruycpqcqnev6ynxp7jaasylcgtcxczs4gwa9a",
         "hash": "ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
         "witness": [
           "2072ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69ac",
@@ -671,7 +671,7 @@
         "name": "p2tr",
         "output": "OP_1 91b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605",
         "pubkey": "91b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605",
-        "address": "bc1pjxmy65eywgafs5tsunw95ruycpqcqnev6ynxp7jaasylcgtcxczs6n332e",
+        "address": "grs1pjxmy65eywgafs5tsunw95ruycpqcqnev6ynxp7jaasylcgtcxczs4gwa9a",
         "hash": "ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
         "witness": [
           "202352d137f2f3ab38d1eaa976758873377fa5ebb817372c71e2c542313d4abda8ac",
@@ -711,7 +711,7 @@
         "name": "p2tr",
         "output": "OP_1 91b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605",
         "pubkey": "91b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605",
-        "address": "bc1pjxmy65eywgafs5tsunw95ruycpqcqnev6ynxp7jaasylcgtcxczs6n332e",
+        "address": "grs1pjxmy65eywgafs5tsunw95ruycpqcqnev6ynxp7jaasylcgtcxczs4gwa9a",
         "hash": "ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
         "witness": [
           "207337c0dd4253cb86f2c43a2351aadd82cccb12a172cd120452b9bb8324f2186aac",
@@ -750,7 +750,7 @@
         "name": "p2tr",
         "output": "OP_1 75169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831",
         "pubkey": "75169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831",
-        "address": "bc1pw5tf7sqp4f50zka7629jrr036znzew70zxyvvej3zrpf8jg8hqcssyuewe",
+        "address": "grs1pw5tf7sqp4f50zka7629jrr036znzew70zxyvvej3zrpf8jg8hqcsllr4pa",
         "hash": "2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
         "witness": [
           "2071981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2ac",
@@ -790,7 +790,7 @@
         "name": "p2tr",
         "output": "OP_1 75169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831",
         "pubkey": "75169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831",
-        "address": "bc1pw5tf7sqp4f50zka7629jrr036znzew70zxyvvej3zrpf8jg8hqcssyuewe",
+        "address": "grs1pw5tf7sqp4f50zka7629jrr036znzew70zxyvvej3zrpf8jg8hqcsllr4pa",
         "hash": "2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
         "witness": [
           "20d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748ac",
@@ -830,7 +830,7 @@
         "name": "p2tr",
         "output": "OP_1 75169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831",
         "pubkey": "75169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831",
-        "address": "bc1pw5tf7sqp4f50zka7629jrr036znzew70zxyvvej3zrpf8jg8hqcssyuewe",
+        "address": "grs1pw5tf7sqp4f50zka7629jrr036znzew70zxyvvej3zrpf8jg8hqcsllr4pa",
         "hash": "2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
         "witness": [
           "20c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4cac",
@@ -877,7 +877,7 @@
       "description": "Invalid x coordinate for pubkey in address",
       "exception": "Invalid pubkey for p2tr",
       "arguments": {
-        "address": "bc1p7ymwj4j5qxtuy8lncp6ax2nw8jp0rms7v3kvpuy02xcttmd05a3qmwlnez"
+        "address": "grs1p7ymwj4j5qxtuy8lncp6ax2nw8jp0rms7v3kvpuy02xcttmd05a3q54qlkx"
       }
     },
     {
@@ -895,7 +895,7 @@
       "options": {},
       "arguments": {
         "pubkey": "ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
-        "address": "bc1pztta4jvddxsgdfgtxz2e5dfhj58n2mludag2ycatwhy28myagnqsnl7mv7"
+        "address": "grs1pztta4jvddxsgdfgtxz2e5dfhj58n2mludag2ycatwhy28myagnqsuyphr6"
       }
     },
     {
@@ -904,7 +904,7 @@
       "options": {},
       "arguments": {
         "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5",
-        "address": "bc1pztta4jvddxsgdfgtxz2e5dfhj58n2mludag2ycatwhy28myagnqsnl7mv7"
+        "address": "grs1pztta4jvddxsgdfgtxz2e5dfhj58n2mludag2ycatwhy28myagnqsuyphr6"
       }
     },
     {
@@ -954,13 +954,13 @@
     {
       "exception": "Invalid address version",
       "arguments": {
-        "address": "bc1z4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6s6rxhwd"
+        "address": "grs1z4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6s4cempf"
       }
     },
     {
       "exception": "Invalid address data",
       "arguments": {
-        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82qh3d2w3"
+        "address": "grs1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82q27z9ae"
       }
     },
     {
