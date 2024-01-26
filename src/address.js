@@ -3,16 +3,16 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.toOutputScript =
   exports.fromOutputScript =
   exports.toBech32 =
-  exports.toBase58Check =
+  exports.toBase58GrsCheck =
   exports.fromBech32 =
-  exports.fromBase58Check =
+  exports.fromBase58GrsCheck =
     void 0;
 const networks = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
 const types_1 = require('./types');
 const bech32_1 = require('bech32');
-const bs58check = require('bs58check');
+const bs58grscheck = require('bs58grscheck');
 const FUTURE_SEGWIT_MAX_SIZE = 40;
 const FUTURE_SEGWIT_MIN_SIZE = 2;
 const FUTURE_SEGWIT_MAX_VERSION = 16;
@@ -41,8 +41,8 @@ function _toFutureSegwitAddress(output, network) {
   console.warn(FUTURE_SEGWIT_VERSION_WARNING);
   return toBech32(data, version, network.bech32);
 }
-function fromBase58Check(address) {
-  const payload = Buffer.from(bs58check.decode(address));
+function fromBase58GrsCheck(address) {
+  const payload = Buffer.from(bs58grscheck.decode(address));
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short');
   if (payload.length > 21) throw new TypeError(address + ' is too long');
@@ -50,7 +50,7 @@ function fromBase58Check(address) {
   const hash = payload.slice(1);
   return { version, hash };
 }
-exports.fromBase58Check = fromBase58Check;
+exports.fromBase58GrsCheck = fromBase58GrsCheck;
 function fromBech32(address) {
   let result;
   let version;
@@ -73,7 +73,7 @@ function fromBech32(address) {
   };
 }
 exports.fromBech32 = fromBech32;
-function toBase58Check(hash, version) {
+function toBase58GrsCheck(hash, version) {
   (0, types_1.typeforce)(
     (0, types_1.tuple)(types_1.Hash160bit, types_1.UInt8),
     arguments,
@@ -81,9 +81,9 @@ function toBase58Check(hash, version) {
   const payload = Buffer.allocUnsafe(21);
   payload.writeUInt8(version, 0);
   hash.copy(payload, 1);
-  return bs58check.encode(payload);
+  return bs58grscheck.encode(payload);
 }
-exports.toBase58Check = toBase58Check;
+exports.toBase58GrsCheck = toBase58GrsCheck;
 function toBech32(data, version, prefix) {
   const words = bech32_1.bech32.toWords(data);
   words.unshift(version);
@@ -121,7 +121,7 @@ function toOutputScript(address, network) {
   let decodeBase58;
   let decodeBech32;
   try {
-    decodeBase58 = fromBase58Check(address);
+    decodeBase58 = fromBase58GrsCheck(address);
   } catch (e) {}
   if (decodeBase58) {
     if (decodeBase58.version === network.pubKeyHash)

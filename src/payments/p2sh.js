@@ -6,7 +6,7 @@ const networks_1 = require('../networks');
 const bscript = require('../script');
 const types_1 = require('../types');
 const lazy = require('./lazy');
-const bs58check = require('bs58check');
+const bs58grscheck = require('bs58grscheck');
 const OPS = bscript.OPS;
 function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
@@ -48,7 +48,7 @@ function p2sh(a, opts) {
   }
   const o = { network };
   const _address = lazy.value(() => {
-    const payload = Buffer.from(bs58check.decode(a.address));
+    const payload = Buffer.from(bs58grscheck.decode(a.address));
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
     return { version, hash };
@@ -72,7 +72,7 @@ function p2sh(a, opts) {
     const payload = Buffer.allocUnsafe(21);
     payload.writeUInt8(o.network.scriptHash, 0);
     o.hash.copy(payload, 1);
-    return bs58check.encode(payload);
+    return bs58grscheck.encode(payload);
   });
   lazy.prop(o, 'hash', () => {
     // in order of least effort

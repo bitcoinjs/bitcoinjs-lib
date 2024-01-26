@@ -53,7 +53,7 @@ function _toFutureSegwitAddress(output: Buffer, network: Network): string {
 }
 
 export function fromBase58GrsCheck(address: string): Base58GrsCheckResult {
-  const payload = bs58grscheck.decode(address);
+  const payload = Buffer.from(bs58grscheck.decode(address));
 
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short');

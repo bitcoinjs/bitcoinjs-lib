@@ -5,21 +5,23 @@ import * as fixtures from './fixtures/crypto.json';
 import { sha256, TAGS, TAGGED_HASH_PREFIXES } from '../src/crypto';
 
 describe('crypto', () => {
-  ['groestl', 'hash160', 'hash256', 'ripemd160', 'sha1', 'sha256'].forEach(algorithm => {
-    describe(algorithm, () => {
-      fixtures.hashes.forEach(f => {
-        const fn = (bcrypto as any)[algorithm];
-        const expected = (f as any)[algorithm];
+  ['groestl', 'hash160', 'hash256', 'ripemd160', 'sha1', 'sha256'].forEach(
+    algorithm => {
+      describe(algorithm, () => {
+        fixtures.hashes.forEach(f => {
+          const fn = (bcrypto as any)[algorithm];
+          const expected = (f as any)[algorithm];
 
           it('returns ' + expected + ' for ' + f.hex, () => {
             const data = Buffer.from(f.hex, 'hex');
             const actual = fn(data).toString('hex');
 
             assert.strictEqual(actual, expected);
+          });
         });
       });
-    });
-  });
+    },
+  );
 
   describe('taggedHash', () => {
     fixtures.taggedHash.forEach(f => {
