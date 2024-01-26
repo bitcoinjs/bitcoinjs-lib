@@ -66,21 +66,21 @@
     },
     {
       "network": "bitcoin",
-      "bech32": "bc1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntslthf6w",
+      "bech32": "grs1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntsssg942",
       "version": 1,
       "data": "8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7",
       "script": "OP_1 8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7"
     },
     {
       "network": "bitcoin",
-      "bech32": "BC1SW50QGDZ25J",
+      "bech32": "GRS1SW50QUA74JP",
       "version": 16,
       "data": "751e",
       "script": "OP_16 751e"
     },
     {
       "network": "bitcoin",
-      "bech32": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
+      "bech32": "grs1zw508d6qejxtdg4y5r3zarvaryv8vlr2l",
       "version": 2,
       "data": "751e76e8199196d454941c45d1b3a323",
       "script": "OP_2 751e76e8199196d454941c45d1b3a323" 
@@ -108,39 +108,27 @@
       "data": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"
     },
     {
-      "address": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
-      "version": 2,
-      "prefix": "bc",
-      "data": "751e76e8199196d454941c45d1b3a323"
-    },
-    {
-      "address": "BC1SW50QGDZ25J",
-      "version": 16,
-      "prefix": "bc",
-      "data": "751e"
-    },
-    {
-    "address": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
+    "address": "tgrs1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsess668a6",
     "version": 0,
-    "prefix": "tb",
+    "prefix": "tgrs",
     "data": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"
     },
     {
-      "address": "bc1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntslthf6w",
+      "address": "grs1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntsssg942",
       "version": 1,
-      "prefix": "bc",
+      "prefix": "grs",
       "data": "8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7"
     },
     {
-      "address": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
+      "address": "grs1zw508d6qejxtdg4y5r3zarvaryv8vlr2l",
       "version": 2,
-      "prefix": "bc",
+      "prefix": "grs",
       "data": "751e76e8199196d454941c45d1b3a323"
     },
     {
-      "address": "BC1SW50QGDZ25J",
+      "address": "GRS1SW50QUA74JP",
       "version": 16,
-      "prefix": "bc",
+      "prefix": "grs",
       "data": "751e"
     }
   ],
@@ -281,11 +269,11 @@
         "exception": "has no matching Script"
       },
       {
-        "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw55h884v",
+        "address": "grs1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw5eqyqa4",
         "exception": "has no matching Script"
       },
       {
-        "address": "bc1pllllllllllllllllllllllllllllllllllllllllllllallllshsdfvw2y",
+        "address": "grs1pllllllllllllllllllllllllllllllllllllllllllllallllshszjnz9q",
         "paymentException": "TypeError: Invalid pubkey for p2tr"
       }
     ]
