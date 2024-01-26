@@ -65,6 +65,27 @@
       "script": "OP_0 000000000000000076e37274dd2b3b69b6101d1c89b25ef0a993b05818d3ad94"
     },
     {
+      "network": "bitcoin",
+      "bech32": "bc1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntslthf6w",
+      "version": 1,
+      "data": "8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7",
+      "script": "OP_1 8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7"
+    },
+    {
+      "network": "bitcoin",
+      "bech32": "BC1SW50QGDZ25J",
+      "version": 16,
+      "data": "751e",
+      "script": "OP_16 751e"
+    },
+    {
+      "network": "bitcoin",
+      "bech32": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
+      "version": 2,
+      "data": "751e76e8199196d454941c45d1b3a323",
+      "script": "OP_2 751e76e8199196d454941c45d1b3a323" 
+    },
+    {
       "network": "testnet",
       "bech32": "tgrs1pqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvses6d6w9x",
       "version": 1,
@@ -85,6 +106,44 @@
       "version": 1,
       "prefix": "grs",
       "data": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"
+      "prefix": "bc",
+      "data": "8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7"
+    },
+    {
+      "address": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
+      "version": 2,
+      "prefix": "bc",
+      "data": "751e76e8199196d454941c45d1b3a323"
+    },
+    {
+      "address": "BC1SW50QGDZ25J",
+      "version": 16,
+      "prefix": "bc",
+      "data": "751e"
+    },
+    {
+    "address": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
+    "version": 0,
+    "prefix": "tb",
+    "data": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"
+    },
+    {
+      "address": "bc1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntslthf6w",
+      "version": 1,
+      "prefix": "bc",
+      "data": "8e5203f25093c03a199b87b6c39427c09f8181abe1b25dc34818106c160884d7"
+    },
+    {
+      "address": "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs",
+      "version": 2,
+      "prefix": "bc",
+      "data": "751e76e8199196d454941c45d1b3a323"
+    },
+    {
+      "address": "BC1SW50QGDZ25J",
+      "version": 16,
+      "prefix": "bc",
+      "data": "751e"
     }
   ],
   "invalid": {
@@ -118,6 +177,19 @@
       {
         "exception": "has no matching Address",
         "script": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd675"
+      },
+      {
+        "exception": "has no matching Address",
+        "script": "OP_1 75"
+      },
+      {
+        "exception": "has no matching Address",
+        "script": "OP_1 751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd675"
+      },
+      {
+        "description": "pubkey is not valid x coordinate",
+        "exception": "has no matching Address",
+        "script": "OP_1 fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
       }
     ],
     "toOutputScript": [
@@ -209,6 +281,14 @@
       {
         "address": "grs1gmk9yu",
         "exception": "has no matching Script"
+      },
+      {
+        "address": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw55h884v",
+        "exception": "has no matching Script"
+      },
+      {
+        "address": "bc1pllllllllllllllllllllllllllllllllllllllllllllallllshsdfvw2y",
+        "paymentException": "TypeError: Invalid pubkey for p2tr"
       }
     ]
   }

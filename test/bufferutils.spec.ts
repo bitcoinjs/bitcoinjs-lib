@@ -316,7 +316,7 @@ describe('bufferutils', () => {
       }
     }
 
-    it('readUint8', () => {
+    it('readUInt8', () => {
       const values = [0, 1, 0xfe, 0xff];
       const buffer = Buffer.from([0, 1, 0xfe, 0xff]);
       const bufferReader = new BufferReader(buffer);

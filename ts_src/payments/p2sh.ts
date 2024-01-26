@@ -57,7 +57,7 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
   const o: Payment = { network };
 
   const _address = lazy.value(() => {
-    const payload = bs58grscheck.decode(a.address!);
+    const payload = Buffer.from(bs58grscheck.decode(a.address!));
     const version = payload.readUInt8(0);
     const hash = payload.slice(1);
     return { version, hash };
@@ -65,19 +65,17 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
   const _chunks = lazy.value(() => {
     return bscript.decompile(a.input!);
   }) as StackFunction;
-  const _redeem = lazy.value(
-    (): Payment => {
-      const chunks = _chunks();
-      const lastChunk = chunks[chunks.length - 1];
-      return {
-        network,
-        output:
-          lastChunk === OPS.OP_FALSE ? Buffer.from([]) : (lastChunk as Buffer),
-        input: bscript.compile(chunks.slice(0, -1)),
-        witness: a.witness || [],
-      };
-    },
-  ) as PaymentFunction;
+  const _redeem = lazy.value((): Payment => {
+    const chunks = _chunks();
+    const lastChunk = chunks[chunks.length - 1];
+    return {
+      network,
+      output:
+        lastChunk === OPS.OP_FALSE ? Buffer.from([]) : (lastChunk as Buffer),
+      input: bscript.compile(chunks.slice(0, -1)),
+      witness: a.witness || [],
+    };
+  }) as PaymentFunction;
 
   // output dependents
   lazy.prop(o, 'address', () => {
@@ -161,6 +159,14 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
         const decompile = bscript.decompile(redeem.output);
         if (!decompile || decompile.length < 1)
           throw new TypeError('Redeem.output too short');
+        if (redeem.output.byteLength > 520)
+          throw new TypeError(
+            'Redeem.output unspendable if larger than 520 bytes',
+          );
+        if (bscript.countNonPushOnlyOPs(decompile) > 201)
+          throw new TypeError(
+            'Redeem.output unspendable with more than 201 non-push ops',
+          );
 
         // match hash against other sources
         const hash2 = bcrypto.hash160(redeem.output);

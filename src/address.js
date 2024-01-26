@@ -1,17 +1,22 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.toOutputScript = exports.fromOutputScript = exports.toBech32 = exports.toBase58GrsCheck = exports.fromBech32 = exports.fromBase58GrsCheck = void 0;
+exports.toOutputScript =
+  exports.fromOutputScript =
+  exports.toBech32 =
+  exports.toBase58Check =
+  exports.fromBech32 =
+  exports.fromBase58Check =
+    void 0;
 const networks = require('./networks');
 const payments = require('./payments');
 const bscript = require('./script');
-const types = require('./types');
+const types_1 = require('./types');
 const bech32_1 = require('bech32');
-const bs58grscheck = require('bs58grscheck');
-const { typeforce } = types;
+const bs58check = require('bs58check');
 const FUTURE_SEGWIT_MAX_SIZE = 40;
 const FUTURE_SEGWIT_MIN_SIZE = 2;
 const FUTURE_SEGWIT_MAX_VERSION = 16;
-const FUTURE_SEGWIT_MIN_VERSION = 1;
+const FUTURE_SEGWIT_MIN_VERSION = 2;
 const FUTURE_SEGWIT_VERSION_DIFF = 0x50;
 const FUTURE_SEGWIT_VERSION_WARNING =
   'WARNING: Sending to a future segwit version address can lead to loss of funds. ' +
@@ -36,8 +41,8 @@ function _toFutureSegwitAddress(output, network) {
   console.warn(FUTURE_SEGWIT_VERSION_WARNING);
   return toBech32(data, version, network.bech32);
 }
-function fromBase58GrsCheck(address) {
-  const payload = bs58grscheck.decode(address);
+function fromBase58Check(address) {
+  const payload = Buffer.from(bs58check.decode(address));
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short');
   if (payload.length > 21) throw new TypeError(address + ' is too long');
@@ -45,7 +50,7 @@ function fromBase58GrsCheck(address) {
   const hash = payload.slice(1);
   return { version, hash };
 }
-exports.fromBase58GrsCheck = fromBase58GrsCheck;
+exports.fromBase58Check = fromBase58Check;
 function fromBech32(address) {
   let result;
   let version;
@@ -68,14 +73,17 @@ function fromBech32(address) {
   };
 }
 exports.fromBech32 = fromBech32;
-function toBase58GrsCheck(hash, version) {
-  typeforce(types.tuple(types.Hash160bit, types.UInt8), arguments);
+function toBase58Check(hash, version) {
+  (0, types_1.typeforce)(
+    (0, types_1.tuple)(types_1.Hash160bit, types_1.UInt8),
+    arguments,
+  );
   const payload = Buffer.allocUnsafe(21);
   payload.writeUInt8(version, 0);
   hash.copy(payload, 1);
-  return bs58grscheck.encode(payload);
+  return bs58check.encode(payload);
 }
-exports.toBase58GrsCheck = toBase58GrsCheck;
+exports.toBase58Check = toBase58Check;
 function toBech32(data, version, prefix) {
   const words = bech32_1.bech32.toWords(data);
   words.unshift(version);
@@ -100,6 +108,9 @@ function fromOutputScript(output, network) {
     return payments.p2wsh({ output, network }).address;
   } catch (e) {}
   try {
+    return payments.p2tr({ output, network }).address;
+  } catch (e) {}
+  try {
     return _toFutureSegwitAddress(output, network);
   } catch (e) {}
   throw new Error(bscript.toASM(output) + ' has no matching Address');
@@ -110,7 +121,7 @@ function toOutputScript(address, network) {
   let decodeBase58;
   let decodeBech32;
   try {
-    decodeBase58 = fromBase58GrsCheck(address);
+    decodeBase58 = fromBase58Check(address);
   } catch (e) {}
   if (decodeBase58) {
     if (decodeBase58.version === network.pubKeyHash)
@@ -129,6 +140,9 @@ function toOutputScript(address, network) {
           return payments.p2wpkh({ hash: decodeBech32.data }).output;
         if (decodeBech32.data.length === 32)
           return payments.p2wsh({ hash: decodeBech32.data }).output;
+      } else if (decodeBech32.version === 1) {
+        if (decodeBech32.data.length === 32)
+          return payments.p2tr({ pubkey: decodeBech32.data }).output;
       } else if (
         decodeBech32.version >= FUTURE_SEGWIT_MIN_VERSION &&
         decodeBech32.version <= FUTURE_SEGWIT_MAX_VERSION &&

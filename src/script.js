@@ -1,11 +1,24 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.signature = exports.number = exports.isCanonicalScriptSignature = exports.isDefinedHashType = exports.isCanonicalPubKey = exports.toStack = exports.fromASM = exports.toASM = exports.decompile = exports.compile = exports.isPushOnly = exports.OPS = void 0;
+exports.signature =
+  exports.number =
+  exports.isCanonicalScriptSignature =
+  exports.isDefinedHashType =
+  exports.isCanonicalPubKey =
+  exports.toStack =
+  exports.fromASM =
+  exports.toASM =
+  exports.decompile =
+  exports.compile =
+  exports.countNonPushOnlyOPs =
+  exports.isPushOnly =
+  exports.OPS =
+    void 0;
 const bip66 = require('./bip66');
 const ops_1 = require('./ops');
 Object.defineProperty(exports, 'OPS', {
   enumerable: true,
-  get: function() {
+  get: function () {
     return ops_1.OPS;
   },
 });
@@ -30,6 +43,10 @@ function isPushOnly(value) {
   return types.Array(value) && value.every(isPushOnlyChunk);
 }
 exports.isPushOnly = isPushOnly;
+function countNonPushOnlyOPs(value) {
+  return value.length - value.filter(isPushOnlyChunk).length;
+}
+exports.countNonPushOnlyOPs = countNonPushOnlyOPs;
 function asMinimalOP(buffer) {
   if (buffer.length === 0) return ops_1.OPS.OP_0;
   if (buffer.length !== 1) return;
@@ -177,6 +194,5 @@ function isCanonicalScriptSignature(buffer) {
   return bip66.check(buffer.slice(0, -1));
 }
 exports.isCanonicalScriptSignature = isCanonicalScriptSignature;
-// tslint:disable-next-line variable-name
 exports.number = scriptNumber;
 exports.signature = scriptSignature;
