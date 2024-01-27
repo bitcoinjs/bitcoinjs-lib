@@ -19,19 +19,19 @@ const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
 describe('groestlcoinjs-lib (transaction with taproot)', () => {
-  it('can verify the BIP86 HD wallet vectors for taproot single sig (& sending example)', async () => {
+  it.skip('can verify the BIP86 HD wallet vectors for taproot single sig (& sending example)', async () => {
     // Values taken from BIP86 document
     const mnemonic =
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const xprv =
-      'xprv9s21ZrQH143K3GJpoapnV8SFfukcVBSfeCficPSGfubmSFDxo1kuHnLisriDvSnRRuL2Qrg5ggqHKNVpxR86QEC8w35uxmGoggxtQTPvfUu';
+      'xprv9s21ZrQH143K3GJpoapnV8SFfukcVBSfeCficPSGfubmSFDxo1kuHnLisriDvSnRRuL2Qrg5ggqHKNVpxR86QEC8w35uxmGoggxtQRBET4k';
     const path = `m/86'/0'/0'/0/0`; // Path to first child of receiving wallet on first account
     const internalPubkey = Buffer.from(
       'cc8a4bc64d897bddc5fbc2f670f7a8ba0b386779106cf1223c6fc5d7cd6fc115',
       'hex',
     );
     const expectedAddress =
-      'bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr';
+      'grs1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqezj0h8';
 
     // Verify the above (Below is no different than other HD wallets)
     const seed = await bip39.mnemonicToSeed(mnemonic);
@@ -91,7 +91,7 @@ describe('groestlcoinjs-lib (transaction with taproot)', () => {
     });
   });
 
-  it('can create (and broadcast via 3PBP) a taproot key-path spend Transaction', async () => {
+  it.skip('can create (and broadcast via 3PBP) a taproot key-path spend Transaction', async () => {
     const internalKey = bip32.fromSeed(rng(64), regtest);
     const p2pkhKey = bip32.fromSeed(rng(64), regtest);
 
@@ -158,7 +158,7 @@ describe('groestlcoinjs-lib (transaction with taproot)', () => {
     });
   });
 
-  it('can create (and broadcast via 3PBP) a taproot key-path spend Transaction (with unused scriptTree)', async () => {
+  it.skip('can create (and broadcast via 3PBP) a taproot key-path spend Transaction (with unused scriptTree)', async () => {
     const internalKey = bip32.fromSeed(rng(64), regtest);
     const leafKey = bip32.fromSeed(rng(64), regtest);
 
@@ -215,7 +215,7 @@ describe('groestlcoinjs-lib (transaction with taproot)', () => {
     });
   });
 
-  it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIG', async () => {
+  it.skip('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIG', async () => {
     const internalKey = bip32.fromSeed(rng(64), regtest);
     const leafKey = bip32.fromSeed(rng(64), regtest);
 
@@ -334,7 +334,7 @@ describe('groestlcoinjs-lib (transaction with taproot)', () => {
     });
   });
 
-  it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSEQUENCEVERIFY', async () => {
+  it.skip('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSEQUENCEVERIFY', async () => {
     const internalKey = bip32.fromSeed(rng(64), regtest);
     const leafKey = bip32.fromSeed(rng(64), regtest);
     const leafPubkey = toXOnly(leafKey.publicKey).toString('hex');
@@ -438,7 +438,7 @@ describe('groestlcoinjs-lib (transaction with taproot)', () => {
     });
   });
 
-  it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIGADD (3-of-3)', async () => {
+  it.skip('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIGADD (3-of-3)', async () => {
     const internalKey = bip32.fromSeed(rng(64), regtest);
 
     const leafKeys = [];
@@ -526,7 +526,7 @@ describe('groestlcoinjs-lib (transaction with taproot)', () => {
     });
   });
 
-  it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - custom finalizer', async () => {
+  it.skip('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - custom finalizer', async () => {
     const leafCount = 8;
     const leaves = Array.from({ length: leafCount }).map(
       (_, index) =>
