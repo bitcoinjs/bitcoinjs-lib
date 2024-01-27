@@ -29,3 +29,4 @@ export {
   StackElement,
 } from './payments';
 export { Input as TxInput, Output as TxOutput } from './transaction';
+export { initEccLib } from './ecc_lib';
