@@ -8,6 +8,14 @@ const EC_P = NBuffer.from(
   'hex',
 );
 
+export function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
+  if (a.length !== b.length) return false;
+
+  return a.every((x, i) => {
+    return x.equals(b[i]);
+  });
+}
+
 export function isPoint(p: Buffer | number | undefined | null): boolean {
   if (!NBuffer.isBuffer(p)) return false;
   if (p.length < 33) return false;

@@ -1,5 +1,6 @@
 /// <reference types="node" />
 export declare const typeforce: any;
+export declare function stacksEqual(a: Buffer[], b: Buffer[]): boolean;
 export declare function isPoint(p: Buffer | number | undefined | null): boolean;
 export declare function UInt31(value: number): boolean;
 export declare function BIP32Path(value: string): boolean;
