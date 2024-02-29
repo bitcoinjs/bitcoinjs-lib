@@ -2,7 +2,7 @@
 // Dogecoin BIP32 is a proposed standard: https://bitcointalk.org/index.php?topic=409731
 
 /**
- * Represents a Bitcoin network configuration，including messagePrefix, bech32, bip32, pubKeyHash, scriptHash, wif. 
+ * Represents a Bitcoin network configuration，including messagePrefix, bech32, bip32, pubKeyHash, scriptHash, wif.
  * Support bitcoin、bitcoin testnet and bitcoin regtest.
  * @packageDocumentation
  */

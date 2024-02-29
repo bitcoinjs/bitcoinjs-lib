@@ -6,7 +6,7 @@ const _ECCLIB_CACHE: { eccLib?: TinySecp256k1Interface } = {};
  * Initializes the ECC library with the provided instance.
  * If `eccLib` is `undefined`, the library will be cleared.
  * If `eccLib` is a new instance, it will be verified before setting it as the active library.
- * 
+ *
  * @param eccLib The instance of the ECC library to initialize.
  */
 export function initEccLib(eccLib: TinySecp256k1Interface | undefined): void {
@@ -39,7 +39,7 @@ const h = (hex: string): Buffer => Buffer.from(hex, 'hex');
 
 /**
  * Verifies the ECC functionality.
- * 
+ *
  * @param ecc - The TinySecp256k1Interface object.
  */
 function verifyEcc(ecc: TinySecp256k1Interface): void {

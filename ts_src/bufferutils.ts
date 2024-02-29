@@ -25,7 +25,7 @@ export function readUInt64LE(buffer: Buffer, offset: number): number {
 
 /**
  * Writes a 64-bit unsigned integer in little-endian format to the specified buffer at the given offset.
- * 
+ *
  * @param buffer - The buffer to write the value to.
  * @param value - The 64-bit unsigned integer value to write.
  * @param offset - The offset in the buffer where the value should be written.

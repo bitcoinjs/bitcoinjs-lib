@@ -1,6 +1,6 @@
 /**
  * Calculates the Merkle root of an array of buffers using a specified digest function.
- * 
+ *
  * @param values - The array of buffers.
  * @param digestFn - The digest function used to calculate the hash of the concatenated buffers.
  * @returns The Merkle root as a buffer.

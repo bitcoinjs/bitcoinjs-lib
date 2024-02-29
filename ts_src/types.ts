@@ -8,7 +8,6 @@ const EC_P = NBuffer.from(
   'hex',
 );
 
-
 /**
  * Checks if two arrays of Buffers are equal.
  * @param a - The first array of Buffers.

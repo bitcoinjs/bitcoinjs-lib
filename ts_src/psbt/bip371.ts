@@ -392,7 +392,7 @@ function isTapLeafInTree(tapLeaf: TapLeafScript, merkleRoot?: Buffer): boolean {
 
 /**
  * Sorts the signatures in the input's tapScriptSig array based on their position in the tapLeaf script.
- * 
+ *
  * @param input - The PsbtInput object.
  * @param tapLeaf - The TapLeafScript object.
  * @returns An array of sorted signatures as Buffers.
@@ -456,7 +456,7 @@ function findTapLeafToFinalize(
 
 /**
  * Determines whether a TapLeafScript can be finalized.
- * 
+ *
  * @param leaf - The TapLeafScript to check.
  * @param tapScriptSig - The array of TapScriptSig objects.
  * @param hash - The optional hash to compare with the leaf hash.

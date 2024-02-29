@@ -1,7 +1,7 @@
 /**
- * A module for hashing functions. 
+ * A module for hashing functions.
  * include ripemd160、sha1、sha256、hash160、hash256、taggedHash
- * 
+ *
  * @packageDocumentation
  */
 import { ripemd160 as _ripemd160 } from '@noble/hashes/ripemd160';

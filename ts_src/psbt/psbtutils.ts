@@ -152,7 +152,7 @@ export function signatureBlocksAction(
  * If the input does not have partial signatures, it checks if it has a finalScriptSig or finalScriptWitness.
  * If it does, it extracts the signatures from the final scripts and returns them.
  * If none of the above conditions are met, it returns an empty array.
- * 
+ *
  * @param input - The PsbtInput object from which to extract the signatures.
  * @returns An array of signatures extracted from the PsbtInput object.
  */
@@ -171,7 +171,7 @@ function extractPartialSigs(input: PsbtInput): Buffer[] {
  * Retrieves the partial signatures (Psigs) from the input's final scripts.
  * Psigs are extracted from both the final scriptSig and final scriptWitness of the input.
  * Only canonical script signatures are considered.
- * 
+ *
  * @param input - The PsbtInput object representing the input.
  * @returns An array of PartialSig objects containing the extracted Psigs.
  */

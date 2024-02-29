@@ -1,6 +1,6 @@
 /**
  * Represents a payment object, which is used to create a payment.
- * 
+ *
  * Supports P2PKH、P2SH、P2WPKH、P2WSH、P2TR and so on
  *
  * @packageDocumentation

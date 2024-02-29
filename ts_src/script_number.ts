@@ -1,6 +1,6 @@
 /**
  * Decodes a script number from a buffer.
- * 
+ *
  * @param buffer - The buffer containing the script number.
  * @param maxLength - The maximum length of the script number. Defaults to 4.
  * @param minimal - Whether the script number should be minimal. Defaults to true.
@@ -62,7 +62,7 @@ function scriptNumSize(i: number): number {
 
 /**
  * Encodes a number into a Buffer using a specific format.
- * 
+ *
  * @param _number - The number to encode.
  * @returns The encoded number as a Buffer.
  */

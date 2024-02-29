@@ -27,7 +27,7 @@ function chunkHasUncompressedPubkey(chunk: StackElement): boolean {
 // output: OP_0 {sha256(redeemScript)}
 /**
  * Creates a Pay-to-Witness-Script-Hash (P2WSH) payment object.
- * 
+ *
  * @param a - The payment object containing the necessary data.
  * @param opts - Optional payment options.
  * @returns The P2WSH payment object.

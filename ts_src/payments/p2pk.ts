@@ -9,7 +9,7 @@ const OPS = bscript.OPS;
 // output: {pubKey} OP_CHECKSIG
 /**
  * Creates a pay-to-public-key (P2PK) payment object.
- * 
+ *
  * @param a - The payment object containing the necessary data.
  * @param opts - Optional payment options.
  * @returns The P2PK payment object.

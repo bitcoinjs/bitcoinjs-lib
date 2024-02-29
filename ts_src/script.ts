@@ -11,7 +11,6 @@ import * as scriptSignature from './script_signature';
 import * as types from './types';
 const { typeforce } = types;
 
-
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 export { OPS };
 
@@ -57,7 +56,7 @@ function singleChunkIsBuffer(buf: number | Buffer): buf is Buffer {
 
 /**
  * Compiles an array of chunks into a Buffer.
- * 
+ *
  * @param chunks - The array of chunks to compile.
  * @returns The compiled Buffer.
  * @throws Error if the compilation fails.
@@ -207,7 +206,7 @@ export function fromASM(asm: string): Buffer {
 
 /**
  * Converts the given chunks into a stack of buffers.
- * 
+ *
  * @param chunks - The chunks to convert.
  * @returns The stack of buffers.
  */
