@@ -10,6 +10,14 @@ const bs58check = require('bs58check');
 const OPS = bscript.OPS;
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
+/**
+ * Creates a Pay-to-Public-Key-Hash (P2PKH) payment object.
+ *
+ * @param a - The payment object containing the necessary data.
+ * @param opts - Optional payment options.
+ * @returns The P2PKH payment object.
+ * @throws {TypeError} If the required data is not provided or if the data is invalid.
+ */
 function p2pkh(a, opts) {
   if (!a.address && !a.hash && !a.output && !a.pubkey && !a.input)
     throw new TypeError('Not enough data');

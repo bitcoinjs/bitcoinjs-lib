@@ -8,6 +8,11 @@ const EC_P = NBuffer.from(
   'hex',
 );
 
+/**
+ * Checks if the given value is a valid elliptic curve point.
+ * @param p - The value to check.
+ * @returns True if the value is a valid elliptic curve point, false otherwise.
+ */
 export function isPoint(p: Buffer | number | undefined | null): boolean {
   if (!NBuffer.isBuffer(p)) return false;
   if (p.length < 33) return false;

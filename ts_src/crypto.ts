@@ -1,3 +1,9 @@
+/**
+ * A module for hashing functions. 
+ * include ripemd160、sha1、sha256、hash160、hash256、taggedHash
+ * 
+ * @packageDocumentation
+ */
 import { ripemd160 as _ripemd160 } from '@noble/hashes/ripemd160';
 import { sha1 as _sha1 } from '@noble/hashes/sha1';
 import { sha256 as _sha256 } from '@noble/hashes/sha256';
@@ -38,6 +44,9 @@ type TaggedHashPrefixes = {
   [key in TaggedHashPrefix]: Buffer;
 };
 /** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
+/**
+ * Defines the tagged hash prefixes used in the crypto module.
+ */
 export const TAGGED_HASH_PREFIXES: TaggedHashPrefixes = {
   'BIP0340/challenge': Buffer.from([
     123, 181, 45, 122, 159, 239, 88, 50, 62, 177, 191, 122, 64, 125, 179, 130,

@@ -13,6 +13,13 @@ function stacksEqual(a, b) {
   });
 }
 // output: OP_RETURN ...
+/**
+ * Embeds data in a Bitcoin payment.
+ * @param a - The payment object.
+ * @param opts - Optional payment options.
+ * @returns The modified payment object.
+ * @throws {TypeError} If there is not enough data or if the output is invalid.
+ */
 function p2data(a, opts) {
   if (!a.data && !a.output) throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});

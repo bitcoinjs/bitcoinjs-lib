@@ -1,5 +1,10 @@
 /// <reference types="node" />
 export declare const typeforce: any;
+/**
+ * Checks if the given value is a valid elliptic curve point.
+ * @param p - The value to check.
+ * @returns True if the value is a valid elliptic curve point, false otherwise.
+ */
 export declare function isPoint(p: Buffer | number | undefined | null): boolean;
 export declare function UInt31(value: number): boolean;
 export declare function BIP32Path(value: string): boolean;

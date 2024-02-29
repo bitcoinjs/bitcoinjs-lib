@@ -36,6 +36,11 @@ const EC_P = buffer_1.Buffer.from(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
   'hex',
 );
+/**
+ * Checks if the given value is a valid elliptic curve point.
+ * @param p - The value to check.
+ * @returns True if the value is a valid elliptic curve point, false otherwise.
+ */
 function isPoint(p) {
   if (!buffer_1.Buffer.isBuffer(p)) return false;
   if (p.length < 33) return false;
