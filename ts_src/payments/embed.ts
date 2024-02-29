@@ -15,6 +15,13 @@ function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
 }
 
 // output: OP_RETURN ...
+/**
+ * Embeds data in a Bitcoin payment.
+ * @param a - The payment object.
+ * @param opts - Optional payment options.
+ * @returns The modified payment object.
+ * @throws {TypeError} If there is not enough data or if the output is invalid.
+ */
 export function p2data(a: Payment, opts?: PaymentOpts): Payment {
   if (!a.data && !a.output) throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});

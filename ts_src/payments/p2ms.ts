@@ -17,6 +17,13 @@ function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
 
 // input: OP_0 [signatures ...]
 // output: m [pubKeys ...] n OP_CHECKMULTISIG
+/**
+ * Represents a function that creates a Pay-to-Multisig (P2MS) payment object.
+ * @param a - The payment object.
+ * @param opts - Optional payment options.
+ * @returns The created payment object.
+ * @throws {TypeError} If the provided data is not valid.
+ */
 export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.input &&
