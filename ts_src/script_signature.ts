@@ -1,4 +1,5 @@
 import * as bip66 from './bip66';
+import { isDefinedHashType } from './script';
 import * as types from './types';
 const { typeforce } = types;
 
@@ -28,9 +29,9 @@ interface ScriptSignature {
 // BIP62: 1 byte hashType flag (only 0x01, 0x02, 0x03, 0x81, 0x82 and 0x83 are allowed)
 export function decode(buffer: Buffer): ScriptSignature {
   const hashType = buffer.readUInt8(buffer.length - 1);
-  const hashTypeMod = hashType & ~0x80;
-  if (hashTypeMod <= 0 || hashTypeMod >= 4)
+  if (!isDefinedHashType(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
+  }
 
   const decoded = bip66.decode(buffer.slice(0, -1));
   const r = fromDER(decoded.r);
@@ -49,9 +50,9 @@ export function encode(signature: Buffer, hashType: number): Buffer {
     { signature, hashType },
   );
 
-  const hashTypeMod = hashType & ~0x80;
-  if (hashTypeMod <= 0 || hashTypeMod >= 4)
+  if (!isDefinedHashType(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
+  }
 
   const hashTypeBuffer = Buffer.allocUnsafe(1);
   hashTypeBuffer.writeUInt8(hashType, 0);

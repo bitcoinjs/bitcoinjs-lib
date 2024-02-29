@@ -1,18 +1,10 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { typeforce as typef } from '../types';
+import { typeforce as typef, stacksEqual } from '../types';
 import { Payment, PaymentOpts, Stack } from './index';
 import * as lazy from './lazy';
 
 const OPS = bscript.OPS;
-
-function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
-  if (a.length !== b.length) return false;
-
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}
 
 // output: OP_RETURN ...
 export function p2data(a: Payment, opts?: PaymentOpts): Payment {
