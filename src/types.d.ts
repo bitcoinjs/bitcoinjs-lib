@@ -1,6 +1,13 @@
 /// <reference types="node" />
 export declare const typeforce: any;
 /**
+ * Checks if two arrays of Buffers are equal.
+ * @param a - The first array of Buffers.
+ * @param b - The second array of Buffers.
+ * @returns True if the arrays are equal, false otherwise.
+ */
+export declare function stacksEqual(a: Buffer[], b: Buffer[]): boolean;
+/**
  * Checks if the given value is a valid elliptic curve point.
  * @param p - The value to check.
  * @returns True if the value is a valid elliptic curve point, false otherwise.
