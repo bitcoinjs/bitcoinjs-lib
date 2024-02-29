@@ -1,3 +1,7 @@
+/**
+ * Script tools, including decompile, compile, toASM, fromASM, toStack, isCanonicalPubKey, isCanonicalScriptSignature
+ * @packageDocumentation
+ */
 import * as bip66 from './bip66';
 import { OPS, REVERSE_OPS } from './ops';
 import { Stack } from './payments';
@@ -6,6 +10,7 @@ import * as scriptNumber from './script_number';
 import * as scriptSignature from './script_signature';
 import * as types from './types';
 const { typeforce } = types;
+
 
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 export { OPS };
@@ -50,6 +55,13 @@ function singleChunkIsBuffer(buf: number | Buffer): buf is Buffer {
   return Buffer.isBuffer(buf);
 }
 
+/**
+ * Compiles an array of chunks into a Buffer.
+ * 
+ * @param chunks - The array of chunks to compile.
+ * @returns The compiled Buffer.
+ * @throws Error if the compilation fails.
+ */
 export function compile(chunks: Buffer | Stack): Buffer {
   // TODO: remove me
   if (chunksIsBuffer(chunks)) return chunks;
@@ -147,6 +159,12 @@ export function decompile(
   return chunks;
 }
 
+/**
+ * Converts the given chunks into an ASM (Assembly) string representation.
+ * If the chunks parameter is a Buffer, it will be decompiled into a Stack before conversion.
+ * @param chunks - The chunks to convert into ASM.
+ * @returns The ASM string representation of the chunks.
+ */
 export function toASM(chunks: Buffer | Array<number | Buffer>): string {
   if (chunksIsBuffer(chunks)) {
     chunks = decompile(chunks) as Stack;
@@ -167,6 +185,11 @@ export function toASM(chunks: Buffer | Array<number | Buffer>): string {
     .join(' ');
 }
 
+/**
+ * Converts an ASM string to a Buffer.
+ * @param asm The ASM string to convert.
+ * @returns The converted Buffer.
+ */
 export function fromASM(asm: string): Buffer {
   typeforce(types.String, asm);
 
@@ -182,6 +205,12 @@ export function fromASM(asm: string): Buffer {
   );
 }
 
+/**
+ * Converts the given chunks into a stack of buffers.
+ * 
+ * @param chunks - The chunks to convert.
+ * @returns The stack of buffers.
+ */
 export function toStack(chunks: Buffer | Array<number | Buffer>): Buffer[] {
   chunks = decompile(chunks) as Stack;
   typeforce(isPushOnly, chunks);
