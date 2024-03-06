@@ -37,6 +37,12 @@ const EC_P = buffer_1.Buffer.from(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
   'hex',
 );
+/**
+ * Checks if two arrays of Buffers are equal.
+ * @param a - The first array of Buffers.
+ * @param b - The second array of Buffers.
+ * @returns True if the arrays are equal, false otherwise.
+ */
 function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
   return a.every((x, i) => {
@@ -44,6 +50,11 @@ function stacksEqual(a, b) {
   });
 }
 exports.stacksEqual = stacksEqual;
+/**
+ * Checks if the given value is a valid elliptic curve point.
+ * @param p - The value to check.
+ * @returns True if the value is a valid elliptic curve point, false otherwise.
+ */
 function isPoint(p) {
   if (!buffer_1.Buffer.isBuffer(p)) return false;
   if (p.length < 33) return false;

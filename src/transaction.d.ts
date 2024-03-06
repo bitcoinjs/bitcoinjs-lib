@@ -10,6 +10,9 @@ export interface Input {
     sequence: number;
     witness: Buffer[];
 }
+/**
+ * Represents a Bitcoin transaction.
+ */
 export declare class Transaction {
     static readonly DEFAULT_SEQUENCE = 4294967295;
     static readonly SIGHASH_DEFAULT = 0;
