@@ -331,8 +331,8 @@ Ideally you shoud not have to directly access `HDNode` internals for general usa
 
 __added__
 - `ECPair.prototype.getNetwork`
-- `HDNode.prototype.getNetwork`, wraps the underyling keyPair's `getNetwork` method
-- `HDNode.prototype.getPublicKeyBuffer`, wraps the underyling keyPair's `getPublicKeyBuffer` method
+- `HDNode.prototype.getNetwork`, wraps the underlying keyPair's `getNetwork` method
+- `HDNode.prototype.getPublicKeyBuffer`, wraps the underlying keyPair's `getPublicKeyBuffer` method
 - `HDNode.prototype.sign`, wraps the underlying keyPair's `sign` method
 - `HDNode.prototype.verify`, wraps the underlying keyPair's `verify` method
 
