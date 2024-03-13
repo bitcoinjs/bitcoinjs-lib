@@ -23,7 +23,7 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 - Friendly, with a strong and helpful community, ready to answer questions.
 
 ## Documentation
-Presently,  we do not have any formal documentation other than our [examples](#examples), please [ask for help](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new) if our examples aren't enough to guide you.
+Visit our [documentation](https://bitcoinjs.github.io/bitcoinjs-lib/) to explore the available resources. We're continually enhancing our documentation with additional features for an enriched experience. If you need further guidance beyond what our [examples](#examples) offer, don't hesitate to  [ask for help](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new). We're here to assist you.
 
 You can find a [Web UI](https://bitcoincore.tech/apps/bitcoinjs-ui/index.html) that covers most of the `psbt.ts`, `transaction.ts` and `p2*.ts` APIs [here](https://bitcoincore.tech/apps/bitcoinjs-ui/index.html).
 
