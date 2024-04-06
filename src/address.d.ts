@@ -36,7 +36,7 @@ export declare function fromBech32(address: string): Bech32Result;
 /**
  * encode address hash to base58 address with version
  */
-export declare function toBase58Check(hash: Buffer, version: number): string;
+export declare function toBase58Check(hash: Buffer | string, version: number): string;
 /**
  * encode address hash to bech32 address with version and prefix
  */

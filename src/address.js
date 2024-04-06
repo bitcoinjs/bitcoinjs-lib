@@ -83,9 +83,10 @@ exports.fromBech32 = fromBech32;
  * encode address hash to base58 address with version
  */
 function toBase58Check(hash, version) {
+  hash = Buffer.isBuffer(hash) ? hash : Buffer.from(hash, 'hex');
   (0, types_1.typeforce)(
     (0, types_1.tuple)(types_1.Hash160bit, types_1.UInt8),
-    arguments,
+    [hash, version],
   );
   const payload = Buffer.allocUnsafe(21);
   payload.writeUInt8(version, 0);

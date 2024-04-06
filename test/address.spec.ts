@@ -101,6 +101,12 @@ describe('address', () => {
 
         assert.strictEqual(address, f.base58check);
       });
+
+      it('encodes ' + f.hash + ' (' + f.network + ')', () => {
+        const address = baddress.toBase58Check(f.hash, f.version);
+
+        assert.strictEqual(address, f.base58check);
+      });
     });
   });
 
