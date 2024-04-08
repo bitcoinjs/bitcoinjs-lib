@@ -7,6 +7,7 @@ import * as script from './script';
 export { address, crypto, networks, payments, script };
 
 export { Block } from './block';
+/** @hidden */
 export { TaggedHashPrefix } from './crypto';
 export {
   Psbt,
@@ -17,10 +18,12 @@ export {
   HDSigner,
   HDSignerAsync,
 } from './psbt';
+/** @hidden */
 export { OPS as opcodes } from './ops';
 export { Transaction } from './transaction';
-
+/** @hidden */
 export { Network } from './networks';
+/** @hidden */
 export {
   Payment,
   PaymentCreator,

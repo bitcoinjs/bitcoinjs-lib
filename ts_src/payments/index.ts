@@ -1,3 +1,10 @@
+/**
+ * Represents a payment object, which is used to create a payment.
+ *
+ * Supports P2PKH、P2SH、P2WPKH、P2WSH、P2TR and so on
+ *
+ * @packageDocumentation
+ */
 import { Network } from '../networks';
 import { Taptree } from '../types';
 import { p2data as embed } from './embed';

@@ -17,6 +17,13 @@ const types_1 = require('../types');
 exports.LEAF_VERSION_TAPSCRIPT = 0xc0;
 exports.MAX_TAPTREE_DEPTH = 128;
 const isHashBranch = ht => 'left' in ht && 'right' in ht;
+/**
+ * Calculates the root hash from a given control block and leaf hash.
+ * @param controlBlock - The control block buffer.
+ * @param leafHash - The leaf hash buffer.
+ * @returns The root hash buffer.
+ * @throws {TypeError} If the control block length is less than 33.
+ */
 function rootHashFromPath(controlBlock, leafHash) {
   if (controlBlock.length < 33)
     throw new TypeError(

@@ -8,6 +8,12 @@ const EC_P = NBuffer.from(
   'hex',
 );
 
+/**
+ * Checks if two arrays of Buffers are equal.
+ * @param a - The first array of Buffers.
+ * @param b - The second array of Buffers.
+ * @returns True if the arrays are equal, false otherwise.
+ */
 export function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
   if (a.length !== b.length) return false;
 
@@ -16,6 +22,11 @@ export function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
   });
 }
 
+/**
+ * Checks if the given value is a valid elliptic curve point.
+ * @param p - The value to check.
+ * @returns True if the value is a valid elliptic curve point, false otherwise.
+ */
 export function isPoint(p: Buffer | number | undefined | null): boolean {
   if (!NBuffer.isBuffer(p)) return false;
   if (p.length < 33) return false;

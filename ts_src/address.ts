@@ -1,3 +1,12 @@
+/**
+ * bitcoin address decode and encode tools, include base58、bech32 and output script
+ *
+ * networks support bitcoin、bitcoin testnet and bitcoin regtest
+ *
+ * addresses support P2PKH、P2SH、P2WPKH、P2WSH、P2TR and so on
+ *
+ * @packageDocumentation
+ */
 import { Network } from './networks';
 import * as networks from './networks';
 import * as payments from './payments';
@@ -5,14 +14,22 @@ import * as bscript from './script';
 import { typeforce, tuple, Hash160bit, UInt8 } from './types';
 import { bech32, bech32m } from 'bech32';
 import * as bs58check from 'bs58check';
+
+/** base58check decode result */
 export interface Base58CheckResult {
+  /** address hash */
   hash: Buffer;
+  /** address version: 0x00 for P2PKH, 0x05 for P2SH */
   version: number;
 }
 
+/** bech32 decode result */
 export interface Bech32Result {
+  /** address version: 0x00 for P2WPKH、P2WSH, 0x01 for P2TR*/
   version: number;
+  /** address prefix: bc for P2WPKH、P2WSH、P2TR */
   prefix: string;
+  /** address data：20 bytes for P2WPKH, 32 bytes for P2WSH、P2TR */
   data: Buffer;
 }
 
@@ -52,6 +69,9 @@ function _toFutureSegwitAddress(output: Buffer, network: Network): string {
   return toBech32(data, version, network.bech32);
 }
 
+/**
+ * decode address with base58 specification,  return address version and address hash if valid
+ */
 export function fromBase58Check(address: string): Base58CheckResult {
   const payload = Buffer.from(bs58check.decode(address));
 
@@ -65,6 +85,9 @@ export function fromBase58Check(address: string): Base58CheckResult {
   return { version, hash };
 }
 
+/**
+ * decode address with bech32 specification,  return address version、address prefix and address data if valid
+ */
 export function fromBech32(address: string): Bech32Result {
   let result;
   let version;
@@ -90,6 +113,9 @@ export function fromBech32(address: string): Bech32Result {
   };
 }
 
+/**
+ * encode address hash to base58 address with version
+ */
 export function toBase58Check(hash: Buffer, version: number): string {
   typeforce(tuple(Hash160bit, UInt8), arguments);
 
@@ -100,6 +126,9 @@ export function toBase58Check(hash: Buffer, version: number): string {
   return bs58check.encode(payload);
 }
 
+/**
+ * encode address hash to bech32 address with version and prefix
+ */
 export function toBech32(
   data: Buffer,
   version: number,
@@ -113,6 +142,9 @@ export function toBech32(
     : bech32m.encode(prefix, words);
 }
 
+/**
+ * decode address from output script with network, return address if matched
+ */
 export function fromOutputScript(output: Buffer, network?: Network): string {
   // TODO: Network
   network = network || networks.bitcoin;
@@ -139,6 +171,9 @@ export function fromOutputScript(output: Buffer, network?: Network): string {
   throw new Error(bscript.toASM(output) + ' has no matching Address');
 }
 
+/**
+ * encodes address to output script with network, return output script if address matched
+ */
 export function toOutputScript(address: string, network?: Network): Buffer {
   network = network || networks.bitcoin;
 

@@ -23,6 +23,16 @@ export const isP2WSHScript = isPaymentFactory(payments.p2wsh);
 export const isP2SHScript = isPaymentFactory(payments.p2sh);
 export const isP2TR = isPaymentFactory(payments.p2tr);
 
+/**
+ * Converts a witness stack to a script witness.
+ * @param witness The witness stack to convert.
+ * @returns The script witness as a Buffer.
+ */
+/**
+ * Converts a witness stack to a script witness.
+ * @param witness The witness stack to convert.
+ * @returns The converted script witness.
+ */
 export function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
   let buffer = Buffer.allocUnsafe(0);
 
@@ -53,6 +63,13 @@ export function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
   return buffer;
 }
 
+/**
+ * Finds the position of a public key in a script.
+ * @param pubkey The public key to search for.
+ * @param script The script to search in.
+ * @returns The index of the public key in the script, or -1 if not found.
+ * @throws {Error} If there is an unknown script error.
+ */
 export function pubkeyPositionInScript(pubkey: Buffer, script: Buffer): number {
   const pubkeyHash = hash160(pubkey);
   const pubkeyXOnly = pubkey.slice(1, 33); // slice before calling?
@@ -70,10 +87,22 @@ export function pubkeyPositionInScript(pubkey: Buffer, script: Buffer): number {
   });
 }
 
+/**
+ * Checks if a public key is present in a script.
+ * @param pubkey The public key to check.
+ * @param script The script to search in.
+ * @returns A boolean indicating whether the public key is present in the script.
+ */
 export function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean {
   return pubkeyPositionInScript(pubkey, script) !== -1;
 }
 
+/**
+ * Checks if an input contains a signature for a specific action.
+ * @param input - The input to check.
+ * @param action - The action to check for.
+ * @returns A boolean indicating whether the input contains a signature for the specified action.
+ */
 export function checkInputForSig(input: PsbtInput, action: string): boolean {
   const pSigs = extractPartialSigs(input);
   return pSigs.some(pSig =>
@@ -85,6 +114,13 @@ type SignatureDecodeFunc = (buffer: Buffer) => {
   signature: Buffer;
   hashType: number;
 };
+/**
+ * Determines if a given action is allowed for a signature block.
+ * @param signature - The signature block.
+ * @param signatureDecodeFn - The function used to decode the signature.
+ * @param action - The action to be checked.
+ * @returns True if the action is allowed, false otherwise.
+ */
 export function signatureBlocksAction(
   signature: Buffer,
   signatureDecodeFn: SignatureDecodeFunc,
@@ -110,6 +146,16 @@ export function signatureBlocksAction(
   return false;
 }
 
+/**
+ * Extracts the signatures from a PsbtInput object.
+ * If the input has partial signatures, it returns an array of the signatures.
+ * If the input does not have partial signatures, it checks if it has a finalScriptSig or finalScriptWitness.
+ * If it does, it extracts the signatures from the final scripts and returns them.
+ * If none of the above conditions are met, it returns an empty array.
+ *
+ * @param input - The PsbtInput object from which to extract the signatures.
+ * @returns An array of signatures extracted from the PsbtInput object.
+ */
 function extractPartialSigs(input: PsbtInput): Buffer[] {
   let pSigs: PartialSig[] = [];
   if ((input.partialSig || []).length === 0) {
@@ -121,6 +167,14 @@ function extractPartialSigs(input: PsbtInput): Buffer[] {
   return pSigs.map(p => p.signature);
 }
 
+/**
+ * Retrieves the partial signatures (Psigs) from the input's final scripts.
+ * Psigs are extracted from both the final scriptSig and final scriptWitness of the input.
+ * Only canonical script signatures are considered.
+ *
+ * @param input - The PsbtInput object representing the input.
+ * @returns An array of PartialSig objects containing the extracted Psigs.
+ */
 function getPsigsFromInputFinalScripts(input: PsbtInput): PartialSig[] {
   const scriptItems = !input.finalScriptSig
     ? []
