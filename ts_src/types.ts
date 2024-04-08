@@ -46,45 +46,10 @@ export function isPoint(p: Buffer | number | undefined | null): boolean {
   return false;
 }
 
-const UINT31_MAX: number = Math.pow(2, 31) - 1;
-export function UInt31(value: number): boolean {
-  return typeforce.UInt32(value) && value <= UINT31_MAX;
-}
-
-export function BIP32Path(value: string): boolean {
-  return typeforce.String(value) && !!value.match(/^(m\/)?(\d+'?\/)*\d+'?$/);
-}
-BIP32Path.toJSON = (): string => {
-  return 'BIP32 derivation path';
-};
-
-export function Signer(obj: any): boolean {
-  return (
-    (typeforce.Buffer(obj.publicKey) ||
-      typeof obj.getPublicKey === 'function') &&
-    typeof obj.sign === 'function'
-  );
-}
-
 const SATOSHI_MAX: number = 21 * 1e14;
 export function Satoshi(value: number): boolean {
   return typeforce.UInt53(value) && value <= SATOSHI_MAX;
 }
-
-// external dependent types
-export const ECPoint = typeforce.quacksLike('Point');
-
-// exposed, external API
-export const Network = typeforce.compile({
-  messagePrefix: typeforce.oneOf(typeforce.Buffer, typeforce.String),
-  bip32: {
-    public: typeforce.UInt32,
-    private: typeforce.UInt32,
-  },
-  pubKeyHash: typeforce.UInt8,
-  scriptHash: typeforce.UInt8,
-  wif: typeforce.UInt8,
-});
 
 export interface XOnlyPointAddTweakResult {
   parity: 1 | 0;
