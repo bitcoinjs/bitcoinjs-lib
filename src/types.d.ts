@@ -13,15 +13,7 @@ export declare function stacksEqual(a: Buffer[], b: Buffer[]): boolean;
  * @returns True if the value is a valid elliptic curve point, false otherwise.
  */
 export declare function isPoint(p: Buffer | number | undefined | null): boolean;
-export declare function UInt31(value: number): boolean;
-export declare function BIP32Path(value: string): boolean;
-export declare namespace BIP32Path {
-    var toJSON: () => string;
-}
-export declare function Signer(obj: any): boolean;
 export declare function Satoshi(value: number): boolean;
-export declare const ECPoint: any;
-export declare const Network: any;
 export interface XOnlyPointAddTweakResult {
     parity: 1 | 0;
     xOnlyPubkey: Uint8Array;
