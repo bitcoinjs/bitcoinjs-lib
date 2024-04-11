@@ -1,82 +1,9 @@
-import * as varuint from 'bip174/src/lib/converter/varint';
 import { PartialSig, PsbtInput } from 'bip174/src/lib/interfaces';
 import * as bscript from '../script';
 import { Transaction } from '../transaction';
-import { hash160 } from '../crypto';
-
-/**
- * Converts a witness stack to a script witness.
- * @param witness The witness stack to convert.
- * @returns The script witness as a Buffer.
- */
-/**
- * Converts a witness stack to a script witness.
- * @param witness The witness stack to convert.
- * @returns The converted script witness.
- */
-export function witnessStackToScriptWitness(witness: Buffer[]): Buffer {
-  let buffer = Buffer.allocUnsafe(0);
-
-  function writeSlice(slice: Buffer): void {
-    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
-  }
-
-  function writeVarInt(i: number): void {
-    const currentLen = buffer.length;
-    const varintLen = varuint.encodingLength(i);
-
-    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
-    varuint.encode(i, buffer, currentLen);
-  }
-
-  function writeVarSlice(slice: Buffer): void {
-    writeVarInt(slice.length);
-    writeSlice(slice);
-  }
-
-  function writeVector(vector: Buffer[]): void {
-    writeVarInt(vector.length);
-    vector.forEach(writeVarSlice);
-  }
-
-  writeVector(witness);
-
-  return buffer;
-}
-
-/**
- * Finds the position of a public key in a script.
- * @param pubkey The public key to search for.
- * @param script The script to search in.
- * @returns The index of the public key in the script, or -1 if not found.
- * @throws {Error} If there is an unknown script error.
- */
-export function pubkeyPositionInScript(pubkey: Buffer, script: Buffer): number {
-  const pubkeyHash = hash160(pubkey);
-  const pubkeyXOnly = pubkey.slice(1, 33); // slice before calling?
-
-  const decompiled = bscript.decompile(script);
-  if (decompiled === null) throw new Error('Unknown script error');
-
-  return decompiled.findIndex(element => {
-    if (typeof element === 'number') return false;
-    return (
-      element.equals(pubkey) ||
-      element.equals(pubkeyHash) ||
-      element.equals(pubkeyXOnly)
-    );
-  });
-}
-
-/**
- * Checks if a public key is present in a script.
- * @param pubkey The public key to check.
- * @param script The script to search in.
- * @returns A boolean indicating whether the public key is present in the script.
- */
-export function pubkeyInScript(pubkey: Buffer, script: Buffer): boolean {
-  return pubkeyPositionInScript(pubkey, script) !== -1;
-}
+import { HDSigner, HDSignerAsync, PsbtCache, PsbtOpts, Signer, SignerAsync } from './interfaces';
+import { Psbt } from '../psbt';
+import { checkForInput } from 'bip174/src/lib/utils';
 
 /**
  * Checks if an input contains a signature for a specific action.
@@ -169,4 +96,71 @@ function getPsigsFromInputFinalScripts(input: PsbtInput): PartialSig[] {
       return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
     })
     .map(sig => ({ signature: sig })) as PartialSig[];
+}
+
+export function check32Bit(num: number): void {
+  if (
+    typeof num !== 'number' ||
+    num !== Math.floor(num) ||
+    num > 0xffffffff ||
+    num < 0
+  ) {
+    throw new Error('Invalid 32 bit integer');
+  }
+}
+
+export function checkFees(psbt: Psbt, cache: PsbtCache, opts: PsbtOpts): void {
+  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
+  const vsize = cache.__EXTRACTED_TX!.virtualSize();
+  const satoshis = feeRate * vsize;
+  if (feeRate >= opts.maximumFeeRate) {
+    throw new Error(
+      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
+        `fees, which is ${feeRate} satoshi per byte for a transaction ` +
+        `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
+        `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
+        `pass true to the first arg of extractTransaction.`,
+    );
+  }
+}
+
+export function getSignersFromHD(
+  inputIndex: number,
+  inputs: PsbtInput[],
+  hdKeyPair: HDSigner | HDSignerAsync,
+): Array<Signer | SignerAsync> {
+  const input = checkForInput(inputs, inputIndex);
+  if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
+    throw new Error('Need bip32Derivation to sign with HD');
+  }
+  const myDerivations = input.bip32Derivation
+    .map(bipDv => {
+      if (bipDv.masterFingerprint.equals(hdKeyPair.fingerprint)) {
+        return bipDv;
+      } else {
+        return;
+      }
+    })
+    .filter(v => !!v);
+  if (myDerivations.length === 0) {
+    throw new Error(
+      'Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint',
+    );
+  }
+  const signers: Array<Signer | SignerAsync> = myDerivations.map(bipDv => {
+    const node = hdKeyPair.derivePath(bipDv!.path);
+    if (!bipDv!.pubkey.equals(node.publicKey)) {
+      throw new Error('pubkey did not match bip32Derivation');
+    }
+    return node;
+  });
+  return signers;
+}
+
+export function range(n: number): number[] {
+  return [...Array(n).keys()];
+}
+
+export function isPubkeyLike(buf: Buffer): boolean {
+  return buf.length === 33 && bscript.isCanonicalPubKey(buf);
 }

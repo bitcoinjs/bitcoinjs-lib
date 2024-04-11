@@ -5,10 +5,10 @@ import {
   checkScriptForPubkey,
   getMeaningfulScript,
   getScriptAndAmountFromUtxo,
+  pubkeyInScript
 } from '../input/script';
 import { Output, Transaction } from '../../transaction';
 import { nonWitnessUtxoTxFromCache } from './cache';
-import { pubkeyInScript } from '../psbtutils';
 import * as payments from '../../payments';
 import { getPrevoutTaprootKey } from '../input';
 import { toXOnly } from '../bip371';

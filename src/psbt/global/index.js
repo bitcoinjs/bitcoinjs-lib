@@ -7,7 +7,7 @@ exports.isFinalized =
     void 0;
 const sign_1 = require('./sign');
 const payments = require('../../payments');
-const psbtutils_1 = require('../psbtutils');
+const script_1 = require('../input/script');
 const { isP2MS, isP2PK, isP2PKH, isP2WPKH } = payments;
 function getFinalScripts(inputIndex, input, script, isSegwit, isP2SH, isP2WSH) {
   const scriptType = classifyScript(script);
@@ -47,11 +47,11 @@ function prepareFinalScripts(
   const p2sh = !isP2SH ? null : payments.p2sh({ redeem: p2wsh || payment });
   if (isSegwit) {
     if (p2wsh) {
-      finalScriptWitness = (0, psbtutils_1.witnessStackToScriptWitness)(
+      finalScriptWitness = (0, script_1.witnessStackToScriptWitness)(
         p2wsh.witness,
       );
     } else {
-      finalScriptWitness = (0, psbtutils_1.witnessStackToScriptWitness)(
+      finalScriptWitness = (0, script_1.witnessStackToScriptWitness)(
         payment.witness,
       );
     }

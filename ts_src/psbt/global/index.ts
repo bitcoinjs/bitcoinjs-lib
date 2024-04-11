@@ -6,7 +6,7 @@ import {
 import { hasSigs } from './sign';
 import * as payments from '../../payments';
 import { HDSigner, ScriptType } from '../interfaces';
-import { witnessStackToScriptWitness } from '../psbtutils';
+import { witnessStackToScriptWitness } from '../input/script';
 
 const { isP2MS, isP2PK, isP2PKH, isP2WPKH } = payments;
 

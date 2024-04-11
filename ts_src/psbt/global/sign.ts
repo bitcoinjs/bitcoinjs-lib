@@ -33,6 +33,13 @@ export function checkPartialSigSighashes(input: PsbtInput): void {
   });
 }
 
+export function trimTaprootSig(signature: Buffer): Buffer {
+  return signature.length === 64 ? signature : signature.subarray(0, 64);
+}
+
+export function isSigLike(buf: Buffer): boolean {
+  return script.isCanonicalScriptSignature(buf);
+}
 
 function compressPubkey(pubkey: Buffer): Buffer {
   if (pubkey.length === 65) {

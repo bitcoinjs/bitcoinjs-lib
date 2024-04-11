@@ -9,7 +9,6 @@ const utils_1 = require('bip174/src/lib/utils');
 const script_1 = require('../input/script');
 const transaction_1 = require('../../transaction');
 const cache_1 = require('./cache');
-const psbtutils_1 = require('../psbtutils');
 const payments = require('../../payments');
 const input_1 = require('../input');
 const bip371_1 = require('../bip371');
@@ -175,7 +174,7 @@ function getTaprootHashesForSig(
     }
   }
   const tapLeafHashes = (input.tapLeafScript || [])
-    .filter(tapLeaf => (0, psbtutils_1.pubkeyInScript)(pubkey, tapLeaf.script))
+    .filter(tapLeaf => (0, script_1.pubkeyInScript)(pubkey, tapLeaf.script))
     .map(tapLeaf => {
       const hash = (0, bip341_1.tapleafHash)({
         output: tapLeaf.script,

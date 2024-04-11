@@ -75,6 +75,6 @@ function pubkeyInInput(pubkey, input, inputIndex, cache) {
     input.redeemScript,
     input.witnessScript,
   );
-  return (0, psbtutils_1.pubkeyInScript)(pubkey, meaningfulScript);
+  return (0, script_1.pubkeyInScript)(pubkey, meaningfulScript);
 }
 exports.pubkeyInInput = pubkeyInInput;

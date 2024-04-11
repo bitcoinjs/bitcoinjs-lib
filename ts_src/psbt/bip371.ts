@@ -12,10 +12,6 @@ import {
 import { Transaction } from '../transaction';
 
 import {
-  witnessStackToScriptWitness,
-  pubkeyPositionInScript,
-} from './psbtutils';
-import {
   tweakKey,
   tapleafHash,
   rootHashFromPath,
@@ -25,6 +21,7 @@ import {
 import { isP2TR, p2tr } from '../payments';
 
 import { signatureBlocksAction } from './psbtutils';
+import { pubkeyPositionInScript, witnessStackToScriptWitness } from './input/script';
 
 export const toXOnly = (pubKey: Buffer) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);

@@ -2,7 +2,6 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.pubkeyInOutput = void 0;
 const script_1 = require('../input/script');
-const psbtutils_1 = require('../psbtutils');
 function pubkeyInOutput(pubkey, output, outputIndex, cache) {
   const script = cache.__TX.outs[outputIndex].script;
   const { meaningfulScript } = (0, script_1.getMeaningfulScript)(
@@ -12,6 +11,6 @@ function pubkeyInOutput(pubkey, output, outputIndex, cache) {
     output.redeemScript,
     output.witnessScript,
   );
-  return (0, psbtutils_1.pubkeyInScript)(pubkey, meaningfulScript);
+  return (0, script_1.pubkeyInScript)(pubkey, meaningfulScript);
 }
 exports.pubkeyInOutput = pubkeyInOutput;

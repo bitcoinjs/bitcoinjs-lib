@@ -1,13 +1,22 @@
-import { PsbtInput } from "bip174/src/lib/interfaces";
-import { checkTaprootInputForSigs, isTaprootInput } from "../bip371";
-import { checkInputForSig, pubkeyInScript } from "../psbtutils";
-import { Output, Transaction } from "../../transaction";
-import { PsbtCache } from "../interfaces";
-import { checkTxInputCache, nonWitnessUtxoTxFromCache } from "../global/cache";
-import { getMeaningfulScript, getScriptAndAmountFromUtxo, getScriptFromUtxo, scriptWitnessToWitnessStack } from "./script";
-import { isP2TR } from "../../payments";
+import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { checkTaprootInputForSigs, isTaprootInput } from '../bip371';
+import { checkInputForSig } from '../psbtutils';
+import { Output, Transaction } from '../../transaction';
+import { PsbtCache } from '../interfaces';
+import { checkTxInputCache, nonWitnessUtxoTxFromCache } from '../global/cache';
+import {
+  getMeaningfulScript,
+  getScriptAndAmountFromUtxo,
+  getScriptFromUtxo,
+  scriptWitnessToWitnessStack,
+  pubkeyInScript,
+} from './script';
+import { isP2TR } from '../../payments';
 
-export function checkInputsForPartialSig(inputs: PsbtInput[], action: string): void {
+export function checkInputsForPartialSig(
+  inputs: PsbtInput[],
+  action: string,
+): void {
   inputs.forEach(input => {
     const throws = isTaprootInput(input)
       ? checkTaprootInputForSigs(input, action)

@@ -1,6 +1,11 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.getScriptFromInput =
+exports.redeemFromFinalWitnessScript =
+  exports.redeemFromFinalScriptSig =
+  exports.pubkeyInScript =
+  exports.pubkeyPositionInScript =
+  exports.witnessStackToScriptWitness =
+  exports.getScriptFromInput =
   exports.getScriptAndAmountFromUtxo =
   exports.getScriptFromUtxo =
   exports.checkScriptForPubkey =
@@ -11,8 +16,11 @@ exports.getScriptFromInput =
     void 0;
 const bufferutils_1 = require('../../bufferutils');
 const payments = require('../../payments');
-const psbtutils_1 = require('../psbtutils');
 const cache_1 = require('../global/cache');
+const crypto_1 = require('../../crypto');
+const bscript = require('../../script');
+const psbtutils_1 = require('../psbtutils');
+const sign_1 = require('../global/sign');
 const { isP2MS, isP2PK, isP2PKH, isP2SHScript, isP2WPKH, isP2WSHScript } =
   payments;
 function getMeaningfulScript(
@@ -97,7 +105,7 @@ function scriptWitnessToWitnessStack(buffer) {
 }
 exports.scriptWitnessToWitnessStack = scriptWitnessToWitnessStack;
 function checkScriptForPubkey(pubkey, script, action) {
-  if (!(0, psbtutils_1.pubkeyInScript)(pubkey, script)) {
+  if (!pubkeyInScript(pubkey, script)) {
     throw new Error(
       `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
     );
@@ -161,6 +169,92 @@ function getScriptFromInput(inputIndex, input, cache) {
   return res;
 }
 exports.getScriptFromInput = getScriptFromInput;
+/**
+ * Converts a witness stack to a script witness.
+ * @param witness The witness stack to convert.
+ * @returns The converted script witness.
+ */
+function witnessStackToScriptWitness(witness) {
+  let buffer = Buffer.allocUnsafe(0);
+  function writeSlice(slice) {
+    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+  }
+  function writeVarInt(i) {
+    const currentLen = buffer.length;
+    const varintLen = bufferutils_1.varuint.encodingLength(i);
+    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+    bufferutils_1.varuint.encode(i, buffer, currentLen);
+  }
+  function writeVarSlice(slice) {
+    writeVarInt(slice.length);
+    writeSlice(slice);
+  }
+  function writeVector(vector) {
+    writeVarInt(vector.length);
+    vector.forEach(writeVarSlice);
+  }
+  writeVector(witness);
+  return buffer;
+}
+exports.witnessStackToScriptWitness = witnessStackToScriptWitness;
+/**
+ * Finds the position of a public key in a script.
+ * @param pubkey The public key to search for.
+ * @param script The script to search in.
+ * @returns The index of the public key in the script, or -1 if not found.
+ * @throws {Error} If there is an unknown script error.
+ */
+function pubkeyPositionInScript(pubkey, script) {
+  const pubkeyHash = (0, crypto_1.hash160)(pubkey);
+  const pubkeyXOnly = pubkey.slice(1, 33); // slice before calling?
+  const decompiled = bscript.decompile(script);
+  if (decompiled === null) throw new Error('Unknown script error');
+  return decompiled.findIndex(element => {
+    if (typeof element === 'number') return false;
+    return (
+      element.equals(pubkey) ||
+      element.equals(pubkeyHash) ||
+      element.equals(pubkeyXOnly)
+    );
+  });
+}
+exports.pubkeyPositionInScript = pubkeyPositionInScript;
+/**
+ * Checks if a public key is present in a script.
+ * @param pubkey The public key to check.
+ * @param script The script to search in.
+ * @returns A boolean indicating whether the public key is present in the script.
+ */
+function pubkeyInScript(pubkey, script) {
+  return pubkeyPositionInScript(pubkey, script) !== -1;
+}
+exports.pubkeyInScript = pubkeyInScript;
+function redeemFromFinalScriptSig(finalScript) {
+  if (!finalScript) return;
+  const decomp = bscript.decompile(finalScript);
+  if (!decomp) return;
+  const lastItem = decomp[decomp.length - 1];
+  if (
+    !Buffer.isBuffer(lastItem) ||
+    (0, psbtutils_1.isPubkeyLike)(lastItem) ||
+    (0, sign_1.isSigLike)(lastItem)
+  )
+    return;
+  const sDecomp = bscript.decompile(lastItem);
+  if (!sDecomp) return;
+  return lastItem;
+}
+exports.redeemFromFinalScriptSig = redeemFromFinalScriptSig;
+function redeemFromFinalWitnessScript(finalScript) {
+  if (!finalScript) return;
+  const decomp = scriptWitnessToWitnessStack(finalScript);
+  const lastItem = decomp[decomp.length - 1];
+  if ((0, psbtutils_1.isPubkeyLike)(lastItem)) return;
+  const sDecomp = bscript.decompile(lastItem);
+  if (!sDecomp) return;
+  return lastItem;
+}
+exports.redeemFromFinalWitnessScript = redeemFromFinalWitnessScript;
 function scriptCheckerFactory(payment, paymentScriptName) {
   return (inputIndex, scriptPubKey, redeemScript, ioType) => {
     const redeemScriptOutput = payment({

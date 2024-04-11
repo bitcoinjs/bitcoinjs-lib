@@ -10,7 +10,6 @@ const payments = require('./payments');
 const bscript = require('./script');
 const transaction_1 = require('./transaction');
 const bip371_1 = require('./psbt/bip371');
-const psbtutils_1 = require('./psbt/psbtutils');
 const transaction_2 = require('./psbt/transaction');
 const cache_1 = require('./psbt/global/cache');
 const global_1 = require('./psbt/global');
@@ -19,6 +18,7 @@ const sign_1 = require('./psbt/global/sign');
 const script_1 = require('./psbt/input/script');
 const output_1 = require('./psbt/output');
 const hash_1 = require('./psbt/global/hash');
+const psbtutils_1 = require('./psbt/psbtutils');
 /**
  * These are the default arguments for a Psbt instance.
  */
@@ -171,11 +171,11 @@ class Psbt {
     return res;
   }
   setMaximumFeeRate(satoshiPerByte) {
-    check32Bit(satoshiPerByte); // 42.9 BTC per byte IS excessive... so throw
+    (0, psbtutils_1.check32Bit)(satoshiPerByte); // 42.9 BTC per byte IS excessive... so throw
     this.opts.maximumFeeRate = satoshiPerByte;
   }
   setVersion(version) {
-    check32Bit(version);
+    (0, psbtutils_1.check32Bit)(version);
     (0, input_1.checkInputsForPartialSig)(this.data.inputs, 'setVersion');
     const c = this.__CACHE;
     c.__TX.version = version;
@@ -183,7 +183,7 @@ class Psbt {
     return this;
   }
   setLocktime(locktime) {
-    check32Bit(locktime);
+    (0, psbtutils_1.check32Bit)(locktime);
     (0, input_1.checkInputsForPartialSig)(this.data.inputs, 'setLocktime');
     const c = this.__CACHE;
     c.__TX.locktime = locktime;
@@ -191,7 +191,7 @@ class Psbt {
     return this;
   }
   setInputSequence(inputIndex, sequence) {
-    check32Bit(sequence);
+    (0, psbtutils_1.check32Bit)(sequence);
     (0, input_1.checkInputsForPartialSig)(this.data.inputs, 'setInputSequence');
     const c = this.__CACHE;
     if (c.__TX.ins.length <= inputIndex) {
@@ -271,7 +271,7 @@ class Psbt {
       throw new Error('Not finalized');
     const c = this.__CACHE;
     if (!disableFeeCheck) {
-      checkFees(this, c, this.opts);
+      (0, psbtutils_1.checkFees)(this, c, this.opts);
     }
     if (c.__EXTRACTED_TX) return c.__EXTRACTED_TX;
     const tx = c.__TX.clone();
@@ -296,7 +296,9 @@ class Psbt {
   }
   finalizeAllInputs() {
     (0, utils_1.checkForInput)(this.data.inputs, 0); // making sure we have at least one
-    range(this.data.inputs.length).forEach(idx => this.finalizeInput(idx));
+    (0, psbtutils_1.range)(this.data.inputs.length).forEach(idx =>
+      this.finalizeInput(idx),
+    );
     return this;
   }
   finalizeInput(inputIndex, finalScriptsFunc) {
@@ -366,7 +368,7 @@ class Psbt {
         output: input.witnessUtxo.script,
         signature: input.tapKeySig,
       });
-      const finalScriptWitness = (0, psbtutils_1.witnessStackToScriptWitness)(
+      const finalScriptWitness = (0, script_1.witnessStackToScriptWitness)(
         payment.witness,
       );
       this.data.updateInput(inputIndex, { finalScriptWitness });
@@ -392,9 +394,10 @@ class Psbt {
       script,
       inputIndex,
       'input',
-      input.redeemScript || redeemFromFinalScriptSig(input.finalScriptSig),
+      input.redeemScript ||
+        (0, script_1.redeemFromFinalScriptSig)(input.finalScriptSig),
       input.witnessScript ||
-        redeemFromFinalWitnessScript(input.finalScriptWitness),
+        (0, script_1.redeemFromFinalWitnessScript)(input.finalScriptWitness),
     );
     const type = result.type === 'raw' ? '' : result.type + '-';
     const mainType = (0, script_1.classifyScript)(result.meaningfulScript);
@@ -429,7 +432,7 @@ class Psbt {
   }
   validateSignaturesOfAllInputs(validator) {
     (0, utils_1.checkForInput)(this.data.inputs, 0); // making sure we have at least one
-    const results = range(this.data.inputs.length).map(idx =>
+    const results = (0, psbtutils_1.range)(this.data.inputs.length).map(idx =>
       this.validateSignaturesOfInput(idx, validator),
     );
     return results.reduce((final, res) => res === true && final, true);
@@ -508,7 +511,7 @@ class Psbt {
       const isValidTapkeySig = validator(
         tapKeyHash.pubkey,
         tapKeyHash.hash,
-        trimTaprootSig(tapKeySig),
+        (0, sign_1.trimTaprootSig)(tapKeySig),
       );
       if (!isValidTapkeySig) return false;
       validationResultCount++;
@@ -520,7 +523,7 @@ class Psbt {
           const isValidTapScriptSig = validator(
             tapSig.pubkey,
             tapSigHash.hash,
-            trimTaprootSig(tapSig.signature),
+            (0, sign_1.trimTaprootSig)(tapSig.signature),
           );
           if (!isValidTapScriptSig) return false;
           validationResultCount++;
@@ -537,7 +540,7 @@ class Psbt {
       throw new Error('Need HDSigner to sign input');
     }
     const results = [];
-    for (const i of range(this.data.inputs.length)) {
+    for (const i of (0, psbtutils_1.range)(this.data.inputs.length)) {
       try {
         this.signInputHD(i, hdKeyPair, sighashTypes);
         results.push(true);
@@ -560,7 +563,7 @@ class Psbt {
       }
       const results = [];
       const promises = [];
-      for (const i of range(this.data.inputs.length)) {
+      for (const i of (0, psbtutils_1.range)(this.data.inputs.length)) {
         promises.push(
           this.signInputHDAsync(i, hdKeyPair, sighashTypes).then(
             () => {
@@ -588,7 +591,11 @@ class Psbt {
     if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
       throw new Error('Need HDSigner to sign input');
     }
-    const signers = getSignersFromHD(inputIndex, this.data.inputs, hdKeyPair);
+    const signers = (0, psbtutils_1.getSignersFromHD)(
+      inputIndex,
+      this.data.inputs,
+      hdKeyPair,
+    );
     signers.forEach(signer => this.signInput(inputIndex, signer, sighashTypes));
     return this;
   }
@@ -601,7 +608,11 @@ class Psbt {
       if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
         return reject(new Error('Need HDSigner to sign input'));
       }
-      const signers = getSignersFromHD(inputIndex, this.data.inputs, hdKeyPair);
+      const signers = (0, psbtutils_1.getSignersFromHD)(
+        inputIndex,
+        this.data.inputs,
+        hdKeyPair,
+      );
       const promises = signers.map(signer =>
         this.signInputAsync(inputIndex, signer, sighashTypes),
       );
@@ -619,7 +630,7 @@ class Psbt {
     // as input information is added, then eventually
     // optimize this method.
     const results = [];
-    for (const i of range(this.data.inputs.length)) {
+    for (const i of (0, psbtutils_1.range)(this.data.inputs.length)) {
       try {
         this.signInput(i, keyPair, sighashTypes);
         results.push(true);
@@ -949,91 +960,3 @@ class Psbt {
   }
 }
 exports.Psbt = Psbt;
-function check32Bit(num) {
-  if (
-    typeof num !== 'number' ||
-    num !== Math.floor(num) ||
-    num > 0xffffffff ||
-    num < 0
-  ) {
-    throw new Error('Invalid 32 bit integer');
-  }
-}
-function checkFees(psbt, cache, opts) {
-  const feeRate = cache.__FEE_RATE || psbt.getFeeRate();
-  const vsize = cache.__EXTRACTED_TX.virtualSize();
-  const satoshis = feeRate * vsize;
-  if (feeRate >= opts.maximumFeeRate) {
-    throw new Error(
-      `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
-        `fees, which is ${feeRate} satoshi per byte for a transaction ` +
-        `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
-        `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
-        `pass true to the first arg of extractTransaction.`,
-    );
-  }
-}
-function trimTaprootSig(signature) {
-  return signature.length === 64 ? signature : signature.subarray(0, 64);
-}
-function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
-  const input = (0, utils_1.checkForInput)(inputs, inputIndex);
-  if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
-    throw new Error('Need bip32Derivation to sign with HD');
-  }
-  const myDerivations = input.bip32Derivation
-    .map(bipDv => {
-      if (bipDv.masterFingerprint.equals(hdKeyPair.fingerprint)) {
-        return bipDv;
-      } else {
-        return;
-      }
-    })
-    .filter(v => !!v);
-  if (myDerivations.length === 0) {
-    throw new Error(
-      'Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint',
-    );
-  }
-  const signers = myDerivations.map(bipDv => {
-    const node = hdKeyPair.derivePath(bipDv.path);
-    if (!bipDv.pubkey.equals(node.publicKey)) {
-      throw new Error('pubkey did not match bip32Derivation');
-    }
-    return node;
-  });
-  return signers;
-}
-function redeemFromFinalScriptSig(finalScript) {
-  if (!finalScript) return;
-  const decomp = bscript.decompile(finalScript);
-  if (!decomp) return;
-  const lastItem = decomp[decomp.length - 1];
-  if (
-    !Buffer.isBuffer(lastItem) ||
-    isPubkeyLike(lastItem) ||
-    isSigLike(lastItem)
-  )
-    return;
-  const sDecomp = bscript.decompile(lastItem);
-  if (!sDecomp) return;
-  return lastItem;
-}
-function redeemFromFinalWitnessScript(finalScript) {
-  if (!finalScript) return;
-  const decomp = (0, script_1.scriptWitnessToWitnessStack)(finalScript);
-  const lastItem = decomp[decomp.length - 1];
-  if (isPubkeyLike(lastItem)) return;
-  const sDecomp = bscript.decompile(lastItem);
-  if (!sDecomp) return;
-  return lastItem;
-}
-function isPubkeyLike(buf) {
-  return buf.length === 33 && bscript.isCanonicalPubKey(buf);
-}
-function isSigLike(buf) {
-  return bscript.isCanonicalScriptSignature(buf);
-}
-function range(n) {
-  return [...Array(n).keys()];
-}

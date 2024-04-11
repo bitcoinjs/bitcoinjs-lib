@@ -1,6 +1,10 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.checkPartialSigSighashes = exports.hasSigs = void 0;
+exports.isSigLike =
+  exports.trimTaprootSig =
+  exports.checkPartialSigSighashes =
+  exports.hasSigs =
+    void 0;
 const script = require('../../script');
 function hasSigs(neededSigs, partialSig, pubkeys) {
   if (!partialSig) return false;
@@ -30,6 +34,14 @@ function checkPartialSigSighashes(input) {
   });
 }
 exports.checkPartialSigSighashes = checkPartialSigSighashes;
+function trimTaprootSig(signature) {
+  return signature.length === 64 ? signature : signature.subarray(0, 64);
+}
+exports.trimTaprootSig = trimTaprootSig;
+function isSigLike(buf) {
+  return script.isCanonicalScriptSignature(buf);
+}
+exports.isSigLike = isSigLike;
 function compressPubkey(pubkey) {
   if (pubkey.length === 65) {
     const parity = pubkey[64] & 1;

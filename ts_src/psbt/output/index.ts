@@ -1,7 +1,6 @@
-import { PsbtOutput } from "bip174/src/lib/interfaces";
-import { PsbtCache } from "../interfaces";
-import { getMeaningfulScript } from "../input/script";
-import { pubkeyInScript } from "../psbtutils";
+import { PsbtOutput } from 'bip174/src/lib/interfaces';
+import { PsbtCache } from '../interfaces';
+import { getMeaningfulScript, pubkeyInScript } from '../input/script';
 
 export function pubkeyInOutput(
   pubkey: Buffer,
