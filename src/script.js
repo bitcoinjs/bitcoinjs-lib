@@ -182,7 +182,9 @@ function fromASM(asm) {
   return compile(
     asm.split(' ').map(chunkStr => {
       // opcode?
-      if (ops_1.OPS[chunkStr] !== undefined) return ops_1.OPS[chunkStr];
+      if (ops_1.OPS[chunkStr] !== undefined) {
+        return ops_1.OPS[chunkStr];
+      }
       typeforce(types.Hex, chunkStr);
       // data!
       return Buffer.from(chunkStr, 'hex');
