@@ -1,14 +1,14 @@
-import { Bip32Derivation, PartialSig, PsbtInput } from 'bip174/src/lib/interfaces';
+import {
+  Bip32Derivation,
+  PartialSig,
+  PsbtInput,
+} from 'bip174/src/lib/interfaces';
 import { hasSigs } from './sign';
 import * as payments from '../../payments';
 import { HDSigner, ScriptType } from '../interfaces';
-import {
-  isP2MS,
-  isP2PK,
-  isP2PKH,
-  isP2WPKH,
-  witnessStackToScriptWitness,
-} from '../psbtutils';
+import { witnessStackToScriptWitness } from '../psbtutils';
+
+const { isP2MS, isP2PK, isP2PKH, isP2WPKH } = payments;
 
 export function getFinalScripts(
   inputIndex: number,

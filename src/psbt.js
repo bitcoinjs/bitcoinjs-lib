@@ -330,11 +330,8 @@ class Psbt {
     input,
     finalScriptsFunc = global_1.getFinalScripts,
   ) {
-    const { script, isP2SH, isP2WSH, isSegwit } = getScriptFromInput(
-      inputIndex,
-      input,
-      this.__CACHE,
-    );
+    const { script, isP2SH, isP2WSH, isSegwit } = (0,
+    script_1.getScriptFromInput)(inputIndex, input, this.__CACHE);
     if (!script) throw new Error(`No script found for input #${inputIndex}`);
     (0, sign_1.checkPartialSigSighashes)(input);
     const { finalScriptSig, finalScriptWitness } = finalScriptsFunc(
@@ -405,7 +402,7 @@ class Psbt {
   }
   inputHasPubkey(inputIndex, pubkey) {
     const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
-    return pubkeyInInput(pubkey, input, inputIndex, this.__CACHE);
+    return (0, input_1.pubkeyInInput)(pubkey, input, inputIndex, this.__CACHE);
   }
   inputHasHDKey(inputIndex, root) {
     const input = (0, utils_1.checkForInput)(this.data.inputs, inputIndex);
@@ -979,38 +976,6 @@ function checkFees(psbt, cache, opts) {
 function trimTaprootSig(signature) {
   return signature.length === 64 ? signature : signature.subarray(0, 64);
 }
-function getScriptFromInput(inputIndex, input, cache) {
-  const unsignedTx = cache.__TX;
-  const res = {
-    script: null,
-    isSegwit: false,
-    isP2SH: false,
-    isP2WSH: false,
-  };
-  res.isP2SH = !!input.redeemScript;
-  res.isP2WSH = !!input.witnessScript;
-  if (input.witnessScript) {
-    res.script = input.witnessScript;
-  } else if (input.redeemScript) {
-    res.script = input.redeemScript;
-  } else {
-    if (input.nonWitnessUtxo) {
-      const nonWitnessUtxoTx = (0, cache_1.nonWitnessUtxoTxFromCache)(
-        cache,
-        input,
-        inputIndex,
-      );
-      const prevoutIndex = unsignedTx.ins[inputIndex].index;
-      res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
-    } else if (input.witnessUtxo) {
-      res.script = input.witnessUtxo.script;
-    }
-  }
-  if (input.witnessScript || (0, psbtutils_1.isP2WPKH)(res.script)) {
-    res.isSegwit = true;
-  }
-  return res;
-}
 function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
   const input = (0, utils_1.checkForInput)(inputs, inputIndex);
   if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
@@ -1038,17 +1003,6 @@ function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
     return node;
   });
   return signers;
-}
-function pubkeyInInput(pubkey, input, inputIndex, cache) {
-  const script = (0, script_1.getScriptFromUtxo)(inputIndex, input, cache);
-  const { meaningfulScript } = (0, script_1.getMeaningfulScript)(
-    script,
-    inputIndex,
-    'input',
-    input.redeemScript,
-    input.witnessScript,
-  );
-  return (0, psbtutils_1.pubkeyInScript)(pubkey, meaningfulScript);
 }
 function redeemFromFinalScriptSig(finalScript) {
   if (!finalScript) return;

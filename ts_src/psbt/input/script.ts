@@ -2,9 +2,10 @@ import { PsbtInput } from "bip174/src/lib/interfaces";
 import { varuint } from "../../bufferutils";
 import * as  payments from "../../payments";
 import { GetScriptReturn, PsbtCache, ScriptType } from "../interfaces";
-import { isP2MS, isP2PK, isP2PKH, isP2SHScript, isP2WPKH, isP2WSHScript, pubkeyInScript } from "../psbtutils";
+import { pubkeyInScript } from "../psbtutils";
 import { nonWitnessUtxoTxFromCache } from "../global/cache";
 
+const {isP2MS, isP2PK, isP2PKH, isP2SHScript, isP2WPKH, isP2WSHScript} = payments;
 export function getMeaningfulScript(
   script: Buffer,
   index: number,

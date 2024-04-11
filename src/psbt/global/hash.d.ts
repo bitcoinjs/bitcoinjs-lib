@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { PsbtInput } from "bip174/src/lib/interfaces";
-import { PsbtCache } from "../interfaces";
+import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { PsbtCache } from '../interfaces';
 export declare function getHashAndSighashType(inputs: PsbtInput[], inputIndex: number, pubkey: Buffer, cache: PsbtCache, sighashTypes: number[]): {
     hash: Buffer;
     sighashType: number;

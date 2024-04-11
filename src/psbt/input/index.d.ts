@@ -6,3 +6,4 @@ export declare function checkInputsForPartialSig(inputs: PsbtInput[], action: st
 export declare function checkTxForDupeIns(tx: Transaction, cache: PsbtCache): void;
 export declare function inputFinalizeGetAmts(inputs: PsbtInput[], tx: Transaction, cache: PsbtCache, mustFinalize: boolean): void;
 export declare function getPrevoutTaprootKey(inputIndex: number, input: PsbtInput, cache: PsbtCache): Buffer | null;
+export declare function pubkeyInInput(pubkey: Buffer, input: PsbtInput, inputIndex: number, cache: PsbtCache): boolean;

@@ -8,6 +8,7 @@ exports.isFinalized =
 const sign_1 = require('./sign');
 const payments = require('../../payments');
 const psbtutils_1 = require('../psbtutils');
+const { isP2MS, isP2PK, isP2PKH, isP2WPKH } = payments;
 function getFinalScripts(inputIndex, input, script, isSegwit, isP2SH, isP2WSH) {
   const scriptType = classifyScript(script);
   if (!canFinalize(input, script, scriptType))
@@ -119,10 +120,10 @@ function getSortedSigs(script, partialSig) {
     .filter(v => !!v);
 }
 function classifyScript(script) {
-  if ((0, psbtutils_1.isP2WPKH)(script)) return 'witnesspubkeyhash';
-  if ((0, psbtutils_1.isP2PKH)(script)) return 'pubkeyhash';
-  if ((0, psbtutils_1.isP2MS)(script)) return 'multisig';
-  if ((0, psbtutils_1.isP2PK)(script)) return 'pubkey';
+  if (isP2WPKH(script)) return 'witnesspubkeyhash';
+  if (isP2PKH(script)) return 'pubkeyhash';
+  if (isP2MS(script)) return 'multisig';
+  if (isP2PK(script)) return 'pubkey';
   return 'nonstandard';
 }
 function canFinalize(input, script, scriptType) {

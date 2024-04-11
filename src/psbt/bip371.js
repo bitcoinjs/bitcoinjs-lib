@@ -61,7 +61,7 @@ function isTaprootInput(input) {
       input.tapMerkleRoot ||
       (input.tapLeafScript && input.tapLeafScript.length) ||
       (input.tapBip32Derivation && input.tapBip32Derivation.length) ||
-      (input.witnessUtxo && (0, psbtutils_1.isP2TR)(input.witnessUtxo.script))
+      (input.witnessUtxo && (0, payments_1.isP2TR)(input.witnessUtxo.script))
     )
   );
 }
@@ -73,7 +73,7 @@ function isTaprootOutput(output, script) {
       output.tapInternalKey ||
       output.tapTree ||
       (output.tapBip32Derivation && output.tapBip32Derivation.length) ||
-      (script && (0, psbtutils_1.isP2TR)(script))
+      (script && (0, payments_1.isP2TR)(script))
     )
   );
 }

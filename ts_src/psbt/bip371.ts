@@ -14,7 +14,6 @@ import { Transaction } from '../transaction';
 import {
   witnessStackToScriptWitness,
   pubkeyPositionInScript,
-  isP2TR,
 } from './psbtutils';
 import {
   tweakKey,
@@ -23,7 +22,7 @@ import {
   LEAF_VERSION_TAPSCRIPT,
   MAX_TAPTREE_DEPTH,
 } from '../payments/bip341';
-import { p2tr } from '../payments';
+import { isP2TR, p2tr } from '../payments';
 
 import { signatureBlocksAction } from './psbtutils';
 

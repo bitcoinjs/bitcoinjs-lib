@@ -14,6 +14,7 @@ const payments = require('../../payments');
 const input_1 = require('../input');
 const bip371_1 = require('../bip371');
 const bip341_1 = require('../../payments/bip341');
+const { isP2WPKH } = payments;
 function getHashAndSighashType(
   inputs,
   inputIndex,
@@ -78,7 +79,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
       prevout.value,
       sighashType,
     );
-  } else if ((0, psbtutils_1.isP2WPKH)(meaningfulScript)) {
+  } else if (isP2WPKH(meaningfulScript)) {
     // P2WPKH uses the P2PKH template for prevoutScript when signing
     const signingScript = payments.p2pkh({
       hash: meaningfulScript.slice(2),

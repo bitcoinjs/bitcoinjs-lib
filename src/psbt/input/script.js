@@ -1,6 +1,7 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.getScriptAndAmountFromUtxo =
+exports.getScriptFromInput =
+  exports.getScriptAndAmountFromUtxo =
   exports.getScriptFromUtxo =
   exports.checkScriptForPubkey =
   exports.scriptWitnessToWitnessStack =
@@ -12,6 +13,8 @@ const bufferutils_1 = require('../../bufferutils');
 const payments = require('../../payments');
 const psbtutils_1 = require('../psbtutils');
 const cache_1 = require('../global/cache');
+const { isP2MS, isP2PK, isP2PKH, isP2SHScript, isP2WPKH, isP2WSHScript } =
+  payments;
 function getMeaningfulScript(
   script,
   index,
@@ -19,10 +22,9 @@ function getMeaningfulScript(
   redeemScript,
   witnessScript,
 ) {
-  const isP2SH = (0, psbtutils_1.isP2SHScript)(script);
-  const isP2SHP2WSH =
-    isP2SH && redeemScript && (0, psbtutils_1.isP2WSHScript)(redeemScript);
-  const isP2WSH = (0, psbtutils_1.isP2WSHScript)(script);
+  const isP2SH = isP2SHScript(script);
+  const isP2SHP2WSH = isP2SH && redeemScript && isP2WSHScript(redeemScript);
+  const isP2WSH = isP2WSHScript(script);
   if (isP2SH && redeemScript === undefined)
     throw new Error('scriptPubkey is P2SH but redeemScript missing');
   if ((isP2WSH || isP2SHP2WSH) && witnessScript === undefined)
@@ -58,19 +60,16 @@ function getMeaningfulScript(
 }
 exports.getMeaningfulScript = getMeaningfulScript;
 function checkInvalidP2WSH(script) {
-  if (
-    (0, psbtutils_1.isP2WPKH)(script) ||
-    (0, psbtutils_1.isP2SHScript)(script)
-  ) {
+  if (isP2WPKH(script) || isP2SHScript(script)) {
     throw new Error('P2WPKH or P2SH can not be contained within P2WSH');
   }
 }
 exports.checkInvalidP2WSH = checkInvalidP2WSH;
 function classifyScript(script) {
-  if ((0, psbtutils_1.isP2WPKH)(script)) return 'witnesspubkeyhash';
-  if ((0, psbtutils_1.isP2PKH)(script)) return 'pubkeyhash';
-  if ((0, psbtutils_1.isP2MS)(script)) return 'multisig';
-  if ((0, psbtutils_1.isP2PK)(script)) return 'pubkey';
+  if (isP2WPKH(script)) return 'witnesspubkeyhash';
+  if (isP2PKH(script)) return 'pubkeyhash';
+  if (isP2MS(script)) return 'multisig';
+  if (isP2PK(script)) return 'pubkey';
   return 'nonstandard';
 }
 exports.classifyScript = classifyScript;
@@ -129,6 +128,39 @@ function getScriptAndAmountFromUtxo(inputIndex, input, cache) {
   }
 }
 exports.getScriptAndAmountFromUtxo = getScriptAndAmountFromUtxo;
+function getScriptFromInput(inputIndex, input, cache) {
+  const unsignedTx = cache.__TX;
+  const res = {
+    script: null,
+    isSegwit: false,
+    isP2SH: false,
+    isP2WSH: false,
+  };
+  res.isP2SH = !!input.redeemScript;
+  res.isP2WSH = !!input.witnessScript;
+  if (input.witnessScript) {
+    res.script = input.witnessScript;
+  } else if (input.redeemScript) {
+    res.script = input.redeemScript;
+  } else {
+    if (input.nonWitnessUtxo) {
+      const nonWitnessUtxoTx = (0, cache_1.nonWitnessUtxoTxFromCache)(
+        cache,
+        input,
+        inputIndex,
+      );
+      const prevoutIndex = unsignedTx.ins[inputIndex].index;
+      res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
+    } else if (input.witnessUtxo) {
+      res.script = input.witnessUtxo.script;
+    }
+  }
+  if (input.witnessScript || isP2WPKH(res.script)) {
+    res.isSegwit = true;
+  }
+  return res;
+}
+exports.getScriptFromInput = getScriptFromInput;
 function scriptCheckerFactory(payment, paymentScriptName) {
   return (inputIndex, scriptPubKey, redeemScript, ioType) => {
     const redeemScriptOutput = payment({

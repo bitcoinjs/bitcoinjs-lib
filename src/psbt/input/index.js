@@ -1,6 +1,7 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.getPrevoutTaprootKey =
+exports.pubkeyInInput =
+  exports.getPrevoutTaprootKey =
   exports.inputFinalizeGetAmts =
   exports.checkTxForDupeIns =
   exports.checkInputsForPartialSig =
@@ -9,6 +10,7 @@ const bip371_1 = require('../bip371');
 const psbtutils_1 = require('../psbtutils');
 const cache_1 = require('../global/cache');
 const script_1 = require('./script');
+const payments_1 = require('../../payments');
 function checkInputsForPartialSig(inputs, action) {
   inputs.forEach(input => {
     const throws = (0, bip371_1.isTaprootInput)(input)
@@ -61,6 +63,18 @@ function getPrevoutTaprootKey(inputIndex, input, cache) {
     input,
     cache,
   );
-  return (0, psbtutils_1.isP2TR)(script) ? script.subarray(2, 34) : null;
+  return (0, payments_1.isP2TR)(script) ? script.subarray(2, 34) : null;
 }
 exports.getPrevoutTaprootKey = getPrevoutTaprootKey;
+function pubkeyInInput(pubkey, input, inputIndex, cache) {
+  const script = (0, script_1.getScriptFromUtxo)(inputIndex, input, cache);
+  const { meaningfulScript } = (0, script_1.getMeaningfulScript)(
+    script,
+    inputIndex,
+    'input',
+    input.redeemScript,
+    input.witnessScript,
+  );
+  return (0, psbtutils_1.pubkeyInScript)(pubkey, meaningfulScript);
+}
+exports.pubkeyInInput = pubkeyInInput;

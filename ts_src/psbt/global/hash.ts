@@ -1,14 +1,20 @@
-import { PsbtInput } from "bip174/src/lib/interfaces";
-import { PsbtCache } from "../interfaces";
-import { checkForInput } from "bip174/src/lib/utils";
-import { checkScriptForPubkey, getMeaningfulScript, getScriptAndAmountFromUtxo } from "../input/script";
-import { Output, Transaction } from "../../transaction";
-import { nonWitnessUtxoTxFromCache } from "./cache";
-import { isP2WPKH, pubkeyInScript } from "../psbtutils";
-import * as payments from "../../payments";
-import { getPrevoutTaprootKey } from "../input";
-import { toXOnly } from "../bip371";
-import { tapleafHash } from "../../payments/bip341";
+import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { PsbtCache } from '../interfaces';
+import { checkForInput } from 'bip174/src/lib/utils';
+import {
+  checkScriptForPubkey,
+  getMeaningfulScript,
+  getScriptAndAmountFromUtxo,
+} from '../input/script';
+import { Output, Transaction } from '../../transaction';
+import { nonWitnessUtxoTxFromCache } from './cache';
+import { pubkeyInScript } from '../psbtutils';
+import * as payments from '../../payments';
+import { getPrevoutTaprootKey } from '../input';
+import { toXOnly } from '../bip371';
+import { tapleafHash } from '../../payments/bip341';
+
+const { isP2WPKH } = payments;
 
 export function getHashAndSighashType(
   inputs: PsbtInput[],
@@ -111,17 +117,17 @@ export function getHashForSig(
     )
       throw new Error(
         `Input #${inputIndex} has witnessUtxo but non-segwit script: ` +
-        `${meaningfulScript.toString('hex')}`,
+          `${meaningfulScript.toString('hex')}`,
       );
     if (!forValidate && cache.__UNSAFE_SIGN_NONSEGWIT !== false)
       console.warn(
         'Warning: Signing non-segwit inputs without the full parent transaction ' +
-        'means there is a chance that a miner could feed you incorrect information ' +
-        "to trick you into paying large fees. This behavior is the same as Psbt's predecessor " +
-        '(TransactionBuilder - now removed) when signing non-segwit scripts. You are not ' +
-        'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
-        'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
-        '*********************',
+          'means there is a chance that a miner could feed you incorrect information ' +
+          "to trick you into paying large fees. This behavior is the same as Psbt's predecessor " +
+          '(TransactionBuilder - now removed) when signing non-segwit scripts. You are not ' +
+          'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
+          'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
+          '*********************',
       );
     hash = unsignedTx.hashForSignature(
       inputIndex,
@@ -237,7 +243,7 @@ function checkSighashTypeAllowed(
     const str = sighashTypeToString(sighashType);
     throw new Error(
       `Sighash type is not allowed. Retry the sign method passing the ` +
-      `sighashTypes array of whitelisted types. Sighash type: ${str}`,
+        `sighashTypes array of whitelisted types. Sighash type: ${str}`,
     );
   }
 }
