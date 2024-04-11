@@ -97,5 +97,28 @@ export interface TransactionOutput {
 export interface PsbtTxOutput extends TransactionOutput {
     address: string | undefined;
 }
+export type TxCacheNumberKey = '__FEE_RATE' | '__FEE';
+/**
+ * This function must do two things:
+ * 1. Check if the `input` can be finalized. If it can not be finalized, throw.
+ *   ie. `Can not finalize input #${inputIndex}`
+ * 2. Create the finalScriptSig and finalScriptWitness Buffers.
+ */
+export type FinalScriptsFunc = (inputIndex: number, // Which input is it?
+input: PsbtInput, // The PSBT input contents
+script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
+isSegwit: boolean, // Is it segwit?
+isP2SH: boolean, // Is it P2SH?
+isP2WSH: boolean) => {
+    finalScriptSig: Buffer | undefined;
+    finalScriptWitness: Buffer | undefined;
+};
+export type FinalTaprootScriptsFunc = (inputIndex: number, // Which input is it?
+input: PsbtInput, // The PSBT input contents
+tapLeafHashToFinalize?: Buffer) => {
+    finalScriptWitness: Buffer | undefined;
+};
 export type ValidateSigFunction = (pubkey: Buffer, msghash: Buffer, signature: Buffer) => boolean;
+export type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
+export type ScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'nonstandard';
 export {};

@@ -9,12 +9,13 @@ import {
   PsbtInputUpdate,
   PsbtOutput,
   PsbtOutputUpdate,
-  Transaction as ITransaction,
-  TransactionFromBuffer,
   TapKeySig,
   TapScriptSig,
 } from 'bip174/src/lib/interfaces';
 import {
+  AllScriptType,
+  FinalScriptsFunc,
+  FinalTaprootScriptsFunc,
   GetScriptReturn,
   HDSigner,
   HDSignerAsync,
@@ -25,8 +26,10 @@ import {
   PsbtOutputExtended,
   PsbtTxInput,
   PsbtTxOutput,
+  ScriptType,
   Signer,
   SignerAsync,
+  TxCacheNumberKey,
   ValidateSigFunction,
 } from './psbt/interfaces';
 import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
@@ -58,6 +61,7 @@ import {
   isP2SHScript,
   isP2TR,
 } from './psbt/psbtutils';
+import { PsbtTransaction, transactionFromBuffer } from './psbt/transaction';
 
 /**
  * These are the default arguments for a Psbt instance.
@@ -205,7 +209,7 @@ export class Psbt {
       let address;
       try {
         address = fromOutputScript(output.script, this.opts.network);
-      } catch (_) {}
+      } catch (_) { }
       return {
         script: cloneBuffer(output.script),
         value: output.value,
@@ -275,7 +279,7 @@ export class Psbt {
     ) {
       throw new Error(
         `Invalid arguments for Psbt.addInput. ` +
-          `Requires single object with at least [hash] and [index]`,
+        `Requires single object with at least [hash] and [index]`,
       );
     }
     checkTaprootInputFields(inputData, inputData, 'addInput');
@@ -312,7 +316,7 @@ export class Psbt {
     ) {
       throw new Error(
         `Invalid arguments for Psbt.addOutput. ` +
-          `Requires single object with at least [script or address] and [value]`,
+        `Requires single object with at least [script or address] and [value]`,
       );
     }
     checkInputsForPartialSig(this.data.inputs, 'addOutput');
@@ -473,7 +477,7 @@ export class Psbt {
       'input',
       input.redeemScript || redeemFromFinalScriptSig(input.finalScriptSig),
       input.witnessScript ||
-        redeemFromFinalWitnessScript(input.finalScriptWitness),
+      redeemFromFinalWitnessScript(input.finalScriptWitness),
     );
     const type = result.type === 'raw' ? '' : result.type + '-';
     const mainType = classifyScript(result.meaningfulScript);
@@ -554,11 +558,11 @@ export class Psbt {
       const { hash, script } =
         sighashCache! !== sig.hashType
           ? getHashForSig(
-              inputIndex,
-              Object.assign({}, input, { sighashType: sig.hashType }),
-              this.__CACHE,
-              true,
-            )
+            inputIndex,
+            Object.assign({}, input, { sighashType: sig.hashType }),
+            this.__CACHE,
+            true,
+          )
           : { hash: hashCache!, script: scriptCache! };
       sighashCache = sig.hashType;
       hashCache = hash;
@@ -585,18 +589,18 @@ export class Psbt {
     pubkey = pubkey && toXOnly(pubkey);
     const allHashses = pubkey
       ? getTaprootHashesForSig(
-          inputIndex,
-          input,
-          this.data.inputs,
-          pubkey,
-          this.__CACHE,
-        )
+        inputIndex,
+        input,
+        this.data.inputs,
+        pubkey,
+        this.__CACHE,
+      )
       : getAllTaprootHashesForSig(
-          inputIndex,
-          input,
-          this.data.inputs,
-          this.__CACHE,
-        );
+        inputIndex,
+        input,
+        this.data.inputs,
+        this.__CACHE,
+      );
 
     if (!allHashses.length) throw new Error('No signatures for this pubkey');
 
@@ -874,14 +878,14 @@ export class Psbt {
       .filter(h => !!h.leafHash)
       .map(
         h =>
-          ({
-            pubkey: toXOnly(keyPair.publicKey),
-            signature: serializeTaprootSignature(
-              keyPair.signSchnorr!(h.hash),
-              input.sighashType,
-            ),
-            leafHash: h.leafHash,
-          } as TapScriptSig),
+        ({
+          pubkey: toXOnly(keyPair.publicKey),
+          signature: serializeTaprootSignature(
+            keyPair.signSchnorr!(h.hash),
+            input.sighashType,
+          ),
+          leafHash: h.leafHash,
+        } as TapScriptSig),
       );
 
     if (tapKeySig) {
@@ -1121,74 +1125,6 @@ export class Psbt {
   }
 }
 
-/**
- * This function is needed to pass to the bip174 base class's fromBuffer.
- * It takes the "transaction buffer" portion of the psbt buffer and returns a
- * Transaction (From the bip174 library) interface.
- */
-const transactionFromBuffer: TransactionFromBuffer = (
-  buffer: Buffer,
-): ITransaction => new PsbtTransaction(buffer);
-
-/**
- * This class implements the Transaction interface from bip174 library.
- * It contains a bitcoinjs-lib Transaction object.
- */
-class PsbtTransaction implements ITransaction {
-  tx: Transaction;
-  constructor(buffer: Buffer = Buffer.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
-    this.tx = Transaction.fromBuffer(buffer);
-    checkTxEmpty(this.tx);
-    Object.defineProperty(this, 'tx', {
-      enumerable: false,
-      writable: true,
-    });
-  }
-
-  getInputOutputCounts(): {
-    inputCount: number;
-    outputCount: number;
-  } {
-    return {
-      inputCount: this.tx.ins.length,
-      outputCount: this.tx.outs.length,
-    };
-  }
-
-  addInput(input: any): void {
-    if (
-      (input as any).hash === undefined ||
-      (input as any).index === undefined ||
-      (!Buffer.isBuffer((input as any).hash) &&
-        typeof (input as any).hash !== 'string') ||
-      typeof (input as any).index !== 'number'
-    ) {
-      throw new Error('Error adding input.');
-    }
-    const hash =
-      typeof input.hash === 'string'
-        ? reverseBuffer(Buffer.from(input.hash, 'hex'))
-        : input.hash;
-    this.tx.addInput(hash, input.index, input.sequence);
-  }
-
-  addOutput(output: any): void {
-    if (
-      (output as any).script === undefined ||
-      (output as any).value === undefined ||
-      !Buffer.isBuffer((output as any).script) ||
-      typeof (output as any).value !== 'number'
-    ) {
-      throw new Error('Error adding output.');
-    }
-    this.tx.addOutput(output.script, output.value);
-  }
-
-  toBuffer(): Buffer {
-    return this.tx.toBuffer();
-  }
-}
-
 function canFinalize(
   input: PsbtInput,
   script: Buffer,
@@ -1266,10 +1202,10 @@ function checkFees(psbt: Psbt, cache: PsbtCache, opts: PsbtOpts): void {
   if (feeRate >= opts.maximumFeeRate) {
     throw new Error(
       `Warning: You are paying around ${(satoshis / 1e8).toFixed(8)} in ` +
-        `fees, which is ${feeRate} satoshi per byte for a transaction ` +
-        `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
-        `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
-        `pass true to the first arg of extractTransaction.`,
+      `fees, which is ${feeRate} satoshi per byte for a transaction ` +
+      `with a VSize of ${vsize} bytes (segwit counted as 0.25 byte per ` +
+      `byte). Use setMaximumFeeRate method to raise your threshold, or ` +
+      `pass true to the first arg of extractTransaction.`,
     );
   }
 }
@@ -1304,19 +1240,6 @@ function checkScriptForPubkey(
     throw new Error(
       `Can not ${action} for this input with the key ${pubkey.toString('hex')}`,
     );
-  }
-}
-
-function checkTxEmpty(tx: Transaction): void {
-  const isEmpty = tx.ins.every(
-    input =>
-      input.script &&
-      input.script.length === 0 &&
-      input.witness &&
-      input.witness.length === 0,
-  );
-  if (!isEmpty) {
-    throw new Error('Format Error: Transaction ScriptSigs are not empty');
   }
 }
 
@@ -1363,7 +1286,6 @@ const checkWitnessScript = scriptCheckerFactory(
   'Witness script',
 );
 
-type TxCacheNumberKey = '__FEE_RATE' | '__FEE';
 function getTxCacheValue(
   key: TxCacheNumberKey,
   name: string,
@@ -1386,31 +1308,6 @@ function getTxCacheValue(
   if (key === '__FEE_RATE') return c.__FEE_RATE!;
   else if (key === '__FEE') return c.__FEE!;
 }
-
-/**
- * This function must do two things:
- * 1. Check if the `input` can be finalized. If it can not be finalized, throw.
- *   ie. `Can not finalize input #${inputIndex}`
- * 2. Create the finalScriptSig and finalScriptWitness Buffers.
- */
-type FinalScriptsFunc = (
-  inputIndex: number, // Which input is it?
-  input: PsbtInput, // The PSBT input contents
-  script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
-  isSegwit: boolean, // Is it segwit?
-  isP2SH: boolean, // Is it P2SH?
-  isP2WSH: boolean, // Is it P2WSH?
-) => {
-  finalScriptSig: Buffer | undefined;
-  finalScriptWitness: Buffer | undefined;
-};
-type FinalTaprootScriptsFunc = (
-  inputIndex: number, // Which input is it?
-  input: PsbtInput, // The PSBT input contents
-  tapLeafHashToFinalize?: Buffer, // Only finalize this specific leaf
-) => {
-  finalScriptWitness: Buffer | undefined;
-};
 
 function getFinalScripts(
   inputIndex: number,
@@ -1578,17 +1475,17 @@ function getHashForSig(
     )
       throw new Error(
         `Input #${inputIndex} has witnessUtxo but non-segwit script: ` +
-          `${meaningfulScript.toString('hex')}`,
+        `${meaningfulScript.toString('hex')}`,
       );
     if (!forValidate && cache.__UNSAFE_SIGN_NONSEGWIT !== false)
       console.warn(
         'Warning: Signing non-segwit inputs without the full parent transaction ' +
-          'means there is a chance that a miner could feed you incorrect information ' +
-          "to trick you into paying large fees. This behavior is the same as Psbt's predecessor " +
-          '(TransactionBuilder - now removed) when signing non-segwit scripts. You are not ' +
-          'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
-          'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
-          '*********************',
+        'means there is a chance that a miner could feed you incorrect information ' +
+        "to trick you into paying large fees. This behavior is the same as Psbt's predecessor " +
+        '(TransactionBuilder - now removed) when signing non-segwit scripts. You are not ' +
+        'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
+        'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
+        '*********************',
       );
     hash = unsignedTx.hashForSignature(
       inputIndex,
@@ -1717,7 +1614,7 @@ function checkSighashTypeAllowed(
     const str = sighashTypeToString(sighashType);
     throw new Error(
       `Sighash type is not allowed. Retry the sign method passing the ` +
-        `sighashTypes array of whitelisted types. Sighash type: ${str}`,
+      `sighashTypes array of whitelisted types. Sighash type: ${str}`,
     );
   }
 }
@@ -2134,10 +2031,10 @@ function getMeaningfulScript(
     type: isP2SHP2WSH
       ? 'p2sh-p2wsh'
       : isP2SH
-      ? 'p2sh'
-      : isP2WSH
-      ? 'p2wsh'
-      : 'raw',
+        ? 'p2sh'
+        : isP2WSH
+          ? 'p2wsh'
+          : 'raw',
   };
 }
 
@@ -2147,31 +2044,6 @@ function checkInvalidP2WSH(script: Buffer): void {
   }
 }
 
-type AllScriptType =
-  | 'witnesspubkeyhash'
-  | 'pubkeyhash'
-  | 'multisig'
-  | 'pubkey'
-  | 'nonstandard'
-  | 'p2sh-witnesspubkeyhash'
-  | 'p2sh-pubkeyhash'
-  | 'p2sh-multisig'
-  | 'p2sh-pubkey'
-  | 'p2sh-nonstandard'
-  | 'p2wsh-pubkeyhash'
-  | 'p2wsh-multisig'
-  | 'p2wsh-pubkey'
-  | 'p2wsh-nonstandard'
-  | 'p2sh-p2wsh-pubkeyhash'
-  | 'p2sh-p2wsh-multisig'
-  | 'p2sh-p2wsh-pubkey'
-  | 'p2sh-p2wsh-nonstandard';
-type ScriptType =
-  | 'witnesspubkeyhash'
-  | 'pubkeyhash'
-  | 'multisig'
-  | 'pubkey'
-  | 'nonstandard';
 function classifyScript(script: Buffer): ScriptType {
   if (isP2WPKH(script)) return 'witnesspubkeyhash';
   if (isP2PKH(script)) return 'pubkeyhash';

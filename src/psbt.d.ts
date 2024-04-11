@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
-import { HDSigner, HDSignerAsync, PsbtInputExtended, PsbtOptsOptional, PsbtOutputExtended, PsbtTxInput, PsbtTxOutput, Signer, SignerAsync, ValidateSigFunction } from './psbt/interfaces';
+import { KeyValue, PsbtGlobalUpdate, PsbtInputUpdate, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
+import { AllScriptType, FinalScriptsFunc, FinalTaprootScriptsFunc, HDSigner, HDSignerAsync, PsbtInputExtended, PsbtOptsOptional, PsbtOutputExtended, PsbtTxInput, PsbtTxOutput, Signer, SignerAsync, ValidateSigFunction } from './psbt/interfaces';
 import { Transaction } from './transaction';
 /**
  * Psbt class can parse and generate a PSBT binary based off of the BIP174.
@@ -108,25 +108,3 @@ export declare class Psbt {
     addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;
     clearFinalizedInput(inputIndex: number): this;
 }
-/**
- * This function must do two things:
- * 1. Check if the `input` can be finalized. If it can not be finalized, throw.
- *   ie. `Can not finalize input #${inputIndex}`
- * 2. Create the finalScriptSig and finalScriptWitness Buffers.
- */
-type FinalScriptsFunc = (inputIndex: number, // Which input is it?
-input: PsbtInput, // The PSBT input contents
-script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
-isSegwit: boolean, // Is it segwit?
-isP2SH: boolean, // Is it P2SH?
-isP2WSH: boolean) => {
-    finalScriptSig: Buffer | undefined;
-    finalScriptWitness: Buffer | undefined;
-};
-type FinalTaprootScriptsFunc = (inputIndex: number, // Which input is it?
-input: PsbtInput, // The PSBT input contents
-tapLeafHashToFinalize?: Buffer) => {
-    finalScriptWitness: Buffer | undefined;
-};
-type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
-export {};
