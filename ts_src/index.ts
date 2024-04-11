@@ -9,15 +9,15 @@ export { address, crypto, networks, payments, script };
 export { Block } from './block';
 /** @hidden */
 export { TaggedHashPrefix } from './crypto';
+export { Psbt } from './psbt';
 export {
-  Psbt,
   PsbtTxInput,
   PsbtTxOutput,
   Signer,
   SignerAsync,
   HDSigner,
   HDSignerAsync,
-} from './psbt';
+} from './psbt/interfaces';
 /** @hidden */
 export { OPS as opcodes } from './ops';
 export { Transaction } from './transaction';

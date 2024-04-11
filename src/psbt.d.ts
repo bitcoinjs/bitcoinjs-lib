@@ -1,24 +1,8 @@
 /// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
-import { Network } from './networks';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
+import { HDSigner, HDSignerAsync, PsbtInputExtended, PsbtOptsOptional, PsbtOutputExtended, PsbtTxInput, PsbtTxOutput, Signer, SignerAsync, ValidateSigFunction } from './psbt/interfaces';
 import { Transaction } from './transaction';
-export interface TransactionInput {
-    hash: string | Buffer;
-    index: number;
-    sequence?: number;
-}
-export interface PsbtTxInput extends TransactionInput {
-    hash: Buffer;
-}
-export interface TransactionOutput {
-    script: Buffer;
-    value: number;
-}
-export interface PsbtTxOutput extends TransactionOutput {
-    address: string | undefined;
-}
-export type ValidateSigFunction = (pubkey: Buffer, msghash: Buffer, signature: Buffer) => boolean;
 /**
  * Psbt class can parse and generate a PSBT binary based off of the BIP174.
  * There are 6 roles that this class fulfills. (Explained in BIP174)
@@ -123,64 +107,6 @@ export declare class Psbt {
     addUnknownKeyValToInput(inputIndex: number, keyVal: KeyValue): this;
     addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;
     clearFinalizedInput(inputIndex: number): this;
-}
-interface PsbtOptsOptional {
-    network?: Network;
-    maximumFeeRate?: number;
-}
-interface PsbtInputExtended extends PsbtInput, TransactionInput {
-}
-type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
-interface PsbtOutputExtendedAddress extends PsbtOutput {
-    address: string;
-    value: number;
-}
-interface PsbtOutputExtendedScript extends PsbtOutput {
-    script: Buffer;
-    value: number;
-}
-interface HDSignerBase {
-    /**
-     * DER format compressed publicKey buffer
-     */
-    publicKey: Buffer;
-    /**
-     * The first 4 bytes of the sha256-ripemd160 of the publicKey
-     */
-    fingerprint: Buffer;
-}
-export interface HDSigner extends HDSignerBase {
-    /**
-     * The path string must match /^m(\/\d+'?)+$/
-     * ex. m/44'/0'/0'/1/23 levels with ' must be hard derivations
-     */
-    derivePath(path: string): HDSigner;
-    /**
-     * Input hash (the "message digest") for the signature algorithm
-     * Return a 64 byte signature (32 byte r and 32 byte s in that order)
-     */
-    sign(hash: Buffer): Buffer;
-}
-/**
- * Same as above but with async sign method
- */
-export interface HDSignerAsync extends HDSignerBase {
-    derivePath(path: string): HDSignerAsync;
-    sign(hash: Buffer): Promise<Buffer>;
-}
-export interface Signer {
-    publicKey: Buffer;
-    network?: any;
-    sign(hash: Buffer, lowR?: boolean): Buffer;
-    signSchnorr?(hash: Buffer): Buffer;
-    getPublicKey?(): Buffer;
-}
-export interface SignerAsync {
-    publicKey: Buffer;
-    network?: any;
-    sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
-    signSchnorr?(hash: Buffer): Promise<Buffer>;
-    getPublicKey?(): Buffer;
 }
 /**
  * This function must do two things:
