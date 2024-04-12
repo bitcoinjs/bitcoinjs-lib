@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { PsbtInput } from "bip174/src/lib/interfaces";
-import { GetScriptReturn, PsbtCache, ScriptType } from "../interfaces";
+import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { GetScriptReturn, PsbtCache, ScriptType } from '../interfaces';
 export declare function getMeaningfulScript(script: Buffer, index: number, ioType: 'input' | 'output', redeemScript?: Buffer, witnessScript?: Buffer): {
     meaningfulScript: Buffer;
     type: 'p2sh' | 'p2wsh' | 'p2sh-p2wsh' | 'raw';

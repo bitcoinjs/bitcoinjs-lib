@@ -5,7 +5,7 @@ import {
   checkScriptForPubkey,
   getMeaningfulScript,
   getScriptAndAmountFromUtxo,
-  pubkeyInScript
+  pubkeyInScript,
 } from '../input/script';
 import { Output, Transaction } from '../../transaction';
 import { nonWitnessUtxoTxFromCache } from './cache';

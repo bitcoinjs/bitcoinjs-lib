@@ -1,9 +1,6 @@
 import { Network } from '../networks';
 import { Transaction } from '../transaction';
-import {
-  PsbtInput,
-  PsbtOutput,
-} from 'bip174/src/lib/interfaces';
+import { PsbtInput, PsbtOutput } from 'bip174/src/lib/interfaces';
 
 export interface PsbtCache {
   __NON_WITNESS_UTXO_TX_CACHE: Transaction[];
@@ -26,9 +23,11 @@ export interface PsbtOpts {
   maximumFeeRate: number;
 }
 
-export interface PsbtInputExtended extends PsbtInput, TransactionInput { }
+export interface PsbtInputExtended extends PsbtInput, TransactionInput {}
 
-export type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
+export type PsbtOutputExtended =
+  | PsbtOutputExtendedAddress
+  | PsbtOutputExtendedScript;
 
 export interface PsbtOutputExtendedAddress extends PsbtOutput {
   address: string;
@@ -94,7 +93,6 @@ export interface GetScriptReturn {
   isP2SH: boolean;
   isP2WSH: boolean;
 }
-
 
 export interface TransactionInput {
   hash: string | Buffer;
@@ -176,3 +174,8 @@ export type ScriptType =
   | 'multisig'
   | 'pubkey'
   | 'nonstandard';
+
+export type SignatureDecodeFunc = (buffer: Buffer) => {
+  signature: Buffer;
+  hashType: number;
+};

@@ -7,7 +7,7 @@ exports.pubkeyInInput =
   exports.checkInputsForPartialSig =
     void 0;
 const bip371_1 = require('../bip371');
-const psbtutils_1 = require('../psbtutils');
+const sign_1 = require('../global/sign');
 const cache_1 = require('../global/cache');
 const script_1 = require('./script');
 const payments_1 = require('../../payments');
@@ -15,7 +15,7 @@ function checkInputsForPartialSig(inputs, action) {
   inputs.forEach(input => {
     const throws = (0, bip371_1.isTaprootInput)(input)
       ? (0, bip371_1.checkTaprootInputForSigs)(input, action)
-      : (0, psbtutils_1.checkInputForSig)(input, action);
+      : (0, sign_1.checkInputForSig)(input, action);
     if (throws)
       throw new Error('Can not modify transaction, signatures exist.');
   });

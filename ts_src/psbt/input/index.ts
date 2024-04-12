@@ -1,6 +1,6 @@
 import { PsbtInput } from 'bip174/src/lib/interfaces';
 import { checkTaprootInputForSigs, isTaprootInput } from '../bip371';
-import { checkInputForSig } from '../psbtutils';
+import { checkInputForSig } from '../global/sign';
 import { Output, Transaction } from '../../transaction';
 import { PsbtCache } from '../interfaces';
 import { checkTxInputCache, nonWitnessUtxoTxFromCache } from '../global/cache';

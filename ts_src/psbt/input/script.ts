@@ -1,14 +1,15 @@
-import { PsbtInput } from "bip174/src/lib/interfaces";
-import { varuint } from "../../bufferutils";
-import * as  payments from "../../payments";
-import { GetScriptReturn, PsbtCache, ScriptType } from "../interfaces";
-import { nonWitnessUtxoTxFromCache } from "../global/cache";
-import { hash160 } from "../../crypto";
+import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { varuint } from '../../bufferutils';
+import * as payments from '../../payments';
+import { GetScriptReturn, PsbtCache, ScriptType } from '../interfaces';
+import { nonWitnessUtxoTxFromCache } from '../global/cache';
+import { hash160 } from '../../crypto';
 import * as bscript from '../../script';
-import { isPubkeyLike } from "../psbtutils";
-import { isSigLike } from "../global/sign";
+import { isPubkeyLike } from '../psbtutils';
+import { isSigLike } from '../global/sign';
 
-const {isP2MS, isP2PK, isP2PKH, isP2SHScript, isP2WPKH, isP2WSHScript} = payments;
+const { isP2MS, isP2PK, isP2PKH, isP2SHScript, isP2WPKH, isP2WSHScript } =
+  payments;
 
 export function getMeaningfulScript(
   script: Buffer,
@@ -53,10 +54,10 @@ export function getMeaningfulScript(
     type: isP2SHP2WSH
       ? 'p2sh-p2wsh'
       : isP2SH
-        ? 'p2sh'
-        : isP2WSH
-          ? 'p2wsh'
-          : 'raw',
+      ? 'p2sh'
+      : isP2WSH
+      ? 'p2wsh'
+      : 'raw',
   };
 }
 

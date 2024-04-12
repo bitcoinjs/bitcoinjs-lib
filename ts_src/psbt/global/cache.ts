@@ -1,9 +1,9 @@
-import { PsbtInput } from "bip174/src/lib/interfaces";
-import { reverseBuffer } from "../../bufferutils";
-import { PsbtCache, TxCacheNumberKey } from "../interfaces";
-import { Transaction } from "../../transaction";
-import { isFinalized } from ".";
-import { inputFinalizeGetAmts } from "../input";
+import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { reverseBuffer } from '../../bufferutils';
+import { PsbtCache, TxCacheNumberKey } from '../interfaces';
+import { Transaction } from '../../transaction';
+import { isFinalized } from '.';
+import { inputFinalizeGetAmts } from '../input';
 
 export function checkCache(cache: PsbtCache): void {
   if (cache.__UNSAFE_SIGN_NONSEGWIT !== false) {

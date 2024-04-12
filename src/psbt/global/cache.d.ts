@@ -1,7 +1,7 @@
 /// <reference types="node" />
-import { PsbtInput } from "bip174/src/lib/interfaces";
-import { PsbtCache, TxCacheNumberKey } from "../interfaces";
-import { Transaction } from "../../transaction";
+import { PsbtInput } from 'bip174/src/lib/interfaces';
+import { PsbtCache, TxCacheNumberKey } from '../interfaces';
+import { Transaction } from '../../transaction';
 export declare function checkCache(cache: PsbtCache): void;
 export declare function checkTxInputCache(cache: PsbtCache, input: {
     hash: Buffer;

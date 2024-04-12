@@ -8,9 +8,8 @@ exports.isFinalized =
 const sign_1 = require('./sign');
 const payments = require('../../payments');
 const script_1 = require('../input/script');
-const { isP2MS, isP2PK, isP2PKH, isP2WPKH } = payments;
 function getFinalScripts(inputIndex, input, script, isSegwit, isP2SH, isP2WSH) {
-  const scriptType = classifyScript(script);
+  const scriptType = (0, script_1.classifyScript)(script);
   if (!canFinalize(input, script, scriptType))
     throw new Error(`Can not finalize input #${inputIndex}`);
   return prepareFinalScripts(
@@ -118,13 +117,6 @@ function getSortedSigs(script, partialSig) {
       // this last filter removes all the undefined items in the array.
     })
     .filter(v => !!v);
-}
-function classifyScript(script) {
-  if (isP2WPKH(script)) return 'witnesspubkeyhash';
-  if (isP2PKH(script)) return 'pubkeyhash';
-  if (isP2MS(script)) return 'multisig';
-  if (isP2PK(script)) return 'pubkey';
-  return 'nonstandard';
 }
 function canFinalize(input, script, scriptType) {
   switch (scriptType) {

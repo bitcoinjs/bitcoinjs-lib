@@ -5,10 +5,8 @@ import {
 } from 'bip174/src/lib/interfaces';
 import { hasSigs } from './sign';
 import * as payments from '../../payments';
-import { HDSigner, ScriptType } from '../interfaces';
-import { witnessStackToScriptWitness } from '../input/script';
-
-const { isP2MS, isP2PK, isP2PKH, isP2WPKH } = payments;
+import { HDSigner } from '../interfaces';
+import { classifyScript, witnessStackToScriptWitness } from '../input/script';
 
 export function getFinalScripts(
   inputIndex: number,
@@ -137,14 +135,6 @@ function getSortedSigs(script: Buffer, partialSig: PartialSig[]): Buffer[] {
       // this last filter removes all the undefined items in the array.
     })
     .filter(v => !!v);
-}
-
-function classifyScript(script: Buffer): ScriptType {
-  if (isP2WPKH(script)) return 'witnesspubkeyhash';
-  if (isP2PKH(script)) return 'pubkeyhash';
-  if (isP2MS(script)) return 'multisig';
-  if (isP2PK(script)) return 'pubkey';
-  return 'nonstandard';
 }
 
 export function canFinalize(
