@@ -115,32 +115,45 @@ function compile(chunks) {
 }
 exports.compile = compile;
 function decompile(buffer) {
-  // TODO: remove me
+  // Quick exit if buffer is already an array of chunks
   if (chunksIsArray(buffer)) return buffer;
+  // Type enforcement for buffer
   typeforce(types.Buffer, buffer);
   const chunks = [];
   let i = 0;
   while (i < buffer.length) {
     const opcode = buffer[i];
-    // data chunk
-    if (opcode > ops_1.OPS.OP_0 && opcode <= ops_1.OPS.OP_PUSHDATA4) {
+    // Handling predefined opcode ranges directly
+    if (opcode >= ops_1.OPS.OP_0 && opcode <= ops_1.OPS.OP_16) {
+      // Directly push the opcode if it's between OP_0 and OP_16
+      chunks.push(opcode);
+      i += 1;
+    } else if (opcode === ops_1.OPS.OP_1NEGATE) {
+      // Directly push OP_1NEGATE
+      chunks.push(opcode);
+      i += 1;
+    } else if (opcode > ops_1.OPS.OP_16 && opcode <= ops_1.OPS.OP_PUSHDATA4) {
+      // Decode data for PUSHDATA opcodes
       const d = pushdata.decode(buffer, i);
-      // did reading a pushDataInt fail?
+      // Exit if decoding fails
       if (d === null) return null;
       i += d.size;
-      // attempt to read too much data?
+      // Ensure we do not read beyond buffer length
       if (i + d.number > buffer.length) return null;
+      // Get the actual data
       const data = buffer.slice(i, i + d.number);
       i += d.number;
-      // decompile minimally
+      // Check for minimal OP usage in the data
       const op = asMinimalOP(data);
       if (op !== undefined) {
+        // If a minimal OP is applicable, push it instead of the data
         chunks.push(op);
       } else {
+        // Otherwise, push the raw data
         chunks.push(data);
       }
-      // opcode
     } else {
+      // If it's any other opcode, simply push it to the chunks
       chunks.push(opcode);
       i += 1;
     }
