@@ -1111,6 +1111,10 @@ export class Psbt {
     return this;
   }
 
+  getTransaction(): Buffer {
+    return this.data.getTransaction();
+  }
+
   addUnknownKeyValToGlobal(keyVal: KeyValue): this {
     this.data.addUnknownKeyValToGlobal(keyVal);
     return this;

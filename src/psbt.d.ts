@@ -119,6 +119,7 @@ export declare class Psbt {
     updateGlobal(updateData: PsbtGlobalUpdate): this;
     updateInput(inputIndex: number, updateData: PsbtInputUpdate): this;
     updateOutput(outputIndex: number, updateData: PsbtOutputUpdate): this;
+    getTransaction(): Buffer;
     addUnknownKeyValToGlobal(keyVal: KeyValue): this;
     addUnknownKeyValToInput(inputIndex: number, keyVal: KeyValue): this;
     addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;

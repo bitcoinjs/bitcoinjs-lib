@@ -901,6 +901,9 @@ class Psbt {
     this.data.updateOutput(outputIndex, updateData);
     return this;
   }
+  getTransaction() {
+    return this.data.getTransaction();
+  }
   addUnknownKeyValToGlobal(keyVal) {
     this.data.addUnknownKeyValToGlobal(keyVal);
     return this;
