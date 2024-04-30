@@ -243,7 +243,7 @@ class Psbt {
     if (typeof address === 'string') {
       const { network } = this.opts;
       const script = (0, address_1.toOutputScript)(address, network);
-      outputData = Object.assign(outputData, { script });
+      outputData = Object.assign({}, outputData, { script });
     }
     (0, bip371_1.checkTaprootOutputFields)(outputData, outputData, 'addOutput');
     const c = this.__CACHE;
