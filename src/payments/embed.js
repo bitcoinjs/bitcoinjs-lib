@@ -6,13 +6,14 @@ const bscript = require('../script');
 const types_1 = require('../types');
 const lazy = require('./lazy');
 const OPS = bscript.OPS;
-function stacksEqual(a, b) {
-  if (a.length !== b.length) return false;
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}
 // output: OP_RETURN ...
+/**
+ * Embeds data in a Bitcoin payment.
+ * @param a - The payment object.
+ * @param opts - Optional payment options.
+ * @returns The modified payment object.
+ * @throws {TypeError} If there is not enough data or if the output is invalid.
+ */
 function p2data(a, opts) {
   if (!a.data && !a.output) throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
@@ -43,7 +44,7 @@ function p2data(a, opts) {
       if (chunks[0] !== OPS.OP_RETURN) throw new TypeError('Output is invalid');
       if (!chunks.slice(1).every(types_1.typeforce.Buffer))
         throw new TypeError('Output is invalid');
-      if (a.data && !stacksEqual(a.data, o.data))
+      if (a.data && !(0, types_1.stacksEqual)(a.data, o.data))
         throw new TypeError('Data mismatch');
     }
   }

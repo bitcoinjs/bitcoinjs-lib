@@ -8,6 +8,9 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
 
 jobs:
   ##################
@@ -124,3 +127,31 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run lint:tests
+
+  build-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
+        with:
+          node-version: 'lts/*'
+          registry-url: https://registry.npmjs.org/
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run doc
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./docs
+
+  deploy-doc:
+    if: github.ref == 'refs/heads/master'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build-doc
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

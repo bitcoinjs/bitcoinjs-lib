@@ -35,6 +35,7 @@ Object.defineProperty(exports, 'Psbt', {
     return psbt_1.Psbt;
   },
 });
+/** @hidden */
 var ops_1 = require('./ops');
 Object.defineProperty(exports, 'opcodes', {
   enumerable: true,

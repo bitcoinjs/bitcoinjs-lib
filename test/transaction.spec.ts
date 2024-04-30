@@ -350,7 +350,7 @@ describe('Transaction', () => {
   });
 
   describe('setWitness', () => {
-    it('only accepts a a witness stack (Array of Buffers)', () => {
+    it('only accepts a witness stack (Array of Buffers)', () => {
       assert.throws(() => {
         (new Transaction().setWitness as any)(0, 'foobar');
       }, /Expected property "1" of type \[Buffer], got String "foobar"/);

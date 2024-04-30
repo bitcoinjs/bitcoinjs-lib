@@ -265,6 +265,14 @@ function checkMixedTaprootAndNonTaprootOutputFields(
         `Cannot use both taproot and non-taproot fields.`,
     );
 }
+/**
+ * Checks if the tap leaf is part of the tap tree for the given input data.
+ * Throws an error if the tap leaf is not part of the tap tree.
+ * @param inputData - The original PsbtInput data.
+ * @param newInputData - The new PsbtInput data.
+ * @param action - The action being performed.
+ * @throws {Error} - If the tap leaf is not part of the tap tree.
+ */
 function checkIfTapLeafInTree(inputData, newInputData, action) {
   if (newInputData.tapMerkleRoot) {
     const newLeafsInTree = (newInputData.tapLeafScript || []).every(l =>
@@ -287,6 +295,12 @@ function checkIfTapLeafInTree(inputData, newInputData, action) {
       );
   }
 }
+/**
+ * Checks if a TapLeafScript is present in a Merkle tree.
+ * @param tapLeaf The TapLeafScript to check.
+ * @param merkleRoot The Merkle root of the tree. If not provided, the function assumes the TapLeafScript is present.
+ * @returns A boolean indicating whether the TapLeafScript is present in the tree.
+ */
 function isTapLeafInTree(tapLeaf, merkleRoot) {
   if (!merkleRoot) return true;
   const leafHash = (0, bip341_1.tapleafHash)({
@@ -299,6 +313,13 @@ function isTapLeafInTree(tapLeaf, merkleRoot) {
   );
   return rootHash.equals(merkleRoot);
 }
+/**
+ * Sorts the signatures in the input's tapScriptSig array based on their position in the tapLeaf script.
+ *
+ * @param input - The PsbtInput object.
+ * @param tapLeaf - The TapLeafScript object.
+ * @returns An array of sorted signatures as Buffers.
+ */
 function sortSignatures(input, tapLeaf) {
   const leafHash = (0, bip341_1.tapleafHash)({
     output: tapLeaf.script,
@@ -310,6 +331,12 @@ function sortSignatures(input, tapLeaf) {
     .sort((t1, t2) => t2.positionInScript - t1.positionInScript)
     .map(t => t.signature);
 }
+/**
+ * Adds the position of a public key in a script to a TapScriptSig object.
+ * @param script The script in which to find the position of the public key.
+ * @param tss The TapScriptSig object to add the position to.
+ * @returns A TapScriptSigWitPosition object with the added position.
+ */
 function addPubkeyPositionInScript(script, tss) {
   return Object.assign(
     {
@@ -340,6 +367,14 @@ function findTapLeafToFinalize(input, inputIndex, leafHashToFinalize) {
     );
   return tapLeaf;
 }
+/**
+ * Determines whether a TapLeafScript can be finalized.
+ *
+ * @param leaf - The TapLeafScript to check.
+ * @param tapScriptSig - The array of TapScriptSig objects.
+ * @param hash - The optional hash to compare with the leaf hash.
+ * @returns A boolean indicating whether the TapLeafScript can be finalized.
+ */
 function canFinalizeLeaf(leaf, tapScriptSig, hash) {
   const leafHash = (0, bip341_1.tapleafHash)({
     output: leaf.script,
@@ -351,6 +386,12 @@ function canFinalizeLeaf(leaf, tapScriptSig, hash) {
     tapScriptSig.find(tss => tss.leafHash.equals(leafHash)) !== undefined
   );
 }
+/**
+ * Checks if the given PsbtInput or PsbtOutput has non-taproot fields.
+ * Non-taproot fields include redeemScript, witnessScript, and bip32Derivation.
+ * @param io The PsbtInput or PsbtOutput to check.
+ * @returns A boolean indicating whether the given input or output has non-taproot fields.
+ */
 function hasNonTaprootFields(io) {
   return (
     io &&

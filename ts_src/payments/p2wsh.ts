@@ -1,21 +1,13 @@
 import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { isPoint, typeforce as typef } from '../types';
+import { isPoint, typeforce as typef, stacksEqual } from '../types';
 import { Payment, PaymentOpts, StackElement, StackFunction } from './index';
 import * as lazy from './lazy';
 import { bech32 } from 'bech32';
 const OPS = bscript.OPS;
 
 const EMPTY_BUFFER = Buffer.alloc(0);
-
-function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
-  if (a.length !== b.length) return false;
-
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}
 
 function chunkHasUncompressedPubkey(chunk: StackElement): boolean {
   if (
@@ -33,6 +25,14 @@ function chunkHasUncompressedPubkey(chunk: StackElement): boolean {
 // input: <>
 // witness: [redeemScriptSig ...] {redeemScript}
 // output: OP_0 {sha256(redeemScript)}
+/**
+ * Creates a Pay-to-Witness-Script-Hash (P2WSH) payment object.
+ *
+ * @param a - The payment object containing the necessary data.
+ * @param opts - Optional payment options.
+ * @returns The P2WSH payment object.
+ * @throws {TypeError} If the required data is missing or invalid.
+ */
 export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
   if (!a.address && !a.hash && !a.output && !a.redeem && !a.witness)
     throw new TypeError('Not enough data');

@@ -1,22 +1,21 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { isPoint, typeforce as typef } from '../types';
+import { isPoint, typeforce as typef, stacksEqual } from '../types';
 import { Payment, PaymentOpts, Stack } from './index';
 import * as lazy from './lazy';
 const OPS = bscript.OPS;
 
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 
-function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
-  if (a.length !== b.length) return false;
-
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}
-
 // input: OP_0 [signatures ...]
 // output: m [pubKeys ...] n OP_CHECKMULTISIG
+/**
+ * Represents a function that creates a Pay-to-Multisig (P2MS) payment object.
+ * @param a - The payment object.
+ * @param opts - Optional payment options.
+ * @returns The created payment object.
+ * @throws {TypeError} If the provided data is not valid.
+ */
 export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.input &&
