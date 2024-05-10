@@ -79,7 +79,7 @@ function pubkeyPositionInScript(pubkey, script) {
   const pubkeyHash = (0, crypto_1.hash160)(pubkey);
   const pubkeyXOnly = pubkey.slice(1, 33); // slice before calling?
   const decompiled = bscript.decompile(script);
-  if (decompiled === null) throw new Error('Unknown script error');
+  if (!decompiled.length) throw new Error('Unknown script error');
   return decompiled.findIndex(element => {
     if (typeof element === 'number') return false;
     return (
@@ -173,10 +173,10 @@ function extractPartialSigs(input) {
 function getPsigsFromInputFinalScripts(input) {
   const scriptItems = !input.finalScriptSig
     ? []
-    : bscript.decompile(input.finalScriptSig) || [];
+    : bscript.decompile(input.finalScriptSig);
   const witnessItems = !input.finalScriptWitness
     ? []
-    : bscript.decompile(input.finalScriptWitness) || [];
+    : bscript.decompile(input.finalScriptWitness);
   return scriptItems
     .concat(witnessItems)
     .filter(item => {

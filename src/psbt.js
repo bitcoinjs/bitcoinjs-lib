@@ -1636,7 +1636,7 @@ function pubkeyInOutput(pubkey, output, outputIndex, cache) {
 function redeemFromFinalScriptSig(finalScript) {
   if (!finalScript) return;
   const decomp = bscript.decompile(finalScript);
-  if (!decomp) return;
+  if (!decomp.length) return;
   const lastItem = decomp[decomp.length - 1];
   if (
     !Buffer.isBuffer(lastItem) ||
@@ -1645,7 +1645,7 @@ function redeemFromFinalScriptSig(finalScript) {
   )
     return;
   const sDecomp = bscript.decompile(lastItem);
-  if (!sDecomp) return;
+  if (!sDecomp.length) return;
   return lastItem;
 }
 function redeemFromFinalWitnessScript(finalScript) {
@@ -1654,7 +1654,7 @@ function redeemFromFinalWitnessScript(finalScript) {
   const lastItem = decomp[decomp.length - 1];
   if (isPubkeyLike(lastItem)) return;
   const sDecomp = bscript.decompile(lastItem);
-  if (!sDecomp) return;
+  if (!sDecomp.length) return;
   return lastItem;
 }
 function compressPubkey(pubkey) {

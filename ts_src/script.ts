@@ -111,10 +111,7 @@ export function compile(chunks: Buffer | Stack): Buffer {
   return buffer;
 }
 
-export function decompile(
-  buffer: Buffer | Array<number | Buffer>,
-): Array<number | Buffer> | null {
-  // TODO: remove me
+export function decompile(buffer: Buffer | Array<number | Buffer>): Stack {
   if (chunksIsArray(buffer)) return buffer;
 
   typeforce(types.Buffer, buffer);
@@ -130,11 +127,11 @@ export function decompile(
       const d = pushdata.decode(buffer, i);
 
       // did reading a pushDataInt fail?
-      if (d === null) return null;
+      if (d === null) return [];
       i += d.size;
 
       // attempt to read too much data?
-      if (i + d.number > buffer.length) return null;
+      if (i + d.number > buffer.length) return [];
 
       const data = buffer.slice(i, i + d.number);
       i += d.number;
@@ -166,7 +163,7 @@ export function decompile(
  */
 export function toASM(chunks: Buffer | Array<number | Buffer>): string {
   if (chunksIsBuffer(chunks)) {
-    chunks = decompile(chunks) as Stack;
+    chunks = decompile(chunks);
   }
 
   return chunks
@@ -211,7 +208,7 @@ export function fromASM(asm: string): Buffer {
  * @returns The stack of buffers.
  */
 export function toStack(chunks: Buffer | Array<number | Buffer>): Buffer[] {
-  chunks = decompile(chunks) as Stack;
+  chunks = decompile(chunks);
   typeforce(isPushOnly, chunks);
 
   return chunks.map(op => {

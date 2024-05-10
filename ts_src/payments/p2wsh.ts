@@ -183,8 +183,7 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
       // is the redeem output non-empty/valid?
       if (a.redeem.output) {
         const decompile = bscript.decompile(a.redeem.output);
-        if (!decompile || decompile.length < 1)
-          throw new TypeError('Redeem.output is invalid');
+        if (!decompile.length) throw new TypeError('Redeem.output is invalid');
         if (a.redeem.output.byteLength > 3600)
           throw new TypeError(
             'Redeem.output unspendable if larger than 3600 bytes',
@@ -212,9 +211,7 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
       if (
         (a.redeem.input && _rchunks().some(chunkHasUncompressedPubkey)) ||
         (a.redeem.output &&
-          (bscript.decompile(a.redeem.output) || []).some(
-            chunkHasUncompressedPubkey,
-          ))
+          bscript.decompile(a.redeem.output).some(chunkHasUncompressedPubkey))
       ) {
         throw new TypeError(
           'redeem.input or redeem.output contains uncompressed pubkey',
@@ -228,7 +225,7 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
         throw new TypeError('Witness and redeem.output mismatch');
       if (
         a.witness.some(chunkHasUncompressedPubkey) ||
-        (bscript.decompile(wScript) || []).some(chunkHasUncompressedPubkey)
+        bscript.decompile(wScript).some(chunkHasUncompressedPubkey)
       )
         throw new TypeError('Witness contains uncompressed pubkey');
     }

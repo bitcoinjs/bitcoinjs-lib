@@ -55,7 +55,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
   function decode(output: Buffer | Stack): void {
     if (decoded) return;
     decoded = true;
-    chunks = bscript.decompile(output) as Stack;
+    chunks = bscript.decompile(output);
     o.m = (chunks[0] as number) - OP_INT_BASE;
     o.n = (chunks[chunks.length - 2] as number) - OP_INT_BASE;
     o.pubkeys = chunks.slice(1, -2) as Buffer[];
@@ -90,7 +90,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
   });
   lazy.prop(o, 'signatures', () => {
     if (!a.input) return;
-    return bscript.decompile(a.input)!.slice(1);
+    return bscript.decompile(a.input).slice(1);
   });
   lazy.prop(o, 'input', () => {
     if (!a.signatures) return;

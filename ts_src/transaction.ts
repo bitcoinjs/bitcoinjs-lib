@@ -284,7 +284,7 @@ export class Transaction {
 
     // ignore OP_CODESEPARATOR
     const ourScript = bscript.compile(
-      bscript.decompile(prevOutScript)!.filter(x => {
+      bscript.decompile(prevOutScript).filter(x => {
         return x !== opcodes.OP_CODESEPARATOR;
       }),
     );

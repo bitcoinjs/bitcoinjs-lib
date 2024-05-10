@@ -138,7 +138,7 @@ function p2sh(a, opts) {
       // is the redeem output empty/invalid?
       if (redeem.output) {
         const decompile = bscript.decompile(redeem.output);
-        if (!decompile || decompile.length < 1)
+        if (decompile.length < 1)
           throw new TypeError('Redeem.output too short');
         if (redeem.output.byteLength > 520)
           throw new TypeError(

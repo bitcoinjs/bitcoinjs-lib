@@ -230,7 +230,7 @@ function p2tr(a, opts) {
           throw new TypeError('Redeem.redeemVersion and witness mismatch');
       }
       if (a.redeem.output) {
-        if (bscript.decompile(a.redeem.output).length === 0)
+        if (!bscript.decompile(a.redeem.output).length)
           throw new TypeError('Redeem.output is invalid');
         // output redeem is constructed from the witness
         if (o.redeem.output && !a.redeem.output.equals(o.redeem.output))
