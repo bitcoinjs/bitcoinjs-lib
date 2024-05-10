@@ -105,7 +105,10 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
   lazy.prop(o, 'input', () => {
     if (!a.redeem || !a.redeem.input || !a.redeem.output) return;
     return bscript.compile(
-      ([] as Stack).concat(bscript.decompile(a.redeem.input), a.redeem.output),
+      ([] as Stack).concat(
+        bscript.decompile(a.redeem.input) as Stack,
+        a.redeem.output,
+      ),
     );
   });
   lazy.prop(o, 'witness', () => {
@@ -154,7 +157,7 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
       // is the redeem output empty/invalid?
       if (redeem.output) {
         const decompile = bscript.decompile(redeem.output);
-        if (decompile.length < 1)
+        if (!decompile || decompile.length < 1)
           throw new TypeError('Redeem.output too short');
         if (redeem.output.byteLength > 520)
           throw new TypeError(
@@ -179,7 +182,7 @@ export function p2sh(a: Payment, opts?: PaymentOpts): Payment {
         if (hasInput && hasWitness)
           throw new TypeError('Input and witness provided');
         if (hasInput) {
-          const richunks = bscript.decompile(redeem.input);
+          const richunks = bscript.decompile(redeem.input) as Stack;
           if (!bscript.isPushOnly(richunks))
             throw new TypeError('Non push-only scriptSig');
         }

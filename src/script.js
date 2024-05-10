@@ -115,6 +115,7 @@ function compile(chunks) {
 }
 exports.compile = compile;
 function decompile(buffer) {
+  // TODO: remove me
   if (chunksIsArray(buffer)) return buffer;
   typeforce(types.Buffer, buffer);
   const chunks = [];
@@ -125,10 +126,10 @@ function decompile(buffer) {
     if (opcode > ops_1.OPS.OP_0 && opcode <= ops_1.OPS.OP_PUSHDATA4) {
       const d = pushdata.decode(buffer, i);
       // did reading a pushDataInt fail?
-      if (d === null) return [];
+      if (d === null) return null;
       i += d.size;
       // attempt to read too much data?
-      if (i + d.number > buffer.length) return [];
+      if (i + d.number > buffer.length) return null;
       const data = buffer.slice(i, i + d.number);
       i += d.number;
       // decompile minimally

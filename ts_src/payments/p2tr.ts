@@ -252,7 +252,7 @@ export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
       }
 
       if (a.redeem.output) {
-        if (!bscript.decompile(a.redeem.output).length)
+        if (bscript.decompile(a.redeem.output)!.length === 0)
           throw new TypeError('Redeem.output is invalid');
 
         // output redeem is constructed from the witness

@@ -14,7 +14,7 @@ export declare function countNonPushOnlyOPs(value: Stack): number;
  * @throws Error if the compilation fails.
  */
 export declare function compile(chunks: Buffer | Stack): Buffer;
-export declare function decompile(buffer: Buffer | Array<number | Buffer>): Stack;
+export declare function decompile(buffer: Buffer | Array<number | Buffer>): Array<number | Buffer> | null;
 /**
  * Converts the given chunks into an ASM (Assembly) string representation.
  * If the chunks parameter is a Buffer, it will be decompiled into a Stack before conversion.

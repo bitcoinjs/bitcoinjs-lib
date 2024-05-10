@@ -36,15 +36,16 @@ export function p2data(a: Payment, opts?: PaymentOpts): Payment {
   });
   lazy.prop(o, 'data', () => {
     if (!a.output) return;
-    return bscript.decompile(a.output).slice(1);
+    return bscript.decompile(a.output)!.slice(1);
   });
 
   // extended validation
   if (opts.validate) {
     if (a.output) {
       const chunks = bscript.decompile(a.output);
-      if (chunks[0] !== OPS.OP_RETURN) throw new TypeError('Output is invalid');
-      if (!chunks.slice(1).every(typef.Buffer))
+      if (chunks![0] !== OPS.OP_RETURN)
+        throw new TypeError('Output is invalid');
+      if (!chunks!.slice(1).every(typef.Buffer))
         throw new TypeError('Output is invalid');
 
       if (a.data && !stacksEqual(a.data, o.data as Buffer[]))

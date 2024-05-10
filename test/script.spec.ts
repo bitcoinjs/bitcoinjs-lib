@@ -158,7 +158,7 @@ describe('script', () => {
         () => {
           const chunks = bscript.decompile(Buffer.from(f.script, 'hex'));
 
-          assert.deepStrictEqual(chunks, []);
+          assert.strictEqual(chunks, null);
         },
       );
     });
