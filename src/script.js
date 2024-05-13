@@ -158,6 +158,9 @@ function toASM(chunks) {
   if (chunksIsBuffer(chunks)) {
     chunks = decompile(chunks);
   }
+  if (!chunks) {
+    throw new Error('convert invalid chunks to ASM');
+  }
   return chunks
     .map(chunk => {
       // data?

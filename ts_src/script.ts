@@ -168,7 +168,9 @@ export function toASM(chunks: Buffer | Array<number | Buffer>): string {
   if (chunksIsBuffer(chunks)) {
     chunks = decompile(chunks) as Stack;
   }
-
+  if (!chunks) {
+    throw new Error('convert invalid chunks to ASM');
+  }
   return chunks
     .map(chunk => {
       // data?
