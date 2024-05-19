@@ -1,4 +1,143 @@
-const OPS: { [key: string]: number } = {
+export interface Opcodes {
+  readonly OP_FALSE: number;
+  readonly OP_0: number;
+  readonly OP_PUSHDATA1: number;
+  readonly OP_PUSHDATA2: number;
+  readonly OP_PUSHDATA4: number;
+  readonly OP_1NEGATE: number;
+  readonly OP_RESERVED: number;
+  readonly OP_TRUE: number;
+  readonly OP_1: number;
+  readonly OP_2: number;
+  readonly OP_3: number;
+  readonly OP_4: number;
+  readonly OP_5: number;
+  readonly OP_6: number;
+  readonly OP_7: number;
+  readonly OP_8: number;
+  readonly OP_9: number;
+  readonly OP_10: number;
+  readonly OP_11: number;
+  readonly OP_12: number;
+  readonly OP_13: number;
+  readonly OP_14: number;
+  readonly OP_15: number;
+  readonly OP_16: number;
+
+  // control
+  readonly OP_NOP: number;
+  readonly OP_VER: number;
+  readonly OP_IF: number;
+  readonly OP_NOTIF: number;
+  readonly OP_VERIF: number;
+  readonly OP_VERNOTIF: number;
+  readonly OP_ELSE: number;
+  readonly OP_ENDIF: number;
+  readonly OP_VERIFY: number;
+  readonly OP_RETURN: number;
+
+  // stack ops
+  readonly OP_TOALTSTACK: number;
+  readonly OP_FROMALTSTACK: number;
+  readonly OP_2DROP: number;
+  readonly OP_2DUP: number;
+  readonly OP_3DUP: number;
+  readonly OP_2OVER: number;
+  readonly OP_2ROT: number;
+  readonly OP_2SWAP: number;
+  readonly OP_IFDUP: number;
+  readonly OP_DEPTH: number;
+  readonly OP_DROP: number;
+  readonly OP_DUP: number;
+  readonly OP_NIP: number;
+  readonly OP_OVER: number;
+  readonly OP_PICK: number;
+  readonly OP_ROLL: number;
+  readonly OP_ROT: number;
+  readonly OP_SWAP: number;
+  readonly OP_TUCK: number;
+
+  // splice ops
+  readonly OP_CAT: number;
+  readonly OP_SUBSTR: number;
+  readonly OP_LEFT: number;
+  readonly OP_RIGHT: number;
+  readonly OP_SIZE: number;
+
+  // bit logic
+  readonly OP_INVERT: number;
+  readonly OP_AND: number;
+  readonly OP_OR: number;
+  readonly OP_XOR: number;
+  readonly OP_EQUAL: number;
+  readonly OP_EQUALVERIFY: number;
+  readonly OP_RESERVED1: number;
+  readonly OP_RESERVED2: number;
+
+  // numeric
+  readonly OP_1ADD: number;
+  readonly OP_1SUB: number;
+  readonly OP_2MUL: number;
+  readonly OP_2DIV: number;
+  readonly OP_NEGATE: number;
+  readonly OP_ABS: number;
+  readonly OP_NOT: number;
+  readonly OP_0NOTEQUAL: number;
+  readonly OP_ADD: number;
+  readonly OP_SUB: number;
+  readonly OP_MUL: number;
+  readonly OP_DIV: number;
+  readonly OP_MOD: number;
+  readonly OP_LSHIFT: number;
+  readonly OP_RSHIFT: number;
+  readonly OP_BOOLAND: number;
+  readonly OP_BOOLOR: number;
+  readonly OP_NUMEQUAL: number;
+  readonly OP_NUMEQUALVERIFY: number;
+  readonly OP_NUMNOTEQUAL: number;
+  readonly OP_LESSTHAN: number;
+  readonly OP_GREATERTHAN: number;
+  readonly OP_LESSTHANOREQUAL: number;
+  readonly OP_GREATERTHANOREQUAL: number;
+  readonly OP_MIN: number;
+  readonly OP_MAX: number;
+  readonly OP_WITHIN: number;
+
+  // crypto
+  readonly OP_RIPEMD160: number;
+  readonly OP_SHA1: number;
+  readonly OP_SHA256: number;
+  readonly OP_HASH160: number;
+  readonly OP_HASH256: number;
+  readonly OP_CODESEPARATOR: number;
+  readonly OP_CHECKSIG: number;
+  readonly OP_CHECKSIGVERIFY: number;
+  readonly OP_CHECKMULTISIG: number;
+  readonly OP_CHECKMULTISIGVERIFY: number;
+  readonly OP_CHECKLOCKTIMEVERIFY: number;
+  readonly OP_CHECKSEQUENCEVERIFY: number;
+
+  readonly OP_CHECKSIGADD: number;
+
+  // expansion
+  readonly OP_NOP1: number;
+  readonly OP_NOP2: number;
+  readonly OP_NOP3: number;
+  readonly OP_NOP4: number;
+  readonly OP_NOP5: number;
+  readonly OP_NOP6: number;
+  readonly OP_NOP7: number;
+  readonly OP_NOP8: number;
+  readonly OP_NOP9: number;
+  readonly OP_NOP10: number;
+
+  // template matching params
+  readonly OP_PUBKEYHASH: number;
+  readonly OP_PUBKEY: number;
+  readonly OP_INVALIDOPCODE: number;
+}
+
+const OPS: Opcodes = {
   OP_FALSE: 0,
   OP_0: 0,
   OP_PUSHDATA1: 76,
@@ -134,10 +273,12 @@ const OPS: { [key: string]: number } = {
   OP_INVALIDOPCODE: 255,
 };
 
-const REVERSE_OPS: { [key: number]: string } = {};
-for (const op of Object.keys(OPS)) {
-  const code = OPS[op];
-  REVERSE_OPS[code] = op;
-}
+type ReverseOpcodes = {
+  [K in keyof Opcodes as Opcodes[K]]: K;
+};
+
+const REVERSE_OPS: ReverseOpcodes = Object.fromEntries(
+  Object.entries(OPS).map(([key, value]) => [value, key])
+) as ReverseOpcodes;
 
 export { OPS, REVERSE_OPS };
