@@ -54,3 +54,22 @@ export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, p2tr };
 
 // TODO
 // witness commitment
+
+function isPaymentFactory(payment: any): (script: Buffer) => boolean {
+  return (script: Buffer): boolean => {
+    try {
+      payment({ output: script });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+}
+
+export const isP2MS = isPaymentFactory(p2ms);
+export const isP2PK = isPaymentFactory(p2pk);
+export const isP2PKH = isPaymentFactory(p2pkh);
+export const isP2WPKH = isPaymentFactory(p2wpkh);
+export const isP2WSHScript = isPaymentFactory(p2wsh);
+export const isP2SHScript = isPaymentFactory(p2sh);
+export const isP2TR = isPaymentFactory(p2tr);

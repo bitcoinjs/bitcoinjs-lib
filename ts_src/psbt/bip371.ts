@@ -12,20 +12,19 @@ import {
 import { Transaction } from '../transaction';
 
 import {
-  witnessStackToScriptWitness,
-  pubkeyPositionInScript,
-  isP2TR,
-} from './psbtutils';
-import {
   tweakKey,
   tapleafHash,
   rootHashFromPath,
   LEAF_VERSION_TAPSCRIPT,
   MAX_TAPTREE_DEPTH,
 } from '../payments/bip341';
-import { p2tr } from '../payments';
+import { isP2TR, p2tr } from '../payments';
 
-import { signatureBlocksAction } from './psbtutils';
+import {
+  pubkeyPositionInScript,
+  witnessStackToScriptWitness,
+} from './input/script';
+import { signatureBlocksAction } from './global/sign';
 
 export const toXOnly = (pubKey: Buffer) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);

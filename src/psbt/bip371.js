@@ -14,10 +14,10 @@ exports.checkTaprootInputForSigs =
     void 0;
 const types_1 = require('../types');
 const transaction_1 = require('../transaction');
-const psbtutils_1 = require('./psbtutils');
 const bip341_1 = require('../payments/bip341');
 const payments_1 = require('../payments');
-const psbtutils_2 = require('./psbtutils');
+const script_1 = require('./input/script');
+const sign_1 = require('./global/sign');
 const toXOnly = pubKey => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 exports.toXOnly = toXOnly;
 /**
@@ -39,7 +39,7 @@ function tapScriptFinalizer(inputIndex, input, tapLeafHashToFinalize) {
     const sigs = sortSignatures(input, tapLeaf);
     const witness = sigs.concat(tapLeaf.script).concat(tapLeaf.controlBlock);
     return {
-      finalScriptWitness: (0, psbtutils_1.witnessStackToScriptWitness)(witness),
+      finalScriptWitness: (0, script_1.witnessStackToScriptWitness)(witness),
     };
   } catch (err) {
     throw new Error(`Can not finalize taproot input #${inputIndex}: ${err}`);
@@ -61,7 +61,7 @@ function isTaprootInput(input) {
       input.tapMerkleRoot ||
       (input.tapLeafScript && input.tapLeafScript.length) ||
       (input.tapBip32Derivation && input.tapBip32Derivation.length) ||
-      (input.witnessUtxo && (0, psbtutils_1.isP2TR)(input.witnessUtxo.script))
+      (input.witnessUtxo && (0, payments_1.isP2TR)(input.witnessUtxo.script))
     )
   );
 }
@@ -73,7 +73,7 @@ function isTaprootOutput(output, script) {
       output.tapInternalKey ||
       output.tapTree ||
       (output.tapBip32Derivation && output.tapBip32Derivation.length) ||
-      (script && (0, psbtutils_1.isP2TR)(script))
+      (script && (0, payments_1.isP2TR)(script))
     )
   );
 }
@@ -158,7 +158,7 @@ exports.tapTreeFromList = tapTreeFromList;
 function checkTaprootInputForSigs(input, action) {
   const sigs = extractTaprootSigs(input);
   return sigs.some(sig =>
-    (0, psbtutils_2.signatureBlocksAction)(sig, decodeSchnorrSignature, action),
+    (0, sign_1.signatureBlocksAction)(sig, decodeSchnorrSignature, action),
   );
 }
 exports.checkTaprootInputForSigs = checkTaprootInputForSigs;
@@ -340,7 +340,7 @@ function sortSignatures(input, tapLeaf) {
 function addPubkeyPositionInScript(script, tss) {
   return Object.assign(
     {
-      positionInScript: (0, psbtutils_1.pubkeyPositionInScript)(
+      positionInScript: (0, script_1.pubkeyPositionInScript)(
         tss.pubkey,
         script,
       ),

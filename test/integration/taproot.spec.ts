@@ -9,7 +9,7 @@ import * as bitcoin from '../..';
 import { Taptree } from '../../src/types';
 import { LEAF_VERSION_TAPSCRIPT } from '../../src/payments/bip341';
 import { toXOnly, tapTreeToList, tapTreeFromList } from '../../src/psbt/bip371';
-import { witnessStackToScriptWitness } from '../../src/psbt/psbtutils';
+import { witnessStackToScriptWitness } from '../../src/psbt/input/script';
 
 const rng = require('randombytes');
 const regtest = regtestUtils.network;
