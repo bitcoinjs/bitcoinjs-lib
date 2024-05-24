@@ -12,7 +12,7 @@
     "bitcoin",
     "browserify",
     "javascript",
-    "bitcoinjs"
+    "bitcoinjs-lib"
   ],
   "scripts": {
     "audit": "better-npm-audit audit -l high",
