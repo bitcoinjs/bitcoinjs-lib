@@ -1,3 +1,9 @@
+# 6.1.6
+__fixed__
+- Fix sighash treatment when signing taproot script sign scripts using Psbt (#2104)
+- Fix error for invalid scripts in toASM (#2097)
+- Fix mutation of input to addOutput method on Psbt (#2091)
+
 # 6.1.5
 __fixed__
 - Updated bip174 dependency to fix issue with unknownKeyVals. (#1979)
