@@ -9,9 +9,18 @@ const ecc_lib_1 = require('../ecc_lib');
 const bip341_1 = require('./bip341');
 const lazy = require('./lazy');
 const bech32_1 = require('bech32');
+const address_1 = require('../address');
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
+/**
+ * Creates a Pay-to-Taproot (P2TR) payment object.
+ *
+ * @param a - The payment object containing the necessary data for P2TR.
+ * @param opts - Optional payment options.
+ * @returns The P2TR payment object.
+ * @throws {TypeError} If the provided data is invalid or insufficient.
+ */
 function p2tr(a, opts) {
   if (
     !a.address &&
@@ -53,14 +62,7 @@ function p2tr(a, opts) {
     a,
   );
   const _address = lazy.value(() => {
-    const result = bech32_1.bech32m.decode(a.address);
-    const version = result.words.shift();
-    const data = bech32_1.bech32m.fromWords(result.words);
-    return {
-      version,
-      prefix: result.prefix,
-      data: buffer_1.Buffer.from(data),
-    };
+    return (0, address_1.fromBech32)(a.address);
   });
   // remove annex if present, ignored by taproot
   const _witness = lazy.value(() => {
@@ -237,7 +239,7 @@ function p2tr(a, opts) {
       if (a.redeem.witness) {
         if (
           o.redeem.witness &&
-          !stacksEqual(a.redeem.witness, o.redeem.witness)
+          !(0, types_1.stacksEqual)(a.redeem.witness, o.redeem.witness)
         )
           throw new TypeError('Redeem.witness and witness mismatch');
       }
@@ -289,9 +291,3 @@ function p2tr(a, opts) {
   return Object.assign(o, a);
 }
 exports.p2tr = p2tr;
-function stacksEqual(a, b) {
-  if (a.length !== b.length) return false;
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}

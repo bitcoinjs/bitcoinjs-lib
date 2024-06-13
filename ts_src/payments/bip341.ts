@@ -34,6 +34,13 @@ const isHashBranch = (ht: HashTree): ht is HashBranch =>
  */
 export type HashTree = HashLeaf | HashBranch;
 
+/**
+ * Calculates the root hash from a given control block and leaf hash.
+ * @param controlBlock - The control block buffer.
+ * @param leafHash - The leaf hash buffer.
+ * @returns The root hash buffer.
+ * @throws {TypeError} If the control block length is less than 33.
+ */
 export function rootHashFromPath(
   controlBlock: Buffer,
   leafHash: Buffer,

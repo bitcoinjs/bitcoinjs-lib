@@ -14,6 +14,10 @@ exports.signature =
   exports.isPushOnly =
   exports.OPS =
     void 0;
+/**
+ * Script tools, including decompile, compile, toASM, fromASM, toStack, isCanonicalPubKey, isCanonicalScriptSignature
+ * @packageDocumentation
+ */
 const bip66 = require('./bip66');
 const ops_1 = require('./ops');
 Object.defineProperty(exports, 'OPS', {
@@ -62,6 +66,13 @@ function chunksIsArray(buf) {
 function singleChunkIsBuffer(buf) {
   return Buffer.isBuffer(buf);
 }
+/**
+ * Compiles an array of chunks into a Buffer.
+ *
+ * @param chunks - The array of chunks to compile.
+ * @returns The compiled Buffer.
+ * @throws Error if the compilation fails.
+ */
 function compile(chunks) {
   // TODO: remove me
   if (chunksIsBuffer(chunks)) return chunks;
@@ -137,9 +148,18 @@ function decompile(buffer) {
   return chunks;
 }
 exports.decompile = decompile;
+/**
+ * Converts the given chunks into an ASM (Assembly) string representation.
+ * If the chunks parameter is a Buffer, it will be decompiled into a Stack before conversion.
+ * @param chunks - The chunks to convert into ASM.
+ * @returns The ASM string representation of the chunks.
+ */
 function toASM(chunks) {
   if (chunksIsBuffer(chunks)) {
     chunks = decompile(chunks);
+  }
+  if (!chunks) {
+    throw new Error('Could not convert invalid chunks to ASM');
   }
   return chunks
     .map(chunk => {
@@ -155,6 +175,11 @@ function toASM(chunks) {
     .join(' ');
 }
 exports.toASM = toASM;
+/**
+ * Converts an ASM string to a Buffer.
+ * @param asm The ASM string to convert.
+ * @returns The converted Buffer.
+ */
 function fromASM(asm) {
   typeforce(types.String, asm);
   return compile(
@@ -168,6 +193,12 @@ function fromASM(asm) {
   );
 }
 exports.fromASM = fromASM;
+/**
+ * Converts the given chunks into a stack of buffers.
+ *
+ * @param chunks - The chunks to convert.
+ * @returns The stack of buffers.
+ */
 function toStack(chunks) {
   chunks = decompile(chunks);
   typeforce(isPushOnly, chunks);

@@ -1,8 +1,14 @@
 import * as bip66 from './bip66';
+import { isDefinedHashType } from './script';
 import * as types from './types';
 const { typeforce } = types;
 
 const ZERO = Buffer.alloc(1, 0);
+/**
+ * Converts a buffer to a DER-encoded buffer.
+ * @param x - The buffer to be converted.
+ * @returns The DER-encoded buffer.
+ */
 function toDER(x: Buffer): Buffer {
   let i = 0;
   while (x[i] === 0) ++i;
@@ -12,6 +18,13 @@ function toDER(x: Buffer): Buffer {
   return x;
 }
 
+/**
+ * Converts a DER-encoded signature to a buffer.
+ * If the first byte of the input buffer is 0x00, it is skipped.
+ * The resulting buffer is 32 bytes long, filled with zeros if necessary.
+ * @param x - The DER-encoded signature.
+ * @returns The converted buffer.
+ */
 function fromDER(x: Buffer): Buffer {
   if (x[0] === 0x00) x = x.slice(1);
   const buffer = Buffer.alloc(32, 0);
@@ -26,11 +39,17 @@ interface ScriptSignature {
 }
 
 // BIP62: 1 byte hashType flag (only 0x01, 0x02, 0x03, 0x81, 0x82 and 0x83 are allowed)
+/**
+ * Decodes a buffer into a ScriptSignature object.
+ * @param buffer - The buffer to decode.
+ * @returns The decoded ScriptSignature object.
+ * @throws Error if the hashType is invalid.
+ */
 export function decode(buffer: Buffer): ScriptSignature {
   const hashType = buffer.readUInt8(buffer.length - 1);
-  const hashTypeMod = hashType & ~0x80;
-  if (hashTypeMod <= 0 || hashTypeMod >= 4)
+  if (!isDefinedHashType(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
+  }
 
   const decoded = bip66.decode(buffer.slice(0, -1));
   const r = fromDER(decoded.r);
@@ -40,6 +59,13 @@ export function decode(buffer: Buffer): ScriptSignature {
   return { signature, hashType };
 }
 
+/**
+ * Encodes a signature and hash type into a buffer.
+ * @param signature - The signature to encode.
+ * @param hashType - The hash type to encode.
+ * @returns The encoded buffer.
+ * @throws Error if the hashType is invalid.
+ */
 export function encode(signature: Buffer, hashType: number): Buffer {
   typeforce(
     {
@@ -49,9 +75,9 @@ export function encode(signature: Buffer, hashType: number): Buffer {
     { signature, hashType },
   );
 
-  const hashTypeMod = hashType & ~0x80;
-  if (hashTypeMod <= 0 || hashTypeMod >= 4)
+  if (!isDefinedHashType(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
+  }
 
   const hashTypeBuffer = Buffer.allocUnsafe(1);
   hashTypeBuffer.writeUInt8(hashType, 0);

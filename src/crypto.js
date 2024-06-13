@@ -9,6 +9,12 @@ exports.taggedHash =
   exports.sha1 =
   exports.ripemd160 =
     void 0;
+/**
+ * A module for hashing functions.
+ * include ripemd160、sha1、sha256、hash160、hash256、taggedHash
+ *
+ * @packageDocumentation
+ */
 const ripemd160_1 = require('@noble/hashes/ripemd160');
 const sha1_1 = require('@noble/hashes/sha1');
 const sha256_1 = require('@noble/hashes/sha256');
@@ -48,6 +54,9 @@ exports.TAGS = [
   'KeyAgg coefficient',
 ];
 /** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
+/**
+ * Defines the tagged hash prefixes used in the crypto module.
+ */
 exports.TAGGED_HASH_PREFIXES = {
   'BIP0340/challenge': Buffer.from([
     123, 181, 45, 122, 159, 239, 88, 50, 62, 177, 191, 122, 64, 125, 179, 130,

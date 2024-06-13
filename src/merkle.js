@@ -1,6 +1,14 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.fastMerkleRoot = void 0;
+/**
+ * Calculates the Merkle root of an array of buffers using a specified digest function.
+ *
+ * @param values - The array of buffers.
+ * @param digestFn - The digest function used to calculate the hash of the concatenated buffers.
+ * @returns The Merkle root as a buffer.
+ * @throws {TypeError} If the values parameter is not an array or the digestFn parameter is not a function.
+ */
 function fastMerkleRoot(values, digestFn) {
   if (!Array.isArray(values)) throw TypeError('Expected values Array');
   if (typeof digestFn !== 'function')

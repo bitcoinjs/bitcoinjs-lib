@@ -1,20 +1,19 @@
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { typeforce as typef } from '../types';
+import { typeforce as typef, stacksEqual } from '../types';
 import { Payment, PaymentOpts, Stack } from './index';
 import * as lazy from './lazy';
 
 const OPS = bscript.OPS;
 
-function stacksEqual(a: Buffer[], b: Buffer[]): boolean {
-  if (a.length !== b.length) return false;
-
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}
-
 // output: OP_RETURN ...
+/**
+ * Embeds data in a Bitcoin payment.
+ * @param a - The payment object.
+ * @param opts - Optional payment options.
+ * @returns The modified payment object.
+ * @throws {TypeError} If there is not enough data or if the output is invalid.
+ */
 export function p2data(a: Payment, opts?: PaymentOpts): Payment {
   if (!a.data && !a.output) throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});

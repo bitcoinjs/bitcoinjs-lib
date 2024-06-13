@@ -7,14 +7,15 @@ const types_1 = require('../types');
 const lazy = require('./lazy');
 const OPS = bscript.OPS;
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
-function stacksEqual(a, b) {
-  if (a.length !== b.length) return false;
-  return a.every((x, i) => {
-    return x.equals(b[i]);
-  });
-}
 // input: OP_0 [signatures ...]
 // output: m [pubKeys ...] n OP_CHECKMULTISIG
+/**
+ * Represents a function that creates a Pay-to-Multisig (P2MS) payment object.
+ * @param a - The payment object.
+ * @param opts - Optional payment options.
+ * @returns The created payment object.
+ * @throws {TypeError} If the provided data is not valid.
+ */
 function p2ms(a, opts) {
   if (
     !a.input &&
@@ -117,7 +118,7 @@ function p2ms(a, opts) {
         throw new TypeError('Output is invalid');
       if (a.m !== undefined && a.m !== o.m) throw new TypeError('m mismatch');
       if (a.n !== undefined && a.n !== o.n) throw new TypeError('n mismatch');
-      if (a.pubkeys && !stacksEqual(a.pubkeys, o.pubkeys))
+      if (a.pubkeys && !(0, types_1.stacksEqual)(a.pubkeys, o.pubkeys))
         throw new TypeError('Pubkeys mismatch');
     }
     if (a.pubkeys) {
@@ -139,7 +140,7 @@ function p2ms(a, opts) {
         !o.signatures.every(isAcceptableSignature)
       )
         throw new TypeError('Input has invalid signature(s)');
-      if (a.signatures && !stacksEqual(a.signatures, o.signatures))
+      if (a.signatures && !(0, types_1.stacksEqual)(a.signatures, o.signatures))
         throw new TypeError('Signature mismatch');
       if (a.m !== undefined && a.m !== a.signatures.length)
         throw new TypeError('Signature count mismatch');

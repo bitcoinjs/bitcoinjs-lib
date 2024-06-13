@@ -20,13 +20,9 @@ exports.oneOf =
   exports.isTaptree =
   exports.isTapleaf =
   exports.TAPLEAF_VERSION_MASK =
-  exports.Network =
-  exports.ECPoint =
   exports.Satoshi =
-  exports.Signer =
-  exports.BIP32Path =
-  exports.UInt31 =
   exports.isPoint =
+  exports.stacksEqual =
   exports.typeforce =
     void 0;
 const buffer_1 = require('buffer');
@@ -36,6 +32,24 @@ const EC_P = buffer_1.Buffer.from(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
   'hex',
 );
+/**
+ * Checks if two arrays of Buffers are equal.
+ * @param a - The first array of Buffers.
+ * @param b - The second array of Buffers.
+ * @returns True if the arrays are equal, false otherwise.
+ */
+function stacksEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((x, i) => {
+    return x.equals(b[i]);
+  });
+}
+exports.stacksEqual = stacksEqual;
+/**
+ * Checks if the given value is a valid elliptic curve point.
+ * @param p - The value to check.
+ * @returns True if the value is a valid elliptic curve point, false otherwise.
+ */
 function isPoint(p) {
   if (!buffer_1.Buffer.isBuffer(p)) return false;
   if (p.length < 33) return false;
@@ -53,49 +67,11 @@ function isPoint(p) {
   return false;
 }
 exports.isPoint = isPoint;
-const UINT31_MAX = Math.pow(2, 31) - 1;
-function UInt31(value) {
-  return exports.typeforce.UInt32(value) && value <= UINT31_MAX;
-}
-exports.UInt31 = UInt31;
-function BIP32Path(value) {
-  return (
-    exports.typeforce.String(value) && !!value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
-  );
-}
-exports.BIP32Path = BIP32Path;
-BIP32Path.toJSON = () => {
-  return 'BIP32 derivation path';
-};
-function Signer(obj) {
-  return (
-    (exports.typeforce.Buffer(obj.publicKey) ||
-      typeof obj.getPublicKey === 'function') &&
-    typeof obj.sign === 'function'
-  );
-}
-exports.Signer = Signer;
 const SATOSHI_MAX = 21 * 1e14;
 function Satoshi(value) {
   return exports.typeforce.UInt53(value) && value <= SATOSHI_MAX;
 }
 exports.Satoshi = Satoshi;
-// external dependent types
-exports.ECPoint = exports.typeforce.quacksLike('Point');
-// exposed, external API
-exports.Network = exports.typeforce.compile({
-  messagePrefix: exports.typeforce.oneOf(
-    exports.typeforce.Buffer,
-    exports.typeforce.String,
-  ),
-  bip32: {
-    public: exports.typeforce.UInt32,
-    private: exports.typeforce.UInt32,
-  },
-  pubKeyHash: exports.typeforce.UInt8,
-  scriptHash: exports.typeforce.UInt8,
-  wif: exports.typeforce.UInt8,
-});
 exports.TAPLEAF_VERSION_MASK = 0xfe;
 function isTapleaf(o) {
   if (!o || !('output' in o)) return false;

@@ -38,6 +38,9 @@ const BLANK_OUTPUT = {
 function isOutput(out) {
   return out.value !== undefined;
 }
+/**
+ * Represents a Bitcoin transaction.
+ */
 class Transaction {
   constructor() {
     this.version = 1;

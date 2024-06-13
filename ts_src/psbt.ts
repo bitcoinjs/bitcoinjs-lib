@@ -156,7 +156,7 @@ export class Psbt {
       __NON_WITNESS_UTXO_BUF_CACHE: [],
       __TX_IN_CACHE: {},
       __TX: (this.data.globalMap.unsignedTx as PsbtTransaction).tx,
-      // Psbt's predecesor (TransactionBuilder - now removed) behavior
+      // Psbt's predecessor (TransactionBuilder - now removed) behavior
       // was to not confirm input values  before signing.
       // Even though we highly encourage people to get
       // the full parent transaction to verify values, the ability to
@@ -331,7 +331,7 @@ export class Psbt {
     if (typeof address === 'string') {
       const { network } = this.opts;
       const script = toOutputScript(address, network);
-      outputData = Object.assign(outputData, { script });
+      outputData = Object.assign({}, outputData, { script });
     }
     checkTaprootOutputFields(outputData, outputData, 'addOutput');
 
@@ -1678,7 +1678,7 @@ function getHashForSig(
       console.warn(
         'Warning: Signing non-segwit inputs without the full parent transaction ' +
           'means there is a chance that a miner could feed you incorrect information ' +
-          "to trick you into paying large fees. This behavior is the same as Psbt's predecesor " +
+          "to trick you into paying large fees. This behavior is the same as Psbt's predecessor " +
           '(TransactionBuilder - now removed) when signing non-segwit scripts. You are not ' +
           'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
           'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
@@ -1789,7 +1789,7 @@ function getTaprootHashesForSig(
         inputIndex,
         signingScripts,
         values,
-        Transaction.SIGHASH_DEFAULT,
+        sighashType,
         tapLeaf.hash,
       );
 
