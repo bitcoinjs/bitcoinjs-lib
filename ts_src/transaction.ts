@@ -60,6 +60,9 @@ export interface Input {
   witness: Buffer[];
 }
 
+/**
+ * Represents a Bitcoin transaction.
+ */
 export class Transaction {
   static readonly DEFAULT_SEQUENCE = 0xffffffff;
   static readonly SIGHASH_DEFAULT = 0x00;

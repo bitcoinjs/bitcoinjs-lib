@@ -25,6 +25,14 @@ const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
 
+/**
+ * Creates a Pay-to-Taproot (P2TR) payment object.
+ *
+ * @param a - The payment object containing the necessary data for P2TR.
+ * @param opts - Optional payment options.
+ * @returns The P2TR payment object.
+ * @throws {TypeError} If the provided data is invalid or insufficient.
+ */
 export function p2tr(a: Payment, opts?: PaymentOpts): Payment {
   if (
     !a.address &&

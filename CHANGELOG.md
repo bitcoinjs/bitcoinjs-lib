@@ -1,3 +1,9 @@
+# 6.1.6
+__fixed__
+- Fix sighash treatment when signing taproot script sign scripts using Psbt (#2104)
+- Fix error for invalid scripts in toASM (#2097)
+- Fix mutation of input to addOutput method on Psbt (#2091)
+
 # 6.1.5
 __fixed__
 - Updated bip174 dependency to fix issue with unknownKeyVals. (#1979)
@@ -331,8 +337,8 @@ Ideally you shoud not have to directly access `HDNode` internals for general usa
 
 __added__
 - `ECPair.prototype.getNetwork`
-- `HDNode.prototype.getNetwork`, wraps the underyling keyPair's `getNetwork` method
-- `HDNode.prototype.getPublicKeyBuffer`, wraps the underyling keyPair's `getPublicKeyBuffer` method
+- `HDNode.prototype.getNetwork`, wraps the underlying keyPair's `getNetwork` method
+- `HDNode.prototype.getPublicKeyBuffer`, wraps the underlying keyPair's `getPublicKeyBuffer` method
 - `HDNode.prototype.sign`, wraps the underlying keyPair's `sign` method
 - `HDNode.prototype.verify`, wraps the underlying keyPair's `verify` method
 

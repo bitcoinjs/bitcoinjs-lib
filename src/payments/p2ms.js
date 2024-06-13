@@ -9,6 +9,13 @@ const OPS = bscript.OPS;
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 // input: OP_0 [signatures ...]
 // output: m [pubKeys ...] n OP_CHECKMULTISIG
+/**
+ * Represents a function that creates a Pay-to-Multisig (P2MS) payment object.
+ * @param a - The payment object.
+ * @param opts - Optional payment options.
+ * @returns The created payment object.
+ * @throws {TypeError} If the provided data is not valid.
+ */
 function p2ms(a, opts) {
   if (
     !a.input &&

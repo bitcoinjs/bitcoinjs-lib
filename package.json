@@ -1,6 +1,6 @@
 {
   "name": "bitcoinjs-lib",
-  "version": "6.1.5",
+  "version": "6.1.6",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -23,6 +23,7 @@
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
     "coverage": "npm run build && npm run nobuild:coverage",
+    "doc": "typedoc",
     "format": "npm run prettier -- --write",
     "formatjs": "npm run prettierjs -- --write",
     "format:ci": "npm run prettier -- --check && npm run prettierjs -- --check",
@@ -87,6 +88,7 @@
     "rimraf": "^2.6.3",
     "tiny-secp256k1": "^2.2.0",
     "ts-node": "^8.3.0",
+    "typedoc": "^0.25.1",
     "typescript": "^4.4.4"
   },
   "license": "MIT"

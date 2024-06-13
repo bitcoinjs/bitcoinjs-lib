@@ -10,6 +10,9 @@ type TaggedHashPrefixes = {
     [key in TaggedHashPrefix]: Buffer;
 };
 /** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
+/**
+ * Defines the tagged hash prefixes used in the crypto module.
+ */
 export declare const TAGGED_HASH_PREFIXES: TaggedHashPrefixes;
 export declare function taggedHash(prefix: TaggedHashPrefix, data: Buffer): Buffer;
 export {};

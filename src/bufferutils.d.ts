@@ -2,7 +2,20 @@
 import * as varuint from 'varuint-bitcoin';
 export { varuint };
 export declare function readUInt64LE(buffer: Buffer, offset: number): number;
+/**
+ * Writes a 64-bit unsigned integer in little-endian format to the specified buffer at the given offset.
+ *
+ * @param buffer - The buffer to write the value to.
+ * @param value - The 64-bit unsigned integer value to write.
+ * @param offset - The offset in the buffer where the value should be written.
+ * @returns The new offset after writing the value.
+ */
 export declare function writeUInt64LE(buffer: Buffer, value: number, offset: number): number;
+/**
+ * Reverses the order of bytes in a buffer.
+ * @param buffer - The buffer to reverse.
+ * @returns A new buffer with the bytes reversed.
+ */
 export declare function reverseBuffer(buffer: Buffer): Buffer;
 export declare function cloneBuffer(buffer: Buffer): Buffer;
 /**

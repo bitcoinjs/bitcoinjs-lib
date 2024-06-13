@@ -25,6 +25,14 @@ function chunkHasUncompressedPubkey(chunk: StackElement): boolean {
 // input: <>
 // witness: [redeemScriptSig ...] {redeemScript}
 // output: OP_0 {sha256(redeemScript)}
+/**
+ * Creates a Pay-to-Witness-Script-Hash (P2WSH) payment object.
+ *
+ * @param a - The payment object containing the necessary data.
+ * @param opts - Optional payment options.
+ * @returns The P2WSH payment object.
+ * @throws {TypeError} If the required data is missing or invalid.
+ */
 export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
   if (!a.address && !a.hash && !a.output && !a.redeem && !a.witness)
     throw new TypeError('Not enough data');

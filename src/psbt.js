@@ -34,6 +34,7 @@ const DEFAULT_OPTS = {
  * There are 6 roles that this class fulfills. (Explained in BIP174)
  *
  * Creator: This can be done with `new Psbt()`
+ *
  * Updater: This can be done with `psbt.addInput(input)`, `psbt.addInputs(inputs)`,
  *   `psbt.addOutput(output)`, `psbt.addOutputs(outputs)` when you are looking to
  *   add new inputs and outputs to the PSBT, and `psbt.updateGlobal(itemObject)`,
@@ -44,20 +45,24 @@ const DEFAULT_OPTS = {
  *   data for updateOutput.
  *   For a list of what attributes should be what types. Check the bip174 library.
  *   Also, check the integration tests for some examples of usage.
+ *
  * Signer: There are a few methods. signAllInputs and signAllInputsAsync, which will search all input
  *   information for your pubkey or pubkeyhash, and only sign inputs where it finds
  *   your info. Or you can explicitly sign a specific input with signInput and
  *   signInputAsync. For the async methods you can create a SignerAsync object
  *   and use something like a hardware wallet to sign with. (You must implement this)
+ *
  * Combiner: psbts can be combined easily with `psbt.combine(psbt2, psbt3, psbt4 ...)`
  *   the psbt calling combine will always have precedence when a conflict occurs.
  *   Combine checks if the internal bitcoin transaction is the same, so be sure that
  *   all sequences, version, locktime, etc. are the same before combining.
+ *
  * Input Finalizer: This role is fairly important. Not only does it need to construct
  *   the input scriptSigs and witnesses, but it SHOULD verify the signatures etc.
  *   Before running `psbt.finalizeAllInputs()` please run `psbt.validateSignaturesOfAllInputs()`
  *   Running any finalize method will delete any data in the input(s) that are no longer
  *   needed due to the finalized scripts containing the information.
+ *
  * Transaction Extractor: This role will perform some checks before returning a
  *   Transaction object. Such as fee rate not being larger than maximumFeeRate etc.
  */
@@ -85,7 +90,7 @@ class Psbt {
       __NON_WITNESS_UTXO_BUF_CACHE: [],
       __TX_IN_CACHE: {},
       __TX: this.data.globalMap.unsignedTx.tx,
-      // Psbt's predecesor (TransactionBuilder - now removed) behavior
+      // Psbt's predecessor (TransactionBuilder - now removed) behavior
       // was to not confirm input values  before signing.
       // Even though we highly encourage people to get
       // the full parent transaction to verify values, the ability to
@@ -238,7 +243,7 @@ class Psbt {
     if (typeof address === 'string') {
       const { network } = this.opts;
       const script = (0, address_1.toOutputScript)(address, network);
-      outputData = Object.assign(outputData, { script });
+      outputData = Object.assign({}, outputData, { script });
     }
     (0, bip371_1.checkTaprootOutputFields)(outputData, outputData, 'addOutput');
     const c = this.__CACHE;
@@ -1262,7 +1267,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
       console.warn(
         'Warning: Signing non-segwit inputs without the full parent transaction ' +
           'means there is a chance that a miner could feed you incorrect information ' +
-          "to trick you into paying large fees. This behavior is the same as Psbt's predecesor " +
+          "to trick you into paying large fees. This behavior is the same as Psbt's predecessor " +
           '(TransactionBuilder - now removed) when signing non-segwit scripts. You are not ' +
           'able to export this Psbt with toBuffer|toBase64|toHex since it is not ' +
           'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
@@ -1353,7 +1358,7 @@ function getTaprootHashesForSig(
         inputIndex,
         signingScripts,
         values,
-        transaction_1.Transaction.SIGHASH_DEFAULT,
+        sighashType,
         tapLeaf.hash,
       );
       return {

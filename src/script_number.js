@@ -1,6 +1,16 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.encode = exports.decode = void 0;
+/**
+ * Decodes a script number from a buffer.
+ *
+ * @param buffer - The buffer containing the script number.
+ * @param maxLength - The maximum length of the script number. Defaults to 4.
+ * @param minimal - Whether the script number should be minimal. Defaults to true.
+ * @returns The decoded script number.
+ * @throws {TypeError} If the script number overflows the maximum length.
+ * @throws {Error} If the script number is not minimally encoded when minimal is true.
+ */
 function decode(buffer, maxLength, minimal) {
   maxLength = maxLength || 4;
   minimal = minimal === undefined ? true : minimal;
@@ -43,6 +53,12 @@ function scriptNumSize(i) {
     ? 1
     : 0;
 }
+/**
+ * Encodes a number into a Buffer using a specific format.
+ *
+ * @param _number - The number to encode.
+ * @returns The encoded number as a Buffer.
+ */
 function encode(_number) {
   let value = Math.abs(_number);
   const size = scriptNumSize(value);
