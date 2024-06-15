@@ -102,6 +102,16 @@ Which you can then import as an ESM module:
 <script type="module">import "/scripts/bitcoinjs-lib.js"</script>
 ````
 
+#### Using Taproot:
+When utilizing Taproot features with bitcoinjs-lib, you may need to include an additional ECC (Elliptic Curve Cryptography) library. The commonly used `tiny-secp256k1` library, however, might lead to compatibility issues due to its reliance on WASM (WebAssembly). The following alternatives may be used instead, though they may be significantly slower for high volume of signing and pubkey deriving operations.
+
+#### Alternatives for ECC Library:
+1. `@bitcoinjs-lib/tiny-secp256k1-asmjs`
+   A version of `tiny-secp256k1` compiled to ASM.js directly from the WASM version, potentially better supported in browsers. This is the slowest option.
+2. `@bitcoinerlab/secp256k1`
+   Another alternative library for ECC functionality. This requires access to the global `BigInt` primitive.
+For advantages and detailed comparison of these libraries, visit: [tiny-secp256k1 GitHub page](https://github.com/bitcoinjs/tiny-secp256k1).
+
 **NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](https://babeljs.io/docs/plugins/preset-es2015/) preset).
 
 **WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use at least [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
