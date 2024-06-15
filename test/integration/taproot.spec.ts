@@ -7,7 +7,7 @@ import { PsbtInput, TapLeaf, TapLeafScript } from 'bip174/src/lib/interfaces';
 import { regtestUtils } from './_regtest';
 import * as bitcoin from '../..';
 import { Taptree } from '../../src/types';
-import { LEAF_VERSION_TAPSCRIPT } from '../../src/payments/bip341';
+import { LEAF_VERSION_TAPSCRIPT, tapleafHash } from '../../src/payments/bip341';
 import { toXOnly, tapTreeToList, tapTreeFromList } from '../../src/psbt/bip371';
 import { witnessStackToScriptWitness } from '../../src/psbt/psbtutils';
 
@@ -528,6 +528,107 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     });
   });
 
+  it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIGADD (2-of-3) and verify unspendable internalKey', async () => {
+    const leafKeys = [];
+    const leafPubkeys = [];
+    for (let i = 0; i < 3; i++) {
+      const leafKey = bip32.fromSeed(rng(64), regtest);
+      leafKeys.push(leafKey);
+      leafPubkeys.push(toXOnly(leafKey.publicKey).toString('hex'));
+    }
+
+    // This is just a visual way of creating the script for educational purposes.
+    // In a production application there's no need to bother with this step, creating the binary
+    // directly from buffers is fine.
+    const leafScriptAsm = `${leafPubkeys[2]} OP_CHECKSIG ${leafPubkeys[1]} OP_CHECKSIGADD ${leafPubkeys[0]} OP_CHECKSIGADD OP_2 OP_GREATERTHANOREQUAL`;
+    const leafScript = bitcoin.script.fromASM(leafScriptAsm);
+
+    // Taptree can also be a single TapLeaf
+    // Since we only have one script, it's all we need.
+    const scriptTree: Taptree = {
+      output: leafScript,
+    };
+    const redeem = {
+      output: leafScript,
+      redeemVersion: LEAF_VERSION_TAPSCRIPT,
+    };
+
+    // We don't pass in a shared nonce because our wallet doesn't care.
+    // See the helper function's comments to understand why you might want to use a shared nonce.
+    // All signers should verify that the internalPubkey of the script they're signing is unspendable.
+    // Otherwise the person who made the script could be hiding a secret master key (for one-key-only spending).
+    // If a nonce is used, that nonce should be shared among all signers.
+    const internalPubkey = makeUnspendableInternalKey();
+
+    const { output, address, witness } = bitcoin.payments.p2tr({
+      internalPubkey,
+      scriptTree,
+      redeem,
+      network: regtest,
+    });
+
+    // amount from faucet
+    const amount = 42e4;
+    // amount to send
+    const sendAmount = amount - 1e4;
+    // get faucet
+    const unspent = await regtestUtils.faucetComplex(output!, amount);
+
+    const psbt = new bitcoin.Psbt({ network: regtest });
+    psbt.addInput({
+      hash: unspent.txId,
+      index: 0,
+      witnessUtxo: { value: amount, script: output! },
+    });
+    psbt.updateInput(0, {
+      tapLeafScript: [
+        {
+          leafVersion: redeem.redeemVersion,
+          script: redeem.output,
+          controlBlock: witness![witness!.length - 1],
+        },
+      ],
+    });
+
+    psbt.addOutput({ value: sendAmount, address: address! });
+
+    // random order for signers
+    psbt.signInput(0, leafKeys[2]);
+    psbt.signInput(0, leafKeys[0]);
+
+    // Before finalizing, every key that did not sign must have an empty signature
+    // in place where their signature would be.
+    // In order to do this currently we need to construct a dummy signature manually.
+    const noSignatureKeyDummySig = {
+      // This can be reused for each dummy signature
+      leafHash: tapleafHash({
+        output: leafScript,
+        version: LEAF_VERSION_TAPSCRIPT,
+      }),
+      // This is the pubkey that didn't sign
+      pubkey: toXOnly(leafKeys[1].publicKey),
+      // This must be an empty Buffer.
+      signature: Buffer.from([]),
+    };
+
+    // We know that the first input exists and we have added tapScriptSigs
+    // so the tapScriptSig must exist.
+    psbt.data.inputs[0].tapScriptSig!.push(noSignatureKeyDummySig);
+
+    psbt.finalizeInput(0);
+    const tx = psbt.extractTransaction();
+    const rawTx = tx.toBuffer();
+    const hex = rawTx.toString('hex');
+
+    await regtestUtils.broadcast(hex);
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address: address!,
+      vout: 0,
+      value: sendAmount,
+    });
+  });
+
   it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - custom finalizer', async () => {
     const leafCount = 8;
     const leaves = Array.from({ length: leafCount }).map(
@@ -692,4 +793,47 @@ function buildLeafIndexFinalizer(
       throw new Error(`Can not finalize taproot input #${inputIndex}: ${err}`);
     }
   };
+}
+
+function makeUnspendableInternalKey(provableNonce?: Buffer): Buffer {
+  // This is the generator point of secp256k1. Private key is known (equal to 1)
+  const G = Buffer.from(
+    '0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8',
+    'hex',
+  );
+  // This is the hash of the uncompressed generator point.
+  // It is also a valid X value on the curve, but we don't know what the private key is.
+  // Since we know this X value (a fake "public key") is made from a hash of a well known value,
+  // We can prove that the internalKey is unspendable.
+  const Hx = bitcoin.crypto.sha256(G);
+
+  // This "Nothing Up My Sleeve" value is mentioned in BIP341 so we verify it here:
+  assert.strictEqual(
+    Hx.toString('hex'),
+    '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0',
+  );
+
+  if (provableNonce) {
+    // Using a shared random value, we create an unspendable internalKey
+    // P = H + int(hash_taptweak(provableNonce))*G
+    // Since we don't know H's private key (see explanation above), we can't know P's private key
+    if (provableNonce.length !== 32) {
+      throw new Error(
+        'provableNonce must be a 32 byte random value shared between script holders',
+      );
+    }
+    const ret = ecc.xOnlyPointAddTweak(Hx, provableNonce);
+    if (!ret) {
+      throw new Error(
+        'provableNonce produced an invalid key when tweaking the G hash',
+      );
+    }
+    return Buffer.from(ret.xOnlyPubkey);
+  } else {
+    // The downside to using no shared provable nonce is that anyone viewing a spend
+    // on the blockchain can KNOW that you CAN'T use key spend.
+    // Most people would be ok with this being public, but some wallets (exchanges etc)
+    // might not want ANY details about how their wallet works public.
+    return Hx;
+  }
 }
