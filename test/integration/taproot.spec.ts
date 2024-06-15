@@ -530,92 +530,54 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
 
   it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIGADD (2-of-3) and verify unspendable internalKey', async () => {
     const leafKeys = [];
-    const leafPubkeys = [];
+    const leafPubkeys: Buffer[] = [];
     for (let i = 0; i < 3; i++) {
       const leafKey = bip32.fromSeed(rng(64), regtest);
       leafKeys.push(leafKey);
-      leafPubkeys.push(toXOnly(leafKey.publicKey).toString('hex'));
+      leafPubkeys.push(toXOnly(leafKey.publicKey));
     }
 
-    // This is just a visual way of creating the script for educational purposes.
-    // In a production application there's no need to bother with this step, creating the binary
-    // directly from buffers is fine.
-    const leafScriptAsm = `${leafPubkeys[2]} OP_CHECKSIG ${leafPubkeys[1]} OP_CHECKSIGADD ${leafPubkeys[0]} OP_CHECKSIGADD OP_2 OP_GREATERTHANOREQUAL`;
-    const leafScript = bitcoin.script.fromASM(leafScriptAsm);
-
-    // Taptree can also be a single TapLeaf
-    // Since we only have one script, it's all we need.
-    const scriptTree: Taptree = {
-      output: leafScript,
-    };
-    const redeem = {
-      output: leafScript,
-      redeemVersion: LEAF_VERSION_TAPSCRIPT,
-    };
-
-    // We don't pass in a shared nonce because our wallet doesn't care.
-    // See the helper function's comments to understand why you might want to use a shared nonce.
-    // All signers should verify that the internalPubkey of the script they're signing is unspendable.
-    // Otherwise the person who made the script could be hiding a secret master key (for one-key-only spending).
-    // If a nonce is used, that nonce should be shared among all signers.
-    const internalPubkey = makeUnspendableInternalKey();
-
-    const { output, address, witness } = bitcoin.payments.p2tr({
-      internalPubkey,
-      scriptTree,
-      redeem,
-      network: regtest,
-    });
+    // The only thing that differs between the wallets is the private key.
+    // So we will use the first wallet for all the Psbt stuff.
+    const [wallet, wallet2, wallet3] = leafKeys.map(key =>
+      new TaprootMultisigWallet(
+        leafPubkeys,
+        2, // Number of required signatures
+        key.privateKey!,
+        LEAF_VERSION_TAPSCRIPT,
+      ).setNetwork(regtest),
+    );
 
     // amount from faucet
     const amount = 42e4;
     // amount to send
     const sendAmount = amount - 1e4;
     // get faucet
-    const unspent = await regtestUtils.faucetComplex(output!, amount);
+    const unspent = await regtestUtils.faucetComplex(wallet.output, amount);
 
     const psbt = new bitcoin.Psbt({ network: regtest });
-    psbt.addInput({
-      hash: unspent.txId,
-      index: 0,
-      witnessUtxo: { value: amount, script: output! },
-    });
-    psbt.updateInput(0, {
-      tapLeafScript: [
-        {
-          leafVersion: redeem.redeemVersion,
-          script: redeem.output,
-          controlBlock: witness![witness!.length - 1],
-        },
-      ],
-    });
 
-    psbt.addOutput({ value: sendAmount, address: address! });
+    // Adding an input is a bit special in this case,
+    // So we contain it in the wallet class
+    // Any wallet can do this, wallet2 or wallet3 could be used.
+    wallet.addInput(psbt, unspent.txId, unspent.vout, unspent.value);
 
-    // random order for signers
-    psbt.signInput(0, leafKeys[2]);
-    psbt.signInput(0, leafKeys[0]);
+    psbt.addOutput({ value: sendAmount, address: wallet.address });
 
-    // Before finalizing, every key that did not sign must have an empty signature
-    // in place where their signature would be.
-    // In order to do this currently we need to construct a dummy signature manually.
-    const noSignatureKeyDummySig = {
-      // This can be reused for each dummy signature
-      leafHash: tapleafHash({
-        output: leafScript,
-        version: LEAF_VERSION_TAPSCRIPT,
-      }),
-      // This is the pubkey that didn't sign
-      pubkey: toXOnly(leafKeys[1].publicKey),
-      // This must be an empty Buffer.
-      signature: Buffer.from([]),
-    };
+    // Sign with at least 2 of the 3 wallets.
+    // Verify that there is a matching leaf script
+    // (which includes the unspendable internalPubkey,
+    // so we verify that no one can key-spend it)
+    wallet3.verifyInputScript(psbt, 0);
+    wallet2.verifyInputScript(psbt, 0);
+    psbt.signInput(0, wallet3);
+    psbt.signInput(0, wallet2);
 
-    // We know that the first input exists and we have added tapScriptSigs
-    // so the tapScriptSig must exist.
-    psbt.data.inputs[0].tapScriptSig!.push(noSignatureKeyDummySig);
+    // Before finalizing, we need to add dummy signatures for all that did not sign.
+    // Any wallet can do this, wallet2 or wallet3 could be used.
+    wallet.addDummySigs(psbt);
 
-    psbt.finalizeInput(0);
+    psbt.finalizeAllInputs();
     const tx = psbt.extractTransaction();
     const rawTx = tx.toBuffer();
     const hex = rawTx.toString('hex');
@@ -623,7 +585,8 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     await regtestUtils.broadcast(hex);
     await regtestUtils.verify({
       txId: tx.getId(),
-      address: address!,
+      // Any wallet can do this, wallet2 or wallet3 could be used.
+      address: wallet.address,
       vout: 0,
       value: sendAmount,
     });
@@ -835,5 +798,242 @@ function makeUnspendableInternalKey(provableNonce?: Buffer): Buffer {
     // Most people would be ok with this being public, but some wallets (exchanges etc)
     // might not want ANY details about how their wallet works public.
     return Hx;
+  }
+}
+
+class TaprootMultisigWallet {
+  private leafScriptCache: Buffer | null = null;
+  private internalPubkeyCache: Buffer | null = null;
+  private paymentCache: bitcoin.Payment | null = null;
+  private readonly publicKeyCache: Buffer;
+  network: bitcoin.Network;
+
+  constructor(
+    /**
+     * A list of all the (x-only) pubkeys in the multisig
+     */
+    private readonly pubkeys: Buffer[],
+    /**
+     * The number of required signatures
+     */
+    private readonly requiredSigs: number,
+    /**
+     * The private key you hold.
+     */
+    private readonly privateKey: Buffer,
+    /**
+     * leaf version (0xc0 currently)
+     */
+    readonly leafVersion: number,
+    /**
+     * Optional shared nonce. This should be used in wallets where
+     * the fact that key-spend is unspendable should not be public,
+     * BUT each signer must verify that it is unspendable to be safe.
+     */
+    private readonly sharedNonce?: Buffer,
+  ) {
+    this.network = bitcoin.networks.bitcoin;
+    assert(pubkeys.length > 0, 'Need pubkeys');
+    assert(
+      pubkeys.every(p => p.length === 32),
+      'Pubkeys must be 32 bytes (x-only)',
+    );
+    assert(
+      requiredSigs > 0 && requiredSigs <= pubkeys.length,
+      'Invalid requiredSigs',
+    );
+
+    assert(
+      leafVersion <= 0xff && (leafVersion & 1) === 0,
+      'Invalid leafVersion',
+    );
+
+    if (sharedNonce) {
+      assert(
+        sharedNonce.length === 32 && ecc.isPrivate(sharedNonce),
+        'Invalid sharedNonce',
+      );
+    }
+
+    const pubkey = ecc.pointFromScalar(privateKey);
+    assert(pubkey, 'Invalid pubkey');
+
+    this.publicKeyCache = Buffer.from(pubkey);
+    assert(
+      pubkeys.some(p => p.equals(toXOnly(this.publicKeyCache))),
+      'At least one pubkey must match your private key',
+    );
+
+    // IMPORTANT: Make sure the pubkeys are sorted (To prevent ordering issues between wallet signers)
+    this.pubkeys.sort((a, b) => a.compare(b));
+  }
+
+  setNetwork(network: bitcoin.Network): this {
+    this.network = network;
+    return this;
+  }
+
+  // Required for Signer interface.
+  // Prevent setting by using a getter.
+  get publicKey(): Buffer {
+    return this.publicKeyCache;
+  }
+
+  /**
+   * Lazily build the leafScript. A 2 of 3 would look like:
+   * key1 OP_CHECKSIG key2 OP_CHECKSIGADD key3 OP_CHECKSIGADD OP_2 OP_GREATERTHANOREQUAL
+   */
+  get leafScript(): Buffer {
+    if (this.leafScriptCache) {
+      return this.leafScriptCache;
+    }
+    const ops = [];
+    this.pubkeys.forEach(pubkey => {
+      if (ops.length === 0) {
+        ops.push(pubkey);
+        ops.push(bitcoin.opcodes.OP_CHECKSIG);
+      } else {
+        ops.push(pubkey);
+        ops.push(bitcoin.opcodes.OP_CHECKSIGADD);
+      }
+    });
+    if (this.requiredSigs > 16) {
+      ops.push(bitcoin.script.number.encode(this.requiredSigs));
+    } else {
+      ops.push(bitcoin.opcodes.OP_1 - 1 + this.requiredSigs);
+    }
+    ops.push(bitcoin.opcodes.OP_GREATERTHANOREQUAL);
+
+    this.leafScriptCache = bitcoin.script.compile(ops);
+    return this.leafScriptCache;
+  }
+
+  get internalPubkey(): Buffer {
+    if (this.internalPubkeyCache) {
+      return this.internalPubkeyCache;
+    }
+    // See the helper function for explanation
+    this.internalPubkeyCache = makeUnspendableInternalKey(this.sharedNonce);
+    return this.internalPubkeyCache;
+  }
+
+  get scriptTree(): Taptree {
+    // If more complicated, maybe it should be cached.
+    // (ie. if other scripts are created only to create the tree
+    // and will only be stored in the tree.)
+    return {
+      output: this.leafScript,
+    };
+  }
+
+  get redeem(): {
+    output: Buffer;
+    redeemVersion: number;
+  } {
+    return {
+      output: this.leafScript,
+      redeemVersion: this.leafVersion,
+    };
+  }
+
+  private get payment(): bitcoin.Payment {
+    if (this.paymentCache) {
+      return this.paymentCache;
+    }
+    this.paymentCache = bitcoin.payments.p2tr({
+      internalPubkey: this.internalPubkey,
+      scriptTree: this.scriptTree,
+      redeem: this.redeem,
+      network: this.network,
+    });
+    return this.paymentCache;
+  }
+
+  get output(): Buffer {
+    return this.payment.output!;
+  }
+
+  get address(): string {
+    return this.payment.address!;
+  }
+
+  get controlBlock(): Buffer {
+    const witness = this.payment.witness!;
+    return witness[witness.length - 1];
+  }
+
+  verifyInputScript(psbt: bitcoin.Psbt, index: number) {
+    if (index >= psbt.data.inputs.length)
+      throw new Error('Invalid input index');
+    const input = psbt.data.inputs[index];
+    if (!input.tapLeafScript) throw new Error('Input has no tapLeafScripts');
+    const hasMatch =
+      input.tapLeafScript.length === 1 &&
+      input.tapLeafScript[0].leafVersion === this.leafVersion &&
+      input.tapLeafScript[0].script.equals(this.leafScript) &&
+      input.tapLeafScript[0].controlBlock.equals(this.controlBlock);
+    if (!hasMatch)
+      throw new Error(
+        'No matching leafScript, or extra leaf script. Refusing to sign.',
+      );
+  }
+
+  addInput(
+    psbt: bitcoin.Psbt,
+    hash: string | Buffer,
+    index: number,
+    value: number,
+  ) {
+    psbt.addInput({
+      hash,
+      index,
+      witnessUtxo: { value, script: this.output },
+    });
+    psbt.updateInput(psbt.inputCount - 1, {
+      tapLeafScript: [
+        {
+          leafVersion: this.leafVersion,
+          script: this.leafScript,
+          controlBlock: this.controlBlock,
+        },
+      ],
+    });
+  }
+
+  addDummySigs(psbt: bitcoin.Psbt) {
+    const leafHash = tapleafHash({
+      output: this.leafScript,
+      version: this.leafVersion,
+    });
+    for (const input of psbt.data.inputs) {
+      if (!input.tapScriptSig) continue;
+      const signedPubkeys = input.tapScriptSig
+        .filter(ts => ts.leafHash.equals(leafHash))
+        .map(ts => ts.pubkey);
+      for (const pubkey of this.pubkeys) {
+        if (signedPubkeys.some(sPub => sPub.equals(pubkey))) continue;
+        // Before finalizing, every key that did not sign must have an empty signature
+        // in place where their signature would be.
+        // In order to do this currently we need to construct a dummy signature manually.
+        input.tapScriptSig.push({
+          // This can be reused for each dummy signature
+          leafHash,
+          // This is the pubkey that didn't sign
+          pubkey,
+          // This must be an empty Buffer.
+          signature: Buffer.from([]),
+        });
+      }
+    }
+  }
+
+  // required for Signer interface
+  sign(hash: Buffer, _lowR?: boolean): Buffer {
+    return Buffer.from(ecc.sign(hash, this.privateKey));
+  }
+
+  // required for Signer interface
+  signSchnorr(hash: Buffer): Buffer {
+    return Buffer.from(ecc.signSchnorr(hash, this.privateKey));
   }
 }
