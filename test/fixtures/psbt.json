@@ -615,7 +615,7 @@
           "address": "bc1p3efq8ujsj0qr5xvms7mv89p8cz0crqdtuxe9ms6grqgxc9sgsntslthf6w",
           "value": 410000
         },
-        "exception": "Error adding output. Script or address missmatch."
+        "exception": "Error adding output. Script or address mismatch."
       },
       {
         "description": "Adds taproot output with both taproot and non-taproot fields",
