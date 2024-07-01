@@ -129,7 +129,7 @@ function checkTaprootScriptPubkey(
     const { script: scriptPubkey } = outputData as any;
     const script = getTaprootScripPubkey(tapInternalKey, tapTree);
     if (scriptPubkey && !scriptPubkey.equals(script))
-      throw new Error('Error adding output. Script or address missmatch.');
+      throw new Error('Error adding output. Script or address mismatch.');
   }
 }
 
