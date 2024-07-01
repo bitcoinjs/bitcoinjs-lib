@@ -333,7 +333,7 @@ __fixed__
 
 # 2.1.0
 From this release users should use the HDNode directly (compared to accessing `.keyPair`) when performing ECDSA operations such as `sign` or `verify`.
-Ideally you shoud not have to directly access `HDNode` internals for general usage,  as it can often be confusing and error prone.
+Ideally you should not have to directly access `HDNode` internals for general usage,  as it can often be confusing and error prone.
 
 __added__
 - `ECPair.prototype.getNetwork`
@@ -344,7 +344,7 @@ __added__
 
 
 # 2.0.0
-In this release we have strived to simplify the API,  [using native types](https://github.com/bitcoinjs/bitcoinjs-lib/issues/407) wherevever possible to encourage cross-compatibility with other open source community modules.
+In this release we have strived to simplify the API,  [using native types](https://github.com/bitcoinjs/bitcoinjs-lib/issues/407) wherever possible to encourage cross-compatibility with other open source community modules.
 
 The `ecdsa` module has been removed in lieu of using a new ECDSA module (for performance and safety reasons) during the `2.x.y` major release.
 Several other cumbersome modules have been removed,  with their new independent modules recommended for usage instead for greater modularity in your projects.

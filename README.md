@@ -93,7 +93,7 @@ If you'd like to use a different (more modern) build tool than `browserify`, you
 
 ```sh
 $ npm install bitcoinjs-lib browserify
-$ npx browserify --standalone bitcoin - -o bitcoinjs-lib.js <<<"module.exports = require('bitcoinjs-lib');"
+$ npx browserify --standalone bitcoin -o bitcoinjs-lib.js <<< "module.exports = require('bitcoinjs-lib');"
 ```
 
 Which you can then import as an ESM module:
