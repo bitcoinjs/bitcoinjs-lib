@@ -123,9 +123,7 @@ const OPS = {
   OP_INVALIDOPCODE: 255,
 };
 exports.OPS = OPS;
-const REVERSE_OPS = {};
+const REVERSE_OPS = Object.fromEntries(
+  Object.entries(OPS).map(([key, value]) => [value, key]),
+);
 exports.REVERSE_OPS = REVERSE_OPS;
-for (const op of Object.keys(OPS)) {
-  const code = OPS[op];
-  REVERSE_OPS[code] = op;
-}
