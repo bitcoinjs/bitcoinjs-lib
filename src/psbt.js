@@ -1358,7 +1358,7 @@ function getTaprootHashesForSig(
         inputIndex,
         signingScripts,
         values,
-        transaction_1.Transaction.SIGHASH_DEFAULT,
+        sighashType,
         tapLeaf.hash,
       );
       return {
