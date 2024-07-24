@@ -1481,11 +1481,14 @@ function getTweakSignersFromHD(inputIndex, inputs, hdKeyPair) {
   }
   const signers = myDerivations.map(bipDv => {
     const node = hdKeyPair.derivePath(bipDv.path);
-    if (!bipDv.pubkey.equals(node.publicKey)) {
+    if (!bipDv.pubkey.equals((0, bip371_1.toXOnly)(node.publicKey))) {
       throw new Error('pubkey did not match tapBip32Derivation');
     }
     const h = (0, bip341_1.calculateScriptTreeMerkleRoot)(bipDv.leafHashes);
-    const tweakValue = (0, bip341_1.tapTweakHash)(node.publicKey, h);
+    const tweakValue = (0, bip341_1.tapTweakHash)(
+      (0, bip371_1.toXOnly)(node.publicKey),
+      h,
+    );
     return node.tweak(tweakValue);
   });
   return signers;

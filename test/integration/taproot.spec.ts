@@ -217,6 +217,163 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     });
   });
 
+  it('can create (and broadcast via 3PBP) a taproot key-path spend Transaction of HD wallet by tapBip32Derivation', async () => {
+    const root = bip32.fromSeed(rng(64), regtest);
+    const path = `m/86'/0'/0'/0/0`;
+    const child = root.derivePath(path);
+    const internalKey = toXOnly(child.publicKey);
+
+    const { output, address } = bitcoin.payments.p2tr({
+      internalPubkey: internalKey,
+      network: regtest,
+    });
+
+    // amount from faucet
+    const amount = 42e4;
+    // amount to send
+    const sendAmount = amount - 1e4;
+    // get faucet
+    const unspent = await regtestUtils.faucetComplex(output!, amount);
+
+    const psbt = new bitcoin.Psbt({ network: regtest });
+    psbt.addInput({
+      hash: unspent.txId,
+      index: 0,
+      witnessUtxo: { value: amount, script: output! },
+      tapInternalKey: internalKey,
+      tapBip32Derivation: [
+        {
+          masterFingerprint: root.fingerprint,
+          pubkey: internalKey,
+          path,
+          leafHashes: [],
+        },
+      ],
+    });
+
+    psbt.addOutput({
+      value: sendAmount,
+      address: address!,
+      tapInternalKey: internalKey,
+    });
+
+    await psbt.signAllInputsHD(root);
+
+    psbt.finalizeAllInputs();
+    const tx = psbt.extractTransaction();
+    const rawTx = tx.toBuffer();
+
+    const hex = rawTx.toString('hex');
+
+    await regtestUtils.broadcast(hex);
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address,
+      vout: 0,
+      value: sendAmount,
+    });
+  });
+
+  it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction with 3 leaves of HD wallet by tapBip32Derivation', async () => {
+    // const root = bip32.fromSeed(rng(64), regtest);
+    const mnemonic =
+      'praise you muffin lion enable neck grocery crumble super myself license ghost';
+    const seed = bip39.mnemonicToSeedSync(mnemonic);
+    const root = bip32.fromSeed(seed, regtest);
+    const path = `m/86'/0'/0'/0/0`;
+    const child = root.derivePath(path);
+    const internalKey = toXOnly(child.publicKey);
+
+    const leafA = {
+      version: LEAF_VERSION_TAPSCRIPT,
+      output: bitcoin.script.fromASM(
+        `${internalKey.toString('hex')} OP_CHECKSIG`,
+      ),
+    };
+    const leafB = {
+      version: LEAF_VERSION_TAPSCRIPT,
+      output: bitcoin.script.fromASM(
+        `${internalKey.toString('hex')} OP_CHECKSIG`,
+      ),
+    };
+    const leafC = {
+      version: LEAF_VERSION_TAPSCRIPT,
+      output: bitcoin.script.fromASM(
+        `${internalKey.toString('hex')} OP_CHECKSIG`,
+      ),
+    };
+    const scriptTree: Taptree = [
+      {
+        output: leafA.output,
+      },
+      [
+        {
+          output: leafB.output,
+        },
+        {
+          output: leafC.output,
+        },
+      ],
+    ];
+
+    const payment = bitcoin.payments.p2tr({
+      internalPubkey: internalKey,
+      scriptTree,
+      network: regtest,
+    });
+
+    const { output, address } = payment;
+
+    // amount from faucet
+    const amount = 42e4;
+    // amount to send
+    const sendAmount = amount - 1e4;
+    // get faucet
+    const unspent = await regtestUtils.faucetComplex(output!, amount);
+
+    const psbt = new bitcoin.Psbt({ network: regtest });
+    const leafHashes = [
+      tapleafHash(leafA),
+      tapleafHash(leafB),
+      tapleafHash(leafC),
+    ];
+    psbt.addInput({
+      hash: unspent.txId,
+      index: 0,
+      witnessUtxo: { value: amount, script: output! },
+      tapInternalKey: internalKey,
+      tapBip32Derivation: [
+        {
+          masterFingerprint: root.fingerprint,
+          pubkey: internalKey,
+          path,
+          leafHashes,
+        },
+      ],
+    });
+
+    psbt.addOutput({
+      value: sendAmount,
+      script: output!,
+    });
+
+    await psbt.signAllInputsHD(root);
+
+    psbt.finalizeAllInputs();
+    const tx = psbt.extractTransaction();
+    const rawTx = tx.toBuffer();
+
+    const hex = rawTx.toString('hex');
+
+    await regtestUtils.broadcast(hex);
+    await regtestUtils.verify({
+      txId: tx.getId(),
+      address,
+      vout: 0,
+      value: sendAmount,
+    });
+  });
+
   it('can create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIG', async () => {
     const internalKey = bip32.fromSeed(rng(64), regtest);
     const leafKey = bip32.fromSeed(rng(64), regtest);

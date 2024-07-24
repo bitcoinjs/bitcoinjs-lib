@@ -68,12 +68,12 @@ exports.toHashTree = toHashTree;
  */
 function calculateScriptTreeMerkleRoot(leafHashes) {
   if (!leafHashes || leafHashes.length === 0) {
-    return undefined;
+    return Buffer.from([]);
   }
   leafHashes.sort((a, b) => a.compare(b));
   const hashes = leafHashes.map(hash => {
     return {
-      hash: bcrypto.taggedHash('TapLeaf', buffer_1.Buffer.from(hash)),
+      hash,
     };
   });
   while (hashes.length > 1) {
@@ -81,11 +81,17 @@ function calculateScriptTreeMerkleRoot(leafHashes) {
     for (let i = 0; i < hashes.length; i += 2) {
       const left = hashes[i];
       const right = i + 1 === hashes.length ? left : hashes[i + 1];
-      nextLevel.push({
-        hash: tapBranchHash(left.hash, right.hash),
-        left,
-        right,
-      });
+      if (i + 1 === hashes.length) {
+        nextLevel.push({
+          hash: left.hash,
+          left,
+          right,
+        });
+      } else {
+        nextLevel.push({
+          hash: tapBranchHash(left.hash, right.hash),
+        });
+      }
     }
     hashes.length = 0;
     hashes.push(...nextLevel);
