@@ -500,10 +500,7 @@ class Psbt {
     }
     return validationResultCount > 0;
   }
-  signAllInputsHD(
-    hdKeyPair,
-    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
-  ) {
+  signAllInputsHD(hdKeyPair, sighashTypes) {
     if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
       throw new Error('Need HDSigner to sign input');
     }
@@ -521,10 +518,7 @@ class Psbt {
     }
     return this;
   }
-  signAllInputsHDAsync(
-    hdKeyPair,
-    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
-  ) {
+  signAllInputsHDAsync(hdKeyPair, sighashTypes) {
     return new Promise((resolve, reject) => {
       if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
         return reject(new Error('Need HDSigner to sign input'));
@@ -551,11 +545,7 @@ class Psbt {
       });
     });
   }
-  signInputHD(
-    inputIndex,
-    hdKeyPair,
-    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
-  ) {
+  signInputHD(inputIndex, hdKeyPair, sighashTypes) {
     if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
       throw new Error('Need HDSigner to sign input');
     }
@@ -563,11 +553,7 @@ class Psbt {
     signers.forEach(signer => this.signInput(inputIndex, signer, sighashTypes));
     return this;
   }
-  signInputHDAsync(
-    inputIndex,
-    hdKeyPair,
-    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
-  ) {
+  signInputHDAsync(inputIndex, hdKeyPair, sighashTypes) {
     return new Promise((resolve, reject) => {
       if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
         return reject(new Error('Need HDSigner to sign input'));
