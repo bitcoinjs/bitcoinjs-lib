@@ -160,6 +160,14 @@ export interface HDSigner extends HDSignerBase {
      * Return a 64 byte signature (32 byte r and 32 byte s in that order)
      */
     sign(hash: Buffer): Buffer;
+    /**
+     * Adjusts a keypair for Taproot payments by applying a tweak to derive the internal key.
+     *
+     * In Taproot, a keypair may need to be tweaked to produce an internal key that conforms to the Taproot script.
+     * This tweak process involves modifying the original keypair based on a specific tweak value to ensure compatibility
+     * with the Taproot address format and functionality.
+     */
+    tweak(t: Buffer): Signer;
 }
 /**
  * Same as above but with async sign method
@@ -167,6 +175,7 @@ export interface HDSigner extends HDSignerBase {
 export interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Buffer): Promise<Buffer>;
+    tweak(t: Buffer): Signer;
 }
 export interface Signer {
     publicKey: Buffer;

@@ -83,6 +83,42 @@ export function toHashTree(scriptTree: Taptree): HashTree {
 }
 
 /**
+ * Calculates the Merkle root from an array of Taproot leaf hashes.
+ *
+ * @param {Buffer[]} leafHashes - Array of Taproot leaf hashes.
+ * @returns {Buffer} - The Merkle root.
+ */
+export function calculateScriptTreeMerkleRoot(
+  leafHashes: Buffer[],
+): Buffer | undefined {
+  if (!leafHashes || leafHashes.length === 0) {
+    return undefined;
+  }
+  leafHashes.sort((a, b) => a.compare(b));
+
+  const hashes = leafHashes.map(hash => {
+    return {
+      hash: bcrypto.taggedHash('TapLeaf', NBuffer.from(hash)),
+    };
+  });
+  while (hashes.length > 1) {
+    const nextLevel = [];
+    for (let i = 0; i < hashes.length; i += 2) {
+      const left = hashes[i];
+      const right = i + 1 === hashes.length ? left : hashes[i + 1];
+      nextLevel.push({
+        hash: tapBranchHash(left.hash, right.hash),
+        left,
+        right,
+      });
+    }
+    hashes.length = 0;
+    hashes.push(...nextLevel);
+  }
+  return hashes[0].hash;
+}
+
+/**
  * Given a HashTree, finds the path from a particular hash to the root.
  * @param node - the root of the tree
  * @param hash - the hash to search for
