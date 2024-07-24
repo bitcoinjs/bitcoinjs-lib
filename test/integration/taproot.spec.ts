@@ -777,15 +777,16 @@ function makeUnspendableInternalKey(provableNonce?: Buffer): Buffer {
   );
 
   if (provableNonce) {
-    // Using a shared random value, we create an unspendable internalKey
-    // P = H + int(hash_taptweak(provableNonce))*G
-    // Since we don't know H's private key (see explanation above), we can't know P's private key
     if (provableNonce.length !== 32) {
       throw new Error(
         'provableNonce must be a 32 byte random value shared between script holders',
       );
     }
-    const ret = ecc.xOnlyPointAddTweak(Hx, provableNonce);
+    // Using a shared random value, we create an unspendable internalKey
+    // P = H + int(hash_taptweak(provableNonce))*G
+    // Since we don't know H's private key (see explanation above), we can't know P's private key
+    const tapHash = bitcoin.crypto.taggedHash('TapTweak', provableNonce);
+    const ret = ecc.xOnlyPointAddTweak(Hx, tapHash);
     if (!ret) {
       throw new Error(
         'provableNonce produced an invalid key when tweaking the G hash',
