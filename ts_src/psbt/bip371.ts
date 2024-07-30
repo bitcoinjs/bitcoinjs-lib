@@ -169,6 +169,13 @@ function checkTaprootScriptPubkey(
   }
 }
 
+/**
+ * Returns the Taproot script public key.
+ *
+ * @param tapInternalKey - The Taproot internal key.
+ * @param tapTree - The Taproot tree (optional).
+ * @returns The Taproot script public key.
+ */
 function getTaprootScripPubkey(
   tapInternalKey: TapInternalKey,
   tapTree?: TapTree,
@@ -181,6 +188,13 @@ function getTaprootScripPubkey(
   return output!;
 }
 
+/**
+ * Tweak the internal public key for a specific input.
+ * @param inputIndex - The index of the input.
+ * @param input - The PsbtInput object representing the input.
+ * @returns The tweaked internal public key.
+ * @throws Error if the tap internal key cannot be tweaked.
+ */
 export function tweakInternalPubKey(
   inputIndex: number,
   input: PsbtInput,
@@ -232,6 +246,12 @@ export function tapTreeFromList(leaves: TapLeaf[] = []): Taptree {
   return instertLeavesInTree(leaves);
 }
 
+/**
+ * Checks the taproot input for signatures.
+ * @param input The PSBT input to check.
+ * @param action The action being performed.
+ * @returns True if the input has taproot signatures, false otherwise.
+ */
 export function checkTaprootInputForSigs(
   input: PsbtInput,
   action: string,
@@ -242,6 +262,11 @@ export function checkTaprootInputForSigs(
   );
 }
 
+/**
+ * Decodes a Schnorr signature.
+ * @param signature The signature to decode.
+ * @returns The decoded Schnorr signature.
+ */
 function decodeSchnorrSignature(signature: Buffer): {
   signature: Buffer;
   hashType: number;
@@ -252,6 +277,11 @@ function decodeSchnorrSignature(signature: Buffer): {
   };
 }
 
+/**
+ * Extracts taproot signatures from a PSBT input.
+ * @param input The PSBT input to extract signatures from.
+ * @returns An array of taproot signatures.
+ */
 function extractTaprootSigs(input: PsbtInput): Buffer[] {
   const sigs: Buffer[] = [];
   if (input.tapKeySig) sigs.push(input.tapKeySig);
@@ -265,6 +295,11 @@ function extractTaprootSigs(input: PsbtInput): Buffer[] {
   return sigs;
 }
 
+/**
+ * Gets the taproot signature from the witness.
+ * @param finalScriptWitness The final script witness.
+ * @returns The taproot signature, or undefined if not found.
+ */
 function getTapKeySigFromWithness(
   finalScriptWitness?: Buffer,
 ): Buffer | undefined {
@@ -274,6 +309,14 @@ function getTapKeySigFromWithness(
   if (witness.length === 64 || witness.length === 65) return witness;
 }
 
+/**
+ * Converts a binary tree to a BIP371 type list.
+ * @param tree The binary tap tree.
+ * @param leaves A list of tapleaves. Optional.
+ * @param depth The current depth. Optional.
+ * @returns A list of BIP 371 tapleaves.
+ * @throws Throws an error if the taptree cannot be converted to a tapleaf list.
+ */
 function _tapTreeToList(
   tree: Taptree,
   leaves: TapLeaf[] = [],
@@ -299,6 +342,13 @@ type PartialTaptree =
   | [PartialTaptree | Tapleaf, PartialTaptree | Tapleaf]
   | Tapleaf
   | undefined;
+
+/**
+ * Inserts the tapleaves into the taproot tree.
+ * @param leaves The tapleaves to insert.
+ * @returns The taproot tree.
+ * @throws Throws an error if there is no room left to insert a tapleaf in the tree.
+ */
 function instertLeavesInTree(leaves: TapLeaf[]): Taptree {
   let tree: PartialTaptree;
   for (const leaf of leaves) {
@@ -309,6 +359,13 @@ function instertLeavesInTree(leaves: TapLeaf[]): Taptree {
   return tree as Taptree;
 }
 
+/**
+ * Inserts a tapleaf into the taproot tree.
+ * @param leaf The tapleaf to insert.
+ * @param tree The taproot tree.
+ * @param depth The current depth. Optional.
+ * @returns The updated taproot tree.
+ */
 function instertLeafInTree(
   leaf: TapLeaf,
   tree?: PartialTaptree,
@@ -332,6 +389,13 @@ function instertLeafInTree(
   if (rightSide) return [tree && tree[0], rightSide];
 }
 
+/**
+ * Checks the input fields for mixed taproot and non-taproot fields.
+ * @param inputData The original input data.
+ * @param newInputData The new input data.
+ * @param action The action being performed.
+ * @throws Throws an error if the input fields are inconsistent.
+ */
 function checkMixedTaprootAndNonTaprootInputFields(
   inputData: PsbtOutput,
   newInputData: PsbtInput,
@@ -352,6 +416,14 @@ function checkMixedTaprootAndNonTaprootInputFields(
         `Cannot use both taproot and non-taproot fields.`,
     );
 }
+
+/**
+ * Checks the output fields for mixed taproot and non-taproot fields.
+ * @param inputData The original output data.
+ * @param newInputData The new output data.
+ * @param action The action being performed.
+ * @throws Throws an error if the output fields are inconsistent.
+ */
 function checkMixedTaprootAndNonTaprootOutputFields(
   inputData: PsbtOutput,
   newInputData: PsbtOutput,
