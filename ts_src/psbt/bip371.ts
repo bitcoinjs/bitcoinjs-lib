@@ -27,6 +27,11 @@ import { p2tr } from '../payments';
 
 import { signatureBlocksAction } from './psbtutils';
 
+/**
+ * Converts a public key to an X-only public key.
+ * @param pubKey The public key to convert.
+ * @returns The X-only public key.
+ */
 export const toXOnly = (pubKey: Buffer) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 
@@ -61,6 +66,12 @@ export function tapScriptFinalizer(
   }
 }
 
+/**
+ * Serializes a taproot signature.
+ * @param sig The signature to serialize.
+ * @param sighashType The sighash type. Optional.
+ * @returns The serialized taproot signature.
+ */
 export function serializeTaprootSignature(
   sig: Buffer,
   sighashType?: number,
@@ -72,6 +83,11 @@ export function serializeTaprootSignature(
   return Buffer.concat([sig, sighashTypeByte]);
 }
 
+/**
+ * Checks if a PSBT input is a taproot input.
+ * @param input The PSBT input to check.
+ * @returns True if the input is a taproot input, false otherwise.
+ */
 export function isTaprootInput(input: PsbtInput): boolean {
   return (
     input &&
@@ -85,6 +101,12 @@ export function isTaprootInput(input: PsbtInput): boolean {
   );
 }
 
+/**
+ * Checks if a PSBT output is a taproot output.
+ * @param output The PSBT output to check.
+ * @param script The script to check. Optional.
+ * @returns True if the output is a taproot output, false otherwise.
+ */
 export function isTaprootOutput(output: PsbtOutput, script?: Buffer): boolean {
   return (
     output &&
@@ -97,6 +119,13 @@ export function isTaprootOutput(output: PsbtOutput, script?: Buffer): boolean {
   );
 }
 
+/**
+ * Checks the taproot input fields for consistency.
+ * @param inputData The original input data.
+ * @param newInputData The new input data.
+ * @param action The action being performed.
+ * @throws Throws an error if the input fields are inconsistent.
+ */
 export function checkTaprootInputFields(
   inputData: PsbtInput,
   newInputData: PsbtInput,
@@ -106,6 +135,13 @@ export function checkTaprootInputFields(
   checkIfTapLeafInTree(inputData, newInputData, action);
 }
 
+/**
+ * Checks the taproot output fields for consistency.
+ * @param outputData The original output data.
+ * @param newOutputData The new output data.
+ * @param action The action being performed.
+ * @throws Throws an error if the output fields are inconsistent.
+ */
 export function checkTaprootOutputFields(
   outputData: PsbtOutput,
   newOutputData: PsbtOutput,
