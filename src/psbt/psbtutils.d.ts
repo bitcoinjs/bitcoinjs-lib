@@ -12,11 +12,6 @@ export declare const isP2TR: (script: Buffer) => boolean;
  * @param witness The witness stack to convert.
  * @returns The script witness as a Buffer.
  */
-/**
- * Converts a witness stack to a script witness.
- * @param witness The witness stack to convert.
- * @returns The converted script witness.
- */
 export declare function witnessStackToScriptWitness(witness: Buffer[]): Buffer;
 /**
  * Finds the position of a public key in a script.
