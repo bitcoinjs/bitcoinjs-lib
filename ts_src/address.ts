@@ -43,6 +43,7 @@ const FUTURE_SEGWIT_VERSION_WARNING: string =
   'End users MUST be warned carefully in the GUI and asked if they wish to proceed ' +
   'with caution. Wallets should verify the segwit version from the output of fromBech32, ' +
   'then decide when it is safe to use which version of segwit.';
+const WARNING_STATES: boolean[] = [false, false];
 
 function _toFutureSegwitAddress(output: Buffer, network: Network): string {
   const data = output.slice(2);
@@ -64,7 +65,10 @@ function _toFutureSegwitAddress(output: Buffer, network: Network): string {
   if (output[1] !== data.length)
     throw new TypeError('Invalid script for segwit address');
 
-  console.warn(FUTURE_SEGWIT_VERSION_WARNING);
+  if (WARNING_STATES[0] === false) {
+    console.warn(FUTURE_SEGWIT_VERSION_WARNING);
+    WARNING_STATES[0] = true;
+  }
 
   return toBech32(data, version, network.bech32);
 }
@@ -210,7 +214,10 @@ export function toOutputScript(address: string, network?: Network): Buffer {
         decodeBech32.data.length >= FUTURE_SEGWIT_MIN_SIZE &&
         decodeBech32.data.length <= FUTURE_SEGWIT_MAX_SIZE
       ) {
-        console.warn(FUTURE_SEGWIT_VERSION_WARNING);
+        if (WARNING_STATES[1] === false) {
+          console.warn(FUTURE_SEGWIT_VERSION_WARNING);
+          WARNING_STATES[1] = true;
+        }
 
         return bscript.compile([
           decodeBech32.version + FUTURE_SEGWIT_VERSION_DIFF,
