@@ -18,6 +18,11 @@ const psbtutils_1 = require('./psbtutils');
 const bip341_1 = require('../payments/bip341');
 const payments_1 = require('../payments');
 const psbtutils_2 = require('./psbtutils');
+/**
+ * Converts a public key to an X-only public key.
+ * @param pubKey The public key to convert.
+ * @returns The X-only public key.
+ */
 const toXOnly = pubKey => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33));
 exports.toXOnly = toXOnly;
 /**
@@ -46,6 +51,12 @@ function tapScriptFinalizer(inputIndex, input, tapLeafHashToFinalize) {
   }
 }
 exports.tapScriptFinalizer = tapScriptFinalizer;
+/**
+ * Serializes a taproot signature.
+ * @param sig The signature to serialize.
+ * @param sighashType The sighash type. Optional.
+ * @returns The serialized taproot signature.
+ */
 function serializeTaprootSignature(sig, sighashType) {
   const sighashTypeByte = sighashType
     ? Buffer.from([sighashType])
@@ -53,6 +64,11 @@ function serializeTaprootSignature(sig, sighashType) {
   return Buffer.concat([sig, sighashTypeByte]);
 }
 exports.serializeTaprootSignature = serializeTaprootSignature;
+/**
+ * Checks if a PSBT input is a taproot input.
+ * @param input The PSBT input to check.
+ * @returns True if the input is a taproot input, false otherwise.
+ */
 function isTaprootInput(input) {
   return (
     input &&
@@ -66,6 +82,12 @@ function isTaprootInput(input) {
   );
 }
 exports.isTaprootInput = isTaprootInput;
+/**
+ * Checks if a PSBT output is a taproot output.
+ * @param output The PSBT output to check.
+ * @param script The script to check. Optional.
+ * @returns True if the output is a taproot output, false otherwise.
+ */
 function isTaprootOutput(output, script) {
   return (
     output &&
@@ -78,11 +100,25 @@ function isTaprootOutput(output, script) {
   );
 }
 exports.isTaprootOutput = isTaprootOutput;
+/**
+ * Checks the taproot input fields for consistency.
+ * @param inputData The original input data.
+ * @param newInputData The new input data.
+ * @param action The action being performed.
+ * @throws Throws an error if the input fields are inconsistent.
+ */
 function checkTaprootInputFields(inputData, newInputData, action) {
   checkMixedTaprootAndNonTaprootInputFields(inputData, newInputData, action);
   checkIfTapLeafInTree(inputData, newInputData, action);
 }
 exports.checkTaprootInputFields = checkTaprootInputFields;
+/**
+ * Checks the taproot output fields for consistency.
+ * @param outputData The original output data.
+ * @param newOutputData The new output data.
+ * @param action The action being performed.
+ * @throws Throws an error if the output fields are inconsistent.
+ */
 function checkTaprootOutputFields(outputData, newOutputData, action) {
   checkMixedTaprootAndNonTaprootOutputFields(outputData, newOutputData, action);
   checkTaprootScriptPubkey(outputData, newOutputData);
@@ -100,6 +136,13 @@ function checkTaprootScriptPubkey(outputData, newOutputData) {
       throw new Error('Error adding output. Script or address mismatch.');
   }
 }
+/**
+ * Returns the Taproot script public key.
+ *
+ * @param tapInternalKey - The Taproot internal key.
+ * @param tapTree - The Taproot tree (optional).
+ * @returns The Taproot script public key.
+ */
 function getTaprootScripPubkey(tapInternalKey, tapTree) {
   const scriptTree = tapTree && tapTreeFromList(tapTree.leaves);
   const { output } = (0, payments_1.p2tr)({
@@ -108,6 +151,13 @@ function getTaprootScripPubkey(tapInternalKey, tapTree) {
   });
   return output;
 }
+/**
+ * Tweak the internal public key for a specific input.
+ * @param inputIndex - The index of the input.
+ * @param input - The PsbtInput object representing the input.
+ * @returns The tweaked internal public key.
+ * @throws Error if the tap internal key cannot be tweaked.
+ */
 function tweakInternalPubKey(inputIndex, input) {
   const tapInternalKey = input.tapInternalKey;
   const outputKey =
@@ -155,6 +205,12 @@ function tapTreeFromList(leaves = []) {
   return instertLeavesInTree(leaves);
 }
 exports.tapTreeFromList = tapTreeFromList;
+/**
+ * Checks the taproot input for signatures.
+ * @param input The PSBT input to check.
+ * @param action The action being performed.
+ * @returns True if the input has taproot signatures, false otherwise.
+ */
 function checkTaprootInputForSigs(input, action) {
   const sigs = extractTaprootSigs(input);
   return sigs.some(sig =>
@@ -162,6 +218,11 @@ function checkTaprootInputForSigs(input, action) {
   );
 }
 exports.checkTaprootInputForSigs = checkTaprootInputForSigs;
+/**
+ * Decodes a Schnorr signature.
+ * @param signature The signature to decode.
+ * @returns The decoded Schnorr signature.
+ */
 function decodeSchnorrSignature(signature) {
   return {
     signature: signature.slice(0, 64),
@@ -169,6 +230,11 @@ function decodeSchnorrSignature(signature) {
       signature.slice(64)[0] || transaction_1.Transaction.SIGHASH_DEFAULT,
   };
 }
+/**
+ * Extracts taproot signatures from a PSBT input.
+ * @param input The PSBT input to extract signatures from.
+ * @returns An array of taproot signatures.
+ */
 function extractTaprootSigs(input) {
   const sigs = [];
   if (input.tapKeySig) sigs.push(input.tapKeySig);
@@ -180,12 +246,25 @@ function extractTaprootSigs(input) {
   }
   return sigs;
 }
+/**
+ * Gets the taproot signature from the witness.
+ * @param finalScriptWitness The final script witness.
+ * @returns The taproot signature, or undefined if not found.
+ */
 function getTapKeySigFromWithness(finalScriptWitness) {
   if (!finalScriptWitness) return;
   const witness = finalScriptWitness.slice(2);
   // todo: add schnorr signature validation
   if (witness.length === 64 || witness.length === 65) return witness;
 }
+/**
+ * Converts a binary tree to a BIP371 type list.
+ * @param tree The binary tap tree.
+ * @param leaves A list of tapleaves. Optional.
+ * @param depth The current depth. Optional.
+ * @returns A list of BIP 371 tapleaves.
+ * @throws Throws an error if the taptree cannot be converted to a tapleaf list.
+ */
 function _tapTreeToList(tree, leaves = [], depth = 0) {
   if (depth > bip341_1.MAX_TAPTREE_DEPTH)
     throw new Error('Max taptree depth exceeded.');
@@ -202,6 +281,12 @@ function _tapTreeToList(tree, leaves = [], depth = 0) {
   if (tree[1]) _tapTreeToList(tree[1], leaves, depth + 1);
   return leaves;
 }
+/**
+ * Inserts the tapleaves into the taproot tree.
+ * @param leaves The tapleaves to insert.
+ * @returns The taproot tree.
+ * @throws Throws an error if there is no room left to insert a tapleaf in the tree.
+ */
 function instertLeavesInTree(leaves) {
   let tree;
   for (const leaf of leaves) {
@@ -210,6 +295,13 @@ function instertLeavesInTree(leaves) {
   }
   return tree;
 }
+/**
+ * Inserts a tapleaf into the taproot tree.
+ * @param leaf The tapleaf to insert.
+ * @param tree The taproot tree.
+ * @param depth The current depth. Optional.
+ * @returns The updated taproot tree.
+ */
 function instertLeafInTree(leaf, tree, depth = 0) {
   if (depth > bip341_1.MAX_TAPTREE_DEPTH)
     throw new Error('Max taptree depth exceeded.');
@@ -227,6 +319,13 @@ function instertLeafInTree(leaf, tree, depth = 0) {
   const rightSide = instertLeafInTree(leaf, tree && tree[1], depth + 1);
   if (rightSide) return [tree && tree[0], rightSide];
 }
+/**
+ * Checks the input fields for mixed taproot and non-taproot fields.
+ * @param inputData The original input data.
+ * @param newInputData The new input data.
+ * @param action The action being performed.
+ * @throws Throws an error if the input fields are inconsistent.
+ */
 function checkMixedTaprootAndNonTaprootInputFields(
   inputData,
   newInputData,
@@ -246,6 +345,13 @@ function checkMixedTaprootAndNonTaprootInputFields(
         `Cannot use both taproot and non-taproot fields.`,
     );
 }
+/**
+ * Checks the output fields for mixed taproot and non-taproot fields.
+ * @param inputData The original output data.
+ * @param newInputData The new output data.
+ * @param action The action being performed.
+ * @throws Throws an error if the output fields are inconsistent.
+ */
 function checkMixedTaprootAndNonTaprootOutputFields(
   inputData,
   newInputData,
