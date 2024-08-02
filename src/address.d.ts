@@ -26,26 +26,48 @@ export interface Bech32Result {
     data: Buffer;
 }
 /**
- * decode address with base58 specification,  return address version and address hash if valid
+ * Decodes a base58check encoded Bitcoin address and returns the version and hash.
+ *
+ * @param address - The base58check encoded Bitcoin address to decode.
+ * @returns An object containing the version and hash of the decoded address.
+ * @throws {TypeError} If the address is too short or too long.
  */
 export declare function fromBase58Check(address: string): Base58CheckResult;
 /**
- * decode address with bech32 specification,  return address version、address prefix and address data if valid
+ * Converts a Bech32 or Bech32m encoded address to its corresponding data representation.
+ * @param address - The Bech32 or Bech32m encoded address.
+ * @returns An object containing the version, prefix, and data of the address.
+ * @throws {TypeError} If the address uses the wrong encoding.
  */
 export declare function fromBech32(address: string): Bech32Result;
 /**
- * encode address hash to base58 address with version
+ * Converts a hash to a Base58Check-encoded string.
+ * @param hash - The hash to be encoded.
+ * @param version - The version byte to be prepended to the encoded string.
+ * @returns The Base58Check-encoded string.
  */
 export declare function toBase58Check(hash: Buffer, version: number): string;
 /**
- * encode address hash to bech32 address with version and prefix
+ * Converts a buffer to a Bech32 or Bech32m encoded string.
+ * @param data - The buffer to be encoded.
+ * @param version - The version number to be used in the encoding.
+ * @param prefix - The prefix string to be used in the encoding.
+ * @returns The Bech32 or Bech32m encoded string.
  */
 export declare function toBech32(data: Buffer, version: number, prefix: string): string;
 /**
- * decode address from output script with network, return address if matched
+ * Converts an output script to a Bitcoin address.
+ * @param output - The output script as a Buffer.
+ * @param network - The Bitcoin network (optional).
+ * @returns The Bitcoin address corresponding to the output script.
+ * @throws If the output script has no matching address.
  */
 export declare function fromOutputScript(output: Buffer, network?: Network): string;
 /**
- * encodes address to output script with network, return output script if address matched
+ * Converts a Bitcoin address to its corresponding output script.
+ * @param address - The Bitcoin address to convert.
+ * @param network - The Bitcoin network to use. Defaults to the Bitcoin network.
+ * @returns The corresponding output script as a Buffer.
+ * @throws If the address has an invalid prefix or no matching script.
  */
 export declare function toOutputScript(address: string, network?: Network): Buffer;
