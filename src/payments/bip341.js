@@ -4,6 +4,7 @@ exports.tweakKey =
   exports.tapTweakHash =
   exports.tapleafHash =
   exports.findScriptPath =
+  exports.calculateScriptTreeMerkleRoot =
   exports.toHashTree =
   exports.rootHashFromPath =
   exports.MAX_TAPTREE_DEPTH =
@@ -59,6 +60,35 @@ function toHashTree(scriptTree) {
   };
 }
 exports.toHashTree = toHashTree;
+/**
+ * Calculates the Merkle root from an array of Taproot leaf hashes.
+ *
+ * @param {Buffer[]} leafHashes - Array of Taproot leaf hashes.
+ * @returns {Buffer} - The Merkle root.
+ */
+function calculateScriptTreeMerkleRoot(leafHashes) {
+  if (!leafHashes || leafHashes.length === 0) {
+    return undefined;
+  }
+  // sort the leaf nodes
+  leafHashes.sort(Buffer.compare);
+  // create the initial hash node
+  let currentLevel = leafHashes;
+  // build Merkle Tree
+  while (currentLevel.length > 1) {
+    const nextLevel = [];
+    for (let i = 0; i < currentLevel.length; i += 2) {
+      const left = currentLevel[i];
+      const right = i + 1 < currentLevel.length ? currentLevel[i + 1] : left;
+      nextLevel.push(
+        i + 1 < currentLevel.length ? tapBranchHash(left, right) : left,
+      );
+    }
+    currentLevel = nextLevel;
+  }
+  return currentLevel[0];
+}
+exports.calculateScriptTreeMerkleRoot = calculateScriptTreeMerkleRoot;
 /**
  * Given a HashTree, finds the path from a particular hash to the root.
  * @param node - the root of the tree

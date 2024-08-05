@@ -19,7 +19,11 @@ import { fromOutputScript, toOutputScript } from './address';
 import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { bitcoin as btcNetwork, Network } from './networks';
 import * as payments from './payments';
-import { tapleafHash } from './payments/bip341';
+import {
+  calculateScriptTreeMerkleRoot,
+  tapleafHash,
+  tapTweakHash,
+} from './payments/bip341';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
 import {
@@ -641,10 +645,7 @@ export class Psbt {
     return validationResultCount > 0;
   }
 
-  signAllInputsHD(
-    hdKeyPair: HDSigner,
-    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
-  ): this {
+  signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this {
     if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
       throw new Error('Need HDSigner to sign input');
     }
@@ -666,7 +667,7 @@ export class Psbt {
 
   signAllInputsHDAsync(
     hdKeyPair: HDSigner | HDSignerAsync,
-    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+    sighashTypes?: number[],
   ): Promise<void> {
     return new Promise((resolve, reject): any => {
       if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
@@ -699,7 +700,7 @@ export class Psbt {
   signInputHD(
     inputIndex: number,
     hdKeyPair: HDSigner,
-    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+    sighashTypes?: number[],
   ): this {
     if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
       throw new Error('Need HDSigner to sign input');
@@ -716,7 +717,7 @@ export class Psbt {
   signInputHDAsync(
     inputIndex: number,
     hdKeyPair: HDSigner | HDSignerAsync,
-    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+    sighashTypes?: number[],
   ): Promise<void> {
     return new Promise((resolve, reject): any => {
       if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
@@ -1189,6 +1190,14 @@ export interface HDSigner extends HDSignerBase {
    * Return a 64 byte signature (32 byte r and 32 byte s in that order)
    */
   sign(hash: Buffer): Buffer;
+  /**
+   * Adjusts a keypair for Taproot payments by applying a tweak to derive the internal key.
+   *
+   * In Taproot, a keypair may need to be tweaked to produce an internal key that conforms to the Taproot script.
+   * This tweak process involves modifying the original keypair based on a specific tweak value to ensure compatibility
+   * with the Taproot address format and functionality.
+   */
+  tweak(t: Buffer): Signer;
 }
 
 /**
@@ -1197,6 +1206,7 @@ export interface HDSigner extends HDSignerBase {
 export interface HDSignerAsync extends HDSignerBase {
   derivePath(path: string): HDSignerAsync;
   sign(hash: Buffer): Promise<Buffer>;
+  tweak(t: Buffer): Signer;
 }
 
 export interface Signer {
@@ -1903,6 +1913,10 @@ function getSignersFromHD(
   hdKeyPair: HDSigner | HDSignerAsync,
 ): Array<Signer | SignerAsync> {
   const input = checkForInput(inputs, inputIndex);
+  if (isTaprootInput(input)) {
+    return getTweakSignersFromHD(inputIndex, inputs, hdKeyPair);
+  }
+
   if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
     throw new Error('Need bip32Derivation to sign with HD');
   }
@@ -1926,6 +1940,43 @@ function getSignersFromHD(
       throw new Error('pubkey did not match bip32Derivation');
     }
     return node;
+  });
+  return signers;
+}
+
+function getTweakSignersFromHD(
+  inputIndex: number,
+  inputs: PsbtInput[],
+  hdKeyPair: HDSigner | HDSignerAsync,
+): Array<Signer | SignerAsync> {
+  const input = checkForInput(inputs, inputIndex);
+  if (!input.tapBip32Derivation || input.tapBip32Derivation.length === 0) {
+    throw new Error('Need tapBip32Derivation to sign with HD');
+  }
+  const myDerivations = input.tapBip32Derivation
+    .map(bipDv => {
+      if (bipDv.masterFingerprint.equals(hdKeyPair.fingerprint)) {
+        return bipDv;
+      } else {
+        return;
+      }
+    })
+    .filter(v => !!v);
+  if (myDerivations.length === 0) {
+    throw new Error(
+      'Need one tapBip32Derivation masterFingerprint to match the HDSigner fingerprint',
+    );
+  }
+
+  const signers: Array<Signer | SignerAsync> = myDerivations.map(bipDv => {
+    const node = hdKeyPair.derivePath(bipDv!.path);
+    if (!bipDv!.pubkey.equals(toXOnly(node.publicKey))) {
+      throw new Error('pubkey did not match tapBip32Derivation');
+    }
+    const h = calculateScriptTreeMerkleRoot(bipDv!.leafHashes);
+    const tweakValue = tapTweakHash(toXOnly(node.publicKey), h);
+
+    return node.tweak(tweakValue);
   });
   return signers;
 }
