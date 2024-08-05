@@ -68,35 +68,25 @@ exports.toHashTree = toHashTree;
  */
 function calculateScriptTreeMerkleRoot(leafHashes) {
   if (!leafHashes || leafHashes.length === 0) {
-    return Buffer.from([]);
+    return undefined;
   }
-  leafHashes.sort((a, b) => a.compare(b));
-  const hashes = leafHashes.map(hash => {
-    return {
-      hash,
-    };
-  });
-  while (hashes.length > 1) {
+  // sort the leaf nodes
+  leafHashes.sort(Buffer.compare);
+  // create the initial hash node
+  let currentLevel = leafHashes;
+  // build Merkle Tree
+  while (currentLevel.length > 1) {
     const nextLevel = [];
-    for (let i = 0; i < hashes.length; i += 2) {
-      const left = hashes[i];
-      const right = i + 1 === hashes.length ? left : hashes[i + 1];
-      if (i + 1 === hashes.length) {
-        nextLevel.push({
-          hash: left.hash,
-          left,
-          right,
-        });
-      } else {
-        nextLevel.push({
-          hash: tapBranchHash(left.hash, right.hash),
-        });
-      }
+    for (let i = 0; i < currentLevel.length; i += 2) {
+      const left = currentLevel[i];
+      const right = i + 1 < currentLevel.length ? currentLevel[i + 1] : left;
+      nextLevel.push(
+        i + 1 < currentLevel.length ? tapBranchHash(left, right) : left,
+      );
     }
-    hashes.length = 0;
-    hashes.push(...nextLevel);
+    currentLevel = nextLevel;
   }
-  return hashes[0].hash;
+  return currentLevel[0];
 }
 exports.calculateScriptTreeMerkleRoot = calculateScriptTreeMerkleRoot;
 /**
