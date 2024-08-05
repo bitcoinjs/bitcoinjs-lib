@@ -1,6 +1,11 @@
 /// <reference types="node" />
 import { Taptree } from '../types';
 import { PsbtInput, PsbtOutput, TapLeaf } from 'bip174/src/lib/interfaces';
+/**
+ * Converts a public key to an X-only public key.
+ * @param pubKey The public key to convert.
+ * @returns The X-only public key.
+ */
 export declare const toXOnly: (pubKey: Buffer) => Buffer;
 /**
  * Default tapscript finalizer. It searches for the `tapLeafHashToFinalize` if provided.
@@ -14,11 +19,49 @@ export declare const toXOnly: (pubKey: Buffer) => Buffer;
 export declare function tapScriptFinalizer(inputIndex: number, input: PsbtInput, tapLeafHashToFinalize?: Buffer): {
     finalScriptWitness: Buffer | undefined;
 };
+/**
+ * Serializes a taproot signature.
+ * @param sig The signature to serialize.
+ * @param sighashType The sighash type. Optional.
+ * @returns The serialized taproot signature.
+ */
 export declare function serializeTaprootSignature(sig: Buffer, sighashType?: number): Buffer;
+/**
+ * Checks if a PSBT input is a taproot input.
+ * @param input The PSBT input to check.
+ * @returns True if the input is a taproot input, false otherwise.
+ */
 export declare function isTaprootInput(input: PsbtInput): boolean;
+/**
+ * Checks if a PSBT output is a taproot output.
+ * @param output The PSBT output to check.
+ * @param script The script to check. Optional.
+ * @returns True if the output is a taproot output, false otherwise.
+ */
 export declare function isTaprootOutput(output: PsbtOutput, script?: Buffer): boolean;
+/**
+ * Checks the taproot input fields for consistency.
+ * @param inputData The original input data.
+ * @param newInputData The new input data.
+ * @param action The action being performed.
+ * @throws Throws an error if the input fields are inconsistent.
+ */
 export declare function checkTaprootInputFields(inputData: PsbtInput, newInputData: PsbtInput, action: string): void;
+/**
+ * Checks the taproot output fields for consistency.
+ * @param outputData The original output data.
+ * @param newOutputData The new output data.
+ * @param action The action being performed.
+ * @throws Throws an error if the output fields are inconsistent.
+ */
 export declare function checkTaprootOutputFields(outputData: PsbtOutput, newOutputData: PsbtOutput, action: string): void;
+/**
+ * Tweak the internal public key for a specific input.
+ * @param inputIndex - The index of the input.
+ * @param input - The PsbtInput object representing the input.
+ * @returns The tweaked internal public key.
+ * @throws Error if the tap internal key cannot be tweaked.
+ */
 export declare function tweakInternalPubKey(inputIndex: number, input: PsbtInput): Buffer;
 /**
  * Convert a binary tree to a BIP371 type list. Each element of the list is (according to BIP371):
@@ -38,4 +81,10 @@ export declare function tapTreeToList(tree: Taptree): TapLeaf[];
  * @returns the corresponding taptree, or throws an exception if the tree cannot be reconstructed
  */
 export declare function tapTreeFromList(leaves?: TapLeaf[]): Taptree;
+/**
+ * Checks the taproot input for signatures.
+ * @param input The PSBT input to check.
+ * @param action The action being performed.
+ * @returns True if the input has taproot signatures, false otherwise.
+ */
 export declare function checkTaprootInputForSigs(input: PsbtInput, action: string): boolean;

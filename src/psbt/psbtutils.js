@@ -18,6 +18,11 @@ const bscript = require('../script');
 const transaction_1 = require('../transaction');
 const crypto_1 = require('../crypto');
 const payments = require('../payments');
+/**
+ * Checks if a given payment factory can generate a payment script from a given script.
+ * @param payment The payment factory to check.
+ * @returns A function that takes a script and returns a boolean indicating whether the payment factory can generate a payment script from the script.
+ */
 function isPaymentFactory(payment) {
   return script => {
     try {
@@ -39,11 +44,6 @@ exports.isP2TR = isPaymentFactory(payments.p2tr);
  * Converts a witness stack to a script witness.
  * @param witness The witness stack to convert.
  * @returns The script witness as a Buffer.
- */
-/**
- * Converts a witness stack to a script witness.
- * @param witness The witness stack to convert.
- * @returns The converted script witness.
  */
 function witnessStackToScriptWitness(witness) {
   let buffer = Buffer.allocUnsafe(0);
