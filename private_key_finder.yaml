@@ -1,0 +1,12 @@
+import bitcoinlib
+
+start_point = 1180591620717411303424
+end_point = 2361183241434822606847
+target_address = "1PWo3JeB9jrGwfHDNpdGK54CRas7fsVzXU"
+
+for private_key_int in range(start_point, end_point):
+    private_key_hex = format(private_key_int, 'x')
+    wallet_address = bitcoinlib.keys.PrivateKey(private_key_hex).public_key().address()
+    if wallet_address == target_address:
+        print("Found private key:", private_key_hex)
+        break
