@@ -163,7 +163,7 @@ export function tweakKey(
 
 /**
  * Computes the TapBranch hash by concatenating two buffers and applying the 'TapBranch' tagged hash algorithm.
- * 
+ *
  * @param a - The first buffer.
  * @param b - The second buffer.
  * @returns The TapBranch hash of the concatenated buffers.
@@ -174,7 +174,7 @@ function tapBranchHash(a: Buffer, b: Buffer): Buffer {
 
 /**
  * Serializes a script by encoding its length as a varint and concatenating it with the script.
- * 
+ *
  * @param s - The script to be serialized.
  * @returns The serialized script as a Buffer.
  */

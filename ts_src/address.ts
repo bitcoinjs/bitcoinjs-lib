@@ -78,7 +78,7 @@ function _toFutureSegwitAddress(output: Buffer, network: Network): string {
 
 /**
  * Decodes a base58check encoded Bitcoin address and returns the version and hash.
- * 
+ *
  * @param address - The base58check encoded Bitcoin address to decode.
  * @returns An object containing the version and hash of the decoded address.
  * @throws {TypeError} If the address is too short or too long.

@@ -4,7 +4,7 @@
 
 /**
  * Checks if the given buffer is a valid BIP66-encoded signature.
- * 
+ *
  * @param buffer - The buffer to check.
  * @returns A boolean indicating whether the buffer is a valid BIP66-encoded signature.
  */
