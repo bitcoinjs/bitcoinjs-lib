@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 import * as bip66 from './bip66';
-import { OPS, REVERSE_OPS } from './ops';
+import { Opcodes, OPS, REVERSE_OPS } from './ops';
 import { Stack } from './payments';
 import * as pushdata from './push_data';
 import * as scriptNumber from './script_number';
@@ -168,9 +168,11 @@ export function toASM(chunks: Buffer | Array<number | Buffer>): string {
   if (chunksIsBuffer(chunks)) {
     chunks = decompile(chunks) as Stack;
   }
+
   if (!chunks) {
     throw new Error('Could not convert invalid chunks to ASM');
   }
+
   return chunks
     .map(chunk => {
       // data?
@@ -197,7 +199,9 @@ export function fromASM(asm: string): Buffer {
   return compile(
     asm.split(' ').map(chunkStr => {
       // opcode?
-      if (OPS[chunkStr] !== undefined) return OPS[chunkStr];
+      if (OPS[chunkStr as keyof Opcodes] !== undefined) {
+        return OPS[chunkStr as keyof Opcodes];
+      }
       typeforce(types.Hex, chunkStr);
 
       // data!
