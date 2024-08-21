@@ -12,21 +12,23 @@ const types = require('./types');
 const { typeforce } = types;
 const varuint = require('varuint-bitcoin');
 exports.varuint = varuint;
+const MAX_JS_NUMBER = 0x001fffffffffffff;
 // https://github.com/feross/buffer/blob/master/index.js#L1127
 function verifuint(value, max) {
-  if (typeof value !== 'number')
+  if (typeof value !== 'number' && typeof value !== 'bigint')
     throw new Error('cannot write a non-number as a number');
-  if (value < 0)
+  if (value < 0 && value < BigInt(0))
     throw new Error('specified a negative value for writing an unsigned value');
-  if (value > max) throw new Error('RangeError: value out of range');
-  if (Math.floor(value) !== value)
+  if (value > max && value > BigInt(max))
+    throw new Error('RangeError: value out of range');
+  if (Math.floor(Number(value)) !== Number(value))
     throw new Error('value has a fractional component');
 }
 function readUInt64LE(buffer, offset) {
   const a = buffer.readUInt32LE(offset);
   let b = buffer.readUInt32LE(offset + 4);
   b *= 0x100000000;
-  verifuint(b + a, 0x001fffffffffffff);
+  verifuint(b + a, MAX_JS_NUMBER);
   return b + a;
 }
 exports.readUInt64LE = readUInt64LE;
@@ -39,7 +41,7 @@ exports.readUInt64LE = readUInt64LE;
  * @returns The new offset after writing the value.
  */
 function writeUInt64LE(buffer, value, offset) {
-  verifuint(value, 0x001fffffffffffff);
+  verifuint(value, MAX_JS_NUMBER);
   buffer.writeInt32LE(value & -1, offset);
   buffer.writeUInt32LE(Math.floor(value / 0x100000000), offset + 4);
   return offset + 8;
@@ -94,8 +96,8 @@ class BufferWriter {
     this.offset = writeUInt64LE(this.buffer, i, this.offset);
   }
   writeVarInt(i) {
-    varuint.encode(i, this.buffer, this.offset);
-    this.offset += varuint.encode.bytes;
+    const { bytes } = varuint.encode(i, this.buffer, this.offset);
+    this.offset += bytes;
   }
   writeSlice(slice) {
     if (this.buffer.length < this.offset + slice.length) {
@@ -149,16 +151,18 @@ class BufferReader {
     return result;
   }
   readVarInt() {
-    const vi = varuint.decode(this.buffer, this.offset);
-    this.offset += varuint.decode.bytes;
-    return vi;
+    const { bigintValue, bytes } = varuint.decode(this.buffer, this.offset);
+    this.offset += bytes;
+    return bigintValue;
   }
   readSlice(n) {
-    if (this.buffer.length < this.offset + n) {
+    verifuint(n, MAX_JS_NUMBER);
+    const num = Number(n);
+    if (this.buffer.length < this.offset + num) {
       throw new Error('Cannot read slice out of bounds');
     }
-    const result = this.buffer.slice(this.offset, this.offset + n);
-    this.offset += n;
+    const result = this.buffer.slice(this.offset, this.offset + num);
+    this.offset += num;
     return result;
   }
   readVarSlice() {

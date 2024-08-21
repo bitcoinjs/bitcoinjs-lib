@@ -2,7 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.Psbt = void 0;
 const bip174_1 = require('bip174');
-const varuint = require('bip174/src/lib/converter/varint');
+const varuint = require('varuint-bitcoin');
 const utils_1 = require('bip174/src/lib/utils');
 const address_1 = require('./address');
 const bufferutils_1 = require('./bufferutils');
@@ -1495,8 +1495,8 @@ function scriptWitnessToWitnessStack(buffer) {
   }
   function readVarInt() {
     const vi = varuint.decode(buffer, offset);
-    offset += varuint.decode.bytes;
-    return vi;
+    offset += varuint.encodingLength(vi.bigintValue);
+    return vi.numberValue;
   }
   function readVarSlice() {
     return readSlice(readVarInt());

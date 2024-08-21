@@ -4,7 +4,7 @@ import * as bufferutils from '../src/bufferutils';
 import { BufferReader, BufferWriter } from '../src/bufferutils';
 
 import * as fixtures from './fixtures/bufferutils.json';
-const varuint = require('varuint-bitcoin');
+import varuint = require('varuint-bitcoin');
 
 describe('bufferutils', () => {
   function concatToBuffer(values: number[][]): Buffer {
@@ -427,7 +427,7 @@ describe('bufferutils', () => {
       values.forEach((value: number) => {
         const expectedOffset =
           bufferReader.offset + varuint.encodingLength(value);
-        const val = bufferReader.readVarInt();
+        const val = Number(bufferReader.readVarInt());
         testValue(bufferReader, val, value, expectedOffset);
       });
     });

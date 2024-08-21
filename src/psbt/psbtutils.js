@@ -13,7 +13,7 @@ exports.signatureBlocksAction =
   exports.isP2PK =
   exports.isP2MS =
     void 0;
-const varuint = require('bip174/src/lib/converter/varint');
+const varuint = require('varuint-bitcoin');
 const bscript = require('../script');
 const transaction_1 = require('../transaction');
 const crypto_1 = require('../crypto');

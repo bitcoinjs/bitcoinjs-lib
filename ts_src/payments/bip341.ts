@@ -146,6 +146,7 @@ function tapBranchHash(a: Buffer, b: Buffer): Buffer {
 }
 
 function serializeScript(s: Buffer): Buffer {
+  /* global BigInt */
   const varintLen = varuint.encodingLength(s.length);
   const buffer = NBuffer.allocUnsafe(varintLen); // better
   varuint.encode(s.length, buffer);

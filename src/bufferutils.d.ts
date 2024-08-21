@@ -47,8 +47,8 @@ export declare class BufferReader {
     readInt32(): number;
     readUInt32(): number;
     readUInt64(): number;
-    readVarInt(): number;
-    readSlice(n: number): Buffer;
+    readVarInt(): bigint;
+    readSlice(n: number | bigint): Buffer;
     readVarSlice(): Buffer;
     readVector(): Buffer[];
 }

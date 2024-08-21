@@ -143,12 +143,12 @@ class Block {
     bufferWriter.writeUInt32(this.bits);
     bufferWriter.writeUInt32(this.nonce);
     if (headersOnly || !this.transactions) return buffer;
-    bufferutils_1.varuint.encode(
+    const { bytes } = bufferutils_1.varuint.encode(
       this.transactions.length,
       buffer,
       bufferWriter.offset,
     );
-    bufferWriter.offset += bufferutils_1.varuint.encode.bytes;
+    bufferWriter.offset += bytes;
     this.transactions.forEach(tx => {
       const txSize = tx.byteLength(); // TODO: extract from toBuffer?
       tx.toBuffer(buffer, bufferWriter.offset);

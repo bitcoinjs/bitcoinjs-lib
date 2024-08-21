@@ -114,6 +114,7 @@ function tapBranchHash(a, b) {
   return bcrypto.taggedHash('TapBranch', buffer_1.Buffer.concat([a, b]));
 }
 function serializeScript(s) {
+  /* global BigInt */
   const varintLen = bufferutils_1.varuint.encodingLength(s.length);
   const buffer = buffer_1.Buffer.allocUnsafe(varintLen); // better
   bufferutils_1.varuint.encode(s.length, buffer);

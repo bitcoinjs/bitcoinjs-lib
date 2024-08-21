@@ -1,4 +1,4 @@
-import * as varuint from 'bip174/src/lib/converter/varint';
+import * as varuint from 'varuint-bitcoin';
 import { PartialSig, PsbtInput } from 'bip174/src/lib/interfaces';
 import * as bscript from '../script';
 import { Transaction } from '../transaction';

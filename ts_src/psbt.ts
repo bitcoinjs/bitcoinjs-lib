@@ -1,5 +1,5 @@
 import { Psbt as PsbtBase } from 'bip174';
-import * as varuint from 'bip174/src/lib/converter/varint';
+import * as varuint from 'varuint-bitcoin';
 import {
   Bip32Derivation,
   KeyValue,
@@ -1957,8 +1957,8 @@ function scriptWitnessToWitnessStack(buffer: Buffer): Buffer[] {
 
   function readVarInt(): number {
     const vi = varuint.decode(buffer, offset);
-    offset += (varuint.decode as any).bytes;
-    return vi;
+    offset += varuint.encodingLength(vi.bigintValue);
+    return vi.numberValue!;
   }
 
   function readVarSlice(): Buffer {

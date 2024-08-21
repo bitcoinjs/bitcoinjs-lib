@@ -55,7 +55,7 @@
     "bip174": "^2.1.1",
     "bs58check": "^3.0.1",
     "typeforce": "^1.11.3",
-    "varuint-bitcoin": "^1.1.2"
+    "varuint-bitcoin": "../varuint-bitcoin"
   },
   "devDependencies": {
     "@types/bs58": "^4.0.0",
