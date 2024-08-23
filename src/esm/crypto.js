@@ -4,18 +4,24 @@
  *
  * @packageDocumentation
  */
-import { ripemd160 } from '@noble/hashes/ripemd160';
-import { sha256 } from '@noble/hashes/sha256';
-import * as tools from "uint8array-tools";
-
-export function hash160(buffer: Uint8Array): Uint8Array {
-  return ripemd160(sha256(buffer));
+import { ripemd160 as _ripemd160 } from '@noble/hashes/ripemd160';
+import { sha1 as _sha1 } from '@noble/hashes/sha1';
+import { sha256 as _sha256 } from '@noble/hashes/sha256';
+export function ripemd160(buffer) {
+  return Buffer.from(_ripemd160(Uint8Array.from(buffer)));
 }
-
-export function hash256(buffer: Uint8Array): Uint8Array {
-  return sha256(sha256(buffer));
+export function sha1(buffer) {
+  return Buffer.from(_sha1(Uint8Array.from(buffer)));
 }
-
+export function sha256(buffer) {
+  return Buffer.from(_sha256(Uint8Array.from(buffer)));
+}
+export function hash160(buffer) {
+  return Buffer.from(_ripemd160(_sha256(Uint8Array.from(buffer))));
+}
+export function hash256(buffer) {
+  return Buffer.from(_sha256(_sha256(Uint8Array.from(buffer))));
+}
 export const TAGS = [
   'BIP0340/challenge',
   'BIP0340/aux',
@@ -26,16 +32,12 @@ export const TAGS = [
   'TapTweak',
   'KeyAgg list',
   'KeyAgg coefficient',
-] as const;
-export type TaggedHashPrefix = typeof TAGS[number];
-type TaggedHashPrefixes = {
-  [key in TaggedHashPrefix]: Buffer;
-};
+];
 /** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
 /**
  * Defines the tagged hash prefixes used in the crypto module.
  */
-export const TAGGED_HASH_PREFIXES: TaggedHashPrefixes = {
+export const TAGGED_HASH_PREFIXES = {
   'BIP0340/challenge': Buffer.from([
     123, 181, 45, 122, 159, 239, 88, 50, 62, 177, 191, 122, 64, 125, 179, 130,
     210, 243, 242, 216, 27, 177, 34, 79, 73, 254, 81, 143, 109, 72, 211, 124,
@@ -91,7 +93,6 @@ export const TAGGED_HASH_PREFIXES: TaggedHashPrefixes = {
     78, 214, 66, 114, 129, 192, 145, 0, 249, 77, 205, 82, 201, 129,
   ]),
 };
-
-export function taggedHash(prefix: TaggedHashPrefix, data: Uint8Array): Uint8Array {
-  return sha256(tools.concat([TAGGED_HASH_PREFIXES[prefix], data]));
+export function taggedHash(prefix, data) {
+  return sha256(Buffer.concat([TAGGED_HASH_PREFIXES[prefix], data]));
 }

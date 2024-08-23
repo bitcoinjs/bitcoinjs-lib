@@ -1,24 +1,9 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "outDir": "./src",
-    "declaration": true,
-    "rootDir": "./ts_src",
-    "types": [
-      "node"
-    ],
-    "allowJs": false,
-    "strict": true,
-    "esModuleInterop": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "outDir": "src/esm",
+    "resolveJsonModule": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
   },
-  "include": [
-      "ts_src/**/*.ts"
-  ],
-  "exclude": [
-      "**/*.spec.ts",
-      "node_modules/**/*"
-  ]
 }

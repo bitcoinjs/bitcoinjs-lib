@@ -2,6 +2,7 @@
   "name": "bitcoinjs-lib",
   "version": "6.1.6",
   "description": "Client-side Bitcoin JavaScript library",
+  "type": "module",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "engines": {
@@ -16,7 +17,7 @@
   ],
   "scripts": {
     "audit": "better-npm-audit audit -l high",
-    "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
+    "build": "npm run clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && npm run formatjs",
     "build:tests": "npm run clean:jstests && tsc -p ./test/tsconfig.json",
     "clean": "rimraf src",
     "clean:jstests": "rimraf 'test/**/!(ts-node-register)*.js'",
@@ -52,9 +53,10 @@
   "dependencies": {
     "@noble/hashes": "^1.2.0",
     "bech32": "^2.0.0",
-    "bip174": "^2.1.1",
-    "bs58check": "^3.0.1",
+    "bip174": "../bip174",
+    "bs58check": "^4.0.0",
     "typeforce": "^1.11.3",
+    "uint8array-tools": "../uint8array-tools",
     "varuint-bitcoin": "../varuint-bitcoin"
   },
   "devDependencies": {
