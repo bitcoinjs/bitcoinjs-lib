@@ -1051,7 +1051,7 @@
     },
     {
       "description": "Script Tree is not a binary tree (has tree leafs)",
-      "exception": "property \"scriptTree\" of type \\?isTaptree, got Array",
+      "exception": "ValiError: Taptree is not of type isTaptree",
       "options": {},
       "arguments": {
         "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",
@@ -1080,7 +1080,7 @@
     },
     {
       "description": "Script Tree is not a TapTree tree (leaf has no script)",
-      "exception": "property \"scriptTree\" of type \\?isTaptree, got Array",
+      "exception": "ValiError: Taptree is not of type isTaptree",
       "options": {},
       "arguments": {
         "internalPubkey": "9fa5ffb68821cf559001caa0577eeea4978b29416def328a707b15e91701a2f7",

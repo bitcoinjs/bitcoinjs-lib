@@ -1,7 +1,8 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import * as scriptNumber from '../src/script_number';
-import * as fixtures from './fixtures/script_number.json';
+import * as scriptNumber from '../src/esm/script_number.js';
+import fixtures from './fixtures/script_number.json';
+import * as tools from 'uint8array-tools';
 
 describe('script-number', () => {
   describe('decode', () => {
@@ -19,7 +20,7 @@ describe('script-number', () => {
       it(f.number + ' returns ' + f.hex, () => {
         const actual = scriptNumber.encode(f.number);
 
-        assert.strictEqual(actual.toString('hex'), f.hex);
+        assert.strictEqual(tools.toHex(actual), f.hex);
       });
     });
   });

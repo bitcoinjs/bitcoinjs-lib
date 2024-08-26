@@ -44,11 +44,12 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.p2ms = void 0;
-const networks_1 = require('../networks');
-const bscript = __importStar(require('../script'));
-const types_1 = require('../types');
-const lazy = __importStar(require('./lazy'));
+exports.p2ms = p2ms;
+const networks_js_1 = require('../networks.cjs');
+const bscript = __importStar(require('../script.cjs'));
+const types_js_1 = require('../types.cjs');
+const lazy = __importStar(require('./lazy.cjs'));
+const v = __importStar(require('valibot'));
 const OPS = bscript.OPS;
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 // input: OP_0 [signatures ...]
@@ -75,23 +76,39 @@ function p2ms(a, opts) {
       (opts.allowIncomplete && x === OPS.OP_0) !== undefined
     );
   }
-  (0, types_1.typeforce)(
-    {
-      network: types_1.typeforce.maybe(types_1.typeforce.Object),
-      m: types_1.typeforce.maybe(types_1.typeforce.Number),
-      n: types_1.typeforce.maybe(types_1.typeforce.Number),
-      output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-      pubkeys: types_1.typeforce.maybe(
-        types_1.typeforce.arrayOf(types_1.isPoint),
-      ),
-      signatures: types_1.typeforce.maybe(
-        types_1.typeforce.arrayOf(isAcceptableSignature),
-      ),
-      input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-    },
+  // typef(
+  //   {
+  //     network: typef.maybe(typef.Object),
+  //     m: typef.maybe(typef.Number),
+  //     n: typef.maybe(typef.Number),
+  //     output: typef.maybe(typef.Buffer),
+  //     pubkeys: typef.maybe(typef.arrayOf(isPoint)),
+  //     signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
+  //     input: typef.maybe(typef.Buffer),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    v.partial(
+      v.object({
+        network: v.object({}),
+        m: v.number(),
+        n: v.number(),
+        output: types_js_1.BufferSchema,
+        pubkeys: v.array(
+          v.custom(types_js_1.isPoint),
+          'Received invalid pubkey',
+        ),
+        signatures: v.array(
+          v.custom(isAcceptableSignature),
+          'Expected signature to be of type isAcceptableSignature',
+        ),
+        input: types_js_1.BufferSchema,
+      }),
+    ),
     a,
   );
-  const network = a.network || networks_1.bitcoin;
+  const network = a.network || networks_js_1.bitcoin;
   const o = { network };
   let chunks = [];
   let decoded = false;
@@ -150,19 +167,22 @@ function p2ms(a, opts) {
   if (opts.validate) {
     if (a.output) {
       decode(a.output);
-      if (!types_1.typeforce.Number(chunks[0]))
-        throw new TypeError('Output is invalid');
-      if (!types_1.typeforce.Number(chunks[chunks.length - 2]))
-        throw new TypeError('Output is invalid');
+      // if (!typef.Number(chunks[0])) throw new TypeError('Output is invalid');
+      v.parse(v.number(), chunks[0], { message: 'Output is invalid' });
+      // if (!typef.Number(chunks[chunks.length - 2]))
+      //   throw new TypeError('Output is invalid');
+      v.parse(v.number(), chunks[chunks.length - 2], {
+        message: 'Output is invalid',
+      });
       if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG)
         throw new TypeError('Output is invalid');
       if (o.m <= 0 || o.n > 16 || o.m > o.n || o.n !== chunks.length - 3)
         throw new TypeError('Output is invalid');
-      if (!o.pubkeys.every(x => (0, types_1.isPoint)(x)))
+      if (!o.pubkeys.every(x => (0, types_js_1.isPoint)(x)))
         throw new TypeError('Output is invalid');
       if (a.m !== undefined && a.m !== o.m) throw new TypeError('m mismatch');
       if (a.n !== undefined && a.n !== o.n) throw new TypeError('n mismatch');
-      if (a.pubkeys && !(0, types_1.stacksEqual)(a.pubkeys, o.pubkeys))
+      if (a.pubkeys && !(0, types_js_1.stacksEqual)(a.pubkeys, o.pubkeys))
         throw new TypeError('Pubkeys mismatch');
     }
     if (a.pubkeys) {
@@ -184,7 +204,10 @@ function p2ms(a, opts) {
         !o.signatures.every(isAcceptableSignature)
       )
         throw new TypeError('Input has invalid signature(s)');
-      if (a.signatures && !(0, types_1.stacksEqual)(a.signatures, o.signatures))
+      if (
+        a.signatures &&
+        !(0, types_js_1.stacksEqual)(a.signatures, o.signatures)
+      )
         throw new TypeError('Signature mismatch');
       if (a.m !== undefined && a.m !== a.signatures.length)
         throw new TypeError('Signature count mismatch');
@@ -192,4 +215,3 @@ function p2ms(a, opts) {
   }
   return Object.assign(o, a);
 }
-exports.p2ms = p2ms;

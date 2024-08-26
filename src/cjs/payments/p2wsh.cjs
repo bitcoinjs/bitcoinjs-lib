@@ -44,21 +44,24 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.p2wsh = void 0;
-const bcrypto = __importStar(require('../crypto'));
-const networks_1 = require('../networks');
-const bscript = __importStar(require('../script'));
-const types_1 = require('../types');
-const lazy = __importStar(require('./lazy'));
+exports.p2wsh = p2wsh;
+const sha256_1 = require('@noble/hashes/sha256');
+const networks_js_1 = require('../networks.cjs');
+const bscript = __importStar(require('../script.cjs'));
+const types_js_1 = require('../types.cjs');
+const lazy = __importStar(require('./lazy.cjs'));
 const bech32_1 = require('bech32');
+const tools = __importStar(require('uint8array-tools'));
+const v = __importStar(require('valibot'));
 const OPS = bscript.OPS;
-const EMPTY_BUFFER = Buffer.alloc(0);
+const EMPTY_BUFFER = new Uint8Array(0);
 function chunkHasUncompressedPubkey(chunk) {
   if (
-    Buffer.isBuffer(chunk) &&
+    // Buffer.isBuffer(chunk) &&
+    chunk instanceof Uint8Array &&
     chunk.length === 65 &&
     chunk[0] === 0x04 &&
-    (0, types_1.isPoint)(chunk)
+    (0, types_js_1.isPoint)(chunk)
   ) {
     return true;
   } else {
@@ -80,25 +83,38 @@ function p2wsh(a, opts) {
   if (!a.address && !a.hash && !a.output && !a.redeem && !a.witness)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  (0, types_1.typeforce)(
-    {
-      network: types_1.typeforce.maybe(types_1.typeforce.Object),
-      address: types_1.typeforce.maybe(types_1.typeforce.String),
-      hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
-      output: types_1.typeforce.maybe(types_1.typeforce.BufferN(34)),
-      redeem: types_1.typeforce.maybe({
-        input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-        network: types_1.typeforce.maybe(types_1.typeforce.Object),
-        output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-        witness: types_1.typeforce.maybe(
-          types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
-        ),
+  // typef(
+  //   {
+  //     network: typef.maybe(typef.Object),
+  //     address: typef.maybe(typef.String),
+  //     hash: typef.maybe(typef.BufferN(32)),
+  //     output: typef.maybe(typef.BufferN(34)),
+  //     redeem: typef.maybe({
+  //       input: typef.maybe(typef.Buffer),
+  //       network: typef.maybe(typef.Object),
+  //       output: typef.maybe(typef.Buffer),
+  //       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //     }),
+  //     input: typef.maybe(typef.BufferN(0)),
+  //     witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    (0, types_js_1.NullablePartial)({
+      network: v.object({}),
+      address: v.string(),
+      hash: types_js_1.Buffer256bitSchema,
+      output: (0, types_js_1.NBufferSchemaFactory)(34),
+      redeem: (0, types_js_1.NullablePartial)({
+        input: types_js_1.BufferSchema,
+        network: v.object({}),
+        output: types_js_1.BufferSchema,
+        witness: v.array(types_js_1.BufferSchema),
       }),
-      input: types_1.typeforce.maybe(types_1.typeforce.BufferN(0)),
-      witness: types_1.typeforce.maybe(
-        types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
-      ),
-    },
+      input: (0, types_js_1.NBufferSchemaFactory)(0),
+      witness: v.array(types_js_1.BufferSchema),
+    }),
     a,
   );
   const _address = lazy.value(() => {
@@ -108,7 +124,7 @@ function p2wsh(a, opts) {
     return {
       version,
       prefix: result.prefix,
-      data: Buffer.from(data),
+      data: Uint8Array.from(data),
     };
   });
   const _rchunks = lazy.value(() => {
@@ -116,7 +132,7 @@ function p2wsh(a, opts) {
   });
   let network = a.network;
   if (!network) {
-    network = (a.redeem && a.redeem.network) || networks_1.bitcoin;
+    network = (a.redeem && a.redeem.network) || networks_js_1.bitcoin;
   }
   const o = { network };
   lazy.prop(o, 'address', () => {
@@ -128,7 +144,8 @@ function p2wsh(a, opts) {
   lazy.prop(o, 'hash', () => {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
-    if (o.redeem && o.redeem.output) return bcrypto.sha256(o.redeem.output);
+    if (o.redeem && o.redeem.output)
+      return (0, sha256_1.sha256)(o.redeem.output);
   });
   lazy.prop(o, 'output', () => {
     if (!o.hash) return;
@@ -174,7 +191,7 @@ function p2wsh(a, opts) {
   });
   // extended validation
   if (opts.validate) {
-    let hash = Buffer.from([]);
+    let hash = Uint8Array.from([]);
     if (a.address) {
       if (_address().prefix !== network.bech32)
         throw new TypeError('Invalid prefix or Network mismatch');
@@ -185,7 +202,8 @@ function p2wsh(a, opts) {
       hash = _address().data;
     }
     if (a.hash) {
-      if (hash.length > 0 && !hash.equals(a.hash))
+      // if (hash.length > 0 && !hash.equals(a.hash))
+      if (hash.length > 0 && tools.compare(hash, a.hash) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = a.hash;
     }
@@ -197,7 +215,8 @@ function p2wsh(a, opts) {
       )
         throw new TypeError('Output is invalid');
       const hash2 = a.output.slice(2);
-      if (hash.length > 0 && !hash.equals(hash2))
+      // if (hash.length > 0 && !hash.equals(hash2))
+      if (hash.length > 0 && tools.compare(hash, hash2) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = hash2;
     }
@@ -226,8 +245,9 @@ function p2wsh(a, opts) {
             'Redeem.output unspendable with more than 201 non-push ops',
           );
         // match hash against other sources
-        const hash2 = bcrypto.sha256(a.redeem.output);
-        if (hash.length > 0 && !hash.equals(hash2))
+        const hash2 = (0, sha256_1.sha256)(a.redeem.output);
+        // if (hash.length > 0 && !hash.equals(hash2))
+        if (hash.length > 0 && tools.compare(hash, hash2) !== 0)
           throw new TypeError('Hash mismatch');
         else hash = hash2;
       }
@@ -236,7 +256,7 @@ function p2wsh(a, opts) {
       if (
         a.witness &&
         a.redeem.witness &&
-        !(0, types_1.stacksEqual)(a.witness, a.redeem.witness)
+        !(0, types_js_1.stacksEqual)(a.witness, a.redeem.witness)
       )
         throw new TypeError('Witness and redeem.witness mismatch');
       if (
@@ -253,7 +273,12 @@ function p2wsh(a, opts) {
     }
     if (a.witness && a.witness.length > 0) {
       const wScript = a.witness[a.witness.length - 1];
-      if (a.redeem && a.redeem.output && !a.redeem.output.equals(wScript))
+      // if (a.redeem && a.redeem.output && !a.redeem.output.equals(wScript))
+      if (
+        a.redeem &&
+        a.redeem.output &&
+        tools.compare(a.redeem.output, wScript) !== 0
+      )
         throw new TypeError('Witness and redeem.output mismatch');
       if (
         a.witness.some(chunkHasUncompressedPubkey) ||
@@ -264,4 +289,3 @@ function p2wsh(a, opts) {
   }
   return Object.assign(o, a);
 }
-exports.p2wsh = p2wsh;

@@ -44,16 +44,18 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.p2tr = void 0;
-const buffer_1 = require('buffer');
-const networks_1 = require('../networks');
-const bscript = __importStar(require('../script'));
-const types_1 = require('../types');
-const ecc_lib_1 = require('../ecc_lib');
-const bip341_1 = require('./bip341');
-const lazy = __importStar(require('./lazy'));
+exports.p2tr = p2tr;
+// import { Buffer as NBuffer } from 'buffer';
+const networks_js_1 = require('../networks.cjs');
+const bscript = __importStar(require('../script.cjs'));
+const types_js_1 = require('../types.cjs');
+const ecc_lib_js_1 = require('../ecc_lib.cjs');
+const bip341_js_1 = require('./bip341.cjs');
+const lazy = __importStar(require('./lazy.cjs'));
 const bech32_1 = require('bech32');
-const address_1 = require('../address');
+const address_js_1 = require('../address.cjs');
+const tools = __importStar(require('uint8array-tools'));
+const v = __importStar(require('valibot'));
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
@@ -75,38 +77,60 @@ function p2tr(a, opts) {
   )
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  (0, types_1.typeforce)(
-    {
-      address: types_1.typeforce.maybe(types_1.typeforce.String),
-      input: types_1.typeforce.maybe(types_1.typeforce.BufferN(0)),
-      network: types_1.typeforce.maybe(types_1.typeforce.Object),
-      output: types_1.typeforce.maybe(types_1.typeforce.BufferN(34)),
-      internalPubkey: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
-      hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
-      pubkey: types_1.typeforce.maybe(types_1.typeforce.BufferN(32)),
-      signature: types_1.typeforce.maybe(
-        types_1.typeforce.anyOf(
-          types_1.typeforce.BufferN(64),
-          types_1.typeforce.BufferN(65),
+  // typef(
+  //   {
+  //     address: typef.maybe(typef.String),
+  //     input: typef.maybe(typef.BufferN(0)),
+  //     network: typef.maybe(typef.Object),
+  //     output: typef.maybe(typef.BufferN(34)),
+  //     internalPubkey: typef.maybe(typef.BufferN(32)),
+  //     hash: typef.maybe(typef.BufferN(32)), // merkle root hash, the tweak
+  //     pubkey: typef.maybe(typef.BufferN(32)), // tweaked with `hash` from `internalPubkey`
+  //     signature: typef.maybe(typef.anyOf(typef.BufferN(64), typef.BufferN(65))),
+  //     witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //     scriptTree: typef.maybe(isTaptree),
+  //     redeem: typef.maybe({
+  //       output: typef.maybe(typef.Buffer), // tapleaf script
+  //       redeemVersion: typef.maybe(typef.Number), // tapleaf version
+  //       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //     }),
+  //     redeemVersion: typef.maybe(typef.Number),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    v.partial(
+      v.object({
+        address: v.string(),
+        input: (0, types_js_1.NBufferSchemaFactory)(0),
+        network: v.object({}),
+        output: (0, types_js_1.NBufferSchemaFactory)(34),
+        internalPubkey: (0, types_js_1.NBufferSchemaFactory)(32),
+        hash: (0, types_js_1.NBufferSchemaFactory)(32), // merkle root hash, the tweak
+        pubkey: (0, types_js_1.NBufferSchemaFactory)(32), // tweaked with `hash` from `internalPubkey`
+        signature: v.union([
+          (0, types_js_1.NBufferSchemaFactory)(64),
+          (0, types_js_1.NBufferSchemaFactory)(65),
+        ]),
+        witness: v.array(types_js_1.BufferSchema),
+        scriptTree: v.custom(
+          types_js_1.isTaptree,
+          'Taptree is not of type isTaptree',
         ),
-      ),
-      witness: types_1.typeforce.maybe(
-        types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
-      ),
-      scriptTree: types_1.typeforce.maybe(types_1.isTaptree),
-      redeem: types_1.typeforce.maybe({
-        output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-        redeemVersion: types_1.typeforce.maybe(types_1.typeforce.Number),
-        witness: types_1.typeforce.maybe(
-          types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
+        redeem: v.partial(
+          v.object({
+            output: types_js_1.BufferSchema, // tapleaf script
+            redeemVersion: v.number(), // tapleaf version
+            witness: v.array(types_js_1.BufferSchema),
+          }),
         ),
+        redeemVersion: v.number(),
       }),
-      redeemVersion: types_1.typeforce.maybe(types_1.typeforce.Number),
-    },
+    ),
     a,
   );
   const _address = lazy.value(() => {
-    return (0, address_1.fromBech32)(a.address);
+    return (0, address_js_1.fromBech32)(a.address);
   });
   // remove annex if present, ignored by taproot
   const _witness = lazy.value(() => {
@@ -120,11 +144,11 @@ function p2tr(a, opts) {
     return a.witness.slice();
   });
   const _hashTree = lazy.value(() => {
-    if (a.scriptTree) return (0, bip341_1.toHashTree)(a.scriptTree);
+    if (a.scriptTree) return (0, bip341_js_1.toHashTree)(a.scriptTree);
     if (a.hash) return { hash: a.hash };
     return;
   });
-  const network = a.network || networks_1.bitcoin;
+  const network = a.network || networks_js_1.bitcoin;
   const o = { name: 'p2tr', network };
   lazy.prop(o, 'address', () => {
     if (!o.pubkey) return;
@@ -138,13 +162,13 @@ function p2tr(a, opts) {
     const w = _witness();
     if (w && w.length > 1) {
       const controlBlock = w[w.length - 1];
-      const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
+      const leafVersion = controlBlock[0] & types_js_1.TAPLEAF_VERSION_MASK;
       const script = w[w.length - 2];
-      const leafHash = (0, bip341_1.tapleafHash)({
+      const leafHash = (0, bip341_js_1.tapleafHash)({
         output: script,
         version: leafVersion,
       });
-      return (0, bip341_1.rootHashFromPath)(controlBlock, leafHash);
+      return (0, bip341_js_1.rootHashFromPath)(controlBlock, leafHash);
     }
     return null;
   });
@@ -161,7 +185,7 @@ function p2tr(a, opts) {
     ) {
       return a.redeem.redeemVersion;
     }
-    return bip341_1.LEAF_VERSION_TAPSCRIPT;
+    return bip341_js_1.LEAF_VERSION_TAPSCRIPT;
   });
   lazy.prop(o, 'redeem', () => {
     const witness = _witness(); // witness without annex
@@ -170,7 +194,7 @@ function p2tr(a, opts) {
       output: witness[witness.length - 2],
       witness: witness.slice(0, -2),
       redeemVersion:
-        witness[witness.length - 1][0] & types_1.TAPLEAF_VERSION_MASK,
+        witness[witness.length - 1][0] & types_js_1.TAPLEAF_VERSION_MASK,
     };
   });
   lazy.prop(o, 'pubkey', () => {
@@ -178,7 +202,7 @@ function p2tr(a, opts) {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.internalPubkey) {
-      const tweakedKey = (0, bip341_1.tweakKey)(o.internalPubkey, o.hash);
+      const tweakedKey = (0, bip341_js_1.tweakKey)(o.internalPubkey, o.hash);
       if (tweakedKey) return tweakedKey.x;
     }
   });
@@ -198,17 +222,20 @@ function p2tr(a, opts) {
     if (a.witness) return a.witness;
     const hashTree = _hashTree();
     if (hashTree && a.redeem && a.redeem.output && a.internalPubkey) {
-      const leafHash = (0, bip341_1.tapleafHash)({
+      const leafHash = (0, bip341_js_1.tapleafHash)({
         output: a.redeem.output,
         version: o.redeemVersion,
       });
-      const path = (0, bip341_1.findScriptPath)(hashTree, leafHash);
+      const path = (0, bip341_js_1.findScriptPath)(hashTree, leafHash);
       if (!path) return;
-      const outputKey = (0, bip341_1.tweakKey)(a.internalPubkey, hashTree.hash);
+      const outputKey = (0, bip341_js_1.tweakKey)(
+        a.internalPubkey,
+        hashTree.hash,
+      );
       if (!outputKey) return;
-      const controlBock = buffer_1.Buffer.concat(
+      const controlBock = tools.concat(
         [
-          buffer_1.Buffer.from([o.redeemVersion | outputKey.parity]),
+          Uint8Array.from([o.redeemVersion | outputKey.parity]),
           a.internalPubkey,
         ].concat(path),
       );
@@ -218,7 +245,7 @@ function p2tr(a, opts) {
   });
   // extended validation
   if (opts.validate) {
-    let pubkey = buffer_1.Buffer.from([]);
+    let pubkey = Uint8Array.from([]);
     if (a.address) {
       if (network && network.bech32 !== _address().prefix)
         throw new TypeError('Invalid prefix or Network mismatch');
@@ -229,7 +256,8 @@ function p2tr(a, opts) {
       pubkey = _address().data;
     }
     if (a.pubkey) {
-      if (pubkey.length > 0 && !pubkey.equals(a.pubkey))
+      // if (pubkey.length > 0 && !pubkey.equals(a.pubkey))
+      if (pubkey.length > 0 && tools.compare(pubkey, a.pubkey) !== 0)
         throw new TypeError('Pubkey mismatch');
       else pubkey = a.pubkey;
     }
@@ -240,30 +268,34 @@ function p2tr(a, opts) {
         a.output[1] !== 0x20
       )
         throw new TypeError('Output is invalid');
-      if (pubkey.length > 0 && !pubkey.equals(a.output.slice(2)))
+      // if (pubkey.length > 0 && !pubkey.equals(a.output.slice(2)))
+      if (pubkey.length > 0 && tools.compare(pubkey, a.output.slice(2)) !== 0)
         throw new TypeError('Pubkey mismatch');
       else pubkey = a.output.slice(2);
     }
     if (a.internalPubkey) {
-      const tweakedKey = (0, bip341_1.tweakKey)(a.internalPubkey, o.hash);
-      if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
+      const tweakedKey = (0, bip341_js_1.tweakKey)(a.internalPubkey, o.hash);
+      // if (pubkey.length > 0 && !pubkey.equals(tweakedKey!.x))
+      if (pubkey.length > 0 && tools.compare(pubkey, tweakedKey.x) !== 0)
         throw new TypeError('Pubkey mismatch');
       else pubkey = tweakedKey.x;
     }
     if (pubkey && pubkey.length) {
-      if (!(0, ecc_lib_1.getEccLib)().isXOnlyPoint(pubkey))
+      if (!(0, ecc_lib_js_1.getEccLib)().isXOnlyPoint(pubkey))
         throw new TypeError('Invalid pubkey for p2tr');
     }
     const hashTree = _hashTree();
     if (a.hash && hashTree) {
-      if (!a.hash.equals(hashTree.hash)) throw new TypeError('Hash mismatch');
+      // if (!a.hash.equals(hashTree.hash)) throw new TypeError('Hash mismatch');
+      if (tools.compare(a.hash, hashTree.hash) !== 0)
+        throw new TypeError('Hash mismatch');
     }
     if (a.redeem && a.redeem.output && hashTree) {
-      const leafHash = (0, bip341_1.tapleafHash)({
+      const leafHash = (0, bip341_js_1.tapleafHash)({
         output: a.redeem.output,
         version: o.redeemVersion,
       });
-      if (!(0, bip341_1.findScriptPath)(hashTree, leafHash))
+      if (!(0, bip341_js_1.findScriptPath)(hashTree, leafHash))
         throw new TypeError('Redeem script not in tree');
     }
     const witness = _witness();
@@ -277,13 +309,17 @@ function p2tr(a, opts) {
         if (bscript.decompile(a.redeem.output).length === 0)
           throw new TypeError('Redeem.output is invalid');
         // output redeem is constructed from the witness
-        if (o.redeem.output && !a.redeem.output.equals(o.redeem.output))
+        // if (o.redeem.output && !a.redeem.output.equals(o.redeem.output))
+        if (
+          o.redeem.output &&
+          tools.compare(a.redeem.output, o.redeem.output) !== 0
+        )
           throw new TypeError('Redeem.output and witness mismatch');
       }
       if (a.redeem.witness) {
         if (
           o.redeem.witness &&
-          !(0, types_1.stacksEqual)(a.redeem.witness, o.redeem.witness)
+          !(0, types_js_1.stacksEqual)(a.redeem.witness, o.redeem.witness)
         )
           throw new TypeError('Redeem.witness and witness mismatch');
       }
@@ -291,7 +327,8 @@ function p2tr(a, opts) {
     if (witness && witness.length) {
       if (witness.length === 1) {
         // key spending
-        if (a.signature && !a.signature.equals(witness[0]))
+        // if (a.signature && !a.signature.equals(witness[0]))
+        if (a.signature && tools.compare(a.signature, witness[0]) !== 0)
           throw new TypeError('Signature mismatch');
       } else {
         // script path spending
@@ -310,22 +347,27 @@ function p2tr(a, opts) {
             `The script path is too long. Got ${m}, expected max 128.`,
           );
         const internalPubkey = controlBlock.slice(1, 33);
-        if (a.internalPubkey && !a.internalPubkey.equals(internalPubkey))
+        // if (a.internalPubkey && !a.internalPubkey.equals(internalPubkey))
+        if (
+          a.internalPubkey &&
+          tools.compare(a.internalPubkey, internalPubkey) !== 0
+        )
           throw new TypeError('Internal pubkey mismatch');
-        if (!(0, ecc_lib_1.getEccLib)().isXOnlyPoint(internalPubkey))
+        if (!(0, ecc_lib_js_1.getEccLib)().isXOnlyPoint(internalPubkey))
           throw new TypeError('Invalid internalPubkey for p2tr witness');
-        const leafVersion = controlBlock[0] & types_1.TAPLEAF_VERSION_MASK;
+        const leafVersion = controlBlock[0] & types_js_1.TAPLEAF_VERSION_MASK;
         const script = witness[witness.length - 2];
-        const leafHash = (0, bip341_1.tapleafHash)({
+        const leafHash = (0, bip341_js_1.tapleafHash)({
           output: script,
           version: leafVersion,
         });
-        const hash = (0, bip341_1.rootHashFromPath)(controlBlock, leafHash);
-        const outputKey = (0, bip341_1.tweakKey)(internalPubkey, hash);
+        const hash = (0, bip341_js_1.rootHashFromPath)(controlBlock, leafHash);
+        const outputKey = (0, bip341_js_1.tweakKey)(internalPubkey, hash);
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');
-        if (pubkey.length && !pubkey.equals(outputKey.x))
+        // if (pubkey.length && !pubkey.equals(outputKey.x))
+        if (pubkey.length && tools.compare(pubkey, outputKey.x) !== 0)
           throw new TypeError('Pubkey mismatch for p2tr witness');
         if (outputKey.parity !== (controlBlock[0] & 1))
           throw new Error('Incorrect parity');
@@ -334,4 +376,3 @@ function p2tr(a, opts) {
   }
   return Object.assign(o, a);
 }
-exports.p2tr = p2tr;

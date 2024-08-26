@@ -1,3 +1,4 @@
+import * as tools from 'uint8array-tools';
 const _ECCLIB_CACHE = {};
 /**
  * Initializes the ECC library with the provided instance.
@@ -30,7 +31,7 @@ export function getEccLib() {
     );
   return _ECCLIB_CACHE.eccLib;
 }
-const h = hex => Buffer.from(hex, 'hex');
+const h = hex => tools.fromHex(hex);
 /**
  * Verifies the ECC functionality.
  *
@@ -76,7 +77,7 @@ function verifyEcc(ecc) {
     } else {
       assert(r !== null);
       assert(r.parity === t.parity);
-      assert(Buffer.from(r.xOnlyPubkey).equals(h(t.result)));
+      assert(tools.compare(r.xOnlyPubkey, h(t.result)) === 0);
     }
   });
 }

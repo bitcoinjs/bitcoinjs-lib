@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * bitcoin address decode and encode tools, include base58、bech32 and output script
  *
@@ -8,11 +7,11 @@
  *
  * @packageDocumentation
  */
-import { Network } from './networks';
+import { Network } from './networks.js';
 /** base58check decode result */
 export interface Base58CheckResult {
     /** address hash */
-    hash: Buffer;
+    hash: Uint8Array;
     /** address version: 0x00 for P2PKH, 0x05 for P2SH */
     version: number;
 }
@@ -23,7 +22,7 @@ export interface Bech32Result {
     /** address prefix: bc for P2WPKH、P2WSH、P2TR */
     prefix: string;
     /** address data：20 bytes for P2WPKH, 32 bytes for P2WSH、P2TR */
-    data: Buffer;
+    data: Uint8Array;
 }
 /**
  * decode address with base58 specification,  return address version and address hash if valid
@@ -36,16 +35,16 @@ export declare function fromBech32(address: string): Bech32Result;
 /**
  * encode address hash to base58 address with version
  */
-export declare function toBase58Check(hash: Buffer, version: number): string;
+export declare function toBase58Check(hash: Uint8Array, version: number): string;
 /**
  * encode address hash to bech32 address with version and prefix
  */
-export declare function toBech32(data: Buffer, version: number, prefix: string): string;
+export declare function toBech32(data: Uint8Array, version: number, prefix: string): string;
 /**
  * decode address from output script with network, return address if matched
  */
-export declare function fromOutputScript(output: Buffer, network?: Network): string;
+export declare function fromOutputScript(output: Uint8Array, network?: Network): string;
 /**
  * encodes address to output script with network, return output script if address matched
  */
-export declare function toOutputScript(address: string, network?: Network): Buffer;
+export declare function toOutputScript(address: string, network?: Network): Uint8Array;

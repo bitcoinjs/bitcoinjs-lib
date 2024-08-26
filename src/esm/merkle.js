@@ -1,3 +1,4 @@
+import * as tools from 'uint8array-tools';
 /**
  * Calculates the Merkle root of an array of buffers using a specified digest function.
  *
@@ -17,7 +18,7 @@ export function fastMerkleRoot(values, digestFn) {
     for (let i = 0; i < length; i += 2, ++j) {
       const left = results[i];
       const right = i + 1 === length ? left : results[i + 1];
-      const data = Buffer.concat([left, right]);
+      const data = tools.concat([left, right]);
       results[j] = digestFn(data);
     }
     length = j;

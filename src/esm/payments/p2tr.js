@@ -1,13 +1,14 @@
-import { Buffer as NBuffer } from 'buffer';
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
-import * as bscript from '../script';
+// import { Buffer as NBuffer } from 'buffer';
+import { bitcoin as BITCOIN_NETWORK } from '../networks.js';
+import * as bscript from '../script.js';
 import {
-  typeforce as typef,
   isTaptree,
   TAPLEAF_VERSION_MASK,
   stacksEqual,
-} from '../types';
-import { getEccLib } from '../ecc_lib';
+  NBufferSchemaFactory,
+  BufferSchema,
+} from '../types.js';
+import { getEccLib } from '../ecc_lib.js';
 import {
   toHashTree,
   rootHashFromPath,
@@ -15,10 +16,12 @@ import {
   tapleafHash,
   tweakKey,
   LEAF_VERSION_TAPSCRIPT,
-} from './bip341';
-import * as lazy from './lazy';
+} from './bip341.js';
+import * as lazy from './lazy.js';
 import { bech32m } from 'bech32';
-import { fromBech32 } from '../address';
+import { fromBech32 } from '../address.js';
+import * as tools from 'uint8array-tools';
+import * as v from 'valibot';
 const OPS = bscript.OPS;
 const TAPROOT_WITNESS_VERSION = 0x01;
 const ANNEX_PREFIX = 0x50;
@@ -40,25 +43,53 @@ export function p2tr(a, opts) {
   )
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  typef(
-    {
-      address: typef.maybe(typef.String),
-      input: typef.maybe(typef.BufferN(0)),
-      network: typef.maybe(typef.Object),
-      output: typef.maybe(typef.BufferN(34)),
-      internalPubkey: typef.maybe(typef.BufferN(32)),
-      hash: typef.maybe(typef.BufferN(32)),
-      pubkey: typef.maybe(typef.BufferN(32)),
-      signature: typef.maybe(typef.anyOf(typef.BufferN(64), typef.BufferN(65))),
-      witness: typef.maybe(typef.arrayOf(typef.Buffer)),
-      scriptTree: typef.maybe(isTaptree),
-      redeem: typef.maybe({
-        output: typef.maybe(typef.Buffer),
-        redeemVersion: typef.maybe(typef.Number),
-        witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  // typef(
+  //   {
+  //     address: typef.maybe(typef.String),
+  //     input: typef.maybe(typef.BufferN(0)),
+  //     network: typef.maybe(typef.Object),
+  //     output: typef.maybe(typef.BufferN(34)),
+  //     internalPubkey: typef.maybe(typef.BufferN(32)),
+  //     hash: typef.maybe(typef.BufferN(32)), // merkle root hash, the tweak
+  //     pubkey: typef.maybe(typef.BufferN(32)), // tweaked with `hash` from `internalPubkey`
+  //     signature: typef.maybe(typef.anyOf(typef.BufferN(64), typef.BufferN(65))),
+  //     witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //     scriptTree: typef.maybe(isTaptree),
+  //     redeem: typef.maybe({
+  //       output: typef.maybe(typef.Buffer), // tapleaf script
+  //       redeemVersion: typef.maybe(typef.Number), // tapleaf version
+  //       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //     }),
+  //     redeemVersion: typef.maybe(typef.Number),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    v.partial(
+      v.object({
+        address: v.string(),
+        input: NBufferSchemaFactory(0),
+        network: v.object({}),
+        output: NBufferSchemaFactory(34),
+        internalPubkey: NBufferSchemaFactory(32),
+        hash: NBufferSchemaFactory(32), // merkle root hash, the tweak
+        pubkey: NBufferSchemaFactory(32), // tweaked with `hash` from `internalPubkey`
+        signature: v.union([
+          NBufferSchemaFactory(64),
+          NBufferSchemaFactory(65),
+        ]),
+        witness: v.array(BufferSchema),
+        scriptTree: v.custom(isTaptree, 'Taptree is not of type isTaptree'),
+        redeem: v.partial(
+          v.object({
+            output: BufferSchema, // tapleaf script
+            redeemVersion: v.number(), // tapleaf version
+            witness: v.array(BufferSchema),
+          }),
+        ),
+        redeemVersion: v.number(),
       }),
-      redeemVersion: typef.maybe(typef.Number),
-    },
+    ),
     a,
   );
   const _address = lazy.value(() => {
@@ -158,9 +189,9 @@ export function p2tr(a, opts) {
       if (!path) return;
       const outputKey = tweakKey(a.internalPubkey, hashTree.hash);
       if (!outputKey) return;
-      const controlBock = NBuffer.concat(
+      const controlBock = tools.concat(
         [
-          NBuffer.from([o.redeemVersion | outputKey.parity]),
+          Uint8Array.from([o.redeemVersion | outputKey.parity]),
           a.internalPubkey,
         ].concat(path),
       );
@@ -170,7 +201,7 @@ export function p2tr(a, opts) {
   });
   // extended validation
   if (opts.validate) {
-    let pubkey = NBuffer.from([]);
+    let pubkey = Uint8Array.from([]);
     if (a.address) {
       if (network && network.bech32 !== _address().prefix)
         throw new TypeError('Invalid prefix or Network mismatch');
@@ -181,7 +212,8 @@ export function p2tr(a, opts) {
       pubkey = _address().data;
     }
     if (a.pubkey) {
-      if (pubkey.length > 0 && !pubkey.equals(a.pubkey))
+      // if (pubkey.length > 0 && !pubkey.equals(a.pubkey))
+      if (pubkey.length > 0 && tools.compare(pubkey, a.pubkey) !== 0)
         throw new TypeError('Pubkey mismatch');
       else pubkey = a.pubkey;
     }
@@ -192,13 +224,15 @@ export function p2tr(a, opts) {
         a.output[1] !== 0x20
       )
         throw new TypeError('Output is invalid');
-      if (pubkey.length > 0 && !pubkey.equals(a.output.slice(2)))
+      // if (pubkey.length > 0 && !pubkey.equals(a.output.slice(2)))
+      if (pubkey.length > 0 && tools.compare(pubkey, a.output.slice(2)) !== 0)
         throw new TypeError('Pubkey mismatch');
       else pubkey = a.output.slice(2);
     }
     if (a.internalPubkey) {
       const tweakedKey = tweakKey(a.internalPubkey, o.hash);
-      if (pubkey.length > 0 && !pubkey.equals(tweakedKey.x))
+      // if (pubkey.length > 0 && !pubkey.equals(tweakedKey!.x))
+      if (pubkey.length > 0 && tools.compare(pubkey, tweakedKey.x) !== 0)
         throw new TypeError('Pubkey mismatch');
       else pubkey = tweakedKey.x;
     }
@@ -208,7 +242,9 @@ export function p2tr(a, opts) {
     }
     const hashTree = _hashTree();
     if (a.hash && hashTree) {
-      if (!a.hash.equals(hashTree.hash)) throw new TypeError('Hash mismatch');
+      // if (!a.hash.equals(hashTree.hash)) throw new TypeError('Hash mismatch');
+      if (tools.compare(a.hash, hashTree.hash) !== 0)
+        throw new TypeError('Hash mismatch');
     }
     if (a.redeem && a.redeem.output && hashTree) {
       const leafHash = tapleafHash({
@@ -229,7 +265,11 @@ export function p2tr(a, opts) {
         if (bscript.decompile(a.redeem.output).length === 0)
           throw new TypeError('Redeem.output is invalid');
         // output redeem is constructed from the witness
-        if (o.redeem.output && !a.redeem.output.equals(o.redeem.output))
+        // if (o.redeem.output && !a.redeem.output.equals(o.redeem.output))
+        if (
+          o.redeem.output &&
+          tools.compare(a.redeem.output, o.redeem.output) !== 0
+        )
           throw new TypeError('Redeem.output and witness mismatch');
       }
       if (a.redeem.witness) {
@@ -243,7 +283,8 @@ export function p2tr(a, opts) {
     if (witness && witness.length) {
       if (witness.length === 1) {
         // key spending
-        if (a.signature && !a.signature.equals(witness[0]))
+        // if (a.signature && !a.signature.equals(witness[0]))
+        if (a.signature && tools.compare(a.signature, witness[0]) !== 0)
           throw new TypeError('Signature mismatch');
       } else {
         // script path spending
@@ -262,7 +303,11 @@ export function p2tr(a, opts) {
             `The script path is too long. Got ${m}, expected max 128.`,
           );
         const internalPubkey = controlBlock.slice(1, 33);
-        if (a.internalPubkey && !a.internalPubkey.equals(internalPubkey))
+        // if (a.internalPubkey && !a.internalPubkey.equals(internalPubkey))
+        if (
+          a.internalPubkey &&
+          tools.compare(a.internalPubkey, internalPubkey) !== 0
+        )
           throw new TypeError('Internal pubkey mismatch');
         if (!getEccLib().isXOnlyPoint(internalPubkey))
           throw new TypeError('Invalid internalPubkey for p2tr witness');
@@ -274,7 +319,8 @@ export function p2tr(a, opts) {
         if (!outputKey)
           // todo: needs test data
           throw new TypeError('Invalid outputKey for p2tr witness');
-        if (pubkey.length && !pubkey.equals(outputKey.x))
+        // if (pubkey.length && !pubkey.equals(outputKey.x))
+        if (pubkey.length && tools.compare(pubkey, outputKey.x) !== 0)
           throw new TypeError('Pubkey mismatch for p2tr witness');
         if (outputKey.parity !== (controlBlock[0] & 1))
           throw new Error('Incorrect parity');

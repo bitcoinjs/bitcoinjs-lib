@@ -1,4 +1,4 @@
-import { TinySecp256k1Interface } from './types';
+import { TinySecp256k1Interface } from './types.js';
 /**
  * Initializes the ECC library with the provided instance.
  * If `eccLib` is `undefined`, the library will be cleared.

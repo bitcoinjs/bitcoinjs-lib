@@ -1,23 +1,67 @@
 'use strict';
+var __createBinding =
+  (this && this.__createBinding) ||
+  (Object.create
+    ? function (o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (
+          !desc ||
+          ('get' in desc ? !m.__esModule : desc.writable || desc.configurable)
+        ) {
+          desc = {
+            enumerable: true,
+            get: function () {
+              return m[k];
+            },
+          };
+        }
+        Object.defineProperty(o, k2, desc);
+      }
+    : function (o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        o[k2] = m[k];
+      });
+var __setModuleDefault =
+  (this && this.__setModuleDefault) ||
+  (Object.create
+    ? function (o, v) {
+        Object.defineProperty(o, 'default', { enumerable: true, value: v });
+      }
+    : function (o, v) {
+        o['default'] = v;
+      });
+var __importStar =
+  (this && this.__importStar) ||
+  function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null)
+      for (var k in mod)
+        if (k !== 'default' && Object.prototype.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+  };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.checkTaprootInputForSigs =
-  exports.tapTreeFromList =
-  exports.tapTreeToList =
-  exports.tweakInternalPubKey =
-  exports.checkTaprootOutputFields =
-  exports.checkTaprootInputFields =
-  exports.isTaprootOutput =
-  exports.isTaprootInput =
-  exports.serializeTaprootSignature =
-  exports.tapScriptFinalizer =
-  exports.toXOnly =
-    void 0;
-const types_1 = require('../types');
-const transaction_1 = require('../transaction');
-const psbtutils_1 = require('./psbtutils');
-const bip341_1 = require('../payments/bip341');
-const payments_1 = require('../payments');
-const psbtutils_2 = require('./psbtutils');
+exports.toXOnly = void 0;
+exports.tapScriptFinalizer = tapScriptFinalizer;
+exports.serializeTaprootSignature = serializeTaprootSignature;
+exports.isTaprootInput = isTaprootInput;
+exports.isTaprootOutput = isTaprootOutput;
+exports.checkTaprootInputFields = checkTaprootInputFields;
+exports.checkTaprootOutputFields = checkTaprootOutputFields;
+exports.tweakInternalPubKey = tweakInternalPubKey;
+exports.tapTreeToList = tapTreeToList;
+exports.tapTreeFromList = tapTreeFromList;
+exports.checkTaprootInputForSigs = checkTaprootInputForSigs;
+const types_js_1 = require('../types.cjs');
+const transaction_js_1 = require('../transaction.cjs');
+const psbtutils_js_1 = require('./psbtutils.cjs');
+const bip341_js_1 = require('../payments/bip341.cjs');
+const index_js_1 = require('../payments/index.cjs');
+const tools = __importStar(require('uint8array-tools'));
+const psbtutils_js_2 = require('./psbtutils.cjs');
 /**
  * Converts a public key to an X-only public key.
  * @param pubKey The public key to convert.
@@ -44,13 +88,14 @@ function tapScriptFinalizer(inputIndex, input, tapLeafHashToFinalize) {
     const sigs = sortSignatures(input, tapLeaf);
     const witness = sigs.concat(tapLeaf.script).concat(tapLeaf.controlBlock);
     return {
-      finalScriptWitness: (0, psbtutils_1.witnessStackToScriptWitness)(witness),
+      finalScriptWitness: (0, psbtutils_js_1.witnessStackToScriptWitness)(
+        witness,
+      ),
     };
   } catch (err) {
     throw new Error(`Can not finalize taproot input #${inputIndex}: ${err}`);
   }
 }
-exports.tapScriptFinalizer = tapScriptFinalizer;
 /**
  * Serializes a taproot signature.
  * @param sig The signature to serialize.
@@ -59,11 +104,10 @@ exports.tapScriptFinalizer = tapScriptFinalizer;
  */
 function serializeTaprootSignature(sig, sighashType) {
   const sighashTypeByte = sighashType
-    ? Buffer.from([sighashType])
-    : Buffer.from([]);
-  return Buffer.concat([sig, sighashTypeByte]);
+    ? Uint8Array.from([sighashType])
+    : Uint8Array.from([]);
+  return tools.concat([sig, sighashTypeByte]);
 }
-exports.serializeTaprootSignature = serializeTaprootSignature;
 /**
  * Checks if a PSBT input is a taproot input.
  * @param input The PSBT input to check.
@@ -77,11 +121,11 @@ function isTaprootInput(input) {
       input.tapMerkleRoot ||
       (input.tapLeafScript && input.tapLeafScript.length) ||
       (input.tapBip32Derivation && input.tapBip32Derivation.length) ||
-      (input.witnessUtxo && (0, psbtutils_1.isP2TR)(input.witnessUtxo.script))
+      (input.witnessUtxo &&
+        (0, psbtutils_js_1.isP2TR)(input.witnessUtxo.script))
     )
   );
 }
-exports.isTaprootInput = isTaprootInput;
 /**
  * Checks if a PSBT output is a taproot output.
  * @param output The PSBT output to check.
@@ -95,11 +139,10 @@ function isTaprootOutput(output, script) {
       output.tapInternalKey ||
       output.tapTree ||
       (output.tapBip32Derivation && output.tapBip32Derivation.length) ||
-      (script && (0, psbtutils_1.isP2TR)(script))
+      (script && (0, psbtutils_js_1.isP2TR)(script))
     )
   );
 }
-exports.isTaprootOutput = isTaprootOutput;
 /**
  * Checks the taproot input fields for consistency.
  * @param inputData The original input data.
@@ -111,7 +154,6 @@ function checkTaprootInputFields(inputData, newInputData, action) {
   checkMixedTaprootAndNonTaprootInputFields(inputData, newInputData, action);
   checkIfTapLeafInTree(inputData, newInputData, action);
 }
-exports.checkTaprootInputFields = checkTaprootInputFields;
 /**
  * Checks the taproot output fields for consistency.
  * @param outputData The original output data.
@@ -123,7 +165,6 @@ function checkTaprootOutputFields(outputData, newOutputData, action) {
   checkMixedTaprootAndNonTaprootOutputFields(outputData, newOutputData, action);
   checkTaprootScriptPubkey(outputData, newOutputData);
 }
-exports.checkTaprootOutputFields = checkTaprootOutputFields;
 function checkTaprootScriptPubkey(outputData, newOutputData) {
   if (!newOutputData.tapTree && !newOutputData.tapInternalKey) return;
   const tapInternalKey =
@@ -132,7 +173,8 @@ function checkTaprootScriptPubkey(outputData, newOutputData) {
   if (tapInternalKey) {
     const { script: scriptPubkey } = outputData;
     const script = getTaprootScripPubkey(tapInternalKey, tapTree);
-    if (scriptPubkey && !scriptPubkey.equals(script))
+    // if (scriptPubkey && !scriptPubkey.equals(script))
+    if (scriptPubkey && tools.compare(script, scriptPubkey) !== 0)
       throw new Error('Error adding output. Script or address mismatch.');
   }
 }
@@ -145,7 +187,7 @@ function checkTaprootScriptPubkey(outputData, newOutputData) {
  */
 function getTaprootScripPubkey(tapInternalKey, tapTree) {
   const scriptTree = tapTree && tapTreeFromList(tapTree.leaves);
-  const { output } = (0, payments_1.p2tr)({
+  const { output } = (0, index_js_1.p2tr)({
     internalPubkey: tapInternalKey,
     scriptTree,
   });
@@ -162,16 +204,16 @@ function tweakInternalPubKey(inputIndex, input) {
   const tapInternalKey = input.tapInternalKey;
   const outputKey =
     tapInternalKey &&
-    (0, bip341_1.tweakKey)(tapInternalKey, input.tapMerkleRoot);
+    (0, bip341_js_1.tweakKey)(tapInternalKey, input.tapMerkleRoot);
   if (!outputKey)
     throw new Error(
       `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${
-        tapInternalKey && tapInternalKey.toString('hex')
+        // tapInternalKey && tapInternalKey.toString('hex')
+        tapInternalKey && tools.toHex(tapInternalKey)
       }`,
     );
   return outputKey.x;
 }
-exports.tweakInternalPubKey = tweakInternalPubKey;
 /**
  * Convert a binary tree to a BIP371 type list. Each element of the list is (according to BIP371):
  * One or more tuples representing the depth, leaf version, and script for a leaf in the Taproot tree,
@@ -181,13 +223,12 @@ exports.tweakInternalPubKey = tweakInternalPubKey;
  * @returns a list of BIP 371 tapleaves
  */
 function tapTreeToList(tree) {
-  if (!(0, types_1.isTaptree)(tree))
+  if (!(0, types_js_1.isTaptree)(tree))
     throw new Error(
       'Cannot convert taptree to tapleaf list. Expecting a tapree structure.',
     );
   return _tapTreeToList(tree);
 }
-exports.tapTreeToList = tapTreeToList;
 /**
  * Convert a BIP371 TapLeaf list to a TapTree (binary).
  * @param leaves a list of tapleaves where each element of the list is (according to BIP371):
@@ -204,7 +245,6 @@ function tapTreeFromList(leaves = []) {
     };
   return instertLeavesInTree(leaves);
 }
-exports.tapTreeFromList = tapTreeFromList;
 /**
  * Checks the taproot input for signatures.
  * @param input The PSBT input to check.
@@ -214,10 +254,13 @@ exports.tapTreeFromList = tapTreeFromList;
 function checkTaprootInputForSigs(input, action) {
   const sigs = extractTaprootSigs(input);
   return sigs.some(sig =>
-    (0, psbtutils_2.signatureBlocksAction)(sig, decodeSchnorrSignature, action),
+    (0, psbtutils_js_2.signatureBlocksAction)(
+      sig,
+      decodeSchnorrSignature,
+      action,
+    ),
   );
 }
-exports.checkTaprootInputForSigs = checkTaprootInputForSigs;
 /**
  * Decodes a Schnorr signature.
  * @param signature The signature to decode.
@@ -227,7 +270,7 @@ function decodeSchnorrSignature(signature) {
   return {
     signature: signature.slice(0, 64),
     hashType:
-      signature.slice(64)[0] || transaction_1.Transaction.SIGHASH_DEFAULT,
+      signature.slice(64)[0] || transaction_js_1.Transaction.SIGHASH_DEFAULT,
   };
 }
 /**
@@ -266,13 +309,13 @@ function getTapKeySigFromWithness(finalScriptWitness) {
  * @throws Throws an error if the taptree cannot be converted to a tapleaf list.
  */
 function _tapTreeToList(tree, leaves = [], depth = 0) {
-  if (depth > bip341_1.MAX_TAPTREE_DEPTH)
+  if (depth > bip341_js_1.MAX_TAPTREE_DEPTH)
     throw new Error('Max taptree depth exceeded.');
   if (!tree) return [];
-  if ((0, types_1.isTapleaf)(tree)) {
+  if ((0, types_js_1.isTapleaf)(tree)) {
     leaves.push({
       depth,
-      leafVersion: tree.version || bip341_1.LEAF_VERSION_TAPSCRIPT,
+      leafVersion: tree.version || bip341_js_1.LEAF_VERSION_TAPSCRIPT,
       script: tree.output,
     });
     return leaves;
@@ -303,7 +346,7 @@ function instertLeavesInTree(leaves) {
  * @returns The updated taproot tree.
  */
 function instertLeafInTree(leaf, tree, depth = 0) {
-  if (depth > bip341_1.MAX_TAPTREE_DEPTH)
+  if (depth > bip341_js_1.MAX_TAPTREE_DEPTH)
     throw new Error('Max taptree depth exceeded.');
   if (leaf.depth === depth) {
     if (!tree)
@@ -313,7 +356,7 @@ function instertLeafInTree(leaf, tree, depth = 0) {
       };
     return;
   }
-  if ((0, types_1.isTapleaf)(tree)) return;
+  if ((0, types_js_1.isTapleaf)(tree)) return;
   const leftSide = instertLeafInTree(leaf, tree && tree[0], depth + 1);
   if (leftSide) return [leftSide, tree && tree[1]];
   const rightSide = instertLeafInTree(leaf, tree && tree[1], depth + 1);
@@ -409,15 +452,16 @@ function checkIfTapLeafInTree(inputData, newInputData, action) {
  */
 function isTapLeafInTree(tapLeaf, merkleRoot) {
   if (!merkleRoot) return true;
-  const leafHash = (0, bip341_1.tapleafHash)({
+  const leafHash = (0, bip341_js_1.tapleafHash)({
     output: tapLeaf.script,
     version: tapLeaf.leafVersion,
   });
-  const rootHash = (0, bip341_1.rootHashFromPath)(
+  const rootHash = (0, bip341_js_1.rootHashFromPath)(
     tapLeaf.controlBlock,
     leafHash,
   );
-  return rootHash.equals(merkleRoot);
+  // return rootHash.equals(merkleRoot);
+  return tools.compare(rootHash, merkleRoot) === 0;
 }
 /**
  * Sorts the signatures in the input's tapScriptSig array based on their position in the tapLeaf script.
@@ -427,15 +471,18 @@ function isTapLeafInTree(tapLeaf, merkleRoot) {
  * @returns An array of sorted signatures as Buffers.
  */
 function sortSignatures(input, tapLeaf) {
-  const leafHash = (0, bip341_1.tapleafHash)({
+  const leafHash = (0, bip341_js_1.tapleafHash)({
     output: tapLeaf.script,
     version: tapLeaf.leafVersion,
   });
-  return (input.tapScriptSig || [])
-    .filter(tss => tss.leafHash.equals(leafHash))
-    .map(tss => addPubkeyPositionInScript(tapLeaf.script, tss))
-    .sort((t1, t2) => t2.positionInScript - t1.positionInScript)
-    .map(t => t.signature);
+  return (
+    (input.tapScriptSig || [])
+      // .filter(tss => tss.leafHash.equals(leafHash))
+      .filter(tss => tools.compare(tss.leafHash, leafHash) === 0)
+      .map(tss => addPubkeyPositionInScript(tapLeaf.script, tss))
+      .sort((t1, t2) => t2.positionInScript - t1.positionInScript)
+      .map(t => t.signature)
+  );
 }
 /**
  * Adds the position of a public key in a script to a TapScriptSig object.
@@ -446,7 +493,7 @@ function sortSignatures(input, tapLeaf) {
 function addPubkeyPositionInScript(script, tss) {
   return Object.assign(
     {
-      positionInScript: (0, psbtutils_1.pubkeyPositionInScript)(
+      positionInScript: (0, psbtutils_js_1.pubkeyPositionInScript)(
         tss.pubkey,
         script,
       ),
@@ -482,14 +529,17 @@ function findTapLeafToFinalize(input, inputIndex, leafHashToFinalize) {
  * @returns A boolean indicating whether the TapLeafScript can be finalized.
  */
 function canFinalizeLeaf(leaf, tapScriptSig, hash) {
-  const leafHash = (0, bip341_1.tapleafHash)({
+  const leafHash = (0, bip341_js_1.tapleafHash)({
     output: leaf.script,
     version: leaf.leafVersion,
   });
-  const whiteListedHash = !hash || hash.equals(leafHash);
+  // const whiteListedHash = !hash || hash.equals(leafHash);
+  const whiteListedHash = !hash || tools.compare(leafHash, hash) === 0;
   return (
     whiteListedHash &&
-    tapScriptSig.find(tss => tss.leafHash.equals(leafHash)) !== undefined
+    // tapScriptSig!.find(tss => tss.leafHash.equals(leafHash)) !== undefined
+    tapScriptSig.find(tss => tools.compare(tss.leafHash, leafHash) === 0) !==
+      undefined
   );
 }
 /**

@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Calculates the Merkle root of an array of buffers using a specified digest function.
  *
@@ -7,4 +6,4 @@
  * @returns The Merkle root as a buffer.
  * @throws {TypeError} If the values parameter is not an array or the digestFn parameter is not a function.
  */
-export declare function fastMerkleRoot(values: Buffer[], digestFn: (b: Buffer) => Buffer): Buffer;
+export declare function fastMerkleRoot(values: Uint8Array[], digestFn: (b: Uint8Array) => Uint8Array): Uint8Array;

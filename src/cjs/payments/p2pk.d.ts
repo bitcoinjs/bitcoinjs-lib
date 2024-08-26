@@ -1,4 +1,4 @@
-import { Payment, PaymentOpts } from './index';
+import { Payment, PaymentOpts } from './index.js';
 /**
  * Creates a pay-to-public-key (P2PK) payment object.
  *

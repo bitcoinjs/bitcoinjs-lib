@@ -1,8 +1,9 @@
 import * as varuint from 'varuint-bitcoin';
-import * as bscript from '../script';
-import { Transaction } from '../transaction';
-import { hash160 } from '../crypto';
-import * as payments from '../payments';
+import * as bscript from '../script.js';
+import { Transaction } from '../transaction.js';
+import { hash160 } from '../crypto.js';
+import * as payments from '../payments/index.js';
+import * as tools from 'uint8array-tools';
 /**
  * Checks if a given payment factory can generate a payment script from a given script.
  * @param payment The payment factory to check.
@@ -31,14 +32,16 @@ export const isP2TR = isPaymentFactory(payments.p2tr);
  * @returns The script witness as a Buffer.
  */
 export function witnessStackToScriptWitness(witness) {
-  let buffer = Buffer.allocUnsafe(0);
+  let buffer = new Uint8Array(0);
   function writeSlice(slice) {
-    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+    // buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+    buffer = tools.concat([buffer, slice]);
   }
   function writeVarInt(i) {
     const currentLen = buffer.length;
     const varintLen = varuint.encodingLength(i);
-    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+    // buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+    buffer = tools.concat([buffer, new Uint8Array(varintLen)]);
     varuint.encode(i, buffer, currentLen);
   }
   function writeVarSlice(slice) {
@@ -67,9 +70,12 @@ export function pubkeyPositionInScript(pubkey, script) {
   return decompiled.findIndex(element => {
     if (typeof element === 'number') return false;
     return (
-      element.equals(pubkey) ||
-      element.equals(pubkeyHash) ||
-      element.equals(pubkeyXOnly)
+      // element.equals(pubkey) ||
+      // element.equals(pubkeyHash) ||
+      // element.equals(pubkeyXOnly)
+      tools.compare(pubkey, element) === 0 ||
+      tools.compare(pubkeyHash, element) === 0 ||
+      tools.compare(pubkeyXOnly, element) === 0
     );
   });
 }
@@ -159,7 +165,9 @@ function getPsigsFromInputFinalScripts(input) {
   return scriptItems
     .concat(witnessItems)
     .filter(item => {
-      return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
+      return (
+        item instanceof Uint8Array && bscript.isCanonicalScriptSignature(item)
+      );
     })
     .map(sig => ({ signature: sig }));
 }

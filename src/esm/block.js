@@ -3,12 +3,13 @@ import {
   BufferWriter,
   reverseBuffer,
   varuint,
-} from './bufferutils';
-import * as bcrypto from './crypto';
-import { fastMerkleRoot } from './merkle';
-import { Transaction } from './transaction';
-import * as types from './types';
-const { typeforce } = types;
+} from './bufferutils.js';
+import * as bcrypto from './crypto.js';
+import { fastMerkleRoot } from './merkle.js';
+import { Transaction } from './transaction.js';
+import * as v from 'valibot';
+import * as tools from 'uint8array-tools';
+// const { typeforce } = types;
 const errorMerkleNoTxes = new TypeError(
   'Cannot compute merkle root for zero transactions',
 );
@@ -47,17 +48,22 @@ export class Block {
     return block;
   }
   static fromHex(hex) {
-    return Block.fromBuffer(Buffer.from(hex, 'hex'));
+    // return Block.fromBuffer(Buffer.from(hex, 'hex'));
+    return Block.fromBuffer(tools.fromHex(hex));
   }
   static calculateTarget(bits) {
     const exponent = ((bits & 0xff000000) >> 24) - 3;
     const mantissa = bits & 0x007fffff;
-    const target = Buffer.alloc(32, 0);
-    target.writeUIntBE(mantissa, 29 - exponent, 3);
+    const target = new Uint8Array(32);
+    // target.writeUIntBE(mantissa, 29 - exponent, 3);
+    target[29 - exponent] = (mantissa >> 16) & 0xff;
+    target[30 - exponent] = (mantissa >> 8) & 0xff;
+    target[31 - exponent] = mantissa & 0xff;
     return target;
   }
   static calculateMerkleRoot(transactions, forWitness) {
-    typeforce([{ getHash: types.Function }], transactions);
+    // typeforce([{ getHash: types.Function }], transactions);
+    v.parse(v.array(v.object({ getHash: v.function() })), transactions);
     if (transactions.length === 0) throw errorMerkleNoTxes;
     if (forWitness && !txesHaveWitnessCommit(transactions))
       throw errorWitnessNotSegwit;
@@ -67,7 +73,7 @@ export class Block {
     const rootHash = fastMerkleRoot(hashes, bcrypto.hash256);
     return forWitness
       ? bcrypto.hash256(
-          Buffer.concat([rootHash, transactions[0].ins[0].witness[0]]),
+          tools.concat([rootHash, transactions[0].ins[0].witness[0]]),
         )
       : rootHash;
   }
@@ -86,19 +92,24 @@ export class Block {
     // The root is prepended with 0xaa21a9ed so check for 0x6a24aa21a9ed
     // If multiple commits are found, the output with highest index is assumed.
     const witnessCommits = this.transactions[0].outs
-      .filter(out =>
-        out.script.slice(0, 6).equals(Buffer.from('6a24aa21a9ed', 'hex')),
+      .filter(
+        out =>
+          // out.script.slice(0, 6).equals(Buffer.from('6a24aa21a9ed', 'hex')),
+          tools.compare(
+            out.script.slice(0, 6),
+            Uint8Array.from([0x6a, 0x24, 0xaa, 0x21, 0xa9, 0xed]),
+          ) === 0,
       )
       .map(out => out.script.slice(6, 38));
     if (witnessCommits.length === 0) return null;
     // Use the commit with the highest output (should only be one though)
     const result = witnessCommits[witnessCommits.length - 1];
-    if (!(result instanceof Buffer && result.length === 32)) return null;
+    if (!(result instanceof Uint8Array && result.length === 32)) return null;
     return result;
   }
   hasWitnessCommit() {
     if (
-      this.witnessCommit instanceof Buffer &&
+      this.witnessCommit instanceof Uint8Array &&
       this.witnessCommit.length === 32
     )
       return true;
@@ -125,7 +136,7 @@ export class Block {
     return bcrypto.hash256(this.toBuffer(true));
   }
   getId() {
-    return reverseBuffer(this.getHash()).toString('hex');
+    return tools.toHex(reverseBuffer(this.getHash()));
   }
   getUTCDate() {
     const date = new Date(0); // epoch
@@ -134,7 +145,7 @@ export class Block {
   }
   // TODO: buffer, offset compatibility
   toBuffer(headersOnly) {
-    const buffer = Buffer.allocUnsafe(this.byteLength(headersOnly));
+    const buffer = new Uint8Array(this.byteLength(headersOnly));
     const bufferWriter = new BufferWriter(buffer);
     bufferWriter.writeInt32(this.version);
     bufferWriter.writeSlice(this.prevHash);
@@ -157,7 +168,7 @@ export class Block {
     return buffer;
   }
   toHex(headersOnly) {
-    return this.toBuffer(headersOnly).toString('hex');
+    return tools.toHex(this.toBuffer(headersOnly));
   }
   checkTxRoots() {
     // If the Block has segwit transactions but no witness commit,
@@ -172,12 +183,14 @@ export class Block {
   checkProofOfWork() {
     const hash = reverseBuffer(this.getHash());
     const target = Block.calculateTarget(this.bits);
-    return hash.compare(target) <= 0;
+    // return hash.compare(target) <= 0;
+    return tools.compare(hash, target) <= 0;
   }
   __checkMerkleRoot() {
     if (!this.transactions) throw errorMerkleNoTxes;
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions);
-    return this.merkleRoot.compare(actualMerkleRoot) === 0;
+    // return this.merkleRoot!.compare(actualMerkleRoot) === 0;
+    return tools.compare(this.merkleRoot, actualMerkleRoot) === 0;
   }
   __checkWitnessCommit() {
     if (!this.transactions) throw errorMerkleNoTxes;
@@ -186,7 +199,8 @@ export class Block {
       this.transactions,
       true,
     );
-    return this.witnessCommit.compare(actualWitnessCommit) === 0;
+    // return this.witnessCommit!.compare(actualWitnessCommit) === 0;
+    return tools.compare(this.witnessCommit, actualWitnessCommit) === 0;
   }
 }
 function txesHaveWitnessCommit(transactions) {

@@ -44,71 +44,71 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.signature =
-  exports.number =
-  exports.isCanonicalScriptSignature =
-  exports.isDefinedHashType =
-  exports.isCanonicalPubKey =
-  exports.toStack =
-  exports.fromASM =
-  exports.toASM =
-  exports.decompile =
-  exports.compile =
-  exports.countNonPushOnlyOPs =
-  exports.isPushOnly =
-  exports.OPS =
-    void 0;
+exports.signature = exports.number = exports.OPS = void 0;
+exports.isPushOnly = isPushOnly;
+exports.countNonPushOnlyOPs = countNonPushOnlyOPs;
+exports.compile = compile;
+exports.decompile = decompile;
+exports.toASM = toASM;
+exports.fromASM = fromASM;
+exports.toStack = toStack;
+exports.isCanonicalPubKey = isCanonicalPubKey;
+exports.isDefinedHashType = isDefinedHashType;
+exports.isCanonicalScriptSignature = isCanonicalScriptSignature;
 /**
  * Script tools, including decompile, compile, toASM, fromASM, toStack, isCanonicalPubKey, isCanonicalScriptSignature
  * @packageDocumentation
  */
-const bip66 = __importStar(require('./bip66'));
-const ops_1 = require('./ops');
+const bip66 = __importStar(require('./bip66.cjs'));
+const ops_js_1 = require('./ops.cjs');
 Object.defineProperty(exports, 'OPS', {
   enumerable: true,
   get: function () {
-    return ops_1.OPS;
+    return ops_js_1.OPS;
   },
 });
-const pushdata = __importStar(require('./push_data'));
-const scriptNumber = __importStar(require('./script_number'));
-const scriptSignature = __importStar(require('./script_signature'));
-const types = __importStar(require('./types'));
-const { typeforce } = types;
-const OP_INT_BASE = ops_1.OPS.OP_RESERVED; // OP_1 - 1
+const pushdata = __importStar(require('./push_data.cjs'));
+const scriptNumber = __importStar(require('./script_number.cjs'));
+const scriptSignature = __importStar(require('./script_signature.cjs'));
+const types = __importStar(require('./types.cjs'));
+const tools = __importStar(require('uint8array-tools'));
+const v = __importStar(require('valibot'));
+const OP_INT_BASE = ops_js_1.OPS.OP_RESERVED; // OP_1 - 1
+const StackSchema = v.array(v.union([v.instance(Uint8Array), v.number()]));
 function isOPInt(value) {
   return (
-    types.Number(value) &&
-    (value === ops_1.OPS.OP_0 ||
-      (value >= ops_1.OPS.OP_1 && value <= ops_1.OPS.OP_16) ||
-      value === ops_1.OPS.OP_1NEGATE)
+    v.is(v.number(), value) &&
+    (value === ops_js_1.OPS.OP_0 ||
+      (value >= ops_js_1.OPS.OP_1 && value <= ops_js_1.OPS.OP_16) ||
+      value === ops_js_1.OPS.OP_1NEGATE)
   );
 }
 function isPushOnlyChunk(value) {
-  return types.Buffer(value) || isOPInt(value);
+  return v.is(types.BufferSchema, value) || isOPInt(value);
 }
 function isPushOnly(value) {
-  return types.Array(value) && value.every(isPushOnlyChunk);
+  // return types.Array(value) && value.every(isPushOnlyChunk);
+  return v.is(v.pipe(v.any(), v.everyItem(isPushOnlyChunk)), value);
 }
-exports.isPushOnly = isPushOnly;
 function countNonPushOnlyOPs(value) {
   return value.length - value.filter(isPushOnlyChunk).length;
 }
-exports.countNonPushOnlyOPs = countNonPushOnlyOPs;
 function asMinimalOP(buffer) {
-  if (buffer.length === 0) return ops_1.OPS.OP_0;
+  if (buffer.length === 0) return ops_js_1.OPS.OP_0;
   if (buffer.length !== 1) return;
   if (buffer[0] >= 1 && buffer[0] <= 16) return OP_INT_BASE + buffer[0];
-  if (buffer[0] === 0x81) return ops_1.OPS.OP_1NEGATE;
+  if (buffer[0] === 0x81) return ops_js_1.OPS.OP_1NEGATE;
 }
 function chunksIsBuffer(buf) {
-  return Buffer.isBuffer(buf);
+  // return Buffer.isBuffer(buf);
+  return buf instanceof Uint8Array;
 }
 function chunksIsArray(buf) {
-  return types.Array(buf);
+  // return types.Array(buf);
+  return v.is(StackSchema, buf);
 }
 function singleChunkIsBuffer(buf) {
-  return Buffer.isBuffer(buf);
+  return buf instanceof Uint8Array;
 }
 /**
  * Compiles an array of chunks into a Buffer.
@@ -120,7 +120,8 @@ function singleChunkIsBuffer(buf) {
 function compile(chunks) {
   // TODO: remove me
   if (chunksIsBuffer(chunks)) return chunks;
-  typeforce(types.Array, chunks);
+  // typeforce(types.Array, chunks);
+  v.parse(StackSchema, chunks);
   const bufferSize = chunks.reduce((accum, chunk) => {
     // data chunk
     if (singleChunkIsBuffer(chunk)) {
@@ -133,7 +134,7 @@ function compile(chunks) {
     // opcode
     return accum + 1;
   }, 0.0);
-  const buffer = Buffer.allocUnsafe(bufferSize);
+  const buffer = new Uint8Array(bufferSize);
   let offset = 0;
   chunks.forEach(chunk => {
     // data chunk
@@ -141,33 +142,36 @@ function compile(chunks) {
       // adhere to BIP62.3, minimal push policy
       const opcode = asMinimalOP(chunk);
       if (opcode !== undefined) {
-        buffer.writeUInt8(opcode, offset);
+        // buffer.writeUInt8(opcode, offset);
+        tools.writeUInt8(buffer, offset, opcode);
         offset += 1;
         return;
       }
       offset += pushdata.encode(buffer, chunk.length, offset);
-      chunk.copy(buffer, offset);
+      // chunk.copy(buffer, offset);
+      buffer.set(chunk, offset);
       offset += chunk.length;
       // opcode
     } else {
-      buffer.writeUInt8(chunk, offset);
+      // buffer.writeUInt8(chunk, offset);
+      tools.writeUInt8(buffer, offset, chunk);
       offset += 1;
     }
   });
   if (offset !== buffer.length) throw new Error('Could not decode chunks');
   return buffer;
 }
-exports.compile = compile;
 function decompile(buffer) {
   // TODO: remove me
   if (chunksIsArray(buffer)) return buffer;
-  typeforce(types.Buffer, buffer);
+  // typeforce(types.Buffer, buffer);
+  v.parse(types.BufferSchema, buffer);
   const chunks = [];
   let i = 0;
   while (i < buffer.length) {
     const opcode = buffer[i];
     // data chunk
-    if (opcode > ops_1.OPS.OP_0 && opcode <= ops_1.OPS.OP_PUSHDATA4) {
+    if (opcode > ops_js_1.OPS.OP_0 && opcode <= ops_js_1.OPS.OP_PUSHDATA4) {
       const d = pushdata.decode(buffer, i);
       // did reading a pushDataInt fail?
       if (d === null) return null;
@@ -191,7 +195,6 @@ function decompile(buffer) {
   }
   return chunks;
 }
-exports.decompile = decompile;
 /**
  * Converts the given chunks into an ASM (Assembly) string representation.
  * If the chunks parameter is a Buffer, it will be decompiled into a Stack before conversion.
@@ -210,33 +213,34 @@ function toASM(chunks) {
       // data?
       if (singleChunkIsBuffer(chunk)) {
         const op = asMinimalOP(chunk);
-        if (op === undefined) return chunk.toString('hex');
+        if (op === undefined) return tools.toHex(chunk);
         chunk = op;
       }
       // opcode!
-      return ops_1.REVERSE_OPS[chunk];
+      return ops_js_1.REVERSE_OPS[chunk];
     })
     .join(' ');
 }
-exports.toASM = toASM;
 /**
  * Converts an ASM string to a Buffer.
  * @param asm The ASM string to convert.
  * @returns The converted Buffer.
  */
 function fromASM(asm) {
-  typeforce(types.String, asm);
+  // typeforce(types.String, asm);
+  v.parse(v.string(), asm);
   return compile(
     asm.split(' ').map(chunkStr => {
       // opcode?
-      if (ops_1.OPS[chunkStr] !== undefined) return ops_1.OPS[chunkStr];
-      typeforce(types.Hex, chunkStr);
+      if (ops_js_1.OPS[chunkStr] !== undefined) return ops_js_1.OPS[chunkStr];
+      // typeforce(types.Hex, chunkStr);
+      v.parse(types.HexSchema, chunkStr);
       // data!
-      return Buffer.from(chunkStr, 'hex');
+      // return Buffer.from(chunkStr, 'hex');
+      return tools.fromHex(chunkStr);
     }),
   );
 }
-exports.fromASM = fromASM;
 /**
  * Converts the given chunks into a stack of buffers.
  *
@@ -245,29 +249,26 @@ exports.fromASM = fromASM;
  */
 function toStack(chunks) {
   chunks = decompile(chunks);
-  typeforce(isPushOnly, chunks);
+  // typeforce(isPushOnly, chunks);
+  v.parse(v.custom(isPushOnly), chunks);
   return chunks.map(op => {
     if (singleChunkIsBuffer(op)) return op;
-    if (op === ops_1.OPS.OP_0) return Buffer.allocUnsafe(0);
+    if (op === ops_js_1.OPS.OP_0) return new Uint8Array(0);
     return scriptNumber.encode(op - OP_INT_BASE);
   });
 }
-exports.toStack = toStack;
 function isCanonicalPubKey(buffer) {
   return types.isPoint(buffer);
 }
-exports.isCanonicalPubKey = isCanonicalPubKey;
 function isDefinedHashType(hashType) {
   const hashTypeMod = hashType & ~0x80;
   // return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
   return hashTypeMod > 0x00 && hashTypeMod < 0x04;
 }
-exports.isDefinedHashType = isDefinedHashType;
 function isCanonicalScriptSignature(buffer) {
-  if (!Buffer.isBuffer(buffer)) return false;
+  if (!(buffer instanceof Uint8Array)) return false;
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false;
   return bip66.check(buffer.slice(0, -1));
 }
-exports.isCanonicalScriptSignature = isCanonicalScriptSignature;
 exports.number = scriptNumber;
 exports.signature = scriptSignature;

@@ -123,7 +123,7 @@ describe('bitcoinjs-lib (BIP32)', () => {
     // var mnemonic = bip39.generateMnemonic()
     const mnemonic =
       'praise you muffin lion enable neck grocery crumble super myself license ghost';
-    assert(bip39.validateMnemonic(mnemonic));
+    assert.strictEqual(bip39.validateMnemonic(mnemonic), true);
 
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const root = bip32.fromSeed(seed);

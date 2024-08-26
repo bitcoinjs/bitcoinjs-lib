@@ -82,15 +82,17 @@ export function encode(r, s) {
     throw new Error('R value excessively padded');
   if (lenS > 1 && s[0] === 0x00 && !(s[1] & 0x80))
     throw new Error('S value excessively padded');
-  const signature = Buffer.allocUnsafe(6 + lenR + lenS);
+  const signature = new Uint8Array(6 + lenR + lenS);
   // 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
   signature[0] = 0x30;
   signature[1] = signature.length - 2;
   signature[2] = 0x02;
   signature[3] = r.length;
-  r.copy(signature, 4);
+  // r.copy(signature, 4);
+  signature.set(r, 4);
   signature[4 + lenR] = 0x02;
   signature[5 + lenR] = s.length;
-  s.copy(signature, 6 + lenR);
+  // s.copy(signature, 6 + lenR);
+  signature.set(s, 6 + lenR);
   return signature;
 }

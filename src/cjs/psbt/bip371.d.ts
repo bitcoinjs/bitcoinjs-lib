@@ -1,12 +1,11 @@
-/// <reference types="node" />
-import { Taptree } from '../types';
-import { PsbtInput, PsbtOutput, TapLeaf } from 'bip174/src/lib/interfaces';
+import { Taptree } from '../types.js';
+import { PsbtInput, PsbtOutput, TapLeaf } from 'bip174';
 /**
  * Converts a public key to an X-only public key.
  * @param pubKey The public key to convert.
  * @returns The X-only public key.
  */
-export declare const toXOnly: (pubKey: Buffer) => Buffer;
+export declare const toXOnly: (pubKey: Uint8Array) => Uint8Array;
 /**
  * Default tapscript finalizer. It searches for the `tapLeafHashToFinalize` if provided.
  * Otherwise it will search for the tapleaf that has at least one signature and has the shortest path.
@@ -16,8 +15,8 @@ export declare const toXOnly: (pubKey: Buffer) => Buffer;
  *                              and will try to build the finalScriptWitness.
  * @returns the finalScriptWitness or throws an exception if no tapleaf found.
  */
-export declare function tapScriptFinalizer(inputIndex: number, input: PsbtInput, tapLeafHashToFinalize?: Buffer): {
-    finalScriptWitness: Buffer | undefined;
+export declare function tapScriptFinalizer(inputIndex: number, input: PsbtInput, tapLeafHashToFinalize?: Uint8Array): {
+    finalScriptWitness: Uint8Array | undefined;
 };
 /**
  * Serializes a taproot signature.
@@ -25,7 +24,7 @@ export declare function tapScriptFinalizer(inputIndex: number, input: PsbtInput,
  * @param sighashType The sighash type. Optional.
  * @returns The serialized taproot signature.
  */
-export declare function serializeTaprootSignature(sig: Buffer, sighashType?: number): Buffer;
+export declare function serializeTaprootSignature(sig: Uint8Array, sighashType?: number): Uint8Array;
 /**
  * Checks if a PSBT input is a taproot input.
  * @param input The PSBT input to check.
@@ -38,7 +37,7 @@ export declare function isTaprootInput(input: PsbtInput): boolean;
  * @param script The script to check. Optional.
  * @returns True if the output is a taproot output, false otherwise.
  */
-export declare function isTaprootOutput(output: PsbtOutput, script?: Buffer): boolean;
+export declare function isTaprootOutput(output: PsbtOutput, script?: Uint8Array): boolean;
 /**
  * Checks the taproot input fields for consistency.
  * @param inputData The original input data.
@@ -62,7 +61,7 @@ export declare function checkTaprootOutputFields(outputData: PsbtOutput, newOutp
  * @returns The tweaked internal public key.
  * @throws Error if the tap internal key cannot be tweaked.
  */
-export declare function tweakInternalPubKey(inputIndex: number, input: PsbtInput): Buffer;
+export declare function tweakInternalPubKey(inputIndex: number, input: PsbtInput): Uint8Array;
 /**
  * Convert a binary tree to a BIP371 type list. Each element of the list is (according to BIP371):
  * One or more tuples representing the depth, leaf version, and script for a leaf in the Taproot tree,

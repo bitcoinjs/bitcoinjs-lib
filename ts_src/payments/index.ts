@@ -19,22 +19,22 @@ import { p2tr } from './p2tr.js';
 export interface Payment {
   name?: string;
   network?: Network;
-  output?: Buffer;
-  data?: Buffer[];
+  output?: Uint8Array;
+  data?: Uint8Array[];
   m?: number;
   n?: number;
-  pubkeys?: Buffer[];
-  input?: Buffer;
-  signatures?: Buffer[];
-  internalPubkey?: Buffer;
-  pubkey?: Buffer;
-  signature?: Buffer;
+  pubkeys?: Uint8Array[];
+  input?: Uint8Array;
+  signatures?: Uint8Array[];
+  internalPubkey?: Uint8Array;
+  pubkey?: Uint8Array;
+  signature?: Uint8Array;
   address?: string;
-  hash?: Buffer;
+  hash?: Uint8Array;
   redeem?: Payment;
   redeemVersion?: number;
   scriptTree?: Taptree;
-  witness?: Buffer[];
+  witness?: Uint8Array[];
 }
 
 export type PaymentCreator = (a: Payment, opts?: PaymentOpts) => Payment;

@@ -1,7 +1,8 @@
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
-import * as bscript from '../script';
-import { typeforce as typef, stacksEqual } from '../types';
-import * as lazy from './lazy';
+import { bitcoin as BITCOIN_NETWORK } from '../networks.js';
+import * as bscript from '../script.js';
+import { stacksEqual, BufferSchema } from '../types.js';
+import * as lazy from './lazy.js';
+import * as v from 'valibot';
 const OPS = bscript.OPS;
 // output: OP_RETURN ...
 /**
@@ -14,12 +15,22 @@ const OPS = bscript.OPS;
 export function p2data(a, opts) {
   if (!a.data && !a.output) throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  typef(
-    {
-      network: typef.maybe(typef.Object),
-      output: typef.maybe(typef.Buffer),
-      data: typef.maybe(typef.arrayOf(typef.Buffer)),
-    },
+  // typef(
+  //   {
+  //     network: typef.maybe(typef.Object),
+  //     output: typef.maybe(typef.Buffer),
+  //     data: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    v.partial(
+      v.object({
+        network: v.object({}),
+        output: BufferSchema,
+        data: v.array(BufferSchema),
+      }),
+    ),
     a,
   );
   const network = a.network || BITCOIN_NETWORK;
@@ -37,7 +48,7 @@ export function p2data(a, opts) {
     if (a.output) {
       const chunks = bscript.decompile(a.output);
       if (chunks[0] !== OPS.OP_RETURN) throw new TypeError('Output is invalid');
-      if (!chunks.slice(1).every(typef.Buffer))
+      if (!chunks.slice(1).every(chunk => v.is(BufferSchema, chunk)))
         throw new TypeError('Output is invalid');
       if (a.data && !stacksEqual(a.data, o.data))
         throw new TypeError('Data mismatch');

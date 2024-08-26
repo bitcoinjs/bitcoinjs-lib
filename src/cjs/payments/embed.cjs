@@ -44,11 +44,12 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.p2data = void 0;
-const networks_1 = require('../networks');
-const bscript = __importStar(require('../script'));
-const types_1 = require('../types');
-const lazy = __importStar(require('./lazy'));
+exports.p2data = p2data;
+const networks_js_1 = require('../networks.cjs');
+const bscript = __importStar(require('../script.cjs'));
+const types_js_1 = require('../types.cjs');
+const lazy = __importStar(require('./lazy.cjs'));
+const v = __importStar(require('valibot'));
 const OPS = bscript.OPS;
 // output: OP_RETURN ...
 /**
@@ -61,17 +62,25 @@ const OPS = bscript.OPS;
 function p2data(a, opts) {
   if (!a.data && !a.output) throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  (0, types_1.typeforce)(
-    {
-      network: types_1.typeforce.maybe(types_1.typeforce.Object),
-      output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-      data: types_1.typeforce.maybe(
-        types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
-      ),
-    },
+  // typef(
+  //   {
+  //     network: typef.maybe(typef.Object),
+  //     output: typef.maybe(typef.Buffer),
+  //     data: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    v.partial(
+      v.object({
+        network: v.object({}),
+        output: types_js_1.BufferSchema,
+        data: v.array(types_js_1.BufferSchema),
+      }),
+    ),
     a,
   );
-  const network = a.network || networks_1.bitcoin;
+  const network = a.network || networks_js_1.bitcoin;
   const o = { name: 'embed', network };
   lazy.prop(o, 'output', () => {
     if (!a.data) return;
@@ -86,12 +95,11 @@ function p2data(a, opts) {
     if (a.output) {
       const chunks = bscript.decompile(a.output);
       if (chunks[0] !== OPS.OP_RETURN) throw new TypeError('Output is invalid');
-      if (!chunks.slice(1).every(types_1.typeforce.Buffer))
+      if (!chunks.slice(1).every(chunk => v.is(types_js_1.BufferSchema, chunk)))
         throw new TypeError('Output is invalid');
-      if (a.data && !(0, types_1.stacksEqual)(a.data, o.data))
+      if (a.data && !(0, types_js_1.stacksEqual)(a.data, o.data))
         throw new TypeError('Data mismatch');
     }
   }
   return Object.assign(o, a);
 }
-exports.p2data = p2data;

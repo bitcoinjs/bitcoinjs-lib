@@ -1,19 +1,20 @@
-import { isTapleaf, isTaptree } from '../types';
-import { Transaction } from '../transaction';
+import { isTapleaf, isTaptree } from '../types.js';
+import { Transaction } from '../transaction.js';
 import {
   witnessStackToScriptWitness,
   pubkeyPositionInScript,
   isP2TR,
-} from './psbtutils';
+} from './psbtutils.js';
 import {
   tweakKey,
   tapleafHash,
   rootHashFromPath,
   LEAF_VERSION_TAPSCRIPT,
   MAX_TAPTREE_DEPTH,
-} from '../payments/bip341';
-import { p2tr } from '../payments';
-import { signatureBlocksAction } from './psbtutils';
+} from '../payments/bip341.js';
+import { p2tr } from '../payments/index.js';
+import * as tools from 'uint8array-tools';
+import { signatureBlocksAction } from './psbtutils.js';
 /**
  * Converts a public key to an X-only public key.
  * @param pubKey The public key to convert.
@@ -52,9 +53,9 @@ export function tapScriptFinalizer(inputIndex, input, tapLeafHashToFinalize) {
  */
 export function serializeTaprootSignature(sig, sighashType) {
   const sighashTypeByte = sighashType
-    ? Buffer.from([sighashType])
-    : Buffer.from([]);
-  return Buffer.concat([sig, sighashTypeByte]);
+    ? Uint8Array.from([sighashType])
+    : Uint8Array.from([]);
+  return tools.concat([sig, sighashTypeByte]);
 }
 /**
  * Checks if a PSBT input is a taproot input.
@@ -120,7 +121,8 @@ function checkTaprootScriptPubkey(outputData, newOutputData) {
   if (tapInternalKey) {
     const { script: scriptPubkey } = outputData;
     const script = getTaprootScripPubkey(tapInternalKey, tapTree);
-    if (scriptPubkey && !scriptPubkey.equals(script))
+    // if (scriptPubkey && !scriptPubkey.equals(script))
+    if (scriptPubkey && tools.compare(script, scriptPubkey) !== 0)
       throw new Error('Error adding output. Script or address mismatch.');
   }
 }
@@ -153,7 +155,8 @@ export function tweakInternalPubKey(inputIndex, input) {
   if (!outputKey)
     throw new Error(
       `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${
-        tapInternalKey && tapInternalKey.toString('hex')
+        // tapInternalKey && tapInternalKey.toString('hex')
+        tapInternalKey && tools.toHex(tapInternalKey)
       }`,
     );
   return outputKey.x;
@@ -394,7 +397,8 @@ function isTapLeafInTree(tapLeaf, merkleRoot) {
     version: tapLeaf.leafVersion,
   });
   const rootHash = rootHashFromPath(tapLeaf.controlBlock, leafHash);
-  return rootHash.equals(merkleRoot);
+  // return rootHash.equals(merkleRoot);
+  return tools.compare(rootHash, merkleRoot) === 0;
 }
 /**
  * Sorts the signatures in the input's tapScriptSig array based on their position in the tapLeaf script.
@@ -408,11 +412,14 @@ function sortSignatures(input, tapLeaf) {
     output: tapLeaf.script,
     version: tapLeaf.leafVersion,
   });
-  return (input.tapScriptSig || [])
-    .filter(tss => tss.leafHash.equals(leafHash))
-    .map(tss => addPubkeyPositionInScript(tapLeaf.script, tss))
-    .sort((t1, t2) => t2.positionInScript - t1.positionInScript)
-    .map(t => t.signature);
+  return (
+    (input.tapScriptSig || [])
+      // .filter(tss => tss.leafHash.equals(leafHash))
+      .filter(tss => tools.compare(tss.leafHash, leafHash) === 0)
+      .map(tss => addPubkeyPositionInScript(tapLeaf.script, tss))
+      .sort((t1, t2) => t2.positionInScript - t1.positionInScript)
+      .map(t => t.signature)
+  );
 }
 /**
  * Adds the position of a public key in a script to a TapScriptSig object.
@@ -460,10 +467,13 @@ function canFinalizeLeaf(leaf, tapScriptSig, hash) {
     output: leaf.script,
     version: leaf.leafVersion,
   });
-  const whiteListedHash = !hash || hash.equals(leafHash);
+  // const whiteListedHash = !hash || hash.equals(leafHash);
+  const whiteListedHash = !hash || tools.compare(leafHash, hash) === 0;
   return (
     whiteListedHash &&
-    tapScriptSig.find(tss => tss.leafHash.equals(leafHash)) !== undefined
+    // tapScriptSig!.find(tss => tss.leafHash.equals(leafHash)) !== undefined
+    tapScriptSig.find(tss => tools.compare(tss.leafHash, leafHash) === 0) !==
+      undefined
   );
 }
 /**

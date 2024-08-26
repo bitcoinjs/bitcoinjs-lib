@@ -55,49 +55,49 @@ exports.initEccLib =
   exports.crypto =
   exports.address =
     void 0;
-const address = __importStar(require('./address'));
+const address = __importStar(require('./address.cjs'));
 exports.address = address;
-const crypto = __importStar(require('./crypto'));
+const crypto = __importStar(require('./crypto.cjs'));
 exports.crypto = crypto;
-const networks = __importStar(require('./networks'));
+const networks = __importStar(require('./networks.cjs'));
 exports.networks = networks;
-const payments = __importStar(require('./payments'));
+const payments = __importStar(require('./payments/index.cjs'));
 exports.payments = payments;
-const script = __importStar(require('./script'));
+const script = __importStar(require('./script.cjs'));
 exports.script = script;
-var block_1 = require('./block');
+var block_js_1 = require('./block.cjs');
 Object.defineProperty(exports, 'Block', {
   enumerable: true,
   get: function () {
-    return block_1.Block;
+    return block_js_1.Block;
   },
 });
-var psbt_1 = require('./psbt');
+var psbt_js_1 = require('./psbt.cjs');
 Object.defineProperty(exports, 'Psbt', {
   enumerable: true,
   get: function () {
-    return psbt_1.Psbt;
+    return psbt_js_1.Psbt;
   },
 });
 /** @hidden */
-var ops_1 = require('./ops');
+var ops_js_1 = require('./ops.cjs');
 Object.defineProperty(exports, 'opcodes', {
   enumerable: true,
   get: function () {
-    return ops_1.OPS;
+    return ops_js_1.OPS;
   },
 });
-var transaction_1 = require('./transaction');
+var transaction_js_1 = require('./transaction.cjs');
 Object.defineProperty(exports, 'Transaction', {
   enumerable: true,
   get: function () {
-    return transaction_1.Transaction;
+    return transaction_js_1.Transaction;
   },
 });
-var ecc_lib_1 = require('./ecc_lib');
+var ecc_lib_js_1 = require('./ecc_lib.cjs');
 Object.defineProperty(exports, 'initEccLib', {
   enumerable: true,
   get: function () {
-    return ecc_lib_1.initEccLib;
+    return ecc_lib_js_1.initEccLib;
   },
 });

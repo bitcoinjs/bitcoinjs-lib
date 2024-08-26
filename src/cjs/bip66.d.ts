@@ -1,7 +1,6 @@
-/// <reference types="node" />
-export declare function check(buffer: Buffer): boolean;
-export declare function decode(buffer: Buffer): {
-    r: Buffer;
-    s: Buffer;
+export declare function check(buffer: Uint8Array): boolean;
+export declare function decode(buffer: Uint8Array): {
+    r: Uint8Array;
+    s: Uint8Array;
 };
-export declare function encode(r: Buffer, s: Buffer): Buffer;
+export declare function encode(r: Uint8Array, s: Uint8Array): Uint8Array;

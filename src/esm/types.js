@@ -1,10 +1,12 @@
-import { Buffer as NBuffer } from 'buffer';
-export const typeforce = require('typeforce');
-const ZERO32 = NBuffer.alloc(32, 0);
-const EC_P = NBuffer.from(
+import * as tools from 'uint8array-tools';
+import * as v from 'valibot';
+// export const typeforce = require('typeforce');
+const ZERO32 = new Uint8Array(32);
+const EC_P = tools.fromHex(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
-  'hex',
 );
+export const NBufferSchemaFactory = size =>
+  v.pipe(v.instance(Uint8Array), v.length(size));
 /**
  * Checks if two arrays of Buffers are equal.
  * @param a - The first array of Buffers.
@@ -14,7 +16,8 @@ const EC_P = NBuffer.from(
 export function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
   return a.every((x, i) => {
-    return x.equals(b[i]);
+    // return x.equals(b[i]);
+    return tools.compare(x, b[i]) === 0;
   });
 }
 /**
@@ -23,52 +26,68 @@ export function stacksEqual(a, b) {
  * @returns True if the value is a valid elliptic curve point, false otherwise.
  */
 export function isPoint(p) {
-  if (!NBuffer.isBuffer(p)) return false;
+  if (!(p instanceof Uint8Array)) return false;
   if (p.length < 33) return false;
   const t = p[0];
   const x = p.slice(1, 33);
-  if (x.compare(ZERO32) === 0) return false;
-  if (x.compare(EC_P) >= 0) return false;
+  // if (x.compare(ZERO32) === 0) return false;
+  if (tools.compare(ZERO32, x) === 0) return false;
+  // if (x.compare(EC_P) >= 0) return false;
+  if (tools.compare(x, EC_P) >= 0) return false;
   if ((t === 0x02 || t === 0x03) && p.length === 33) {
     return true;
   }
   const y = p.slice(33);
-  if (y.compare(ZERO32) === 0) return false;
-  if (y.compare(EC_P) >= 0) return false;
+  // if (y.compare(ZERO32) === 0) return false;
+  if (tools.compare(ZERO32, y) === 0) return false;
+  // if (y.compare(EC_P) >= 0) return false;
+  if (tools.compare(y, EC_P) >= 0) return false;
   if (t === 0x04 && p.length === 65) return true;
   return false;
-}
-const SATOSHI_MAX = 21 * 1e14;
-export function Satoshi(value) {
-  return typeforce.UInt53(value) && value <= SATOSHI_MAX;
 }
 export const TAPLEAF_VERSION_MASK = 0xfe;
 export function isTapleaf(o) {
   if (!o || !('output' in o)) return false;
-  if (!NBuffer.isBuffer(o.output)) return false;
+  if (!(o.output instanceof Uint8Array)) return false;
   if (o.version !== undefined)
     return (o.version & TAPLEAF_VERSION_MASK) === o.version;
   return true;
 }
 export function isTaptree(scriptTree) {
-  if (!Array(scriptTree)) return isTapleaf(scriptTree);
+  if (!Array.isArray(scriptTree)) return isTapleaf(scriptTree);
   if (scriptTree.length !== 2) return false;
   return scriptTree.every(t => isTaptree(t));
 }
-export const Buffer256bit = typeforce.BufferN(32);
-export const Hash160bit = typeforce.BufferN(20);
-export const Hash256bit = typeforce.BufferN(32);
-export const Number = typeforce.Number;
-export const Array = typeforce.Array;
-export const Boolean = typeforce.Boolean;
-export const String = typeforce.String;
-export const Buffer = typeforce.Buffer;
-export const Hex = typeforce.Hex;
-export const maybe = typeforce.maybe;
-export const tuple = typeforce.tuple;
-export const UInt8 = typeforce.UInt8;
-export const UInt32 = typeforce.UInt32;
-export const Function = typeforce.Function;
-export const BufferN = typeforce.BufferN;
-export const Null = typeforce.Null;
-export const oneOf = typeforce.oneOf;
+export const Buffer256bitSchema = NBufferSchemaFactory(32);
+export const Hash160bitSchema = NBufferSchemaFactory(20);
+export const Hash256bitSchema = NBufferSchemaFactory(32);
+// export const Number = typeforce.Number;
+// export const Array = typeforce.Array;
+// export const Boolean = typeforce.Boolean;
+// export const String = typeforce.String;
+export const BufferSchema = v.instance(Uint8Array);
+export const HexSchema = v.pipe(v.string(), v.regex(/^([0-9a-f]{2})+$/i));
+export const UInt8Schema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(0),
+  v.maxValue(0xff),
+);
+export const UInt32Schema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(0),
+  v.maxValue(0xffffffff),
+);
+export const SatoshiSchema = v.pipe(
+  v.bigint(),
+  v.minValue(0n),
+  v.maxValue(0x7fffffffffffffffn),
+);
+export const NullablePartial = a =>
+  v.object(
+    Object.entries(a).reduce(
+      (acc, next) => ({ ...acc, [next[0]]: v.nullish(next[1]) }),
+      {},
+    ),
+  );

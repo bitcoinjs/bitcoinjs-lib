@@ -44,11 +44,13 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.p2pk = void 0;
-const networks_1 = require('../networks');
-const bscript = __importStar(require('../script'));
-const types_1 = require('../types');
-const lazy = __importStar(require('./lazy'));
+exports.p2pk = p2pk;
+const networks_js_1 = require('../networks.cjs');
+const bscript = __importStar(require('../script.cjs'));
+const types_js_1 = require('../types.cjs');
+const lazy = __importStar(require('./lazy.cjs'));
+const tools = __importStar(require('uint8array-tools'));
+const v = __importStar(require('valibot'));
 const OPS = bscript.OPS;
 // input: {signature}
 // output: {pubKey} OP_CHECKSIG
@@ -64,20 +66,35 @@ function p2pk(a, opts) {
   if (!a.input && !a.output && !a.pubkey && !a.input && !a.signature)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  (0, types_1.typeforce)(
-    {
-      network: types_1.typeforce.maybe(types_1.typeforce.Object),
-      output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-      pubkey: types_1.typeforce.maybe(types_1.isPoint),
-      signature: types_1.typeforce.maybe(bscript.isCanonicalScriptSignature),
-      input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-    },
+  // typef(
+  //   {
+  //     network: typef.maybe(typef.Object),
+  //     output: typef.maybe(typef.Buffer),
+  //     pubkey: typef.maybe(isPoint),
+  //     signature: typef.maybe(bscript.isCanonicalScriptSignature),
+  //     input: typef.maybe(typef.Buffer),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    v.partial(
+      v.object({
+        network: v.object({}),
+        output: types_js_1.BufferSchema,
+        pubkey: v.custom(types_js_1.isPoint, 'invalid pubkey'),
+        signature: v.custom(
+          bscript.isCanonicalScriptSignature,
+          'Expected signature to be of type isCanonicalScriptSignature',
+        ),
+        input: types_js_1.BufferSchema,
+      }),
+    ),
     a,
   );
   const _chunks = lazy.value(() => {
     return bscript.decompile(a.input);
   });
-  const network = a.network || networks_1.bitcoin;
+  const network = a.network || networks_js_1.bitcoin;
   const o = { name: 'p2pk', network };
   lazy.prop(o, 'output', () => {
     if (!a.pubkey) return;
@@ -104,13 +121,15 @@ function p2pk(a, opts) {
     if (a.output) {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG)
         throw new TypeError('Output is invalid');
-      if (!(0, types_1.isPoint)(o.pubkey))
+      if (!(0, types_js_1.isPoint)(o.pubkey))
         throw new TypeError('Output pubkey is invalid');
-      if (a.pubkey && !a.pubkey.equals(o.pubkey))
+      // if (a.pubkey && !a.pubkey.equals(o.pubkey!))
+      if (a.pubkey && tools.compare(a.pubkey, o.pubkey) !== 0)
         throw new TypeError('Pubkey mismatch');
     }
     if (a.signature) {
-      if (a.input && !a.input.equals(o.input))
+      // if (a.input && !a.input.equals(o.input!))
+      if (a.input && tools.compare(a.input, o.input) !== 0)
         throw new TypeError('Signature mismatch');
     }
     if (a.input) {
@@ -121,4 +140,3 @@ function p2pk(a, opts) {
   }
   return Object.assign(o, a);
 }
-exports.p2pk = p2pk;

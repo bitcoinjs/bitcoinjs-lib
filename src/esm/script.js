@@ -2,28 +2,31 @@
  * Script tools, including decompile, compile, toASM, fromASM, toStack, isCanonicalPubKey, isCanonicalScriptSignature
  * @packageDocumentation
  */
-import * as bip66 from './bip66';
-import { OPS, REVERSE_OPS } from './ops';
-import * as pushdata from './push_data';
-import * as scriptNumber from './script_number';
-import * as scriptSignature from './script_signature';
-import * as types from './types';
-const { typeforce } = types;
+import * as bip66 from './bip66.js';
+import { OPS, REVERSE_OPS } from './ops.js';
+import * as pushdata from './push_data.js';
+import * as scriptNumber from './script_number.js';
+import * as scriptSignature from './script_signature.js';
+import * as types from './types.js';
+import * as tools from 'uint8array-tools';
+import * as v from 'valibot';
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 export { OPS };
+const StackSchema = v.array(v.union([v.instance(Uint8Array), v.number()]));
 function isOPInt(value) {
   return (
-    types.Number(value) &&
+    v.is(v.number(), value) &&
     (value === OPS.OP_0 ||
       (value >= OPS.OP_1 && value <= OPS.OP_16) ||
       value === OPS.OP_1NEGATE)
   );
 }
 function isPushOnlyChunk(value) {
-  return types.Buffer(value) || isOPInt(value);
+  return v.is(types.BufferSchema, value) || isOPInt(value);
 }
 export function isPushOnly(value) {
-  return types.Array(value) && value.every(isPushOnlyChunk);
+  // return types.Array(value) && value.every(isPushOnlyChunk);
+  return v.is(v.pipe(v.any(), v.everyItem(isPushOnlyChunk)), value);
 }
 export function countNonPushOnlyOPs(value) {
   return value.length - value.filter(isPushOnlyChunk).length;
@@ -35,13 +38,15 @@ function asMinimalOP(buffer) {
   if (buffer[0] === 0x81) return OPS.OP_1NEGATE;
 }
 function chunksIsBuffer(buf) {
-  return Buffer.isBuffer(buf);
+  // return Buffer.isBuffer(buf);
+  return buf instanceof Uint8Array;
 }
 function chunksIsArray(buf) {
-  return types.Array(buf);
+  // return types.Array(buf);
+  return v.is(StackSchema, buf);
 }
 function singleChunkIsBuffer(buf) {
-  return Buffer.isBuffer(buf);
+  return buf instanceof Uint8Array;
 }
 /**
  * Compiles an array of chunks into a Buffer.
@@ -53,7 +58,8 @@ function singleChunkIsBuffer(buf) {
 export function compile(chunks) {
   // TODO: remove me
   if (chunksIsBuffer(chunks)) return chunks;
-  typeforce(types.Array, chunks);
+  // typeforce(types.Array, chunks);
+  v.parse(StackSchema, chunks);
   const bufferSize = chunks.reduce((accum, chunk) => {
     // data chunk
     if (singleChunkIsBuffer(chunk)) {
@@ -66,7 +72,7 @@ export function compile(chunks) {
     // opcode
     return accum + 1;
   }, 0.0);
-  const buffer = Buffer.allocUnsafe(bufferSize);
+  const buffer = new Uint8Array(bufferSize);
   let offset = 0;
   chunks.forEach(chunk => {
     // data chunk
@@ -74,16 +80,19 @@ export function compile(chunks) {
       // adhere to BIP62.3, minimal push policy
       const opcode = asMinimalOP(chunk);
       if (opcode !== undefined) {
-        buffer.writeUInt8(opcode, offset);
+        // buffer.writeUInt8(opcode, offset);
+        tools.writeUInt8(buffer, offset, opcode);
         offset += 1;
         return;
       }
       offset += pushdata.encode(buffer, chunk.length, offset);
-      chunk.copy(buffer, offset);
+      // chunk.copy(buffer, offset);
+      buffer.set(chunk, offset);
       offset += chunk.length;
       // opcode
     } else {
-      buffer.writeUInt8(chunk, offset);
+      // buffer.writeUInt8(chunk, offset);
+      tools.writeUInt8(buffer, offset, chunk);
       offset += 1;
     }
   });
@@ -93,7 +102,8 @@ export function compile(chunks) {
 export function decompile(buffer) {
   // TODO: remove me
   if (chunksIsArray(buffer)) return buffer;
-  typeforce(types.Buffer, buffer);
+  // typeforce(types.Buffer, buffer);
+  v.parse(types.BufferSchema, buffer);
   const chunks = [];
   let i = 0;
   while (i < buffer.length) {
@@ -141,7 +151,7 @@ export function toASM(chunks) {
       // data?
       if (singleChunkIsBuffer(chunk)) {
         const op = asMinimalOP(chunk);
-        if (op === undefined) return chunk.toString('hex');
+        if (op === undefined) return tools.toHex(chunk);
         chunk = op;
       }
       // opcode!
@@ -155,14 +165,17 @@ export function toASM(chunks) {
  * @returns The converted Buffer.
  */
 export function fromASM(asm) {
-  typeforce(types.String, asm);
+  // typeforce(types.String, asm);
+  v.parse(v.string(), asm);
   return compile(
     asm.split(' ').map(chunkStr => {
       // opcode?
       if (OPS[chunkStr] !== undefined) return OPS[chunkStr];
-      typeforce(types.Hex, chunkStr);
+      // typeforce(types.Hex, chunkStr);
+      v.parse(types.HexSchema, chunkStr);
       // data!
-      return Buffer.from(chunkStr, 'hex');
+      // return Buffer.from(chunkStr, 'hex');
+      return tools.fromHex(chunkStr);
     }),
   );
 }
@@ -174,10 +187,11 @@ export function fromASM(asm) {
  */
 export function toStack(chunks) {
   chunks = decompile(chunks);
-  typeforce(isPushOnly, chunks);
+  // typeforce(isPushOnly, chunks);
+  v.parse(v.custom(isPushOnly), chunks);
   return chunks.map(op => {
     if (singleChunkIsBuffer(op)) return op;
-    if (op === OPS.OP_0) return Buffer.allocUnsafe(0);
+    if (op === OPS.OP_0) return new Uint8Array(0);
     return scriptNumber.encode(op - OP_INT_BASE);
   });
 }
@@ -190,7 +204,7 @@ export function isDefinedHashType(hashType) {
   return hashTypeMod > 0x00 && hashTypeMod < 0x04;
 }
 export function isCanonicalScriptSignature(buffer) {
-  if (!Buffer.isBuffer(buffer)) return false;
+  if (!(buffer instanceof Uint8Array)) return false;
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false;
   return bip66.check(buffer.slice(0, -1));
 }

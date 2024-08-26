@@ -2,7 +2,7 @@
 // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
 // NOTE: SIGHASH byte ignored AND restricted, truncate before use
 
-export function check(buffer: Buffer): boolean {
+export function check(buffer: Uint8Array): boolean {
   if (buffer.length < 8) return false;
   if (buffer.length > 72) return false;
   if (buffer[0] !== 0x30) return false;
@@ -81,7 +81,7 @@ export function decode(buffer: Uint8Array): { r: Uint8Array; s: Uint8Array } {
  *  62300 => 0x00f35c
  * -62300 => 0xff0ca4
  */
-export function encode(r: Uint8Array, s: Uint8Array): Buffer {
+export function encode(r: Uint8Array, s: Uint8Array): Uint8Array {
   const lenR = r.length;
   const lenS = s.length;
   if (lenR === 0) throw new Error('R length is zero');
@@ -95,7 +95,7 @@ export function encode(r: Uint8Array, s: Uint8Array): Buffer {
   if (lenS > 1 && s[0] === 0x00 && !(s[1] & 0x80))
     throw new Error('S value excessively padded');
 
-  const signature = Buffer.allocUnsafe(6 + lenR + lenS);
+  const signature = new Uint8Array(6 + lenR + lenS);
 
   // 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
   signature[0] = 0x30;

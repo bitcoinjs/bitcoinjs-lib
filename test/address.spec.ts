@@ -1,27 +1,28 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as ecc from 'tiny-secp256k1';
-import * as baddress from '../src/address';
-import * as bscript from '../src/script';
-import * as fixtures from './fixtures/address.json';
+import * as baddress from '../src/esm/address.js';
+import * as bscript from '../src/esm/script.js';
+import fixtures from './fixtures/address.json';
+import * as tools from 'uint8array-tools';
+import { networks } from '..';
 
-import { initEccLib } from '../src';
+import { initEccLib } from '../src/esm/ecc_lib.js';
 
-const NETWORKS = Object.assign(
-  {
-    litecoin: {
-      messagePrefix: '\x19Litecoin Signed Message:\n',
-      bip32: {
-        public: 0x019da462,
-        private: 0x019d9cfe,
-      },
-      pubKeyHash: 0x30,
-      scriptHash: 0x32,
-      wif: 0xb0,
+const NETWORKS = {
+  ...networks,
+  litecoin: {
+    messagePrefix: '\x19Litecoin Signed Message:\n',
+    bech32: 'ltc',
+    bip32: {
+      public: 0x019da462,
+      private: 0x019d9cfe,
     },
-  },
-  require('../src/networks'),
-);
+    pubKeyHash: 0x30,
+    scriptHash: 0x32,
+    wif: 0xb0,
+  } as typeof networks.bitcoin,
+};
 
 describe('address', () => {
   describe('fromBase58Check', () => {
@@ -32,15 +33,18 @@ describe('address', () => {
         const decode = baddress.fromBase58Check(f.base58check);
 
         assert.strictEqual(decode.version, f.version);
-        assert.strictEqual(decode.hash.toString('hex'), f.hash);
+        assert.strictEqual(tools.toHex(decode.hash), f.hash);
       });
     });
 
     fixtures.invalid.fromBase58Check.forEach(f => {
       it('throws on ' + f.exception, () => {
-        assert.throws(() => {
-          baddress.fromBase58Check(f.address);
-        }, new RegExp(f.address + ' ' + f.exception));
+        assert.throws(
+          () => {
+            baddress.fromBase58Check(f.address);
+          },
+          new RegExp(f.address + ' ' + f.exception),
+        );
       });
     });
   });
@@ -54,7 +58,7 @@ describe('address', () => {
 
         assert.strictEqual(actual.version, f.version);
         assert.strictEqual(actual.prefix, NETWORKS[f.network].bech32);
-        assert.strictEqual(actual.data.toString('hex'), f.data);
+        assert.strictEqual(tools.toHex(actual.data), f.data);
       });
     });
 

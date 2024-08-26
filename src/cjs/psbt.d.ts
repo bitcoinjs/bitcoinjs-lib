@@ -1,24 +1,23 @@
-/// <reference types="node" />
 import { Psbt as PsbtBase } from 'bip174';
-import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174/src/lib/interfaces';
-import { Network } from './networks';
-import { Transaction } from './transaction';
+import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174';
+import { Network } from './networks.js';
+import { Transaction } from './transaction.js';
 export interface TransactionInput {
-    hash: string | Buffer;
+    hash: string | Uint8Array;
     index: number;
     sequence?: number;
 }
 export interface PsbtTxInput extends TransactionInput {
-    hash: Buffer;
+    hash: Uint8Array;
 }
 export interface TransactionOutput {
-    script: Buffer;
-    value: number;
+    script: Uint8Array;
+    value: bigint;
 }
 export interface PsbtTxOutput extends TransactionOutput {
     address: string | undefined;
 }
-export type ValidateSigFunction = (pubkey: Buffer, msghash: Buffer, signature: Buffer) => boolean;
+export type ValidateSigFunction = (pubkey: Uint8Array, msghash: Uint8Array, signature: Uint8Array) => boolean;
 /**
  * Psbt class can parse and generate a PSBT binary based off of the BIP174.
  * There are 6 roles that this class fulfills. (Explained in BIP174)
@@ -60,7 +59,7 @@ export declare class Psbt {
     readonly data: PsbtBase;
     static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
-    static fromBuffer(buffer: Buffer, opts?: PsbtOptsOptional): Psbt;
+    static fromBuffer(buffer: Uint8Array, opts?: PsbtOptsOptional): Psbt;
     private __CACHE;
     private opts;
     constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
@@ -83,19 +82,19 @@ export declare class Psbt {
     addOutput(outputData: PsbtOutputExtended): this;
     extractTransaction(disableFeeCheck?: boolean): Transaction;
     getFeeRate(): number;
-    getFee(): number;
+    getFee(): bigint;
     finalizeAllInputs(): this;
     finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc | FinalTaprootScriptsFunc): this;
-    finalizeTaprootInput(inputIndex: number, tapLeafHashToFinalize?: Buffer, finalScriptsFunc?: FinalTaprootScriptsFunc): this;
+    finalizeTaprootInput(inputIndex: number, tapLeafHashToFinalize?: Uint8Array, finalScriptsFunc?: FinalTaprootScriptsFunc): this;
     private _finalizeInput;
     private _finalizeTaprootInput;
     getInputType(inputIndex: number): AllScriptType;
-    inputHasPubkey(inputIndex: number, pubkey: Buffer): boolean;
+    inputHasPubkey(inputIndex: number, pubkey: Uint8Array): boolean;
     inputHasHDKey(inputIndex: number, root: HDSigner): boolean;
-    outputHasPubkey(outputIndex: number, pubkey: Buffer): boolean;
+    outputHasPubkey(outputIndex: number, pubkey: Uint8Array): boolean;
     outputHasHDKey(outputIndex: number, root: HDSigner): boolean;
     validateSignaturesOfAllInputs(validator: ValidateSigFunction): boolean;
-    validateSignaturesOfInput(inputIndex: number, validator: ValidateSigFunction, pubkey?: Buffer): boolean;
+    validateSignaturesOfInput(inputIndex: number, validator: ValidateSigFunction, pubkey?: Uint8Array): boolean;
     private _validateSignaturesOfInput;
     private validateSignaturesOfTaprootInput;
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
@@ -105,15 +104,15 @@ export declare class Psbt {
     signAllInputs(keyPair: Signer, sighashTypes?: number[]): this;
     signAllInputsAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
-    signTaprootInput(inputIndex: number, keyPair: Signer, tapLeafHashToSign?: Buffer, sighashTypes?: number[]): this;
+    signTaprootInput(inputIndex: number, keyPair: Signer, tapLeafHashToSign?: Uint8Array, sighashTypes?: number[]): this;
     private _signInput;
     private _signTaprootInput;
     signInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
-    signTaprootInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, tapLeafHash?: Buffer, sighashTypes?: number[]): Promise<void>;
+    signTaprootInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, tapLeafHash?: Uint8Array, sighashTypes?: number[]): Promise<void>;
     private _signInputAsync;
     private _signTaprootInputAsync;
     private checkTaprootHashesForSig;
-    toBuffer(): Buffer;
+    toBuffer(): Uint8Array;
     toHex(): string;
     toBase64(): string;
     updateGlobal(updateData: PsbtGlobalUpdate): this;
@@ -133,21 +132,21 @@ interface PsbtInputExtended extends PsbtInput, TransactionInput {
 type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
 interface PsbtOutputExtendedAddress extends PsbtOutput {
     address: string;
-    value: number;
+    value: bigint;
 }
 interface PsbtOutputExtendedScript extends PsbtOutput {
-    script: Buffer;
-    value: number;
+    script: Uint8Array;
+    value: bigint;
 }
 interface HDSignerBase {
     /**
      * DER format compressed publicKey buffer
      */
-    publicKey: Buffer;
+    publicKey: Uint8Array;
     /**
      * The first 4 bytes of the sha256-ripemd160 of the publicKey
      */
-    fingerprint: Buffer;
+    fingerprint: Uint8Array;
 }
 export interface HDSigner extends HDSignerBase {
     /**
@@ -159,28 +158,28 @@ export interface HDSigner extends HDSignerBase {
      * Input hash (the "message digest") for the signature algorithm
      * Return a 64 byte signature (32 byte r and 32 byte s in that order)
      */
-    sign(hash: Buffer): Buffer;
+    sign(hash: Uint8Array): Uint8Array;
 }
 /**
  * Same as above but with async sign method
  */
 export interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
-    sign(hash: Buffer): Promise<Buffer>;
+    sign(hash: Uint8Array): Promise<Uint8Array>;
 }
 export interface Signer {
-    publicKey: Buffer;
+    publicKey: Uint8Array;
     network?: any;
-    sign(hash: Buffer, lowR?: boolean): Buffer;
-    signSchnorr?(hash: Buffer): Buffer;
-    getPublicKey?(): Buffer;
+    sign(hash: Uint8Array, lowR?: boolean): Uint8Array;
+    signSchnorr?(hash: Uint8Array): Uint8Array;
+    getPublicKey?(): Uint8Array;
 }
 export interface SignerAsync {
-    publicKey: Buffer;
+    publicKey: Uint8Array;
     network?: any;
-    sign(hash: Buffer, lowR?: boolean): Promise<Buffer>;
-    signSchnorr?(hash: Buffer): Promise<Buffer>;
-    getPublicKey?(): Buffer;
+    sign(hash: Uint8Array, lowR?: boolean): Promise<Uint8Array>;
+    signSchnorr?(hash: Uint8Array): Promise<Uint8Array>;
+    getPublicKey?(): Uint8Array;
 }
 /**
  * This function must do two things:
@@ -190,17 +189,17 @@ export interface SignerAsync {
  */
 type FinalScriptsFunc = (inputIndex: number, // Which input is it?
 input: PsbtInput, // The PSBT input contents
-script: Buffer, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
+script: Uint8Array, // The "meaningful" locking script Buffer (redeemScript for P2SH etc.)
 isSegwit: boolean, // Is it segwit?
 isP2SH: boolean, // Is it P2SH?
 isP2WSH: boolean) => {
-    finalScriptSig: Buffer | undefined;
-    finalScriptWitness: Buffer | undefined;
+    finalScriptSig: Uint8Array | undefined;
+    finalScriptWitness: Uint8Array | undefined;
 };
 type FinalTaprootScriptsFunc = (inputIndex: number, // Which input is it?
 input: PsbtInput, // The PSBT input contents
-tapLeafHashToFinalize?: Buffer) => {
-    finalScriptWitness: Buffer | undefined;
+tapLeafHashToFinalize?: Uint8Array) => {
+    finalScriptWitness: Uint8Array | undefined;
 };
 type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
 export {};

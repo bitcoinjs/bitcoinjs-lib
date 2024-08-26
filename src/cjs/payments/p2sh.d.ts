@@ -1,4 +1,4 @@
-import { Payment, PaymentOpts } from './index';
+import { Payment, PaymentOpts } from './index.js';
 /**
  * Creates a Pay-to-Script-Hash (P2SH) payment object.
  *

@@ -5,6 +5,7 @@ import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 import { regtestUtils } from './_regtest';
+import * as tools from 'uint8array-tools';
 
 const ECPair = ECPairFactory(ecc);
 const rng = require('randombytes');
@@ -12,9 +13,9 @@ const regtest = regtestUtils.network;
 const bip32 = BIP32Factory(ecc);
 
 const validator = (
-  pubkey: Buffer,
-  msghash: Buffer,
-  signature: Buffer,
+  pubkey: Uint8Array,
+  msghash: Uint8Array,
+  signature: Uint8Array,
 ): boolean => ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 // See bottom of file for some helper functions used to make the payment objects needed.
@@ -67,7 +68,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     });
     psbt.addOutput({
       address: '1KRMKfeZcmosxALVYESdPNez1AP1mEtywp',
-      value: 80000,
+      value: 80000n,
     });
     psbt.signInput(0, alice);
     psbt.validateSignaturesOfInput(0, validator);
@@ -117,11 +118,11 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .addInput(inputData2) // alice2 unspent
       .addOutput({
         address: 'mwCwTceJvYV27KXBc3NJZys6CjsgsoeHmf',
-        value: 8e4,
+        value: BigInt(8e4),
       }) // the actual "spend"
       .addOutput({
         address: alice2.payment.address, // OR script, which is a Buffer.
-        value: 1e4,
+        value: BigInt(1e4),
       }); // Alice's change
     // (in)(5e4 + 7e4) - (out)(8e4 + 1e4) = (fee)3e4 = 30000, this is the miner fee
 
@@ -186,11 +187,11 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .addInput(inputData1)
       .addOutput({
         script: embed.output!,
-        value: 1000,
+        value: 1000n,
       })
       .addOutput({
         address: regtestUtils.RANDOM_ADDRESS,
-        value: 1e5,
+        value: BigInt(1e5),
       })
       .signInput(0, alice1.keys[0]);
 
@@ -221,7 +222,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .addInput(inputData1)
       .addOutput({
         address: regtestUtils.RANDOM_ADDRESS,
-        value: 1e4,
+        value: BigInt(1e4),
       })
       .signInput(0, multisig.keys[0])
       .signInput(0, multisig.keys[2]);
@@ -268,11 +269,11 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     const keyPair = p2sh.keys[0];
     const outputData = {
       script: p2sh.payment.output, // sending to myself for fun
-      value: 2e4,
+      value: BigInt(2e4),
     };
     const outputData2 = {
       script: p2sh.payment.output, // sending to myself for fun
-      value: 7e4,
+      value: BigInt(7e4),
     };
 
     const tx = new bitcoin.Psbt()
@@ -302,11 +303,11 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     const keyPair = p2sh.keys[0];
     const outputData = {
       script: p2sh.payment.output,
-      value: 2e4,
+      value: BigInt(2e4),
     };
     const outputData2 = {
       script: p2sh.payment.output,
-      value: 7e4,
+      value: BigInt(7e4),
     };
     const tx = new bitcoin.Psbt()
       .addInputs([inputData, inputData2])
@@ -337,7 +338,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .addInput(inputData)
       .addOutput({
         address: regtestUtils.RANDOM_ADDRESS,
-        value: 2e4,
+        value: BigInt(2e4),
       })
       .signInput(0, p2wpkh.keys[0]);
 
@@ -371,7 +372,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .addInput(inputData)
       .addOutput({
         address: regtestUtils.RANDOM_ADDRESS,
-        value: 2e4,
+        value: BigInt(2e4),
       })
       .signInput(0, p2wpkh.keys[0]);
     psbt.finalizeAllInputs();
@@ -405,7 +406,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .addInput(inputData)
       .addOutput({
         address: regtestUtils.RANDOM_ADDRESS,
-        value: 2e4,
+        value: BigInt(2e4),
       })
       .signInput(0, p2wsh.keys[0]);
 
@@ -434,7 +435,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       .addInput(inputData)
       .addOutput({
         address: regtestUtils.RANDOM_ADDRESS,
-        value: 2e4,
+        value: BigInt(2e4),
       })
       .signInput(0, p2wsh.keys[0]);
     psbt.finalizeAllInputs();
@@ -472,7 +473,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
         .addInput(inputData)
         .addOutput({
           address: regtestUtils.RANDOM_ADDRESS,
-          value: 2e4,
+          value: BigInt(2e4),
         })
         .signInput(0, p2sh.keys[0])
         .signInput(0, p2sh.keys[2])
@@ -519,7 +520,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
         .addInput(inputData)
         .addOutput({
           address: regtestUtils.RANDOM_ADDRESS,
-          value: 2e4,
+          value: BigInt(2e4),
         })
         .signInput(0, p2sh.keys[0])
         .signInput(0, p2sh.keys[2])
@@ -551,7 +552,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
         .addInput(inputData)
         .addOutput({
           address: regtestUtils.RANDOM_ADDRESS,
-          value: 2e4,
+          value: BigInt(2e4),
         })
         .signInput(0, p2sh.keys[0]);
       psbt.finalizeAllInputs();
@@ -605,7 +606,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       // .updateInput(0, updateData) // if you didn't merge the bip32Derivation with inputData
       .addOutput({
         address: regtestUtils.RANDOM_ADDRESS,
-        value: 2e4,
+        value: BigInt(2e4),
       })
       .signInputHD(0, hdRoot); // must sign with root!!!
 
@@ -655,7 +656,9 @@ function createPayment(_type: string, myKeys?: any[], network?: any): any {
     if (type.slice(0, 4) === 'p2ms') {
       payment = bitcoin.payments.p2ms({
         m,
-        pubkeys: keys.map(key => key.publicKey).sort((a, b) => a.compare(b)),
+        pubkeys: keys
+          .map(key => key.publicKey)
+          .sort((a, b) => tools.compare(a, b)),
         network,
       });
     } else if (['p2sh', 'p2wsh'].indexOf(type) > -1) {
@@ -679,7 +682,8 @@ function createPayment(_type: string, myKeys?: any[], network?: any): any {
 
 function getWitnessUtxo(out: any): any {
   delete out.address;
-  out.script = Buffer.from(out.script, 'hex');
+  out.script = tools.fromHex(out.script);
+  out.value = BigInt(out.value);
   return out;
 }
 
@@ -689,7 +693,10 @@ async function getInputData(
   isSegwit: boolean,
   redeemType: string,
 ): Promise<any> {
-  const unspent = await regtestUtils.faucetComplex(payment.output, amount);
+  const unspent = await regtestUtils.faucetComplex(
+    Buffer.from(payment.output),
+    amount,
+  );
   const utx = await regtestUtils.fetch(unspent.txId);
   // for non segwit inputs, you must pass the full transaction buffer
   const nonWitnessUtxo = Buffer.from(utx.txHex, 'hex');

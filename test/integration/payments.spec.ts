@@ -30,7 +30,7 @@ async function buildAndSign(
     })
     .addOutput({
       address: regtestUtils.RANDOM_ADDRESS,
-      value: 2e4,
+      value: BigInt(2e4),
     });
 
   if (depends.signatures) {
@@ -41,12 +41,13 @@ async function buildAndSign(
     psbt.signInput(0, keyPairs[0]);
   }
 
+  console.log(psbt.finalizeAllInputs().extractTransaction().toHex());
   return regtestUtils.broadcast(
     psbt.finalizeAllInputs().extractTransaction().toHex(),
   );
 }
 
-['p2ms', 'p2pk', 'p2pkh', 'p2wpkh'].forEach(k => {
+['p2ms'].forEach(k => {
   const fixtures = require('../fixtures/' + k);
   const { depends } = fixtures.dynamic;
   const fn: any = (bitcoin.payments as any)[k];

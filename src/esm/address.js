@@ -1,9 +1,11 @@
-import * as networks from './networks';
-import * as payments from './payments';
-import * as bscript from './script';
-import { typeforce, tuple, Hash160bit, UInt8 } from './types';
+import * as networks from './networks.js';
+import * as payments from './payments/index.js';
+import * as bscript from './script.js';
+import { Hash160bitSchema, UInt8Schema } from './types.js';
 import { bech32, bech32m } from 'bech32';
-import * as bs58check from 'bs58check';
+import bs58check from 'bs58check';
+import * as tools from 'uint8array-tools';
+import * as v from 'valibot';
 const FUTURE_SEGWIT_MAX_SIZE = 40;
 const FUTURE_SEGWIT_MIN_SIZE = 2;
 const FUTURE_SEGWIT_MAX_VERSION = 16;
@@ -36,11 +38,12 @@ function _toFutureSegwitAddress(output, network) {
  * decode address with base58 specification,  return address version and address hash if valid
  */
 export function fromBase58Check(address) {
-  const payload = Buffer.from(bs58check.decode(address));
+  const payload = bs58check.decode(address);
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short');
   if (payload.length > 21) throw new TypeError(address + ' is too long');
-  const version = payload.readUInt8(0);
+  // const version = payload.readUInt8(0);
+  const version = tools.readUInt8(payload, 0);
   const hash = payload.slice(1);
   return { version, hash };
 }
@@ -65,17 +68,19 @@ export function fromBech32(address) {
   return {
     version,
     prefix: result.prefix,
-    data: Buffer.from(data),
+    data: Uint8Array.from(data),
   };
 }
 /**
  * encode address hash to base58 address with version
  */
 export function toBase58Check(hash, version) {
-  typeforce(tuple(Hash160bit, UInt8), arguments);
-  const payload = Buffer.allocUnsafe(21);
-  payload.writeUInt8(version, 0);
-  hash.copy(payload, 1);
+  v.parse(v.tuple([Hash160bitSchema, UInt8Schema]), [hash, version]);
+  const payload = new Uint8Array(21);
+  // payload.writeUInt8(version, 0);
+  tools.writeUInt8(payload, 0, version);
+  // hash.copy(payload, 1);
+  payload.set(hash, 1);
   return bs58check.encode(payload);
 }
 /**

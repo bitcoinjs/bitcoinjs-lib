@@ -43,20 +43,26 @@ var __importStar =
     __setModuleDefault(result, mod);
     return result;
   };
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.toOutputScript =
-  exports.fromOutputScript =
-  exports.toBech32 =
-  exports.toBase58Check =
-  exports.fromBech32 =
-  exports.fromBase58Check =
-    void 0;
-const networks = __importStar(require('./networks'));
-const payments = __importStar(require('./payments'));
-const bscript = __importStar(require('./script'));
-const types_1 = require('./types');
+exports.fromBase58Check = fromBase58Check;
+exports.fromBech32 = fromBech32;
+exports.toBase58Check = toBase58Check;
+exports.toBech32 = toBech32;
+exports.fromOutputScript = fromOutputScript;
+exports.toOutputScript = toOutputScript;
+const networks = __importStar(require('./networks.cjs'));
+const payments = __importStar(require('./payments/index.cjs'));
+const bscript = __importStar(require('./script.cjs'));
+const types_js_1 = require('./types.cjs');
 const bech32_1 = require('bech32');
-const bs58check = __importStar(require('bs58check'));
+const bs58check_1 = __importDefault(require('bs58check'));
+const tools = __importStar(require('uint8array-tools'));
+const v = __importStar(require('valibot'));
 const FUTURE_SEGWIT_MAX_SIZE = 40;
 const FUTURE_SEGWIT_MIN_SIZE = 2;
 const FUTURE_SEGWIT_MAX_VERSION = 16;
@@ -89,15 +95,15 @@ function _toFutureSegwitAddress(output, network) {
  * decode address with base58 specification,  return address version and address hash if valid
  */
 function fromBase58Check(address) {
-  const payload = Buffer.from(bs58check.decode(address));
+  const payload = bs58check_1.default.decode(address);
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short');
   if (payload.length > 21) throw new TypeError(address + ' is too long');
-  const version = payload.readUInt8(0);
+  // const version = payload.readUInt8(0);
+  const version = tools.readUInt8(payload, 0);
   const hash = payload.slice(1);
   return { version, hash };
 }
-exports.fromBase58Check = fromBase58Check;
 /**
  * decode address with bech32 specification,  return address version、address prefix and address data if valid
  */
@@ -119,24 +125,24 @@ function fromBech32(address) {
   return {
     version,
     prefix: result.prefix,
-    data: Buffer.from(data),
+    data: Uint8Array.from(data),
   };
 }
-exports.fromBech32 = fromBech32;
 /**
  * encode address hash to base58 address with version
  */
 function toBase58Check(hash, version) {
-  (0, types_1.typeforce)(
-    (0, types_1.tuple)(types_1.Hash160bit, types_1.UInt8),
-    arguments,
-  );
-  const payload = Buffer.allocUnsafe(21);
-  payload.writeUInt8(version, 0);
-  hash.copy(payload, 1);
-  return bs58check.encode(payload);
+  v.parse(v.tuple([types_js_1.Hash160bitSchema, types_js_1.UInt8Schema]), [
+    hash,
+    version,
+  ]);
+  const payload = new Uint8Array(21);
+  // payload.writeUInt8(version, 0);
+  tools.writeUInt8(payload, 0, version);
+  // hash.copy(payload, 1);
+  payload.set(hash, 1);
+  return bs58check_1.default.encode(payload);
 }
-exports.toBase58Check = toBase58Check;
 /**
  * encode address hash to bech32 address with version and prefix
  */
@@ -147,7 +153,6 @@ function toBech32(data, version, prefix) {
     ? bech32_1.bech32.encode(prefix, words)
     : bech32_1.bech32m.encode(prefix, words);
 }
-exports.toBech32 = toBech32;
 /**
  * decode address from output script with network, return address if matched
  */
@@ -174,7 +179,6 @@ function fromOutputScript(output, network) {
   } catch (e) {}
   throw new Error(bscript.toASM(output) + ' has no matching Address');
 }
-exports.fromOutputScript = fromOutputScript;
 /**
  * encodes address to output script with network, return output script if address matched
  */
@@ -221,4 +225,3 @@ function toOutputScript(address, network) {
   }
   throw new Error(address + ' has no matching Script');
 }
-exports.toOutputScript = toOutputScript;

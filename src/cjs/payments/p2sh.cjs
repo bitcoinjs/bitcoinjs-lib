@@ -43,14 +43,21 @@ var __importStar =
     __setModuleDefault(result, mod);
     return result;
   };
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.p2sh = void 0;
-const bcrypto = __importStar(require('../crypto'));
-const networks_1 = require('../networks');
-const bscript = __importStar(require('../script'));
-const types_1 = require('../types');
-const lazy = __importStar(require('./lazy'));
-const bs58check = __importStar(require('bs58check'));
+exports.p2sh = p2sh;
+const bcrypto = __importStar(require('../crypto.cjs'));
+const networks_js_1 = require('../networks.cjs');
+const bscript = __importStar(require('../script.cjs'));
+const types_js_1 = require('../types.cjs');
+const lazy = __importStar(require('./lazy.cjs'));
+const bs58check_1 = __importDefault(require('bs58check'));
+const tools = __importStar(require('uint8array-tools'));
+const v = __importStar(require('valibot'));
 const OPS = bscript.OPS;
 // input: [redeemScriptSig ...] {redeemScript}
 // witness: <?>
@@ -67,35 +74,53 @@ function p2sh(a, opts) {
   if (!a.address && !a.hash && !a.output && !a.redeem && !a.input)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  (0, types_1.typeforce)(
-    {
-      network: types_1.typeforce.maybe(types_1.typeforce.Object),
-      address: types_1.typeforce.maybe(types_1.typeforce.String),
-      hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(20)),
-      output: types_1.typeforce.maybe(types_1.typeforce.BufferN(23)),
-      redeem: types_1.typeforce.maybe({
-        network: types_1.typeforce.maybe(types_1.typeforce.Object),
-        output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-        input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-        witness: types_1.typeforce.maybe(
-          types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
+  // typef(
+  //   {
+  //     network: typef.maybe(typef.Object),
+  //     address: typef.maybe(typef.String),
+  //     hash: typef.maybe(typef.BufferN(20)),
+  //     output: typef.maybe(typef.BufferN(23)),
+  //     redeem: typef.maybe({
+  //       network: typef.maybe(typef.Object),
+  //       output: typef.maybe(typef.Buffer),
+  //       input: typef.maybe(typef.Buffer),
+  //       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //     }),
+  //     input: typef.maybe(typef.Buffer),
+  //     witness: typef.maybe(typef.arrayOf(typef.Buffer)),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    v.partial(
+      v.object({
+        network: v.object({}),
+        address: v.string(),
+        hash: (0, types_js_1.NBufferSchemaFactory)(20),
+        output: (0, types_js_1.NBufferSchemaFactory)(23),
+        redeem: v.partial(
+          v.object({
+            network: v.object({}),
+            output: types_js_1.BufferSchema,
+            input: types_js_1.BufferSchema,
+            witness: v.array(types_js_1.BufferSchema),
+          }),
         ),
+        input: types_js_1.BufferSchema,
+        witness: v.array(types_js_1.BufferSchema),
       }),
-      input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-      witness: types_1.typeforce.maybe(
-        types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
-      ),
-    },
+    ),
     a,
   );
   let network = a.network;
   if (!network) {
-    network = (a.redeem && a.redeem.network) || networks_1.bitcoin;
+    network = (a.redeem && a.redeem.network) || networks_js_1.bitcoin;
   }
   const o = { network };
   const _address = lazy.value(() => {
-    const payload = Buffer.from(bs58check.decode(a.address));
-    const version = payload.readUInt8(0);
+    const payload = bs58check_1.default.decode(a.address);
+    // const version = payload.readUInt8(0);
+    const version = tools.readUInt8(payload, 0);
     const hash = payload.slice(1);
     return { version, hash };
   });
@@ -107,7 +132,7 @@ function p2sh(a, opts) {
     const lastChunk = chunks[chunks.length - 1];
     return {
       network,
-      output: lastChunk === OPS.OP_FALSE ? Buffer.from([]) : lastChunk,
+      output: lastChunk === OPS.OP_FALSE ? Uint8Array.from([]) : lastChunk,
       input: bscript.compile(chunks.slice(0, -1)),
       witness: a.witness || [],
     };
@@ -115,10 +140,12 @@ function p2sh(a, opts) {
   // output dependents
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
-    const payload = Buffer.allocUnsafe(21);
-    payload.writeUInt8(o.network.scriptHash, 0);
-    o.hash.copy(payload, 1);
-    return bs58check.encode(payload);
+    const payload = new Uint8Array(21);
+    // payload.writeUInt8(o.network!.scriptHash, 0);
+    tools.writeUInt8(payload, 0, o.network.scriptHash);
+    // o.hash.copy(payload, 1);
+    payload.set(o.hash, 1);
+    return bs58check_1.default.encode(payload);
   });
   lazy.prop(o, 'hash', () => {
     // in order of least effort
@@ -152,7 +179,7 @@ function p2sh(a, opts) {
     return nameParts.join('-');
   });
   if (opts.validate) {
-    let hash = Buffer.from([]);
+    let hash = Uint8Array.from([]);
     if (a.address) {
       if (_address().version !== network.scriptHash)
         throw new TypeError('Invalid version or Network mismatch');
@@ -160,7 +187,8 @@ function p2sh(a, opts) {
       hash = _address().hash;
     }
     if (a.hash) {
-      if (hash.length > 0 && !hash.equals(a.hash))
+      // if (hash.length > 0 && !hash.equals(a.hash))
+      if (hash.length > 0 && tools.compare(hash, a.hash) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = a.hash;
     }
@@ -173,7 +201,8 @@ function p2sh(a, opts) {
       )
         throw new TypeError('Output is invalid');
       const hash2 = a.output.slice(2, 22);
-      if (hash.length > 0 && !hash.equals(hash2))
+      // if (hash.length > 0 && !hash.equals(hash2))
+      if (hash.length > 0 && tools.compare(hash, hash2) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = hash2;
     }
@@ -194,7 +223,8 @@ function p2sh(a, opts) {
           );
         // match hash against other sources
         const hash2 = bcrypto.hash160(redeem.output);
-        if (hash.length > 0 && !hash.equals(hash2))
+        // if (hash.length > 0 && !hash.equals(hash2))
+        if (hash.length > 0 && tools.compare(hash, hash2) !== 0)
           throw new TypeError('Hash mismatch');
         else hash = hash2;
       }
@@ -214,7 +244,7 @@ function p2sh(a, opts) {
     if (a.input) {
       const chunks = _chunks();
       if (!chunks || chunks.length < 1) throw new TypeError('Input too short');
-      if (!Buffer.isBuffer(_redeem().output))
+      if (!(_redeem().output instanceof Uint8Array))
         throw new TypeError('Input is invalid');
       checkRedeem(_redeem());
     }
@@ -223,9 +253,14 @@ function p2sh(a, opts) {
         throw new TypeError('Network mismatch');
       if (a.input) {
         const redeem = _redeem();
-        if (a.redeem.output && !a.redeem.output.equals(redeem.output))
+        // if (a.redeem.output && !a.redeem.output.equals(redeem.output!))
+        if (
+          a.redeem.output &&
+          tools.compare(a.redeem.output, redeem.output) !== 0
+        )
           throw new TypeError('Redeem.output mismatch');
-        if (a.redeem.input && !a.redeem.input.equals(redeem.input))
+        // if (a.redeem.input && !a.redeem.input.equals(redeem.input!))
+        if (a.redeem.input && tools.compare(a.redeem.input, redeem.input) !== 0)
           throw new TypeError('Redeem.input mismatch');
       }
       checkRedeem(a.redeem);
@@ -234,11 +269,10 @@ function p2sh(a, opts) {
       if (
         a.redeem &&
         a.redeem.witness &&
-        !(0, types_1.stacksEqual)(a.redeem.witness, a.witness)
+        !(0, types_js_1.stacksEqual)(a.redeem.witness, a.witness)
       )
         throw new TypeError('Witness and redeem.witness mismatch');
     }
   }
   return Object.assign(o, a);
 }
-exports.p2sh = p2sh;

@@ -1,27 +1,26 @@
-/// <reference types="node" />
-import { Transaction } from './transaction';
+import { Transaction } from './transaction.js';
 export declare class Block {
-    static fromBuffer(buffer: Buffer): Block;
+    static fromBuffer(buffer: Uint8Array): Block;
     static fromHex(hex: string): Block;
-    static calculateTarget(bits: number): Buffer;
-    static calculateMerkleRoot(transactions: Transaction[], forWitness?: boolean): Buffer;
+    static calculateTarget(bits: number): Uint8Array;
+    static calculateMerkleRoot(transactions: Transaction[], forWitness?: boolean): Uint8Array;
     version: number;
-    prevHash?: Buffer;
-    merkleRoot?: Buffer;
+    prevHash?: Uint8Array;
+    merkleRoot?: Uint8Array;
     timestamp: number;
-    witnessCommit?: Buffer;
+    witnessCommit?: Uint8Array;
     bits: number;
     nonce: number;
     transactions?: Transaction[];
-    getWitnessCommit(): Buffer | null;
+    getWitnessCommit(): Uint8Array | null;
     hasWitnessCommit(): boolean;
     hasWitness(): boolean;
     weight(): number;
     byteLength(headersOnly?: boolean, allowWitness?: boolean): number;
-    getHash(): Buffer;
+    getHash(): Uint8Array;
     getId(): string;
     getUTCDate(): Date;
-    toBuffer(headersOnly?: boolean): Buffer;
+    toBuffer(headersOnly?: boolean): Uint8Array;
     toHex(headersOnly?: boolean): string;
     checkTxRoots(): boolean;
     checkProofOfWork(): boolean;

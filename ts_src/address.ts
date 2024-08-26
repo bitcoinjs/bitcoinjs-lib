@@ -11,10 +11,11 @@ import { Network } from './networks.js';
 import * as networks from './networks.js';
 import * as payments from './payments/index.js';
 import * as bscript from './script.js';
-import { typeforce, tuple, Hash160bit, UInt8 } from './types.js';
+import { Hash160bitSchema, UInt8Schema } from './types.js';
 import { bech32, bech32m } from 'bech32';
 import bs58check from 'bs58check';
-import * as tools from "uint8array-tools";
+import * as tools from 'uint8array-tools';
+import * as v from 'valibot';
 
 /** base58check decode result */
 export interface Base58CheckResult {
@@ -31,7 +32,7 @@ export interface Bech32Result {
   /** address prefix: bc for P2WPKH、P2WSH、P2TR */
   prefix: string;
   /** address data：20 bytes for P2WPKH, 32 bytes for P2WSH、P2TR */
-  data: Buffer;
+  data: Uint8Array;
 }
 
 const FUTURE_SEGWIT_MAX_SIZE: number = 40;
@@ -111,19 +112,21 @@ export function fromBech32(address: string): Bech32Result {
   return {
     version,
     prefix: result.prefix,
-    data: Buffer.from(data),
+    data: Uint8Array.from(data),
   };
 }
 
 /**
  * encode address hash to base58 address with version
  */
-export function toBase58Check(hash: Buffer, version: number): string {
-  typeforce(tuple(Hash160bit, UInt8), arguments);
+export function toBase58Check(hash: Uint8Array, version: number): string {
+  v.parse(v.tuple([Hash160bitSchema, UInt8Schema]), [hash, version]);
 
-  const payload = Buffer.allocUnsafe(21);
-  payload.writeUInt8(version, 0);
-  hash.copy(payload, 1);
+  const payload = new Uint8Array(21);
+  // payload.writeUInt8(version, 0);
+  tools.writeUInt8(payload, 0, version);
+  // hash.copy(payload, 1);
+  payload.set(hash, 1);
 
   return bs58check.encode(payload);
 }
@@ -147,7 +150,10 @@ export function toBech32(
 /**
  * decode address from output script with network, return address if matched
  */
-export function fromOutputScript(output: Uint8Array, network?: Network): string {
+export function fromOutputScript(
+  output: Uint8Array,
+  network?: Network,
+): string {
   // TODO: Network
   network = network || networks.bitcoin;
 
@@ -176,7 +182,7 @@ export function fromOutputScript(output: Uint8Array, network?: Network): string 
 /**
  * encodes address to output script with network, return output script if address matched
  */
-export function toOutputScript(address: string, network?: Network): Buffer {
+export function toOutputScript(address: string, network?: Network): Uint8Array {
   network = network || networks.bitcoin;
 
   let decodeBase58: Base58CheckResult | undefined;
@@ -187,9 +193,9 @@ export function toOutputScript(address: string, network?: Network): Buffer {
 
   if (decodeBase58) {
     if (decodeBase58.version === network.pubKeyHash)
-      return payments.p2pkh({ hash: decodeBase58.hash }).output as Buffer;
+      return payments.p2pkh({ hash: decodeBase58.hash }).output as Uint8Array;
     if (decodeBase58.version === network.scriptHash)
-      return payments.p2sh({ hash: decodeBase58.hash }).output as Buffer;
+      return payments.p2sh({ hash: decodeBase58.hash }).output as Uint8Array;
   } else {
     try {
       decodeBech32 = fromBech32(address);
@@ -200,12 +206,15 @@ export function toOutputScript(address: string, network?: Network): Buffer {
         throw new Error(address + ' has an invalid prefix');
       if (decodeBech32.version === 0) {
         if (decodeBech32.data.length === 20)
-          return payments.p2wpkh({ hash: decodeBech32.data }).output as Buffer;
+          return payments.p2wpkh({ hash: decodeBech32.data })
+            .output as Uint8Array;
         if (decodeBech32.data.length === 32)
-          return payments.p2wsh({ hash: decodeBech32.data }).output as Buffer;
+          return payments.p2wsh({ hash: decodeBech32.data })
+            .output as Uint8Array;
       } else if (decodeBech32.version === 1) {
         if (decodeBech32.data.length === 32)
-          return payments.p2tr({ pubkey: decodeBech32.data }).output as Buffer;
+          return payments.p2tr({ pubkey: decodeBech32.data })
+            .output as Uint8Array;
       } else if (
         decodeBech32.version >= FUTURE_SEGWIT_MIN_VERSION &&
         decodeBech32.version <= FUTURE_SEGWIT_MAX_VERSION &&

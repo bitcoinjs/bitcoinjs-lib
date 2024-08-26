@@ -1,4 +1,4 @@
-import { Payment, PaymentOpts } from './index';
+import { Payment, PaymentOpts } from './index.js';
 /**
  * Represents a function that creates a Pay-to-Multisig (P2MS) payment object.
  * @param a - The payment object.

@@ -1,8 +1,8 @@
 import * as types from './types.js';
-const { typeforce } = types;
 import * as varuint from 'varuint-bitcoin';
+import * as v from 'valibot';
 export { varuint };
-import * as tools from "uint8array-tools";
+import * as tools from 'uint8array-tools';
 
 const MAX_JS_NUMBER = 0x001fffffffffffff;
 
@@ -35,17 +35,17 @@ function verifuint(value: number | bigint, max: number): void {
  * @param offset - The offset in the buffer where the value should be written.
  * @returns The new offset after writing the value.
  */
-export function writeUInt64LE(
-  buffer: Buffer,
-  value: number,
-  offset: number,
-): number {
-  verifuint(value, MAX_JS_NUMBER);
+// export function writeUInt64LE(
+//   buffer: Buffer,
+//   value: number,
+//   offset: number,
+// ): number {
+//   verifuint(value, MAX_JS_NUMBER);
 
-  buffer.writeInt32LE(value & -1, offset);
-  buffer.writeUInt32LE(Math.floor(value / 0x100000000), offset + 4);
-  return offset + 8;
-}
+//   buffer.writeInt32LE(value & -1, offset);
+//   buffer.writeUInt32LE(Math.floor(value / 0x100000000), offset + 4);
+//   return offset + 8;
+// }
 
 /**
  * Reads a 64-bit signed integer from a Uint8Array in little-endian format.
@@ -54,23 +54,23 @@ export function writeUInt64LE(
  * @param {number} offset - The offset in the buffer where the value starts.
  * @return {number} The 64-bit signed integer value.
  */
-export function readInt64LE(
-  buffer: Uint8Array, 
-  offset: number
-): number {
-  if((buffer[offset + 7] & 0x7f) > 0) throw new Error("RangeError: value out of range, greater than int64");
+// export function readInt64LE(
+//   buffer: Uint8Array,
+//   offset: number
+// ): number {
+//   if((buffer[offset + 7] & 0x7f) > 0) throw new Error("RangeError: value out of range, greater than int64");
 
-  return (
-    buffer[offset] | 
-    (buffer[offset + 1] << 8) | 
-    (buffer[offset + 2] << 16) | 
-    (buffer[offset + 3] << 24) |
-    (buffer[offset + 4] << 32) | 
-    (buffer[offset + 5] << 40) | 
-    (buffer[offset + 6] << 48) | 
-    (buffer[offset + 7] << 56)
-  );
-}
+//   return (
+//     buffer[offset] |
+//     (buffer[offset + 1] << 8) |
+//     (buffer[offset + 2] << 16) |
+//     (buffer[offset + 3] << 24) |
+//     (buffer[offset + 4] << 32) |
+//     (buffer[offset + 5] << 40) |
+//     (buffer[offset + 6] << 48) |
+//     (buffer[offset + 7] << 56)
+//   );
+// }
 
 /**
  * Reverses the order of bytes in a buffer.
@@ -104,32 +104,39 @@ export class BufferWriter {
     return new BufferWriter(new Uint8Array(size));
   }
 
-  constructor(public buffer: Uint8Array, public offset: number = 0) {
-    typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
+  constructor(
+    public buffer: Uint8Array,
+    public offset: number = 0,
+  ) {
+    // typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
+    v.parse(v.tuple([types.BufferSchema, types.UInt32Schema]), [
+      buffer,
+      offset,
+    ]);
   }
 
   writeUInt8(i: number): void {
     // this.offset = this.buffer.writeUInt8(i, this.offset);
-    this.offset = tools.writeUInt8(this.buffer, i, this.offset);
+    this.offset = tools.writeUInt8(this.buffer, this.offset, i);
   }
 
   writeInt32(i: number): void {
     // this.offset = this.buffer.writeInt32LE(i, this.offset);
-    this.offset = tools.writeInt32(this.buffer, i, this.offset, "LE");
+    this.offset = tools.writeInt32(this.buffer, i, this.offset, 'LE');
   }
 
   writeInt64(i: number | bigint): void {
-    this.offset = tools.writeInt64(this.buffer, BigInt(i), this.offset, "LE");
+    this.offset = tools.writeInt64(this.buffer, BigInt(i), this.offset, 'LE');
   }
 
   writeUInt32(i: number): void {
     // this.offset = this.buffer.writeUInt32LE(i, this.offset);
-    this.offset = tools.writeUInt32(this.buffer, i, this.offset, "LE");
+    this.offset = tools.writeUInt32(this.buffer, this.offset, i, 'LE');
   }
 
   writeUInt64(i: number | bigint): void {
     // this.offset = writeUInt64LE(this.buffer, i, this.offset);
-    this.offset = tools.writeUInt64(this.buffer, this.offset, BigInt(i), "LE");
+    this.offset = tools.writeUInt64(this.buffer, this.offset, BigInt(i), 'LE');
   }
 
   writeVarInt(i: number): void {
@@ -168,8 +175,15 @@ export class BufferWriter {
  * Helper class for reading of bitcoin data types from a buffer.
  */
 export class BufferReader {
-  constructor(public buffer: Uint8Array, public offset: number = 0) {
-    typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
+  constructor(
+    public buffer: Uint8Array,
+    public offset: number = 0,
+  ) {
+    // typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
+    v.parse(v.tuple([types.BufferSchema, types.UInt32Schema]), [
+      buffer,
+      offset,
+    ]);
   }
 
   readUInt8(): number {
@@ -181,21 +195,21 @@ export class BufferReader {
 
   readInt32(): number {
     // const result = readInt32LE(this.buffer, this.offset);
-    const result = tools.readInt32(this.buffer, this.offset, "LE");
+    const result = tools.readInt32(this.buffer, this.offset, 'LE');
     this.offset += 4;
     return result;
   }
 
   readUInt32(): number {
     // const result = this.buffer.readUInt32LE(this.offset);
-    const result = tools.readUInt32(this.buffer, this.offset, "LE");
+    const result = tools.readUInt32(this.buffer, this.offset, 'LE');
     this.offset += 4;
     return result;
   }
 
   readUInt64(): bigint {
     // const result = readUInt64LE(this.buffer, this.offset);
-    const result = tools.readUInt64(this.buffer, this.offset, "LE");
+    const result = tools.readUInt64(this.buffer, this.offset, 'LE');
     this.offset += 8;
     return result;
   }

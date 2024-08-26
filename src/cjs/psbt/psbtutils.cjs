@@ -44,12 +44,7 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.signatureBlocksAction =
-  exports.checkInputForSig =
-  exports.pubkeyInScript =
-  exports.pubkeyPositionInScript =
-  exports.witnessStackToScriptWitness =
-  exports.isP2TR =
+exports.isP2TR =
   exports.isP2SHScript =
   exports.isP2WSHScript =
   exports.isP2WPKH =
@@ -57,11 +52,17 @@ exports.signatureBlocksAction =
   exports.isP2PK =
   exports.isP2MS =
     void 0;
+exports.witnessStackToScriptWitness = witnessStackToScriptWitness;
+exports.pubkeyPositionInScript = pubkeyPositionInScript;
+exports.pubkeyInScript = pubkeyInScript;
+exports.checkInputForSig = checkInputForSig;
+exports.signatureBlocksAction = signatureBlocksAction;
 const varuint = __importStar(require('varuint-bitcoin'));
-const bscript = __importStar(require('../script'));
-const transaction_1 = require('../transaction');
-const crypto_1 = require('../crypto');
-const payments = __importStar(require('../payments'));
+const bscript = __importStar(require('../script.cjs'));
+const transaction_js_1 = require('../transaction.cjs');
+const crypto_js_1 = require('../crypto.cjs');
+const payments = __importStar(require('../payments/index.cjs'));
+const tools = __importStar(require('uint8array-tools'));
 /**
  * Checks if a given payment factory can generate a payment script from a given script.
  * @param payment The payment factory to check.
@@ -90,14 +91,16 @@ exports.isP2TR = isPaymentFactory(payments.p2tr);
  * @returns The script witness as a Buffer.
  */
 function witnessStackToScriptWitness(witness) {
-  let buffer = Buffer.allocUnsafe(0);
+  let buffer = new Uint8Array(0);
   function writeSlice(slice) {
-    buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+    // buffer = Buffer.concat([buffer, Buffer.from(slice)]);
+    buffer = tools.concat([buffer, slice]);
   }
   function writeVarInt(i) {
     const currentLen = buffer.length;
     const varintLen = varuint.encodingLength(i);
-    buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+    // buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
+    buffer = tools.concat([buffer, new Uint8Array(varintLen)]);
     varuint.encode(i, buffer, currentLen);
   }
   function writeVarSlice(slice) {
@@ -111,7 +114,6 @@ function witnessStackToScriptWitness(witness) {
   writeVector(witness);
   return buffer;
 }
-exports.witnessStackToScriptWitness = witnessStackToScriptWitness;
 /**
  * Finds the position of a public key in a script.
  * @param pubkey The public key to search for.
@@ -120,20 +122,22 @@ exports.witnessStackToScriptWitness = witnessStackToScriptWitness;
  * @throws {Error} If there is an unknown script error.
  */
 function pubkeyPositionInScript(pubkey, script) {
-  const pubkeyHash = (0, crypto_1.hash160)(pubkey);
+  const pubkeyHash = (0, crypto_js_1.hash160)(pubkey);
   const pubkeyXOnly = pubkey.slice(1, 33); // slice before calling?
   const decompiled = bscript.decompile(script);
   if (decompiled === null) throw new Error('Unknown script error');
   return decompiled.findIndex(element => {
     if (typeof element === 'number') return false;
     return (
-      element.equals(pubkey) ||
-      element.equals(pubkeyHash) ||
-      element.equals(pubkeyXOnly)
+      // element.equals(pubkey) ||
+      // element.equals(pubkeyHash) ||
+      // element.equals(pubkeyXOnly)
+      tools.compare(pubkey, element) === 0 ||
+      tools.compare(pubkeyHash, element) === 0 ||
+      tools.compare(pubkeyXOnly, element) === 0
     );
   });
 }
-exports.pubkeyPositionInScript = pubkeyPositionInScript;
 /**
  * Checks if a public key is present in a script.
  * @param pubkey The public key to check.
@@ -143,7 +147,6 @@ exports.pubkeyPositionInScript = pubkeyPositionInScript;
 function pubkeyInScript(pubkey, script) {
   return pubkeyPositionInScript(pubkey, script) !== -1;
 }
-exports.pubkeyInScript = pubkeyInScript;
 /**
  * Checks if an input contains a signature for a specific action.
  * @param input - The input to check.
@@ -156,7 +159,6 @@ function checkInputForSig(input, action) {
     signatureBlocksAction(pSig, bscript.signature.decode, action),
   );
 }
-exports.checkInputForSig = checkInputForSig;
 /**
  * Determines if a given action is allowed for a signature block.
  * @param signature - The signature block.
@@ -168,14 +170,14 @@ function signatureBlocksAction(signature, signatureDecodeFn, action) {
   const { hashType } = signatureDecodeFn(signature);
   const whitelist = [];
   const isAnyoneCanPay =
-    hashType & transaction_1.Transaction.SIGHASH_ANYONECANPAY;
+    hashType & transaction_js_1.Transaction.SIGHASH_ANYONECANPAY;
   if (isAnyoneCanPay) whitelist.push('addInput');
   const hashMod = hashType & 0x1f;
   switch (hashMod) {
-    case transaction_1.Transaction.SIGHASH_ALL:
+    case transaction_js_1.Transaction.SIGHASH_ALL:
       break;
-    case transaction_1.Transaction.SIGHASH_SINGLE:
-    case transaction_1.Transaction.SIGHASH_NONE:
+    case transaction_js_1.Transaction.SIGHASH_SINGLE:
+    case transaction_js_1.Transaction.SIGHASH_NONE:
       whitelist.push('addOutput');
       whitelist.push('setInputSequence');
       break;
@@ -185,7 +187,6 @@ function signatureBlocksAction(signature, signatureDecodeFn, action) {
   }
   return false;
 }
-exports.signatureBlocksAction = signatureBlocksAction;
 /**
  * Extracts the signatures from a PsbtInput object.
  * If the input has partial signatures, it returns an array of the signatures.
@@ -224,7 +225,9 @@ function getPsigsFromInputFinalScripts(input) {
   return scriptItems
     .concat(witnessItems)
     .filter(item => {
-      return Buffer.isBuffer(item) && bscript.isCanonicalScriptSignature(item);
+      return (
+        item instanceof Uint8Array && bscript.isCanonicalScriptSignature(item)
+      );
     })
     .map(sig => ({ signature: sig }));
 }

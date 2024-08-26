@@ -1,4 +1,5 @@
-import { OPS } from './ops';
+import { OPS } from './ops.js';
+import * as tools from 'uint8array-tools';
 /**
  * Calculates the encoding length of a number used for push data in Bitcoin transactions.
  * @param i The number to calculate the encoding length for.
@@ -21,19 +22,26 @@ export function encode(buffer, num, offset) {
   const size = encodingLength(num);
   // ~6 bit
   if (size === 1) {
-    buffer.writeUInt8(num, offset);
+    // buffer.writeUInt8(num, offset);
+    tools.writeUInt8(buffer, offset, num);
     // 8 bit
   } else if (size === 2) {
-    buffer.writeUInt8(OPS.OP_PUSHDATA1, offset);
-    buffer.writeUInt8(num, offset + 1);
+    // buffer.writeUInt8(OPS.OP_PUSHDATA1, offset);
+    tools.writeUInt8(buffer, offset, OPS.OP_PUSHDATA1);
+    // buffer.writeUInt8(num, offset + 1);
+    tools.writeUInt8(buffer, offset + 1, num);
     // 16 bit
   } else if (size === 3) {
-    buffer.writeUInt8(OPS.OP_PUSHDATA2, offset);
-    buffer.writeUInt16LE(num, offset + 1);
+    // buffer.writeUInt8(OPS.OP_PUSHDATA2, offset);
+    tools.writeUInt8(buffer, offset, OPS.OP_PUSHDATA2);
+    // buffer.writeUInt16LE(num, offset + 1);
+    tools.writeUInt16(buffer, offset + 1, num, 'LE');
     // 32 bit
   } else {
-    buffer.writeUInt8(OPS.OP_PUSHDATA4, offset);
-    buffer.writeUInt32LE(num, offset + 1);
+    // buffer.writeUInt8(OPS.OP_PUSHDATA4, offset);
+    tools.writeUInt8(buffer, offset, OPS.OP_PUSHDATA4);
+    // buffer.writeUInt32LE(num, offset + 1);
+    tools.writeUInt32(buffer, offset + 1, num, 'LE');
   }
   return size;
 }
@@ -44,7 +52,8 @@ export function encode(buffer, num, offset) {
  * @returns An object containing the opcode, number, and size, or null if decoding fails.
  */
 export function decode(buffer, offset) {
-  const opcode = buffer.readUInt8(offset);
+  // const opcode = buffer.readUInt8(offset);
+  const opcode = tools.readUInt8(buffer, offset);
   let num;
   let size;
   // ~6 bit
@@ -54,18 +63,21 @@ export function decode(buffer, offset) {
     // 8 bit
   } else if (opcode === OPS.OP_PUSHDATA1) {
     if (offset + 2 > buffer.length) return null;
-    num = buffer.readUInt8(offset + 1);
+    // num = buffer.readUInt8(offset + 1);
+    num = tools.readUInt8(buffer, offset + 1);
     size = 2;
     // 16 bit
   } else if (opcode === OPS.OP_PUSHDATA2) {
     if (offset + 3 > buffer.length) return null;
-    num = buffer.readUInt16LE(offset + 1);
+    // num = buffer.readUInt16LE(offset + 1);
+    num = tools.readUInt16(buffer, offset + 1, 'LE');
     size = 3;
     // 32 bit
   } else {
     if (offset + 5 > buffer.length) return null;
     if (opcode !== OPS.OP_PUSHDATA4) throw new Error('Unexpected opcode');
-    num = buffer.readUInt32LE(offset + 1);
+    // num = buffer.readUInt32LE(offset + 1);
+    num = tools.readUInt32(buffer, offset + 1, 'LE');
     size = 5;
   }
   return {

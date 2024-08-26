@@ -1,7 +1,8 @@
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
-import * as bscript from '../script';
-import { isPoint, typeforce as typef, stacksEqual } from '../types';
-import * as lazy from './lazy';
+import { bitcoin as BITCOIN_NETWORK } from '../networks.js';
+import * as bscript from '../script.js';
+import { BufferSchema, isPoint, stacksEqual } from '../types.js';
+import * as lazy from './lazy.js';
+import * as v from 'valibot';
 const OPS = bscript.OPS;
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 // input: OP_0 [signatures ...]
@@ -28,16 +29,33 @@ export function p2ms(a, opts) {
       (opts.allowIncomplete && x === OPS.OP_0) !== undefined
     );
   }
-  typef(
-    {
-      network: typef.maybe(typef.Object),
-      m: typef.maybe(typef.Number),
-      n: typef.maybe(typef.Number),
-      output: typef.maybe(typef.Buffer),
-      pubkeys: typef.maybe(typef.arrayOf(isPoint)),
-      signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
-      input: typef.maybe(typef.Buffer),
-    },
+  // typef(
+  //   {
+  //     network: typef.maybe(typef.Object),
+  //     m: typef.maybe(typef.Number),
+  //     n: typef.maybe(typef.Number),
+  //     output: typef.maybe(typef.Buffer),
+  //     pubkeys: typef.maybe(typef.arrayOf(isPoint)),
+  //     signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
+  //     input: typef.maybe(typef.Buffer),
+  //   },
+  //   a,
+  // );
+  v.parse(
+    v.partial(
+      v.object({
+        network: v.object({}),
+        m: v.number(),
+        n: v.number(),
+        output: BufferSchema,
+        pubkeys: v.array(v.custom(isPoint), 'Received invalid pubkey'),
+        signatures: v.array(
+          v.custom(isAcceptableSignature),
+          'Expected signature to be of type isAcceptableSignature',
+        ),
+        input: BufferSchema,
+      }),
+    ),
     a,
   );
   const network = a.network || BITCOIN_NETWORK;
@@ -99,9 +117,13 @@ export function p2ms(a, opts) {
   if (opts.validate) {
     if (a.output) {
       decode(a.output);
-      if (!typef.Number(chunks[0])) throw new TypeError('Output is invalid');
-      if (!typef.Number(chunks[chunks.length - 2]))
-        throw new TypeError('Output is invalid');
+      // if (!typef.Number(chunks[0])) throw new TypeError('Output is invalid');
+      v.parse(v.number(), chunks[0], { message: 'Output is invalid' });
+      // if (!typef.Number(chunks[chunks.length - 2]))
+      //   throw new TypeError('Output is invalid');
+      v.parse(v.number(), chunks[chunks.length - 2], {
+        message: 'Output is invalid',
+      });
       if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG)
         throw new TypeError('Output is invalid');
       if (o.m <= 0 || o.n > 16 || o.m > o.n || o.n !== chunks.length - 3)

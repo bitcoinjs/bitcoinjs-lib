@@ -1,14 +1,13 @@
-/// <reference types="node" />
 export interface Output {
-    script: Buffer;
-    value: number;
+    script: Uint8Array;
+    value: bigint;
 }
 export interface Input {
-    hash: Buffer;
+    hash: Uint8Array;
     index: number;
-    script: Buffer;
+    script: Uint8Array;
     sequence: number;
-    witness: Buffer[];
+    witness: Uint8Array[];
 }
 /**
  * Represents a Bitcoin transaction.
@@ -24,16 +23,16 @@ export declare class Transaction {
     static readonly SIGHASH_INPUT_MASK = 128;
     static readonly ADVANCED_TRANSACTION_MARKER = 0;
     static readonly ADVANCED_TRANSACTION_FLAG = 1;
-    static fromBuffer(buffer: Buffer, _NO_STRICT?: boolean): Transaction;
+    static fromBuffer(buffer: Uint8Array, _NO_STRICT?: boolean): Transaction;
     static fromHex(hex: string): Transaction;
-    static isCoinbaseHash(buffer: Buffer): boolean;
+    static isCoinbaseHash(buffer: Uint8Array): boolean;
     version: number;
     locktime: number;
     ins: Input[];
     outs: Output[];
     isCoinbase(): boolean;
-    addInput(hash: Buffer, index: number, sequence?: number, scriptSig?: Buffer): number;
-    addOutput(scriptPubKey: Buffer, value: number): number;
+    addInput(hash: Uint8Array, index: number, sequence?: number, scriptSig?: Uint8Array): number;
+    addOutput(scriptPubKey: Uint8Array, value: bigint): number;
     hasWitnesses(): boolean;
     weight(): number;
     virtualSize(): number;
@@ -47,14 +46,14 @@ export declare class Transaction {
      * hashType, and then hashes the result.
      * This hash can then be used to sign the provided transaction input.
      */
-    hashForSignature(inIndex: number, prevOutScript: Buffer, hashType: number): Buffer;
-    hashForWitnessV1(inIndex: number, prevOutScripts: Buffer[], values: number[], hashType: number, leafHash?: Buffer, annex?: Buffer): Buffer;
-    hashForWitnessV0(inIndex: number, prevOutScript: Buffer, value: number, hashType: number): Buffer;
-    getHash(forWitness?: boolean): Buffer;
+    hashForSignature(inIndex: number, prevOutScript: Uint8Array, hashType: number): Uint8Array;
+    hashForWitnessV1(inIndex: number, prevOutScripts: Uint8Array[], values: bigint[], hashType: number, leafHash?: Uint8Array, annex?: Uint8Array): Uint8Array;
+    hashForWitnessV0(inIndex: number, prevOutScript: Uint8Array, value: bigint, hashType: number): Uint8Array;
+    getHash(forWitness?: boolean): Uint8Array;
     getId(): string;
-    toBuffer(buffer?: Buffer, initialOffset?: number): Buffer;
+    toBuffer(buffer?: Uint8Array, initialOffset?: number): Uint8Array;
     toHex(): string;
-    setInputScript(index: number, scriptSig: Buffer): void;
-    setWitness(index: number, witness: Buffer[]): void;
+    setInputScript(index: number, scriptSig: Uint8Array): void;
+    setWitness(index: number, witness: Uint8Array[]): void;
     private __toBuffer;
 }

@@ -196,7 +196,7 @@
           {
             "witnessUtxo": {
               "script": "Buffer.from('a914b7f5faf40e3d40a5a459b1db3535f2b72fa921e887', 'hex')",
-              "value": 200000000
+              "value": "200000000"
             },
             "redeemScript": "Buffer.from('00208c2353173743b595dfb4a07b72ba8e42e3797da74e87fe7d9d7497e3b2028903', 'hex')",
             "witnessScript": "Buffer.from('522103089dc10c7ac6db54f91329af617333db388cead0c231f723379d1b99030b02dc21023add904f3d6dcf59ddb906b0dee23529b7ffb9ed50e5e86151926860221f0e7352ae', 'hex')",

@@ -14,9 +14,9 @@
       "strictPropertyInitialization": true,
       "noImplicitThis": true,
       "alwaysStrict": true,
-      "esModuleInterop": true,
       "noUnusedLocals": true,
-      "noUnusedParameters": true
+      "noUnusedParameters": true,
+      "moduleResolution": "Node"
     },
     "include": ["ts_src/**/*.ts"],
     "exclude": ["node_modules/**/*"]
