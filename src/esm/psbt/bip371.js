@@ -121,7 +121,6 @@ function checkTaprootScriptPubkey(outputData, newOutputData) {
   if (tapInternalKey) {
     const { script: scriptPubkey } = outputData;
     const script = getTaprootScripPubkey(tapInternalKey, tapTree);
-    // if (scriptPubkey && !scriptPubkey.equals(script))
     if (scriptPubkey && tools.compare(script, scriptPubkey) !== 0)
       throw new Error('Error adding output. Script or address mismatch.');
   }
@@ -397,7 +396,6 @@ function isTapLeafInTree(tapLeaf, merkleRoot) {
     version: tapLeaf.leafVersion,
   });
   const rootHash = rootHashFromPath(tapLeaf.controlBlock, leafHash);
-  // return rootHash.equals(merkleRoot);
   return tools.compare(rootHash, merkleRoot) === 0;
 }
 /**
@@ -467,11 +465,9 @@ function canFinalizeLeaf(leaf, tapScriptSig, hash) {
     output: leaf.script,
     version: leaf.leafVersion,
   });
-  // const whiteListedHash = !hash || hash.equals(leafHash);
   const whiteListedHash = !hash || tools.compare(leafHash, hash) === 0;
   return (
     whiteListedHash &&
-    // tapScriptSig!.find(tss => tss.leafHash.equals(leafHash)) !== undefined
     tapScriptSig.find(tss => tools.compare(tss.leafHash, leafHash) === 0) !==
       undefined
   );

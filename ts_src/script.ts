@@ -31,7 +31,6 @@ function isPushOnlyChunk(value: number | Uint8Array): boolean {
 }
 
 export function isPushOnly(value: Stack): boolean {
-  // return types.Array(value) && value.every(isPushOnlyChunk);
   return v.is(
     v.pipe(v.any(), v.everyItem(isPushOnlyChunk as (x: any) => boolean)),
     value,
@@ -50,12 +49,10 @@ function asMinimalOP(buffer: Uint8Array): number | void {
 }
 
 function chunksIsBuffer(buf: Uint8Array | Stack): buf is Uint8Array {
-  // return Buffer.isBuffer(buf);
   return buf instanceof Uint8Array;
 }
 
 function chunksIsArray(buf: Uint8Array | Stack): buf is Stack {
-  // return types.Array(buf);
   return v.is(StackSchema, buf);
 }
 
@@ -74,7 +71,6 @@ export function compile(chunks: Uint8Array | Stack): Uint8Array {
   // TODO: remove me
   if (chunksIsBuffer(chunks)) return chunks;
 
-  // typeforce(types.Array, chunks);
   v.parse(StackSchema, chunks);
 
   const bufferSize = chunks.reduce((accum: number, chunk) => {
@@ -101,20 +97,17 @@ export function compile(chunks: Uint8Array | Stack): Uint8Array {
       // adhere to BIP62.3, minimal push policy
       const opcode = asMinimalOP(chunk);
       if (opcode !== undefined) {
-        // buffer.writeUInt8(opcode, offset);
         tools.writeUInt8(buffer, offset, opcode);
         offset += 1;
         return;
       }
 
       offset += pushdata.encode(buffer, chunk.length, offset);
-      // chunk.copy(buffer, offset);
       buffer.set(chunk, offset);
       offset += chunk.length;
 
       // opcode
     } else {
-      // buffer.writeUInt8(chunk, offset);
       tools.writeUInt8(buffer, offset, chunk);
       offset += 1;
     }
@@ -130,7 +123,6 @@ export function decompile(
   // TODO: remove me
   if (chunksIsArray(buffer)) return buffer;
 
-  // typeforce(types.Buffer, buffer);
   v.parse(types.BufferSchema, buffer);
 
   const chunks: Array<number | Uint8Array> = [];
@@ -206,18 +198,15 @@ export function toASM(chunks: Uint8Array | Array<number | Uint8Array>): string {
  * @returns The converted Buffer.
  */
 export function fromASM(asm: string): Uint8Array {
-  // typeforce(types.String, asm);
   v.parse(v.string(), asm);
 
   return compile(
     asm.split(' ').map(chunkStr => {
       // opcode?
       if (OPS[chunkStr] !== undefined) return OPS[chunkStr];
-      // typeforce(types.Hex, chunkStr);
       v.parse(types.HexSchema, chunkStr);
 
       // data!
-      // return Buffer.from(chunkStr, 'hex');
       return tools.fromHex(chunkStr);
     }),
   );
@@ -233,7 +222,6 @@ export function toStack(
   chunks: Uint8Array | Array<number | Uint8Array>,
 ): Uint8Array[] {
   chunks = decompile(chunks) as Stack;
-  // typeforce(isPushOnly, chunks);
   v.parse(v.custom(isPushOnly as (x: any) => boolean), chunks);
 
   return chunks.map(op => {
@@ -251,7 +239,6 @@ export function isCanonicalPubKey(buffer: Uint8Array): boolean {
 export function isDefinedHashType(hashType: number): boolean {
   const hashTypeMod = hashType & ~0x80;
 
-  // return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
   return hashTypeMod > 0x00 && hashTypeMod < 0x04;
 }
 

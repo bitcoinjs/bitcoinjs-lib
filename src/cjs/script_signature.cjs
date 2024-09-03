@@ -76,7 +76,6 @@ function fromDER(x) {
   if (x[0] === 0x00) x = x.slice(1);
   const buffer = new Uint8Array(32);
   const bstart = Math.max(0, 32 - x.length);
-  // x.copy(buffer, bstart);
   buffer.set(x, bstart);
   return buffer;
 }
@@ -88,7 +87,6 @@ function fromDER(x) {
  * @throws Error if the hashType is invalid.
  */
 function decode(buffer) {
-  // const hashType = buffer.readUInt8(buffer.length - 1);
   const hashType = tools.readUInt8(buffer, buffer.length - 1);
   if (!(0, script_js_1.isDefinedHashType)(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
@@ -107,13 +105,6 @@ function decode(buffer) {
  * @throws Error if the hashType is invalid.
  */
 function encode(signature, hashType) {
-  // typeforce(
-  //   {
-  //     signature: types.BufferN(64),
-  //     hashType: types.UInt8,
-  //   },
-  //   { signature, hashType },
-  // );
   v.parse(
     v.object({
       signature: (0, types_js_1.NBufferSchemaFactory)(64),
@@ -124,12 +115,9 @@ function encode(signature, hashType) {
   if (!(0, script_js_1.isDefinedHashType)(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
   }
-  // const hashTypeBuffer = Buffer.allocUnsafe(1);
   const hashTypeBuffer = new Uint8Array(1);
-  // hashTypeBuffer.writeUInt8(hashType, 0);
   tools.writeUInt8(hashTypeBuffer, 0, hashType);
   const r = toDER(signature.slice(0, 32));
   const s = toDER(signature.slice(32, 64));
-  // return Buffer.concat([bip66.encode(r, s), hashTypeBuffer]);
   return tools.concat([bip66.encode(r, s), hashTypeBuffer]);
 }

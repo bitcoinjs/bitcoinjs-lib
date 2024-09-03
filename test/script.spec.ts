@@ -1,10 +1,10 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import { script as bscript } from '..';
-import * as fixtures from './fixtures/script.json';
-const minimalData = require('minimaldata');
-import * as tools from 'uint8array-tools';
+import { script as bscript } from 'bitcoinjs-lib';
+import fixtures from './fixtures/script.json';
+import minimalData from 'minimaldata';
 
+import * as tools from 'uint8array-tools';
 describe('script', () => {
   // TODO
   describe('isCanonicalPubKey', () => {

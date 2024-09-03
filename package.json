@@ -11,6 +11,11 @@
       "require": "./src/cjs/index.cjs",
       "import": "./src/esm/index.js",
       "types": "./src/cjs/index.d.ts"
+    }, 
+    "./src/*": {
+      "require": "./src/cjs/*.cjs",
+      "types": "./src/cjs/*.d.ts", 
+      "import": "./src/esm/*.js"
     }
   },
   "engines": {
@@ -60,14 +65,14 @@
   "dependencies": {
     "@noble/hashes": "^1.2.0",
     "bech32": "^2.0.0",
-    "bip174": "../bip174",
+    "bip174": "git://github.com/bitcoinjs/bip174.git#a475ce6bc50879448b054c3fe6a0d30ae1151b67",
     "bs58check": "^4.0.0",
-    "typeforce": "^1.11.3",
     "uint8array-tools": "../uint8array-tools",
     "valibot": "^0.38.0",
     "varuint-bitcoin": "../varuint-bitcoin"
   },
   "devDependencies": {
+    "bitcoinjs-lib": ".",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.1",
     "@types/bs58": "^4.0.0",

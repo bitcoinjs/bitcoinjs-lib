@@ -1,17 +1,16 @@
 import * as assert from 'assert';
-import * as base58 from 'bs58';
+import base58 from 'bs58';
 import { describe, it } from 'mocha';
-import * as bitcoin from '..';
-import * as base58EncodeDecode from './fixtures/core/base58_encode_decode.json';
-import * as base58KeysInvalid from './fixtures/core/base58_keys_invalid.json';
-import * as base58KeysValid from './fixtures/core/base58_keys_valid.json';
-import * as blocksValid from './fixtures/core/blocks.json';
-import * as sigCanonical from './fixtures/core/sig_canonical.json';
-import * as sigNoncanonical from './fixtures/core/sig_noncanonical.json';
-import * as sigHash from './fixtures/core/sighash.json';
-import * as txValid from './fixtures/core/tx_valid.json';
+import * as bitcoin from 'bitcoinjs-lib';
+import base58EncodeDecode from './fixtures/core/base58_encode_decode.json';
+import base58KeysInvalid from './fixtures/core/base58_keys_invalid.json';
+import base58KeysValid from './fixtures/core/base58_keys_valid.json';
+import blocksValid from './fixtures/core/blocks.json';
+import sigCanonical from './fixtures/core/sig_canonical.json';
+import sigNoncanonical from './fixtures/core/sig_noncanonical.json';
+import sigHash from './fixtures/core/sighash.json';
+import txValid from './fixtures/core/tx_valid.json';
 import * as tools from 'uint8array-tools';
-import { bigint } from 'valibot';
 
 describe('Bitcoin-core', () => {
   // base58EncodeDecode

@@ -93,11 +93,9 @@ function encode(r, s) {
   signature[1] = signature.length - 2;
   signature[2] = 0x02;
   signature[3] = r.length;
-  // r.copy(signature, 4);
   signature.set(r, 4);
   signature[4 + lenR] = 0x02;
   signature[5 + lenR] = s.length;
-  // s.copy(signature, 6 + lenR);
   signature.set(s, 6 + lenR);
   return signature;
 }

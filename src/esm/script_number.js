@@ -23,8 +23,6 @@ export function decode(buffer, maxLength, minimal) {
   }
   // 40-bit
   if (length === 5) {
-    // const a = buffer.readUInt32LE(0);
-    // const b = buffer.readUInt8(4);
     const a = tools.readUInt32(buffer, 0, 'LE');
     const b = tools.readUInt8(buffer, 4);
     if (b & 0x80) return -((b & ~0x80) * 0x100000000 + a);
@@ -64,12 +62,10 @@ export function encode(_number) {
   const buffer = new Uint8Array(size);
   const negative = _number < 0;
   for (let i = 0; i < size; ++i) {
-    // buffer.writeUInt8(value & 0xff, i);
     tools.writeUInt8(buffer, i, value & 0xff);
     value >>= 8;
   }
   if (buffer[size - 1] & 0x80) {
-    // buffer.writeUInt8(negative ? 0x80 : 0x00, size - 1);
     tools.writeUInt8(buffer, size - 1, negative ? 0x80 : 0x00);
   } else if (negative) {
     buffer[size - 1] |= 0x80;

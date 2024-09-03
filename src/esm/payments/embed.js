@@ -15,14 +15,6 @@ const OPS = bscript.OPS;
 export function p2data(a, opts) {
   if (!a.data && !a.output) throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  // typef(
-  //   {
-  //     network: typef.maybe(typef.Object),
-  //     output: typef.maybe(typef.Buffer),
-  //     data: typef.maybe(typef.arrayOf(typef.Buffer)),
-  //   },
-  //   a,
-  // );
   v.parse(
     v.partial(
       v.object({

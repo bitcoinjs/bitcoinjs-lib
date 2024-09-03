@@ -99,7 +99,6 @@ function fromBase58Check(address) {
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short');
   if (payload.length > 21) throw new TypeError(address + ' is too long');
-  // const version = payload.readUInt8(0);
   const version = tools.readUInt8(payload, 0);
   const hash = payload.slice(1);
   return { version, hash };
@@ -137,9 +136,7 @@ function toBase58Check(hash, version) {
     version,
   ]);
   const payload = new Uint8Array(21);
-  // payload.writeUInt8(version, 0);
   tools.writeUInt8(payload, 0, version);
-  // hash.copy(payload, 1);
   payload.set(hash, 1);
   return bs58check_1.default.encode(payload);
 }

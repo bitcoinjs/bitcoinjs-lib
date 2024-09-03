@@ -2,20 +2,20 @@ import * as assert from 'assert';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { before, describe, it } from 'mocha';
-import * as bitcoin from '../..';
-import { regtestUtils } from './_regtest';
-import { reverseBuffer } from '../../src/esm/bufferutils';
+import * as bitcoin from 'bitcoinjs-lib';
+import { regtestUtils } from './_regtest.js';
+import { reverseBuffer } from 'bitcoinjs-lib/src/bufferutils';
 import * as tools from 'uint8array-tools';
 
 const ECPair = ECPairFactory(ecc);
 const regtest = regtestUtils.network;
-const bip65 = require('bip65');
+import bip65 from 'bip65';
 
 function toOutputScript(address: string): Uint8Array {
   return bitcoin.address.toOutputScript(address, regtest);
 }
 
-function idToHash(txid: string): Buffer {
+function idToHash(txid: string): Uint8Array {
   return reverseBuffer(tools.fromHex(txid));
 }
 
@@ -112,7 +112,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
         value: 7e4,
       });
     },
-  ).timeout(4000);
+  );
 
   // expiry will pass, {Alice's signature} OP_TRUE
   it(
@@ -164,7 +164,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
         value: 7e4,
       });
     },
-  ).timeout(6000);
+  );
 
   // expiry ignored, {Bob's signature} {Alice's signature} OP_FALSE
   it(
@@ -212,7 +212,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
         value: 8e4,
       });
     },
-  ).timeout(4000);
+  );
 
   // expiry in the future, {Alice's signature} OP_TRUE
   it(
@@ -258,5 +258,5 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
         }, /Error: non-final/);
       });
     },
-  ).timeout(4000);
+  );
 });

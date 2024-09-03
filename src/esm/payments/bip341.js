@@ -1,4 +1,3 @@
-// import { Buffer as NBuffer } from 'buffer';
 import { getEccLib } from '../ecc_lib.js';
 import * as bcrypto from '../crypto.js';
 import { varuint } from '../bufferutils.js';
@@ -23,7 +22,6 @@ export function rootHashFromPath(controlBlock, leafHash) {
   let kj = leafHash;
   for (let j = 0; j < m; j++) {
     const ej = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
-    // if (kj.compare(ej) < 0) {
     if (tools.compare(kj, ej) < 0) {
       kj = tapBranchHash(kj, ej);
     } else {
@@ -62,7 +60,6 @@ export function findScriptPath(node, hash) {
     if (leftPath !== undefined) return [...leftPath, node.right.hash];
     const rightPath = findScriptPath(node.right, hash);
     if (rightPath !== undefined) return [...rightPath, node.left.hash];
-    // } else if (node.hash.equals(hash)) {
   } else if (tools.compare(node.hash, hash) === 0) {
     return [];
   }
@@ -99,7 +96,6 @@ function tapBranchHash(a, b) {
 function serializeScript(s) {
   /* global BigInt */
   const varintLen = varuint.encodingLength(s.length);
-  // const buffer = NBuffer.allocUnsafe(varintLen); // better
   const buffer = new Uint8Array(varintLen);
   varuint.encode(s.length, buffer);
   return tools.concat([buffer, s]);

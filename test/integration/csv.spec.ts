@@ -3,15 +3,15 @@ import { PsbtInput } from 'bip174';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { before, describe, it } from 'mocha';
-import * as bitcoin from '../..';
-import { regtestUtils } from './_regtest';
-import { reverseBuffer } from '../../src/esm/bufferutils';
+import * as bitcoin from 'bitcoinjs-lib';
+import { regtestUtils } from './_regtest.js';
+import { reverseBuffer } from 'bitcoinjs-lib/src/bufferutils';
 import * as tools from 'uint8array-tools';
 
 const ECPair = ECPairFactory(ecc);
 const regtest = regtestUtils.network;
-const bip68 = require('bip68');
-const varuint = require('varuint-bitcoin');
+import bip68 from 'bip68';
+import * as varuint from 'varuint-bitcoin';
 
 function toOutputScript(address: string): Uint8Array {
   return bitcoin.address.toOutputScript(address, regtest);

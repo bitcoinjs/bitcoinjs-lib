@@ -57,7 +57,6 @@ const OPS = bscript.OPS;
 const EMPTY_BUFFER = new Uint8Array(0);
 function chunkHasUncompressedPubkey(chunk) {
   if (
-    // Buffer.isBuffer(chunk) &&
     chunk instanceof Uint8Array &&
     chunk.length === 65 &&
     chunk[0] === 0x04 &&
@@ -83,23 +82,6 @@ function p2wsh(a, opts) {
   if (!a.address && !a.hash && !a.output && !a.redeem && !a.witness)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  // typef(
-  //   {
-  //     network: typef.maybe(typef.Object),
-  //     address: typef.maybe(typef.String),
-  //     hash: typef.maybe(typef.BufferN(32)),
-  //     output: typef.maybe(typef.BufferN(34)),
-  //     redeem: typef.maybe({
-  //       input: typef.maybe(typef.Buffer),
-  //       network: typef.maybe(typef.Object),
-  //       output: typef.maybe(typef.Buffer),
-  //       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
-  //     }),
-  //     input: typef.maybe(typef.BufferN(0)),
-  //     witness: typef.maybe(typef.arrayOf(typef.Buffer)),
-  //   },
-  //   a,
-  // );
   v.parse(
     (0, types_js_1.NullablePartial)({
       network: v.object({}),
@@ -202,7 +184,6 @@ function p2wsh(a, opts) {
       hash = _address().data;
     }
     if (a.hash) {
-      // if (hash.length > 0 && !hash.equals(a.hash))
       if (hash.length > 0 && tools.compare(hash, a.hash) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = a.hash;
@@ -215,7 +196,6 @@ function p2wsh(a, opts) {
       )
         throw new TypeError('Output is invalid');
       const hash2 = a.output.slice(2);
-      // if (hash.length > 0 && !hash.equals(hash2))
       if (hash.length > 0 && tools.compare(hash, hash2) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = hash2;
@@ -246,7 +226,6 @@ function p2wsh(a, opts) {
           );
         // match hash against other sources
         const hash2 = (0, sha256_1.sha256)(a.redeem.output);
-        // if (hash.length > 0 && !hash.equals(hash2))
         if (hash.length > 0 && tools.compare(hash, hash2) !== 0)
           throw new TypeError('Hash mismatch');
         else hash = hash2;
@@ -273,7 +252,6 @@ function p2wsh(a, opts) {
     }
     if (a.witness && a.witness.length > 0) {
       const wScript = a.witness[a.witness.length - 1];
-      // if (a.redeem && a.redeem.output && !a.redeem.output.equals(wScript))
       if (
         a.redeem &&
         a.redeem.output &&

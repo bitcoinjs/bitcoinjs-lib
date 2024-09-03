@@ -4,26 +4,27 @@ import * as bip39 from 'bip39';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import { PsbtInput, TapLeaf, TapLeafScript } from 'bip174';
-import { regtestUtils } from './_regtest';
-import * as bitcoin from '../../';
-import { Taptree } from '../../src/cjs/types';
+import { regtestUtils } from './_regtest.js';
+import * as bitcoin from 'bitcoinjs-lib';
+import { Taptree } from 'bitcoinjs-lib/src/types';
 import {
   LEAF_VERSION_TAPSCRIPT,
   tapleafHash,
-} from '../../src/esm/payments/bip341.js';
+} from 'bitcoinjs-lib/src/payments/bip341';
 import {
   toXOnly,
   tapTreeToList,
   tapTreeFromList,
-} from '../../src/esm/psbt/bip371.js';
-import { witnessStackToScriptWitness } from '../../src/esm/psbt/psbtutils.js';
+} from 'bitcoinjs-lib/src/psbt/bip371';
+import { witnessStackToScriptWitness } from 'bitcoinjs-lib/src/psbt/psbtutils';
 import * as tools from 'uint8array-tools';
 import { sha256 } from '@noble/hashes/sha256';
+import { randomBytes } from 'crypto';
 
-const rng = require('randombytes');
 const regtest = regtestUtils.network;
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
+const rng = (size: number) => randomBytes(size);
 
 describe('bitcoinjs-lib (transaction with taproot)', () => {
   it('can verify the BIP86 HD wallet vectors for taproot single sig (& sending example)', async () => {

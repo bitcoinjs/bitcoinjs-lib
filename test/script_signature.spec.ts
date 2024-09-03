@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import { script } from '..';
+import { script } from 'bitcoinjs-lib';
 const bscriptSig = script.signature;
 import fixtures from './fixtures/signature.json';
 import * as tools from 'uint8array-tools';

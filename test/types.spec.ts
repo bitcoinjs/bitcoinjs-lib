@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import * as types from '../src/esm/types';
+import * as types from 'bitcoinjs-lib/src/types';
 import * as v from 'valibot';
 
 describe('types', () => {

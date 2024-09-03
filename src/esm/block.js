@@ -9,7 +9,6 @@ import { fastMerkleRoot } from './merkle.js';
 import { Transaction } from './transaction.js';
 import * as v from 'valibot';
 import * as tools from 'uint8array-tools';
-// const { typeforce } = types;
 const errorMerkleNoTxes = new TypeError(
   'Cannot compute merkle root for zero transactions',
 );
@@ -48,21 +47,18 @@ export class Block {
     return block;
   }
   static fromHex(hex) {
-    // return Block.fromBuffer(Buffer.from(hex, 'hex'));
     return Block.fromBuffer(tools.fromHex(hex));
   }
   static calculateTarget(bits) {
     const exponent = ((bits & 0xff000000) >> 24) - 3;
     const mantissa = bits & 0x007fffff;
     const target = new Uint8Array(32);
-    // target.writeUIntBE(mantissa, 29 - exponent, 3);
     target[29 - exponent] = (mantissa >> 16) & 0xff;
     target[30 - exponent] = (mantissa >> 8) & 0xff;
     target[31 - exponent] = mantissa & 0xff;
     return target;
   }
   static calculateMerkleRoot(transactions, forWitness) {
-    // typeforce([{ getHash: types.Function }], transactions);
     v.parse(v.array(v.object({ getHash: v.function() })), transactions);
     if (transactions.length === 0) throw errorMerkleNoTxes;
     if (forWitness && !txesHaveWitnessCommit(transactions))
@@ -94,7 +90,6 @@ export class Block {
     const witnessCommits = this.transactions[0].outs
       .filter(
         out =>
-          // out.script.slice(0, 6).equals(Buffer.from('6a24aa21a9ed', 'hex')),
           tools.compare(
             out.script.slice(0, 6),
             Uint8Array.from([0x6a, 0x24, 0xaa, 0x21, 0xa9, 0xed]),
@@ -183,13 +178,11 @@ export class Block {
   checkProofOfWork() {
     const hash = reverseBuffer(this.getHash());
     const target = Block.calculateTarget(this.bits);
-    // return hash.compare(target) <= 0;
     return tools.compare(hash, target) <= 0;
   }
   __checkMerkleRoot() {
     if (!this.transactions) throw errorMerkleNoTxes;
     const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions);
-    // return this.merkleRoot!.compare(actualMerkleRoot) === 0;
     return tools.compare(this.merkleRoot, actualMerkleRoot) === 0;
   }
   __checkWitnessCommit() {
@@ -199,7 +192,6 @@ export class Block {
       this.transactions,
       true,
     );
-    // return this.witnessCommit!.compare(actualWitnessCommit) === 0;
     return tools.compare(this.witnessCommit, actualWitnessCommit) === 0;
   }
 }

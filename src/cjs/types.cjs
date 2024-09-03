@@ -62,7 +62,6 @@ exports.isTapleaf = isTapleaf;
 exports.isTaptree = isTaptree;
 const tools = __importStar(require('uint8array-tools'));
 const v = __importStar(require('valibot'));
-// export const typeforce = require('typeforce');
 const ZERO32 = new Uint8Array(32);
 const EC_P = tools.fromHex(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
@@ -79,7 +78,6 @@ exports.NBufferSchemaFactory = NBufferSchemaFactory;
 function stacksEqual(a, b) {
   if (a.length !== b.length) return false;
   return a.every((x, i) => {
-    // return x.equals(b[i]);
     return tools.compare(x, b[i]) === 0;
   });
 }
@@ -93,17 +91,13 @@ function isPoint(p) {
   if (p.length < 33) return false;
   const t = p[0];
   const x = p.slice(1, 33);
-  // if (x.compare(ZERO32) === 0) return false;
   if (tools.compare(ZERO32, x) === 0) return false;
-  // if (x.compare(EC_P) >= 0) return false;
   if (tools.compare(x, EC_P) >= 0) return false;
   if ((t === 0x02 || t === 0x03) && p.length === 33) {
     return true;
   }
   const y = p.slice(33);
-  // if (y.compare(ZERO32) === 0) return false;
   if (tools.compare(ZERO32, y) === 0) return false;
-  // if (y.compare(EC_P) >= 0) return false;
   if (tools.compare(y, EC_P) >= 0) return false;
   if (t === 0x04 && p.length === 65) return true;
   return false;
@@ -124,10 +118,6 @@ function isTaptree(scriptTree) {
 exports.Buffer256bitSchema = (0, exports.NBufferSchemaFactory)(32);
 exports.Hash160bitSchema = (0, exports.NBufferSchemaFactory)(20);
 exports.Hash256bitSchema = (0, exports.NBufferSchemaFactory)(32);
-// export const Number = typeforce.Number;
-// export const Array = typeforce.Array;
-// export const Boolean = typeforce.Boolean;
-// export const String = typeforce.String;
 exports.BufferSchema = v.instance(Uint8Array);
 exports.HexSchema = v.pipe(v.string(), v.regex(/^([0-9a-f]{2})+$/i));
 exports.UInt8Schema = v.pipe(

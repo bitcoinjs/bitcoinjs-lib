@@ -39,7 +39,6 @@ export function witnessStackToScriptWitness(witness: Uint8Array[]): Uint8Array {
   let buffer = new Uint8Array(0);
 
   function writeSlice(slice: Uint8Array): void {
-    // buffer = Buffer.concat([buffer, Buffer.from(slice)]);
     buffer = tools.concat([buffer, slice]);
   }
 
@@ -47,7 +46,6 @@ export function witnessStackToScriptWitness(witness: Uint8Array[]): Uint8Array {
     const currentLen = buffer.length;
     const varintLen = varuint.encodingLength(i);
 
-    // buffer = Buffer.concat([buffer, Buffer.allocUnsafe(varintLen)]);
     buffer = tools.concat([buffer, new Uint8Array(varintLen)]);
     varuint.encode(i, buffer, currentLen);
   }
@@ -87,9 +85,6 @@ export function pubkeyPositionInScript(
   return decompiled.findIndex(element => {
     if (typeof element === 'number') return false;
     return (
-      // element.equals(pubkey) ||
-      // element.equals(pubkeyHash) ||
-      // element.equals(pubkeyXOnly)
       tools.compare(pubkey, element) === 0 ||
       tools.compare(pubkeyHash, element) === 0 ||
       tools.compare(pubkeyXOnly, element) === 0

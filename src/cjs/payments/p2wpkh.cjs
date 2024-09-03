@@ -70,19 +70,6 @@ function p2wpkh(a, opts) {
   if (!a.address && !a.hash && !a.output && !a.pubkey && !a.witness)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  // typef(
-  //   {
-  //     address: typef.maybe(typef.String),
-  //     hash: typef.maybe(typef.BufferN(20)),
-  //     input: typef.maybe(typef.BufferN(0)),
-  //     network: typef.maybe(typef.Object),
-  //     output: typef.maybe(typef.BufferN(22)),
-  //     pubkey: typef.maybe(isPoint),
-  //     signature: typef.maybe(bscript.isCanonicalScriptSignature),
-  //     witness: typef.maybe(typef.arrayOf(typef.Buffer)),
-  //   },
-  //   a,
-  // );
   v.parse(
     v.partial(
       v.object({
@@ -156,7 +143,6 @@ function p2wpkh(a, opts) {
       hash = _address().data;
     }
     if (a.hash) {
-      // if (hash.length > 0 && !hash.equals(a.hash))
       if (hash.length > 0 && tools.compare(hash, a.hash) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = a.hash;
@@ -168,14 +154,12 @@ function p2wpkh(a, opts) {
         a.output[1] !== 0x14
       )
         throw new TypeError('Output is invalid');
-      // if (hash.length > 0 && !hash.equals(a.output.slice(2)))
       if (hash.length > 0 && tools.compare(hash, a.output.slice(2)) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = a.output.slice(2);
     }
     if (a.pubkey) {
       const pkh = bcrypto.hash160(a.pubkey);
-      // if (hash.length > 0 && !hash.equals(pkh))
       if (hash.length > 0 && tools.compare(hash, pkh) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = pkh;
@@ -188,14 +172,12 @@ function p2wpkh(a, opts) {
         throw new TypeError('Witness has invalid signature');
       if (!(0, types_js_1.isPoint)(a.witness[1]) || a.witness[1].length !== 33)
         throw new TypeError('Witness has invalid pubkey');
-      // if (a.signature && !a.signature.equals(a.witness[0]))
       if (a.signature && tools.compare(a.signature, a.witness[0]) !== 0)
         throw new TypeError('Signature mismatch');
       // if (a.pubkey && !a.pubkey.equals(a.witness[1]))
       if (a.pubkey && tools.compare(a.pubkey, a.witness[1]) !== 0)
         throw new TypeError('Pubkey mismatch');
       const pkh = bcrypto.hash160(a.witness[1]);
-      // if (hash.length > 0 && !hash.equals(pkh))
       if (hash.length > 0 && tools.compare(hash, pkh) !== 0)
         throw new TypeError('Hash mismatch');
     }

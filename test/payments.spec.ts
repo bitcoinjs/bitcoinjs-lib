@@ -1,17 +1,20 @@
 import * as assert from 'assert';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it, before, beforeEach } from 'mocha';
-import { PaymentCreator } from '..';
-import * as u from './payments.utils';
-import { initEccLib } from '../src/esm/ecc_lib';
-import { p2data } from '../src/esm/payments/embed.js';
-import { p2ms } from '../src/esm/payments/p2ms.js';
-import { p2pk } from '../src/esm/payments/p2pk.js';
-import { p2pkh } from '../src/esm/payments/p2pkh.js';
-import { p2sh } from '../src/esm/payments/p2sh.js';
-import { p2wpkh } from '../src/esm/payments/p2wpkh.js';
-import { p2wsh } from '../src/esm/payments/p2wsh.js';
-import { p2tr } from '../src/esm/payments/p2tr.js';
+import { PaymentCreator } from 'bitcoinjs-lib';
+import * as u from './payments.utils.js';
+import { initEccLib } from 'bitcoinjs-lib';
+import { payments } from 'bitcoinjs-lib';
+const {
+  embed: p2data,
+  p2ms,
+  p2pk,
+  p2pkh,
+  p2sh,
+  p2wpkh,
+  p2wsh,
+  p2tr,
+} = payments;
 
 import embedFixtures from './fixtures/embed.json';
 import p2msFixtures from './fixtures/p2ms.json';

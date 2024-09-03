@@ -1,21 +1,6 @@
 import * as varuint from 'varuint-bitcoin';
 export { varuint };
 /**
- * Writes a 64-bit unsigned integer in little-endian format to the specified buffer at the given offset.
- *
- * @param buffer - The buffer to write the value to.
- * @param value - The 64-bit unsigned integer value to write.
- * @param offset - The offset in the buffer where the value should be written.
- * @returns The new offset after writing the value.
- */
-/**
- * Reads a 64-bit signed integer from a Uint8Array in little-endian format.
- *
- * @param {Uint8Array} buffer - The buffer to read the value from.
- * @param {number} offset - The offset in the buffer where the value starts.
- * @return {number} The 64-bit signed integer value.
- */
-/**
  * Reverses the order of bytes in a buffer.
  * @param buffer - The buffer to reverse.
  * @returns A new buffer with the bytes reversed.
@@ -51,7 +36,7 @@ export declare class BufferReader {
     readUInt8(): number;
     readInt32(): number;
     readUInt32(): number;
-    readUInt64(): bigint;
+    readInt64(): bigint;
     readVarInt(): bigint;
     readSlice(n: number | bigint): Uint8Array;
     readVarSlice(): Uint8Array;

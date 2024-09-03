@@ -26,18 +26,6 @@ export function p2pkh(a, opts) {
   if (!a.address && !a.hash && !a.output && !a.pubkey && !a.input)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
-  // typef(
-  //   {
-  //     network: typef.maybe(typef.Object),
-  //     address: typef.maybe(typef.String),
-  //     hash: typef.maybe(typef.BufferN(20)),
-  //     output: typef.maybe(typef.BufferN(25)),
-  //     pubkey: typef.maybe(isPoint),
-  //     signature: typef.maybe(bscript.isCanonicalScriptSignature),
-  //     input: typef.maybe(typef.Buffer),
-  //   },
-  //   a,
-  // );
   v.parse(
     v.partial(
       v.object({
@@ -54,7 +42,6 @@ export function p2pkh(a, opts) {
   );
   const _address = lazy.value(() => {
     const payload = bs58check.decode(a.address);
-    // const version = payload.readUInt8(0);
     const version = tools.readUInt8(payload, 0);
     const hash = payload.slice(1);
     return { version, hash };
@@ -67,9 +54,7 @@ export function p2pkh(a, opts) {
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
     const payload = new Uint8Array(21);
-    // payload.writeUInt8(network.pubKeyHash, 0);
     tools.writeUInt8(payload, 0, network.pubKeyHash);
-    // o.hash.copy(payload, 1);
     payload.set(o.hash, 1);
     return bs58check.encode(payload);
   });
@@ -115,7 +100,6 @@ export function p2pkh(a, opts) {
       hash = _address().hash;
     }
     if (a.hash) {
-      // if (hash.length > 0 && !hash.equals(a.hash))
       if (hash.length > 0 && tools.compare(hash, a.hash) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = a.hash;
@@ -131,14 +115,12 @@ export function p2pkh(a, opts) {
       )
         throw new TypeError('Output is invalid');
       const hash2 = a.output.slice(3, 23);
-      // if (hash.length > 0 && !hash.equals(hash2))
       if (hash.length > 0 && tools.compare(hash, hash2) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = hash2;
     }
     if (a.pubkey) {
       const pkh = bcrypto.hash160(a.pubkey);
-      // if (hash.length > 0 && !hash.equals(pkh))
       if (hash.length > 0 && tools.compare(hash, pkh) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = pkh;
@@ -149,14 +131,11 @@ export function p2pkh(a, opts) {
       if (!bscript.isCanonicalScriptSignature(chunks[0]))
         throw new TypeError('Input has invalid signature');
       if (!isPoint(chunks[1])) throw new TypeError('Input has invalid pubkey');
-      // if (a.signature && !a.signature.equals(chunks[0]))
       if (a.signature && tools.compare(a.signature, chunks[0]) !== 0)
         throw new TypeError('Signature mismatch');
-      // if (a.pubkey && !a.pubkey.equals(chunks[1] as Buffer))
       if (a.pubkey && tools.compare(a.pubkey, chunks[1]) !== 0)
         throw new TypeError('Pubkey mismatch');
       const pkh = bcrypto.hash160(chunks[1]);
-      // if (hash.length > 0 && !hash.equals(pkh))
       if (hash.length > 0 && tools.compare(hash, pkh) !== 0)
         throw new TypeError('Hash mismatch');
     }

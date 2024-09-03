@@ -1,8 +1,6 @@
 import * as tools from 'uint8array-tools';
 import * as v from 'valibot';
 
-// export const typeforce = require('typeforce');
-
 const ZERO32 = new Uint8Array(32);
 const EC_P = tools.fromHex(
   'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
@@ -21,7 +19,6 @@ export function stacksEqual(a: Uint8Array[], b: Uint8Array[]): boolean {
   if (a.length !== b.length) return false;
 
   return a.every((x, i) => {
-    // return x.equals(b[i]);
     return tools.compare(x, b[i]) === 0;
   });
 }
@@ -37,18 +34,14 @@ export function isPoint(p: Uint8Array | number | undefined | null): boolean {
 
   const t = p[0];
   const x = p.slice(1, 33);
-  // if (x.compare(ZERO32) === 0) return false;
   if (tools.compare(ZERO32, x) === 0) return false;
-  // if (x.compare(EC_P) >= 0) return false;
   if (tools.compare(x, EC_P) >= 0) return false;
   if ((t === 0x02 || t === 0x03) && p.length === 33) {
     return true;
   }
 
   const y = p.slice(33);
-  // if (y.compare(ZERO32) === 0) return false;
   if (tools.compare(ZERO32, y) === 0) return false;
-  // if (y.compare(EC_P) >= 0) return false;
   if (tools.compare(y, EC_P) >= 0) return false;
   if (t === 0x04 && p.length === 65) return true;
   return false;
@@ -97,10 +90,6 @@ export interface TinySecp256k1Interface {
 export const Buffer256bitSchema = NBufferSchemaFactory(32);
 export const Hash160bitSchema = NBufferSchemaFactory(20);
 export const Hash256bitSchema = NBufferSchemaFactory(32);
-// export const Number = typeforce.Number;
-// export const Array = typeforce.Array;
-// export const Boolean = typeforce.Boolean;
-// export const String = typeforce.String;
 export const BufferSchema = v.instance(Uint8Array);
 export const HexSchema = v.pipe(v.string(), v.regex(/^([0-9a-f]{2})+$/i));
 export const UInt8Schema = v.pipe(

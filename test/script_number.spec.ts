@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import * as scriptNumber from '../src/esm/script_number.js';
+import * as scriptNumber from 'bitcoinjs-lib/src/script_number';
 import fixtures from './fixtures/script_number.json';
 import * as tools from 'uint8array-tools';
 

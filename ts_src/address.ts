@@ -81,7 +81,6 @@ export function fromBase58Check(address: string): Base58CheckResult {
   if (payload.length < 21) throw new TypeError(address + ' is too short');
   if (payload.length > 21) throw new TypeError(address + ' is too long');
 
-  // const version = payload.readUInt8(0);
   const version = tools.readUInt8(payload, 0);
   const hash = payload.slice(1);
 
@@ -123,9 +122,7 @@ export function toBase58Check(hash: Uint8Array, version: number): string {
   v.parse(v.tuple([Hash160bitSchema, UInt8Schema]), [hash, version]);
 
   const payload = new Uint8Array(21);
-  // payload.writeUInt8(version, 0);
   tools.writeUInt8(payload, 0, version);
-  // hash.copy(payload, 1);
   payload.set(hash, 1);
 
   return bs58check.encode(payload);

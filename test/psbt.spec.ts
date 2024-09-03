@@ -5,31 +5,34 @@ import * as crypto from 'crypto';
 import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
 
-import { convertScriptTree } from './payments.utils';
-import { LEAF_VERSION_TAPSCRIPT } from '../src/esm/payments/bip341';
-import { tapTreeToList, tapTreeFromList } from '../src/esm/psbt/bip371';
-import type { Taptree } from '../src/cjs/types.js';
-import { initEccLib } from '../src/esm/ecc_lib.js';
+import { convertScriptTree } from './payments.utils.js';
+import { LEAF_VERSION_TAPSCRIPT } from 'bitcoinjs-lib/src/payments/bip341';
+import { tapTreeToList, tapTreeFromList } from 'bitcoinjs-lib/src/psbt/bip371';
+import type { Taptree } from 'bitcoinjs-lib/src/types';
+import { initEccLib } from 'bitcoinjs-lib';
 import * as tools from 'uint8array-tools';
 
 const bip32 = BIP32Factory.BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
-import { Psbt } from '../src/esm/psbt.js';
-import { networks as NETWORKS } from '../src/esm/index.js';
-import { payments } from '../src/esm/index.js';
-import type { Signer, SignerAsync } from '..';
+import {
+  Psbt,
+  networks as NETWORKS,
+  payments,
+  Signer,
+  SignerAsync,
+} from 'bitcoinjs-lib';
 
-import * as preFixtures from './fixtures/psbt.json';
-import * as taprootFixtures from './fixtures/p2tr.json';
+import preFixtures from './fixtures/psbt.json';
+import taprootFixtures from './fixtures/p2tr.json';
 
 const validator = (
-  pubkey: Buffer,
-  msghash: Buffer,
-  signature: Buffer,
+  pubkey: Uint8Array,
+  msghash: Uint8Array,
+  signature: Uint8Array,
 ): boolean => ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
-function toBip174Format(data: unknown) {
+function toBip174Format(data: unknown): any {
   if (typeof data !== 'object' || data === null) {
     return data;
   }
@@ -51,9 +54,9 @@ function toBip174Format(data: unknown) {
 }
 
 const schnorrValidator = (
-  pubkey: Buffer,
-  msghash: Buffer,
-  signature: Buffer,
+  pubkey: Uint8Array,
+  msghash: Uint8Array,
+  signature: Uint8Array,
 ): boolean => ecc.verifySchnorr(msghash, pubkey, signature);
 
 const initBuffers = (object: any): typeof preFixtures =>
@@ -176,16 +179,14 @@ describe(`Psbt`, () => {
     });
 
     fixtures.bip174.signer.forEach(f => {
-      it.only('Signs PSBT to the expected result', () => {
+      it('Signs PSBT to the expected result', () => {
         if (f.isTaproot) initEccLib(ecc);
         const psbt = Psbt.fromBase64(f.psbt);
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore // cannot find tapLeafHashToSign
         f.keys.forEach(({ inputToSign, tapLeafHashToSign, WIF }) => {
-          console.log("new keypair");
           const keyPair = ECPair.fromWIF(WIF, NETWORKS.testnet);
-          console.log(tools.toHex(keyPair.privateKey!));
           if (tapLeafHashToSign)
             psbt.signTaprootInput(
               inputToSign,
@@ -810,7 +811,7 @@ describe(`Psbt`, () => {
       {
         innerScript: p2pkhPub,
         outerScript: p2shp2wshOut,
-        redeemGetter: (pk: Buffer): Buffer => p2wshOut(p2pkhPub(pk)),
+        redeemGetter: (pk: Uint8Array): Uint8Array => p2wshOut(p2pkhPub(pk)),
         witnessGetter: p2pkhPub,
         expectedType: 'p2sh-p2wsh-pubkeyhash',
       },
@@ -1187,7 +1188,7 @@ describe(`Psbt`, () => {
       }));
 
       assert.throws(() => {
-        tapTreeToList(tree as Taptree);
+        tapTreeToList(tree as unknown as Taptree);
       }, new RegExp('Cannot convert taptree to tapleaf list. Expecting a tapree structure.'));
     });
   });

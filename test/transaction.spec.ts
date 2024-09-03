@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import { beforeEach, describe, it } from 'mocha';
-import { Transaction } from '..';
-import { script as bscript } from '../src/esm/index.js';
-import * as fixtures from './fixtures/transaction.json';
+import { Transaction, script as bscript } from 'bitcoinjs-lib';
+import fixtures from './fixtures/transaction.json';
 import * as tools from 'uint8array-tools';
 
 describe('Transaction', () => {

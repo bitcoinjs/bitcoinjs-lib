@@ -3,12 +3,14 @@ import BIP32Factory from 'bip32';
 import * as ecc from 'tiny-secp256k1';
 import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
-import * as bitcoin from '../..';
-import { regtestUtils } from './_regtest';
+import * as bitcoin from 'bitcoinjs-lib';
+import { regtestUtils } from './_regtest.js';
 import * as tools from 'uint8array-tools';
+import { randomBytes } from 'crypto';
 
 const ECPair = ECPairFactory(ecc);
-const rng = require('randombytes');
+// const rng = require('randombytes');
+const rng = (size: number) => randomBytes(size);
 const regtest = regtestUtils.network;
 const bip32 = BIP32Factory(ecc);
 

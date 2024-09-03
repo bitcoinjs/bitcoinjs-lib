@@ -22,18 +22,6 @@ export function p2pk(a: Payment, opts?: PaymentOpts): Payment {
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
 
-  // typef(
-  //   {
-  //     network: typef.maybe(typef.Object),
-  //     output: typef.maybe(typef.Buffer),
-  //     pubkey: typef.maybe(isPoint),
-
-  //     signature: typef.maybe(bscript.isCanonicalScriptSignature),
-  //     input: typef.maybe(typef.Buffer),
-  //   },
-  //   a,
-  // );
-
   v.parse(
     v.partial(
       v.object({
@@ -88,13 +76,11 @@ export function p2pk(a: Payment, opts?: PaymentOpts): Payment {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG)
         throw new TypeError('Output is invalid');
       if (!isPoint(o.pubkey)) throw new TypeError('Output pubkey is invalid');
-      // if (a.pubkey && !a.pubkey.equals(o.pubkey!))
       if (a.pubkey && tools.compare(a.pubkey, o.pubkey!) !== 0)
         throw new TypeError('Pubkey mismatch');
     }
 
     if (a.signature) {
-      // if (a.input && !a.input.equals(o.input!))
       if (a.input && tools.compare(a.input, o.input!) !== 0)
         throw new TypeError('Signature mismatch');
     }

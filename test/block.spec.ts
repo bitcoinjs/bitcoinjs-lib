@@ -1,9 +1,9 @@
 import * as assert from 'assert';
 import { beforeEach, describe, it } from 'mocha';
-import { Block } from '../src/esm/block.js';
+import { Block } from 'bitcoinjs-lib';
 import * as tools from 'uint8array-tools';
 
-import * as fixtures from './fixtures/block.json';
+import fixtures from './fixtures/block.json';
 
 describe('Block', () => {
   describe('version', () => {

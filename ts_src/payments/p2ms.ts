@@ -34,20 +34,6 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
     );
   }
 
-  // typef(
-  //   {
-  //     network: typef.maybe(typef.Object),
-  //     m: typef.maybe(typef.Number),
-  //     n: typef.maybe(typef.Number),
-  //     output: typef.maybe(typef.Buffer),
-  //     pubkeys: typef.maybe(typef.arrayOf(isPoint)),
-
-  //     signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
-  //     input: typef.maybe(typef.Buffer),
-  //   },
-  //   a,
-  // );
-
   v.parse(
     v.partial(
       v.object({
@@ -132,10 +118,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
   if (opts.validate) {
     if (a.output) {
       decode(a.output);
-      // if (!typef.Number(chunks[0])) throw new TypeError('Output is invalid');
       v.parse(v.number(), chunks[0], { message: 'Output is invalid' });
-      // if (!typef.Number(chunks[chunks.length - 2]))
-      //   throw new TypeError('Output is invalid');
       v.parse(v.number(), chunks[chunks.length - 2], {
         message: 'Output is invalid',
       });

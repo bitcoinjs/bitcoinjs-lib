@@ -1,15 +1,15 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as ecc from 'tiny-secp256k1';
-import * as baddress from '../src/esm/address.js';
-import * as bscript from '../src/esm/script.js';
+import { address as baddress } from 'bitcoinjs-lib';
+import { script as bscript } from 'bitcoinjs-lib';
 import fixtures from './fixtures/address.json';
 import * as tools from 'uint8array-tools';
-import { networks } from '..';
+import { networks } from 'bitcoinjs-lib';
 
-import { initEccLib } from '../src/esm/ecc_lib.js';
+import { initEccLib } from 'bitcoinjs-lib';
 
-const NETWORKS = {
+const NETWORKS: Record<string, networks.Network> = {
   ...networks,
   litecoin: {
     messagePrefix: '\x19Litecoin Signed Message:\n',
@@ -21,7 +21,7 @@ const NETWORKS = {
     pubKeyHash: 0x30,
     scriptHash: 0x32,
     wif: 0xb0,
-  } as typeof networks.bitcoin,
+  } as networks.Network,
 };
 
 describe('address', () => {

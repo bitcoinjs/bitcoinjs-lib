@@ -114,12 +114,10 @@ const DEFAULT_OPTS = {
 class Psbt {
   data;
   static fromBase64(data, opts = {}) {
-    // const buffer = Buffer.from(data, 'base64');
     const buffer = tools.fromBase64(data);
     return this.fromBuffer(buffer, opts);
   }
   static fromHex(data, opts = {}) {
-    // const buffer = Buffer.from(data, 'hex');
     const buffer = tools.fromHex(data);
     return this.fromBuffer(buffer, opts);
   }
@@ -539,7 +537,6 @@ class Psbt {
     }
     if (tapScriptSig) {
       for (const tapSig of tapScriptSig) {
-        // const tapSigHash = allHashses.find(h => tapSig.pubkey.equals(h.pubkey));
         const tapSigHash = allHashses.find(
           h => tools.compare(h.pubkey, tapSig.pubkey) === 0,
         );
@@ -1010,8 +1007,7 @@ class PsbtTransaction {
     }
     const hash =
       typeof input.hash === 'string'
-        ? // ? reverseBuffer(Buffer.from(input.hash, 'hex'))
-          (0, bufferutils_js_1.reverseBuffer)(tools.fromHex(input.hash))
+        ? (0, bufferutils_js_1.reverseBuffer)(tools.fromHex(input.hash))
         : input.hash;
     this.tx.addInput(hash, input.index, input.sequence);
   }
@@ -1071,9 +1067,7 @@ function isFinalized(input) {
 }
 function bip32DerivationIsMine(root) {
   return d => {
-    // if (!d.masterFingerprint.equals(root.fingerprint)) return false;
     if (tools.compare(root.fingerprint, d.masterFingerprint)) return false;
-    // if (!root.derivePath(d.path).publicKey.equals(d.pubkey)) return false;
     if (tools.compare(root.derivePath(d.path).publicKey, d.pubkey))
       return false;
     return true;
@@ -1161,7 +1155,6 @@ function scriptCheckerFactory(payment, paymentScriptName) {
     const redeemScriptOutput = payment({
       redeem: { output: redeemScript },
     }).output;
-    // if (!scriptPubKey.equals(redeemScriptOutput)) {
     if (tools.compare(scriptPubKey, redeemScriptOutput)) {
       throw new Error(
         `${paymentScriptName} for ${ioType} #${inputIndex} doesn't match the scriptPubKey in the prevout`,
@@ -1280,7 +1273,6 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
     const prevoutHash = unsignedTx.ins[inputIndex].hash;
     const utxoHash = nonWitnessUtxoTx.getHash();
     // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
-    // if (!prevoutHash.equals(utxoHash)) {
     if (tools.compare(prevoutHash, utxoHash) !== 0) {
       throw new Error(
         `Non-witness UTXO hash for input #${inputIndex} doesn't match the hash specified in the prevout`,
@@ -1396,7 +1388,6 @@ function getTaprootHashesForSig(
   if (input.tapInternalKey && !tapLeafHashToSign) {
     const outputKey =
       getPrevoutTaprootKey(inputIndex, input, cache) || Uint8Array.from([]);
-    // if (toXOnly(pubkey).equals(outputKey)) {
     if (tools.compare((0, bip371_js_1.toXOnly)(pubkey), outputKey) === 0) {
       const tapKeyHash = unsignedTx.hashForWitnessV1(
         inputIndex,
@@ -1520,7 +1511,6 @@ function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
   }
   const myDerivations = input.bip32Derivation
     .map(bipDv => {
-      // if (bipDv.masterFingerprint.equals(hdKeyPair.fingerprint)) {
       if (tools.compare(bipDv.masterFingerprint, hdKeyPair.fingerprint) === 0) {
         return bipDv;
       } else {
@@ -1535,7 +1525,6 @@ function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
   }
   const signers = myDerivations.map(bipDv => {
     const node = hdKeyPair.derivePath(bipDv.path);
-    // if (!bipDv!.pubkey.equals(node.publicKey)) {
     if (tools.compare(bipDv.pubkey, node.publicKey) !== 0) {
       throw new Error('pubkey did not match bip32Derivation');
     }
@@ -1551,7 +1540,6 @@ function getSortedSigs(script, partialSig) {
       // filter partialSig array by pubkey being equal
       return (
         partialSig.filter(ps => {
-          // return ps.pubkey.equals(pk);
           return tools.compare(ps.pubkey, pk) === 0;
         })[0] || {}
       ).signature;
@@ -1712,7 +1700,6 @@ function redeemFromFinalScriptSig(finalScript) {
   if (!decomp) return;
   const lastItem = decomp[decomp.length - 1];
   if (
-    // !Buffer.isBuffer(lastItem) ||
     !(lastItem instanceof Uint8Array) ||
     isPubkeyLike(lastItem) ||
     isSigLike(lastItem)
