@@ -13,6 +13,7 @@ const bscript = require('./script');
 const transaction_1 = require('./transaction');
 const bip371_1 = require('./psbt/bip371');
 const psbtutils_1 = require('./psbt/psbtutils');
+const index_1 = require('./payments/index');
 /**
  * These are the default arguments for a Psbt instance.
  */
@@ -1242,7 +1243,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
       prevout.value,
       sighashType,
     );
-  } else if ((0, psbtutils_1.isP2WPKH)(meaningfulScript)) {
+  } else if ((0, index_1.isP2WPKH)(meaningfulScript)) {
     // P2WPKH uses the P2PKH template for prevoutScript when signing
     const signingScript = payments.p2pkh({
       hash: meaningfulScript.slice(2),
@@ -1304,7 +1305,7 @@ function getAllTaprootHashesForSig(inputIndex, input, inputs, cache) {
 }
 function getPrevoutTaprootKey(inputIndex, input, cache) {
   const { script } = getScriptAndAmountFromUtxo(inputIndex, input, cache);
-  return (0, psbtutils_1.isP2TR)(script) ? script.subarray(2, 34) : null;
+  return (0, index_1.isP2TR)(script) ? script.subarray(2, 34) : null;
 }
 function trimTaprootSig(signature) {
   return signature.length === 64 ? signature : signature.subarray(0, 64);
@@ -1438,7 +1439,7 @@ function getScriptFromInput(inputIndex, input, cache) {
       res.script = input.witnessUtxo.script;
     }
   }
-  if (input.witnessScript || (0, psbtutils_1.isP2WPKH)(res.script)) {
+  if (input.witnessScript || (0, index_1.isP2WPKH)(res.script)) {
     res.isSegwit = true;
   }
   return res;
@@ -1679,10 +1680,10 @@ function getMeaningfulScript(
   redeemScript,
   witnessScript,
 ) {
-  const isP2SH = (0, psbtutils_1.isP2SHScript)(script);
+  const isP2SH = (0, index_1.isP2SHScript)(script);
   const isP2SHP2WSH =
-    isP2SH && redeemScript && (0, psbtutils_1.isP2WSHScript)(redeemScript);
-  const isP2WSH = (0, psbtutils_1.isP2WSHScript)(script);
+    isP2SH && redeemScript && (0, index_1.isP2WSHScript)(redeemScript);
+  const isP2WSH = (0, index_1.isP2WSHScript)(script);
   if (isP2SH && redeemScript === undefined)
     throw new Error('scriptPubkey is P2SH but redeemScript missing');
   if ((isP2WSH || isP2SHP2WSH) && witnessScript === undefined)
@@ -1717,18 +1718,15 @@ function getMeaningfulScript(
   };
 }
 function checkInvalidP2WSH(script) {
-  if (
-    (0, psbtutils_1.isP2WPKH)(script) ||
-    (0, psbtutils_1.isP2SHScript)(script)
-  ) {
+  if ((0, index_1.isP2WPKH)(script) || (0, index_1.isP2SHScript)(script)) {
     throw new Error('P2WPKH or P2SH can not be contained within P2WSH');
   }
 }
 function classifyScript(script) {
-  if ((0, psbtutils_1.isP2WPKH)(script)) return 'witnesspubkeyhash';
-  if ((0, psbtutils_1.isP2PKH)(script)) return 'pubkeyhash';
-  if ((0, psbtutils_1.isP2MS)(script)) return 'multisig';
-  if ((0, psbtutils_1.isP2PK)(script)) return 'pubkey';
+  if ((0, index_1.isP2WPKH)(script)) return 'witnesspubkeyhash';
+  if ((0, index_1.isP2PKH)(script)) return 'pubkeyhash';
+  if ((0, index_1.isP2MS)(script)) return 'multisig';
+  if ((0, index_1.isP2PK)(script)) return 'pubkey';
   return 'nonstandard';
 }
 function range(n) {

@@ -1,12 +1,5 @@
 /// <reference types="node" />
 import { PsbtInput } from 'bip174/src/lib/interfaces';
-export declare const isP2MS: (script: Buffer) => boolean;
-export declare const isP2PK: (script: Buffer) => boolean;
-export declare const isP2PKH: (script: Buffer) => boolean;
-export declare const isP2WPKH: (script: Buffer) => boolean;
-export declare const isP2WSHScript: (script: Buffer) => boolean;
-export declare const isP2SHScript: (script: Buffer) => boolean;
-export declare const isP2TR: (script: Buffer) => boolean;
 /**
  * Converts a witness stack to a script witness.
  * @param witness The witness stack to convert.

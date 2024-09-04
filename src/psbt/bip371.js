@@ -15,8 +15,9 @@ exports.checkTaprootInputForSigs =
 const types_1 = require('../types');
 const transaction_1 = require('../transaction');
 const psbtutils_1 = require('./psbtutils');
-const bip341_1 = require('../payments/bip341');
 const payments_1 = require('../payments');
+const bip341_1 = require('../payments/bip341');
+const payments_2 = require('../payments');
 const psbtutils_2 = require('./psbtutils');
 /**
  * Converts a public key to an X-only public key.
@@ -77,7 +78,7 @@ function isTaprootInput(input) {
       input.tapMerkleRoot ||
       (input.tapLeafScript && input.tapLeafScript.length) ||
       (input.tapBip32Derivation && input.tapBip32Derivation.length) ||
-      (input.witnessUtxo && (0, psbtutils_1.isP2TR)(input.witnessUtxo.script))
+      (input.witnessUtxo && (0, payments_1.isP2TR)(input.witnessUtxo.script))
     )
   );
 }
@@ -95,7 +96,7 @@ function isTaprootOutput(output, script) {
       output.tapInternalKey ||
       output.tapTree ||
       (output.tapBip32Derivation && output.tapBip32Derivation.length) ||
-      (script && (0, psbtutils_1.isP2TR)(script))
+      (script && (0, payments_1.isP2TR)(script))
     )
   );
 }
@@ -145,7 +146,7 @@ function checkTaprootScriptPubkey(outputData, newOutputData) {
  */
 function getTaprootScripPubkey(tapInternalKey, tapTree) {
   const scriptTree = tapTree && tapTreeFromList(tapTree.leaves);
-  const { output } = (0, payments_1.p2tr)({
+  const { output } = (0, payments_2.p2tr)({
     internalPubkey: tapInternalKey,
     scriptTree,
   });

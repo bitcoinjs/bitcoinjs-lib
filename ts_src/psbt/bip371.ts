@@ -14,8 +14,8 @@ import { Transaction } from '../transaction';
 import {
   witnessStackToScriptWitness,
   pubkeyPositionInScript,
-  isP2TR,
 } from './psbtutils';
+import { isP2TR } from '../payments';
 import {
   tweakKey,
   tapleafHash,
