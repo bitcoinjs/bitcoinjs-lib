@@ -2,6 +2,12 @@
 // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
 // NOTE: SIGHASH byte ignored AND restricted, truncate before use
 
+/**
+ * Checks if the given buffer is a valid BIP66-encoded signature.
+ *
+ * @param buffer - The buffer to check.
+ * @returns A boolean indicating whether the buffer is a valid BIP66-encoded signature.
+ */
 export function check(buffer: Uint8Array): boolean {
   if (buffer.length < 8) return false;
   if (buffer.length > 72) return false;
@@ -27,6 +33,14 @@ export function check(buffer: Uint8Array): boolean {
   return true;
 }
 
+/**
+ * Decodes a DER-encoded signature buffer and returns the R and S values.
+ * @param buffer - The DER-encoded signature buffer.
+ * @returns An object containing the R and S values.
+ * @throws {Error} If the DER sequence length is too short, too long, or invalid.
+ * @throws {Error} If the R or S length is zero or invalid.
+ * @throws {Error} If the R or S value is negative or excessively padded.
+ */
 export function decode(buffer: Uint8Array): { r: Uint8Array; s: Uint8Array } {
   if (buffer.length < 8) throw new Error('DER sequence length is too short');
   if (buffer.length > 72) throw new Error('DER sequence length is too long');

@@ -42,7 +42,27 @@ export declare function toHashTree(scriptTree: Taptree): HashTree;
  * path is found
  */
 export declare function findScriptPath(node: HashTree, hash: Uint8Array): Uint8Array[] | undefined;
+/**
+ * Calculates the tapleaf hash for a given Tapleaf object.
+ * @param leaf - The Tapleaf object to calculate the hash for.
+ * @returns The tapleaf hash as a Buffer.
+ */
 export declare function tapleafHash(leaf: Tapleaf): Uint8Array;
+/**
+ * Computes the taproot tweak hash for a given public key and optional hash.
+ * If a hash is provided, the public key and hash are concatenated before computing the hash.
+ * If no hash is provided, only the public key is used to compute the hash.
+ *
+ * @param pubKey - The public key buffer.
+ * @param h - The optional hash buffer.
+ * @returns The taproot tweak hash.
+ */
 export declare function tapTweakHash(pubKey: Uint8Array, h: Uint8Array | undefined): Uint8Array;
+/**
+ * Tweak a public key with a given tweak hash.
+ * @param pubKey - The public key to be tweaked.
+ * @param h - The tweak hash.
+ * @returns The tweaked public key or null if the input is invalid.
+ */
 export declare function tweakKey(pubKey: Uint8Array, h: Uint8Array | undefined): TweakedPublicKey | null;
 export {};

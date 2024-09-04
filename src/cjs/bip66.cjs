@@ -6,6 +6,12 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.check = check;
 exports.decode = decode;
 exports.encode = encode;
+/**
+ * Checks if the given buffer is a valid BIP66-encoded signature.
+ *
+ * @param buffer - The buffer to check.
+ * @returns A boolean indicating whether the buffer is a valid BIP66-encoded signature.
+ */
 function check(buffer) {
   if (buffer.length < 8) return false;
   if (buffer.length > 72) return false;
@@ -26,6 +32,14 @@ function check(buffer) {
     return false;
   return true;
 }
+/**
+ * Decodes a DER-encoded signature buffer and returns the R and S values.
+ * @param buffer - The DER-encoded signature buffer.
+ * @returns An object containing the R and S values.
+ * @throws {Error} If the DER sequence length is too short, too long, or invalid.
+ * @throws {Error} If the R or S length is zero or invalid.
+ * @throws {Error} If the R or S value is negative or excessively padded.
+ */
 function decode(buffer) {
   if (buffer.length < 8) throw new Error('DER sequence length is too short');
   if (buffer.length > 72) throw new Error('DER sequence length is too long');

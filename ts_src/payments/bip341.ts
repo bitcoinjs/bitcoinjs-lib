@@ -107,7 +107,11 @@ export function findScriptPath(
 
   return undefined;
 }
-
+/**
+ * Calculates the tapleaf hash for a given Tapleaf object.
+ * @param leaf - The Tapleaf object to calculate the hash for.
+ * @returns The tapleaf hash as a Buffer.
+ */
 export function tapleafHash(leaf: Tapleaf): Uint8Array {
   const version = leaf.version || LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
@@ -116,6 +120,15 @@ export function tapleafHash(leaf: Tapleaf): Uint8Array {
   );
 }
 
+/**
+ * Computes the taproot tweak hash for a given public key and optional hash.
+ * If a hash is provided, the public key and hash are concatenated before computing the hash.
+ * If no hash is provided, only the public key is used to compute the hash.
+ *
+ * @param pubKey - The public key buffer.
+ * @param h - The optional hash buffer.
+ * @returns The taproot tweak hash.
+ */
 export function tapTweakHash(
   pubKey: Uint8Array,
   h: Uint8Array | undefined,
@@ -126,6 +139,12 @@ export function tapTweakHash(
   );
 }
 
+/**
+ * Tweak a public key with a given tweak hash.
+ * @param pubKey - The public key to be tweaked.
+ * @param h - The tweak hash.
+ * @returns The tweaked public key or null if the input is invalid.
+ */
 export function tweakKey(
   pubKey: Uint8Array,
   h: Uint8Array | undefined,
@@ -144,11 +163,23 @@ export function tweakKey(
     x: Uint8Array.from(res.xOnlyPubkey),
   };
 }
-
+/**
+ * Computes the TapBranch hash by concatenating two buffers and applying the 'TapBranch' tagged hash algorithm.
+ *
+ * @param a - The first buffer.
+ * @param b - The second buffer.
+ * @returns The TapBranch hash of the concatenated buffers.
+ */
 function tapBranchHash(a: Uint8Array, b: Uint8Array): Uint8Array {
   return bcrypto.taggedHash('TapBranch', tools.concat([a, b]));
 }
 
+/**
+ * Serializes a script by encoding its length as a varint and concatenating it with the script.
+ *
+ * @param s - The script to be serialized.
+ * @returns The serialized script as a Buffer.
+ */
 function serializeScript(s: Uint8Array): Uint8Array {
   /* global BigInt */
   const varintLen = varuint.encodingLength(s.length);
