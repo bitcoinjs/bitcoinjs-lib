@@ -35,6 +35,13 @@ export declare function rootHashFromPath(controlBlock: Buffer, leafHash: Buffer)
  */
 export declare function toHashTree(scriptTree: Taptree): HashTree;
 /**
+ * Calculates the Merkle root from an array of Taproot leaf hashes.
+ *
+ * @param {Buffer[]} leafHashes - Array of Taproot leaf hashes.
+ * @returns {Buffer} - The Merkle root.
+ */
+export declare function calculateScriptTreeMerkleRoot(leafHashes: Buffer[]): Buffer | undefined;
+/**
  * Given a HashTree, finds the path from a particular hash to the root.
  * @param node - the root of the tree
  * @param hash - the hash to search for
