@@ -35,6 +35,8 @@ import {
   witnessStackToScriptWitness,
   checkInputForSig,
   pubkeyInScript,
+} from './psbt/psbtutils';
+import {
   isP2MS,
   isP2PK,
   isP2PKH,
@@ -42,7 +44,7 @@ import {
   isP2WSHScript,
   isP2SHScript,
   isP2TR,
-} from './psbt/psbtutils';
+} from './payments/index';
 
 export interface TransactionInput {
   hash: string | Buffer;

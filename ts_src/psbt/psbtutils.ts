@@ -3,31 +3,6 @@ import { PartialSig, PsbtInput } from 'bip174/src/lib/interfaces';
 import * as bscript from '../script';
 import { Transaction } from '../transaction';
 import { hash160 } from '../crypto';
-import * as payments from '../payments';
-
-/**
- * Checks if a given payment factory can generate a payment script from a given script.
- * @param payment The payment factory to check.
- * @returns A function that takes a script and returns a boolean indicating whether the payment factory can generate a payment script from the script.
- */
-function isPaymentFactory(payment: any): (script: Buffer) => boolean {
-  return (script: Buffer): boolean => {
-    try {
-      payment({ output: script });
-      return true;
-    } catch (err) {
-      return false;
-    }
-  };
-}
-
-export const isP2MS = isPaymentFactory(payments.p2ms);
-export const isP2PK = isPaymentFactory(payments.p2pk);
-export const isP2PKH = isPaymentFactory(payments.p2pkh);
-export const isP2WPKH = isPaymentFactory(payments.p2wpkh);
-export const isP2WSHScript = isPaymentFactory(payments.p2wsh);
-export const isP2SHScript = isPaymentFactory(payments.p2sh);
-export const isP2TR = isPaymentFactory(payments.p2tr);
 
 /**
  * Converts a witness stack to a script witness.

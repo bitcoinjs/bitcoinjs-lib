@@ -5,41 +5,11 @@ exports.signatureBlocksAction =
   exports.pubkeyInScript =
   exports.pubkeyPositionInScript =
   exports.witnessStackToScriptWitness =
-  exports.isP2TR =
-  exports.isP2SHScript =
-  exports.isP2WSHScript =
-  exports.isP2WPKH =
-  exports.isP2PKH =
-  exports.isP2PK =
-  exports.isP2MS =
     void 0;
 const varuint = require('bip174/src/lib/converter/varint');
 const bscript = require('../script');
 const transaction_1 = require('../transaction');
 const crypto_1 = require('../crypto');
-const payments = require('../payments');
-/**
- * Checks if a given payment factory can generate a payment script from a given script.
- * @param payment The payment factory to check.
- * @returns A function that takes a script and returns a boolean indicating whether the payment factory can generate a payment script from the script.
- */
-function isPaymentFactory(payment) {
-  return script => {
-    try {
-      payment({ output: script });
-      return true;
-    } catch (err) {
-      return false;
-    }
-  };
-}
-exports.isP2MS = isPaymentFactory(payments.p2ms);
-exports.isP2PK = isPaymentFactory(payments.p2pk);
-exports.isP2PKH = isPaymentFactory(payments.p2pkh);
-exports.isP2WPKH = isPaymentFactory(payments.p2wpkh);
-exports.isP2WSHScript = isPaymentFactory(payments.p2wsh);
-exports.isP2SHScript = isPaymentFactory(payments.p2sh);
-exports.isP2TR = isPaymentFactory(payments.p2tr);
 /**
  * Converts a witness stack to a script witness.
  * @param witness The witness stack to convert.

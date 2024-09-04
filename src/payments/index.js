@@ -1,6 +1,13 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.p2tr =
+exports.isP2TR =
+  exports.isP2SHScript =
+  exports.isP2WSHScript =
+  exports.isP2WPKH =
+  exports.isP2PKH =
+  exports.isP2PK =
+  exports.isP2MS =
+  exports.p2tr =
   exports.p2wsh =
   exports.p2wpkh =
   exports.p2sh =
@@ -65,5 +72,25 @@ Object.defineProperty(exports, 'p2tr', {
     return p2tr_1.p2tr;
   },
 });
-// TODO
-// witness commitment
+/**
+ * Checks if a given payment factory can generate a payment script from a given script.
+ * @param payment The payment factory to check.
+ * @returns A function that takes a script and returns a boolean indicating whether the payment factory can generate a payment script from the script.
+ */
+function isPaymentFactory(payment) {
+  return script => {
+    try {
+      payment({ output: script });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+}
+exports.isP2MS = isPaymentFactory(p2ms_1.p2ms);
+exports.isP2PK = isPaymentFactory(p2pk_1.p2pk);
+exports.isP2PKH = isPaymentFactory(p2pkh_1.p2pkh);
+exports.isP2WPKH = isPaymentFactory(p2wpkh_1.p2wpkh);
+exports.isP2WSHScript = isPaymentFactory(p2wsh_1.p2wsh);
+exports.isP2SHScript = isPaymentFactory(p2sh_1.p2sh);
+exports.isP2TR = isPaymentFactory(p2tr_1.p2tr);
