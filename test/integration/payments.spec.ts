@@ -3,11 +3,14 @@ import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import * as bitcoin from 'bitcoinjs-lib';
 import { regtestUtils } from './_regtest.js';
+import { randomBytes } from 'crypto';
 
 import p2msFixtures from '../fixtures/p2ms.json';
 import p2pkFixtures from '../fixtures/p2pk.json';
 import p2pkhFixtures from '../fixtures/p2pkh.json';
 import p2wpkhFixtures from '../fixtures/p2wpkh.json';
+
+const rng = (size: number) => randomBytes(size);
 
 const testSuite = [
   {
@@ -31,8 +34,8 @@ const testSuite = [
 const ECPair = ECPairFactory(ecc);
 const NETWORK = regtestUtils.network;
 const keyPairs = [
-  ECPair.makeRandom({ network: NETWORK }),
-  ECPair.makeRandom({ network: NETWORK }),
+  ECPair.makeRandom({ network: NETWORK, rng }),
+  ECPair.makeRandom({ network: NETWORK, rng }),
 ];
 
 async function buildAndSign(

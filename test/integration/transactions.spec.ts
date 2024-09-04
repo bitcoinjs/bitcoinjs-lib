@@ -543,7 +543,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
     'can create (and broadcast via 3PBP) a Transaction, w/ a ' +
       'P2SH(P2MS(2 of 2)) input with nonWitnessUtxo',
     async () => {
-      const myKey = ECPair.makeRandom({ network: regtest });
+      const myKey = ECPair.makeRandom({ network: regtest, rng });
       const myKeys = [
         myKey,
         ECPair.fromPrivateKey(myKey.privateKey!, { network: regtest }),
@@ -647,11 +647,11 @@ function createPayment(_type: string, myKeys?: any[], network?: any): any {
       throw new Error('Need n keys for multisig');
     }
     while (!myKeys && n > 1) {
-      keys.push(ECPair.makeRandom({ network }));
+      keys.push(ECPair.makeRandom({ network, rng }));
       n--;
     }
   }
-  if (!myKeys) keys.push(ECPair.makeRandom({ network }));
+  if (!myKeys) keys.push(ECPair.makeRandom({ network, rng }));
 
   let payment: any;
   splitType.forEach(type => {

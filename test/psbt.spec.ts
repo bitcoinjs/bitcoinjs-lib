@@ -12,6 +12,8 @@ import type { Taptree } from 'bitcoinjs-lib/src/types';
 import { initEccLib } from 'bitcoinjs-lib';
 import * as tools from 'uint8array-tools';
 
+const rng = (size: number) => crypto.randomBytes(size);
+
 const bip32 = BIP32Factory.BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
@@ -134,7 +136,7 @@ describe(`Psbt`, () => {
     });
 
     fixtures.bip174.failSignChecks.forEach(f => {
-      const keyPair = ECPair.makeRandom();
+      const keyPair = ECPair.makeRandom({ rng });
       it(`Fails Signer checks: ${f.description}`, () => {
         const psbt = Psbt.fromBase64(f.psbt);
         assert.throws(() => {
@@ -720,7 +722,7 @@ describe(`Psbt`, () => {
   });
 
   describe('getInputType', () => {
-    const key = ECPair.makeRandom();
+    const key = ECPair.makeRandom({ rng });
     const { publicKey } = key;
     const p2wpkhPub = (pubkey: Uint8Array): Uint8Array =>
       payments.p2wpkh({
