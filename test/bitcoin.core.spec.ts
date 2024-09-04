@@ -21,7 +21,7 @@ describe('Bitcoin-core', () => {
 
       it('can decode ' + fb58, () => {
         const buffer = base58.decode(fb58);
-        const actual = buffer.toString('hex');
+        const actual = tools.toHex(buffer);
 
         assert.strictEqual(actual, fhex);
       });

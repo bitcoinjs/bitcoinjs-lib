@@ -46,7 +46,7 @@ const FUTURE_SEGWIT_VERSION_WARNING: string =
   'with caution. Wallets should verify the segwit version from the output of fromBech32, ' +
   'then decide when it is safe to use which version of segwit.';
 
-  /**
+/**
  * Converts an output buffer to a future segwit address.
  * @param output - The output buffer.
  * @param network - The network object.
