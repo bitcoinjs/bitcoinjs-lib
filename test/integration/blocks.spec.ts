@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import * as bitcoin from '../..';
+import * as bitcoin from 'bitcoinjs-lib';
 
 describe('bitcoinjs-lib (blocks)', () => {
   it('can extract a height from a CoinBase transaction', () => {

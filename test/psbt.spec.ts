@@ -1,34 +1,64 @@
 import * as assert from 'assert';
-import BIP32Factory from 'bip32';
+import * as BIP32Factory from 'bip32';
 import * as ecc from 'tiny-secp256k1';
 import * as crypto from 'crypto';
 import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
 
-import { convertScriptTree } from './payments.utils';
-import { LEAF_VERSION_TAPSCRIPT } from '../src/payments/bip341';
-import { tapTreeToList, tapTreeFromList } from '../src/psbt/bip371';
-import { Taptree } from '../src/types';
-import { initEccLib } from '../src';
+import { convertScriptTree } from './payments.utils.js';
+import { LEAF_VERSION_TAPSCRIPT } from 'bitcoinjs-lib/src/payments/bip341';
+import { tapTreeToList, tapTreeFromList } from 'bitcoinjs-lib/src/psbt/bip371';
+import type { Taptree } from 'bitcoinjs-lib/src/types';
+import { initEccLib } from 'bitcoinjs-lib';
+import * as tools from 'uint8array-tools';
 
-const bip32 = BIP32Factory(ecc);
+const rng = (size: number) => crypto.randomBytes(size);
+
+const bip32 = BIP32Factory.BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
-import { networks as NETWORKS, payments, Psbt, Signer, SignerAsync } from '..';
+import {
+  Psbt,
+  networks as NETWORKS,
+  payments,
+  Signer,
+  SignerAsync,
+} from 'bitcoinjs-lib';
 
-import * as preFixtures from './fixtures/psbt.json';
-import * as taprootFixtures from './fixtures/p2tr.json';
+import preFixtures from './fixtures/psbt.json';
+import taprootFixtures from './fixtures/p2tr.json';
 
 const validator = (
-  pubkey: Buffer,
-  msghash: Buffer,
-  signature: Buffer,
+  pubkey: Uint8Array,
+  msghash: Uint8Array,
+  signature: Uint8Array,
 ): boolean => ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
+function toBip174Format(data: unknown): any {
+  if (typeof data !== 'object' || data === null) {
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(toBip174Format);
+  }
+
+  if (Buffer.isBuffer(data)) {
+    return Uint8Array.from(data);
+  }
+
+  return Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [
+      key,
+      key === 'value' ? BigInt(value) : toBip174Format(value),
+    ]),
+  );
+}
+
 const schnorrValidator = (
-  pubkey: Buffer,
-  msghash: Buffer,
-  signature: Buffer,
+  pubkey: Uint8Array,
+  msghash: Uint8Array,
+  signature: Uint8Array,
 ): boolean => ecc.verifySchnorr(msghash, pubkey, signature);
 
 const initBuffers = (object: any): typeof preFixtures =>
@@ -51,7 +81,10 @@ const upperCaseFirstLetter = (str: string): string =>
 const toAsyncSigner = (signer: Signer): SignerAsync => {
   const ret: SignerAsync = {
     publicKey: signer.publicKey,
-    sign: (hash: Buffer, lowerR: boolean | undefined): Promise<Buffer> => {
+    sign: (
+      hash: Uint8Array,
+      lowerR: boolean | undefined,
+    ): Promise<Uint8Array> => {
       return new Promise((resolve, rejects): void => {
         setTimeout(() => {
           try {
@@ -66,10 +99,10 @@ const toAsyncSigner = (signer: Signer): SignerAsync => {
   };
   return ret;
 };
-const failedAsyncSigner = (publicKey: Buffer): SignerAsync => {
+const failedAsyncSigner = (publicKey: Uint8Array): SignerAsync => {
   return {
     publicKey,
-    sign: (__: Buffer): Promise<Buffer> => {
+    sign: (__: Uint8Array): Promise<Uint8Array> => {
       return new Promise((_, reject): void => {
         setTimeout(() => {
           reject(new Error('sign failed'));
@@ -103,7 +136,7 @@ describe(`Psbt`, () => {
     });
 
     fixtures.bip174.failSignChecks.forEach(f => {
-      const keyPair = ECPair.makeRandom();
+      const keyPair = ECPair.makeRandom({ rng });
       it(`Fails Signer checks: ${f.description}`, () => {
         const psbt = Psbt.fromBase64(f.psbt);
         assert.throws(() => {
@@ -120,7 +153,7 @@ describe(`Psbt`, () => {
         }
         for (const output of f.outputs) {
           const script = Buffer.from(output.script, 'hex');
-          psbt.addOutput({ ...output, script });
+          psbt.addOutput({ value: BigInt(output.value), script });
         }
         assert.strictEqual(psbt.toBase64(), f.result);
       });
@@ -128,7 +161,9 @@ describe(`Psbt`, () => {
 
     fixtures.bip174.updater.forEach(f => {
       it('Updates PSBT to the expected result', () => {
-        if (f.isTaproot) initEccLib(ecc);
+        if (f.isTaproot) {
+          initEccLib(ecc);
+        }
         const psbt = Psbt.fromBase64(f.psbt);
 
         for (const inputOrOutput of ['input', 'output']) {
@@ -136,7 +171,7 @@ describe(`Psbt`, () => {
           if (fixtureData) {
             for (const [i, data] of fixtureData.entries()) {
               const txt = upperCaseFirstLetter(inputOrOutput);
-              (psbt as any)[`update${txt}`](i, data);
+              (psbt as any)[`update${txt}`](i, toBip174Format(data));
             }
           }
         }
@@ -560,11 +595,8 @@ describe(`Psbt`, () => {
       }, new RegExp('No script found for input #0'));
       psbt.updateInput(0, {
         witnessUtxo: {
-          script: Buffer.from(
-            '0014d85c2b71d0060b09c9886aeb815e50991dda124d',
-            'hex',
-          ),
-          value: 2e5,
+          script: tools.fromHex('0014d85c2b71d0060b09c9886aeb815e50991dda124d'),
+          value: BigInt(2e5),
         },
       });
       assert.throws(() => {
@@ -629,13 +661,13 @@ describe(`Psbt`, () => {
           }, new RegExp(f.exception));
         } else {
           assert.doesNotThrow(() => {
-            psbt.addOutput(f.outputData as any);
+            psbt.addOutput(toBip174Format(f.outputData));
           });
           if (f.result) {
             assert.strictEqual(psbt.toBase64(), f.result);
           }
           assert.doesNotThrow(() => {
-            psbt.addOutputs([f.outputData as any]);
+            psbt.addOutputs([toBip174Format(f.outputData)]);
           });
         }
       });
@@ -690,26 +722,27 @@ describe(`Psbt`, () => {
   });
 
   describe('getInputType', () => {
-    const key = ECPair.makeRandom();
+    const key = ECPair.makeRandom({ rng });
     const { publicKey } = key;
-    const p2wpkhPub = (pubkey: Buffer): Buffer =>
+    const p2wpkhPub = (pubkey: Uint8Array): Uint8Array =>
       payments.p2wpkh({
         pubkey,
       }).output!;
-    const p2pkhPub = (pubkey: Buffer): Buffer =>
+    const p2pkhPub = (pubkey: Uint8Array): Uint8Array =>
       payments.p2pkh({
         pubkey,
       }).output!;
-    const p2shOut = (output: Buffer): Buffer =>
+    const p2shOut = (output: Uint8Array): Uint8Array =>
       payments.p2sh({
         redeem: { output },
       }).output!;
-    const p2wshOut = (output: Buffer): Buffer =>
+    const p2wshOut = (output: Uint8Array): Uint8Array =>
       payments.p2wsh({
         redeem: { output },
       }).output!;
-    const p2shp2wshOut = (output: Buffer): Buffer => p2shOut(p2wshOut(output));
-    const noOuter = (output: Buffer): Buffer => output;
+    const p2shp2wshOut = (output: Uint8Array): Uint8Array =>
+      p2shOut(p2wshOut(output));
+    const noOuter = (output: Uint8Array): Uint8Array => output;
 
     function getInputTypeTest({
       innerScript,
@@ -726,14 +759,14 @@ describe(`Psbt`, () => {
           index: 0,
           witnessUtxo: {
             script: outerScript(innerScript(publicKey)),
-            value: 2e3,
+            value: BigInt(2e3),
           },
           ...(redeemGetter ? { redeemScript: redeemGetter(publicKey) } : {}),
           ...(witnessGetter ? { witnessScript: witnessGetter(publicKey) } : {}),
         })
         .addOutput({
           script: Buffer.from('0014d85c2b71d0060b09c9886aeb815e50991dda124d'),
-          value: 1800,
+          value: BigInt(1800),
         });
       if (finalize) psbt.signInput(0, key).finalizeInput(0);
       const type = psbt.getInputType(0);
@@ -780,7 +813,7 @@ describe(`Psbt`, () => {
       {
         innerScript: p2pkhPub,
         outerScript: p2shp2wshOut,
-        redeemGetter: (pk: Buffer): Buffer => p2wshOut(p2pkhPub(pk)),
+        redeemGetter: (pk: Uint8Array): Uint8Array => p2wshOut(p2pkhPub(pk)),
         witnessGetter: p2pkhPub,
         expectedType: 'p2sh-p2wsh-pubkeyhash',
       },
@@ -823,7 +856,7 @@ describe(`Psbt`, () => {
 
       psbt.updateInput(0, {
         witnessUtxo: {
-          value: 1337,
+          value: 1337n,
           script: payments.p2sh({
             redeem: { output: Buffer.from([0x51]) },
           }).output!,
@@ -838,7 +871,7 @@ describe(`Psbt`, () => {
 
       psbt.updateInput(0, {
         witnessUtxo: {
-          value: 1337,
+          value: 1337n,
           script: payments.p2wsh({
             redeem: { output: Buffer.from([0x51]) },
           }).output!,
@@ -853,7 +886,7 @@ describe(`Psbt`, () => {
 
       psbt.updateInput(0, {
         witnessUtxo: {
-          value: 1337,
+          value: 1337n,
           script: payments.p2sh({
             redeem: payments.p2wsh({
               redeem: { output: Buffer.from([0x51]) },
@@ -895,7 +928,7 @@ describe(`Psbt`, () => {
             '0014000102030405060708090a0b0c0d0e0f00010203',
             'hex',
           ),
-          value: 2000,
+          value: 2000n,
           bip32Derivation: [
             {
               masterFingerprint: root.fingerprint,
@@ -921,7 +954,7 @@ describe(`Psbt`, () => {
           script: payments.p2sh({
             redeem: { output: Buffer.from([0x51]) },
           }).output!,
-          value: 1337,
+          value: 1337n,
         });
 
       assert.throws(() => {
@@ -1157,7 +1190,7 @@ describe(`Psbt`, () => {
       }));
 
       assert.throws(() => {
-        tapTreeToList(tree as Taptree);
+        tapTreeToList(tree as unknown as Taptree);
       }, new RegExp('Cannot convert taptree to tapleaf list. Expecting a tapree structure.'));
     });
   });
@@ -1200,7 +1233,7 @@ describe(`Psbt`, () => {
     });
     psbt.addOutput({
       address: '1KRMKfeZcmosxALVYESdPNez1AP1mEtywp',
-      value: 80000,
+      value: 80000n,
     });
     psbt.signInput(0, alice);
     assert.throws(() => {
@@ -1274,7 +1307,12 @@ describe(`Psbt`, () => {
       // Cache is rebuilt from internal transaction object when cleared
       psbt.data.inputs[index].nonWitnessUtxo = Buffer.from([1, 2, 3]);
       (psbt as any).__CACHE.__NON_WITNESS_UTXO_BUF_CACHE[index] = undefined;
-      assert.ok((psbt as any).data.inputs[index].nonWitnessUtxo.equals(value));
+      assert.ok(
+        tools.compare(
+          (psbt as any).data.inputs[index].nonWitnessUtxo,
+          value!,
+        ) === 0,
+      );
     });
   });
 
@@ -1310,7 +1348,7 @@ describe(`Psbt`, () => {
       const input = psbt.txInputs[0];
       const internalInput = (psbt as any).__CACHE.__TX.ins[0];
 
-      assert.ok(input.hash.equals(internalInput.hash));
+      assert.ok(tools.compare(input.hash, internalInput.hash) === 0);
       assert.strictEqual(input.index, internalInput.index);
       assert.strictEqual(input.sequence, internalInput.sequence);
 
@@ -1318,7 +1356,7 @@ describe(`Psbt`, () => {
       input.index = 123;
       input.sequence = 123;
 
-      assert.ok(!input.hash.equals(internalInput.hash));
+      assert.ok(tools.compare(input.hash, internalInput.hash) !== 0);
       assert.notEqual(input.index, internalInput.index);
       assert.notEqual(input.sequence, internalInput.sequence);
     });
@@ -1326,7 +1364,7 @@ describe(`Psbt`, () => {
     it('.txOutputs is exposed as a readonly clone', () => {
       const psbt = new Psbt();
       const address = '1LukeQU5jwebXbMLDVydeH4vFSobRV9rkj';
-      const value = 100000;
+      const value = 100000n;
       psbt.addOutput({ address, value });
 
       const output = psbt.txOutputs[0];
@@ -1334,13 +1372,13 @@ describe(`Psbt`, () => {
 
       assert.strictEqual(output.address, address);
 
-      assert.ok(output.script.equals(internalInput.script));
+      assert.ok(tools.compare(output.script, internalInput.script) === 0);
       assert.strictEqual(output.value, internalInput.value);
 
       output.script[0] = 123;
-      output.value = 123;
+      output.value = 123n;
 
-      assert.ok(!output.script.equals(internalInput.script));
+      assert.ok(tools.compare(output.script, internalInput.script) !== 0);
       assert.notEqual(output.value, internalInput.value);
     });
   });

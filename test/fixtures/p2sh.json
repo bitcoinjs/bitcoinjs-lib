@@ -204,7 +204,7 @@
     },
     {
       "description": "Non-minimally encoded (non BIP62 compliant)",
-      "exception": "Expected property \"output\" of type Buffer\\(Length: 23\\), got Buffer\\(Length: 24\\)",
+      "exception": "ValiError: Invalid length: Expected 23 but received 24",
       "arguments": {
         "outputHex": "a94c14c286a1af0947f58d1ad787385b1c2c4a976f9e7187"
       }

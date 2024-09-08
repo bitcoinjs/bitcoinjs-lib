@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+      "declaration": true,
+      "outDir": "src/cjs",
+      "module": "CommonJS",
+      "esModuleInterop": true, 
+    }
+  }
+  

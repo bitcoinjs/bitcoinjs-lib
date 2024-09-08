@@ -1,14 +1,41 @@
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
-import * as bitcoin from '../..';
-import { regtestUtils } from './_regtest';
+import * as bitcoin from 'bitcoinjs-lib';
+import { regtestUtils } from './_regtest.js';
+import { randomBytes } from 'crypto';
+
+import p2msFixtures from '../fixtures/p2ms.json';
+import p2pkFixtures from '../fixtures/p2pk.json';
+import p2pkhFixtures from '../fixtures/p2pkh.json';
+import p2wpkhFixtures from '../fixtures/p2wpkh.json';
+
+const rng = (size: number) => randomBytes(size);
+
+const testSuite = [
+  {
+    paymentName: 'p2ms',
+    fixtures: p2msFixtures,
+  },
+  {
+    paymentName: 'p2pk',
+    fixtures: p2pkFixtures,
+  },
+  {
+    paymentName: 'p2pkh',
+    fixtures: p2pkhFixtures,
+  },
+  {
+    paymentName: 'p2wpkh',
+    fixtures: p2wpkhFixtures,
+  },
+];
 
 const ECPair = ECPairFactory(ecc);
 const NETWORK = regtestUtils.network;
 const keyPairs = [
-  ECPair.makeRandom({ network: NETWORK }),
-  ECPair.makeRandom({ network: NETWORK }),
+  ECPair.makeRandom({ network: NETWORK, rng }),
+  ECPair.makeRandom({ network: NETWORK, rng }),
 ];
 
 async function buildAndSign(
@@ -17,7 +44,10 @@ async function buildAndSign(
   redeemScript: any,
   witnessScript: any,
 ): Promise<null> {
-  const unspent = await regtestUtils.faucetComplex(prevOutput, 5e4);
+  const unspent = await regtestUtils.faucetComplex(
+    Buffer.from(prevOutput),
+    5e4,
+  );
   const utx = await regtestUtils.fetch(unspent.txId);
 
   const psbt = new bitcoin.Psbt({ network: NETWORK })
@@ -30,7 +60,7 @@ async function buildAndSign(
     })
     .addOutput({
       address: regtestUtils.RANDOM_ADDRESS,
-      value: 2e4,
+      value: BigInt(2e4),
     });
 
   if (depends.signatures) {
@@ -46,10 +76,10 @@ async function buildAndSign(
   );
 }
 
-['p2ms', 'p2pk', 'p2pkh', 'p2wpkh'].forEach(k => {
-  const fixtures = require('../fixtures/' + k);
+testSuite.forEach(t => {
+  const fixtures = t.fixtures;
   const { depends } = fixtures.dynamic;
-  const fn: any = (bitcoin.payments as any)[k];
+  const fn: any = (bitcoin.payments as any)[t.paymentName];
 
   const base: any = {};
   if (depends.pubkey) base.pubkey = keyPairs[0].publicKey;
@@ -59,22 +89,22 @@ async function buildAndSign(
   const { output } = fn(base);
   if (!output) throw new TypeError('Missing output');
 
-  describe('bitcoinjs-lib (payments - ' + k + ')', () => {
+  describe('bitcoinjs-lib (payments - ' + t.paymentName + ')', () => {
     it('can broadcast as an output, and be spent as an input', async () => {
-      Object.assign(depends, { prevOutScriptType: k });
+      Object.assign(depends, { prevOutScriptType: t.paymentName });
       await buildAndSign(depends, output, undefined, undefined);
     });
 
     it(
       'can (as P2SH(' +
-        k +
+        t.paymentName +
         ')) broadcast as an output, and be spent as an input',
       async () => {
         const p2sh = bitcoin.payments.p2sh({
           redeem: { output },
           network: NETWORK,
         });
-        Object.assign(depends, { prevOutScriptType: 'p2sh-' + k });
+        Object.assign(depends, { prevOutScriptType: 'p2sh-' + t.paymentName });
         await buildAndSign(
           depends,
           p2sh.output,
@@ -85,18 +115,18 @@ async function buildAndSign(
     );
 
     // NOTE: P2WPKH cannot be wrapped in P2WSH, consensus fail
-    if (k === 'p2wpkh') return;
+    if (t.paymentName === 'p2wpkh') return;
 
     it(
       'can (as P2WSH(' +
-        k +
+        t.paymentName +
         ')) broadcast as an output, and be spent as an input',
       async () => {
         const p2wsh = bitcoin.payments.p2wsh({
           redeem: { output },
           network: NETWORK,
         });
-        Object.assign(depends, { prevOutScriptType: 'p2wsh-' + k });
+        Object.assign(depends, { prevOutScriptType: 'p2wsh-' + t.paymentName });
         await buildAndSign(
           depends,
           p2wsh.output,
@@ -108,7 +138,7 @@ async function buildAndSign(
 
     it(
       'can (as P2SH(P2WSH(' +
-        k +
+        t.paymentName +
         '))) broadcast as an output, and be spent as an input',
       async () => {
         const p2wsh = bitcoin.payments.p2wsh({
@@ -120,7 +150,9 @@ async function buildAndSign(
           network: NETWORK,
         });
 
-        Object.assign(depends, { prevOutScriptType: 'p2sh-p2wsh-' + k });
+        Object.assign(depends, {
+          prevOutScriptType: 'p2sh-p2wsh-' + t.paymentName,
+        });
         await buildAndSign(
           depends,
           p2sh.output,

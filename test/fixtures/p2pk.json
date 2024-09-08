@@ -74,7 +74,7 @@
     },
     {
       "description": "Non-canonical signature",
-      "exception": "Expected property \"signature\" of type \\?isCanonicalScriptSignature, got Buffer",
+      "exception": "ValiError: Expected signature to be of type isCanonicalScriptSignature",
       "arguments": {
         "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
         "signature": "3044"

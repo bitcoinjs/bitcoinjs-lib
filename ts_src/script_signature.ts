@@ -1,20 +1,21 @@
-import * as bip66 from './bip66';
-import { isDefinedHashType } from './script';
-import * as types from './types';
-const { typeforce } = types;
+import * as bip66 from './bip66.js';
+import { isDefinedHashType } from './script.js';
+import * as v from 'valibot';
+import * as tools from 'uint8array-tools';
+import { NBufferSchemaFactory, UInt8Schema } from './types.js';
 
-const ZERO = Buffer.alloc(1, 0);
+const ZERO = new Uint8Array(1);
 /**
  * Converts a buffer to a DER-encoded buffer.
  * @param x - The buffer to be converted.
  * @returns The DER-encoded buffer.
  */
-function toDER(x: Buffer): Buffer {
+function toDER(x: Uint8Array): Uint8Array {
   let i = 0;
   while (x[i] === 0) ++i;
   if (i === x.length) return ZERO;
   x = x.slice(i);
-  if (x[0] & 0x80) return Buffer.concat([ZERO, x], 1 + x.length);
+  if (x[0] & 0x80) return tools.concat([ZERO, x]);
   return x;
 }
 
@@ -25,16 +26,16 @@ function toDER(x: Buffer): Buffer {
  * @param x - The DER-encoded signature.
  * @returns The converted buffer.
  */
-function fromDER(x: Buffer): Buffer {
+function fromDER(x: Uint8Array): Uint8Array {
   if (x[0] === 0x00) x = x.slice(1);
-  const buffer = Buffer.alloc(32, 0);
+  const buffer = new Uint8Array(32);
   const bstart = Math.max(0, 32 - x.length);
-  x.copy(buffer, bstart);
+  buffer.set(x, bstart);
   return buffer;
 }
 
 interface ScriptSignature {
-  signature: Buffer;
+  signature: Uint8Array;
   hashType: number;
 }
 
@@ -45,16 +46,16 @@ interface ScriptSignature {
  * @returns The decoded ScriptSignature object.
  * @throws Error if the hashType is invalid.
  */
-export function decode(buffer: Buffer): ScriptSignature {
-  const hashType = buffer.readUInt8(buffer.length - 1);
+export function decode(buffer: Uint8Array): ScriptSignature {
+  const hashType = tools.readUInt8(buffer, buffer.length - 1);
   if (!isDefinedHashType(hashType)) {
     throw new Error('Invalid hashType ' + hashType);
   }
 
-  const decoded = bip66.decode(buffer.slice(0, -1));
+  const decoded = bip66.decode(buffer.subarray(0, -1));
   const r = fromDER(decoded.r);
   const s = fromDER(decoded.s);
-  const signature = Buffer.concat([r, s], 64);
+  const signature = tools.concat([r, s]);
 
   return { signature, hashType };
 }
@@ -66,12 +67,12 @@ export function decode(buffer: Buffer): ScriptSignature {
  * @returns The encoded buffer.
  * @throws Error if the hashType is invalid.
  */
-export function encode(signature: Buffer, hashType: number): Buffer {
-  typeforce(
-    {
-      signature: types.BufferN(64),
-      hashType: types.UInt8,
-    },
+export function encode(signature: Uint8Array, hashType: number): Uint8Array {
+  v.parse(
+    v.object({
+      signature: NBufferSchemaFactory(64),
+      hashType: UInt8Schema,
+    }),
     { signature, hashType },
   );
 
@@ -79,11 +80,11 @@ export function encode(signature: Buffer, hashType: number): Buffer {
     throw new Error('Invalid hashType ' + hashType);
   }
 
-  const hashTypeBuffer = Buffer.allocUnsafe(1);
-  hashTypeBuffer.writeUInt8(hashType, 0);
+  const hashTypeBuffer = new Uint8Array(1);
+  tools.writeUInt8(hashTypeBuffer, 0, hashType);
 
   const r = toDER(signature.slice(0, 32));
   const s = toDER(signature.slice(32, 64));
 
-  return Buffer.concat([bip66.encode(r, s), hashTypeBuffer]);
+  return tools.concat([bip66.encode(r, s), hashTypeBuffer]);
 }

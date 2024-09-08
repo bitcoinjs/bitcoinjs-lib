@@ -892,12 +892,12 @@
   "invalid": {
     "addInput": [
       {
-        "exception": "Expected property \"0\" of type Buffer\\(Length: 32\\), got Buffer\\(Length: 30\\)",
+        "exception": "ValiError: Invalid length: Expected 32 but received 30",
         "hash": "0aed1366a73b6057ee7800d737bff1bdf8c448e98d86bc0998f2b009816d",
         "index": 0
       },
       {
-        "exception": "Expected property \"0\" of type Buffer\\(Length: 32\\), got Buffer\\(Length: 34\\)",
+        "exception": "ValiError: Invalid length: Expected 32 but received 34",
         "hash": "0aed1366a73b6057ee7800d737bff1bdf8c448e98d86bc0998f2b009816da9b0ffff",
         "index": 0
       }

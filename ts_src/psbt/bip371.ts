@@ -1,4 +1,4 @@
-import { Taptree, Tapleaf, isTapleaf, isTaptree } from '../types';
+import { Taptree, Tapleaf, isTapleaf, isTaptree } from '../types.js';
 import {
   PsbtInput,
   PsbtOutput,
@@ -7,32 +7,32 @@ import {
   TapLeaf,
   TapTree,
   TapInternalKey,
-} from 'bip174/src/lib/interfaces';
+} from 'bip174';
 
-import { Transaction } from '../transaction';
+import { Transaction } from '../transaction.js';
 
 import {
   witnessStackToScriptWitness,
   pubkeyPositionInScript,
   isP2TR,
-} from './psbtutils';
+} from './psbtutils.js';
 import {
   tweakKey,
   tapleafHash,
   rootHashFromPath,
   LEAF_VERSION_TAPSCRIPT,
   MAX_TAPTREE_DEPTH,
-} from '../payments/bip341';
-import { p2tr } from '../payments';
-
-import { signatureBlocksAction } from './psbtutils';
+} from '../payments/bip341.js';
+import { p2tr } from '../payments/index.js';
+import * as tools from 'uint8array-tools';
+import { signatureBlocksAction } from './psbtutils.js';
 
 /**
  * Converts a public key to an X-only public key.
  * @param pubKey The public key to convert.
  * @returns The X-only public key.
  */
-export const toXOnly = (pubKey: Buffer) =>
+export const toXOnly = (pubKey: Uint8Array) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 
 /**
@@ -47,9 +47,9 @@ export const toXOnly = (pubKey: Buffer) =>
 export function tapScriptFinalizer(
   inputIndex: number,
   input: PsbtInput,
-  tapLeafHashToFinalize?: Buffer,
+  tapLeafHashToFinalize?: Uint8Array,
 ): {
-  finalScriptWitness: Buffer | undefined;
+  finalScriptWitness: Uint8Array | undefined;
 } {
   const tapLeaf = findTapLeafToFinalize(
     input,
@@ -73,14 +73,14 @@ export function tapScriptFinalizer(
  * @returns The serialized taproot signature.
  */
 export function serializeTaprootSignature(
-  sig: Buffer,
+  sig: Uint8Array,
   sighashType?: number,
-): Buffer {
+): Uint8Array {
   const sighashTypeByte = sighashType
-    ? Buffer.from([sighashType!])
-    : Buffer.from([]);
+    ? Uint8Array.from([sighashType!])
+    : Uint8Array.from([]);
 
-  return Buffer.concat([sig, sighashTypeByte]);
+  return tools.concat([sig, sighashTypeByte]);
 }
 
 /**
@@ -107,7 +107,10 @@ export function isTaprootInput(input: PsbtInput): boolean {
  * @param script The script to check. Optional.
  * @returns True if the output is a taproot output, false otherwise.
  */
-export function isTaprootOutput(output: PsbtOutput, script?: Buffer): boolean {
+export function isTaprootOutput(
+  output: PsbtOutput,
+  script?: Uint8Array,
+): boolean {
   return (
     output &&
     !!(
@@ -164,7 +167,7 @@ function checkTaprootScriptPubkey(
   if (tapInternalKey) {
     const { script: scriptPubkey } = outputData as any;
     const script = getTaprootScripPubkey(tapInternalKey, tapTree);
-    if (scriptPubkey && !scriptPubkey.equals(script))
+    if (scriptPubkey && tools.compare(script, scriptPubkey) !== 0)
       throw new Error('Error adding output. Script or address mismatch.');
   }
 }
@@ -179,7 +182,7 @@ function checkTaprootScriptPubkey(
 function getTaprootScripPubkey(
   tapInternalKey: TapInternalKey,
   tapTree?: TapTree,
-): Buffer {
+): Uint8Array {
   const scriptTree = tapTree && tapTreeFromList(tapTree.leaves);
   const { output } = p2tr({
     internalPubkey: tapInternalKey,
@@ -198,7 +201,7 @@ function getTaprootScripPubkey(
 export function tweakInternalPubKey(
   inputIndex: number,
   input: PsbtInput,
-): Buffer {
+): Uint8Array {
   const tapInternalKey = input.tapInternalKey;
   const outputKey =
     tapInternalKey && tweakKey(tapInternalKey, input.tapMerkleRoot);
@@ -206,7 +209,8 @@ export function tweakInternalPubKey(
   if (!outputKey)
     throw new Error(
       `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${
-        tapInternalKey && tapInternalKey.toString('hex')
+        // tapInternalKey && tapInternalKey.toString('hex')
+        tapInternalKey && tools.toHex(tapInternalKey)
       }`,
     );
   return outputKey.x;
@@ -267,8 +271,8 @@ export function checkTaprootInputForSigs(
  * @param signature The signature to decode.
  * @returns The decoded Schnorr signature.
  */
-function decodeSchnorrSignature(signature: Buffer): {
-  signature: Buffer;
+function decodeSchnorrSignature(signature: Uint8Array): {
+  signature: Uint8Array;
   hashType: number;
 } {
   return {
@@ -282,8 +286,8 @@ function decodeSchnorrSignature(signature: Buffer): {
  * @param input The PSBT input to extract signatures from.
  * @returns An array of taproot signatures.
  */
-function extractTaprootSigs(input: PsbtInput): Buffer[] {
-  const sigs: Buffer[] = [];
+function extractTaprootSigs(input: PsbtInput): Uint8Array[] {
+  const sigs: Uint8Array[] = [];
   if (input.tapKeySig) sigs.push(input.tapKeySig);
   if (input.tapScriptSig)
     sigs.push(...input.tapScriptSig.map(s => s.signature));
@@ -301,8 +305,8 @@ function extractTaprootSigs(input: PsbtInput): Buffer[] {
  * @returns The taproot signature, or undefined if not found.
  */
 function getTapKeySigFromWithness(
-  finalScriptWitness?: Buffer,
-): Buffer | undefined {
+  finalScriptWitness?: Uint8Array,
+): Uint8Array | undefined {
   if (!finalScriptWitness) return;
   const witness = finalScriptWitness.slice(2);
   // todo: add schnorr signature validation
@@ -486,7 +490,10 @@ function checkIfTapLeafInTree(
  * @param merkleRoot The Merkle root of the tree. If not provided, the function assumes the TapLeafScript is present.
  * @returns A boolean indicating whether the TapLeafScript is present in the tree.
  */
-function isTapLeafInTree(tapLeaf: TapLeafScript, merkleRoot?: Buffer): boolean {
+function isTapLeafInTree(
+  tapLeaf: TapLeafScript,
+  merkleRoot?: Uint8Array,
+): boolean {
   if (!merkleRoot) return true;
 
   const leafHash = tapleafHash({
@@ -495,7 +502,7 @@ function isTapLeafInTree(tapLeaf: TapLeafScript, merkleRoot?: Buffer): boolean {
   });
 
   const rootHash = rootHashFromPath(tapLeaf.controlBlock, leafHash);
-  return rootHash.equals(merkleRoot);
+  return tools.compare(rootHash, merkleRoot) === 0;
 }
 
 /**
@@ -505,17 +512,23 @@ function isTapLeafInTree(tapLeaf: TapLeafScript, merkleRoot?: Buffer): boolean {
  * @param tapLeaf - The TapLeafScript object.
  * @returns An array of sorted signatures as Buffers.
  */
-function sortSignatures(input: PsbtInput, tapLeaf: TapLeafScript): Buffer[] {
+function sortSignatures(
+  input: PsbtInput,
+  tapLeaf: TapLeafScript,
+): Uint8Array[] {
   const leafHash = tapleafHash({
     output: tapLeaf.script,
     version: tapLeaf.leafVersion,
   });
 
-  return (input.tapScriptSig || [])
-    .filter(tss => tss.leafHash.equals(leafHash))
-    .map(tss => addPubkeyPositionInScript(tapLeaf.script, tss))
-    .sort((t1, t2) => t2.positionInScript - t1.positionInScript)
-    .map(t => t.signature) as Buffer[];
+  return (
+    (input.tapScriptSig || [])
+      // .filter(tss => tss.leafHash.equals(leafHash))
+      .filter(tss => tools.compare(tss.leafHash, leafHash) === 0)
+      .map(tss => addPubkeyPositionInScript(tapLeaf.script, tss))
+      .sort((t1, t2) => t2.positionInScript - t1.positionInScript)
+      .map(t => t.signature) as Uint8Array[]
+  );
 }
 
 /**
@@ -525,7 +538,7 @@ function sortSignatures(input: PsbtInput, tapLeaf: TapLeafScript): Buffer[] {
  * @returns A TapScriptSigWitPosition object with the added position.
  */
 function addPubkeyPositionInScript(
-  script: Buffer,
+  script: Uint8Array,
   tss: TapScriptSig,
 ): TapScriptSigWitPosition {
   return Object.assign(
@@ -542,7 +555,7 @@ function addPubkeyPositionInScript(
 function findTapLeafToFinalize(
   input: PsbtInput,
   inputIndex: number,
-  leafHashToFinalize?: Buffer,
+  leafHashToFinalize?: Uint8Array,
 ): TapLeafScript {
   if (!input.tapScriptSig || !input.tapScriptSig.length)
     throw new Error(
@@ -573,16 +586,17 @@ function findTapLeafToFinalize(
 function canFinalizeLeaf(
   leaf: TapLeafScript,
   tapScriptSig: TapScriptSig[],
-  hash?: Buffer,
+  hash?: Uint8Array,
 ): boolean {
   const leafHash = tapleafHash({
     output: leaf.script,
     version: leaf.leafVersion,
   });
-  const whiteListedHash = !hash || hash.equals(leafHash);
+  const whiteListedHash = !hash || tools.compare(leafHash, hash) === 0;
   return (
     whiteListedHash &&
-    tapScriptSig!.find(tss => tss.leafHash.equals(leafHash)) !== undefined
+    tapScriptSig!.find(tss => tools.compare(tss.leafHash, leafHash) === 0) !==
+      undefined
   );
 }
 
