@@ -34,6 +34,7 @@ export declare class Transaction {
     addInput(hash: Uint8Array, index: number, sequence?: number, scriptSig?: Uint8Array): number;
     addOutput(scriptPubKey: Uint8Array, value: bigint): number;
     hasWitnesses(): boolean;
+    stripWitnesses(): void;
     weight(): number;
     virtualSize(): number;
     byteLength(_ALLOW_WITNESS?: boolean): number;

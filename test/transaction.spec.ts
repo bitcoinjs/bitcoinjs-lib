@@ -135,6 +135,16 @@ describe('Transaction', () => {
     });
   });
 
+  describe('stripWitnesses', () => {
+    fixtures.valid.forEach(f => {
+      it('removes witness from the transaction if it exists', () => {
+        const T = Transaction.fromHex(f.whex ? f.whex : f.hex);
+        T.stripWitnesses();
+        assert.strictEqual(T.hasWitnesses(), false);
+      });
+    });
+  });
+
   describe('weight/virtualSize', () => {
     it('computes virtual size', () => {
       fixtures.valid.forEach(f => {
