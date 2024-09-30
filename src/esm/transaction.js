@@ -161,6 +161,11 @@ export class Transaction {
       return x.witness.length !== 0;
     });
   }
+  stripWitnesses() {
+    this.ins.forEach(input => {
+      input.witness = EMPTY_WITNESS; // Set witness data to an empty array
+    });
+  }
   weight() {
     const base = this.byteLength(false);
     const total = this.byteLength(true);
