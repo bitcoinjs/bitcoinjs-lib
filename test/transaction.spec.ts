@@ -140,7 +140,7 @@ describe('Transaction', () => {
       it('removes witness from the transaction if it exists', () => {
         const T = Transaction.fromHex(f.whex ? f.whex : f.hex);
         T.stripWitnesses();
-        assert.equal(T.hasWitnesses(), false);
+        assert.strictEqual(T.hasWitnesses(), false);
       });
     });
   });
