@@ -35,6 +35,7 @@ export declare class Transaction {
     addInput(hash: Buffer, index: number, sequence?: number, scriptSig?: Buffer): number;
     addOutput(scriptPubKey: Buffer, value: number): number;
     hasWitnesses(): boolean;
+    stripWitnesses(): void;
     weight(): number;
     virtualSize(): number;
     byteLength(_ALLOW_WITNESS?: boolean): number;

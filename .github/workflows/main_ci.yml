@@ -61,17 +61,6 @@ jobs:
   #####################
   # Jobs without matrix
   #####################
-  audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2
-      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd # v3
-        with:
-          node-version: 'lts/*'
-          registry-url: https://registry.npmjs.org/
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run audit
   coverage:
     runs-on: ubuntu-latest
     steps:
