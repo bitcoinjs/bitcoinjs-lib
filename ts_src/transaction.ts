@@ -205,6 +205,12 @@ export class Transaction {
     });
   }
 
+  stripWitnesses(): void {
+    this.ins.forEach(input => {
+      input.witness = EMPTY_WITNESS; // Set witness data to an empty array
+    });
+  }
+
   weight(): number {
     const base = this.byteLength(false);
     const total = this.byteLength(true);
