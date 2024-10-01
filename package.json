@@ -15,7 +15,6 @@
     "bitcoinjs"
   ],
   "scripts": {
-    "audit": "better-npm-audit audit -l high",
     "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
     "build:tests": "npm run clean:jstests && tsc -p ./test/tsconfig.json",
     "clean": "rimraf src",
@@ -66,7 +65,6 @@
     "@types/randombytes": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
-    "better-npm-audit": "^3.7.3",
     "bip32": "^4.0.0",
     "bip39": "^3.1.0",
     "bip65": "^1.0.1",
