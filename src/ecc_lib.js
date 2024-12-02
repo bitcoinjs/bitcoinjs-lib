@@ -8,14 +8,16 @@ const _ECCLIB_CACHE = {};
  * If `eccLib` is a new instance, it will be verified before setting it as the active library.
  *
  * @param eccLib The instance of the ECC library to initialize.
+ * @param skipVerification If the ecc verification should not be executed.
  */
-function initEccLib(eccLib) {
+function initEccLib(eccLib, skipVerification) {
   if (!eccLib) {
     // allow clearing the library
     _ECCLIB_CACHE.eccLib = eccLib;
   } else if (eccLib !== _ECCLIB_CACHE.eccLib) {
-    // new instance, verify it
-    verifyEcc(eccLib);
+    if (!skipVerification)
+      // new instance, verify it
+      verifyEcc(eccLib);
     _ECCLIB_CACHE.eccLib = eccLib;
   }
 }
