@@ -9,17 +9,17 @@ const _ECCLIB_CACHE: { eccLib?: TinySecp256k1Interface } = {};
  * If `eccLib` is a new instance, it will be verified before setting it as the active library.
  *
  * @param eccLib The instance of the ECC library to initialize.
- * @param skipVerification If the ecc verification should not be executed.
+ * @param opts Extra initialization options. Use {DANGER_DO_NOT_VERIFY_ECCLIB:true} if ecc verification should not be executed. Not recommended!
  */
 export function initEccLib(
   eccLib: TinySecp256k1Interface | undefined,
-  skipVerification?: boolean,
+  opts?: { DANGER_DO_NOT_VERIFY_ECCLIB: boolean },
 ): void {
   if (!eccLib) {
     // allow clearing the library
     _ECCLIB_CACHE.eccLib = eccLib;
   } else if (eccLib !== _ECCLIB_CACHE.eccLib) {
-    if (!skipVerification)
+    if (!opts?.DANGER_DO_NOT_VERIFY_ECCLIB)
       // new instance, verify it
       verifyEcc(eccLib!);
     _ECCLIB_CACHE.eccLib = eccLib;
