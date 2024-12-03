@@ -1,3 +1,7 @@
+# 6.1.7
+__added__
+- skip ecc library verification via DANGER_DO_NOT_VERIFY_ECCLIB flag
+
 # 6.1.6
 __fixed__
 - Fix sighash treatment when signing taproot script sign scripts using Psbt (#2104)
