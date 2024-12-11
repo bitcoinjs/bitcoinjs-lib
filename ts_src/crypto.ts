@@ -47,10 +47,10 @@ type TaggedHashPrefixes = {
 /**
  * A collection of tagged hash prefixes used in various BIP (Bitcoin Improvement Proposals)
  * and Taproot-related operations. Each prefix is represented as a `Uint8Array`.
- * 
+ *
  * @constant
  * @type {TaggedHashPrefixes}
- * 
+ *
  * @property {'BIP0340/challenge'} - Prefix for BIP0340 challenge.
  * @property {'BIP0340/aux'} - Prefix for BIP0340 auxiliary data.
  * @property {'BIP0340/nonce'} - Prefix for BIP0340 nonce.
@@ -131,4 +131,3 @@ export function taggedHash(
 ): Uint8Array {
   return sha256(tools.concat([TAGGED_HASH_PREFIXES[prefix], data]));
 }
-
