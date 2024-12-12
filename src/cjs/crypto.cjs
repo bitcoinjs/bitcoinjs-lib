@@ -57,9 +57,21 @@ exports.taggedHash = taggedHash;
 const ripemd160_1 = require('@noble/hashes/ripemd160');
 const sha256_1 = require('@noble/hashes/sha256');
 const tools = __importStar(require('uint8array-tools'));
+/**
+ * Computes the HASH160 (RIPEMD-160 after SHA-256) of the given buffer.
+ *
+ * @param buffer - The input data to be hashed.
+ * @returns The HASH160 of the input buffer.
+ */
 function hash160(buffer) {
   return (0, ripemd160_1.ripemd160)((0, sha256_1.sha256)(buffer));
 }
+/**
+ * Computes the double SHA-256 hash of the given buffer.
+ *
+ * @param buffer - The input data to be hashed.
+ * @returns The double SHA-256 hash of the input buffer.
+ */
 function hash256(buffer) {
   return (0, sha256_1.sha256)((0, sha256_1.sha256)(buffer));
 }
@@ -74,9 +86,22 @@ exports.TAGS = [
   'KeyAgg list',
   'KeyAgg coefficient',
 ];
-/** An object mapping tags to their tagged hash prefix of [SHA256(tag) | SHA256(tag)] */
 /**
- * Defines the tagged hash prefixes used in the crypto module.
+ * A collection of tagged hash prefixes used in various BIP (Bitcoin Improvement Proposals)
+ * and Taproot-related operations. Each prefix is represented as a `Uint8Array`.
+ *
+ * @constant
+ * @type {TaggedHashPrefixes}
+ *
+ * @property {'BIP0340/challenge'} - Prefix for BIP0340 challenge.
+ * @property {'BIP0340/aux'} - Prefix for BIP0340 auxiliary data.
+ * @property {'BIP0340/nonce'} - Prefix for BIP0340 nonce.
+ * @property {TapLeaf} - Prefix for Taproot leaf.
+ * @property {TapBranch} - Prefix for Taproot branch.
+ * @property {TapSighash} - Prefix for Taproot sighash.
+ * @property {TapTweak} - Prefix for Taproot tweak.
+ * @property {'KeyAgg list'} - Prefix for key aggregation list.
+ * @property {'KeyAgg coefficient'} - Prefix for key aggregation coefficient.
  */
 exports.TAGGED_HASH_PREFIXES = {
   'BIP0340/challenge': Uint8Array.from([
@@ -134,6 +159,13 @@ exports.TAGGED_HASH_PREFIXES = {
     78, 214, 66, 114, 129, 192, 145, 0, 249, 77, 205, 82, 201, 129,
   ]),
 };
+/**
+ * Computes a tagged hash using the specified prefix and data.
+ *
+ * @param prefix - The prefix to use for the tagged hash. This should be one of the values from the `TaggedHashPrefix` enum.
+ * @param data - The data to hash, provided as a `Uint8Array`.
+ * @returns The resulting tagged hash as a `Uint8Array`.
+ */
 function taggedHash(prefix, data) {
   return (0, sha256_1.sha256)(
     tools.concat([exports.TAGGED_HASH_PREFIXES[prefix], data]),
