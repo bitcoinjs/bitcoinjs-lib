@@ -2,19 +2,21 @@ import * as assert from 'assert';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { before, describe, it } from 'mocha';
-import * as bitcoin from '../..';
-import { regtestUtils } from './_regtest';
+import * as bitcoin from 'bitcoinjs-lib';
+import { regtestUtils } from './_regtest.js';
+import { reverseBuffer } from 'bitcoinjs-lib/src/bufferutils';
+import * as tools from 'uint8array-tools';
 
 const ECPair = ECPairFactory(ecc);
 const regtest = regtestUtils.network;
-const bip65 = require('bip65');
+import bip65 from 'bip65';
 
-function toOutputScript(address: string): Buffer {
+function toOutputScript(address: string): Uint8Array {
   return bitcoin.address.toOutputScript(address, regtest);
 }
 
-function idToHash(txid: string): Buffer {
-  return Buffer.from(txid, 'hex').reverse();
+function idToHash(txid: string): Uint8Array {
+  return reverseBuffer(tools.fromHex(txid));
 }
 
 const alice = ECPair.fromWIF(
@@ -35,24 +37,24 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
   const hashType = bitcoin.Transaction.SIGHASH_ALL;
 
   interface KeyPair {
-    publicKey: Buffer;
+    publicKey: Uint8Array;
   }
   function cltvCheckSigOutput(
     aQ: KeyPair,
     bQ: KeyPair,
     lockTime: number,
-  ): Buffer {
+  ): Uint8Array {
     return bitcoin.script.fromASM(
       `
       OP_IF
-          ${bitcoin.script.number.encode(lockTime).toString('hex')}
+          ${tools.toHex(bitcoin.script.number.encode(lockTime))}
           OP_CHECKLOCKTIMEVERIFY
           OP_DROP
       OP_ELSE
-          ${bQ.publicKey.toString('hex')}
+          ${tools.toHex(bQ.publicKey)}
           OP_CHECKSIGVERIFY
       OP_ENDIF
-      ${aQ.publicKey.toString('hex')}
+      ${tools.toHex(aQ.publicKey)}
       OP_CHECKSIG
     `
         .trim()
@@ -83,7 +85,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
       tx.locktime = lockTime;
       // Note: nSequence MUST be <= 0xfffffffe otherwise OP_CHECKLOCKTIMEVERIFY will fail.
       tx.addInput(idToHash(unspent.txId), unspent.vout, 0xfffffffe);
-      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 7e4);
+      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), BigInt(7e4));
 
       // {Alice's signature} OP_TRUE
       const signatureHash = tx.hashForSignature(0, redeemScript, hashType);
@@ -132,7 +134,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
       tx.locktime = lockTime;
       // Note: nSequence MUST be <= 0xfffffffe otherwise OP_CHECKLOCKTIMEVERIFY will fail.
       tx.addInput(idToHash(unspent.txId), unspent.vout, 0xfffffffe);
-      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 7e4);
+      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), BigInt(7e4));
 
       // {Alice's signature} OP_TRUE
       const signatureHash = tx.hashForSignature(0, redeemScript, hashType);
@@ -183,7 +185,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
       tx.locktime = lockTime;
       // Note: nSequence MUST be <= 0xfffffffe otherwise OP_CHECKLOCKTIMEVERIFY will fail.
       tx.addInput(idToHash(unspent.txId), unspent.vout, 0xfffffffe);
-      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 8e4);
+      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), BigInt(8e4));
 
       // {Alice's signature} {Bob's signature} OP_FALSE
       const signatureHash = tx.hashForSignature(0, redeemScript, hashType);
@@ -231,7 +233,7 @@ describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
       tx.locktime = lockTime;
       // Note: nSequence MUST be <= 0xfffffffe otherwise OP_CHECKLOCKTIMEVERIFY will fail.
       tx.addInput(idToHash(unspent.txId), unspent.vout, 0xfffffffe);
-      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), 1e4);
+      tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), BigInt(1e4));
 
       // {Alice's signature} OP_TRUE
       const signatureHash = tx.hashForSignature(0, redeemScript, hashType);

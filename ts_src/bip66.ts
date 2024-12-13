@@ -8,7 +8,7 @@
  * @param buffer - The buffer to check.
  * @returns A boolean indicating whether the buffer is a valid BIP66-encoded signature.
  */
-export function check(buffer: Buffer): boolean {
+export function check(buffer: Uint8Array): boolean {
   if (buffer.length < 8) return false;
   if (buffer.length > 72) return false;
   if (buffer[0] !== 0x30) return false;
@@ -41,7 +41,7 @@ export function check(buffer: Buffer): boolean {
  * @throws {Error} If the R or S length is zero or invalid.
  * @throws {Error} If the R or S value is negative or excessively padded.
  */
-export function decode(buffer: Buffer): { r: Buffer; s: Buffer } {
+export function decode(buffer: Uint8Array): { r: Uint8Array; s: Uint8Array } {
   if (buffer.length < 8) throw new Error('DER sequence length is too short');
   if (buffer.length > 72) throw new Error('DER sequence length is too long');
   if (buffer[0] !== 0x30) throw new Error('Expected DER sequence');
@@ -95,7 +95,7 @@ export function decode(buffer: Buffer): { r: Buffer; s: Buffer } {
  *  62300 => 0x00f35c
  * -62300 => 0xff0ca4
  */
-export function encode(r: Buffer, s: Buffer): Buffer {
+export function encode(r: Uint8Array, s: Uint8Array): Uint8Array {
   const lenR = r.length;
   const lenS = s.length;
   if (lenR === 0) throw new Error('R length is zero');
@@ -109,17 +109,17 @@ export function encode(r: Buffer, s: Buffer): Buffer {
   if (lenS > 1 && s[0] === 0x00 && !(s[1] & 0x80))
     throw new Error('S value excessively padded');
 
-  const signature = Buffer.allocUnsafe(6 + lenR + lenS);
+  const signature = new Uint8Array(6 + lenR + lenS);
 
   // 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
   signature[0] = 0x30;
   signature[1] = signature.length - 2;
   signature[2] = 0x02;
   signature[3] = r.length;
-  r.copy(signature, 4);
+  signature.set(r, 4);
   signature[4 + lenR] = 0x02;
   signature[5 + lenR] = s.length;
-  s.copy(signature, 6 + lenR);
+  signature.set(s, 6 + lenR);
 
   return signature;
 }

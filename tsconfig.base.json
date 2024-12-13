@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",
+      "module": "commonjs",
+      "outDir": "./src",
+      "rootDir": "./ts_src",
+      "types": ["node"],
+      "allowJs": false,
+      "strict": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "strictBindCallApply": true,
+      "strictPropertyInitialization": true,
+      "noImplicitThis": true,
+      "alwaysStrict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "moduleResolution": "Node"
+    },
+    "include": ["ts_src/**/*.ts"],
+    "exclude": ["node_modules/**/*"]
+  }
+  

@@ -1,15 +1,16 @@
 import * as assert from 'assert';
-import * as base58 from 'bs58';
+import base58 from 'bs58';
 import { describe, it } from 'mocha';
-import * as bitcoin from '..';
-import * as base58EncodeDecode from './fixtures/core/base58_encode_decode.json';
-import * as base58KeysInvalid from './fixtures/core/base58_keys_invalid.json';
-import * as base58KeysValid from './fixtures/core/base58_keys_valid.json';
-import * as blocksValid from './fixtures/core/blocks.json';
-import * as sigCanonical from './fixtures/core/sig_canonical.json';
-import * as sigNoncanonical from './fixtures/core/sig_noncanonical.json';
-import * as sigHash from './fixtures/core/sighash.json';
-import * as txValid from './fixtures/core/tx_valid.json';
+import * as bitcoin from 'bitcoinjs-lib';
+import base58EncodeDecode from './fixtures/core/base58_encode_decode.json';
+import base58KeysInvalid from './fixtures/core/base58_keys_invalid.json';
+import base58KeysValid from './fixtures/core/base58_keys_valid.json';
+import blocksValid from './fixtures/core/blocks.json';
+import sigCanonical from './fixtures/core/sig_canonical.json';
+import sigNoncanonical from './fixtures/core/sig_noncanonical.json';
+import sigHash from './fixtures/core/sighash.json';
+import txValid from './fixtures/core/tx_valid.json';
+import * as tools from 'uint8array-tools';
 
 describe('Bitcoin-core', () => {
   // base58EncodeDecode
@@ -20,7 +21,7 @@ describe('Bitcoin-core', () => {
 
       it('can decode ' + fb58, () => {
         const buffer = base58.decode(fb58);
-        const actual = buffer.toString('hex');
+        const actual = tools.toHex(buffer);
 
         assert.strictEqual(actual, fhex);
       });
@@ -119,7 +120,7 @@ describe('Bitcoin-core', () => {
           const prevOutHash = Buffer.from(input[0] as string, 'hex').reverse();
           const prevOutIndex = input[1];
 
-          assert.deepStrictEqual(txIn.hash, prevOutHash);
+          assert.deepStrictEqual(Buffer.from(txIn.hash), prevOutHash);
 
           // we read UInt32, not Int32
           assert.strictEqual(txIn.index & 0xffffffff, prevOutIndex);
@@ -140,7 +141,7 @@ describe('Bitcoin-core', () => {
       const hashType = f[3] as number;
       const expectedHash = f[4];
 
-      const hashTypes = [];
+      const hashTypes: string[] = [];
       if ((hashType & 0x1f) === bitcoin.Transaction.SIGHASH_NONE)
         hashTypes.push('SIGHASH_NONE');
       else if ((hashType & 0x1f) === bitcoin.Transaction.SIGHASH_SINGLE)
@@ -160,7 +161,7 @@ describe('Bitcoin-core', () => {
           const script = Buffer.from(scriptHex, 'hex');
           const scriptChunks = bitcoin.script.decompile(script);
           assert.strictEqual(
-            bitcoin.script.compile(scriptChunks!).toString('hex'),
+            tools.toHex(bitcoin.script.compile(scriptChunks!)),
             scriptHex,
           );
 
@@ -168,7 +169,7 @@ describe('Bitcoin-core', () => {
 
           // reverse because test data is reversed
           assert.strictEqual(
-            (hash.reverse() as Buffer).toString('hex'),
+            tools.toHex(hash.reverse() as Buffer),
             expectedHash,
           );
 
@@ -176,7 +177,7 @@ describe('Bitcoin-core', () => {
             transaction.hashForWitnessV0(
               inIndex,
               script,
-              0,
+              BigInt(0),
               // convert to UInt32
               hashType < 0 ? 0x100000000 + hashType : hashType,
             ),
@@ -197,7 +198,7 @@ describe('Bitcoin-core', () => {
           parsed.hashType,
         );
 
-        assert.strictEqual(actual.toString('hex'), hex);
+        assert.strictEqual(tools.toHex(actual), hex);
       });
     });
 

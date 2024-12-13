@@ -1,4 +1,5 @@
-import { TinySecp256k1Interface } from './types';
+import { TinySecp256k1Interface } from './types.js';
+import * as tools from 'uint8array-tools';
 
 const _ECCLIB_CACHE: { eccLib?: TinySecp256k1Interface } = {};
 
@@ -8,14 +9,19 @@ const _ECCLIB_CACHE: { eccLib?: TinySecp256k1Interface } = {};
  * If `eccLib` is a new instance, it will be verified before setting it as the active library.
  *
  * @param eccLib The instance of the ECC library to initialize.
+ * @param opts Extra initialization options. Use {DANGER_DO_NOT_VERIFY_ECCLIB:true} if ecc verification should not be executed. Not recommended!
  */
-export function initEccLib(eccLib: TinySecp256k1Interface | undefined): void {
+export function initEccLib(
+  eccLib: TinySecp256k1Interface | undefined,
+  opts?: { DANGER_DO_NOT_VERIFY_ECCLIB: boolean },
+): void {
   if (!eccLib) {
     // allow clearing the library
     _ECCLIB_CACHE.eccLib = eccLib;
   } else if (eccLib !== _ECCLIB_CACHE.eccLib) {
-    // new instance, verify it
-    verifyEcc(eccLib!);
+    if (!opts?.DANGER_DO_NOT_VERIFY_ECCLIB)
+      // new instance, verify it
+      verifyEcc(eccLib!);
     _ECCLIB_CACHE.eccLib = eccLib;
   }
 }
@@ -35,7 +41,7 @@ export function getEccLib(): TinySecp256k1Interface {
   return _ECCLIB_CACHE.eccLib;
 }
 
-const h = (hex: string): Buffer => Buffer.from(hex, 'hex');
+const h = (hex: string): Uint8Array => tools.fromHex(hex);
 
 /**
  * Verifies the ECC functionality.
@@ -83,7 +89,7 @@ function verifyEcc(ecc: TinySecp256k1Interface): void {
     } else {
       assert(r !== null);
       assert(r!.parity === t.parity);
-      assert(Buffer.from(r!.xOnlyPubkey).equals(h(t.result)));
+      assert(tools.compare(r!.xOnlyPubkey, h(t.result)) === 0);
     }
   });
 }

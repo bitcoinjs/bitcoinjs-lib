@@ -1,8 +1,9 @@
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
-import * as bscript from '../script';
-import { isPoint, typeforce as typef, stacksEqual } from '../types';
-import { Payment, PaymentOpts, Stack } from './index';
-import * as lazy from './lazy';
+import { bitcoin as BITCOIN_NETWORK } from '../networks.js';
+import * as bscript from '../script.js';
+import { BufferSchema, isPoint, stacksEqual } from '../types.js';
+import { Payment, PaymentOpts, Stack } from './index.js';
+import * as lazy from './lazy.js';
+import * as v from 'valibot';
 const OPS = bscript.OPS;
 
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
@@ -26,24 +27,32 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
 
-  function isAcceptableSignature(x: Buffer | number): boolean {
+  function isAcceptableSignature(x: Uint8Array | number): boolean {
     return (
-      bscript.isCanonicalScriptSignature(x as Buffer) ||
+      bscript.isCanonicalScriptSignature(x as Uint8Array) ||
       (opts!.allowIncomplete && (x as number) === OPS.OP_0) !== undefined
     );
   }
 
-  typef(
-    {
-      network: typef.maybe(typef.Object),
-      m: typef.maybe(typef.Number),
-      n: typef.maybe(typef.Number),
-      output: typef.maybe(typef.Buffer),
-      pubkeys: typef.maybe(typef.arrayOf(isPoint)),
+  v.parse(
+    v.partial(
+      v.object({
+        network: v.object({}),
+        m: v.number(),
+        n: v.number(),
+        output: BufferSchema,
+        pubkeys: v.array(
+          v.custom(isPoint as (input: unknown) => boolean),
+          'Received invalid pubkey',
+        ),
 
-      signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
-      input: typef.maybe(typef.Buffer),
-    },
+        signatures: v.array(
+          v.custom(isAcceptableSignature as (input: unknown) => boolean),
+          'Expected signature to be of type isAcceptableSignature',
+        ),
+        input: BufferSchema,
+      }),
+    ),
     a,
   );
 
@@ -52,13 +61,13 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
 
   let chunks: Stack = [];
   let decoded = false;
-  function decode(output: Buffer | Stack): void {
+  function decode(output: Uint8Array | Stack): void {
     if (decoded) return;
     decoded = true;
     chunks = bscript.decompile(output) as Stack;
     o.m = (chunks[0] as number) - OP_INT_BASE;
     o.n = (chunks[chunks.length - 2] as number) - OP_INT_BASE;
-    o.pubkeys = chunks.slice(1, -2) as Buffer[];
+    o.pubkeys = chunks.slice(1, -2) as Uint8Array[];
   }
 
   lazy.prop(o, 'output', () => {
@@ -109,9 +118,10 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
   if (opts.validate) {
     if (a.output) {
       decode(a.output);
-      if (!typef.Number(chunks[0])) throw new TypeError('Output is invalid');
-      if (!typef.Number(chunks[chunks.length - 2]))
-        throw new TypeError('Output is invalid');
+      v.parse(v.number(), chunks[0], { message: 'Output is invalid' });
+      v.parse(v.number(), chunks[chunks.length - 2], {
+        message: 'Output is invalid',
+      });
       if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG)
         throw new TypeError('Output is invalid');
 

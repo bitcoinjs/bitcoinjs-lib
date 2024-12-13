@@ -457,7 +457,7 @@
     ],
     "fromASM": [
       {
-        "description": "Expected Hex, got String \"0xff\"",
+        "description": "ValiError: Invalid format: Expected \\\/\\^\\(\\[0-9a-f\\]\\{2\\}\\)\\+\\$\\\/i but received \"0xff\"",
         "script": "0xff OP_CHECKSIG"
       }
     ]

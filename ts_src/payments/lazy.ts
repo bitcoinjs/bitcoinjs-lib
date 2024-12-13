@@ -1,4 +1,4 @@
-export function prop(object: {}, name: string, f: () => any): void {
+export function prop(object: object, name: string, f: () => any): void {
   Object.defineProperty(object, name, {
     configurable: true,
     enumerable: true,
