@@ -220,13 +220,17 @@ function toASM(chunks) {
  */
 function fromASM(asm) {
   v.parse(v.string(), asm);
+  // Compile the ASM string into a Uint8Array
   return compile(
-    asm.split(' ').map(chunkStr => {
-      // opcode?
-      if (ops_js_1.OPS[chunkStr] !== undefined) return ops_js_1.OPS[chunkStr];
-      v.parse(types.HexSchema, chunkStr);
-      // data!
-      return tools.fromHex(chunkStr);
+    asm.split(' ').map(chunk => {
+      // Check if the chunk is an opcode
+      if (chunk in ops_js_1.OPS) {
+        return ops_js_1.OPS[chunk];
+      }
+      // Validate if the chunk is a hexadecimal string
+      v.parse(types.HexSchema, chunk);
+      // Convert the chunk to Uint8Array data
+      return tools.fromHex(chunk);
     }),
   );
 }
