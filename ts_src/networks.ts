@@ -1,14 +1,14 @@
 /**
- * This module defines the network configurations for Bitcoin and its variants, including message prefixes, 
+ * This module defines the network configurations for Bitcoin and its variants, including message prefixes,
  * Bech32 address format, BIP32 key derivation prefixes, and other address-related configurations.
  * It supports Bitcoin, Bitcoin testnet, and Bitcoin regtest networks.
- * 
+ *
  * Additional information on address prefixes can be found here:
  * - https://en.bitcoin.it/wiki/List_of_address_prefixes
- * 
+ *
  * Note: Dogecoin BIP32 is a proposed standard, more info can be found here:
  * - https://bitcointalk.org/index.php?topic=409731
- * 
+ *
  * @packageDocumentation
  */
 export interface Network {
