@@ -47,6 +47,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.initEccLib =
   exports.Transaction =
   exports.opcodes =
+  exports.toXOnly =
   exports.Psbt =
   exports.Block =
   exports.script =
@@ -77,6 +78,12 @@ Object.defineProperty(exports, 'Psbt', {
   enumerable: true,
   get: function () {
     return psbt_js_1.Psbt;
+  },
+});
+Object.defineProperty(exports, 'toXOnly', {
+  enumerable: true,
+  get: function () {
+    return psbt_js_1.toXOnly;
   },
 });
 /** @hidden */
