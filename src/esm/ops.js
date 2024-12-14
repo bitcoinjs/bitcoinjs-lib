@@ -121,9 +121,5 @@ var OPS;
   OPS[(OPS['OP_PUBKEY'] = 254)] = 'OP_PUBKEY';
   OPS[(OPS['OP_INVALIDOPCODE'] = 255)] = 'OP_INVALIDOPCODE';
 })(OPS || (OPS = {}));
-// Dynamically generate REVERSE_OPS
-const REVERSE_OPS = Object.fromEntries(
-  Object.entries(OPS).map(([key, value]) => [value, key]),
-);
 // Export modules
-export { OPS, REVERSE_OPS };
+export { OPS, OPS as REVERSE_OPS };

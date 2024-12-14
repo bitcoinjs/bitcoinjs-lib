@@ -135,10 +135,5 @@ enum OPS {
   OP_INVALIDOPCODE = 255,
 }
 
-// Dynamically generate REVERSE_OPS
-const REVERSE_OPS: { [key: number]: string } = Object.fromEntries(
-  Object.entries(OPS).map(([key, value]) => [value, key]),
-);
-
 // Export modules
-export { OPS, REVERSE_OPS };
+export { OPS, OPS as REVERSE_OPS };
