@@ -1,14 +1,14 @@
 // Define OPS enum
 enum OPS {
   OP_FALSE = 0,
-  OP_0 = 0,
+  OP_0 = OPS.OP_FALSE, // Avoid duplicate value
   OP_PUSHDATA1 = 76,
   OP_PUSHDATA2 = 77,
   OP_PUSHDATA4 = 78,
   OP_1NEGATE = 79,
   OP_RESERVED = 80,
   OP_TRUE = 81,
-  OP_1 = 81,
+  OP_1 = OPS.OP_TRUE, // Avoid duplicate value
   OP_2 = 82,
   OP_3 = 83,
   OP_4 = 84,
@@ -114,11 +114,11 @@ enum OPS {
 
   OP_NOP1 = 176,
 
-  OP_NOP2 = 177, // Alias for OP_CHECKLOCKTIMEVERIFY
-  OP_CHECKLOCKTIMEVERIFY = 177,
+  OP_CHECKLOCKTIMEVERIFY = 177, // Alias: OP_NOP2
+  OP_NOP2 = OPS.OP_CHECKLOCKTIMEVERIFY,
 
-  OP_NOP3 = 178, // Alias for OP_CHECKSEQUENCEVERIFY
-  OP_CHECKSEQUENCEVERIFY = 178,
+  OP_CHECKSEQUENCEVERIFY = 178, // Alias: OP_NOP3
+  OP_NOP3 = OPS.OP_CHECKSEQUENCEVERIFY,
 
   OP_NOP4 = 179,
   OP_NOP5 = 180,
@@ -137,7 +137,7 @@ enum OPS {
 
 // Dynamically generate REVERSE_OPS
 const REVERSE_OPS: { [key: number]: string } = Object.fromEntries(
-  Object.entries(OPS).map(([key, value]) => [value, key])
+  Object.entries(OPS).map(([key, value]) => [value, key]),
 );
 
 // Export modules
