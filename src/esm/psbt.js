@@ -30,6 +30,7 @@ import {
   isP2TR,
 } from './psbt/psbtutils.js';
 import * as tools from 'uint8array-tools';
+export { toXOnly };
 /**
  * These are the default arguments for a Psbt instance.
  */

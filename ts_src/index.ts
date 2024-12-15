@@ -17,6 +17,7 @@ export {
   SignerAsync,
   HDSigner,
   HDSignerAsync,
+  toXOnly,
 } from './psbt.js';
 /** @hidden */
 export { OPS as opcodes } from './ops.js';

@@ -44,7 +44,7 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.Psbt = void 0;
+exports.Psbt = exports.toXOnly = void 0;
 const bip174_1 = require('bip174');
 const varuint = __importStar(require('varuint-bitcoin'));
 const bip174_2 = require('bip174');
@@ -56,6 +56,12 @@ const bip341_js_1 = require('./payments/bip341.cjs');
 const bscript = __importStar(require('./script.cjs'));
 const transaction_js_1 = require('./transaction.cjs');
 const bip371_js_1 = require('./psbt/bip371.cjs');
+Object.defineProperty(exports, 'toXOnly', {
+  enumerable: true,
+  get: function () {
+    return bip371_js_1.toXOnly;
+  },
+});
 const psbtutils_js_1 = require('./psbt/psbtutils.cjs');
 const tools = __importStar(require('uint8array-tools'));
 /**
