@@ -225,7 +225,7 @@ function extractTaprootSigs(input) {
   if (input.tapScriptSig)
     sigs.push(...input.tapScriptSig.map(s => s.signature));
   if (!sigs.length) {
-    const finalTapKeySig = getTapKeySigFromWithness(input.finalScriptWitness);
+    const finalTapKeySig = getTapKeySigFromWitness(input.finalScriptWitness);
     if (finalTapKeySig) sigs.push(finalTapKeySig);
   }
   return sigs;
@@ -235,7 +235,7 @@ function extractTaprootSigs(input) {
  * @param finalScriptWitness The final script witness.
  * @returns The taproot signature, or undefined if not found.
  */
-function getTapKeySigFromWithness(finalScriptWitness) {
+function getTapKeySigFromWitness(finalScriptWitness) {
   if (!finalScriptWitness) return;
   const witness = finalScriptWitness.slice(2);
   // todo: add schnorr signature validation
