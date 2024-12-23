@@ -6,9 +6,6 @@
  * Additional information on address prefixes can be found here:
  * - https://en.bitcoin.it/wiki/List_of_address_prefixes
  *
- * Note: Dogecoin BIP32 is a proposed standard, more info can be found here:
- * - https://bitcointalk.org/index.php?topic=409731
- *
  * @packageDocumentation
  */
 export interface Network {
