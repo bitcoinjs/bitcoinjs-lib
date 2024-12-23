@@ -15,7 +15,7 @@ describe('toXOnly', () => {
     assert.deepStrictEqual(result, pubKey.slice(1, 33)); // Expect the sliced array
   });
 
-  it('should throw an error if the pubKey length is less than 32', () => {
+  it('should return the key if the pubKey length is less than 32', () => {
     const pubKey = new Uint8Array(31).fill(1); // Example invalid public key
     const result = toXOnly(pubKey);
     assert.deepStrictEqual(result, pubKey.slice(1, 33)); // Expect the sliced array
