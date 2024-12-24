@@ -209,7 +209,7 @@ function toASM(chunks) {
         chunk = op;
       }
       // opcode!
-      return ops_js_1.REVERSE_OPS[chunk];
+      return ops_js_1.OPS[chunk];
     })
     .join(' ');
 }
@@ -224,7 +224,7 @@ function fromASM(asm) {
   return compile(
     asm.split(' ').map(chunk => {
       // Check if the chunk is an opcode
-      if (chunk in ops_js_1.OPS) {
+      if (isNaN(Number(chunk)) && chunk in ops_js_1.OPS) {
         return ops_js_1.OPS[chunk];
       }
       // Validate if the chunk is a hexadecimal string

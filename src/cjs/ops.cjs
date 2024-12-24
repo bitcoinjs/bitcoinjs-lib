@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.REVERSE_OPS = exports.OPS = void 0;
+exports.OPS = void 0;
 // Define OPS enum
 var OPS;
 (function (OPS) {
@@ -123,4 +123,4 @@ var OPS;
   OPS[(OPS['OP_PUBKEYHASH'] = 253)] = 'OP_PUBKEYHASH';
   OPS[(OPS['OP_PUBKEY'] = 254)] = 'OP_PUBKEY';
   OPS[(OPS['OP_INVALIDOPCODE'] = 255)] = 'OP_INVALIDOPCODE';
-})(OPS || (exports.REVERSE_OPS = exports.OPS = OPS = {}));
+})(OPS || (exports.OPS = OPS = {}));

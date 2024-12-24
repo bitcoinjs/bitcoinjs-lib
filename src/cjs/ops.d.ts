@@ -119,4 +119,4 @@ declare enum OPS {
     OP_PUBKEY = 254,
     OP_INVALIDOPCODE = 255
 }
-export { OPS, OPS as REVERSE_OPS };
+export { OPS };

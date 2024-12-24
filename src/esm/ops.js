@@ -122,4 +122,4 @@ var OPS;
   OPS[(OPS['OP_INVALIDOPCODE'] = 255)] = 'OP_INVALIDOPCODE';
 })(OPS || (OPS = {}));
 // Export modules
-export { OPS, OPS as REVERSE_OPS };
+export { OPS };

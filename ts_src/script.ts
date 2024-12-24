@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 import * as bip66 from './bip66.js';
-import { OPS, REVERSE_OPS } from './ops.js';
+import { OPS } from './ops.js';
 import { Stack } from './payments/index.js';
 import * as pushdata from './push_data.js';
 import * as scriptNumber from './script_number.js';
@@ -187,7 +187,7 @@ export function toASM(chunks: Uint8Array | Array<number | Uint8Array>): string {
       }
 
       // opcode!
-      return REVERSE_OPS[chunk];
+      return OPS[chunk];
     })
     .join(' ');
 }
@@ -204,7 +204,7 @@ export function fromASM(asm: string): Uint8Array {
   return compile(
     asm.split(' ').map((chunk: string): number | Uint8Array => {
       // Check if the chunk is an opcode
-      if (chunk in OPS) {
+      if (isNaN(Number(chunk)) && chunk in OPS) {
         return OPS[chunk as keyof typeof OPS];
       }
 

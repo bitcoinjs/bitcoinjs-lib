@@ -136,4 +136,4 @@ enum OPS {
 }
 
 // Export modules
-export { OPS, OPS as REVERSE_OPS };
+export { OPS };
