@@ -41,6 +41,17 @@ describe('script', () => {
     });
   });
 
+  describe('fromASM', () => {
+    const OPS = bscript.OPS;
+    it('decodes OP_FALSE as empty buffer', () => {
+      const string = 'OP_RETURN OP_FALSE';
+      assert.deepStrictEqual(
+        bscript.fromASM(string),
+        Uint8Array.from([OPS.OP_RETURN, OPS.OP_FALSE]),
+      );
+    });
+  });
+
   describe('toASM', () => {
     const OP_RETURN = bscript.OPS.OP_RETURN;
     it('encodes empty buffer as OP_0', () => {
