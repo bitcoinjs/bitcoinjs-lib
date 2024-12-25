@@ -2,6 +2,8 @@ import { Psbt as PsbtBase } from 'bip174';
 import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, PsbtOutputUpdate } from 'bip174';
 import { Network } from './networks.js';
 import { Transaction } from './transaction.js';
+import { toXOnly } from './psbt/bip371.js';
+export { toXOnly };
 export interface TransactionInput {
     hash: string | Uint8Array;
     index: number;
@@ -202,4 +204,3 @@ tapLeafHashToFinalize?: Uint8Array) => {
     finalScriptWitness: Uint8Array | undefined;
 };
 type AllScriptType = 'witnesspubkeyhash' | 'pubkeyhash' | 'multisig' | 'pubkey' | 'nonstandard' | 'p2sh-witnesspubkeyhash' | 'p2sh-pubkeyhash' | 'p2sh-multisig' | 'p2sh-pubkey' | 'p2sh-nonstandard' | 'p2wsh-pubkeyhash' | 'p2wsh-multisig' | 'p2wsh-pubkey' | 'p2wsh-nonstandard' | 'p2sh-p2wsh-pubkeyhash' | 'p2sh-p2wsh-multisig' | 'p2sh-p2wsh-pubkey' | 'p2sh-p2wsh-nonstandard';
-export {};
