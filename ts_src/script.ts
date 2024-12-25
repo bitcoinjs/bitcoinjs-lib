@@ -1,7 +1,11 @@
 /**
- * Script tools, including decompile, compile, toASM, fromASM, toStack, isCanonicalPubKey, isCanonicalScriptSignature
+ * Script tools module for working with Bitcoin scripts.
+ * Provides utilities such as decompiling, compiling, converting to/from ASM, stack manipulation,
+ * and script validation functions.
+ *
  * @packageDocumentation
  */
+
 import * as bip66 from './bip66.js';
 import { OPS } from './ops.js';
 import { Stack } from './payments/index.js';
@@ -12,11 +16,19 @@ import * as types from './types.js';
 import * as tools from 'uint8array-tools';
 import * as v from 'valibot';
 
+/** Base opcode for OP_INT values. */
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 export { OPS };
 
+/** Validation schema for a Bitcoin script stack. */
 const StackSchema = v.array(v.union([v.instance(Uint8Array), v.number()]));
 
+/**
+ * Determines if a value corresponds to an OP_INT opcode.
+ *
+ * @param value - The opcode to check.
+ * @returns True if the value is an OP_INT, false otherwise.
+ */
 function isOPInt(value: number): boolean {
   return (
     v.is(v.number(), value) &&
@@ -26,10 +38,22 @@ function isOPInt(value: number): boolean {
   );
 }
 
+/**
+ * Checks if a script chunk is push-only (contains only data or OP_INT opcodes).
+ *
+ * @param value - The chunk to check.
+ * @returns True if the chunk is push-only, false otherwise.
+ */
 function isPushOnlyChunk(value: number | Uint8Array): boolean {
   return v.is(types.BufferSchema, value) || isOPInt(value as number);
 }
 
+/**
+ * Determines if a stack consists of only push operations.
+ *
+ * @param value - The stack to check.
+ * @returns True if all elements in the stack are push-only, false otherwise.
+ */
 export function isPushOnly(value: Stack): boolean {
   return v.is(
     v.pipe(v.any(), v.everyItem(isPushOnlyChunk as (x: any) => boolean)),
@@ -37,10 +61,22 @@ export function isPushOnly(value: Stack): boolean {
   );
 }
 
+/**
+ * Counts the number of non-push-only opcodes in a stack.
+ *
+ * @param value - The stack to analyze.
+ * @returns The count of non-push-only opcodes.
+ */
 export function countNonPushOnlyOPs(value: Stack): number {
   return value.length - value.filter(isPushOnlyChunk).length;
 }
 
+/**
+ * Converts a minimal script buffer to its corresponding opcode, if applicable.
+ *
+ * @param buffer - The buffer to check.
+ * @returns The corresponding opcode or undefined if not minimal.
+ */
 function asMinimalOP(buffer: Uint8Array): number | void {
   if (buffer.length === 0) return OPS.OP_0;
   if (buffer.length !== 1) return;
@@ -48,33 +84,49 @@ function asMinimalOP(buffer: Uint8Array): number | void {
   if (buffer[0] === 0x81) return OPS.OP_1NEGATE;
 }
 
+/**
+ * Determines if a buffer or stack is a Uint8Array.
+ *
+ * @param buf - The buffer or stack to check.
+ * @returns True if the input is a Uint8Array, false otherwise.
+ */
 function chunksIsBuffer(buf: Uint8Array | Stack): buf is Uint8Array {
   return buf instanceof Uint8Array;
 }
 
+/**
+ * Determines if a buffer or stack is a valid stack.
+ *
+ * @param buf - The buffer or stack to check.
+ * @returns True if the input is a stack, false otherwise.
+ */
 function chunksIsArray(buf: Uint8Array | Stack): buf is Stack {
   return v.is(StackSchema, buf);
 }
 
+/**
+ * Determines if a single chunk is a Uint8Array.
+ *
+ * @param buf - The chunk to check.
+ * @returns True if the chunk is a Uint8Array, false otherwise.
+ */
 function singleChunkIsBuffer(buf: number | Uint8Array): buf is Uint8Array {
   return buf instanceof Uint8Array;
 }
 
 /**
- * Compiles an array of chunks into a Buffer.
+ * Compiles an array of script chunks into a Uint8Array.
  *
- * @param chunks - The array of chunks to compile.
- * @returns The compiled Buffer.
- * @throws Error if the compilation fails.
+ * @param chunks - The chunks to compile.
+ * @returns The compiled script as a Uint8Array.
+ * @throws Error if compilation fails.
  */
 export function compile(chunks: Uint8Array | Stack): Uint8Array {
-  // TODO: remove me
   if (chunksIsBuffer(chunks)) return chunks;
 
   v.parse(StackSchema, chunks);
 
   const bufferSize = chunks.reduce((accum: number, chunk) => {
-    // data chunk
     if (singleChunkIsBuffer(chunk)) {
       // adhere to BIP62.3, minimal push policy
       if (chunk.length === 1 && asMinimalOP(chunk) !== undefined) {
@@ -84,15 +136,13 @@ export function compile(chunks: Uint8Array | Stack): Uint8Array {
       return accum + pushdata.encodingLength(chunk.length) + chunk.length;
     }
 
-    // opcode
     return accum + 1;
-  }, 0.0);
+  }, 0);
 
   const buffer = new Uint8Array(bufferSize);
   let offset = 0;
 
   chunks.forEach(chunk => {
-    // data chunk
     if (singleChunkIsBuffer(chunk)) {
       // adhere to BIP62.3, minimal push policy
       const opcode = asMinimalOP(chunk);
@@ -117,10 +167,15 @@ export function compile(chunks: Uint8Array | Stack): Uint8Array {
   return buffer;
 }
 
+/**
+ * Decompiles a script buffer into an array of chunks.
+ *
+ * @param buffer - The script buffer to decompile.
+ * @returns The decompiled chunks or null if decompilation fails.
+ */
 export function decompile(
   buffer: Uint8Array | Array<number | Uint8Array>,
 ): Array<number | Uint8Array> | null {
-  // TODO: remove me
   if (chunksIsArray(buffer)) return buffer;
 
   v.parse(types.BufferSchema, buffer);
@@ -131,7 +186,6 @@ export function decompile(
   while (i < buffer.length) {
     const opcode = buffer[i];
 
-    // data chunk
     if (opcode > OPS.OP_0 && opcode <= OPS.OP_PUSHDATA4) {
       const d = pushdata.decode(buffer, i);
 
@@ -152,8 +206,6 @@ export function decompile(
       } else {
         chunks.push(data);
       }
-
-      // opcode
     } else {
       chunks.push(opcode);
 
@@ -179,7 +231,6 @@ export function toASM(chunks: Uint8Array | Array<number | Uint8Array>): string {
   }
   return (chunks as Stack)
     .map(chunk => {
-      // data?
       if (singleChunkIsBuffer(chunk)) {
         const op = asMinimalOP(chunk);
         if (op === undefined) return tools.toHex(chunk);
@@ -237,16 +288,39 @@ export function toStack(
   });
 }
 
+/**
+ * Checks if the provided buffer is a canonical public key.
+ *
+ * @param buffer - The buffer to check, expected to be a Uint8Array.
+ * @returns A boolean indicating whether the buffer is a canonical public key.
+ */
 export function isCanonicalPubKey(buffer: Uint8Array): boolean {
   return types.isPoint(buffer);
 }
 
+/**
+ * Checks if the provided hash type is defined.
+ *
+ * A hash type is considered defined if its modified value (after masking with ~0x80)
+ * is greater than 0x00 and less than 0x04.
+ *
+ * @param hashType - The hash type to check.
+ * @returns True if the hash type is defined, false otherwise.
+ */
 export function isDefinedHashType(hashType: number): boolean {
   const hashTypeMod = hashType & ~0x80;
 
   return hashTypeMod > 0x00 && hashTypeMod < 0x04;
 }
 
+/**
+ * Checks if the provided buffer is a canonical script signature.
+ *
+ * A canonical script signature is a valid DER-encoded signature followed by a valid hash type byte.
+ *
+ * @param buffer - The buffer to check.
+ * @returns `true` if the buffer is a canonical script signature, `false` otherwise.
+ */
 export function isCanonicalScriptSignature(buffer: Uint8Array): boolean {
   if (!(buffer instanceof Uint8Array)) return false;
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false;

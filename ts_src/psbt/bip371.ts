@@ -292,7 +292,7 @@ function extractTaprootSigs(input: PsbtInput): Uint8Array[] {
   if (input.tapScriptSig)
     sigs.push(...input.tapScriptSig.map(s => s.signature));
   if (!sigs.length) {
-    const finalTapKeySig = getTapKeySigFromWithness(input.finalScriptWitness);
+    const finalTapKeySig = getTapKeySigFromWitness(input.finalScriptWitness);
     if (finalTapKeySig) sigs.push(finalTapKeySig);
   }
 
@@ -304,7 +304,7 @@ function extractTaprootSigs(input: PsbtInput): Uint8Array[] {
  * @param finalScriptWitness The final script witness.
  * @returns The taproot signature, or undefined if not found.
  */
-function getTapKeySigFromWithness(
+function getTapKeySigFromWitness(
   finalScriptWitness?: Uint8Array,
 ): Uint8Array | undefined {
   if (!finalScriptWitness) return;

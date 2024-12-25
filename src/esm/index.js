@@ -5,7 +5,7 @@ import * as payments from './payments/index.js';
 import * as script from './script.js';
 export { address, crypto, networks, payments, script };
 export { Block } from './block.js';
-export { Psbt } from './psbt.js';
+export { Psbt, toXOnly } from './psbt.js';
 /** @hidden */
 export { OPS as opcodes } from './ops.js';
 export { Transaction } from './transaction.js';
