@@ -50,6 +50,18 @@ describe('script', () => {
         Uint8Array.from([OPS.OP_RETURN, OPS.OP_FALSE]),
       );
     });
+
+    it("decodes a series of numbers from '82 to 96' correctly", () => {
+      const asm = Array.from({ length: 15 }, (_, i) =>
+        (i + 130).toString(16).padStart(2, '0'),
+      ).join(' ');
+      const expected = Array.from({ length: 15 }, (_, i) => [
+        1,
+        i + 130,
+      ]).flat();
+      const result = bscript.fromASM(asm);
+      assert.deepStrictEqual(result, Uint8Array.from(expected));
+    });
   });
 
   describe('toASM', () => {
