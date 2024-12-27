@@ -41,6 +41,27 @@ describe('script', () => {
     });
   });
 
+  describe('fromASM', () => {
+    const OPS = bscript.OPS;
+    it('decodes OP_FALSE as empty buffer', () => {
+      const string = 'OP_RETURN OP_FALSE';
+      assert.deepStrictEqual(
+        bscript.fromASM(string),
+        Uint8Array.from([OPS.OP_RETURN, OPS.OP_FALSE]),
+      );
+    });
+
+    it("decodes a series of numbers from '82 to 96' correctly", () => {
+      const asm = Array.from({ length: 15 }, (_, i) => i + 82).join(' ');
+      const expected = Array.from({ length: 15 }, (_, i) => [
+        1,
+        parseInt(String(i + 82), 16),
+      ]).flat();
+      const result = bscript.fromASM(asm);
+      assert.deepStrictEqual(result, Uint8Array.from(expected));
+    });
+  });
+
   describe('toASM', () => {
     const OP_RETURN = bscript.OPS.OP_RETURN;
     it('encodes empty buffer as OP_0', () => {

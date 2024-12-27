@@ -7,7 +7,7 @@
  */
 
 import * as bip66 from './bip66.js';
-import { OPS, REVERSE_OPS } from './ops.js';
+import { OPS } from './ops.js';
 import { Stack } from './payments/index.js';
 import * as pushdata from './push_data.js';
 import * as scriptNumber from './script_number.js';
@@ -238,7 +238,7 @@ export function toASM(chunks: Uint8Array | Array<number | Uint8Array>): string {
       }
 
       // opcode!
-      return REVERSE_OPS[chunk];
+      return OPS[chunk];
     })
     .join(' ');
 }
@@ -251,14 +251,19 @@ export function toASM(chunks: Uint8Array | Array<number | Uint8Array>): string {
 export function fromASM(asm: string): Uint8Array {
   v.parse(v.string(), asm);
 
+  // Compile the ASM string into a Uint8Array
   return compile(
-    asm.split(' ').map(chunkStr => {
-      // opcode?
-      if (OPS[chunkStr] !== undefined) return OPS[chunkStr];
-      v.parse(types.HexSchema, chunkStr);
+    asm.split(' ').map((chunk: string): number | Uint8Array => {
+      // Check if the chunk is an opcode
+      if (isNaN(Number(chunk)) && chunk in OPS) {
+        return OPS[chunk as keyof typeof OPS];
+      }
 
-      // data!
-      return tools.fromHex(chunkStr);
+      // Validate if the chunk is a hexadecimal string
+      v.parse(types.HexSchema, chunk);
+
+      // Convert the chunk to Uint8Array data
+      return tools.fromHex(chunk);
     }),
   );
 }
