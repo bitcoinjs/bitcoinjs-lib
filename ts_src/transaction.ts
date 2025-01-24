@@ -652,7 +652,7 @@ export class Transaction {
 
     const bufferWriter = new BufferWriter(buffer, initialOffset || 0);
 
-    bufferWriter.writeInt32(this.version);
+    bufferWriter.writeUInt32(this.version);
 
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
 
