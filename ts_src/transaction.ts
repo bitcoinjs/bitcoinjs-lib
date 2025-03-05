@@ -79,7 +79,7 @@ export class Transaction {
     const bufferReader = new BufferReader(buffer);
 
     const tx = new Transaction();
-    tx.version = bufferReader.readInt32();
+    tx.version = bufferReader.readUInt32();
 
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
@@ -464,7 +464,7 @@ export class Transaction {
 
     sigMsgWriter.writeUInt8(hashType);
     // Transaction
-    sigMsgWriter.writeInt32(this.version);
+    sigMsgWriter.writeUInt32(this.version);
     sigMsgWriter.writeUInt32(this.locktime);
     sigMsgWriter.writeSlice(hashPrevouts);
     sigMsgWriter.writeSlice(hashAmounts);
@@ -594,7 +594,7 @@ export class Transaction {
     bufferWriter = new BufferWriter(tbuffer, 0);
 
     const input = this.ins[inIndex];
-    bufferWriter.writeInt32(this.version);
+    bufferWriter.writeUInt32(this.version);
     bufferWriter.writeSlice(hashPrevouts);
     bufferWriter.writeSlice(hashSequence);
     bufferWriter.writeSlice(input.hash);
