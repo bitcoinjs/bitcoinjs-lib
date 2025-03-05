@@ -451,7 +451,7 @@ describe('bitcoinjs-lib (transaction with taproot)', () => {
     } catch (err) {
       if ((err as any).message !== 'non-BIP68-final')
         throw new Error(
-          'Expected OP_CHECKSEQUENCEVERIFY validation to fail. But it faild with: ' +
+          'Expected OP_CHECKSEQUENCEVERIFY validation to fail. But it failed with: ' +
             err,
         );
     }
