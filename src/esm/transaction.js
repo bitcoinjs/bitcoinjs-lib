@@ -57,7 +57,7 @@ export class Transaction {
   static fromBuffer(buffer, _NO_STRICT) {
     const bufferReader = new BufferReader(buffer);
     const tx = new Transaction();
-    tx.version = bufferReader.readInt32();
+    tx.version = bufferReader.readUInt32();
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
     let hasWitnesses = false;
@@ -365,7 +365,7 @@ export class Transaction {
     const sigMsgWriter = BufferWriter.withCapacity(sigMsgSize);
     sigMsgWriter.writeUInt8(hashType);
     // Transaction
-    sigMsgWriter.writeInt32(this.version);
+    sigMsgWriter.writeUInt32(this.version);
     sigMsgWriter.writeUInt32(this.locktime);
     sigMsgWriter.writeSlice(hashPrevouts);
     sigMsgWriter.writeSlice(hashAmounts);
@@ -472,7 +472,7 @@ export class Transaction {
     tbuffer = new Uint8Array(156 + varSliceSize(prevOutScript));
     bufferWriter = new BufferWriter(tbuffer, 0);
     const input = this.ins[inIndex];
-    bufferWriter.writeInt32(this.version);
+    bufferWriter.writeUInt32(this.version);
     bufferWriter.writeSlice(hashPrevouts);
     bufferWriter.writeSlice(hashSequence);
     bufferWriter.writeSlice(input.hash);
@@ -514,7 +514,7 @@ export class Transaction {
   __toBuffer(buffer, initialOffset, _ALLOW_WITNESS = false) {
     if (!buffer) buffer = new Uint8Array(this.byteLength(_ALLOW_WITNESS));
     const bufferWriter = new BufferWriter(buffer, initialOffset || 0);
-    bufferWriter.writeInt32(this.version);
+    bufferWriter.writeUInt32(this.version);
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
     if (hasWitnesses) {
       bufferWriter.writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER);
