@@ -78,10 +78,10 @@ describe('Transaction', () => {
       });
     });
 
-    it('.version should be interpreted as an int32le', () => {
+    it('.version should be interpreted as an uint32le', () => {
       const txHex = 'ffffffff0000ffffffff';
       const tx = Transaction.fromHex(txHex);
-      assert.strictEqual(-1, tx.version);
+      assert.strictEqual(0xffffffff, tx.version);
       assert.strictEqual(0xffffffff, tx.locktime);
     });
   });
