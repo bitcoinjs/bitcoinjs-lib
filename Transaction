@@ -1,0 +1,27 @@
+const bitcoin = require('bitcoinjs-lib');
+
+// Define the network (mainnet or testnet)
+const network = bitcoin.networks.bitcoin;
+
+// Define the transaction
+const txb = new bitcoin.TransactionBuilder(network);
+
+// Add inputs (utxo)
+txb.addInput('txid', index);
+
+// Add outputs (destination address and amount in satoshis)
+txb.addOutput('destination_address', amount);
+
+// Sign the transaction
+txb.sign({
+  prevOutScriptType: 'p2wpkh',
+  vin: 0,
+  keyPair: bitcoin.ECPair.fromWIF('your_wif_key', network),
+  witnessValue: amount,
+  witnessScript: Buffer.from('witness_script', 'hex')
+});
+
+// Build the transaction and get the hex
+const txHex = txb.build().toHex();
+
+console.log(txHex);02000000000107f9cfddb9b7fd8ed4570e09975378529d776f97028b57f912dae1800952b3ba387000000000fdffffff5a3f806fe22dda397777f3397e666ca90c08f74803604fa909cc3ebb7ecaf06b0100000000fdffffff72098d3a51b99068bda6ee8c058857b4cc5884b1d38f5d4221b66ba3007cf89a6300000000fdffffffb54859507676f54bef882848c080ad794f68af33a89d24520b3a5721399947d7db00000000fdffffff6e80296c15737b482e38f637eff6dc4b9bf2de764e74c0c437d33bf21a09b9d85500000000fdffffff7bfe6e58e51bffb1a621dbe3e31f824575aa8ac670ab866d3a9c4a3b517b6bdc0100000000fdffffff0 ▋
