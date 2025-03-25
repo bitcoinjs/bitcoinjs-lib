@@ -111,7 +111,7 @@ Which you can then import as an ESM module:
 When utilizing Taproot features with bitcoinjs-lib, you may need to include an additional ECC (Elliptic Curve Cryptography) library. The commonly used `tiny-secp256k1` library, however, might lead to compatibility issues due to its reliance on WASM (WebAssembly). The following alternatives may be used instead, though they may be significantly slower for high volume of signing and pubkey deriving operations.
 
 #### Alternatives for ECC Library:
-1. `@bitcoinjs-lib/tiny-secp256k1-asmjs`
+1. `@bitcoin-js/tiny-secp256k1-asmjs`
    A version of `tiny-secp256k1` compiled to ASM.js directly from the WASM version, potentially better supported in browsers. This is the slowest option.
 2. `@bitcoinerlab/secp256k1`
    Another alternative library for ECC functionality. This requires access to the global `BigInt` primitive.
