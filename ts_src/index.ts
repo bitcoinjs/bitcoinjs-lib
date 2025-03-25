@@ -13,6 +13,8 @@ export {
   Psbt,
   PsbtTxInput,
   PsbtTxOutput,
+  PsbtInputExtended,
+  PsbtOutputExtended,
   Signer,
   SignerAsync,
   HDSigner,
