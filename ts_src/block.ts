@@ -24,7 +24,7 @@ export class Block {
     const bufferReader = new BufferReader(buffer);
 
     const block = new Block();
-    block.version = bufferReader.readInt32();
+    block.version = bufferReader.readUInt32();
     block.prevHash = bufferReader.readSlice(32);
     block.merkleRoot = bufferReader.readSlice(32);
     block.timestamp = bufferReader.readUInt32();
@@ -175,7 +175,7 @@ export class Block {
 
     const bufferWriter = new BufferWriter(buffer);
 
-    bufferWriter.writeInt32(this.version);
+    bufferWriter.writeUInt32(this.version);
     bufferWriter.writeSlice(this.prevHash!);
     bufferWriter.writeSlice(this.merkleRoot!);
     bufferWriter.writeUInt32(this.timestamp);
