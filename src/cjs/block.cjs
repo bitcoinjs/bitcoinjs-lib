@@ -62,7 +62,7 @@ class Block {
     if (buffer.length < 80) throw new Error('Buffer too small (< 80 bytes)');
     const bufferReader = new bufferutils_js_1.BufferReader(buffer);
     const block = new Block();
-    block.version = bufferReader.readInt32();
+    block.version = bufferReader.readUInt32();
     block.prevHash = bufferReader.readSlice(32);
     block.merkleRoot = bufferReader.readSlice(32);
     block.timestamp = bufferReader.readUInt32();
