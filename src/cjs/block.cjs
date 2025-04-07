@@ -184,7 +184,7 @@ class Block {
   toBuffer(headersOnly) {
     const buffer = new Uint8Array(this.byteLength(headersOnly));
     const bufferWriter = new bufferutils_js_1.BufferWriter(buffer);
-    bufferWriter.writeInt32(this.version);
+    bufferWriter.writeUInt32(this.version);
     bufferWriter.writeSlice(this.prevHash);
     bufferWriter.writeSlice(this.merkleRoot);
     bufferWriter.writeUInt32(this.timestamp);
