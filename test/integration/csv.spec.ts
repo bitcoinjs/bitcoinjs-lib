@@ -259,7 +259,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
       tx.addInput(idToHash(unspent.txId), unspent.vout);
       tx.addOutput(toOutputScript(regtestUtils.RANDOM_ADDRESS), BigInt(7e4));
 
-      // OP_0 {Bob sig} {Charles sig} OP_TRUE OP_TRUE
+      // OP_0 {Bob sig} {Charles sig} OP_TRUE
       const signatureHash = tx.hashForSignature(
         0,
         p2sh.redeem!.output!,
