@@ -4,4 +4,5 @@
   "endOfLine": "auto",
   "arrowParens": "avoid",
   "tabWidth": 2
+  "tab,stats" :2
 }
