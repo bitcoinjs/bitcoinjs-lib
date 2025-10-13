@@ -475,14 +475,14 @@ export class Psbt {
       throw new Error('Need validator function to validate signatures');
     pubkey = pubkey && toXOnly(pubkey);
     const allHashses = pubkey
-      ? getTaprootHashesForSig(
+      ? getTaprootHashesForSigValidation(
           inputIndex,
           input,
           this.data.inputs,
           pubkey,
           this.__CACHE,
         )
-      : getAllTaprootHashesForSig(
+      : getAllTaprootHashesForSigValidation(
           inputIndex,
           input,
           this.data.inputs,
@@ -840,7 +840,7 @@ export class Psbt {
       throw new Error(
         `Need Schnorr Signer to sign taproot input #${inputIndex}.`,
       );
-    const hashesForSig = getTaprootHashesForSig(
+    const hashesForSig = getTaprootHashesForSigning(
       inputIndex,
       input,
       this.data.inputs,
@@ -1274,7 +1274,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
     hash,
   };
 }
-function getAllTaprootHashesForSig(inputIndex, input, inputs, cache) {
+function getAllTaprootHashesForSigValidation(inputIndex, input, inputs, cache) {
   const allPublicKeys = [];
   if (input.tapInternalKey) {
     const key = getPrevoutTaprootKey(inputIndex, input, cache);
@@ -1287,7 +1287,13 @@ function getAllTaprootHashesForSig(inputIndex, input, inputs, cache) {
     allPublicKeys.push(...tapScriptPubkeys);
   }
   const allHashes = allPublicKeys.map(publicKey =>
-    getTaprootHashesForSig(inputIndex, input, inputs, publicKey, cache),
+    getTaprootHashesForSigValidation(
+      inputIndex,
+      input,
+      inputs,
+      publicKey,
+      cache,
+    ),
   );
   return allHashes.flat();
 }
@@ -1298,7 +1304,7 @@ function getPrevoutTaprootKey(inputIndex, input, cache) {
 function trimTaprootSig(signature) {
   return signature.length === 64 ? signature : signature.subarray(0, 64);
 }
-function getTaprootHashesForSig(
+function getTaprootHashesForSigning(
   inputIndex,
   input,
   inputs,
@@ -1307,16 +1313,62 @@ function getTaprootHashesForSig(
   tapLeafHashToSign,
   allowedSighashTypes,
 ) {
-  const unsignedTx = cache.__TX;
   const sighashType = input.sighashType || Transaction.SIGHASH_DEFAULT;
   checkSighashTypeAllowed(sighashType, allowedSighashTypes);
+  const keySpend = Boolean(input.tapInternalKey && !tapLeafHashToSign);
+  return getTaprootHashesForSig(
+    inputIndex,
+    input,
+    inputs,
+    pubkey,
+    cache,
+    keySpend,
+    sighashType,
+    tapLeafHashToSign,
+  );
+}
+function getTaprootHashesForSigValidation(
+  inputIndex,
+  input,
+  inputs,
+  pubkey,
+  cache,
+) {
+  const sighashType = input.sighashType || Transaction.SIGHASH_DEFAULT;
+  const keySpend = Boolean(input.tapKeySig);
+  return getTaprootHashesForSig(
+    inputIndex,
+    input,
+    inputs,
+    pubkey,
+    cache,
+    keySpend,
+    sighashType,
+  );
+}
+/*
+ * This helper method is used for both generating a hash for signing as well for validating;
+ * thus depending on context key spend can be detected either with tapInternalKey with no leaves
+ * or tapKeySig (note tapKeySig is a signature to the prevout pk, so tapInternalKey is not needed).
+ */
+function getTaprootHashesForSig(
+  inputIndex,
+  input,
+  inputs,
+  pubkey,
+  cache,
+  keySpend,
+  sighashType,
+  tapLeafHashToSign,
+) {
+  const unsignedTx = cache.__TX;
   const prevOuts = inputs.map((i, index) =>
     getScriptAndAmountFromUtxo(index, i, cache),
   );
   const signingScripts = prevOuts.map(o => o.script);
   const values = prevOuts.map(o => o.value);
   const hashes = [];
-  if (input.tapInternalKey && !tapLeafHashToSign) {
+  if (keySpend) {
     const outputKey =
       getPrevoutTaprootKey(inputIndex, input, cache) || Uint8Array.from([]);
     if (tools.compare(toXOnly(pubkey), outputKey) === 0) {
