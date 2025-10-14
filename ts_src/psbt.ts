@@ -1775,7 +1775,7 @@ function getTaprootHashesForSigning(
   cache: PsbtCache,
   tapLeafHashToSign?: Uint8Array,
   allowedSighashTypes?: number[],
-) {
+): { pubkey: Uint8Array; hash: Uint8Array; leafHash?: Uint8Array }[] {
   const sighashType = input.sighashType || Transaction.SIGHASH_DEFAULT;
   checkSighashTypeAllowed(sighashType, allowedSighashTypes);
 
