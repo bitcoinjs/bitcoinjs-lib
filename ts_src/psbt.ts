@@ -1799,7 +1799,7 @@ function getTaprootHashesForSigValidation(
   inputs: PsbtInput[],
   pubkey: Uint8Array,
   cache: PsbtCache,
-) {
+): { pubkey: Uint8Array; hash: Uint8Array; leafHash?: Uint8Array }[] {
   const sighashType = input.sighashType || Transaction.SIGHASH_DEFAULT;
   const keySpend = Boolean(input.tapKeySig);
   return getTaprootHashesForSig(
