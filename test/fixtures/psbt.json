@@ -812,7 +812,7 @@
           "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"
         },
         "shouldThrow": {
-          "errorMessage": "Need bip32Derivation to sign with HD",
+          "errorMessage": "Need bip32Derivation or tapBip32Derivation to sign with HD",
           "psbt": "cHNidP8BADMBAAAAAXVa+rWvBGNyifYXEMlTten9+qC0xuHcAMxQYrQTwX1dAAAAAAD/////AAAAAAAAAQDAAgAAAAH//////////////////////////////////////////wAAAABrSDBFAiEAjtCPUj0vx3I5HFQKAUWHN0vCnT17jd41/omb4nobq/sCIAilSeQVi4mqykgBbs+Wz6PyqdMThi2gT463v4kPWk6cASECaSihTgej6zyYUQLWkPnBx68mOUGCIuXcWbZDMArbhWH/////AQDh9QUAAAAAGXapFC8spHIOpiw9giaEPd5RGkMYvXRHiKwAAAAAAAA=",
           "inputToCheck": 0,
           "xprv": "xprv9s21ZrQH143K2XNCa3o3tii6nbyJAET6GjTfzcF6roTjAMzLUBe8nt7QHNYqKah8JBv8V67MTWBCqPptRr6khjTSvCUVru78KHW13Viwnev"

@@ -398,10 +398,12 @@ export class Psbt {
   }
   inputHasHDKey(inputIndex, root) {
     const input = checkForInput(this.data.inputs, inputIndex);
-    const derivationIsMine = bip32DerivationIsMine(root);
-    return (
-      !!input.bip32Derivation && input.bip32Derivation.some(derivationIsMine)
-    );
+    const dominated = bip32DerivationIsMine(root);
+    const hasLegacy =
+      !!input.bip32Derivation && input.bip32Derivation.some(dominated);
+    const hasTaproot =
+      !!input.tapBip32Derivation && input.tapBip32Derivation.some(dominated);
+    return hasLegacy || hasTaproot;
   }
   outputHasPubkey(outputIndex, pubkey) {
     const output = checkForOutput(this.data.outputs, outputIndex);
@@ -409,10 +411,12 @@ export class Psbt {
   }
   outputHasHDKey(outputIndex, root) {
     const output = checkForOutput(this.data.outputs, outputIndex);
-    const derivationIsMine = bip32DerivationIsMine(root);
-    return (
-      !!output.bip32Derivation && output.bip32Derivation.some(derivationIsMine)
-    );
+    const dominated = bip32DerivationIsMine(root);
+    const hasLegacy =
+      !!output.bip32Derivation && output.bip32Derivation.some(dominated);
+    const hasTaproot =
+      !!output.tapBip32Derivation && output.tapBip32Derivation.some(dominated);
+    return hasLegacy || hasTaproot;
   }
   validateSignaturesOfAllInputs(validator) {
     checkForInput(this.data.inputs, 0); // making sure we have at least one
@@ -1487,16 +1491,27 @@ function getScriptFromInput(inputIndex, input, cache) {
 }
 function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
   const input = checkForInput(inputs, inputIndex);
-  if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
-    throw new Error('Need bip32Derivation to sign with HD');
+  const dominated = isTaprootInput(input);
+  const dominated32 =
+    input.tapBip32Derivation && input.tapBip32Derivation.length > 0;
+  const hasLegacy = input.bip32Derivation && input.bip32Derivation.length > 0;
+  if (!dominated32 && !hasLegacy) {
+    throw new Error(
+      'Need bip32Derivation or tapBip32Derivation to sign with HD',
+    );
+  }
+  if (dominated && dominated32) {
+    return getSignersFromHDTaproot(input.tapBip32Derivation, hdKeyPair);
+  }
+  if (!hasLegacy) {
+    throw new Error('Need bip32Derivation to sign non-taproot input with HD');
   }
   const myDerivations = input.bip32Derivation
     .map(bipDv => {
       if (tools.compare(bipDv.masterFingerprint, hdKeyPair.fingerprint) === 0) {
         return bipDv;
-      } else {
-        return;
       }
+      return;
     })
     .filter(v => !!v);
   if (myDerivations.length === 0) {
@@ -1508,6 +1523,30 @@ function getSignersFromHD(inputIndex, inputs, hdKeyPair) {
     const node = hdKeyPair.derivePath(bipDv.path);
     if (tools.compare(bipDv.pubkey, node.publicKey) !== 0) {
       throw new Error('pubkey did not match bip32Derivation');
+    }
+    return node;
+  });
+  return signers;
+}
+function getSignersFromHDTaproot(tapBip32Derivations, hdKeyPair) {
+  const myDerivations = tapBip32Derivations
+    .map(tapDv => {
+      if (tools.compare(tapDv.masterFingerprint, hdKeyPair.fingerprint) === 0) {
+        return tapDv;
+      }
+      return;
+    })
+    .filter(v => !!v);
+  if (myDerivations.length === 0) {
+    throw new Error(
+      'Need one tapBip32Derivation masterFingerprint to match the HDSigner fingerprint',
+    );
+  }
+  const signers = myDerivations.map(tapDv => {
+    const node = hdKeyPair.derivePath(tapDv.path);
+    const xOnlyPubkey = toXOnly(node.publicKey);
+    if (tools.compare(tapDv.pubkey, xOnlyPubkey) !== 0) {
+      throw new Error('pubkey did not match tapBip32Derivation');
     }
     return node;
   });
