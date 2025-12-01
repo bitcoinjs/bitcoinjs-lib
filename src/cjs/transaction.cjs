@@ -107,7 +107,19 @@ class Transaction {
       marker === Transaction.ADVANCED_TRANSACTION_MARKER &&
       flag === Transaction.ADVANCED_TRANSACTION_FLAG
     ) {
-      hasWitnesses = true;
+      const { bigintValue: vinLenPeek, bytes: vinLenBytes } =
+        bufferutils_js_1.varuint.decode(buffer, bufferReader.offset);
+      const minInputSize = 41;
+      const remainingAfterVinLen =
+        buffer.length - bufferReader.offset - vinLenBytes;
+      if (
+        vinLenPeek === BigInt(0) ||
+        Number(vinLenPeek) * minInputSize > remainingAfterVinLen
+      ) {
+        bufferReader.offset -= 2;
+      } else {
+        hasWitnesses = true;
+      }
     } else {
       bufferReader.offset -= 2;
     }
