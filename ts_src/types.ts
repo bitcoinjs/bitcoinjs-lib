@@ -58,8 +58,8 @@ export interface Tapleaf {
 }
 
 export const TAPLEAF_VERSION_MASK = 0xfe;
-export function isTapleaf(o: any): o is Tapleaf {
-  if (!o || !('output' in o)) return false;
+export function isTapleaf(o: unknown): o is Tapleaf {
+  if (!o || typeof o !== 'object' || !('output' in o)) return false;
   if (!(o.output instanceof Uint8Array)) return false;
   if (o.version !== undefined)
     return (o.version & TAPLEAF_VERSION_MASK) === o.version;
@@ -67,16 +67,16 @@ export function isTapleaf(o: any): o is Tapleaf {
 }
 
 /**
- * Binary tree repsenting script path spends for a Taproot input.
+ * Binary tree representing script path spends for a Taproot input.
  * Each node is either a single Tapleaf, or a pair of Tapleaf | Taptree.
  * The tree has no balancing requirements.
  */
 export type Taptree = [Taptree | Tapleaf, Taptree | Tapleaf] | Tapleaf;
 
-export function isTaptree(scriptTree: any): scriptTree is Taptree {
+export function isTaptree(scriptTree: unknown): scriptTree is Taptree {
   if (!Array.isArray(scriptTree)) return isTapleaf(scriptTree);
   if (scriptTree.length !== 2) return false;
-  return scriptTree.every((t: any) => isTaptree(t));
+  return scriptTree.every((t: unknown) => isTaptree(t));
 }
 
 export interface TinySecp256k1Interface {
@@ -110,7 +110,7 @@ export const SatoshiSchema = v.pipe(
   v.maxValue(0x7fff_ffff_ffff_ffffn),
 );
 
-export const NullablePartial = (a: Record<string, any>) =>
+export const NullablePartial = (a: Record<string, unknown>) =>
   v.object(
     Object.entries(a).reduce(
       (acc, next) => ({ ...acc, [next[0]]: v.nullish(next[1]) }),
