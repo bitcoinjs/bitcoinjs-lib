@@ -33,7 +33,9 @@ import { signatureBlocksAction } from './psbtutils.js';
  * @returns The X-only public key.
  */
 export const toXOnly = (pubKey: Uint8Array) =>
-  pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
+  pubKey.length === 32
+    ? new Uint8Array(pubKey.buffer, pubKey.byteOffset, pubKey.byteLength)
+    : new Uint8Array(pubKey.slice(1, 33));
 
 /**
  * Default tapscript finalizer. It searches for the `tapLeafHashToFinalize` if provided.
@@ -209,8 +211,8 @@ export function tweakInternalPubKey(
   if (!outputKey)
     throw new Error(
       `Cannot tweak tap internal key for input #${inputIndex}. Public key: ${
-        // tapInternalKey && tapInternalKey.toString('hex')
-        tapInternalKey && tools.toHex(tapInternalKey)
+      // tapInternalKey && tapInternalKey.toString('hex')
+      tapInternalKey && tools.toHex(tapInternalKey)
       }`,
     );
   return outputKey.x;
@@ -417,7 +419,7 @@ function checkMixedTaprootAndNonTaprootInputFields(
   if (isBadTaprootUpdate || isBadNonTaprootUpdate || hasMixedFields)
     throw new Error(
       `Invalid arguments for Psbt.${action}. ` +
-        `Cannot use both taproot and non-taproot fields.`,
+      `Cannot use both taproot and non-taproot fields.`,
     );
 }
 
@@ -445,7 +447,7 @@ function checkMixedTaprootAndNonTaprootOutputFields(
   if (isBadTaprootUpdate || isBadNonTaprootUpdate || hasMixedFields)
     throw new Error(
       `Invalid arguments for Psbt.${action}. ` +
-        `Cannot use both taproot and non-taproot fields.`,
+      `Cannot use both taproot and non-taproot fields.`,
     );
 }
 
@@ -596,7 +598,7 @@ function canFinalizeLeaf(
   return (
     whiteListedHash &&
     tapScriptSig!.find(tss => tools.compare(tss.leafHash, leafHash) === 0) !==
-      undefined
+    undefined
   );
 }
 

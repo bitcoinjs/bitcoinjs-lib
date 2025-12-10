@@ -1,11 +1,12 @@
-import { toXOnly } from 'bitcoinjs-lib';
+import { toXOnly } from '../ts_src/psbt/bip371';
 import * as assert from 'assert';
 
 describe('toXOnly', () => {
   it('should return the input if the pubKey length is 32', () => {
     const pubKey = new Uint8Array(32).fill(1); // Example 32-byte public key
     const result = toXOnly(pubKey);
-    assert.strictEqual(result, pubKey); // Expect the same array (reference equality)
+    assert.deepStrictEqual(result, pubKey); // Expect the same content
+    assert.notStrictEqual(result, pubKey); // Expect a new instance (copy)
   });
 
   it('should return the sliced key if the pubKey length is greater than 32', () => {
