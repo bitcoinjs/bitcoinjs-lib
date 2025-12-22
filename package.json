@@ -68,7 +68,7 @@
     "bip174": "^3.0.0",
     "bs58check": "^4.0.0",
     "uint8array-tools": "^0.0.9",
-    "valibot": "^0.38.0",
+    "valibot": "^1.2.0",
     "varuint-bitcoin": "^2.0.0"
   },
   "devDependencies": {
