@@ -203,3 +203,24 @@ npm run-script coverage
 
 
 ## LICENSE [MIT](LICENSE)
+
+
+## Using bitcoinjs-lib with Browserify and TypeScript
+
+When bundling applications with Browserify, you should import bitcoinjs-lib
+from the package root and not from internal `.ts` source files.
+
+bitcoinjs-lib is distributed as JavaScript, with TypeScript definition files
+provided for type checking only.
+
+#### Example
+
+```ts
+import * as bitcoin from 'bitcoinjs-lib'
+
+console.log(bitcoin.networks.bitcoin)
+```
+
+```bash
+browserify src/index.ts -p [ tsify ] > bundle.js
+``` 
