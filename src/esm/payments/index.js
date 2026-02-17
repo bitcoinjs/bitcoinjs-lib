@@ -6,6 +6,20 @@ import { p2sh } from './p2sh.js';
 import { p2wpkh } from './p2wpkh.js';
 import { p2wsh } from './p2wsh.js';
 import { p2tr } from './p2tr.js';
-export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, p2tr };
+import { p2sp, scanForSilentPayments, deriveOutput } from './p2sp.js';
+export {
+  embed,
+  p2ms,
+  p2pk,
+  p2pkh,
+  p2sh,
+  p2wpkh,
+  p2wsh,
+  p2tr,
+  p2sp,
+  // TODO how should we expose the two functions below?
+  scanForSilentPayments,
+  deriveOutput,
+};
 // TODO
 // witness commitment
