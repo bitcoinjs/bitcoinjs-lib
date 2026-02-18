@@ -75,7 +75,7 @@
     "bitcoinjs-lib": ".",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.1",
-    "@types/bs58": "^4.0.0",
+    "@types/bs58": "^5.0.0",
     "@types/bs58check": "^2.1.0",
     "@types/mocha": "^5.2.7",
     "@types/node": "^18.7.14",
