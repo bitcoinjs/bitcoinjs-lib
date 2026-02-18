@@ -4,12 +4,12 @@
  *
  * @packageDocumentation
  */
-import { ripemd160 } from '@noble/hashes/ripemd160';
-import { sha256 } from '@noble/hashes/sha256';
+import { ripemd160 } from '@noble/hashes/ripemd160.js';
+import { sha256 } from '@noble/hashes/sha256.js';
 import * as tools from 'uint8array-tools';
 
 export { ripemd160, sha256 };
-export { sha1 } from '@noble/hashes/sha1';
+export { sha1 } from '@noble/hashes/sha1.js';
 
 /**
  * Computes the HASH160 (RIPEMD-160 after SHA-256) of the given buffer.
