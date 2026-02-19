@@ -4,6 +4,7 @@ import * as bscript from '../script.js';
 import { Transaction } from '../transaction.js';
 import { hash160 } from '../crypto.js';
 import * as payments from '../payments/index.js';
+import type { PaymentCreator } from '../payments/index.js';
 import * as tools from 'uint8array-tools';
 
 /**
@@ -11,7 +12,7 @@ import * as tools from 'uint8array-tools';
  * @param payment The payment factory to check.
  * @returns A function that takes a script and returns a boolean indicating whether the payment factory can generate a payment script from the script.
  */
-function isPaymentFactory(payment: any): (script: Uint8Array) => boolean {
+function isPaymentFactory(payment: PaymentCreator): (script: Uint8Array) => boolean {
   return (script: Uint8Array): boolean => {
     try {
       payment({ output: script });

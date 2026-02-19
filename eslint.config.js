@@ -54,11 +54,6 @@ export default [...compat.extends(
         "no-case-declarations": "off",
         quotes: "off",
 
-        "@/quotes": ["error", "single", {
-            avoidEscape: true,
-            allowTemplateLiterals: true,
-        }],
-
         "prefer-rest-params": "off",
         "no-bitwise": "off",
         "no-console": "off",
