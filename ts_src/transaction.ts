@@ -77,23 +77,33 @@ export class Transaction {
 
   static fromBuffer(buffer: Uint8Array, _NO_STRICT?: boolean): Transaction {
     const bufferReader = new BufferReader(buffer);
-
     const tx = new Transaction();
     tx.version = bufferReader.readUInt32();
-
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
-
     let hasWitnesses = false;
     if (
       marker === Transaction.ADVANCED_TRANSACTION_MARKER &&
       flag === Transaction.ADVANCED_TRANSACTION_FLAG
     ) {
-      hasWitnesses = true;
+      const { bigintValue: vinLenPeek, bytes: vinLenBytes } = varuint.decode(
+        buffer,
+        bufferReader.offset,
+      );
+      const minInputSize = 41;
+      const remainingAfterVinLen =
+        buffer.length - bufferReader.offset - vinLenBytes;
+      if (
+        vinLenPeek === BigInt(0) ||
+        Number(vinLenPeek) * minInputSize > remainingAfterVinLen
+      ) {
+        bufferReader.offset -= 2;
+      } else {
+        hasWitnesses = true;
+      }
     } else {
       bufferReader.offset -= 2;
     }
-
     const vinLen = bufferReader.readVarInt();
     for (let i = 0; i < vinLen; ++i) {
       tx.ins.push({
