@@ -9,7 +9,7 @@ interface HashBranch {
     left: HashTree;
     right: HashTree;
 }
-interface TweakedPublicKey {
+export interface TweakedPublicKey {
     parity: number;
     x: Uint8Array;
 }
@@ -45,7 +45,7 @@ export declare function findScriptPath(node: HashTree, hash: Uint8Array): Uint8A
 /**
  * Calculates the tapleaf hash for a given Tapleaf object.
  * @param leaf - The Tapleaf object to calculate the hash for.
- * @returns The tapleaf hash as a Buffer.
+ * @returns The tapleaf hash as a Uint8Array.
  */
 export declare function tapleafHash(leaf: Tapleaf): Uint8Array;
 /**
@@ -61,7 +61,7 @@ export declare function tapTweakHash(pubKey: Uint8Array, h: Uint8Array | undefin
 /**
  * Tweak a public key with a given tweak hash.
  * @param pubKey - The public key to be tweaked.
- * @param h - The tweak hash.
+ * @param h - The optional tweak hash.
  * @returns The tweaked public key or null if the input is invalid.
  */
 export declare function tweakKey(pubKey: Uint8Array, h: Uint8Array | undefined): TweakedPublicKey | null;
