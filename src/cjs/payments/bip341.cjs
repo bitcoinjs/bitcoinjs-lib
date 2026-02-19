@@ -46,11 +46,13 @@ var __importStar =
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.MAX_TAPTREE_DEPTH = exports.LEAF_VERSION_TAPSCRIPT = void 0;
 exports.rootHashFromPath = rootHashFromPath;
+exports.rootHashFromP2MRPath = rootHashFromP2MRPath;
 exports.toHashTree = toHashTree;
 exports.findScriptPath = findScriptPath;
 exports.tapleafHash = tapleafHash;
 exports.tapTweakHash = tapTweakHash;
 exports.tweakKey = tweakKey;
+exports.tapBranchHash = tapBranchHash;
 const ecc_lib_js_1 = require('../ecc_lib.cjs');
 const bcrypto = __importStar(require('../crypto.cjs'));
 const bufferutils_js_1 = require('../bufferutils.cjs');
@@ -75,6 +77,36 @@ function rootHashFromPath(controlBlock, leafHash) {
   let kj = leafHash;
   for (let j = 0; j < m; j++) {
     const ej = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
+    if (tools.compare(kj, ej) < 0) {
+      kj = tapBranchHash(kj, ej);
+    } else {
+      kj = tapBranchHash(ej, kj);
+    }
+  }
+  return kj;
+}
+/**
+ * Calculates the root hash from a P2MR control block and leaf hash.
+ * Unlike P2TR, P2MR control blocks do not include an internal public key,
+ * so the Merkle path starts at byte offset 1 (after the control byte).
+ * @param controlBlock - The P2MR control block buffer (1 + 32*m bytes).
+ * @param leafHash - The leaf hash buffer.
+ * @returns The root hash buffer.
+ * @throws {TypeError} If the control block length is invalid.
+ */
+function rootHashFromP2MRPath(controlBlock, leafHash) {
+  if (controlBlock.length < 1)
+    throw new TypeError(
+      `The control-block length is too small. Got ${controlBlock.length}, expected min 1.`,
+    );
+  if ((controlBlock.length - 1) % 32 !== 0)
+    throw new TypeError(
+      `The control-block length of ${controlBlock.length} is incorrect for P2MR!`,
+    );
+  const m = (controlBlock.length - 1) / 32;
+  let kj = leafHash;
+  for (let j = 0; j < m; j++) {
+    const ej = controlBlock.slice(1 + 32 * j, 33 + 32 * j);
     if (tools.compare(kj, ej) < 0) {
       kj = tapBranchHash(kj, ej);
     } else {

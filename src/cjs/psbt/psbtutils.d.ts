@@ -6,6 +6,7 @@ export declare const isP2WPKH: (script: Uint8Array) => boolean;
 export declare const isP2WSHScript: (script: Uint8Array) => boolean;
 export declare const isP2SHScript: (script: Uint8Array) => boolean;
 export declare const isP2TR: (script: Uint8Array) => boolean;
+export declare const isP2MR: (script: Uint8Array) => boolean;
 /**
  * Converts a witness stack to a script witness.
  * @param witness The witness stack to convert.

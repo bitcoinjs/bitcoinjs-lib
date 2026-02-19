@@ -29,6 +29,16 @@ export type HashTree = HashLeaf | HashBranch;
  */
 export declare function rootHashFromPath(controlBlock: Uint8Array, leafHash: Uint8Array): Uint8Array;
 /**
+ * Calculates the root hash from a P2MR control block and leaf hash.
+ * Unlike P2TR, P2MR control blocks do not include an internal public key,
+ * so the Merkle path starts at byte offset 1 (after the control byte).
+ * @param controlBlock - The P2MR control block buffer (1 + 32*m bytes).
+ * @param leafHash - The leaf hash buffer.
+ * @returns The root hash buffer.
+ * @throws {TypeError} If the control block length is invalid.
+ */
+export declare function rootHashFromP2MRPath(controlBlock: Uint8Array, leafHash: Uint8Array): Uint8Array;
+/**
  * Build a hash tree of merkle nodes from the scripts binary tree.
  * @param scriptTree - the tree of scripts to pairwise hash.
  */
@@ -65,4 +75,12 @@ export declare function tapTweakHash(pubKey: Uint8Array, h: Uint8Array | undefin
  * @returns The tweaked public key or null if the input is invalid.
  */
 export declare function tweakKey(pubKey: Uint8Array, h: Uint8Array | undefined): TweakedPublicKey | null;
+/**
+ * Computes the TapBranch hash by concatenating two buffers and applying the 'TapBranch' tagged hash algorithm.
+ *
+ * @param a - The first buffer.
+ * @param b - The second buffer.
+ * @returns The TapBranch hash of the concatenated buffers.
+ */
+export declare function tapBranchHash(a: Uint8Array, b: Uint8Array): Uint8Array;
 export {};
