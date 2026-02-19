@@ -88,20 +88,31 @@ We are not an authoritative source of best practice, but, at the very least:
 
 
 ### Browser
-The recommended method of using `bitcoinjs-lib` in your browser is through [browserify](http://browserify.org/).
+Since v7, `bitcoinjs-lib` ships as a dual CJS/ESM package. **Browserify is no longer recommended** as it cannot properly handle the `.cjs` module format used internally.
 
-If you'd like to use a different (more modern) build tool than `browserify`, you can compile just this library and its dependencies into a single JavaScript file:
+Use a modern bundler such as [esbuild](https://esbuild.github.io/), [webpack](https://webpack.js.org/), or [rollup](https://rollupjs.org/) instead.
 
+#### Using esbuild (recommended)
 ```sh
-$ npm install bitcoinjs-lib browserify
-$ npx browserify --standalone bitcoin -o bitcoinjs-lib.js <<< "module.exports = require('bitcoinjs-lib');"
+$ npm install bitcoinjs-lib esbuild
+$ echo "module.exports = require('bitcoinjs-lib');" > entry.js
+$ npx esbuild entry.js --bundle --platform=browser --outfile=bitcoinjs-lib.js --global-name=bitcoin --format=iife
 ```
 
-Which you can then import as an ESM module:
+Then use in your HTML:
+```html
+<script src="bitcoinjs-lib.js"></script>
+<script>
+  console.log(bitcoin.networks.bitcoin);
+</script>
+```
 
-```javascript
-<script type="module">import "/scripts/bitcoinjs-lib.js"</script>
-````
+Or import as an ESM module:
+```html
+<script type="module">
+  import * as bitcoin from './bitcoinjs-lib.js';
+</script>
+```
 
 #### Using Taproot:
 When utilizing Taproot features with bitcoinjs-lib, you may need to include an additional ECC (Elliptic Curve Cryptography) library. The commonly used `tiny-secp256k1` library, however, might lead to compatibility issues due to its reliance on WASM (WebAssembly). The following alternatives may be used instead, though they may be significantly slower for high volume of signing and pubkey deriving operations.
@@ -113,9 +124,7 @@ When utilizing Taproot features with bitcoinjs-lib, you may need to include an a
    Another alternative library for ECC functionality. This requires access to the global `BigInt` primitive.
 For advantages and detailed comparison of these libraries, visit: [tiny-secp256k1 GitHub page](https://github.com/bitcoinjs/tiny-secp256k1).
 
-**NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](https://babeljs.io/docs/plugins/preset-es2015/) preset).
-
-**WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use at least [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
+**NOTE**: We use Node Maintenance LTS features. If you need strict ES5, use a transpiler like [Babel](https://babeljs.io/) in conjunction with your bundler.
 
 ### Typescript or VSCode users
 Type declarations for Typescript are included in this library. Normal installation should include all the needed type information.
