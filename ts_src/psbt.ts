@@ -1164,9 +1164,11 @@ interface PsbtOpts {
   maximumFeeRate: number;
 }
 
-interface PsbtInputExtended extends PsbtInput, TransactionInput {}
+export interface PsbtInputExtended extends PsbtInput, TransactionInput {}
 
-type PsbtOutputExtended = PsbtOutputExtendedAddress | PsbtOutputExtendedScript;
+export type PsbtOutputExtended =
+  | PsbtOutputExtendedAddress
+  | PsbtOutputExtendedScript;
 
 interface PsbtOutputExtendedAddress extends PsbtOutput {
   address: string;
