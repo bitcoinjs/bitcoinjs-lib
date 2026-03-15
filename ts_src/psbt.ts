@@ -1,5 +1,4 @@
 import { Psbt as PsbtBase } from 'bip174';
-import * as varuint from 'varuint-bitcoin';
 import {
   Bip32Derivation,
   KeyValue,
@@ -44,6 +43,12 @@ import {
   isP2SHScript,
   isP2TR,
 } from './psbt/psbtutils.js';
+import { scriptWitnessToWitnessStack } from './psbt/internal/witness.js';
+import {
+  classifyScript,
+  getMeaningfulScript,
+  checkInvalidP2WSH,
+} from './psbt/internal/scriptType.js';
 import * as tools from 'uint8array-tools';
 
 export { toXOnly };
@@ -295,7 +300,8 @@ export class Psbt {
     }
     checkTaprootInputFields(inputData, inputData, 'addInput');
     checkInputsForPartialSig(this.data.inputs, 'addInput');
-    if (inputData.witnessScript) checkInvalidP2WSH(inputData.witnessScript);
+    if (inputData.witnessScript)
+      checkInvalidP2WSHScript(inputData.witnessScript);
     const c = this.__CACHE;
     this.data.addInput(inputData);
     const txIn = c.__TX.ins[c.__TX.ins.length - 1];
@@ -494,9 +500,10 @@ export class Psbt {
       input.redeemScript || redeemFromFinalScriptSig(input.finalScriptSig),
       input.witnessScript ||
         redeemFromFinalWitnessScript(input.finalScriptWitness),
+      SCRIPT_TYPE_DEPS,
     );
     const type = result.type === 'raw' ? '' : result.type + '-';
-    const mainType = classifyScript(result.meaningfulScript);
+    const mainType = classifyScript(result.meaningfulScript, SCRIPT_TYPE_DEPS);
     return (type + mainType) as AllScriptType;
   }
 
@@ -1097,7 +1104,8 @@ export class Psbt {
   }
 
   updateInput(inputIndex: number, updateData: PsbtInputUpdate): this {
-    if (updateData.witnessScript) checkInvalidP2WSH(updateData.witnessScript);
+    if (updateData.witnessScript)
+      checkInvalidP2WSHScript(updateData.witnessScript);
     checkTaprootInputFields(
       this.data.inputs[inputIndex],
       updateData,
@@ -1478,6 +1486,20 @@ const checkWitnessScript = scriptCheckerFactory(
   'Witness script',
 );
 
+const SCRIPT_TYPE_DEPS = {
+  isP2WPKH,
+  isP2PKH,
+  isP2MS,
+  isP2PK,
+  isP2SHScript,
+  isP2WSHScript,
+  checkRedeemScript,
+  checkWitnessScript,
+};
+
+const checkInvalidP2WSHScript = (script: Uint8Array): void =>
+  checkInvalidP2WSH(script, isP2WPKH, isP2SHScript);
+
 type TxCacheNumberKey = '__FEE_RATE' | '__FEE';
 function getTxCacheValue<T extends TxCacheNumberKey>(
   key: T,
@@ -1538,7 +1560,7 @@ function getFinalScripts(
   finalScriptSig: Uint8Array | undefined;
   finalScriptWitness: Uint8Array | undefined;
 } {
-  const scriptType = classifyScript(script);
+  const scriptType = classifyScript(script, SCRIPT_TYPE_DEPS);
   if (!canFinalize(input, script, scriptType))
     throw new Error(`Can not finalize input #${inputIndex}`);
   return prepareFinalScripts(
@@ -1666,6 +1688,7 @@ function getHashForSig(
     'input',
     input.redeemScript,
     input.witnessScript,
+    SCRIPT_TYPE_DEPS,
   );
 
   if (['p2sh-p2wsh', 'p2wsh'].indexOf(type) >= 0) {
@@ -2031,34 +2054,6 @@ function getSortedSigs(
     .filter(v => !!v);
 }
 
-function scriptWitnessToWitnessStack(buffer: Uint8Array): Uint8Array[] {
-  let offset = 0;
-
-  function readSlice(n: number): Uint8Array {
-    offset += n;
-    return buffer.slice(offset - n, offset);
-  }
-
-  function readVarInt(): number {
-    const vi = varuint.decode(buffer, offset);
-    offset += varuint.encodingLength(vi.bigintValue);
-    return vi.numberValue!;
-  }
-
-  function readVarSlice(): Uint8Array {
-    return readSlice(readVarInt());
-  }
-
-  function readVector(): Uint8Array[] {
-    const count = readVarInt();
-    const vector: Uint8Array[] = [];
-    for (let i = 0; i < count; i++) vector.push(readVarSlice());
-    return vector;
-  }
-
-  return readVector();
-}
-
 function sighashTypeToString(sighashType: number): string {
   let text =
     sighashType & Transaction.SIGHASH_ANYONECANPAY
@@ -2206,6 +2201,7 @@ function pubkeyInInput(
     'input',
     input.redeemScript,
     input.witnessScript,
+    SCRIPT_TYPE_DEPS,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
@@ -2223,6 +2219,7 @@ function pubkeyInOutput(
     'output',
     output.redeemScript,
     output.witnessScript,
+    SCRIPT_TYPE_DEPS,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
@@ -2275,62 +2272,6 @@ function isSigLike(buf: Uint8Array): boolean {
   return bscript.isCanonicalScriptSignature(buf);
 }
 
-function getMeaningfulScript(
-  script: Uint8Array,
-  index: number,
-  ioType: 'input' | 'output',
-  redeemScript?: Uint8Array,
-  witnessScript?: Uint8Array,
-): {
-  meaningfulScript: Uint8Array;
-  type: 'p2sh' | 'p2wsh' | 'p2sh-p2wsh' | 'raw';
-} {
-  const isP2SH = isP2SHScript(script);
-  const isP2SHP2WSH = isP2SH && redeemScript && isP2WSHScript(redeemScript);
-  const isP2WSH = isP2WSHScript(script);
-
-  if (isP2SH && redeemScript === undefined)
-    throw new Error('scriptPubkey is P2SH but redeemScript missing');
-  if ((isP2WSH || isP2SHP2WSH) && witnessScript === undefined)
-    throw new Error(
-      'scriptPubkey or redeemScript is P2WSH but witnessScript missing',
-    );
-
-  let meaningfulScript: Uint8Array;
-
-  if (isP2SHP2WSH) {
-    meaningfulScript = witnessScript!;
-    checkRedeemScript(index, script, redeemScript!, ioType);
-    checkWitnessScript(index, redeemScript!, witnessScript!, ioType);
-    checkInvalidP2WSH(meaningfulScript);
-  } else if (isP2WSH) {
-    meaningfulScript = witnessScript!;
-    checkWitnessScript(index, script, witnessScript!, ioType);
-    checkInvalidP2WSH(meaningfulScript);
-  } else if (isP2SH) {
-    meaningfulScript = redeemScript!;
-    checkRedeemScript(index, script, redeemScript!, ioType);
-  } else {
-    meaningfulScript = script;
-  }
-  return {
-    meaningfulScript,
-    type: isP2SHP2WSH
-      ? 'p2sh-p2wsh'
-      : isP2SH
-        ? 'p2sh'
-        : isP2WSH
-          ? 'p2wsh'
-          : 'raw',
-  };
-}
-
-function checkInvalidP2WSH(script: Uint8Array): void {
-  if (isP2WPKH(script) || isP2SHScript(script)) {
-    throw new Error('P2WPKH or P2SH can not be contained within P2WSH');
-  }
-}
-
 type AllScriptType =
   | 'witnesspubkeyhash'
   | 'pubkeyhash'
@@ -2350,20 +2291,6 @@ type AllScriptType =
   | 'p2sh-p2wsh-multisig'
   | 'p2sh-p2wsh-pubkey'
   | 'p2sh-p2wsh-nonstandard';
-type ScriptType =
-  | 'witnesspubkeyhash'
-  | 'pubkeyhash'
-  | 'multisig'
-  | 'pubkey'
-  | 'nonstandard';
-function classifyScript(script: Uint8Array): ScriptType {
-  if (isP2WPKH(script)) return 'witnesspubkeyhash';
-  if (isP2PKH(script)) return 'pubkeyhash';
-  if (isP2MS(script)) return 'multisig';
-  if (isP2PK(script)) return 'pubkey';
-  return 'nonstandard';
-}
-
 function range(n: number): number[] {
   return [...Array(n).keys()];
 }

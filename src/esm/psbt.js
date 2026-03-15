@@ -1,5 +1,4 @@
 import { Psbt as PsbtBase } from 'bip174';
-import * as varuint from 'varuint-bitcoin';
 import { checkForInput, checkForOutput } from 'bip174';
 import { fromOutputScript, toOutputScript } from './address.js';
 import { cloneBuffer, reverseBuffer } from './bufferutils.js';
@@ -29,6 +28,12 @@ import {
   isP2SHScript,
   isP2TR,
 } from './psbt/psbtutils.js';
+import { scriptWitnessToWitnessStack } from './psbt/internal/witness.js';
+import {
+  classifyScript,
+  getMeaningfulScript,
+  checkInvalidP2WSH,
+} from './psbt/internal/scriptType.js';
 import * as tools from 'uint8array-tools';
 export { toXOnly };
 /**
@@ -225,7 +230,8 @@ export class Psbt {
     }
     checkTaprootInputFields(inputData, inputData, 'addInput');
     checkInputsForPartialSig(this.data.inputs, 'addInput');
-    if (inputData.witnessScript) checkInvalidP2WSH(inputData.witnessScript);
+    if (inputData.witnessScript)
+      checkInvalidP2WSHScript(inputData.witnessScript);
     const c = this.__CACHE;
     this.data.addInput(inputData);
     const txIn = c.__TX.ins[c.__TX.ins.length - 1];
@@ -387,9 +393,10 @@ export class Psbt {
       input.redeemScript || redeemFromFinalScriptSig(input.finalScriptSig),
       input.witnessScript ||
         redeemFromFinalWitnessScript(input.finalScriptWitness),
+      SCRIPT_TYPE_DEPS,
     );
     const type = result.type === 'raw' ? '' : result.type + '-';
-    const mainType = classifyScript(result.meaningfulScript);
+    const mainType = classifyScript(result.meaningfulScript, SCRIPT_TYPE_DEPS);
     return type + mainType;
   }
   inputHasPubkey(inputIndex, pubkey) {
@@ -872,7 +879,8 @@ export class Psbt {
     return this;
   }
   updateInput(inputIndex, updateData) {
-    if (updateData.witnessScript) checkInvalidP2WSH(updateData.witnessScript);
+    if (updateData.witnessScript)
+      checkInvalidP2WSHScript(updateData.witnessScript);
     checkTaprootInputFields(
       this.data.inputs[inputIndex],
       updateData,
@@ -1104,6 +1112,18 @@ const checkWitnessScript = scriptCheckerFactory(
   payments.p2wsh,
   'Witness script',
 );
+const SCRIPT_TYPE_DEPS = {
+  isP2WPKH,
+  isP2PKH,
+  isP2MS,
+  isP2PK,
+  isP2SHScript,
+  isP2WSHScript,
+  checkRedeemScript,
+  checkWitnessScript,
+};
+const checkInvalidP2WSHScript = script =>
+  checkInvalidP2WSH(script, isP2WPKH, isP2SHScript);
 function getTxCacheValue(key, name, inputs, c) {
   if (!inputs.every(isFinalized))
     throw new Error(`PSBT must be finalized to calculate ${name}`);
@@ -1122,7 +1142,7 @@ function getTxCacheValue(key, name, inputs, c) {
   else if (key === '__FEE') return c.__FEE;
 }
 function getFinalScripts(inputIndex, input, script, isSegwit, isP2SH, isP2WSH) {
-  const scriptType = classifyScript(script);
+  const scriptType = classifyScript(script, SCRIPT_TYPE_DEPS);
   if (!canFinalize(input, script, scriptType))
     throw new Error(`Can not finalize input #${inputIndex}`);
   return prepareFinalScripts(
@@ -1223,6 +1243,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
     'input',
     input.redeemScript,
     input.witnessScript,
+    SCRIPT_TYPE_DEPS,
   );
   if (['p2sh-p2wsh', 'p2wsh'].indexOf(type) >= 0) {
     hash = unsignedTx.hashForWitnessV0(
@@ -1529,28 +1550,6 @@ function getSortedSigs(script, partialSig) {
     })
     .filter(v => !!v);
 }
-function scriptWitnessToWitnessStack(buffer) {
-  let offset = 0;
-  function readSlice(n) {
-    offset += n;
-    return buffer.slice(offset - n, offset);
-  }
-  function readVarInt() {
-    const vi = varuint.decode(buffer, offset);
-    offset += varuint.encodingLength(vi.bigintValue);
-    return vi.numberValue;
-  }
-  function readVarSlice() {
-    return readSlice(readVarInt());
-  }
-  function readVector() {
-    const count = readVarInt();
-    const vector = [];
-    for (let i = 0; i < count; i++) vector.push(readVarSlice());
-    return vector;
-  }
-  return readVector();
-}
 function sighashTypeToString(sighashType) {
   let text =
     sighashType & Transaction.SIGHASH_ANYONECANPAY
@@ -1661,6 +1660,7 @@ function pubkeyInInput(pubkey, input, inputIndex, cache) {
     'input',
     input.redeemScript,
     input.witnessScript,
+    SCRIPT_TYPE_DEPS,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
@@ -1672,6 +1672,7 @@ function pubkeyInOutput(pubkey, output, outputIndex, cache) {
     'output',
     output.redeemScript,
     output.witnessScript,
+    SCRIPT_TYPE_DEPS,
   );
   return pubkeyInScript(pubkey, meaningfulScript);
 }
@@ -1713,61 +1714,6 @@ function isPubkeyLike(buf) {
 }
 function isSigLike(buf) {
   return bscript.isCanonicalScriptSignature(buf);
-}
-function getMeaningfulScript(
-  script,
-  index,
-  ioType,
-  redeemScript,
-  witnessScript,
-) {
-  const isP2SH = isP2SHScript(script);
-  const isP2SHP2WSH = isP2SH && redeemScript && isP2WSHScript(redeemScript);
-  const isP2WSH = isP2WSHScript(script);
-  if (isP2SH && redeemScript === undefined)
-    throw new Error('scriptPubkey is P2SH but redeemScript missing');
-  if ((isP2WSH || isP2SHP2WSH) && witnessScript === undefined)
-    throw new Error(
-      'scriptPubkey or redeemScript is P2WSH but witnessScript missing',
-    );
-  let meaningfulScript;
-  if (isP2SHP2WSH) {
-    meaningfulScript = witnessScript;
-    checkRedeemScript(index, script, redeemScript, ioType);
-    checkWitnessScript(index, redeemScript, witnessScript, ioType);
-    checkInvalidP2WSH(meaningfulScript);
-  } else if (isP2WSH) {
-    meaningfulScript = witnessScript;
-    checkWitnessScript(index, script, witnessScript, ioType);
-    checkInvalidP2WSH(meaningfulScript);
-  } else if (isP2SH) {
-    meaningfulScript = redeemScript;
-    checkRedeemScript(index, script, redeemScript, ioType);
-  } else {
-    meaningfulScript = script;
-  }
-  return {
-    meaningfulScript,
-    type: isP2SHP2WSH
-      ? 'p2sh-p2wsh'
-      : isP2SH
-        ? 'p2sh'
-        : isP2WSH
-          ? 'p2wsh'
-          : 'raw',
-  };
-}
-function checkInvalidP2WSH(script) {
-  if (isP2WPKH(script) || isP2SHScript(script)) {
-    throw new Error('P2WPKH or P2SH can not be contained within P2WSH');
-  }
-}
-function classifyScript(script) {
-  if (isP2WPKH(script)) return 'witnesspubkeyhash';
-  if (isP2PKH(script)) return 'pubkeyhash';
-  if (isP2MS(script)) return 'multisig';
-  if (isP2PK(script)) return 'pubkey';
-  return 'nonstandard';
 }
 function range(n) {
   return [...Array(n).keys()];
