@@ -68,7 +68,7 @@ export function findScriptPath(node, hash) {
 /**
  * Calculates the tapleaf hash for a given Tapleaf object.
  * @param leaf - The Tapleaf object to calculate the hash for.
- * @returns The tapleaf hash as a Buffer.
+ * @returns The tapleaf hash as a Uint8Array.
  */
 export function tapleafHash(leaf) {
   const version = leaf.version || LEAF_VERSION_TAPSCRIPT;
@@ -124,7 +124,7 @@ function tapBranchHash(a, b) {
  * Serializes a script by encoding its length as a varint and concatenating it with the script.
  *
  * @param s - The script to be serialized.
- * @returns The serialized script as a Buffer.
+ * @returns The serialized script as a Uint8Array.
  */
 function serializeScript(s) {
   /* global BigInt */

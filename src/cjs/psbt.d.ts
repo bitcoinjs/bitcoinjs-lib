@@ -30,9 +30,9 @@ export type ValidateSigFunction = (pubkey: Uint8Array, msghash: Uint8Array, sign
  *   `psbt.addOutput(output)`, `psbt.addOutputs(outputs)` when you are looking to
  *   add new inputs and outputs to the PSBT, and `psbt.updateGlobal(itemObject)`,
  *   `psbt.updateInput(itemObject)`, `psbt.updateOutput(itemObject)`
- *   addInput requires hash: Buffer | string; and index: number; as attributes
+ *   addInput requires hash: Uint8Array | string; and index: number; as attributes
  *   and can also include any attributes that are used in updateInput method.
- *   addOutput requires script: Buffer; and value: number; and likewise can include
+ *   addOutput requires script: Uint8Array; and value: number; and likewise can include
  *   data for updateOutput.
  *   For a list of what attributes should be what types. Check the bip174 library.
  *   Also, check the integration tests for some examples of usage.
