@@ -33,7 +33,7 @@ export const isP2TR = isPaymentFactory(payments.p2tr);
 /**
  * Converts a witness stack to a script witness.
  * @param witness The witness stack to convert.
- * @returns The script witness as a Buffer.
+ * @returns The script witness as a Uint8Array.
  */
 export function witnessStackToScriptWitness(witness: Uint8Array[]): Uint8Array {
   let buffer = new Uint8Array(0);
