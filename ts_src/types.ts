@@ -10,9 +10,9 @@ export const NBufferSchemaFactory = (size: number) =>
   v.pipe(v.instance(Uint8Array), v.length(size));
 
 /**
- * Checks if two arrays of Buffers are equal.
- * @param a - The first array of Buffers.
- * @param b - The second array of Buffers.
+ * Checks if two arrays of Uint8Arrays are equal.
+ * @param a - The first array of Uint8Arrays.
+ * @param b - The second array of Uint8Arrays.
  * @returns True if the arrays are equal, false otherwise.
  */
 export function stacksEqual(a: Uint8Array[], b: Uint8Array[]): boolean {
