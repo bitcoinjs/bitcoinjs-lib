@@ -47,6 +47,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.initEccLib =
   exports.Transaction =
   exports.opcodes =
+  exports.PsbtV2 =
   exports.toXOnly =
   exports.Psbt =
   exports.Block =
@@ -84,6 +85,13 @@ Object.defineProperty(exports, 'toXOnly', {
   enumerable: true,
   get: function () {
     return psbt_js_1.toXOnly;
+  },
+});
+var psbtv2_js_1 = require('./psbtv2.cjs');
+Object.defineProperty(exports, 'PsbtV2', {
+  enumerable: true,
+  get: function () {
+    return psbtv2_js_1.PsbtV2;
   },
 });
 /** @hidden */

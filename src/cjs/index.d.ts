@@ -8,6 +8,7 @@ export { Block } from './block.js';
 /** @hidden */
 export { TaggedHashPrefix } from './crypto.js';
 export { Psbt, PsbtTxInput, PsbtTxOutput, Signer, SignerAsync, HDSigner, HDSignerAsync, toXOnly, } from './psbt.js';
+export { PsbtV2Opts, PsbtV2InputExtended, PsbtV2OutputExtended, PsbtV2, ValidateSigFunction, } from './psbtv2.js';
 /** @hidden */
 export { OPS as opcodes } from './ops.js';
 export { Transaction } from './transaction.js';

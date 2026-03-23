@@ -66,6 +66,7 @@
     "@noble/hashes": "^1.2.0",
     "bech32": "^2.0.0",
     "bip174": "^3.0.0",
+    "bip370": "github:jvgelder/bip370#0ca4383bd6fa17a979501339997a5e3407ea7b38",
     "bs58check": "^4.0.0",
     "uint8array-tools": "^0.0.9",
     "valibot": "^1.2.0",
