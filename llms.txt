@@ -1,0 +1,99 @@
+> bitcoinjs-lib
+# bitcoinjs-lib: JavaScript Bitcoin library
+
+> A JavaScript Bitcoin library for node.js and browsers.
+> Written in TypeScript with committed JS output files.
+> MIT License. 5,974 GitHub stars.
+
+## Overview
+
+bitcoinjs-lib is a pure JavaScript/TypeScript implementation of Bitcoin primitives for node.js and browsers. It provides low-level Bitcoin operations including transaction building, script construction, payment templates (P2PKH, P2SH, P2WPKH, P2WSH, P2TR), PSBT (BIP174/371), address encoding, and Merkle tree operations. It follows Bitcoin Core consensus and policy standards.
+
+## Architecture
+
+- Source is written in TypeScript (ts_src/)
+- TypeScript is transpiled to JavaScript (src/) which is committed to the repo
+- Dual package: ESM (tsconfig.json) + CJS (tsconfig.cjs.json)
+- Tests use Mocha with tsx loader (test/*.spec.ts)
+- Coverage thresholds: 85% branches, 90% functions, 90% lines
+
+## Key Source Files
+
+- ts_src/index.ts — Main entry point, exports all public API
+- ts_src/transaction.ts — Transaction class (build, sign, verify)
+- ts_src/script.ts — Bitcoin script assembly/decompilation
+- ts_src/payments/ — Payment template implementations (p2pkh, p2sh, p2wpkh, p2wsh, p2tr, p2ms, p2pk, embed, lazy, bip341)
+- ts_src/psbt.ts — PSBT v0/v2 (BIP174/BIP371) implementation
+- ts_src/psbt/ — PSBT utilities and BIP371 Taproot extensions
+- ts_src/address.ts — Address encoding/decoding (bech32, base58check)
+- ts_src/crypto.ts — Hash functions (SHA256, SHA512, HMAC) via @noble/hashes
+- ts_src/ecc_lib.ts — Elliptic curve interface (secp256k1)
+- ts_src/networks.ts — Bitcoin network definitions (mainnet, testnet, etc.)
+- ts_src/block.ts — Block Merkle root calculation
+- ts_src/merkle.ts — Merkle tree utilities
+- ts_src/bip66.ts — BIP66 DER signature encoding
+- ts_src/bufferutils.ts — Buffer/Uint8Array utility functions
+- ts_src/ops.ts — Opcode constants and buffer operations
+- ts_src/push_data.ts — Script push data operations
+- ts_src/script_number.ts — Script number encoding
+- ts_src/script_signature.ts — Script signature parsing
+
+## Key Dependencies
+
+- @noble/hashes — SHA256, SHA512, HMAC (no native deps)
+- bech32 — Bech32/Bech32m address encoding
+- bip174 — PSBT BIP174 interfaces
+- bs58check — Base58Check encoding
+- uint8array-tools — Uint8Array/Buffer utilities
+- valibot — Runtime type validation
+- varuint-bitcoin — Variable-length integer encoding
+
+## Build Commands
+
+- npm run build — Clean, compile TS→JS (ESM + CJS), format JS output
+- npm test — Build + format check + lint + coverage
+- npm run lint — ESLint on ts_src/ and src/
+- npm run format — Prettier on ts/ and test files
+- npm run unit — Build + unit tests
+- npm run integration — Build + integration tests (slow, 50s timeout)
+- npm run doc — Generate TypeDoc documentation
+
+## Code Style
+
+- Prettier: single quotes, trailing comma all, arrow parens avoid, tab width 2, end of line auto
+- ESLint: @typescript-eslint/recommended + prettier integration
+- TypeScript strict mode
+- All JS files are committed (transpiled output is verified)
+- Commits must be atomic with readable diffs
+- PRs should be focused: one feature, one bug fix, or one refactor
+
+## Contribution Guidelines
+
+- Fork and create a topic branch
+- Run npm run build then npm test before submitting
+- Both .ts source and compiled .js/.d.ts files must be committed together
+- Verify JS output matches TS changes (git diff)
+- Focused patchsets (one concern per PR)
+- Maintainers may request squash/rebase before merge
+- No CLA required
+- GitHub is preferred communication; Matrix (#bitcoinjs-dev:matrix.org) and IRC (#bitcoinjs on libera.chat) available
+
+## Bitcoin Policy Alignment
+
+- Creation operations follow Bitcoin Core IsStandard policy
+- Validation operations are consensus-bound only (non-standard data accepted)
+- ECDSA signatures follow LOW_S standard by default
+
+## Testing
+
+- Unit tests: test/*.spec.ts (Mocha + tsx)
+- Integration tests: test/integration/*.ts
+- Coverage: c8 with thresholds (branches 85%, functions 90%, lines 90%)
+- Fixtures: test/fixtures/
+
+## Important Notes
+
+- Only tagged releases are stable; master is the development branch
+- The library is designed for auditability — verify, don't trust
+- Browser and Node.js compatible (via Buffer polyfills)
+- No native dependencies — pure JavaScript
