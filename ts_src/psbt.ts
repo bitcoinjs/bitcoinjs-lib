@@ -14,13 +14,14 @@ import {
   TapKeySig,
   TapScriptSig,
   TapLeafScript,
+  TapBip32Derivation,
 } from 'bip174';
 import { checkForInput, checkForOutput } from 'bip174';
 import { fromOutputScript, toOutputScript } from './address.js';
 import { cloneBuffer, reverseBuffer } from './bufferutils.js';
 import { bitcoin as btcNetwork, Network } from './networks.js';
 import * as payments from './payments/index.js';
-import { tapleafHash } from './payments/bip341.js';
+import { tapleafHash, tapTweakHash } from './payments/bip341.js';
 import * as bscript from './script.js';
 import { Output, Transaction } from './transaction.js';
 import {
@@ -652,10 +653,7 @@ export class Psbt {
     return validationResultCount > 0;
   }
 
-  signAllInputsHD(
-    hdKeyPair: HDSigner,
-    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
-  ): this {
+  signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this {
     if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
       throw new Error('Need HDSigner to sign input');
     }
@@ -677,7 +675,7 @@ export class Psbt {
 
   signAllInputsHDAsync(
     hdKeyPair: HDSigner | HDSignerAsync,
-    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+    sighashTypes?: number[],
   ): Promise<void> {
     return new Promise((resolve, reject): any => {
       if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
@@ -710,7 +708,7 @@ export class Psbt {
   signInputHD(
     inputIndex: number,
     hdKeyPair: HDSigner,
-    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+    sighashTypes?: number[],
   ): this {
     if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
       throw new Error('Need HDSigner to sign input');
@@ -727,7 +725,7 @@ export class Psbt {
   signInputHDAsync(
     inputIndex: number,
     hdKeyPair: HDSigner | HDSignerAsync,
-    sighashTypes: number[] = [Transaction.SIGHASH_ALL],
+    sighashTypes?: number[],
   ): Promise<void> {
     return new Promise((resolve, reject): any => {
       if (!hdKeyPair || !hdKeyPair.publicKey || !hdKeyPair.fingerprint) {
@@ -1200,6 +1198,15 @@ export interface HDSigner extends HDSignerBase {
    * Return a 64 byte signature (32 byte r and 32 byte s in that order)
    */
   sign(hash: Uint8Array): Uint8Array;
+  /**
+   * Schnorr sign for taproot. Required for taproot HD signing.
+   */
+  signSchnorr?(hash: Uint8Array): Uint8Array;
+  /**
+   * Tweak the keypair for taproot key-path spending.
+   * Applies the tap tweak to derive the output key from the internal key.
+   */
+  tweak?(t: Uint8Array): Signer;
 }
 
 /**
@@ -1208,6 +1215,8 @@ export interface HDSigner extends HDSignerBase {
 export interface HDSignerAsync extends HDSignerBase {
   derivePath(path: string): HDSignerAsync;
   sign(hash: Uint8Array): Promise<Uint8Array>;
+  signSchnorr?(hash: Uint8Array): Promise<Uint8Array>;
+  tweak?(t: Uint8Array): Signer;
 }
 
 export interface Signer {
@@ -1984,28 +1993,66 @@ function getSignersFromHD(
   hdKeyPair: HDSigner | HDSignerAsync,
 ): Array<Signer | SignerAsync> {
   const input = checkForInput(inputs, inputIndex);
+  if (isTaprootInput(input)) {
+    return getTaprootSignersFromHD(input, hdKeyPair);
+  }
   if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
     throw new Error('Need bip32Derivation to sign with HD');
   }
-  const myDerivations = input.bip32Derivation
-    .map((bipDv: Bip32Derivation) => {
-      if (tools.compare(bipDv.masterFingerprint, hdKeyPair.fingerprint) === 0) {
-        return bipDv;
-      } else {
-        return;
-      }
-    })
-    .filter((v: Bip32Derivation | undefined) => !!v) as Bip32Derivation[];
+  const myDerivations = input.bip32Derivation.filter(
+    (bipDv: Bip32Derivation) =>
+      tools.compare(bipDv.masterFingerprint, hdKeyPair.fingerprint) === 0,
+  );
   if (myDerivations.length === 0) {
     throw new Error(
       'Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint',
     );
   }
   const signers: Array<Signer | SignerAsync> = myDerivations.map(bipDv => {
-    const node = hdKeyPair.derivePath(bipDv!.path);
-    if (tools.compare(bipDv!.pubkey, node.publicKey) !== 0) {
+    const node = hdKeyPair.derivePath(bipDv.path);
+    if (tools.compare(bipDv.pubkey, node.publicKey) !== 0) {
       throw new Error('pubkey did not match bip32Derivation');
     }
+    return node;
+  });
+  return signers;
+}
+
+function getTaprootSignersFromHD(
+  input: PsbtInput,
+  hdKeyPair: HDSigner | HDSignerAsync,
+): Array<Signer | SignerAsync> {
+  if (!input.tapBip32Derivation || input.tapBip32Derivation.length === 0) {
+    throw new Error('Need tapBip32Derivation to sign with HD');
+  }
+  const myDerivations = input.tapBip32Derivation.filter(
+    (bipDv: TapBip32Derivation) =>
+      tools.compare(bipDv.masterFingerprint, hdKeyPair.fingerprint) === 0,
+  );
+  if (myDerivations.length === 0) {
+    throw new Error(
+      'Need one tapBip32Derivation masterFingerprint to match the HDSigner fingerprint',
+    );
+  }
+  const signers: Array<Signer | SignerAsync> = myDerivations.map(bipDv => {
+    const node = hdKeyPair.derivePath(bipDv.path);
+    if (tools.compare(bipDv.pubkey, toXOnly(node.publicKey)) !== 0) {
+      throw new Error('pubkey did not match tapBip32Derivation');
+    }
+    // Key-path spend: leafHashes is empty, tweak the derived key
+    if (!bipDv.leafHashes || bipDv.leafHashes.length === 0) {
+      if (typeof node.tweak !== 'function') {
+        throw new Error(
+          'HDSigner must implement tweak method for Taproot key-path signing',
+        );
+      }
+      const tweakHash = tapTweakHash(
+        toXOnly(node.publicKey),
+        input.tapMerkleRoot,
+      );
+      return node.tweak(tweakHash);
+    }
+    // Script-path spend: return untweaked derived node
     return node;
   });
   return signers;

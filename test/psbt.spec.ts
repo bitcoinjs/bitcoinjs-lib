@@ -6,7 +6,10 @@ import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
 
 import { convertScriptTree } from './payments.utils.js';
-import { LEAF_VERSION_TAPSCRIPT } from 'bitcoinjs-lib/src/payments/bip341';
+import {
+  LEAF_VERSION_TAPSCRIPT,
+  tapleafHash,
+} from 'bitcoinjs-lib/src/payments/bip341';
 import { tapTreeToList, tapTreeFromList } from 'bitcoinjs-lib/src/psbt/bip371';
 import type { Taptree } from 'bitcoinjs-lib/src/types';
 import { initEccLib } from 'bitcoinjs-lib';
@@ -21,6 +24,7 @@ import {
   Psbt,
   networks as NETWORKS,
   payments,
+  script as bscript,
   Signer,
   SignerAsync,
 } from 'bitcoinjs-lib';
@@ -536,6 +540,219 @@ describe(`Psbt`, () => {
           }, new RegExp('Need HDSigner to sign input'));
         }
       });
+    });
+  });
+
+  describe('signInputHD - taproot', () => {
+    const toXOnly = (pubKey: Uint8Array): Uint8Array =>
+      pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
+
+    function keyPathPsbt(root: any, path: string) {
+      const child = root.derivePath(path);
+      const internalKey = toXOnly(child.publicKey);
+      const p2tr = payments.p2tr({ internalPubkey: internalKey });
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: Uint8Array.from(rng(32)),
+        index: 0,
+        witnessUtxo: { value: BigInt(100000), script: p2tr.output! },
+        tapInternalKey: internalKey,
+        tapBip32Derivation: [
+          {
+            masterFingerprint: Uint8Array.from(root.fingerprint),
+            pubkey: internalKey,
+            path,
+            leafHashes: [],
+          },
+        ],
+      });
+      psbt.addOutput({ value: BigInt(90000), script: p2tr.output! });
+      return { psbt, internalKey, p2tr };
+    }
+
+    it('can sign a taproot key-path input', () => {
+      initEccLib(ecc);
+      const root = bip32.fromSeed(new Uint8Array(64).fill(1));
+      const { psbt } = keyPathPsbt(root, "m/86'/0'/0'/0/0");
+
+      psbt.signInputHD(0, root);
+
+      assert.ok(psbt.data.inputs[0].tapKeySig);
+      assert.strictEqual(psbt.data.inputs[0].tapKeySig!.length, 64);
+    });
+
+    it('can sign a taproot key-path input with merkle root', () => {
+      initEccLib(ecc);
+      const root = bip32.fromSeed(new Uint8Array(64).fill(1));
+      const path = "m/86'/0'/0'/0/0";
+      const internalKey = toXOnly(root.derivePath(path).publicKey);
+
+      const scriptTree = {
+        output: bscript.fromASM(`${tools.toHex(internalKey)} OP_CHECKSIG`),
+        version: LEAF_VERSION_TAPSCRIPT,
+      };
+      const p2tr = payments.p2tr({ internalPubkey: internalKey, scriptTree });
+
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: Uint8Array.from(rng(32)),
+        index: 0,
+        witnessUtxo: { value: BigInt(100000), script: p2tr.output! },
+        tapInternalKey: internalKey,
+        tapMerkleRoot: p2tr.hash,
+        tapBip32Derivation: [
+          {
+            masterFingerprint: Uint8Array.from(root.fingerprint),
+            pubkey: internalKey,
+            path,
+            leafHashes: [],
+          },
+        ],
+      });
+      psbt.addOutput({ value: BigInt(90000), script: p2tr.output! });
+
+      psbt.signInputHD(0, root);
+
+      assert.ok(psbt.data.inputs[0].tapKeySig);
+      assert.strictEqual(psbt.data.inputs[0].tapKeySig!.length, 64);
+    });
+
+    it('can sign a taproot script-path input', () => {
+      initEccLib(ecc);
+      const root = bip32.fromSeed(new Uint8Array(64).fill(1));
+      const path = "m/86'/0'/0'/0/0";
+      const internalKey = toXOnly(root.derivePath(path).publicKey);
+
+      const leafScript = bscript.fromASM(
+        `${tools.toHex(internalKey)} OP_CHECKSIG`,
+      );
+      const scriptTree = {
+        output: leafScript,
+        version: LEAF_VERSION_TAPSCRIPT,
+      };
+      const p2tr = payments.p2tr({
+        internalPubkey: internalKey,
+        scriptTree,
+        redeem: { output: leafScript, redeemVersion: LEAF_VERSION_TAPSCRIPT },
+      });
+      const leafHash = tapleafHash({
+        output: leafScript,
+        version: LEAF_VERSION_TAPSCRIPT,
+      });
+
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: Uint8Array.from(rng(32)),
+        index: 0,
+        witnessUtxo: { value: BigInt(100000), script: p2tr.output! },
+        tapLeafScript: [
+          {
+            leafVersion: LEAF_VERSION_TAPSCRIPT,
+            script: leafScript,
+            controlBlock: p2tr.witness![p2tr.witness!.length - 1],
+          },
+        ],
+        tapBip32Derivation: [
+          {
+            masterFingerprint: Uint8Array.from(root.fingerprint),
+            pubkey: internalKey,
+            path,
+            leafHashes: [leafHash],
+          },
+        ],
+      });
+      psbt.addOutput({ value: BigInt(90000), script: p2tr.output! });
+
+      psbt.signInputHD(0, root);
+
+      assert.ok(psbt.data.inputs[0].tapScriptSig);
+      assert.strictEqual(psbt.data.inputs[0].tapScriptSig!.length, 1);
+      assert.ok(!psbt.data.inputs[0].tapKeySig);
+    });
+
+    it('can sign mixed taproot + legacy inputs with signAllInputsHD', () => {
+      initEccLib(ecc);
+      const root = bip32.fromSeed(new Uint8Array(64).fill(1));
+      const { psbt } = keyPathPsbt(root, "m/86'/0'/0'/0/0");
+
+      const wpkhChild = root.derivePath("m/84'/0'/0'/0/0");
+      const p2wpkh = payments.p2wpkh({ pubkey: wpkhChild.publicKey });
+      psbt.addInput({
+        hash: Uint8Array.from(rng(32)),
+        index: 0,
+        witnessUtxo: { value: BigInt(100000), script: p2wpkh.output! },
+        bip32Derivation: [
+          {
+            masterFingerprint: Uint8Array.from(root.fingerprint),
+            pubkey: Uint8Array.from(wpkhChild.publicKey),
+            path: "m/84'/0'/0'/0/0",
+          },
+        ],
+      });
+
+      psbt.signAllInputsHD(root);
+
+      assert.ok(psbt.data.inputs[0].tapKeySig);
+      assert.ok(psbt.data.inputs[1].partialSig);
+    });
+
+    it('throws when tapBip32Derivation is missing', () => {
+      initEccLib(ecc);
+      const root = bip32.fromSeed(new Uint8Array(64).fill(1));
+      const internalKey = toXOnly(root.derivePath("m/86'/0'/0'/0/0").publicKey);
+      const p2tr = payments.p2tr({ internalPubkey: internalKey });
+
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: Uint8Array.from(rng(32)),
+        index: 0,
+        witnessUtxo: { value: BigInt(100000), script: p2tr.output! },
+        tapInternalKey: internalKey,
+      });
+      psbt.addOutput({ value: BigInt(90000), script: p2tr.output! });
+
+      assert.throws(() => {
+        psbt.signInputHD(0, root);
+      }, /Need tapBip32Derivation to sign with HD/);
+    });
+
+    it('throws when fingerprint does not match', () => {
+      initEccLib(ecc);
+      const root = bip32.fromSeed(new Uint8Array(64).fill(1));
+      const otherRoot = bip32.fromSeed(new Uint8Array(64).fill(2));
+      const { psbt } = keyPathPsbt(root, "m/86'/0'/0'/0/0");
+
+      assert.throws(() => {
+        psbt.signInputHD(0, otherRoot);
+      }, /Need one tapBip32Derivation masterFingerprint to match the HDSigner fingerprint/);
+    });
+
+    it('throws when pubkey does not match derivation path', () => {
+      initEccLib(ecc);
+      const root = bip32.fromSeed(new Uint8Array(64).fill(1));
+      const internalKey = toXOnly(root.derivePath("m/86'/0'/0'/0/0").publicKey);
+      const p2tr = payments.p2tr({ internalPubkey: internalKey });
+
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: Uint8Array.from(rng(32)),
+        index: 0,
+        witnessUtxo: { value: BigInt(100000), script: p2tr.output! },
+        tapInternalKey: internalKey,
+        tapBip32Derivation: [
+          {
+            masterFingerprint: Uint8Array.from(root.fingerprint),
+            pubkey: internalKey,
+            path: "m/86'/0'/0'/0/1", // wrong path
+            leafHashes: [],
+          },
+        ],
+      });
+      psbt.addOutput({ value: BigInt(90000), script: p2tr.output! });
+
+      assert.throws(() => {
+        psbt.signInputHD(0, root);
+      }, /pubkey did not match tapBip32Derivation/);
     });
   });
 
