@@ -161,6 +161,15 @@ export interface HDSigner extends HDSignerBase {
      * Return a 64 byte signature (32 byte r and 32 byte s in that order)
      */
     sign(hash: Uint8Array): Uint8Array;
+    /**
+     * Schnorr sign for taproot. Required for taproot HD signing.
+     */
+    signSchnorr?(hash: Uint8Array): Uint8Array;
+    /**
+     * Tweak the keypair for taproot key-path spending.
+     * Applies the tap tweak to derive the output key from the internal key.
+     */
+    tweak?(t: Uint8Array): Signer;
 }
 /**
  * Same as above but with async sign method
@@ -168,6 +177,8 @@ export interface HDSigner extends HDSignerBase {
 export interface HDSignerAsync extends HDSignerBase {
     derivePath(path: string): HDSignerAsync;
     sign(hash: Uint8Array): Promise<Uint8Array>;
+    signSchnorr?(hash: Uint8Array): Promise<Uint8Array>;
+    tweak?(t: Uint8Array): Signer;
 }
 export interface Signer {
     publicKey: Uint8Array;
