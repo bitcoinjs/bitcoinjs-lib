@@ -47,7 +47,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
   function isAcceptableSignature(x: Uint8Array | number): boolean {
     return (
       bscript.isCanonicalScriptSignature(x as Uint8Array) ||
-      (opts!.allowIncomplete && (x as number) === OPS.OP_0) !== undefined
+      !!(opts!.allowIncomplete && (x as number) === OPS.OP_0)
     );
   }
 
