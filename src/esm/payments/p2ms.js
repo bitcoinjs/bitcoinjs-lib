@@ -43,7 +43,7 @@ export function p2ms(a, opts) {
   function isAcceptableSignature(x) {
     return (
       bscript.isCanonicalScriptSignature(x) ||
-      (opts.allowIncomplete && x === OPS.OP_0) !== undefined
+      !!(opts.allowIncomplete && x === OPS.OP_0)
     );
   }
   v.parse(

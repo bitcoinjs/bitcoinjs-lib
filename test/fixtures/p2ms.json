@@ -408,6 +408,17 @@
       }
     },
     {
+      "description": "Invalid signature rejected even with allowIncomplete",
+      "exception": "Input has invalid signature\\(s\\)",
+      "options": {
+        "allowIncomplete": true
+      },
+      "arguments": {
+        "output": "OP_1 030000000000000000000000000000000000000000000000000000000000000001 OP_1 OP_CHECKMULTISIG",
+        "input": "OP_0 ffffffffffffffff"
+      }
+    },
+    {
       "description": "n > 20 (2-of-21 multisig)",
       "exception": "Output is invalid",
       "arguments": {
