@@ -1098,6 +1098,19 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('validateSignaturesOfTaprootInput throws for unsigned taproot input', () => {
+    const f = fixtures.validateSignaturesOfTapKeyInput;
+    it('Throws when taproot input has no signatures', () => {
+      initEccLib(ecc);
+      const psbt = Psbt.fromBase64(f.psbt);
+      // Remove tapKeySig to simulate an unsigned taproot input
+      delete (psbt.data.inputs[f.index] as any).tapKeySig;
+      assert.throws(() => {
+        psbt.validateSignaturesOfInput(f.index, schnorrValidator);
+      }, new RegExp('No signatures to validate'));
+    });
+  });
+
   describe('validateSignaturesOfTapScriptInput', () => {
     const f = fixtures.validateSignaturesOfTapScriptInput;
     it('Correctly validates all signatures', () => {
