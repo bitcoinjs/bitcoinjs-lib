@@ -510,7 +510,7 @@ function isTapLeafInTree(
  *
  * @param input - The PsbtInput object.
  * @param tapLeaf - The TapLeafScript object.
- * @returns An array of sorted signatures as Buffers.
+ * @returns An array of sorted signatures as Uint8Array values.
  */
 function sortSignatures(
   input: PsbtInput,

@@ -56,7 +56,7 @@ export declare function toBase58Check(hash: Uint8Array, version: number): string
 export declare function toBech32(data: Uint8Array, version: number, prefix: string): string;
 /**
  * Converts an output script to a Bitcoin address.
- * @param output - The output script as a Buffer.
+ * @param output - The output script as a Uint8Array.
  * @param network - The Bitcoin network (optional).
  * @returns The Bitcoin address corresponding to the output script.
  * @throws If the output script has no matching address.
@@ -66,7 +66,7 @@ export declare function fromOutputScript(output: Uint8Array, network?: Network):
  * Converts a Bitcoin address to its corresponding output script.
  * @param address - The Bitcoin address to convert.
  * @param network - The Bitcoin network to use. Defaults to the Bitcoin network.
- * @returns The corresponding output script as a Buffer.
+ * @returns The corresponding output script as a Uint8Array.
  * @throws If the address has an invalid prefix or no matching script.
  */
 export declare function toOutputScript(address: string, network?: Network): Uint8Array;

@@ -47,9 +47,9 @@ export declare function decompile(buffer: Uint8Array | Array<number | Uint8Array
  */
 export declare function toASM(chunks: Uint8Array | Array<number | Uint8Array>): string;
 /**
- * Converts an ASM string to a Buffer.
+ * Converts an ASM string to a Uint8Array.
  * @param asm The ASM string to convert.
- * @returns The converted Buffer.
+ * @returns The converted Uint8Array.
  */
 export declare function fromASM(asm: string): Uint8Array;
 /**
