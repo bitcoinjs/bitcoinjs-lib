@@ -45,7 +45,7 @@ export declare function findScriptPath(node: HashTree, hash: Uint8Array): Uint8A
 /**
  * Calculates the tapleaf hash for a given Tapleaf object.
  * @param leaf - The Tapleaf object to calculate the hash for.
- * @returns The tapleaf hash as a Buffer.
+ * @returns The tapleaf hash as a Uint8Array.
  */
 export declare function tapleafHash(leaf: Tapleaf): Uint8Array;
 /**

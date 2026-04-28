@@ -177,7 +177,7 @@ function toBech32(data, version, prefix) {
 }
 /**
  * Converts an output script to a Bitcoin address.
- * @param output - The output script as a Buffer.
+ * @param output - The output script as a Uint8Array.
  * @param network - The Bitcoin network (optional).
  * @returns The Bitcoin address corresponding to the output script.
  * @throws If the output script has no matching address.
@@ -209,7 +209,7 @@ function fromOutputScript(output, network) {
  * Converts a Bitcoin address to its corresponding output script.
  * @param address - The Bitcoin address to convert.
  * @param network - The Bitcoin network to use. Defaults to the Bitcoin network.
- * @returns The corresponding output script as a Buffer.
+ * @returns The corresponding output script as a Uint8Array.
  * @throws If the address has an invalid prefix or no matching script.
  */
 function toOutputScript(address, network) {
