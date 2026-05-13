@@ -127,7 +127,6 @@ function tapBranchHash(a, b) {
  * @returns The serialized script as a Buffer.
  */
 function serializeScript(s) {
-  /* global BigInt */
   const varintLen = varuint.encodingLength(s.length);
   const buffer = new Uint8Array(varintLen);
   varuint.encode(s.length, buffer);

@@ -1,0 +1,30 @@
+diff --git a/node_modules/bip174/src/cjs/lib/parser/toBuffer.cjs b/node_modules/bip174/src/cjs/lib/parser/toBuffer.cjs
+index c9e9192..8eeec34 100644
+--- a/node_modules/bip174/src/cjs/lib/parser/toBuffer.cjs
++++ b/node_modules/bip174/src/cjs/lib/parser/toBuffer.cjs
+@@ -22,9 +22,7 @@ function psbtToBuffer({ globalMap, inputs, outputs }) {
+   });
+   const globalBuffer = tools_js_1.keyValsToBuffer(globalKeyVals);
+   const keyValsOrEmptyToBuffer = keyVals =>
+-    keyVals.length === 0
+-      ? [Uint8Array.from([0])]
+-      : keyVals.map(tools_js_1.keyValsToBuffer);
++    keyVals.length === 0 ? [] : keyVals.map(tools_js_1.keyValsToBuffer);
+   const inputBuffers = keyValsOrEmptyToBuffer(inputKeyVals);
+   const outputBuffers = keyValsOrEmptyToBuffer(outputKeyVals);
+   const header = new Uint8Array(5);
+diff --git a/node_modules/bip174/src/esm/lib/parser/toBuffer.js b/node_modules/bip174/src/esm/lib/parser/toBuffer.js
+index 054c654..2797eac 100644
+--- a/node_modules/bip174/src/esm/lib/parser/toBuffer.js
++++ b/node_modules/bip174/src/esm/lib/parser/toBuffer.js
+@@ -9,9 +9,7 @@ export function psbtToBuffer({ globalMap, inputs, outputs }) {
+   });
+   const globalBuffer = keyValsToBuffer(globalKeyVals);
+   const keyValsOrEmptyToBuffer = keyVals =>
+-    keyVals.length === 0
+-      ? [Uint8Array.from([0])]
+-      : keyVals.map(keyValsToBuffer);
++    keyVals.length === 0 ? [] : keyVals.map(keyValsToBuffer);
+   const inputBuffers = keyValsOrEmptyToBuffer(inputKeyVals);
+   const outputBuffers = keyValsOrEmptyToBuffer(outputKeyVals);
+   const header = new Uint8Array(5);

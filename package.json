@@ -29,6 +29,7 @@
     "bitcoinjs"
   ],
   "scripts": {
+    "postinstall": "patch-package",
     "audit": "better-npm-audit audit -l high",
     "build": "npm run clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && npm run formatjs",
     "postbuild": "find src/cjs -type f -name \"*.js\" -exec bash -c 'mv \"$0\" \"${0%.js}.cjs\"' {} \\; && chmod +x ./fixup.cjs && node fixup.cjs",
@@ -72,7 +73,6 @@
     "varuint-bitcoin": "^2.0.0"
   },
   "devDependencies": {
-    "bitcoinjs-lib": ".",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.1",
     "@types/bs58": "^4.0.0",
@@ -88,7 +88,9 @@
     "bip39": "^3.1.0",
     "bip65": "^1.0.1",
     "bip68": "^1.0.3",
+    "bitcoinjs-lib": ".",
     "bs58": "^6.0.0",
+    "c8": "^10.1.2",
     "dhttp": "^3.0.0",
     "ecpair": "^3.0.0-rc.0",
     "eslint": "^9.9.0",
@@ -98,7 +100,7 @@
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^10.6.0",
-    "c8": "^10.1.2",
+    "patch-package": "^8.0.1",
     "prettier": "^3.0.0",
     "proxyquire": "^2.0.1",
     "randombytes": "^2.1.0",
