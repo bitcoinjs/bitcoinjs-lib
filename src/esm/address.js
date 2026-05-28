@@ -2,10 +2,11 @@ import * as networks from './networks.js';
 import * as payments from './payments/index.js';
 import * as bscript from './script.js';
 import { Hash160bitSchema, UInt8Schema } from './types.js';
-import { bech32, bech32m } from 'bech32';
-import bs58check from 'bs58check';
+import { sha256 } from '@noble/hashes/sha256';
+import { bech32, bech32m, createBase58check } from '@scure/base';
 import * as tools from 'uint8array-tools';
 import * as v from 'valibot';
+const bs58check = createBase58check(sha256);
 const FUTURE_SEGWIT_MAX_SIZE = 40;
 const FUTURE_SEGWIT_MIN_SIZE = 2;
 const FUTURE_SEGWIT_MAX_VERSION = 16;
@@ -70,6 +71,9 @@ export function fromBase58Check(address) {
 export function fromBech32(address) {
   let result;
   let version;
+  if (address !== address.toLowerCase() && address !== address.toUpperCase()) {
+    throw new Error('Mixed-case string');
+  }
   try {
     result = bech32.decode(address);
   } catch (e) {}

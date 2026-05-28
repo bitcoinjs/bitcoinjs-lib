@@ -3,7 +3,7 @@ import { bitcoin as BITCOIN_NETWORK } from '../networks.js';
 import * as bscript from '../script.js';
 import { BufferSchema, isPoint, NBufferSchemaFactory } from '../types.js';
 import * as lazy from './lazy.js';
-import { bech32 } from 'bech32';
+import { bech32 } from '@scure/base';
 import * as tools from 'uint8array-tools';
 import * as v from 'valibot';
 const OPS = bscript.OPS;

@@ -43,11 +43,6 @@ var __importStar =
     __setModuleDefault(result, mod);
     return result;
   };
-var __importDefault =
-  (this && this.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : { default: mod };
-  };
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.p2pkh = p2pkh;
 const bcrypto = __importStar(require('../crypto.cjs'));
@@ -55,10 +50,12 @@ const networks_js_1 = require('../networks.cjs');
 const bscript = __importStar(require('../script.cjs'));
 const types_js_1 = require('../types.cjs');
 const lazy = __importStar(require('./lazy.cjs'));
-const bs58check_1 = __importDefault(require('bs58check'));
+const sha256_1 = require('@noble/hashes/sha256');
+const base_1 = require('@scure/base');
 const tools = __importStar(require('uint8array-tools'));
 const v = __importStar(require('valibot'));
 const OPS = bscript.OPS;
+const bs58check = (0, base_1.createBase58check)(sha256_1.sha256);
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
 /**
@@ -88,7 +85,7 @@ function p2pkh(a, opts) {
     a,
   );
   const _address = lazy.value(() => {
-    const payload = bs58check_1.default.decode(a.address);
+    const payload = bs58check.decode(a.address);
     const version = tools.readUInt8(payload, 0);
     const hash = payload.slice(1);
     return { version, hash };
@@ -103,7 +100,7 @@ function p2pkh(a, opts) {
     const payload = new Uint8Array(21);
     tools.writeUInt8(payload, 0, network.pubKeyHash);
     payload.set(o.hash, 1);
-    return bs58check_1.default.encode(payload);
+    return bs58check.encode(payload);
   });
   lazy.prop(o, 'hash', () => {
     if (a.output) return a.output.slice(3, 23);

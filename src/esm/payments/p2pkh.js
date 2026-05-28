@@ -8,10 +8,12 @@ import {
   BufferSchema,
 } from '../types.js';
 import * as lazy from './lazy.js';
-import bs58check from 'bs58check';
+import { sha256 } from '@noble/hashes/sha256';
+import { createBase58check } from '@scure/base';
 import * as tools from 'uint8array-tools';
 import * as v from 'valibot';
 const OPS = bscript.OPS;
+const bs58check = createBase58check(sha256);
 // input: {signature} {pubkey}
 // output: OP_DUP OP_HASH160 {hash160(pubkey)} OP_EQUALVERIFY OP_CHECKSIG
 /**

@@ -50,7 +50,7 @@ const networks_js_1 = require('../networks.cjs');
 const bscript = __importStar(require('../script.cjs'));
 const types_js_1 = require('../types.cjs');
 const lazy = __importStar(require('./lazy.cjs'));
-const bech32_1 = require('bech32');
+const base_1 = require('@scure/base');
 const tools = __importStar(require('uint8array-tools'));
 const v = __importStar(require('valibot'));
 const OPS = bscript.OPS;
@@ -86,9 +86,9 @@ function p2wpkh(a, opts) {
     a,
   );
   const _address = lazy.value(() => {
-    const result = bech32_1.bech32.decode(a.address);
+    const result = base_1.bech32.decode(a.address);
     const version = result.words.shift();
-    const data = bech32_1.bech32.fromWords(result.words);
+    const data = base_1.bech32.fromWords(result.words);
     return {
       version,
       prefix: result.prefix,
@@ -99,9 +99,9 @@ function p2wpkh(a, opts) {
   const o = { name: 'p2wpkh', network };
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
-    const words = bech32_1.bech32.toWords(o.hash);
+    const words = base_1.bech32.toWords(o.hash);
     words.unshift(0x00);
-    return bech32_1.bech32.encode(network.bech32, words);
+    return base_1.bech32.encode(network.bech32, words);
   });
   lazy.prop(o, 'hash', () => {
     if (a.output) return a.output.slice(2, 22);
