@@ -51,7 +51,7 @@ const types_js_1 = require('../types.cjs');
 const ecc_lib_js_1 = require('../ecc_lib.cjs');
 const bip341_js_1 = require('./bip341.cjs');
 const lazy = __importStar(require('./lazy.cjs'));
-const bech32_1 = require('bech32');
+const base_1 = require('@scure/base');
 const address_js_1 = require('../address.cjs');
 const tools = __importStar(require('uint8array-tools'));
 const v = __importStar(require('valibot'));
@@ -130,9 +130,9 @@ function p2tr(a, opts) {
   const o = { name: 'p2tr', network };
   lazy.prop(o, 'address', () => {
     if (!o.pubkey) return;
-    const words = bech32_1.bech32m.toWords(o.pubkey);
+    const words = base_1.bech32m.toWords(o.pubkey);
     words.unshift(TAPROOT_WITNESS_VERSION);
-    return bech32_1.bech32m.encode(network.bech32, words);
+    return base_1.bech32m.encode(network.bech32, words);
   });
   lazy.prop(o, 'hash', () => {
     const hashTree = _hashTree();

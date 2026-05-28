@@ -43,11 +43,6 @@ var __importStar =
     __setModuleDefault(result, mod);
     return result;
   };
-var __importDefault =
-  (this && this.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : { default: mod };
-  };
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.fromBase58Check = fromBase58Check;
 exports.fromBech32 = fromBech32;
@@ -59,10 +54,11 @@ const networks = __importStar(require('./networks.cjs'));
 const payments = __importStar(require('./payments/index.cjs'));
 const bscript = __importStar(require('./script.cjs'));
 const types_js_1 = require('./types.cjs');
-const bech32_1 = require('bech32');
-const bs58check_1 = __importDefault(require('bs58check'));
+const sha256_1 = require('@noble/hashes/sha256');
+const base_1 = require('@scure/base');
 const tools = __importStar(require('uint8array-tools'));
 const v = __importStar(require('valibot'));
+const bs58check = (0, base_1.createBase58check)(sha256_1.sha256);
 const FUTURE_SEGWIT_MAX_SIZE = 40;
 const FUTURE_SEGWIT_MIN_SIZE = 2;
 const FUTURE_SEGWIT_MAX_VERSION = 16;
@@ -110,7 +106,7 @@ function _toFutureSegwitAddress(output, network) {
  * @throws {TypeError} If the address is too short or too long.
  */
 function fromBase58Check(address) {
-  const payload = bs58check_1.default.decode(address);
+  const payload = bs58check.decode(address);
   // TODO: 4.0.0, move to "toOutputScript"
   if (payload.length < 21) throw new TypeError(address + ' is too short');
   if (payload.length > 21) throw new TypeError(address + ' is too long');
@@ -127,18 +123,21 @@ function fromBase58Check(address) {
 function fromBech32(address) {
   let result;
   let version;
+  if (address !== address.toLowerCase() && address !== address.toUpperCase()) {
+    throw new Error('Mixed-case string');
+  }
   try {
-    result = bech32_1.bech32.decode(address);
+    result = base_1.bech32.decode(address);
   } catch (e) {}
   if (result) {
     version = result.words[0];
     if (version !== 0) throw new TypeError(address + ' uses wrong encoding');
   } else {
-    result = bech32_1.bech32m.decode(address);
+    result = base_1.bech32m.decode(address);
     version = result.words[0];
     if (version === 0) throw new TypeError(address + ' uses wrong encoding');
   }
-  const data = bech32_1.bech32.fromWords(result.words.slice(1));
+  const data = base_1.bech32.fromWords(result.words.slice(1));
   return {
     version,
     prefix: result.prefix,
@@ -159,7 +158,7 @@ function toBase58Check(hash, version) {
   const payload = new Uint8Array(21);
   tools.writeUInt8(payload, 0, version);
   payload.set(hash, 1);
-  return bs58check_1.default.encode(payload);
+  return bs58check.encode(payload);
 }
 /**
  * Converts a buffer to a Bech32 or Bech32m encoded string.
@@ -169,11 +168,11 @@ function toBase58Check(hash, version) {
  * @returns The Bech32 or Bech32m encoded string.
  */
 function toBech32(data, version, prefix) {
-  const words = bech32_1.bech32.toWords(data);
+  const words = base_1.bech32.toWords(data);
   words.unshift(version);
   return version === 0
-    ? bech32_1.bech32.encode(prefix, words)
-    : bech32_1.bech32m.encode(prefix, words);
+    ? base_1.bech32.encode(prefix, words)
+    : base_1.bech32m.encode(prefix, words);
 }
 /**
  * Converts an output script to a Bitcoin address.

@@ -18,7 +18,7 @@ import {
 } from './bip341.js';
 import { Payment, PaymentOpts } from './index.js';
 import * as lazy from './lazy.js';
-import { bech32m } from 'bech32';
+import { bech32m } from '@scure/base';
 import { fromBech32 } from '../address.js';
 import * as tools from 'uint8array-tools';
 import * as v from 'valibot';
