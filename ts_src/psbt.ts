@@ -2126,13 +2126,22 @@ function inputFinalizeGetAmts(
         input.finalScriptWitness,
       );
     }
-    if (input.witnessUtxo) {
-      inputAmount += input.witnessUtxo.value;
-    } else if (input.nonWitnessUtxo) {
+    if (input.nonWitnessUtxo) {
       const nwTx = nonWitnessUtxoTxFromCache(cache, input, idx);
       const vout = tx.ins[idx].index;
       const out = nwTx.outs[vout] as Output;
+      if (input.witnessUtxo) {
+        const scriptMatches =
+          tools.compare(input.witnessUtxo.script, out.script) === 0;
+        if (!scriptMatches || input.witnessUtxo.value !== out.value) {
+          throw new Error(
+            `Input #${idx} has mismatched witnessUtxo and nonWitnessUtxo`,
+          );
+        }
+      }
       inputAmount += out.value;
+    } else if (input.witnessUtxo) {
+      inputAmount += input.witnessUtxo.value;
     }
   });
   const outputAmount = (tx.outs as Output[]).reduce(
