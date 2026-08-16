@@ -19,6 +19,7 @@ const ECPair = ECPairFactory(ecc);
 
 import {
   Psbt,
+  Transaction,
   networks as NETWORKS,
   payments,
   Signer,
@@ -547,6 +548,24 @@ describe(`Psbt`, () => {
       psbt.finalizeTaprootInput(f.index, Buffer.from(f.leafHash, 'hex'));
 
       assert.strictEqual(psbt.toBase64(), f.result);
+    });
+    it(`fails if a mismatched non-witness UTXO is added to a taproot input`, () => {
+      const f = fixtures.finalizeInput.finalizeTapleafByHash;
+      const psbt = Psbt.fromBase64(f.psbt);
+      const bogusTx = new Transaction();
+      bogusTx.addInput(Buffer.alloc(32), 0xffffffff);
+      bogusTx.addOutput(Buffer.from([0x51]), 1n);
+
+      psbt.updateInput(f.index, { nonWitnessUtxo: bogusTx.toBuffer() });
+
+      assert.throws(
+        () => {
+          psbt.finalizeTaprootInput(f.index, Buffer.from(f.leafHash, 'hex'));
+        },
+        new RegExp(
+          `Non-witness UTXO hash for input #${f.index} doesn't match the hash specified in the prevout`,
+        ),
+      );
     });
 
     it(`fails if tapleaf hash not found`, () => {
@@ -1313,6 +1332,123 @@ describe(`Psbt`, () => {
           value!,
         ) === 0,
       );
+    });
+  });
+
+  describe('Input UTXO consistency', () => {
+    const signer = ECPair.makeRandom({ rng });
+    const script = payments.p2wpkh({ pubkey: signer.publicKey }).output!;
+    const makePrevTx = (outputScript = script, value = 1000n): Transaction => {
+      const prevTx = new Transaction();
+      prevTx.addInput(Buffer.alloc(32), 0xffffffff);
+      prevTx.addOutput(outputScript, value);
+      return prevTx;
+    };
+    const prevTx = makePrevTx();
+
+    const makePsbt = (witnessScript = script, witnessValue = 1000n): Psbt => {
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: prevTx.getHash(),
+        index: 0,
+        nonWitnessUtxo: prevTx.toBuffer(),
+        witnessUtxo: {
+          script: witnessScript,
+          value: witnessValue,
+        },
+      });
+      psbt.addOutput({ script, value: 500n });
+      return psbt;
+    };
+
+    it('rejects a mismatched witness UTXO value before signing', () => {
+      const psbt = makePsbt(script, 2000n);
+
+      assert.throws(() => {
+        psbt.signInput(0, signer);
+      }, /Input #0 has mismatched witnessUtxo and nonWitnessUtxo/);
+    });
+
+    it('rejects a mismatched witness UTXO script before signing', () => {
+      const mismatchedScript = Uint8Array.from(script);
+      mismatchedScript[0] ^= 1;
+      const psbt = makePsbt(mismatchedScript);
+
+      assert.throws(() => {
+        psbt.signInput(0, signer);
+      }, /Input #0 has mismatched witnessUtxo and nonWitnessUtxo/);
+    });
+
+    it('rejects a mismatched non-witness UTXO before finalizing', () => {
+      const otherPrevTx = makePrevTx(script, 2000n);
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: prevTx.getHash(),
+        index: 0,
+        witnessUtxo: {
+          script,
+          value: 1000n,
+        },
+      });
+      psbt.addOutput({ script, value: 500n });
+      psbt.signInput(0, signer);
+      psbt.updateInput(0, { nonWitnessUtxo: otherPrevTx.toBuffer() });
+
+      assert.throws(() => {
+        psbt.finalizeAllInputs();
+      }, /Non-witness UTXO hash for input #0 doesn't match the hash specified in the prevout/);
+    });
+    it('rejects a mismatched non-witness UTXO before finalizing a redeemScript input', () => {
+      const nested = payments.p2sh({
+        redeem: payments.p2wpkh({ pubkey: signer.publicKey }),
+      });
+      const nestedPrevTx = makePrevTx(nested.output!, 1000n);
+      const otherPrevTx = makePrevTx(nested.output!, 2000n);
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: nestedPrevTx.getHash(),
+        index: 0,
+        redeemScript: nested.redeem!.output!,
+        witnessUtxo: {
+          script: nested.output!,
+          value: 1000n,
+        },
+      });
+      psbt.addOutput({ script, value: 500n });
+      psbt.signInput(0, signer);
+      psbt.updateInput(0, { nonWitnessUtxo: otherPrevTx.toBuffer() });
+
+      assert.throws(() => {
+        psbt.finalizeAllInputs();
+      }, /Non-witness UTXO hash for input #0 doesn't match the hash specified in the prevout/);
+    });
+
+    it('rejects a non-witness UTXO without the referenced output', () => {
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: prevTx.getHash(),
+        index: 1,
+        nonWitnessUtxo: prevTx.toBuffer(),
+        witnessUtxo: {
+          script,
+          value: 1000n,
+        },
+      });
+      psbt.addOutput({ script, value: 500n });
+
+      assert.throws(() => {
+        psbt.signInput(0, signer);
+      }, /Non-witness UTXO for input #0 is missing the prevout output/);
+    });
+
+    it('rejects a mismatch before calculating a finalized fee', () => {
+      const psbt = makePsbt();
+      psbt.signInput(0, signer).finalizeAllInputs();
+      psbt.data.inputs[0].witnessUtxo!.value = 2000n;
+
+      assert.throws(() => {
+        psbt.getFee();
+      }, /Input #0 has mismatched witnessUtxo and nonWitnessUtxo/);
     });
   });
 
