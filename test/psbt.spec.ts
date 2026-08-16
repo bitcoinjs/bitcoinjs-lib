@@ -19,6 +19,7 @@ const ECPair = ECPairFactory(ecc);
 
 import {
   Psbt,
+  Transaction,
   networks as NETWORKS,
   payments,
   Signer,
@@ -1209,6 +1210,34 @@ describe(`Psbt`, () => {
       assert.strictEqual(psbt.getFeeRate(), f.fee);
       (psbt as any).__CACHE.__FEE_RATE = undefined;
       assert.strictEqual(psbt.getFeeRate(), f.fee);
+    });
+    it('throws if witness and non-witness UTXOs disagree', () => {
+      const signer = ECPair.makeRandom({ rng });
+      const prevTx = new Transaction();
+      prevTx.addInput(Buffer.alloc(32), 0xffffffff);
+
+      const script = payments.p2wpkh({ pubkey: signer.publicKey }).output!;
+      prevTx.addOutput(script, 1000n);
+
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: prevTx.getHash(),
+        index: 0,
+        nonWitnessUtxo: prevTx.toBuffer(),
+        witnessUtxo: {
+          script,
+          value: 600n,
+        },
+      });
+      psbt.addOutput({ script, value: 500n });
+      psbt.signInput(0, signer).finalizeAllInputs();
+
+      assert.throws(() => {
+        psbt.getFee();
+      }, /Input #0 has mismatched witnessUtxo and nonWitnessUtxo/);
+      assert.throws(() => {
+        psbt.getFeeRate();
+      }, /Input #0 has mismatched witnessUtxo and nonWitnessUtxo/);
     });
   });
 
