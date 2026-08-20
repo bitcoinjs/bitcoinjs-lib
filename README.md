@@ -113,6 +113,66 @@ When utilizing Taproot features with bitcoinjs-lib, you may need to include an a
    Another alternative library for ECC functionality. This requires access to the global `BigInt` primitive.
 For advantages and detailed comparison of these libraries, visit: [tiny-secp256k1 GitHub page](https://github.com/bitcoinjs/tiny-secp256k1).
 
+#### Signing a tapscript path without the script
+
+`signInput` derives the BIP341 tapleaf hash from the leaf script on the input.
+`generateTaprootScriptHashSignature` takes that hash directly instead, returning
+the same signature without the script ever being present. Unlike the `sign*`
+methods it stores nothing - it hands the signature back to you:
+
+```javascript
+const { generateTaprootScriptHashSignature } = require('bitcoinjs-lib');
+
+const signature = generateTaprootScriptHashSignature(psbt, 0, keyPair, leafScriptHash);
+```
+
+The whole `psbt` is required rather than just the input being signed: the BIP341
+sighash commits to every prevout, and depending on the sighash type to the
+outputs too, so the PSBT must already hold its inputs and outputs. The same thing
+is available as `psbt.generateTaprootScriptHashSignature(0, keyPair, leafScriptHash)`.
+
+`leafScriptHash` is the tapleaf hash - exactly what `tapleafHash({ output:
+script, version: leafVersion })` from `bitcoinjs-lib/src/payments/bip341`
+returns - not a plain hash of the script bytes. The leaf version is already
+committed to inside it, and the control block plays no part in the signature, so
+neither is passed here.
+
+The PSBT is **not** modified. To attach the signature, put it in a
+`tapScriptSig` - a standard field carrying only the pubkey, the signature and the
+leaf hash, so it needs no script and serializes normally:
+
+```javascript
+psbt.updateInput(0, {
+  tapScriptSig: [{ pubkey: toXOnly(keyPair.publicKey), signature, leafHash: leafScriptHash }],
+});
+```
+
+Sighash type comes from the input, defaulting to `SIGHASH_DEFAULT`. Anything else
+must be set on the input *and* whitelisted in the call:
+
+```javascript
+psbt.updateInput(0, { sighashType: Transaction.SIGHASH_ALL });
+const signature = generateTaprootScriptHashSignature(psbt, 0, keyPair, leafScriptHash, [
+  Transaction.SIGHASH_ALL,
+]);
+```
+
+**WARNING**: this is a blind signature. Nothing can check that your pubkey appears
+in the leaf, that the leaf belongs to the taptree being spent, or what the script
+authorises - every guard the normal `signInput` path relies on comes from reading
+the script. Only use this when the leaf is authenticated by some other means.
+
+Two consequences follow from the script being absent. `validateSignaturesOfInput`
+cannot check the signature, and `finalizeInput` cannot build the witness. Both
+work again once the script is supplied:
+
+```javascript
+psbt.updateInput(0, {
+  tapLeafScript: [{ leafVersion: LEAF_VERSION_TAPSCRIPT, script, controlBlock }],
+});
+psbt.finalizeInput(0);
+```
+
 **NOTE**: We use Node Maintenance LTS features, if you need strict ES5, use [`--transform babelify`](https://github.com/babel/babelify) in conjunction with your `browserify` step (using an [`es2015`](https://babeljs.io/docs/plugins/preset-es2015/) preset).
 
 **WARNING**: iOS devices have [problems](https://github.com/feross/buffer/issues/136), use at least [buffer@5.0.5](https://github.com/feross/buffer/pull/155) or greater,  and enforce the test suites (for `Buffer`, and any other dependency) pass before use.
