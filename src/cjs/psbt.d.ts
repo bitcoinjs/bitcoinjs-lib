@@ -107,6 +107,47 @@ export declare class Psbt {
     signAllInputsAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
     signTaprootInput(inputIndex: number, keyPair: Signer, tapLeafHashToSign?: Uint8Array, sighashTypes?: number[]): this;
+    /**
+     * Generates a taproot script-path signature for a leaf whose script is not
+     * known, given only that leaf's BIP341 tapleaf hash. The signature is
+     * returned; nothing is written to this PSBT.
+     *
+     * `scriptHash` is the tapleaf hash, i.e.
+     * `taggedHash('TapLeaf', leafVersion || compactSize(script) || script)` - the
+     * exact value `tapleafHash({ output: script, version: leafVersion })` returns,
+     * and the value the BIP341 script-path sighash commits to. It is NOT a plain
+     * hash of the script bytes. The leaf version is already committed to inside
+     * it, and the control block plays no part in the signature, so neither is
+     * needed here.
+     *
+     * The signature is returned rather than written to the PSBT. To attach it,
+     * put it in a `tapScriptSig` - a field that carries only the pubkey, the
+     * signature and the leaf hash, so no script is needed:
+     *
+     * ```
+     * psbt.updateInput(inputIndex, {
+     *   tapScriptSig: [{
+     *     pubkey: toXOnly(keyPair.publicKey),
+     *     signature,
+     *     leafHash: scriptHash,
+     *   }],
+     * });
+     * ```
+     *
+     * WARNING: this is a blind signature. Nothing here can check that your pubkey
+     * appears in the leaf, that the leaf belongs to the taptree being spent, or
+     * what the script authorises. Every guard the normal `signInput` path relies
+     * on comes from reading the script. Only use this when the leaf is
+     * authenticated by some other means.
+     *
+     * @param inputIndex the position of the PSBT input.
+     * @param keyPair the Schnorr signer.
+     * @param scriptHash the BIP341 tapleaf hash of the leaf being spent.
+     * @param sighashTypes whitelist of allowed sighash types.
+     * @returns the taproot signature, with the sighash byte appended unless the
+     * sighash type is SIGHASH_DEFAULT.
+     */
+    generateTaprootScriptHashSignature(inputIndex: number, keyPair: Signer, scriptHash: Uint8Array, sighashTypes?: number[]): Uint8Array;
     private _signInput;
     private _signTaprootInput;
     signInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
@@ -125,6 +166,35 @@ export declare class Psbt {
     addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;
     clearFinalizedInput(inputIndex: number): this;
 }
+/**
+ * Generates a taproot script-path signature for a leaf whose script is not
+ * known, given only that leaf's BIP341 tapleaf hash. The signature is returned;
+ * the PSBT is not modified.
+ *
+ * The whole `psbt` is required, not just the input being signed: the BIP341
+ * sighash commits to every prevout, and - depending on the sighash type - to the
+ * outputs as well. So the PSBT must already hold its inputs and outputs.
+ *
+ * `scriptHash` is the tapleaf hash, i.e.
+ * `taggedHash('TapLeaf', leafVersion || compactSize(script) || script)`. The
+ * leaf version is already committed to inside it, and the control block plays no
+ * part in the signature, so neither is passed here.
+ *
+ * WARNING: this is a blind signature. Nothing here can check that your pubkey
+ * appears in the leaf, that the leaf belongs to the taptree being spent, or what
+ * the script authorises. Every guard the normal signing path relies on comes
+ * from reading the script. Only use this when the leaf is authenticated by some
+ * other means.
+ *
+ * @param psbt the PSBT, with its inputs and outputs already added.
+ * @param inputIndex the position of the input to sign.
+ * @param keyPair the Schnorr signer.
+ * @param scriptHash the BIP341 tapleaf hash of the leaf being spent.
+ * @param sighashTypes whitelist of allowed sighash types.
+ * @returns the taproot signature. The PSBT is not modified; attach it yourself
+ * with `updateInput(inputIndex, { tapScriptSig: [...] })` if you want it there.
+ */
+export declare function generateTaprootScriptHashSignature(psbt: Psbt, inputIndex: number, keyPair: Signer, scriptHash: Uint8Array, sighashTypes?: number[]): Uint8Array;
 interface PsbtOptsOptional {
     network?: Network;
     maximumFeeRate?: number;
