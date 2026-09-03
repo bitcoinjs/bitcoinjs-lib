@@ -72,6 +72,7 @@ export class Block {
   static calculateMerkleRoot(
     transactions: Transaction[],
     forWitness?: boolean,
+    mutated?: { value: boolean },
   ): Buffer {
     typeforce([{ getHash: types.Function }], transactions);
     if (transactions.length === 0) throw errorMerkleNoTxes;
@@ -82,7 +83,7 @@ export class Block {
       transaction.getHash(forWitness!),
     );
 
-    const rootHash = fastMerkleRoot(hashes, bcrypto.hash256);
+    const rootHash = fastMerkleRoot(hashes, bcrypto.hash256, mutated);
 
     return forWitness
       ? bcrypto.hash256(
@@ -215,8 +216,13 @@ export class Block {
   private __checkMerkleRoot(): boolean {
     if (!this.transactions) throw errorMerkleNoTxes;
 
-    const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions);
-    return this.merkleRoot!.compare(actualMerkleRoot) === 0;
+    const mutated = { value: false };
+    const actualMerkleRoot = Block.calculateMerkleRoot(
+      this.transactions,
+      false,
+      mutated,
+    );
+    return !mutated.value && this.merkleRoot!.compare(actualMerkleRoot) === 0;
   }
 
   private __checkWitnessCommit(): boolean {

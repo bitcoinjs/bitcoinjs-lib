@@ -4,7 +4,9 @@ export declare class Block {
     static fromBuffer(buffer: Buffer): Block;
     static fromHex(hex: string): Block;
     static calculateTarget(bits: number): Buffer;
-    static calculateMerkleRoot(transactions: Transaction[], forWitness?: boolean): Buffer;
+    static calculateMerkleRoot(transactions: Transaction[], forWitness?: boolean, mutated?: {
+        value: boolean;
+    }): Buffer;
     version: number;
     prevHash?: Buffer;
     merkleRoot?: Buffer;
