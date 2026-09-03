@@ -4,6 +4,7 @@ import { Block } from 'bitcoinjs-lib';
 import * as tools from 'uint8array-tools';
 
 import fixtures from './fixtures/block.json';
+import coreBlocks from './fixtures/core/blocks.json';
 
 describe('Block', () => {
   describe('version', () => {
@@ -156,6 +157,24 @@ describe('Block', () => {
       it('returns ' + f.valid + ' for ' + f.id, () => {
         assert.strictEqual(block.checkTxRoots(), true);
       });
+    });
+
+    it('rejects a duplicated transaction that preserves the merkle root', () => {
+      const original = Block.fromHex(coreBlocks[0].hex);
+      const forged = Block.fromHex(coreBlocks[0].hex);
+      const transactions = forged.transactions!;
+      transactions.push(transactions[transactions.length - 1]);
+      const parsed = Block.fromHex(forged.toHex());
+      const mutation = { value: false };
+
+      assert.deepStrictEqual(
+        Block.calculateMerkleRoot(parsed.transactions!, false, mutation),
+        original.merkleRoot,
+      );
+      assert.strictEqual(mutation.value, true);
+      assert.strictEqual(parsed.getId(), original.getId());
+      assert.strictEqual(original.checkTxRoots(), true);
+      assert.strictEqual(parsed.checkTxRoots(), false);
     });
   });
 
