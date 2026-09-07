@@ -1,3 +1,7 @@
+# 6.1.8
+__fixed__
+- Detect duplicate pairs when computing Merkle roots and reject blocks with mutated transaction trees.
+
 # 6.1.7
 __added__
 - skip ecc library verification via DANGER_DO_NOT_VERIFY_ECCLIB flag
