@@ -62,6 +62,21 @@ describe('Block', () => {
         }, new RegExp(f.exception));
       });
     });
+
+    it('does not copy the remaining block for every transaction', () => {
+      let copiedBytes = 0;
+      class CountingUint8Array extends Uint8Array {
+        slice(start?: number, end?: number): Uint8Array {
+          if (end === undefined) copiedBytes += this.length - (start ?? 0);
+          return super.slice(start, end);
+        }
+      }
+      const buffer = new CountingUint8Array(tools.fromHex(coreBlocks[0].hex));
+
+      Block.fromBuffer(buffer);
+
+      assert.strictEqual(copiedBytes, 0);
+    });
   });
 
   describe('toBuffer/toHex', () => {
