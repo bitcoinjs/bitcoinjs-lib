@@ -1,3 +1,7 @@
+# 6.1.9
+__fixed__
+- Resolve PSBT input UTXOs consistently for signing, validation and fee accounting.
+
 # 6.1.8
 __fixed__
 - Detect duplicate pairs when computing Merkle roots and reject blocks with mutated transaction trees.
