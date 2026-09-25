@@ -76,7 +76,8 @@ export function encode(_number: number): Uint8Array {
 
   for (let i = 0; i < size; ++i) {
     tools.writeUInt8(buffer, i, value & 0xff);
-    value >>= 8;
+    // >>= is a 32-bit shift, so amounts above 2^32 lose their high bytes.
+    value = Math.floor(value / 256);
   }
 
   if (buffer[size - 1] & 0x80) {
