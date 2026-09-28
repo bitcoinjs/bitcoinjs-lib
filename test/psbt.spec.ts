@@ -605,6 +605,24 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('extractTransaction', () => {
+    it('reads a non-minimal CompactSize in finalScriptWitness by its length', () => {
+      const script = tools.fromHex('0014' + '00'.repeat(20));
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: '01'.repeat(32),
+        index: 0,
+        witnessUtxo: { script, value: 10000n },
+      });
+      psbt.addOutput({ script, value: 9000n });
+      // Item count 1 in the three-byte 0xfd form, then one item: 0xaa.
+      psbt.updateInput(0, { finalScriptWitness: tools.fromHex('fd010001aa') });
+
+      const tx = psbt.extractTransaction(true);
+      assert.deepStrictEqual(tx.ins[0].witness, [tools.fromHex('aa')]);
+    });
+  });
+
   describe('addInput', () => {
     fixtures.addInput.checks.forEach(f => {
       it(f.description, () => {

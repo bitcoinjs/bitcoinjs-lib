@@ -1615,7 +1615,7 @@ function scriptWitnessToWitnessStack(buffer) {
   }
   function readVarInt() {
     const vi = varuint.decode(buffer, offset);
-    offset += varuint.encodingLength(vi.bigintValue);
+    offset += vi.bytes;
     return vi.numberValue;
   }
   function readVarSlice() {
