@@ -45,7 +45,7 @@ var __importStar =
   };
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.p2wsh = p2wsh;
-const sha256_1 = require('@noble/hashes/sha256');
+const sha2_js_1 = require('@noble/hashes/sha2.js');
 const networks_js_1 = require('../networks.cjs');
 const bscript = __importStar(require('../script.cjs'));
 const types_js_1 = require('../types.cjs');
@@ -127,7 +127,7 @@ function p2wsh(a, opts) {
     if (a.output) return a.output.slice(2);
     if (a.address) return _address().data;
     if (o.redeem && o.redeem.output)
-      return (0, sha256_1.sha256)(o.redeem.output);
+      return (0, sha2_js_1.sha256)(o.redeem.output);
   });
   lazy.prop(o, 'output', () => {
     if (!o.hash) return;
@@ -225,7 +225,7 @@ function p2wsh(a, opts) {
             'Redeem.output unspendable with more than 201 non-push ops',
           );
         // match hash against other sources
-        const hash2 = (0, sha256_1.sha256)(a.redeem.output);
+        const hash2 = (0, sha2_js_1.sha256)(a.redeem.output);
         if (hash.length > 0 && tools.compare(hash, hash2) !== 0)
           throw new TypeError('Hash mismatch');
         else hash = hash2;
