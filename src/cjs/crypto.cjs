@@ -59,26 +59,26 @@ exports.taggedHash = taggedHash;
  *
  * @packageDocumentation
  */
-const ripemd160_1 = require('@noble/hashes/ripemd160');
+const legacy_js_1 = require('@noble/hashes/legacy.js');
 Object.defineProperty(exports, 'ripemd160', {
   enumerable: true,
   get: function () {
-    return ripemd160_1.ripemd160;
+    return legacy_js_1.ripemd160;
   },
 });
-const sha256_1 = require('@noble/hashes/sha256');
+const sha2_js_1 = require('@noble/hashes/sha2.js');
 Object.defineProperty(exports, 'sha256', {
   enumerable: true,
   get: function () {
-    return sha256_1.sha256;
+    return sha2_js_1.sha256;
   },
 });
 const tools = __importStar(require('uint8array-tools'));
-var sha1_1 = require('@noble/hashes/sha1');
+var legacy_js_2 = require('@noble/hashes/legacy.js');
 Object.defineProperty(exports, 'sha1', {
   enumerable: true,
   get: function () {
-    return sha1_1.sha1;
+    return legacy_js_2.sha1;
   },
 });
 /**
@@ -88,7 +88,7 @@ Object.defineProperty(exports, 'sha1', {
  * @returns The HASH160 of the input buffer.
  */
 function hash160(buffer) {
-  return (0, ripemd160_1.ripemd160)((0, sha256_1.sha256)(buffer));
+  return (0, legacy_js_1.ripemd160)((0, sha2_js_1.sha256)(buffer));
 }
 /**
  * Computes the double SHA-256 hash of the given buffer.
@@ -97,7 +97,7 @@ function hash160(buffer) {
  * @returns The double SHA-256 hash of the input buffer.
  */
 function hash256(buffer) {
-  return (0, sha256_1.sha256)((0, sha256_1.sha256)(buffer));
+  return (0, sha2_js_1.sha256)((0, sha2_js_1.sha256)(buffer));
 }
 exports.TAGS = [
   'BIP0340/challenge',
@@ -191,7 +191,7 @@ exports.TAGGED_HASH_PREFIXES = {
  * @returns The resulting tagged hash as a `Uint8Array`.
  */
 function taggedHash(prefix, data) {
-  return (0, sha256_1.sha256)(
+  return (0, sha2_js_1.sha256)(
     tools.concat([exports.TAGGED_HASH_PREFIXES[prefix], data]),
   );
 }
