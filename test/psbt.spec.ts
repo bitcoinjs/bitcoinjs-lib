@@ -121,6 +121,43 @@ describe(`Psbt`, () => {
     // provide the ECC lib only when required
     initEccLib(undefined);
   });
+  describe('non-minimal CompactSize in a final witness', () => {
+    const script = Uint8Array.from(
+      Buffer.from('0014a018e6be08c9ef28aed98ba4686287472b41505a', 'hex'),
+    );
+    function withFinalScriptWitness(witness: string): Psbt {
+      const psbt = new Psbt();
+      psbt.addInput({
+        hash: new Uint8Array(32),
+        index: 0,
+        witnessUtxo: { script, value: 1000n },
+      });
+      psbt.addOutput({ script, value: 900n });
+      psbt.updateInput(0, {
+        finalScriptWitness: Uint8Array.from(Buffer.from(witness, 'hex')),
+      });
+      return psbt;
+    }
+
+    it('extracts a final witness with minimal lengths', () => {
+      const tx = withFinalScriptWitness(
+        '01' + '02' + 'aabb',
+      ).extractTransaction();
+      assert.deepStrictEqual(tx.ins[0].witness.map(tools.toHex), ['aabb']);
+    });
+
+    // Core rejects both ("non-canonical ReadCompactSize()", src/serialize.h).
+    it('throws on a non-minimal item count', () => {
+      const psbt = withFinalScriptWitness('fd0100' + '02' + 'aabb');
+      assert.throws(() => psbt.extractTransaction(), /non-minimal encoding/);
+    });
+
+    it('throws on a non-minimal item length', () => {
+      const psbt = withFinalScriptWitness('01' + 'fd0000');
+      assert.throws(() => psbt.extractTransaction(), /non-minimal encoding/);
+    });
+  });
+
   describe('BIP174 Test Vectors', () => {
     fixtures.bip174.invalid.forEach(f => {
       it(`Invalid: ${f.description}`, () => {
