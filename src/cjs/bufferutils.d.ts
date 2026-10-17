@@ -1,9 +1,9 @@
 import * as varuint from 'varuint-bitcoin';
 export { varuint };
 /**
- * Reverses the order of bytes in a buffer.
+ * Reverses the order of bytes in a buffer, in place.
  * @param buffer - The buffer to reverse.
- * @returns A new buffer with the bytes reversed.
+ * @returns The same buffer, now reversed.
  */
 export declare function reverseBuffer(buffer: Uint8Array): Uint8Array;
 export declare function cloneBuffer(buffer: Uint8Array): Uint8Array;

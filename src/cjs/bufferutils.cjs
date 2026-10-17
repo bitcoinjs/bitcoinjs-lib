@@ -65,9 +65,9 @@ function verifuint(value, max) {
     throw new Error('value has a fractional component');
 }
 /**
- * Reverses the order of bytes in a buffer.
+ * Reverses the order of bytes in a buffer, in place.
  * @param buffer - The buffer to reverse.
- * @returns A new buffer with the bytes reversed.
+ * @returns The same buffer, now reversed.
  */
 function reverseBuffer(buffer) {
   if (buffer.length < 1) return buffer;
