@@ -357,6 +357,26 @@ describe('Transaction', () => {
         });
       });
     });
+
+    it('accepts only the hash types BIP341 defines', () => {
+      const f = fixtures.taprootSigning[0];
+      const tx = Transaction.fromHex(f.txHex);
+      const prevOutScripts = f.utxos.map(({ scriptHex }) =>
+        Buffer.from(scriptHex, 'hex'),
+      );
+      const values = f.utxos.map(({ value }) => BigInt(value));
+
+      [0x00, 0x01, 0x02, 0x03, 0x81, 0x82, 0x83].forEach(hashType => {
+        assert.doesNotThrow(() => {
+          tx.hashForWitnessV1(0, prevOutScripts, values, hashType);
+        });
+      });
+      [0x04, 0x80, 0x84, 0xff].forEach(hashType => {
+        assert.throws(() => {
+          tx.hashForWitnessV1(0, prevOutScripts, values, hashType);
+        }, /Invalid hashType for taproot/);
+      });
+    });
   });
 
   describe('setWitness', () => {
