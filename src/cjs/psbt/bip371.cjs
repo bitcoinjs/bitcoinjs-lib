@@ -314,7 +314,7 @@ function _tapTreeToList(tree, leaves = [], depth = 0) {
   if ((0, types_js_1.isTapleaf)(tree)) {
     leaves.push({
       depth,
-      leafVersion: tree.version || bip341_js_1.LEAF_VERSION_TAPSCRIPT,
+      leafVersion: tree.version ?? bip341_js_1.LEAF_VERSION_TAPSCRIPT,
       script: tree.output,
     });
     return leaves;

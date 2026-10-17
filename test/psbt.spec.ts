@@ -1131,6 +1131,29 @@ describe(`Psbt`, () => {
   });
 
   describe('tapTreeToList/tapTreeFromList', () => {
+    [0x00, 0xc0, 0xc2].forEach(version => {
+      it(`preserves explicit leaf version ${version} in a list and round trip`, () => {
+        const tree = { output: Uint8Array.from([0x51]), version };
+        const list = tapTreeToList(tree);
+
+        assert.deepStrictEqual(list, [
+          { depth: 0, leafVersion: version, script: tree.output },
+        ]);
+        assert.deepStrictEqual(tapTreeFromList(list), tree);
+      });
+    });
+
+    it('defaults omitted versions without changing an explicit zero in a nested tree', () => {
+      const output = Uint8Array.from([0x51]);
+      assert.deepStrictEqual(
+        tapTreeToList([{ output, version: 0x00 }, { output }]),
+        [
+          { depth: 1, leafVersion: 0x00, script: output },
+          { depth: 1, leafVersion: LEAF_VERSION_TAPSCRIPT, script: output },
+        ],
+      );
+    });
+
     it('Correctly converts a Taptree to a Tapleaf list and back', () => {
       taprootFixtures.valid
         .filter(f => f.arguments.scriptTree)
