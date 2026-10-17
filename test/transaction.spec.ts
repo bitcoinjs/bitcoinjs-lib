@@ -78,6 +78,31 @@ describe('Transaction', () => {
       });
     });
 
+    // Bitcoin Core rejects a CompactSize that is not the shortest encoding
+    // ("non-canonical ReadCompactSize()", src/serialize.h).
+    const nonMinimal = {
+      'an input count':
+        '01000000' + 'fd0100' + '00'.repeat(41) + '00' + '00000000',
+      'a scriptSig length':
+        '01000000' +
+        '01' +
+        '00'.repeat(32) +
+        '00000000' +
+        'fd0000' +
+        'ffffffff' +
+        '00' +
+        '00000000',
+      'an output count':
+        '01000000' + '00' + 'fd0100' + '00'.repeat(9) + '00000000',
+    };
+    Object.entries(nonMinimal).forEach(([what, hex]) => {
+      it('throws on a non-minimal CompactSize for ' + what, () => {
+        assert.throws(() => {
+          Transaction.fromHex(hex);
+        }, /non-minimal encoding/);
+      });
+    });
+
     it('.version should be interpreted as an uint32le', () => {
       const txHex = 'ffffffff0000ffffffff';
       const tx = Transaction.fromHex(txHex);
