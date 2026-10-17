@@ -75,7 +75,11 @@ export class Transaction {
   static readonly ADVANCED_TRANSACTION_MARKER = 0x00;
   static readonly ADVANCED_TRANSACTION_FLAG = 0x01;
 
-  static fromBuffer(buffer: Uint8Array, _NO_STRICT?: boolean): Transaction {
+  static fromBuffer(
+    buffer: Uint8Array,
+    _NO_STRICT?: boolean,
+    _NO_WITNESS?: boolean,
+  ): Transaction {
     const bufferReader = new BufferReader(buffer);
 
     const tx = new Transaction();
@@ -84,8 +88,11 @@ export class Transaction {
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
 
+    // A PSBT stores its unsigned transaction without witnesses (BIP 174), so
+    // 0x00 0x01 there is zero inputs and one output, not marker and flag.
     let hasWitnesses = false;
     if (
+      !_NO_WITNESS &&
       marker === Transaction.ADVANCED_TRANSACTION_MARKER &&
       flag === Transaction.ADVANCED_TRANSACTION_FLAG
     ) {
