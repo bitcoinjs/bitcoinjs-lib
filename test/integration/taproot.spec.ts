@@ -18,7 +18,7 @@ import {
 } from 'bitcoinjs-lib/src/psbt/bip371';
 import { witnessStackToScriptWitness } from 'bitcoinjs-lib/src/psbt/psbtutils';
 import * as tools from 'uint8array-tools';
-import { sha256 } from '@noble/hashes/sha256';
+import { sha256 } from '@noble/hashes/sha2.js';
 import { randomBytes } from 'crypto';
 
 const regtest = regtestUtils.network;

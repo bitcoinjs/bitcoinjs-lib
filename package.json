@@ -63,7 +63,7 @@
     "src"
   ],
   "dependencies": {
-    "@noble/hashes": "^1.2.0",
+    "@noble/hashes": "^2.4.0",
     "bech32": "^2.0.0",
     "bip174": "^3.0.0",
     "bs58check": "^4.0.0",
