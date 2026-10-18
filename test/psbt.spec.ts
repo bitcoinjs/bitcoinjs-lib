@@ -265,6 +265,36 @@ describe(`Psbt`, () => {
     });
   });
 
+  describe('PSBT with no inputs or no outputs', () => {
+    // Made by Bitcoin Core v31.1.0 on regtest, which decodes both:
+    //   bitcoin-cli createpsbt '[]' '[{"<p2wpkh address>": 0.001}]'
+    //   bitcoin-cli createpsbt '[{"txid": "00..01", "vout": 0}]' '[]'
+    // The unsigned transaction is in the format without witnesses (BIP 174),
+    // so '00 01' after the version is zero inputs and one output.
+    it('parses a PSBT with one output and no inputs', () => {
+      const psbt = Psbt.fromBase64(
+        'cHNidP8BACkCAAAAAAGghgEAAAAAABYAFKAY5r4Iye8ortmLpGhih0crQVBaAAAAAAAA',
+      );
+      assert.strictEqual(psbt.inputCount, 0);
+      assert.strictEqual(psbt.txInputs.length, 0);
+      assert.strictEqual(psbt.txOutputs.length, 1);
+      assert.strictEqual(psbt.txOutputs[0].value, 100000n);
+      assert.strictEqual(
+        tools.toHex(psbt.txOutputs[0].script),
+        '0014a018e6be08c9ef28aed98ba4686287472b41505a',
+      );
+    });
+
+    it('parses a PSBT with one input and no outputs', () => {
+      const psbt = Psbt.fromBase64(
+        'cHNidP8BADMCAAAAAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD9////AAAAAAAAAA==',
+      );
+      assert.strictEqual(psbt.inputCount, 1);
+      assert.strictEqual(psbt.txInputs.length, 1);
+      assert.strictEqual(psbt.txOutputs.length, 0);
+    });
+  });
+
   describe('signInputAsync', () => {
     fixtures.signInput.checks.forEach(f => {
       it(f.description, async () => {

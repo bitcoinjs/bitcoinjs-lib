@@ -989,7 +989,7 @@ const transactionFromBuffer = buffer => new PsbtTransaction(buffer);
 class PsbtTransaction {
   tx;
   constructor(buffer = Uint8Array.from([2, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
-    this.tx = transaction_js_1.Transaction.fromBuffer(buffer);
+    this.tx = transaction_js_1.Transaction.fromBuffer(buffer, false, true);
     checkTxEmpty(this.tx);
     Object.defineProperty(this, 'tx', {
       enumerable: false,
