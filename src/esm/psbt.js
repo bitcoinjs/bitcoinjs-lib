@@ -501,19 +501,28 @@ export class Psbt {
       validationResultCount++;
     }
     if (tapScriptSig) {
-      for (const tapSig of tapScriptSig) {
+      // Mirror the legacy path: with a pubkey filter only that key's
+      // signatures are validated; the rest are not "for this pubkey".
+      const mySigs = pubkey
+        ? tapScriptSig.filter(
+            tapSig => tools.compare(tapSig.pubkey, pubkey) === 0,
+          )
+        : tapScriptSig;
+      for (const tapSig of mySigs) {
         const tapSigHash = allHashses.find(
           h => tools.compare(h.pubkey, tapSig.pubkey) === 0,
         );
-        if (tapSigHash) {
-          const isValidTapScriptSig = validator(
-            tapSig.pubkey,
-            tapSigHash.hash,
-            trimTaprootSig(tapSig.signature),
+        if (!tapSigHash)
+          throw new Error(
+            `Can not verify for this input with the key ${tools.toHex(tapSig.pubkey)}`,
           );
-          if (!isValidTapScriptSig) return false;
-          validationResultCount++;
-        }
+        const isValidTapScriptSig = validator(
+          tapSig.pubkey,
+          tapSigHash.hash,
+          trimTaprootSig(tapSig.signature),
+        );
+        if (!isValidTapScriptSig) return false;
+        validationResultCount++;
       }
     }
     return validationResultCount > 0;
