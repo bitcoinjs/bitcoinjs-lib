@@ -25,6 +25,10 @@ export declare class Block {
     toBuffer(headersOnly?: boolean): Uint8Array;
     toHex(headersOnly?: boolean): string;
     checkTxRoots(): boolean;
+    /**
+     * Checks the hash against a positive, nonzero target that fits in 256 bits.
+     * Callers must also enforce the network's target limit and expected difficulty.
+     */
     checkProofOfWork(): boolean;
     private __checkMerkleRoot;
     private __checkWitnessCommit;

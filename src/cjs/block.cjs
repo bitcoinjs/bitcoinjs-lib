@@ -221,7 +221,22 @@ class Block {
       (hasWitnessCommit ? this.__checkWitnessCommit() : true)
     );
   }
+  /**
+   * Checks the hash against a positive, nonzero target that fits in 256 bits.
+   * Callers must also enforce the network's target limit and expected difficulty.
+   */
   checkProofOfWork() {
+    const size = this.bits >>> 24;
+    let word = this.bits & 0x007fffff;
+    if (size <= 3) word >>>= 8 * (3 - size);
+    if (
+      word === 0 ||
+      (this.bits & 0x00800000) !== 0 ||
+      size > 34 ||
+      (word > 0xff && size > 33) ||
+      (word > 0xffff && size > 32)
+    )
+      return false;
     const hash = (0, bufferutils_js_1.reverseBuffer)(this.getHash());
     const target = Block.calculateTarget(this.bits);
     return tools.compare(hash, target) <= 0;
