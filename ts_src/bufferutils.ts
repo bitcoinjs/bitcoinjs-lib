@@ -19,9 +19,9 @@ function verifuint(value: number | bigint, max: number): void {
 }
 
 /**
- * Reverses the order of bytes in a buffer.
+ * Reverses the order of bytes in a buffer, in place.
  * @param buffer - The buffer to reverse.
- * @returns A new buffer with the bytes reversed.
+ * @returns The same buffer, now reversed.
  */
 export function reverseBuffer(buffer: Uint8Array): Uint8Array {
   if (buffer.length < 1) return buffer;
