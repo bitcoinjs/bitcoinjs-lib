@@ -47,7 +47,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.Transaction = void 0;
 const bufferutils_js_1 = require('./bufferutils.cjs');
 const bcrypto = __importStar(require('./crypto.cjs'));
-const sha256_1 = require('@noble/hashes/sha256');
+const sha2_js_1 = require('@noble/hashes/sha2.js');
 const bscript = __importStar(require('./script.cjs'));
 const script_js_1 = require('./script.cjs');
 const types = __importStar(require('./types.cjs'));
@@ -359,24 +359,24 @@ class Transaction {
         bufferWriter.writeSlice(txIn.hash);
         bufferWriter.writeUInt32(txIn.index);
       });
-      hashPrevouts = (0, sha256_1.sha256)(bufferWriter.end());
+      hashPrevouts = (0, sha2_js_1.sha256)(bufferWriter.end());
       bufferWriter = bufferutils_js_1.BufferWriter.withCapacity(
         8 * this.ins.length,
       );
       values.forEach(value => bufferWriter.writeInt64(value));
-      hashAmounts = (0, sha256_1.sha256)(bufferWriter.end());
+      hashAmounts = (0, sha2_js_1.sha256)(bufferWriter.end());
       bufferWriter = bufferutils_js_1.BufferWriter.withCapacity(
         prevOutScripts.map(varSliceSize).reduce((a, b) => a + b),
       );
       prevOutScripts.forEach(prevOutScript =>
         bufferWriter.writeVarSlice(prevOutScript),
       );
-      hashScriptPubKeys = (0, sha256_1.sha256)(bufferWriter.end());
+      hashScriptPubKeys = (0, sha2_js_1.sha256)(bufferWriter.end());
       bufferWriter = bufferutils_js_1.BufferWriter.withCapacity(
         4 * this.ins.length,
       );
       this.ins.forEach(txIn => bufferWriter.writeUInt32(txIn.sequence));
-      hashSequences = (0, sha256_1.sha256)(bufferWriter.end());
+      hashSequences = (0, sha2_js_1.sha256)(bufferWriter.end());
     }
     if (!(isNone || isSingle)) {
       if (!this.outs.length)
@@ -390,7 +390,7 @@ class Transaction {
         bufferWriter.writeInt64(out.value);
         bufferWriter.writeVarSlice(out.script);
       });
-      hashOutputs = (0, sha256_1.sha256)(bufferWriter.end());
+      hashOutputs = (0, sha2_js_1.sha256)(bufferWriter.end());
     } else if (isSingle && inIndex < this.outs.length) {
       const output = this.outs[inIndex];
       const bufferWriter = bufferutils_js_1.BufferWriter.withCapacity(
@@ -398,7 +398,7 @@ class Transaction {
       );
       bufferWriter.writeInt64(output.value);
       bufferWriter.writeVarSlice(output.script);
-      hashOutputs = (0, sha256_1.sha256)(bufferWriter.end());
+      hashOutputs = (0, sha2_js_1.sha256)(bufferWriter.end());
     }
     const spendType = (leafHash ? 2 : 0) + (annex ? 1 : 0);
     // Length calculation from:
@@ -440,7 +440,7 @@ class Transaction {
         varSliceSize(annex),
       );
       bufferWriter.writeVarSlice(annex);
-      sigMsgWriter.writeSlice((0, sha256_1.sha256)(bufferWriter.end()));
+      sigMsgWriter.writeSlice((0, sha2_js_1.sha256)(bufferWriter.end()));
     }
     // Output
     if (isSingle) {
