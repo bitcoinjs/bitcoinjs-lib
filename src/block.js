@@ -2,9 +2,9 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const bufferutils_1 = require('./bufferutils');
 const bcrypto = require('./crypto');
+const merkle_1 = require('./merkle');
 const transaction_1 = require('./transaction');
 const types = require('./types');
-const fastMerkleRoot = require('merkle-lib/fastRoot');
 const typeforce = require('typeforce');
 const varuint = require('varuint-bitcoin');
 const errorMerkleNoTxes = new TypeError(
@@ -64,7 +64,7 @@ class Block {
     target.writeUIntBE(mantissa, 29 - exponent, 3);
     return target;
   }
-  static calculateMerkleRoot(transactions, forWitness) {
+  static calculateMerkleRoot(transactions, forWitness, mutated) {
     typeforce([{ getHash: types.Function }], transactions);
     if (transactions.length === 0) throw errorMerkleNoTxes;
     if (forWitness && !txesHaveWitnessCommit(transactions))
@@ -72,7 +72,7 @@ class Block {
     const hashes = transactions.map(transaction =>
       transaction.getHash(forWitness),
     );
-    const rootHash = fastMerkleRoot(hashes, bcrypto.hash256);
+    const rootHash = merkle_1.fastMerkleRoot(hashes, bcrypto.hash256, mutated);
     return forWitness
       ? bcrypto.hash256(
           Buffer.concat([rootHash, transactions[0].ins[0].witness[0]]),
@@ -172,8 +172,13 @@ class Block {
   }
   __checkMerkleRoot() {
     if (!this.transactions) throw errorMerkleNoTxes;
-    const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions);
-    return this.merkleRoot.compare(actualMerkleRoot) === 0;
+    const mutated = { value: false };
+    const actualMerkleRoot = Block.calculateMerkleRoot(
+      this.transactions,
+      false,
+      mutated,
+    );
+    return !mutated.value && this.merkleRoot.compare(actualMerkleRoot) === 0;
   }
   __checkWitnessCommit() {
     if (!this.transactions) throw errorMerkleNoTxes;

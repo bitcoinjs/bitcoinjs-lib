@@ -1,3 +1,7 @@
+# 5.2.1
+__fixed__
+- Detect duplicate pairs when computing Merkle roots and reject blocks with mutated transaction trees.
+
 # 5.2.0
 __changed__
 - Updated PSBT to allow for witnessUtxo and nonWitnessUtxo simultaneously (Re: segwit psbt bug) (#1563)
