@@ -57,7 +57,7 @@ to the ECMAScript version in which all features are fully supported by current A
 However, depending on adoption among other environments (browsers etc.) we may keep the target back a year or two.
 If in doubt, see the [main_ci.yml](.github/workflows/main_ci.yml) for what versions are used by our continuous integration tests.
 
-**WARNING**: We presently don't provide any tooling to verify that the release on `npm` matches GitHub.  As such, you should verify anything downloaded by `npm` against your own verified copy.
+**Verify releases:** We provide a [file-by-file npm release comparison tool](docs/verify-npm-release.md) that checks the published package against a clean checkout of the exact reviewed Git tag without executing package lifecycle scripts. This verification does **not** authenticate the Git tag or prove release provenance; you must independently verify the source revision, tool and dependencies before using packages for wallet software.
 
 
 ## Usage
