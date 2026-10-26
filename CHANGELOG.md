@@ -1,3 +1,8 @@
+# 6.1.10
+__fixed__
+- Reject negative, zero and overflowing compact targets in `Block.checkProofOfWork()`.
+- Decode valid compact targets with small exponents or leading zero bytes in `Block.calculateTarget()`.
+
 # 6.1.9
 __fixed__
 - Resolve PSBT input UTXOs consistently for signing, validation and fee accounting.

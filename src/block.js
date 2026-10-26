@@ -58,10 +58,17 @@ class Block {
     return Block.fromBuffer(Buffer.from(hex, 'hex'));
   }
   static calculateTarget(bits) {
-    const exponent = ((bits & 0xff000000) >> 24) - 3;
+    const size = bits >>> 24;
     const mantissa = bits & 0x007fffff;
     const target = Buffer.alloc(32, 0);
-    target.writeUIntBE(mantissa, 29 - exponent, 3);
+    if (size === 0) return target;
+    if (size < 3) {
+      target.writeUIntBE(mantissa >>> (8 * (3 - size)), 32 - size, size);
+    } else if (size > 32) {
+      target.writeUIntBE(mantissa, 0, 35 - size);
+    } else {
+      target.writeUIntBE(mantissa, 32 - size, 3);
+    }
     return target;
   }
   static calculateMerkleRoot(transactions, forWitness, mutated) {
@@ -173,7 +180,22 @@ class Block {
       (hasWitnessCommit ? this.__checkWitnessCommit() : true)
     );
   }
+  /**
+   * Checks the hash against a positive, nonzero target that fits in 256 bits.
+   * Callers must also enforce the network's target limit and expected difficulty.
+   */
   checkProofOfWork() {
+    const size = this.bits >>> 24;
+    let word = this.bits & 0x007fffff;
+    if (size <= 3) word >>>= 8 * (3 - size);
+    if (
+      word === 0 ||
+      (this.bits & 0x00800000) !== 0 ||
+      size > 34 ||
+      (word > 0xff && size > 33) ||
+      (word > 0xffff && size > 32)
+    )
+      return false;
     const hash = (0, bufferutils_1.reverseBuffer)(this.getHash());
     const target = Block.calculateTarget(this.bits);
     return hash.compare(target) <= 0;
