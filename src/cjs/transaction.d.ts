@@ -23,7 +23,7 @@ export declare class Transaction {
     static readonly SIGHASH_INPUT_MASK = 128;
     static readonly ADVANCED_TRANSACTION_MARKER = 0;
     static readonly ADVANCED_TRANSACTION_FLAG = 1;
-    static fromBuffer(buffer: Uint8Array, _NO_STRICT?: boolean): Transaction;
+    static fromBuffer(buffer: Uint8Array, _NO_STRICT?: boolean, _NO_WITNESS?: boolean): Transaction;
     static fromHex(hex: string): Transaction;
     static isCoinbaseHash(buffer: Uint8Array): boolean;
     version: number;
