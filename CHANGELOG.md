@@ -1,3 +1,7 @@
+# 7.0.2
+__fixed__
+- Detect duplicate pairs when computing Merkle roots and reject blocks with mutated transaction trees. This fix is also available in versions 5.2.1 and 6.1.8.
+
 # 7.0.1
 __added__
 - `crypto`: Restore `ripemd160`, `sha1`, and `sha256` hash helpers (#2248)

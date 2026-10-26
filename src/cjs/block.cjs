@@ -100,7 +100,7 @@ class Block {
     target[31 - exponent] = mantissa & 0xff;
     return target;
   }
-  static calculateMerkleRoot(transactions, forWitness) {
+  static calculateMerkleRoot(transactions, forWitness, mutated) {
     v.parse(v.array(v.object({ getHash: v.function() })), transactions);
     if (transactions.length === 0) throw errorMerkleNoTxes;
     if (forWitness && !txesHaveWitnessCommit(transactions))
@@ -108,7 +108,11 @@ class Block {
     const hashes = transactions.map(transaction =>
       transaction.getHash(forWitness),
     );
-    const rootHash = (0, merkle_js_1.fastMerkleRoot)(hashes, bcrypto.hash256);
+    const rootHash = (0, merkle_js_1.fastMerkleRoot)(
+      hashes,
+      bcrypto.hash256,
+      mutated,
+    );
     return forWitness
       ? bcrypto.hash256(
           tools.concat([rootHash, transactions[0].ins[0].witness[0]]),
@@ -224,8 +228,15 @@ class Block {
   }
   __checkMerkleRoot() {
     if (!this.transactions) throw errorMerkleNoTxes;
-    const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions);
-    return tools.compare(this.merkleRoot, actualMerkleRoot) === 0;
+    const mutated = { value: false };
+    const actualMerkleRoot = Block.calculateMerkleRoot(
+      this.transactions,
+      false,
+      mutated,
+    );
+    return (
+      !mutated.value && tools.compare(this.merkleRoot, actualMerkleRoot) === 0
+    );
   }
   __checkWitnessCommit() {
     if (!this.transactions) throw errorMerkleNoTxes;

@@ -3,7 +3,9 @@ export declare class Block {
     static fromBuffer(buffer: Uint8Array): Block;
     static fromHex(hex: string): Block;
     static calculateTarget(bits: number): Uint8Array;
-    static calculateMerkleRoot(transactions: Transaction[], forWitness?: boolean): Uint8Array;
+    static calculateMerkleRoot(transactions: Transaction[], forWitness?: boolean, mutated?: {
+        value: boolean;
+    }): Uint8Array;
     version: number;
     prevHash?: Uint8Array;
     merkleRoot?: Uint8Array;
