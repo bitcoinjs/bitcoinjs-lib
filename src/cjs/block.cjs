@@ -71,7 +71,7 @@ class Block {
     if (buffer.length === 80) return block;
     const readTransaction = () => {
       const tx = transaction_js_1.Transaction.fromBuffer(
-        bufferReader.buffer.slice(bufferReader.offset),
+        bufferReader.buffer.subarray(bufferReader.offset),
         true,
       );
       bufferReader.offset += tx.byteLength();

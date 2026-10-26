@@ -84,6 +84,25 @@ describe('Transaction', () => {
       assert.strictEqual(0xffffffff, tx.version);
       assert.strictEqual(0xffffffff, tx.locktime);
     });
+
+    it('does not copy the whole buffer for scalar reads', () => {
+      const buffer = tools.fromHex(fixtures.valid[0].hex);
+      const bufferFrom = Buffer.from;
+      let copies = 0;
+
+      (Buffer as any).from = (value: unknown, ...args: any[]) => {
+        if (value === buffer) copies++;
+        return bufferFrom(value as any, ...args);
+      };
+
+      try {
+        Transaction.fromBuffer(buffer);
+      } finally {
+        Buffer.from = bufferFrom;
+      }
+
+      assert.strictEqual(copies, 0);
+    });
   });
 
   describe('toBuffer/toHex', () => {

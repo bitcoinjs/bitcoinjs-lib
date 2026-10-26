@@ -35,7 +35,7 @@ export class Block {
 
     const readTransaction = (): any => {
       const tx = Transaction.fromBuffer(
-        bufferReader.buffer.slice(bufferReader.offset),
+        bufferReader.buffer.subarray(bufferReader.offset),
         true,
       );
       bufferReader.offset += tx.byteLength();
