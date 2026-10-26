@@ -1,3 +1,7 @@
+# 7.0.5
+__fixed__
+- Reject negative, zero and overflowing compact targets in `Block.checkProofOfWork()`. Corresponding backport versions: 5.2.3 and 6.1.10.
+
 # 7.0.4
 __fixed__
 - Resolve PSBT input UTXOs consistently for signing, validation and fee accounting. This fix is also available in versions 5.2.2 and 6.1.9.
