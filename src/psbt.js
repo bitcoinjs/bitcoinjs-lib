@@ -139,6 +139,10 @@ class Psbt {
   }
   combine(...those) {
     this.data.combine(...those.map(o => o.data));
+    const c = this.__CACHE;
+    c.__FEE = undefined;
+    c.__FEE_RATE = undefined;
+    c.__EXTRACTED_TX = undefined;
     return this;
   }
   clone() {
@@ -582,6 +586,12 @@ class Psbt {
         inputIndex,
       );
     }
+    if (updateData.nonWitnessUtxo || updateData.witnessUtxo) {
+      const c = this.__CACHE;
+      c.__FEE = undefined;
+      c.__FEE_RATE = undefined;
+      c.__EXTRACTED_TX = undefined;
+    }
     return this;
   }
   updateOutput(outputIndex, updateData) {
@@ -938,28 +948,8 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
     );
   }
   let hash;
-  let prevout;
-  if (input.nonWitnessUtxo) {
-    const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
-      cache,
-      input,
-      inputIndex,
-    );
-    const prevoutHash = unsignedTx.ins[inputIndex].hash;
-    const utxoHash = nonWitnessUtxoTx.getHash();
-    // If a non-witness UTXO is provided, its hash must match the hash specified in the prevout
-    if (!prevoutHash.equals(utxoHash)) {
-      throw new Error(
-        `Non-witness UTXO hash for input #${inputIndex} doesn't match the hash specified in the prevout`,
-      );
-    }
-    const prevoutIndex = unsignedTx.ins[inputIndex].index;
-    prevout = nonWitnessUtxoTx.outs[prevoutIndex];
-  } else if (input.witnessUtxo) {
-    prevout = input.witnessUtxo;
-  } else {
-    throw new Error('Need a Utxo input item for signing');
-  }
+  const prevout = getUtxoForInput(inputIndex, input, cache);
+  if (!prevout) throw new Error('Need a Utxo input item for signing');
   const { meaningfulScript, type } = getMeaningfulScript(
     prevout.script,
     inputIndex,
@@ -1064,7 +1054,6 @@ function getPsigsFromInputFinalScripts(input) {
     .map(sig => ({ signature: sig }));
 }
 function getScriptFromInput(inputIndex, input, cache) {
-  const unsignedTx = cache.__TX;
   const res = {
     script: null,
     isSegwit: false,
@@ -1078,17 +1067,8 @@ function getScriptFromInput(inputIndex, input, cache) {
   } else if (input.redeemScript) {
     res.script = input.redeemScript;
   } else {
-    if (input.nonWitnessUtxo) {
-      const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
-        cache,
-        input,
-        inputIndex,
-      );
-      const prevoutIndex = unsignedTx.ins[inputIndex].index;
-      res.script = nonWitnessUtxoTx.outs[prevoutIndex].script;
-    } else if (input.witnessUtxo) {
-      res.script = input.witnessUtxo.script;
-    }
+    const prevout = getUtxoForInput(inputIndex, input, cache);
+    if (prevout) res.script = prevout.script;
   }
   if (input.witnessScript || isP2WPKH(res.script)) {
     res.isSegwit = true;
@@ -1237,14 +1217,9 @@ function inputFinalizeGetAmts(inputs, tx, cache, mustFinalize) {
         input.finalScriptWitness,
       );
     }
-    if (input.witnessUtxo) {
-      inputAmount += input.witnessUtxo.value;
-    } else if (input.nonWitnessUtxo) {
-      const nwTx = nonWitnessUtxoTxFromCache(cache, input, idx);
-      const vout = tx.ins[idx].index;
-      const out = nwTx.outs[vout];
-      inputAmount += out.value;
-    }
+    const prevout = getUtxoForInput(idx, input, cache);
+    if (!prevout) throw new Error(`Need a Utxo input item for input #${idx}`);
+    inputAmount += prevout.value;
   });
   const outputAmount = tx.outs.reduce((total, o) => total + o.value, 0);
   const fee = inputAmount - outputAmount;
@@ -1263,19 +1238,44 @@ function nonWitnessUtxoTxFromCache(cache, input, inputIndex) {
   }
   return c[inputIndex];
 }
-function getScriptFromUtxo(inputIndex, input, cache) {
-  if (input.witnessUtxo !== undefined) {
-    return input.witnessUtxo.script;
-  } else if (input.nonWitnessUtxo !== undefined) {
+function getUtxoForInput(inputIndex, input, cache) {
+  if (input.nonWitnessUtxo) {
     const nonWitnessUtxoTx = nonWitnessUtxoTxFromCache(
       cache,
       input,
       inputIndex,
     );
-    return nonWitnessUtxoTx.outs[cache.__TX.ins[inputIndex].index].script;
-  } else {
-    throw new Error("Can't find pubkey in input without Utxo data");
+    const txInput = cache.__TX.ins[inputIndex];
+    if (!txInput.hash.equals(nonWitnessUtxoTx.getHash())) {
+      throw new Error(
+        `Non-witness UTXO hash for input #${inputIndex} doesn't match the hash specified in the prevout`,
+      );
+    }
+    const prevout = nonWitnessUtxoTx.outs[txInput.index];
+    if (!prevout) {
+      throw new Error(
+        `Non-witness UTXO for input #${inputIndex} has no output #${
+          txInput.index
+        }`,
+      );
+    }
+    if (
+      input.witnessUtxo &&
+      (input.witnessUtxo.value !== prevout.value ||
+        !input.witnessUtxo.script.equals(prevout.script))
+    ) {
+      throw new Error(
+        `Witness UTXO for input #${inputIndex} doesn't match the non-witness UTXO`,
+      );
+    }
+    return prevout;
   }
+  return input.witnessUtxo;
+}
+function getScriptFromUtxo(inputIndex, input, cache) {
+  const prevout = getUtxoForInput(inputIndex, input, cache);
+  if (!prevout) throw new Error("Can't find pubkey in input without Utxo data");
+  return prevout.script;
 }
 function pubkeyInInput(pubkey, input, inputIndex, cache) {
   const script = getScriptFromUtxo(inputIndex, input, cache);
