@@ -18,11 +18,14 @@ const bip32 = BIP32Factory.BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
 
 import {
+  crypto as bitcoinCrypto,
   Psbt,
   networks as NETWORKS,
   payments,
   Signer,
   SignerAsync,
+  toXOnly,
+  Transaction,
 } from 'bitcoinjs-lib';
 
 import preFixtures from './fixtures/psbt.json';
@@ -1209,6 +1212,237 @@ describe(`Psbt`, () => {
       assert.strictEqual(psbt.getFeeRate(), f.fee);
       (psbt as any).__CACHE.__FEE_RATE = undefined;
       assert.strictEqual(psbt.getFeeRate(), f.fee);
+    });
+  });
+
+  describe('prevout resolution', () => {
+    const key = ECPair.fromPrivateKey(Buffer.alloc(32, 1));
+    const otherKey = ECPair.fromPrivateKey(Buffer.alloc(32, 2));
+    const value = 100000n;
+    const claimedValue = 2000n;
+    const outputValue = 1000n;
+    const conflictError = /Witness UTXO .*non-witness UTXO/;
+
+    function makeParent(script: Uint8Array, amount = value): Transaction {
+      const parent = new Transaction();
+      parent.addInput(Buffer.alloc(32, 3), 0);
+      parent.addOutput(script, amount);
+      return parent;
+    }
+
+    function makePsbt(
+      parent: Transaction,
+      inputData: Record<string, unknown>,
+    ): Psbt {
+      return new Psbt()
+        .addInput({
+          hash: parent.getId(),
+          index: 0,
+          ...inputData,
+        })
+        .addOutput({
+          script: payments.p2wpkh({ pubkey: otherKey.publicKey }).output!,
+          value: outputValue,
+        });
+    }
+
+    function signAndFinalize(psbt: Psbt): Psbt {
+      psbt.signInput(0, key);
+      assert.strictEqual(psbt.validateSignaturesOfInput(0, validator), true);
+      return psbt.finalizeAllInputs();
+    }
+
+    it('rejects a conflicting value when signing SegWit', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const parent = makeParent(script);
+      const conflictingWitness = { script, value: claimedValue };
+      const psbt = makePsbt(parent, {
+        nonWitnessUtxo: parent.toBuffer(),
+        witnessUtxo: conflictingWitness,
+      });
+
+      assert.throws(() => psbt.signInput(0, key), conflictError);
+    });
+
+    it('rejects a conflicting value when validating SegWit', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const parent = makeParent(script);
+      const conflictingWitness = { script, value: claimedValue };
+      const signed = makePsbt(parent, {
+        nonWitnessUtxo: parent.toBuffer(),
+      });
+      signed.signInput(0, key);
+      signed.updateInput(0, { witnessUtxo: conflictingWitness });
+      assert.throws(
+        () => signed.validateSignaturesOfInput(0, validator),
+        conflictError,
+      );
+    });
+
+    it('rejects a conflicting script after parsing', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const parent = makeParent(script);
+      const psbt = makePsbt(parent, {
+        nonWitnessUtxo: parent.toBuffer(),
+        witnessUtxo: {
+          script: payments.p2wpkh({ pubkey: otherKey.publicKey }).output!,
+          value,
+        },
+      });
+      const parsed = Psbt.fromBuffer(psbt.toBuffer());
+
+      assert.throws(() => parsed.getInputType(0), conflictError);
+    });
+
+    it('rejects a conflicting legacy prevout', () => {
+      const legacyScript = payments.p2pkh({ pubkey: key.publicKey }).output!;
+      const legacyParent = makeParent(legacyScript);
+      const legacy = makePsbt(legacyParent, {
+        nonWitnessUtxo: legacyParent.toBuffer(),
+        witnessUtxo: { script: legacyScript, value: claimedValue },
+      });
+      assert.throws(() => legacy.signInput(0, key), conflictError);
+    });
+
+    it('rejects a conflicting Taproot prevout', () => {
+      initEccLib(ecc);
+      const internalKey = bip32.fromSeed(Buffer.alloc(32, 4));
+      const internalPubkey = toXOnly(internalKey.publicKey);
+      const taprootScript = payments.p2tr({ internalPubkey }).output!;
+      const taprootParent = makeParent(taprootScript);
+      const taproot = makePsbt(taprootParent, {
+        nonWitnessUtxo: taprootParent.toBuffer(),
+        witnessUtxo: { script: taprootScript, value: claimedValue },
+        tapInternalKey: internalPubkey,
+      });
+      const tweakedKey = internalKey.tweak(
+        bitcoinCrypto.taggedHash('TapTweak', internalPubkey),
+      );
+      assert.throws(() => taproot.signInput(0, tweakedKey), conflictError);
+    });
+
+    it('validates the non-witness parent hash and output index for fees', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const parent = makeParent(script);
+      const wrongHash = new Psbt()
+        .addInput({
+          hash: Buffer.alloc(32, 5),
+          index: 0,
+          nonWitnessUtxo: parent.toBuffer(),
+          finalScriptWitness: Uint8Array.from([0]),
+        })
+        .addOutput({ script, value: outputValue });
+      assert.throws(
+        () => wrongHash.getFee(),
+        /Non-witness UTXO hash for input #0 doesn't match/,
+      );
+
+      const missingOutput = new Psbt()
+        .addInput({
+          hash: parent.getId(),
+          index: 1,
+          nonWitnessUtxo: parent.toBuffer(),
+          finalScriptWitness: Uint8Array.from([0]),
+        })
+        .addOutput({ script, value: outputValue });
+      assert.throws(
+        () => missingOutput.getFee(),
+        /Non-witness UTXO for input #0 has no output #1/,
+      );
+    });
+
+    it('rejects finalized inputs without UTXO amounts', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const psbt = new Psbt()
+        .addInput({
+          hash: Buffer.alloc(32, 6),
+          index: 0,
+          finalScriptWitness: Uint8Array.from([0]),
+        })
+        .addOutput({ script, value: 0n });
+
+      assert.throws(() => psbt.getFee(), /Need a Utxo input item for input #0/);
+      assert.throws(
+        () => psbt.extractTransaction(),
+        /Need a Utxo input item for input #0/,
+      );
+    });
+
+    it('preserves single and matching UTXOs with correct fee accounting', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const parent = makeParent(script);
+      const witnessUtxo = { script, value };
+      const inputVariants = [
+        { witnessUtxo },
+        { nonWitnessUtxo: parent.toBuffer() },
+        { nonWitnessUtxo: parent.toBuffer(), witnessUtxo },
+      ];
+
+      inputVariants.forEach(inputData => {
+        const psbt = signAndFinalize(makePsbt(parent, inputData));
+        const tx = psbt.extractTransaction(true);
+        const expectedFee = value - outputValue;
+        assert.strictEqual(psbt.getFee(), expectedFee);
+        assert.strictEqual(
+          psbt.getFeeRate(),
+          Math.floor(Number(expectedFee / BigInt(tx.virtualSize()))),
+        );
+      });
+
+      const guarded = signAndFinalize(
+        makePsbt(parent, {
+          nonWitnessUtxo: parent.toBuffer(),
+          witnessUtxo,
+        }),
+      );
+      guarded.setMaximumFeeRate(100);
+      assert.throws(
+        () => guarded.extractTransaction(),
+        /Warning: You are paying around/,
+      );
+    });
+
+    it('rejects a conflicting update after fees have been cached', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const parent = makeParent(script);
+      const psbt = signAndFinalize(
+        makePsbt(parent, { nonWitnessUtxo: parent.toBuffer() }),
+      );
+      assert.strictEqual(psbt.getFee(), value - outputValue);
+
+      psbt.updateInput(0, {
+        witnessUtxo: { script, value: claimedValue },
+      });
+      assert.throws(() => psbt.getFee(), conflictError);
+    });
+
+    it('rejects a conflicting combine after fees have been cached', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const parent = makeParent(script);
+      const psbt = signAndFinalize(
+        makePsbt(parent, { nonWitnessUtxo: parent.toBuffer() }),
+      );
+      assert.strictEqual(psbt.getFee(), value - outputValue);
+
+      const peer = makePsbt(parent, {
+        witnessUtxo: { script, value: claimedValue },
+      });
+      psbt.combine(peer);
+      assert.throws(() => psbt.getFee(), conflictError);
+    });
+
+    it('applies the maximum fee check to the resolved prevout', () => {
+      const script = payments.p2wpkh({ pubkey: key.publicKey }).output!;
+      const parent = makeParent(script);
+      const psbt = signAndFinalize(
+        makePsbt(parent, { nonWitnessUtxo: parent.toBuffer() }),
+      );
+      psbt.updateInput(0, {
+        witnessUtxo: { script, value: claimedValue },
+      });
+      psbt.setMaximumFeeRate(100);
+
+      assert.throws(() => psbt.extractTransaction(), conflictError);
     });
   });
 

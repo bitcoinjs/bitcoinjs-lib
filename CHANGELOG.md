@@ -1,3 +1,7 @@
+# 7.0.4
+__fixed__
+- Resolve PSBT input UTXOs consistently for signing, validation and fee accounting. This fix is also available in versions 5.2.2 and 6.1.9.
+
 # 7.0.3
 __fixed__
 - Avoid repeated buffer copies when parsing transactions and blocks.
