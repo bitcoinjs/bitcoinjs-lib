@@ -38,6 +38,8 @@ const ONE = tools.fromHex(
   '0000000000000000000000000000000000000000000000000000000000000001',
 );
 const VALUE_UINT64_MAX = tools.fromHex('ffffffffffffffff');
+// BIP341: any other hash_type makes the signature invalid.
+const TAPROOT_HASH_TYPES = [0x00, 0x01, 0x02, 0x03, 0x81, 0x82, 0x83];
 const BLANK_OUTPUT = {
   script: EMPTY_BUFFER,
   valueBuffer: VALUE_UINT64_MAX,
@@ -373,6 +375,12 @@ export class Transaction {
       ]),
       [inIndex, prevOutScripts, values, hashType],
     );
+
+    if (!TAPROOT_HASH_TYPES.includes(hashType)) {
+      throw new Error(
+        `Invalid hashType for taproot: 0x${hashType.toString(16)}`,
+      );
+    }
 
     if (
       values.length !== this.ins.length ||
