@@ -2017,7 +2017,7 @@ function scriptWitnessToWitnessStack(buffer: Uint8Array): Uint8Array[] {
 
   function readVarInt(): number {
     const vi = varuint.decode(buffer, offset);
-    offset += varuint.encodingLength(vi.bigintValue);
+    offset += vi.bytes;
     return vi.numberValue!;
   }
 
