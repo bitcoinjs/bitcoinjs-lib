@@ -31,6 +31,36 @@ export function rootHashFromPath(controlBlock, leafHash) {
   return kj;
 }
 /**
+ * Calculates the root hash from a P2MR control block and leaf hash.
+ * Unlike P2TR, P2MR control blocks do not include an internal public key,
+ * so the Merkle path starts at byte offset 1 (after the control byte).
+ * @param controlBlock - The P2MR control block buffer (1 + 32*m bytes).
+ * @param leafHash - The leaf hash buffer.
+ * @returns The root hash buffer.
+ * @throws {TypeError} If the control block length is invalid.
+ */
+export function rootHashFromP2MRPath(controlBlock, leafHash) {
+  if (controlBlock.length < 1)
+    throw new TypeError(
+      `The control-block length is too small. Got ${controlBlock.length}, expected min 1.`,
+    );
+  if ((controlBlock.length - 1) % 32 !== 0)
+    throw new TypeError(
+      `The control-block length of ${controlBlock.length} is incorrect for P2MR!`,
+    );
+  const m = (controlBlock.length - 1) / 32;
+  let kj = leafHash;
+  for (let j = 0; j < m; j++) {
+    const ej = controlBlock.slice(1 + 32 * j, 33 + 32 * j);
+    if (tools.compare(kj, ej) < 0) {
+      kj = tapBranchHash(kj, ej);
+    } else {
+      kj = tapBranchHash(ej, kj);
+    }
+  }
+  return kj;
+}
+/**
  * Build a hash tree of merkle nodes from the scripts binary tree.
  * @param scriptTree - the tree of scripts to pairwise hash.
  */
@@ -117,7 +147,7 @@ export function tweakKey(pubKey, h) {
  * @param b - The second buffer.
  * @returns The TapBranch hash of the concatenated buffers.
  */
-function tapBranchHash(a, b) {
+export function tapBranchHash(a, b) {
   return bcrypto.taggedHash('TapBranch', tools.concat([a, b]));
 }
 /**

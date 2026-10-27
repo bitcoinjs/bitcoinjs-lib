@@ -201,6 +201,9 @@ function fromOutputScript(output, network) {
     return payments.p2tr({ output, network }).address;
   } catch (e) {}
   try {
+    return payments.p2mr({ output, network }).address;
+  } catch (e) {}
+  try {
     return _toFutureSegwitAddress(output, network);
   } catch (e) {}
   throw new Error(bscript.toASM(output) + ' has no matching Address');
@@ -239,6 +242,11 @@ function toOutputScript(address, network) {
       } else if (decodeBech32.version === 1) {
         if (decodeBech32.data.length === 32)
           return payments.p2tr({ pubkey: decodeBech32.data }).output;
+      } else if (
+        decodeBech32.version === 2 &&
+        decodeBech32.data.length === 32
+      ) {
+        return payments.p2mr({ hash: decodeBech32.data }).output;
       } else if (
         decodeBech32.version >= FUTURE_SEGWIT_MIN_VERSION &&
         decodeBech32.version <= FUTURE_SEGWIT_MAX_VERSION &&

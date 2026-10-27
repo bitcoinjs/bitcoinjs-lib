@@ -17,11 +17,11 @@ export interface Base58CheckResult {
 }
 /** bech32 decode result */
 export interface Bech32Result {
-    /** address version: 0x00 for P2WPKH、P2WSH, 0x01 for P2TR*/
+    /** address version: 0x00 for P2WPKH/P2WSH, 0x01 for P2TR, 0x02 for P2MR */
     version: number;
-    /** address prefix: bc for P2WPKH、P2WSH、P2TR */
+    /** address prefix: bc for P2WPKH/P2WSH/P2TR/P2MR */
     prefix: string;
-    /** address data：20 bytes for P2WPKH, 32 bytes for P2WSH、P2TR */
+    /** address data：20 bytes for P2WPKH, 32 bytes for P2WSH/P2TR/P2MR */
     data: Uint8Array;
 }
 /**

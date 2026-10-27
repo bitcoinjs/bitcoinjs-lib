@@ -7,6 +7,7 @@
  * - P2WPKH (Pay-to-Witness-PubKey-Hash)
  * - P2WSH (Pay-to-Witness-Script-Hash)
  * - P2TR (Taproot)
+ * - P2MR (Pay-to-Merkle-Root, BIP 360)
  *
  * The `Payment` interface defines the structure of a payment object used for constructing various
  * payment types, with fields for signatures, public keys, redeem scripts, and more.
@@ -23,6 +24,7 @@ import { p2sh } from './p2sh.js';
 import { p2wpkh } from './p2wpkh.js';
 import { p2wsh } from './p2wsh.js';
 import { p2tr } from './p2tr.js';
+import { p2mr } from './p2mr.js';
 
 export interface Payment {
   name?: string;
@@ -58,7 +60,7 @@ export type StackElement = Uint8Array | number;
 export type Stack = StackElement[];
 export type StackFunction = () => Stack;
 
-export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, p2tr };
+export { embed, p2ms, p2pk, p2pkh, p2sh, p2wpkh, p2wsh, p2tr, p2mr };
 
 // TODO
 // witness commitment

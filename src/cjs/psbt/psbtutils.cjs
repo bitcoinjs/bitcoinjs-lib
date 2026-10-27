@@ -44,7 +44,8 @@ var __importStar =
     return result;
   };
 Object.defineProperty(exports, '__esModule', { value: true });
-exports.isP2TR =
+exports.isP2MR =
+  exports.isP2TR =
   exports.isP2SHScript =
   exports.isP2WSHScript =
   exports.isP2WPKH =
@@ -85,6 +86,7 @@ exports.isP2WPKH = isPaymentFactory(payments.p2wpkh);
 exports.isP2WSHScript = isPaymentFactory(payments.p2wsh);
 exports.isP2SHScript = isPaymentFactory(payments.p2sh);
 exports.isP2TR = isPaymentFactory(payments.p2tr);
+exports.isP2MR = isPaymentFactory(payments.p2mr);
 /**
  * Converts a witness stack to a script witness.
  * @param witness The witness stack to convert.

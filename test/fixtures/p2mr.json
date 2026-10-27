@@ -1,0 +1,684 @@
+{
+  "valid": [
+    {
+      "description": "P2MR: output and hash from address (single leaf)",
+      "arguments": {
+        "address": "bc1zc5jhzjnlf8pg4mdmhfuvqpvnr2quyd9j7mye5uly6psg9twghu4ssr0v9k"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "output": "OP_2 c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "hash": "c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: address and hash from output (single leaf)",
+      "arguments": {
+        "output": "OP_2 c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zc5jhzjnlf8pg4mdmhfuvqpvnr2quyd9j7mye5uly6psg9twghu4ssr0v9k",
+        "hash": "c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: address and output from hash (single leaf)",
+      "arguments": {
+        "hash": "c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b"
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zc5jhzjnlf8pg4mdmhfuvqpvnr2quyd9j7mye5uly6psg9twghu4ssr0v9k",
+        "output": "OP_2 c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: single leaf script tree - BIP360 test vector",
+      "arguments": {
+        "scriptTree": {
+          "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
+          "version": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zc5jhzjnlf8pg4mdmhfuvqpvnr2quyd9j7mye5uly6psg9twghu4ssr0v9k",
+        "output": "OP_2 c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "hash": "c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: two leaf same version - BIP360 test vector",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "44b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fd OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "546170726f6f74",
+            "version": 192
+          }
+        ]
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1z4vtegvwz35ak37me39tl4a2f045u3q7xlv0pek0czjpas7avjrxqz20g2y",
+        "output": "OP_2 ab179431c28d3b68fb798957faf5497d69c883c6fb1e1cd9f81483d87bac90cc",
+        "hash": "ab179431c28d3b68fb798957faf5497d69c883c6fb1e1cd9f81483d87bac90cc",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: two different version leaves - BIP360 test vector",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48 OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "424950333431",
+            "version": 250
+          }
+        ]
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zdskuzp4ts94h87ws0c7drmev3sf9dagewj8qsylyahfyqhf800hsam4d6e",
+        "output": "OP_2 6c2dc106ab816b73f9d07e3cd1ef2c8c1256f519748e0813e4edd2405d277bef",
+        "hash": "6c2dc106ab816b73f9d07e3cd1ef2c8c1256f519748e0813e4edd2405d277bef",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: simple lightning contract - BIP360 test vector",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "9000 OP_CHECKSEQUENCEVERIFY OP_DROP 9997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803be OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "OP_SHA256 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333 OP_EQUALVERIFY 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10 OP_CHECKSIG",
+            "version": 192
+          }
+        ]
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zg9jxlrqlu25kmkkh74r3h387uldfs72wlrz95n60c6j4n4svna4s4lhfhe",
+        "output": "OP_2 41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b",
+        "hash": "41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: three leaf complex tree - BIP360 test vector",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "2352d137f2f3ab38d1eaa976758873377fa5ebb817372c71e2c542313d4abda8 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "7337c0dd4253cb86f2c43a2351aadd82cccb12a172cd120452b9bb8324f2186a OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ]
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zej7kd3hhar76k3an5jr0t8fgyc47s4lnp4rh8uk4afrlwasuur3qzgewqq",
+        "output": "OP_2 ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
+        "hash": "ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: three leaf alternative tree - BIP360 test vector",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4c OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ]
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1z9a4jc5uhkmtgegvwpx3lq5tpv68layaf3pvz64wx7paatvejnhhsv52lcv",
+        "output": "OP_2 2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
+        "hash": "2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
+        "input": null,
+        "witness": null
+      }
+    },
+    {
+      "description": "P2MR: witness from scriptTree and redeem (single leaf)",
+      "arguments": {
+        "scriptTree": {
+          "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
+          "version": 192
+        },
+        "redeem": {
+          "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zc5jhzjnlf8pg4mdmhfuvqpvnr2quyd9j7mye5uly6psg9twghu4ssr0v9k",
+        "output": "OP_2 c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "hash": "c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "input": null,
+        "witness": [
+          "20b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007ac",
+          "c1"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness two leaf same version - spend leaf 0 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "44b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fd OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "546170726f6f74",
+            "version": 192
+          }
+        ],
+        "redeem": {
+          "output": "44b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fd OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1z4vtegvwz35ak37me39tl4a2f045u3q7xlv0pek0czjpas7avjrxqz20g2y",
+        "output": "OP_2 ab179431c28d3b68fb798957faf5497d69c883c6fb1e1cd9f81483d87bac90cc",
+        "hash": "ab179431c28d3b68fb798957faf5497d69c883c6fb1e1cd9f81483d87bac90cc",
+        "input": null,
+        "witness": [
+          "2044b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fdac",
+          "c12cb2b90daa543b544161530c925f285b06196940d6085ca9474d41dc3822c5cb"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness two leaf same version - spend leaf 1 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "44b178d64c32c4a05cc4f4d1407268f764c940d20ce97abfd44db5c3592b72fd OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "546170726f6f74",
+            "version": 192
+          }
+        ],
+        "redeem": {
+          "output": "546170726f6f74",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1z4vtegvwz35ak37me39tl4a2f045u3q7xlv0pek0czjpas7avjrxqz20g2y",
+        "output": "OP_2 ab179431c28d3b68fb798957faf5497d69c883c6fb1e1cd9f81483d87bac90cc",
+        "hash": "ab179431c28d3b68fb798957faf5497d69c883c6fb1e1cd9f81483d87bac90cc",
+        "input": null,
+        "witness": [
+          "07546170726f6f74",
+          "c164512fecdb5afa04f98839b50e6f0cb7b1e539bf6f205f67934083cdcc3c8d89"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness different version leaves - spend leaf 0 v=192 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48 OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "424950333431",
+            "version": 250
+          }
+        ],
+        "redeem": {
+          "output": "387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zdskuzp4ts94h87ws0c7drmev3sf9dagewj8qsylyahfyqhf800hsam4d6e",
+        "output": "OP_2 6c2dc106ab816b73f9d07e3cd1ef2c8c1256f519748e0813e4edd2405d277bef",
+        "hash": "6c2dc106ab816b73f9d07e3cd1ef2c8c1256f519748e0813e4edd2405d277bef",
+        "input": null,
+        "witness": [
+          "20387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48ac",
+          "c1f224a923cd0021ab202ab139cc56802ddb92dcfc172b9212261a539df79a112a"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness different version leaves - spend leaf 1 v=250 (correct controlByte=0xFB, BIP360 test vector has bug: uses 0xC1)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48 OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "424950333431",
+            "version": 250
+          }
+        ],
+        "redeem": {
+          "output": "424950333431",
+          "redeemVersion": 250
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zdskuzp4ts94h87ws0c7drmev3sf9dagewj8qsylyahfyqhf800hsam4d6e",
+        "output": "OP_2 6c2dc106ab816b73f9d07e3cd1ef2c8c1256f519748e0813e4edd2405d277bef",
+        "hash": "6c2dc106ab816b73f9d07e3cd1ef2c8c1256f519748e0813e4edd2405d277bef",
+        "input": null,
+        "witness": [
+          "06424950333431",
+          "fb8ad69ec7cf41c2a4001fd1f738bf1e505ce2277acdcaa63fe4765192497f47a7"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness lightning contract - spend leaf 0 (Alice) (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "9000 OP_NOP3 OP_DROP 9997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803be OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "OP_SHA256 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333 OP_EQUALVERIFY 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10 OP_CHECKSIG",
+            "version": 192
+          }
+        ],
+        "redeem": {
+          "output": "9000 OP_NOP3 OP_DROP 9997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803be OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zg9jxlrqlu25kmkkh74r3h387uldfs72wlrz95n60c6j4n4svna4s4lhfhe",
+        "output": "OP_2 41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b",
+        "hash": "41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b",
+        "input": null,
+        "witness": [
+          "029000b275209997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803beac",
+          "c1632c8632b4f29c6291416e23135cf78ecb82e525788ea5ed6483e3c6ce943b42"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness lightning contract - spend leaf 1 (Bob) (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "9000 OP_NOP3 OP_DROP 9997a497d964fc1a62885b05a51166a65a90df00492c8d7cf61d6accf54803be OP_CHECKSIG",
+            "version": 192
+          },
+          {
+            "output": "OP_SHA256 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333 OP_EQUALVERIFY 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10 OP_CHECKSIG",
+            "version": 192
+          }
+        ],
+        "redeem": {
+          "output": "OP_SHA256 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333 OP_EQUALVERIFY 4edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zg9jxlrqlu25kmkkh74r3h387uldfs72wlrz95n60c6j4n4svna4s4lhfhe",
+        "output": "OP_2 41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b",
+        "hash": "41646f8c1fe2a96ddad7f5471bc4fee7da98794ef8c45a4f4fc6a559d60c9f6b",
+        "input": null,
+        "witness": [
+          "a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204edfcf9dfe6c0b5c83d1ab3f78d1b39a46ebac6798e08e19761f5ed89ec83c10ac",
+          "c1c81451874bd9ebd4b6fd4bba1f84cdfb533c532365d22a0a702205ff658b17c9"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness three leaf complex - spend leaf 0 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "2352d137f2f3ab38d1eaa976758873377fa5ebb817372c71e2c542313d4abda8 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "7337c0dd4253cb86f2c43a2351aadd82cccb12a172cd120452b9bb8324f2186a OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ],
+        "redeem": {
+          "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zej7kd3hhar76k3an5jr0t8fgyc47s4lnp4rh8uk4afrlwasuur3qzgewqq",
+        "output": "OP_2 ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
+        "hash": "ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
+        "input": null,
+        "witness": [
+          "2072ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69ac",
+          "c1ffe578e9ea769027e4f5a3de40732f75a88a6353a09d767ddeb66accef85e553"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness three leaf complex - spend leaf 1 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "2352d137f2f3ab38d1eaa976758873377fa5ebb817372c71e2c542313d4abda8 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "7337c0dd4253cb86f2c43a2351aadd82cccb12a172cd120452b9bb8324f2186a OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ],
+        "redeem": {
+          "output": "2352d137f2f3ab38d1eaa976758873377fa5ebb817372c71e2c542313d4abda8 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zej7kd3hhar76k3an5jr0t8fgyc47s4lnp4rh8uk4afrlwasuur3qzgewqq",
+        "output": "OP_2 ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
+        "hash": "ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
+        "input": null,
+        "witness": [
+          "202352d137f2f3ab38d1eaa976758873377fa5ebb817372c71e2c542313d4abda8ac",
+          "c19e31407bffa15fefbf5090b149d53959ecdf3f62b1246780238c24501d5ceaf62645a02e0aac1fe69d69755733a9b7621b694bb5b5cde2bbfc94066ed62b9817"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness three leaf complex - spend leaf 2 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "72ea6adcf1d371dea8fba1035a09f3d24ed5a059799bae114084130ee5898e69 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "2352d137f2f3ab38d1eaa976758873377fa5ebb817372c71e2c542313d4abda8 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "7337c0dd4253cb86f2c43a2351aadd82cccb12a172cd120452b9bb8324f2186a OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ],
+        "redeem": {
+          "output": "7337c0dd4253cb86f2c43a2351aadd82cccb12a172cd120452b9bb8324f2186a OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1zej7kd3hhar76k3an5jr0t8fgyc47s4lnp4rh8uk4afrlwasuur3qzgewqq",
+        "output": "OP_2 ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
+        "hash": "ccbd66c6f7e8fdab47b3a486f59d28262be857f30d4773f2d5ea47f7761ce0e2",
+        "input": null,
+        "witness": [
+          "207337c0dd4253cb86f2c43a2351aadd82cccb12a172cd120452b9bb8324f2186aac",
+          "c1ba982a91d4fc552163cb1c0da03676102d5b7a014304c01f0c77b2b8e888de1c2645a02e0aac1fe69d69755733a9b7621b694bb5b5cde2bbfc94066ed62b9817"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness three leaf alternative - spend leaf 0 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4c OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ],
+        "redeem": {
+          "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1z9a4jc5uhkmtgegvwpx3lq5tpv68layaf3pvz64wx7paatvejnhhsv52lcv",
+        "output": "OP_2 2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
+        "hash": "2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
+        "input": null,
+        "witness": [
+          "2071981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2ac",
+          "c13cd369a528b326bc9d2133cbd2ac21451acb31681a410434672c8e34fe757e91"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness three leaf alternative - spend leaf 1 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4c OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ],
+        "redeem": {
+          "output": "d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1z9a4jc5uhkmtgegvwpx3lq5tpv68layaf3pvz64wx7paatvejnhhsv52lcv",
+        "output": "OP_2 2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
+        "hash": "2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
+        "input": null,
+        "witness": [
+          "20d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748ac",
+          "c1d7485025fceb78b9ed667db36ed8b8dc7b1f0b307ac167fa516fe4352b9f4ef7f154e8e8e17c31d3462d7132589ed29353c6fafdb884c5a6e04ea938834f0d9d"
+        ]
+      }
+    },
+    {
+      "description": "P2MR: witness three leaf alternative - spend leaf 2 (BIP360)",
+      "arguments": {
+        "scriptTree": [
+          {
+            "output": "71981521ad9fc9036687364118fb6ccd2035b96a423c59c5430e98310a11abe2 OP_CHECKSIG",
+            "version": 192
+          },
+          [
+            {
+              "output": "d5094d2dbe9b76e2c245a2b89b6006888952e2faa6a149ae318d69e520617748 OP_CHECKSIG",
+              "version": 192
+            },
+            {
+              "output": "c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4c OP_CHECKSIG",
+              "version": 192
+            }
+          ]
+        ],
+        "redeem": {
+          "output": "c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4c OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      },
+      "options": {},
+      "expected": {
+        "name": "p2mr",
+        "address": "bc1z9a4jc5uhkmtgegvwpx3lq5tpv68layaf3pvz64wx7paatvejnhhsv52lcv",
+        "output": "OP_2 2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
+        "hash": "2f6b2c5397b6d68ca18e09a3f05161668ffe93a988582d55c6f07bd5b3329def",
+        "input": null,
+        "witness": [
+          "20c440b462ad48c7a77f94cd4532d8f2119dcebbd7c9764557e62726419b08ad4cac",
+          "c1737ed1fe30bc42b8022d717b44f0d93516617af64a64753b7a06bf16b26cd711f154e8e8e17c31d3462d7132589ed29353c6fafdb884c5a6e04ea938834f0d9d"
+        ]
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "exception": "Not enough data",
+      "arguments": {}
+    },
+    {
+      "exception": "Invalid address version",
+      "description": "P2TR address used as P2MR",
+      "arguments": {
+        "address": "bc1p4dss6gkgq8003g0qyd5drwfqrztsadf2w2v3juz73gdz7cx82r6sj7lcqx"
+      }
+    },
+    {
+      "exception": "Output is invalid",
+      "description": "P2TR output used as P2MR (wrong OP code)",
+      "arguments": {
+        "output": "OP_1 ab610d22c801def8a1e02368d1b92018970eb52a729919705e8a1a2f60c750f5"
+      }
+    },
+    {
+      "exception": "P2MR does not support key-path spending",
+      "description": "single element witness (key-path spend attempt)",
+      "arguments": {
+        "hash": "c525714a7f49c28aedbbba78c005931a81c234b2f6c99a73e4d06082adc8bf2b",
+        "witness": [
+          "a251221c339a7129dd0b769698aca40d8d9da9570ab796a1820b91ab7dbf5acbea21c88ba8f1e9308a21729baf080734beaf97023882d972f75e380d480fd704"
+        ]
+      }
+    },
+    {
+      "exception": "Hash mismatch",
+      "description": "Hash mismatch between scriptTree and hash",
+      "arguments": {
+        "scriptTree": {
+          "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
+          "version": 192
+        },
+        "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "exception": "Redeem script not in tree",
+      "description": "Redeem script not in tree",
+      "arguments": {
+        "scriptTree": {
+          "output": "b617298552a72ade070667e86ca63b8f5789a9fe8731ef91202a91c9f3459007 OP_CHECKSIG",
+          "version": 192
+        },
+        "redeem": {
+          "output": "0000000000000000000000000000000000000000000000000000000000000000 OP_CHECKSIG",
+          "redeemVersion": 192
+        }
+      }
+    }
+  ]
+}

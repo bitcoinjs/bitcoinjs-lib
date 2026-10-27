@@ -26,6 +26,7 @@ export const isP2WPKH = isPaymentFactory(payments.p2wpkh);
 export const isP2WSHScript = isPaymentFactory(payments.p2wsh);
 export const isP2SHScript = isPaymentFactory(payments.p2sh);
 export const isP2TR = isPaymentFactory(payments.p2tr);
+export const isP2MR = isPaymentFactory(payments.p2mr);
 /**
  * Converts a witness stack to a script witness.
  * @param witness The witness stack to convert.

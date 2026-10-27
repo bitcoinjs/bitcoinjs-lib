@@ -26,16 +26,18 @@ export declare function tapScriptFinalizer(inputIndex: number, input: PsbtInput,
  */
 export declare function serializeTaprootSignature(sig: Uint8Array, sighashType?: number): Uint8Array;
 /**
- * Checks if a PSBT input is a taproot input.
+ * Checks if a PSBT input is a taproot or P2MR input.
+ * P2MR inputs use the same PSBT fields as taproot (tapLeafScript, tapScriptSig, etc.)
+ * but without tapInternalKey (no key-path spend).
  * @param input The PSBT input to check.
- * @returns True if the input is a taproot input, false otherwise.
+ * @returns True if the input is a taproot or P2MR input, false otherwise.
  */
 export declare function isTaprootInput(input: PsbtInput): boolean;
 /**
- * Checks if a PSBT output is a taproot output.
+ * Checks if a PSBT output is a taproot or P2MR output.
  * @param output The PSBT output to check.
  * @param script The script to check. Optional.
- * @returns True if the output is a taproot output, false otherwise.
+ * @returns True if the output is a taproot or P2MR output, false otherwise.
  */
 export declare function isTaprootOutput(output: PsbtOutput, script?: Uint8Array): boolean;
 /**

@@ -15,11 +15,13 @@ import {
   witnessStackToScriptWitness,
   pubkeyPositionInScript,
   isP2TR,
+  isP2MR,
 } from './psbtutils.js';
 import {
   tweakKey,
   tapleafHash,
   rootHashFromPath,
+  rootHashFromP2MRPath,
   LEAF_VERSION_TAPSCRIPT,
   MAX_TAPTREE_DEPTH,
 } from '../payments/bip341.js';
@@ -84,9 +86,11 @@ export function serializeTaprootSignature(
 }
 
 /**
- * Checks if a PSBT input is a taproot input.
+ * Checks if a PSBT input is a taproot or P2MR input.
+ * P2MR inputs use the same PSBT fields as taproot (tapLeafScript, tapScriptSig, etc.)
+ * but without tapInternalKey (no key-path spend).
  * @param input The PSBT input to check.
- * @returns True if the input is a taproot input, false otherwise.
+ * @returns True if the input is a taproot or P2MR input, false otherwise.
  */
 export function isTaprootInput(input: PsbtInput): boolean {
   return (
@@ -96,16 +100,17 @@ export function isTaprootInput(input: PsbtInput): boolean {
       input.tapMerkleRoot ||
       (input.tapLeafScript && input.tapLeafScript.length) ||
       (input.tapBip32Derivation && input.tapBip32Derivation.length) ||
-      (input.witnessUtxo && isP2TR(input.witnessUtxo.script))
+      (input.witnessUtxo &&
+        (isP2TR(input.witnessUtxo.script) || isP2MR(input.witnessUtxo.script)))
     )
   );
 }
 
 /**
- * Checks if a PSBT output is a taproot output.
+ * Checks if a PSBT output is a taproot or P2MR output.
  * @param output The PSBT output to check.
  * @param script The script to check. Optional.
- * @returns True if the output is a taproot output, false otherwise.
+ * @returns True if the output is a taproot or P2MR output, false otherwise.
  */
 export function isTaprootOutput(
   output: PsbtOutput,
@@ -117,7 +122,7 @@ export function isTaprootOutput(
       output.tapInternalKey ||
       output.tapTree ||
       (output.tapBip32Derivation && output.tapBip32Derivation.length) ||
-      (script && isP2TR(script))
+      (script && (isP2TR(script) || isP2MR(script)))
     )
   );
 }
@@ -486,6 +491,8 @@ function checkIfTapLeafInTree(
 
 /**
  * Checks if a TapLeafScript is present in a Merkle tree.
+ * Supports both P2TR control blocks (with internal pubkey) and
+ * P2MR control blocks (without internal pubkey).
  * @param tapLeaf The TapLeafScript to check.
  * @param merkleRoot The Merkle root of the tree. If not provided, the function assumes the TapLeafScript is present.
  * @returns A boolean indicating whether the TapLeafScript is present in the tree.
@@ -501,8 +508,19 @@ function isTapLeafInTree(
     version: tapLeaf.leafVersion,
   });
 
-  const rootHash = rootHashFromPath(tapLeaf.controlBlock, leafHash);
-  return tools.compare(rootHash, merkleRoot) === 0;
+  // Try P2TR format first (control block includes 32-byte internal pubkey)
+  try {
+    const rootHash = rootHashFromPath(tapLeaf.controlBlock, leafHash);
+    if (tools.compare(rootHash, merkleRoot) === 0) return true;
+  } catch (e) {}
+
+  // Try P2MR format (control block has no internal pubkey, offset 1)
+  try {
+    const rootHash = rootHashFromP2MRPath(tapLeaf.controlBlock, leafHash);
+    if (tools.compare(rootHash, merkleRoot) === 0) return true;
+  } catch (e) {}
+
+  return false;
 }
 
 /**

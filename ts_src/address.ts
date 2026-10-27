@@ -27,11 +27,11 @@ export interface Base58CheckResult {
 
 /** bech32 decode result */
 export interface Bech32Result {
-  /** address version: 0x00 for P2WPKH、P2WSH, 0x01 for P2TR*/
+  /** address version: 0x00 for P2WPKH/P2WSH, 0x01 for P2TR, 0x02 for P2MR */
   version: number;
-  /** address prefix: bc for P2WPKH、P2WSH、P2TR */
+  /** address prefix: bc for P2WPKH/P2WSH/P2TR/P2MR */
   prefix: string;
-  /** address data：20 bytes for P2WPKH, 32 bytes for P2WSH、P2TR */
+  /** address data：20 bytes for P2WPKH, 32 bytes for P2WSH/P2TR/P2MR */
   data: Uint8Array;
 }
 
@@ -199,6 +199,9 @@ export function fromOutputScript(
     return payments.p2tr({ output, network }).address as string;
   } catch (e) {}
   try {
+    return payments.p2mr({ output, network }).address as string;
+  } catch (e) {}
+  try {
     return _toFutureSegwitAddress(output, network);
   } catch (e) {}
 
@@ -245,6 +248,11 @@ export function toOutputScript(address: string, network?: Network): Uint8Array {
         if (decodeBech32.data.length === 32)
           return payments.p2tr({ pubkey: decodeBech32.data })
             .output as Uint8Array;
+      } else if (
+        decodeBech32.version === 2 &&
+        decodeBech32.data.length === 32
+      ) {
+        return payments.p2mr({ hash: decodeBech32.data }).output as Uint8Array;
       } else if (
         decodeBech32.version >= FUTURE_SEGWIT_MIN_VERSION &&
         decodeBech32.version <= FUTURE_SEGWIT_MAX_VERSION &&
