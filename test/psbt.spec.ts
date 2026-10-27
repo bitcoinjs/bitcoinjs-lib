@@ -1131,6 +1131,41 @@ describe(`Psbt`, () => {
         );
       }, new RegExp('No signatures for this pubkey'));
     });
+
+    it('Throws when a tapScriptSig entry has a pubkey in no leaf script', () => {
+      initEccLib(ecc);
+      const psbt = Psbt.fromBase64(f.psbt);
+      // A tapScriptSig entry whose pubkey appears in no tapLeafScript of the
+      // input cannot be verified; like an unmatched legacy partialSig it
+      // must fail instead of being silently skipped (issue #2360).
+      (psbt.data.inputs[f.index].tapScriptSig as any[]).push({
+        pubkey: Buffer.alloc(32, 0x07),
+        signature: Buffer.alloc(64, 0x09),
+        leafHash: Buffer.alloc(32, 0x00),
+      });
+      assert.throws(
+        () => {
+          psbt.validateSignaturesOfInput(f.index, schnorrValidator);
+        },
+        new RegExp(
+          'Can not verify for this input with the key ' + '07'.repeat(32),
+        ),
+      );
+    });
+
+    it('Still validates a pubkey filter when other tapScriptSig entries exist', () => {
+      initEccLib(ecc);
+      const psbt = Psbt.fromBase64(f.psbt);
+      // Entries for other pubkeys are not "for this pubkey" and stay skipped.
+      assert.strictEqual(
+        psbt.validateSignaturesOfInput(
+          f.index,
+          schnorrValidator,
+          f.pubkey as any,
+        ),
+        true,
+      );
+    });
   });
 
   describe('tapTreeToList/tapTreeFromList', () => {
