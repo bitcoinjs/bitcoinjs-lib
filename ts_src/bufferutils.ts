@@ -6,6 +6,12 @@ import * as tools from 'uint8array-tools';
 
 const MAX_JS_NUMBER = 0x001fffffffffffff;
 
+// TODO figure out a proper spot or existing function with the same functionally
+export function isZero32(a: Uint8Array) {
+  for (let i = 0; i < 32; i++) if (a[i] !== 0) return false;
+  return true;
+}
+
 // https://github.com/feross/buffer/blob/master/index.js#L1127
 function verifuint(value: number | bigint, max: number): void {
   if (typeof value !== 'number' && typeof value !== 'bigint')
