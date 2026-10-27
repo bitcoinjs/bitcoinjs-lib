@@ -20,7 +20,7 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 - Easy to audit and verify,
 - Tested, with test coverage >95%,
 - Advanced and feature rich,
-- Standardized, using [prettier](https://github.com/prettier/prettier) and Node `Buffer`'s throughout, and
+- Standardized, using [prettier](https://github.com/prettier/prettier) and `Uint8Array` throughout (Node `Buffer` remains compatible), and
 - Friendly, with a strong and helpful community, ready to answer questions.
 
 ## Documentation

@@ -218,7 +218,7 @@ export function decompile(
 
 /**
  * Converts the given chunks into an ASM (Assembly) string representation.
- * If the chunks parameter is a Buffer, it will be decompiled into a Stack before conversion.
+ * If the chunks parameter is a Uint8Array (Buffer-compatible), it will be decompiled into a Stack before conversion.
  * @param chunks - The chunks to convert into ASM.
  * @returns The ASM string representation of the chunks.
  */
@@ -244,9 +244,9 @@ export function toASM(chunks: Uint8Array | Array<number | Uint8Array>): string {
 }
 
 /**
- * Converts an ASM string to a Buffer.
+ * Converts an ASM string to a Uint8Array.
  * @param asm The ASM string to convert.
- * @returns The converted Buffer.
+ * @returns The converted Uint8Array.
  */
 export function fromASM(asm: string): Uint8Array {
   v.parse(v.string(), asm);
