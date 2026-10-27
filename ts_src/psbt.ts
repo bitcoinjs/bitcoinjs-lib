@@ -1746,7 +1746,7 @@ function getPrevoutTaprootKey(
   cache: PsbtCache,
 ): Uint8Array | null {
   const { script } = getScriptAndAmountFromUtxo(inputIndex, input, cache);
-  return isP2TR(script) ? script.subarray(2, 34) : null;
+  return isP2TR(script) ? script.slice(2, 34) : null;
 }
 
 function trimTaprootSig(signature: Uint8Array): Uint8Array {
