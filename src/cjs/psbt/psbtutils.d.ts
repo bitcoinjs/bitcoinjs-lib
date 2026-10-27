@@ -9,7 +9,7 @@ export declare const isP2TR: (script: Uint8Array) => boolean;
 /**
  * Converts a witness stack to a script witness.
  * @param witness The witness stack to convert.
- * @returns The script witness as a Buffer.
+ * @returns The script witness as a Uint8Array.
  */
 export declare function witnessStackToScriptWitness(witness: Uint8Array[]): Uint8Array;
 /**
