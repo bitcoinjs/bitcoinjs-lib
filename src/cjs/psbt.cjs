@@ -514,7 +514,7 @@ class Psbt {
     const input = this.data.inputs[inputIndex];
     const tapKeySig = (input || {}).tapKeySig;
     const tapScriptSig = (input || {}).tapScriptSig;
-    if (!input && !tapKeySig && !(tapScriptSig && !tapScriptSig.length))
+    if (!input || (!tapKeySig && (!tapScriptSig || !tapScriptSig.length)))
       throw new Error('No signatures to validate');
     if (typeof validator !== 'function')
       throw new Error('Need validator function to validate signatures');
