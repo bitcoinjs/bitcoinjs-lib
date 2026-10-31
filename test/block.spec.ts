@@ -4,6 +4,7 @@ import { Block } from 'bitcoinjs-lib';
 import * as tools from 'uint8array-tools';
 
 import fixtures from './fixtures/block.json';
+import coreBlocks from './fixtures/core/blocks.json';
 
 describe('Block', () => {
   describe('version', () => {
@@ -60,6 +61,21 @@ describe('Block', () => {
           Block.fromHex(f.hex);
         }, new RegExp(f.exception));
       });
+    });
+
+    it('does not copy the remaining block for every transaction', () => {
+      let copiedBytes = 0;
+      class CountingUint8Array extends Uint8Array {
+        slice(start?: number, end?: number): Uint8Array {
+          if (end === undefined) copiedBytes += this.length - (start ?? 0);
+          return super.slice(start, end);
+        }
+      }
+      const buffer = new CountingUint8Array(tools.fromHex(coreBlocks[0].hex));
+
+      Block.fromBuffer(buffer);
+
+      assert.strictEqual(copiedBytes, 0);
     });
   });
 
@@ -156,6 +172,24 @@ describe('Block', () => {
       it('returns ' + f.valid + ' for ' + f.id, () => {
         assert.strictEqual(block.checkTxRoots(), true);
       });
+    });
+
+    it('rejects a duplicated transaction that preserves the merkle root', () => {
+      const original = Block.fromHex(coreBlocks[0].hex);
+      const forged = Block.fromHex(coreBlocks[0].hex);
+      const transactions = forged.transactions!;
+      transactions.push(transactions[transactions.length - 1]);
+      const parsed = Block.fromHex(forged.toHex());
+      const mutation = { value: false };
+
+      assert.deepStrictEqual(
+        Block.calculateMerkleRoot(parsed.transactions!, false, mutation),
+        original.merkleRoot,
+      );
+      assert.strictEqual(mutation.value, true);
+      assert.strictEqual(parsed.getId(), original.getId());
+      assert.strictEqual(original.checkTxRoots(), true);
+      assert.strictEqual(parsed.checkTxRoots(), false);
     });
   });
 

@@ -1,3 +1,20 @@
+# 7.0.5
+__fixed__
+- Reject negative, zero and overflowing compact targets in `Block.checkProofOfWork()`. Corresponding backport versions: 5.2.3 and 6.1.10.
+
+# 7.0.4
+__fixed__
+- Resolve PSBT input UTXOs consistently for signing, validation and fee accounting. This fix is also available in versions 5.2.2 and 6.1.9.
+
+# 7.0.3
+__fixed__
+- Avoid repeated buffer copies when parsing transactions and blocks.
+- Update `bip174` to `^3.0.1`, `varuint-bitcoin` to `^2.0.1` and `uint8array-tools` to `^0.0.10`.
+
+# 7.0.2
+__fixed__
+- Detect duplicate pairs when computing Merkle roots and reject blocks with mutated transaction trees. This fix is also available in versions 5.2.1 and 6.1.8.
+
 # 7.0.1
 __added__
 - `crypto`: Restore `ripemd160`, `sha1`, and `sha256` hash helpers (#2248)

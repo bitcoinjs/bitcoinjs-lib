@@ -71,7 +71,7 @@ class Block {
     if (buffer.length === 80) return block;
     const readTransaction = () => {
       const tx = transaction_js_1.Transaction.fromBuffer(
-        bufferReader.buffer.slice(bufferReader.offset),
+        bufferReader.buffer.subarray(bufferReader.offset),
         true,
       );
       bufferReader.offset += tx.byteLength();
@@ -100,7 +100,7 @@ class Block {
     target[31 - exponent] = mantissa & 0xff;
     return target;
   }
-  static calculateMerkleRoot(transactions, forWitness) {
+  static calculateMerkleRoot(transactions, forWitness, mutated) {
     v.parse(v.array(v.object({ getHash: v.function() })), transactions);
     if (transactions.length === 0) throw errorMerkleNoTxes;
     if (forWitness && !txesHaveWitnessCommit(transactions))
@@ -108,7 +108,11 @@ class Block {
     const hashes = transactions.map(transaction =>
       transaction.getHash(forWitness),
     );
-    const rootHash = (0, merkle_js_1.fastMerkleRoot)(hashes, bcrypto.hash256);
+    const rootHash = (0, merkle_js_1.fastMerkleRoot)(
+      hashes,
+      bcrypto.hash256,
+      mutated,
+    );
     return forWitness
       ? bcrypto.hash256(
           tools.concat([rootHash, transactions[0].ins[0].witness[0]]),
@@ -217,15 +221,37 @@ class Block {
       (hasWitnessCommit ? this.__checkWitnessCommit() : true)
     );
   }
+  /**
+   * Checks the hash against a positive, nonzero target that fits in 256 bits.
+   * Callers must also enforce the network's target limit and expected difficulty.
+   */
   checkProofOfWork() {
+    const size = this.bits >>> 24;
+    let word = this.bits & 0x007fffff;
+    if (size <= 3) word >>>= 8 * (3 - size);
+    if (
+      word === 0 ||
+      (this.bits & 0x00800000) !== 0 ||
+      size > 34 ||
+      (word > 0xff && size > 33) ||
+      (word > 0xffff && size > 32)
+    )
+      return false;
     const hash = (0, bufferutils_js_1.reverseBuffer)(this.getHash());
     const target = Block.calculateTarget(this.bits);
     return tools.compare(hash, target) <= 0;
   }
   __checkMerkleRoot() {
     if (!this.transactions) throw errorMerkleNoTxes;
-    const actualMerkleRoot = Block.calculateMerkleRoot(this.transactions);
-    return tools.compare(this.merkleRoot, actualMerkleRoot) === 0;
+    const mutated = { value: false };
+    const actualMerkleRoot = Block.calculateMerkleRoot(
+      this.transactions,
+      false,
+      mutated,
+    );
+    return (
+      !mutated.value && tools.compare(this.merkleRoot, actualMerkleRoot) === 0
+    );
   }
   __checkWitnessCommit() {
     if (!this.transactions) throw errorMerkleNoTxes;

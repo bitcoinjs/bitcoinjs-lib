@@ -1,6 +1,6 @@
 {
   "name": "bitcoinjs-lib",
-  "version": "7.0.1",
+  "version": "7.0.5",
   "description": "Client-side Bitcoin JavaScript library",
   "type": "module",
   "main": "./src/cjs/index.cjs",
@@ -65,11 +65,11 @@
   "dependencies": {
     "@noble/hashes": "^1.2.0",
     "bech32": "^2.0.0",
-    "bip174": "^3.0.0",
+    "bip174": "^3.0.1",
     "bs58check": "^4.0.0",
-    "uint8array-tools": "^0.0.9",
+    "uint8array-tools": "^0.0.10",
     "valibot": "^1.2.0",
-    "varuint-bitcoin": "^2.0.0"
+    "varuint-bitcoin": "^2.0.1"
   },
   "devDependencies": {
     "bitcoinjs-lib": ".",
