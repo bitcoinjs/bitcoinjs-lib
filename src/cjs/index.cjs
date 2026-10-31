@@ -47,6 +47,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.initEccLib =
   exports.Transaction =
   exports.opcodes =
+  exports.generateTaprootScriptHashSignature =
   exports.toXOnly =
   exports.Psbt =
   exports.Block =
@@ -84,6 +85,12 @@ Object.defineProperty(exports, 'toXOnly', {
   enumerable: true,
   get: function () {
     return psbt_js_1.toXOnly;
+  },
+});
+Object.defineProperty(exports, 'generateTaprootScriptHashSignature', {
+  enumerable: true,
+  get: function () {
+    return psbt_js_1.generateTaprootScriptHashSignature;
   },
 });
 /** @hidden */

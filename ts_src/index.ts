@@ -18,6 +18,7 @@ export {
   HDSigner,
   HDSignerAsync,
   toXOnly,
+  generateTaprootScriptHashSignature,
 } from './psbt.js';
 /** @hidden */
 export { OPS as opcodes } from './ops.js';
