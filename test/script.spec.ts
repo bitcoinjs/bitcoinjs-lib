@@ -42,6 +42,13 @@ describe('script', () => {
   });
 
   describe('fromASM', () => {
+    it('round trips the empty script through ASM', () => {
+      const empty = new Uint8Array();
+      assert.strictEqual(bscript.toASM(empty), '');
+      assert.deepStrictEqual(bscript.fromASM(bscript.toASM(empty)), empty);
+      assert.deepStrictEqual(bscript.fromASM(''), bscript.compile([]));
+    });
+
     const OPS = bscript.OPS;
     it('decodes OP_FALSE as empty buffer', () => {
       const string = 'OP_RETURN OP_FALSE';

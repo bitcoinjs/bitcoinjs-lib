@@ -250,6 +250,7 @@ export function toASM(chunks: Uint8Array | Array<number | Uint8Array>): string {
  */
 export function fromASM(asm: string): Uint8Array {
   v.parse(v.string(), asm);
+  if (asm === '') return new Uint8Array();
 
   // Compile the ASM string into a Uint8Array
   return compile(

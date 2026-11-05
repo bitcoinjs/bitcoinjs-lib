@@ -271,6 +271,7 @@ function toASM(chunks) {
  */
 function fromASM(asm) {
   v.parse(v.string(), asm);
+  if (asm === '') return new Uint8Array();
   // Compile the ASM string into a Uint8Array
   return compile(
     asm.split(' ').map(chunk => {
