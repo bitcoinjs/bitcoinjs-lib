@@ -66,14 +66,6 @@
           "a3b1"
         ]
       }
-    },
-    {
-      "description": "Return data is not buffer",
-      "exception": "Output is invalid",
-      "options": {},
-      "arguments": {
-        "output": "OP_RETURN OP_1"
-      }
     }
   ],
   "dynamic": {

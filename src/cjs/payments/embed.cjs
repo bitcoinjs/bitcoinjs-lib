@@ -80,14 +80,15 @@ function p2data(a, opts) {
   });
   lazy.prop(o, 'data', () => {
     if (!a.output) return;
-    return bscript.decompile(a.output).slice(1);
+    return bscript.toStack(bscript.decompile(a.output).slice(1));
   });
   // extended validation
   if (opts.validate) {
     if (a.output) {
       const chunks = bscript.decompile(a.output);
-      if (chunks[0] !== OPS.OP_RETURN) throw new TypeError('Output is invalid');
-      if (!chunks.slice(1).every(chunk => v.is(types_js_1.BufferSchema, chunk)))
+      if (!chunks || chunks[0] !== OPS.OP_RETURN)
+        throw new TypeError('Output is invalid');
+      if (!bscript.isPushOnly(chunks.slice(1)))
         throw new TypeError('Output is invalid');
       if (a.data && !(0, types_js_1.stacksEqual)(a.data, o.data))
         throw new TypeError('Data mismatch');
