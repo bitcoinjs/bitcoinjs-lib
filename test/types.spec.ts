@@ -2,8 +2,50 @@ import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as types from 'bitcoinjs-lib/src/types';
 import * as v from 'valibot';
+import { payments } from 'bitcoinjs-lib';
 
 describe('types', () => {
+  describe('Taproot tree predicates', () => {
+    it('reports invalid primitive script trees through payment validation', () => {
+      assert.throws(
+        () =>
+          payments.p2tr({
+            internalPubkey: new Uint8Array(32).fill(1),
+            scriptTree: true as any,
+          }),
+        /ValiError: Taptree is not of type isTaptree/,
+      );
+    });
+
+    for (const value of [
+      null,
+      undefined,
+      false,
+      true,
+      0,
+      1,
+      '',
+      'leaf',
+      1n,
+      Symbol('leaf'),
+    ]) {
+      it(`rejects primitive ${String(value)} without throwing`, () => {
+        assert.strictEqual(types.isTapleaf(value), false);
+        assert.strictEqual(types.isTaptree(value), false);
+      });
+    }
+
+    it('rejects sparse trees and nested invalid children', () => {
+      const leaf = { output: new Uint8Array() };
+      assert.strictEqual(types.isTaptree(new Array(2)), false);
+      assert.strictEqual(types.isTaptree([leaf, ,]), false);
+      assert.strictEqual(types.isTaptree([leaf, [true, leaf]]), false);
+      assert.strictEqual(types.isTaptree([leaf, leaf]), true);
+      assert.strictEqual(types.isTapleaf(leaf), true);
+      assert.strictEqual(types.isTapleaf(Object.assign(() => {}, leaf)), true);
+    });
+  });
+
   describe('Buffer Hash160/Hash256', () => {
     const buffer20byte = Buffer.alloc(20);
     const buffer32byte = Buffer.alloc(32);

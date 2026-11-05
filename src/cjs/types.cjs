@@ -104,7 +104,12 @@ function isPoint(p) {
 }
 exports.TAPLEAF_VERSION_MASK = 0xfe;
 function isTapleaf(o) {
-  if (!o || !('output' in o)) return false;
+  if (
+    !o ||
+    (typeof o !== 'object' && typeof o !== 'function') ||
+    !('output' in o)
+  )
+    return false;
   if (!(o.output instanceof Uint8Array)) return false;
   if (o.version !== undefined)
     return (o.version & exports.TAPLEAF_VERSION_MASK) === o.version;
@@ -113,7 +118,7 @@ function isTapleaf(o) {
 function isTaptree(scriptTree) {
   if (!Array.isArray(scriptTree)) return isTapleaf(scriptTree);
   if (scriptTree.length !== 2) return false;
-  return scriptTree.every(t => isTaptree(t));
+  return isTaptree(scriptTree[0]) && isTaptree(scriptTree[1]);
 }
 exports.Buffer256bitSchema = (0, exports.NBufferSchemaFactory)(32);
 exports.Hash160bitSchema = (0, exports.NBufferSchemaFactory)(20);
