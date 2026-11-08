@@ -58,12 +58,12 @@ export type ValidateSigFunction = (pubkey: Uint8Array, msghash: Uint8Array, sign
  *   Transaction object. Such as fee rate not being larger than maximumFeeRate etc.
  */
 export declare class Psbt {
-    readonly data: PsbtBase;
     static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
     static fromBuffer(buffer: Uint8Array, opts?: PsbtOptsOptional): Psbt;
     private __CACHE;
     private opts;
+    readonly data: PsbtBase;
     constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
     get inputCount(): number;
     get version(): number;

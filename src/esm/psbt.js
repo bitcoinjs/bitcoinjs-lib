@@ -85,7 +85,6 @@ const DEFAULT_OPTS = {
  *   Transaction object. Such as fee rate not being larger than maximumFeeRate etc.
  */
 export class Psbt {
-  data;
   static fromBase64(data, opts = {}) {
     const buffer = tools.fromBase64(data);
     return this.fromBuffer(buffer, opts);
@@ -102,10 +101,11 @@ export class Psbt {
   }
   __CACHE;
   opts;
-  constructor(opts = {}, data = new PsbtBase(new PsbtTransaction())) {
-    this.data = data;
+  data;
+  constructor(opts = {}, data) {
     // set defaults
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
+    this.data = data ?? new PsbtBase(new PsbtTransaction());
     this.__CACHE = {
       __NON_WITNESS_UTXO_TX_CACHE: [],
       __NON_WITNESS_UTXO_BUF_CACHE: [],
@@ -121,7 +121,12 @@ export class Psbt {
       // because it is not BIP174 compliant.
       __UNSAFE_SIGN_NONSEGWIT: false,
     };
-    if (this.data.inputs.length === 0) this.setVersion(2);
+    // Only default a freshly created Psbt to version 2. A Psbt parsed
+    // from a buffer keeps the version from its unsigned transaction,
+    // even when it has no inputs yet (e.g. outputs-first PSBTs created
+    // by `bitcoin-cli createpsbt` with no inputs, which may carry
+    // version 1 or 3).
+    if (data === undefined) this.setVersion(2);
     // Make data hidden when enumerating
     const dpew = (obj, attr, enumerable, writable) =>
       Object.defineProperty(obj, attr, {
