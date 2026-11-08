@@ -685,6 +685,38 @@ describe(`Psbt`, () => {
       psbt.setVersion(1);
       assert.strictEqual(psbt.extractTransaction().version, 1);
     });
+
+    it('Keeps the version of a parsed PSBT with no inputs', () => {
+      // https://github.com/bitcoinjs/bitcoinjs-lib/issues/2375
+      // PSBT built outputs-first with version 3 (bitcoin-cli createpsbt
+      // '[]' '[...]' 0 false 3 0); parsing it must not reset the version
+      // to 2, and the unsigned transaction must round-trip unchanged.
+      const b64 =
+        'cHNidP8BAEgDAAAAAAIQJwAAAAAAABYAFNhcK3HQBgsJyYhq64FeUJkd2hJNIE4AAAAAAAAWABTQxKPvCemXtumeOX5Rj+PkGhGMoQAAAAAAAAA=';
+      const psbt = Psbt.fromBase64(b64);
+
+      assert.strictEqual(psbt.version, 3);
+      // Unsigned transaction bytes: magic (5) + key length (1) + key (1)
+      // + value length varint (1) = 8 byte header, then the transaction.
+      const input = tools.fromBase64(b64);
+      const unsignedTx = input.subarray(8, 8 + input[7]);
+      assert.deepStrictEqual(
+        Buffer.from((psbt as any).__CACHE.__TX.toBuffer()),
+        Buffer.from(unsignedTx),
+      );
+      // Parsing the serialized form again keeps version 3.
+      assert.strictEqual(Psbt.fromBase64(psbt.toBase64()).version, 3);
+    });
+
+    it('Keeps version 1 of a parsed PSBT with no inputs', () => {
+      // Same outputs-first PSBT as above, but with version 1.
+      const b64 =
+        'cHNidP8BAEgBAAAAAAIQJwAAAAAAABYAFNhcK3HQBgsJyYhq64FeUJkd2hJNIE4AAAAAAAAWABTQxKPvCemXtumeOX5Rj+PkGhGMoQAAAAAAAAA=';
+      const psbt = Psbt.fromBase64(b64);
+
+      assert.strictEqual(psbt.version, 1);
+      assert.strictEqual(Psbt.fromBase64(psbt.toBase64()).version, 1);
+    });
   });
 
   describe('setLocktime', () => {
