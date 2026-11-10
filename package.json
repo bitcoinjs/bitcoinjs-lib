@@ -36,7 +36,8 @@
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
     "coverage": "npm run build && npm run nobuild:coverage",
-    "doc": "typedoc",
+    "doc": "typedoc --options docs-site/typedoc.json && vitepress build docs-site",
+    "doc:dev": "typedoc --options docs-site/typedoc.json && vitepress dev docs-site --host 127.0.0.1",
     "format": "npm run prettier -- --write",
     "formatjs": "npm run prettierjs -- --write",
     "format:ci": "npm run prettier -- --check && npm run prettierjs -- --check",
@@ -106,8 +107,11 @@
     "rimraf": "^2.6.3",
     "tiny-secp256k1": "^2.2.0",
     "tsx": "^4.17.0",
-    "typedoc": "^0.26.6",
-    "typescript": "^5.0.4"
+    "typedoc": "0.28.5",
+    "typedoc-plugin-markdown": "4.14.1",
+    "typedoc-vitepress-theme": "1.1.4",
+    "typescript": "^5.0.4",
+    "vitepress": "1.6.4"
   },
   "license": "MIT"
 }

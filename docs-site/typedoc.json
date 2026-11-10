@@ -1,0 +1,11 @@
+{
+  "name": "bitcoinjs-lib",
+  "entryPoints": ["../ts_src/index.ts"],
+  "tsconfig": "../tsconfig.json",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+  "out": "./api",
+  "docsRoot": ".",
+  "readme": "none",
+  "excludePrivate": true,
+  "includeVersion": true
+}
