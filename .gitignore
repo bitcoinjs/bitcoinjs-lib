@@ -6,4 +6,6 @@ test/*.js
 test/integration/*.js
 !test/ts-node-register.js
 docs
+docs-site/api/
+docs-site/.vitepress/cache/
 plugin
