@@ -97,7 +97,7 @@
     "globals": "^15.9.0",
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
-    "mocha": "^10.6.0",
+    "mocha": "11.6.0",
     "c8": "^10.1.2",
     "prettier": "^3.0.0",
     "proxyquire": "^2.0.1",
