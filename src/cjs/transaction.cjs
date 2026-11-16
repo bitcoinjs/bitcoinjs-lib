@@ -96,14 +96,17 @@ class Transaction {
   static SIGHASH_INPUT_MASK = 0x80;
   static ADVANCED_TRANSACTION_MARKER = 0x00;
   static ADVANCED_TRANSACTION_FLAG = 0x01;
-  static fromBuffer(buffer, _NO_STRICT) {
+  static fromBuffer(buffer, _NO_STRICT, _NO_WITNESS) {
     const bufferReader = new bufferutils_js_1.BufferReader(buffer);
     const tx = new Transaction();
     tx.version = bufferReader.readUInt32();
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
+    // A PSBT stores its unsigned transaction without witnesses (BIP 174), so
+    // 0x00 0x01 there is zero inputs and one output, not marker and flag.
     let hasWitnesses = false;
     if (
+      !_NO_WITNESS &&
       marker === Transaction.ADVANCED_TRANSACTION_MARKER &&
       flag === Transaction.ADVANCED_TRANSACTION_FLAG
     ) {
