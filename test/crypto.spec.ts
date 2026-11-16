@@ -5,7 +5,7 @@ import type { TaggedHashPrefix } from 'bitcoinjs-lib';
 import fixtures from './fixtures/crypto.json';
 import * as tools from 'uint8array-tools';
 import { TAGS, TAGGED_HASH_PREFIXES } from 'bitcoinjs-lib/src/crypto';
-import { sha256 } from '@noble/hashes/sha256';
+import { sha256 } from '@noble/hashes/sha2.js';
 
 describe('crypto', () => {
   ['hash160', 'hash256', 'ripemd160', 'sha1', 'sha256'].forEach(algorithm => {
