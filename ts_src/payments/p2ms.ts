@@ -159,6 +159,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
         throw new TypeError('Pubkey count mismatch');
       o.n = a.pubkeys.length;
 
+      if (o.n > 20) throw new TypeError('Pubkey count cannot exceed 20');
       if (o.n < o.m!) throw new TypeError('Pubkey count cannot be less than m');
     }
 
